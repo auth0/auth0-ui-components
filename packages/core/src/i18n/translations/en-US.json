@@ -1,0 +1,69 @@
+{
+  "common": {
+    "errors": {
+      "missing_access_token": "Access token is required.",
+      "missing_base_url": "Missing Auth0 API base URL",
+      "missing_domain": "Missing Auth0 domain",
+      "scope_required": "Scope is required",
+      "domain_not_configured": "Auth0 domain is not configured",
+      "access_token_error": "Access token is undefined"
+    }
+  },
+  "mfa": {
+    "title": "MFA Authenticators",
+    "description": "Manage the MFA enrollments for your account.",
+    "no_active_mfa": "No active MFA factors enrolled.",
+    "delete": "Delete",
+    "enroll": "Enroll",
+    "enrolling": "Enrolling...",
+    "enrolled": "Enrolled",
+    "remove_factor": "Enrollment removed successfully.",
+    "enroll_factor": "Enrolled successfully.",
+    "enroll_otp_mfa": "Enroll OTP MFA",
+    "errors": {
+      "factors_loading_error": "Error loading MFA factors!",
+      "access_token_error": "Access token error: ${error}",
+      "unknown_error": "Unknown error occurred",
+      "invalid_grant": {
+        "email": "Invalid Code"
+      },
+      "unsupported_challenge_type": {
+        "sms": "SMS Verifier is disabled for your tenant. You can turn it on from dashboard turning on \"SMS\" on Guardian MFA section.",
+        "totp": "OTP Verifier is disabled for your tenant. You can turn it on from dashboard turning on \"Push notifications\" on Guardian MFA section (Push notications include OTP).",
+        "push-notification": "Auth0 Verifier is disabled for your tenant. You can turn it on from dashboard turning on \"Push notifications\" on Guardian MFA section."
+      }
+    },
+    "sms": {
+      "title": "Phone Message",
+      "description": "Users will receive a phone message with a verification code"
+    },
+    "push-notification": {
+      "title": "Push Notification using Auth0 Guardian",
+      "description": "Provide a push notification using Auth0 Guardian."
+    },
+    "totp": {
+      "title": "One-time Password",
+      "description": "Provide a one-time password using Google Authenticator or similar."
+    },
+    "email": {
+      "title": "Email",
+      "description": "Users will receive an email message containing a verification code."
+    },
+    "duo": {
+      "title": "Duo Security",
+      "description": "Use your DUO account for Multi-factor Authentication."
+    },
+    "webauthn-roaming": {
+      "title": "WebAuthn with FIDO Security Keys",
+      "description": "Use WebAuthn-compliant security keys (e.g., FIDO2) as a second factor."
+    },
+    "webauthn-platform": {
+      "title": "WebAuthn with FIDO Device Biometrics",
+      "description": "Use WebAuthn-compliant device biometrics as a second factor."
+    },
+    "recovery-code": {
+      "title": "Recovery Code",
+      "description": "Use a unique recovery code to regain account access."
+    }
+  }
+}

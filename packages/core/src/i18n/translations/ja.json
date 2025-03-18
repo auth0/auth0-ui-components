@@ -1,0 +1,69 @@
+{
+  "common": {
+    "errors": {
+      "missing_access_token": "アクセストークンが必要です。",
+      "missing_base_url": "Auth0 APIのベースURLが見つかりません",
+      "missing_domain": "Auth0ドメインが見つかりません",
+      "scope_required": "スコープが必要です",
+      "domain_not_configured": "Auth0ドメインが設定されていません",
+      "access_token_error": "アクセストークンが未定義です"
+    }
+  },
+  "mfa": {
+    "title": "多要素認証",
+    "description": "アカウントの多要素認証の登録を管理します。",
+    "no_active_mfa": "登録されている多要素認証はありません。",
+    "delete": "削除",
+    "enroll": "登録",
+    "enrolling": "登録中...",
+    "enrolled": "登録済み",
+    "remove_factor": "登録を正常に削除しました。",
+    "enroll_factor": "正常に登録されました。",
+    "enroll_otp_mfa": "ワンタイムパスワードの登録",
+    "errors": {
+      "factors_loading_error": "多要素認証の読み込みエラー！",
+      "access_token_error": "アクセストークンエラー: ${error}",
+      "unknown_error": "不明なエラーが発生しました",
+      "invalid_grant": {
+        "email": "無効なコード"
+      },
+      "unsupported_challenge_type": {
+        "sms": "SMSの認証が無効になっています。ダッシュボードのGuardian MFAセクションで「SMS」をオンにしてください。",
+        "totp": "OTP認証が無効になっています。ダッシュボードのGuardian MFAセクションで「プッシュ通知」をオンにしてください（プッシュ通知にはOTPが含まれます）。",
+        "push-notification": "Auth0認証が無効になっています。ダッシュボードのGuardian MFAセクションで「プッシュ通知」をオンにしてください。"
+      }
+    },
+    "sms": {
+      "title": "SMSメッセージ",
+      "description": "確認コードがSMSで送信されます"
+    },
+    "push-notification": {
+      "title": "Auth0 Guardianによるプッシュ通知",
+      "description": "Auth0 Guardianを使用してプッシュ通知を送信します。"
+    },
+    "totp": {
+      "title": "ワンタイムパスワード",
+      "description": "Google認証システムなどを使用してワンタイムパスワードを生成します。"
+    },
+    "email": {
+      "title": "メール",
+      "description": "確認コードがメールで送信されます。"
+    },
+    "duo": {
+      "title": "Duoセキュリティ",
+      "description": "多要素認証にDuoアカウントを使用します。"
+    },
+    "webauthn-roaming": {
+      "title": "FIDOセキュリティキーによるWebAuthn",
+      "description": "二要素認証としてWebAuthn対応のセキュリティキー（FIDO2など）を使用します。"
+    },
+    "webauthn-platform": {
+      "title": "デバイス生体認証によるWebAuthn",
+      "description": "二要素認証としてWebAuthn対応のデバイス生体認証を使用します。"
+    },
+    "recovery-code": {
+      "title": "リカバリーコード",
+      "description": "アカウントへのアクセスを回復するために固有のリカバリーコードを使用します。"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "@auth0-web-ui-components/core",
+  "version": "1.0.0",
+  "description": "Core utilities for Auth0 Web UI components",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build:ts": "tsup",
+    "build": "pnpm run clean && pnpm run build:ts"
+  },
+  "keywords": [
+    "i18n",
+    "auth0",
+    "core",
+    "utilities"
+  ],
+  "author": "Auth0",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@10.6.5",
+  "devDependencies": {
+    "@types/node": "^22.15.27"
+  }
+}

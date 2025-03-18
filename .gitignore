@@ -1,0 +1,39 @@
+# Node modules
+node_modules/
+**/node_modules/
+
+# pnpm store
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+out/
+**/dist/
+**/build/
+**/out/
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Husky
+.husky/_/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Misc
+coverage/
+.cache/
+*.tgz
+.turbo
