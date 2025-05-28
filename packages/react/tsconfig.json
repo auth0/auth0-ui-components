@@ -1,0 +1,28 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "jsx": "react-jsx",
+        "outDir": "dist",
+        "rootDir": "src",
+        "declaration": true,
+        "declarationDir": "dist",
+        "sourceMap": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["src/*"]
+        },
+        "types": ["react", "react-dom"],
+        "moduleResolution": "node",
+        "lib": ["DOM", "DOM.Iterable", "ESNext"],
+        "strict": true
+    },
+    "include": [
+        "src"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "**/*.test.ts",
+        "**/*.test.tsx"
+    ]
+}

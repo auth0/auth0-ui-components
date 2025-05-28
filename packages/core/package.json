@@ -1,0 +1,26 @@
+{
+  "name": "@auth0-ui-components/core",
+  "version": "1.0.0",
+  "description": "Core utilities for Auth0 UI components",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["i18n", "auth0", "core"],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.6.5",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

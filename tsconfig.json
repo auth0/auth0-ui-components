@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "target": "ESNext",
+      "module": "ESNext",
+      "strict": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "baseUrl": ".",
+      "paths": {
+        "@core/*": ["packages/core/src/*"],
+        "@react/*": ["packages/react/src/*"],
+      }
+    },
+    "include": ["packages", "apps", "examples"]
+  }  
