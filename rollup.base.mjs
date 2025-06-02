@@ -56,18 +56,13 @@ export const createBaseConfig = ({
 
   return {
     input,
-    output: [
-      {
-        file: `${outputDir}/index.cjs.js`,
-        format: 'cjs',
-        sourcemap: true,
-      },
-      {
-        file: `${outputDir}/index.esm.js`,
-        format: 'esm',
-        sourcemap: true,
-      },
-    ],
+    output: {
+      dir: outputDir,
+      format: 'esm',
+      sourcemap: true,
+      entryFileNames: '[name].js',
+      chunkFileNames: '[name]-[hash].js',
+    },
     external: ['react', 'react-dom', ...external],
     plugins,
   };
