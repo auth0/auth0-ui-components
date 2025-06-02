@@ -31,9 +31,11 @@
     "tw-animate-css": "^1.3.2"
   },
   "peerDependencies": {
-    "@auth0/auth0-react": "^2.0.0",
     "react": "^17.0.0 || ^18.0.0",
     "react-dom": "^17.0.0 || ^18.0.0"
+  },
+  "optionalDependencies": {
+    "@auth0/auth0-react": "^2.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.23",

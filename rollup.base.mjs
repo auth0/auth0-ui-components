@@ -23,10 +23,7 @@ export const createBaseConfig = ({
   tsconfig,
   external = [],
   useBabel = false,
-  babelPresets = [
-    '@babel/preset-env',
-    '@babel/preset-typescript',
-  ],
+  babelPresets = ['@babel/preset-env', '@babel/preset-typescript'],
   additionalPlugins = [],
 }) => {
   const plugins = [
@@ -50,7 +47,7 @@ export const createBaseConfig = ({
         babelHelpers: 'bundled',
         exclude: 'node_modules/**',
         presets: babelPresets,
-      })
+      }),
     );
   }
 

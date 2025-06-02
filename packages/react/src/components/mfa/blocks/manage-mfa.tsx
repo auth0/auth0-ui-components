@@ -21,7 +21,7 @@ import { Button } from '@/ui/button';
  * ## Features
  * - Displays a list of MFA factors, optionally filtering to only active factors.
  * - Enroll and delete MFA authenticators with support for async hooks.
- * - Localization support through `localization` prop.
+ * - Localization support through the `localization` prop.
  * - Optional title and description display.
  * - Disable enroll/delete buttons or put component in read-only mode.
  * - Supports pre-action confirmation via `onBeforeAction`.
@@ -35,26 +35,28 @@ import { Button } from '@/ui/button';
  * providing authentication context and hooks.
  *
  * @param {Object} props
- * @param {Object} [props.localization] - Optional localization overrides for UI text.
+ * @param {Object<string, {title: string; description: string}>} [props.localization] - Optional localization overrides for UI text, keyed by language codes.
  * @param {boolean} [props.showTitleDescription=true] - Whether to show the component's title and description.
  * @param {boolean} [props.showActiveOnly=false] - Show only active enrolled MFA factors.
  * @param {boolean} [props.disableEnroll=false] - Disable enrolling new MFA factors.
  * @param {boolean} [props.disableDelete=false] - Disable deleting enrolled MFA factors.
  * @param {boolean} [props.readOnly=false] - Set component to read-only mode (no actions allowed).
- * @param {Object<string, {visible?: boolean, enabled?: boolean}>} [props.factorConfig] - Optional per-factor configuration object to control
- * visibility (`visible`) and enablement (`enabled`) of MFA factor types.
+ * @param {Object<string, {visible?: boolean, enabled?: boolean}>} [props.factorConfig] - Optional per-factor configuration to control visibility (`visible`) and enablement (`enabled`).
  * @param {() => void} [props.onEnroll] - Callback fired after a successful MFA enrollment.
  * @param {() => void} [props.onDelete] - Callback fired after a successful MFA deletion.
  * @param {() => void} [props.onFetch] - Callback fired after MFA factors are fetched successfully.
  * @param {(error: Error, action: 'enroll' | 'delete') => void} [props.onErrorAction] - Callback fired on enroll/delete error with error and action type.
- * @param {(action: 'enroll' | 'delete', factorType: MFAType) => Promise<boolean>} [props.onBeforeAction] - Optional async callback invoked before enroll or delete action; return false to cancel the action.
+ * @param {(action: 'enroll' | 'delete', factorType: MFAType) => Promise<boolean>} [props.onBeforeAction] - Optional async callback invoked before enroll or delete action; returning false cancels the action.
  *
  * @returns {JSX.Element} The ManageMfa component UI.
  *
  * @example
  * ```tsx
  * <ManageMfa
- *   localization={{ title: "My MFA Settings", description: "Manage your 2FA methods" }}
+ *   localization={{
+ *     en: { title: "My MFA Settings", description: "Manage your 2FA methods" },
+ *     es: { title: "Configuración MFA", description: "Administra tus métodos de 2FA" },
+ *   }}
  *   showActiveOnly={true}
  *   factorConfig={{
  *     sms: { visible: true, enabled: true },
@@ -67,6 +69,7 @@ import { Button } from '@/ui/button';
  * />
  * ```
  */
+
 export function ManageMfa({
   localization = {},
   showTitleDescription = true,
