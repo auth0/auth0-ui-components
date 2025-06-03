@@ -54,11 +54,11 @@ function SpaModeProvider({
   React.useEffect(() => {
     const fetchAuth = async () => {
       try {
-        const claims = await getIdTokenClaims();
         const tokenRes = await getAccessTokenSilently({
           cacheMode: 'off',
           detailedResponse: true,
         });
+        const claims = await getIdTokenClaims();
 
         setAuthDetails({
           accessToken: tokenRes.access_token ?? null,
@@ -85,6 +85,7 @@ function SpaModeProvider({
 
   const apiBaseUrl = authDetails.domain ?? '';
 
+  console.log('helllo', authDetails);
   const config = React.useMemo(
     () => ({
       i18n,
