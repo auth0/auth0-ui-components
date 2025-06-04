@@ -22,3 +22,7 @@ export interface ApiErrorData {
   message?: string;
   [key: string]: unknown;
 }
+
+export interface ErrorResponse {
+  message?: string;
+}

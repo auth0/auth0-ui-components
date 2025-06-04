@@ -36,7 +36,7 @@ import { Button } from '@/ui/button';
  *
  * @param {Object} props
  * @param {Object<string, {title: string; description: string}>} [props.localization] - Optional localization overrides for UI text, keyed by language codes.
- * @param {boolean} [props.showTitleDescription=true] - Whether to show the component's title and description.
+ * @param {boolean} [props.hideHeader=true] - Whether to show the component's title and description.
  * @param {boolean} [props.showActiveOnly=false] - Show only active enrolled MFA factors.
  * @param {boolean} [props.disableEnroll=false] - Disable enrolling new MFA factors.
  * @param {boolean} [props.disableDelete=false] - Disable deleting enrolled MFA factors.
@@ -72,7 +72,7 @@ import { Button } from '@/ui/button';
 
 export function ManageMfa({
   localization = {},
-  showTitleDescription = true,
+  hideHeader = false,
   showActiveOnly = false,
   disableEnroll = false,
   disableDelete = false,
@@ -206,7 +206,7 @@ export function ManageMfa({
 
   return (
     <Card>
-      {showTitleDescription && (
+      {hideHeader && (
         <CardHeader>
           <CardTitle>{title ?? 'MFA Authenticators'}</CardTitle>
           <CardDescription>

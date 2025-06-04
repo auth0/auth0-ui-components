@@ -54,7 +54,7 @@ export function useAccessToken(scope: string, audiencePath: string): UseAccessTo
   } = useComponentConfig();
   const domain = authDetails?.domain;
 
-  const audience = domain ? `${domain}/${audiencePath}/` : '';
+  const audience = domain ? `${domain}${audiencePath}/` : '';
   const cacheKey = `${audience}|${scope}`;
 
   const staticCache = React.useRef(new Map<string, string>());

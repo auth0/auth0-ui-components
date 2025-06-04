@@ -1,4 +1,4 @@
-import type { RequestOptions, HttpMethod } from './types';
+import type { RequestOptions, HttpMethod, ErrorResponse } from './types';
 import { createApiError, isApiError } from './api-error';
 
 const STATUS_MESSAGES: Readonly<Record<number, string>> = {
@@ -14,6 +14,35 @@ const STATUS_MESSAGES: Readonly<Record<number, string>> = {
   504: 'Gateway Timeout',
 } as const;
 
+/**
+ * Builds safe headers for fetch request,
+ * ensuring no invalid or empty header values.
+ * @param accessToken optional Bearer token
+ * @returns headers object safe for fetch
+ */
+function buildHeaders(accessToken?: string): HeadersInit {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  if (typeof accessToken === 'string' && accessToken.trim()) {
+    headers['Authorization'] = `Bearer ${accessToken.trim()}`;
+  }
+
+  return headers;
+}
+
+/**
+ * Performs a typed HTTP request with automatic JSON handling and structured error reporting.
+ *
+ * @template T - The expected return type of the API response.
+ * @param endpoint - Full URL to the API endpoint.
+ * @param method - HTTP method (GET, POST, PUT, DELETE, etc.).
+ * @param options - Request options including body and access token.
+ * @param enableLogging - If true, logs request and response for debugging.
+ * @returns A promise that resolves with the parsed response data of type `T`.
+ * @throws ApiError - If the response is not OK or fetch fails.
+ */
 async function request<T>(
   endpoint: string,
   method: HttpMethod,
@@ -22,50 +51,46 @@ async function request<T>(
 ): Promise<T> {
   const { body, accessToken } = options;
 
-  const reqHeaders = {
-    'Content-Type': 'application/json',
-    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-  };
+  // Construct headers with optional Authorization
+  const reqHeaders = buildHeaders(accessToken);
 
+  // Assemble request options
   const requestInit: RequestInit = {
     method,
     headers: reqHeaders,
-    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    ...(body && { body: JSON.stringify(body) }),
   };
 
   if (enableLogging) {
-    console.log(`[APIService] ${method} ${endpoint}`, requestInit);
+    console.debug(`[APIService] ${method} ${endpoint}`, requestInit);
   }
 
   try {
     const response = await fetch(endpoint, requestInit);
-    const contentType = response.headers.get('content-type') ?? '';
 
-    const data = contentType.includes('application/json')
-      ? await response.json()
-      : await response.text();
+    const contentType = response.headers.get('content-type') || '';
+    const isJson = contentType.includes('application/json');
+    const data = isJson ? await response.json() : await response.text();
 
     if (!response.ok) {
-      const maybeData = data as Record<string, unknown> | undefined;
-      const rawMessage = maybeData?.message ?? maybeData?.error;
-
       const message =
-        typeof rawMessage === 'string'
-          ? rawMessage
-          : STATUS_MESSAGES[response.status] || 'Request failed';
+        (data as ErrorResponse)?.message || STATUS_MESSAGES[response.status] || 'Request failed';
 
       throw createApiError(message, response.status, data);
     }
 
     if (enableLogging) {
-      console.log(`[APIService] Response from ${endpoint}`, data);
+      console.debug(`[APIService] Response from ${endpoint}`, data);
     }
 
     return data as T;
-  } catch (error) {
-    if (isApiError(error)) throw error;
+  } catch (err) {
+    // Re-throw if already a known API error
+    if (isApiError(err)) throw err;
 
-    throw createApiError('Network error', 0);
+    const message = err instanceof Error ? err.message : 'Unexpected network error';
+
+    throw createApiError(message, 0, undefined, err);
   }
 }
 

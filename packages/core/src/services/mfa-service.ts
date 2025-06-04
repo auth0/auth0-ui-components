@@ -1,5 +1,5 @@
 import { get, del, isApiError } from '../api';
-import type { Authenticator, FactorMeta } from './types';
+import type { Authenticator, FactorMeta, MFAType } from './types';
 
 export const factorsMeta: Record<string, FactorMeta> = {
   sms: {
@@ -50,21 +50,31 @@ export const factorsMeta: Record<string, FactorMeta> = {
 export async function fetchMfaFactors(
   apiBaseUrl: string,
   accessToken?: string,
-  onlyActive: boolean = false,
+  onlyActive = false,
 ): Promise<(Authenticator & FactorMeta)[]> {
-  const response = await get<Authenticator[]>(`${apiBaseUrl}/mfa/authenticators`, {
-    accessToken,
-  });
+  const response = await get<Authenticator[]>(`${apiBaseUrl}mfa/authenticators`, { accessToken });
+  const map = new Map<MFAType, Authenticator>(response.map((f) => [f.authenticator_type, f]));
 
-  const enriched = response
-    .filter((f) => factorsMeta[f.authenticator_type])
-    .filter((f) => !onlyActive || f.active)
-    .map((f) => ({
-      ...f,
-      ...factorsMeta[f.authenticator_type],
-    }));
+  return (Object.entries(factorsMeta) as [MFAType, FactorMeta][]).reduce(
+    (acc, [type, meta]) => {
+      const f = map.get(type);
+      const active = f?.active ?? false;
 
-  return enriched;
+      if (!onlyActive || active) {
+        acc.push({
+          id: f?.id ?? '',
+          authenticator_type: type,
+          oob_channels: f?.oob_channels ?? [],
+          name: f?.name,
+          active,
+          ...meta,
+        });
+      }
+
+      return acc;
+    },
+    [] as (Authenticator & FactorMeta)[],
+  );
 }
 
 /**

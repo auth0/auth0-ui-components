@@ -58,13 +58,16 @@ export function useMfaList(accessToken?: string, onlyActive: boolean = false): U
   const {
     config: { authDetails, isProxyMode, apiBaseUrl },
   } = useComponentConfig();
-
   const [factors, setFactors] = React.useState<(Authenticator & FactorMeta)[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<Error | null>(null);
-
   React.useEffect(() => {
-    // Validation checks (skip for RWA)
+    if (!apiBaseUrl) {
+      setError(new Error('Missing Auth0 API base URL'));
+      setLoading(false);
+      return;
+    }
+
     if (!isProxyMode) {
       if (!accessToken) {
         setError(new Error('Access token is required.'));
@@ -79,16 +82,13 @@ export function useMfaList(accessToken?: string, onlyActive: boolean = false): U
       }
     }
 
-    if (!apiBaseUrl) {
-      setError(new Error('Missing Auth0 API base URL'));
-      setLoading(false);
-      return;
-    }
+    const loadFactors = async () => {
+      setLoading(true);
+      setError(null);
 
-    async function loadFactors() {
       try {
         const data = await fetchMfaFactors(
-          apiBaseUrl!,
+          apiBaseUrl,
           isProxyMode ? undefined : accessToken,
           onlyActive,
         );
@@ -98,7 +98,7 @@ export function useMfaList(accessToken?: string, onlyActive: boolean = false): U
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     loadFactors();
   }, [accessToken, onlyActive, apiBaseUrl, isProxyMode, authDetails?.domain]);

@@ -48,7 +48,7 @@ export interface MFAError {
 
 export interface ManageMfaProps {
   localization?: MFALocalizationMap;
-  showTitleDescription?: boolean;
+  hideHeader?: boolean;
   showActiveOnly?: boolean;
   disableEnroll?: boolean;
   disableDelete?: boolean;

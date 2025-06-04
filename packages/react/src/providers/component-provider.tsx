@@ -55,5 +55,3 @@ export const Auth0ComponentProvider = ({
     </React.Suspense>
   );
 };
-
-Auth0ComponentProvider.displayName = 'Auth0ComponentProvider';

@@ -1,48 +1,44 @@
-import type { ApiErrorData } from './types';
-
+/**
+ * Represents a standardized API error shape.
+ */
 export interface ApiError {
   readonly name: 'ApiError';
   readonly message: string;
   readonly status: number;
-  readonly data?: ApiErrorData;
+  readonly data?: unknown;
+  readonly cause?: unknown;
 }
 
 /**
- * Factory function to create an ApiError object.
+ * Creates an ApiError object to represent failed API calls.
  *
- * @param message - Error message describing the issue.
- * @param status - HTTP status code.
- * @param data - Optional structured API error data.
- * @returns An ApiError object.
- *
- * @example
- * ```ts
- * throw createApiError('Not Found', 404, {
- *   code: 'user_not_found',
- *   message: 'User with ID 123 not found',
- * });
- * ```
+ * @param message - Human-readable error message.
+ * @param status - HTTP status code from the response.
+ * @param data - Optional raw response data from the server.
+ * @param cause - Optional underlying error or context.
+ * @returns A structured ApiError object.
  */
-export function createApiError(message: string, status: number, data?: ApiErrorData): ApiError {
-  return {
-    name: 'ApiError',
-    message,
-    status,
-    data,
-  };
+export function createApiError(
+  message: string,
+  status: number,
+  data?: unknown,
+  cause?: unknown,
+): ApiError {
+  return { name: 'ApiError', message, status, data, cause };
 }
 
 /**
- * Type guard to check if an unknown value is an ApiError.
+ * Type guard to check if a value is an ApiError.
  *
  * @param error - The value to check.
- * @returns True if the value matches the ApiError shape, false otherwise.
+ * @returns `true` if the value conforms to ApiError, `false` otherwise.
  */
 export function isApiError(error: unknown): error is ApiError {
-  if (typeof error !== 'object' || error === null) return false;
-
-  const err = error as Partial<ApiError>;
   return (
-    err.name === 'ApiError' && typeof err.message === 'string' && typeof err.status === 'number'
+    typeof error === 'object' &&
+    error !== null &&
+    (error as ApiError).name === 'ApiError' &&
+    typeof (error as ApiError).message === 'string' &&
+    typeof (error as ApiError).status === 'number'
   );
 }
