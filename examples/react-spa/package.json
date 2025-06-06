@@ -12,8 +12,11 @@
   "dependencies": {
     "@auth0-web-ui-components/react": "workspace:*",
     "@auth0/auth0-react": "^2.0.0",
+    "@tailwindcss/postcss": "^4.1.8",
+    "postcss": "^8.5.4",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

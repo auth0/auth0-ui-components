@@ -54,15 +54,19 @@ export function useDeleteMfa(accessToken?: string) {
     config: { authDetails, apiBaseUrl, isProxyMode },
   } = useComponentConfig();
 
-  const [state, setState] = React.useState<DeleteMfaResult>({
-    loading: false,
-    error: undefined,
-    success: false,
-  });
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<Error | null>(null);
+  const [success, setSuccess] = React.useState(false);
+
+  const resetState = () => {
+    setError(null);
+    setSuccess(false);
+  };
 
   const deleteMfa = React.useCallback(
-    async (authenticatorId: string) => {
-      setState({ loading: true, error: undefined, success: false });
+    async (authenticatorId: string): Promise<DeleteMfaResult> => {
+      resetState();
+      setLoading(true);
 
       try {
         if (!isProxyMode) {
@@ -73,20 +77,24 @@ export function useDeleteMfa(accessToken?: string) {
         if (!apiBaseUrl) throw new Error('Missing API base URL.');
 
         await deleteMfaFactor(apiBaseUrl, authenticatorId, isProxyMode ? undefined : accessToken);
-        // If we reach here, deletion was successful
-        setState((prev) => ({ ...prev, success: true }));
-      } catch (error) {
-        setState((prev) => ({
-          ...prev,
-          error: error instanceof Error ? error : new Error(String(error)),
-          success: false,
-        }));
+
+        setSuccess(true);
+        return { success: true, loading: false, error: undefined };
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        setError(error);
+        return { success: false, loading: false, error };
       } finally {
-        setState((prev) => ({ ...prev, loading: false }));
+        setLoading(false);
       }
     },
-    [apiBaseUrl, isProxyMode, authDetails, accessToken],
+    [apiBaseUrl, isProxyMode, accessToken, authDetails?.domain],
   );
 
-  return { ...state, deleteMfa };
+  return {
+    loading,
+    error: error ?? undefined,
+    success,
+    deleteMfa,
+  };
 }

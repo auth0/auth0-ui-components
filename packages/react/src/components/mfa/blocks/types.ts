@@ -1,3 +1,5 @@
+import { AuthenticatorType, OobChannel } from '@auth0-web-ui-components/core';
+
 /**
  * Represents the type of an MFA authenticator.
  *
@@ -16,7 +18,7 @@
 export type MFAType =
   | 'sms'
   | 'push-notification'
-  | 'otp'
+  | 'totp'
   | 'email'
   | 'duo'
   | 'webauthn-roaming'
@@ -28,8 +30,8 @@ export type MFAType =
  */
 export interface MFAFactor {
   id: string;
-  authenticator_type: MFAType;
-  oob_channels?: string[];
+  authenticator_type: AuthenticatorType;
+  oob_channels?: OobChannel[];
   name?: string;
   active: boolean;
   displayName?: string;

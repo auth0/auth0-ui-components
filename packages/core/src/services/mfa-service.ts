@@ -1,5 +1,11 @@
-import { get, del, isApiError } from '../api';
-import type { Authenticator, FactorMeta, MFAType } from './types';
+import { get, del, isApiError, post } from '../api';
+import type {
+  Authenticator,
+  FactorMeta,
+  EnrollMfaParams,
+  EnrollMfaResponse,
+  AuthenticatorType,
+} from './types';
 
 export const factorsMeta: Record<string, FactorMeta> = {
   sms: {
@@ -10,7 +16,7 @@ export const factorsMeta: Record<string, FactorMeta> = {
     title: 'Push Notification using Auth0 Guardian',
     description: 'Provide a push notification using Auth0 Guardian.',
   },
-  otp: {
+  totp: {
     title: 'One-time Password',
     description: 'Provide a one-time password using Google Authenticator or similar.',
   },
@@ -53,20 +59,25 @@ export async function fetchMfaFactors(
   onlyActive = false,
 ): Promise<(Authenticator & FactorMeta)[]> {
   const response = await get<Authenticator[]>(`${apiBaseUrl}mfa/authenticators`, { accessToken });
-  const map = new Map<MFAType, Authenticator>(response.map((f) => [f.authenticator_type, f]));
+  const map = new Map<AuthenticatorType, Authenticator>(
+    response.map((f) => [f.authenticator_type, f]),
+  );
 
-  return (Object.entries(factorsMeta) as [MFAType, FactorMeta][]).reduce(
+  return (Object.entries(factorsMeta) as [AuthenticatorType, FactorMeta][]).reduce(
     (acc, [type, meta]) => {
-      const f = map.get(type);
-      const active = f?.active ?? false;
+      const factor = map.get(type);
+      const isActive = factor?.active ?? false;
 
-      if (!onlyActive || active) {
+      if (!onlyActive || isActive) {
+        // extract from factor.id, or fallback to the factor type as name
+        const name = factor?.id?.split('|')[0] ?? type;
+
         acc.push({
-          id: f?.id ?? '',
+          id: factor?.id ?? '',
           authenticator_type: type,
-          oob_channels: f?.oob_channels ?? [],
-          name: f?.name,
-          active,
+          oob_channels: factor?.oob_channels ?? [],
+          name,
+          active: isActive,
           ...meta,
         });
       }
@@ -90,7 +101,7 @@ export async function deleteMfaFactor(
   accessToken?: string,
 ): Promise<void> {
   try {
-    await del(`${baseUrl}/mfa/authenticators/${id}`, {
+    await del(`${baseUrl}mfa/authenticators/${id}`, {
       accessToken,
     });
   } catch (err) {
@@ -106,4 +117,21 @@ export async function deleteMfaFactor(
     }
     throw new Error('Unexpected error occurred while deleting MFA factor.');
   }
+}
+
+/**
+ * Performs the MFA enrollment API call.
+ *
+ * @param baseUrl - The base API URL (e.g. Auth0 domain or proxy).
+ * @param params - Enrollment parameters.
+ * @param token - Access token or mfa_token.
+ * @returns EnrollMfaResponse from Auth0.
+ */
+export async function enrollMfaRequest(
+  baseUrl: string,
+  params: EnrollMfaParams,
+  token: string,
+): Promise<EnrollMfaResponse> {
+  const url = `${baseUrl}mfa/associate`;
+  return await post<EnrollMfaResponse>(url, params, { accessToken: token });
 }

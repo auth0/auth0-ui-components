@@ -8,6 +8,7 @@ import { Label } from '@/ui/label';
 import { Separator } from '@/ui/separator';
 import { toast } from 'sonner';
 import { Button } from '@/ui/button';
+import { Toaster } from '@/ui/sonner';
 
 /**
  * ManageMfa
@@ -61,7 +62,7 @@ import { Button } from '@/ui/button';
  *   factorConfig={{
  *     sms: { visible: true, enabled: true },
  *     'push-notification': { visible: false },
- *     otp: { enabled: false },
+ *     totp: { enabled: false },
  *   }}
  *   onEnroll={() => console.log('MFA enrolled')}
  *   onDelete={() => console.log('MFA deleted')}
@@ -95,26 +96,23 @@ export function ManageMfa({
     loading: factorsLoading,
     error: factorsError,
     factors,
+    fetchFactors,
   } = useMfaList(accessToken, showActiveOnly);
 
   const visibleFactors = React.useMemo(() => {
-    return factors?.filter((factor) => {
-      const config = factorConfig[factor.authenticator_type];
-      // If visible is explicitly false, hide it
-      if (config?.visible === false) return false;
-      return true;
+    if (!factors?.length) return [];
+
+    return factors.filter((factor) => {
+      const name = factor.name;
+      const config = factorConfig[name as keyof typeof factorConfig];
+      return config?.visible !== false;
     });
   }, [factors, factorConfig]);
 
   // Delete MFA hook
-  const {
-    loading: deleting,
-    error: deleteError,
-    success: deleteSuccess,
-    deleteMfa,
-  } = useDeleteMfa(accessToken);
+  const { loading: deleting, deleteMfa } = useDeleteMfa(accessToken);
 
-  // Enroll MFA hook
+  //TODO Enroll MFA hook
   const {
     loading: enrolling,
     error: enrollError,
@@ -129,32 +127,7 @@ export function ManageMfa({
     }
   }, [factors, onFetch]);
 
-  // Side effect: notify parent on successful enroll
-  React.useEffect(() => {
-    if (enrollResponse && onEnroll) {
-      onEnroll();
-    }
-  }, [enrollResponse, onEnroll]);
-
-  // Side effect: notify parent on successful delete
-  React.useEffect(() => {
-    if (deleteSuccess && onDelete) {
-      onDelete();
-    }
-  }, [deleteSuccess, onDelete]);
-
-  // Side effect: notify parent of errors
-  React.useEffect(() => {
-    if (onErrorAction) {
-      const error = enrollError ?? deleteError;
-      if (error) {
-        const action = enrollError ? 'enroll' : 'delete';
-        onErrorAction(error, action);
-      }
-    }
-  }, [enrollError, deleteError, onErrorAction]);
-
-  // Handlers with onBeforeAction check
+  //TODO Handlers with onBeforeAction check
   const handleEnroll = async (params: Parameters<typeof enrollMfa>[0], factorType: MFAType) => {
     if (readOnly || disableEnroll) return;
 
@@ -162,7 +135,6 @@ export function ManageMfa({
       const proceed = await onBeforeAction('enroll', factorType);
       if (!proceed) return;
     }
-
     await enrollMfa(params);
     if (enrollError) {
       toast.error(enrollError.message);
@@ -170,6 +142,7 @@ export function ManageMfa({
     }
     if (enrollResponse) {
       toast.success('Enrolled successfully.');
+      onEnroll?.();
     }
   };
 
@@ -181,13 +154,18 @@ export function ManageMfa({
       if (!proceed) return;
     }
 
-    await deleteMfa(factorId);
-    if (deleteSuccess) {
-      toast.success('Enrollment removed successfully.');
-    }
-    if (deleteError) {
-      toast.error(deleteError.message);
+    const { success, error } = await deleteMfa(factorId);
+
+    if (error) {
+      toast.error(error.message);
+      onErrorAction?.(error, 'delete');
       return;
+    }
+
+    if (success) {
+      toast.success('Enrollment removed successfully.');
+      onDelete?.(); // notify parent
+      await fetchFactors(); //refresh MFA factors after delete
     }
   };
 
@@ -205,79 +183,87 @@ export function ManageMfa({
   }
 
   return (
-    <Card>
-      {hideHeader && (
-        <CardHeader>
-          <CardTitle>{title ?? 'MFA Authenticators'}</CardTitle>
-          <CardDescription>
-            {description ?? 'Manage the MFA enrollments for your account.'}
-          </CardDescription>
-        </CardHeader>
-      )}
+    <>
+      <Toaster position="top-right" />
+      <Card>
+        {hideHeader && (
+          <CardHeader>
+            <CardTitle>{title ?? 'MFA Authenticators'}</CardTitle>
+            <CardDescription>
+              {description ?? 'Manage the MFA enrollments for your account.'}
+            </CardDescription>
+          </CardHeader>
+        )}
 
-      <CardContent className="grid gap-6 p-4 pt-0 md:p-6 md:pt-0">
-        {visibleFactors.map((factor, idx) => {
-          const config = factorConfig[factor.authenticator_type] || {};
-          const isEnabled = config.enabled !== false; // default to enabled if undefined
+        <CardContent className="grid gap-6 p-4 pt-0 md:p-6 md:pt-0">
+          {showActiveOnly && visibleFactors.length === 0 ? (
+            <Label className="text-center text-muted-foreground">
+              No active MFA factors enrolled.
+            </Label>
+          ) : (
+            visibleFactors.map((factor, idx) => {
+              const config = factorConfig[factor.name as keyof typeof factorConfig];
+              const isEnabled = Boolean(config?.enabled);
 
-          return (
-            <div
-              key={`${factor.name}-${idx}`}
-              className={`flex flex-col gap-6 ${!isEnabled ? 'opacity-50 pointer-events-none' : ''}`}
-              aria-disabled={!isEnabled}
-            >
-              {idx > 0 && <Separator />}
-              <div className="flex flex-col items-center justify-between space-y-6 md:flex-row md:space-x-2 md:space-y-0">
-                <Label className="flex flex-col space-y-1">
-                  <span className="leading-6">
-                    {factor.title}
-                    {factor.active && (
-                      <Badge variant="default" className="ml-3">
-                        Enrolled
-                      </Badge>
-                    )}
-                  </span>
-                  <p className="max-w-fit font-normal leading-snug text-muted-foreground">
-                    {factor.description}
-                  </p>
-                </Label>
+              return (
+                <div
+                  key={`${factor.name}-${idx}`}
+                  className={`flex flex-col gap-6 ${!isEnabled ? 'opacity-50 pointer-events-none' : ''}`}
+                  aria-disabled={!isEnabled}
+                >
+                  {idx > 0 && <Separator />}
+                  <div className="flex flex-col items-center justify-between space-y-6 md:flex-row md:space-x-2 md:space-y-0">
+                    <Label className="flex flex-col space-y-1">
+                      <span className="leading-6">
+                        {factor.title}
+                        {factor.active && (
+                          <Badge variant="default" className="ml-3">
+                            Enrolled
+                          </Badge>
+                        )}
+                      </span>
+                      <p className="max-w-fit font-normal leading-snug text-muted-foreground">
+                        {factor.description}
+                      </p>
+                    </Label>
 
-                <div className="flex items-center justify-end space-x-24 md:min-w-72">
-                  {factor.active
-                    ? !readOnly &&
-                      !disableDelete && (
-                        <Button
-                          type="submit"
-                          onClick={() => handleDelete(factor.id, factor.authenticator_type)}
-                          disabled={deleting || !isEnabled}
-                          aria-label={`Delete authenticator ${factor.title || factor.name}`}
-                        >
-                          Delete
-                        </Button>
-                      )
-                    : !readOnly &&
-                      !disableEnroll && (
-                        <Button
-                          onClick={() =>
-                            handleEnroll(
-                              {
-                                client_id: authDetails?.clientId || '',
-                                authenticator_types: [factor.authenticator_type],
-                              },
-                              factor.authenticator_type as MFAType,
-                            )
-                          }
-                          disabled={enrolling || !isEnabled}
-                        >
-                          {enrolling ? 'Enrolling...' : 'Enroll'}
-                        </Button>
-                      )}
+                    <div className="flex items-center justify-end space-x-24 md:min-w-72">
+                      {factor.active
+                        ? !readOnly && (
+                            <Button
+                              type="submit"
+                              onClick={() => handleDelete(factor.id, factor.name as MFAType)}
+                              disabled={disableDelete || deleting || isEnabled}
+                              aria-label={`Delete authenticator ${factor.title || factor.name}`}
+                            >
+                              Delete
+                            </Button>
+                          )
+                        : !readOnly && (
+                            <Button
+                              onClick={() =>
+                                //TODO
+                                handleEnroll(
+                                  {
+                                    client_id: authDetails?.clientId || '',
+                                    authenticator_types: [factor.authenticator_type],
+                                  },
+                                  factor.authenticator_type as MFAType,
+                                )
+                              }
+                              disabled={disableEnroll || enrolling}
+                            >
+                              {enrolling ? 'Enrolling...' : 'Enroll'}
+                            </Button>
+                          )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
-      </CardContent>
-    </Card>
+              );
+            })
+          )}
+        </CardContent>
+      </Card>
+    </>
   );
 }

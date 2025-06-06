@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useComponentConfig } from '@/hooks';
-import type { EnrollMfaParams, EnrollMfaResponse, UseEnrollMfaResult } from './types';
+import type { UseEnrollMfaResult } from './types';
+import { EnrollMfaParams, EnrollMfaResponse } from '@auth0-web-ui-components/core';
 
 /**
  * useEnrollMfa
@@ -45,7 +46,7 @@ import type { EnrollMfaParams, EnrollMfaResponse, UseEnrollMfaResult } from './t
  * });
  * ```
  */
-
+//TODO
 export function useEnrollMfa(accessToken?: string): UseEnrollMfaResult {
   const {
     config: { authDetails, isProxyMode, apiBaseUrl },
@@ -86,7 +87,7 @@ export function useEnrollMfa(accessToken?: string): UseEnrollMfaResult {
           ...(isProxyMode ? {} : { Authorization: `Bearer ${token}` }),
         };
 
-        const res = await fetch(`${apiBaseUrl}/mfa/associate`, {
+        const res = await fetch(`${apiBaseUrl}mfa/associate`, {
           method: 'POST',
           headers,
           body: JSON.stringify(params),

@@ -1,5 +1,9 @@
-import { MFAType } from '../blocks';
-
+import type {
+  EnrollMfaParams,
+  EnrollMfaResponse,
+  AuthenticatorType,
+  OobChannel,
+} from '@auth0-web-ui-components/core';
 /**
  * Metadata describing an MFA factor type.
  * @property {string} title - Display title of the factor.
@@ -20,8 +24,8 @@ export interface FactorMeta {
  */
 export interface Authenticator extends FactorMeta {
   id: string;
-  authenticator_type: MFAType;
-  oob_channels?: string[];
+  authenticator_type: AuthenticatorType;
+  oob_channels?: OobChannel[];
   name?: string;
   active: boolean;
 }
@@ -48,36 +52,6 @@ export interface DeleteMfaResult {
   loading: boolean;
   error?: Error;
   success: boolean;
-}
-
-/**
- * Parameters required to enroll (associate) a new MFA authenticator.
- *
- * @property {string} client_id - Your Auth0 application Client ID.
- * @property {('otp' | 'oob')[]} authenticator_types - Types of authenticators to enroll.
- * @property {('auth0' | 'sms' | 'voice')[]} [oob_channels] - Out-of-band channels, required if `authenticator_types` includes 'oob'.
- * @property {string} [phone_number] - Phone number used for SMS or voice channel; required if `oob_channels` includes 'sms' or 'voice'.
- */
-export interface EnrollMfaParams {
-  client_id: string;
-  authenticator_types: MFAType[];
-  oob_channels?: ('auth0' | 'sms' | 'voice')[];
-  phone_number?: string;
-}
-
-/**
- * Response returned after enrolling an MFA authenticator.
- *
- * @property {Record<string, any>} authenticator - Details of the enrolled authenticator.
- * @property {Record<string, any>} challenge - Challenge information to continue MFA verification.
- * @property {string[]} [recovery_codes] - Recovery codes provided on first enrollment.
- */
-export interface EnrollMfaResponse {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  authenticator: Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  challenge: Record<string, any>;
-  recovery_codes?: string[];
 }
 
 /**
