@@ -1,36 +1,60 @@
+import { useState, useEffect } from 'react';
 import { useComponentConfig } from './use-config';
-import { getLocalized } from '@auth0-web-ui-components/core';
+import { getLocalizedComponentAsync } from '@auth0-web-ui-components/core';
 
 /**
- * useI18n
+ * React hook to asynchronously fetch and manage localized string lookup function for a given component.
  *
- * React hook to retrieve a localized value based on current i18n settings from the global config.
+ * The hook fetches the translations for the current language (falling back to a fallback language)
+ * and returns a lookup function `t(key)` that returns the localized string or undefined if not found.
  *
- * ## Requirements
- * - Must be used within an Auth0ComponentProvider to access configuration.
- * - The component config must include `i18n.currentLanguage`.
+ * While translations are loading or missing, the lookup function always returns undefined.
  *
- * ## Features
- * - Automatically selects localized content matching the current language.
- * - Falls back to a configurable fallback language if the current language is not found.
- * - Returns undefined if the localization map is empty or undefined.
+ * @template T - The shape of the localized strings object.
+ * @param {string} component - The name of the component to load translations for.
+ * @param {Record<string, Partial<T>>} [overrides] - Optional translation overrides keyed by language codes.
  *
- * @template T - The type of the localized content.
- *
- * @param {Record<string, T> | undefined} map - A dictionary mapping language codes to localized content.
- *
- * @returns {T | undefined} The localized content for the current or fallback language, or undefined if none matches.
+ * @returns {(key: string) => string | undefined}
+ *   A function to look up localized strings by key.
  *
  * @example
  * ```tsx
- * const { title, description } = useI18n(factor.localization) ?? {};
- * return <h1>{title}</h1>;
+ * const t = useI18n<{ title: string, description: string }>('Header', {
+ *   en: { title: "Hello" }
+ * });
+ * return <h1>{t('title')}</h1>;
  * ```
  */
-export function useI18n<T>(map?: Record<string, T>): T | undefined {
+export function useI18n<T extends object>(
+  component: string,
+  overrides?: Record<string, Partial<T>>,
+): (key: string, vars?: Record<string, unknown>) => string | undefined {
   const { config } = useComponentConfig();
   const lang = config.i18n?.currentLanguage;
-  const fallback = config.i18n?.fallbackLanguage ?? 'en-US';
+  const fallback = config.i18n?.fallbackLanguage;
 
-  return getLocalized(map, lang, fallback);
+  const [tFunction, setTFunction] = useState<
+    ((key: string, vars?: Record<string, unknown>) => string | undefined) | undefined
+  >(undefined);
+
+  useEffect(() => {
+    if (!lang || !component) {
+      setTFunction(() => () => undefined);
+      return;
+    }
+
+    const load = async () => {
+      try {
+        const t = await getLocalizedComponentAsync<T>(lang, component, fallback ?? 'en', overrides);
+        setTFunction(() => t ?? (() => undefined));
+      } catch (error) {
+        console.error('[useI18n] Error loading localized strings:', error);
+        setTFunction(() => () => undefined);
+      }
+    };
+
+    load();
+  }, [lang, component, fallback]);
+
+  return tFunction ?? (() => undefined);
 }

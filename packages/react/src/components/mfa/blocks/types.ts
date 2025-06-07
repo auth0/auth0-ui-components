@@ -34,9 +34,6 @@ export interface MFAFactor {
   oob_channels?: OobChannel[];
   name?: string;
   active: boolean;
-  displayName?: string;
-  description?: string;
-  status?: string;
 }
 
 /**
@@ -49,7 +46,7 @@ export interface MFAError {
 }
 
 export interface ManageMfaProps {
-  localization?: MFALocalizationMap;
+  localization?: Record<string, MFALocaleContent>;
   hideHeader?: boolean;
   showActiveOnly?: boolean;
   disableEnroll?: boolean;
@@ -68,12 +65,23 @@ export interface ManageMfaProps {
   onBeforeAction?: (action: 'enroll' | 'delete', factorType: MFAType) => boolean | Promise<boolean>;
 }
 
-/**
- * Represents the localized content for a single language.
- */
+export interface MFAFactorContent {
+  title: string;
+  description: string;
+}
+
 export interface MFALocaleContent {
   title: string;
   description: string;
+  noActiveMfa: string;
+  sms?: MFAFactorContent;
+  'push-notification'?: MFAFactorContent;
+  totp?: MFAFactorContent;
+  email?: MFAFactorContent;
+  duo?: MFAFactorContent;
+  'webauthn-roaming'?: MFAFactorContent;
+  'webauthn-platform'?: MFAFactorContent;
+  'recovery-code'?: MFAFactorContent;
 }
 
 /**

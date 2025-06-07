@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useComponentConfig } from './use-config';
+import { useI18n } from './use-i8n';
 
 interface UseAccessTokenResult {
   token: string | null;
@@ -52,6 +53,7 @@ export function useAccessToken(scope: string, audiencePath: string): UseAccessTo
   const {
     config: { authDetails },
   } = useComponentConfig();
+  const t = useI18n('common');
   const domain = authDetails?.domain;
 
   const audience = domain ? `${domain}${audiencePath}/` : '';
@@ -68,14 +70,14 @@ export function useAccessToken(scope: string, audiencePath: string): UseAccessTo
   const fetchToken = React.useCallback(
     async (ignoreCache = false): Promise<void> => {
       if (!scope) {
-        setState({ token: null, loading: false, error: new Error('Scope is required') });
+        setState({ token: null, loading: false, error: new Error(t('errors.scopeRequired')) });
         return;
       }
       if (!domain) {
         setState({
           token: null,
           loading: false,
-          error: new Error('Auth0 domain is not configured'),
+          error: new Error(t('errors.domainNotConfigured')),
         });
         return;
       }
@@ -125,7 +127,7 @@ export function useAccessToken(scope: string, audiencePath: string): UseAccessTo
                 redirect_uri: typeof window !== 'undefined' ? window.location.origin : '',
               },
             });
-            if (!token) throw new Error('Access token is undefined');
+            if (!token) throw new Error(t('errors.accessTokenError'));
             return token;
           }
           throw error;

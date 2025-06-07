@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useComponentConfig } from '@/hooks';
+import { useComponentConfig, useI18n } from '@/hooks';
 import type { DeleteMfaResult } from './types';
 import { deleteMfaFactor } from '@auth0-web-ui-components/core';
 
@@ -53,6 +53,7 @@ export function useDeleteMfa(accessToken?: string) {
   const {
     config: { authDetails, apiBaseUrl, isProxyMode },
   } = useComponentConfig();
+  const t = useI18n('common');
 
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
@@ -70,11 +71,11 @@ export function useDeleteMfa(accessToken?: string) {
 
       try {
         if (!isProxyMode) {
-          if (!accessToken) throw new Error('Access token is required.');
-          if (!authDetails?.domain) throw new Error('Auth0 domain is missing.');
+          if (!accessToken) throw new Error(t('errors.missingAccessToken'));
+          if (!authDetails?.domain) throw new Error(t('errors.missingDomain'));
         }
 
-        if (!apiBaseUrl) throw new Error('Missing API base URL.');
+        if (!apiBaseUrl) throw new Error(t('errors.missingBaseURL'));
 
         await deleteMfaFactor(apiBaseUrl, authenticatorId, isProxyMode ? undefined : accessToken);
 

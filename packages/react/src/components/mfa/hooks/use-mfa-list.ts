@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useComponentConfig } from '@/hooks';
+import { useComponentConfig, useI18n } from '@/hooks';
 import type { UseMfaListResult, FactorMeta, Authenticator } from './types';
 import { fetchMfaFactors } from '@auth0-web-ui-components/core';
 
@@ -64,27 +64,30 @@ export function useMfaList(
   const {
     config: { authDetails, isProxyMode, apiBaseUrl },
   } = useComponentConfig();
+  const t = useI18n('common');
 
-  const [factors, setFactors] = React.useState<(Authenticator & FactorMeta)[]>([]);
+  const [factors, setFactors] = React.useState<
+    (Authenticator & FactorMeta & { factorName: string })[]
+  >([]);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 
   const fetchFactors = React.useCallback(async () => {
     if (!apiBaseUrl) {
-      setError(new Error('Missing Auth0 API base URL'));
+      setError(new Error(t('errors.missingBaseURL')));
       setLoading(false);
       return;
     }
 
     if (!isProxyMode) {
       if (!accessToken) {
-        setError(new Error('Access token is required.'));
+        setError(new Error(t('errors.missingAccessToken')));
         setLoading(false);
         return;
       }
 
       if (!authDetails?.domain) {
-        setError(new Error('Missing Auth0 domain'));
+        setError(new Error(t('errors.missingDomain')));
         setLoading(false);
         return;
       }

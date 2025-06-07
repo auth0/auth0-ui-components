@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useComponentConfig, useI18n } from '@/hooks';
 import { useMfaList, useDeleteMfa, useEnrollMfa, useMfaAccessToken } from '../hooks';
-import { MFAType, ManageMfaProps } from './types';
+import { MFAType, ManageMfaProps, MFALocaleContent } from './types';
 import { Badge } from '@/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card';
 import { Label } from '@/ui/label';
@@ -89,8 +89,7 @@ export function ManageMfa({
     config: { authDetails },
   } = useComponentConfig();
   const { accessToken, error: tokenError, loading: tokenLoading } = useMfaAccessToken();
-  const { title, description } = useI18n(localization) ?? {};
-
+  const t = useI18n<MFALocaleContent>('mfa', localization);
   // Fetch MFA factors list
   const {
     loading: factorsLoading,
@@ -141,7 +140,7 @@ export function ManageMfa({
       return;
     }
     if (enrollResponse) {
-      toast.success('Enrolled successfully.');
+      toast.success(t('enrollFactor'));
       onEnroll?.();
     }
   };
@@ -163,43 +162,39 @@ export function ManageMfa({
     }
 
     if (success) {
-      toast.success('Enrollment removed successfully.');
+      toast.success(t('removeFactor'));
       onDelete?.(); // notify parent
       await fetchFactors(); //refresh MFA factors after delete
     }
   };
 
-  // Render loading & error states
+  //TODO Render loading & error states
   if (tokenLoading || factorsLoading) {
     return <p>Loading...</p>;
   }
 
   if (tokenError) {
-    return <p>Access token error: {tokenError.message}</p>;
+    return <p>{t('errors.accessTokenError', { error: tokenError.message })}</p>;
   }
 
   if (factorsError) {
-    return <p>Error loading MFA factors: {factorsError.message}</p>;
+    return <p>{t('errors.factorsLoadingError', { error: factorsError.message })}</p>;
   }
 
   return (
     <>
       <Toaster position="top-right" />
       <Card>
-        {hideHeader && (
+        {!hideHeader && (
           <CardHeader>
-            <CardTitle>{title ?? 'MFA Authenticators'}</CardTitle>
-            <CardDescription>
-              {description ?? 'Manage the MFA enrollments for your account.'}
-            </CardDescription>
+            <CardTitle>{t('title')}</CardTitle>
+            <CardDescription>{t('description')}</CardDescription>
           </CardHeader>
         )}
 
         <CardContent className="grid gap-6 p-4 pt-0 md:p-6 md:pt-0">
           {showActiveOnly && visibleFactors.length === 0 ? (
-            <Label className="text-center text-muted-foreground">
-              No active MFA factors enrolled.
-            </Label>
+            <Label className="text-center text-muted-foreground">{t('noActiveMfa')}</Label>
           ) : (
             visibleFactors.map((factor, idx) => {
               const config = factorConfig[factor.name as keyof typeof factorConfig];
@@ -215,15 +210,15 @@ export function ManageMfa({
                   <div className="flex flex-col items-center justify-between space-y-6 md:flex-row md:space-x-2 md:space-y-0">
                     <Label className="flex flex-col space-y-1">
                       <span className="leading-6">
-                        {factor.title}
+                        {t(`${factor.factorName}.title`)}
                         {factor.active && (
                           <Badge variant="default" className="ml-3">
-                            Enrolled
+                            {t('enrolled')}
                           </Badge>
                         )}
                       </span>
                       <p className="max-w-fit font-normal leading-snug text-muted-foreground">
-                        {factor.description}
+                        {t(`${factor.factorName}.description`)}
                       </p>
                     </Label>
 
@@ -233,10 +228,10 @@ export function ManageMfa({
                             <Button
                               type="submit"
                               onClick={() => handleDelete(factor.id, factor.name as MFAType)}
-                              disabled={disableDelete || deleting || isEnabled}
+                              disabled={disableDelete || deleting || !isEnabled}
                               aria-label={`Delete authenticator ${factor.title || factor.name}`}
                             >
-                              Delete
+                              {t('delete')}
                             </Button>
                           )
                         : !readOnly && (
@@ -253,7 +248,7 @@ export function ManageMfa({
                               }
                               disabled={disableEnroll || enrolling}
                             >
-                              {enrolling ? 'Enrolling...' : 'Enroll'}
+                              {enrolling ? t('enrolling') : t('enroll')}
                             </Button>
                           )}
                     </div>

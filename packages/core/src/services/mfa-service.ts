@@ -57,7 +57,7 @@ export async function fetchMfaFactors(
   apiBaseUrl: string,
   accessToken?: string,
   onlyActive = false,
-): Promise<(Authenticator & FactorMeta)[]> {
+): Promise<(Authenticator & FactorMeta & { factorName: string })[]> {
   const response = await get<Authenticator[]>(`${apiBaseUrl}mfa/authenticators`, { accessToken });
   const map = new Map<AuthenticatorType, Authenticator>(
     response.map((f) => [f.authenticator_type, f]),
@@ -66,25 +66,28 @@ export async function fetchMfaFactors(
   return (Object.entries(factorsMeta) as [AuthenticatorType, FactorMeta][]).reduce(
     (acc, [type, meta]) => {
       const factor = map.get(type);
+
+      // If onlyActive=true, skip if not active
       const isActive = factor?.active ?? false;
-
-      if (!onlyActive || isActive) {
-        // extract from factor.id, or fallback to the factor type as name
-        const name = factor?.id?.split('|')[0] ?? type;
-
-        acc.push({
-          id: factor?.id ?? '',
-          authenticator_type: type,
-          oob_channels: factor?.oob_channels ?? [],
-          name,
-          active: isActive,
-          ...meta,
-        });
+      if (onlyActive && !isActive) {
+        return acc;
       }
+
+      // factorName from factor id or fallback
+      const factorName = factor?.id?.split('|')[0] ?? type;
+
+      acc.push({
+        id: factor?.id ?? '', // empty string if dummy
+        authenticator_type: factor?.authenticator_type ?? type, // from API or fallback
+        oob_channels: factor?.oob_channels ?? [], // from API or empty
+        active: isActive,
+        ...meta,
+        factorName, // extra prop
+      });
 
       return acc;
     },
-    [] as (Authenticator & FactorMeta)[],
+    [] as (Authenticator & FactorMeta & { factorName: string })[],
   );
 }
 

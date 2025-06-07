@@ -85,7 +85,6 @@ function SpaModeProvider({
 
   const apiBaseUrl = authDetails.domain ?? '';
 
-  console.log('helllo', authDetails);
   const config = React.useMemo(
     () => ({
       i18n,

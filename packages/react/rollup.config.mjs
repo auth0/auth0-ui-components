@@ -8,16 +8,17 @@ export default {
     dir: 'dist',
     format: 'esm',
     sourcemap: true,
-    preserveModules: true
+    preserveModules: true,
   },
   external: ['react', 'react-dom', '@auth0-web-ui-components/core'],
   plugins: [
     alias({
-      entries: [
-        { find: '@core', replacement: '../../core/src' }
-      ]
+      entries: [{ find: '@core', replacement: '../../core/src' }],
     }),
-    postcss(),
-    typescript({ tsconfig: './tsconfig.json' })
-  ]
+    postcss({
+      extract: false,
+      inject: true,
+    }),
+    typescript({ tsconfig: './tsconfig.json' }),
+  ],
 };

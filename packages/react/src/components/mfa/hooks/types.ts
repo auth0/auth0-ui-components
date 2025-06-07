@@ -39,7 +39,7 @@ export interface Authenticator extends FactorMeta {
 export interface UseMfaListResult {
   loading: boolean;
   error: Error | null;
-  factors: (Authenticator & FactorMeta)[];
+  factors: (Authenticator & FactorMeta & { factorName: string })[];
 }
 
 /**
