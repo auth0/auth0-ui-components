@@ -159,6 +159,7 @@ export function EnrollmentForm({
 
   // Automatically initiate OTP enrollment when factorType is 'totp'
   React.useEffect(() => {
+    setPhase('showOtp');
     if (factorType === 'totp' && !otpData.secret) {
       setLoading(true);
       const fetchOtpEnrollment = async () => {
@@ -170,7 +171,6 @@ export function EnrollmentForm({
               barcodeUri: response.barcode_uri,
               recoveryCodes: response.recovery_codes || [],
             });
-            setPhase('showOtp');
           }
         } catch (error) {
           const normalizedError = normalizeError(error, {
@@ -233,6 +233,41 @@ export function EnrollmentForm({
                 <strong>Recovery Codes:</strong>
               </p>
               <ul>{otpData.recoveryCodes?.map((code, index) => <li key={index}>{code}</li>)}</ul>
+              <Form {...formOtp}>
+                <form onSubmit={formOtp.handleSubmit(onSubmitOtp)} className="space-y-6">
+                  <FormField
+                    control={formOtp.control}
+                    name="otp"
+                    render={() => (
+                      <FormItem>
+                        <FormLabel>
+                          Enter the verification code from your authenticator app
+                        </FormLabel>
+                        <FormControl>
+                          <InputOTP
+                            maxLength={6}
+                            value={otpValue}
+                            onChange={(value) => setOtpValue(value)}
+                          >
+                            <InputOTPGroup>
+                              <InputOTPSlot index={0} />
+                              <InputOTPSlot index={1} />
+                              <InputOTPSlot index={2} />
+                              <InputOTPSlot index={3} />
+                              <InputOTPSlot index={4} />
+                              <InputOTPSlot index={5} />
+                            </InputOTPGroup>
+                          </InputOTP>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" disabled={loading}>
+                    {loading ? 'Verifying...' : 'Verify Code'}
+                  </Button>
+                </form>
+              </Form>
             </div>
           </div>
         );
