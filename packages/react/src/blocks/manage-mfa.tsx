@@ -51,7 +51,6 @@ import { EnrollmentForm } from '@/components/mfa/enrollment-form';
  * @param {Function} [props.onFetch] - Callback fired when MFA factors are fetched.
  * @param {Function} [props.onErrorAction] - Callback fired when an error occurs during an action (enroll/delete).
  * @param {Function} [props.onBeforeAction] - Callback fired before performing an action (enroll/delete).
- * @param {boolean} [props.proxyMode=false] - Indicates if the component is in ProxyMode (RWA) or SPA mode. Set to `true` for ProxyMode (RWA), `false` for SPA mode.
  *
  * @returns {React.JSX.Element} The rendered component.
  */
@@ -224,8 +223,8 @@ export function ManageMfa({
                 >
                   {idx > 0 && <Separator />}
                   <div className="flex flex-col items-center justify-between space-y-6 md:flex-row md:space-x-2 md:space-y-0">
-                    <Label className="flex flex-col space-y-1">
-                      <span className="leading-6">
+                    <Label className="flex flex-col items-start space-y-1">
+                      <span className="leading-6 text-left">
                         {t(`${factor.factorName}.title`)}
                         {factor.active && (
                           <Badge variant="default" className="ml-3">
@@ -233,7 +232,7 @@ export function ManageMfa({
                           </Badge>
                         )}
                       </span>
-                      <p className="max-w-fit font-normal leading-snug text-muted-foreground">
+                      <p className="font-normal leading-snug text-muted-foreground text-left">
                         {t(`${factor.factorName}.description`)}
                       </p>
                     </Label>

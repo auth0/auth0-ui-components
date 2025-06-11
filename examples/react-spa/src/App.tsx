@@ -16,6 +16,7 @@ function App() {
       },
     });
 
+  //TODO cleanup to add auth0 asset
   return (
     <>
       <div>

@@ -28,8 +28,6 @@ export const ThemeContext = React.createContext<ThemeContextValue>({
   mergedTheme: mergeThemes(defaultBranding, defaultCustomOverrides),
 });
 
-ThemeContext.displayName = 'ThemeContext';
-
 /**
  * ThemeProvider
  *

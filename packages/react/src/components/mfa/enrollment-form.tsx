@@ -43,6 +43,7 @@ type OtpForm = {
   userOtp: string;
 };
 
+//TODO - move logic to leaf node - manage mfa , make this presentational component
 export function EnrollmentForm({
   open,
   onClose,
@@ -257,6 +258,7 @@ export function EnrollmentForm({
                   <FormField
                     control={formOtp.control}
                     name="userOtp"
+                    key={phase}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
@@ -296,6 +298,7 @@ export function EnrollmentForm({
             >
               <FormField
                 control={formOtp.control}
+                key={phase}
                 name="userOtp"
                 render={({ field }) => (
                   <FormItem>

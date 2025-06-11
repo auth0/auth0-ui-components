@@ -9,8 +9,8 @@ import '@auth0-web-ui-components/react/dist/index.css';
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Auth0Provider
-      domain="dev-cz4yj2vahsv3re67.us.auth0.com"
-      clientId="5VtIz7hb5G6omlgqspqosRKY8FvXlqru"
+      domain="your_Auth0_domain"
+      clientId="your_Auth0_client_id"
       authorizationParams={{ redirect_uri: window.location.origin }}
     >
       <Auth0ComponentProvider i18n={{ currentLanguage: 'en-US' }}>
