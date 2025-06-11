@@ -58,14 +58,38 @@ export async function createI18n(options: {
     }
   };
 
-  // Initialize with fallback chain
-  const lang = options.currentLanguage === 'en' ? 'en-US' : options.currentLanguage;
-  const fallback = options.fallbackLanguage ?? 'en-US';
+  /**
+   * Loads translations with fallback strategy:
+   * 1. Try current language
+   * 2. Try user-specified fallback
+   * 3. Try en-US as default fallback
+   */
+  const loadTranslationsWithFallback = async (
+    currentLang: string,
+    fallbackLang?: string,
+  ): Promise<LangTranslations | null> => {
+    // Try current language
+    const currentTranslations = await loadTranslations(currentLang);
+    if (currentTranslations) return currentTranslations;
 
-  translations =
-    (await loadTranslations(lang)) ??
-    (await loadTranslations(fallback)) ??
-    (fallback !== 'en-US' ? await loadTranslations('en-US') : null);
+    // Try user fallback if specified and different from current
+    if (fallbackLang && fallbackLang !== currentLang) {
+      const fallbackTranslations = await loadTranslations(fallbackLang);
+      if (fallbackTranslations) return fallbackTranslations;
+    }
+
+    // Try en-US as last resort if not already tried
+    if (currentLang !== 'en-US' && fallbackLang !== 'en-US') {
+      return await loadTranslations('en-US');
+    }
+
+    return null;
+  };
+
+  translations = await loadTranslationsWithFallback(
+    options.currentLanguage,
+    options.fallbackLanguage,
+  );
 
   // Optimized translator factory with string concatenation optimization
   const createTranslator = (namespace: string): TranslationFunction => {
