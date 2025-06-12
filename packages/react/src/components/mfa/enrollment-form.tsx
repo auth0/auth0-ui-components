@@ -240,7 +240,6 @@ export function EnrollmentForm({
                 />
               </div>
             </div>
-            <p>Secret: {otpData.secret}</p>
             <div className="mt-6">
               <p>
                 <strong>Recovery Codes:</strong>
