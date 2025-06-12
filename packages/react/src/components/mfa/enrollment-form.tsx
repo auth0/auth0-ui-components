@@ -229,7 +229,7 @@ export function EnrollmentForm({
       case 'showOtp':
         return (
           <div>
-            <p>Scan the barcode with your authenticator app or enter the secret manually:</p>
+            <p>Scan the barcode with your authenticator app</p>
             <div className="flex justify-center items-center mt-6">
               <div className="border border-gray-300 p-4 rounded-lg shadow-lg bg-white">
                 <QRCode
@@ -240,10 +240,6 @@ export function EnrollmentForm({
                 />
               </div>
             </div>
-            <p>Secret: {otpData.secret}</p>
-            <Button onClick={() => setPhase('enterOtp')} className="mt-4">
-              I have scanned the barcode
-            </Button>
             <div className="mt-6">
               <p>
                 <strong>Recovery Codes:</strong>
