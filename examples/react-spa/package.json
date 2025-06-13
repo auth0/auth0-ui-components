@@ -12,8 +12,14 @@
   "dependencies": {
     "@auth0-web-ui-components/react": "workspace:*",
     "@auth0/auth0-react": "^2.0.0",
+    "@tailwindcss/vite": "^4.1.10",
+    "i18next": "^25.2.1",
+    "lucide-react": "^0.511.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-i18next": "^15.5.3",
+    "react-router-dom": "^7.6.2",
+    "tailwindcss": "^4.1.10"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

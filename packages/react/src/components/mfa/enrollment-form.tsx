@@ -200,38 +200,40 @@ export function EnrollmentForm({
     switch (phase) {
       case 'enterContact':
         return (
-          <Form {...formContact}>
-            <form onSubmit={formContact.handleSubmit(onSubmitContact)} className="space-y-6">
-              <FormField
-                control={formContact.control}
-                name="contact"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      {factorType === 'email' ? 'Email Address' : 'Phone Number (SMS)'}
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder={factorType === 'email' ? 'your@email.com' : '+1234567890'}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" disabled={!formContact.formState.isValid || loading}>
-                {loading ? 'Sending...' : 'Send Code'}
-              </Button>
-            </form>
-          </Form>
+          <div className="w-full max-w-sm mx-auto text-center">
+            <Form {...formContact}>
+              <form onSubmit={formContact.handleSubmit(onSubmitContact)} className="space-y-6">
+                <FormField
+                  control={formContact.control}
+                  name="contact"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {factorType === 'email' ? 'Email Address' : 'Phone Number (SMS)'}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={factorType === 'email' ? 'your@email.com' : '+1234567890'}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" disabled={!formContact.formState.isValid || loading}>
+                  {loading ? 'Sending...' : 'Send Code'}
+                </Button>
+              </form>
+            </Form>
+          </div>
         );
       case 'showOtp':
         return (
-          <div>
+          <div className="text-center">
             <p>Scan the barcode with your authenticator app</p>
             <div className="flex justify-center items-center mt-6">
-              <div className="border border-gray-300 p-4 rounded-lg shadow-lg bg-white">
+              <div className="border border-gray-300 p-4 rounded-lg shadow-lg bg-white inline-block">
                 <QRCode
                   size={150}
                   style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
@@ -241,89 +243,101 @@ export function EnrollmentForm({
               </div>
             </div>
             <div className="mt-6">
-              <p>
-                <strong>Recovery Codes:</strong>
-              </p>
-              <ul>
-                {otpData.recoveryCodes.map((code, index) => (
-                  <li key={index}>{code}</li>
-                ))}
-              </ul>
-              <Form {...formOtp}>
-                <form
-                  autoComplete="off"
-                  onSubmit={formOtp.handleSubmit(onSubmitOtp)}
-                  className="space-y-6 mt-4"
-                >
-                  <FormField
-                    control={formOtp.control}
-                    name="userOtp"
-                    key={phase}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Enter the verification code from your authenticator app
-                        </FormLabel>
-                        <FormControl>
-                          <InputOTP maxLength={6} {...field} autoComplete="one-time-code">
-                            <InputOTPGroup>
-                              <InputOTPSlot index={0} />
-                              <InputOTPSlot index={1} />
-                              <InputOTPSlot index={2} />
-                              <InputOTPSlot index={3} />
-                              <InputOTPSlot index={4} />
-                              <InputOTPSlot index={5} />
-                            </InputOTPGroup>
-                          </InputOTP>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" disabled={loading}>
-                    {loading ? 'Verifying...' : 'Verify Code'}
-                  </Button>
-                </form>
-              </Form>
+              {otpData.recoveryCodes.length > 0 && (
+                <div className="mb-6">
+                  <p>
+                    <strong>Save these recovery codes!</strong>
+                  </p>
+                  <ul className="list-none inline-block bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mt-2">
+                    {otpData.recoveryCodes.map((code, index) => (
+                      <li key={index} className="font-mono tracking-widest">
+                        {code}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div className="w-full max-w-sm mx-auto text-center">
+                <Form {...formOtp}>
+                  <form
+                    autoComplete="off"
+                    onSubmit={formOtp.handleSubmit(onSubmitOtp)}
+                    className="space-y-6 mt-4"
+                  >
+                    <FormField
+                      control={formOtp.control}
+                      name="userOtp"
+                      key={phase}
+                      render={({ field }) => (
+                        <FormItem className="text-center">
+                          <FormLabel className="block w-full text-sm font-medium text-center">
+                            Enter the code from your authenticator app
+                          </FormLabel>
+                          <FormControl>
+                            <div className="flex justify-center">
+                              <InputOTP maxLength={6} {...field} autoComplete="one-time-code">
+                                <InputOTPGroup>
+                                  <InputOTPSlot index={0} />
+                                  <InputOTPSlot index={1} />
+                                  <InputOTPSlot index={2} />
+                                  <InputOTPSlot index={3} />
+                                  <InputOTPSlot index={4} />
+                                  <InputOTPSlot index={5} />
+                                </InputOTPGroup>
+                              </InputOTP>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" disabled={loading}>
+                      {loading ? 'Verifying...' : 'Verify Code'}
+                    </Button>
+                  </form>
+                </Form>
+              </div>
             </div>
           </div>
         );
       case 'enterOtp':
         return (
-          <Form {...formOtp}>
-            <form
-              onSubmit={formOtp.handleSubmit(onSubmitOtp)}
-              autoComplete="off"
-              className="space-y-6"
-            >
-              <FormField
-                control={formOtp.control}
-                key={phase}
-                name="userOtp"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Enter the verification code</FormLabel>
-                    <FormControl>
-                      <InputOTP maxLength={6} {...field} autoComplete="one-time-code">
-                        <InputOTPGroup>
-                          <InputOTPSlot index={0} />
-                          <InputOTPSlot index={1} />
-                          <InputOTPSlot index={2} />
-                          <InputOTPSlot index={3} />
-                          <InputOTPSlot index={4} />
-                          <InputOTPSlot index={5} />
-                        </InputOTPGroup>
-                      </InputOTP>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Verifying...' : 'Verify Code'}
-              </Button>
-            </form>
-          </Form>
+          <div className="w-full max-w-sm mx-auto text-center">
+            <Form {...formOtp}>
+              <form
+                onSubmit={formOtp.handleSubmit(onSubmitOtp)}
+                autoComplete="off"
+                className="space-y-6"
+              >
+                <FormField
+                  control={formOtp.control}
+                  key={phase}
+                  name="userOtp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Enter the verification code</FormLabel>
+                      <FormControl>
+                        <InputOTP maxLength={6} {...field} autoComplete="one-time-code">
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" disabled={loading}>
+                  {loading ? 'Verifying...' : 'Verify Code'}
+                </Button>
+              </form>
+            </Form>
+          </div>
         );
       default:
         return null;
@@ -334,7 +348,7 @@ export function EnrollmentForm({
     <Dialog open={open && Boolean(phase)} onOpenChange={onClose}>
       <DialogContent aria-describedby={factorType}>
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-center">
             {factorType === 'email'
               ? 'Enroll Email MFA'
               : factorType === 'sms'
