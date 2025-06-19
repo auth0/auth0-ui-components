@@ -25,6 +25,12 @@
     "remove_factor": "登録を正常に削除しました。",
     "enroll_factor": "正常に登録されました。",
     "enroll_otp_mfa": "ワンタイムパスワードの登録",
+    "delete_factor": "${factorName}の認証要素を削除",
+    "delete_mfa_title": "MFA要素の削除",
+    "delete_mfa_content": "このMFA要素を削除してもよろしいですか？この操作は元に戻せません。",
+    "cancel": "キャンセル",
+    "confirm_delete": "削除",
+    "deleting": "削除中...",
     "errors": {
       "factors_loading_error": "多要素認証の読み込みエラー！",
       "access_token_error": "アクセストークンエラー: ${error}",
@@ -45,6 +51,9 @@
         "sms": "SMSの認証が無効になっています。ダッシュボードのGuardian MFAセクションで「SMS」をオンにしてください。",
         "totp": "OTP認証が無効になっています。ダッシュボードのGuardian MFAセクションで「プッシュ通知」をオンにしてください（プッシュ通知にはOTPが含まれます）。",
         "push-notification": "Auth0認証が無効になっています。ダッシュボードのGuardian MFAセクションで「プッシュ通知」をオンにしてください。"
+      },
+      "expired_token": {
+        "email": "認証コードの有効期限が切れました"
       }
     },
     "sms": {

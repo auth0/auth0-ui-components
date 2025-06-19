@@ -241,7 +241,7 @@ export function EnrollmentForm({
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-left" />
                     </FormItem>
                   )}
                 />
@@ -311,7 +311,7 @@ export function EnrollmentForm({
                               </InputOTP>
                             </div>
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-left" />
                         </FormItem>
                       )}
                     />
@@ -358,7 +358,7 @@ export function EnrollmentForm({
                           </InputOTP>
                         </div>
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-left" />
                     </FormItem>
                   )}
                 />

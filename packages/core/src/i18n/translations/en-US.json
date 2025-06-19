@@ -26,6 +26,10 @@
     "enroll_factor": "Enrolled successfully.",
     "enroll_otp_mfa": "Enroll OTP MFA",
     "delete_factor": "Delete authenticator ${factorName}",
+    "delete_mfa_title": "Delete MFA Factor",
+    "delete_mfa_content": "Are you sure you want to delete this MFA factor? This action cannot be undone.",
+    "cancel": "Cancel",
+    "deleting": "Deleting...",
     "errors": {
       "factors_loading_error": "Error loading MFA factors!",
       "access_token_error": "Access token error: ${error}",
@@ -46,6 +50,9 @@
         "sms": "SMS Verifier is disabled for your tenant. You can turn it on from dashboard turning on \"SMS\" on Guardian MFA section.",
         "totp": "OTP Verifier is disabled for your tenant. You can turn it on from dashboard turning on \"Push notifications\" on Guardian MFA section (Push notications include OTP).",
         "push-notification": "Auth0 Verifier is disabled for your tenant. You can turn it on from dashboard turning on \"Push notifications\" on Guardian MFA section."
+      },
+      "expired_token": {
+        "email": "Verification code is expired"
       }
     },
     "sms": {
