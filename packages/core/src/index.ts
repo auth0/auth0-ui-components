@@ -13,4 +13,5 @@ export {
   MFAType,
   AuthenticatorType,
   OobChannel,
+  ConfirmMfaEnrollmentParams,
 } from './services';

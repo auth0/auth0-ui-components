@@ -39,6 +39,7 @@ function SpaModeProvider({
   i18n = { currentLanguage: 'en-US', fallbackLanguage: 'en-US' },
   themeSettings = { mode: 'light' },
   customOverrides = {},
+  loader,
 }: Auth0ComponentConfig & { children: React.ReactNode }) {
   const { getIdTokenClaims, getAccessTokenSilently } = useAuth0();
 
@@ -93,10 +94,10 @@ function SpaModeProvider({
       isProxyMode: false,
       apiBaseUrl,
       authDetails,
+      loader,
     }),
     [i18n, themeSettings, customOverrides, apiBaseUrl, authDetails],
   );
-
   return (
     <Auth0ComponentContext.Provider value={{ config }}>
       <ThemeProvider theme={{ branding: themeSettings, customOverrides }}>{children}</ThemeProvider>

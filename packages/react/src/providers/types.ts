@@ -1,3 +1,4 @@
+import * as React from 'react';
 /**
  * Theme configuration for the Auth0 components
  * @property {('light'|'dark')} [mode] - Theme mode
@@ -34,6 +35,7 @@ export interface Auth0ComponentConfig {
   customOverrides?: CustomOverrides;
   isProxyMode?: boolean;
   apiBaseUrl?: string;
+  loader?: React.ReactNode;
 }
 
 export interface I18nOptions {

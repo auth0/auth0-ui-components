@@ -14,6 +14,12 @@ const UserProfilePage = () => {
           'webauthn-platform': {
             visible: false,
           },
+          'recovery-code': {
+            visible: false,
+          },
+          'webauthn-roaming': {
+            visible: false,
+          },
         }}
       />
     </div>

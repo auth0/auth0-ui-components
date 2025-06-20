@@ -8,207 +8,188 @@ import {
   deleteMfaFactor,
   confirmMfaEnrollmentRequest,
 } from '@auth0-web-ui-components/core';
-import type { MFAType, EnrollMfaParams, EnrollMfaResponse } from '@auth0-web-ui-components/core';
+import type {
+  MFAType,
+  EnrollMfaParams,
+  EnrollMfaResponse,
+  Authenticator,
+  ConfirmMfaEnrollmentParams,
+} from '@auth0-web-ui-components/core';
 import type { EnrollOptions } from '@/types';
+import {
+  FACTOR_TYPE_EMAIL,
+  FACTOR_TYPE_PUSH_NOTIFICATION,
+  FACTOR_TYPE_SMS,
+  FACTOR_TYPE_TOPT,
+} from '@/lib/constants';
 
 /**
- * Custom React hook to manage Multi-Factor Authentication (MFA) operations.
- *
- * This hook provides methods to:
- * - Fetch enrolled MFA factors for the authenticated user.
- * - Enroll the user in new MFA factors such as SMS, TOTP, Email, and Push Notification.
- * - Delete enrolled MFA factors.
- * - Confirm MFA enrollment using an out-of-band (OOB) code and user OTP input.
- *
- * The hook handles:
- * - Access token retrieval with required MFA scopes (unless in proxy mode).
- * - Validation of necessary configuration and inputs before making API requests.
- * - Support for both proxy and RWA environments.
- *
- * @returns {object} An object with the following methods:
- *  - `fetchFactors(onlyActive?: boolean): Promise<{ error: Error | null; response: Authenticator[] | null }>`
- *    Fetches MFA authenticators enrolled by the user. If `onlyActive` is true, returns only active factors.
- *
- *  - `enrollMfa(factorName: MFAType, options?: EnrollOptions): Promise<{ error: Error | null; response: EnrollMfaResponse | null }>`
- *    Enrolls the user in a specified MFA factor. Requires factor-specific options like phone number or email for SMS/Email.
- *
- *  - `deleteMfa(authenticatorId: string): Promise<{ error: Error | null; success: boolean }>`
- *    Deletes an enrolled MFA factor by ID.
- *
- *  - `confirmEnrollment(factorName: MFAType, options: { oobCode: string; userOtpCode?: string; userEmailOtpCode?: string }): Promise<{ error: Error | null; response: unknown | null }>`
- *    Confirms an MFA enrollment by verifying OTP codes sent via OOB methods (SMS, Email, TOTP, Push).
+ * Describes the methods returned by the `useMFA` hook for managing multi-factor authentication.
+ * @interface UseMfaResult
  */
-export function useMFA() {
+export interface UseMfaResult {
+  /**
+   * Fetches the list of MFA authenticators for the current user.
+   * @param {boolean} [onlyActive=false] - If true, returns only factors that are actively enrolled.
+   * @returns {Promise<Authenticator[]>} A promise that resolves with the list of authenticators.
+   * @throws An error if the API request fails or prerequisites (e.g., `apiBaseUrl`) are missing.
+   */
+  fetchFactors: (onlyActive?: boolean) => Promise<Authenticator[]>;
+  /**
+   * Initiates the enrollment process for a new MFA factor.
+   * @param {MFAType} factorName - The type of factor to enroll (e.g., 'sms', 'totp').
+   * @param {EnrollOptions} [options={}] - Factor-specific data required for enrollment (e.g., `phone_number` for SMS).
+   * @returns {Promise<EnrollMfaResponse>} A promise that resolves with the enrollment response, which may contain data like an `oob_code` or QR code URI.
+   * @throws An error if the API request fails or required options are missing.
+   */
+  enrollMfa: (factorName: MFAType, options?: EnrollOptions) => Promise<EnrollMfaResponse>;
+  /**
+   * Deletes a previously enrolled MFA factor.
+   * @param {string} authenticatorId - The unique ID of the authenticator to delete.
+   * @returns {Promise<void>} A promise that resolves when the deletion is successful.
+   * @throws An error if the API request fails.
+   */
+  deleteMfa: (authenticatorId: string) => Promise<void>;
+  /**
+   * Confirms an MFA enrollment, typically by verifying a code provided by the user.
+   * @param {MFAType} factorName - The type of factor being confirmed.
+   * @param {object} options - The verification data, such as `oobCode` and `userOtpCode`.
+   * @returns {Promise<unknown>} A promise that resolves with the confirmation response from the server.
+   * @throws An error if the API request fails or prerequisites are missing.
+   */
+  confirmEnrollment: (
+    factorName: MFAType,
+    options: { oobCode?: string; userOtpCode?: string; userEmailOtpCode?: string },
+  ) => Promise<unknown>;
+}
+
+/**
+ * A custom React hook for managing all Multi-Factor Authentication (MFA) operations.
+ *
+ * This hook abstracts the complexity of fetching, enrolling, confirming, and deleting MFA factors.
+ * It handles access token management automatically and provides a clean, promise-based API
+ * for interacting with the MFA endpoints in either a proxy or non-proxy environment.
+ *
+ * @returns {UseMfaResult} An object containing the functions to manage MFA factors.
+ */
+export function useMFA(): UseMfaResult {
   const {
     config: { authDetails, apiBaseUrl, isProxyMode },
   } = useComponentConfig();
   const t = useI18n('common');
-
-  // Scopes needed for MFA management when not in proxy mode
   const mfaScopes = ['read:authenticators', 'remove:authenticators', 'enroll'];
 
-  // Retrieve access token with MFA scopes unless in proxy mode
-  const { token: fetchedToken } = isProxyMode
-    ? { token: undefined }
-    : useAccessToken(mfaScopes.join(' '), 'mfa');
-
-  const accessToken = isProxyMode ? undefined : fetchedToken;
+  const { getToken: getMfaToken } = useAccessToken(mfaScopes.join(' '), 'mfa');
 
   /**
-   * Validates that all required config values and tokens are available before API calls.
-   * Throws a translated error if validation fails.
-   *
-   * @throws {Error} When required values like API base URL, access token, or domain are missing.
+   * A higher-order function that handles token fetching and prerequisite validation
+   * before executing a given API task.
+   * @param task - The async function to execute, which receives the optional access token.
+   * @private
    */
-  function validatePrerequisites(): void {
-    if (!apiBaseUrl) throw new Error(t('errors.missing_base_url')!);
-    if (!isProxyMode && !accessToken) throw new Error(t('errors.missing_access_token')!);
-    if (!isProxyMode && !authDetails?.domain) throw new Error(t('errors.missing_domain')!);
-  }
+  const withMfaToken = useCallback(
+    async <T>(task: (token?: string) => Promise<T>): Promise<T> => {
+      if (!apiBaseUrl) throw new Error(t('errors.missing_base_url')!);
+
+      const token = isProxyMode ? undefined : await getMfaToken();
+      if (!isProxyMode && !token) throw new Error(t('errors.missing_access_token')!);
+
+      return task(token);
+    },
+    [apiBaseUrl, isProxyMode, getMfaToken, t],
+  );
 
   /**
-   * Constructs enrollment parameters for a specific MFA factor.
-   *
-   * @param {MFAType} factorName - The MFA factor to enroll (e.g., 'sms', 'totp', 'email', 'push-notification').
-   * @param {EnrollOptions} [options] - Additional data needed for enrollment like phone number or email.
-   * @returns {EnrollMfaParams} Parameters formatted for the enroll MFA API request.
-   *
-   * @throws {Error} If required fields are missing for the chosen factor (e.g., phone number for SMS).
+   * Builds the parameters for an MFA enrollment request.
+   * @private
    */
   const buildEnrollParams = (factorName: MFAType, options: EnrollOptions = {}): EnrollMfaParams => {
     switch (factorName) {
-      case 'sms':
+      case FACTOR_TYPE_SMS:
+        if (!options.phone_number) throw new Error(t('errors.phone_number_required'));
         return {
           authenticator_types: ['oob'],
           oob_channels: ['sms'],
           phone_number: options.phone_number,
         };
-      case 'totp':
+      case FACTOR_TYPE_EMAIL:
+        if (!options.email) throw new Error(t('errors.email_required'));
+        return { authenticator_types: ['oob'], oob_channels: ['email'], email: options.email };
+      case FACTOR_TYPE_TOPT:
         return { authenticator_types: ['otp'] };
-      case 'push-notification':
+      case FACTOR_TYPE_PUSH_NOTIFICATION:
         return { authenticator_types: ['oob'], oob_channels: ['auth0'] };
-      case 'email':
-        return {
-          authenticator_types: ['oob'],
-          oob_channels: ['email'],
-          email: options.email,
-        };
       default:
-        throw new Error(`Unsupported MFA type: ${factorName}`);
+        throw new Error(t('errors.email_required', { factorName }));
     }
   };
 
   /**
-   * Fetches the list of MFA authenticators for the current user.
-   *
-   * @param {boolean} [onlyActive=false] - If true, only returns active/enrolled factors.
-   * @returns {Promise<Authenticator[]>}
-   * Returns the list of authenticators if successful.
-   * @throws {Error} If an error occurs while fetching MFA factors.
+   * Builds the parameters for an MFA confirmation request.
+   * @private
    */
+  const buildConfirmParams = (
+    factorName: MFAType,
+    options: { oobCode?: string; userOtpCode?: string; userEmailOtpCode?: string },
+    token?: string,
+  ): ConfirmMfaEnrollmentParams => {
+    const baseParams: ConfirmMfaEnrollmentParams = {
+      grant_type:
+        factorName === FACTOR_TYPE_TOPT
+          ? 'http://auth0.com/oauth/grant-type/mfa-otp'
+          : 'http://auth0.com/oauth/grant-type/mfa-oob',
+      oob_code: options.oobCode,
+      client_id: !isProxyMode ? authDetails?.clientId : undefined,
+      mfa_token: token,
+    };
+
+    if (factorName === FACTOR_TYPE_TOPT) {
+      baseParams.otp = options.userOtpCode;
+    } else if (
+      [FACTOR_TYPE_SMS, FACTOR_TYPE_EMAIL, FACTOR_TYPE_PUSH_NOTIFICATION].includes(factorName)
+    ) {
+      baseParams.binding_code =
+        factorName === FACTOR_TYPE_SMS
+          ? options.userOtpCode
+          : factorName === FACTOR_TYPE_EMAIL
+            ? options.userEmailOtpCode
+            : options.userOtpCode;
+    }
+    return baseParams;
+  };
+
   const fetchFactors = useCallback(
-    async (onlyActive = false) => {
-      if (!isProxyMode) validatePrerequisites();
-      return fetchMfaFactors(apiBaseUrl!, accessToken ?? undefined, onlyActive);
-    },
-    [apiBaseUrl, accessToken, isProxyMode],
+    (onlyActive = false) =>
+      withMfaToken((token) => fetchMfaFactors(apiBaseUrl!, token, onlyActive)),
+    [withMfaToken, apiBaseUrl],
   );
 
-  /**
-   * Enrolls the user in a specified MFA (Multi-Factor Authentication) factor.
-   *
-   * This function prepares and sends an enrollment request for a given MFA factor
-   * (e.g. `sms`, `email`, `totp`) using the provided options such as phone number or email.
-   *
-   * Prerequisites (like API base URL and access token) must be valid beforehand,
-   * or this function will throw an error.
-   *
-   * @param {MFAType} factorName - The MFA factor to enroll in (e.g. 'sms', 'email').
-   * @param {EnrollOptions} [options={}] - Optional enrollment data such as phone number or email address.
-   *                                       These are required for some factors (e.g., `sms`, `email`).
-   * @returns {Promise<EnrollMfaResponse>} Resolves with the server's enrollment response on success.
-   * @throws {Error} Throws if prerequisites are invalid, or if the API request fails.
-   */
   const enrollMfa = useCallback(
-    async (factorName: MFAType, options: EnrollOptions = {}): Promise<EnrollMfaResponse> => {
-      if (!isProxyMode) validatePrerequisites();
-      const params = buildEnrollParams(factorName, options);
-      const response = await enrollMfaRequest(apiBaseUrl!, params, accessToken ?? undefined);
-      return response;
-    },
-    [apiBaseUrl, accessToken],
+    (factorName: MFAType, options: EnrollOptions = {}) =>
+      withMfaToken((token) => {
+        const params = buildEnrollParams(factorName, options);
+        return enrollMfaRequest(apiBaseUrl!, params, token);
+      }),
+    [withMfaToken, apiBaseUrl],
   );
 
-  /**
-   * Deletes an enrolled MFA factor by its authenticator ID.
-   *
-   * @param {string} authenticatorId - The ID of the authenticator to delete.
-   * @returns {Promise<void>}
-   * Throws an error if deletion fails.
-   */
   const deleteMfa = useCallback(
-    async (authenticatorId: string): Promise<void> => {
-      if (!isProxyMode) validatePrerequisites();
-      await deleteMfaFactor(apiBaseUrl!, authenticatorId, accessToken ?? undefined);
-    },
-    [apiBaseUrl, accessToken],
+    (authenticatorId: string) =>
+      withMfaToken((token) => deleteMfaFactor(apiBaseUrl!, authenticatorId, token)),
+    [withMfaToken, apiBaseUrl],
   );
 
-  /**
-   * Confirms MFA enrollment by verifying an out-of-band code and user OTP code.
-   *
-   * @param {MFAType} factorName - The MFA factor type ('sms', 'email', 'totp', 'push-notification').
-   * @param {object} options - Options including:
-   *   - `oobCode` (string): The out-of-band code sent to the user.
-   *   - `userOtpCode` (string, optional): The OTP entered by the user for SMS, TOTP, or push notification.
-   *   - `userEmailOtpCode` (string, optional): The OTP entered by the user for email.
-   * @returns {Promise<unknown | null>}
-   * Returns either an error or the API confirmation response.
-   */
   const confirmEnrollment = useCallback(
-    async (
+    (
       factorName: MFAType,
       options: { oobCode?: string; userOtpCode?: string; userEmailOtpCode?: string },
-    ): Promise<unknown | null> => {
-      // Validate prerequisites
-      if (!isProxyMode) validatePrerequisites();
-      const baseData: {
-        grant_type: string;
-        oob_code?: string;
-        otp?: string;
-        binding_code?: string;
-        client_id?: string | undefined;
-        mfa_token?: string | undefined;
-      } = {
-        grant_type:
-          factorName === 'totp'
-            ? 'http://auth0.com/oauth/grant-type/mfa-otp'
-            : 'http://auth0.com/oauth/grant-type/mfa-oob',
-        oob_code: options?.oobCode,
-        client_id: !isProxyMode ? authDetails?.clientId : undefined,
-        mfa_token: accessToken ?? undefined,
-      };
-
-      // Add OTP or binding code depending on the factor type
-      if (factorName === 'totp') {
-        baseData.otp = options.userOtpCode;
-      } else if (['sms', 'email', 'push-notification'].includes(factorName)) {
-        baseData.binding_code =
-          factorName === 'sms'
-            ? options.userOtpCode
-            : factorName === 'email'
-              ? options.userEmailOtpCode
-              : options.userOtpCode;
-      }
-
-      const confirmResponse = await confirmMfaEnrollmentRequest(
-        apiBaseUrl!,
-        baseData,
-        accessToken ?? undefined,
-      );
-      return confirmResponse;
-    },
-    [apiBaseUrl, accessToken, isProxyMode, t],
+    ) =>
+      withMfaToken((token) => {
+        if (!isProxyMode && !authDetails?.domain) throw new Error(t('errors.missing_domain')!);
+        const params = buildConfirmParams(factorName, options, token);
+        return confirmMfaEnrollmentRequest(apiBaseUrl!, params, token);
+      }),
+    [withMfaToken, apiBaseUrl, isProxyMode, authDetails, t],
   );
 
   return {

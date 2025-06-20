@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useI18n, useMFA } from '@/hooks';
+import { useComponentConfig, useI18n, useMFA } from '@/hooks';
 import type { ManageMfaProps, MFAType, Authenticator } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +9,9 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { EnrollmentForm } from '@/components/mfa/enrollment-form';
+import { ENROLL, CONFIRM } from '@/lib/constants';
+import { Spinner } from '@/components/ui/spinner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 /**
  * ManageMfa Component
@@ -69,14 +72,22 @@ export function ManageMfa({
   onBeforeAction,
 }: ManageMfaProps): React.JSX.Element {
   const t = useI18n('mfa', localization);
+  const {
+    config: { loader },
+  } = useComponentConfig();
   const { fetchFactors, enrollMfa, deleteMfa, confirmEnrollment } = useMFA();
 
   const [factors, setFactors] = React.useState<Authenticator[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [deleting, setDeleting] = React.useState(false);
+  const [isDeletingFactor, setIsDeletingFactor] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [enrollFactor, setEnrollFactor] = React.useState<MFAType | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+  const [factorToDelete, setFactorToDelete] = React.useState<{
+    id: string;
+    type: MFAType;
+  } | null>(null);
 
   /**
    * Loads the available MFA factors from the API and updates the state.
@@ -124,42 +135,92 @@ export function ManageMfa({
     setDialogOpen(true);
   };
 
+  const handleCloseDialog = React.useCallback(() => {
+    setDialogOpen(false);
+    setEnrollFactor(null);
+  }, []);
+
   /**
-   * Handles the deletion of an MFA factor.
-   * If the action is allowed (i.e., not read-only or disabled), it calls the deleteMfa function.
+   * Handles the initial click on the delete button for an MFA factor.
+   * This function either:
+   * 1. Triggers the onBeforeAction callback and proceeds with deletion if approved
+   * 2. Opens a confirmation dialog if no onBeforeAction is provided
    *
-   * @param {string} factorId - The ID of the factor to be deleted.
-   * @param {MFAType} factorType - The type of the MFA factor to be deleted.
+   * The function prevents deletion if:
+   * - Component is in readonly mode
+   * - Delete action is disabled
+   * - onBeforeAction returns false
+   *
+   * @param {string} factorId - The unique identifier of the MFA factor to delete
+   * @param {MFAType} factorType - The type of MFA factor being deleted (e.g., 'sms', 'email', 'totp')
+   * @returns {Promise<void>}
    */
-  const handleDelete = React.useCallback(
+  const handleDeleteClick = React.useCallback(
     async (factorId: string, factorType: MFAType) => {
       if (readOnly || disableDelete) return;
 
       if (onBeforeAction) {
-        const proceed = await onBeforeAction('delete', factorType);
-        if (!proceed) return;
+        // If onBeforeAction exists, proceed directly
+        const canProceed = await onBeforeAction('delete', factorType);
+        if (!canProceed) return;
+        await handleConfirmDelete(factorId);
+      } else {
+        setFactorToDelete({ id: factorId, type: factorType });
+        setIsDeleteDialogOpen(true);
       }
+    },
+    [readOnly, disableDelete, onBeforeAction],
+  );
 
-      setDeleting(true);
+  /**
+   * Handles the confirmation and execution of MFA factor deletion.
+   * This callback is triggered when a user confirms the deletion in the confirmation dialog
+   * or when deletion is approved through onBeforeAction.
+   *
+   * The function:
+   * 1. Deletes the MFA factor
+   * 2. Reloads the factors list
+   * 3. Shows success/error notifications
+   * 4. Handles cleanup of dialog and loading states
+   *
+   * @param {string} factorId - The unique identifier of the MFA factor to delete
+   * @throws {Error} When deletion fails or factors cannot be reloaded
+   */
+  const handleConfirmDelete = React.useCallback(
+    async (factorId: string) => {
+      setIsDeletingFactor(true);
+
+      const cleanUp = () => {
+        setIsDeletingFactor(false);
+        setIsDeleteDialogOpen(false);
+        setFactorToDelete(null);
+      };
 
       try {
         await deleteMfa(factorId);
-        toast.success(t('remove_factor'), {
-          duration: 2000,
-          onAutoClose: async () => {
-            onDelete?.();
-            await loadFactors();
-          },
-        });
       } catch (err) {
-        const e = err as Error;
-        toast.error(e.message);
-        onErrorAction?.(e, 'delete');
+        const error = err instanceof Error ? err : new Error(t('errors.delete_factor'));
+        toast.error(t('errors.delete_factor'));
+        onErrorAction?.(error, 'delete');
+        cleanUp();
+        return;
+      }
+
+      toast.success(t('remove_factor'), {
+        duration: 2000,
+        onAutoClose: () => onDelete?.(),
+      });
+
+      try {
+        await loadFactors();
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error(t('errors.factors_loading_error'));
+        onErrorAction?.(error, 'delete');
       } finally {
-        setDeleting(false);
+        cleanUp();
       }
     },
-    [readOnly, disableDelete, onBeforeAction, deleteMfa, onErrorAction, onDelete, loadFactors, t],
+    [deleteMfa, loadFactors, onDelete, onErrorAction, t],
   );
 
   /**
@@ -169,14 +230,19 @@ export function ManageMfa({
   const handleEnrollSuccess = React.useCallback(async () => {
     setDialogOpen(false);
     setEnrollFactor(null);
-    toast.success(t('enroll_factor'), {
-      duration: 2000,
-      onAutoClose: async () => {
-        onEnroll?.();
-        await loadFactors();
-      },
-    });
-  }, [loadFactors, onEnroll]);
+    try {
+      toast.success(t('enroll_factor'), {
+        duration: 2000,
+        onAutoClose: () => {
+          onEnroll?.();
+        },
+      });
+      await loadFactors();
+    } catch {
+      toast.dismiss();
+      toast.error(t('errors.factors_loading_error'));
+    }
+  }, [loadFactors, onEnroll, t]);
 
   /**
    * Handles errors during the enrollment or confirmation process.
@@ -185,93 +251,98 @@ export function ManageMfa({
    * @param {string} stage - The stage of the process ('enroll' or 'confirm').
    */
   const handleEnrollError = React.useCallback(
-    (error: Error, stage: 'enroll' | 'confirm') => {
-      toast.error(`${stage === 'enroll' ? 'Enrollment' : 'Confirmation'} failed: ${error.message}`);
+    (error: Error, stage: typeof ENROLL | typeof CONFIRM) => {
+      toast.error(
+        `${stage === ENROLL ? t('enrollment') : t('confirmation')} ${t('errors.failed', { message: error.message })}`,
+      );
       onErrorAction?.(error, stage);
     },
     [onErrorAction],
   );
 
-  if (loading) return <p>{t('loading')}</p>;
-  if (error) return <p className="text-3xl font-bold underline">{error}</p>;
-
   return (
     <>
       <Toaster position="top-right" />
-      <Card>
-        {!hideHeader && (
-          <CardHeader>
-            <CardTitle>{t('title')}</CardTitle>
-            <CardDescription>{t('description')}</CardDescription>
-          </CardHeader>
-        )}
+      {loading ? (
+        loader || <Spinner />
+      ) : error ? (
+        <div className="flex items-center justify-center p-4">
+          <Label className="text-center text-destructive">{error}</Label>
+        </div>
+      ) : (
+        <Card>
+          {!hideHeader && (
+            <CardHeader>
+              <CardTitle>{t('title')}</CardTitle>
+              <CardDescription>{t('description')}</CardDescription>
+            </CardHeader>
+          )}
 
-        <CardContent className="grid gap-6 p-4 pt-0 md:p-6 md:pt-0">
-          {showActiveOnly && visibleFactors.length === 0 ? (
-            <Label className="text-center text-muted-foreground">{t('no_active_mfa')}</Label>
-          ) : (
-            visibleFactors.map((factor, idx) => {
-              const isEnabledFactor =
-                factorConfig?.[factor.factorName as MFAType]?.enabled !== false;
+          <CardContent className="grid gap-6 p-4 pt-0 md:p-6 md:pt-0">
+            {showActiveOnly && visibleFactors.length === 0 ? (
+              <Label className="text-center text-muted-foreground">{t('no_active_mfa')}</Label>
+            ) : (
+              visibleFactors.map((factor, idx) => {
+                const isEnabledFactor =
+                  factorConfig?.[factor.factorName as MFAType]?.enabled !== false;
 
-              return (
-                <div
-                  key={`${factor.name}-${idx}`}
-                  className={`flex flex-col gap-6 ${!isEnabledFactor ? 'opacity-50 pointer-events-none' : ''}`}
-                  aria-disabled={!isEnabledFactor}
-                >
-                  {idx > 0 && <Separator />}
-                  <div className="flex flex-col items-center justify-between space-y-6 md:flex-row md:space-x-2 md:space-y-0">
-                    <Label className="flex flex-col items-start space-y-1">
-                      <span className="leading-6 text-left">
-                        {t(`${factor.factorName}.title`)}
-                        {factor.active && (
-                          <Badge variant="default" color="green" className="ml-3">
-                            {t('enrolled')}
-                          </Badge>
-                        )}
-                      </span>
-                      <p className="font-normal leading-snug text-muted-foreground text-left">
-                        {t(`${factor.factorName}.description`)}
-                      </p>
-                    </Label>
-
-                    <div className="flex items-center justify-end space-x-24 md:min-w-72">
-                      {factor.active
-                        ? !readOnly && (
-                            <Button
-                              type="submit"
-                              onClick={() => handleDelete(factor.id, factor.factorName as MFAType)}
-                              disabled={disableDelete || deleting || !isEnabledFactor}
-                              aria-label={`Delete authenticator ${factor.factorName}`}
-                            >
-                              {t('delete')}
-                            </Button>
-                          )
-                        : !readOnly && (
-                            <Button
-                              onClick={() => handleEnrollClick(factor.factorName as MFAType)}
-                              disabled={disableEnroll || !isEnabledFactor}
-                            >
-                              {t('enroll')}
-                            </Button>
+                return (
+                  <div
+                    key={`${factor.name}-${idx}`}
+                    className={`flex flex-col gap-6 ${!isEnabledFactor ? 'opacity-50 pointer-events-none' : ''}`}
+                    aria-disabled={!isEnabledFactor}
+                  >
+                    {idx > 0 && <Separator />}
+                    <div className="flex flex-col items-center justify-between space-y-6 md:flex-row md:space-x-2 md:space-y-0">
+                      <Label className="flex flex-col items-start space-y-1">
+                        <span className="leading-6 text-left">
+                          {t(`${factor.factorName}.title`)}
+                          {factor.active && (
+                            <Badge variant="success" className="ml-3">
+                              {t('enrolled')}
+                            </Badge>
                           )}
+                        </span>
+                        <p className="font-normal leading-snug text-muted-foreground text-left">
+                          {t(`${factor.factorName}.description`)}
+                        </p>
+                      </Label>
+
+                      <div className="flex items-center justify-end space-x-24 md:min-w-72">
+                        {factor.active
+                          ? !readOnly && (
+                              <Button
+                                type="submit"
+                                onClick={() =>
+                                  handleDeleteClick(factor.id, factor.factorName as MFAType)
+                                }
+                                disabled={disableDelete || isDeletingFactor || !isEnabledFactor}
+                                aria-label={t('delete_factor', { factorName: factor.factorName })}
+                              >
+                                {t('delete')}
+                              </Button>
+                            )
+                          : !readOnly && (
+                              <Button
+                                onClick={() => handleEnrollClick(factor.factorName as MFAType)}
+                                disabled={disableEnroll || !isEnabledFactor}
+                              >
+                                {t('enroll')}
+                              </Button>
+                            )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })
-          )}
-        </CardContent>
-      </Card>
-
+                );
+              })
+            )}
+          </CardContent>
+        </Card>
+      )}
       {enrollFactor && (
         <EnrollmentForm
           open={dialogOpen}
-          onClose={() => {
-            setDialogOpen(false);
-            setEnrollFactor(null);
-          }}
+          onClose={handleCloseDialog}
           factorType={enrollFactor}
           enrollMfa={enrollMfa}
           confirmEnrollment={confirmEnrollment}
@@ -279,6 +350,37 @@ export function ManageMfa({
           onError={handleEnrollError}
         />
       )}
+      <Dialog
+        open={isDeleteDialogOpen}
+        onOpenChange={(open) => !isDeletingFactor && setIsDeleteDialogOpen(open)}
+      >
+        <DialogContent aria-describedby="delete-mfa-description">
+          <DialogHeader>
+            <DialogTitle className="text-center">{t('delete_mfa_title')}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p id="delete-mfa-description" className="text-center text-muted-foreground">
+              {t('delete_mfa_content')}
+            </p>
+          </div>
+          <div className="flex justify-end gap-4 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              disabled={isDeletingFactor}
+            >
+              {t('cancel')}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => factorToDelete && handleConfirmDelete(factorToDelete.id)}
+              disabled={isDeletingFactor}
+            >
+              {isDeletingFactor ? t('deleting') : t('delete')}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -6,6 +6,7 @@ import { ProxyModeProvider } from './proxy-mode-provider';
 import type { TFactory } from '@auth0-web-ui-components/core';
 import { createI18n } from '@auth0-web-ui-components/core';
 import { I18nContext } from './i18n-provider';
+import { Spinner } from '@/components/ui/spinner';
 
 const SpaModeProvider = React.lazy(() => import('./spa-mode-provider'));
 
@@ -28,6 +29,9 @@ const SpaModeProvider = React.lazy(() => import('./spa-mode-provider'));
  * @param {Object} [props.i18n] - Internationalization configuration (language, fallback).
  * @param {Object} [props.themeSettings] - Theme and branding settings.
  * @param {Object} [props.customOverrides] - Optional CSS variable overrides for styling.
+ * @param {React.ReactNode} [props.loader] - Custom loading component to show while
+ *                                                    authentication is initializing.
+ *                                                    Defaults to "Loading authentication...".
  *
  * @returns {JSX.Element} The provider component for Auth0 context.
  *
@@ -97,7 +101,7 @@ export const Auth0ComponentProvider = ({
       {isProxyMode ? (
         <ProxyModeProvider {...props} authProxyUrl={authProxyUrl} />
       ) : (
-        <React.Suspense fallback="Loading authentication...">
+        <React.Suspense fallback={props.loader || <Spinner />}>
           <SpaModeProvider {...props} />
         </React.Suspense>
       )}

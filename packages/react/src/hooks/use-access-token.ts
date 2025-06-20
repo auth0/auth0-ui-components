@@ -3,27 +3,58 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useComponentConfig } from './use-config';
 import { useI18n } from './use-i18n';
 
+/**
+ * Describes the object returned by the `useAccessToken` hook.
+ * @interface UseAccessTokenResult
+ */
 interface UseAccessTokenResult {
-  token: string | null;
-  loading: boolean;
+  /**
+   * Fetches an Auth0 access token, handling caching, deduplication, and popup fallbacks.
+   * @param {boolean} [ignoreCache=false] - If true, forces a new token request, bypassing the SDK's cache.
+   * @returns {Promise<string>} A promise that resolves with the access token.
+   * @throws An error if the token cannot be obtained. This must be handled with a `try...catch` block.
+   */
+  getToken: (ignoreCache?: boolean) => Promise<string>;
+  /**
+   * A static error object present only if the Auth0 domain is not configured.
+   * Does not report runtime errors from `getToken`.
+   */
   error: Error | null;
-  refreshToken: () => Promise<void>;
 }
 
 /**
- * useAccessToken
+ * A React hook to get Auth0 access tokens.
  *
- * React hook to retrieve Auth0 access tokens with shared in-memory caching.
+ * This hook simplifies token retrieval by providing request deduplication (preventing
+ * multiple requests for the same token) and automatically handling the popup fallback
+ * if user consent is required. It relies on the Auth0 SDK's internal cache,
+ * which respects token expiration.
  *
- * @param {string} scope - Space-separated scopes to request.
- * @param {string} audiencePath - Path segment appended to `https://${domain}/` to form the audience.
+ * @param {string} scope - The space-separated OAuth scopes required for the token (e.g., "read:users").
+ * @param {string} audiencePath - The path segment of the API audience (e.g., "api/v2"), which is appended to the domain.
+ * @returns {UseAccessTokenResult} An object containing the `getToken` function and a potential configuration error.
  *
- * @returns {{
- *   token: string | null;
- *   loading: boolean;
- *   error: Error | null;
- *   refreshToken: () => Promise<void>;
- * }} Token state and refresh utility.
+ * @example
+ * ```tsx
+ * function UserProfile() {
+ * const { getToken, error } = useAccessToken('read:current_user', 'api/v2');
+ *
+ * const fetchProfile = async () => {
+ * try {
+ * const token = await getToken();
+ * const response = await fetch('[https://my-api.com/profile](https://my-api.com/profile)', {
+ * headers: { Authorization: `Bearer ${token}` },
+ * });
+ * // ... handle response
+ * } catch (err) {
+ * console.error("Failed to fetch profile:", err);
+ * // Handle error, e.g., show a notification to the user
+ * }
+ * };
+ *
+ * return <button onClick={fetchProfile}>Load Profile</button>;
+ * }
+ * ```
  */
 export function useAccessToken(scope: string, audiencePath: string): UseAccessTokenResult {
   const { getAccessTokenSilently, getAccessTokenWithPopup } = useAuth0();
@@ -33,132 +64,70 @@ export function useAccessToken(scope: string, audiencePath: string): UseAccessTo
   const t = useI18n('common');
   const domain = authDetails?.domain;
 
-  // Constructing audience URL
+  if (authDetails?.scopes?.includes(scope) && authDetails.accessToken) {
+    return {
+      getToken: async () => authDetails.accessToken as string,
+      error: null,
+    };
+  }
+
+  const pendingPromiseRef = React.useRef<Promise<string> | null>(null);
   const audience = domain ? `${domain}${audiencePath}/` : '';
-  const cacheKey = `${audience}|${scope}`;
 
-  // Using refs to avoid re-creating the cache and promises on each render
-  const staticCache = React.useRef(new Map<string, string>());
-  const pendingPromises = React.useRef(new Map<string, Promise<string>>());
-
-  // State setup, including cached token and loading/error state
-  const [state, setState] = React.useState(() => {
-    const cachedToken = staticCache.current.get(cacheKey) ?? null;
-    return { token: cachedToken, loading: !cachedToken, error: null as Error | null };
-  });
-
-  // Function to fetch token, with cache and error handling
-  const fetchToken = React.useCallback(
-    async (ignoreCache = false): Promise<void> => {
-      if (!scope) {
-        setState({
-          token: null,
-          loading: false,
-          error: new Error(t('errors.scope_required')),
-        });
-        return;
-      }
-
+  const getToken = React.useCallback(
+    async (ignoreCache = false): Promise<string> => {
       if (!domain) {
-        setState({
-          token: null,
-          loading: false,
-          error: new Error(t('errors.domain_not_configured')),
-        });
-        return;
+        throw new Error(t('errors.domain_not_configured'));
+      }
+      if (!scope) {
+        throw new Error(t('errors.scope_required'));
       }
 
-      if (!ignoreCache) {
-        const cached = staticCache.current.get(cacheKey);
-        if (cached) {
-          setState({ token: cached, loading: false, error: null });
-          return;
-        }
+      if (pendingPromiseRef.current) {
+        return pendingPromiseRef.current;
       }
 
-      // If there's already a pending request for the same token, wait for it
-      if (pendingPromises.current.has(cacheKey)) {
-        try {
-          const token = await pendingPromises.current.get(cacheKey)!;
-          setState({ token, loading: false, error: null });
-        } catch (err) {
-          setState({
-            token: null,
-            loading: false,
-            error: new Error(err instanceof Error ? err.message : String(err)),
-          });
-        }
-        return;
-      }
-
-      // Otherwise, initiate a new token fetch
-      setState((prev) => (prev.loading ? prev : { ...prev, loading: true, error: null }));
-
-      const tokenPromise = (async (): Promise<string> => {
+      const fetchToken = async (): Promise<string> => {
         try {
           const token = await getAccessTokenSilently({
             authorizationParams: {
               audience,
               scope,
-              redirect_uri: typeof window !== 'undefined' ? window.location.origin : '',
             },
-            ...(ignoreCache ? { ignoreCache: true } : {}),
+            ...(ignoreCache ? { cacheMode: 'off' } : {}),
           });
-          return token!;
-        } catch (err) {
-          const error = err instanceof Error ? err : new Error(String(err));
-          if (error.message?.includes('Consent required')) {
-            const token = await getAccessTokenWithPopup({
-              authorizationParams: {
-                audience,
-                scope,
-                redirect_uri: typeof window !== 'undefined' ? window.location.origin : '',
-              },
-            });
-            if (!token) throw new Error(t('errors.access_token_error'));
-            return token;
-          }
-          throw error;
-        }
-      })();
 
-      // Store the promise in case of concurrent requests
-      pendingPromises.current.set(cacheKey, tokenPromise);
+          if (!token) throw new Error(t('errors.access_token_error'));
+
+          return token;
+        } catch (error) {
+          const token = await getAccessTokenWithPopup({
+            authorizationParams: {
+              audience,
+              scope,
+              prompt: 'consent',
+            },
+          });
+
+          if (!token) throw new Error(t('errors.popup_closed_or_failed'));
+
+          return token;
+        }
+      };
 
       try {
-        const token = await tokenPromise;
-        staticCache.current.set(cacheKey, token);
-        setState({ token, loading: false, error: null });
-      } catch (err) {
-        setState({
-          token: null,
-          loading: false,
-          error: new Error(err instanceof Error ? err.message : String(err)),
-        });
+        pendingPromiseRef.current = fetchToken();
+        const token = await pendingPromiseRef.current;
+        return token;
       } finally {
-        pendingPromises.current.delete(cacheKey);
+        pendingPromiseRef.current = null;
       }
     },
-    [
-      scope,
-      audiencePath,
-      domain,
-      audience,
-      getAccessTokenSilently,
-      getAccessTokenWithPopup,
-      cacheKey,
-      t,
-    ],
+    [domain, scope, audience, getAccessTokenSilently, getAccessTokenWithPopup, t],
   );
 
-  // Fetch token on mount or when relevant dependencies change
-  React.useEffect(() => {
-    fetchToken();
-  }, [fetchToken]);
-
-  // Refresh token by bypassing cache
-  const refreshToken = React.useCallback(() => fetchToken(true), [fetchToken]);
-
-  // Return token state and refresh function
-  return { ...state, refreshToken };
+  return {
+    getToken,
+    error: !domain ? new Error(t('errors.domain_not_configured')) : null,
+  };
 }

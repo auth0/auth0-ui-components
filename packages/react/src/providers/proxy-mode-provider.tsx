@@ -38,6 +38,7 @@ export function ProxyModeProvider({
   themeSettings = { mode: 'light' },
   customOverrides = {},
   authProxyUrl = '',
+  loader,
 }: Auth0ComponentConfig & { children: React.ReactNode; authProxyUrl?: string }) {
   const config = React.useMemo(
     () => ({
@@ -46,6 +47,7 @@ export function ProxyModeProvider({
       customOverrides,
       isProxyMode: true,
       apiBaseUrl: authProxyUrl,
+      loader,
     }),
     [i18n, themeSettings, customOverrides, authProxyUrl],
   );

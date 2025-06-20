@@ -61,3 +61,25 @@ export interface EnrollMfaResponse {
   barcode_uri?: string;
   secret?: string;
 }
+
+/**
+ * Parameters required to confirm an MFA enrollment, typically sent to an OAuth token endpoint
+ * to verify the user's possession of the factor.
+ * @property {'http://auth0.com/oauth/grant-type/mfa-otp' | 'http://auth0.com/oauth/grant-type/mfa-oob'} grant_type - The grant type specifying the MFA method.
+ * @property {string} [client_id] - The application's client ID.
+ * @property {string} [mfa_token] - The access token with MFA scopes, obtained after login.
+ * @property {string} [oob_code] - The out-of-band code received from the enrollment initiation step.
+ * @property {string} [binding_code] - The code entered by the user to bind an OOB factor (e.g., the code from an SMS or email).
+ * @property {string} [otp] - The time-based one-time password from an authenticator app (for TOTP).
+ */
+export interface ConfirmMfaEnrollmentParams {
+  grant_type:
+    | 'http://auth0.com/oauth/grant-type/mfa-otp'
+    | 'http://auth0.com/oauth/grant-type/mfa-oob';
+  client_id?: string;
+  mfa_token?: string;
+  oob_code?: string;
+  binding_code?: string;
+  otp?: string;
+  client_secret?: string;
+}

@@ -1,36 +1,64 @@
 {
   "common": {
+    "loading_auth_details": "認証情報を読み込み中...",
     "errors": {
       "missing_access_token": "アクセストークンが必要です。",
       "missing_base_url": "Auth0 APIのベースURLが見つかりません",
       "missing_domain": "Auth0ドメインが見つかりません",
       "scope_required": "スコープが必要です",
       "domain_not_configured": "Auth0ドメインが設定されていません",
-      "access_token_error": "アクセストークンが未定義です"
+      "access_token_error": "アクセストークンが未定義です",
+      "auth_details_error": "認証に失敗しました: ${message}"
     }
   },
   "mfa": {
     "title": "多要素認証",
+    "loading": "読み込み中...",
     "description": "アカウントの多要素認証の登録を管理します。",
     "no_active_mfa": "登録されている多要素認証はありません。",
     "delete": "削除",
     "enroll": "登録",
     "enrolling": "登録中...",
     "enrolled": "登録済み",
+    "enrollment": "登録",
+    "confirmation": "確認",
     "remove_factor": "登録を正常に削除しました。",
     "enroll_factor": "正常に登録されました。",
     "enroll_otp_mfa": "ワンタイムパスワードの登録",
+    "delete_factor": "${factorName}の認証要素を削除",
+    "delete_mfa_title": "MFA要素の削除",
+    "delete_mfa_content": "このMFA要素を削除してもよろしいですか？この操作は元に戻せません。",
+    "cancel": "キャンセル",
+    "confirm_delete": "削除",
+    "deleting": "削除中...",
     "errors": {
       "factors_loading_error": "多要素認証の読み込みエラー！",
       "access_token_error": "アクセストークンエラー: ${error}",
       "unknown_error": "不明なエラーが発生しました",
-      "invalid_grant": {
-        "email": "無効なコード"
+      "delete_factor": "認証器の削除に失敗しました",
+      "failed": "失敗しました: ${message}",
+      "phone_number_required": "SMS登録には電話番号が必要です。",
+      "email_required": "メール登録にはメールアドレスが必要です。",
+      "invalid_email": "無効なメールアドレス",
+      "invalid_phone_number": "無効な電話番号",
+      "unsupported_mfa_type": "未対応のMFAタイプです: ${factorName}",
+      "invalid_request": {
+        "totp": "必須パラメーターがありません: otp"
       },
       "unsupported_challenge_type": {
         "sms": "SMSの認証が無効になっています。ダッシュボードのGuardian MFAセクションで「SMS」をオンにしてください。",
         "totp": "OTP認証が無効になっています。ダッシュボードのGuardian MFAセクションで「プッシュ通知」をオンにしてください（プッシュ通知にはOTPが含まれます）。",
         "push-notification": "Auth0認証が無効になっています。ダッシュボードのGuardian MFAセクションで「プッシュ通知」をオンにしてください。"
+      },
+      "expired_token": {
+        "email": "認証コードの有効期限が切れました"
+      },
+      "invalid_grant": {
+        "email": "無効なコード",
+        "totp": "無効な認証コードです"
+      },
+      "access_denied": {
+        "email": "認証器が見つかりませんでした"
       }
     },
     "sms": {
@@ -64,6 +92,22 @@
     "recovery-code": {
       "title": "リカバリーコード",
       "description": "アカウントへのアクセスを回復するために固有のリカバリーコードを使用します。"
+    },
+    "enrollment_form": {
+      "email_address": "メールアドレス",
+      "phone_number": "電話番号 (SMS)",
+      "send_code": "コードを送信",
+      "sending": "送信中...",
+      "enroll_email": "メールMFAを登録",
+      "enroll_sms": "SMS MFAを登録",
+      "show_otp": {
+        "title": "認証アプリでバーコードをスキャンしてください",
+        "save_recovery": "これらのリカバリーコードを保存してください！",
+        "enter_code": "認証アプリのコードを入力してください",
+        "verify_code": "コードを確認",
+        "verifying": "確認中...",
+        "enter_verify_code": "確認コードを入力してください"
+      }
     }
   }
 }

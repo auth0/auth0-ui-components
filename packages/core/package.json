@@ -19,7 +19,9 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build:ts": "tsup",
-    "build": "pnpm run clean && pnpm run build:ts"
+    "build": "pnpm run clean && pnpm run build:ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [
     "i18n",
@@ -34,6 +36,7 @@
   },
   "packageManager": "pnpm@10.6.5",
   "devDependencies": {
-    "@types/node": "^22.15.27"
+    "@types/node": "^22.15.27",
+    "vitest": "^3.2.3"
   }
 }
