@@ -7,12 +7,18 @@ on:
     branches: [main]
 
 jobs:
+  verify-change-freeze:
+    name: 🧊 Verify Change Freeze
+    uses: ./.github/workflows/change-freeze.yml@main 
+
   ci:
     name: 🔄 Continuous Integration
     needs: [verify-change-freeze]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -29,7 +35,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Check formatting
-        run: pnpm format --check
+        run: pnpm format:check
 
       - name: Run linting
         run: pnpm lint
@@ -40,25 +46,21 @@ jobs:
       - name: Run tests
         run: pnpm test
 
-  verify-change-freeze:
-    name: 🧊 Verify Change Freeze
-    uses: ./.github/workflows/change-freeze.yml
-    secrets: inherit
-
-  # CD job to be added later
+  # CD job to be configured later
   # cd:
   #   name: 📦 Continuous Deployment
   #   needs: [ci]
   #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
   #   runs-on: ubuntu-latest
+  #   environment: production
+  #   concurrency: 
+  #     group: production
+  #     cancel-in-progress: false
   #   steps:
   #     - uses: actions/checkout@v4
-  #
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v4
+  #     - uses: actions/setup-node@v4
   #       with:
   #         node-version: '22'
   #         cache: 'pnpm'
-  #
   #     - name: Deploy
   #       run: echo "Deployment steps will go here"

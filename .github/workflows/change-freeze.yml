@@ -1,5 +1,6 @@
 name: Change Freeze Check
 on:
+  workflow_call: {} 
   schedule:
     - cron: "2 0 * * *"
   pull_request_target:
