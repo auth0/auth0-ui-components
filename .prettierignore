@@ -1,4 +1,23 @@
+# Dependencies
 node_modules
+.pnpm-store
+
+# Build outputs
 dist
 build
 coverage
+
+# Cache and logs
+.turbo
+.cache
+.next
+.out
+.temp
+
+# Config files
+pnpm-lock.yaml
+.env*
+
+# IDE
+.vscode
+.idea

@@ -31,7 +31,16 @@ const nodeGlobals = {
 
 export default [
   {
-    ignores: ['dist/', 'build/', '**/dist/', '**/build/'],
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      'coverage/**',
+      '.turbo/**',
+      '.next/**',
+      '*.d.ts',
+      'vitest.config.ts',
+    ],
   },
   {
     ...js.configs.recommended,
