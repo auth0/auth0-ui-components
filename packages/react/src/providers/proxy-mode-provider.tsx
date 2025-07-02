@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import type { Auth0ComponentConfig } from './types';
-import { Auth0ComponentContext } from './context';
+import { Auth0ComponentConfigContext } from '../hooks/use-config';
 import { ThemeProvider } from './theme-provider';
 
 /**
@@ -53,8 +53,8 @@ export function ProxyModeProvider({
   );
 
   return (
-    <Auth0ComponentContext.Provider value={{ config }}>
+    <Auth0ComponentConfigContext.Provider value={{ config }}>
       <ThemeProvider theme={{ branding: themeSettings, customOverrides }}>{children}</ThemeProvider>
-    </Auth0ComponentContext.Provider>
+    </Auth0ComponentConfigContext.Provider>
   );
 }

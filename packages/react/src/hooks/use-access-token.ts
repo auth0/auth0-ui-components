@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
-import { useComponentConfig } from './use-config';
 import { useI18n } from './use-i18n';
+import { useCoreClient } from './use-core-client';
 
 /**
  * Describes the object returned by the `useAccessToken` hook.
@@ -57,12 +56,9 @@ interface UseAccessTokenResult {
  * ```
  */
 export function useAccessToken(scope: string, audiencePath: string): UseAccessTokenResult {
-  const { getAccessTokenSilently, getAccessTokenWithPopup } = useAuth0();
-  const {
-    config: { authDetails },
-  } = useComponentConfig();
   const t = useI18n('common');
-  const domain = authDetails?.domain;
+  const { coreClient } = useCoreClient();
+  const authDetails = coreClient?.auth;
 
   if (authDetails?.scopes?.includes(scope) && authDetails.accessToken) {
     return {
@@ -71,63 +67,19 @@ export function useAccessToken(scope: string, audiencePath: string): UseAccessTo
     };
   }
 
-  const pendingPromiseRef = React.useRef<Promise<string> | null>(null);
-  const audience = domain ? `${domain}${audiencePath}/` : '';
+  if (!coreClient) {
+    throw new Error(t('errors.core_client_not_initialized'));
+  }
 
   const getToken = React.useCallback(
     async (ignoreCache = false): Promise<string> => {
-      if (!domain) {
-        throw new Error(t('errors.domain_not_configured'));
-      }
-      if (!scope) {
-        throw new Error(t('errors.scope_required'));
-      }
-
-      if (pendingPromiseRef.current) {
-        return pendingPromiseRef.current;
-      }
-
-      const fetchToken = async (): Promise<string> => {
-        try {
-          const token = await getAccessTokenSilently({
-            authorizationParams: {
-              audience,
-              scope,
-            },
-            ...(ignoreCache ? { cacheMode: 'off' } : {}),
-          });
-
-          if (!token) throw new Error(t('errors.access_token_error'));
-
-          return token;
-        } catch (error) {
-          const token = await getAccessTokenWithPopup({
-            authorizationParams: {
-              audience,
-              scope,
-              prompt: 'consent',
-            },
-          });
-
-          if (!token) throw new Error(t('errors.popup_closed_or_failed'));
-
-          return token;
-        }
-      };
-
-      try {
-        pendingPromiseRef.current = fetchToken();
-        const token = await pendingPromiseRef.current;
-        return token;
-      } finally {
-        pendingPromiseRef.current = null;
-      }
+      return coreClient.getToken(scope, audiencePath, ignoreCache);
     },
-    [domain, scope, audience, getAccessTokenSilently, getAccessTokenWithPopup, t],
+    [coreClient, scope, audiencePath],
   );
 
   return {
     getToken,
-    error: !domain ? new Error(t('errors.domain_not_configured')) : null,
+    error: !authDetails?.domain ? new Error(t('errors.domain_not_configured')) : null,
   };
 }

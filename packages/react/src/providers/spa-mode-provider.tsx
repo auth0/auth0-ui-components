@@ -1,9 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
-import type { Auth0ComponentConfig, AuthDetails } from './types';
-import { Auth0ComponentContext } from './context';
+import type { Auth0ComponentConfig } from './types';
+import { Auth0ComponentConfigContext } from '../hooks/use-config';
 import { ThemeProvider } from './theme-provider';
 
 /**
@@ -36,72 +35,25 @@ import { ThemeProvider } from './theme-provider';
  */
 function SpaModeProvider({
   children,
-  i18n = { currentLanguage: 'en-US', fallbackLanguage: 'en-US' },
   themeSettings = { mode: 'light' },
   customOverrides = {},
   loader,
 }: Auth0ComponentConfig & { children: React.ReactNode }) {
-  const { getIdTokenClaims, getAccessTokenSilently } = useAuth0();
-
-  const [authDetails, setAuthDetails] = React.useState<AuthDetails>({
-    accessToken: undefined,
-    domain: undefined,
-    clientId: undefined,
-    scopes: undefined,
-    loading: true,
-    error: undefined,
-  });
-
-  React.useEffect(() => {
-    const fetchAuth = async () => {
-      try {
-        const tokenRes = await getAccessTokenSilently({
-          cacheMode: 'off',
-          detailedResponse: true,
-        });
-        const claims = await getIdTokenClaims();
-
-        setAuthDetails({
-          accessToken: tokenRes.access_token,
-          domain: claims?.iss,
-          clientId: claims?.aud,
-          scopes: tokenRes.scope,
-          loading: false,
-          error: undefined,
-        });
-      } catch (err) {
-        setAuthDetails({
-          accessToken: undefined,
-          domain: undefined,
-          clientId: undefined,
-          scopes: undefined,
-          loading: false,
-          error: err instanceof Error ? err : new Error(String(err)),
-        });
-      }
-    };
-
-    fetchAuth();
-  }, [getIdTokenClaims, getAccessTokenSilently]);
-
-  const apiBaseUrl = authDetails.domain ?? '';
-
   const config = React.useMemo(
     () => ({
-      i18n,
       themeSettings,
       customOverrides,
       isProxyMode: false,
-      apiBaseUrl,
-      authDetails,
       loader,
     }),
-    [i18n, themeSettings, customOverrides, apiBaseUrl, authDetails],
+    [themeSettings, customOverrides, loader],
   );
+  // TODO: Should we move this to component-provider?
+
   return (
-    <Auth0ComponentContext.Provider value={{ config }}>
+    <Auth0ComponentConfigContext.Provider value={{ config }}>
       <ThemeProvider theme={{ branding: themeSettings, customOverrides }}>{children}</ThemeProvider>
-    </Auth0ComponentContext.Provider>
+    </Auth0ComponentConfigContext.Provider>
   );
 }
 

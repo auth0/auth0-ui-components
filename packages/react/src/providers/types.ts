@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { AuthDetailsCore } from '@auth0-web-ui-components/core';
+
 /**
  * Theme configuration for the Auth0 components
  * @property {('light'|'dark')} [mode] - Theme mode
@@ -11,7 +13,7 @@ export interface ThemeSettings {
 }
 
 /**
- * Configuration options for Auth0ComponentProvider
+ * Configuration options for Auth0ComponentProvider TODO: Regenerate docs
  *
  * Defines configuration for authentication, internationalization, and theming.
  * Also optionally includes runtime authentication state in SPA mode.
@@ -27,13 +29,19 @@ export interface ThemeSettings {
  * @property {AuthDetails} [authDetails] - Runtime authentication state, populated in SPA (non-proxy) mode.
  *                                         Includes access token, domain, client ID, scopes, loading, and error info.
  */
-export interface Auth0ComponentConfig {
+export type Auth0ComponentConfig = Omit<
+  Auth0ComponentProviderProps,
+  'authDetails' | 'apiBaseUrl'
+> & {
+  isProxyMode?: boolean;
+};
+
+export interface Auth0ComponentProviderProps {
   authProxyUrl?: string;
   i18n?: I18nOptions;
   themeSettings?: ThemeSettings;
-  authDetails?: AuthDetails;
+  authDetails: AuthDetails;
   customOverrides?: CustomOverrides;
-  isProxyMode?: boolean;
   apiBaseUrl?: string;
   loader?: React.ReactNode;
 }
@@ -46,14 +54,7 @@ export interface I18nOptions {
 /**
  * Auth0 authentication details fetched from SDK
  */
-export interface AuthDetails {
-  accessToken: string | undefined;
-  domain: string | undefined;
-  clientId: string | undefined;
-  scopes: string | undefined;
-  loading: boolean;
-  error?: Error;
-}
+export type AuthDetails = AuthDetailsCore;
 
 /**
  * BrandingTheme
@@ -118,7 +119,7 @@ export type TFactory = (namespace: string) => TranslationFunction;
 
 /** Defines the value provided by the i18n context. */
 export interface I18nContextValue {
-  /** The factory to create `t` functions. Null until initialized. */
-  translator: TFactory | null;
+  /** The factory to create `t` functions. Undefined until initialized. */
+  translator: TFactory | undefined;
   initialized: boolean;
 }

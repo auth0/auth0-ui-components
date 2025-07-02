@@ -34,7 +34,9 @@ export async function fetchMfaFactors(
   accessToken?: string,
   onlyActive = false,
 ): Promise<Authenticator[]> {
-  const response = await get<Authenticator[]>(`${apiBaseUrl}mfa/authenticators`, { accessToken });
+  const response = await get<Authenticator[]>(`${apiBaseUrl}mfa/authenticators`, {
+    accessToken,
+  });
 
   const map = new Map<string, Authenticator>(response.map((f) => [f.id.split('|')[0], f]));
 

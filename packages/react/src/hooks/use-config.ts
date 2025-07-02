@@ -1,6 +1,18 @@
 import * as React from 'react';
-import { Auth0ComponentContext } from '@/providers/context';
 import type { Auth0ComponentConfig } from '@/providers/types';
+
+export const Auth0ComponentConfigContext = React.createContext<{
+  config: Auth0ComponentConfig;
+}>({
+  config: {
+    authProxyUrl: undefined,
+    i18n: { currentLanguage: 'en-US', fallbackLanguage: 'en-US' },
+    themeSettings: { mode: 'light' },
+    customOverrides: {},
+    loader: undefined,
+    isProxyMode: false,
+  },
+});
 
 /**
  * Hook to access the Auth0 component configuration from context.
@@ -28,7 +40,7 @@ import type { Auth0ComponentConfig } from '@/providers/types';
  * ```
  */
 export function useComponentConfig(): { config: Auth0ComponentConfig } {
-  const context = React.useContext(Auth0ComponentContext);
+  const context = React.useContext(Auth0ComponentConfigContext);
 
   if (!context) {
     throw new Error('useComponentConfig must be used within an Auth0ComponentProvider');

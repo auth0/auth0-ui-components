@@ -6,13 +6,14 @@ import { BrowserRouter } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './libs/i18n.ts';
+import { config } from './config/env.ts';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <Auth0Provider
-        domain="YOUR_AUTH0_DOMAIN"
-        clientId="YOUR_AUTH0_CLIENT_ID"
+        domain={config.auth0.domain}
+        clientId={config.auth0.clientId}
         authorizationParams={{ redirect_uri: window.location.origin }}
       >
         <I18nextProvider i18n={i18n}>

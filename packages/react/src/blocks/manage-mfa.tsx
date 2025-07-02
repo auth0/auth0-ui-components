@@ -12,6 +12,7 @@ import { EnrollmentForm } from '@/components/mfa/enrollment-form';
 import { ENROLL, CONFIRM } from '@/lib/constants';
 import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { withCoreClient } from '@/hoc';
 
 /**
  * ManageMfa Component
@@ -57,7 +58,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
  *
  * @returns {React.JSX.Element} The rendered component.
  */
-export function ManageMfa({
+function ManageMfaComponent({
   localization = {},
   hideHeader = false,
   showActiveOnly = false,
@@ -384,3 +385,5 @@ export function ManageMfa({
     </>
   );
 }
+
+export const ManageMfa = withCoreClient(ManageMfaComponent);

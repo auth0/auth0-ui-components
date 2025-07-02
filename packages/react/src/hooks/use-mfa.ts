@@ -22,6 +22,7 @@ import {
   FACTOR_TYPE_SMS,
   FACTOR_TYPE_TOPT,
 } from '@/lib/constants';
+import { useCoreClient } from './use-core-client';
 
 /**
  * Describes the methods returned by the `useMFA` hook for managing multi-factor authentication.
@@ -74,8 +75,12 @@ export interface UseMfaResult {
  */
 export function useMFA(): UseMfaResult {
   const {
-    config: { authDetails, apiBaseUrl, isProxyMode },
+    config: { isProxyMode },
   } = useComponentConfig();
+  const { coreClient } = useCoreClient();
+  const authDetails = coreClient?.auth; // TODO: Check to move it to core
+  const apiBaseUrl = coreClient?.auth.domain ?? ''; // TODO: Check to move it to core
+
   const t = useI18n('common');
   const mfaScopes = ['read:authenticators', 'remove:authenticators', 'enroll'];
 

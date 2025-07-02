@@ -1,11 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import type { Auth0ComponentConfig } from './types';
+import type { Auth0ComponentProviderProps } from './types';
 import { ProxyModeProvider } from './proxy-mode-provider';
-import type { TFactory } from '@auth0-web-ui-components/core';
-import { createI18n } from '@auth0-web-ui-components/core';
+import type { TFactory, CoreClientInterface } from '@auth0-web-ui-components/core';
+import { createI18n, CoreClientFactory } from '@auth0-web-ui-components/core';
 import { I18nContext } from './i18n-provider';
+import { CoreClientContext } from '@/hooks/use-core-client';
 import { Spinner } from '@/components/ui/spinner';
 
 const SpaModeProvider = React.lazy(() => import('./spa-mode-provider'));
@@ -50,19 +51,21 @@ export const Auth0ComponentProvider = ({
   authProxyUrl,
   i18n,
   ...props
-}: Auth0ComponentConfig & { children: React.ReactNode }) => {
+}: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
   const isProxyMode = Boolean(authProxyUrl);
+  const [coreClient, setCoreClient] = React.useState<CoreClientInterface | null>(null);
   const [i18nState, setI18nState] = React.useState<{
     initialized: boolean;
-    translator: TFactory | null;
+    translator: TFactory | undefined;
   }>({
     initialized: false,
-    translator: null,
+    translator: undefined,
   });
 
+  // Initialize i18n first
   React.useEffect(() => {
     if (!i18n?.currentLanguage) {
-      setI18nState({ initialized: true, translator: null });
+      setI18nState({ initialized: true, translator: undefined });
       return;
     }
 
@@ -80,13 +83,41 @@ export const Auth0ComponentProvider = ({
       } catch {
         setI18nState({
           initialized: true,
-          translator: null,
+          translator: undefined,
         });
       }
     };
 
     initializeTranslations();
   }, [i18n?.currentLanguage, i18n?.fallbackLanguage]);
+
+  // Initialize CoreClient after i18n is ready
+  React.useEffect(() => {
+    if (!i18nState.initialized) {
+      return;
+    }
+
+    const initializeCoreClient = async () => {
+      try {
+        const initializedCoreClient = await CoreClientFactory.create(
+          props.authDetails,
+          i18nState.translator,
+        );
+
+        setCoreClient(initializedCoreClient);
+      } catch (error) {
+        console.error('Failed to initialize CoreClient:', error);
+        setCoreClient(null);
+      }
+    };
+
+    initializeCoreClient();
+  }, [
+    i18nState.initialized,
+    i18nState.translator,
+    props.authDetails.contextInterface?.getAccessTokenSilently,
+    props.authDetails.contextInterface?.getIdTokenClaims,
+  ]);
 
   const i18nValue = React.useMemo(
     () => ({
@@ -96,15 +127,24 @@ export const Auth0ComponentProvider = ({
     [i18nState.translator, i18nState.initialized],
   );
 
+  const coreClientValue = React.useMemo(
+    () => ({
+      coreClient,
+    }),
+    [coreClient],
+  );
+
   return (
-    <I18nContext.Provider value={i18nValue}>
-      {isProxyMode ? (
-        <ProxyModeProvider {...props} authProxyUrl={authProxyUrl} />
-      ) : (
-        <React.Suspense fallback={props.loader || <Spinner />}>
-          <SpaModeProvider {...props} />
-        </React.Suspense>
-      )}
-    </I18nContext.Provider>
+    <CoreClientContext.Provider value={coreClientValue}>
+      <I18nContext.Provider value={i18nValue}>
+        {isProxyMode ? (
+          <ProxyModeProvider {...props} authProxyUrl={authProxyUrl} />
+        ) : (
+          <React.Suspense fallback={props.loader || <Spinner />}>
+            <SpaModeProvider {...props} />
+          </React.Suspense>
+        )}
+      </I18nContext.Provider>
+    </CoreClientContext.Provider>
   );
 };
