@@ -4,7 +4,7 @@ import * as React from 'react';
 import type { Auth0ComponentProviderProps } from './types';
 import { ProxyModeProvider } from './proxy-mode-provider';
 import type { TFactory, CoreClientInterface } from '@auth0-web-ui-components/core';
-import { createI18n, CoreClientFactory } from '@auth0-web-ui-components/core';
+import { createI18n, CoreClient } from '@auth0-web-ui-components/core';
 import { I18nContext } from './i18n-provider';
 import { CoreClientContext } from '@/hooks/use-core-client';
 import { Spinner } from '@/components/ui/spinner';
@@ -99,7 +99,7 @@ export const Auth0ComponentProvider = ({
 
     const initializeCoreClient = async () => {
       try {
-        const initializedCoreClient = await CoreClientFactory.create(
+        const initializedCoreClient = await CoreClient.create(
           props.authDetails,
           i18nState.translator,
         );

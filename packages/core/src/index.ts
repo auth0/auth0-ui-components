@@ -2,7 +2,7 @@ export { createI18n, TranslationFunction, TFactory } from './i18n';
 
 export { del, post, get, patch, ApiError, normalizeError, createApiError } from './api';
 
-export { CoreClientFactory } from './core-client';
+export { CoreClient } from './core-client';
 
 export { AuthDetailsCore, CoreClientInterface } from './types';
 

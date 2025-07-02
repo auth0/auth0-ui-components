@@ -1,4 +1,4 @@
-import { TranslationFunction, TFactory } from './i18n';
+import { TranslationFunction } from './i18n';
 
 // TODO: check this
 export type SafeAny = any; // eslint-disable-line
@@ -131,16 +131,6 @@ export interface AuthDetailsCore {
 
 export interface CoreClientInterface {
   auth: AuthDetailsCore;
-  getToken: (scope: string, audiencePath: string, ignoreCache: boolean) => Promise<string>;
-}
-
-export interface CoreClientFactoryInterface {
-  auth: AuthDetailsCore | undefined;
-  t: TranslationFunction | undefined;
-  create: (
-    authDetails: AuthDetailsCore,
-    translatorFactory?: TFactory,
-  ) => Promise<CoreClientInterface>;
-  initialize: () => Promise<CoreClientInterface>;
-  getToken: (scope: string, audiencePath: string, ignoreCache: boolean) => Promise<string>;
+  t: TranslationFunction;
+  getToken: (scope: string, audiencePath: string, ignoreCache?: boolean) => Promise<string>;
 }
