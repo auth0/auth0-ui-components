@@ -7,21 +7,12 @@ import {
   enrollMfaRequest,
   deleteMfaFactor,
   confirmMfaEnrollmentRequest,
+  buildEnrollParams,
+  buildConfirmParams,
+  EnrollOptions,
+  ConfirmEnrollmentOptions,
 } from '@auth0-web-ui-components/core';
-import type {
-  MFAType,
-  EnrollMfaParams,
-  EnrollMfaResponse,
-  Authenticator,
-  ConfirmMfaEnrollmentParams,
-} from '@auth0-web-ui-components/core';
-import type { EnrollOptions } from '@/types';
-import {
-  FACTOR_TYPE_EMAIL,
-  FACTOR_TYPE_PUSH_NOTIFICATION,
-  FACTOR_TYPE_SMS,
-  FACTOR_TYPE_TOPT,
-} from '@/lib/constants';
+import type { MFAType, EnrollMfaResponse, Authenticator } from '@auth0-web-ui-components/core';
 import { useCoreClient } from './use-core-client';
 
 /**
@@ -54,14 +45,11 @@ export interface UseMfaResult {
   /**
    * Confirms an MFA enrollment, typically by verifying a code provided by the user.
    * @param {MFAType} factorName - The type of factor being confirmed.
-   * @param {object} options - The verification data, such as `oobCode` and `userOtpCode`.
+   * @param {ConfirmEnrollmentOptions} options - The verification data, such as `oobCode` and `userOtpCode`.
    * @returns {Promise<unknown>} A promise that resolves with the confirmation response from the server.
    * @throws An error if the API request fails or prerequisites are missing.
    */
-  confirmEnrollment: (
-    factorName: MFAType,
-    options: { oobCode?: string; userOtpCode?: string; userEmailOtpCode?: string },
-  ) => Promise<unknown>;
+  confirmEnrollment: (factorName: MFAType, options: ConfirmEnrollmentOptions) => Promise<unknown>;
 }
 
 /**
@@ -104,65 +92,6 @@ export function useMFA(): UseMfaResult {
     [apiBaseUrl, isProxyMode, getMfaToken, t],
   );
 
-  /**
-   * Builds the parameters for an MFA enrollment request.
-   * @private
-   */
-  const buildEnrollParams = (factorName: MFAType, options: EnrollOptions = {}): EnrollMfaParams => {
-    switch (factorName) {
-      case FACTOR_TYPE_SMS:
-        if (!options.phone_number) throw new Error(t('errors.phone_number_required'));
-        return {
-          authenticator_types: ['oob'],
-          oob_channels: ['sms'],
-          phone_number: options.phone_number,
-        };
-      case FACTOR_TYPE_EMAIL:
-        if (!options.email) throw new Error(t('errors.email_required'));
-        return { authenticator_types: ['oob'], oob_channels: ['email'], email: options.email };
-      case FACTOR_TYPE_TOPT:
-        return { authenticator_types: ['otp'] };
-      case FACTOR_TYPE_PUSH_NOTIFICATION:
-        return { authenticator_types: ['oob'], oob_channels: ['auth0'] };
-      default:
-        throw new Error(t('errors.email_required', { factorName }));
-    }
-  };
-
-  /**
-   * Builds the parameters for an MFA confirmation request.
-   * @private
-   */
-  const buildConfirmParams = (
-    factorName: MFAType,
-    options: { oobCode?: string; userOtpCode?: string; userEmailOtpCode?: string },
-    token?: string,
-  ): ConfirmMfaEnrollmentParams => {
-    const baseParams: ConfirmMfaEnrollmentParams = {
-      grant_type:
-        factorName === FACTOR_TYPE_TOPT
-          ? 'http://auth0.com/oauth/grant-type/mfa-otp'
-          : 'http://auth0.com/oauth/grant-type/mfa-oob',
-      oob_code: options.oobCode,
-      client_id: !isProxyMode ? authDetails?.clientId : undefined,
-      mfa_token: token,
-    };
-
-    if (factorName === FACTOR_TYPE_TOPT) {
-      baseParams.otp = options.userOtpCode;
-    } else if (
-      [FACTOR_TYPE_SMS, FACTOR_TYPE_EMAIL, FACTOR_TYPE_PUSH_NOTIFICATION].includes(factorName)
-    ) {
-      baseParams.binding_code =
-        factorName === FACTOR_TYPE_SMS
-          ? options.userOtpCode
-          : factorName === FACTOR_TYPE_EMAIL
-            ? options.userEmailOtpCode
-            : options.userOtpCode;
-    }
-    return baseParams;
-  };
-
   const fetchFactors = useCallback(
     (onlyActive = false) =>
       withMfaToken((token) => fetchMfaFactors(apiBaseUrl!, token, onlyActive)),
@@ -172,10 +101,26 @@ export function useMFA(): UseMfaResult {
   const enrollMfa = useCallback(
     (factorName: MFAType, options: EnrollOptions = {}) =>
       withMfaToken((token) => {
-        const params = buildEnrollParams(factorName, options);
-        return enrollMfaRequest(apiBaseUrl!, params, token);
+        try {
+          const params = buildEnrollParams(factorName, options);
+          return enrollMfaRequest(apiBaseUrl!, params, token);
+        } catch (error) {
+          // Re-throw with localized error messages
+          if (error instanceof Error) {
+            if (error.message.includes('Phone number is required')) {
+              throw new Error(t('errors.phone_number_required'));
+            }
+            if (error.message.includes('Email is required')) {
+              throw new Error(t('errors.email_required'));
+            }
+            if (error.message.includes('Unsupported factor type')) {
+              throw new Error(t('errors.unsupported_factor_type', { factorName }));
+            }
+          }
+          throw error;
+        }
       }),
-    [withMfaToken, apiBaseUrl],
+    [withMfaToken, apiBaseUrl, t],
   );
 
   const deleteMfa = useCallback(
@@ -185,13 +130,15 @@ export function useMFA(): UseMfaResult {
   );
 
   const confirmEnrollment = useCallback(
-    (
-      factorName: MFAType,
-      options: { oobCode?: string; userOtpCode?: string; userEmailOtpCode?: string },
-    ) =>
+    (factorName: MFAType, options: ConfirmEnrollmentOptions) =>
       withMfaToken((token) => {
         if (!isProxyMode && !authDetails?.domain) throw new Error(t('errors.missing_domain')!);
-        const params = buildConfirmParams(factorName, options, token);
+        const params = buildConfirmParams(
+          factorName,
+          options,
+          !isProxyMode ? authDetails?.clientId : undefined,
+          token,
+        );
         return confirmMfaEnrollmentRequest(apiBaseUrl!, params, token);
       }),
     [withMfaToken, apiBaseUrl, isProxyMode, authDetails, t],

@@ -2,6 +2,8 @@ import type {
   EnrollMfaResponse,
   AuthenticatorType,
   OobChannel,
+  EnrollOptions,
+  ConfirmEnrollmentOptions,
 } from '@auth0-web-ui-components/core';
 
 /**
@@ -177,22 +179,6 @@ export interface ConfirmEnrollmentResult {
       userEmailOtpCode?: string;
     },
   ) => Promise<{ error: Error | null; response: unknown | null }>;
-}
-
-/**
- * Options used during MFA enrollment.
- * - `phone_number`: Required for SMS-based MFA.
- * - `email`: Required for email-based MFA.
- */
-export type EnrollOptions = {
-  phone_number?: string;
-  email?: string;
-};
-
-export interface ConfirmEnrollmentOptions {
-  oobCode?: string;
-  userOtpCode?: string;
-  userEmailOtpCode?: string;
 }
 
 /**

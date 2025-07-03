@@ -1,11 +1,11 @@
-import { get, del, isApiError, post } from '../api';
+import { get, del, isApiError, post } from '../../api';
 import type {
   Authenticator,
   EnrollMfaParams,
   EnrollMfaResponse,
   AuthenticatorType,
   MFAType,
-} from './types';
+} from './mfa-types';
 
 export const factorsMetaKeys = new Set([
   'sms',

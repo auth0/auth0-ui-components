@@ -1,2 +1,1 @@
-export * from './mfa-service';
-export * from './types';
+export * from './mfa';

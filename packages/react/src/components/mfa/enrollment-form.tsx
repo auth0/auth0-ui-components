@@ -23,16 +23,18 @@ import {
   SHOW_OTP,
   ENTER_OTP,
   ENTER_CONTACT,
-  FACTOR_TYPE_EMAIL,
-  FACTOR_TYPE_SMS,
-  FACTOR_TYPE_OTP,
-  FACTOR_TYPE_TOPT,
-  FACTOR_TYPE_PUSH_NOTIFICATION,
   ENROLL,
   CONFIRM,
   EMAIL_PLACEHOLDER,
   PHONE_NUMBER_PLACEHOLDER,
 } from '@/lib/constants';
+import {
+  FACTOR_TYPE_EMAIL,
+  FACTOR_TYPE_SMS,
+  FACTOR_TYPE_TOPT,
+  FACTOR_TYPE_OTP,
+  FACTOR_TYPE_PUSH_NOTIFICATION,
+} from '@auth0-web-ui-components/core';
 
 const phoneRegex = /^\+?[0-9\s\-()]{8,}$/;
 

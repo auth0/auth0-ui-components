@@ -18,4 +18,13 @@ export {
   AuthenticatorType,
   OobChannel,
   ConfirmMfaEnrollmentParams,
+  buildEnrollParams,
+  buildConfirmParams,
+  EnrollOptions,
+  ConfirmEnrollmentOptions,
+  FACTOR_TYPE_EMAIL,
+  FACTOR_TYPE_SMS,
+  FACTOR_TYPE_OTP,
+  FACTOR_TYPE_PUSH_NOTIFICATION,
+  FACTOR_TYPE_TOPT,
 } from './services';
