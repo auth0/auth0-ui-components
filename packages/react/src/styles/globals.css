@@ -4,227 +4,345 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --color-white: oklch(100% 0 0);
-  --color-black: oklch(0% 0 0);
+  --color-background: oklch(100% 0 0);
+  --color-foreground: oklch(23.93% 0 0);
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(0% 0 0);
+  --color-popover: oklch(100% 0 0);
+  --color-popover-foreground: oklch(23.93% 0 0);
+  --color-primary: oklch(26.1% 0.0079 84.59);
+  --color-primary-foreground: oklch(100% 0 0);
+  --color-secondary: oklch(95.51% 0 0);
+  --color-secondary-foreground: oklch(99.11% 0 0);
+  --color-muted: oklch(95.51% 0 0);
+  --color-muted-foreground: oklch(60.66% 0 0);
+  --color-accent: oklch(64.01% 0 0);
+  --color-accent-foreground: oklch(23.93% 0 0);
+  --color-destructive: oklch(92.39% 0.0391 31.56);
+  --color-destructive-foreground: oklch(56.26% 0.1824 30.09);
+  --color-border: oklch(88.53% 0 0);
+  --color-input: oklch(100% 0 0);
+  --color-ring: oklch(85.14% 0 0 / 50%);
 
-  --color-neutral-min: oklch(100% 0 0);
-  --color-neutral-max: oklch(0% 0 0);
+  /* Bevel Shadows */
+  --shadow-bevel-xs:
+    0px 0px 0px 1px oklch(0% 0 0 / 10%), 0px 2px 2px -1px oklch(0% 0 0 / 5%),
+    0px 1px 1px -0.5px oklch(0% 0 0 / 5%), inset 0px -1.5px 1.5px -1.5px oklch(0% 0 0 / 5%),
+    inset 0px 3px 3px -1.5px oklch(100% 0 0 / 10%);
+  --shadow-bevel-sm:
+    0px 0px 0px 1px oklch(0% 0 0 / 10%), 0px 4px 4px -2px oklch(0% 0 0 / 5%),
+    0px 2px 2px -1px oklch(0% 0 0 / 5%), 0px 1px 1px -0.5px oklch(0% 0 0 / 5%),
+    inset 0px -1.5px 1.5px -1.5px oklch(0% 0 0 / 5%), inset 0px 3px 3px -1.5px oklch(100% 0 0 / 10%);
+  --shadow-bevel-md:
+    0px 0px 0px 1px oklch(0% 0 0 / 10%), 0px 6px 6px -3px oklch(0% 0 0 / 5%),
+    0px 4px 4px -1px oklch(0% 0 0 / 5%), 0px 2px 2px -1px oklch(0% 0 0 / 5%),
+    0px 1px 1px -0.5px oklch(0% 0 0 / 5%), inset 0px -1.5px 1.5px -1.5px oklch(0% 0 0 / 5%),
+    inset 0px 3px 3px -1.5px oklch(100% 0 0 / 10%);
+  --shadow-bevel-lg:
+    0px 0px 0px 1px oklch(0% 0 0 / 10%), 0px 12px 12px -6px oklch(0% 0 0 / 10%),
+    0px 6px 6px -1.5px oklch(0% 0 0 / 5%), 0px 4px 4px 0px oklch(0% 0 0 / 5%),
+    0px 2px 2px -1px oklch(0% 0 0 / 5%), 0px 1px 1px -0.5px oklch(0% 0 0 / 5%),
+    inset 0px -1.5px 1.5px -1.5px oklch(0% 0 0 / 5%), inset 0px 3px 3px -1.5px oklch(100% 0 0 / 10%);
+  --shadow-bevel-xl:
+    0px 0px 0px 1px oklch(0% 0 0 / 10%), 0px 24px 24px -22px oklch(0% 0 0 / 10%),
+    0px 12px 12px -8px oklch(0% 0 0 / 10%), 0px 6px 6px -3px oklch(0% 0 0 / 5%),
+    0px 4px 4px 2px oklch(0% 0 0 / 5%), 0px 2px 2px -1px oklch(0% 0 0 / 5%),
+    0px 1px 1px -0.5px oklch(0% 0 0 / 5%), inset 0px -1.5px 1.5px -1.5px oklch(0% 0 0 / 5%),
+    inset 0px 3px 3px -1.5px oklch(100% 0 0 / 10%);
+  --shadow-bevel-2xl:
+    0px 0px 0px 1px oklch(0% 0 0 / 10%), 0px 40px 40px -28px oklch(0% 0 0 / 10%),
+    0px 24px 24px -28px oklch(0% 0 0 / 10%), 0px 12px 12px -8px oklch(0% 0 0 / 10%),
+    0px 6px 6px -3px oklch(0% 0 0 / 5%), 0px 4px 4px 2px oklch(0% 0 0 / 5%),
+    0px 2px 2px -1px oklch(0% 0 0 / 5%), 0px 1px 1px -0.5px oklch(0% 0 0 / 5%),
+    inset 0px -1.5px 1.5px -1.5px oklch(0% 0 0 / 5%), inset 0px 3px 3px -1.5px oklch(100% 0 0 / 10%);
 
-  --color-neutral-1: oklch(99.11% 0 0);
-  --color-neutral-2: oklch(98.21% 0 0);
-  --color-neutral-3: oklch(95.51% 0 0);
-  --color-neutral-4: oklch(93.1% 0 0);
-  --color-neutral-5: oklch(90.97% 0 0);
-  --color-neutral-6: oklch(88.53% 0 0);
-  --color-neutral-7: oklch(85.14% 0 0);
-  --color-neutral-8: oklch(79.21% 0 0);
-  --color-neutral-9: oklch(64.01% 0 0);
-  --color-neutral-10: oklch(60.66% 0 0);
-  --color-neutral-11: oklch(49.97% 0 0);
-  --color-neutral-12: oklch(23.93% 0 0);
+  /* Button Shadows */
+  --shadow-button-resting:
+    0px 0px 0px 1px oklch(0% 0 0 / 5%), 0px 2px 2px -1px oklch(0% 0 0 / 10%),
+    0px 1px 1px -0.5px oklch(0% 0 0 / 10%), 0px 2px 4px -2px oklch(0% 0 0 / 10%),
+    0px 4px 8px -2px oklch(0% 0 0 / 10%), 0px 8px 12px -8px oklch(0% 0 0 / 10%),
+    inset 0px -2px 2px -1px oklch(0% 0 0 / 50%), inset 0px 2px 2px -1px oklch(100% 0 0 / 20%);
+  --shadow-button-hover:
+    0px 0px 0px 1px oklch(0% 0 0 / 15%), 0px 2px 2px -1px oklch(0% 0 0 / 10%),
+    0px 1px 1px -0.5px oklch(0% 0 0 / 10%), 0px 2px 4px -2px oklch(0% 0 0 / 10%),
+    0px 4px 8px -2px oklch(0% 0 0 / 10%), 0px 8px 12px -8px oklch(0% 0 0 / 10%),
+    inset 0px -2px 2px -1px oklch(0% 0 0 / 50%), inset 0px 2px 2px -1px oklch(100% 0 0 / 20%);
+  --shadow-button-destructive-resting:
+    0px 0px 0px 1px oklch(51.17% 0.1823 30.25 / 5%),
+    0px 2px 2px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 1px -0.5px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 2px 4px -2px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 4px 8px -2px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 8px 12px -8px oklch(51.17% 0.1823 30.25 / 10%),
+    inset 0px -2px 2px -1px oklch(51.17% 0.1823 30.25 / 20%),
+    inset 0px 4px 2px -2px oklch(100% 0 0 / 15%);
+  --shadow-button-destructive-hover:
+    0px 0px 0px 1px oklch(51.17% 0.1823 30.25 / 15%),
+    0px 2px 2px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 1px -0.5px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 2px 4px -2px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 4px 8px -2px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 8px 12px -8px oklch(51.17% 0.1823 30.25 / 10%),
+    inset 0px -2px 2px -1px oklch(51.17% 0.1823 30.25 / 20%),
+    inset 0px 4px 2px -2px oklch(100% 0 0 / 15%);
+  --shadow-button-outlined-resting:
+    0px 0px 0px 1px oklch(0% 0 0 / 5%), 0px 2px 2px -1px oklch(0% 0 0 / 10%),
+    0px 1px 1px -0.5px oklch(0% 0 0 / 10%), 0px 2px 4px -2px oklch(0% 0 0 / 10%),
+    0px 4px 8px -2px oklch(0% 0 0 / 10%), inset 0px -2px 2px -1px oklch(0% 0 0 / 20%),
+    inset 0px 4px 2px -2px oklch(100% 0 0 / 15%);
+  --shadow-button-outlined-hover:
+    0px 0px 0px 1px oklch(0% 0 0 / 15%), 0px 2px 2px -1px oklch(0% 0 0 / 10%),
+    0px 1px 1px -0.5px oklch(0% 0 0 / 10%), 0px 2px 4px -2px oklch(0% 0 0 / 10%),
+    0px 4px 8px -2px oklch(0% 0 0 / 10%), inset 0px -2px 2px -1px oklch(0% 0 0 / 20%),
+    inset 0px 4px 2px -2px oklch(100% 0 0 / 15%);
 
-  --color-carbon-1: oklch(99.38% 0.0013 106.42);
-  --color-carbon-2: oklch(98.26% 0.0017 67.8);
-  --color-carbon-3: oklch(95.51% 0.0041 91.45);
-  --color-carbon-4: oklch(93.14% 0.0058 84.57);
-  --color-carbon-5: oklch(90.76% 0.0075 80.72);
-  --color-carbon-6: oklch(88.06% 0.0093 78.28);
-  --color-carbon-7: oklch(84.62% 0.0118 84.58);
-  --color-carbon-8: oklch(78.36% 0.012 84.58);
-  --color-carbon-9: oklch(26.93% 0.0078 84.59);
-  --color-carbon-10: oklch(34.91% 0.0074 84.59);
-  --color-carbon-11: oklch(50.02% 0.0115 87.52);
-  --color-carbon-12: oklch(26.1% 0.0079 84.59);
+  /* Input Shadows */
+  --shadow-input-resting:
+    0 0 0 1px oklch(0% 0 0 / 10%), 0px 0.5px 0px -0.5px oklch(0% 0 0 / 10%),
+    0 1px 0 -1px oklch(0% 0 0 / 10%), 0px 1px 1px -1px oklch(0% 0 0 / 10%),
+    0px 1px 2px -1px oklch(0% 0 0 / 10%), 0px 2px 4px -2px oklch(0% 0 0 / 10%),
+    0 4px 6px -8px oklch(0% 0 0 / 10%), 0 6px 6px -12px oklch(0% 0 0 / 10%);
+  --shadow-input-hover:
+    0px 0px 0px 1px oklch(0% 0 0 / 20%), 0px 0.5px 0px -0.5px oklch(0% 0 0 / 10%),
+    0 1px 0 -1px oklch(0% 0 0 / 10%), 0px 1px 1px -1px oklch(0% 0 0 / 10%),
+    0px 1px 2px -1px oklch(0% 0 0 / 10%), 0px 2px 4px -2px oklch(0% 0 0 / 10%),
+    0 4px 6px -8px oklch(0% 0 0 / 10%), 0 6px 6px -12px oklch(0% 0 0 / 10%);
+  --shadow-input-destructive-resting:
+    0px 0px 0px 1px oklch(51.17% 0.1823 30.25 / 15%),
+    0px 0.5px 0px -0.5px oklch(51.17% 0.1823 30.25 / 50%),
+    0 1px 0 -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 1px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 2px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 2px 4px -2px oklch(51.17% 0.1823 30.25 / 10%),
+    0 4px 6px -8px oklch(51.17% 0.1823 30.25 / 10%);
+  --shadow-input-destructive-hover:
+    0px 0px 0px 1px oklch(51.17% 0.1823 30.25 / 25%),
+    0px 0.5px 0px -0.5px oklch(51.17% 0.1823 30.25 / 10%),
+    0 1px 0 -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 1px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 2px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 2px 4px -2px oklch(51.17% 0.1823 30.25 / 10%),
+    0 4px 6px -8px oklch(51.17% 0.1823 30.25 / 10%);
+  --shadow-input-destructive-focus:
+    0px 0px 0px 1px oklch(51.17% 0.1823 30.25 / 25%),
+    0px 0.5px 0px -0.5px oklch(51.17% 0.1823 30.25 / 10%),
+    0 1px 0 -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 1px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 2px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 2px 4px -2px oklch(51.17% 0.1823 30.25 / 10%),
+    0 4px 6px -8px oklch(51.17% 0.1823 30.25 / 10%);
 
-  --color-blue-1: oklch(96.77% 0.0027 286.35);
-  --color-blue-2: oklch(95.53% 0.0083 271.33);
-  --color-blue-3: oklch(93.1% 0.0184 269.08);
-  --color-blue-4: oklch(90.41% 0.0372 268.89);
-  --color-blue-5: oklch(86.93% 0.0576 270);
-  --color-blue-6: oklch(82.79% 0.079 269.55);
-  --color-blue-7: oklch(77% 0.0956 268.87);
-  --color-blue-8: oklch(69.15% 0.126 269.7);
-  --color-blue-9: oklch(53.13% 0.2117 269.5);
-  --color-blue-10: oklch(48.45% 0.1918 269.57);
-  --color-blue-11: oklch(47.22% 0.1921 269.55);
-  --color-blue-12: oklch(31.36% 0.0956 269.13);
+  /* Checkbox Shadows */
+  --shadow-checkbox-resting:
+    0px 0.5px 0px -0.5px oklch(0% 0 0 / 10%), 0 1px 0 -1px oklch(0% 0 0 / 10%),
+    0px 1px 1px -1px oklch(0% 0 0 / 10%), 0px 1px 2px -1px oklch(0% 0 0 / 10%),
+    0px 2px 4px -2px oklch(0% 0 0 / 10%), 0 4px 6px -8px oklch(0% 0 0 / 10%),
+    inset 0px -1px 2px -1px oklch(0% 0 0 / 20%), inset 0px 2px 1px -1px oklch(100% 0 0 / 50%);
+  --shadow-checkbox-hover:
+    0px 0.5px 0px -0.5px oklch(0% 0 0 / 10%), 0 1px 0 -1px oklch(0% 0 0 / 10%),
+    0px 1px 1px -1px oklch(0% 0 0 / 10%), 0px 1px 2px -1px oklch(0% 0 0 / 10%),
+    0px 2px 4px -2px oklch(0% 0 0 / 10%), 0 4px 6px -8px oklch(0% 0 0 / 10%),
+    0 8px 12px -8px oklch(0% 0 0 / 10%), inset 0px -1px 2px -1px oklch(0% 0 0 / 20%),
+    inset 0px 2px 1px -1px oklch(100% 0 0 / 50%);
 
-  --color-indigo-1: oklch(96.58% 0.0041 301.42);
-  --color-indigo-2: oklch(95.47% 0.012 286.17);
-  --color-indigo-3: oklch(93.33% 0.0242 285.92);
-  --color-indigo-4: oklch(90.16% 0.0504 287.82);
-  --color-indigo-5: oklch(90.16% 0.0504 287.82);
-  --color-indigo-6: oklch(82.63% 0.0921 288.37);
-  --color-indigo-7: oklch(77.02% 0.1189 287.63);
-  --color-indigo-8: oklch(69.06% 0.1566 287.89);
-  --color-indigo-9: oklch(55.63% 0.2368 288.08);
-  --color-indigo-10: oklch(50.99% 0.2119 287.99);
-  --color-indigo-11: oklch(47.02% 0.2114 288.14);
-  --color-indigo-12: oklch(31.4% 0.1289 288.26);
+  /* Switch Shadows */
+  --shadow-switch-resting:
+    0 0 0 1px oklch(0% 0 0 / 5%), inset 0px 0.5px 1px 0.5px oklch(0% 0 0 / 10%);
+  --shadow-switch-hover:
+    0px 0px 0px 1px oklch(0% 0 0 / 10%), inset 0px 1px 1px 0.5px oklch(0% 0 0 / 10%);
+  --shadow-switch-focus:
+    0px 0px 0px 1px oklch(0% 0 0 / 10%), 0px 0px 0px 1px oklch(0% 0 0 / 10%),
+    inset 0px 1px 1px 0.5px oklch(0% 0 0 / 10%);
+  --shadow-switch-thumb:
+    0px 0.5px 0px -0.5px oklch(0% 0 0 / 10%), 0 1px 0 -1px oklch(0% 0 0 / 10%),
+    0px 2px 2px -1px oklch(0% 0 0 / 10%), 0px 2px 4px -2px oklch(0% 0 0 / 10%),
+    inset 0 -2px 4px -2px oklch(100% 0 0), inset 0px 0.5px 0.5px oklch(100% 0 0 / 10%);
 
-  --color-green-1: oklch(99.32% 0.0058 153.78);
-  --color-green-2: oklch(98.14% 0.0099 155.1);
-  --color-green-3: oklch(96% 0.0248 152.88);
-  --color-green-4: oklch(93.3% 0.039 153.49);
-  --color-green-5: oklch(90.13% 0.0566 152.99);
-  --color-green-6: oklch(85.72% 0.0751 152.95);
-  --color-green-7: oklch(79.82% 0.0995 152.34);
-  --color-green-8: oklch(71.73% 0.1375 152.09);
-  --color-green-9: oklch(59.48% 0.1496 152.41);
-  --color-green-10: oklch(55.05% 0.1399 152.51);
-  --color-green-11: oklch(52.83% 0.1391 151.98);
-  --color-green-12: oklch(32.7% 0.0573 152.54);
-
-  --color-red-1: oklch(99.34% 0.0032 17.21);
-  --color-red-2: oklch(98.35% 0.0066 28.83);
-  --color-red-3: oklch(95.55% 0.0193 33.36);
-  --color-red-4: oklch(92.39% 0.0391 31.56);
-  --color-red-5: oklch(89.37% 0.056 30.52);
-  --color-red-6: oklch(85.5% 0.0701 30.6);
-  --color-red-7: oklch(80.46% 0.0849 29.91);
-  --color-red-8: oklch(74.16% 0.1072 29.84);
-  --color-red-9: oklch(55.69% 0.1824 30.14);
-  --color-red-10: oklch(51.17% 0.1823 30.25);
-  --color-red-11: oklch(56.26% 0.1824 30.09);
-  --color-red-12: oklch(34.39% 0.0841 30.19);
-
-  --color-orange-1: oklch(99.25% 0.003 44.27);
-  --color-orange-2: oklch(97.9% 0.0111 45.72);
-  --color-orange-3: oklch(95.53% 0.0254 52.23);
-  --color-orange-4: oklch(91.14% 0.0525 53.02);
-  --color-orange-5: oklch(88.02% 0.0723 52.29);
-  --color-orange-6: oklch(85.53% 0.0857 47.69);
-  --color-orange-7: oklch(80.43% 0.0914 46.16);
-  --color-orange-8: oklch(74.44% 0.1083 45.72);
-  --color-orange-9: oklch(67.09% 0.1589 46.43);
-  --color-orange-10: oklch(63.27% 0.1618 46.35);
-  --color-orange-11: oklch(58.9% 0.1549 46.78);
-  --color-orange-12: oklch(34.87% 0.0582 46.18);
-
-  --color-yellow-1: oklch(99.4% 0.0041 91.45);
-  --color-yellow-2: oklch(98.64% 0.024 96.56);
-  --color-yellow-3: oklch(96.63% 0.0746 100.25);
-  --color-yellow-4: oklch(94.59% 0.1098 99.21);
-  --color-yellow-5: oklch(92.1% 0.1367 96.69);
-  --color-yellow-6: oklch(88.11% 0.129 96.8);
-  --color-yellow-7: oklch(83.15% 0.1212 96.92);
-  --color-yellow-8: oklch(76.19% 0.138 96.64);
-  --color-yellow-9: oklch(88.88% 0.1827 95.76);
-  --color-yellow-10: oklch(85.87% 0.1743 96.46);
-  --color-yellow-11: oklch(57.39% 0.1176 93.46);
-  --color-yellow-12: oklch(35.58% 0.0457 96.16);
+  /* Radius */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-3xl: 16px;
+  --radius-4xl: 20px;
+  --radius-5xl: 24px;
+  --radius-6xl: 32px;
+  --radius-7xl: 40px;
+  --radius-8xl: 48px;
+  --radius-9xl: 56px;
 }
 
 .dark {
-  --color-white: oklch(100% 0 0);
-  --color-black: oklch(0% 0 0);
+  --color-background: oklch(0% 0 0);
+  --color-foreground: oklch(94.91% 0 0);
+  --color-card: oklch(0% 0 0);
+  --color-card-foreground: oklch(100% 0 0);
+  --color-popover: oklch(0% 0 0);
+  --color-popover-foreground: oklch(94.91% 0 0);
+  --color-primary: oklch(94.65% 0.0058 84.57);
+  --color-primary-foreground: oklch(0% 0 0);
+  --color-secondary: oklch(25.2% 0 0);
+  --color-secondary-foreground: oklch(17.76% 0 0);
+  --color-muted: oklch(25.2% 0 0);
+  --color-muted-foreground: oklch(58.29% 0 0);
+  --color-accent: oklch(53.82% 0 0);
+  --color-accent-foreground: oklch(94.91% 0 0);
+  --color-destructive: oklch(35.39% 0.0591 31.56);
+  --color-destructive-foreground: oklch(79.26% 0.1824 30.09);
+  --color-border: oklch(34.85% 0 0);
+  --color-input: oklch(0% 0 0);
+  --color-ring: oklch(40.17% 0 0 / 50%);
 
-  --color-neutral-min: oklch(0% 0 0);
-  --color-neutral-max: oklch(100% 0 0);
+  /* Bevel Shadows */
+  --shadow-bevel-xs:
+    0px 0px 0px 1px oklch(100% 0 0 / 10%), 0px 2px 2px -1px oklch(0% 0 0 / 5%),
+    0px 1px 1px -0.5px oklch(0% 0 0 / 5%), inset 0px -1.5px 1.5px -1.5px oklch(0% 0 0 / 5%),
+    inset 0px 3px 3px -1.5px oklch(100% 0 0 / 10%);
+  --shadow-bevel-sm:
+    0px 0px 0px 1px oklch(100% 0 0 / 10%), 0px 4px 4px -2px oklch(0% 0 0 / 5%),
+    0px 2px 2px -1px oklch(0% 0 0 / 5%), 0px 1px 1px -0.5px oklch(0% 0 0 / 5%),
+    inset 0px -1.5px 1.5px -1.5px oklch(0% 0 0 / 5%), inset 0px 3px 3px -1.5px oklch(100% 0 0 / 10%);
+  --shadow-bevel-md:
+    0px 0px 0px 1px oklch(100% 0 0 / 10%), 0px 6px 6px -3px oklch(0% 0 0 / 5%),
+    0px 4px 4px -1px oklch(0% 0 0 / 5%), 0px 2px 2px -1px oklch(0% 0 0 / 5%),
+    0px 1px 1px -0.5px oklch(0% 0 0 / 5%), inset 0px -1.5px 1.5px -1.5px oklch(0% 0 0 / 5%),
+    inset 0px 3px 3px -1.5px oklch(100% 0 0 / 10%);
+  --shadow-bevel-lg:
+    0px 0px 0px 1px oklch(100% 0 0 / 10%), 0px 12px 12px -6px oklch(0% 0 0 / 10%),
+    0px 6px 6px -1.5px oklch(0% 0 0 / 5%), 0px 4px 4px 0px oklch(0% 0 0 / 5%),
+    0px 2px 2px -1px oklch(0% 0 0 / 5%), 0px 1px 1px -0.5px oklch(0% 0 0 / 5%),
+    inset 0px -1.5px 1.5px -1.5px oklch(0% 0 0 / 5%), inset 0px 3px 3px -1.5px oklch(100% 0 0 / 10%);
+  --shadow-bevel-xl:
+    0px 0px 0px 1px oklch(100% 0 0 / 10%), 0px 24px 24px -22px oklch(0% 0 0 / 10%),
+    0px 12px 12px -8px oklch(0% 0 0 / 10%), 0px 6px 6px -3px oklch(0% 0 0 / 5%),
+    0px 4px 4px 2px oklch(0% 0 0 / 5%), 0px 2px 2px -1px oklch(0% 0 0 / 5%),
+    0px 1px 1px -0.5px oklch(0% 0 0 / 5%), inset 0px -1.5px 1.5px -1.5px oklch(0% 0 0 / 5%),
+    inset 0px 3px 3px -1.5px oklch(100% 0 0 / 10%);
+  --shadow-bevel-2xl:
+    0px 0px 0px 1px oklch(100% 0 0 / 10%), 0px 40px 40px -28px oklch(0% 0 0 / 10%),
+    0px 24px 24px -28px oklch(0% 0 0 / 10%), 0px 12px 12px -8px oklch(0% 0 0 / 10%),
+    0px 6px 6px -3px oklch(0% 0 0 / 5%), 0px 4px 4px 2px oklch(0% 0 0 / 5%),
+    0px 2px 2px -1px oklch(0% 0 0 / 5%), 0px 1px 1px -0.5px oklch(0% 0 0 / 5%),
+    inset 0px -1.5px 1.5px -1.5px oklch(0% 0 0 / 5%), inset 0px 3px 3px -1.5px oklch(100% 0 0 / 10%);
 
-  --color-neutral-1: oklch(17.76% 0 0);
-  --color-neutral-2: oklch(21.34% 0 0);
-  --color-neutral-3: oklch(25.2% 0 0);
-  --color-neutral-4: oklch(28.5% 0 0);
-  --color-neutral-5: oklch(31.32% 0 0);
-  --color-neutral-6: oklch(34.85% 0 0);
-  --color-neutral-7: oklch(40.17% 0 0);
-  --color-neutral-8: oklch(48.91% 0 0);
-  --color-neutral-9: oklch(53.82% 0 0);
-  --color-neutral-10: oklch(58.29% 0 0);
-  --color-neutral-11: oklch(76.99% 0 0);
-  --color-neutral-12: oklch(94.91% 0 0);
+  /* Button Shadows */
+  --shadow-button-resting:
+    0px 0px 0px 1px oklch(100% 0 0 / 5%), 0px 2px 2px -1px oklch(100% 0 0 / 10%),
+    0px 1px 1px -0.5px oklch(100% 0 0 / 10%), 0px 2px 4px -2px oklch(100% 0 0 / 10%),
+    0px 4px 8px -2px oklch(100% 0 0 / 10%), 0px 8px 12px -8px oklch(100% 0 0 / 10%),
+    inset 0px -2px 2px -1px oklch(100% 0 0 / 50%), inset 0px 2px 2px -1px oklch(0% 0 0 / 20%);
+  --shadow-button-hover:
+    0px 0px 0px 1px oklch(100% 0 0 / 15%), 0px 2px 2px -1px oklch(100% 0 0 / 10%),
+    0px 1px 1px -0.5px oklch(100% 0 0 / 10%), 0px 2px 4px -2px oklch(100% 0 0 / 10%),
+    0px 4px 8px -2px oklch(100% 0 0 / 10%), 0px 8px 12px -8px oklch(100% 0 0 / 10%),
+    inset 0px -2px 2px -1px oklch(100% 0 0 / 50%), inset 0px 2px 2px -1px oklch(0% 0 0 / 20%);
+  --shadow-button-destructive-resting:
+    0px 0px 0px 1px oklch(51.17% 0.1823 30.25 / 5%),
+    0px 2px 2px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 1px -0.5px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 2px 4px -2px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 4px 8px -2px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 8px 12px -8px oklch(51.17% 0.1823 30.25 / 10%),
+    inset 0px -2px 2px -1px oklch(51.17% 0.1823 30.25 / 20%),
+    inset 0px 4px 2px -2px oklch(0% 0 0 / 15%);
+  --shadow-button-destructive-hover:
+    0px 0px 0px 1px oklch(51.17% 0.1823 30.25 / 15%),
+    0px 2px 2px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 1px -0.5px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 2px 4px -2px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 4px 8px -2px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 8px 12px -8px oklch(51.17% 0.1823 30.25 / 10%),
+    inset 0px -2px 2px -1px oklch(51.17% 0.1823 30.25 / 20%),
+    inset 0px 4px 2px -2px oklch(0% 0 0 / 15%);
+  --shadow-button-outlined-resting:
+    0px 0px 0px 1px oklch(100% 0 0 / 5%), 0px 2px 2px -1px oklch(100% 0 0 / 10%),
+    0px 1px 1px -0.5px oklch(100% 0 0 / 10%), 0px 2px 4px -2px oklch(100% 0 0 / 10%),
+    0px 4px 8px -2px oklch(100% 0 0 / 10%), inset 0px -2px 2px -1px oklch(100% 0 0 / 20%),
+    inset 0px 4px 2px -2px oklch(0% 0 0 / 15%);
+  --shadow-button-outlined-hover:
+    0px 0px 0px 1px oklch(100% 0 0 / 15%), 0px 2px 2px -1px oklch(100% 0 0 / 10%),
+    0px 1px 1px -0.5px oklch(100% 0 0 / 10%), 0px 2px 4px -2px oklch(100% 0 0 / 10%),
+    0px 4px 8px -2px oklch(100% 0 0 / 10%), inset 0px -2px 2px -1px oklch(100% 0 0 / 20%),
+    inset 0px 4px 2px -2px oklch(0% 0 0 / 15%);
 
-  --color-carbon-1: oklch(21.42% 0.0025 67.69);
-  --color-carbon-2: oklch(24.42% 0.0024 67.71);
-  --color-carbon-3: oklch(27.72% 0.0039 84.58);
-  --color-carbon-4: oklch(30.25% 0.0046 67.65);
-  --color-carbon-5: oklch(32.86% 0.007 95.27);
-  --color-carbon-6: oklch(36.1% 0.0058 78.26);
-  --color-carbon-7: oklch(40.97% 0.0071 84.59);
-  --color-carbon-8: oklch(49.35% 0.0054 78.28);
-  --color-carbon-9: oklch(54.48% 0.0062 95.17);
-  --color-carbon-10: oklch(49.7% 0.0053 78.28);
-  --color-carbon-11: oklch(77.04% 0.0061 84.57);
-  --color-carbon-12: oklch(94.65% 0.0058 84.57);
+  /* Input Shadows */
+  --shadow-input-resting:
+    0 0 0 1px oklch(100% 0 0 / 10%), 0px 0.5px 0px -0.5px oklch(100% 0 0 / 10%),
+    0 1px 0 -1px oklch(100% 0 0 / 10%), 0px 1px 1px -1px oklch(100% 0 0 / 10%),
+    0px 1px 2px -1px oklch(100% 0 0 / 10%), 0px 2px 4px -2px oklch(100% 0 0 / 10%),
+    0 4px 6px -8px oklch(100% 0 0 / 10%), 0 6px 6px -12px oklch(100% 0 0 / 10%);
+  --shadow-input-hover:
+    0px 0px 0px 1px oklch(100% 0 0 / 20%), 0px 0.5px 0px -0.5px oklch(100% 0 0 / 10%),
+    0 1px 0 -1px oklch(100% 0 0 / 10%), 0px 1px 1px -1px oklch(100% 0 0 / 10%),
+    0px 1px 2px -1px oklch(100% 0 0 / 10%), 0px 2px 4px -2px oklch(100% 0 0 / 10%),
+    0 4px 6px -8px oklch(100% 0 0 / 10%), 0 6px 6px -12px oklch(100% 0 0 / 10%);
+  --shadow-input-destructive-resting:
+    0px 0px 0px 1px oklch(51.17% 0.1823 30.25 / 15%),
+    0px 0.5px 0px -0.5px oklch(51.17% 0.1823 30.25 / 50%),
+    0 1px 0 -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 1px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 2px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 2px 4px -2px oklch(51.17% 0.1823 30.25 / 10%),
+    0 4px 6px -8px oklch(51.17% 0.1823 30.25 / 10%);
+  --shadow-input-destructive-hover:
+    0px 0px 0px 1px oklch(51.17% 0.1823 30.25 / 25%),
+    0px 0.5px 0px -0.5px oklch(51.17% 0.1823 30.25 / 10%),
+    0 1px 0 -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 1px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 2px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 2px 4px -2px oklch(51.17% 0.1823 30.25 / 10%),
+    0 4px 6px -8px oklch(51.17% 0.1823 30.25 / 10%);
+  --shadow-input-destructive-focus:
+    0px 0px 0px 1px oklch(51.17% 0.1823 30.25 / 25%),
+    0px 0.5px 0px -0.5px oklch(51.17% 0.1823 30.25 / 10%),
+    0 1px 0 -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 1px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 1px 2px -1px oklch(51.17% 0.1823 30.25 / 10%),
+    0px 2px 4px -2px oklch(51.17% 0.1823 30.25 / 10%),
+    0 4px 6px -8px oklch(51.17% 0.1823 30.25 / 10%);
 
-  --color-blue-1: oklch(21.49% 0.0269 267.91);
-  --color-blue-2: oklch(22.6% 0.0341 270.96);
-  --color-blue-3: oklch(28.32% 0.0764 269.7);
-  --color-blue-4: oklch(32.6% 0.1045 269.69);
-  --color-blue-5: oklch(36.47% 0.1171 269.75);
-  --color-blue-6: oklch(40.57% 0.1233 269.28);
-  --color-blue-7: oklch(45.2% 0.1334 269.49);
-  --color-blue-8: oklch(50.37% 0.1522 269.22);
-  --color-blue-9: oklch(53.13% 0.2117 269.5);
-  --color-blue-10: oklch(48.35% 0.1516 269.24);
-  --color-blue-11: oklch(77.13% 0.1158 267.4);
-  --color-blue-12: oklch(91.01% 0.0431 268.21);
+  /* Checkbox Shadows */
+  --shadow-checkbox-resting:
+    0px 0.5px 0px -0.5px oklch(100% 0 0 / 10%), 0 1px 0 -1px oklch(100% 0 0 / 10%),
+    0px 1px 1px -1px oklch(100% 0 0 / 10%), 0px 1px 2px -1px oklch(100% 0 0 / 10%),
+    0px 2px 4px -2px oklch(100% 0 0 / 10%), 0 4px 6px -8px oklch(100% 0 0 / 10%),
+    inset 0px -1px 2px -1px oklch(100% 0 0 / 20%), inset 0px 2px 1px -1px oklch(0% 0 0 / 50%);
+  --shadow-checkbox-hover:
+    0px 0.5px 0px -0.5px oklch(100% 0 0 / 10%), 0 1px 0 -1px oklch(100% 0 0 / 10%),
+    0px 1px 1px -1px oklch(100% 0 0 / 10%), 0px 1px 2px -1px oklch(100% 0 0 / 10%),
+    0px 2px 4px -2px oklch(100% 0 0 / 10%), 0 4px 6px -8px oklch(100% 0 0 / 10%),
+    0 8px 12px -8px oklch(100% 0 0 / 10%), inset 0px -1px 2px -1px oklch(100% 0 0 / 20%),
+    inset 0px 2px 1px -1px oklch(0% 0 0 / 50%);
 
-  --color-indigo-1: oklch(21.21% 0.0351 288.11);
-  --color-indigo-2: oklch(22.69% 0.0402 287.09);
-  --color-indigo-3: oklch(28.15% 0.0877 288.67);
-  --color-indigo-4: oklch(31.89% 0.1235 288.38);
-  --color-indigo-5: oklch(35.27% 0.1311 287.97);
-  --color-indigo-6: oklch(39.12% 0.1355 288.23);
-  --color-indigo-7: oklch(44.48% 0.1476 288.08);
-  --color-indigo-8: oklch(51.52% 0.1734 288.29);
-  --color-indigo-9: oklch(55.63% 0.2368 288.08);
-  --color-indigo-10: oklch(51.1% 0.1735 287.75);
-  --color-indigo-11: oklch(77.21% 0.1244 289.4);
-  --color-indigo-12: oklch(90.77% 0.0476 289.35);
+  /* Switch Shadows */
+  --shadow-switch-resting:
+    0 0 0 1px oklch(100% 0 0 / 5%), inset 0px 0.5px 1px 0.5px oklch(100% 0 0 / 10%);
+  --shadow-switch-hover:
+    0px 0px 0px 1px oklch(100% 0 0 / 10%), inset 0px 1px 1px 0.5px oklch(100% 0 0 / 10%);
+  --shadow-switch-focus:
+    0px 0px 0px 1px oklch(100% 0 0 / 10%), 0px 0px 0px 1px oklch(100% 0 0 / 10%),
+    inset 0px 1px 1px 0.5px oklch(100% 0 0 / 10%);
+  --shadow-switch-thumb:
+    0px 0.5px 0px -0.5px oklch(100% 0 0 / 10%), 0 1px 0 -1px oklch(100% 0 0 / 10%),
+    0px 2px 2px -1px oklch(100% 0 0 / 10%), 0px 2px 4px -2px oklch(100% 0 0 / 10%),
+    inset 0 -2px 4px -2px oklch(0% 0 0), inset 0px 0.5px 0.5px oklch(0% 0 0 / 10%);
 
-  --color-green-1: oklch(17.75% 0.0149 153.63);
-  --color-green-2: oklch(21.06% 0.019 151.28);
-  --color-green-3: oklch(27.18% 0.0438 151.94);
-  --color-green-4: oklch(31.66% 0.0629 152.81);
-  --color-green-5: oklch(36.4% 0.073 152.83);
-  --color-green-6: oklch(41.39% 0.082 152.61);
-  --color-green-7: oklch(46.81% 0.093 152.52);
-  --color-green-8: oklch(52.84% 0.1092 152.24);
-  --color-green-9: oklch(59.48% 0.1496 152.41);
-  --color-green-10: oklch(55.19% 0.1085 152.38);
-  --color-green-11: oklch(77.88% 0.1495 152.37);
-  --color-green-12: oklch(90.49% 0.0926 152.37);
-
-  --color-red-1: oklch(17.71% 0.0174 25.39);
-  --color-red-2: oklch(20.36% 0.0277 31.18);
-  --color-red-3: oklch(24.99% 0.0801 30.49);
-  --color-red-4: oklch(28.91% 0.1186 29.23);
-  --color-red-5: oklch(33.17% 0.1327 30.08);
-  --color-red-6: oklch(38.19% 0.1379 30.13);
-  --color-red-7: oklch(45.04% 0.1499 30.04);
-  --color-red-8: oklch(54.3% 0.1822 30);
-  --color-red-9: oklch(55.69% 0.1824 30.14);
-  --color-red-10: oklch(51.17% 0.1823 30.25);
-  --color-red-11: oklch(76.81% 0.1378 30.76);
-  --color-red-12: oklch(89.34% 0.0563 31.82);
-
-  --color-orange-1: oklch(17.86% 0.0094 43);
-  --color-orange-2: oklch(20.74% 0.0138 51.4);
-  --color-orange-3: oklch(25.53% 0.0384 48.1);
-  --color-orange-4: oklch(29.31% 0.0658 46.26);
-  --color-orange-5: oklch(33.42% 0.0725 46.84);
-  --color-orange-6: oklch(38.44% 0.0734 46.75);
-  --color-orange-7: oklch(45.06% 0.0809 45.76);
-  --color-orange-8: oklch(53.96% 0.0992 47.07);
-  --color-orange-9: oklch(67.09% 0.1589 46.43);
-  --color-orange-10: oklch(63.3% 0.1593 46.45);
-  --color-orange-11: oklch(79.01% 0.1315 47.24);
-  --color-orange-12: oklch(91.62% 0.0401 47.46);
-
-  --color-yellow-1: oklch(17.78% 0.0122 91.81);
-  --color-yellow-2: oklch(20.95% 0.0174 91.81);
-  --color-yellow-3: oklch(25.74% 0.0441 95.12);
-  --color-yellow-4: oklch(29.68% 0.0608 94.08);
-  --color-yellow-5: oklch(33.71% 0.0691 93.95);
-  --color-yellow-6: oklch(38.5% 0.0781 96.28);
-  --color-yellow-7: oklch(45.34% 0.0819 97.18);
-  --color-yellow-8: oklch(53.62% 0.0964 96.34);
-  --color-yellow-9: oklch(84.96% 0.1743 96.46);
-  --color-yellow-10: oklch(81.98% 0.1686 95.87);
-  --color-yellow-11: oklch(87.68% 0.1743 96.48);
-  --color-yellow-12: oklch(93.7% 0.0732 96.57);
+  /* Radius */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-3xl: 16px;
+  --radius-4xl: 20px;
+  --radius-5xl: 24px;
+  --radius-6xl: 32px;
+  --radius-7xl: 40px;
+  --radius-8xl: 48px;
+  --radius-9xl: 56px;
 }
 
 @theme {
