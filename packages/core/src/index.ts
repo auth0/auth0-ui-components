@@ -1,4 +1,10 @@
-export { createTranslator, TranslationFunction, initializeI18n } from './i18n';
+export {
+  createTranslator,
+  initializeI18n,
+  getCurrentLanguage,
+  getFallbackLanguage,
+  getCurrentTranslations,
+} from './i18n';
 
 export { del, post, get, patch, ApiError, normalizeError, createApiError } from './api';
 

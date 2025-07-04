@@ -2,16 +2,6 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import QRCode from 'react-qr-code';
-import { MailIcon, PhoneIcon } from 'lucide-react';
-
-import {
-  MFAType,
-  normalizeError,
-  EnrollMfaResponse,
-  createTranslator,
-} from '@auth0-web-ui-components/core';
-
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
@@ -38,6 +28,14 @@ import {
   EMAIL_PLACEHOLDER,
   PHONE_NUMBER_PLACEHOLDER,
 } from '@/lib/constants';
+import QRCode from 'react-qr-code';
+import {
+  createTranslator,
+  normalizeError,
+  type MFAType,
+  type EnrollMfaResponse,
+} from '@auth0-web-ui-components/core';
+import { MailIcon, PhoneIcon } from 'lucide-react';
 
 const phoneRegex = /^\+?[0-9\s\-()]{8,}$/;
 

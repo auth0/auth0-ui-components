@@ -55,22 +55,26 @@ export const Auth0ComponentProvider = ({
 }: Auth0ComponentConfig & { children: React.ReactNode }) => {
   const isProxyMode = Boolean(authProxyUrl);
   const [authDetails, setAuthDetails] = React.useState<AuthDetails | undefined>(undefined);
-  const [apiBaseUrl, setApiBaseUrl] = React.useState<string | undefined>(undefined);
+  const [apiBaseUrl, setApiBaseUrl] = React.useState<string | undefined>(authProxyUrl);
+  const [isI18nInitialized, setIsI18nInitialized] = React.useState(false);
+  const [currentLanguage, setCurrentLanguage] = React.useState<string | undefined>(
+    i18n?.currentLanguage,
+  );
 
-  // Initialize i18n once
+  // Initialize i18n when language changes
   React.useEffect(() => {
-    initializeI18n({
-      currentLanguage: i18n?.currentLanguage,
-      fallbackLanguage: i18n?.fallbackLanguage,
-    });
+    const initI18n = async () => {
+      setIsI18nInitialized(false); // Reset initialization state
+      await initializeI18n({
+        currentLanguage: i18n?.currentLanguage,
+        fallbackLanguage: i18n?.fallbackLanguage,
+      });
+      setCurrentLanguage(i18n?.currentLanguage);
+      setIsI18nInitialized(true);
+    };
+
+    initI18n();
   }, [i18n?.currentLanguage, i18n?.fallbackLanguage]);
-
-  // Set API base URL for proxy mode
-  React.useEffect(() => {
-    if (isProxyMode && authProxyUrl) {
-      setApiBaseUrl(authProxyUrl);
-    }
-  }, [isProxyMode, authProxyUrl]);
 
   const contextValue = React.useMemo<Auth0ComponentContextType>(
     () => ({
@@ -94,6 +98,8 @@ export const Auth0ComponentProvider = ({
       isProxyMode,
       apiBaseUrl,
       authDetails,
+      isI18nInitialized,
+      currentLanguage,
     ],
   );
 

@@ -3,8 +3,8 @@ import { LangTranslations, TranslationFunction, I18nInitOptions } from './types'
 // These variables manage the singleton i18n instance.
 let _translations: LangTranslations | null = null;
 let _cache: Map<string, LangTranslations | null> = new Map(); // Initialize cache directly
-let _isInitializedPromise: Promise<void> | null = null; // Promise to track initialization status
-let _isInitializedSync = false; // Synchronous flag for quick checks
+let _currentLanguage: string = 'en-US'; // Track current language
+let _fallbackLanguage: string | undefined; // Track fallback language
 
 const VAR_REGEX = /\${(\w+)}/g;
 
@@ -44,7 +44,6 @@ const substitute = (str: string, vars?: Record<string, unknown>): string => {
  * Loads translation data for a specific language with optimized caching.
  */
 const loadTranslations = async (lang: string): Promise<LangTranslations | null> => {
-  // Use Map.has() for explicit cache checking
   if (_cache.has(lang)) {
     return _cache.get(lang)!;
   }
@@ -55,7 +54,6 @@ const loadTranslations = async (lang: string): Promise<LangTranslations | null> 
     _cache.set(lang, data);
     return data;
   } catch {
-    // Simplified error handling - no console.warn for performance
     _cache.set(lang, null);
     return null;
   }
@@ -89,35 +87,40 @@ const loadTranslationsWithFallback = async (
 // --- Public API Functions ---
 
 /**
- * Initializes the global i18n instance with optimized error handling.
+ * Initializes or changes the language of the global i18n instance.
  */
-export function initializeI18n(options: I18nInitOptions = {}): Promise<void> {
-  if (_isInitializedPromise) {
-    return _isInitializedPromise;
-  }
-
+export async function initializeI18n(options: I18nInitOptions = {}): Promise<void> {
   const currentLanguage = options?.currentLanguage ?? 'en-US';
   const { fallbackLanguage } = options;
 
-  _isInitializedPromise = loadTranslationsWithFallback(currentLanguage, fallbackLanguage)
-    .then((result) => {
-      _translations = result;
-      _isInitializedSync = true;
-    })
-    .catch((error) => {
-      _translations = null;
-      _isInitializedSync = true;
-      throw error;
-    });
+  // Update current settings
+  _currentLanguage = currentLanguage;
+  _fallbackLanguage = fallbackLanguage;
 
-  return _isInitializedPromise;
+  // Load translations
+  const result = await loadTranslationsWithFallback(currentLanguage, fallbackLanguage);
+  _translations = result;
 }
 
 /**
- * Synchronously checks if the i18n instance is ready.
+ * Gets the current language being used.
  */
-export function isI18nReady(): boolean {
-  return _isInitializedSync;
+export function getCurrentLanguage(): string {
+  return _currentLanguage;
+}
+
+/**
+ * Gets the current fallback language being used.
+ */
+export function getFallbackLanguage(): string | undefined {
+  return _fallbackLanguage;
+}
+
+/**
+ * Gets the current translations object.
+ */
+export function getCurrentTranslations(): LangTranslations | null {
+  return _translations;
 }
 
 /**

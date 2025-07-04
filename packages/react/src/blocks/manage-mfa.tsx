@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { createTranslator } from '@auth0-web-ui-components/core';
 
 import { useComponentConfig, useMFA } from '@/hooks';
+import { createTranslator } from '@auth0-web-ui-components/core';
 import type { ManageMfaProps, MFAType, Authenticator } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
