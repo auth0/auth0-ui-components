@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
+import { createTranslator } from '@auth0-web-ui-components/core';
 import { useComponentConfig } from './use-config';
-import { useI18n } from './use-i18n';
 
 /**
  * Describes the object returned by the `useAccessToken` hook.
@@ -58,10 +58,8 @@ interface UseAccessTokenResult {
  */
 export function useAccessToken(scope: string, audiencePath: string): UseAccessTokenResult {
   const { getAccessTokenSilently, getAccessTokenWithPopup } = useAuth0();
-  const {
-    config: { authDetails },
-  } = useComponentConfig();
-  const t = useI18n('common');
+  const { authDetails } = useComponentConfig();
+  const t = React.useMemo(() => createTranslator('common'), []);
   const domain = authDetails?.domain;
 
   if (authDetails?.scopes?.includes(scope) && authDetails.accessToken) {

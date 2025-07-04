@@ -11,31 +11,30 @@ export interface ThemeSettings {
 }
 
 /**
- * Configuration options for Auth0ComponentProvider
- *
- * Defines configuration for authentication, internationalization, and theming.
- * Also optionally includes runtime authentication state in SPA mode.
- *
- * @property {string} [authProxyUrl] - Optional URL for authentication proxy in RWA (proxy) mode.
- *                                      If provided, authentication is handled externally and no tokens are fetched.
- *
- * @property {I18nOptions} [i18n] - Internationalization settings including current and fallback languages.
- *
- *
- * @property {ThemeSettings} [themeSettings] - UI theme configuration, such as light/dark mode and primary color.
- *
- * @property {AuthDetails} [authDetails] - Runtime authentication state, populated in SPA (non-proxy) mode.
- *                                         Includes access token, domain, client ID, scopes, loading, and error info.
+ * Configuration options that users can pass to Auth0ComponentProvider
+ * These are the input props for the provider component.
  */
 export interface Auth0ComponentConfig {
   authProxyUrl?: string;
   i18n?: I18nOptions;
   themeSettings?: ThemeSettings;
-  authDetails?: AuthDetails;
   customOverrides?: CustomOverrides;
-  isProxyMode?: boolean;
-  apiBaseUrl?: string;
   loader?: React.ReactNode;
+}
+
+/**
+ * The complete shape of the context value available to consumers via `useComponentConfig`.
+ * This combines input configuration with runtime-derived properties.
+ */
+export interface Auth0ComponentContextType {
+  authProxyUrl?: string;
+  i18nConfig?: I18nOptions;
+  themeSettings?: ThemeSettings;
+  customOverrides?: CustomOverrides;
+  loader?: React.ReactNode;
+  isProxyMode: boolean;
+  apiBaseUrl: string | undefined;
+  authDetails: AuthDetails | undefined;
 }
 
 export interface I18nOptions {
@@ -95,30 +94,3 @@ export type ThemeContextValue = {
   customOverrides: CustomOverrides;
   mergedTheme: Record<string, unknown>;
 };
-
-/**
- * A function that performs string translation within a namespace.
- *
- * @param key - Translation key relative to namespace
- * @param vars - Optional variables for interpolation
- * @param overrides - Optional translation overrides
- */
-type TranslationFunction = (
-  key: string,
-  vars?: Record<string, unknown>,
-  overrides?: Record<string, unknown>,
-) => string;
-
-/**
- * Factory function that creates namespace-scoped translation functions.
- *
- * @param namespace - Translation namespace (e.g., "mfa", "login")
- */
-export type TFactory = (namespace: string) => TranslationFunction;
-
-/** Defines the value provided by the i18n context. */
-export interface I18nContextValue {
-  /** The factory to create `t` functions. Null until initialized. */
-  translator: TFactory | null;
-  initialized: boolean;
-}

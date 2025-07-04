@@ -5,7 +5,12 @@ import { z } from 'zod';
 import QRCode from 'react-qr-code';
 import { MailIcon, PhoneIcon } from 'lucide-react';
 
-import { MFAType, normalizeError, EnrollMfaResponse } from '@auth0-web-ui-components/core';
+import {
+  MFAType,
+  normalizeError,
+  EnrollMfaResponse,
+  createTranslator,
+} from '@auth0-web-ui-components/core';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -19,7 +24,6 @@ import {
 } from '@/components/ui/form';
 import { OTPField } from '@/components/ui/otp-field';
 import { TextField } from '@/components/ui/text-field';
-import { useI18n } from '@/hooks';
 import {
   SHOW_OTP,
   ENTER_OTP,
@@ -69,7 +73,7 @@ export function EnrollmentForm({
   onSuccess,
   onError,
 }: EnrollmentFormProps) {
-  const t = useI18n('mfa');
+  const t = createTranslator('mfa');
 
   // Initialize phase as null, meaning no UI shown by default
   const [phase, setPhase] = React.useState<EnrollmentPhase>(null);

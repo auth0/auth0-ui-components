@@ -11,8 +11,8 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <Auth0Provider
-        domain={import.meta.env.VITE_AUTH0_DOMAIN}
-        clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
+        domain="dev-cz4yj2vahsv3re67.us.auth0.com"
+        clientId="5VtIz7hb5G6omlgqspqosRKY8FvXlqru"
         authorizationParams={{ redirect_uri: window.location.origin }}
       >
         <I18nextProvider i18n={i18n}>

@@ -1,12 +1,12 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useComponentConfig } from './use-config';
-import { useI18n } from './use-i18n';
 import { useAccessToken } from './use-access-token';
 import {
   fetchMfaFactors,
   enrollMfaRequest,
   deleteMfaFactor,
   confirmMfaEnrollmentRequest,
+  createTranslator,
 } from '@auth0-web-ui-components/core';
 import type {
   MFAType,
@@ -73,10 +73,8 @@ export interface UseMfaResult {
  * @returns {UseMfaResult} An object containing the functions to manage MFA factors.
  */
 export function useMFA(): UseMfaResult {
-  const {
-    config: { authDetails, apiBaseUrl, isProxyMode },
-  } = useComponentConfig();
-  const t = useI18n('common');
+  const { authDetails, apiBaseUrl, isProxyMode } = useComponentConfig();
+  const t = useMemo(() => createTranslator('common'), []);
   const mfaScopes = ['read:authenticators', 'remove:authenticators', 'enroll'];
 
   const { getToken: getMfaToken } = useAccessToken(mfaScopes.join(' '), 'mfa');

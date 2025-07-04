@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { useComponentConfig, useI18n, useMFA } from '@/hooks';
+import { createTranslator } from '@auth0-web-ui-components/core';
+
+import { useComponentConfig, useMFA } from '@/hooks';
 import type { ManageMfaProps, MFAType, Authenticator } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -71,10 +73,8 @@ export function ManageMfa({
   onErrorAction,
   onBeforeAction,
 }: ManageMfaProps): React.JSX.Element {
-  const t = useI18n('mfa', localization);
-  const {
-    config: { loader },
-  } = useComponentConfig();
+  const t = createTranslator('mfa', localization);
+  const { loader } = useComponentConfig();
   const { fetchFactors, enrollMfa, deleteMfa, confirmEnrollment } = useMFA();
 
   const [factors, setFactors] = React.useState<Authenticator[]>([]);
