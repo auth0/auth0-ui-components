@@ -1,11 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import type { Auth0ComponentConfig } from './types';
-import { ProxyModeProvider } from './proxy-mode-provider';
-import type { TFactory } from '@auth0-web-ui-components/core';
-import { createI18n } from '@auth0-web-ui-components/core';
-import { I18nContext } from './i18n-provider';
+import type { Auth0ComponentContextType, Auth0ComponentConfig, AuthDetails } from './types';
+import { initializeI18n } from '@auth0-web-ui-components/core';
+import { Auth0ComponentContext } from './context';
+import { ThemeProvider } from './theme-provider';
 import { Spinner } from '@/components/ui/spinner';
 
 const SpaModeProvider = React.lazy(() => import('./spa-mode-provider'));
@@ -49,57 +48,69 @@ const SpaModeProvider = React.lazy(() => import('./spa-mode-provider'));
 export const Auth0ComponentProvider = ({
   authProxyUrl,
   i18n,
-  ...props
+  themeSettings = { mode: 'light' },
+  customOverrides = {},
+  loader,
+  children,
 }: Auth0ComponentConfig & { children: React.ReactNode }) => {
   const isProxyMode = Boolean(authProxyUrl);
-  const [i18nState, setI18nState] = React.useState<{
-    initialized: boolean;
-    translator: TFactory | null;
-  }>({
-    initialized: false,
-    translator: null,
-  });
+  const [authDetails, setAuthDetails] = React.useState<AuthDetails | undefined>(undefined);
+  const [apiBaseUrl, setApiBaseUrl] = React.useState<string | undefined>(authProxyUrl);
+  const [isI18nInitialized, setIsI18nInitialized] = React.useState(false);
 
-  React.useEffect(() => {
-    const initializeTranslations = async () => {
-      try {
-        const instance = await createI18n({
-          currentLanguage: i18n?.currentLanguage,
-          fallbackLanguage: i18n?.fallbackLanguage,
-        });
-
-        setI18nState({
-          initialized: true,
-          translator: instance.t,
-        });
-      } catch {
-        setI18nState({
-          initialized: true,
-          translator: null,
-        });
-      }
-    };
-
-    initializeTranslations();
+  const initI18n = React.useCallback(async () => {
+    setIsI18nInitialized(false); // Reset initialization state
+    await initializeI18n({
+      currentLanguage: i18n?.currentLanguage,
+      fallbackLanguage: i18n?.fallbackLanguage,
+    });
+    setIsI18nInitialized(true);
   }, [i18n?.currentLanguage, i18n?.fallbackLanguage]);
 
-  const i18nValue = React.useMemo(
+  // Initialize i18n when language changes
+  React.useEffect(() => {
+    initI18n();
+  }, [initI18n]);
+
+  const contextValue = React.useMemo<Auth0ComponentContextType>(
     () => ({
-      translator: i18nState.translator,
-      initialized: i18nState.initialized,
+      authProxyUrl,
+      i18nConfig: i18n,
+      themeSettings,
+      customOverrides,
+      loader,
+
+      // Mode-specific properties
+      isProxyMode,
+      apiBaseUrl: apiBaseUrl || (isProxyMode && authProxyUrl ? authProxyUrl : undefined),
+      authDetails,
     }),
-    [i18nState.translator, i18nState.initialized],
+    [
+      authProxyUrl,
+      i18n,
+      themeSettings,
+      customOverrides,
+      loader,
+      isProxyMode,
+      apiBaseUrl,
+      authDetails,
+      isI18nInitialized,
+    ],
   );
 
   return (
-    <I18nContext.Provider value={i18nValue}>
-      {isProxyMode ? (
-        <ProxyModeProvider {...props} authProxyUrl={authProxyUrl} />
-      ) : (
-        <React.Suspense fallback={props.loader || <Spinner />}>
-          <SpaModeProvider {...props} />
-        </React.Suspense>
-      )}
-    </I18nContext.Provider>
+    <Auth0ComponentContext.Provider value={contextValue}>
+      <ThemeProvider theme={{ branding: themeSettings, customOverrides }}>
+        {isProxyMode ? (
+          children
+        ) : (
+          <React.Suspense fallback={loader || <Spinner />}>
+            <SpaModeProvider setAuthDetails={setAuthDetails} setApiBaseUrl={setApiBaseUrl}>
+              {children}
+            </SpaModeProvider>
+          </React.Suspense>
+        )}
+      </ThemeProvider>
+    </Auth0ComponentContext.Provider>
   );
 };
