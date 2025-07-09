@@ -5,13 +5,17 @@ import {
   deleteMfaFactor,
   confirmMfaEnrollmentRequest,
 } from './mfa-service';
+import { resolveMfaChallenge, extractChallengeFromError } from './mfa-challenge-service';
 import { buildEnrollParams, buildConfirmParams } from './mfa-utils';
 import type {
   Authenticator,
   EnrollMfaResponse,
+  EnhancedEnrollMfaResponse,
   MFAType,
   EnrollOptions,
   ConfirmEnrollmentOptions,
+  ResolveChallengeOptions,
+  ResolveChallengeResponse,
 } from './mfa-types';
 
 /**
@@ -68,6 +72,47 @@ export class MFAController implements MFAControllerInterface {
 
     const params = buildEnrollParams(factorName, options);
     return enrollMfaRequest(baseUrl, params, accessToken);
+  }
+
+  /**
+   * Enhanced enrollment method that handles MFA challenges.
+   * If a challenge is required, it extracts the challenge information and returns it.
+   * @param factorName - The type of factor to enroll
+   * @param options - Factor-specific data required for enrollment
+   * @param ignoreCache - Whether to ignore the token cache
+   * @returns A promise that resolves with either successful enrollment or challenge requirements
+   */
+  async enrollFactorWithChallenge(
+    factorName: MFAType,
+    options: EnrollOptions = {},
+    ignoreCache: boolean = false,
+  ): Promise<EnhancedEnrollMfaResponse> {
+    try {
+      const result = await this.enrollFactor(factorName, options, ignoreCache);
+      return result;
+    } catch (error) {
+      const challenge = extractChallengeFromError(error);
+      if (challenge) {
+        return { challenge };
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Resolves an MFA challenge to obtain elevated permissions.
+   * @param options - Challenge resolution options
+   * @param ignoreCache - Whether to ignore the token cache
+   * @returns A promise that resolves with the challenge resolution result
+   */
+  async resolveChallenge(
+    options: ResolveChallengeOptions,
+    ignoreCache: boolean = false,
+  ): Promise<ResolveChallengeResponse> {
+    const baseUrl = this.coreClient.getApiBaseUrl();
+    const accessToken = await this.getToken(ignoreCache);
+
+    return resolveMfaChallenge(baseUrl, options, accessToken);
   }
 
   /**

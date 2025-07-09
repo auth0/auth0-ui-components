@@ -146,6 +146,12 @@ export interface CoreClientInterface {
 export interface MFAControllerInterface {
   fetchFactors(onlyActive?: boolean, ignoreCache?: boolean): Promise<SafeAny[]>;
   enrollFactor(factorName: string, options?: SafeAny, ignoreCache?: boolean): Promise<SafeAny>;
+  enrollFactorWithChallenge(
+    factorName: string,
+    options?: SafeAny,
+    ignoreCache?: boolean,
+  ): Promise<SafeAny>;
+  resolveChallenge(options: SafeAny, ignoreCache?: boolean): Promise<SafeAny>;
   deleteFactor(authenticatorId: string, ignoreCache?: boolean): Promise<void>;
   confirmEnrollment(factorName: string, options: SafeAny, ignoreCache?: boolean): Promise<unknown>;
 }
