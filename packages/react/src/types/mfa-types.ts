@@ -4,6 +4,7 @@ import type {
   OobChannel,
   EnrollOptions,
   ConfirmEnrollmentOptions,
+  MFAMessages,
 } from '@auth0-web-ui-components/core';
 
 /**
@@ -52,7 +53,7 @@ export interface MFAError {
 }
 
 export interface ManageMfaProps {
-  localization?: Partial<MFALocaleContent>;
+  messages?: Partial<MFAMessages>;
   hideHeader?: boolean;
   showActiveOnly?: boolean;
   disableEnroll?: boolean;
@@ -73,30 +74,6 @@ export interface ManageMfaProps {
     factorType: MFAType,
   ) => boolean | Promise<boolean>;
 }
-
-export interface MFAFactorContent {
-  title: string;
-  description: string;
-}
-
-export interface MFALocaleContent {
-  title: string;
-  description: string;
-  no_active_mfa: string;
-  sms?: MFAFactorContent;
-  'push-notification'?: MFAFactorContent;
-  totp?: MFAFactorContent;
-  email?: MFAFactorContent;
-  duo?: MFAFactorContent;
-  'webauthn-roaming'?: MFAFactorContent;
-  'webauthn-platform'?: MFAFactorContent;
-  'recovery-code'?: MFAFactorContent;
-}
-
-/**
- * A map of language codes (e.g., 'en', 'fr') to their respective localized content.
- */
-export type MFALocalizationMap = Record<string, MFALocaleContent>;
 
 /**
  * Represents an MFA authenticator linked to a user.

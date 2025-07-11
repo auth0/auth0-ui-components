@@ -1,11 +1,10 @@
 export {
-  createTranslator,
-  initializeI18n,
-  getCurrentLanguage,
-  getFallbackLanguage,
-  getCurrentTranslations,
   TranslationFunction,
   TFactory,
+  I18nService,
+  I18nServiceInterface,
+  I18nInitOptions,
+  LangTranslations,
 } from './i18n';
 
 export { del, post, get, patch, ApiError, normalizeError, createApiError } from './api';
@@ -14,7 +13,7 @@ export { CoreClient } from './core-client';
 
 export { AuthDetailsCore, CoreClientInterface, AuthenticationAPIServiceInterface } from './types';
 
-export { MFAControllerInterface } from './services/mfa/mfa-types';
+export { MFAControllerInterface, MFAMessages } from './services/mfa/mfa-types';
 
 export { AuthenticationAPIService } from './services/authentication-api-service';
 

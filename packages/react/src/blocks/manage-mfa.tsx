@@ -24,27 +24,8 @@ import { withCoreClient } from '@/hoc';
  *
  * - **ProxyMode (RWA)**: In this mode, the component interacts with a proxy service to manage MFA
  * - **SPA (Single Page Application)**: In this mode, the component communicates directly with the API to manage MFA factors.
- *
- * @param {Object} props - The properties passed to the component.
- * @param {Object} [props.localization={}] - Localization object for i18n support.
- * This object should contain key-value pairs for each language and its associated translations.
- *
- * Example:
- * ```js
- * localization={{
- *   title: 'Manage MFA Factors',
- *   description: 'Here you can manage your Multi-Factor Authentication (MFA) factors.',
- *   loading: 'Loading...',
- *   errors: {
- *     factorsLoadingError: 'An error occurred while loading MFA factors.',
- *   },
- *   no_active_mfa: 'No active MFA factors found.',
- *   enroll_factor: 'Successfully enrolled the MFA factor.',
- *   remove_factor: 'Successfully removed the MFA factor.',
- *   delete: 'Delete',
- *   enroll: 'Enroll',
- * }}
- * ```
+ * * @param {Object} props - The properties passed to the component.
+ * @param {Object} [props.messages] - Custom messages to override default translations for this component instance.
  * @param {boolean} [props.hideHeader=false] - Whether to hide the header.
  * @param {boolean} [props.showActiveOnly=false] - Whether to show only active MFA factors.
  * @param {boolean} [props.disableEnroll=false] - Whether to disable the enrollment of new factors.
@@ -60,7 +41,7 @@ import { withCoreClient } from '@/hoc';
  * @returns {React.JSX.Element} The rendered component.
  */
 function ManageMfaComponent({
-  localization = {},
+  messages,
   hideHeader = false,
   showActiveOnly = false,
   disableEnroll = false,
@@ -73,7 +54,8 @@ function ManageMfaComponent({
   onErrorAction,
   onBeforeAction,
 }: ManageMfaProps): React.JSX.Element {
-  const t = useTranslator('mfa', localization);
+  const { t } = useTranslator('mfa', messages);
+
   const {
     config: { loader },
   } = useComponentConfig();
@@ -259,7 +241,7 @@ function ManageMfaComponent({
       );
       onErrorAction?.(error, stage);
     },
-    [onErrorAction],
+    [onErrorAction, t],
   );
 
   return (

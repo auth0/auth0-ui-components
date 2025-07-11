@@ -73,7 +73,7 @@ export function EnrollmentForm({
   onSuccess,
   onError,
 }: EnrollmentFormProps) {
-  const t = useTranslator('mfa');
+  const { t } = useTranslator('mfa');
 
   // Initialize phase as null, meaning no UI shown by default
   const [phase, setPhase] = React.useState<EnrollmentPhase>(null);

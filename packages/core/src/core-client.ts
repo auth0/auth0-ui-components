@@ -1,38 +1,33 @@
 import { AuthDetailsCore, CoreClientInterface } from './types';
-import { initializeI18n, TFactory, TranslationFunction } from './i18n';
+import { I18nService, I18nInitOptions } from './i18n';
 import { AuthenticationAPIService } from './services/authentication-api-service';
 import TokenManager from './token-manager';
 
 export class CoreClient implements CoreClientInterface {
   public readonly auth: AuthDetailsCore;
-  public readonly translator: TranslationFunction;
+  public readonly i18nService: I18nService;
   private readonly tokenManager: TokenManager;
   // API services
   public readonly authentication: AuthenticationAPIService;
 
-  private constructor(auth: AuthDetailsCore, translatorFunc: TranslationFunction) {
+  private constructor(auth: AuthDetailsCore, i18nService: I18nService) {
     this.auth = auth;
-    this.translator = translatorFunc;
+    this.i18nService = i18nService;
     this.tokenManager = new TokenManager(this);
     this.authentication = new AuthenticationAPIService(this);
   }
 
   static async create(
     authDetails: AuthDetailsCore,
-    translatorFactory?: TFactory,
+    i18nOptions?: I18nInitOptions,
   ): Promise<CoreClient> {
-    // Initialize translator
-    let translatorFunc: TranslationFunction;
-    if (translatorFactory) {
-      translatorFunc = translatorFactory('common');
-    } else {
-      // Fallback: create a basic translator if none provided
-      const i18n = await initializeI18n({
+    // Initialize i18n service
+    const i18nService = await I18nService.create(
+      i18nOptions || {
         currentLanguage: 'en-US',
         fallbackLanguage: 'en-US',
-      });
-      translatorFunc = i18n.translator('common');
-    }
+      },
+    );
 
     // Initialize auth details
     let auth = authDetails;
@@ -61,7 +56,7 @@ export class CoreClient implements CoreClientInterface {
       }
     }
 
-    return new CoreClient(auth, translatorFunc);
+    return new CoreClient(auth, i18nService);
   }
 
   async getToken(
@@ -82,7 +77,7 @@ export class CoreClient implements CoreClientInterface {
 
     const domain = this.auth.domain;
     if (!domain) {
-      throw new Error(this.translator('errors.domain_not_configured'));
+      throw new Error(this.i18nService.translator('common')('errors.domain_not_configured'));
     }
     return domain.endsWith('/') ? domain : `${domain}/`;
   }

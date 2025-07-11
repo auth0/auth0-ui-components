@@ -1,7 +1,6 @@
-import { TranslationFunction } from './i18n';
+import { I18nServiceInterface } from './i18n';
 import { MFAControllerInterface } from './services';
 
-// TODO: Should we keep this as any?
 export type SafeAny = any; // eslint-disable-line
 
 export type TokenEndpointResponse = {
@@ -91,7 +90,7 @@ export interface AuthDetailsCore {
 
 export interface CoreClientInterface {
   auth: AuthDetailsCore;
-  translator: TranslationFunction;
+  i18nService: I18nServiceInterface;
   authentication: AuthenticationAPIServiceInterface;
   getToken: (
     scope: string,

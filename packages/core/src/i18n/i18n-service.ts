@@ -1,166 +1,162 @@
-import { LangTranslations, TranslationFunction, I18nInitOptions } from './types';
-
-// These variables manage the singleton i18n instance.
-let _translations: LangTranslations | null = null;
-let _cache: Map<string, LangTranslations | null> = new Map(); // Initialize cache directly
-let _currentLanguage: string = 'en-US'; // Track current language
-let _fallbackLanguage: string | undefined; // Track fallback language
-
-const VAR_REGEX = /\${(\w+)}/g;
+import { LangTranslations, TranslationFunction, I18nInitOptions, TFactory } from './types';
 
 /**
- * Recursively gets a nested value from an object using dot notation.
- * Optimized with early returns and reduced type checks.
+ * Interface for the I18nService class.
  */
-const getNestedValue = (obj: Record<string, unknown>, path: string): unknown => {
-  let current: unknown = obj;
-  const keys = path.split('.');
+export interface I18nServiceInterface {
+  currentLanguage: string;
+  fallbackLanguage: string | undefined;
+  translator: TFactory;
+  getCurrentTranslations(): LangTranslations | null;
+  changeLanguage(language: string, fallbackLanguage?: string): Promise<void>;
+}
 
-  for (const key of keys) {
-    if (current == null || typeof current !== 'object' || Array.isArray(current)) {
-      return undefined;
+/**
+ * I18nService class for managing translations and language settings.
+ */
+export class I18nService implements I18nServiceInterface {
+  private _currentLanguage: string;
+  private _fallbackLanguage: string | undefined;
+  private _translations: LangTranslations | null = null;
+  private _cache: Map<string, LangTranslations | null> = new Map();
+  private static readonly VAR_REGEX = /\${(\w+)}/g;
+
+  constructor(currentLanguage: string = 'en-US', fallbackLanguage?: string) {
+    this._currentLanguage = currentLanguage;
+    this._fallbackLanguage = fallbackLanguage;
+  }
+
+  get currentLanguage(): string {
+    return this._currentLanguage;
+  }
+
+  get fallbackLanguage(): string | undefined {
+    return this._fallbackLanguage;
+  }
+
+  get translator(): TFactory {
+    return (namespace: string, overrides?: Record<string, unknown>) =>
+      this.createTranslator(namespace, overrides);
+  }
+
+  getCurrentTranslations(): LangTranslations | null {
+    return this._translations;
+  }
+
+  private getNestedValue(obj: Record<string, unknown>, path: string): unknown {
+    let current: unknown = obj;
+    const keys = path.split('.');
+
+    for (const key of keys) {
+      if (current == null || typeof current !== 'object' || Array.isArray(current)) {
+        return undefined;
+      }
+      current = (current as Record<string, unknown>)[key];
     }
-    current = (current as Record<string, unknown>)[key];
+
+    return current;
   }
 
-  return current;
-};
+  private substitute(str: string, vars?: Record<string, unknown>): string {
+    if (!vars) return str;
 
-/**
- * Efficiently substitutes variables in a string.
- * Optimized with early variable detection and regex reuse.
- */
-const substitute = (str: string, vars?: Record<string, unknown>): string => {
-  if (!vars) return str;
+    if (!str.includes('${')) return str;
 
-  // Quick check for variables before expensive regex operation
-  if (!str.includes('${')) return str;
-
-  VAR_REGEX.lastIndex = 0;
-  return str.replace(VAR_REGEX, (_, key) => String(vars[key] ?? ''));
-};
-
-/**
- * Loads translation data for a specific language with optimized caching.
- */
-const loadTranslations = async (lang: string): Promise<LangTranslations | null> => {
-  if (_cache.has(lang)) {
-    return _cache.get(lang)!;
+    I18nService.VAR_REGEX.lastIndex = 0;
+    return str.replace(I18nService.VAR_REGEX, (_, key) => String(vars[key] ?? ''));
   }
 
-  try {
-    const mod = await import(`./translations/${lang}.json`);
-    const data = mod.default ?? mod;
-    _cache.set(lang, data);
-    return data;
-  } catch {
-    _cache.set(lang, null);
+  private async loadTranslations(lang: string): Promise<LangTranslations | null> {
+    if (this._cache.has(lang)) {
+      return this._cache.get(lang)!;
+    }
+
+    try {
+      const mod = await import(`./translations/${lang}.json`);
+      const data = mod.default ?? mod;
+      this._cache.set(lang, data);
+      return data;
+    } catch {
+      this._cache.set(lang, null);
+      return null;
+    }
+  }
+
+  private async loadTranslationsWithFallback(
+    currentLang: string,
+    fallbackLang?: string,
+  ): Promise<LangTranslations | null> {
+    let result = await this.loadTranslations(currentLang);
+    if (result) return result;
+
+    if (fallbackLang && fallbackLang !== currentLang) {
+      result = await this.loadTranslations(fallbackLang);
+      if (result) return result;
+    }
+
+    if (currentLang !== 'en-US' && fallbackLang !== 'en-US') {
+      return this.loadTranslations('en-US');
+    }
+
     return null;
   }
-};
 
-/**
- * Optimized fallback loading with early returns.
- */
-const loadTranslationsWithFallback = async (
-  currentLang: string,
-  fallbackLang?: string,
-): Promise<LangTranslations | null> => {
-  // 1. Try current language
-  let result = await loadTranslations(currentLang);
-  if (result) return result;
+  private createTranslator(
+    namespace: string,
+    overrides?: Record<string, unknown>,
+  ): TranslationFunction {
+    const prefix = `${namespace}.`;
+    const hasOverrides = overrides && Object.keys(overrides).length > 0;
 
-  // 2. Try fallback if different from current
-  if (fallbackLang && fallbackLang !== currentLang) {
-    result = await loadTranslations(fallbackLang);
-    if (result) return result;
-  }
+    return (key: string, vars?: Record<string, unknown>): string => {
+      const fullKey = prefix + key;
 
-  // 3. Try 'en-US' as a last resort if not already tried
-  if (currentLang !== 'en-US' && fallbackLang !== 'en-US') {
-    return loadTranslations('en-US');
-  }
-
-  return null;
-};
-
-// --- Public API Functions ---
-
-/**
- * Initializes or changes the language of the global i18n instance.
- */
-export async function initializeI18n(options: I18nInitOptions = {}) {
-  const currentLanguage = options?.currentLanguage ?? 'en-US';
-  const fallbackLanguage = options?.fallbackLanguage ?? 'en-US';
-
-  // Update current settings
-  _currentLanguage = currentLanguage;
-  _fallbackLanguage = fallbackLanguage;
-
-  // Load translations
-  const result = await loadTranslationsWithFallback(currentLanguage, fallbackLanguage);
-  _translations = result;
-  return { translator: createTranslator };
-}
-
-/**
- * Gets the current language being used.
- */
-export function getCurrentLanguage(): string {
-  return _currentLanguage;
-}
-
-/**
- * Gets the current fallback language being used.
- */
-export function getFallbackLanguage(): string | undefined {
-  return _fallbackLanguage;
-}
-
-/**
- * Gets the current translations object.
- */
-export function getCurrentTranslations(): LangTranslations | null {
-  return _translations;
-}
-
-/**
- * Creates a namespace-scoped translation function with optimized performance.
- */
-export function createTranslator(
-  namespace: string,
-  overrides?: Record<string, unknown>,
-): TranslationFunction {
-  const prefix = `${namespace}.`;
-  const hasOverrides = overrides && Object.keys(overrides).length > 0;
-
-  return (
-    key: string,
-    vars?: Record<string, unknown>,
-    localOverrides?: Record<string, unknown>,
-  ): string => {
-    // Optimize override handling
-    let mergedOverrides: Record<string, unknown> | undefined;
-
-    if (localOverrides || hasOverrides) {
-      mergedOverrides = hasOverrides ? { ...overrides, ...localOverrides } : localOverrides;
-
-      const overrideValue = getNestedValue(mergedOverrides!, key);
-      if (overrideValue !== undefined) {
-        return substitute(String(overrideValue), vars);
+      if (hasOverrides) {
+        const overrideValue = this.getNestedValue(overrides!, key);
+        if (overrideValue !== undefined) {
+          return this.substitute(String(overrideValue), vars);
+        }
       }
+
+      if (!this._translations) {
+        return `${prefix}${key}`;
+      }
+
+      const translationValue = this.getNestedValue(this._translations, fullKey);
+      const finalValue = translationValue !== undefined ? String(translationValue) : key;
+
+      return this.substitute(finalValue, vars);
+    };
+  }
+
+  private async initialize(): Promise<void> {
+    const result = await this.loadTranslationsWithFallback(
+      this._currentLanguage,
+      this._fallbackLanguage,
+    );
+    this._translations = result;
+  }
+
+  async changeLanguage(language: string, fallbackLanguage?: string): Promise<void> {
+    try {
+      this._currentLanguage = language;
+      this._fallbackLanguage = fallbackLanguage;
+
+      await this.initialize();
+    } catch (error) {
+      throw new Error(
+        `Failed to change language to '${language}': ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
+  }
 
-    // Early return if translations not loaded
-    if (!_translations) {
-      return `${prefix}${key}`;
-    }
+  static async create(options: I18nInitOptions = {}): Promise<I18nService> {
+    const currentLanguage = options.currentLanguage ?? 'en-US';
+    const fallbackLanguage = options.fallbackLanguage ?? 'en-US';
 
-    // Get translation value
-    const fullKey = prefix + key;
-    const translationValue = getNestedValue(_translations, fullKey);
-    const finalValue = translationValue !== undefined ? String(translationValue) : key;
+    const service = new I18nService(currentLanguage, fallbackLanguage);
+    await service.initialize();
 
-    return substitute(finalValue, vars);
-  };
+    return service;
+  }
 }

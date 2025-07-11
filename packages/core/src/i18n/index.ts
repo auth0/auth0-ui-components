@@ -1,8 +1,3 @@
-export {
-  createTranslator,
-  initializeI18n,
-  getCurrentLanguage,
-  getFallbackLanguage,
-  getCurrentTranslations,
-} from './i18n-service';
+export { I18nService } from './i18n-service';
+export type { I18nServiceInterface } from './i18n-service';
 export type { LangTranslations, I18nInitOptions, TranslationFunction, TFactory } from './types';

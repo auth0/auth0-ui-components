@@ -4,7 +4,6 @@ import * as React from 'react';
 import type { Auth0ComponentProviderProps } from './types';
 import { CoreClientContext } from '@/hooks/use-core-client';
 import { Spinner } from '@/components/ui/spinner';
-import { useI18nInitialization } from '@/hooks/use-i18n-initialization';
 import { useCoreClientInitialization } from '@/hooks/use-core-client-initialization';
 import { AuthDetailsCore } from '@auth0-web-ui-components/core';
 import { Auth0ComponentConfigContext } from '@/hooks';
@@ -64,20 +63,11 @@ export const Auth0ComponentProvider = ({
     contextInterface: authDetails.contextInterface,
   };
 
-  // Initialize i18n
-  const i18nState = useI18nInitialization(i18n);
-
-  // Initialize CoreClient
   const coreClient = useCoreClientInitialization({
     authDetails: authDetailsCore,
-    translator: i18nState.translator,
-    i18nInitialized: i18nState.initialized,
+    i18nOptions: i18n,
   });
 
-  // TODO:????
-  // i18n,
-  // isProxyMode,
-  // isI18nInitialized,
   const config = React.useMemo(
     () => ({
       themeSettings,

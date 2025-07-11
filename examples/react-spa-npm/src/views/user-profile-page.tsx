@@ -6,7 +6,7 @@ const UserProfilePage = () => {
   return (
     <div className="space-y-6">
       <ManageMfa
-        localization={{ title: t('user-profile.mfa.title') }}
+        messages={{ title: t('user-profile.mfa.title') }}
         factorConfig={{
           duo: {
             enabled: false,

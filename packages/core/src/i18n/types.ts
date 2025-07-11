@@ -30,18 +30,17 @@ export interface I18nInitOptions {
  *
  * @param key - Translation key relative to the current namespace (e.g., "buttons.submit")
  * @param vars - Optional variables for string interpolation (e.g., { name: "John" })
- * @param overrides - Optional translation overrides for local customization
  * @returns Translated string with interpolated variables, or the key if translation is missing
  */
-export type TranslationFunction = (
-  key: string,
-  vars?: Record<string, unknown>,
-  overrides?: Record<string, unknown>,
-) => string;
+export type TranslationFunction = (key: string, vars?: Record<string, unknown>) => string;
 
 /**
  * Factory function that creates namespace-scoped translation functions.
  *
  * @param namespace - Translation namespace (e.g., "mfa", "login")
+ * @param overrides - Optional translation overrides for the namespace
  */
-export type TFactory = (namespace: string) => TranslationFunction;
+export type TFactory = (
+  namespace: string,
+  overrides?: Record<string, unknown>,
+) => TranslationFunction;
