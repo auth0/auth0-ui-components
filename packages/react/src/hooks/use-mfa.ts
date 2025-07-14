@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useComponentConfig } from './use-config';
-import { useI18n } from './use-i18n';
 import { useAccessToken } from './use-access-token';
+import { useTranslator } from './use-translator';
 import {
   fetchMfaFactors,
   enrollMfaRequest,
@@ -73,10 +73,8 @@ export interface UseMfaResult {
  * @returns {UseMfaResult} An object containing the functions to manage MFA factors.
  */
 export function useMFA(): UseMfaResult {
-  const {
-    config: { authDetails, apiBaseUrl, isProxyMode },
-  } = useComponentConfig();
-  const t = useI18n('common');
+  const { authDetails, apiBaseUrl, isProxyMode } = useComponentConfig();
+  const t = useTranslator('common');
   const mfaScopes = ['read:authenticators', 'remove:authenticators', 'enroll'];
 
   const { getToken: getMfaToken } = useAccessToken(mfaScopes.join(' '), 'mfa');

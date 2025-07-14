@@ -15,44 +15,26 @@ export type LangTranslations = {
 };
 
 /**
+ * Configuration options for initializing the i18n instance.
+ */
+export interface I18nInitOptions {
+  /** The primary language to load and use (e.g., 'en-US', 'es-ES'). */
+  currentLanguage?: string;
+  /** An optional fallback language to use if a translation is not found in the current language. */
+  fallbackLanguage?: string;
+}
+
+/**
  * A function that performs string translation within a specific namespace.
  * Returns the translated string or the key itself as a fallback.
  *
  * @param key - Translation key relative to the current namespace (e.g., "buttons.submit")
  * @param vars - Optional variables for string interpolation (e.g., { name: "John" })
+ * @param overrides - Optional translation overrides for local customization
  * @returns Translated string with interpolated variables, or the key if translation is missing
- *
- * @example
- * const translate = getTranslator("forms");
- * translate("submit.button", { action: "Save" }); // => "Save changes"
  */
-export type TranslationFunction = (key: string, vars?: Record<string, unknown>) => string;
-
-/**
- * Factory function that creates namespace-scoped translation functions.
- * Used to organize translations into logical groups and avoid key conflicts.
- *
- * @param namespace - Translation namespace (e.g., "common", "auth", "forms")
- * @returns A translation function scoped to the specified namespace
- *
- * @example
- * const t = factory("auth");
- * t("login.title"); // Looks up "auth.login.title" in translations
- */
-export type TFactory = (namespace: string) => TranslationFunction;
-
-/**
- * Interface representing an initialized i18n instance.
- * Provides access to the translation factory function for creating
- * namespace-scoped translators.
- *
- * @property t - Factory function for creating namespace-scoped translators
- *
- * @example
- * const i18n: I18nInstance = await createI18n({ currentLanguage: "en" });
- * const t = i18n.t("common");
- * t("welcome"); // => "Welcome"
- */
-export interface I18nInstance {
-  t: TFactory;
-}
+export type TranslationFunction = (
+  key: string,
+  vars?: Record<string, unknown>,
+  overrides?: Record<string, unknown>,
+) => string;

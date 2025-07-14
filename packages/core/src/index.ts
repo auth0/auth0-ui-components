@@ -1,4 +1,11 @@
-export { createI18n, TranslationFunction, TFactory } from './i18n';
+export {
+  createTranslator,
+  initializeI18n,
+  getCurrentLanguage,
+  getFallbackLanguage,
+  getCurrentTranslations,
+  TranslationFunction,
+} from './i18n';
 
 export { del, post, get, patch, ApiError, normalizeError, createApiError } from './api';
 

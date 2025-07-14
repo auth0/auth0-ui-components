@@ -1,9 +1,5 @@
 import * as React from 'react';
-
-import { MFAType, normalizeError, EnrollMfaResponse } from '@auth0-web-ui-components/core';
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useI18n } from '@/hooks';
 import { ContactInputForm } from './contact-input-form';
 import { QRCodeEnrollmentForm } from './qr-code-enrollment-form';
 import { OTPVerificationForm } from './otp-verification-form';
@@ -19,6 +15,12 @@ import {
   ENROLL,
   CONFIRM,
 } from '@/lib/constants';
+import {
+  normalizeError,
+  type MFAType,
+  type EnrollMfaResponse,
+} from '@auth0-web-ui-components/core';
+import { useTranslator } from '@/hooks';
 
 type EnrollmentFormProps = {
   open: boolean;
@@ -52,7 +54,7 @@ export function EnrollmentForm({
   onSuccess,
   onError,
 }: EnrollmentFormProps) {
-  const t = useI18n('mfa');
+  const t = useTranslator('mfa');
 
   // Initialize phase as null, meaning no UI shown by default
   const [phase, setPhase] = React.useState<EnrollmentPhase>(null);

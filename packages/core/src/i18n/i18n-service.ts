@@ -1,115 +1,165 @@
-import { I18nInstance, LangTranslations, TranslationFunction } from './types';
+import { LangTranslations, TranslationFunction, I18nInitOptions } from './types';
+
+// These variables manage the singleton i18n instance.
+let _translations: LangTranslations | null = null;
+let _cache: Map<string, LangTranslations | null> = new Map(); // Initialize cache directly
+let _currentLanguage: string = 'en-US'; // Track current language
+let _fallbackLanguage: string | undefined; // Track fallback language
+
+const VAR_REGEX = /\${(\w+)}/g;
 
 /**
- * Creates and initializes an internationalization (i18n) instance with optimized
- * caching and namespace support.
- *
- * Features:
- * - Namespace-based translation organization
- * - Multi-level language fallback
- * - Variable substitution with ${varName} syntax
- * - Local overrides per component
- * - Efficient caching
+ * Recursively gets a nested value from an object using dot notation.
+ * Optimized with early returns and reduced type checks.
  */
+const getNestedValue = (obj: Record<string, unknown>, path: string): unknown => {
+  let current: unknown = obj;
+  const keys = path.split('.');
 
-export async function createI18n(options: {
-  currentLanguage?: string;
-  fallbackLanguage?: string;
-}): Promise<I18nInstance> {
-  // Optimized caching
-  const cache = new Map<string, LangTranslations | null>();
-  let translations: LangTranslations | null = null;
-
-  const defaultLanguage = 'en-US';
-  const currentLanguage = options?.currentLanguage ?? defaultLanguage;
-  const fallbackLanguage = options?.fallbackLanguage;
-
-  // Regex compile once
-  const varRegex = /\${(\w+)}/g;
-  const hasVars = (str: string): boolean => varRegex.test(str);
-
-  /**
-   * Gets nested value from object using dot notation
-   */
-  const getNestedValue = (obj: Record<string, unknown>, path: string): unknown => {
-    return path.split('.').reduce<unknown>((value, key) => {
-      if (value == null) return undefined;
-      if (typeof value !== 'object') return undefined;
-      return (value as Record<string, unknown>)[key];
-    }, obj);
-  };
-
-  // Efficient variable substitution
-  const substitute = (str: string, vars?: Record<string, unknown>): string => {
-    if (!vars || !hasVars(str)) return str;
-    varRegex.lastIndex = 0; // Reset regex
-    return str.replace(varRegex, (_, key) => String(vars[key] ?? ''));
-  };
-
-  // Optimized file loading with request deduplication
-  const loadTranslations = async (lang: string): Promise<LangTranslations | null> => {
-    const cached = cache.get(lang);
-    if (cached !== undefined) return cached;
-
-    try {
-      const mod = await import(`./translations/${lang}.json`);
-      const data = mod.default ?? mod;
-      cache.set(lang, data);
-      return data;
-    } catch {
-      cache.set(lang, null);
-      return null;
+  for (const key of keys) {
+    if (current == null || typeof current !== 'object' || Array.isArray(current)) {
+      return undefined;
     }
-  };
+    current = (current as Record<string, unknown>)[key];
+  }
 
-  /**
-   * Loads translations with fallback strategy:
-   * 1. Try current language
-   * 2. Try user-specified fallback
-   * 3. Try en-US as default fallback
-   */
-  const loadTranslationsWithFallback = async (
-    currentLang: string,
-    fallbackLang?: string,
-  ): Promise<LangTranslations | null> => {
-    // Try current language
-    const currentTranslations = await loadTranslations(currentLang);
-    if (currentTranslations) return currentTranslations;
+  return current;
+};
 
-    // Try user fallback if specified and different from current
-    if (fallbackLang && fallbackLang !== currentLang) {
-      const fallbackTranslations = await loadTranslations(fallbackLang);
-      if (fallbackTranslations) return fallbackTranslations;
-    }
+/**
+ * Efficiently substitutes variables in a string.
+ * Optimized with early variable detection and regex reuse.
+ */
+const substitute = (str: string, vars?: Record<string, unknown>): string => {
+  if (!vars) return str;
 
-    // Try en-US as last resort if not already tried
-    if (currentLang !== 'en-US' && fallbackLang !== 'en-US') {
-      return await loadTranslations('en-US');
-    }
+  // Quick check for variables before expensive regex operation
+  if (!str.includes('${')) return str;
 
+  VAR_REGEX.lastIndex = 0;
+  return str.replace(VAR_REGEX, (_, key) => String(vars[key] ?? ''));
+};
+
+/**
+ * Loads translation data for a specific language with optimized caching.
+ */
+const loadTranslations = async (lang: string): Promise<LangTranslations | null> => {
+  if (_cache.has(lang)) {
+    return _cache.get(lang)!;
+  }
+
+  try {
+    const mod = await import(`./translations/${lang}.json`);
+    const data = mod.default ?? mod;
+    _cache.set(lang, data);
+    return data;
+  } catch {
+    _cache.set(lang, null);
     return null;
+  }
+};
+
+/**
+ * Optimized fallback loading with early returns.
+ */
+const loadTranslationsWithFallback = async (
+  currentLang: string,
+  fallbackLang?: string,
+): Promise<LangTranslations | null> => {
+  // 1. Try current language
+  let result = await loadTranslations(currentLang);
+  if (result) return result;
+
+  // 2. Try fallback if different from current
+  if (fallbackLang && fallbackLang !== currentLang) {
+    result = await loadTranslations(fallbackLang);
+    if (result) return result;
+  }
+
+  // 3. Try 'en-US' as a last resort if not already tried
+  if (currentLang !== 'en-US' && fallbackLang !== 'en-US') {
+    return loadTranslations('en-US');
+  }
+
+  return null;
+};
+
+// --- Public API Functions ---
+
+/**
+ * Initializes or changes the language of the global i18n instance.
+ */
+export async function initializeI18n(options: I18nInitOptions = {}): Promise<void> {
+  const currentLanguage = options?.currentLanguage ?? 'en-US';
+  const { fallbackLanguage } = options;
+
+  // Update current settings
+  _currentLanguage = currentLanguage;
+  _fallbackLanguage = fallbackLanguage;
+
+  // Load translations
+  const result = await loadTranslationsWithFallback(currentLanguage, fallbackLanguage);
+  _translations = result;
+}
+
+/**
+ * Gets the current language being used.
+ */
+export function getCurrentLanguage(): string {
+  return _currentLanguage;
+}
+
+/**
+ * Gets the current fallback language being used.
+ */
+export function getFallbackLanguage(): string | undefined {
+  return _fallbackLanguage;
+}
+
+/**
+ * Gets the current translations object.
+ */
+export function getCurrentTranslations(): LangTranslations | null {
+  return _translations;
+}
+
+/**
+ * Creates a namespace-scoped translation function with optimized performance.
+ */
+export function createTranslator(
+  namespace: string,
+  overrides?: Record<string, unknown>,
+): TranslationFunction {
+  const prefix = `${namespace}.`;
+  const hasOverrides = overrides && Object.keys(overrides).length > 0;
+
+  return (
+    key: string,
+    vars?: Record<string, unknown>,
+    localOverrides?: Record<string, unknown>,
+  ): string => {
+    // Optimize override handling
+    let mergedOverrides: Record<string, unknown> | undefined;
+
+    if (localOverrides || hasOverrides) {
+      mergedOverrides = hasOverrides ? { ...overrides, ...localOverrides } : localOverrides;
+
+      const overrideValue = getNestedValue(mergedOverrides!, key);
+      if (overrideValue !== undefined) {
+        return substitute(String(overrideValue), vars);
+      }
+    }
+
+    // Early return if translations not loaded
+    if (!_translations) {
+      return `${prefix}${key}`;
+    }
+
+    // Get translation value
+    const fullKey = prefix + key;
+    const translationValue = getNestedValue(_translations, fullKey);
+    const finalValue = translationValue !== undefined ? String(translationValue) : key;
+
+    return substitute(finalValue, vars);
   };
-
-  translations = await loadTranslationsWithFallback(currentLanguage, fallbackLanguage);
-
-  // Optimized translator factory with string concatenation optimization
-  const createTranslator = (namespace: string): TranslationFunction => {
-    const prefix = `${namespace}.`;
-
-    return (
-      key: string,
-      vars?: Record<string, unknown>,
-      overrides?: Record<string, unknown>,
-    ): string => {
-      if (!translations) return prefix + key;
-
-      const fullKey = prefix + key;
-      const defaultValue = getNestedValue(translations, fullKey);
-      const value = overrides?.[key] ?? defaultValue ?? key;
-
-      return vars ? substitute(String(value), vars) : String(value);
-    };
-  };
-
-  return { t: createTranslator };
 }
