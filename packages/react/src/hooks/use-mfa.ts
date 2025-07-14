@@ -2,24 +2,16 @@ import { useCallback } from 'react';
 import { useCoreClient } from './use-core-client';
 import type {
   MFAType,
-  EnrollMfaResponse,
-  Authenticator,
   EnrollOptions,
   ConfirmEnrollmentOptions,
 } from '@auth0-web-ui-components/core';
-
-export interface UseMfaResult {
-  fetchFactors: (onlyActive?: boolean) => Promise<Authenticator[]>;
-  enrollMfa: (factorName: MFAType, options?: EnrollOptions) => Promise<EnrollMfaResponse>;
-  deleteMfa: (authenticatorId: string) => Promise<void>;
-  confirmEnrollment: (factorName: MFAType, options: ConfirmEnrollmentOptions) => Promise<unknown>;
-}
+import { UseMFAResult } from '@/types';
 
 /**
  * A custom React hook for managing all Multi-Factor Authentication (MFA) operations.
  * @returns {UseMfaResult} An object containing the functions to manage MFA factors.
  */
-export function useMFA(): UseMfaResult {
+export function useMFA(): UseMFAResult {
   const { coreClient } = useCoreClient();
 
   if (!coreClient) {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { useComponentConfig, useMFA, useTranslator } from '@/hooks';
-import type { ManageMfaProps, MFAType, Authenticator } from '@/types';
+import type { ManageMfaProps } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -14,6 +14,7 @@ import { ENROLL, CONFIRM } from '@/lib/mfa-constants';
 import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { withCoreClient } from '@/hoc';
+import { Authenticator, MFAType } from '@auth0-web-ui-components/core';
 
 /**
  * ManageMfa Component

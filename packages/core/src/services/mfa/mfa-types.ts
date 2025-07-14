@@ -2,6 +2,11 @@ import { SafeAny } from '@core/types';
 
 /**
  * Represents an MFA authenticator linked to a user.
+ * @property {string} id - Unique identifier of the authenticator.
+ * @property {string} authenticator_type - Type of the authenticator.
+ * @property {string[]} [oob_channels] - Optional out-of-band channels supported.
+ * @property {string} [name] - Optional name of the authenticator.
+ * @property {boolean} active - Whether the authenticator is active.
  */
 export interface Authenticator {
   id: string;
@@ -12,6 +17,9 @@ export interface Authenticator {
   factorName?: MFAType;
 }
 
+/**
+ * Represents the type of an MFA authenticator.
+ */
 export type MFAType =
   | 'sms'
   | 'push-notification'
@@ -91,8 +99,12 @@ export interface ConfirmEnrollmentOptions {
  * Interface for MFA controller.
  */
 export interface MFAControllerInterface {
-  fetchFactors(onlyActive?: boolean, ignoreCache?: boolean): Promise<SafeAny[]>;
-  enrollFactor(factorName: string, options?: SafeAny, ignoreCache?: boolean): Promise<SafeAny>;
+  fetchFactors(onlyActive?: boolean, ignoreCache?: boolean): Promise<Authenticator[]>;
+  enrollFactor(
+    factorName: string,
+    options?: SafeAny,
+    ignoreCache?: boolean,
+  ): Promise<EnrollMfaResponse>;
   deleteFactor(authenticatorId: string, ignoreCache?: boolean): Promise<void>;
   confirmEnrollment(factorName: string, options: SafeAny, ignoreCache?: boolean): Promise<unknown>;
 }
