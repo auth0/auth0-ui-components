@@ -13,29 +13,58 @@ import {
 } from '@/components/ui/form';
 import { OTPField } from '@/components/ui/otp-field';
 import { useTranslator } from '@/hooks';
+import { useOtpConfirmation } from '@/hooks/mfa';
+import { type MFAType } from '@auth0-web-ui-components/core';
+import { CONFIRM } from '@/lib/constants';
 
 type OtpForm = {
   userOtp: string;
 };
 
 type QRCodeEnrollmentFormProps = {
+  factorType: MFAType;
   barcodeUri: string;
   recoveryCodes: string[];
-  onSubmit: (data: OtpForm) => void;
-  loading: boolean;
+  confirmEnrollment: (
+    factor: MFAType,
+    options: { oobCode?: string; userOtpCode?: string; userEmailOtpCode?: string },
+  ) => Promise<unknown | null>;
+  onError: (error: Error, stage: typeof CONFIRM) => void;
+  onSuccess: () => void;
+  onClose: () => void;
+  oobCode?: string;
 };
 
 export function QRCodeEnrollmentForm({
+  factorType,
   barcodeUri,
   recoveryCodes,
-  onSubmit,
-  loading,
+  confirmEnrollment,
+  onError,
+  onSuccess,
+  onClose,
+  oobCode,
 }: QRCodeEnrollmentFormProps) {
   const t = useTranslator('mfa');
+
+  const { onSubmitOtp, loading } = useOtpConfirmation({
+    factorType,
+    confirmEnrollment,
+    onError,
+    onSuccess,
+    onClose,
+  });
 
   const form = useForm<OtpForm>({
     mode: 'onChange',
   });
+
+  const handleSubmit = React.useCallback(
+    (data: OtpForm) => {
+      onSubmitOtp(data, oobCode);
+    },
+    [onSubmitOtp, oobCode],
+  );
 
   return (
     <div className="text-center">
@@ -69,7 +98,7 @@ export function QRCodeEnrollmentForm({
           <Form {...form}>
             <form
               autoComplete="off"
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={form.handleSubmit(handleSubmit)}
               className="space-y-6 mt-4"
             >
               <FormField

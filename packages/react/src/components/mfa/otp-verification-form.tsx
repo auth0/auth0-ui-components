@@ -12,27 +12,59 @@ import {
 } from '@/components/ui/form';
 import { OTPField } from '@/components/ui/otp-field';
 import { useTranslator } from '@/hooks';
+import { useOtpConfirmation } from '@/hooks/mfa';
+import { type MFAType } from '@auth0-web-ui-components/core';
+import { CONFIRM } from '@/lib/constants';
 
 type OtpForm = {
   userOtp: string;
 };
 
 type OTPVerificationFormProps = {
-  onSubmit: (data: OtpForm) => void;
-  loading: boolean;
+  factorType: MFAType;
+  confirmEnrollment: (
+    factor: MFAType,
+    options: { oobCode?: string; userOtpCode?: string; userEmailOtpCode?: string },
+  ) => Promise<unknown | null>;
+  onError: (error: Error, stage: typeof CONFIRM) => void;
+  onSuccess: () => void;
+  onClose: () => void;
+  oobCode?: string;
 };
 
-export function OTPVerificationForm({ onSubmit, loading }: OTPVerificationFormProps) {
+export function OTPVerificationForm({
+  factorType,
+  confirmEnrollment,
+  onError,
+  onSuccess,
+  onClose,
+  oobCode,
+}: OTPVerificationFormProps) {
   const t = useTranslator('mfa');
+
+  const { onSubmitOtp, loading } = useOtpConfirmation({
+    factorType,
+    confirmEnrollment,
+    onError,
+    onSuccess,
+    onClose,
+  });
 
   const form = useForm<OtpForm>({
     mode: 'onChange',
   });
 
+  const handleSubmit = React.useCallback(
+    (data: OtpForm) => {
+      onSubmitOtp(data, oobCode);
+    },
+    [onSubmitOtp, oobCode],
+  );
+
   return (
     <div className="w-full max-w-sm mx-auto text-center">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} autoComplete="off" className="space-y-6">
+        <form onSubmit={form.handleSubmit(handleSubmit)} autoComplete="off" className="space-y-6">
           <FormField
             control={form.control}
             name="userOtp"

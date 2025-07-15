@@ -9,6 +9,7 @@ import {
   createSmsContactSchema,
   type EmailContactForm,
   type SmsContactForm,
+  type EnrollMfaResponse,
 } from '@auth0-web-ui-components/core';
 
 import { Button } from '@/components/ui/button';
@@ -22,18 +23,44 @@ import {
 } from '@/components/ui/form';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks';
-import { FACTOR_TYPE_EMAIL, EMAIL_PLACEHOLDER, PHONE_NUMBER_PLACEHOLDER } from '@/lib/constants';
+import { useContactEnrollment } from '@/hooks/mfa';
+import {
+  FACTOR_TYPE_EMAIL,
+  EMAIL_PLACEHOLDER,
+  PHONE_NUMBER_PLACEHOLDER,
+  ENROLL,
+} from '@/lib/constants';
 
 type ContactForm = EmailContactForm | SmsContactForm;
 
 type ContactInputFormProps = {
   factorType: MFAType;
-  onSubmit: (data: ContactForm) => void;
-  loading: boolean;
+  enrollMfa: (factor: MFAType, options: Record<string, string>) => Promise<EnrollMfaResponse>;
+  onError: (error: Error, stage: typeof ENROLL) => void;
+  onContactSuccess: (oobCode?: string) => void;
+  onOtpSuccess: (otpData: {
+    secret: string | null;
+    barcodeUri: string | null;
+    recoveryCodes: string[];
+  }) => void;
 };
 
-export function ContactInputForm({ factorType, onSubmit, loading }: ContactInputFormProps) {
+export function ContactInputForm({
+  factorType,
+  enrollMfa,
+  onError,
+  onContactSuccess,
+  onOtpSuccess,
+}: ContactInputFormProps) {
   const t = useTranslator('mfa');
+
+  const { onSubmitContact, loading } = useContactEnrollment({
+    factorType,
+    enrollMfa,
+    onError,
+    onContactSuccess,
+    onOtpSuccess,
+  });
 
   const ContactSchema = React.useMemo(() => {
     return factorType === FACTOR_TYPE_EMAIL
@@ -49,7 +76,7 @@ export function ContactInputForm({ factorType, onSubmit, loading }: ContactInput
   return (
     <div className="w-full max-w-sm mx-auto text-center">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmitContact)} className="space-y-6">
           <FormField
             control={form.control}
             name="contact"

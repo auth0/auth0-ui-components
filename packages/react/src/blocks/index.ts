@@ -1,1 +1,1 @@
-export { UserMFAMgmt } from './manage-mfa';
+export { UserMFAMgmt } from './user-mfa-management';

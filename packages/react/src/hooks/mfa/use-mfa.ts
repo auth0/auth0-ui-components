@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { useComponentConfig } from './use-config';
-import { useAccessToken } from './use-access-token';
-import { useTranslator } from './use-translator';
+import { useComponentConfig } from '../use-config';
+import { useAccessToken } from '../use-access-token';
+import { useTranslator } from '../use-translator';
 import {
   fetchMfaFactors,
   enrollMfaRequest,

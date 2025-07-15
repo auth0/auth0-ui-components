@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
-import { UserMFASetupForm } from '@/components/mfa/enrollment-form';
+import { UserMFASetupForm } from '@/components/mfa/user-mfa-setup-form';
 import { ENROLL, CONFIRM } from '@/lib/constants';
 import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
