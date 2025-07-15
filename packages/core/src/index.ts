@@ -9,6 +9,8 @@ export {
 
 export { del, post, get, patch, ApiError, normalizeError, createApiError } from './api';
 
+export * from './schemas';
+
 export {
   deleteMfaFactor,
   fetchMfaFactors,

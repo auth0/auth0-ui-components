@@ -38,5 +38,8 @@
   "devDependencies": {
     "@types/node": "^22.15.27",
     "vitest": "^3.2.3"
+  },
+  "dependencies": {
+    "zod": "^3.25.56"
   }
 }

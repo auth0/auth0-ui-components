@@ -49,7 +49,7 @@ export interface MFAError {
   code?: string;
 }
 
-export interface ManageMfaProps {
+export interface UserMFAMgmtProps {
   localization?: Partial<MFALocaleContent>;
   hideHeader?: boolean;
   showActiveOnly?: boolean;

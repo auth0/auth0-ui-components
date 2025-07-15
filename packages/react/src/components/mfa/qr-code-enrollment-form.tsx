@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { OTPField } from '@/components/ui/otp-field';
-import { useI18n } from '@/hooks';
+import { useTranslator } from '@/hooks';
 
 type OtpForm = {
   userOtp: string;
@@ -31,7 +31,7 @@ export function QRCodeEnrollmentForm({
   onSubmit,
   loading,
 }: QRCodeEnrollmentFormProps) {
-  const t = useI18n('mfa');
+  const t = useTranslator('mfa');
 
   const form = useForm<OtpForm>({
     mode: 'onChange',

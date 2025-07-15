@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { useComponentConfig, useMFA, useTranslator } from '@/hooks';
-import type { ManageMfaProps, MFAType, Authenticator } from '@/types';
+import type { UserMFAMgmtProps, MFAType, Authenticator } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -9,13 +9,13 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
-import { EnrollmentForm } from '@/components/mfa/enrollment-form';
+import { UserMFASetupForm } from '@/components/mfa/enrollment-form';
 import { ENROLL, CONFIRM } from '@/lib/constants';
 import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 /**
- * ManageMfa Component
+ * UserMFAMgmt Component
  *
  * A component responsible for managing Multi-Factor Authentication (MFA) factors for a user.
  * This component handles the mfa access token fetching ,fetching authenticators, enrolling, and deletion of MFA factors and manages the MFA access token.
@@ -58,7 +58,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
  *
  * @returns {React.JSX.Element} The rendered component.
  */
-export function ManageMfa({
+export function UserMFAMgmt({
   localization = {},
   hideHeader = false,
   showActiveOnly = false,
@@ -71,7 +71,7 @@ export function ManageMfa({
   onFetch,
   onErrorAction,
   onBeforeAction,
-}: ManageMfaProps): React.JSX.Element {
+}: UserMFAMgmtProps): React.JSX.Element {
   const t = useTranslator('mfa', localization);
   const { loader } = useComponentConfig();
   const { fetchFactors, enrollMfa, deleteMfa, confirmEnrollment } = useMFA();
@@ -341,7 +341,7 @@ export function ManageMfa({
         </Card>
       )}
       {enrollFactor && (
-        <EnrollmentForm
+        <UserMFASetupForm
           open={dialogOpen}
           onClose={handleCloseDialog}
           factorType={enrollFactor}

@@ -22,7 +22,7 @@ import {
 } from '@auth0-web-ui-components/core';
 import { useTranslator } from '@/hooks';
 
-type EnrollmentFormProps = {
+type UserMFASetupFormProps = {
   open: boolean;
   onClose: () => void;
   factorType: MFAType;
@@ -45,7 +45,7 @@ type OtpForm = {
 
 type EnrollmentPhase = typeof ENTER_CONTACT | typeof ENTER_OTP | typeof SHOW_OTP | null;
 
-export function EnrollmentForm({
+export function UserMFASetupForm({
   open,
   onClose,
   factorType,
@@ -53,7 +53,7 @@ export function EnrollmentForm({
   confirmEnrollment,
   onSuccess,
   onError,
-}: EnrollmentFormProps) {
+}: UserMFASetupFormProps) {
   const t = useTranslator('mfa');
 
   // Initialize phase as null, meaning no UI shown by default

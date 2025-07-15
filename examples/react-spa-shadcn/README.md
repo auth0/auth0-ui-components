@@ -94,7 +94,7 @@ Use the ShadCN CLI to add the MFA component:
 npx shadcn@latest add https://auth0-web-ui-components.vercel.app/r/manage-mfa.json
 ```
 
-This will install the `ManageMfa` component in your `src/blocks/` directory.
+This will install the `UserMFAMgmt` component in your `src/blocks/` directory.
 
 #### Step 3: Configure the Auth0 Component Provider
 
@@ -156,7 +156,7 @@ const App = () => {
 export default App;
 ```
 
-#### Step 4: Using the ManageMfa Component
+#### Step 4: Using the UserMFAMgmt Component
 
 Here's how to integrate the MFA component in your security page (`src/components/SecurityPage.tsx`):
 
@@ -171,8 +171,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-// ========== Importing ManageMfa ==========
-import { ManageMfa } from '@/blocks/manage-mfa';
+// ========== Importing UserMFAMgmt ==========
+import { UserMFAMgmt } from '@/blocks/manage-mfa';
 import { useTranslation } from 'react-i18next';
 
 const SecurityPage = () => {
@@ -190,7 +190,7 @@ const SecurityPage = () => {
         </p>
 
         <div className="space-y-4">
-          <ManageMfa
+          <UserMFAMgmt
             localization={{ title: t('user-profile.mfa.title') }}
             factorConfig={{
               duo: {
@@ -238,14 +238,14 @@ The application should now be running with Auth0 authentication integrated.
 
 ### Props
 
-The `ManageMfa` component accepts the following props:
+The `UserMFAMgmt` component accepts the following props:
 
 #### `localization` (optional)
 
 Customize text labels for internationalization:
 
 ```tsx
-<ManageMfa
+<UserMFAMgmt
   localization={{
     title: 'Multi-Factor Authentication',
     subtitle: 'Secure your account with additional verification methods',
@@ -259,7 +259,7 @@ Customize text labels for internationalization:
 Configure which MFA factors are available and their visibility:
 
 ```tsx
-<ManageMfa
+<UserMFAMgmt
   factorConfig={{
     // Disable Duo integration
     duo: {
@@ -360,7 +360,7 @@ Add MFA-related translation keys to your locale files:
 2. **MFA Component Not Loading**
 
    - Check that the ShadCN installation completed successfully
-   - Verify the `ManageMfa` import path is correct
+   - Verify the `UserMFAMgmt` import path is correct
    - Ensure `Auth0ComponentProvider` wraps your component tree
 
 3. **Translation Keys Not Working**

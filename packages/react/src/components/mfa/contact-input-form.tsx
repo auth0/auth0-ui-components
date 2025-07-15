@@ -1,10 +1,15 @@
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { MailIcon, PhoneIcon } from 'lucide-react';
 
-import { MFAType } from '@auth0-web-ui-components/core';
+import {
+  MFAType,
+  createEmailContactSchema,
+  createSmsContactSchema,
+  type EmailContactForm,
+  type SmsContactForm,
+} from '@auth0-web-ui-components/core';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,14 +21,10 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { TextField } from '@/components/ui/text-field';
-import { useI18n } from '@/hooks';
+import { useTranslator } from '@/hooks';
 import { FACTOR_TYPE_EMAIL, EMAIL_PLACEHOLDER, PHONE_NUMBER_PLACEHOLDER } from '@/lib/constants';
 
-const phoneRegex = /^\+?[0-9\s\-()]{8,}$/;
-
-type ContactForm = {
-  contact: string;
-};
+type ContactForm = EmailContactForm | SmsContactForm;
 
 type ContactInputFormProps = {
   factorType: MFAType;
@@ -32,14 +33,12 @@ type ContactInputFormProps = {
 };
 
 export function ContactInputForm({ factorType, onSubmit, loading }: ContactInputFormProps) {
-  const t = useI18n('mfa');
+  const t = useTranslator('mfa');
 
   const ContactSchema = React.useMemo(() => {
     return factorType === FACTOR_TYPE_EMAIL
-      ? z.object({ contact: z.string().email({ message: t('errors.invalid_email') }) })
-      : z.object({
-          contact: z.string().regex(phoneRegex, { message: t('errors.invalid_phone_number') }),
-        });
+      ? createEmailContactSchema(t('errors.invalid_email'))
+      : createSmsContactSchema(t('errors.invalid_phone_number'));
   }, [factorType, t]);
 
   const form = useForm<ContactForm>({

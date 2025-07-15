@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { OTPField } from '@/components/ui/otp-field';
-import { useI18n } from '@/hooks';
+import { useTranslator } from '@/hooks';
 
 type OtpForm = {
   userOtp: string;
@@ -23,7 +23,7 @@ type OTPVerificationFormProps = {
 };
 
 export function OTPVerificationForm({ onSubmit, loading }: OTPVerificationFormProps) {
-  const t = useI18n('mfa');
+  const t = useTranslator('mfa');
 
   const form = useForm<OtpForm>({
     mode: 'onChange',
