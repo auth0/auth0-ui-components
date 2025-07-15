@@ -9,18 +9,16 @@ import {
   ENTER_CONTACT,
   FACTOR_TYPE_EMAIL,
   FACTOR_TYPE_SMS,
-  FACTOR_TYPE_OTP,
   FACTOR_TYPE_TOPT,
   FACTOR_TYPE_PUSH_NOTIFICATION,
   ENROLL,
   CONFIRM,
 } from '@/lib/constants';
-import {
-  normalizeError,
-  type MFAType,
-  type EnrollMfaResponse,
-} from '@auth0-web-ui-components/core';
+import { type MFAType, type EnrollMfaResponse } from '@auth0-web-ui-components/core';
 import { useTranslator } from '@/hooks';
+import { useContactEnrollment } from '@/hooks/use-contact-enrollment';
+import { useOtpConfirmation } from '@/hooks/use-otp-confirmation';
+import { useOtpEnrollment } from '@/hooks/use-otp-enrollment';
 
 type UserMFASetupFormProps = {
   open: boolean;
@@ -33,10 +31,6 @@ type UserMFASetupFormProps = {
   ) => Promise<unknown | null>;
   onSuccess: () => void;
   onError: (error: Error, stage: typeof ENROLL | typeof CONFIRM) => void;
-};
-
-type ContactForm = {
-  contact: string;
 };
 
 type OtpForm = {
@@ -59,25 +53,49 @@ export function UserMFASetupForm({
   // Initialize phase as null, meaning no UI shown by default
   const [phase, setPhase] = React.useState<EnrollmentPhase>(null);
   const [oobCode, setOobCode] = React.useState<string | undefined>(undefined);
-  const [otpData, setOtpData] = React.useState<{
-    secret: string | null;
-    barcodeUri: string | null;
-    recoveryCodes: string[];
-  }>({
-    secret: null,
-    barcodeUri: null,
-    recoveryCodes: [],
+
+  // Custom hooks for different enrollment flows
+  const { onSubmitContact, loading: contactLoading } = useContactEnrollment({
+    factorType,
+    enrollMfa,
+    onError,
+    onContactSuccess: (oobCode) => {
+      setOobCode(oobCode);
+      setPhase(ENTER_OTP);
+    },
+    onOtpSuccess: (otpData) => {
+      otpEnrollment.resetOtpData();
+      // Set the data directly to the otp enrollment hook
+      Object.assign(otpEnrollment.otpData, otpData);
+      setPhase(SHOW_OTP);
+    },
   });
-  const [loading, setLoading] = React.useState(false);
+
+  const { onSubmitOtp, loading: otpConfirmationLoading } = useOtpConfirmation({
+    factorType,
+    confirmEnrollment,
+    onError,
+    onSuccess,
+    onClose,
+  });
+
+  const otpEnrollment = useOtpEnrollment({
+    factorType,
+    enrollMfa,
+    onError,
+    onClose,
+  });
+
+  // Combined loading state
+  const loading = contactLoading || otpConfirmationLoading || otpEnrollment.loading;
 
   React.useEffect(() => {
     if (!open) {
       setPhase(null); // reset phase to null when dialog closes
       setOobCode(undefined);
-      setOtpData({ secret: null, barcodeUri: null, recoveryCodes: [] });
-      setLoading(false);
+      otpEnrollment.resetOtpData();
     }
-  }, [open]);
+  }, [open, otpEnrollment]);
 
   React.useEffect(() => {
     if (open && (factorType === FACTOR_TYPE_EMAIL || factorType === FACTOR_TYPE_SMS)) {
@@ -85,103 +103,26 @@ export function UserMFASetupForm({
     }
   }, [open, factorType]);
 
-  const onSubmitContact = async (data: ContactForm) => {
-    setLoading(true);
-    try {
-      const options: Record<string, string> =
-        factorType === FACTOR_TYPE_EMAIL
-          ? { email: data.contact }
-          : factorType === FACTOR_TYPE_SMS
-            ? { phone_number: data.contact }
-            : {};
-
-      const response = await enrollMfa(factorType, options);
-
-      if (response?.oob_code) {
-        setOobCode(response.oob_code);
-        setPhase(ENTER_OTP);
-      }
-
-      if (response?.authenticator_type === FACTOR_TYPE_OTP) {
-        setOtpData({
-          secret: response.secret ?? null,
-          barcodeUri: response.barcode_uri ?? null,
-          recoveryCodes: response.recovery_codes || [],
-        });
-        setPhase(SHOW_OTP);
-      }
-    } catch (error) {
-      const normalizedError = normalizeError(error, {
-        resolver: (code) => t(`errors.${code}.${factorType}`),
-        fallbackMessage: 'An unexpected error occurred during MFA enrollment.',
-      });
-      onError(normalizedError, ENROLL);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onSubmitOtp = async (data: OtpForm) => {
-    setLoading(true);
-
-    try {
-      const options = {
-        oobCode,
-        ...(factorType === FACTOR_TYPE_EMAIL
-          ? { userEmailOtpCode: data.userOtp }
-          : { userOtpCode: data.userOtp }),
-      };
-
-      const response = await confirmEnrollment(factorType, options);
-      if (response) {
-        onSuccess();
-        onClose();
-      }
-    } catch (err) {
-      const normalizedError = normalizeError(err, {
-        resolver: (code) => t(`errors.${code}.${factorType}`),
-        fallbackMessage: 'An unexpected error occurred during MFA enrollment.',
-      });
-      onError(normalizedError, CONFIRM);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchOtpEnrollment = React.useCallback(async () => {
-    try {
-      const response = await enrollMfa(factorType, {});
-      if (response?.authenticator_type === FACTOR_TYPE_OTP) {
-        setOtpData({
-          secret: response.secret ?? null,
-          barcodeUri: response.barcode_uri ?? null,
-          recoveryCodes: response.recovery_codes || [],
-        });
-      }
-      setPhase(SHOW_OTP);
-    } catch (error) {
-      const normalizedError = normalizeError(error, {
-        resolver: (code) => t(`errors.${code}.${factorType}`),
-        fallbackMessage: 'An unexpected error occurred during MFA enrollment.',
-      });
-      onError(normalizedError, ENROLL);
-      onClose();
-    } finally {
-      setLoading(false);
-    }
-  }, [factorType, enrollMfa, onError, onClose, t]);
-
   // Automatically initiate OTP enrollment when factorType is 'totp' or 'push-notification'
   React.useEffect(() => {
     if (
       [FACTOR_TYPE_TOPT, FACTOR_TYPE_PUSH_NOTIFICATION].includes(factorType) &&
-      !otpData.secret &&
+      !otpEnrollment.otpData.secret &&
       open
     ) {
-      setLoading(true);
-      fetchOtpEnrollment();
+      otpEnrollment.fetchOtpEnrollment().then(() => {
+        setPhase(SHOW_OTP);
+      });
     }
-  }, [factorType, fetchOtpEnrollment, otpData.secret, open]);
+  }, [factorType, otpEnrollment, open]);
+
+  // Handler for OTP submission that includes the oobCode
+  const handleOtpSubmit = React.useCallback(
+    (data: OtpForm) => {
+      onSubmitOtp(data, oobCode);
+    },
+    [onSubmitOtp, oobCode],
+  );
 
   // Render the appropriate form based on the current phase and factorType
   const renderForm = () => {
@@ -193,14 +134,14 @@ export function UserMFASetupForm({
       case SHOW_OTP:
         return (
           <QRCodeEnrollmentForm
-            barcodeUri={otpData.barcodeUri || ''}
-            recoveryCodes={otpData.recoveryCodes}
-            onSubmit={onSubmitOtp}
+            barcodeUri={otpEnrollment.otpData.barcodeUri || ''}
+            recoveryCodes={otpEnrollment.otpData.recoveryCodes}
+            onSubmit={handleOtpSubmit}
             loading={loading}
           />
         );
       case ENTER_OTP:
-        return <OTPVerificationForm onSubmit={onSubmitOtp} loading={loading} />;
+        return <OTPVerificationForm onSubmit={handleOtpSubmit} loading={loading} />;
       default:
         return null;
     }
