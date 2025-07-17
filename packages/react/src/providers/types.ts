@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { AuthDetailsCore } from '@auth0-web-ui-components/core';
-import { Auth0ContextInterface } from '@auth0/auth0-react';
 
 /**
  * Theme configuration
@@ -24,15 +23,7 @@ export interface I18nOptions {
 /**
  * Auth0 authentication details with optional React-specific properties.
  */
-export type AuthDetails = Omit<
-  AuthDetailsCore,
-  'accessToken' | 'scopes' | 'authProxyUrl' | 'contextInterface'
-> & {
-  accessToken?: string;
-  scopes?: string;
-  authProxyUrl?: string;
-  contextInterface?: Auth0ContextInterface | undefined;
-};
+export type AuthDetails = Omit<AuthDetailsCore, 'accessToken'>;
 
 /**
  * Props for the Auth0ComponentProvider component.
@@ -40,7 +31,7 @@ export type AuthDetails = Omit<
 export interface Auth0ComponentProviderProps {
   i18n?: I18nOptions;
   themeSettings?: ThemeSettings;
-  authDetails: AuthDetails;
+  authDetails?: AuthDetails;
   customOverrides?: CustomOverrides;
   loader?: React.ReactNode;
 }

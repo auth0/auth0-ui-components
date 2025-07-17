@@ -79,12 +79,12 @@ export interface Auth0ContextInterface<TUser = User> {
 }
 
 export interface AuthDetailsCore {
-  domain: string | undefined;
-  clientId: string | undefined;
-  accessToken: string | undefined;
-  scopes: string | undefined;
-  authProxyUrl: string | undefined;
-  contextInterface: Auth0ContextInterface | undefined;
+  domain?: string | undefined;
+  clientId?: string | undefined;
+  accessToken?: string | undefined;
+  scopes?: string | undefined;
+  authProxyUrl?: string | undefined;
+  contextInterface?: Auth0ContextInterface | undefined;
 }
 
 export interface CoreClientInterface {

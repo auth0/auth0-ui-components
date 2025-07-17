@@ -33,7 +33,15 @@ export const CoreUtils = {
    * Initialize auth details from context interface
    */
   async initializeAuthDetails(authDetails: AuthDetailsCore): Promise<AuthDetailsCore> {
-    let auth = authDetails;
+    // Set default values if not provided
+    let auth = {
+      accessToken: authDetails.accessToken ?? undefined,
+      domain: authDetails.domain ?? undefined,
+      clientId: authDetails.clientId ?? undefined,
+      scopes: authDetails.scopes ?? undefined,
+      authProxyUrl: authDetails.authProxyUrl ?? undefined,
+      contextInterface: authDetails.contextInterface ?? undefined,
+    };
     if (!CoreUtils.isProxyMode(auth) && authDetails.contextInterface) {
       try {
         const tokenRes = await authDetails.contextInterface.getAccessTokenSilently({
@@ -41,17 +49,16 @@ export const CoreUtils = {
           detailedResponse: true,
         });
         auth = {
-          ...authDetails,
+          ...auth,
           accessToken: tokenRes.access_token,
-          scopes: tokenRes.scope,
         };
       } catch (err) {
         auth = {
-          ...authDetails,
           accessToken: undefined,
           domain: undefined,
           clientId: undefined,
           scopes: undefined,
+          authProxyUrl: auth.authProxyUrl,
           contextInterface: undefined,
         };
       }

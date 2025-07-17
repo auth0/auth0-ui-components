@@ -54,13 +54,9 @@ export const Auth0ComponentProvider = ({
 }: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
   const auth0ContextInterface = useAuth0();
 
-  // Add default values if not provided
+  // Add context interface
   const authDetailsCore: AuthDetailsCore = {
-    clientId: authDetails.clientId,
-    domain: authDetails.domain,
-    accessToken: authDetails.accessToken ?? undefined,
-    scopes: authDetails.scopes ?? undefined,
-    authProxyUrl: authDetails.authProxyUrl ?? undefined,
+    ...authDetails,
     contextInterface: auth0ContextInterface,
   };
 
