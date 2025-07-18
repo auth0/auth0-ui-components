@@ -49,6 +49,15 @@ export interface MFAError {
   code?: string;
 }
 
+/**
+ * Props for SMS deletion restriction modal
+ */
+export interface SMSRestrictionModalProps {
+  open: boolean;
+  onClose: () => void;
+  message: string;
+}
+
 export interface UserMFAMgmtProps {
   localization?: Partial<MFALocaleContent>;
   hideHeader?: boolean;

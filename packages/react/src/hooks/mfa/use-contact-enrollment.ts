@@ -15,7 +15,7 @@ type UseContactEnrollmentProps = {
   factorType: MFAType;
   enrollMfa: (factor: MFAType, options: Record<string, string>) => Promise<EnrollMfaResponse>;
   onError: (error: Error, stage: typeof ENROLL) => void;
-  onContactSuccess: (oobCode?: string) => void;
+  onContactSuccess: (oobCode?: string, contact?: string) => void;
   onOtpSuccess: (otpData: {
     secret: string | null;
     barcodeUri: string | null;
@@ -47,7 +47,7 @@ export function useContactEnrollment({
         const response = await enrollMfa(factorType, options);
 
         if (response?.oob_code) {
-          onContactSuccess(response.oob_code);
+          onContactSuccess(response.oob_code, data.contact);
         }
 
         if (response?.authenticator_type === FACTOR_TYPE_OTP) {

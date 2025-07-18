@@ -129,7 +129,7 @@ export function UserMFAMgmt({
    *
    * @param {MFAType} factor - The MFA factor to be enrolled.
    */
-  const handleEnrollClick = (factor: MFAType) => {
+  const handleEnroll = (factor: MFAType) => {
     setEnrollFactor(factor);
     setDialogOpen(true);
   };
@@ -154,7 +154,7 @@ export function UserMFAMgmt({
    * @param {MFAType} factorType - The type of MFA factor being deleted (e.g., 'sms', 'email', 'totp')
    * @returns {Promise<void>}
    */
-  const handleDeleteClick = React.useCallback(
+  const handleDeleteFactor = React.useCallback(
     async (factorId: string, factorType: MFAType) => {
       if (readOnly || disableDelete) return;
 
@@ -314,7 +314,7 @@ export function UserMFAMgmt({
                                 type="submit"
                                 size="sm"
                                 onClick={() =>
-                                  handleDeleteClick(factor.id, factor.factorName as MFAType)
+                                  handleDeleteFactor(factor.id, factor.factorName as MFAType)
                                 }
                                 disabled={disableDelete || isDeletingFactor || !isEnabledFactor}
                                 aria-label={t('delete_factor', { factorName: factor.factorName })}
@@ -325,7 +325,7 @@ export function UserMFAMgmt({
                           : !readOnly && (
                               <Button
                                 size="sm"
-                                onClick={() => handleEnrollClick(factor.factorName as MFAType)}
+                                onClick={() => handleEnroll(factor.factorName as MFAType)}
                                 disabled={disableEnroll || !isEnabledFactor}
                               >
                                 {t('enroll')}
@@ -355,31 +355,37 @@ export function UserMFAMgmt({
         open={isDeleteDialogOpen}
         onOpenChange={(open) => !isDeletingFactor && setIsDeleteDialogOpen(open)}
       >
-        <DialogContent aria-describedby="delete-mfa-description">
+        <DialogContent aria-describedby="delete-mfa-description" className="w-[400px] h-[548px]">
           <DialogHeader>
-            <DialogTitle className="text-center">{t('delete_mfa_title')}</DialogTitle>
+            <DialogTitle className="text-center text-xl font-medium">
+              {t('delete_mfa_title')}
+            </DialogTitle>
+            <Separator className="my-2" />
           </DialogHeader>
-          <div className="py-4">
-            <p id="delete-mfa-description" className="text-center text-muted-foreground">
-              {t('delete_mfa_content')}
-            </p>
-          </div>
-          <div className="flex justify-end gap-4 pt-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsDeleteDialogOpen(false)}
-              disabled={isDeletingFactor}
-            >
-              {t('cancel')}
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => factorToDelete && handleConfirmDelete(factorToDelete.id)}
-              disabled={isDeletingFactor}
-            >
-              {isDeletingFactor ? t('deleting') : t('delete')}
-            </Button>
+
+          <div className="flex flex-col items-center justify-center flex-1 space-y-10">
+            <Label id="delete-mfa-description" className="text-center text-base font-medium">
+              {t(`delete_mfa_${factorToDelete?.type}_consent`)}
+            </Label>
+
+            <div className="flex flex-col space-y-3 w-full">
+              <Button
+                variant="destructive"
+                size="lg"
+                onClick={() => factorToDelete && handleConfirmDelete(factorToDelete.id)}
+                disabled={isDeletingFactor}
+              >
+                {isDeletingFactor ? t('deleting') : t('confirm')}
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setIsDeleteDialogOpen(false)}
+                disabled={isDeletingFactor}
+              >
+                {t('cancel')}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

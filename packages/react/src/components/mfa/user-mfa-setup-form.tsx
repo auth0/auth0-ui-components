@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
 import { ContactInputForm } from './contact-input-form';
 import { QRCodeEnrollmentForm } from './qr-code-enrollment-form';
 import { OTPVerificationForm } from './otp-verification-form';
@@ -47,6 +48,7 @@ export function UserMFASetupForm({
   // Initialize phase as null, meaning no UI shown by default
   const [phase, setPhase] = React.useState<EnrollmentPhase>(null);
   const [oobCode, setOobCode] = React.useState<string | undefined>(undefined);
+  const [contact, setContact] = React.useState<string>(''); // Initialize contact state
 
   const otpEnrollment = useOtpEnrollment({
     factorType,
@@ -83,8 +85,11 @@ export function UserMFASetupForm({
   }, [factorType, otpEnrollment, open]);
 
   // Callback functions for form components
-  const handleContactSuccess = React.useCallback((oobCode?: string) => {
+  const handleContactSuccess = React.useCallback((oobCode?: string, contactValue?: string) => {
     setOobCode(oobCode);
+    if (contactValue) {
+      setContact(contactValue);
+    }
     setPhase(ENTER_OTP);
   }, []);
 
@@ -98,6 +103,13 @@ export function UserMFASetupForm({
     [otpEnrollment],
   );
 
+  const handleBack = React.useCallback(() => {
+    if (phase === ENTER_OTP) {
+      const isContactBased = [FACTOR_TYPE_EMAIL, FACTOR_TYPE_SMS].includes(factorType);
+      setPhase(isContactBased ? ENTER_CONTACT : SHOW_OTP);
+    }
+  }, [phase, factorType]);
+
   // Render the appropriate form based on the current phase and factorType
   const renderForm = () => {
     switch (phase) {
@@ -109,6 +121,7 @@ export function UserMFASetupForm({
             onError={onError}
             onContactSuccess={handleContactSuccess}
             onOtpSuccess={handleOtpSuccess}
+            onClose={onClose}
           />
         );
       case SHOW_OTP:
@@ -117,6 +130,7 @@ export function UserMFASetupForm({
             factorType={factorType}
             barcodeUri={otpEnrollment.otpData.barcodeUri || ''}
             recoveryCodes={otpEnrollment.otpData.recoveryCodes}
+            secret={otpEnrollment.otpData.secret || ''}
             confirmEnrollment={confirmEnrollment}
             onError={onError}
             onSuccess={onSuccess}
@@ -133,6 +147,8 @@ export function UserMFASetupForm({
             onSuccess={onSuccess}
             onClose={onClose}
             oobCode={oobCode}
+            contact={contact}
+            onBack={handleBack}
           />
         );
       default:
@@ -142,15 +158,12 @@ export function UserMFASetupForm({
 
   return (
     <Dialog open={open && Boolean(phase)} onOpenChange={onClose}>
-      <DialogContent aria-describedby={factorType}>
+      <DialogContent aria-describedby={factorType} className="w-[400px] h-[548px]">
         <DialogHeader>
-          <DialogTitle className="text-center">
-            {factorType === FACTOR_TYPE_EMAIL
-              ? t('enrollment_form.enroll_email')
-              : factorType === FACTOR_TYPE_SMS
-                ? t('enrollment_form.enroll_sms')
-                : t('enroll_otp_mfa')}
+          <DialogTitle className="text-left font-medium text-xl">
+            {t('enrollment_form.enroll_title')}
           </DialogTitle>
+          <Separator className="my-2" />
         </DialogHeader>
         {renderForm()}
       </DialogContent>

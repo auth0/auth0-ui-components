@@ -15,6 +15,9 @@ export interface OTPFieldProps {
     character?: string;
     afterEvery?: number;
   };
+  id?: string;
+  value?: string;
+  name?: string;
 }
 
 function OTPField({
@@ -25,9 +28,23 @@ function OTPField({
   onChange,
   autoSubmit,
   separator,
+  id,
+  value,
+  name,
 }: OTPFieldProps) {
-  const [otp, setOtp] = useState<string[]>(new Array(length).fill(''));
+  const [internalOtp, setInternalOtp] = useState<string[]>(new Array(length).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Controlled vs uncontrolled logic
+  const isControlled = value !== undefined;
+  const otpValue = value || '';
+  const otp = isControlled ? Array.from({ length }, (_, i) => otpValue[i] || '') : internalOtp;
+
+  const setOtp = (newOtp: string[]) => {
+    if (!isControlled) {
+      setInternalOtp(newOtp);
+    }
+  };
 
   const handleChange = (element: HTMLInputElement, index: number) => {
     const value = element.value;
@@ -175,6 +192,9 @@ function OTPField({
             onChange={(e) => handleChange(e.target, index)}
             onKeyDown={(e) => handleKeyDown(e, index)}
             onPaste={(e) => handlePaste(e, index)}
+            // Apply the id and name only to the first input for label association and form submission
+            id={index === 0 ? id : undefined}
+            name={index === 0 ? name : undefined}
           />
           {separator?.afterEvery &&
             (index + 1) % separator.afterEvery === 0 &&

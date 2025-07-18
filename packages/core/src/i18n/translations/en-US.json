@@ -18,6 +18,7 @@
     "no_active_mfa": "No active MFA factors enrolled.",
     "delete": "Delete",
     "enroll": "Enroll",
+    "submit": "Submit",
     "enrolling": "Enrolling...",
     "enrolled": "Enrolled",
     "enrollment": "Enrollment",
@@ -26,9 +27,16 @@
     "enroll_factor": "Enrolled successfully.",
     "enroll_otp_mfa": "Enroll OTP MFA",
     "delete_factor": "Delete authenticator ${factorName}",
-    "delete_mfa_title": "Delete MFA Factor",
-    "delete_mfa_content": "Are you sure you want to delete this MFA factor? This action cannot be undone.",
+    "delete_mfa_title": "Remove existing Authenticator",
+    "delete_mfa_sms_consent": "Are you sure you want to remove this Phone number for SMS?",
+    "delete_mfa_email_consent": "Are you sure you want to remove this Email?",
     "cancel": "Cancel",
+    "next": "Next",
+    "back": "Back",
+    "yes-remove": "Yes, remove",
+    "ok": "Ok",
+    "confirm": "Confirm",
+    "continue": "Continue",
     "deleting": "Deleting...",
     "errors": {
       "factors_loading_error": "Error loading MFA factors!",
@@ -94,18 +102,24 @@
     },
     "enrollment_form": {
       "email_address": "Email Address",
-      "phone_number": "Phone Number (SMS)",
+      "phone_number": "Phone Number",
       "send_code": "Send Code",
       "sending": "Sending...",
-      "enroll_email": "Enroll Email MFA",
-      "enroll_sms": "Enroll SMS MFA",
+      "enroll_title": "Verify it’s you",
+      "enroll_email_placeholder": "Enter email address",
+      "enroll_email_description": "Enter your email to receive a verification code",
+      "enroll_sms_placeholder": "Enter phone number",
+      "enroll_sms_description": "Enter your phone number to receive a verification code",
       "show_otp": {
-        "title": "Scan the barcode with your authenticator app",
+        "title": "Scan this QR code with your Authenticator App to register this Authentication method",
         "save_recovery": "Save these recovery codes!",
         "enter_code": "Enter the code from your authenticator app",
+        "one_time_passcode": "One-Time Passcode",
         "verify_code": "Verify Code",
+        "copy_as_code": "Copy as Code",
         "verifying": "Verifying...",
-        "enter_verify_code": "Enter the verification code"
+        "enter_verify_code": "Enter the 6-digit code we sent to ${verifier}",
+        "install_guardian_description": "In order to continue, install the Auth0 Guardian app via the app store from your mobile device"
       }
     }
   }
