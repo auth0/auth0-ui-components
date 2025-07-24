@@ -91,12 +91,7 @@ export function buildConfirmParams(
   } else if (
     [FACTOR_TYPE_SMS, FACTOR_TYPE_EMAIL, FACTOR_TYPE_PUSH_NOTIFICATION].includes(factorName)
   ) {
-    baseParams.binding_code =
-      factorName === FACTOR_TYPE_SMS
-        ? options.userOtpCode
-        : factorName === FACTOR_TYPE_EMAIL
-          ? options.userEmailOtpCode
-          : options.userOtpCode;
+    baseParams.binding_code = options.userOtpCode;
   }
 
   return baseParams;

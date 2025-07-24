@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { FACTOR_TYPE_EMAIL, normalizeError, type MFAType } from '@auth0-web-ui-components/core';
+import { normalizeError, type MFAType } from '@auth0-web-ui-components/core';
 import { CONFIRM } from '@/lib/mfa-constants';
 import { useTranslator } from '@/hooks';
 
@@ -11,7 +11,7 @@ type UseOtpConfirmationProps = {
   factorType: MFAType;
   confirmEnrollment: (
     factor: MFAType,
-    options: { oobCode?: string; userOtpCode?: string; userEmailOtpCode?: string },
+    options: { oobCode?: string; userOtpCode?: string },
   ) => Promise<unknown | null>;
   onError: (error: Error, stage: typeof CONFIRM) => void;
   onSuccess: () => void;
@@ -36,9 +36,7 @@ export function useOtpConfirmation({
       try {
         const options = {
           oobCode,
-          ...(factorType === FACTOR_TYPE_EMAIL
-            ? { userEmailOtpCode: data.userOtp }
-            : { userOtpCode: data.userOtp }),
+          userOtpCode: data.userOtp,
         };
 
         const response = await confirmEnrollment(factorType, options);

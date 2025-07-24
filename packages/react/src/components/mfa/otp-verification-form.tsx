@@ -25,7 +25,7 @@ type OTPVerificationFormProps = {
   factorType: MFAType;
   confirmEnrollment: (
     factor: MFAType,
-    options: { oobCode?: string; userOtpCode?: string; userEmailOtpCode?: string },
+    options: { oobCode?: string; userOtpCode?: string },
   ) => Promise<unknown | null>;
   onError: (error: Error, stage: typeof CONFIRM) => void;
   onSuccess: () => void;

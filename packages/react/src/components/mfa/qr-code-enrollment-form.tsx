@@ -18,7 +18,7 @@ type QRCodeEnrollmentFormProps = {
   enrollMfa: (factor: MFAType, options: Record<string, string>) => Promise<EnrollMfaResponse>;
   confirmEnrollment: (
     factor: MFAType,
-    options: { oobCode?: string; userOtpCode?: string; userEmailOtpCode?: string },
+    options: { oobCode?: string; userOtpCode?: string },
   ) => Promise<unknown | null>;
   onError: (error: Error, stage: typeof ENROLL | typeof CONFIRM) => void;
   onSuccess: () => void;

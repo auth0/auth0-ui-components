@@ -92,7 +92,6 @@ export interface EnrollOptions {
 export interface ConfirmEnrollmentOptions {
   oobCode?: string;
   userOtpCode?: string;
-  userEmailOtpCode?: string;
 }
 
 /**
