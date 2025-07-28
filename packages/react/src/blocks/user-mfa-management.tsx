@@ -322,9 +322,7 @@ function UserMFAMgmtComponent({
                       </h1>
                     </CardTitle>
                     <CardDescription id="mfa-management-desc">
-                      <p className="text-base text-muted-foreground text-left">
-                        {t('description')}
-                      </p>
+                      <p className="text-sm text-muted-foreground text-left">{t('description')}</p>
                     </CardDescription>
                   </>
                 )}
