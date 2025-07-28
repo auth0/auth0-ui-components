@@ -4,6 +4,8 @@
     "title": "多要素認証方法",
     "description": "あなたのアカウントと身元をさらに保護します",
     "no_active_mfa": "登録されている多要素認証はありません。",
+    "component_error_title": "多要素認証コンポーネントの読み込みエラー",
+    "component_error_description": "多要素認証方法の読み込みに問題が発生しました。ページを再読み込みして、もう一度お試しください",
     "loading": "読み込み中...",
     "delete": "削除",
     "enroll": "登録",
@@ -22,6 +24,8 @@
     "delete_mfa_title": "既存の認証システムを削除",
     "delete_mfa_sms_consent": "この電話番号をSMS MFAから削除してもよろしいですか？",
     "delete_mfa_email_consent": "このEメールアドレスを削除してもよろしいですか？",
+    "delete_mfa_totp_consent": "この認証アプリを削除しますか？",
+    "delete_mfa_push-notification_consent": "プッシュ通知による認証を削除しますか？",
     "cancel": "キャンセル",
     "next": "次へ",
     "back": "戻る",
@@ -44,7 +48,8 @@
       "push-notification": {
         "too_many_entities": "このユーザーのプッシュ通知エンティティの数には上限があります。",
         "unsupported_challenge_type": "Auth0 Verifier がテナントで無効になっています。ダッシュボードの Guardian MFA セクションで「プッシュ通知」をオンにすると有効にできます。",
-        "invalid_request": "必須パラメーターがありません"
+        "invalid_request": "必須パラメーターがありません",
+        "authorization_pending": "承認保留中: 数秒後にリクエストを再試行してください。"
       },
       "totp": {
         "invalid_request": "必須パラメーターがありません",

@@ -4,6 +4,8 @@
     "title": "Multi-Factor Authentication methods",
     "description": "Extra protection for your account and your identity",
     "no_active_mfa": "No active MFA factors enrolled.",
+    "component_error_title": "Error loading Multi-Factor Authentication component",
+    "component_error_description": "We're having trouble loading your multi-factor authentication methods. Please refresh the page and try again",
     "loading": "Loading...",
     "delete": "Delete",
     "enroll": "Enroll",
@@ -22,6 +24,8 @@
     "delete_mfa_title": "Remove existing Authenticator",
     "delete_mfa_sms_consent": "Are you sure you want to remove this Phone number for SMS?",
     "delete_mfa_email_consent": "Are you sure you want to remove this Email?",
+    "delete_mfa_totp_consent": "Are you sure you want to remove this authenticator?",
+    "delete_mfa_push-notification_consent": "Are you sure you want to remove this push notification?",
     "cancel": "Cancel",
     "next": "Next",
     "back": "Back",
@@ -43,7 +47,8 @@
       "push-notification": {
         "too_many_entities": "You reached the limit of entities of the push notification type for this user.",
         "unsupported_challenge_type": "Auth0 Verifier is disabled for your tenant. You can turn it on from dashboard turning on \"Push notifications\" on Guardian MFA section.",
-        "invalid_request": "Missing required parameter"
+        "invalid_request": "Missing required parameter",
+        "authorization_pending": "Authorization pending: please repeat the request in a few seconds."
       },
       "totp": {
         "invalid_request": "Missing required parameter",
