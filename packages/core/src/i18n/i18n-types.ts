@@ -25,14 +25,14 @@ export interface I18nInitOptions {
 }
 
 /**
- * A function that performs string translation within a specific namespace.
- * Returns the translated string or the key itself as a fallback.
- *
- * @param key - Translation key relative to the current namespace (e.g., "buttons.submit")
- * @param vars - Optional variables for string interpolation (e.g., { name: "John" })
- * @returns Translated string with interpolated variables, or the key if translation is missing
+ * Translation function that returns localized text for a given key.
+ * Supports variable substitution and fallback text.
  */
-export type TranslationFunction = (key: string, vars?: Record<string, unknown>) => string;
+export type TranslationFunction = (
+  key: string,
+  vars?: Record<string, unknown>,
+  fallback?: string,
+) => string;
 
 /**
  * Factory function that creates namespace-scoped translation functions.

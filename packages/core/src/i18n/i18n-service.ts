@@ -82,7 +82,7 @@ const I18nUtils = {
     const prefix = `${namespace}.`;
     const hasOverrides = overrides && Object.keys(overrides).length > 0;
 
-    return (key: string, vars?: Record<string, unknown>): string => {
+    return (key: string, vars?: Record<string, unknown>, fallback?: string): string => {
       const fullKey = prefix + key;
 
       if (hasOverrides) {
@@ -93,13 +93,19 @@ const I18nUtils = {
       }
 
       if (!translations) {
-        return `${prefix}${key}`;
+        return fallback || `${prefix}${key}`;
       }
 
-      const translationValue = I18nUtils.getNestedValue(translations, fullKey);
-      const finalValue = translationValue !== undefined ? String(translationValue) : key;
+      const translationValue = translations
+        ? I18nUtils.getNestedValue(translations, fullKey)
+        : undefined;
 
-      return I18nUtils.substitute(finalValue, vars);
+      if (translationValue !== undefined) {
+        return I18nUtils.substitute(String(translationValue), vars);
+      }
+
+      // Return fallback if provided, otherwise return the full key or just the key
+      return fallback || (translations ? key : `${prefix}${key}`);
     };
   },
 

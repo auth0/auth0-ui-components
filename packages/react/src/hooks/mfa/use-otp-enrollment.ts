@@ -47,8 +47,8 @@ export function useOtpEnrollment({
       });
     } catch (error) {
       const normalizedError = normalizeError(error, {
-        resolver: (code) => t(`errors.${factorType}.${code}`),
-        fallbackMessage: 'An unexpected error occurred during MFA enrollment.',
+        resolver: (code) =>
+          t(`errors.${factorType}.${code}`, {}, 'An unexpected error occurred during enrollment.'),
       });
       onError(normalizedError, ENROLL);
       onClose();
