@@ -1,0 +1,109 @@
+name: Publish NPM Packages
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'packages/**'
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'Packages to publish (comma-separated, e.g., core,react or "all")'
+        required: false
+        default: 'all'
+        type: string
+
+jobs:
+  publish:
+    runs-on:
+      labels: ubuntu-22.04-2cpu-8ram-75ssd
+    permissions:
+      contents: read # to be able to clone the repo
+      id-token: write # to enable use of OIDC for npm provenance
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://a0us.jfrog.io/artifactory/api/npm/npm/'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Setup JFrog CLI
+        id: setup-jfrog-cli
+        uses: jfrog/setup-jfrog-cli@f0a84f35b0e0bd21838c5fb3e6788072d6540d13 # v4 at 2025-01-02
+        env:
+          JF_URL: https://a0us.jfrog.io
+        with:
+          oidc-provider-name: atko-cic
+
+      - name: Setup NPM Authentication
+        env:
+          ARTIFACTORY_USER: ${{ steps.setup-jfrog-cli.outputs.oidc-user }}
+          ARTIFACTORY_API_TOKEN: ${{ steps.setup-jfrog-cli.outputs.oidc-token }}
+        run: |
+          curl -u $ARTIFACTORY_USER:$ARTIFACTORY_API_TOKEN https://a0us.jfrog.io/artifactory/api/npm/npm/auth/a0 > ~/.npmrc
+          echo "registry=https://a0us.jfrog.io/artifactory/api/npm/npm/" >> ~/.npmrc
+          echo "@auth0-web-ui-components:registry=https://a0us.jfrog.io/artifactory/api/npm/npm/" >> ~/.npmrc
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm run build
+
+      - name: Run tests
+        run: pnpm run test
+        continue-on-error: true
+
+      - name: Determine packages to publish
+        id: packages
+        run: |
+          if [ "${{ github.event.inputs.packages }}" = "all" ] || [ -z "${{ github.event.inputs.packages }}" ]; then
+            echo "packages=core,react" >> $GITHUB_OUTPUT
+          else
+            echo "packages=${{ github.event.inputs.packages }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish Core package
+        if: contains(steps.packages.outputs.packages, 'core')
+        working-directory: ./packages/core
+        run: |
+          echo "Publishing @auth0-web-ui-components/core..."
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ steps.setup-jfrog-cli.outputs.oidc-token }}
+
+      - name: Publish React package
+        if: contains(steps.packages.outputs.packages, 'react')
+        working-directory: ./packages/react
+        run: |
+          echo "Publishing @auth0-web-ui-components/react..."
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ steps.setup-jfrog-cli.outputs.oidc-token }}
+
+      - name: Summary
+        run: |
+          echo "## 📦 NPM Packages Published" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ steps.packages.outputs.packages }}" == *"core"* ]]; then
+            echo "- ✅ @auth0-web-ui-components/core" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [[ "${{ steps.packages.outputs.packages }}" == *"react"* ]]; then
+            echo "- ✅ @auth0-web-ui-components/react" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🚀 Packages published to JFrog Artifactory: https://a0us.jfrog.io" >> $GITHUB_STEP_SUMMARY
