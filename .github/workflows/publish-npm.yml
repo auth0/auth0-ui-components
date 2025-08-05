@@ -2,9 +2,6 @@ name: Publish NPM Packages
 
 on:
   push:
-    branches:
-      - main
-      - master
     paths:
       - 'packages/**'
   release:
@@ -24,27 +21,27 @@ jobs:
     permissions:
       contents: read # to be able to clone the repo
       id-token: write # to enable use of OIDC for npm provenance
-    
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: '20'
           registry-url: 'https://a0us.jfrog.io/artifactory/api/npm/npm/'
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
           version: 8
 
       - name: Setup JFrog CLI
         id: setup-jfrog-cli
-        uses: jfrog/setup-jfrog-cli@f0a84f35b0e0bd21838c5fb3e6788072d6540d13 # v4 at 2025-01-02
+        uses: jfrog/setup-jfrog-cli@f0a84f35b0e0bd21838c5fb3e6788072d6540d13 # v4.6.0 at 2025-01-02
         env:
           JF_URL: https://a0us.jfrog.io
         with:
