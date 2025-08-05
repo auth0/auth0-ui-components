@@ -36,14 +36,20 @@ export function DeleteFactorConfirmation({
     >
       <DialogContent aria-describedby="delete-mfa-description" className="w-[400px] h-[548px]">
         <DialogHeader>
-          <DialogTitle id="delete-mfa-title" className="text-center text-xl font-medium">
+          <DialogTitle
+            id="delete-mfa-title"
+            className="text-center text-(length:--font-size-title) font-medium"
+          >
             {t('delete_mfa_title')}
           </DialogTitle>
           <Separator className="my-2" />
         </DialogHeader>
 
         <div className="flex flex-col items-center justify-center flex-1 space-y-10">
-          <p id="delete-mfa-description" className="text-center text-sm font-normal">
+          <p
+            id="delete-mfa-description"
+            className="text-center text-(length:--font-size-paragraph) font-normal"
+          >
             {t(`delete_mfa_${factorToDelete?.type}_consent`)}
           </p>
 

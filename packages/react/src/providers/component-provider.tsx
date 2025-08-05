@@ -3,7 +3,6 @@
 import * as React from 'react';
 import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 import { Spinner } from '@/components/ui/spinner';
-import { Auth0ComponentConfigContext } from '@/hooks';
 import { ThemeProvider } from './theme-provider';
 import { ProxyProvider } from './proxy-provider';
 const SpaProvider = React.lazy(() => import('./spa-provider'));
@@ -34,9 +33,9 @@ const SpaProvider = React.lazy(() => import('./spa-provider'));
  * @example
  * ```tsx
  * <Auth0ComponentProvider
- *   authProxyUrl="/api/auth"
- *   i18n={{ currentLanguage: 'en', fallbackLanguage: 'en' }}
- *   themeSettings={{ mode: 'dark' }}
+ *   authDetails={{ authProxyUrl: "/api/auth" }}
+ *   i18n={{ currentLanguage: "en", fallbackLanguage: "en" }}
+ *   loader={<div>Loading...</div>}
  * >
  *   <App />
  * </Auth0ComponentProvider>
@@ -45,35 +44,22 @@ const SpaProvider = React.lazy(() => import('./spa-provider'));
 export const Auth0ComponentProvider = ({
   i18n,
   authDetails,
-  themeSettings = { mode: 'light' },
-  customOverrides = {},
   loader,
   children,
 }: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
-  const config = React.useMemo(
-    () => ({
-      themeSettings,
-      customOverrides,
-      loader,
-    }),
-    [themeSettings, customOverrides, loader],
-  );
-
   return (
-    <Auth0ComponentConfigContext.Provider value={{ config }}>
-      <ThemeProvider theme={{ branding: themeSettings, customOverrides }}>
-        <React.Suspense fallback={loader || <Spinner />}>
-          {authDetails?.authProxyUrl ? (
-            <ProxyProvider i18n={i18n} authDetails={authDetails}>
-              {children}
-            </ProxyProvider>
-          ) : (
-            <SpaProvider i18n={i18n} authDetails={authDetails}>
-              {children}
-            </SpaProvider>
-          )}
-        </React.Suspense>
-      </ThemeProvider>
-    </Auth0ComponentConfigContext.Provider>
+    <ThemeProvider theme={{ loader }}>
+      <React.Suspense fallback={loader || <Spinner />}>
+        {authDetails?.authProxyUrl ? (
+          <ProxyProvider i18n={i18n} authDetails={authDetails}>
+            {children}
+          </ProxyProvider>
+        ) : (
+          <SpaProvider i18n={i18n} authDetails={authDetails}>
+            {children}
+          </SpaProvider>
+        )}
+      </React.Suspense>
+    </ThemeProvider>
   );
 };

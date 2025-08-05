@@ -138,7 +138,10 @@ export function OTPVerificationForm({
           className="space-y-6"
           aria-describedby="otp-description"
         >
-          <p id="otp-description" className="font-normal text-center block mx-auto text-sm">
+          <p
+            id="otp-description"
+            className="font-normal text-center block mx-auto text-(length:--font-size-paragraph)"
+          >
             {[FACTOR_TYPE_PUSH_NOTIFICATION, FACTOR_TYPE_TOPT, FACTOR_TYPE_OTP].includes(factorType)
               ? t('enrollment_form.show_otp.enter_opt_code')
               : t('enrollment_form.show_otp.enter_verify_code', { verifier: maskedContact })}
@@ -148,7 +151,10 @@ export function OTPVerificationForm({
             name="userOtp"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal" htmlFor="otp-input">
+                <FormLabel
+                  className="text-(length:--font-size-label) font-normal"
+                  htmlFor="otp-input"
+                >
                   {t('enrollment_form.show_otp.one_time_passcode')}
                 </FormLabel>
                 <FormControl>

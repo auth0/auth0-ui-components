@@ -88,7 +88,10 @@ export function QRCodeEnrollmentForm({
                   aria-label={t('enrollment_form.show_otp.qr_code_description')}
                 />
               </div>
-              <p id="qr-description" className="font-normal text-center block text-sm">
+              <p
+                id="qr-description"
+                className="font-normal text-center block text-(length:--font-size-paragraph)"
+              >
                 {t('enrollment_form.show_otp.title')}
               </p>
             </div>

@@ -23,7 +23,7 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { DeleteFactorConfirmation } from '@/components/mfa/delete-factor-confirmation';
 
 import { withCoreClient } from '@/hoc';
-import { useComponentConfig, useMFA, useTranslator } from '@/hooks';
+import { useTheme, useMFA, useTranslator } from '@/hooks';
 
 /**
  * UserMFAMgmt Component
@@ -101,9 +101,7 @@ function UserMFAMgmtComponent({
   schemaValidation,
 }: UserMFAMgmtProps): React.JSX.Element {
   const { t } = useTranslator('mfa', customMessages);
-  const {
-    config: { loader },
-  } = useComponentConfig();
+  const { loader } = useTheme();
   const { fetchFactors, enrollMfa, deleteMfa, confirmEnrollment } = useMFA();
 
   const [factors, setFactors] = React.useState<Authenticator[]>([]);
@@ -304,12 +302,12 @@ function UserMFAMgmtComponent({
                 aria-live="assertive"
               >
                 <h1
-                  className="text-base font-medium text-center text-destructive"
+                  className="text-(length:--font-size-body) font-medium text-center text-destructive"
                   id="mfa-management-title"
                 >
                   {t('component_error_title')}
                 </h1>
-                <p className="text-sm text-center text-destructive whitespace-pre-line">
+                <p className="text-(length:--font-size-paragraph) text-center text-destructive whitespace-pre-line">
                   {t('component_error_description')}
                 </p>
               </div>
@@ -318,12 +316,17 @@ function UserMFAMgmtComponent({
                 {!hideHeader && (
                   <>
                     <CardTitle>
-                      <h1 className="text-2xl font-medium text-left" id="mfa-management-title">
+                      <h1
+                        className="text-(length:--font-size-heading) font-medium text-left"
+                        id="mfa-management-title"
+                      >
                         {t('title')}
                       </h1>
                     </CardTitle>
                     <CardDescription id="mfa-management-desc">
-                      <p className="text-sm text-muted-foreground text-left">{t('description')}</p>
+                      <p className="text-(length:--font-size-paragraph) text-muted-foreground text-left">
+                        {t('description')}
+                      </p>
                     </CardDescription>
                   </>
                 )}
@@ -351,7 +354,7 @@ function UserMFAMgmtComponent({
                             <div className="flex w-full flex-col sm:flex-row items-start py-6 gap-2 sm:gap-4">
                               <div className="flex flex-col min-w-0 gap-2 flex-grow w-full">
                                 <div className="grid grid-cols-4 gap-2 sm:gap-6 items-center w-full">
-                                  <div className="col-span-4 sm:col-span-3 text-left text-base font-medium flex flex-row flex-wrap items-center gap-2 sm:gap-3 break-words w-full">
+                                  <div className="col-span-4 sm:col-span-3 text-left text-(length:--font-size-body) font-medium flex flex-row flex-wrap items-center gap-2 sm:gap-3 break-words w-full">
                                     <span
                                       className="break-words whitespace-normal"
                                       id={`factor-title-${idx}`}
@@ -456,7 +459,7 @@ function UserMFAMgmtComponent({
                                             aria-hidden="true"
                                           />
                                         )}
-                                        <span className="font-medium text-base text-foreground">
+                                        <span className="font-medium text-(length:--font-size-body) text-foreground">
                                           {factor.name}
                                         </span>
                                       </div>
@@ -508,7 +511,7 @@ function UserMFAMgmtComponent({
                                   </Card>
                                 ) : !factor.active ? (
                                   <p
-                                    className="font-normal text-muted-foreground text-left break-words mt-1"
+                                    className="font-normal text-(length:--font-size-paragraph) text-muted-foreground text-left break-words mt-1"
                                     id={`factor-desc-${idx}`}
                                   >
                                     {t(`${factor.factorName}.description`)}

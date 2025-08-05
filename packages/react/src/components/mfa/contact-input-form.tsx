@@ -117,7 +117,10 @@ export function ContactInputForm({
           </div>
         ) : (
           <>
-            <p className="text-center text-sm font-normal" id="contact-description">
+            <p
+              className="text-center text-(length:--font-size-paragraph) font-normal"
+              id="contact-description"
+            >
               {factorType === FACTOR_TYPE_EMAIL
                 ? t('enrollment_form.enroll_email_description')
                 : t('enrollment_form.enroll_sms_description')}
@@ -135,7 +138,10 @@ export function ContactInputForm({
                     name="contact"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-normal" htmlFor="contact-input">
+                        <FormLabel
+                          className="text-(length:--font-size-label) font-normal"
+                          htmlFor="contact-input"
+                        >
                           {factorType === FACTOR_TYPE_EMAIL
                             ? t('enrollment_form.email_address')
                             : t('enrollment_form.phone_number')}

@@ -4,24 +4,24 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --color-background: oklch(100% 0 0);
-  --color-foreground: oklch(23.93% 0 0);
-  --color-card: oklch(100% 0 0);
+  /* --color-background: oklch(100% 0 0); */
+  /* --color-foreground: oklch(23.93% 0 0); */
+  /* --color-card: oklch(100% 0 0);
   --color-card-foreground: oklch(0% 0 0);
   --color-popover: oklch(100% 0 0);
-  --color-popover-foreground: oklch(23.93% 0 0);
-  --color-primary: oklch(26.1% 0.0079 84.59);
-  --color-primary-foreground: oklch(100% 0 0);
-  --color-secondary: oklch(95.51% 0 0);
-  --color-secondary-foreground: oklch(99.11% 0 0);
-  --color-muted: oklch(95.51% 0 0);
-  --color-muted-foreground: oklch(60.66% 0 0);
-  --color-accent: oklch(64.01% 0 0);
-  --color-accent-foreground: oklch(23.93% 0 0);
-  --color-destructive: oklch(92.39% 0.0391 31.56);
-  --color-destructive-foreground: oklch(56.26% 0.1824 30.09);
-  --color-border: oklch(88.53% 0 0);
-  --color-input: oklch(100% 0 0);
+  --color-popover-foreground: oklch(23.93% 0 0); */
+  /* --color-primary: oklch(26.1% 0.0079 84.59); */
+  /* --color-primary-foreground: oklch(100% 0 0); */
+  /* --color-secondary: oklch(95.51% 0 0); */
+  /* --color-secondary-foreground: oklch(99.11% 0 0); */
+  /* --color-muted: oklch(95.51% 0 0); */
+  /* --color-muted-foreground: oklch(60.66% 0 0); */
+  /* --color-accent: oklch(64.01% 0 0); */
+  /* --color-accent-foreground: oklch(23.93% 0 0); */
+  /* --color-destructive: oklch(92.39% 0.0391 31.56); */
+  /* --color-destructive-foreground: oklch(56.26% 0.1824 30.09); */
+  /* --color-border: oklch(88.53% 0 0); */
+  /* --color-input: oklch(100% 0 0); */
   --color-ring: oklch(85.14% 0 0 / 50%);
   --color-white: oklch(100% 0 0);
   --color-black: oklch(0% 0 0);
@@ -284,24 +284,24 @@
 }
 
 .dark {
-  --color-background: oklch(0% 0 0);
-  --color-foreground: oklch(94.91% 0 0);
-  --color-card: oklch(0% 0 0);
+  /* --color-background: oklch(0% 0 0); */
+  /* --color-foreground: oklch(94.91% 0 0); */
+  /* --color-card: oklch(0% 0 0);
   --color-card-foreground: oklch(100% 0 0);
   --color-popover: oklch(0% 0 0);
-  --color-popover-foreground: oklch(94.91% 0 0);
-  --color-primary: oklch(94.65% 0.0058 84.57);
-  --color-primary-foreground: oklch(0% 0 0);
-  --color-secondary: oklch(25.2% 0 0);
-  --color-secondary-foreground: oklch(17.76% 0 0);
-  --color-muted: oklch(25.2% 0 0);
-  --color-muted-foreground: oklch(58.29% 0 0);
-  --color-accent: oklch(53.82% 0 0);
-  --color-accent-foreground: oklch(94.91% 0 0);
-  --color-destructive: oklch(35.39% 0.0591 31.56);
-  --color-destructive-foreground: oklch(79.26% 0.1824 30.09);
-  --color-border: oklch(34.85% 0 0);
-  --color-input: oklch(0% 0 0);
+  --color-popover-foreground: oklch(94.91% 0 0); */
+  /* --color-primary: oklch(94.65% 0.0058 84.57); */
+  /* --color-primary-foreground: oklch(0% 0 0); */
+  /* --color-secondary: oklch(25.2% 0 0); */
+  /* --color-secondary-foreground: oklch(17.76% 0 0); */
+  /* --color-muted: oklch(25.2% 0 0); */
+  /* --color-muted-foreground: oklch(58.29% 0 0); */
+  /* --color-accent: oklch(53.82% 0 0); */
+  /* --color-accent-foreground: oklch(94.91% 0 0); */
+  /* --color-destructive: oklch(35.39% 0.0591 31.56);
+  --color-destructive-foreground: oklch(79.26% 0.1824 30.09); */
+  /* --color-border: oklch(34.85% 0 0); */
+  /* --color-input: oklch(0% 0 0); */
   --color-ring: oklch(40.17% 0 0 / 50%);
   --color-white: oklch(100% 0 0);
   --color-black: oklch(0% 0 0);
@@ -568,22 +568,26 @@
   --color-background: var(--color-neutral-min);
   --color-foreground: var(--color-neutral-12);
 
+  --color-card: var(--color-neutral-min);
   --color-card-background: var(--color-neutral-min);
   --color-card-foreground: var(--color-neutral-max);
 
-  --color-primary: var(--color-carbon-9);
+  --color-primary: var(--color-carbon-12);
   --color-primary-foreground: var(--color-neutral-min);
 
   --color-secondary: var(--color-neutral-3);
   --color-secondary-foreground: var(--color-neutral-1);
 
-  --color-accent: var(--color-neutral-2);
+  --color-accent: var(--color-neutral-9);
   --color-accent-foreground: var(--color-neutral-12);
 
-  --color-muted: var(--color-neutral-2);
-  --color-muted-foreground: var(--color-neutral-11);
+  --color-muted: var(--color-neutral-3);
+  --color-muted-foreground: var(--color-neutral-10);
 
-  --color-border: var(--color-neutral-6);
+  --color-border: var(--color-neutral-7);
+
+  --color-input: var(--color-neutral-min) --color-input-foreground: var(--color-neutral-12);
+  --color-input-muted: var(--color-neutral-2);
 
   --color-ring: hsla(var(--color-neutral-7), 0.2);
 
@@ -594,17 +598,13 @@
   --color-warning: var(--color-yellow-3);
   --color-warning-foreground: var(--color-yellow-11);
 
-  --color-destructive: var(--color-red-3);
-  --color-destructive-foreground: var(--color-red-9);
+  --color-destructive: var(--color-red-4);
+  --color-destructive-foreground: var(--color-red-11);
   --color-destructive-border: var(--color-red-10);
 
-  --color-popover: var(--color-neutral-1);
+  --color-popover: var(--color-neutral-min);
   --color-popover-foreground: var(--color-neutral-12);
   --color-popover-border: var(--color-neutral-6);
-
-  --color-input: var(--color-neutral-1);
-  --color-input-foreground: var(--color-neutral-12);
-  --color-input-muted: var(--color-neutral-2);
 
   --shadow-bevel-xs: var(--shadow-bevel-xs);
   --shadow-bevel-sm: var(--shadow-bevel-sm);
@@ -653,6 +653,13 @@
   --radius-7xl: 40px;
   --radius-8xl: 48px;
   --radius-9xl: 56px;
+
+  --font-size-heading: 1.5rem; /* Default for text-2xl */
+  --font-size-title: 1.25rem; /* Default for text-xl */
+  --font-size-subtitle: 1.125rem; /* Default for text-lg */
+  --font-size-body: 1rem; /* Default for text-base (For main body text size) */
+  --font-size-paragraph: 0.875rem; /* Default for text-sm (For general smaller paragraphs/details) */
+  --font-size-label: 0.875rem; /* Default for text-sm (Specifically for labels like FieldLabel) */
 }
 
 @layer base {

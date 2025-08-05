@@ -86,7 +86,7 @@ export function UserMFASetupForm({
   const renderInstallationPhase = () => (
     <div className="w-full max-w-sm mx-auto">
       <div className="flex flex-col items-center justify-center flex-1 space-y-10">
-        <p className="text-center text-sm font-normal">
+        <p className="text-center text-(length:--font-size-paragraph) font-normal">
           {t('enrollment_form.show_otp.install_guardian_description')}
         </p>
         <div className="flex gap-4 w-full">
@@ -109,7 +109,9 @@ export function UserMFASetupForm({
           >
             <Card className="flex flex-col items-center gap-1 min-w-24 p-6 h-full">
               <GoogleLogo className="w-8 h-8" />
-              <span className="text-sm text-center">{t('google-play')}</span>
+              <span className=" text-(length:--font-size-paragraph) text-center">
+                {t('google-play')}
+              </span>
             </Card>
           </a>
         </div>
@@ -161,7 +163,7 @@ export function UserMFASetupForm({
     <Dialog open={open && Boolean(phase)} onOpenChange={onClose}>
       <DialogContent aria-describedby="mfa-setup-form" className="w-[400px] h-[548px]">
         <DialogHeader>
-          <DialogTitle className="text-left font-medium text-xl">
+          <DialogTitle className="text-left font-medium text-(length:--font-size-title)">
             {t('enrollment_form.enroll_title')}
           </DialogTitle>
           <Separator className="my-2" />
