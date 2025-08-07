@@ -25,12 +25,9 @@ const SpaProvider = React.lazy(() => import('./spa-provider'));
  * @param {Object} [props.theme] - Theme settings including mode and style overrides.
  * @param {string} [props.theme.mode] - Theme mode, either "light" or "dark". Defaults to "light".
  * @param {Object} [props.theme.styleOverrides] - CSS variable overrides for customizing the theme.
- * @param {string} [props.theme.styleOverrides.--font-size-heading] - Font size for headings (e.g., `1.5rem`).
- * @param {string} [props.theme.styleOverrides.--font-size-title] - Font size for titles (e.g., `1.25rem`).
- * @param {string} [props.theme.styleOverrides.--font-size-subtitle] - Font size for subtitles (e.g., `1.125rem`).
- * @param {string} [props.theme.styleOverrides.--font-size-body] - Font size for body text (e.g., `1rem`).
- * @param {string} [props.theme.styleOverrides.--font-size-paragraph] - Font size for paragraphs (e.g., `0.875rem`).
- * @param {string} [props.theme.styleOverrides.--font-size-label] - Font size for labels (e.g., `0.875rem`).
+ * @param {Object} [props.theme.styleOverrides.common] - CSS variables common to all themes.
+ * @param {Object} [props.theme.styleOverrides.light] - CSS variables specific to light mode.
+ * @param {Object} [props.theme.styleOverrides.dark] - CSS variables specific to dark mode.
  * @param {React.ReactNode} [props.loader] - Custom loading component to show while
  *                                           authentication is initializing.
  *                                           Defaults to a spinner.
@@ -46,15 +43,19 @@ const SpaProvider = React.lazy(() => import('./spa-provider'));
  *   theme={{
  *     mode: "dark",
  *     styleOverrides: {
- *       "--font-size-heading": "1.5rem",
- *       "--font-size-title": "1.25rem",
- *       "--font-size-subtitle": "1.125rem",
- *       "--font-size-body": "1rem",
- *       "--font-size-paragraph": "0.875rem",
- *       "--font-size-label": "0.875rem",
+ *       common: {
+ *         "--font-size-heading": "1.5rem",
+ *         "--font-size-title": "1.25rem",
+ *       },
+ *       light: {
+ *         "--color-primary": "blue",
+ *       },
+ *       dark: {
+ *         "--color-primary": "red",
+ *       },
  *     },
  *   }}
- *   loader={<div>Loading...</div>}
+ *  loader={<div>Loading...</div>}
  * >
  *   <App />
  * </Auth0ComponentProvider>
@@ -63,7 +64,14 @@ const SpaProvider = React.lazy(() => import('./spa-provider'));
 export const Auth0ComponentProvider = ({
   i18n,
   authDetails,
-  theme = { mode: 'light', styleOverrides: {} },
+  theme = {
+    mode: 'light',
+    styleOverrides: {
+      common: {},
+      light: {},
+      dark: {},
+    },
+  },
   loader,
   children,
 }: Auth0ComponentProviderProps & { children: React.ReactNode }) => {

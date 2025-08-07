@@ -27,6 +27,7 @@ import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks';
 import { useContactEnrollment } from '@/hooks/mfa';
 import { ENTER_CONTACT, ENROLL, CONFIRM, ENTER_OTP } from '@/lib/mfa-constants';
+import { cn } from '@/lib/theme-utils';
 
 import { OTPVerificationForm } from './otp-verification-form';
 
@@ -43,6 +44,7 @@ type ContactInputFormProps = {
   onSuccess: () => void;
   onClose: () => void;
   schemaValidation?: { email?: RegExp; phone?: RegExp };
+  currentStyles?: Record<string, string>;
 };
 
 const PHASES = {
@@ -60,6 +62,7 @@ export function ContactInputForm({
   onSuccess,
   onClose,
   schemaValidation,
+  currentStyles = {},
 }: ContactInputFormProps) {
   const [phase, setPhase] = React.useState<Phase>(ENTER_CONTACT);
   const { t } = useTranslator('mfa');
@@ -105,7 +108,7 @@ export function ContactInputForm({
   );
 
   const renderContactScreen = () => (
-    <div className="w-full max-w-sm mx-auto">
+    <div style={currentStyles} className="w-full max-w-sm mx-auto">
       <div className="flex flex-col items-center justify-center flex-1 space-y-10">
         {loading ? (
           <div
@@ -118,7 +121,7 @@ export function ContactInputForm({
         ) : (
           <>
             <p
-              className="text-center text-(length:--font-size-paragraph) font-normal"
+              className={cn('text-center text-sm text-(length:--font-size-paragraph) font-normal')}
               id="contact-description"
             >
               {factorType === FACTOR_TYPE_EMAIL
@@ -170,7 +173,11 @@ export function ContactInputForm({
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage className="text-left" id="contact-error" role="alert" />
+                        <FormMessage
+                          className="text-left text-sm text-(length:--font-size-paragraph)"
+                          id="contact-error"
+                          role="alert"
+                        />
                       </FormItem>
                     )}
                   />
@@ -214,6 +221,7 @@ export function ContactInputForm({
       oobCode={contactData.oobCode || ''}
       contact={contactData.contact || ''}
       onBack={handleBack}
+      currentStyles={currentStyles}
     />
   );
 

@@ -7,12 +7,8 @@ import { twMerge } from 'tailwind-merge';
  * Merges the branding theme with customer overrides.
  * Customer values take precedence if there's a collision.
  */
-export function mergeThemes(
-  branding: Record<string, unknown>,
-  customer: Record<string, unknown>,
-): Record<string, unknown> {
+export function mergeThemes(customer: Record<string, unknown>): Record<string, unknown> {
   return {
-    ...branding,
     ...customer,
   };
 }

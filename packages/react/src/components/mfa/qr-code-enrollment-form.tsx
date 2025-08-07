@@ -12,6 +12,7 @@ import { useTranslator } from '@/hooks';
 import { useOtpEnrollment } from '@/hooks/mfa';
 
 import { OTPVerificationForm } from './otp-verification-form';
+import { cn } from '@/lib/theme-utils';
 
 type QRCodeEnrollmentFormProps = {
   factorType: MFAType;
@@ -23,6 +24,7 @@ type QRCodeEnrollmentFormProps = {
   onError: (error: Error, stage: typeof ENROLL | typeof CONFIRM) => void;
   onSuccess: () => void;
   onClose: () => void;
+  currentStyles?: Record<string, string>;
 };
 
 const PHASES = {
@@ -39,6 +41,7 @@ export function QRCodeEnrollmentForm({
   onError,
   onSuccess,
   onClose,
+  currentStyles = {},
 }: QRCodeEnrollmentFormProps) {
   const [phase, setPhase] = React.useState<Phase>(QR_PHASE_SCAN);
   const { t } = useTranslator('mfa');
@@ -69,7 +72,7 @@ export function QRCodeEnrollmentForm({
 
   const renderQrScreen = () => {
     return (
-      <>
+      <div style={currentStyles}>
         {loading ? (
           <div
             className="absolute inset-0 flex items-center justify-center"
@@ -90,7 +93,9 @@ export function QRCodeEnrollmentForm({
               </div>
               <p
                 id="qr-description"
-                className="font-normal text-center block text-(length:--font-size-paragraph)"
+                className={cn(
+                  'font-normal block text-sm text-center block text-(length:--font-size-paragraph)',
+                )}
               >
                 {t('enrollment_form.show_otp.title')}
               </p>
@@ -130,7 +135,7 @@ export function QRCodeEnrollmentForm({
             </div>
           </div>
         )}
-      </>
+      </div>
     );
   };
 
@@ -143,6 +148,7 @@ export function QRCodeEnrollmentForm({
       onClose={onClose}
       oobCode={otpData?.oobCode || ''}
       onBack={handleBack}
+      currentStyles={currentStyles}
     />
   );
 

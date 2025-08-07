@@ -1,13 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { applyStyleOverrides } from '@auth0-web-ui-components/core';
-import type { StyleOverrides, ThemeContextValue, ThemeInput } from '@/types/theme-types';
+import { applyStyleOverrides, type Styling } from '@auth0-web-ui-components/core';
+import type { ThemeContextValue, ThemeInput } from '@/types/theme-types';
 
 /**
  * Default empty customer overrides. (later may be UL branding)
  */
-const defaultStyleOverrides: StyleOverrides = {};
+const defaultStyleOverrides: Styling = { common: {}, light: {}, dark: {} };
 
 /**
  * ThemeContext
@@ -15,6 +15,7 @@ const defaultStyleOverrides: StyleOverrides = {};
  * Provides access to customer overrides and a merged theme object for convenience.
  */
 export const ThemeContext = React.createContext<ThemeContextValue>({
+  isDarkMode: false,
   styleOverrides: defaultStyleOverrides,
   loader: null,
 });
@@ -33,7 +34,18 @@ export const ThemeContext = React.createContext<ThemeContextValue>({
  * <ThemeProvider
  *   theme={{
  *     mode: 'dark',
- *     styleOverrides: { '--font-size-heading': '1rem' },
+ *     styleOverrides: {
+ *       common: {
+ *         "--font-size-heading": "1.5rem",
+ *         "--font-size-title": "1.25rem",
+ *       },
+ *       light: {
+ *         "--color-primary": "blue",
+ *       },
+ *       dark: {
+ *         "--color-primary": "red",
+ *       },
+ *     },
  *     loader: <CustomSpinner />
  *   }}
  * >
@@ -57,6 +69,8 @@ export const ThemeProvider: React.FC<{
   }, [styleOverrides, theme?.mode]);
 
   return (
-    <ThemeContext.Provider value={{ styleOverrides, loader }}>{children}</ThemeContext.Provider>
+    <ThemeContext.Provider value={{ isDarkMode: theme?.mode === 'dark', styleOverrides, loader }}>
+      {children}
+    </ThemeContext.Provider>
   );
 };

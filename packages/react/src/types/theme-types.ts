@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Styling } from '@auth0-web-ui-components/core';
 
 /**
  * Theme configuration
@@ -7,15 +8,8 @@ import React from 'react';
  */
 export interface ThemeSettings {
   mode?: 'light' | 'dark';
-  styleOverrides?: StyleOverrides;
+  styleOverrides?: Styling;
 }
-
-/**
- * CustomerOverrides
- *
- * Custom CSS variable overrides (e.g. "--button-radius": "6px").
- */
-export type StyleOverrides = Record<string, string>;
 
 /**
  * ThemeInput
@@ -24,7 +18,7 @@ export type StyleOverrides = Record<string, string>;
  */
 export type ThemeInput = {
   mode?: 'light' | 'dark';
-  styleOverrides?: StyleOverrides;
+  styleOverrides?: Styling;
   loader?: React.ReactNode;
 };
 
@@ -34,6 +28,7 @@ export type ThemeInput = {
  * The values made available through the ThemeContext.
  */
 export type ThemeContextValue = {
-  styleOverrides: StyleOverrides;
+  isDarkMode?: boolean;
+  styleOverrides: Styling;
   loader: React.ReactNode | null;
 };

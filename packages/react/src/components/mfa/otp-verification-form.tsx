@@ -22,6 +22,7 @@ import { OTPField } from '@/components/ui/otp-field';
 import { useTranslator } from '@/hooks';
 import { useOtpConfirmation } from '@/hooks/mfa';
 import { CONFIRM } from '@/lib/mfa-constants';
+import { cn } from '@/lib/theme-utils';
 
 type OtpForm = {
   userOtp: string;
@@ -39,6 +40,7 @@ type OTPVerificationFormProps = {
   oobCode?: string;
   contact?: string;
   onBack?: () => void;
+  currentStyles?: Record<string, string>;
 };
 
 /**
@@ -94,6 +96,7 @@ export function OTPVerificationForm({
   oobCode,
   contact,
   onBack,
+  currentStyles = {},
 }: OTPVerificationFormProps) {
   const { t } = useTranslator('mfa');
 
@@ -130,7 +133,7 @@ export function OTPVerificationForm({
   );
 
   return (
-    <div className="w-full max-w-sm mx-auto text-center">
+    <div style={currentStyles} className="w-full max-w-sm mx-auto text-center">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
@@ -140,7 +143,9 @@ export function OTPVerificationForm({
         >
           <p
             id="otp-description"
-            className="font-normal text-center block mx-auto text-(length:--font-size-paragraph)"
+            className={cn(
+              'font-normal text-center block mx-auto text-sm text-(length:--font-size-paragraph)',
+            )}
           >
             {[FACTOR_TYPE_PUSH_NOTIFICATION, FACTOR_TYPE_TOPT, FACTOR_TYPE_OTP].includes(factorType)
               ? t('enrollment_form.show_otp.enter_opt_code')
@@ -152,7 +157,7 @@ export function OTPVerificationForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel
-                  className="text-(length:--font-size-label) font-normal"
+                  className="text-sm text-(length:--font-size-label) font-normal"
                   htmlFor="otp-input"
                 >
                   {t('enrollment_form.show_otp.one_time_passcode')}
@@ -168,7 +173,11 @@ export function OTPVerificationForm({
                     value={field.value || ''}
                   />
                 </FormControl>
-                <FormMessage className="text-left" id="otp-error" role="alert" />
+                <FormMessage
+                  className="text-sm text-(length:--font-size-paragraph) text-left"
+                  id="otp-error"
+                  role="alert"
+                />
               </FormItem>
             )}
           />
