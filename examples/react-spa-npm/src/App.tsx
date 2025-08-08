@@ -22,30 +22,6 @@ function App() {
         i18n={{ currentLanguage: i18n.language }}
         theme={{
           mode: 'light',
-          styleOverrides: {
-            common: {
-              '--font-size-heading': '20px',
-              '--font-size-title': '1.25rem',
-              '--font-size-subtitle': '1.125rem',
-              '--font-size-body': '1rem',
-              '--font-size-paragraph': '0.875rem',
-              '--font-size-label': '0.875rem',
-            },
-            light: {
-              '--color-primary': 'blue',
-              '--color-primary-foreground': 'white',
-              '--color-foreground': 'blue',
-              '--color-muted-foreground': 'green',
-              '--color-accent-foreground': '#a1a1ee',
-            },
-            dark: {
-              '--color-primary': 'red',
-              '--color-primary-foreground': 'white',
-              '--color-foreground': 'blue',
-              '--color-muted-foreground': 'green',
-              '--color-accent-foreground': '#a1a1ee',
-            },
-          },
         }}
       >
         <Navbar />
