@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { AuthDetailsCore } from '@auth0-web-ui-components/core';
 import { I18nOptions } from './i18n-types';
-import { CustomOverrides, ThemeSettings } from './theme-types';
+import { ThemeSettings } from './theme-types';
 
 /**
  * Auth0 authentication details with optional React-specific properties.
@@ -15,7 +15,6 @@ export interface Auth0ComponentProviderProps {
   i18n?: I18nOptions;
   themeSettings?: ThemeSettings;
   authDetails?: AuthDetails;
-  customOverrides?: CustomOverrides;
   loader?: React.ReactNode;
 }
 

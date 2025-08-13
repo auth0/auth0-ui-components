@@ -1,53 +1,53 @@
 'use client';
 
 import * as React from 'react';
-import { mergeThemes } from '@/lib/theme-utils';
-import type {
-  BrandingTheme,
-  CustomOverrides,
-  ThemeContextValue,
-  ThemeInput,
-} from '../types/theme-types';
+import { applyStyleOverrides, type Styling } from '@auth0-web-ui-components/core';
+import type { ThemeContextValue, ThemeInput } from '@/types/theme-types';
 
 /**
- * Default branding theme if none is provided.
+ * Default empty customer overrides. (later may be UL branding)
  */
-const defaultBranding: BrandingTheme = {
-  mode: 'light',
-};
-
-/**
- * Default empty customer overrides.
- */
-const defaultCustomOverrides: CustomOverrides = {};
+const defaultStyleOverrides: Styling = { common: {}, light: {}, dark: {} };
 
 /**
  * ThemeContext
  *
- * Provides access to branding theme, customer overrides,
- * and a merged theme object for convenience.
+ * Provides access to customer overrides and a merged theme object for convenience.
  */
 export const ThemeContext = React.createContext<ThemeContextValue>({
-  branding: defaultBranding,
-  customOverrides: defaultCustomOverrides,
-  mergedTheme: mergeThemes(defaultBranding, defaultCustomOverrides),
+  isDarkMode: false,
+  styling: defaultStyleOverrides,
+  loader: null,
 });
 
 /**
  * ThemeProvider
  *
  * Provides theme configuration via React Context to all components in the tree.
- * It merges a branding theme (from UL) and optional customer overrides (CSS variables).
+ * It merges optional styling overrides (CSS variables).
  *
- * @param theme - Optional branding and customerOverrides
+ * @param themeSettings - Optional styling overrides
  * @param children - The components that will have access to the theme
  *
  * @example
  * ```tsx
  * <ThemeProvider
- *   theme={{
- *     branding: { mode: 'dark', primaryColor: '#0070f3' },
- *     customerOverrides: { '--font-size': '14px' }
+ *   themeSettings={{
+ *     theme: "default" | "minimal" | "rounded";
+ *     mode: 'dark',
+ *     styling: {
+ *       common: {
+ *         "--font-size-heading": "1.5rem",
+ *         "--font-size-title": "1.25rem",
+ *       },
+ *       light: {
+ *         "--color-primary": "blue",
+ *       },
+ *       dark: {
+ *         "--color-primary": "red",
+ *       },
+ *     },
+ *     loader: <CustomSpinner />
  *   }}
  * >
  *   <App />
@@ -55,22 +55,25 @@ export const ThemeContext = React.createContext<ThemeContextValue>({
  * ```
  */
 export const ThemeProvider: React.FC<{
-  theme?: ThemeInput;
+  themeSettings?: ThemeInput;
   children: React.ReactNode;
-}> = ({ theme, children }) => {
-  const branding = React.useMemo(() => theme?.branding ?? defaultBranding, [theme?.branding]);
-  const customOverrides = React.useMemo(
-    () => theme?.customOverrides ?? defaultCustomOverrides,
-    [theme?.customOverrides],
+}> = ({ themeSettings, children }) => {
+  const { styling, loader, mode, theme } = React.useMemo(
+    () => ({
+      styling: themeSettings?.styling ?? defaultStyleOverrides,
+      loader: themeSettings?.loader ?? null,
+      mode: themeSettings?.mode,
+      theme: themeSettings?.theme,
+    }),
+    [themeSettings],
   );
 
-  const mergedTheme = React.useMemo(
-    () => mergeThemes(branding, customOverrides),
-    [branding, customOverrides],
-  );
+  React.useEffect(() => {
+    applyStyleOverrides(styling, mode, theme);
+  }, [styling, mode, theme]);
 
   return (
-    <ThemeContext.Provider value={{ branding, customOverrides, mergedTheme }}>
+    <ThemeContext.Provider value={{ isDarkMode: mode === 'dark', styling, loader }}>
       {children}
     </ThemeContext.Provider>
   );

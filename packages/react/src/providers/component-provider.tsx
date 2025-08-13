@@ -3,7 +3,6 @@
 import * as React from 'react';
 import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 import { Spinner } from '@/components/ui/spinner';
-import { Auth0ComponentConfigContext } from '@/hooks';
 import { ThemeProvider } from './theme-provider';
 import { ProxyProvider } from './proxy-provider';
 const SpaProvider = React.lazy(() => import('./spa-provider'));
@@ -22,21 +21,40 @@ const SpaProvider = React.lazy(() => import('./spa-provider'));
  *
  * @param {Object} props - Configuration props.
  * @param {React.ReactNode} props.children - Child components that require authentication context.
- * @param {Object} [props.i18n] - Internationalization configuration (language, fallback).
- * @param {Object} [props.themeSettings] - Theme and branding settings.
- * @param {Object} [props.customOverrides] - Optional CSS variable overrides for styling.
+ * @param {Object} [props.i18n] - Internationalization configuration (e.g., current language, fallback language).
+ * @param {Object} [props.themeSettings] - Theme settings including mode, theme and style overrides.
+ * @param {string} [props.themeSettings.mode] - Theme mode, either "light" or "dark". Defaults to "light".
+ * @param {string} [props.themeSettings.theme] - Theme , either "default", minimal or "rounded". Defaults to "default".
+ * @param {Auth0ComponentProviderProps.theme.styling} [props.theme.styling] - CSS variable overrides for customizing the theme.
  * @param {React.ReactNode} [props.loader] - Custom loading component to show while
- *                                                    authentication is initializing.
- *                                                    Defaults to "Loading authentication...".
+ *                                           authentication is initializing.
+ *                                           Defaults to a spinner.
+ * @param {Object} [props.authDetails] - Authentication details, including `authProxyUrl`.
  *
  * @returns {JSX.Element} The provider component for Auth0 context.
  *
  * @example
  * ```tsx
  * <Auth0ComponentProvider
- *   authProxyUrl="/api/auth"
- *   i18n={{ currentLanguage: 'en', fallbackLanguage: 'en' }}
- *   themeSettings={{ mode: 'dark' }}
+ *   authDetails={{ authProxyUrl: "/api/auth" }}
+ *   i18n={{ currentLanguage: "en", fallbackLanguage: "en" }}
+ *   themeSettings={{
+ *     theme: 'default
+ *     mode: "dark",
+ *     styling: {
+ *       common: {
+ *         "--font-size-heading": "1.5rem",
+ *         "--font-size-title": "1.25rem",
+ *       },
+ *       light: {
+ *         "--color-primary": "blue",
+ *       },
+ *       dark: {
+ *         "--color-primary": "red",
+ *       },
+ *     },
+ *   }}
+ *  loader={<div>Loading...</div>}
  * >
  *   <App />
  * </Auth0ComponentProvider>
@@ -45,35 +63,38 @@ const SpaProvider = React.lazy(() => import('./spa-provider'));
 export const Auth0ComponentProvider = ({
   i18n,
   authDetails,
-  themeSettings = { mode: 'light' },
-  customOverrides = {},
+  themeSettings = {
+    theme: 'default',
+    mode: 'light',
+    styling: {
+      common: {},
+      light: {},
+      dark: {},
+    },
+  },
   loader,
   children,
 }: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
-  const config = React.useMemo(
-    () => ({
-      themeSettings,
-      customOverrides,
-      loader,
-    }),
-    [themeSettings, customOverrides, loader],
-  );
-
   return (
-    <Auth0ComponentConfigContext.Provider value={{ config }}>
-      <ThemeProvider theme={{ branding: themeSettings, customOverrides }}>
-        <React.Suspense fallback={loader || <Spinner />}>
-          {authDetails?.authProxyUrl ? (
-            <ProxyProvider i18n={i18n} authDetails={authDetails}>
-              {children}
-            </ProxyProvider>
-          ) : (
-            <SpaProvider i18n={i18n} authDetails={authDetails}>
-              {children}
-            </SpaProvider>
-          )}
-        </React.Suspense>
-      </ThemeProvider>
-    </Auth0ComponentConfigContext.Provider>
+    <ThemeProvider
+      themeSettings={{
+        mode: themeSettings.mode,
+        styling: themeSettings.styling,
+        loader,
+        theme: themeSettings.theme,
+      }}
+    >
+      <React.Suspense fallback={loader || <Spinner />}>
+        {authDetails?.authProxyUrl ? (
+          <ProxyProvider i18n={i18n} authDetails={authDetails}>
+            {children}
+          </ProxyProvider>
+        ) : (
+          <SpaProvider i18n={i18n} authDetails={authDetails}>
+            {children}
+          </SpaProvider>
+        )}
+      </React.Suspense>
+    </ThemeProvider>
   );
 };

@@ -6,6 +6,7 @@ import {
   type MFAType,
   FACTOR_TYPE_EMAIL,
   FACTOR_TYPE_SMS,
+  getCurrentStyles,
 } from '@auth0-web-ui-components/core';
 
 import type { UserMFAMgmtProps } from '@/types';
@@ -23,7 +24,8 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { DeleteFactorConfirmation } from '@/components/mfa/delete-factor-confirmation';
 
 import { withCoreClient } from '@/hoc';
-import { useComponentConfig, useMFA, useTranslator } from '@/hooks';
+import { useTheme, useMFA, useTranslator } from '@/hooks';
+import { cn } from '@/lib/theme-utils';
 
 /**
  * UserMFAMgmt Component
@@ -31,11 +33,12 @@ import { useComponentConfig, useMFA, useTranslator } from '@/hooks';
  * A component responsible for managing Multi-Factor Authentication (MFA) factors for a user.
  * This component handles fetching the MFA access token, fetching authenticators, enrolling, and deletion of MFA factors, and manages the MFA access token.
  * It operates in both ProxyMode (RWA) and SPA modes for authentication.
- *
  * - **ProxyMode (RWA)**: In this mode, the component interacts with a proxy service to manage MFA
  * - **SPA (Single Page Application)**: In this mode, the component communicates directly with the API to manage MFA factors.
- * * @param {Object} props - The properties passed to the component.
- * @param {Object} [props.customMessages] - Custom messages to override default translations for this component instance.
+ *
+ * @param {Object} props - The properties passed to the component.
+ * @param {StylingConfig} [props.styling] - Styling configuration for customizing the component.
+ * @param {Object} [props.customMessages] - Custom localization messages for the component.
  * @param {boolean} [props.hideHeader=false] - Whether to hide the header.
  * @param {boolean} [props.showActiveOnly=false] - Whether to show only active MFA factors.
  * @param {boolean} [props.disableEnroll=false] - Whether to disable the enrollment of new factors.
@@ -53,18 +56,23 @@ import { useComponentConfig, useMFA, useTranslator } from '@/hooks';
  *
  * @example
  * <UserMFAMgmt
- *   localization={{
+ *   styling={{
+ *     common: {
+ *       '--font-size-heading': '1.5rem',
+ *       '--font-size-paragraph': '0.875rem',
+ *     },
+ *     light: {
+ *       '--color-primary': 'blue',
+ *       '--color-primary-foreground': 'white',
+ *     },
+ *     dark: {
+ *       '--color-primary': 'red',
+ *       '--color-primary-foreground': 'black',
+ *     },
+ *   }}
+ *   customMessages={{
  *     title: 'Manage MFA Factors',
  *     description: 'Here you can manage your Multi-Factor Authentication (MFA) factors.',
- *     loading: 'Loading...',
- *     errors: {
- *       factorsLoadingError: 'An error occurred while loading MFA factors.',
- *     },
- *     no_active_mfa: 'No active MFA factors found.',
- *     enroll_factor: 'Successfully enrolled the MFA factor.',
- *     remove_factor: 'Successfully removed the MFA factor.',
- *     delete: 'Delete',
- *     enroll: 'Enroll',
  *   }}
  *   hideHeader={false}
  *   showActiveOnly={false}
@@ -87,6 +95,7 @@ import { useComponentConfig, useMFA, useTranslator } from '@/hooks';
  */
 function UserMFAMgmtComponent({
   customMessages = {},
+  styling = { common: {}, light: {}, dark: {} },
   hideHeader = false,
   showActiveOnly = false,
   disableEnroll = false,
@@ -101,9 +110,8 @@ function UserMFAMgmtComponent({
   schemaValidation,
 }: UserMFAMgmtProps): React.JSX.Element {
   const { t } = useTranslator('mfa', customMessages);
-  const {
-    config: { loader },
-  } = useComponentConfig();
+  const { loader, isDarkMode } = useTheme();
+  const currentStyles = getCurrentStyles(styling, isDarkMode);
   const { fetchFactors, enrollMfa, deleteMfa, confirmEnrollment } = useMFA();
 
   const [factors, setFactors] = React.useState<Authenticator[]>([]);
@@ -290,12 +298,12 @@ function UserMFAMgmtComponent({
   );
 
   return (
-    <>
+    <div style={currentStyles}>
       <Toaster position="top-right" />
       {loading ? (
         loader || <Spinner aria-label={t('loading')} />
       ) : (
-        <Card className="bg-white py-10 px-8 sm:py-8 sm:px-6">
+        <Card className="py-10 px-8 sm:py-8 sm:px-6">
           <CardContent>
             {error ? (
               <div
@@ -304,12 +312,18 @@ function UserMFAMgmtComponent({
                 aria-live="assertive"
               >
                 <h1
-                  className="text-base font-medium text-center text-destructive"
+                  className={cn(
+                    'text-base text-(length:--font-size-body) font-medium text-center text-destructive',
+                  )}
                   id="mfa-management-title"
                 >
                   {t('component_error_title')}
                 </h1>
-                <p className="text-sm text-center text-destructive whitespace-pre-line">
+                <p
+                  className={cn(
+                    `text-sm text-(length:--font-size-paragraph) text-center text-destructive whitespace-pre-line`,
+                  )}
+                >
                   {t('component_error_description')}
                 </p>
               </div>
@@ -317,18 +331,27 @@ function UserMFAMgmtComponent({
               <>
                 {!hideHeader && (
                   <>
-                    <CardTitle>
-                      <h1 className="text-2xl font-medium text-left" id="mfa-management-title">
-                        {t('title')}
-                      </h1>
+                    <CardTitle
+                      id="mfa-management-title"
+                      className="text-2xl text-(length:--font-size-heading) font-medium text-left"
+                    >
+                      {t('title')}
                     </CardTitle>
-                    <CardDescription id="mfa-management-desc">
-                      <p className="text-sm text-muted-foreground text-left">{t('description')}</p>
+                    <CardDescription
+                      id="mfa-management-desc"
+                      className={`text-sm text-(length:--font-size-paragraph) text-muted-foreground text-left`}
+                    >
+                      {t('description')}
                     </CardDescription>
                   </>
                 )}
                 {showActiveOnly && visibleFactors.length === 0 ? (
-                  <p className="text-center text-muted-foreground" role="status">
+                  <p
+                    className={cn(
+                      `text-sm text-(length:--font-size-paragraph) text-center text-muted-foreground`,
+                    )}
+                    role="status"
+                  >
                     {t('no_active_mfa')}
                   </p>
                 ) : (
@@ -351,7 +374,11 @@ function UserMFAMgmtComponent({
                             <div className="flex w-full flex-col sm:flex-row items-start py-6 gap-2 sm:gap-4">
                               <div className="flex flex-col min-w-0 gap-2 flex-grow w-full">
                                 <div className="grid grid-cols-4 gap-2 sm:gap-6 items-center w-full">
-                                  <div className="col-span-4 sm:col-span-3 text-left text-base font-medium flex flex-row flex-wrap items-center gap-2 sm:gap-3 break-words w-full">
+                                  <div
+                                    className={cn(
+                                      'col-span-4 sm:col-span-3 text-left text-base text-(length:--font-size-body) font-medium flex flex-row flex-wrap items-center gap-2 sm:gap-3 break-words w-full',
+                                    )}
+                                  >
                                     <span
                                       className="break-words whitespace-normal"
                                       id={`factor-title-${idx}`}
@@ -410,7 +437,7 @@ function UserMFAMgmtComponent({
                                             <Button
                                               size="sm"
                                               variant="ghost"
-                                              className="flex items-center justify-start px-4 py-2 gap-2 text-red-600 font-normal text-sm"
+                                              className="flex items-center justify-center px-4 py-2 gap-2 text-red-600 font-normal text-sm w-full"
                                               onClick={() =>
                                                 handleDeleteFactor(
                                                   factor.id,
@@ -426,7 +453,7 @@ function UserMFAMgmtComponent({
                                               role="menuitem"
                                             >
                                               <Trash2
-                                                className="w-4 h-4 mr-1 color-red-10"
+                                                className="w-4 h-4 color-red-10"
                                                 aria-hidden="true"
                                               />
                                               <span className="color-red-10">{t('remove')}</span>
@@ -456,7 +483,11 @@ function UserMFAMgmtComponent({
                                             aria-hidden="true"
                                           />
                                         )}
-                                        <span className="font-medium text-base text-foreground">
+                                        <span
+                                          className={cn(
+                                            'font-medium text-base text-(length:--font-size-body) text-foreground',
+                                          )}
+                                        >
                                           {factor.name}
                                         </span>
                                       </div>
@@ -480,7 +511,7 @@ function UserMFAMgmtComponent({
                                             <Button
                                               size="sm"
                                               variant="ghost"
-                                              className="flex items-center justify-start px-4 py-2 gap-2 text-red-600 font-normal text-sm"
+                                              className="flex items-center justify-center px-4 py-2 gap-2 text-red-600 font-normal text-sm w-full"
                                               onClick={() =>
                                                 handleDeleteFactor(
                                                   factor.id,
@@ -496,7 +527,7 @@ function UserMFAMgmtComponent({
                                               role="menuitem"
                                             >
                                               <Trash2
-                                                className="w-4 h-4 mr-1 color-red-10"
+                                                className="w-4 h-4 color-red-10"
                                                 aria-hidden="true"
                                               />
                                               <span className="color-red-10">{t('remove')}</span>
@@ -508,7 +539,9 @@ function UserMFAMgmtComponent({
                                   </Card>
                                 ) : !factor.active ? (
                                   <p
-                                    className="font-normal text-muted-foreground text-left break-words mt-1"
+                                    className={cn(
+                                      `font-normal text-sm text-(length:--font-size-paragraph) text-muted-foreground text-left break-words mt-1`,
+                                    )}
                                     id={`factor-desc-${idx}`}
                                   >
                                     {t(`${factor.factorName}.description`)}
@@ -537,6 +570,7 @@ function UserMFAMgmtComponent({
           onSuccess={handleEnrollSuccess}
           onError={handleEnrollError}
           schemaValidation={schemaValidation}
+          styling={currentStyles}
         />
       )}
       <DeleteFactorConfirmation
@@ -546,8 +580,9 @@ function UserMFAMgmtComponent({
         isDeletingFactor={isDeletingFactor}
         onConfirm={handleConfirmDelete}
         onCancel={() => setIsDeleteDialogOpen(false)}
+        styling={currentStyles}
       />
-    </>
+    </div>
   );
 }
 

@@ -11,6 +11,7 @@ import {
   type EmailContactForm,
   type SmsContactForm,
   type EnrollMfaResponse,
+  type MergedStyles,
 } from '@auth0-web-ui-components/core';
 
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks';
 import { useContactEnrollment } from '@/hooks/mfa';
 import { ENTER_CONTACT, ENROLL, CONFIRM, ENTER_OTP } from '@/lib/mfa-constants';
+import { cn } from '@/lib/theme-utils';
 
 import { OTPVerificationForm } from './otp-verification-form';
 
@@ -43,6 +45,7 @@ type ContactInputFormProps = {
   onSuccess: () => void;
   onClose: () => void;
   schemaValidation?: { email?: RegExp; phone?: RegExp };
+  styling?: MergedStyles;
 };
 
 const PHASES = {
@@ -60,6 +63,7 @@ export function ContactInputForm({
   onSuccess,
   onClose,
   schemaValidation,
+  styling = {},
 }: ContactInputFormProps) {
   const [phase, setPhase] = React.useState<Phase>(ENTER_CONTACT);
   const { t } = useTranslator('mfa');
@@ -105,7 +109,7 @@ export function ContactInputForm({
   );
 
   const renderContactScreen = () => (
-    <div className="w-full max-w-sm mx-auto">
+    <div style={styling} className="w-full max-w-sm mx-auto">
       <div className="flex flex-col items-center justify-center flex-1 space-y-10">
         {loading ? (
           <div
@@ -117,7 +121,10 @@ export function ContactInputForm({
           </div>
         ) : (
           <>
-            <p className="text-center text-sm font-normal" id="contact-description">
+            <p
+              className={cn('text-center text-sm text-(length:--font-size-paragraph) font-normal')}
+              id="contact-description"
+            >
               {factorType === FACTOR_TYPE_EMAIL
                 ? t('enrollment_form.enroll_email_description')
                 : t('enrollment_form.enroll_sms_description')}
@@ -135,7 +142,10 @@ export function ContactInputForm({
                     name="contact"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-normal" htmlFor="contact-input">
+                        <FormLabel
+                          className="text-(length:--font-size-label) font-normal"
+                          htmlFor="contact-input"
+                        >
                           {factorType === FACTOR_TYPE_EMAIL
                             ? t('enrollment_form.email_address')
                             : t('enrollment_form.phone_number')}
@@ -164,7 +174,11 @@ export function ContactInputForm({
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage className="text-left" id="contact-error" role="alert" />
+                        <FormMessage
+                          className="text-left text-sm text-(length:--font-size-paragraph)"
+                          id="contact-error"
+                          role="alert"
+                        />
                       </FormItem>
                     )}
                   />
@@ -208,6 +222,7 @@ export function ContactInputForm({
       oobCode={contactData.oobCode || ''}
       contact={contactData.contact || ''}
       onBack={handleBack}
+      styling={styling}
     />
   );
 

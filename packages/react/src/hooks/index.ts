@@ -1,4 +1,3 @@
-export { useComponentConfig, Auth0ComponentConfigContext } from './use-config';
 export { useCoreClient, CoreClientContext } from './use-core-client';
 export { useTranslator } from './use-translator';
 export { useContactEnrollment, useOtpConfirmation, useOtpEnrollment, useMFA } from './mfa';

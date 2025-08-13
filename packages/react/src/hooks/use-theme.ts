@@ -7,9 +7,8 @@ import { ThemeContext } from '@/providers/theme-provider';
  * useTheme
  *
  * Access the current theme from context. Includes:
- * - branding (UL theme)
- * - customerOverrides (CSS variables)
- * - mergedTheme (computed result)
+ * - mode
+ * - styling (CSS variables)
  */
 export function useTheme() {
   const context = useContext(ThemeContext);

@@ -1,33 +1,16 @@
+import React from 'react';
+import type { Styling } from '@auth0-web-ui-components/core';
+
 /**
  * Theme configuration
  * @property {('light'|'dark')} [mode] - Theme mode
  * @property {string} [primaryColor] - Primary color for theming
  */
 export interface ThemeSettings {
+  theme?: 'default' | 'minimal' | 'rounded';
   mode?: 'light' | 'dark';
-  primaryColor?: string;
-  [key: string]: unknown;
+  styling?: Styling;
 }
-
-/**
- * BrandingTheme
- *
- * Controlled UL branding configuration.
- */
-export type BrandingTheme = {
-  mode?: 'light' | 'dark' | 'system';
-  primaryColor?: string;
-  borderRadius?: number;
-  fontFamily?: string;
-  [key: string]: unknown;
-};
-
-/**
- * CustomerOverrides
- *
- * Custom CSS variable overrides (e.g. "--button-radius": "6px").
- */
-export type CustomOverrides = Record<string, string>;
 
 /**
  * ThemeInput
@@ -35,8 +18,10 @@ export type CustomOverrides = Record<string, string>;
  * Optional props passed into the ThemeProvider.
  */
 export type ThemeInput = {
-  branding?: BrandingTheme;
-  customOverrides?: CustomOverrides;
+  theme?: 'default' | 'minimal' | 'rounded';
+  mode?: 'light' | 'dark';
+  styling?: Styling;
+  loader?: React.ReactNode;
 };
 
 /**
@@ -45,7 +30,8 @@ export type ThemeInput = {
  * The values made available through the ThemeContext.
  */
 export type ThemeContextValue = {
-  branding: BrandingTheme;
-  customOverrides: CustomOverrides;
-  mergedTheme: Record<string, unknown>;
+  theme?: 'default' | 'minimal' | 'rounded';
+  isDarkMode?: boolean;
+  styling: Styling;
+  loader: React.ReactNode | null;
 };
