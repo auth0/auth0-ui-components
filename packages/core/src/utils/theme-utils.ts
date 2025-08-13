@@ -185,7 +185,6 @@ export function applyStyleOverrides(
 
     // Add the new theme class
     const themeClass = `theme-${theme}${isDarkMode ? '-dark' : ''}`;
-    console.log('i am here', themeClass);
     htmlElement.classList.add(themeClass);
   }
 
