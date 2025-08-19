@@ -69,7 +69,7 @@ export const ProfileDropdown: React.FC = () => {
                 role="menuitem"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Profile
+                {t('profile-drop-down.profile')}
               </Link>
             </div>
             <div className="py-1 border-t border-gray-200 dark:border-gray-600">

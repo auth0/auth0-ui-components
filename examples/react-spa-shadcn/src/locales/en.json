@@ -1,7 +1,7 @@
 {
   "hero-section": {
-    "title": "Build Your Next App with our awesome components",
-    "description": "Explore a live demonstration of polished React UI components seamlessly integrated with Auth0 for secure, enterprise-ready authentication.",
+    "title": "Secure Authentication Components",
+    "description": "Beautiful, secure, and customizable authentication components built with React, TypeScript, and Shadcn UI. Perfect for modern web applications.",
     "get-started-button": "Get Started",
     "learn-more-button": "Learn more"
   },
@@ -13,16 +13,21 @@
     "sign-out": "Sign Out"
   },
   "profile-drop-down": {
-    "settings": "Settings",
+    "profile": "Profile",
     "sign-out": "Sign out"
   },
   "language-drop-down": {
     "change-language-button": "Change Language"
   },
   "user-profile": {
+    "title": "User Profile",
     "mfa": {
       "title": "Multi-Factor Authentication",
-      "description": "Manage your security methods for logging in."
+      "description": "Manage your security methods for logging in.",
+      "placeholder": {
+        "title": "UserMFAMgmt Component Placeholder",
+        "description": "This is where the UserMFAMgmt component will be placed"
+      }
     }
   }
 }

@@ -1,7 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const LandingPage = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -10,21 +13,20 @@ const LandingPage = () => {
           <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
             <div className="text-center">
               <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-                Secure Authentication Components
+                {t('hero-section.title')}
               </h1>
               <p className="mt-6 text-lg leading-8 text-gray-600">
-                Beautiful, secure, and customizable authentication components built with React,
-                TypeScript, and Shadcn UI. Perfect for modern web applications.
+                {t('hero-section.description')}
               </p>
               <div className="mt-10 flex items-center justify-center gap-x-6">
                 <Button asChild size="lg" className="bg-gray-900 hover:bg-gray-800 text-white">
-                  <Link to="/profile">Get Started</Link>
+                  <Link to="/profile">{t('hero-section.get-started-button')}</Link>
                 </Button>
                 <a
                   href="https://auth0.com/docs"
                   className="text-sm font-semibold leading-6 text-gray-900"
                 >
-                  Learn more <span aria-hidden="true">→</span>
+                  {t('hero-section.learn-more-button')} <span aria-hidden="true">→</span>
                 </a>
               </div>
             </div>

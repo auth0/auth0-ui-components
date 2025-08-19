@@ -1,7 +1,7 @@
 {
   "hero-section": {
-    "title": "優れたコンポーネントで次のアプリを構築しましょう",
-    "description": "Auth0とシームレスに統合された洗練されたReact UIコンポーネントのライブデモンストレーションをご覧ください。これにより、セキュアでエンタープライズ対応の認証が実現します。",
+    "title": "セキュアな認証コンポーネント",
+    "description": "React、TypeScript、Shadcn UIで構築された美しく、安全で、カスタマイズ可能な認証コンポーネント。モダンなWebアプリケーションに最適です。",
     "get-started-button": "始める",
     "learn-more-button": "詳細を見る"
   },
@@ -13,16 +13,21 @@
     "sign-out": "サインアウト"
   },
   "profile-drop-down": {
-    "settings": "設定",
+    "profile": "プロフィール",
     "sign-out": "サインアウト"
   },
   "language-drop-down": {
     "change-language-button": "言語を変更"
   },
   "user-profile": {
+    "title": "ユーザープロフィール",
     "mfa": {
       "title": "多要素認証",
-      "description": "ログインのためのセキュリティ方法を管理します。"
+      "description": "ログインのためのセキュリティ方法を管理します。",
+      "placeholder": {
+        "title": "UserMFAMgmt コンポーネント プレースホルダー",
+        "description": "ここに UserMFAMgmt コンポーネントが配置されます"
+      }
     }
   }
 }
