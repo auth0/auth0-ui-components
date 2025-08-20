@@ -1,7 +1,7 @@
 {
   "hero-section": {
-    "title": "Secure Authentication Components",
-    "description": "Beautiful, secure, and customizable authentication components built with React, TypeScript, and Shadcn UI. Perfect for modern web applications.",
+    "title": "Build Your Next App with our awesome components",
+    "description": "Explore a live demonstration of polished React UI components seamlessly integrated with Auth0 for secure, enterprise-ready authentication.",
     "get-started-button": "Get Started",
     "learn-more-button": "Learn more"
   },
