@@ -4,12 +4,17 @@ import { Routes, Route, BrowserRouter } from '@/components/RouterCompat';
 import Index from './pages/Index';
 import Profile from './pages/Profile';
 import { Auth0Provider } from '@auth0/auth0-react';
+// import { useTranslation } from 'react-i18next';
 import { config } from './config/env';
 
 const queryClient = new QueryClient();
 
 const App = () => {
   // const { i18n } = useTranslation();
+  // const defaultAuthDetails = {
+  //   clientId: config.auth0.clientId,
+  //   domain: config.auth0.domain,
+  // };
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
