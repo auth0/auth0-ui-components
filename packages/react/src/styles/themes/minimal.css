@@ -1,0 +1,124 @@
+@import '../light.css';
+@import '../dark.css';
+
+@custom-variant theme-minimal {
+  &:where([data-theme='minimal'] *) {
+    @slot;
+  }
+}
+
+@layer base {
+  [data-theme='minimal'] {
+    --color-page: var(--color-neutral-2);
+    --color-background: var(--color-neutral-min);
+    --color-foreground: var(--color-neutral-12);
+
+    --color-card: var(--color-neutral-min);
+    --color-card-foreground: var(--color-neutral-max);
+
+    --color-primary: var(--color-carbon-9);
+    --color-primary-foreground: var(--color-neutral-min);
+
+    --color-secondary: var(--color-neutral-3);
+    --color-secondary-foreground: var(--color-neutral-1);
+
+    --color-accent: var(--color-neutral-9);
+    --color-accent-foreground: var(--color-neutral-12);
+
+    --color-muted: var(--color-neutral-3);
+    --color-muted-foreground: var(--color-neutral-10);
+
+    --color-border: var(--color-neutral-6);
+
+    --color-ring: oklch(from var(--color-neutral-7) l c h / 50%);
+
+    --color-info: var(--color-blue-3);
+    --color-info-foreground: var(--color-blue-9);
+    --color-success: var(--color-green-3);
+    --color-success-foreground: var(--color-green-9);
+    --color-warning: var(--color-yellow-3);
+    --color-warning-foreground: var(--color-yellow-11);
+
+    --color-destructive: var(--color-red-3);
+    --color-destructive-foreground: var(--color-red-9);
+    --color-destructive-border: var(--color-red-10);
+
+    --color-popover: var(--color-neutral-1);
+    --color-popover-foreground: var(--color-neutral-12);
+
+    --color-input: var(--color-neutral-3);
+    --color-input-foreground: var(--color-neutral-12);
+    --color-input-muted: var(--color-neutral-3);
+
+    --shadow-bevel-xs:
+      0px 0px 0px 1px oklch(from var(--color-neutral-max) l c h / 10%),
+      0px 1px 1px -1px oklch(from var(--color-neutral-max) l c h / 5%);
+    --shadow-bevel-sm:
+      0px 0px 0px 1px oklch(from var(--color-neutral-max) l c h / 10%),
+      0px 1px 1px -1px oklch(from var(--color-neutral-max) l c h / 5%),
+      0px 2px 1px -2px oklch(from var(--color-neutral-max) l c h / 5%);
+    --shadow-bevel-md:
+      0px 0px 0px 1px oklch(from var(--color-neutral-max) l c h / 10%),
+      0px 1px 1px -1px oklch(from var(--color-neutral-max) l c h / 5%),
+      0px 2px 1px -2px oklch(from var(--color-neutral-max) l c h / 5%),
+      0px 4px 2px -4px oklch(from var(--color-neutral-max) l c h / 5%);
+    --shadow-bevel-lg:
+      0px 0px 0px 1px oklch(from var(--color-neutral-max) l c h / 10%),
+      0px 1px 1px -1px oklch(from var(--color-neutral-max) l c h / 5%),
+      0px 2px 1px -2px oklch(from var(--color-neutral-max) l c h / 5%),
+      0px 4px 2px -4px oklch(from var(--color-neutral-max) l c h / 5%),
+      0px 6px 3px -6px oklch(from var(--color-neutral-max) l c h / 10%);
+    --shadow-bevel-xl:
+      0px 0px 0px 1px oklch(from var(--color-neutral-max) l c h / 10%),
+      0px 1px 1px -1px oklch(from var(--color-neutral-max) l c h / 5%),
+      0px 2px 1px -2px oklch(from var(--color-neutral-max) l c h / 5%),
+      0px 4px 2px -4px oklch(from var(--color-neutral-max) l c h / 5%),
+      0px 6px 3px -6px oklch(from var(--color-neutral-max) l c h / 10%),
+      0px 12px 6px -12px oklch(from var(--color-neutral-max) l c h / 10%);
+    --shadow-bevel-2xl:
+      0px 0px 0px 1px oklch(from var(--color-neutral-max) l c h / 10%),
+      0px 1px 1px -1px oklch(from var(--color-neutral-max) l c h / 5%),
+      0px 2px 1px -2px oklch(from var(--color-neutral-max) l c h / 5%),
+      0px 4px 2px -4px oklch(from var(--color-neutral-max) l c h / 5%),
+      0px 6px 3px -6px oklch(from var(--color-neutral-max) l c h / 10%),
+      0px 12px 6px -12px oklch(from var(--color-neutral-max) l c h / 10%),
+      0px 24px 12px -24px oklch(from var(--color-neutral-max) l c h / 10%);
+
+    --shadow-button-resting: none;
+    --shadow-button-hover: none;
+
+    --shadow-button-destructive-resting: none;
+    --shadow-button-destructive-hover: none;
+
+    --shadow-button-outlined-resting: none;
+    --shadow-button-outlined-hover: none;
+
+    --shadow-input-resting: none;
+    --shadow-input-hover: none;
+    --shadow-input-destructive-resting: none;
+    --shadow-input-destructive-hover: none;
+    --shadow-input-destructive-focus: none;
+
+    --shadow-checkbox-resting: none;
+    --shadow-checkbox-hover: none;
+
+    --shadow-switch-resting: none;
+    --shadow-switch-hover: none;
+    --shadow-switch-focus: none;
+    --shadow-switch-thumb: none;
+
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 10px;
+    --radius-xl: 12px;
+    --radius-2xl: 14px;
+    --radius-3xl: 16px;
+    --radius-4xl: 20px;
+    --radius-5xl: 24px;
+    --radius-6xl: 32px;
+    --radius-7xl: 40px;
+    --radius-8xl: 48px;
+    --radius-9xl: 56px;
+  }
+}

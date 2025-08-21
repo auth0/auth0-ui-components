@@ -122,7 +122,9 @@ export function ContactInputForm({
         ) : (
           <>
             <p
-              className={cn('text-center text-sm text-(length:--font-size-paragraph) font-normal')}
+              className={cn(
+                'text-center text-primary text-sm text-(length:--font-size-paragraph) font-normal',
+              )}
               id="contact-description"
             >
               {factorType === FACTOR_TYPE_EMAIL

@@ -90,7 +90,11 @@ export function UserMFASetupForm({
   const renderInstallationPhase = () => (
     <div style={styling} className="w-full max-w-sm mx-auto">
       <div className="flex flex-col items-center justify-center flex-1 space-y-10">
-        <p className={cn('text-center text-sm text-(length:--font-size-paragraph) font-normal')}>
+        <p
+          className={cn(
+            'text-center text-primary text-sm text-(length:--font-size-paragraph) font-normal',
+          )}
+        >
           {t('enrollment_form.show_otp.install_guardian_description')}
         </p>
         <div className="flex gap-4 w-full">

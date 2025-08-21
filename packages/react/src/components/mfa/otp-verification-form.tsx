@@ -145,7 +145,7 @@ export function OTPVerificationForm({
           <p
             id="otp-description"
             className={cn(
-              'font-normal text-center block mx-auto text-sm text-(length:--font-size-paragraph)',
+              'font-normal text-center text-primary block mx-auto text-sm text-(length:--font-size-paragraph)',
             )}
           >
             {[FACTOR_TYPE_PUSH_NOTIFICATION, FACTOR_TYPE_TOPT, FACTOR_TYPE_OTP].includes(factorType)

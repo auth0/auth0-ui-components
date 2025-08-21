@@ -55,7 +55,9 @@ export function DeleteFactorConfirmation({
         <div className="flex flex-col items-center justify-center flex-1 space-y-10">
           <p
             id="delete-mfa-description"
-            className={cn('text-center text-(length:--font-size-paragraph) font-normal')}
+            className={cn(
+              'text-center text-primary text-(length:--font-size-paragraph) font-normal',
+            )}
           >
             {t(`delete_mfa_${factorToDelete?.type}_consent`)}
           </p>

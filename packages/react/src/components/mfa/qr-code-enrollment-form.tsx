@@ -98,7 +98,7 @@ export function QRCodeEnrollmentForm({
               <p
                 id="qr-description"
                 className={cn(
-                  'font-normal block text-sm text-center block text-(length:--font-size-paragraph)',
+                  'font-normal block text-sm text-primary text-center block text-(length:--font-size-paragraph)',
                 )}
               >
                 {t('enrollment_form.show_otp.title')}

@@ -23,7 +23,7 @@ export interface Styling {
     '--color-page'?: string;
     '--color-background'?: string;
     '--color-foreground'?: string;
-    '--color-card-background'?: string;
+    '--color-card'?: string;
     '--color-card-foreground'?: string;
     '--color-primary'?: string;
     '--color-primary-foreground'?: string;
@@ -82,7 +82,7 @@ export interface Styling {
     '--color-page'?: string;
     '--color-background'?: string;
     '--color-foreground'?: string;
-    '--color-card-background'?: string;
+    '--color-card'?: string;
     '--color-card-foreground'?: string;
     '--color-primary'?: string;
     '--color-primary-foreground'?: string;
@@ -173,31 +173,34 @@ export const getCurrentStyles = (
  * @param mode - The current theme mode ('dark' or 'light'). Defaults to 'light'.
  * @param theme - The selected theme ('default', 'minimal', 'rounded'). Defaults to 'default'.
  */
+/**
+ * Apply theme styling to document and set CSS variables
+ *
+ * @param styling - Theme variables to apply
+ * @param mode - Theme mode (dark/light)
+ * @param theme - UI theme variant
+ */
 export function applyStyleOverrides(
   styling: Styling,
   mode: 'dark' | 'light' = 'light',
   theme: 'default' | 'minimal' | 'rounded' = 'default',
 ): void {
   const isDarkMode = mode === 'dark';
-  const htmlElement = document.documentElement;
+  const html = document.documentElement;
 
-  // Remove existing theme classes if not default
-  if (theme !== 'default') {
-    htmlElement.classList.remove(
-      'theme-minimal',
-      'theme-rounded',
-      'theme-minimal-dark',
-      'theme-rounded-dark',
-    );
+  // Set theme using data attribute
+  html.dataset.theme = theme;
 
-    // Add the new theme class
-    const themeClass = `theme-${theme}${isDarkMode ? '-dark' : ''}`;
-    htmlElement.classList.add(themeClass);
+  // Handle dark mode using class
+  if (isDarkMode) {
+    html.classList.add('dark');
+  } else {
+    html.classList.remove('dark');
   }
 
-  // Apply CSS variable overrides (if any)
+  // Apply CSS variables
   const mergedStyles = getCurrentStyles(styling, isDarkMode);
   Object.entries(mergedStyles).forEach(([key, value]) => {
-    htmlElement.style.setProperty(key, value as string);
+    html.style.setProperty(key, value as string);
   });
 }

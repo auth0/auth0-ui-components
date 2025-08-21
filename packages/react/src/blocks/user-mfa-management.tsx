@@ -380,7 +380,7 @@ function UserMFAMgmtComponent({
                                     )}
                                   >
                                     <span
-                                      className="break-words whitespace-normal"
+                                      className="break-words text-card-foreground whitespace-normal"
                                       id={`factor-title-${idx}`}
                                     >
                                       {t(`${factor.factorName}.title`)}
