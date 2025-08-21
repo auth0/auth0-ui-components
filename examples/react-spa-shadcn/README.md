@@ -91,7 +91,7 @@ This will:
 Use the ShadCN CLI to add the MFA component:
 
 ```sh
-npx shadcn@latest add https://auth0-web-ui-components.vercel.app/r/user-mfa-management.json
+npx shadcn@latest add https://auth0-ui-components.vercel.app/r/user-mfa-management.json
 ```
 
 This will install the `UserMFAMgmt` component in your `src/blocks/` directory.
@@ -353,10 +353,10 @@ Add MFA-related translation keys to your locale files:
 
 Something went wrong. Please check the error below for more details.
 If the problem persists, please open an issue on GitHub.
-request to https://auth0-web-ui-components.vercel.app/r/user-mfa-management.json failed, reason: self-signed certificate in certificate chain
+request to https://auth0-ui-components.vercel.app/r/user-mfa-management.json failed, reason: self-signed certificate in certificate chain
 **Work Around - Run the below command**
 
-`NODE_TLS_REJECT_UNAUTHORIZED=0 npx shadcn@latest add https://auth0-web-ui-components.vercel.app/r/user-mfa-management.json`
+`NODE_TLS_REJECT_UNAUTHORIZED=0 npx shadcn@latest add https://auth0-ui-components.vercel.app/r/user-mfa-management.json`
 
 ### Getting Help
 
