@@ -6,6 +6,7 @@ import {
   type MFAType,
   type EnrollMfaResponse,
   type MergedStyles,
+  FACTOR_TYPE_TOPT,
 } from '@auth0-web-ui-components/core';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -111,35 +112,40 @@ export function QRCodeEnrollmentForm({
                   'font-normal block text-sm text-center block text-(length:--font-size-paragraph)',
                 )}
               >
-                {t('enrollment_form.show_otp.title')}
+                {factorType === FACTOR_TYPE_TOPT
+                  ? t('enrollment_form.show_otp.title')
+                  : t('enrollment_form.show_auth0_guardian_title')}
               </p>
             </div>
+
             <div className="flex flex-col space-y-3" aria-describedby="qr-description">
-              <TextField
-                readOnly
-                value={otpData?.secret || ''}
-                aria-label={t('enrollment_form.show_otp.secret_code')}
-                className="text-sm"
-                endAdornment={
-                  <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-                    <TooltipTrigger asChild>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={handleCopySecret}
-                        aria-label={t('enrollment_form.show_otp.copy_as_code')}
-                      >
-                        <Copy className="h-4 w-4" aria-hidden="true" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" align="end" sideOffset={5} className="z-[1000]">
-                      {tooltipText}
-                    </TooltipContent>
-                  </Tooltip>
-                }
-              />
+              {factorType === FACTOR_TYPE_TOPT && (
+                <TextField
+                  readOnly
+                  value={otpData?.secret || ''}
+                  aria-label={t('enrollment_form.show_otp.secret_code')}
+                  className="text-sm"
+                  endAdornment={
+                    <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={handleCopySecret}
+                          aria-label={t('enrollment_form.show_otp.copy_as_code')}
+                        >
+                          <Copy className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" align="end" sideOffset={5} className="z-[1000]">
+                        {tooltipText}
+                      </TooltipContent>
+                    </Tooltip>
+                  }
+                />
+              )}
               <div className="mt-3" />
               <Button
                 type="button"
