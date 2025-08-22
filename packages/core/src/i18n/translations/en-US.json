@@ -118,7 +118,7 @@
       "enroll_email_description": "Enter your email to receive a verification code",
       "enroll_sms_placeholder": "Enter phone number",
       "enroll_sms_description": "Enter your phone number to receive a verification code",
-      "show_auth0_guardian_title": "Scan this QR code with your Auth0 Guardian App to register this Authentication method.",
+      "show_auth0_guardian_title": "Scan this QR code with your Auth0 Guardian App to register this Authentication method or copy the url.",
       "show_otp": {
         "title": "Scan this QR code with your Authenticator App to register this Authentication method or copy the code.",
         "save_recovery": "Save these recovery codes!",

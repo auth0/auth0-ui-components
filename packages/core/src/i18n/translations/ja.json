@@ -119,7 +119,7 @@
       "enroll_email_description": "認証コードを受信するためにあなたのメールアドレスを入力してください",
       "enroll_sms_placeholder": "電話番号を入力",
       "enroll_sms_description": "認証コードを受信するためにあなたの電話番号を入力してください",
-      "show_auth0_guardian_title": "こちらのQRコードをAuth0 Guardianアプリでスキャンして、この認証方法を登録してください。",
+      "show_auth0_guardian_title": "このQRコードをAuth0 Guardianアプリでスキャンするか、URLをコピーして、この認証方法を登録してください",
       "show_otp": {
         "title": "この QR コードを Authenticator アプリでスキャンして、この認証方法を登録するか、コードをコピーしてください。",
         "save_recovery": "これらのリカバリーコードを保存してください！",
