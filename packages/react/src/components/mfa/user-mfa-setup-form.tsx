@@ -191,9 +191,7 @@ export function UserMFASetupForm({
         )}
       >
         <DialogHeader>
-          <DialogTitle
-            className={cn('text-left font-medium text-xl text-(length:--font-size-title)')}
-          >
+          <DialogTitle className="text-left font-medium text-xl text-(length:--font-size-title)">
             {t('enrollment_form.enroll_title')}
           </DialogTitle>
           <Separator className="my-2" />

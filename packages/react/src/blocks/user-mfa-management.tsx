@@ -352,17 +352,13 @@ function UserMFAMgmtComponent({
                   <>
                     <CardTitle
                       id="mfa-management-title"
-                      className={cn(
-                        'text-2xl text-(length:--font-size-heading) font-medium text-left',
-                      )}
+                      className="text-2xl text-(length:--font-size-heading) font-medium text-left"
                     >
                       {t('title')}
                     </CardTitle>
                     <CardDescription
                       id="mfa-management-desc"
-                      className={cn(
-                        'text-sm text-(length:--font-size-paragraph) text-muted-foreground text-left',
-                      )}
+                      className="text-sm text-(length:--font-size-paragraph) text-muted-foreground text-left"
                     >
                       {t('description')}
                     </CardDescription>

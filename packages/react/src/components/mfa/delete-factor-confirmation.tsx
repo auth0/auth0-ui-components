@@ -63,7 +63,7 @@ export function DeleteFactorConfirmation({
         <DialogHeader>
           <DialogTitle
             id="delete-mfa-title"
-            className={cn('text-center text-(length:--font-size-title) font-medium')}
+            className="text-center text-(length:--font-size-title) font-medium"
           >
             {t('delete_mfa_title')}
           </DialogTitle>

@@ -170,7 +170,7 @@ export function OTPVerificationForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel
-                  className={cn('text-sm text-(length:--font-size-label) font-normal')}
+                  className="text-sm text-(length:--font-size-label) font-normal"
                   htmlFor="otp-input"
                 >
                   {t('enrollment_form.show_otp.one_time_passcode')}
@@ -187,7 +187,7 @@ export function OTPVerificationForm({
                   />
                 </FormControl>
                 <FormMessage
-                  className={cn('text-sm text-(length:--font-size-paragraph) text-left')}
+                  className="text-sm text-(length:--font-size-paragraph) text-left"
                   id="otp-error"
                   role="alert"
                 />
