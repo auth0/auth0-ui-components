@@ -13,7 +13,6 @@ const UserProfilePage = () => {
         //     '--font-size-label': '0.875rem',
         //   },
         //   light: {
-        //     '--bg-color': '#f9f9f9',
         //     '--color-primary': 'blue',
         //     '--color-primary-foreground': 'white',
         //     '--color-foreground': 'orange',
@@ -21,7 +20,6 @@ const UserProfilePage = () => {
         //     '--color-accent-foreground': '#a1a1ee',
         //   },
         //   dark: {
-        //     '--bg-color': 'blue',
         //     '--color-primary': 'red',
         //     '--color-primary-foreground': 'white',
         //     '--color-foreground': 'red',
