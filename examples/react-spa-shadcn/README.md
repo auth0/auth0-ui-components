@@ -1,27 +1,16 @@
-# React SPA with ShadCN UI
+# React SPA with ShadCN UI - Setup Guide
 
 A modern React single-page application built with Vite, TypeScript, and ShadCN UI components, featuring integrated Auth0 authentication and multi-factor authentication (MFA) management capabilities.
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- **Vite** - Fast build tool and development server
-- **TypeScript** - Type-safe JavaScript
-- **React** - UI library
-- **ShadCN UI** - Modern component library
-- **Tailwind CSS** - Utility-first CSS framework
-- **Auth0** - Authentication and authorization platform
-- **React Router** - Client-side routing
-- **React Query** - Data fetching and caching
-- **React i18next** - Internationalization
-
 ## Prerequisites
+
+Before you begin, make sure you have the following installed on your system:
 
 - **Node.js** (v18 or higher) - [Download from nodejs.org](https://nodejs.org/)
 - **pnpm** - [Install pnpm](https://pnpm.io/installation)
-
 - **Auth0 Account** - [Sign up for Auth0](https://auth0.com/signup)
+
+**Auth0 Configuration Requirements:**
 
 1. **Enable MFA Grant Types**
 
@@ -30,7 +19,6 @@ This project is built with:
    - Save the changes and redeploy if necessary
 
 2. **Enable Google OAuth2 Connection**
-
    - Go to Auth0 Dashboard > Authentication > Social > Google
    - Make sure the Google OAuth2 connection is enabled and properly configured
    - Verify the connection is associated with your application under Applications tab
@@ -48,18 +36,34 @@ VITE_AUTH0_CLIENT_ID=your-auth0-client-id
 
 Replace the values with your actual Auth0 domain and client ID.
 
-### 2. Auth0 Configuration
+**Auth0 Application Settings:**
 
 Ensure your Auth0 application has the following settings:
 
 - **Application Type**: Single Page Application
-- **Allowed Callback URLs**: `http://localhost:8080` (for development)
-- **Allowed Logout URLs**: `http://localhost:8080`
-- **Allowed Web Origins**: `http://localhost:8080`
+- **Allowed Callback URLs**: `http://localhost:5173`
+- **Allowed Logout URLs**: `http://localhost:5173`
+- **Allowed Web Origins**: `http://localhost:5173`
 
-### 3. Adding Auth0 MFA Component
+### 2. Run the Development Server
 
-#### Step 1: Setup ShadCN UI
+```sh
+pnpm run dev
+```
+
+Run this command from the `examples/react-spa-shadcn` directory.
+
+### 3. Access the Application
+
+Once the development server is running, you can access the application at:
+
+**http://localhost:5173**
+
+The application should now be running with Auth0 authentication integrated.
+
+## Adding Auth0 MFA Component
+
+### Step 1: Setup ShadCN UI
 
 If you haven't already set up ShadCN UI in your project, run the following command to initialize it:
 
@@ -86,7 +90,7 @@ This will:
 - Create a `src/lib/utils.ts` file with utility functions
 - Set up the proper directory structure for components
 
-#### Step 2: Install the MFA Component
+### Step 2: Install the MFA Component
 
 Use the ShadCN CLI to add the MFA component:
 
@@ -96,7 +100,13 @@ npx shadcn@latest add https://auth0-ui-components.vercel.app/r/user-mfa-manageme
 
 This will install the `UserMFAMgmt` component in your `src/blocks/` directory.
 
-#### Step 3: Configure the Auth0 Component Provider
+**Note:** If you encounter certificate issues, use this workaround:
+
+```sh
+NODE_TLS_REJECT_UNAUTHORIZED=0 npx shadcn@latest add https://auth0-ui-components.vercel.app/r/user-mfa-management.json
+```
+
+### Step 3: Configure the Auth0 Component Provider
 
 Update your main App component (`src/App.tsx`) to include the Auth0 Component provider:
 
@@ -149,7 +159,7 @@ const App = () => {
 export default App;
 ```
 
-#### Step 4: Using the UserMFAMgmt Component
+### Step 4: Using the UserMFAMgmt Component
 
 Here's how to integrate the MFA component in your profile page (`src/pages/Profile.tsx`):
 
@@ -197,22 +207,6 @@ const Profile = () => {
 
 export default Profile;
 ```
-
-### 5. **Start the development server:**
-
-```sh
-pnpm run dev
-```
-
-Run this command from the `examples/react-spa-shadcn` directory.
-
-### 6. Access the Application
-
-Once the development server is running, you can access the application at:
-
-**http://localhost:8080**
-
-The application should now be running with Auth0 authentication integrated.
 
 ## MFA Component Configuration
 
@@ -328,6 +322,20 @@ Add MFA-related translation keys to your locale files:
 }
 ```
 
+## Technologies Used
+
+This project is built with:
+
+- **Vite** - Fast build tool and development server
+- **TypeScript** - Type-safe JavaScript
+- **React** - UI library
+- **ShadCN UI** - Modern component library
+- **Tailwind CSS** - Utility-first CSS framework
+- **Auth0** - Authentication and authorization platform
+- **React Router** - Client-side routing
+- **React Query** - Data fetching and caching
+- **React i18next** - Internationalization
+
 ## Troubleshooting
 
 ### Common Issues
@@ -349,17 +357,18 @@ Add MFA-related translation keys to your locale files:
    - Check that i18next is properly configured
    - Ensure the correct language is being passed to `Auth0ComponentProvider`
 
-4. **Self-signed certificate in certificate chain**
-
-Something went wrong. Please check the error below for more details.
-If the problem persists, please open an issue on GitHub.
-request to https://auth0-ui-components.vercel.app/r/user-mfa-management.json failed, reason: self-signed certificate in certificate chain
-**Work Around - Run the below command**
-
-`NODE_TLS_REJECT_UNAUTHORIZED=0 npx shadcn@latest add https://auth0-ui-components.vercel.app/r/user-mfa-management.json`
+4. **Certificate Chain Issues**
+   - Use the `NODE_TLS_REJECT_UNAUTHORIZED=0` workaround when installing components
+   - This is a temporary solution for development environments
 
 ### Getting Help
+
+If you encounter any issues:
 
 - Check the [Auth0 Documentation](https://auth0.com/docs)
 - Review [ShadCN UI Documentation](https://ui.shadcn.com)
 - Open an issue in the project repository
+
+---
+
+**Note**: This setup guide assumes you're working with the latest version of the codebase. If you encounter version-specific issues, please refer to the project's main documentation or create an issue in the repository.
