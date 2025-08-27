@@ -12,16 +12,15 @@ Before you begin, make sure you have the following installed on your system:
 
 **Auth0 Configuration Requirements:**
 
-1. **Enable MFA Grant Types**
+Different Auth0 UI components may have specific configuration requirements. Please refer to the [Auth0 UI Components Documentation](https://auth0-ui-components.vercel.app/getting-started) for detailed prerequisites for each component you plan to use.
 
-   - Navigate to your Auth0 Dashboard > Applications > [Your Application] > Advanced Settings > Grant Types
-   - Ensure **MFA** grant type is enabled for the MFA component to work properly
-   - Save the changes and redeploy if necessary
+Basic Auth0 setup requirements for this sample application:
 
-2. **Enable Google OAuth2 Connection**
-   - Go to Auth0 Dashboard > Authentication > Social > Google
-   - Make sure the Google OAuth2 connection is enabled and properly configured
-   - Verify the connection is associated with your application under Applications tab
+- Auth0 Application configured as Single Page Application
+- Proper callback URLs, logout URLs, and web origins configured
+- Required grant types enabled based on the components you're using
+
+For component-specific Auth0 configuration (such as MFA grant types, social connections, etc.), check the individual component documentation pages.
 
 ## Getting Started
 
@@ -61,7 +60,7 @@ Once the development server is running, you can access the application at:
 
 The application should now be running with Auth0 authentication integrated.
 
-## Adding Auth0 MFA Component
+## Adding an Auth0 Component
 
 ### Step 1: Setup ShadCN UI
 
@@ -90,7 +89,7 @@ This will:
 - Create a `src/lib/utils.ts` file with utility functions
 - Set up the proper directory structure for components
 
-### Step 2: Install the MFA Component
+### Step 2: Install a Component (e.g. MFA Component)
 
 Use the ShadCN CLI to add the MFA component:
 
@@ -159,7 +158,7 @@ const App = () => {
 export default App;
 ```
 
-### Step 4: Using the UserMFAMgmt Component
+### Step 4: Using a Component (e.g. UserMFAMgmt Component)
 
 Here's how to integrate the MFA component in your profile page (`src/pages/Profile.tsx`):
 
@@ -208,119 +207,21 @@ const Profile = () => {
 export default Profile;
 ```
 
-## MFA Component Configuration
+## Component Documentation
 
-### Props
+For detailed configuration options, props, troubleshooting, and component-specific requirements, please refer to the official component documentation:
 
-The `UserMFAMgmt` component accepts the following props:
+**[Auth0 UI Components Documentation](https://auth0-ui-components.vercel.app/getting-started)**
 
-#### `localization` (optional)
+Each component has its own documentation page with:
 
-Customize text labels for internationalization:
+- Complete prop references
+- Configuration examples
+- Auth0 setup requirements
+- Common troubleshooting steps
+- Best practices
 
-```tsx
-<UserMFAMgmt
-  localization={{
-    title: 'Multi-Factor Authentication',
-    subtitle: 'Secure your account with additional verification methods',
-    // ... other localization options
-  }}
-/>
-```
-
-#### `factorConfig` (optional)
-
-Configure which MFA factors are available and their visibility:
-
-```tsx
-<UserMFAMgmt
-  factorConfig={{
-    // Disable Duo integration
-    duo: {
-      enabled: false,
-    },
-    // Hide WebAuthn platform authenticators
-    'webauthn-platform': {
-      visible: false,
-    },
-    // Enable SMS with custom settings
-    sms: {
-      enabled: true,
-      visible: true,
-    },
-    // Enable TOTP (Time-based One-Time Password)
-    otp: {
-      enabled: true,
-      visible: true,
-    },
-    // Enable Email OTP
-    email: {
-      enabled: true,
-      visible: true,
-    },
-    // Enable WebAuthn roaming authenticators (security keys)
-    'webauthn-roaming': {
-      enabled: true,
-      visible: true,
-    },
-  }}
-/>
-```
-
-### Available MFA Factors
-
-- **`otp`** - Time-based One-Time Password (TOTP) using authenticator apps
-- **`sms`** - SMS-based verification
-- **`email`** - Email-based verification
-- **`pushnotification`** - Push Notification Verification
-
-## Internationalization Setup
-
-### Adding Translation Keys
-
-Add MFA-related translation keys to your locale files:
-
-```json
-// src/locales/en.json
-{
-  "user-profile": {
-    "mfa": {
-      "title": "Multi-Factor Authentication",
-      "subtitle": "Add an extra layer of security to your account",
-      "add-factor": "Add Authentication Method",
-      "remove-factor": "Remove",
-      "factors": {
-        "sms": "SMS Verification",
-        "email": "Email Verification",
-        "otp": "Authenticator App",
-        "webauthn-roaming": "Security Key",
-        "webauthn-platform": "Biometric Authentication"
-      }
-    }
-  }
-}
-```
-
-```json
-// src/locales/ja.json
-{
-  "user-profile": {
-    "mfa": {
-      "title": "多要素認証",
-      "subtitle": "アカウントにセキュリティレイヤーを追加します",
-      "add-factor": "認証方法を追加",
-      "remove-factor": "削除",
-      "factors": {
-        "sms": "SMS認証",
-        "email": "メール認証",
-        "otp": "認証アプリ",
-        "webauthn-roaming": "セキュリティキー",
-        "webauthn-platform": "生体認証"
-      }
-    }
-  }
-}
-```
+Make sure to review the specific documentation for any component you plan to use, as different components may have unique Auth0 configuration requirements or setup steps.
 
 ## Technologies Used
 
