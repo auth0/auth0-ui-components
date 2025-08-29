@@ -1,0 +1,72 @@
+import * as React from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { FormActions, type FormActionsProps } from '@/components/ui/form-actions';
+
+interface ModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title?: string;
+  description?: string;
+  content?: React.ReactNode;
+  modalActions?: FormActionsProps;
+  className?: string;
+  showCloseButton?: boolean;
+}
+
+export const Modal: React.FC<ModalProps> = ({
+  open,
+  onOpenChange,
+  title,
+  description,
+  content,
+  modalActions,
+  className,
+  showCloseButton,
+}) => {
+  const hasHeader = title || description;
+
+  const actions: FormActionsProps = {
+    hasUnsavedChanges: true,
+    showCancel: true,
+    showUnsavedChanges: false,
+    cancelAction: {
+      label: 'Cancel',
+      variant: 'outline',
+      onClick: () => onOpenChange(false),
+    },
+    saveAction: {
+      label: 'Confirm',
+      variant: 'primary',
+      onClick: () => onOpenChange(false),
+    },
+    ...modalActions,
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className={className} showCloseButton={showCloseButton}>
+        {hasHeader && (
+          <DialogHeader>
+            {title && <DialogTitle>{title}</DialogTitle>}
+            {description && <DialogDescription>{description}</DialogDescription>}
+          </DialogHeader>
+        )}
+
+        {content && <div className="py-4">{content}</div>}
+
+        <DialogFooter>
+          <FormActions {...actions} />
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+Modal.displayName = 'Modal';

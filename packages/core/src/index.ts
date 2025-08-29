@@ -29,3 +29,5 @@ export {
   FACTOR_TYPE_PUSH_NOTIFICATION,
   FACTOR_TYPE_TOPT,
 } from './services/mfa/mfa-constants';
+
+export * from './types';
