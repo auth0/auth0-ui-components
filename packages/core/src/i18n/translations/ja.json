@@ -1,5 +1,8 @@
 {
-  "common": {},
+  "common": {
+    "copy": "コピー",
+    "copied": "コピーしました"
+  },
   "mfa": {
     "title": "多要素認証方法",
     "description": "あなたのアカウントと身元をさらに保護します",
@@ -7,8 +10,6 @@
     "component_error_title": "多要素認証コンポーネントの読み込みエラー",
     "component_error_description": "多要素認証方法の読み込みに問題が発生しました。ページを再読み込みして、もう一度お試しください",
     "loading": "読み込み中...",
-    "copy": "コピー",
-    "copied": "コピーしました",
     "delete": "削除",
     "enroll": "登録",
     "submit": "送信",
@@ -120,6 +121,7 @@
       "enroll_sms_placeholder": "電話番号を入力",
       "enroll_sms_description": "認証コードを受信するためにあなたの電話番号を入力してください",
       "show_auth0_guardian_title": "このQRコードをAuth0 Guardianアプリでスキャンするか、URLをコピーして、この認証方法を登録してください",
+      "recovery_code_description": "このリカバリーコードをコピーして、安全な場所に保管してください。デバイスなしでログインする必要がある場合に使用します。",
       "show_otp": {
         "title": "この QR コードを Authenticator アプリでスキャンして、この認証方法を登録するか、コードをコピーしてください。",
         "save_recovery": "これらのリカバリーコードを保存してください！",
