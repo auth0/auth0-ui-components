@@ -27,11 +27,11 @@ export function useContactEnrollment({
   const { t } = useTranslator('mfa');
   const [loading, setLoading] = useState(false);
   const [contactData, setContactData] = useState<{
-    contact: string | null;
-    oobCode: string | null;
+    contact: string;
+    oobCode?: string;
+    recoveryCodes?: string[];
   }>({
-    contact: null,
-    oobCode: null,
+    contact: '',
   });
 
   const onSubmitContact = useCallback(
@@ -52,6 +52,7 @@ export function useContactEnrollment({
           setContactData({
             contact: data.contact,
             oobCode: response?.oob_code,
+            recoveryCodes: response.recovery_codes || [],
           });
         }
       } catch (error) {

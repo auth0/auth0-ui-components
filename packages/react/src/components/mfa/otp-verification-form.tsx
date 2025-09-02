@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { OTPField } from '@/components/ui/otp-field';
+import { CopyableTextField } from '@/components/ui/copyable-text-field';
 
 import { useTheme, useTranslator, useOtpConfirmation } from '@/hooks';
 import { CONFIRM } from '@/lib/mfa-constants';
@@ -39,6 +40,7 @@ type OTPVerificationFormProps = {
   onClose: () => void;
   oobCode?: string;
   contact?: string;
+  recoveryCodes?: string[];
   onBack?: () => void;
   styling?: Styling;
 };
@@ -95,6 +97,7 @@ export function OTPVerificationForm({
   onClose,
   oobCode,
   contact,
+  recoveryCodes,
   onBack,
   styling = {
     variables: {
@@ -193,6 +196,20 @@ export function OTPVerificationForm({
               </FormItem>
             )}
           />
+
+          {recoveryCodes && recoveryCodes.length > 0 && (
+            <div>
+              <p
+                className={cn(
+                  'font-normal block text-sm text-center text-(length:--font-size-paragraph) mb-4',
+                )}
+              >
+                {t('enrollment_form.recovery_code_description')}
+              </p>
+              <CopyableTextField value={recoveryCodes[0]} />
+            </div>
+          )}
+
           <div className="flex flex-col gap-3 justify-center">
             <Button
               type="submit"

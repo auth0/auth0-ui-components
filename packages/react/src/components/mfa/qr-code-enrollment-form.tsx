@@ -132,7 +132,7 @@ export function QRCodeEnrollmentForm({
                 <div>
                   <p
                     className={cn(
-                      'font-normal block text-sm text-center text-(length:--font-size-paragraph) mb-2',
+                      'font-normal block text-sm text-center text-(length:--font-size-paragraph) mb-4',
                     )}
                   >
                     {t('enrollment_form.recovery_code_description')}
@@ -174,7 +174,8 @@ export function QRCodeEnrollmentForm({
       onError={onError}
       onSuccess={onSuccess}
       onClose={onClose}
-      oobCode={otpData?.oobCode || ''}
+      oobCode={otpData.oobCode}
+      recoveryCodes={otpData.recoveryCodes}
       onBack={handleBack}
       styling={styling}
     />

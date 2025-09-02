@@ -23,16 +23,11 @@ export function useOtpEnrollment({
   const { t } = useTranslator('mfa');
   const [loading, setLoading] = useState(false);
   const [otpData, setOtpData] = useState<{
-    secret: string | null;
-    barcodeUri: string | null;
-    recoveryCodes: string[];
-    oobCode: string | null;
-  }>({
-    secret: null,
-    barcodeUri: null,
-    recoveryCodes: [],
-    oobCode: null,
-  });
+    secret?: string;
+    barcodeUri?: string;
+    oobCode?: string;
+    recoveryCodes?: string[];
+  }>({});
 
   const fetchOtpEnrollment = useCallback(async () => {
     if (loading) return;
@@ -40,10 +35,10 @@ export function useOtpEnrollment({
     try {
       const response = await enrollMfa(factorType, {});
       setOtpData({
-        secret: response.secret ?? null,
-        barcodeUri: response.barcode_uri ?? null,
-        recoveryCodes: response.recovery_codes || [],
-        oobCode: response.oob_code ?? null,
+        secret: response.secret,
+        barcodeUri: response.barcode_uri,
+        recoveryCodes: response.recovery_codes,
+        oobCode: response.oob_code,
       });
     } catch (error) {
       const normalizedError = normalizeError(error, {
@@ -58,18 +53,23 @@ export function useOtpEnrollment({
   }, [loading, factorType, enrollMfa, onError, onClose, t]);
 
   const resetOtpData = useCallback(() => {
-    setOtpData({ secret: null, barcodeUri: null, recoveryCodes: [], oobCode: null });
+    setOtpData({});
     setLoading(false);
   }, []);
 
   const updateOtpData = useCallback(
-    (newData: {
-      secret: string | null;
-      barcodeUri: string | null;
-      recoveryCodes: string[];
-      oobCode: string | null;
-    }) => {
-      setOtpData(newData);
+    (
+      newData: Partial<{
+        secret: string;
+        barcodeUri: string;
+        recoveryCodes: string[];
+        oobCode: string;
+      }>,
+    ) => {
+      setOtpData((prev) => ({
+        ...prev,
+        ...newData,
+      }));
     },
     [],
   );

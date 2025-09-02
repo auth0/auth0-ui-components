@@ -103,8 +103,7 @@ export function ContactInputForm({
   const handleCancel = () => {
     form.reset();
     setContactData({
-      contact: null,
-      oobCode: null,
+      contact: '',
     });
     onClose?.();
   };
@@ -234,8 +233,9 @@ export function ContactInputForm({
       onError={onError}
       onSuccess={onSuccess}
       onClose={onClose}
-      oobCode={contactData.oobCode || ''}
-      contact={contactData.contact || ''}
+      oobCode={contactData.oobCode}
+      contact={contactData.contact}
+      recoveryCodes={contactData.recoveryCodes}
       onBack={handleBack}
       styling={styling}
     />
