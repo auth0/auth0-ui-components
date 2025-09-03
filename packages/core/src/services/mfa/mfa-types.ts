@@ -138,9 +138,7 @@ export interface MFAMessages {
     factors_loading_error?: string;
     delete_factor?: string;
     failed?: string;
-    [key: string]: string | undefined;
   };
-  [key: string]: unknown;
 }
 
 export interface MFAFactorContent {

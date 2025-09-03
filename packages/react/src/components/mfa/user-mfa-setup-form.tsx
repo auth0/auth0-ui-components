@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {
   type MFAType,
-  type EnrollMfaResponse,
   FACTOR_TYPE_EMAIL,
   FACTOR_TYPE_SMS,
   FACTOR_TYPE_TOPT,
@@ -17,35 +16,13 @@ import { Button } from '@/components/ui/button';
 import { ContactInputForm } from './contact-input-form';
 import { QRCodeEnrollmentForm } from './qr-code-enrollment-form';
 
-import {
-  ENTER_QR,
-  ENTER_OTP,
-  ENTER_CONTACT,
-  ENROLL,
-  CONFIRM,
-  QR_PHASE_INSTALLATION,
-} from '@/lib/mfa-constants';
+import { ENTER_QR, ENTER_OTP, ENTER_CONTACT, QR_PHASE_INSTALLATION } from '@/lib/mfa-constants';
 
 import AppleLogo from '@/lib/svgs/apple-logo';
 import GoogleLogo from '@/lib/svgs/google-logo';
 import { useTheme, useTranslator } from '@/hooks';
 import { cn } from '@/lib/theme-utils';
-import { Styling } from '@/types';
-
-type UserMFASetupFormProps = {
-  open: boolean;
-  onClose: () => void;
-  factorType: MFAType;
-  enrollMfa: (factor: MFAType, options: Record<string, string>) => Promise<EnrollMfaResponse>;
-  confirmEnrollment: (
-    factor: MFAType,
-    options: { oobCode?: string; userOtpCode?: string },
-  ) => Promise<unknown | null>;
-  onSuccess: () => void;
-  onError: (error: Error, stage: typeof ENROLL | typeof CONFIRM) => void;
-  schemaValidation?: { email?: RegExp; phone?: RegExp };
-  styling?: Styling;
-};
+import { UserMFASetupFormProps } from '@/types';
 
 type EnrollmentPhase =
   | typeof ENTER_CONTACT

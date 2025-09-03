@@ -2,24 +2,10 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
-import type { MFAType } from '@auth0-web-ui-components/core';
 import { getComponentStyles } from '@auth0-web-ui-components/core';
 import { cn } from '@/lib/theme-utils';
-import { Styling } from '@/types';
+import { DeleteFactorConfirmationProps } from '@/types';
 import { useTheme, useTranslator } from '@/hooks';
-
-type DeleteFactorConfirmationProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  factorToDelete: {
-    id: string;
-    type: MFAType;
-  } | null;
-  isDeletingFactor: boolean;
-  onConfirm: (factorId: string) => void;
-  onCancel: () => void;
-  styling?: Styling;
-};
 
 export function DeleteFactorConfirmation({
   open,

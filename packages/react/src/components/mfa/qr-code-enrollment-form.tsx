@@ -2,38 +2,20 @@ import * as React from 'react';
 import QRCode from 'react-qr-code';
 import { Copy } from 'lucide-react';
 
-import {
-  type MFAType,
-  type EnrollMfaResponse,
-  getComponentStyles,
-  FACTOR_TYPE_TOPT,
-} from '@auth0-web-ui-components/core';
+import { getComponentStyles, FACTOR_TYPE_TOPT } from '@auth0-web-ui-components/core';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { TextField } from '@/components/ui/text-field';
 
-import { CONFIRM, QR_PHASE_ENTER_OTP, QR_PHASE_SCAN, ENROLL } from '@/lib/mfa-constants';
+import { QR_PHASE_ENTER_OTP, QR_PHASE_SCAN } from '@/lib/mfa-constants';
 
 import { useTheme, useTranslator } from '@/hooks';
 import { useOtpEnrollment } from '@/hooks/mfa';
 
 import { OTPVerificationForm } from './otp-verification-form';
-import { Styling } from '@/types';
+import { QRCodeEnrollmentFormProps } from '@/types';
 import { cn } from '@/lib/theme-utils';
-
-type QRCodeEnrollmentFormProps = {
-  factorType: MFAType;
-  enrollMfa: (factor: MFAType, options: Record<string, string>) => Promise<EnrollMfaResponse>;
-  confirmEnrollment: (
-    factor: MFAType,
-    options: { oobCode?: string; userOtpCode?: string },
-  ) => Promise<unknown | null>;
-  onError: (error: Error, stage: typeof ENROLL | typeof CONFIRM) => void;
-  onSuccess: () => void;
-  onClose: () => void;
-  styling?: Styling;
-};
 
 const PHASES = {
   SCAN: QR_PHASE_SCAN,

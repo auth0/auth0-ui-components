@@ -21,27 +21,11 @@ import {
 import { OTPField } from '@/components/ui/otp-field';
 
 import { useTheme, useTranslator, useOtpConfirmation } from '@/hooks';
-import { CONFIRM } from '@/lib/mfa-constants';
 import { cn } from '@/lib/theme-utils';
-import { Styling } from '@/types';
+import { OTPVerificationFormProps } from '@/types';
 
 type OtpForm = {
   userOtp: string;
-};
-
-type OTPVerificationFormProps = {
-  factorType: MFAType;
-  confirmEnrollment: (
-    factor: MFAType,
-    options: { oobCode?: string; userOtpCode?: string },
-  ) => Promise<unknown | null>;
-  onError: (error: Error, stage: typeof CONFIRM) => void;
-  onSuccess: () => void;
-  onClose: () => void;
-  oobCode?: string;
-  contact?: string;
-  onBack?: () => void;
-  styling?: Styling;
 };
 
 /**

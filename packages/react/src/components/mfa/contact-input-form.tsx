@@ -4,13 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { MailIcon, SmartphoneIcon } from 'lucide-react';
 
 import {
-  MFAType,
   FACTOR_TYPE_EMAIL,
   createEmailContactSchema,
   createSmsContactSchema,
   type EmailContactForm,
   type SmsContactForm,
-  type EnrollMfaResponse,
   getComponentStyles,
 } from '@auth0-web-ui-components/core';
 
@@ -26,28 +24,14 @@ import {
 } from '@/components/ui/form';
 import { TextField } from '@/components/ui/text-field';
 import { useContactEnrollment } from '@/hooks/mfa';
-import { ENTER_CONTACT, ENROLL, CONFIRM, ENTER_OTP } from '@/lib/mfa-constants';
-import { Styling } from '@/types';
+import { ENTER_CONTACT, ENTER_OTP } from '@/lib/mfa-constants';
+import { ContactInputFormProps } from '@/types';
 import { useTheme, useTranslator } from '@/hooks';
 import { cn } from '@/lib/theme-utils';
 
 import { OTPVerificationForm } from './otp-verification-form';
 
 type ContactForm = EmailContactForm | SmsContactForm;
-
-type ContactInputFormProps = {
-  factorType: MFAType;
-  enrollMfa: (factor: MFAType, options: Record<string, string>) => Promise<EnrollMfaResponse>;
-  confirmEnrollment: (
-    factor: MFAType,
-    options: { oobCode?: string; userOtpCode?: string },
-  ) => Promise<unknown | null>;
-  onError: (error: Error, stage: typeof ENROLL | typeof CONFIRM) => void;
-  onSuccess: () => void;
-  onClose: () => void;
-  schemaValidation?: { email?: RegExp; phone?: RegExp };
-  styling?: Styling;
-};
 
 const PHASES = {
   ENTER_CONTACT: ENTER_CONTACT,

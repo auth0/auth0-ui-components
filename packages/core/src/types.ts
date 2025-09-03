@@ -1,3 +1,5 @@
+import { StylingVariables } from './theme';
+
 export type SafeAny = any; // eslint-disable-line
 
 export interface ActionButton {
@@ -7,4 +9,15 @@ export interface ActionButton {
   icon?: unknown;
   onClick: (event: Event) => void;
   disabled?: boolean;
+}
+
+export interface SharedComponentProps<
+  Messages extends object = Record<string, unknown>,
+  Classes extends object = Record<string, string | undefined>,
+> {
+  styling?: {
+    variables?: StylingVariables;
+    classes?: Partial<Classes>;
+  };
+  customMessages?: Partial<Messages>;
 }
