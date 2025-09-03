@@ -18,12 +18,12 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { OTPField } from '@/components/ui/otp-field';
-import { CopyableTextField } from '@/components/ui/copyable-text-field';
 
 import { useTheme, useTranslator, useOtpConfirmation } from '@/hooks';
 import { CONFIRM } from '@/lib/mfa-constants';
 import { cn } from '@/lib/theme-utils';
 import { Styling } from '@/types';
+import { ShowRecoveryCode } from './show-recovery-code';
 
 type OtpForm = {
   userOtp: string;
@@ -45,43 +45,14 @@ type OTPVerificationFormProps = {
   styling?: Styling;
 };
 
-/**
- * Masks sensitive contact information for display purposes.
- *
- * For email addresses:
- * - Shows the first 2 characters of the local part
- * - Masks the remaining characters with asterisks
- * - Preserves the @ symbol and domain unchanged
- *
- * For phone numbers:
- * - Shows the first 3 and last 3 characters
- * - Masks the middle characters with asterisks
- *
- * @param {string} contact - The contact information to mask (email or phone number)
- * @param {MFAType} factorType - The type of MFA factor to determine masking strategy
- * @returns {string} The masked contact information
- *
- * @example
- * // Email masking
- * maskContact('john.doe@example.com', 'email') // Returns 'jo******@example.com'
- *
- * @example
- * // Phone number masking
- * maskContact('1234567890', 'sms') // Returns '123****890'
- */
+// Mask contact info (email or phone)
 const maskContact = (contact: string, factorType: MFAType): string => {
   if (!contact) return '';
 
   if (factorType === FACTOR_TYPE_EMAIL) {
-    const atIndex = contact.indexOf('@');
-    if (atIndex === -1) return contact;
-
-    const localPart = contact.substring(0, atIndex);
-    const domain = contact.substring(atIndex);
-
-    return localPart.length > 2
-      ? `${localPart.slice(0, 2)}${'*'.repeat(localPart.length - 2)}${domain}`
-      : contact;
+    const [local, domain] = contact.split('@');
+    if (!domain || local.length <= 2) return contact;
+    return `${local.slice(0, 2)}${'*'.repeat(local.length - 2)}@${domain}`;
   }
 
   return contact.length > 6
@@ -97,14 +68,10 @@ export function OTPVerificationForm({
   onClose,
   oobCode,
   contact,
-  recoveryCodes,
+  recoveryCodes = [],
   onBack,
   styling = {
-    variables: {
-      common: {},
-      light: {},
-      dark: {},
-    },
+    variables: { common: {}, light: {}, dark: {} },
     classes: {},
   },
 }: OTPVerificationFormProps) {
@@ -115,6 +82,8 @@ export function OTPVerificationForm({
     [styling, isDarkMode],
   );
 
+  const [showRecoveryCode, setShowRecoveryCode] = React.useState(false);
+
   const { onSubmitOtp, loading } = useOtpConfirmation({
     factorType,
     confirmEnrollment,
@@ -123,29 +92,54 @@ export function OTPVerificationForm({
     onClose,
   });
 
-  const form = useForm<OtpForm>({
-    mode: 'onChange',
-  });
-
+  const form = useForm<OtpForm>({ mode: 'onChange' });
   const userOtp = form.watch('userOtp');
-  const isOtpValid = userOtp && userOtp.length === 6;
+
   const otpInputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     otpInputRef.current?.focus();
   }, []);
 
-  const handleSubmit = React.useCallback(
-    async (data: OtpForm) => {
+  const handleSubmit = async (data: OtpForm) => {
+    // If recovery codes exist, switch to continue flow, otherwise submit
+    if (recoveryCodes.length > 0) {
+      setShowRecoveryCode(true);
+    } else {
       await onSubmitOtp(data, oobCode);
-    },
-    [onSubmitOtp, oobCode],
-  );
+    }
+  };
 
   const maskedContact = React.useMemo(
     () => (contact ? maskContact(contact, factorType) : ''),
     [contact, factorType],
   );
+
+  const showRecovery = showRecoveryCode && recoveryCodes.length > 0;
+  const shouldUseContinueFlow = recoveryCodes.length > 0;
+
+  const buttonText = loading
+    ? t('enrollment_form.show_otp.verifying')
+    : shouldUseContinueFlow
+      ? t('continue')
+      : t('submit');
+
+  if (showRecovery) {
+    return (
+      <ShowRecoveryCode
+        factorType={factorType}
+        confirmEnrollment={confirmEnrollment}
+        onError={onError}
+        onSuccess={onSuccess}
+        onClose={onClose}
+        oobCode={oobCode}
+        userOtp={userOtp}
+        recoveryCodes={recoveryCodes}
+        onBack={() => setShowRecoveryCode(false)}
+        styling={styling}
+      />
+    );
+  }
 
   return (
     <div style={currentStyles.variables} className="w-full max-w-sm mx-auto text-center">
@@ -159,20 +153,22 @@ export function OTPVerificationForm({
           <p
             id="otp-description"
             className={cn(
-              'font-normal text-center text-primary block mx-auto text-sm text-(length:--font-size-paragraph)',
+              'text-sm text-primary font-normal text-center',
+              'text-(length:--font-size-paragraph)',
             )}
           >
             {[FACTOR_TYPE_PUSH_NOTIFICATION, FACTOR_TYPE_OTP].includes(factorType)
               ? t('enrollment_form.show_otp.enter_opt_code')
               : t('enrollment_form.show_otp.enter_verify_code', { verifier: maskedContact })}
           </p>
+
           <FormField
             control={form.control}
             name="userOtp"
             render={({ field }) => (
               <FormItem>
                 <FormLabel
-                  className="text-sm text-(length:--font-size-label) font-normal"
+                  className="text-sm font-normal text-(length:--font-size-label)"
                   htmlFor="otp-input"
                 >
                   {t('enrollment_form.show_otp.one_time_passcode')}
@@ -184,12 +180,12 @@ export function OTPVerificationForm({
                     separator={{ character: '-', afterEvery: 3 }}
                     onChange={field.onChange}
                     inputRef={otpInputRef}
-                    aria-invalid={Boolean(form.formState.errors.userOtp)}
+                    aria-invalid={!!form.formState.errors.userOtp}
                     value={field.value || ''}
                   />
                 </FormControl>
                 <FormMessage
-                  className="text-sm text-(length:--font-size-paragraph) text-left"
+                  className="text-sm text-left text-(length:--font-size-paragraph)"
                   id="otp-error"
                   role="alert"
                 />
@@ -197,29 +193,17 @@ export function OTPVerificationForm({
             )}
           />
 
-          {recoveryCodes && recoveryCodes.length > 0 && (
-            <div>
-              <p
-                className={cn(
-                  'font-normal block text-sm text-center text-(length:--font-size-paragraph) mb-4',
-                )}
-              >
-                {t('enrollment_form.recovery_code_description')}
-              </p>
-              <CopyableTextField value={recoveryCodes[0]} />
-            </div>
-          )}
-
           <div className="flex flex-col gap-3 justify-center">
             <Button
               type="submit"
               className="text-sm"
               size="lg"
-              disabled={loading || !isOtpValid}
-              aria-label={loading ? t('enrollment_form.show_otp.verifying') : t('submit')}
+              disabled={userOtp?.length !== 6 || loading}
+              aria-label={buttonText}
             >
-              {loading ? t('enrollment_form.show_otp.verifying') : t('submit')}
+              {buttonText}
             </Button>
+
             <Button
               type="button"
               className="text-sm"

@@ -18,6 +18,7 @@ import { useTheme, useTranslator } from '@/hooks';
 import { useOtpEnrollment } from '@/hooks/mfa';
 
 import { OTPVerificationForm } from './otp-verification-form';
+import { ShowRecoveryCode } from './show-recovery-code';
 import { Styling } from '@/types';
 import { cn } from '@/lib/theme-utils';
 
@@ -37,6 +38,7 @@ type QRCodeEnrollmentFormProps = {
 const PHASES = {
   SCAN: QR_PHASE_SCAN,
   ENTER_OTP: QR_PHASE_ENTER_OTP,
+  SHOW_RECOVERY: 'show_recovery',
 } as const;
 
 type Phase = (typeof PHASES)[keyof typeof PHASES];
@@ -78,16 +80,21 @@ export function QRCodeEnrollmentForm({
 
   const handleContinue = React.useCallback(() => {
     if (factorType === FACTOR_TYPE_PUSH_NOTIFICATION) {
-      onClose();
+      // Check if recovery codes exist for push notification
+      if (otpData?.recoveryCodes && otpData.recoveryCodes.length > 0) {
+        setPhase(PHASES.SHOW_RECOVERY);
+      } else {
+        onClose();
+      }
     } else {
       setPhase(QR_PHASE_ENTER_OTP);
     }
-  }, [factorType, onClose]);
+  }, [factorType, otpData?.recoveryCodes, onClose]);
 
   const handleBack = React.useCallback(() => {
     setPhase(QR_PHASE_SCAN);
     resetOtpData();
-  }, []);
+  }, [resetOtpData]);
 
   const renderQrScreen = () => {
     return (
@@ -128,18 +135,6 @@ export function QRCodeEnrollmentForm({
                 label={t('enrollment_form.show_otp.secret_code')}
               />
 
-              {otpData?.recoveryCodes && otpData.recoveryCodes.length > 0 && (
-                <div>
-                  <p
-                    className={cn(
-                      'font-normal block text-sm text-center text-(length:--font-size-paragraph) mb-4',
-                    )}
-                  >
-                    {t('enrollment_form.recovery_code_description')}
-                  </p>
-                  <CopyableTextField value={otpData.recoveryCodes[0]} />
-                </div>
-              )}
               <div className="mt-3" />
               <Button
                 type="button"
@@ -180,6 +175,18 @@ export function QRCodeEnrollmentForm({
       styling={styling}
     />
   );
+
+  const renderRecoveryCodeScreen = () => (
+    <ShowRecoveryCode
+      recoveryCodes={otpData.recoveryCodes || []}
+      onSuccess={onClose}
+      styling={styling}
+    />
+  );
+
+  if (phase === PHASES.SHOW_RECOVERY) {
+    return renderRecoveryCodeScreen();
+  }
 
   return phase === QR_PHASE_SCAN ? renderQrScreen() : renderOtpScreen();
 }
