@@ -7,43 +7,63 @@ import { cn } from '@/lib/theme-utils';
 export interface FormActionsProps {
   hasUnsavedChanges?: boolean;
   isLoading?: boolean;
-  saveAction?: Partial<ActionButton>;
-  cancelAction?: Partial<ActionButton>;
-  showCancel?: boolean;
+  nextAction?: Partial<ActionButton>;
+  previousAction?: Partial<ActionButton>;
+  showPrevious?: boolean;
   showUnsavedChanges?: boolean;
   align?: 'left' | 'right';
   className?: string;
   unsavedChangesText?: string;
 }
 
+const DEFAULT_NEXT_ACTION: ActionButton = {
+  label: 'Save',
+  variant: 'primary',
+  onClick: () => {},
+};
+
+const DEFAULT_PREVIOUS_ACTION: ActionButton = {
+  label: 'Cancel',
+  variant: 'outline',
+  onClick: () => {},
+};
+
 export const FormActions: React.FC<FormActionsProps> = ({
   hasUnsavedChanges = false,
   isLoading = false,
-  saveAction,
-  cancelAction,
+  nextAction,
+  previousAction,
   className,
-  showCancel = true,
+  showPrevious = true,
   showUnsavedChanges = true,
   align = 'right',
   unsavedChangesText = 'Unsaved changes',
 }) => {
-  const defaultSaveAction: ActionButton = {
-    label: 'Save',
-    variant: 'primary',
-    onClick: () => {},
-    ...saveAction,
-  };
+  const nextButtonProps = React.useMemo(
+    () => ({ ...DEFAULT_NEXT_ACTION, ...nextAction }),
+    [nextAction],
+  );
 
-  const defaultCancelAction: ActionButton = {
-    label: 'Cancel',
-    variant: 'outline',
-    onClick: () => {},
-    ...cancelAction,
-  };
+  const previousButtonProps = React.useMemo(
+    () => ({ ...DEFAULT_PREVIOUS_ACTION, ...previousAction }),
+    [previousAction],
+  );
 
-  const handleClick = (action: ActionButton) => (e: React.MouseEvent<HTMLButtonElement>) => {
-    action.onClick(e.nativeEvent);
-  };
+  const handleNextClick = React.useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      nextButtonProps.onClick(e.nativeEvent);
+    },
+    [nextButtonProps.onClick],
+  );
+
+  const handlePreviousClick = React.useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      previousButtonProps.onClick(e.nativeEvent);
+    },
+    [previousButtonProps.onClick],
+  );
+
+  const showUnsavedIndicator = showUnsavedChanges && hasUnsavedChanges;
 
   return (
     <div
@@ -53,7 +73,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
         className,
       )}
     >
-      {showUnsavedChanges && hasUnsavedChanges && (
+      {showUnsavedIndicator && (
         <div className="flex items-center gap-2">
           <div
             className="w-2 h-2 rounded-full bg-orange-500 transition-colors"
@@ -63,26 +83,26 @@ export const FormActions: React.FC<FormActionsProps> = ({
         </div>
       )}
 
-      {showCancel && hasUnsavedChanges && (
+      {showPrevious && (
         <Button
           type="button"
-          variant={defaultCancelAction.variant}
-          size={defaultCancelAction.size}
-          onClick={handleClick(defaultCancelAction)}
-          disabled={defaultCancelAction.disabled || isLoading}
+          variant={previousButtonProps.variant}
+          size={previousButtonProps.size}
+          onClick={handlePreviousClick}
+          disabled={previousButtonProps.disabled || isLoading}
         >
-          {defaultCancelAction.label}
+          {previousButtonProps.label}
         </Button>
       )}
 
       <Button
         type="submit"
-        variant={defaultSaveAction.variant}
-        size={defaultSaveAction.size}
-        disabled={defaultSaveAction.disabled || isLoading}
-        onClick={handleClick(defaultSaveAction)}
+        variant={nextButtonProps.variant}
+        size={nextButtonProps.size}
+        disabled={nextButtonProps.disabled || isLoading}
+        onClick={handleNextClick}
       >
-        {isLoading ? <Spinner size="sm" aria-hidden="true" /> : defaultSaveAction.label}
+        {isLoading ? <Spinner size="sm" aria-hidden="true" /> : nextButtonProps.label}
       </Button>
     </div>
   );

@@ -145,4 +145,8 @@
   /* Default for text-sm (For general smaller paragraphs/details) */
   --font-size-label: 0.875rem;
   /* Default for text-sm (Specifically for labels like FieldLabel) */
+  --font-size-page-header: 2.25rem;
+  /* Default for text-4xl (For main page headers/titles) */
+  --font-size-page-description: 0.875rem;
+  /* Default for text-sm (For page descriptions/subtitles) */
 }

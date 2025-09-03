@@ -10,6 +10,7 @@ export interface ActionButton {
   icon?: unknown;
   onClick: (event: Event) => void;
   disabled?: boolean;
+  className?: string;
 }
 
 export type SchemaValidation = Record<string, RegExp | ZodObject<ZodRawShape>>;
