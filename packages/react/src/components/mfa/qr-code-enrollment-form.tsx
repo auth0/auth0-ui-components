@@ -169,6 +169,8 @@ export function QRCodeEnrollmentForm({
       recoveryCodes={otpData.recoveryCodes || []}
       onSuccess={onClose}
       styling={styling}
+      onBack={handleBack}
+      factorType={factorType}
     />
   );
 

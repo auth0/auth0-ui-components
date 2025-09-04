@@ -119,7 +119,7 @@ export interface ShowRecoveryCodeProps
   extends SharedComponentProps<MFAMessages, UserMFAMgmtClasses> {
   recoveryCodes: string[];
   onSuccess: () => void;
-  factorType?: MFAType;
+  factorType: MFAType;
   confirmEnrollment?: (
     factor: MFAType,
     options: { oobCode?: string; userOtpCode?: string },

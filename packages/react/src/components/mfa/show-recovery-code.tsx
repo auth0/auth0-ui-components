@@ -37,7 +37,7 @@ export function ShowRecoveryCode({
   const isPushNotification = factorType === FACTOR_TYPE_PUSH_NOTIFICATION;
 
   const { onSubmitOtp, loading } = useOtpConfirmation({
-    factorType: factorType!,
+    factorType: factorType,
     confirmEnrollment: confirmEnrollment!,
     onError: onError!,
     onSuccess,
@@ -79,18 +79,16 @@ export function ShowRecoveryCode({
           >
             {buttonText}
           </Button>
-          {onBack && (
-            <Button
-              type="button"
-              className="text-sm"
-              variant="ghost"
-              size="lg"
-              onClick={onBack}
-              aria-label={t('back')}
-            >
-              {t('back')}
-            </Button>
-          )}
+          <Button
+            type="button"
+            className="text-sm"
+            variant="ghost"
+            size="lg"
+            onClick={onBack}
+            aria-label={t('back')}
+          >
+            {t('back')}
+          </Button>
         </div>
       </div>
     </div>
