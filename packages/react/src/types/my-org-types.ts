@@ -34,12 +34,6 @@ export interface OrgDetailsProps
   formActions: OrgDetailsFormActions;
 }
 
-export interface OrgDeteletClasses {
-  'OrgDelete-card'?: string;
-  'OrgDelete-button'?: string;
-  'OrgDelete-modal'?: string;
-}
-
 export interface OrgDeleteClasses {
   'OrgDelete-card'?: string;
   'OrgDelete-button'?: string;
