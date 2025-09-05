@@ -26,17 +26,6 @@ import { withCoreClient } from '@/hoc';
  * This component renders form fields for organization configuration in a structured layout with sections.
  * All data, validation, and business logic are handled via props passed from parent components.
  *
- * High-level implementation:
- * ```
- * <>
- *   <Form>
- *     <SettingsDetails />
- *     <BrandingDetails />
- *     <FormActions />
- *   </Form>
- * </>
- * ```
- *
  * @param {OrgDetailsProps} props - Component props
  * @param {Partial<OrganizationDetailFormValues>} [props.organization={}] - Initial organization data for form fields
  * @param {boolean} [props.isLoading=false] - Whether the form is in a loading state

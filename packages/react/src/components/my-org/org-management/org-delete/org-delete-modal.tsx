@@ -14,22 +14,6 @@ import { OrgDeleteModalProps } from '@/types';
  * the organization name to confirm the destructive action. This component handles
  * validation, error states, and provides a secure confirmation flow.
  *
- * High-level implementation:
- * ```
- * <Modal>
- *   <ModalHeader />
- *   <ModalContent>
- *     <Description />
- *     <ConfirmationInput />
- *     <ErrorMessage />
- *   </ModalContent>
- *   <ModalActions>
- *     <DeleteButton />
- *     <CancelButton />
- *   </ModalActions>
- * </Modal>
- * ```
- *
  * @param {boolean} isOpen - Whether the modal is currently open/visible
  * @param {() => void} onClose - Callback fired when the modal should be closed
  * @param {string} organizationName - Name of the organization to be deleted (used for confirmation)
