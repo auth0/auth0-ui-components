@@ -97,10 +97,13 @@ function OrgDetailsComponent({
   const onValid = React.useCallback(
     async (values: OrganizationDetailFormValues) => {
       if (formActions?.nextAction?.onClick) {
-        await formActions.nextAction.onClick(values);
+        await formActions.nextAction.onClick({
+          ...values,
+          ...(organization?.id && { id: organization.id }),
+        });
       }
     },
-    [formActions?.nextAction],
+    [formActions?.nextAction, organization],
   );
 
   const handlePreviousAction = React.useCallback(
@@ -133,7 +136,7 @@ function OrgDetailsComponent({
                     !hasUnsavedChanges ||
                     isLoading ||
                     readOnly,
-                  ...formActions?.nextAction,
+                  type: 'submit',
                 }}
                 previousAction={
                   formActions?.previousAction && {

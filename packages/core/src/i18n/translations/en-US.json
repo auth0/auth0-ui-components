@@ -58,6 +58,9 @@
       "org_name_field_label": "Organization Name",
       "org_name_field_error": "Please type \"${orgName}\" to confirm deletion",
       "cancel_button_label": "Cancel"
+    },
+    "org_details_edit": {
+      "title": "${orgName}"
     }
   },
   "mfa": {

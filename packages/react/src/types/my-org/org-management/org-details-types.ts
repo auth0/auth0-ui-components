@@ -2,7 +2,6 @@ import type {
   OrganizationDetailFormValues,
   OrgDetailsCustomMessages,
   SharedComponentProps,
-  ActionButton,
   OrganizationDetailSchemaValidation,
 } from '@auth0-web-ui-components/core';
 import { FormActionsProps } from '@/components/ui/form-actions';
@@ -13,8 +12,10 @@ export interface OrgDetailsClasses {
 }
 
 export interface OrgDetailsFormActions extends Omit<FormActionsProps, 'nextAction'> {
-  nextAction?: ActionButton & {
-    onClick?: (data: OrganizationDetailFormValues) => void | Promise<void>;
+  nextAction?: {
+    label?: string;
+    disabled?: boolean;
+    onClick?: (data: OrganizationDetailFormValues & { id?: string }) => void | Promise<void>;
   };
 }
 
@@ -24,7 +25,7 @@ export interface OrgDetailsProps
     OrgDetailsClasses,
     OrganizationDetailSchemaValidation
   > {
-  organization?: Partial<OrganizationDetailFormValues>;
+  organization?: Partial<OrganizationDetailFormValues> & { id?: string };
   isLoading?: boolean;
   formActions: OrgDetailsFormActions;
 }

@@ -58,6 +58,9 @@
       "org_name_field_label": "組織名",
       "org_name_field_error": "削除を確認するために「${orgName}」と入力してください",
       "cancel_button_label": "キャンセル"
+    },
+    "org_details_edit": {
+      "title": "${orgName}"
     }
   },
   "mfa": {
