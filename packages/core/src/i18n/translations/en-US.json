@@ -3,6 +3,63 @@
     "copy": "Copy",
     "copied": "Copied!"
   },
+  "org_management": {
+    "org_details": {
+      "sections": {
+        "settings": {
+          "title": "Settings",
+          "fields": {
+            "name": {
+              "label": "Name",
+              "placeholder": "Enter organization name",
+              "helper_text": "A human-readable identifier for the organization, used by end users to direct them to their organization in your application.",
+              "error": "Please enter a valid organization name"
+            },
+            "display_name": {
+              "label": "Display Name",
+              "placeholder": "Enter display name",
+              "helper_text": "The name displayed to end users of this organization.",
+              "error": "Please enter a valid display name"
+            }
+          }
+        },
+        "branding": {
+          "title": "Branding",
+          "fields": {
+            "logo": {
+              "label": "Organization Logo",
+              "helper_text": "The logo that will be displayed to end-users for this organization in any interaction with them.",
+              "error": "Please enter a valid HTTPS URL for the logo"
+            },
+            "primary_color": {
+              "label": "Primary Color",
+              "helper_text": "The primary color for buttons displayed to end users of this organization in your application's authentication flows.",
+              "error": "Please enter a valid color format"
+            },
+            "page_background_color": {
+              "label": "Page Background Color",
+              "helper_text": "The page background color displayed to end users of this organization in your application's authentication flows.",
+              "error": "Please enter a valid color format"
+            }
+          }
+        }
+      },
+      "unsaved_changes_text": "Unsaved changes",
+      "submit_button_label": "Save",
+      "cancel_button_label": "Cancel"
+    },
+    "org_delete": {
+      "title": "Delete ${orgName}",
+      "description": "Once confirmed, this operation cannot be undone.",
+      "delete_button_label": "Delete",
+      "modal_title": "Delete ${orgName}",
+      "modal_description": "Are you sure you want to delete ${orgName}? Users will be maintained but membership to this organization will be removed. Once confirmed, this action cannot be undone.",
+      "org_name_field_placeholder": "Type in the organization name",
+      "org_name_field_label": "Organization Name",
+      "org_name_field_error": "Please type \"${orgName}\" to confirm deletion",
+      "cancel_button_label": "Cancel"
+    }
+  },
   "mfa": {
     "title": "Multi-Factor Authentication methods",
     "description": "Extra protection for your account and your identity",

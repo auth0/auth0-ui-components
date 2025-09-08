@@ -16,7 +16,7 @@ export interface ButtonActionProps extends BaseActionProps {
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-export interface ToggleActionProps extends BaseActionProps {
+export interface ToggleActionProps extends Omit<BaseActionProps, 'type'> {
   type: 'toggle';
   pressed?: boolean;
   onPressedChange: (pressed: boolean) => void;

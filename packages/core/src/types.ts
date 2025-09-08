@@ -1,5 +1,4 @@
 import { StylingVariables } from './theme';
-import { ZodObject, ZodRawShape } from 'zod';
 
 export type SafeAny = any; // eslint-disable-line
 
@@ -11,14 +10,13 @@ export interface ActionButton {
   onClick: (event: Event) => void;
   disabled?: boolean;
   className?: string;
+  type?: 'button' | 'submit';
 }
-
-export type SchemaValidation = Record<string, RegExp | ZodObject<ZodRawShape>>;
 
 export interface SharedComponentProps<
   Messages extends object = Record<string, unknown>,
   Classes extends object = Record<string, string | undefined>,
-  Schema extends SchemaValidation = SchemaValidation,
+  Schema extends object = object,
 > {
   styling?: {
     variables?: StylingVariables;

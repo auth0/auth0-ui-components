@@ -34,14 +34,14 @@ export const Modal: React.FC<ModalProps> = ({
 
   const actions: FormActionsProps = {
     hasUnsavedChanges: true,
-    showCancel: true,
+    showPrevious: true,
     showUnsavedChanges: false,
-    cancelAction: {
+    previousAction: {
       label: 'Cancel',
       variant: 'outline',
       onClick: () => onOpenChange(false),
     },
-    saveAction: {
+    nextAction: {
       label: 'Confirm',
       variant: 'primary',
       onClick: () => onOpenChange(false),

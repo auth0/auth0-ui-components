@@ -3,6 +3,63 @@
     "copy": "コピー",
     "copied": "コピーしました"
   },
+  "org_management": {
+    "org_details": {
+      "sections": {
+        "settings": {
+          "title": "設定",
+          "fields": {
+            "name": {
+              "label": "名前",
+              "placeholder": "組織名を入力してください",
+              "helper_text": "組織の人間が読みやすい識別子で、エンドユーザーがアプリケーション内で自分の組織に移動するために使用されます。",
+              "error": "有効な組織名を入力してください"
+            },
+            "display_name": {
+              "label": "表示名",
+              "placeholder": "表示名を入力してください",
+              "helper_text": "この組織のエンドユーザーに表示される名前です。",
+              "error": "有効な表示名を入力してください"
+            }
+          }
+        },
+        "branding": {
+          "title": "ブランディング",
+          "fields": {
+            "logo": {
+              "label": "組織ロゴ",
+              "helper_text": "この組織のエンドユーザーとのやり取りの際に表示されるロゴです。",
+              "error": "ロゴの有効なHTTPS URLを入力してください"
+            },
+            "primary_color": {
+              "label": "プライマリカラー",
+              "helper_text": "アプリケーションの認証フローでこの組織のエンドユーザーに表示されるボタンのプライマリカラーです。",
+              "error": "有効なカラー形式を入力してください"
+            },
+            "page_background_color": {
+              "label": "ページ背景色",
+              "helper_text": "アプリケーションの認証フローでこの組織のエンドユーザーに表示されるページ背景色です。",
+              "error": "有効なカラー形式を入力してください"
+            }
+          }
+        }
+      },
+      "unsaved_changes_text": "未保存の変更",
+      "submit_button_label": "保存",
+      "cancel_button_label": "キャンセル"
+    },
+    "org_delete": {
+      "title": "${orgName}を削除",
+      "description": "一度確認すると、この操作は元に戻すことができません。",
+      "delete_button_label": "削除",
+      "modal_title": "${orgName}を削除",
+      "modal_description": "${orgName}を削除してもよろしいですか？ユーザーは維持されますが、この組織へのメンバーシップは削除されます。一度確認すると、この操作は元に戻すことができません。",
+      "org_name_field_placeholder": "組織名を入力してください",
+      "org_name_field_label": "組織名",
+      "org_name_field_error": "削除を確認するために「${orgName}」と入力してください",
+      "cancel_button_label": "キャンセル"
+    }
+  },
   "mfa": {
     "title": "多要素認証方法",
     "description": "あなたのアカウントと身元をさらに保護します",

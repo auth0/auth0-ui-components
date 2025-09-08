@@ -17,6 +17,7 @@ export interface FormActionsProps {
 }
 
 const DEFAULT_NEXT_ACTION: ActionButton = {
+  type: 'submit',
   label: 'Save',
   variant: 'primary',
   onClick: () => {},
@@ -97,12 +98,12 @@ export const FormActions: React.FC<FormActionsProps> = ({
       )}
 
       <Button
-        type="submit"
+        type={nextButtonProps.type}
         variant={nextButtonProps.variant}
         size={nextButtonProps.size}
         disabled={nextButtonProps.disabled || isLoading}
         className={nextButtonProps.className}
-        onClick={handleNextClick}
+        {...(nextButtonProps.type !== 'submit' && { onClick: handleNextClick })}
       >
         {isLoading ? <Spinner size="sm" aria-hidden="true" /> : nextButtonProps.label}
       </Button>
