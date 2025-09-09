@@ -1,7 +1,8 @@
 import * as React from 'react';
 import QRCode from 'qrcode';
-import { useTheme, useTranslator } from '@/hooks';
+import { useTheme } from '@/hooks';
 import { cn } from '@/lib/theme-utils';
+import { Spinner } from '@/components/ui/spinner';
 
 export interface QRCodeDisplayerProps {
   /**
@@ -19,26 +20,33 @@ export interface QRCodeDisplayerProps {
   className?: string;
   /**
    * Alternative text for accessibility
+   * @default "QR Code"
    */
   alt?: string;
   /**
-   * Translation key for the alt text (takes precedence over alt)
+   * Text to display while loading
+   * @default "Loading QR code"
    */
-  altTranslationKey?: string;
+  loadingText?: string;
+  /**
+   * Text to display when there's an error loading/generating the QR code
+   * @default "Failed to load QR code"
+   */
+  errorLoadingText?: string;
 }
 
 export function QRCodeDisplayer({
   barcodeUri,
   size = 150,
   className,
-  alt,
-  altTranslationKey,
+  alt = 'QR Code',
+  loadingText = 'Loading QR code',
+  errorLoadingText = 'Failed to load QR code',
 }: QRCodeDisplayerProps) {
   const [qrCodeDataURL, setQrCodeDataURL] = React.useState<string>('');
   const [isLoading, setIsLoading] = React.useState(true);
   const [hasError, setHasError] = React.useState(false);
   const { isDarkMode } = useTheme();
-  const { t } = useTranslator('mfa');
 
   React.useEffect(() => {
     const generateQRCode = async () => {
@@ -62,7 +70,6 @@ export function QRCodeDisplayer({
         });
         setQrCodeDataURL(dataURL);
       } catch (error) {
-        console.error('Error generating QR code:', error);
         setHasError(true);
         setQrCodeDataURL('');
       } finally {
@@ -73,8 +80,6 @@ export function QRCodeDisplayer({
     generateQRCode();
   }, [barcodeUri, size, isDarkMode]);
 
-  const altText = altTranslationKey ? t(altTranslationKey) : alt || 'QR Code';
-
   if (isLoading) {
     return (
       <div
@@ -83,9 +88,9 @@ export function QRCodeDisplayer({
           className,
         )}
         style={{ width: size, height: size }}
-        aria-label="Loading QR code"
+        aria-label={loadingText}
       >
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-600 dark:border-gray-300" />
+        <Spinner aria-label={loadingText} />
       </div>
     );
   }
@@ -98,9 +103,11 @@ export function QRCodeDisplayer({
           className,
         )}
         style={{ width: size, height: size }}
-        aria-label="QR code could not be generated"
+        aria-label={errorLoadingText}
+        role="alert"
+        aria-live="assertive"
       >
-        <span>QR code unavailable</span>
+        <span>{errorLoadingText}</span>
       </div>
     );
   }
@@ -108,7 +115,7 @@ export function QRCodeDisplayer({
   return (
     <img
       src={qrCodeDataURL}
-      alt={altText}
+      alt={alt}
       width={size}
       height={size}
       className={cn('block rounded', className)}

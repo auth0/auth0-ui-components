@@ -102,7 +102,7 @@ export function QRCodeEnrollmentForm({
                 <QRCodeDisplayer
                   size={150}
                   barcodeUri={otpData.barcodeUri || ''}
-                  altTranslationKey="enrollment_form.show_otp.qr_code_description"
+                  alt={t('enrollment_form.show_otp.qr_code_description')}
                 />
               </div>
               <p
