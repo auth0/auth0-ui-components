@@ -88,7 +88,7 @@ export function QRCodeDisplayer({
 
   const wrapperProps = {
     className: cn(
-      'flex items-center justify-center rounded',
+      'flex items-center justify-center rounded p-2',
       'bg-gray-100 dark:bg-gray-800',
       hasError && 'text-gray-500 dark:text-gray-400 text-sm',
       className,
