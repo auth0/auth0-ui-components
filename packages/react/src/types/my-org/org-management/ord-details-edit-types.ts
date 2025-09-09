@@ -12,12 +12,14 @@ import { LucideIcon } from 'lucide-react';
 export interface OrgEditClasses extends OrgDetailsClasses, OrgDeleteClasses {}
 
 export interface OrgEditSaveAction {
+  label?: string;
   disable?: boolean;
   onBefore?: (org: OrganizationDetailFormValues & { id: string }) => boolean;
   onAfter?: (org: OrganizationDetailFormValues & { id: string }) => void;
 }
 
 export interface OrgEditDeleteAction {
+  label?: string;
   disable?: boolean;
   onBefore?: (org: OrganizationDetailFormValues & { id: string }) => boolean;
   onAfter?: (org: OrganizationDetailFormValues & { id: string }) => void;
@@ -45,6 +47,7 @@ export interface OrgDetailsEditProps
     OrgEditClasses,
     OrganizationDetailSchemaValidation
   > {
+  organizationId: string;
   isLoading?: boolean;
   formActions: OrgEditFormActions;
   readOnly?: boolean;

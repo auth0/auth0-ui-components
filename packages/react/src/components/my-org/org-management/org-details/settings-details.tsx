@@ -23,10 +23,10 @@ export function SettingsDetails({
   readOnly = false,
   customMessages = {},
 }: SettingsDetailsProps): React.JSX.Element {
-  const { t } = useTranslator('org_management', customMessages);
+  const { t } = useTranslator('org_management.org_details', customMessages);
 
   return (
-    <Section title={t('org_details.sections.settings.title')}>
+    <Section title={t('sections.settings.title')}>
       <FormField
         control={form.control}
         name="name"
@@ -36,12 +36,12 @@ export function SettingsDetails({
               className="text-sm text-(length:--font-size-label) font-normal"
               htmlFor="organization-name"
             >
-              {t('org_details.sections.settings.fields.name.label')}
+              {t('sections.settings.fields.name.label')}
             </FormLabel>
             <FormControl>
               <TextField
                 id="organization-name"
-                placeholder={t('org_details.sections.settings.fields.name.placeholder')}
+                placeholder={t('sections.settings.fields.name.placeholder')}
                 error={Boolean(form.formState.errors.name)}
                 aria-invalid={Boolean(form.formState.errors.name)}
                 readOnly={readOnly}
@@ -53,7 +53,7 @@ export function SettingsDetails({
               role="alert"
             />
             <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
-              {t('org_details.sections.settings.fields.name.helper_text')}
+              {t('sections.settings.fields.name.helper_text')}
             </FormDescription>
           </FormItem>
         )}
@@ -68,12 +68,12 @@ export function SettingsDetails({
               className="text-sm text-(length:--font-size-label) font-normal"
               htmlFor="organization-display-name"
             >
-              {t('org_details.sections.settings.fields.display_name.label')}
+              {t('sections.settings.fields.display_name.label')}
             </FormLabel>
             <FormControl>
               <TextField
                 id="organization-display-name"
-                placeholder={t('org_details.sections.settings.fields.display_name.placeholder')}
+                placeholder={t('sections.settings.fields.display_name.placeholder')}
                 error={Boolean(form.formState.errors.display_name)}
                 aria-invalid={Boolean(form.formState.errors.display_name)}
                 readOnly={readOnly}
@@ -85,7 +85,7 @@ export function SettingsDetails({
               role="alert"
             />
             <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
-              {t('org_details.sections.settings.fields.display_name.helper_text')}
+              {t('sections.settings.fields.display_name.helper_text')}
             </FormDescription>
           </FormItem>
         )}

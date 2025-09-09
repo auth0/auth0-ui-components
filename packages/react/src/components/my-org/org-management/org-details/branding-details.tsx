@@ -25,17 +25,17 @@ export function BrandingDetails({
   readOnly = false,
   customMessages = {},
 }: BrandingDetailsProps): React.JSX.Element {
-  const { t } = useTranslator('org_management', customMessages);
+  const { t } = useTranslator('org_management.org_details', customMessages);
 
   return (
-    <Section title={t('org_details.sections.branding.title')}>
+    <Section title={t('sections.branding.title')}>
       <FormField
         control={form.control}
         name="branding.logo_url"
         render={({ field, fieldState }) => (
           <FormItem>
             <FormLabel className="text-sm text-(length:--font-size-label) font-normal">
-              {t('org_details.sections.branding.fields.logo.label')}
+              {t('sections.branding.fields.logo.label')}
             </FormLabel>
             <FormControl>
               <ImagePreview error={fieldState.error?.message} {...field} disableFileUpload />
@@ -45,7 +45,7 @@ export function BrandingDetails({
               role="alert"
             />
             <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
-              {t('org_details.sections.branding.fields.logo.helper_text')}
+              {t('sections.branding.fields.logo.helper_text')}
             </FormDescription>
           </FormItem>
         )}
@@ -60,7 +60,7 @@ export function BrandingDetails({
               className="text-sm text-(length:--font-size-label) font-normal"
               htmlFor="primary-color"
             >
-              {t('org_details.sections.branding.fields.primary_color.label')}
+              {t('sections.branding.fields.primary_color.label')}
             </FormLabel>
             <FormControl>
               <ColorPicker
@@ -75,7 +75,7 @@ export function BrandingDetails({
               role="alert"
             />
             <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
-              {t('org_details.sections.branding.fields.primary_color.helper_text')}
+              {t('sections.branding.fields.primary_color.helper_text')}
             </FormDescription>
           </FormItem>
         )}
@@ -90,7 +90,7 @@ export function BrandingDetails({
               className="text-sm text-(length:--font-size-label) font-normal"
               htmlFor="page-background-color"
             >
-              {t('org_details.sections.branding.fields.page_background_color.label')}
+              {t('sections.branding.fields.page_background_color.label')}
             </FormLabel>
             <FormControl>
               <ColorPicker
@@ -105,7 +105,7 @@ export function BrandingDetails({
               role="alert"
             />
             <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
-              {t('org_details.sections.branding.fields.page_background_color.helper_text')}
+              {t('sections.branding.fields.page_background_color.helper_text')}
             </FormDescription>
           </FormItem>
         )}

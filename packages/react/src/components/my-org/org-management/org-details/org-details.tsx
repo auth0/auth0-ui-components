@@ -39,7 +39,7 @@ function OrgDetailsComponent({
   readOnly = false,
   formActions,
 }: OrgDetailsProps): React.JSX.Element {
-  const { t } = useTranslator('org_management', customMessages);
+  const { t } = useTranslator('org_management.org_details', customMessages);
 
   const { isDarkMode } = useTheme();
   const currentStyles = React.useMemo(
@@ -64,16 +64,13 @@ function OrgDetailsComponent({
     };
 
     return createOrganizationDetailSchema({
-      name: mergeFieldConfig('name', t('org_details.sections.settings.fields.name.error')),
+      name: mergeFieldConfig('name', t('sections.settings.fields.name.error')),
       displayName: mergeFieldConfig(
         'displayName',
-        t('org_details.sections.settings.fields.display_name.error'),
+        t('sections.settings.fields.display_name.error'),
       ),
-      color: mergeFieldConfig(
-        'color',
-        t('org_details.sections.branding.fields.primary_color.error'),
-      ),
-      logoURL: mergeFieldConfig('logoURL', t('org_details.sections.branding.fields.logo.error')),
+      color: mergeFieldConfig('color', t('sections.branding.fields.primary_color.error')),
+      logoURL: mergeFieldConfig('logoURL', t('sections.branding.fields.logo.error')),
     });
   }, [t, schemaValidation]);
 
@@ -130,7 +127,7 @@ function OrgDetailsComponent({
                 hasUnsavedChanges={hasUnsavedChanges}
                 isLoading={isLoading}
                 nextAction={{
-                  label: formActions?.nextAction?.label || t('org_details.submit_button_label'),
+                  label: formActions?.nextAction?.label || t('submit_button_label'),
                   disabled:
                     formActions?.nextAction?.disabled ||
                     !hasUnsavedChanges ||
@@ -145,9 +142,7 @@ function OrgDetailsComponent({
                   }
                 }
                 showPrevious={formActions?.showPrevious}
-                unsavedChangesText={
-                  formActions?.unsavedChangesText || t('org_details.unsaved_changes_text')
-                }
+                unsavedChangesText={formActions?.unsavedChangesText || t('unsaved_changes_text')}
                 showUnsavedChanges={formActions?.showUnsavedChanges}
                 align={formActions?.align}
                 className={formActions?.className}

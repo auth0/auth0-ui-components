@@ -46,7 +46,7 @@
       },
       "unsaved_changes_text": "未保存の変更",
       "submit_button_label": "保存",
-      "cancel_button_label": "キャンセル"
+      "cancel_button_label": "破棄"
     },
     "org_delete": {
       "title": "${orgName}を削除",
@@ -60,7 +60,10 @@
       "cancel_button_label": "キャンセル"
     },
     "org_details_edit": {
-      "title": "${orgName}"
+      "header": {
+        "backButtonText": "戻る",
+        "title": "${orgName}"
+      }
     }
   },
   "mfa": {

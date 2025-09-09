@@ -5,10 +5,10 @@ import { OrgDetailsCustomMessages } from './org-details-types';
  * Interface for Org Edit messages that extends both OrgDetails and OrgDelete messages.
  */
 export interface OrgEditCustomMessages {
-  header: {
-    title: string;
+  header?: {
+    title?: string;
     backButtonText?: string;
   };
-  details: OrgDetailsCustomMessages;
-  delete: OrgDeletesCustomMessages;
+  details?: OrgDetailsCustomMessages;
+  delete?: OrgDeletesCustomMessages;
 }

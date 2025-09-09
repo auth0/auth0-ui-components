@@ -22,7 +22,7 @@ function OrgDeleteComponent({
   isLoading = false,
   organization,
 }: OrgDeleteProps): React.JSX.Element {
-  const { t } = useTranslator('org_management', customMessages);
+  const { t } = useTranslator('org_management.org_delete', customMessages);
   const { isDarkMode } = useTheme();
 
   const currentStyles = React.useMemo(
@@ -59,14 +59,14 @@ function OrgDeleteComponent({
               <h3
                 className={cn('text-lg font-semibold text-left text-(length:--font-size-subtitle)')}
               >
-                {t('org_delete.title', { orgName: organizationName })}
+                {t('title', { orgName: organizationName })}
               </h3>
               <p
                 className={cn(
                   'text-sm text-muted-foreground text-left text-(length:--font-size-paragraph)',
                 )}
               >
-                {t('org_delete.description')}
+                {t('description')}
               </p>
             </div>
 
@@ -76,7 +76,7 @@ function OrgDeleteComponent({
               disabled={isLoading}
               className={cn('shrink-0', currentStyles.classes?.['OrgDelete-button'])}
             >
-              {t('org_delete.delete_button_label')}
+              {t('delete_button_label')}
             </Button>
           </CardContent>
         </Card>

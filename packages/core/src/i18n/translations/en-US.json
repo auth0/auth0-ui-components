@@ -46,7 +46,7 @@
       },
       "unsaved_changes_text": "Unsaved changes",
       "submit_button_label": "Save",
-      "cancel_button_label": "Cancel"
+      "cancel_button_label": "Discard"
     },
     "org_delete": {
       "title": "Delete ${orgName}",
@@ -60,7 +60,10 @@
       "cancel_button_label": "Cancel"
     },
     "org_details_edit": {
-      "title": "${orgName}"
+      "header": {
+        "backButtonText": "Back",
+        "title": "${orgName}"
+      }
     }
   },
   "mfa": {

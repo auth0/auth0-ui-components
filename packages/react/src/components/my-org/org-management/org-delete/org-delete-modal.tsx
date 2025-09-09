@@ -24,7 +24,7 @@ export function OrgDeleteModal({
   styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
   customMessages = {},
 }: OrgDeleteModalProps): React.JSX.Element {
-  const { t } = useTranslator('org_management', customMessages);
+  const { t } = useTranslator('org_management.org_delete', customMessages);
   const { isDarkMode } = useTheme();
 
   const currentStyles = React.useMemo(
@@ -61,27 +61,25 @@ export function OrgDeleteModal({
     handleClose();
   }, [confirmationText, organizationName, onDelete, handleClose]);
 
-  const errorMessage = hasError
-    ? t('org_delete.org_name_field_error', { orgName: organizationName })
-    : '';
+  const errorMessage = hasError ? t('org_name_field_error', { orgName: organizationName }) : '';
 
   return (
     <Modal
       open={isOpen}
       onOpenChange={(open) => !open && handleClose()}
       className={cn('p-10', currentStyles.classes?.['OrgDelete-modal'])}
-      title={t('org_delete.modal_title', { orgName: organizationName })}
+      title={t('modal_title', { orgName: organizationName })}
       content={
         <div className="space-y-6">
           <p className="text-sm text-muted-foreground">
-            {t('org_delete.modal_description', { orgName: organizationName })}
+            {t('modal_description', { orgName: organizationName })}
           </p>
 
           <div className="space-y-2">
-            <Label htmlFor="org-confirmation">{t('org_delete.org_name_field_label')}</Label>
+            <Label htmlFor="org-confirmation">{t('org_name_field_label')}</Label>
             <TextField
               id="org-confirmation"
-              placeholder={t('org_delete.org_name_field_placeholder')}
+              placeholder={t('org_name_field_placeholder')}
               value={confirmationText}
               onChange={handleConfirmationChange}
               error={hasError}
@@ -94,14 +92,14 @@ export function OrgDeleteModal({
       modalActions={{
         nextAction: {
           type: 'button',
-          label: t('org_delete.delete_button_label'),
+          label: t('delete_button_label'),
           onClick: handleConfirmDelete,
           variant: 'destructive',
           className: currentStyles.classes?.['OrgDelete-button'],
           disabled: isLoading,
         },
         previousAction: {
-          label: t('org_delete.cancel_button_label'),
+          label: t('cancel_button_label'),
           onClick: handleClose,
         },
       }}

@@ -1,5 +1,5 @@
 /**
- * Interface for Org Details messages that can be used in the UI.
+ * Interface for Org Delete messages that can be used in the UI.
  */
 
 export interface OrgDeletesCustomMessages {

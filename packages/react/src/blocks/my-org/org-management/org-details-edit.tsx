@@ -17,6 +17,7 @@ import { OrgDetailsFormActions } from '@/types/my-org/org-management/org-details
  * a complete editing experience with form validation, lifecycle hooks, and user feedback.
  */
 function OrgDetailsEditComponent({
+  organizationId,
   isLoading = false,
   schemaValidation,
   customMessages = {},
@@ -29,7 +30,7 @@ function OrgDetailsEditComponent({
   hideHeader = false,
   backButton,
 }: OrgDetailsEditProps): React.JSX.Element {
-  const { t } = useTranslator('org_management', customMessages);
+  const { t } = useTranslator('org_management.org_details_edit', customMessages);
   const { isDarkMode } = useTheme();
   const [isDeleting, setIsDeleting] = React.useState(false);
   const organization = {
@@ -92,7 +93,7 @@ function OrgDetailsEditComponent({
       setIsDeleting(true);
       try {
         //await onDelete(orgId); will be a hook
-        console.log(orgId);
+        console.log(orgId, organizationId);
         toast.success(t('messages.organization_deleted'));
 
         if (deleteAction?.onAfter) {
@@ -113,7 +114,7 @@ function OrgDetailsEditComponent({
       previousAction: formActions.cancelAction,
       showPrevious: formActions.showCancel,
       nextAction: {
-        label: t('save_organization'),
+        label: formActions.saveAction?.label,
         disabled: formActions.saveAction?.disable || readOnly,
         onClick: handleSubmit,
       },
@@ -127,7 +128,7 @@ function OrgDetailsEditComponent({
       {!hideHeader && (
         <div className="mb-8">
           <Header
-            title={t('header.title')}
+            title={t('header.title', { orgName: organization.display_name })}
             backButton={
               backButton && {
                 ...backButton,
