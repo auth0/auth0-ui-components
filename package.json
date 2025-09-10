@@ -62,9 +62,7 @@
     "tsup": "^8.5.0",
     "turbo": "^2.5.4",
     "typescript": "^5.8.3",
-    "vitest": "^3.2.3"
-  },
-  "dependencies": {
-    "react-qr-barcode-scanner": "^2.1.6"
+    "vitest": "^3.2.3",
+    "eslint-plugin-import": "^2.32.0"
   }
 }

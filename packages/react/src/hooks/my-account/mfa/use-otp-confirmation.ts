@@ -1,7 +1,8 @@
-import { useState, useCallback } from 'react';
 import { normalizeError, type MFAType } from '@auth0-web-ui-components/core';
-import { CONFIRM } from '@/lib/mfa-constants';
+import { useState, useCallback } from 'react';
+
 import { useTranslator } from '@/hooks';
+import { CONFIRM } from '@/lib/mfa-constants';
 
 type OtpForm = {
   userOtp: string;

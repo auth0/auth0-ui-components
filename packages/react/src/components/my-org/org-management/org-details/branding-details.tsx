@@ -1,8 +1,6 @@
 import * as React from 'react';
 
 import { ColorPicker } from '@/components/ui/color-picker';
-import { ImagePreview } from '@/components/ui/image-preview';
-import { Section } from '@/components/ui/section';
 import {
   FormControl,
   FormDescription,
@@ -11,8 +9,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { BrandingDetailsProps } from '@/types';
+import { ImagePreview } from '@/components/ui/image-preview';
+import { Section } from '@/components/ui/section';
 import { useTranslator } from '@/hooks';
+import type { BrandingDetailsProps } from '@/types';
 
 /**
  * BrandingDetails Component

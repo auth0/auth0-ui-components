@@ -1,4 +1,4 @@
-import {
+import type {
   LangTranslations,
   TranslationFunction,
   I18nInitOptions,
@@ -35,7 +35,7 @@ const I18nUtils = {
     const keys = path.split('.');
 
     for (const key of keys) {
-      if (current == null || typeof current !== 'object' || Array.isArray(current)) {
+      if (current === null || typeof current !== 'object' || Array.isArray(current)) {
         return undefined;
       }
       current = (current as Record<string, unknown>)[key];

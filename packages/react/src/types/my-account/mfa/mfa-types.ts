@@ -7,7 +7,8 @@ import type {
   MFAMessages,
   SharedComponentProps,
 } from '@auth0-web-ui-components/core';
-import { ENROLL, CONFIRM } from '@/lib/mfa-constants';
+
+import type { ENROLL, CONFIRM } from '@/lib/mfa-constants';
 
 export interface UserMFAMgmtClasses {
   'UserMFAMgmt-card'?: string;

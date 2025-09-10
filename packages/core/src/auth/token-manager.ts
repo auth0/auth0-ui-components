@@ -1,4 +1,4 @@
-import { AuthDetailsCore, Auth0ContextInterface } from './auth-types';
+import type { AuthDetailsCore, Auth0ContextInterface } from './auth-types';
 import { toURL } from './auth-utils';
 
 /**

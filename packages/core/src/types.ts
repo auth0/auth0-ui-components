@@ -1,4 +1,4 @@
-import { StylingVariables } from './theme';
+import type { StylingVariables } from './theme';
 
 export type SafeAny = any; // eslint-disable-line
 

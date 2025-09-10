@@ -1,14 +1,15 @@
-import * as React from 'react';
-import { MoreVertical, Trash2, Mail, Smartphone } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { cn } from '@/lib/theme-utils';
 import { FACTOR_TYPE_SMS, FACTOR_TYPE_EMAIL } from '@auth0-web-ui-components/core';
+import { getComponentStyles } from '@auth0-web-ui-components/core';
+import { MoreVertical, Trash2, Mail, Smartphone } from 'lucide-react';
+import * as React from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { useTranslator } from '@/hooks';
 import { useTheme } from '@/hooks';
-import { FactorsListProps } from '@/types';
-import { getComponentStyles } from '@auth0-web-ui-components/core';
+import { cn } from '@/lib/theme-utils';
+import type { FactorsListProps } from '@/types';
 
 const FACTOR_ICONS = {
   [FACTOR_TYPE_SMS]: Smartphone,

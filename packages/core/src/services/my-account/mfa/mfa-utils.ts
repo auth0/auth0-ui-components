@@ -1,3 +1,9 @@
+import {
+  FACTOR_TYPE_EMAIL,
+  FACTOR_TYPE_SMS,
+  FACTOR_TYPE_PUSH_NOTIFICATION,
+  FACTOR_TYPE_OTP,
+} from './mfa-constants';
 import type {
   EnrollMfaParams,
   ConfirmMfaEnrollmentParams,
@@ -5,12 +11,6 @@ import type {
   EnrollOptions,
   ConfirmEnrollmentOptions,
 } from './mfa-types';
-import {
-  FACTOR_TYPE_EMAIL,
-  FACTOR_TYPE_SMS,
-  FACTOR_TYPE_PUSH_NOTIFICATION,
-  FACTOR_TYPE_OTP,
-} from './mfa-constants';
 
 /**
  * Builds the parameters for an MFA enrollment request based on the factor type and options.

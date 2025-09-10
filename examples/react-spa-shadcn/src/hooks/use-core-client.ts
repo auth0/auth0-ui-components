@@ -1,5 +1,5 @@
-import * as React from 'react';
 import type { CoreClientInterface } from '@auth0-web-ui-components/core';
+import * as React from 'react';
 
 const CoreClientContext = React.createContext<{
   coreClient: CoreClientInterface | null;

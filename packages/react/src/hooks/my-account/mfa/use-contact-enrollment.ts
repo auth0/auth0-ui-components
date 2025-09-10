@@ -1,4 +1,3 @@
-import { useState, useCallback } from 'react';
 import {
   FACTOR_TYPE_EMAIL,
   FACTOR_TYPE_SMS,
@@ -6,8 +5,10 @@ import {
   type MFAType,
   type EnrollMfaResponse,
 } from '@auth0-web-ui-components/core';
-import { ENROLL } from '@/lib/mfa-constants';
+import { useState, useCallback } from 'react';
+
 import { useTranslator } from '@/hooks';
+import { ENROLL } from '@/lib/mfa-constants';
 
 type ContactForm = {
   contact: string;

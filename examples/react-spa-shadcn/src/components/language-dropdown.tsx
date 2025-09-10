@@ -1,6 +1,6 @@
+import { ChevronDown, Globe } from 'lucide-react';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, Globe } from 'lucide-react';
 
 const languages = [
   { code: 'en', name: 'English' },

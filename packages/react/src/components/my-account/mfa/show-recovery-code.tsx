@@ -1,12 +1,11 @@
-import * as React from 'react';
 import { getComponentStyles, FACTOR_TYPE_PUSH_NOTIFICATION } from '@auth0-web-ui-components/core';
+import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { CopyableTextField } from '@/components/ui/copyable-text-field';
-
 import { useTheme, useTranslator, useOtpConfirmation } from '@/hooks';
 import { cn } from '@/lib/theme-utils';
-import { ShowRecoveryCodeProps } from '@/types';
+import type { ShowRecoveryCodeProps } from '@/types';
 
 export function ShowRecoveryCode({
   factorType,

@@ -1,7 +1,8 @@
-import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { SignInButton } from './SignInButton';
+import React from 'react';
+
 import { ProfileDropdown } from './ProfileDropdown';
+import { SignInButton } from './SignInButton';
 
 export const AuthButton: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth0();

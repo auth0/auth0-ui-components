@@ -1,4 +1,4 @@
-import { ApiError } from './api-types';
+import type { ApiError } from './api-types';
 
 /**
  * Creates an ApiError object to represent a failed API call.

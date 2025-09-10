@@ -1,12 +1,14 @@
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { Auth0Provider } from '@auth0/auth0-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
+
 import { Routes, Route, BrowserRouter } from '@/components/RouterCompat';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { Auth0ComponentProvider } from '@/providers/component-provider';
+
+import { config } from './config/env';
 import Index from './pages/Index';
 import Profile from './pages/Profile';
-import { Auth0Provider } from '@auth0/auth0-react';
-import { useTranslation } from 'react-i18next';
-import { config } from './config/env';
-import { Auth0ComponentProvider } from '@/providers/component-provider';
 
 const queryClient = new QueryClient();
 

@@ -1,5 +1,6 @@
+import type { ActionButton } from '@auth0-web-ui-components/core';
 import * as React from 'react';
-import { ActionButton } from '@auth0-web-ui-components/core';
+
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/theme-utils';

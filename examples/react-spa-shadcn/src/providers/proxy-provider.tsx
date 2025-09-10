@@ -1,9 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import type { InternalProviderProps } from '@/types/auth-types';
+
 import { CoreClientContext } from '@/hooks/use-core-client';
 import { useCoreClientInitialization } from '@/hooks/use-core-client-initialization';
+import type { InternalProviderProps } from '@/types/auth-types';
 
 export const ProxyProvider = ({
   i18n,

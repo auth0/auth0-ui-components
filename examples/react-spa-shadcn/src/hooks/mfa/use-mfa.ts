@@ -1,11 +1,13 @@
-import { useCallback } from 'react';
-import { useCoreClient } from '../use-core-client';
 import type {
   MFAType,
   EnrollOptions,
   ConfirmEnrollmentOptions,
 } from '@auth0-web-ui-components/core';
-import { UseMFAResult } from '@/types';
+import { useCallback } from 'react';
+
+import type { UseMFAResult } from '@/types';
+
+import { useCoreClient } from '../use-core-client';
 
 /**
  * A custom React hook for managing all Multi-Factor Authentication (MFA) operations.

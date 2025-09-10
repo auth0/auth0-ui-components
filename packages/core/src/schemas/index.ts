@@ -1,2 +1,2 @@
-export * from './mfa';
+export * from './my-account/mfa';
 export * from './my-org';

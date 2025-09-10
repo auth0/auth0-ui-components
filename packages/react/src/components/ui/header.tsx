@@ -1,6 +1,7 @@
+import type { ActionButton as CoreActionButton } from '@auth0-web-ui-components/core';
+import type { LucideIcon } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import * as React from 'react';
-import { ActionButton as CoreActionButton } from '@auth0-web-ui-components/core';
-import { ArrowLeft, LucideIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toogle';

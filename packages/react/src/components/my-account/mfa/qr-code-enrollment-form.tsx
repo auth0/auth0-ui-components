@@ -1,24 +1,22 @@
-import * as React from 'react';
-
 import {
   getComponentStyles,
   FACTOR_TYPE_OTP,
   FACTOR_TYPE_PUSH_NOTIFICATION,
 } from '@auth0-web-ui-components/core';
+import * as React from 'react';
+
 import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
 import { CopyableTextField } from '@/components/ui/copyable-text-field';
 import { QRCodeDisplayer } from '@/components/ui/qr-code';
-
-import { QR_PHASE_ENTER_OTP, QR_PHASE_SCAN, SHOW_RECOVERY_CODE } from '@/lib/mfa-constants';
-
+import { Spinner } from '@/components/ui/spinner';
 import { useTheme, useTranslator } from '@/hooks';
-import { useOtpEnrollment } from '@/hooks/mfa';
+import { useOtpEnrollment } from '@/hooks/my-account/mfa';
+import { QR_PHASE_ENTER_OTP, QR_PHASE_SCAN, SHOW_RECOVERY_CODE } from '@/lib/mfa-constants';
+import { cn } from '@/lib/theme-utils';
+import type { QRCodeEnrollmentFormProps } from '@/types';
 
 import { OTPVerificationForm } from './otp-verification-form';
 import { ShowRecoveryCode } from './show-recovery-code';
-import { QRCodeEnrollmentFormProps } from '@/types';
-import { cn } from '@/lib/theme-utils';
 
 const PHASES = {
   SCAN: QR_PHASE_SCAN,

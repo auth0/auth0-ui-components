@@ -1,8 +1,9 @@
+import type { MFAType } from '@auth0-web-ui-components/core';
+
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { useTranslator } from '@/hooks/index';
-import type { MFAType } from '@auth0-web-ui-components/core';
 
 type DeleteFactorConfirmationProps = {
   open: boolean;

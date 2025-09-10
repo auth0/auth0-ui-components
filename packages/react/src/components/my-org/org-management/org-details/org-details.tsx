@@ -1,23 +1,23 @@
-import * as React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useTheme, useTranslator } from '@/hooks';
-
-import { Card } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { FormActions } from '@/components/ui/form-actions';
-import { Form } from '@/components/ui/form';
-import { SettingsDetails } from './settings-details';
-import { BrandingDetails } from './branding-details';
-import { cn } from '@/lib/theme-utils';
-import { OrgDetailsProps } from '@/types';
-import {
+import type {
   OrganizationDetailFormValues,
-  getComponentStyles,
-  createOrganizationDetailSchema,
   OrganizationDetailSchemaValidation,
 } from '@auth0-web-ui-components/core';
+import { getComponentStyles, createOrganizationDetailSchema } from '@auth0-web-ui-components/core';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as React from 'react';
+import { useForm } from 'react-hook-form';
+
+import { Card } from '@/components/ui/card';
+import { Form } from '@/components/ui/form';
+import { FormActions } from '@/components/ui/form-actions';
+import { Separator } from '@/components/ui/separator';
 import { withCoreClient } from '@/hoc';
+import { useTheme, useTranslator } from '@/hooks';
+import { cn } from '@/lib/theme-utils';
+import type { OrgDetailsProps } from '@/types';
+
+import { BrandingDetails } from './branding-details';
+import { SettingsDetails } from './settings-details';
 
 /**
  * OrgDetails Component

@@ -1,7 +1,8 @@
-import * as React from 'react';
-import { AuthDetailsCore } from '@auth0-web-ui-components/core';
-import { I18nOptions } from './i18n-types';
-import { CustomOverrides, ThemeSettings } from './theme-types';
+import type { AuthDetailsCore } from '@auth0-web-ui-components/core';
+import type * as React from 'react';
+
+import type { I18nOptions } from './i18n-types';
+import type { CustomOverrides, ThemeSettings } from './theme-types';
 
 /**
  * Auth0 authentication details with optional React-specific properties.

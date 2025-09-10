@@ -1,5 +1,3 @@
-import * as React from 'react';
-import { useForm } from 'react-hook-form';
 import {
   type MFAType,
   FACTOR_TYPE_EMAIL,
@@ -7,6 +5,8 @@ import {
   FACTOR_TYPE_PUSH_NOTIFICATION,
   getComponentStyles,
 } from '@auth0-web-ui-components/core';
+import * as React from 'react';
+import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -18,11 +18,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { OTPField } from '@/components/ui/otp-field';
-
 import { useTheme, useTranslator, useOtpConfirmation } from '@/hooks';
 import { cn } from '@/lib/theme-utils';
+import type { OTPVerificationFormProps } from '@/types';
+
 import { ShowRecoveryCode } from './show-recovery-code';
-import { OTPVerificationFormProps } from '@/types';
 
 type OtpForm = {
   userOtp: string;

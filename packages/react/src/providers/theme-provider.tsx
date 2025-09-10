@@ -1,7 +1,8 @@
 'use client';
 
-import * as React from 'react';
 import { applyStyleOverrides, type StylingVariables } from '@auth0-web-ui-components/core';
+import * as React from 'react';
+
 import type { ThemeContextValue, ThemeInput } from '@/types/theme-types';
 
 /**

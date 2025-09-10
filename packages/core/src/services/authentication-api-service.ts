@@ -1,6 +1,7 @@
-import { CoreClientInterface } from '../auth/auth-types';
-import { createMFAController } from './mfa/mfa-controller';
-import { MFAControllerInterface } from './mfa/mfa-types';
+import type { CoreClientInterface } from '../auth/auth-types';
+
+import { createMFAController } from './my-account/mfa/mfa-controller';
+import type { MFAControllerInterface } from './my-account/mfa/mfa-types';
 
 /**
  * Interface for the Authentication API service that provides access to various authentication-related operations.

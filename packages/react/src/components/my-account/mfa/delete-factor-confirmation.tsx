@@ -1,11 +1,12 @@
+import { getComponentStyles } from '@auth0-web-ui-components/core';
 import * as React from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
-import { getComponentStyles } from '@auth0-web-ui-components/core';
-import { cn } from '@/lib/theme-utils';
-import { DeleteFactorConfirmationProps } from '@/types';
 import { useTheme, useTranslator } from '@/hooks';
+import { cn } from '@/lib/theme-utils';
+import type { DeleteFactorConfirmationProps } from '@/types';
 
 export function DeleteFactorConfirmation({
   open,

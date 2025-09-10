@@ -1,4 +1,3 @@
-import * as React from 'react';
 import {
   type MFAType,
   FACTOR_TYPE_EMAIL,
@@ -7,22 +6,22 @@ import {
   FACTOR_TYPE_PUSH_NOTIFICATION,
   getComponentStyles,
 } from '@auth0-web-ui-components/core';
+import * as React from 'react';
 
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useTheme, useTranslator } from '@/hooks';
+import type { ENTER_OTP } from '@/lib/mfa-constants';
+import { ENTER_QR, ENTER_CONTACT, QR_PHASE_INSTALLATION } from '@/lib/mfa-constants';
+import AppleLogo from '@/lib/svgs/apple-logo';
+import GoogleLogo from '@/lib/svgs/google-logo';
+import { cn } from '@/lib/theme-utils';
+import type { UserMFASetupFormProps } from '@/types';
 
 import { ContactInputForm } from './contact-input-form';
 import { QRCodeEnrollmentForm } from './qr-code-enrollment-form';
-
-import { ENTER_QR, ENTER_OTP, ENTER_CONTACT, QR_PHASE_INSTALLATION } from '@/lib/mfa-constants';
-
-import AppleLogo from '@/lib/svgs/apple-logo';
-import GoogleLogo from '@/lib/svgs/google-logo';
-import { useTheme, useTranslator } from '@/hooks';
-import { cn } from '@/lib/theme-utils';
-import { UserMFASetupFormProps } from '@/types';
 
 type EnrollmentPhase =
   | typeof ENTER_CONTACT

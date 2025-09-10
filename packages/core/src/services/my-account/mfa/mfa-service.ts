@@ -1,4 +1,6 @@
-import { get, del, isApiError, post } from '../../api';
+import { get, del, isApiError, post } from '../../../api';
+
+import { FACTOR_TYPE_PUSH_NOTIFICATION, FACTOR_TYPE_OTP } from './mfa-constants';
 import type {
   Authenticator,
   EnrollMfaParams,
@@ -6,7 +8,6 @@ import type {
   AuthenticatorType,
   MFAType,
 } from './mfa-types';
-import { FACTOR_TYPE_PUSH_NOTIFICATION, FACTOR_TYPE_OTP } from './mfa-constants';
 
 export const factorsMetaKeys = new Set(['otp', 'push-notification', 'sms', 'email']);
 

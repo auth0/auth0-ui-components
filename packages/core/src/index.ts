@@ -20,7 +20,7 @@ export {
   EnrollOptions,
   ConfirmEnrollmentOptions,
   MFAMessages,
-} from './services/mfa/mfa-types';
+} from './services/my-account/mfa/mfa-types';
 
 export {
   FACTOR_TYPE_EMAIL,
@@ -28,7 +28,7 @@ export {
   FACTOR_TYPE_OTP,
   FACTOR_TYPE_PUSH_NOTIFICATION,
   FACTOR_TYPE_TOPT,
-} from './services/mfa/mfa-constants';
+} from './services/my-account/mfa/mfa-constants';
 
 export * from './types';
 

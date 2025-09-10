@@ -1,11 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import type { Auth0ComponentProviderProps } from '@/types/auth-types';
+
 import { Spinner } from '@/components/ui/spinner';
 import { Auth0ComponentConfigContext } from '@/hooks/index';
-import { ThemeProvider } from './theme-provider';
+import type { Auth0ComponentProviderProps } from '@/types/auth-types';
+
 import { ProxyProvider } from './proxy-provider';
+import { ThemeProvider } from './theme-provider';
 const SpaProvider = React.lazy(() => import('./spa-provider'));
 
 /**

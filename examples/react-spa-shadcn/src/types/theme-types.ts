@@ -1,5 +1,5 @@
-import React from 'react';
 import type { Styling } from '@auth0-web-ui-components/core';
+import type React from 'react';
 
 /**
  * Theme configuration

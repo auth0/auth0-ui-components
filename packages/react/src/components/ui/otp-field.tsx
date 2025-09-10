@@ -1,7 +1,9 @@
 'use client';
 
+import type { ClipboardEvent, KeyboardEvent } from 'react';
+import React, { useRef, useState } from 'react';
+
 import { TextField } from '@/components/ui/text-field';
-import React, { ClipboardEvent, KeyboardEvent, useRef, useState } from 'react';
 import { cn } from '@/lib/theme-utils';
 
 export interface OTPFieldProps {

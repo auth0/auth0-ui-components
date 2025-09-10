@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { Copy, Check } from 'lucide-react';
 import Prism from 'prismjs';
+import React, { useEffect, useRef, useState } from 'react';
 import 'prismjs/themes/prism-tomorrow.css';
-
-// Load language components in the correct order
-import 'prismjs/components/prism-markup'; // Required for JSX/TSX
+import 'prismjs/components/prism-markup';
 import 'prismjs/components/prism-css';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
@@ -12,8 +11,6 @@ import 'prismjs/components/prism-typescript';
 import 'prismjs/components/prism-tsx';
 import 'prismjs/components/prism-bash';
 import 'prismjs/components/prism-json';
-
-import { Copy, Check } from 'lucide-react';
 
 interface CodeBlockProps {
   code: string;

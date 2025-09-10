@@ -1,29 +1,23 @@
-import * as React from 'react';
+import type { Authenticator } from '@auth0-web-ui-components/core';
+import { type MFAType, FACTOR_TYPE_EMAIL, FACTOR_TYPE_SMS } from '@auth0-web-ui-components/core';
 import { MoreVertical, Trash2, Mail, Smartphone } from 'lucide-react';
-
-import {
-  Authenticator,
-  type MFAType,
-  FACTOR_TYPE_EMAIL,
-  FACTOR_TYPE_SMS,
-} from '@auth0-web-ui-components/core';
-
-import type { UserMFAMgmtProps } from '@/types';
-
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
+import * as React from 'react';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Toaster } from '@/components/ui/sonner';
-import { ENROLL, CONFIRM } from '@/lib/mfa-constants';
+
+import { DeleteFactorConfirmation } from '@/components/mfa/delete-factor-confirmation';
 import { UserMFASetupForm } from '@/components/mfa/user-mfa-setup-form';
-import { Spinner } from '@/components/ui/spinner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { List, ListItem } from '@/components/ui/list';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { DeleteFactorConfirmation } from '@/components/mfa/delete-factor-confirmation';
-
+import { Toaster } from '@/components/ui/sonner';
+import { Spinner } from '@/components/ui/spinner';
 import { withCoreClient } from '@/hoc';
 import { useComponentConfig, useMFA, useTranslator } from '@/hooks/index';
+import { ENROLL } from '@/lib/mfa-constants';
+import type { CONFIRM } from '@/lib/mfa-constants';
+import type { UserMFAMgmtProps } from '@/types';
 
 /**
  * UserMFAMgmt Component

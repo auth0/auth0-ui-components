@@ -1,5 +1,6 @@
-import { useMemo, useCallback } from 'react';
 import { type TranslationFunction } from '@auth0-web-ui-components/core';
+import { useMemo, useCallback } from 'react';
+
 import { useCoreClient } from './use-core-client';
 
 /**

@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+
 import { MockMFAContext } from '../components/MockMFAProvider';
 
 // Hook to use mock MFA context

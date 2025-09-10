@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { useComponentConfig, useCoreClient } from '../hooks';
+
 import { Spinner } from '../components/ui/spinner';
+import { useComponentConfig, useCoreClient } from '../hooks';
 
 /**
  * Higher-Order Component that ensures the core client is initialized before rendering the wrapped component.

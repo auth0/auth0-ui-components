@@ -1,8 +1,10 @@
-import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/theme-utils';
-import { TextField, textFieldVariants } from '@/components/ui/text-field';
+import * as React from 'react';
+
 import { Label } from '@/components/ui/label';
+import type { textFieldVariants } from '@/components/ui/text-field';
+import { TextField } from '@/components/ui/text-field';
+import { cn } from '@/lib/theme-utils';
 
 const regex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
 

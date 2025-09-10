@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { Shield, Smartphone, Mail, Key, Trash2, Plus } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface MockFactor {
   id: string;

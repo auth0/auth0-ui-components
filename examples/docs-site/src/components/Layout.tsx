@@ -1,7 +1,8 @@
-import React, { ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogOut, User } from 'lucide-react';
 import { useAuth0 } from '@auth0/auth0-react';
+import { Menu, X, LogOut, User } from 'lucide-react';
+import type { ReactNode } from 'react';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 interface LayoutProps {
   children: ReactNode;

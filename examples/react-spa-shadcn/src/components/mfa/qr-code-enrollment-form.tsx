@@ -1,15 +1,14 @@
+import { type MFAType, type EnrollMfaResponse } from '@auth0-web-ui-components/core';
+import { Copy } from 'lucide-react';
 import * as React from 'react';
 import QRCode from 'react-qr-code';
-import { Copy } from 'lucide-react';
 
-import { type MFAType, type EnrollMfaResponse } from '@auth0-web-ui-components/core';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-
-import { CONFIRM, QR_PHASE_ENTER_OTP, QR_PHASE_SCAN, ENROLL } from '@/lib/mfa-constants';
-
 import { useTranslator } from '@/hooks/index';
 import { useOtpEnrollment } from '@/hooks/mfa';
+import type { CONFIRM, ENROLL } from '@/lib/mfa-constants';
+import { QR_PHASE_ENTER_OTP, QR_PHASE_SCAN } from '@/lib/mfa-constants';
 
 import { OTPVerificationForm } from './otp-verification-form';
 

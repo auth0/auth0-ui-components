@@ -1,8 +1,10 @@
-import { AuthDetailsCore, CoreClientInterface } from './auth-types';
-import { createI18nService, I18nInitOptions } from '../i18n';
+import type { I18nInitOptions } from '../i18n';
+import { createI18nService } from '../i18n';
 import { createAuthenticationAPIService } from '../services/authentication-api-service';
-import { createTokenManager } from './token-manager';
+
+import type { AuthDetailsCore, CoreClientInterface } from './auth-types';
 import { toURL } from './auth-utils';
+import { createTokenManager } from './token-manager';
 
 /**
  * Pure utility functions for core business logic.

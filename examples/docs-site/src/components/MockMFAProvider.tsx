@@ -1,4 +1,5 @@
-import React, { createContext, ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
+import React, { createContext, useState } from 'react';
 
 // Define types locally since we're creating mock data
 export type MFAType =

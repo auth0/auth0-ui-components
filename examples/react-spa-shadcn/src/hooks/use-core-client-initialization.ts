@@ -1,10 +1,10 @@
-import * as React from 'react';
 import type {
   CoreClientInterface,
   AuthDetailsCore,
   I18nInitOptions,
 } from '@auth0-web-ui-components/core';
 import { createCoreClient } from '@auth0-web-ui-components/core';
+import * as React from 'react';
 
 interface UseCoreClientInitializationProps {
   authDetails: AuthDetailsCore;

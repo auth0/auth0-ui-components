@@ -1,4 +1,4 @@
-import { SafeAny } from '@core/types';
+import type { SafeAny } from '@core/types';
 
 /**
  * Represents an MFA authenticator linked to a user.

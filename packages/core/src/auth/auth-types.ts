@@ -1,6 +1,7 @@
-import { I18nServiceInterface } from '../i18n';
-import { MFAControllerInterface } from '../services';
-import { SafeAny } from '@core/types';
+import type { SafeAny } from '@core/types';
+
+import type { I18nServiceInterface } from '../i18n';
+import type { MFAControllerInterface } from '../services';
 
 export type TokenEndpointResponse = {
   id_token: string;

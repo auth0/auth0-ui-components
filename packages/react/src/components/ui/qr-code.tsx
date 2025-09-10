@@ -1,8 +1,9 @@
-import * as React from 'react';
 import QRCode from 'qrcode';
+import * as React from 'react';
+
+import { Spinner } from '@/components/ui/spinner';
 import { useTheme } from '@/hooks';
 import { cn } from '@/lib/theme-utils';
-import { Spinner } from '@/components/ui/spinner';
 
 export interface QRCodeDisplayerProps {
   /**

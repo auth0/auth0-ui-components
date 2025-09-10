@@ -1,5 +1,5 @@
-import type { RequestOptions, HttpMethod, ErrorResponse } from './api-types';
 import { createApiError, isApiError, normalizeError } from './api-error';
+import type { RequestOptions, HttpMethod, ErrorResponse } from './api-types';
 
 const STATUS_MESSAGES: Readonly<Record<number, string>> = {
   400: 'Bad Request',

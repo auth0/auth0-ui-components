@@ -1,11 +1,12 @@
-import { useState, useCallback } from 'react';
 import {
   normalizeError,
   type MFAType,
   type EnrollMfaResponse,
 } from '@auth0-web-ui-components/core';
-import { ENROLL } from '@/lib/mfa-constants';
+import { useState, useCallback } from 'react';
+
 import { useTranslator } from '@/hooks';
+import { ENROLL } from '@/lib/mfa-constants';
 
 type UseOtpEnrollmentProps = {
   factorType: MFAType;

@@ -1,12 +1,13 @@
 import './App.css';
+import '@auth0-web-ui-components/react/dist/index.css';
+import { Auth0ComponentProvider } from '@auth0-web-ui-components/react';
+import { useTranslation } from 'react-i18next';
 import { Routes, Route } from 'react-router-dom';
+
+import { Navbar } from './components/nav-bar';
+import { config } from './config/env';
 import HomePage from './views/home-page';
 import UserProfilePage from './views/user-profile-page';
-import { Navbar } from './components/nav-bar';
-import { Auth0ComponentProvider } from '@auth0-web-ui-components/react';
-import '@auth0-web-ui-components/react/dist/index.css';
-import { useTranslation } from 'react-i18next';
-import { config } from './config/env';
 
 function App() {
   const { i18n } = useTranslation();

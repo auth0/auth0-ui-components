@@ -1,11 +1,13 @@
-import * as React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { useTheme, useTranslator } from '@/hooks';
 import { getComponentStyles } from '@auth0-web-ui-components/core';
-import { OrgDeleteProps } from '@/types';
-import { cn } from '@/lib/theme-utils';
+import * as React from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { withCoreClient } from '@/hoc';
+import { useTheme, useTranslator } from '@/hooks';
+import { cn } from '@/lib/theme-utils';
+import type { OrgDeleteProps } from '@/types';
+
 import { OrgDeleteModal } from './org-delete-modal';
 
 /**

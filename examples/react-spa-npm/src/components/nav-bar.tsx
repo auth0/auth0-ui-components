@@ -1,8 +1,9 @@
-import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { Link } from 'react-router-dom';
-import { ProfileDropdown } from './profile-dropdown';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+
+import { ProfileDropdown } from './profile-dropdown';
 
 export const Navbar: React.FC = () => {
   const { isAuthenticated, loginWithRedirect } = useAuth0();

@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { TextField } from '@/components/ui/text-field';
-import { Section } from '@/components/ui/section';
+
 import {
   FormControl,
   FormDescription,
@@ -9,8 +8,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Section } from '@/components/ui/section';
+import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks';
-import { SettingsDetailsProps } from '@/types';
+import type { SettingsDetailsProps } from '@/types';
 
 /**
  * SettingsDetails Component

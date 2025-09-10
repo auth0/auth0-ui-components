@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import { createStringSchema, createLogoSchema } from '@core/schemas/common';
+import { z } from 'zod';
 
 /**
  * Comprehensive validation options for organization detail schema

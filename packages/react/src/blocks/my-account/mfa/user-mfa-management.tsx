@@ -1,31 +1,29 @@
-import * as React from 'react';
-
+import type { Authenticator } from '@auth0-web-ui-components/core';
 import {
-  Authenticator,
   FACTOR_TYPE_PUSH_NOTIFICATION,
   type MFAType,
   getComponentStyles,
 } from '@auth0-web-ui-components/core';
-
-import type { UserMFAMgmtProps } from '@/types';
-
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
+import * as React from 'react';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Toaster } from '@/components/ui/sonner';
-import { ENROLL, CONFIRM } from '@/lib/mfa-constants';
-import { UserMFASetupForm } from '@/components/mfa/user-mfa-setup-form';
-import { Spinner } from '@/components/ui/spinner';
-import { List, ListItem } from '@/components/ui/list';
-import { DeleteFactorConfirmation } from '@/components/mfa/delete-factor-confirmation';
-import { FactorsList } from '@/components/mfa/factors-list';
-import { MFAErrorState } from '@/components/mfa/error-state';
-import { MFAEmptyState } from '@/components/mfa/empty-state';
 
+import { DeleteFactorConfirmation } from '@/components/my-account/mfa/delete-factor-confirmation';
+import { MFAEmptyState } from '@/components/my-account/mfa/empty-state';
+import { MFAErrorState } from '@/components/my-account/mfa/error-state';
+import { FactorsList } from '@/components/my-account/mfa/factors-list';
+import { UserMFASetupForm } from '@/components/my-account/mfa/user-mfa-setup-form';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
+import { List, ListItem } from '@/components/ui/list';
+import { Toaster } from '@/components/ui/sonner';
+import { Spinner } from '@/components/ui/spinner';
 import { withCoreClient } from '@/hoc';
 import { useTheme, useMFA, useTranslator } from '@/hooks';
+import { ENROLL } from '@/lib/mfa-constants';
+import type { CONFIRM } from '@/lib/mfa-constants';
 import { cn } from '@/lib/theme-utils';
+import type { UserMFAMgmtProps } from '@/types';
 
 /**
  * UserMFAMgmt Component

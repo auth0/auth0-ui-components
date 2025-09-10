@@ -1,11 +1,12 @@
+import { useAuth0 } from '@auth0/auth0-react';
+import { Auth0ComponentProvider } from '@auth0-web-ui-components/react';
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+
 import Layout from './components/Layout';
-import HomePage from './pages/HomePage';
 import GettingStarted from './pages/GettingStarted';
+import HomePage from './pages/HomePage';
 import UserMFA from './pages/UserMFA';
-import { Auth0ComponentProvider } from '@auth0-web-ui-components/react';
-import { useAuth0 } from '@auth0/auth0-react';
 import '@auth0-web-ui-components/react/dist/index.css';
 
 function AppContent() {

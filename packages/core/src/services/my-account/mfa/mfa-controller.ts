@@ -1,11 +1,11 @@
-import { CoreClientInterface } from '../../auth/auth-types';
+import type { CoreClientInterface } from '../../../auth/auth-types';
+
 import {
   fetchMfaFactors,
   enrollMfaRequest,
   deleteMfaFactor,
   confirmMfaEnrollmentRequest,
 } from './mfa-service';
-import { buildEnrollParams, buildConfirmParams } from './mfa-utils';
 import type {
   Authenticator,
   EnrollMfaResponse,
@@ -14,6 +14,7 @@ import type {
   ConfirmEnrollmentOptions,
   MFAControllerInterface,
 } from './mfa-types';
+import { buildEnrollParams, buildConfirmParams } from './mfa-utils';
 
 /**
  * Pure functional utilities for Multi-Factor Authentication (MFA) API operations.

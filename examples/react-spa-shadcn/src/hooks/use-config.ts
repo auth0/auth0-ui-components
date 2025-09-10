@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import type { Auth0ComponentConfig } from '@/types/auth-types';
 
 export const Auth0ComponentConfigContext = React.createContext<{

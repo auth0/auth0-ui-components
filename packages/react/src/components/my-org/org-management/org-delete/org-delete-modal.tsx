@@ -1,11 +1,12 @@
+import { getComponentStyles } from '@auth0-web-ui-components/core';
 import * as React from 'react';
+
+import { Label } from '@/components/ui/label';
 import { Modal } from '@/components/ui/modal';
 import { TextField } from '@/components/ui/text-field';
-import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/theme-utils';
 import { useTheme, useTranslator } from '@/hooks';
-import { getComponentStyles } from '@auth0-web-ui-components/core';
-import { OrgDeleteModalProps } from '@/types';
+import { cn } from '@/lib/theme-utils';
+import type { OrgDeleteModalProps } from '@/types';
 
 /**
  * OrgDeleteModal Component

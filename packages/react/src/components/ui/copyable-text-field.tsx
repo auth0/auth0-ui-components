@@ -1,8 +1,9 @@
-import * as React from 'react';
 import { Copy } from 'lucide-react';
+import * as React from 'react';
+
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { TextField } from '@/components/ui/text-field';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks';
 
 interface CopyableTextFieldProps {

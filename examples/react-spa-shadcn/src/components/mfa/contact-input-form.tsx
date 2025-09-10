@@ -1,10 +1,5 @@
-import * as React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { MailIcon, SmartphoneIcon } from 'lucide-react';
-
+import type { MFAType } from '@auth0-web-ui-components/core';
 import {
-  MFAType,
   FACTOR_TYPE_EMAIL,
   createEmailContactSchema,
   createSmsContactSchema,
@@ -12,9 +7,12 @@ import {
   type SmsContactForm,
   type EnrollMfaResponse,
 } from '@auth0-web-ui-components/core';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { MailIcon, SmartphoneIcon } from 'lucide-react';
+import * as React from 'react';
+import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
 import {
   Form,
   FormField,
@@ -23,10 +21,12 @@ import {
   FormControl,
   FormMessage,
 } from '@/components/ui/form';
+import { Spinner } from '@/components/ui/spinner';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/index';
 import { useContactEnrollment } from '@/hooks/mfa';
-import { ENTER_CONTACT, ENROLL, CONFIRM, ENTER_OTP } from '@/lib/mfa-constants';
+import type { ENROLL, CONFIRM } from '@/lib/mfa-constants';
+import { ENTER_CONTACT, ENTER_OTP } from '@/lib/mfa-constants';
 
 import { OTPVerificationForm } from './otp-verification-form';
 

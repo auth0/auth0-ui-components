@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { createEmailContactSchema } from './email-schema';
 import { createSmsContactSchema } from './sms-schema';
 
