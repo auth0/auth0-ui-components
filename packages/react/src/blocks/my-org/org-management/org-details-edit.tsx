@@ -1,16 +1,15 @@
 import type { OrganizationEdit, Organization } from '@auth0-web-ui-components/core';
 import { getComponentStyles } from '@auth0-web-ui-components/core';
-import { Flag } from 'lucide-react';
 import * as React from 'react';
-import { toast } from 'sonner';
+import { Toaster } from 'sonner';
 
 import { OrgDelete } from '@/components/my-org/org-management/org-delete';
 import { OrgDetails } from '@/components/my-org/org-management/org-details';
 import { Header } from '@/components/ui/header';
+import { showToast } from '@/components/ui/toast';
 import { withCoreClient } from '@/hoc';
 import { useTheme, useTranslator } from '@/hooks';
-import type { OrgDetailsEditProps } from '@/types/my-org/org-management/org-details-edit-types';
-import type { OrgDetailsFormActions } from '@/types/my-org/org-management/org-details-types';
+import type { OrgDetailsEditProps, OrgDetailsFormActions } from '@/types/my-org/org-management';
 
 /**
  * OrgDetailsEdit Component
@@ -69,18 +68,18 @@ function OrgDetailsEditComponent({
 
       try {
         //TODO: await onSave(data); will be a hook
-        toast.success(t('save_org_changes_message', { orgName: organization.display_name }), {
-          className: 'text-success-foreground',
-          icon: <Flag className="h-4 w-4" />,
+        showToast({
+          type: 'success',
+          message: t('save_org_changes_message', { orgName: organization.display_name }),
         });
         if (saveAction?.onAfter) {
           saveAction.onAfter(data as OrganizationEdit);
         }
         return true;
       } catch (error) {
-        toast.error(t('org_changes_error_message'), {
-          className: 'text-destructive-foreground',
-          icon: <Flag className="h-4 w-4" />,
+        showToast({
+          type: 'error',
+          message: t('org_changes_error_message'),
         });
         return false;
       }
@@ -100,19 +99,19 @@ function OrgDetailsEditComponent({
       setIsDeleting(true);
       try {
         //TODO: await onDelete(orgId); will be a hook
-        console.log(orgId, organizationId);
-        toast.success(t('delete_org_message', { orgName: organization.display_name }), {
-          className: 'text-success-foreground',
-          icon: <Flag className="h-4 w-4" />,
+        console.log(orgId, organizationId); // Placeholder to avoid build error , should be removed once hooks are integrated
+        showToast({
+          type: 'success',
+          message: t('delete_org_message', { orgName: organization.display_name }),
         });
 
         if (deleteAction?.onAfter) {
           deleteAction.onAfter(organization as OrganizationEdit);
         }
       } catch (error) {
-        toast.error(t('org_changes_error_message'), {
-          className: 'text-destructive-foreground',
-          icon: <Flag className="h-4 w-4" />,
+        showToast({
+          type: 'error',
+          message: t('org_changes_error_message'),
         });
       } finally {
         setIsDeleting(false);
@@ -134,6 +133,7 @@ function OrgDetailsEditComponent({
 
   return (
     <div style={currentStyles.variables} className="w-full">
+      <Toaster position="top-right" />
       {!hideHeader && (
         <div className="mb-8">
           <Header

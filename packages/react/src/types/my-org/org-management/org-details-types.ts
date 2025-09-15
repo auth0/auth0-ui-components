@@ -11,6 +11,9 @@ import type { FormActionsProps } from '@/components/ui/form-actions';
 
 export interface OrgDetailsClasses {
   'OrgDetails-card'?: string;
+  'OrgDetails-formActions'?: string;
+  'OrgDetails-SettingsDetails'?: string;
+  'OrgDetails-BrandingDetails'?: string;
 }
 
 export interface OrgDetailsFormActions extends Omit<FormActionsProps, 'nextAction'> {

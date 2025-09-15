@@ -1,3 +1,4 @@
+import { getComponentStyles } from '@auth0-web-ui-components/core';
 import * as React from 'react';
 
 import {
@@ -10,7 +11,7 @@ import {
 } from '@/components/ui/form';
 import { Section } from '@/components/ui/section';
 import { TextField } from '@/components/ui/text-field';
-import { useTranslator } from '@/hooks';
+import { useTranslator, useTheme } from '@/hooks';
 import type { SettingsDetailsProps } from '@/types';
 
 /**
@@ -23,74 +24,85 @@ export function SettingsDetails({
   form,
   readOnly = false,
   customMessages = {},
+  styling = {},
 }: SettingsDetailsProps): React.JSX.Element {
   const { t } = useTranslator('org_management.org_details', customMessages);
+  const { isDarkMode } = useTheme();
+  const currentStyles = React.useMemo(
+    () => getComponentStyles(styling, isDarkMode),
+    [styling, isDarkMode],
+  );
 
   return (
-    <Section title={t('sections.settings.title')}>
-      <FormField
-        control={form.control}
-        name="name"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel
-              className="text-sm text-(length:--font-size-label) font-normal"
-              htmlFor="organization-name"
-            >
-              {t('sections.settings.fields.name.label')}
-            </FormLabel>
-            <FormControl>
-              <TextField
-                id="organization-name"
-                placeholder={t('sections.settings.fields.name.placeholder')}
-                error={Boolean(form.formState.errors.name)}
-                aria-invalid={Boolean(form.formState.errors.name)}
-                readOnly={readOnly}
-                {...field}
+    <div
+      style={currentStyles.variables}
+      className={currentStyles.classes?.['OrgDetails-BrandingDetails']}
+    >
+      <Section title={t('sections.settings.title')}>
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel
+                className="text-sm text-(length:--font-size-label) font-normal"
+                htmlFor="organization-name"
+              >
+                {t('sections.settings.fields.name.label')}
+              </FormLabel>
+              <FormControl>
+                <TextField
+                  id="organization-name"
+                  placeholder={t('sections.settings.fields.name.placeholder')}
+                  error={Boolean(form.formState.errors.name)}
+                  aria-invalid={Boolean(form.formState.errors.name)}
+                  readOnly={readOnly}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage
+                className="text-left text-sm text-(length:--font-size-paragraph)"
+                role="alert"
               />
-            </FormControl>
-            <FormMessage
-              className="text-left text-sm text-(length:--font-size-paragraph)"
-              role="alert"
-            />
-            <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
-              {t('sections.settings.fields.name.helper_text')}
-            </FormDescription>
-          </FormItem>
-        )}
-      />
+              <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                {t('sections.settings.fields.name.helper_text')}
+              </FormDescription>
+            </FormItem>
+          )}
+        />
 
-      <FormField
-        control={form.control}
-        name="display_name"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel
-              className="text-sm text-(length:--font-size-label) font-normal"
-              htmlFor="organization-display-name"
-            >
-              {t('sections.settings.fields.display_name.label')}
-            </FormLabel>
-            <FormControl>
-              <TextField
-                id="organization-display-name"
-                placeholder={t('sections.settings.fields.display_name.placeholder')}
-                error={Boolean(form.formState.errors.display_name)}
-                aria-invalid={Boolean(form.formState.errors.display_name)}
-                readOnly={readOnly}
-                {...field}
+        <FormField
+          control={form.control}
+          name="display_name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel
+                className="text-sm text-(length:--font-size-label) font-normal"
+                htmlFor="organization-display-name"
+              >
+                {t('sections.settings.fields.display_name.label')}
+              </FormLabel>
+              <FormControl>
+                <TextField
+                  id="organization-display-name"
+                  placeholder={t('sections.settings.fields.display_name.placeholder')}
+                  error={Boolean(form.formState.errors.display_name)}
+                  aria-invalid={Boolean(form.formState.errors.display_name)}
+                  readOnly={readOnly}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage
+                className="text-left text-sm text-(length:--font-size-paragraph)"
+                role="alert"
               />
-            </FormControl>
-            <FormMessage
-              className="text-left text-sm text-(length:--font-size-paragraph)"
-              role="alert"
-            />
-            <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
-              {t('sections.settings.fields.display_name.helper_text')}
-            </FormDescription>
-          </FormItem>
-        )}
-      />
-    </Section>
+              <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                {t('sections.settings.fields.display_name.helper_text')}
+              </FormDescription>
+            </FormItem>
+          )}
+        />
+      </Section>
+    </div>
   );
 }

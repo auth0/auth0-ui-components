@@ -125,11 +125,21 @@ function OrgDetailsComponent({
         <form onSubmit={form.handleSubmit(onValid)} className="space-y-6">
           <Card className={cn('p-6', currentStyles.classes?.['OrgDetails-card'])}>
             <div className="space-y-6">
-              <SettingsDetails form={form} readOnly={readOnly} customMessages={customMessages} />
+              <SettingsDetails
+                form={form}
+                readOnly={readOnly}
+                customMessages={customMessages}
+                styling={styling}
+              />
 
               <Separator />
 
-              <BrandingDetails form={form} readOnly={readOnly} customMessages={customMessages} />
+              <BrandingDetails
+                form={form}
+                readOnly={readOnly}
+                customMessages={customMessages}
+                styling={styling}
+              />
 
               <FormActions
                 hasUnsavedChanges={hasUnsavedChanges}
@@ -153,7 +163,7 @@ function OrgDetailsComponent({
                 unsavedChangesText={t('unsaved_changes_text')}
                 showUnsavedChanges={formActions?.showUnsavedChanges}
                 align={formActions?.align}
-                className={formActions?.className}
+                className={currentStyles.classes?.['OrgDetails-formActions']}
               />
             </div>
           </Card>
