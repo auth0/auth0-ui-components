@@ -28,9 +28,7 @@ export interface OrgDetailsEditProps
   > {
   organizationId: string;
   saveAction?: OrgEditSaveAction;
-  cancelAction?: {
-    onClick?: (event?: Event) => void;
-  };
+  cancelAction?: (event?: Event) => void;
   hideHeader?: boolean;
   backButton?: OrgEditBackButton;
 }

@@ -19,7 +19,7 @@ export interface OrgDetailsClasses {
 export interface OrgDetailsFormActions extends Omit<FormActionsProps, 'nextAction'> {
   nextAction?: {
     disabled: boolean;
-    onClick?: (data: Organization | OrganizationDetailFormValues) => boolean | Promise<boolean>;
+    onClick?: (data: Organization) => boolean | Promise<boolean>;
   };
 }
 

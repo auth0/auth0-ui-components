@@ -155,12 +155,10 @@ function OrgDetailsComponent({
                     readOnly,
                   type: 'submit',
                 }}
-                previousAction={
-                  formActions?.previousAction && {
-                    ...formActions.previousAction,
-                    onClick: handlePreviousAction,
-                  }
-                }
+                previousAction={{
+                  label: t('cancel_button_label'),
+                  onClick: handlePreviousAction,
+                }}
                 showPrevious={formActions?.showPrevious}
                 unsavedChangesText={t('unsaved_changes_text')}
                 showUnsavedChanges={formActions?.showUnsavedChanges}
