@@ -1,9 +1,8 @@
-import type { OrganizationEdit, Organization } from '@auth0-web-ui-components/core';
+import type { Organization } from '@auth0-web-ui-components/core';
 import { getComponentStyles } from '@auth0-web-ui-components/core';
 import * as React from 'react';
 import { Toaster } from 'sonner';
 
-import { OrgDelete } from '@/components/my-org/org-management/org-delete';
 import { OrgDetails } from '@/components/my-org/org-management/org-details';
 import { Header } from '@/components/ui/header';
 import { showToast } from '@/components/ui/toast';
@@ -29,18 +28,16 @@ function OrgDetailsEditComponent({
   },
   readOnly = false,
   saveAction,
-  deleteAction,
   cancelAction,
   hideHeader = false,
   backButton,
 }: OrgDetailsEditProps): React.JSX.Element {
   const { t } = useTranslator('org_management.org_details_edit', customMessages);
   const { isDarkMode } = useTheme();
-  const [isDeleting, setIsDeleting] = React.useState(false);
 
   //TODO:  fetch details from hook
   const organization = {
-    id: 'org_12345',
+    id: organizationId || 'org_12345',
     name: 'acme-corp',
     display_name: 'Acme Corporation',
     branding: {
@@ -60,7 +57,7 @@ function OrgDetailsEditComponent({
   const handleSubmit = React.useCallback(
     async (data: Organization): Promise<boolean> => {
       if (saveAction?.onBefore) {
-        const canProceed = saveAction.onBefore(data as OrganizationEdit);
+        const canProceed = saveAction.onBefore(data);
         if (!canProceed) {
           return false;
         }
@@ -73,7 +70,7 @@ function OrgDetailsEditComponent({
           message: t('save_org_changes_message', { orgName: organization.display_name }),
         });
         if (saveAction?.onAfter) {
-          saveAction.onAfter(data as OrganizationEdit);
+          saveAction.onAfter(data);
         }
         return true;
       } catch (error) {
@@ -84,40 +81,7 @@ function OrgDetailsEditComponent({
         return false;
       }
     },
-    [saveAction, t],
-  );
-
-  const handleDelete = React.useCallback(
-    async (orgId: string) => {
-      if (deleteAction?.onBefore) {
-        const canProceed = deleteAction.onBefore(organization as OrganizationEdit);
-        if (!canProceed) {
-          return;
-        }
-      }
-
-      setIsDeleting(true);
-      try {
-        //TODO: await onDelete(orgId); will be a hook
-        console.log(orgId, organizationId); // Placeholder to avoid build error , should be removed once hooks are integrated
-        showToast({
-          type: 'success',
-          message: t('delete_org_message', { orgName: organization.display_name }),
-        });
-
-        if (deleteAction?.onAfter) {
-          deleteAction.onAfter(organization as OrganizationEdit);
-        }
-      } catch (error) {
-        showToast({
-          type: 'error',
-          message: t('org_changes_error_message'),
-        });
-      } finally {
-        setIsDeleting(false);
-      }
-    },
-    [deleteAction, organization, t],
+    [saveAction, t, organization.display_name],
   );
 
   const enhancedFormActions = React.useMemo(
@@ -159,15 +123,6 @@ function OrgDetailsEditComponent({
           formActions={enhancedFormActions}
         />
       </div>
-
-      <OrgDelete
-        organization={organization}
-        onDelete={handleDelete}
-        isLoading={isDeleting}
-        schema={schema}
-        styling={styling}
-        customMessages={customMessages.delete}
-      />
     </div>
   );
 }

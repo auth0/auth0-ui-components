@@ -1,6 +1,5 @@
 import type { OrganizationDetailFormValues } from '@core/schemas';
 
-import type { OrgDeletesCustomMessages } from './org-delete-types';
 import type { OrgDetailsCustomMessages } from './org-details-types';
 
 /**
@@ -12,13 +11,8 @@ export interface OrgEditCustomMessages {
     back_button_text?: string;
   };
   details?: OrgDetailsCustomMessages;
-  delete?: OrgDeletesCustomMessages;
 }
 
 export interface Organization extends OrganizationDetailFormValues {
   id?: string;
-}
-
-export interface OrganizationEdit extends Organization {
-  id: string;
 }

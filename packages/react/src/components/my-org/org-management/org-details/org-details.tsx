@@ -94,10 +94,12 @@ function OrgDetailsComponent({
   const onValid = React.useCallback(
     async (values: OrganizationDetailFormValues) => {
       if (formActions?.nextAction?.onClick) {
-        const success = await formActions.nextAction.onClick({
+        const payload = {
           ...values,
-          ...(organization?.id && { id: organization.id }),
-        });
+          id: organization?.id,
+        };
+
+        const success = await formActions.nextAction.onClick(payload);
 
         if (success) {
           form.reset(values, {
@@ -108,7 +110,7 @@ function OrgDetailsComponent({
         }
       }
     },
-    [formActions?.nextAction, organization, form],
+    [formActions?.nextAction, organization?.id, form],
   );
 
   const handlePreviousAction = React.useCallback(
@@ -123,13 +125,13 @@ function OrgDetailsComponent({
     <div style={currentStyles.variables} className="w-full space-y-6">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onValid)} className="space-y-6">
-          <Card className={cn('p-6', currentStyles.classes?.['OrgDetails-card'])}>
+          <Card className={cn('p-6', currentStyles.classes?.['OrgDetails-Card'])}>
             <div className="space-y-6">
               <SettingsDetails
                 form={form}
                 readOnly={readOnly}
                 customMessages={customMessages}
-                styling={styling}
+                className={currentStyles.classes?.['OrgDetails-SettingsDetails']}
               />
 
               <Separator />
@@ -138,7 +140,7 @@ function OrgDetailsComponent({
                 form={form}
                 readOnly={readOnly}
                 customMessages={customMessages}
-                styling={styling}
+                className={currentStyles.classes?.['OrgDetails-BrandingDetails']}
               />
 
               <FormActions
@@ -163,7 +165,7 @@ function OrgDetailsComponent({
                 unsavedChangesText={t('unsaved_changes_text')}
                 showUnsavedChanges={formActions?.showUnsavedChanges}
                 align={formActions?.align}
-                className={currentStyles.classes?.['OrgDetails-formActions']}
+                className={currentStyles.classes?.['OrgDetails_FormActions']}
               />
             </div>
           </Card>

@@ -2,21 +2,18 @@ import type {
   OrgEditCustomMessages,
   BlockComponentSharedProps,
   OrganizationDetailSchemaValidation,
-  OrganizationEdit,
+  Organization,
   ComponentAction,
   BackButton,
 } from '@auth0-web-ui-components/core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 
-import type { OrgDeleteClasses } from './org-delete-types';
 import type { OrgDetailsClasses } from './org-details-types';
 
-export interface OrgEditClasses extends OrgDetailsClasses, OrgDeleteClasses {}
+export interface OrgEditClasses extends OrgDetailsClasses {}
 
-export interface OrgEditSaveAction extends ComponentAction<OrganizationEdit> {}
-
-export interface OrgEditDeleteAction extends ComponentAction<OrganizationEdit> {}
+export interface OrgEditSaveAction extends ComponentAction<Organization> {}
 
 export interface OrgEditBackButton extends Omit<BackButton, 'onClick'> {
   icon?: LucideIcon;
@@ -31,7 +28,6 @@ export interface OrgDetailsEditProps
   > {
   organizationId: string;
   saveAction?: OrgEditSaveAction;
-  deleteAction?: OrgEditDeleteAction;
   cancelAction?: {
     onClick?: (event?: Event) => void;
   };

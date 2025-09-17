@@ -1,4 +1,3 @@
-import { getComponentStyles } from '@auth0-web-ui-components/core';
 import * as React from 'react';
 
 import {
@@ -11,7 +10,7 @@ import {
 } from '@/components/ui/form';
 import { Section } from '@/components/ui/section';
 import { TextField } from '@/components/ui/text-field';
-import { useTranslator, useTheme } from '@/hooks';
+import { useTranslator } from '@/hooks';
 import type { SettingsDetailsProps } from '@/types';
 
 /**
@@ -24,20 +23,12 @@ export function SettingsDetails({
   form,
   readOnly = false,
   customMessages = {},
-  styling = {},
+  className,
 }: SettingsDetailsProps): React.JSX.Element {
   const { t } = useTranslator('org_management.org_details', customMessages);
-  const { isDarkMode } = useTheme();
-  const currentStyles = React.useMemo(
-    () => getComponentStyles(styling, isDarkMode),
-    [styling, isDarkMode],
-  );
 
   return (
-    <div
-      style={currentStyles.variables}
-      className={currentStyles.classes?.['OrgDetails-BrandingDetails']}
-    >
+    <div className={className}>
       <Section title={t('sections.settings.title')}>
         <FormField
           control={form.control}

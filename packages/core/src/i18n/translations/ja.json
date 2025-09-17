@@ -65,7 +65,6 @@
         "title": "${orgName}"
       },
       "save_org_changes_message": "${orgName}の変更が保存されました。",
-      "delete_org_message": "${orgName}が削除されました。",
       "org_changes_error_message": "リクエストの処理中に問題が発生しました。再度お試しいただくか、問題が解決しない場合はサポートまでお問い合わせください。"
     }
   },

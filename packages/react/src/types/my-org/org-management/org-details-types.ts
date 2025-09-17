@@ -10,8 +10,8 @@ import type { UseFormReturn } from 'react-hook-form';
 import type { FormActionsProps } from '@/components/ui/form-actions';
 
 export interface OrgDetailsClasses {
-  'OrgDetails-card'?: string;
-  'OrgDetails-formActions'?: string;
+  'OrgDetails-Card'?: string;
+  'OrgDetails-FormActions'?: string;
   'OrgDetails-SettingsDetails'?: string;
   'OrgDetails-BrandingDetails'?: string;
 }
@@ -19,7 +19,7 @@ export interface OrgDetailsClasses {
 export interface OrgDetailsFormActions extends Omit<FormActionsProps, 'nextAction'> {
   nextAction?: {
     disabled: boolean;
-    onClick?: (data: Organization) => boolean | Promise<boolean>;
+    onClick?: (data: Organization | OrganizationDetailFormValues) => boolean | Promise<boolean>;
   };
 }
 
@@ -37,9 +37,11 @@ export interface OrgDetailsProps
 export interface BrandingDetailsProps
   extends SharedComponentProps<OrgDetailsCustomMessages, OrgDetailsClasses> {
   form: UseFormReturn<OrganizationDetailFormValues>;
+  className?: string;
 }
 
 export interface SettingsDetailsProps
   extends SharedComponentProps<OrgDetailsCustomMessages, OrgDetailsClasses> {
   form: UseFormReturn<OrganizationDetailFormValues>;
+  className?: string;
 }

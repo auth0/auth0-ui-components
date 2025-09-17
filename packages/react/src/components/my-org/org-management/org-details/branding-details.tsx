@@ -1,4 +1,3 @@
-import { getComponentStyles } from '@auth0-web-ui-components/core';
 import * as React from 'react';
 
 import { ColorPicker } from '@/components/ui/color-picker';
@@ -12,7 +11,7 @@ import {
 } from '@/components/ui/form';
 import { ImagePreview } from '@/components/ui/image-preview';
 import { Section } from '@/components/ui/section';
-import { useTranslator, useTheme } from '@/hooks';
+import { useTranslator } from '@/hooks';
 import type { BrandingDetailsProps } from '@/types';
 
 /**
@@ -25,20 +24,12 @@ export function BrandingDetails({
   form,
   readOnly = false,
   customMessages = {},
-  styling = {},
+  className,
 }: BrandingDetailsProps): React.JSX.Element {
   const { t } = useTranslator('org_management.org_details', customMessages);
-  const { isDarkMode } = useTheme();
-  const currentStyles = React.useMemo(
-    () => getComponentStyles(styling, isDarkMode),
-    [styling, isDarkMode],
-  );
 
   return (
-    <div
-      style={currentStyles.variables}
-      className={currentStyles.classes?.['OrgDetails-BrandingDetails']}
-    >
+    <div className={className}>
       <Section title={t('sections.branding.title')}>
         <FormField
           control={form.control}
