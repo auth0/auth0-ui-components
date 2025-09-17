@@ -120,6 +120,7 @@ export default [
     rules: {
       ...reactPlugin.configs.recommended.rules,
       'react/react-in-jsx-scope': 'off', // Not needed in React 17+
+      'react/prop-types': 'off',
     },
     settings: {
       react: {

@@ -157,16 +157,6 @@
       inset 0px -2px 2px -1px oklch(from var(--color-neutral-max) l c h / 20%),
       inset 0px 4px 2px -2px oklch(from var(--color-neutral-min) l c h / 15%);
 
-    box-shadow:
-      0px 8px 12px -12px rgba(0, 0, 0, 0.1),
-      0px 4px 8px -2px rgba(0, 0, 0, 0.1),
-      0px 2px 4px -2px rgba(0, 0, 0, 0.1),
-      0px 1px 1px -0.5px rgba(0, 0, 0, 0.1),
-      0px 2px 2px -1px rgba(0, 0, 0, 0.1),
-      0px 0px 0px 1px rgba(0, 0, 0, 0.05),
-      inset 0px 4px 2px -1px rgba(255, 255, 255, 0.15),
-      inset 0px -1px 2px -1px rgba(0, 0, 0, 0.1);
-
     --shadow-input-resting:
       0 0 0 1px oklch(from var(--color-neutral-max) l c h / 10%),
       inset 0 -1px 2px -1px oklch(from var(--color-neutral-max) l c h / 10%),
@@ -230,23 +220,38 @@
 
     --shadow-switch-resting:
       0 0 0 1px oklch(from var(--color-neutral-max) l c h / 5%),
-      inset 0px 0.5px 1px 0.5px oklch(from var(--color-neutral-max) l c h / 10%);
+      inset 0px 0.5px 1px 0px oklch(from var(--color-neutral-max) l c h / 10%);
     --shadow-switch-hover:
-      0px 0px 0px 1px oklch(from var(--color-neutral-max) l c h / 10%),
-      inset 0px 1px 1px 0.5px oklch(from var(--color-neutral-max) l c h / 10%);
-    --shadow-switch-focus:
-      0px 0px 0px 1px oklch(from var(--color-neutral-max) l c h / 10%),
-      0px 0px 0px 1px oklch(from var(--color-neutral-max) l c h / 10%),
-      inset 0px 1px 1px 0.5px oklch(from var(--color-neutral-max) l c h / 10%);
+      0 0 0 1px oklch(from var(--color-neutral-max) l c h / 10%),
+      inset 0px 0.5px 1px 0.5px oklch(from var(--color-neutral-max) l c h / 10%);
+
     --shadow-switch-thumb:
-      0px 0.5px 0px -0.5px oklch(from var(--color-neutral-max) l c h / 10%),
-      0 1px 0 -1px oklch(from var(--color-neutral-max) l c h / 10%),
-      0px 2px 2px -1px oklch(from var(--color-neutral-max) l c h / 10%),
-      0px 2px 4px -2px oklch(from var(--color-neutral-max) l c h / 10%),
-      inset 2px 4px 4px -2px oklch(from var(--color-neutral-min) l c h),
-      inset -1px -1px 1px -1px oklch(from var(--color-neutral-min) l c h),
-      inset 0 -2px 4px -2px oklch(from var(--color-neutral-min) l c h),
-      inset 0px 0.5px 0.5px oklch(from var(--color-neutral-min) l c h / 50%);
+      4px 8px 12px -6px oklch(from var(--color-neutral-max) l c h / 10%),
+      2px 2px 8px -4px oklch(from var(--color-neutral-max) l c h / 10%),
+      0px 0px 0px 0.25px oklch(from var(--color-neutral-max) l c h / 10%),
+      0.5px 0.5px 1px -0.5px oklch(from var(--color-neutral-max) l c h / 10%),
+      1px 1px 1px -1px oklch(from var(--color-neutral-max) l c h / 10%),
+      1px 1px 2px -1px oklch(from var(--color-neutral-max) l c h / 10%),
+      2px 2px 4px -2px oklch(from var(--color-neutral-max) l c h / 25%),
+      inset -2px -3px 2px -2px oklch(from var(--color-neutral-min) l c h / 100%),
+      inset 0.25px 0.25px 0.5px oklch(from var(--color-neutral-min) l c h / 75%),
+      inset -4px -4px 16px -2px oklch(from var(--color-neutral-max) l c h / 5%),
+      inset 8px 6px 8px -2px oklch(from var(--color-neutral-max) l c h / 5%),
+      inset 0px -0.5px 2px 0.5px oklch(from var(--color-neutral-max) l c h / 10%);
+
+    --shadow-switch-thumb-dark:
+      4px 8px 12px -6px oklch(from var(--color-neutral-max) l c h / 10%),
+      2px 2px 8px -4px oklch(from var(--color-neutral-max) l c h / 10%),
+      0px 0px 0px 0.25px oklch(from var(--color-neutral-max) l c h / 10%),
+      0.5px 0.5px 1px -0.5px oklch(from var(--color-neutral-max) l c h / 10%),
+      1px 1px 1px -1px oklch(from var(--color-neutral-max) l c h / 10%),
+      1px 1px 2px -1px oklch(from var(--color-neutral-max) l c h / 10%),
+      2px 2px 4px -2px oklch(from var(--color-neutral-max) l c h / 25%),
+      inset -2px -3px 2px -2px oklch(from var(--color-neutral-min) l c h / 10%),
+      inset 0.25px 0.25px 0.5px oklch(from var(--color-neutral-min) l c h / 25%),
+      inset -4px -4px 16px -2px oklch(from var(--color-neutral-max) l c h / 5%),
+      inset 8px 6px 8px -2px oklch(from var(--color-neutral-max) l c h / 5%),
+      inset 0px -0.5px 2px 0.5px oklch(from var(--color-neutral-max) l c h / 10%);
 
     --radius-xs: 2px;
     --radius-sm: 4px;
