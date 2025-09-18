@@ -217,10 +217,6 @@ function renderTextColumn<Item>(
     return column.render(item, value);
   }
 
-  if (isEmpty(value)) {
-    return null;
-  }
-
   return <span className="text-foreground">{String(value)}</span>;
 }
 
@@ -232,11 +228,6 @@ function renderDateColumn<Item>(
   if (column.render) {
     return column.render(item, value);
   }
-
-  if (isEmpty(value)) {
-    return null;
-  }
-
   const formattedDate = formatDate(value, column.format);
 
   return (
@@ -276,18 +267,10 @@ function renderButtonColumn<Item>(item: Item, column: ButtonColumn<Item>): React
 }
 
 function renderBadgeColumn<Item>(value: unknown, column: BadgeColumn<Item>): React.ReactNode {
-  if (isEmpty(value)) {
-    return null;
-  }
-
   return <Badge variant={column.variant}>{String(value)}</Badge>;
 }
 
 function renderCopyColumn(value: unknown): React.ReactNode {
-  if (isEmpty(value)) {
-    return null;
-  }
-
   return <CopyButton value={value} />;
 }
 
@@ -341,37 +324,42 @@ export function DataTable<Item>({
           headerAlign: column.headerAlign || headerAlign || 'left',
           column: column,
         },
+
         cell: ({ getValue, row }) => {
           const value = getValue();
           const item = row.original;
 
+          if (column.type === 'actions') {
+            return <div onClick={(e) => e.stopPropagation()}>{column.render(item)}</div>;
+          }
+
+          if (column.type === 'custom') {
+            return <>{column.render(item, value)}</>;
+          }
+
+          if (column.type === 'switch') {
+            return renderSwitchColumn(item, value as boolean, column);
+          }
+
+          if (column.type === 'button') {
+            return renderButtonColumn(item, column);
+          }
+
+          if (isEmpty(value)) {
+            return null;
+          }
+
           switch (column.type) {
             case 'text':
               return renderTextColumn(item, value, column);
-
             case 'date':
               return renderDateColumn(item, value as Date | string | number, column);
-
-            case 'switch':
-              return renderSwitchColumn(item, value as boolean, column);
-
-            case 'button':
-              return renderButtonColumn(item, column);
-
             case 'copy':
               return renderCopyColumn(value);
-
             case 'badge':
               return renderBadgeColumn(value, column);
-
-            case 'actions':
-              return <div onClick={(e) => e.stopPropagation()}>{column.render(item)}</div>;
-
-            case 'custom':
-              return <>{column.render(item, value)}</>;
-
             default:
-              return value ? <span className="text-foreground">{String(value)}</span> : null;
+              return <span className="text-foreground">{String(value)}</span>;
           }
         },
       };
