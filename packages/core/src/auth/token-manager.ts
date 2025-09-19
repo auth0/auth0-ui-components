@@ -162,11 +162,12 @@ export function createTokenManager(auth: AuthDetailsCore) {
       ignoreCache: boolean = false,
     ): Promise<string | undefined> {
       // Ensure core client is initialized before getting a token
-      TokenUtils.isCoreClientInitialized(auth);
 
       if (TokenUtils.isProxyMode(auth)) {
         return Promise.resolve(undefined);
       }
+
+      TokenUtils.isCoreClientInitialized(auth);
 
       // Validate request
       TokenUtils.validateTokenRequest(auth, scope);

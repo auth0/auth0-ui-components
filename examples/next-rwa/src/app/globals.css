@@ -1,0 +1,25 @@
+/* Import Tailwind CSS v4 */
+@import 'tailwindcss';
+
+/* Minimal Next.js specific fixes - keep only essential z-index fixes */
+[data-radix-portal],
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
+[data-radix-popper-content] {
+  z-index: 10001 !important;
+}
+
+/* Basic app styling to match React SPA example */
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  height: 100%;
+  background-color: white;
+}

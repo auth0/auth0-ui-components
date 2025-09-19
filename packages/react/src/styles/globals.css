@@ -6,6 +6,14 @@
 @import './themes/minimal.css';
 @import './themes/rounded.css';
 
+:root {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 @layer base {
   body {
     @apply antialiased;
@@ -13,16 +21,16 @@
       'rlig' 1,
       'calt' 1;
   }
+
+  .color-scheme-transitioning *,
+  .color-scheme-transitioning *::before,
+  .color-scheme-transitioning *::after {
+    transition: var(--color-scheme-transition) !important;
+    transition-delay: 0ms !important;
+  }
 }
 
 :root {
-  --font-mono: 'JetBrains Mono';
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
   * {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--border)) transparent;
@@ -118,6 +126,7 @@
   --shadow-switch-hover: var(--shadow-switch-resting);
   --shadow-switch-focus: var(--shadow-switch-focus);
   --shadow-switch-thumb: var(--shadow-switch-thumb);
+  --shadow-switch-thumb-dark: var(--shadow-switch-thumb-dark);
 
   --radius-xs: var(--radius-xs);
   --radius-sm: var(--radius-sm);

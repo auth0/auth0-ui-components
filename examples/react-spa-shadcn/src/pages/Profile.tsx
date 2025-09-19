@@ -15,22 +15,7 @@ const Profile = () => {
           <h2 className="text-xl font-medium text-gray-900 mb-4">{t('user-profile.mfa.title')}</h2>
           <p className="text-gray-600 mb-4">{t('user-profile.mfa.description')}</p>
           <div style={{ all: 'initial', fontFamily: 'inherit' }}>
-            <UserMFAMgmt
-              factorConfig={{
-                duo: {
-                  visible: false,
-                },
-                'webauthn-platform': {
-                  visible: false,
-                },
-                'recovery-code': {
-                  visible: false,
-                },
-                'webauthn-roaming': {
-                  visible: false,
-                },
-              }}
-            />
+            <UserMFAMgmt />
           </div>
         </div>
       </div>

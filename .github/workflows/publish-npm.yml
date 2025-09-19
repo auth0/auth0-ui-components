@@ -15,6 +15,14 @@ on:
         required: false
         default: 'all'
         type: string
+      core_version:
+        description: 'Version for @auth0-web-ui-components/core (e.g., 1.2.3, 1.0.0-beta.1). If empty, uses version from package.json'
+        required: false
+        type: string
+      react_version:
+        description: 'Version for @auth0-web-ui-components/react (e.g., 0.2.0, 0.1.0-beta.1). If empty, uses version from package.json'
+        required: false
+        type: string
       dry_run:
         description: 'Dry run (skip actual publishing)'
         required: false
@@ -66,6 +74,66 @@ jobs:
       - name: Build packages
         run: pnpm run build
 
+      - name: Update package versions
+        if: github.event.inputs.core_version != '' || github.event.inputs.react_version != ''
+        run: |
+          echo "🔧 Updating package versions..."
+          
+          # Function to validate version format
+          validate_version() {
+            local version=$1
+            local package_name=$2
+            if ! echo "$version" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$'; then
+              echo "❌ Invalid version format for $package_name: $version"
+              echo "Version should follow semver format (e.g., 1.2.3, 1.0.0-beta.1, 1.0.0+build.1)"
+              exit 1
+            fi
+          }
+          
+          # Function to update package.json version directly
+          update_package_version() {
+            local package_path=$1
+            local new_version=$2
+            local package_name=$3
+            
+            cd "$package_path"
+            # Use node to update the version in package.json directly
+            node -e "
+              const fs = require('fs');
+              const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+              pkg.version = '$new_version';
+              fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+            "
+            echo "✅ Updated $package_name version to $new_version"
+            cd - > /dev/null
+          }
+          
+          # Update core package version if provided
+          if [ -n "${{ github.event.inputs.core_version }}" ]; then
+            CORE_VERSION="${{ github.event.inputs.core_version }}"
+            echo "🔍 Validating core version format..."
+            validate_version "$CORE_VERSION" "core"
+            
+            if [ -d "./packages/core" ]; then
+              echo "📝 Updating @auth0-web-ui-components/core to version $CORE_VERSION"
+              update_package_version "./packages/core" "$CORE_VERSION" "@auth0-web-ui-components/core"
+            fi
+          fi
+          
+          # Update react package version if provided
+          if [ -n "${{ github.event.inputs.react_version }}" ]; then
+            REACT_VERSION="${{ github.event.inputs.react_version }}"
+            echo "🔍 Validating react version format..."
+            validate_version "$REACT_VERSION" "react"
+            
+            if [ -d "./packages/react" ]; then
+              echo "📝 Updating @auth0-web-ui-components/react to version $REACT_VERSION"
+              update_package_version "./packages/react" "$REACT_VERSION" "@auth0-web-ui-components/react"
+            fi
+          fi
+          
+          echo "✅ Version updates completed"
+
       - name: Run tests
         run: pnpm run test
         continue-on-error: true
@@ -86,9 +154,9 @@ jobs:
           echo "Publishing @auth0-web-ui-components/core..."
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
             echo "DRY RUN: Would publish @auth0-web-ui-components/core"
-            npm publish --dry-run --access public
+            pnpm publish --dry-run --access public --no-git-checks
           else
-            npm publish --access public
+            pnpm publish --access public --no-git-checks
           fi
         env:
           NODE_AUTH_TOKEN: ${{ steps.setup-jfrog-cli.outputs.oidc-token }}
@@ -100,9 +168,9 @@ jobs:
           echo "Publishing @auth0-web-ui-components/react..."
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
             echo "DRY RUN: Would publish @auth0-web-ui-components/react"
-            npm publish --dry-run --access public
+            pnpm publish --dry-run --access public --no-git-checks
           else
-            npm publish --access public
+            pnpm publish --access public --no-git-checks
           fi
         env:
           NODE_AUTH_TOKEN: ${{ steps.setup-jfrog-cli.outputs.oidc-token }}
@@ -110,11 +178,32 @@ jobs:
       - name: Summary
         run: |
           echo "## 📦 NPM Packages Published" >> $GITHUB_STEP_SUMMARY
+          
           if [[ "${{ steps.packages.outputs.packages }}" == *"core"* ]]; then
-            echo "- ✅ @auth0-web-ui-components/core" >> $GITHUB_STEP_SUMMARY
+            if [ -f "./packages/core/package.json" ]; then
+              CORE_VERSION=$(node -p "require('./packages/core/package.json').version")
+              echo "- ✅ @auth0-web-ui-components/core@$CORE_VERSION" >> $GITHUB_STEP_SUMMARY
+            else
+              if [ -n "${{ github.event.inputs.core_version }}" ]; then
+                echo "- ✅ @auth0-web-ui-components/core@${{ github.event.inputs.core_version }}" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ✅ @auth0-web-ui-components/core" >> $GITHUB_STEP_SUMMARY
+              fi
+            fi
           fi
+          
           if [[ "${{ steps.packages.outputs.packages }}" == *"react"* ]]; then
-            echo "- ✅ @auth0-web-ui-components/react" >> $GITHUB_STEP_SUMMARY
+            if [ -f "./packages/react/package.json" ]; then
+              REACT_VERSION=$(node -p "require('./packages/react/package.json').version")
+              echo "- ✅ @auth0-web-ui-components/react@$REACT_VERSION" >> $GITHUB_STEP_SUMMARY
+            else
+              if [ -n "${{ github.event.inputs.react_version }}" ]; then
+                echo "- ✅ @auth0-web-ui-components/react@${{ github.event.inputs.react_version }}" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ✅ @auth0-web-ui-components/react" >> $GITHUB_STEP_SUMMARY
+              fi
+            fi
           fi
+          
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "🚀 Packages published to JFrog Artifactory: https://a0us.jfrog.io" >> $GITHUB_STEP_SUMMARY

@@ -114,12 +114,23 @@ export function UserMFASetupForm({
             </Card>
           </a>
         </div>
-        <div className="flex flex-col gap-3 w-full">
-          <Button type="button" className="text-sm" size="lg" onClick={() => setPhase(ENTER_QR)}>
-            {t('continue')}
-          </Button>
-          <Button type="button" className="text-sm" variant="ghost" size="lg" onClick={onClose}>
+        <div className="flex flex-row justify-end gap-3 w-full mt-6 mb-6">
+          <Button
+            type="button"
+            className="text-sm"
+            variant="outline"
+            size="default"
+            onClick={onClose}
+          >
             {t('cancel')}
+          </Button>
+          <Button
+            type="button"
+            className="text-sm"
+            size="default"
+            onClick={() => setPhase(ENTER_QR)}
+          >
+            {t('continue')}
           </Button>
         </div>
       </div>
@@ -166,7 +177,7 @@ export function UserMFASetupForm({
         style={currentStyles.variables}
         aria-describedby="mfa-setup-form"
         className={cn(
-          'w-[400px] max-h-[90vh] min-h-[548px]',
+          'w-[400px] max-h-[90vh]',
           currentStyles.classes?.['UserMFASetupForm-dialogContent'],
         )}
       >

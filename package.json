@@ -58,6 +58,7 @@
     "husky": "^8.0.3",
     "jsdom": "^26.1.0",
     "lint-staged": "^15.2.0",
+    "postcss-import": "^15.1.0",
     "prettier": "^3.2.0",
     "tsup": "^8.5.0",
     "turbo": "^2.5.4",

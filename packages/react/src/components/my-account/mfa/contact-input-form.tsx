@@ -179,25 +179,25 @@ export function ContactInputForm({
                       </FormItem>
                     )}
                   />
-                  <div className="flex flex-col gap-3 justify-center">
+                  <div className="flex flex-row justify-end gap-3 mt-6 mb-6">
+                    <Button
+                      type="button"
+                      className="text-sm"
+                      variant="outline"
+                      size="default"
+                      onClick={handleCancel}
+                      aria-label={t('cancel')}
+                    >
+                      {t('cancel')}
+                    </Button>
                     <Button
                       type="submit"
-                      size="lg"
+                      size="default"
                       className="text-sm"
                       disabled={!form.formState.isValid || loading}
                       aria-label={t('submit')}
                     >
                       {t('submit')}
-                    </Button>
-                    <Button
-                      type="button"
-                      className="text-sm"
-                      variant="ghost"
-                      size="lg"
-                      onClick={handleCancel}
-                      aria-label={t('cancel')}
-                    >
-                      {t('cancel')}
                     </Button>
                   </div>
                 </form>

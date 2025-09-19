@@ -1,0 +1,39 @@
+'use client';
+
+import i18n from 'i18next';
+import React from 'react';
+import { initReactI18next } from 'react-i18next';
+
+// Initialize i18n
+i18n.use(initReactI18next).init({
+  resources: {
+    en: {
+      translation: {
+        'nav-bar.sign-in-button': 'Sign In',
+        'nav-bar.sign-out-button': 'Sign Out',
+        'nav-bar.profile-button': 'Profile',
+        'hero-section.title': 'Welcome to Auth0 UI Components',
+        'hero-section.description':
+          'A Next.js sample application showcasing modern authentication with multi-factor authentication management.',
+        'hero-section.get-started-button': 'Get Started',
+        'hero-section.learn-more-button': 'Learn More',
+        'profile.title': 'Profile',
+        'profile.mfa-title': 'Multi-Factor Authentication',
+        'profile.mfa-description': 'Manage your authentication factors for enhanced security.',
+      },
+    },
+  },
+  lng: 'en',
+  fallbackLng: 'en',
+  interpolation: {
+    escapeValue: false,
+  },
+});
+
+interface I18nProviderProps {
+  children: React.ReactNode;
+}
+
+export function I18nProvider({ children }: I18nProviderProps) {
+  return <>{children}</>;
+}

@@ -67,26 +67,26 @@ export function ShowRecoveryCode({
           {recoveryCodes.length > 0 && <CopyableTextField value={recoveryCodes[0]} />}
         </div>
 
-        <div className="flex flex-col gap-3 justify-center">
+        <div className="flex flex-row justify-end gap-3 mt-6 mb-6">
           <Button
             type="button"
             className="text-sm"
-            size="lg"
+            variant="outline"
+            size="default"
+            onClick={onBack}
+            aria-label={t('back')}
+          >
+            {t('back')}
+          </Button>
+          <Button
+            type="button"
+            className="text-sm"
+            size="default"
             disabled={!isPushNotification && loading}
             onClick={handleSubmit}
             aria-label={buttonText}
           >
             {buttonText}
-          </Button>
-          <Button
-            type="button"
-            className="text-sm"
-            variant="ghost"
-            size="lg"
-            onClick={onBack}
-            aria-label={t('back')}
-          >
-            {t('back')}
           </Button>
         </div>
       </div>
