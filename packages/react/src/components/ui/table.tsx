@@ -1,20 +1,20 @@
-'use client';
-
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/theme-utils';
 
-const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
-  ({ className, ...props }, ref) => (
-    <div className="shadow-bevel-sm w-full overflow-clip rounded-2xl">
-      <div className="overflow-x-auto">
-        <table ref={ref} className={cn('w-full border-collapse', className)} {...props} />
-      </div>
+interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
+  className?: string;
+}
+
+const Table = React.forwardRef<HTMLTableElement, TableProps>(({ className, ...props }, ref) => (
+  <div className="shadow-bevel-sm w-full overflow-clip rounded-2xl">
+    <div className="overflow-x-auto">
+      <table ref={ref} className={cn('w-full border-collapse', className)} {...props} />
     </div>
-  ),
-);
+  </div>
+));
 Table.displayName = 'Table';
 
 const TableHeader = React.forwardRef<
@@ -90,12 +90,15 @@ const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
 );
 TableHead.displayName = 'TableHead';
 
-const TableCell = React.forwardRef<
-  HTMLTableCellElement,
-  React.TdHTMLAttributes<HTMLTableCellElement>
->(({ className, ...props }, ref) => (
-  <td ref={ref} className={cn('px-4 py-2', className)} {...props} />
-));
+interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElement> {
+  className?: string;
+}
+
+const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
+  ({ className, ...props }, ref) => (
+    <td ref={ref} className={cn('px-4 py-2', className)} {...props} />
+  ),
+);
 TableCell.displayName = 'TableCell';
 
 export interface TableColumn<T> {
