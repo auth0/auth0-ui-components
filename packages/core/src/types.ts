@@ -38,10 +38,11 @@ export interface BlockComponentSharedProps<
   isLoading?: boolean;
 }
 
-export interface ComponentAction<Item> {
+export interface ComponentAction<Item, Context = void> {
+  hide?: boolean;
   disabled?: boolean;
-  onBefore?: (item: Item) => boolean;
-  onAfter?: (item: Item) => void | boolean | Promise<boolean>;
+  onBefore?: (item: Item, context?: Context) => boolean;
+  onAfter?: (item: Item, context?: Context) => void | boolean | Promise<boolean>;
 }
 
 export interface BackButton {
