@@ -23,25 +23,25 @@ export function useMFA(): UseMFAResult {
   }
 
   const fetchFactors = useCallback(
-    (onlyActive = false) => coreClient.authenticationApiService.mfa.fetchFactors(onlyActive),
+    (onlyActive = false) => coreClient.getAuthenticationApiService().mfa.fetchFactors(onlyActive),
     [coreClient],
   );
 
   const enrollMfa = useCallback(
     (factorName: MFAType, options: EnrollOptions = {}) =>
-      coreClient.authenticationApiService.mfa.enrollFactor(factorName, options),
+      coreClient.getAuthenticationApiService().mfa.enrollFactor(factorName, options),
     [coreClient],
   );
 
   const deleteMfa = useCallback(
     (authenticatorId: string) =>
-      coreClient.authenticationApiService.mfa.deleteFactor(authenticatorId),
+      coreClient.getAuthenticationApiService().mfa.deleteFactor(authenticatorId),
     [coreClient],
   );
 
   const confirmEnrollment = useCallback(
     (factorName: MFAType, options: ConfirmEnrollmentOptions) =>
-      coreClient.authenticationApiService.mfa.confirmEnrollment(factorName, options),
+      coreClient.getAuthenticationApiService().mfa.confirmEnrollment(factorName, options),
     [coreClient],
   );
 

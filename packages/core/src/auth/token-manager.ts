@@ -1,4 +1,4 @@
-import type { AuthDetailsCore, Auth0ContextInterface } from './auth-types';
+import type { AuthDetailsCore, BasicAuth0ContextInterface } from './auth-types';
 import { AuthUtils } from './auth-utils';
 
 /**
@@ -97,7 +97,7 @@ const TokenUtils = {
    * @throws {Error} When both silent and popup token retrieval fail
    */
   async fetchToken(
-    contextInterface: Auth0ContextInterface,
+    contextInterface: BasicAuth0ContextInterface,
     scope: string,
     audience: string,
     ignoreCache: boolean,

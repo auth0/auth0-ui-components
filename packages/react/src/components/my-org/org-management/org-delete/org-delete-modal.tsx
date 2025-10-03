@@ -68,7 +68,7 @@ export function OrgDeleteModal({
     <Modal
       open={isOpen}
       onOpenChange={(open) => !open && handleClose()}
-      className={cn('p-10', currentStyles.classes?.['OrgDelete-modal'])}
+      className={cn('p-10', currentStyles.classes?.OrgDelete_modal)}
       title={t('modal_title', { orgName: organizationName })}
       content={
         <div className="space-y-6">

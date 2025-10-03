@@ -4,225 +4,305 @@
   "homepage": "https://github.com/auth0/auth0-ui-components",
   "items": [
     {
-      "name": "user-mfa-management",
+      "name": "my-account/user-mfa-management",
       "type": "registry:block",
       "title": "User MFA Management",
       "description": "A block for managing Multi-Factor Authentication (MFA) factors, including enrollment and deletion.",
       "files": [
         {
-          "path": "src/blocks/user-mfa-management.tsx",
+          "path": "src/blocks/my-account/mfa/user-mfa-management.tsx",
           "type": "registry:block",
-          "target": "blocks/user-mfa-management.tsx"
+          "target": "auth0-ui-components/blocks/my-account/mfa/user-mfa-management.tsx"
         },
         {
           "path": "src/blocks/index.ts",
           "type": "registry:file",
-          "target": "blocks/index.ts"
+          "target": "auth0-ui-components/blocks/index.ts"
         },
         {
-          "path": "src/components/mfa/user-mfa-setup-form.tsx",
+          "path": "src/components/my-account/mfa/user-mfa-setup-form.tsx",
           "type": "registry:component",
-          "target": "components/mfa/user-mfa-setup-form.tsx"
+          "target": "auth0-ui-components/components/my-account/mfa/user-mfa-setup-form.tsx"
         },
         {
-          "path": "src/components/mfa/qr-code-enrollment-form.tsx",
+          "path": "src/components/my-account/mfa/qr-code-enrollment-form.tsx",
           "type": "registry:component",
-          "target": "components/mfa/qr-code-enrollment-form.tsx"
+          "target": "auth0-ui-components/components/my-account/mfa/qr-code-enrollment-form.tsx"
         },
         {
-          "path": "src/components/mfa/otp-verification-form.tsx",
+          "path": "src/components/my-account/mfa/otp-verification-form.tsx",
           "type": "registry:component",
-          "target": "components/mfa/otp-verification-form.tsx"
+          "target": "auth0-ui-components/components/my-account/mfa/otp-verification-form.tsx"
         },
         {
-          "path": "src/components/mfa/contact-input-form.tsx",
+          "path": "src/components/my-account/mfa/contact-input-form.tsx",
           "type": "registry:component",
-          "target": "components/mfa/contact-input-form.tsx"
+          "target": "auth0-ui-components/components/my-account/mfa/contact-input-form.tsx"
+        },
+        {
+          "path": "src/components/my-account/mfa/delete-factor-confirmation.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/my-account/mfa/delete-factor-confirmation.tsx"
+        },
+        {
+          "path": "src/components/my-account/mfa/empty-state.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/my-account/mfa/empty-state.tsx"
+        },
+        {
+          "path": "src/components/my-account/mfa/error-state.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/my-account/mfa/error-state.tsx"
+        },
+        {
+          "path": "src/components/my-account/mfa/factors-list.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/my-account/mfa/factors-list.tsx"
+        },
+        {
+          "path": "src/components/my-account/mfa/show-recovery-code.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/my-account/mfa/show-recovery-code.tsx"
         },
         {
           "path": "src/components/ui/badge.tsx",
           "type": "registry:component",
-          "target": "components/ui/badge.tsx"
+          "target": "auth0-ui-components/components/ui/badge.tsx"
         },
         {
           "path": "src/components/ui/button.tsx",
           "type": "registry:component",
-          "target": "components/ui/button.tsx"
+          "target": "auth0-ui-components/components/ui/button.tsx"
         },
         {
           "path": "src/components/ui/card.tsx",
           "type": "registry:component",
-          "target": "components/ui/card.tsx"
+          "target": "auth0-ui-components/components/ui/card.tsx"
         },
         {
           "path": "src/components/ui/dialog.tsx",
           "type": "registry:component",
-          "target": "components/ui/dialog.tsx"
+          "target": "auth0-ui-components/components/ui/dialog.tsx"
         },
         {
           "path": "src/components/ui/form.tsx",
           "type": "registry:component",
-          "target": "components/ui/form.tsx"
+          "target": "auth0-ui-components/components/ui/form.tsx"
         },
         {
           "path": "src/components/ui/text-field.tsx",
           "type": "registry:component",
-          "target": "components/ui/text-field.tsx"
+          "target": "auth0-ui-components/components/ui/text-field.tsx"
         },
         {
           "path": "src/components/ui/otp-field.tsx",
           "type": "registry:component",
-          "target": "components/ui/otp-field.tsx"
+          "target": "auth0-ui-components/components/ui/otp-field.tsx"
         },
         {
           "path": "src/components/ui/label.tsx",
           "type": "registry:component",
-          "target": "components/ui/label.tsx"
+          "target": "auth0-ui-components/components/ui/label.tsx"
         },
         {
           "path": "src/components/ui/separator.tsx",
           "type": "registry:component",
-          "target": "components/ui/separator.tsx"
+          "target": "auth0-ui-components/components/ui/separator.tsx"
         },
         {
           "path": "src/components/ui/sonner.tsx",
           "type": "registry:component",
-          "target": "components/ui/sonner.tsx"
+          "target": "auth0-ui-components/components/ui/sonner.tsx"
         },
         {
           "path": "src/components/ui/spinner.tsx",
           "type": "registry:component",
-          "target": "components/ui/spinner.tsx"
+          "target": "auth0-ui-components/components/ui/spinner.tsx"
+        },
+        {
+          "path": "src/components/ui/copyable-text-field.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/copyable-text-field.tsx"
+        },
+        {
+          "path": "src/components/ui/popover.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/popover.tsx"
+        },
+        {
+          "path": "src/components/ui/qr-code.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/qr-code.tsx"
         },
         {
           "path": "src/hooks/use-translator.ts",
           "type": "registry:hook",
-          "target": "hooks/use-translator.ts"
+          "target": "auth0-ui-components/hooks/use-translator.ts"
         },
         {
           "path": "src/hooks/use-core-client.ts",
           "type": "registry:hook",
-          "target": "hooks/use-core-client.ts"
+          "target": "auth0-ui-components/hooks/use-core-client.ts"
         },
         {
           "path": "src/hooks/use-core-client-initialization.ts",
           "type": "registry:hook",
-          "target": "hooks/use-core-client-initialization.ts"
-        },
-        {
-          "path": "src/hooks/use-config.ts",
-          "type": "registry:hook",
-          "target": "hooks/use-config.ts"
+          "target": "auth0-ui-components/hooks/use-core-client-initialization.ts"
         },
         {
           "path": "src/hooks/use-theme.ts",
           "type": "registry:hook",
-          "target": "hooks/use-theme.ts"
+          "target": "auth0-ui-components/hooks/use-theme.ts"
         },
         {
-          "path": "src/hooks/mfa/use-mfa.ts",
+          "path": "src/hooks/my-account/mfa/use-mfa.ts",
           "type": "registry:hook",
-          "target": "hooks/mfa/use-mfa.ts"
+          "target": "auth0-ui-components/hooks/my-account/mfa/use-mfa.ts"
         },
         {
-          "path": "src/hooks/mfa/use-otp-enrollment.ts",
+          "path": "src/hooks/my-account/mfa/use-otp-enrollment.ts",
           "type": "registry:hook",
-          "target": "hooks/mfa/use-otp-enrollment.ts"
+          "target": "auth0-ui-components/hooks/my-account/mfa/use-otp-enrollment.ts"
         },
         {
-          "path": "src/hooks/mfa/use-otp-confirmation.ts",
+          "path": "src/hooks/my-account/mfa/use-otp-confirmation.ts",
           "type": "registry:hook",
-          "target": "hooks/mfa/use-otp-confirmation.ts"
+          "target": "auth0-ui-components/hooks/my-account/mfa/use-otp-confirmation.ts"
         },
         {
-          "path": "src/hooks/mfa/use-contact-enrollment.ts",
+          "path": "src/hooks/my-account/mfa/use-contact-enrollment.ts",
           "type": "registry:hook",
-          "target": "hooks/mfa/use-contact-enrollment.ts"
+          "target": "auth0-ui-components/hooks/my-account/mfa/use-contact-enrollment.ts"
         },
         {
-          "path": "src/hooks/mfa/index.ts",
+          "path": "src/hooks/my-account/mfa/index.ts",
           "type": "registry:file",
-          "target": "hooks/mfa/index.ts"
+          "target": "auth0-ui-components/hooks/my-account/mfa/index.ts"
+        },
+        {
+          "path": "src/hooks/my-account/index.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/hooks/my-account/index.ts"
         },
         {
           "path": "src/hooks/index.ts",
           "type": "registry:file",
-          "target": "hooks/index.ts"
+          "target": "auth0-ui-components/hooks/index.ts"
         },
         {
           "path": "src/providers/component-provider.tsx",
           "type": "registry:file",
-          "target": "providers/component-provider.tsx"
+          "target": "auth0-ui-components/providers/component-provider.tsx"
         },
         {
           "path": "src/providers/proxy-provider.tsx",
           "type": "registry:file",
-          "target": "providers/proxy-provider.tsx"
+          "target": "auth0-ui-components/providers/proxy-provider.tsx"
         },
         {
           "path": "src/providers/spa-provider.tsx",
           "type": "registry:file",
-          "target": "providers/spa-provider.tsx"
+          "target": "auth0-ui-components/providers/spa-provider.tsx"
         },
         {
           "path": "src/providers/theme-provider.tsx",
           "type": "registry:file",
-          "target": "providers/theme-provider.tsx"
+          "target": "auth0-ui-components/providers/theme-provider.tsx"
         },
         {
           "path": "src/providers/index.ts",
           "type": "registry:file",
-          "target": "providers/index.ts"
+          "target": "auth0-ui-components/providers/index.ts"
         },
         {
-          "path": "src/types/mfa-types.ts",
+          "path": "src/types/my-account/mfa/mfa-types.ts",
           "type": "registry:file",
-          "target": "types/mfa-types.ts"
+          "target": "auth0-ui-components/types/my-account/mfa/mfa-types.ts"
+        },
+        {
+          "path": "src/types/my-account/index.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/types/my-account/index.ts"
         },
         {
           "path": "src/types/auth-types.ts",
           "type": "registry:file",
-          "target": "types/auth-types.ts"
+          "target": "auth0-ui-components/types/auth-types.ts"
         },
         {
           "path": "src/types/theme-types.ts",
           "type": "registry:file",
-          "target": "types/theme-types.ts"
+          "target": "auth0-ui-components/types/theme-types.ts"
         },
         {
           "path": "src/types/i18n-types.ts",
           "type": "registry:file",
-          "target": "types/i18n-types.ts"
+          "target": "auth0-ui-components/types/i18n-types.ts"
         },
         {
           "path": "src/types/index.ts",
           "type": "registry:file",
-          "target": "types/index.ts"
+          "target": "auth0-ui-components/types/index.ts"
         },
         {
           "path": "src/lib/theme-utils.ts",
           "type": "registry:file",
-          "target": "lib/theme-utils.ts"
+          "target": "auth0-ui-components/lib/theme-utils.ts"
         },
         {
           "path": "src/lib/mfa-constants.ts",
           "type": "registry:file",
-          "target": "lib/mfa-constants.ts"
+          "target": "auth0-ui-components/lib/mfa-constants.ts"
         },
         {
-          "path": "src/hoc/with-core-client.tsx",
+          "path": "src/lib/svgs/apple-logo.tsx",
           "type": "registry:file",
-          "target": "hoc/with-core-client.tsx"
+          "target": "auth0-ui-components/lib/svgs/apple-logo.tsx"
+        },
+        {
+          "path": "src/lib/svgs/google-logo.tsx",
+          "type": "registry:file",
+          "target": "auth0-ui-components/lib/svgs/google-logo.tsx"
+        },
+        {
+          "path": "src/hoc/with-services.tsx",
+          "type": "registry:file",
+          "target": "auth0-ui-components/hoc/with-services.tsx"
         },
         {
           "path": "src/hoc/index.ts",
           "type": "registry:file",
-          "target": "hoc/index.ts"
+          "target": "auth0-ui-components/hoc/index.ts"
         },
         {
           "path": "src/styles/globals.css",
           "type": "registry:file",
-          "target": "styles/globals.css"
+          "target": "auth0-ui-components/styles/globals.css"
+        },
+        {
+          "path": "src/styles/dark.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/dark.css"
+        },
+        {
+          "path": "src/styles/light.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/light.css"
+        },
+        {
+          "path": "src/styles/themes/default.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/themes/default.css"
+        },
+        {
+          "path": "src/styles/themes/minimal.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/themes/minimal.css"
+        },
+        {
+          "path": "src/styles/themes/rounded.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/themes/rounded.css"
         }
       ],
       "dependencies": [
@@ -242,14 +322,262 @@
         "badge",
         "button",
         "card",
-        "label",
-        "separator",
-        "sonner",
+        "copyable-text-field",
         "dialog",
         "form",
+        "label",
         "otp-field",
+        "popover",
+        "qr-code",
+        "separator",
+        "sonner",
+        "spinner",
+        "text-field"
+      ]
+    },
+    {
+      "name": "my-org/org-details-edit",
+      "type": "registry:block",
+      "title": "Organization Management",
+      "description": "A block for managing organization details, including editing organization settings and branding, with delete functionality.",
+      "files": [
+        {
+          "path": "src/blocks/my-org/org-management/org-details-edit.tsx",
+          "type": "registry:block",
+          "target": "auth0-ui-components/blocks/my-org/org-management/org-details-edit.tsx"
+        },
+        {
+          "path": "src/blocks/my-org/org-management/index.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/blocks/my-org/org-management/index.ts"
+        },
+        {
+          "path": "src/blocks/index.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/blocks/index.ts"
+        },
+        {
+          "path": "src/components/my-org/org-management/org-details/org-details.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/my-org/org-management/org-details/org-details.tsx"
+        },
+        {
+          "path": "src/components/my-org/org-management/org-details/settings-details.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/my-org/org-management/org-details/settings-details.tsx"
+        },
+        {
+          "path": "src/components/my-org/org-management/org-details/branding-details.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/my-org/org-management/org-details/branding-details.tsx"
+        },
+        {
+          "path": "src/components/my-org/org-management/org-details/index.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/components/my-org/org-management/org-details/index.ts"
+        },
+        {
+          "path": "src/components/my-org/org-management/org-delete/org-delete.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/my-org/org-management/org-delete/org-delete.tsx"
+        },
+        {
+          "path": "src/components/my-org/org-management/org-delete/org-delete-modal.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/my-org/org-management/org-delete/org-delete-modal.tsx"
+        },
+        {
+          "path": "src/components/my-org/org-management/org-delete/index.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/components/my-org/org-management/org-delete/index.ts"
+        },
+        {
+          "path": "src/components/my-org/org-management/index.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/components/my-org/org-management/index.ts"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/button.tsx"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/card.tsx"
+        },
+        {
+          "path": "src/components/ui/color-picker.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/color-picker.tsx"
+        },
+        {
+          "path": "src/components/ui/form.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/form.tsx"
+        },
+        {
+          "path": "src/components/ui/form-actions.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/form-actions.tsx"
+        },
+        {
+          "path": "src/components/ui/header.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/header.tsx"
+        },
+        {
+          "path": "src/components/ui/image-preview.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/image-preview.tsx"
+        },
+        {
+          "path": "src/components/ui/label.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/label.tsx"
+        },
+        {
+          "path": "src/components/ui/modal.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/modal.tsx"
+        },
+        {
+          "path": "src/components/ui/section.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/section.tsx"
+        },
+        {
+          "path": "src/components/ui/separator.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/separator.tsx"
+        },
+        {
+          "path": "src/components/ui/sonner.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/sonner.tsx"
+        },
+        {
+          "path": "src/components/ui/spinner.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/spinner.tsx"
+        },
+        {
+          "path": "src/components/ui/text-field.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/text-field.tsx"
+        },
+        {
+          "path": "src/components/ui/toast.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/toast.tsx"
+        },
+        {
+          "path": "src/hooks/use-translator.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/use-translator.ts"
+        },
+        {
+          "path": "src/hooks/use-core-client.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/use-core-client.ts"
+        },
+        {
+          "path": "src/hooks/use-theme.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/use-theme.ts"
+        },
+        {
+          "path": "src/hooks/my-org/org-management/use-org-details-edit.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/my-org/org-management/use-org-details-edit.ts"
+        },
+        {
+          "path": "src/hooks/my-org/org-management/index.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/hooks/my-org/org-management/index.ts"
+        },
+        {
+          "path": "src/hooks/my-org/index.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/hooks/my-org/index.ts"
+        },
+        {
+          "path": "src/hooks/index.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/hooks/index.ts"
+        },
+        {
+          "path": "src/types/my-org/org-management/org-details-types.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/types/my-org/org-management/org-details-types.ts"
+        },
+        {
+          "path": "src/types/my-org/org-management/org-details-edit-types.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/types/my-org/org-management/org-details-edit-types.ts"
+        },
+        {
+          "path": "src/types/my-org/org-management/org-delete-types.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/types/my-org/org-management/org-delete-types.ts"
+        },
+        {
+          "path": "src/types/my-org/org-management/index.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/types/my-org/org-management/index.ts"
+        },
+        {
+          "path": "src/types/my-org/index.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/types/my-org/index.ts"
+        },
+        {
+          "path": "src/types/index.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/types/index.ts"
+        },
+        {
+          "path": "src/hoc/with-services.tsx",
+          "type": "registry:file",
+          "target": "auth0-ui-components/hoc/with-services.tsx"
+        },
+        {
+          "path": "src/hoc/index.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/hoc/index.ts"
+        },
+        {
+          "path": "src/lib/theme-utils.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/lib/theme-utils.ts"
+        }
+      ],
+      "dependencies": [
+        "sonner",
+        "react-hook-form",
+        "@hookform/resolvers",
+        "clsx",
+        "tailwind-merge",
+        "class-variance-authority",
+        "lucide-react",
+        "next-themes"
+      ],
+      "registryDependencies": [
+        "button",
+        "card",
+        "color-picker",
+        "form",
+        "form-actions",
+        "header",
+        "image-preview",
+        "label",
+        "modal",
+        "section",
+        "separator",
+        "sonner",
+        "spinner",
         "text-field",
-        "spinner"
+        "toast"
       ]
     }
   ]

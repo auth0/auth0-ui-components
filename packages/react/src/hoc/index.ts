@@ -1,1 +1,7 @@
-export { withCoreClient } from './with-core-client';
+export {
+  withServices,
+  withAuthenticationService,
+  withMyOrgService,
+  withAllServices,
+  type ServiceRequirements,
+} from './with-services';

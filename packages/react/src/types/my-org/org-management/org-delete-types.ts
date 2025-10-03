@@ -1,40 +1,37 @@
-import type {
-  OrganizationDetailFormValues,
-  SharedComponentProps,
-  OrgDeletesCustomMessages,
-  OrganizationDetailSchemaValidation,
-} from '@auth0-web-ui-components/core';
+import type { Organization, SharedComponentProps } from '@auth0-web-ui-components/core';
 
-export interface OrgValidationSchema {
-  name?: RegExp;
-  displayName?: RegExp;
-  color?: RegExp;
-  logoURL?: RegExp;
+/* ============ Components ============ */
+
+/**
+ * Messages that can be used in the UI.
+ */
+export interface OrgDeleteMessages {
+  title?: string;
+  description?: string;
+  delete_button_label?: string;
+  modal_title?: string;
+  modal_description?: string;
+  org_name_field_placeholder?: string;
+  org_name_field_label?: string;
 }
 
+/**
+ * Styling that can be used to override default styles.
+ */
 export interface OrgDeleteClasses {
-  'OrgDelete-card'?: string;
-  'OrgDelete-button'?: string;
-  'OrgDelete-modal'?: string;
+  OrgDelete_card?: string;
+  OrgDelete_button?: string;
+  OrgDelete_modal?: string;
 }
 
-export interface OrgDeleteProps
-  extends SharedComponentProps<
-    OrgDeletesCustomMessages,
-    OrgDeleteClasses,
-    OrganizationDetailSchemaValidation
-  > {
+export interface OrgDeleteProps extends SharedComponentProps<OrgDeleteMessages, OrgDeleteClasses> {
   onDelete: (id: string) => void | Promise<void>;
   isLoading?: boolean;
-  organization: Partial<OrganizationDetailFormValues> & { id: string };
+  organization: Organization;
 }
 
 export interface OrgDeleteModalProps
-  extends SharedComponentProps<
-    OrgDeletesCustomMessages,
-    OrgDeleteClasses,
-    OrganizationDetailSchemaValidation
-  > {
+  extends SharedComponentProps<OrgDeleteMessages, OrgDeleteClasses> {
   isOpen: boolean;
   onClose: () => void;
   organizationName: string;

@@ -72,7 +72,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
   return (
     <div
       className={cn(
-        'flex flex-row items-center gap-4 p-2 bg-muted/30',
+        'flex flex-row items-center gap-4 p-2',
         align === 'right' ? 'justify-end' : 'justify-start',
         className,
       )}

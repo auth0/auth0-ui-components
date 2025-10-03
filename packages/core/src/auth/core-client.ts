@@ -153,6 +153,15 @@ export async function createCoreClient(
     ...baseCoreClient,
     authenticationApiService,
     myOrgApiService,
+    getAuthenticationApiService: () => authenticationApiService,
+    getMyOrgApiService: () => {
+      if (!myOrgApiService) {
+        throw new Error(
+          'myOrgApiService is not enabled. Please use it within Auth0ComponentProvider and make sure the user is in the context of an Auth0 Organization.',
+        );
+      }
+      return myOrgApiService;
+    },
   };
 
   return coreClient;

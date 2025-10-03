@@ -1,19 +1,51 @@
 import type {
-  OrgEditCustomMessages,
   BlockComponentSharedProps,
-  OrganizationDetailSchemaValidation,
-  Organization,
+  OrgDetailsSchemas,
   ComponentAction,
   BackButton,
+  OrganizationPrivate,
 } from '@auth0-web-ui-components/core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 
-import type { OrgDetailsClasses } from './org-details-types';
+// TODO: Enable it when delete is enabled
+// import type { OrgDeleteClasses, OrgDeleteMessages } from './org-delete-types';
+import type {
+  OrgDetailsClasses,
+  OrgDetailsMessages,
+  OrgDetailsFormActions,
+} from './org-details-types';
 
-export interface OrgEditClasses extends OrgDetailsClasses {}
+/* ============ Components ============ */
 
-export interface OrgEditSaveAction extends ComponentAction<Organization> {}
+/**
+ * Messages that extends both OrgDetails and OrgDelete messages.
+ */
+export interface OrgDetailsEditMessages {
+  header?: {
+    title?: string;
+    back_button_text?: string;
+  };
+  details?: OrgDetailsMessages;
+  // delete?: OrgDeleteMessages; // TODO: Enable it when delete is enabled
+  save_org_changes_message?: string;
+  org_changes_error_message?: string;
+  org_changes_error_message_generic?: string;
+}
+
+/**
+ * Styling that can be used to override default styles.
+ */
+export type OrgEditClasses = OrgDetailsClasses; // TODO: Add OrgDeleteClasses when delete is enabled
+
+/**
+ * Schemas that can be used to override default schemas.
+ */
+export type OrgDetailsEditSchemas = {
+  details?: OrgDetailsSchemas;
+};
+
+export interface OrgEditSaveAction extends ComponentAction<OrganizationPrivate> {}
 
 export interface OrgEditBackButton extends Omit<BackButton, 'onClick'> {
   icon?: LucideIcon;
@@ -21,14 +53,28 @@ export interface OrgEditBackButton extends Omit<BackButton, 'onClick'> {
 }
 
 export interface OrgDetailsEditProps
-  extends BlockComponentSharedProps<
-    OrgEditCustomMessages,
-    OrgEditClasses,
-    OrganizationDetailSchemaValidation
-  > {
-  organizationId: string;
-  saveAction?: ComponentAction<Organization>;
-  cancelAction?: ComponentAction<Organization>;
+  extends BlockComponentSharedProps<OrgDetailsEditMessages, OrgEditClasses, OrgDetailsEditSchemas> {
+  saveAction?: ComponentAction<OrganizationPrivate>;
+  cancelAction?: ComponentAction<OrganizationPrivate>;
   hideHeader?: boolean;
   backButton?: OrgEditBackButton;
+}
+
+/* ============ Hooks ============ */
+
+export interface UseOrgDetailsEditOptions {
+  saveAction?: OrgDetailsEditProps['saveAction'];
+  cancelAction?: OrgDetailsEditProps['cancelAction'];
+  readOnly?: OrgDetailsEditProps['readOnly'];
+  customMessages?: OrgDetailsEditProps['customMessages'];
+}
+
+export interface UseOrgDetailsEditResult {
+  organization: OrganizationPrivate;
+  isFetchLoading: boolean;
+  isSaveLoading: boolean;
+  isInitializing: boolean;
+  formActions: OrgDetailsFormActions;
+  fetchOrgDetails: () => Promise<void>;
+  updateOrgDetails: (data: OrganizationPrivate) => Promise<boolean>;
 }

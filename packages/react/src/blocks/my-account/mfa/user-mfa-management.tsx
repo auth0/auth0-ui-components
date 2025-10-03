@@ -18,7 +18,7 @@ import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/c
 import { List, ListItem } from '@/components/ui/list';
 import { Toaster } from '@/components/ui/sonner';
 import { Spinner } from '@/components/ui/spinner';
-import { withCoreClient } from '@/hoc';
+import { withAuthenticationService } from '@/hoc';
 import { useTheme, useMFA, useTranslator } from '@/hooks';
 import { ENROLL } from '@/lib/mfa-constants';
 import type { CONFIRM } from '@/lib/mfa-constants';
@@ -99,7 +99,7 @@ function UserMFAMgmtComponent({
 
   React.useEffect(() => {
     loadFactors();
-  }, [loadFactors]);
+  }, []);
 
   /**
    * Get visible factor types based on configuration
@@ -416,4 +416,4 @@ function UserMFAMgmtComponent({
   );
 }
 
-export const UserMFAMgmt = withCoreClient(UserMFAMgmtComponent);
+export const UserMFAMgmt = withAuthenticationService(UserMFAMgmtComponent);

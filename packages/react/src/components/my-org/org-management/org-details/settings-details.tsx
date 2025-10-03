@@ -47,7 +47,7 @@ export function SettingsDetails({
                   placeholder={t('sections.settings.fields.name.placeholder')}
                   error={Boolean(form.formState.errors.name)}
                   aria-invalid={Boolean(form.formState.errors.name)}
-                  readOnly={readOnly}
+                  readOnly={true}
                   {...field}
                 />
               </FormControl>

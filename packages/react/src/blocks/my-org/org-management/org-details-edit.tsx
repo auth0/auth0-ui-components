@@ -1,14 +1,13 @@
-import type { Organization } from '@auth0-web-ui-components/core';
 import { getComponentStyles } from '@auth0-web-ui-components/core';
 import * as React from 'react';
 import { Toaster } from 'sonner';
 
 import { OrgDetails } from '@/components/my-org/org-management/org-details';
 import { Header } from '@/components/ui/header';
-import { showToast } from '@/components/ui/toast';
-import { withCoreClient } from '@/hoc';
-import { useTheme, useTranslator } from '@/hooks';
-import type { OrgDetailsEditProps, OrgDetailsFormActions } from '@/types/my-org/org-management';
+import { Spinner } from '@/components/ui/spinner';
+import { withMyOrgService } from '@/hoc';
+import { useTheme, useTranslator, useOrgDetailsEdit } from '@/hooks';
+import type { OrgDetailsEditProps } from '@/types/my-org/org-management';
 
 /**
  * OrgDetailsEdit Component
@@ -18,8 +17,6 @@ import type { OrgDetailsEditProps, OrgDetailsFormActions } from '@/types/my-org/
  * a complete editing experience with form validation, lifecycle hooks, and user feedback.
  */
 function OrgDetailsEditComponent({
-  organizationId,
-  isLoading = false,
   schema,
   customMessages = {},
   styling = {
@@ -35,67 +32,25 @@ function OrgDetailsEditComponent({
   const { t } = useTranslator('org_management.org_details_edit', customMessages);
   const { isDarkMode } = useTheme();
 
-  //TODO:  fetch details from hook
-  const organization = {
-    id: organizationId || 'org_12345',
-    name: 'acme-corp',
-    display_name: 'Acme Corporation',
-    branding: {
-      logo_url: 'https://picsum.photos/200',
-      colors: {
-        primary: '#007bff',
-        page_background: '#ffffff',
-      },
-    },
-  };
+  const {
+    organization,
+    isFetchLoading,
+    formActions: enhancedFormActions,
+  } = useOrgDetailsEdit({
+    saveAction,
+    cancelAction,
+    readOnly,
+    customMessages,
+  });
 
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
   );
 
-  const handleSubmit = React.useCallback(
-    async (data: Organization): Promise<boolean> => {
-      if (saveAction?.onBefore) {
-        const canProceed = saveAction.onBefore(data);
-        if (!canProceed) {
-          return false;
-        }
-      }
-
-      try {
-        //TODO: await onSave(data); will be a hook
-        showToast({
-          type: 'success',
-          message: t('save_org_changes_message', { orgName: organization.display_name }),
-        });
-        if (saveAction?.onAfter) {
-          saveAction.onAfter(data);
-        }
-        return true;
-      } catch (error) {
-        showToast({
-          type: 'error',
-          message: t('org_changes_error_message'),
-        });
-        return false;
-      }
-    },
-    [saveAction, t, organization.display_name],
-  );
-
-  const enhancedFormActions = React.useMemo(
-    (): OrgDetailsFormActions => ({
-      previousAction: cancelAction && {
-        onClick: () => cancelAction?.onAfter?.(organization),
-      },
-      nextAction: {
-        disabled: saveAction?.disabled || readOnly,
-        onClick: handleSubmit,
-      },
-    }),
-    [handleSubmit, readOnly, cancelAction, saveAction?.disabled],
-  );
+  if (isFetchLoading) {
+    return <Spinner />;
+  }
 
   return (
     <div style={currentStyles.variables} className="w-full">
@@ -103,7 +58,9 @@ function OrgDetailsEditComponent({
       {!hideHeader && (
         <div className="mb-8">
           <Header
-            title={t('header.title', { orgName: organization.display_name })}
+            title={t('header.title', {
+              orgName: organization.display_name || organization.name || '',
+            })}
             backButton={
               backButton && {
                 ...backButton,
@@ -117,8 +74,7 @@ function OrgDetailsEditComponent({
       <div className="mb-8">
         <OrgDetails
           organization={organization}
-          isLoading={isLoading}
-          schema={schema}
+          schema={schema?.details}
           customMessages={customMessages.details}
           styling={styling}
           readOnly={readOnly}
@@ -129,4 +85,4 @@ function OrgDetailsEditComponent({
   );
 }
 
-export const OrgDetailsEdit = withCoreClient(OrgDetailsEditComponent);
+export const OrgDetailsEdit = withMyOrgService(OrgDetailsEditComponent);

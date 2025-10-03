@@ -9,6 +9,7 @@ export {
   CoreClientInterface,
   MyOrgServiceConfig,
   ServicesConfig,
+  BasicAuth0ContextInterface,
 } from './auth/auth-types';
 
 export * from './schemas';

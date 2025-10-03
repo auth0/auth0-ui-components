@@ -1,6 +1,7 @@
 import type {
-  OrganizationDetailFormValues,
-  OrganizationDetailSchemaValidation,
+  OrganizationDetailsFormValues,
+  OrganizationPrivate,
+  OrgDetailsSchemas,
 } from '@auth0-web-ui-components/core';
 import { getComponentStyles, createOrganizationDetailSchema } from '@auth0-web-ui-components/core';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,7 +12,8 @@ import { Card } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormActions } from '@/components/ui/form-actions';
 import { Separator } from '@/components/ui/separator';
-import { withCoreClient } from '@/hoc';
+import { Spinner } from '@/components/ui/spinner';
+import { withMyOrgService } from '@/hoc';
 import { useTheme, useTranslator } from '@/hooks';
 import { cn } from '@/lib/theme-utils';
 import type { OrgDetailsProps } from '@/types';
@@ -28,7 +30,7 @@ import { SettingsDetails } from './settings-details';
  *
  */
 function OrgDetailsComponent({
-  organization = {},
+  organization,
   isLoading = false,
   schema,
   customMessages = {},
@@ -48,10 +50,7 @@ function OrgDetailsComponent({
   );
 
   const organizationDetailSchema = React.useMemo(() => {
-    const mergeFieldConfig = (
-      field: keyof OrganizationDetailSchemaValidation,
-      defaultError: string,
-    ) => {
+    const mergeFieldConfig = (field: keyof OrgDetailsSchemas, defaultError: string) => {
       const fieldConfig = schema?.[field];
       return fieldConfig
         ? {
@@ -74,29 +73,36 @@ function OrgDetailsComponent({
     });
   }, [t, schema]);
 
-  const form = useForm<OrganizationDetailFormValues>({
-    resolver: zodResolver(organizationDetailSchema),
-    defaultValues: {
-      name: organization?.name || '',
-      display_name: organization?.display_name || '',
+  const formValues = React.useMemo(
+    (): OrganizationDetailsFormValues => ({
+      name: organization.name,
+      display_name: organization.display_name,
       branding: {
-        logo_url: organization?.branding?.logo_url || '',
+        logo_url: organization.branding.logo_url,
         colors: {
-          primary: organization?.branding?.colors?.primary || '#000000',
-          page_background: organization?.branding?.colors?.page_background || '#ffffff',
+          primary: organization.branding.colors.primary,
+          page_background: organization.branding.colors.page_background,
         },
       },
-    },
+    }),
+    [organization],
+  );
+
+  const form = useForm<OrganizationDetailsFormValues>({
+    resolver: zodResolver(organizationDetailSchema),
+    defaultValues: formValues,
+    values: formValues,
   });
 
   const hasUnsavedChanges = form.formState.isDirty;
 
   const onValid = React.useCallback(
-    async (values: OrganizationDetailFormValues) => {
+    async (values: OrganizationDetailsFormValues) => {
       if (formActions?.nextAction?.onClick) {
-        const payload = {
+        const payload: OrganizationPrivate = {
           ...values,
-          id: organization?.id,
+          name: organization.name,
+          id: organization.id,
         };
 
         const success = await formActions.nextAction.onClick(payload);
@@ -110,7 +116,7 @@ function OrgDetailsComponent({
         }
       }
     },
-    [formActions?.nextAction, organization?.id, form],
+    [formActions?.nextAction, organization.id, form],
   );
 
   const handlePreviousAction = React.useCallback(
@@ -121,6 +127,9 @@ function OrgDetailsComponent({
     [form, formActions?.previousAction?.onClick],
   );
 
+  if (isLoading) {
+    return <Spinner />;
+  }
   return (
     <div style={currentStyles.variables} className="w-full space-y-6">
       <Form {...form}>
@@ -145,13 +154,13 @@ function OrgDetailsComponent({
 
               <FormActions
                 hasUnsavedChanges={hasUnsavedChanges}
-                isLoading={isLoading}
+                isLoading={formActions.isLoading}
                 nextAction={{
                   label: t('submit_button_label'),
                   disabled:
                     formActions?.nextAction?.disabled ||
                     !hasUnsavedChanges ||
-                    isLoading ||
+                    formActions.isLoading ||
                     readOnly,
                   type: 'submit',
                 }}
@@ -173,4 +182,4 @@ function OrgDetailsComponent({
   );
 }
 
-export const OrgDetails = withCoreClient(OrgDetailsComponent);
+export const OrgDetails = withMyOrgService(OrgDetailsComponent);

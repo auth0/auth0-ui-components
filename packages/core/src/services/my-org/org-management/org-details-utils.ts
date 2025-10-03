@@ -1,4 +1,4 @@
-import type { OrganizationDetailFormValues } from '../../../schemas';
+import type { OrganizationPrivate } from '../../../services';
 
 import type {
   GetOrganizationDetailsResponseContent,
@@ -13,7 +13,7 @@ import type {
  */
 export function transformToFormValues(
   orgData: GetOrganizationDetailsResponseContent,
-): OrganizationDetailFormValues {
+): OrganizationPrivate {
   return {
     name: orgData.name || '',
     display_name: orgData.display_name || '',
@@ -34,7 +34,7 @@ export function transformToFormValues(
  * @returns Data formatted for SDK update request
  */
 export function transformFromFormValues(
-  formValues: OrganizationDetailFormValues,
+  formValues: OrganizationPrivate,
 ): UpdateOrganizationDetailsRequestContent {
   return {
     display_name: formValues.display_name,

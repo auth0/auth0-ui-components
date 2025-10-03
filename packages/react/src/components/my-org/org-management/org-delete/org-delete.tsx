@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { withCoreClient } from '@/hoc';
+import { withMyOrgService } from '@/hoc';
 import { useTheme, useTranslator } from '@/hooks';
 import { cn } from '@/lib/theme-utils';
 import type { OrgDeleteProps } from '@/types';
@@ -55,7 +55,7 @@ function OrgDeleteComponent({
   return (
     <>
       <div style={currentStyles.variables} className="w-full">
-        <Card className={cn('p-6', currentStyles.classes?.['OrgDelete-card'])}>
+        <Card className={cn('p-6', currentStyles.classes?.OrgDelete_card)}>
           <CardContent className="flex items-start justify-between gap-6 p-0">
             <div className="flex-1 space-y-2">
               <h3
@@ -76,7 +76,7 @@ function OrgDeleteComponent({
               variant="destructive"
               onClick={openModal}
               disabled={isLoading}
-              className={cn('shrink-0', currentStyles.classes?.['OrgDelete-button'])}
+              className={cn('shrink-0', currentStyles.classes?.OrgDelete_button)}
             >
               {t('delete_button_label')}
             </Button>
@@ -97,4 +97,4 @@ function OrgDeleteComponent({
   );
 }
 
-export const OrgDelete = withCoreClient(OrgDeleteComponent);
+export const OrgDelete = withMyOrgService(OrgDeleteComponent);

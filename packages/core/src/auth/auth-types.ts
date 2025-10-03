@@ -79,6 +79,19 @@ export interface Auth0ContextInterface<TUser = User> {
   handleRedirectCallback: () => Promise<SafeAny>;
 }
 
+export interface BasicAuth0ContextInterface<TUser = User> {
+  user?: TUser;
+  isAuthenticated: boolean;
+  getAccessTokenSilently: {
+    (
+      options: GetTokenSilentlyOptions & { detailedResponse: true },
+    ): Promise<GetTokenSilentlyVerboseResponse>;
+    (options?: GetTokenSilentlyOptions): Promise<string>;
+    (options: GetTokenSilentlyOptions): Promise<GetTokenSilentlyVerboseResponse | string>;
+  };
+  getAccessTokenWithPopup: (options?: SafeAny) => Promise<string | undefined>;
+}
+
 export interface MyOrgServiceConfig {
   enabled: boolean;
 }
@@ -93,7 +106,7 @@ export interface AuthDetailsCore {
   accessToken?: string | undefined;
   scopes?: string | undefined;
   authProxyUrl?: string | undefined;
-  contextInterface?: Auth0ContextInterface | undefined;
+  contextInterface?: BasicAuth0ContextInterface | undefined;
 }
 
 export interface BaseCoreClientInterface {
@@ -111,7 +124,9 @@ export interface BaseCoreClientInterface {
 
 export interface CoreClientInterface extends BaseCoreClientInterface {
   authenticationApiService: AuthenticationAPIServiceInterface;
-  myOrgApiService?: MyOrgAPIServiceInterface;
+  myOrgApiService: MyOrgAPIServiceInterface | undefined;
+  getAuthenticationApiService: () => AuthenticationAPIServiceInterface;
+  getMyOrgApiService: () => MyOrgAPIServiceInterface;
 }
 
 export interface AuthenticationAPIServiceInterface {

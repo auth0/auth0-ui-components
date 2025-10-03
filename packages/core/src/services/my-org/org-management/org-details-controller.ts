@@ -1,21 +1,21 @@
 import type { MyOrgClient } from 'auth0-myorg-sdk';
 
-import type { OrganizationDetailFormValues } from '../../../schemas';
+import type { OrganizationPrivate } from '../../../services';
 
-import { transformToFormValues, transformFromFormValues } from './org-details-utils';
+import { OrgDetailsMappers } from './org-details-mappers';
 
 export interface OrganizationDetailsControllerInterface {
-  get(): Promise<OrganizationDetailFormValues>;
-  update(data: OrganizationDetailFormValues): Promise<OrganizationDetailFormValues>;
+  get(): Promise<OrganizationPrivate>;
+  update(data: OrganizationPrivate): Promise<OrganizationPrivate>;
 }
 
 const OrganizationDetailsUtils = {
   /**
    * Fetches organization details.
    */
-  async get(myOrgClient: MyOrgClient): Promise<OrganizationDetailFormValues> {
+  async get(myOrgClient: MyOrgClient): Promise<OrganizationPrivate> {
     const response = await myOrgClient.organizationDetails.get();
-    return transformToFormValues(response);
+    return OrgDetailsMappers.fromAPI(response);
   },
 
   /**
@@ -23,11 +23,11 @@ const OrganizationDetailsUtils = {
    */
   async update(
     myOrgClient: MyOrgClient,
-    formData: OrganizationDetailFormValues,
-  ): Promise<OrganizationDetailFormValues> {
-    const updateData = transformFromFormValues(formData);
+    formData: OrganizationPrivate,
+  ): Promise<OrganizationPrivate> {
+    const updateData = OrgDetailsMappers.toAPI(formData);
     const response = await myOrgClient.organizationDetails.update(updateData);
-    return transformToFormValues(response);
+    return OrgDetailsMappers.fromAPI(response);
   },
 };
 
