@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'packages/**'
+      - "packages/**"
   release:
     types: [published]
   workflow_dispatch:
@@ -13,18 +13,18 @@ on:
       packages:
         description: 'Packages to publish (comma-separated, e.g., core,react or "all")'
         required: false
-        default: 'all'
+        default: "all"
         type: string
       core_version:
-        description: 'Version for @auth0-web-ui-components/core (e.g., 1.2.3, 1.0.0-beta.1). If empty, uses version from package.json'
+        description: "Version for @auth0-web-ui-components/core (e.g., 1.2.3, 1.0.0-beta.1). If empty, uses version from package.json"
         required: false
         type: string
       react_version:
-        description: 'Version for @auth0-web-ui-components/react (e.g., 0.2.0, 0.1.0-beta.1). If empty, uses version from package.json'
+        description: "Version for @auth0-web-ui-components/react (e.g., 0.2.0, 0.1.0-beta.1). If empty, uses version from package.json"
         required: false
         type: string
       dry_run:
-        description: 'Dry run (skip actual publishing)'
+        description: "Dry run (skip actual publishing)"
         required: false
         default: false
         type: boolean
@@ -34,7 +34,7 @@ jobs:
     runs-on:
       labels: ubuntu-22.04-2cpu-8ram-75ssd
     permissions:
-      contents: read # to be able to clone the repo
+      contents: write # to be able to clone the repo and commit version updates
       id-token: write # to enable use of OIDC for npm provenance
 
     steps:
@@ -42,14 +42,16 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
-        with:
-          node-version: '22'
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
 
       - name: Setup JFrog CLI
         id: setup-jfrog-cli
@@ -74,69 +76,178 @@ jobs:
       - name: Build packages
         run: pnpm run build
 
-      - name: Update package versions
-        if: github.event.inputs.core_version != '' || github.event.inputs.react_version != ''
+      - name: Auto-bump versions for manual dispatch
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.core_version == '' && github.event.inputs.react_version == ''
         run: |
-          echo "🔧 Updating package versions..."
-          
-          # Function to validate version format
-          validate_version() {
-            local version=$1
-            local package_name=$2
-            if ! echo "$version" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$'; then
-              echo "❌ Invalid version format for $package_name: $version"
-              echo "Version should follow semver format (e.g., 1.2.3, 1.0.0-beta.1, 1.0.0+build.1)"
-              exit 1
-            fi
-          }
-          
-          # Function to update package.json version directly
-          update_package_version() {
-            local package_path=$1
-            local new_version=$2
-            local package_name=$3
+          echo "Auto-bumping versions for manual workflow run"
+
+          # Function to bump patch version
+          bump_patch_version() {
+            local pkg_dir=$1
+            local pkg_name=$2
             
-            cd "$package_path"
-            # Use node to update the version in package.json directly
-            node -e "
-              const fs = require('fs');
-              const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-              pkg.version = '$new_version';
-              fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
-            "
-            echo "✅ Updated $package_name version to $new_version"
+            cd "$pkg_dir"
+            current=$(node -p "require('./package.json').version")
+            echo "Current $pkg_name version: $current"
+            
+            # Bump patch version
+            new_version=$(node -e "
+              const pkg = require('./package.json');
+              const [major, minor, patch] = pkg.version.split('.').map(Number);
+              const newVersion = \`\${major}.\${minor}.\${patch + 1}\`;
+              pkg.version = newVersion;
+              require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+              console.log(newVersion);
+            ")
+            
+            echo "Bumped $pkg_name: $current -> $new_version"
             cd - > /dev/null
           }
-          
-          # Update core package version if provided
+
+          # Bump both packages
+          if [ -d "./packages/core" ]; then
+            bump_patch_version "./packages/core" "@auth0-web-ui-components/core"
+          fi
+
+          if [ -d "./packages/react" ]; then
+            bump_patch_version "./packages/react" "@auth0-web-ui-components/react"
+          fi
+
+      - name: Update package versions
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          set -e
+          echo "Auto-bumping versions for main branch push"
+
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          UPDATED_PACKAGES=()
+
+          bump_package_version() {
+            local pkg_dir=$1
+            local pkg_name=$2
+            
+            cd "$pkg_dir"
+            current=$(node -p "require('./package.json').version")
+            echo "Current $pkg_name version: $current"
+            
+            # Bump minor version by default for main branch merges
+            new_version=$(node -e "
+              const pkg = require('./package.json');
+              const [major, minor, patch] = pkg.version.split('.').map(Number);
+              const newVersion = \`\${major}.\${minor + 1}.0\`;
+              pkg.version = newVersion;
+              require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+              console.log(newVersion);
+            ")
+            
+            echo "Bumped $pkg_name: $current -> $new_version"
+            UPDATED_PACKAGES+=("$pkg_name@$new_version")
+            
+            cd - > /dev/null
+            echo "$new_version"
+          }
+
+          # Check what packages have changes
+          core_changes=$(git diff --name-only HEAD~1 HEAD | grep "^packages/core/" || true)
+          react_changes=$(git diff --name-only HEAD~1 HEAD | grep "^packages/react/" || true)
+
+          # Bump core package if it has changes
+          if [ -n "$core_changes" ] && [ -d "./packages/core" ]; then
+            echo "Detected changes in core package"
+            CORE_VERSION=$(bump_package_version "./packages/core" "@auth0-web-ui-components/core")
+            echo "CORE_VERSION=$CORE_VERSION" >> $GITHUB_ENV
+          fi
+
+          # Bump react package if it has changes  
+          if [ -n "$react_changes" ] && [ -d "./packages/react" ]; then
+            echo "Detected changes in react package"
+            REACT_VERSION=$(bump_package_version "./packages/react" "@auth0-web-ui-components/react")
+            echo "REACT_VERSION=$REACT_VERSION" >> $GITHUB_ENV
+          fi
+
+          # Commit version bumps back to main
+          if [ ${#UPDATED_PACKAGES[@]} -gt 0 ]; then
+            git add packages/*/package.json
+            
+            commit_msg="chore: bump package versions"$'\n\n'
+            for pkg in "${UPDATED_PACKAGES[@]}"; do
+              commit_msg="$commit_msg- $pkg"$'\n'
+            done
+            
+            git commit -m "$commit_msg"
+            git push origin main
+            
+            echo "VERSIONS_UPDATED=true" >> $GITHUB_ENV
+            echo "Committed version updates to main"
+          else
+            echo "VERSIONS_UPDATED=false" >> $GITHUB_ENV
+            echo "No package changes detected"
+          fi
+
+      - name: Manual version updates
+        if: github.event.inputs.core_version != '' || github.event.inputs.react_version != '' || github.event.inputs.semverBump != ''
+        run: |
+          echo "Processing manual version updates..."
+
+          update_package_version() {
+            local pkg_dir=$1
+            local version=$2
+            local bump_type=$3
+            
+            cd "$pkg_dir"
+            if [ -n "$version" ]; then
+              # Set specific version
+              node -e "
+                const pkg = require('./package.json');
+                pkg.version = '$version';
+                require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+              "
+              echo "$version"
+            else
+              # Bump version using semver
+              node -e "
+                const pkg = require('./package.json');
+                const [major, minor, patch] = pkg.version.split('.').map(Number);
+                let newVersion;
+                switch ('$bump_type') {
+                  case 'major': newVersion = \`\${major + 1}.0.0\`; break;
+                  case 'minor': newVersion = \`\${major}.\${minor + 1}.0\`; break;
+                  case 'patch': newVersion = \`\${major}.\${minor}.\${patch + 1}\`; break;
+                  default: newVersion = \`\${major}.\${minor + 1}.0\`; break;
+                }
+                pkg.version = newVersion;
+                require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+                console.log(newVersion);
+              "
+            fi
+            cd - > /dev/null
+          }
+
+          SEMVER_BUMP="${{ github.event.inputs.semverBump || 'minor' }}"
+
+          # Handle core package
           if [ -n "${{ github.event.inputs.core_version }}" ]; then
             CORE_VERSION="${{ github.event.inputs.core_version }}"
-            echo "🔍 Validating core version format..."
-            validate_version "$CORE_VERSION" "core"
-            
+            echo "CORE_VERSION=$CORE_VERSION" >> $GITHUB_ENV
+          elif [[ "${{ github.event.inputs.packages }}" == *"core"* ]] || [ "${{ github.event.inputs.packages }}" = "all" ]; then
             if [ -d "./packages/core" ]; then
-              echo "📝 Updating @auth0-web-ui-components/core to version $CORE_VERSION"
-              update_package_version "./packages/core" "$CORE_VERSION" "@auth0-web-ui-components/core"
+              CORE_VERSION=$(update_package_version "./packages/core" "" "$SEMVER_BUMP")
+              echo "CORE_VERSION=$CORE_VERSION" >> $GITHUB_ENV
             fi
           fi
-          
-          # Update react package version if provided
+
+          # Handle react package
           if [ -n "${{ github.event.inputs.react_version }}" ]; then
             REACT_VERSION="${{ github.event.inputs.react_version }}"
-            echo "🔍 Validating react version format..."
-            validate_version "$REACT_VERSION" "react"
-            
+            echo "REACT_VERSION=$REACT_VERSION" >> $GITHUB_ENV
+          elif [[ "${{ github.event.inputs.packages }}" == *"react"* ]] || [ "${{ github.event.inputs.packages }}" = "all" ]; then
             if [ -d "./packages/react" ]; then
-              echo "📝 Updating @auth0-web-ui-components/react to version $REACT_VERSION"
-              update_package_version "./packages/react" "$REACT_VERSION" "@auth0-web-ui-components/react"
+              REACT_VERSION=$(update_package_version "./packages/react" "" "$SEMVER_BUMP")
+              echo "REACT_VERSION=$REACT_VERSION" >> $GITHUB_ENV
             fi
           fi
-          
-          echo "✅ Version updates completed"
-
-      - name: Run tests
-        run: pnpm run test
-        continue-on-error: true
 
       - name: Determine packages to publish
         id: packages
@@ -175,10 +286,49 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ steps.setup-jfrog-cli.outputs.oidc-token }}
 
+      - name: Commit version updates
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.core_version == '' && github.event.inputs.react_version == ''
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          # Check if there are any changes to commit
+          if git diff --quiet packages/*/package.json; then
+            echo "No version changes to commit"
+          else
+            echo "Committing version updates..."
+            git add packages/*/package.json
+            
+            # Create commit message with updated versions
+            CORE_VERSION=""
+            REACT_VERSION=""
+            
+            if [ -f "./packages/core/package.json" ]; then
+              CORE_VERSION=$(node -p "require('./packages/core/package.json').version")
+            fi
+            
+            if [ -f "./packages/react/package.json" ]; then
+              REACT_VERSION=$(node -p "require('./packages/react/package.json').version")
+            fi
+            
+            commit_msg="chore: auto-bump package versions after publish"$'\n\n'
+            if [ -n "$CORE_VERSION" ]; then
+              commit_msg="$commit_msg- @auth0-web-ui-components/core@$CORE_VERSION"$'\n'
+            fi
+            if [ -n "$REACT_VERSION" ]; then
+              commit_msg="$commit_msg- @auth0-web-ui-components/react@$REACT_VERSION"$'\n'
+            fi
+            
+            git commit -m "$commit_msg"
+            git push origin HEAD
+            
+            echo "✅ Version updates committed and pushed to repository"
+          fi
+
       - name: Summary
         run: |
           echo "## 📦 NPM Packages Published" >> $GITHUB_STEP_SUMMARY
-          
+
           if [[ "${{ steps.packages.outputs.packages }}" == *"core"* ]]; then
             if [ -f "./packages/core/package.json" ]; then
               CORE_VERSION=$(node -p "require('./packages/core/package.json').version")
@@ -191,7 +341,7 @@ jobs:
               fi
             fi
           fi
-          
+
           if [[ "${{ steps.packages.outputs.packages }}" == *"react"* ]]; then
             if [ -f "./packages/react/package.json" ]; then
               REACT_VERSION=$(node -p "require('./packages/react/package.json').version")
@@ -204,6 +354,6 @@ jobs:
               fi
             fi
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "🚀 Packages published to JFrog Artifactory: https://a0us.jfrog.io" >> $GITHUB_STEP_SUMMARY
