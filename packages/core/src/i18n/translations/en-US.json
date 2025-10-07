@@ -93,6 +93,15 @@
           }
         }
       }
+    },
+    "delete_sso_provider": {
+      "model_content": {
+        "description": "Type in the name of the provider to confirm.",
+        "field": {
+          "label": "Provider Name",
+          "placeholder": "Type in the provider name"
+        }
+      }
     }
   },
   "mfa": {

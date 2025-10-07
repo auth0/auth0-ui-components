@@ -93,6 +93,15 @@
           }
         }
       }
+    },
+    "delete_sso_provider": {
+      "model_content": {
+        "description": "削除を確認するためにプロバイダー名を入力してください。",
+        "field": {
+          "label": "プロバイダー名",
+          "placeholder": "プロバイダー名を入力してください"
+        }
+      }
     }
   },
   "mfa": {
