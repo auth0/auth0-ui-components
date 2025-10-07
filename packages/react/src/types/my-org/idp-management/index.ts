@@ -1,2 +1,1 @@
 export * from './create-sso-provider-types';
-export * from './idp-types';

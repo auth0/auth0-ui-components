@@ -69,6 +69,32 @@
       "org_changes_error_message_generic": "リクエストの処理中に問題が発生しました。再度お試しいただくか、問題が解決しない場合はサポートまでお問い合わせください。"
     }
   },
+  "idp_management": {
+    "create_sso_provider": {
+      "select_sso_provider": {
+        "title": "IDプロバイダーを選択",
+        "description": "Auth0と統合する予定のIDプロバイダーを選択して、ステップバイステップの設定手順にアクセスしてください。"
+      },
+      "provider_details": {
+        "title": "プロバイダー詳細",
+        "description": "このプロバイダーを後で管理・参照するために、認識しやすい名前と永続的な識別子を入力してください。",
+        "fields": {
+          "name": {
+            "label": "名前",
+            "placeholder": "識別子を入力",
+            "helper_text": "プロバイダーの人が読める識別子です。これは変更できません。",
+            "error": "有効な名前を入力してください"
+          },
+          "display_name": {
+            "label": "表示名",
+            "placeholder": "表示名を入力",
+            "helper_text": "このプロバイダーのエンドユーザーに表示される名前です。",
+            "error": "有効な表示名を入力してください"
+          }
+        }
+      }
+    }
+  },
   "mfa": {
     "title": "多要素認証方法",
     "description": "あなたのアカウントと身元をさらに保護します",

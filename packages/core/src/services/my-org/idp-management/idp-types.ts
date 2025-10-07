@@ -15,7 +15,14 @@ type IdpOptions =
   | SamlpOptions
   | WaadOptions;
 
-type IdpStrategy = 'adfs' | 'google-apps' | 'oidc' | 'okta' | 'ping-federate' | 'samlp' | 'waad';
+export type IdpStrategy =
+  | 'adfs'
+  | 'google-apps'
+  | 'oidc'
+  | 'okta'
+  | 'ping-federate'
+  | 'samlp'
+  | 'waad';
 
 export interface IdentityProvider {
   id: string;

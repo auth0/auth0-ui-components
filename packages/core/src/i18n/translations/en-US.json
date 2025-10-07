@@ -69,6 +69,32 @@
       "org_changes_error_message_generic": "There was an issue processing your request. Please try again or contact support if the issue persists."
     }
   },
+  "idp_management": {
+    "create_sso_provider": {
+      "select_sso_provider": {
+        "title": "Select Your Indentity Provider",
+        "description": "Choose the identity provider you plan to integrate with Auth0 to access step-by-step configuration instructions."
+      },
+      "provider_details": {
+        "title": "Provider Details",
+        "description": "Provide a recognizable name and a permanent identifier to help you manage and reference this provider later.",
+        "fields": {
+          "name": {
+            "label": "Name",
+            "placeholder": "Enter an identifier",
+            "helper_text": "Name Enter an identifier A human-readable identifier for the provider. This cannot be changed.",
+            "error": "Please enter a valid organization name"
+          },
+          "display_name": {
+            "label": "Display Name",
+            "placeholder": "Enter display name",
+            "helper_text": "The name displayed to end users of this provider.",
+            "error": "Please enter a valid display name"
+          }
+        }
+      }
+    }
+  },
   "mfa": {
     "title": "Multi-Factor Authentication methods",
     "description": "Extra protection for your account and your identity",
