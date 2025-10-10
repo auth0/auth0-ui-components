@@ -1,6 +1,6 @@
 {
   "name": "@auth0-web-ui-components/core",
-  "version": "1.0.15",
+  "version": "1.0.28",
   "description": "Core utilities for Auth0 Web UI components",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

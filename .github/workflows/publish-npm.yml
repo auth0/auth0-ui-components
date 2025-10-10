@@ -28,6 +28,11 @@ on:
         required: false
         default: false
         type: boolean
+      skip_slack_notification:
+        description: "Skip Slack notification"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   publish:
@@ -133,15 +138,15 @@ jobs:
 
           UPDATED_PACKAGES=()
 
-          bump_package_version() {
-            local pkg_dir=$1
-            local pkg_name=$2
-            
-            cd "$pkg_dir"
+          # Check what packages have changes
+          core_changes=$(git diff --name-only HEAD~1 HEAD | grep "^packages/core/" || true)
+          react_changes=$(git diff --name-only HEAD~1 HEAD | grep "^packages/react/" || true)
+
+          # Bump core package if it has changes
+          if [ -n "$core_changes" ] && [ -d "./packages/core" ]; then
+            echo "Detected changes in core package"
+            cd "./packages/core"
             current=$(node -p "require('./package.json').version")
-            echo "Current $pkg_name version: $current"
-            
-            # Bump minor version by default for main branch merges
             new_version=$(node -e "
               const pkg = require('./package.json');
               const [major, minor, patch] = pkg.version.split('.').map(Number);
@@ -150,30 +155,27 @@ jobs:
               require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
               console.log(newVersion);
             ")
-            
-            echo "Bumped $pkg_name: $current -> $new_version"
-            UPDATED_PACKAGES+=("$pkg_name@$new_version")
-            
+            echo "Bumped @auth0-web-ui-components/core: $current -> $new_version"
+            UPDATED_PACKAGES+=("@auth0-web-ui-components/core@$new_version")
             cd - > /dev/null
-            echo "$new_version"
-          }
-
-          # Check what packages have changes
-          core_changes=$(git diff --name-only HEAD~1 HEAD | grep "^packages/core/" || true)
-          react_changes=$(git diff --name-only HEAD~1 HEAD | grep "^packages/react/" || true)
-
-          # Bump core package if it has changes
-          if [ -n "$core_changes" ] && [ -d "./packages/core" ]; then
-            echo "Detected changes in core package"
-            CORE_VERSION=$(bump_package_version "./packages/core" "@auth0-web-ui-components/core")
-            echo "CORE_VERSION=$CORE_VERSION" >> $GITHUB_ENV
           fi
 
           # Bump react package if it has changes  
           if [ -n "$react_changes" ] && [ -d "./packages/react" ]; then
             echo "Detected changes in react package"
-            REACT_VERSION=$(bump_package_version "./packages/react" "@auth0-web-ui-components/react")
-            echo "REACT_VERSION=$REACT_VERSION" >> $GITHUB_ENV
+            cd "./packages/react"
+            current=$(node -p "require('./package.json').version")
+            new_version=$(node -e "
+              const pkg = require('./package.json');
+              const [major, minor, patch] = pkg.version.split('.').map(Number);
+              const newVersion = \`\${major}.\${minor + 1}.0\`;
+              pkg.version = newVersion;
+              require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+              console.log(newVersion);
+            ")
+            echo "Bumped @auth0-web-ui-components/react: $current -> $new_version"
+            UPDATED_PACKAGES+=("@auth0-web-ui-components/react@$new_version")
+            cd - > /dev/null
           fi
 
           # Commit version bumps back to main
@@ -188,10 +190,8 @@ jobs:
             git commit -m "$commit_msg"
             git push origin main
             
-            echo "VERSIONS_UPDATED=true" >> $GITHUB_ENV
             echo "Committed version updates to main"
           else
-            echo "VERSIONS_UPDATED=false" >> $GITHUB_ENV
             echo "No package changes detected"
           fi
 
@@ -303,6 +303,21 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ steps.setup-jfrog-cli.outputs.oidc-token }}
 
+      - name: Import GPG key for signing commits
+        if: |
+          github.event_name == 'workflow_dispatch' && 
+          github.event.inputs.core_version == '' && 
+          github.event.inputs.react_version == '' &&
+          steps.packages.outputs.packages != ''
+        id: import-gpg-pr
+        uses: crazy-max/ghaction-import-gpg@01dd5d3ca463c7f10f7f4f7b4f177225ac661ee4 # v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          git_config_global: true
+          git_tag_gpgsign: true
+
       - name: Create Pull Request with version updates
         id: cpr
         if: |
@@ -317,8 +332,8 @@ jobs:
             chore: auto-bump package versions after publish
 
             Updated packages: ${{ steps.packages.outputs.packages }}
-          committer: GitHub Actions <noreply@github.com>
-          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          committer: Harish Sundar <harish.sundar@okta.com>
+          author: Harish Sundar <harish.sundar@okta.com>
           signoff: false
           branch: auto-version-bump-${{ github.run_id }}
           delete-branch: true
@@ -335,9 +350,16 @@ jobs:
             - GitHub Actions Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
             ## ⚠️ Action Required
-            **This PR requires manual approval and merge.** The packages have already been published to JFrog Artifactory, but the version updates need to be committed back to the repository.
+            **This PR will be automatically approved.** The packages have already been published to JFrog Artifactory, and the version updates will be committed back to the repository.
 
-            Please review and approve this PR to complete the publishing workflow.
+            Commits are signed with GPG key for harish.sundar@okta.com.
+
+      - name: Auto approve
+        if: steps.cpr.outputs.pull-request-operation == 'created'
+        uses: juliangruber/approve-pull-request-action@f83b836abaed1b3ab639ae61f9117c52ae405f65 # v2.0.7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          number: ${{ steps.cpr.outputs.pull-request-number }}
 
       - name: No packages to publish
         if: steps.packages.outputs.packages == ''
@@ -369,7 +391,7 @@ jobs:
           echo "**Registry:** https://a0us.jfrog.io" >> $GITHUB_STEP_SUMMARY
 
       - name: Send Slack notification
-        if: always() && !cancelled() && github.event.inputs.dry_run != 'true'
+        if: always() && !cancelled() && github.event.inputs.dry_run != 'true' && github.event.inputs.skip_slack_notification != 'true'
         run: |
           # Determine what was actually published
           PUBLISHED_PACKAGES=""
