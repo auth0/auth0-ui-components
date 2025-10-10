@@ -1,6 +1,6 @@
 {
   "name": "@auth0-web-ui-components/react",
-  "version": "0.1.28",
+  "version": "0.1.29",
   "private": false,
   "sideEffects": true,
   "main": "./dist/index.cjs",
