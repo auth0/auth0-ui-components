@@ -4,34 +4,20 @@ import type {
   ComponentAction,
   BackButton,
   OrganizationPrivate,
+  OrgDetailsEditMessages,
 } from '@auth0-web-ui-components/core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 
 // TODO: Enable it when delete is enabled
 // import type { OrgDeleteClasses, OrgDeleteMessages } from './org-delete-types';
-import type {
-  OrgDetailsClasses,
-  OrgDetailsMessages,
-  OrgDetailsFormActions,
-} from './org-details-types';
+import type { OrgDetailsClasses, OrgDetailsFormActions } from './org-details-types';
 
 /* ============ Components ============ */
 
 /**
  * Messages that extends both OrgDetails and OrgDelete messages.
  */
-export interface OrgDetailsEditMessages {
-  header?: {
-    title?: string;
-    back_button_text?: string;
-  };
-  details?: OrgDetailsMessages;
-  // delete?: OrgDeleteMessages; // TODO: Enable it when delete is enabled
-  save_org_changes_message?: string;
-  org_changes_error_message?: string;
-  org_changes_error_message_generic?: string;
-}
 
 /**
  * Styling that can be used to override default styles.

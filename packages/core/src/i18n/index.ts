@@ -6,3 +6,4 @@ export type {
   TFactory,
   I18nServiceInterface,
 } from './i18n-types';
+export * from './custom-messages';

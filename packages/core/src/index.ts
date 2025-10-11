@@ -1,4 +1,4 @@
-export { TranslationFunction, I18nInitOptions } from './i18n';
+export * from './i18n';
 
 export { normalizeError } from './api';
 
@@ -21,7 +21,6 @@ export {
   MFAType,
   EnrollOptions,
   ConfirmEnrollmentOptions,
-  MFAMessages,
   CreateAuthenticationMethodRequestContent,
   CreateAuthenticationMethodResponseContent,
 } from './services/my-account/mfa/mfa-types';

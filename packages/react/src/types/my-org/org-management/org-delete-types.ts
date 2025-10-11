@@ -1,19 +1,8 @@
-import type { Organization, SharedComponentProps } from '@auth0-web-ui-components/core';
-
-/* ============ Components ============ */
-
-/**
- * Messages that can be used in the UI.
- */
-export interface OrgDeleteMessages {
-  title?: string;
-  description?: string;
-  delete_button_label?: string;
-  modal_title?: string;
-  modal_description?: string;
-  org_name_field_placeholder?: string;
-  org_name_field_label?: string;
-}
+import type {
+  Organization,
+  SharedComponentProps,
+  OrgDeleteMessages,
+} from '@auth0-web-ui-components/core';
 
 /**
  * Styling that can be used to override default styles.
