@@ -1,5 +1,4 @@
 name: Publish NPM Packages
-
 on:
   push:
     branches:
@@ -11,20 +10,20 @@ on:
   workflow_dispatch:
     inputs:
       packages:
-        description: 'Packages to publish (comma-separated, e.g., core,react or "all")'
+        description: 'Packages to publish (comma-separated: core,react or "all")'
         required: false
         default: "all"
         type: string
       core_version:
-        description: "Version for @auth0-web-ui-components/core (e.g., 1.2.3, 1.0.0-beta.1). If empty, uses version from package.json"
+        description: "Core version (e.g., 1.2.3, 1.0.0-beta.1). Leave empty for auto-bump"
         required: false
         type: string
       react_version:
-        description: "Version for @auth0-web-ui-components/react (e.g., 0.2.0, 0.1.0-beta.1). If empty, uses version from package.json"
+        description: "React version (e.g., 0.2.0, 0.1.0-beta.1). Leave empty for auto-bump"
         required: false
         type: string
       dry_run:
-        description: "Dry run (skip actual publishing)"
+        description: "Dry run (preview without publishing)"
         required: false
         default: false
         type: boolean
@@ -36,21 +35,105 @@ on:
 
 jobs:
   publish:
+    name: Build, Publish & Version Bump
     runs-on:
       labels: ubuntu-22.04-2cpu-8ram-75ssd
     permissions:
-      contents: write # to be able to clone the repo and commit version updates
-      id-token: write # to enable use of OIDC for npm provenance
-      pull-requests: write # to create and manage pull requests
+      contents: write # Clone repo and commit version updates
+      id-token: write # OIDC for npm provenance
+      pull-requests: write # Create and manage pull requests
+
+    # Prevent concurrent publishes to avoid conflicts
+    concurrency:
+      group: npm-publish-${{ github.ref }}
+      cancel-in-progress: false
 
     steps:
+      - name: Check for circular trigger prevention
+        id: check-skip
+        if: github.event_name == 'push'
+        run: |
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          COMMIT_AUTHOR="${{ github.event.head_commit.author.name }}"
+
+          echo "📋 Commit Info:"
+          echo "  Message: $COMMIT_MSG"
+          echo "  Author: $COMMIT_AUTHOR"
+          echo ""
+
+          # Check if commit message contains skip markers or is from automated version bump
+          if [[ "$COMMIT_MSG" == *"[skip ci]"* ]] || \
+             [[ "$COMMIT_MSG" == *"[ci skip]"* ]] || \
+             [[ "$COMMIT_MSG" == *"chore: update package versions after publish"* ]] || \
+             [[ "$COMMIT_MSG" == *"chore: bump package versions"* ]]; then
+            echo "🛑 Skipping workflow - commit is from automated version bump"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            
+            # Add summary
+            echo "## ⏭️ Workflow Skipped" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "This workflow was skipped because the commit is from an automated version bump." >> $GITHUB_STEP_SUMMARY
+            echo "This prevents circular workflow triggers that could cause infinite loops." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Commit message:** \`$COMMIT_MSG\`" >> $GITHUB_STEP_SUMMARY
+            echo "**Commit author:** $COMMIT_AUTHOR" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Proceeding with workflow"
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout repository
+        if: |
+          github.event_name != 'push' || 
+          steps.check-skip.outputs.skip != 'true'
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Validate version inputs
+        if: |
+          (github.event_name != 'push' || steps.check-skip.outputs.skip != 'true') &&
+          github.event_name == 'workflow_dispatch' &&
+          (github.event.inputs.core_version != '' || github.event.inputs.react_version != '')
+        run: |
+          echo "🔍 Validating version inputs..."
+
+          VALIDATION_FAILED=false
+
+          # Validate core version format if provided
+          if [ -n "${{ github.event.inputs.core_version }}" ]; then
+            if [[ ! "${{ github.event.inputs.core_version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
+              echo "❌ Invalid core version format: ${{ github.event.inputs.core_version }}"
+              echo "   Expected format: X.Y.Z or X.Y.Z-beta.N"
+              VALIDATION_FAILED=true
+            else
+              echo "✅ Core version format valid: ${{ github.event.inputs.core_version }}"
+            fi
+          fi
+
+          # Validate react version format if provided
+          if [ -n "${{ github.event.inputs.react_version }}" ]; then
+            if [[ ! "${{ github.event.inputs.react_version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
+              echo "❌ Invalid react version format: ${{ github.event.inputs.react_version }}"
+              echo "   Expected format: X.Y.Z or X.Y.Z-beta.N"
+              VALIDATION_FAILED=true
+            else
+              echo "✅ React version format valid: ${{ github.event.inputs.react_version }}"
+            fi
+          fi
+
+          if [ "$VALIDATION_FAILED" = true ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "## ❌ Version Validation Failed" >> $GITHUB_STEP_SUMMARY
+            echo "Please use valid semantic version format (e.g., 1.2.3 or 1.2.3-beta.1)" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
       - name: Import GPG key for commit signing
+        if: |
+          github.event_name != 'push' || 
+          steps.check-skip.outputs.skip != 'true'
         id: import-gpg
         uses: crazy-max/ghaction-import-gpg@01dd5d3ca463c7f10f7f4f7b4f177225ac661ee4 # v6
         with:
@@ -59,15 +142,24 @@ jobs:
           git_commit_gpgsign: true
 
       - name: Setup pnpm
+        if: |
+          github.event_name != 'push' || 
+          steps.check-skip.outputs.skip != 'true'
         uses: pnpm/action-setup@36de12bed180fa130ed56a35e7344f2fa7a820ab # v4
 
       - name: Setup Node.js
+        if: |
+          github.event_name != 'push' || 
+          steps.check-skip.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "pnpm"
 
       - name: Setup JFrog CLI
+        if: |
+          github.event_name != 'push' || 
+          steps.check-skip.outputs.skip != 'true'
         id: setup-jfrog-cli
         uses: jfrog/setup-jfrog-cli@f0a84f35b0e0bd21838c5fb3e6788072d6540d13 # v4.6.0 at 2025-01-02
         env:
@@ -76,24 +168,46 @@ jobs:
           oidc-provider-name: atko-cic
 
       - name: Setup NPM Authentication
+        if: |
+          github.event_name != 'push' || 
+          steps.check-skip.outputs.skip != 'true'
         env:
           ARTIFACTORY_USER: ${{ steps.setup-jfrog-cli.outputs.oidc-user }}
           ARTIFACTORY_API_TOKEN: ${{ steps.setup-jfrog-cli.outputs.oidc-token }}
         run: |
+          echo "🔐 Setting up NPM authentication..."
           curl -u $ARTIFACTORY_USER:$ARTIFACTORY_API_TOKEN https://a0us.jfrog.io/artifactory/api/npm/npm/auth/a0 > ~/.npmrc
           echo "registry=https://a0us.jfrog.io/artifactory/api/npm/npm/" >> ~/.npmrc
           echo "@auth0-web-ui-components:registry=https://a0us.jfrog.io/artifactory/api/npm/npm/" >> ~/.npmrc
+          echo "✅ NPM authentication configured"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        if: |
+          github.event_name != 'push' || 
+          steps.check-skip.outputs.skip != 'true'
+        run: |
+          echo "📦 Installing dependencies..."
+          pnpm install --frozen-lockfile
+          echo "✅ Dependencies installed"
 
       - name: Build packages
-        run: pnpm run build
+        if: |
+          github.event_name != 'push' || 
+          steps.check-skip.outputs.skip != 'true'
+        run: |
+          echo "🔨 Building packages..."
+          pnpm run build
+          echo "✅ Packages built successfully"
 
       - name: Auto-bump versions for manual dispatch
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.core_version == '' && github.event.inputs.react_version == ''
+        if: |
+          (github.event_name != 'push' || steps.check-skip.outputs.skip != 'true') &&
+          github.event_name == 'workflow_dispatch' && 
+          github.event.inputs.core_version == '' && 
+          github.event.inputs.react_version == ''
         run: |
-          echo "Auto-bumping patch versions for manual workflow run"
+          echo "⬆️ Auto-bumping patch versions for manual workflow run"
+          echo ""
 
           # Bump patch version for core package
           if [ -d "./packages/core" ]; then
@@ -107,7 +221,7 @@ jobs:
               require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
               console.log(newVersion);
             ")
-            echo "Bumped @auth0-web-ui-components/core: $current -> $new_version"
+            echo "  ✅ @auth0-web-ui-components/core: $current → $new_version"
             cd - > /dev/null
           fi
 
@@ -123,12 +237,15 @@ jobs:
               require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
               console.log(newVersion);
             ")
-            echo "Bumped @auth0-web-ui-components/react: $current -> $new_version"
+            echo "  ✅ @auth0-web-ui-components/react: $current → $new_version"
             cd - > /dev/null
           fi
 
       - name: Update package versions on main push
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: |
+          (github.event_name != 'push' || steps.check-skip.outputs.skip != 'true') &&
+          github.event_name == 'push' && 
+          github.ref == 'refs/heads/main'
         run: |
           set -e
           echo "Auto-bumping versions for main branch push"
@@ -147,7 +264,7 @@ jobs:
             new_version=$(node -e "
               const pkg = require('./package.json');
               const [major, minor, patch] = pkg.version.split('.').map(Number);
-              const newVersion = \`\${major}.\${minor + 1}.0\`;
+              const newVersion = \`\${major}.\${minor}.\${patch + 1}\`;
               pkg.version = newVersion;
               require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
               console.log(newVersion);
@@ -165,7 +282,7 @@ jobs:
             new_version=$(node -e "
               const pkg = require('./package.json');
               const [major, minor, patch] = pkg.version.split('.').map(Number);
-              const newVersion = \`\${major}.\${minor + 1}.0\`;
+              const newVersion = \`\${major}.\${minor}.\${patch + 1}\`;
               pkg.version = newVersion;
               require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
               console.log(newVersion);
@@ -186,16 +303,23 @@ jobs:
           fi
 
       - name: Set manual version updates
-        if: github.event.inputs.core_version != '' || github.event.inputs.react_version != ''
+        if: |
+          (github.event_name != 'push' || steps.check-skip.outputs.skip != 'true') &&
+          (github.event.inputs.core_version != '' || github.event.inputs.react_version != '')
         run: |
+          echo "📝 Setting manual version updates..."
+          echo ""
+
           # Handle core package version
           if [ -n "${{ github.event.inputs.core_version }}" ]; then
             cd "./packages/core"
+            current=$(node -p "require('./package.json').version")
             node -e "
               const pkg = require('./package.json');
               pkg.version = '${{ github.event.inputs.core_version }}';
               require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
             "
+            echo "  ✅ @auth0-web-ui-components/core: $current → ${{ github.event.inputs.core_version }}"
             echo "CORE_VERSION=${{ github.event.inputs.core_version }}" >> $GITHUB_ENV
             cd - > /dev/null
           fi
@@ -203,16 +327,21 @@ jobs:
           # Handle react package version
           if [ -n "${{ github.event.inputs.react_version }}" ]; then
             cd "./packages/react"
+            current=$(node -p "require('./package.json').version")
             node -e "
               const pkg = require('./package.json');
               pkg.version = '${{ github.event.inputs.react_version }}';
               require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
             "
+            echo "  ✅ @auth0-web-ui-components/react: $current → ${{ github.event.inputs.react_version }}"
             echo "REACT_VERSION=${{ github.event.inputs.react_version }}" >> $GITHUB_ENV
             cd - > /dev/null
           fi
 
       - name: Determine packages to publish
+        if: |
+          github.event_name != 'push' || 
+          steps.check-skip.outputs.skip != 'true'
         id: packages
         run: |
           PACKAGES_TO_PUBLISH=""
@@ -255,18 +384,19 @@ jobs:
         working-directory: ./packages/core
         run: |
           current_version=$(node -p "require('./package.json').version")
-          echo "Publishing @auth0-web-ui-components/core@$current_version"
+          echo "📦 Publishing @auth0-web-ui-components/core@$current_version..."
 
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-            echo "DRY RUN: Skipping actual publish"
+            echo "🔍 DRY RUN MODE - Skipping actual publish"
             pnpm publish --dry-run --access public --no-git-checks
             echo "published=dry-run" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
+            echo "✅ Dry run completed for @auth0-web-ui-components/core@$current_version"
           else
             pnpm publish --access public --no-git-checks
-            echo "Successfully published @auth0-web-ui-components/core@$current_version"
             echo "published=true" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
+            echo "✅ Successfully published @auth0-web-ui-components/core@$current_version"
           fi
         env:
           NODE_AUTH_TOKEN: ${{ steps.setup-jfrog-cli.outputs.oidc-token }}
@@ -277,18 +407,19 @@ jobs:
         working-directory: ./packages/react
         run: |
           current_version=$(node -p "require('./package.json').version")
-          echo "Publishing @auth0-web-ui-components/react@$current_version"
+          echo "📦 Publishing @auth0-web-ui-components/react@$current_version..."
 
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-            echo "DRY RUN: Skipping actual publish"
+            echo "🔍 DRY RUN MODE - Skipping actual publish"
             pnpm publish --dry-run --access public --no-git-checks
             echo "published=dry-run" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
+            echo "✅ Dry run completed for @auth0-web-ui-components/react@$current_version"
           else
             pnpm publish --access public --no-git-checks
-            echo "Successfully published @auth0-web-ui-components/react@$current_version"
             echo "published=true" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
+            echo "✅ Successfully published @auth0-web-ui-components/react@$current_version"
           fi
         env:
           NODE_AUTH_TOKEN: ${{ steps.setup-jfrog-cli.outputs.oidc-token }}
@@ -296,8 +427,6 @@ jobs:
       - name: Import GPG key for signing commits
         if: |
           github.event_name == 'workflow_dispatch' && 
-          github.event.inputs.core_version == '' && 
-          github.event.inputs.react_version == '' &&
           steps.packages.outputs.packages != ''
         id: import-gpg-pr
         uses: crazy-max/ghaction-import-gpg@01dd5d3ca463c7f10f7f4f7b4f177225ac661ee4 # v6
@@ -312,14 +441,12 @@ jobs:
         id: cpr
         if: |
           github.event_name == 'workflow_dispatch' && 
-          github.event.inputs.core_version == '' && 
-          github.event.inputs.react_version == '' &&
           steps.packages.outputs.packages != ''
         uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
         with:
           token: ${{ secrets.PAT }}
           commit-message: |
-            chore: auto-bump package versions after publish
+            chore: update package versions after publish
 
             Updated packages: ${{ steps.packages.outputs.packages }}
           committer: Harish Sundar <harish.sundar@okta.com>
@@ -327,14 +454,17 @@ jobs:
           signoff: false
           branch: auto-version-bump-${{ github.run_id }}
           delete-branch: true
-          title: "chore: auto-bump package versions after publish"
+          title: "chore: update package versions after publish"
           body: |
-            🤖 **Automated version bump after NPM package publish**
+            🤖 **Automated version update after NPM package publish**
 
-            This PR contains version updates that were automatically applied after publishing packages to JFrog Artifactory.
+            This PR contains version updates that were applied after publishing packages to JFrog Artifactory.
 
-            ## 📦 Updated Packages
+            ## 📦 Published Packages
             Published packages: `${{ steps.packages.outputs.packages }}`
+
+            ${{ steps.publish-core.outputs.published == 'true' && format('- @auth0-web-ui-components/core@{0}', steps.publish-core.outputs.version) || '' }}
+            ${{ steps.publish-react.outputs.published == 'true' && format('- @auth0-web-ui-components/react@{0}', steps.publish-react.outputs.version) || '' }}
 
             ## 🔗 Related
             - GitHub Actions Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -409,37 +539,69 @@ jobs:
           number: ${{ steps.cpr-version.outputs.pull-request-number }}
 
       - name: No packages to publish
-        if: steps.packages.outputs.packages == ''
+        if: |
+          steps.packages.outputs.packages == '' && 
+          (github.event_name != 'push' || steps.check-skip.outputs.skip != 'true')
         run: |
           echo "## ⚠️ No Packages to Publish" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           echo "No packages detected for publishing. This can happen when:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           echo "- No changes were detected in any package" >> $GITHUB_STEP_SUMMARY
           echo "- Package versions are already up to date" >> $GITHUB_STEP_SUMMARY
           echo "- Manual package selection excluded all packages" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "💡 **Tip:** Use manual version inputs to force publish specific packages" >> $GITHUB_STEP_SUMMARY
+          echo "### 💡 Tips" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Use manual version inputs to force publish specific packages" >> $GITHUB_STEP_SUMMARY
+          echo "- Check if changes were made in the \`packages/\` directory" >> $GITHUB_STEP_SUMMARY
+          echo "- Verify the package selection in workflow inputs" >> $GITHUB_STEP_SUMMARY
 
       - name: Generate workflow summary
         if: steps.packages.outputs.packages != ''
         run: |
-          echo "## NPM Packages Published" >> $GITHUB_STEP_SUMMARY
+          echo "## 📦 NPM Packages Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
 
           if [[ "${{ steps.packages.outputs.packages }}" == *"core"* ]]; then
             CORE_VERSION=$(node -p "require('./packages/core/package.json').version" 2>/dev/null || echo "unknown")
-            echo "- @auth0-web-ui-components/core@$CORE_VERSION" >> $GITHUB_STEP_SUMMARY
+            CORE_STATUS="${{ steps.publish-core.outputs.published }}"
+            if [ "$CORE_STATUS" = "true" ]; then
+              echo "- ✅ @auth0-web-ui-components/core@$CORE_VERSION" >> $GITHUB_STEP_SUMMARY
+            elif [ "$CORE_STATUS" = "dry-run" ]; then
+              echo "- 🔍 @auth0-web-ui-components/core@$CORE_VERSION (dry run)" >> $GITHUB_STEP_SUMMARY
+            fi
           fi
 
           if [[ "${{ steps.packages.outputs.packages }}" == *"react"* ]]; then
             REACT_VERSION=$(node -p "require('./packages/react/package.json').version" 2>/dev/null || echo "unknown")
-            echo "- @auth0-web-ui-components/react@$REACT_VERSION" >> $GITHUB_STEP_SUMMARY
+            REACT_STATUS="${{ steps.publish-react.outputs.published }}"
+            if [ "$REACT_STATUS" = "true" ]; then
+              echo "- ✅ @auth0-web-ui-components/react@$REACT_VERSION" >> $GITHUB_STEP_SUMMARY
+            elif [ "$REACT_STATUS" = "dry-run" ]; then
+              echo "- 🔍 @auth0-web-ui-components/react@$REACT_VERSION (dry run)" >> $GITHUB_STEP_SUMMARY
+            fi
           fi
 
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Registry:** https://a0us.jfrog.io" >> $GITHUB_STEP_SUMMARY
+          echo "**Registry:** https://a0us.jfrog.io/artifactory/webapp/#/artifacts/browse/tree/General/npm" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **Note:** This was a dry run. No packages were actually published." >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Send Slack notification
-        if: always() && !cancelled() && github.event.inputs.dry_run != 'true' && github.event.inputs.skip_slack_notification != 'true'
+        if: |
+          always() && 
+          !cancelled() && 
+          github.event.inputs.dry_run != 'true' && 
+          github.event.inputs.skip_slack_notification != 'true' &&
+          (github.event_name != 'push' || steps.check-skip.outputs.skip != 'true')
         run: |
+          echo "📬 Preparing Slack notification..."
+
           # Determine what was actually published
           PUBLISHED_PACKAGES=""
           PUBLISH_ERRORS=""
@@ -472,15 +634,12 @@ jobs:
             MESSAGE="No changes detected in packages"
           elif [ -n "$PUBLISHED_PACKAGES" ] && [ -z "$PUBLISH_ERRORS" ]; then
             # All packages published successfully
-            if [ "${{ steps.cpr.outcome }}" = "success" ]; then
+            if [ "${{ steps.cpr.outcome }}" = "success" ] || [ "${{ steps.cpr-version.outcome }}" = "success" ]; then
               STATUS="✅ Packages published successfully"
               MESSAGE="Published: $PUBLISHED_PACKAGES. PR created for version updates."
-            elif [ "${{ steps.cpr.outcome }}" = "failure" ]; then
+            elif [ "${{ steps.cpr.outcome }}" = "failure" ] || [ "${{ steps.cpr-version.outcome }}" = "failure" ]; then
               STATUS="⚠️ Packages published, PR creation failed"  
               MESSAGE="Published: $PUBLISHED_PACKAGES. ❌ PR creation failed - manual version update needed."
-            elif [ "${{ steps.cpr.outcome }}" = "skipped" ]; then
-              STATUS="✅ Packages published successfully"
-              MESSAGE="Published: $PUBLISHED_PACKAGES. No PR needed."
             else
               STATUS="✅ Packages published successfully"
               MESSAGE="Published: $PUBLISHED_PACKAGES"
@@ -511,22 +670,58 @@ jobs:
             REACT_VERSION="${{ steps.publish-react.outputs.version }}"
           fi
 
+          # Output summary for GitHub logs
+          echo "=== WORKFLOW SUMMARY ==="
+          echo "Status: $STATUS"
+          echo "Message: $MESSAGE"
+          echo ""
+
           # Send notification to Slack (if webhook is configured)
           if [ -n "${{ secrets.SLACK_WORKFLOW_WEBHOOK }}" ]; then
-            curl -X POST "${{ secrets.SLACK_WORKFLOW_WEBHOOK }}" \
+            echo "Sending Slack notification..."
+            HTTP_CODE=$(curl -X POST "${{ secrets.SLACK_WORKFLOW_WEBHOOK }}" \
               -H "Content-Type: application/json" \
+              -w "%{http_code}" \
+              -o /tmp/slack_response.txt \
               -d "{
                 \"status\": \"$STATUS\",
+                \"message\": \"$MESSAGE\",
                 \"package_details\": \"${PUBLISHED_PACKAGES:-'No packages published'}\",
                 \"core_version\": \"$CORE_VERSION\",
                 \"react_version\": \"$REACT_VERSION\",
+                \"trigger\": \"${{ github.event_name }}\",
+                \"actor\": \"${{ github.actor }}\",
                 \"action_url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
-              }" || echo "Failed to send Slack notification"
+              }")
+            
+            if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+              echo "✅ Slack notification sent successfully (HTTP $HTTP_CODE)"
+            else
+              echo "⚠️ Slack notification failed (HTTP $HTTP_CODE)"
+              cat /tmp/slack_response.txt
+            fi
           else
-            echo "Slack webhook not configured, skipping notification"
+            echo "ℹ️ Slack webhook not configured, skipping notification"
           fi
 
-          # Also output summary for GitHub logs
-          echo "=== WORKFLOW SUMMARY ==="
-          echo "$STATUS"
-          echo "$MESSAGE"
+      - name: Handle workflow failure
+        if: failure()
+        run: |
+          echo "## ❌ Workflow Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The workflow encountered an error. Please check the logs above for details." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Common Issues" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Authentication**: Verify JFrog/Artifactory credentials" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version conflict**: Package version may already exist" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build failure**: Check if packages build successfully" >> $GITHUB_STEP_SUMMARY
+          echo "- **Network issues**: JFrog Artifactory may be unreachable" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review the error logs in this workflow run" >> $GITHUB_STEP_SUMMARY
+          echo "2. Fix the issue and retry the workflow" >> $GITHUB_STEP_SUMMARY
+          echo "3. If needed, manually publish using: \`pnpm publish\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
