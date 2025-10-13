@@ -121,10 +121,7 @@ export function QRCodeEnrollmentForm({
             </div>
 
             <div aria-describedby="qr-description">
-              <CopyableTextField
-                value={otpData.manualInputCode || otpData?.barcodeUri}
-                label={t('enrollment_form.show_otp.secret_code')}
-              />
+              <CopyableTextField value={otpData.manualInputCode || otpData?.barcodeUri} />
 
               <div className="mt-3" />
 

@@ -127,6 +127,10 @@ export const COMMON_FIELD_CONFIGS = {
     defaultError: 'Please enter a valid URL',
     regex: /^https?:\/\/.+/,
   },
+  callback_url: {
+    defaultError: 'Please enter a valid URL',
+    regex: /^https?:\/\/.+/,
+  },
   url: {
     defaultError: 'Please enter a valid URL',
     regex: /^https?:\/\/.+/,

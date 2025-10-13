@@ -24,6 +24,8 @@ interface OktaOptions {
 }
 
 interface AdfsOptions {
+  meta_data_source?: FieldOptions;
+  meta_data_location_url?: FieldOptions;
   adfs_server?: FieldOptions;
   fedMetadataXml?: FieldOptions;
 }
@@ -60,6 +62,7 @@ interface SamlpOptions {
   signSAMLRequest?: BooleanFieldOptions;
   bindingMethod?: FieldOptions;
   metadataUrl?: FieldOptions;
+  single_sign_on_login_url?: FieldOptions;
   cert?: FieldOptions;
   icon_url?: FieldOptions;
   idpInitiated?: FieldOptions;
@@ -86,10 +89,24 @@ const STRATEGY_BUILDERS = {
         ...options.icon_url,
         required: false,
       }),
+      callback_url: createFieldSchema(COMMON_FIELD_CONFIGS.callback_url, {
+        ...options.icon_url,
+        required: false,
+      }),
     }),
 
   adfs: (options: AdfsOptions = {}) =>
     z.object({
+      meta_data_source: z
+        .string({
+          required_error: 'Please enter a metadata source',
+        })
+        .min(1, 'Metadata source is required'),
+      meta_data_location_url: createFieldSchema(
+        COMMON_FIELD_CONFIGS.url,
+        options.meta_data_location_url,
+        'Please enter a valid metadata location URL',
+      ),
       adfs_server: createFieldSchema(
         COMMON_FIELD_CONFIGS.url,
         options.adfs_server,
@@ -112,6 +129,10 @@ const STRATEGY_BUILDERS = {
       client_id: createFieldSchema(COMMON_FIELD_CONFIGS.client_id, options.client_id),
       client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, options.client_secret),
       icon_url: createFieldSchema(COMMON_FIELD_CONFIGS.icon_url, {
+        ...options.icon_url,
+        required: false,
+      }),
+      callback_url: createFieldSchema(COMMON_FIELD_CONFIGS.callback_url, {
         ...options.icon_url,
         required: false,
       }),
@@ -183,6 +204,16 @@ const STRATEGY_BUILDERS = {
 
   samlp: (options: SamlpOptions = {}) =>
     z.object({
+      meta_data_source: z
+        .string({
+          required_error: 'Please enter a metadata source',
+        })
+        .min(1, 'Metadata source is required'),
+      single_sign_on_login_url: createFieldSchema(
+        COMMON_FIELD_CONFIGS.url,
+        { ...options.single_sign_on_login_url, required: false },
+        'Please enter a valid URL',
+      ),
       signatureAlgorithm: createFieldSchema(
         COMMON_FIELD_CONFIGS.algorithm,
         { ...options.signatureAlgorithm, required: false },
@@ -241,6 +272,10 @@ const STRATEGY_BUILDERS = {
       client_id: createFieldSchema(COMMON_FIELD_CONFIGS.client_id, options.client_id),
       client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, options.client_secret),
       icon_url: createFieldSchema(COMMON_FIELD_CONFIGS.icon_url, {
+        ...options.icon_url,
+        required: false,
+      }),
+      callback_url: createFieldSchema(COMMON_FIELD_CONFIGS.callback_url, {
         ...options.icon_url,
         required: false,
       }),

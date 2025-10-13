@@ -122,6 +122,216 @@
               "helper_text": "ユーザーに表示されるプロバイダーアイコンのURL。",
               "error": "有効なURLを入力してください"
             }
+          },
+          "google-apps": {
+            "domain": {
+              "label": "Google ワークスペースドメイン",
+              "placeholder": "your-google-workspace-domain.com",
+              "error": "有効な Google ワークスペースドメインを入力してください"
+            },
+            "client_id": {
+              "label": "クライアント ID",
+              "placeholder": "クライアント ID を入力してください",
+              "helper_text": "クライアントアプリケーションまたはサービス統合の一意識別子。",
+              "error": "有効なクライアント ID を入力してください"
+            },
+            "client_secret": {
+              "label": "クライアントシークレット",
+              "placeholder": "クライアントシークレットを入力してください",
+              "helper_text": "クライアント認証に使用される機密トークン。",
+              "error": "有効なクライアントシークレットを入力してください"
+            },
+            "callback_url": {
+              "label": "コールバック URL",
+              "placeholder": "https://staff0.local.dev.auth0.com/login/callback",
+              "helper_text": "このコールバック URL で Google ワークスペーステナントを設定する必要がある場合があります。",
+              "error": "有効な URL を入力してください"
+            }
+          },
+          "waad": {
+            "domain": {
+              "label": "Microsoft Entra ID ドメイン",
+              "placeholder": "your-entra-id-domain.com",
+              "error": "有効な Microsoft Entra ID ドメインを入力してください"
+            },
+            "client_id": {
+              "label": "クライアント ID",
+              "placeholder": "クライアント ID を入力してください",
+              "helper_text": "クライアントアプリケーションまたはサービス統合の一意識別子。",
+              "error": "有効なクライアント ID を入力してください"
+            },
+            "client_secret": {
+              "label": "クライアントシークレット",
+              "placeholder": "クライアントシークレットを入力してください",
+              "helper_text": "クライアント認証に使用される機密トークン。",
+              "error": "有効なクライアントシークレットを入力してください"
+            },
+            "callback_url": {
+              "label": "コールバック URL",
+              "placeholder": "https://staff0.local.dev.auth0.com/login/callback",
+              "helper_text": "この コールバック URL で Entra ID テナントを設定する必要がある場合があります。",
+              "error": "有効な URL を入力してください"
+            }
+          },
+          "oidc": {
+            "discovery_url": {
+              "label": "OpenID プロバイダー構成エンドポイント",
+              "placeholder": "https://example.com/.well-known/openid-configuration",
+              "helper_text": "接続したい OpenID Connect プロバイダーのディスカバリードキュメントの URL を入力してください。",
+              "error": "有効なディスカバリー URL を入力してください"
+            },
+            "type": {
+              "label": "通信チャネル",
+              "helper_text": "認証交換がサーバー間通信（バックチャネル）またはImplicit Flow with Form Post を使用してブラウザ経由（フロントチャネル）で行われるかを選択してください。",
+              "options": {
+                "back_channel": {
+                  "label": "バックチャネル"
+                },
+                "front_channel": {
+                  "label": "フロントチャネル"
+                }
+              }
+            },
+            "client_id": {
+              "label": "クライアント ID",
+              "placeholder": "クライアント ID を入力してください",
+              "helper_text": "クライアントアプリケーションまたはサービス統合の一意識別子。",
+              "error": "有効なクライアント ID を入力してください"
+            },
+            "client_secret": {
+              "label": "クライアントシークレット",
+              "placeholder": "クライアントシークレットを入力してください",
+              "helper_text": "クライアント認証に使用される機密トークン。",
+              "error": "有効なクライアントシークレットを入力してください"
+            }
+          },
+          "ping-federate": {
+            "meta_data_url": {
+              "label": "シングルサインオンログイン URL",
+              "placeholder": "https://example.com/idp/SSO.saml2",
+              "helper_text": "PingFederate SSO 接続でセキュアな認証を開始するためのエンドポイント。",
+              "error": "有効な SSO ログイン URL を入力してください"
+            },
+            "sign_cert": {
+              "label": "署名証明書",
+              "placeholder": "署名証明書をアップロード",
+              "helper_text": "セキュアな身元認証に使用されるデジタル資格情報。",
+              "error": "有効な署名証明書をアップロードしてください"
+            },
+            "advanced_settings": {
+              "title": "詳細設定",
+              "sign_request": {
+                "label": "リクエスト署名",
+                "helper_text": "有効にすると、SAML 認証リクエストが署名されます。<link>証明書</link>をダウンロードして、署名されたアサーションを受信する SAMLP に提供し、署名を検証してください。これは最初に SAMLP で有効にする必要があります。有効にしたら、統合用のメタデータ URL を共有してください。",
+                "error": "オプションを選択してください"
+              },
+              "sign_request_algorithm": {
+                "label": "リクエスト署名アルゴリズム",
+                "placeholder": "RSA-SHA256",
+                "helper_text": "PingFederate への SAML 認証リクエストの署名に使用されるアルゴリズム。",
+                "error": "署名アルゴリズムを選択してください"
+              },
+              "sign_request_algorithm_digest": {
+                "label": "リクエスト署名アルゴリズムダイジェスト",
+                "placeholder": "SHA256",
+                "helper_text": "PingFederate リクエスト署名に使用されるダイジェストアルゴリズム。",
+                "error": "ダイジェストアルゴリズムを選択してください"
+              }
+            }
+          },
+          "adfs": {
+            "meta_data_source": {
+              "label": "ADFS メタデータソース",
+              "options": {
+                "meta_data_url": {
+                  "label": "ADFS URL"
+                },
+                "meta_data_file": {
+                  "label": "メタデータファイル"
+                }
+              }
+            },
+            "meta_data_url": {
+              "label": "メタデータ URL",
+              "placeholder": "https://example.com/FederationMetadata/2007-06/FederationMetadata.xml",
+              "helper_text": "統合用の WS-Fed SSO 接続情報を取得する場所。",
+              "error": "有効なメタデータ URL を入力してください"
+            },
+            "meta_data_location_url": {
+              "label": "メタデータロケーション URL",
+              "placeholder": "https://HOSTNAME/FederationMetadata/2007-06/FederationMetadata.xml",
+              "helper_text": "統合用の WS-Fed SSO 接続情報を取得する場所。",
+              "error": "有効なメタデータロケーション URL を入力してください"
+            },
+            "federation_metadata_file": {
+              "label": "フェデレーションメタデータファイル",
+              "placeholder": "フェデレーションメタデータファイルをアップロード",
+              "helper_text": "セキュアな身元認証に使用されるデジタル資格情報。",
+              "error": "有効なフェデレーションメタデータファイルをアップロードしてください"
+            },
+            "upload_button_label": "アップロード"
+          },
+          "samlp": {
+            "meta_data_source": {
+              "label": "メタデータソース",
+              "options": {
+                "meta_data_url": {
+                  "label": "メタデータ URL"
+                },
+                "meta_data_file": {
+                  "label": "メタデータファイル"
+                }
+              }
+            },
+            "meta_data_url": {
+              "label": "メタデータ URL",
+              "placeholder": "https://example.com/samlp/metadata.xml",
+              "helper_text": "統合用の SAML SSO 接続情報を取得する場所。",
+              "error": "有効なメタデータ URL を入力してください"
+            },
+            "single_sign_on_login_url": {
+              "label": "シングルサインオンログイン URL",
+              "placeholder": "https://example.com/idp/saml/",
+              "helper_text": "SAML SSO 接続でセキュアな認証を開始するためのエンドポイント。",
+              "error": "有効な SSO ログイン URL を入力してください"
+            },
+            "cert": {
+              "label": "署名証明書",
+              "placeholder": "署名証明書をアップロード",
+              "helper_text": "PEM または CER 形式でエンコードされた SAML X.509 公開鍵。",
+              "error": "有効な署名証明書をアップロードしてください"
+            },
+            "advanced_settings": {
+              "title": "詳細設定",
+              "sign_request": {
+                "label": "リクエスト署名",
+                "helper_text": "有効にすると、SAML 認証リクエストが署名されます。<link>証明書</link>をダウンロードして、署名されたアサーションを受信する SAMLP に提供し、署名を検証してください。これは最初に SAMLP で有効にする必要があります。有効にしたら、統合用のメタデータ URL を共有してください。"
+              },
+              "request_protocol_binding": {
+                "label": "リクエストプロトコルバインディング",
+                "placeholder": "HTTP-Post",
+                "helper_text": "認証リクエストに使用する SAML プロトコルバインディング。",
+                "error": "プロトコルバインディングを選択してください"
+              },
+              "sign_request_algorithm": {
+                "label": "リクエスト署名アルゴリズム",
+                "placeholder": "RSA-SHA256",
+                "helper_text": "SAML 認証リクエストの署名に使用されるアルゴリズム。",
+                "error": "署名アルゴリズムを選択してください"
+              },
+              "sign_request_algorithm_digest": {
+                "label": "リクエスト署名アルゴリズムダイジェスト",
+                "placeholder": "SHA256",
+                "helper_text": "SAML リクエスト署名に使用されるダイジェストアルゴリズム。",
+                "error": "ダイジェストアルゴリズムを選択してください"
+              }
+            },
+            "icon_url": {
+              "label": "アイコン URL",
+              "placeholder": "アイコン URL を入力",
+              "helper_text": "ユーザーに表示されるプロバイダーアイコンの URL。",
+              "error": "有効な URL を入力してください"
+            }
           }
         }
       }

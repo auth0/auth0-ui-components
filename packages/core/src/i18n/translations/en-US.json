@@ -116,11 +116,221 @@
               "helper_text": "Confidential token used for client authentication. <link>Where do I find the Client Secret?</link>",
               "error": "Please enter a valid client secret"
             },
+            "callback_url": {
+              "label": "Callback URL",
+              "placeholder": "https://staff0.local.dev.auth0.com/login/callback",
+              "helper_text": "You may need to configure the Okta tenant with this callback URL.",
+              "error": "Please enter a valid URL"
+            }
+          },
+          "google-apps": {
+            "domain": {
+              "label": "Google Workspace Domain",
+              "placeholder": "your-google-workspace-domain.com",
+              "error": "Please enter a valid Google Workspace domain"
+            },
+            "client_id": {
+              "label": "Client ID",
+              "placeholder": "Enter your client ID",
+              "helper_text": "Unique identifier for client application or service integration.",
+              "error": "Please enter a valid client ID"
+            },
+            "client_secret": {
+              "label": "Client Secret",
+              "placeholder": "Enter your client secret",
+              "helper_text": "Confidential token used for client authentication.",
+              "error": "Please enter a valid client secret"
+            },
+            "callback_url": {
+              "label": "Callback URL",
+              "placeholder": "https://staff0.local.dev.auth0.com/login/callback",
+              "helper_text": "You may need to configure the Google Workspace tenant with this callback URL.",
+              "error": "Please enter a valid URL"
+            }
+          },
+          "waad": {
+            "domain": {
+              "label": "Microsoft Entra ID Domain",
+              "placeholder": "your-entra-id-domain.com",
+              "error": "Please enter a valid Microsoft Entra ID domain"
+            },
+            "client_id": {
+              "label": "Client ID",
+              "placeholder": "Enter your client ID",
+              "helper_text": "Unique identifier for client application or service integration.",
+              "error": "Please enter a valid client ID"
+            },
+            "client_secret": {
+              "label": "Client Secret",
+              "placeholder": "Enter your client secret",
+              "helper_text": "Confidential token used for client authentication.",
+              "error": "Please enter a valid client secret"
+            },
+            "callback_url": {
+              "label": "Callback URL",
+              "placeholder": "https://staff0.local.dev.auth0.com/login/callback",
+              "helper_text": "You may need to configure the Entra ID tenant with this callback URL.",
+              "error": "Please enter a valid URL"
+            }
+          },
+          "oidc": {
+            "discovery_url": {
+              "label": "OpenID Provider Configuration Endpoint",
+              "placeholder": "https://example.com/.well-known/openid-configuration",
+              "helper_text": "Enter the URL of the discovery document of the OpenID Connect provider you want to connect with.",
+              "error": "Please enter a valid discovery URL"
+            },
+            "type": {
+              "label": "Communication Channel",
+              "helper_text": "Select whether authentication exchanges occur via server-to-server communication (Back Channel) or through the browser using Implicit Flow with Form Post (Front Channel).",
+              "options": {
+                "back_channel": {
+                  "label": "Back Channel"
+                },
+                "front_channel": {
+                  "label": "Front Channel"
+                }
+              }
+            },
+            "client_id": {
+              "label": "Client ID",
+              "placeholder": "Enter your client ID",
+              "helper_text": "Unique identifier for client application or service integration.",
+              "error": "Please enter a valid client ID"
+            },
+            "client_secret": {
+              "label": "Client Secret",
+              "placeholder": "Enter your client secret",
+              "helper_text": "Confidential token used for client authentication.",
+              "error": "Please enter a valid client secret"
+            }
+          },
+          "samlp": {
+            "meta_data_source": {
+              "label": "Metadata Source",
+              "options": {
+                "meta_data_url": {
+                  "label": "Metadata URL"
+                },
+                "meta_data_file": {
+                  "label": "Metadata File"
+                }
+              }
+            },
+            "meta_data_url": {
+              "label": "Metadata URL",
+              "placeholder": "https://example.com/samlp/metadata.xml",
+              "helper_text": "Location to retrieve SAML SSO connection information for integration.",
+              "error": "Please enter a valid metadata URL"
+            },
+            "single_sign_on_login_url": {
+              "label": "Single Sign-On Login URL",
+              "placeholder": "https://example.com/idp/saml/",
+              "helper_text": "Endpoint for initiating secure authentication in SAML SSO connections.",
+              "error": "Please enter a valid SSO login URL"
+            },
+            "cert": {
+              "label": "Signing Certificate",
+              "placeholder": "Upload Signing Certificate",
+              "helper_text": "SAML X.509 public key encoded in PEM or CER format.",
+              "error": "Please upload a valid signing certificate"
+            },
+            "advanced_settings": {
+              "title": "Advanced Settings",
+              "sign_request": {
+                "label": "Sign Request",
+                "helper_text": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature. This needs to be enabled first in the SAMLP. Once enabled, share the metadata URL for integration."
+              },
+              "request_protocol_binding": {
+                "label": "Request Protocol Binding",
+                "placeholder": "HTTP-Post",
+                "helper_text": "The SAML protocol binding to use for authentication requests.",
+                "error": "Please select a protocol binding"
+              },
+              "sign_request_algorithm": {
+                "label": "Sign Request Algorithm",
+                "placeholder": "RSA-SHA256",
+                "helper_text": "The algorithm used to sign SAML authentication requests.",
+                "error": "Please select a signing algorithm"
+              },
+              "sign_request_algorithm_digest": {
+                "label": "Sign Request Algorithm Digest",
+                "placeholder": "SHA256",
+                "helper_text": "The digest algorithm used for SAML request signing.",
+                "error": "Please select a digest algorithm"
+              }
+            },
             "icon_url": {
               "label": "Icon URL",
               "placeholder": "Enter icon URL",
               "helper_text": "URL for the provider icon displayed to users.",
               "error": "Please enter a valid URL"
+            }
+          },
+          "adfs": {
+            "meta_data_source": {
+              "label": "ADFS Metadata Source",
+              "options": {
+                "meta_data_url": {
+                  "label": "ADFS URL"
+                },
+                "meta_data_file": {
+                  "label": "Metadata File"
+                }
+              }
+            },
+            "meta_data_url": {
+              "label": "Metadata URL",
+              "placeholder": "https://example.com/FederationMetadata/2007-06/FederationMetadata.xml",
+              "helper_text": "Location to retrieve WS-Fed SSO connection information for integration.",
+              "error": "Please enter a valid metadata URL"
+            },
+            "meta_data_location_url": {
+              "label": "Metadata Location URL",
+              "placeholder": "https://HOSTNAME/FederationMetadata/2007-06/FederationMetadata.xml",
+              "helper_text": "Location to retrieve WS-Fed SSO connection information for integration.",
+              "error": "Please enter a valid metadata location URL"
+            },
+            "federation_metadata_file": {
+              "label": "Federation Metadata File",
+              "placeholder": "Upload Federation Metadata File",
+              "helper_text": "Digital credential used for secure identity authentication.",
+              "error": "Please upload a valid federation metadata file"
+            },
+            "upload_button_label": "Upload"
+          },
+          "ping-federate": {
+            "meta_data_url": {
+              "label": "Single Sign-On Login URL",
+              "placeholder": "https://example.com/idp/SSO.saml2",
+              "helper_text": "Endpoint for initiating secure authentication in PingFederate SSO connections.",
+              "error": "Please enter a valid SSO login URL"
+            },
+            "sign_cert": {
+              "label": "Signing Certificate",
+              "placeholder": "Upload Signing Certificate",
+              "helper_text": "Digital credential used for secure identity authentication.",
+              "error": "Please upload a valid signing certificate"
+            },
+            "advanced_settings": {
+              "title": "Advanced Settings",
+              "sign_request": {
+                "label": "Sign Request",
+                "helper_text": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature. This needs to be enabled first in the SAMLP. Once enabled, share the metadata URL for integration.",
+                "error": "Please select an option"
+              },
+              "sign_request_algorithm": {
+                "label": "Sign Request Algorithm",
+                "placeholder": "RSA-SHA256",
+                "helper_text": "The algorithm used to sign SAML authentication requests to PingFederate.",
+                "error": "Please select a signing algorithm"
+              },
+              "sign_request_algorithm_digest": {
+                "label": "Sign Request Algorithm Digest",
+                "placeholder": "SHA256",
+                "helper_text": "The digest algorithm used for PingFederate request signing.",
+                "error": "Please select a digest algorithm"
+              }
             }
           }
         }

@@ -54,24 +54,49 @@ export interface ProviderConfigureFieldsMessages {
       helper_text?: string;
       error?: string;
     };
+    callback_url?: {
+      label?: string;
+      placeholder?: string;
+      helper_text?: string;
+      error?: string;
+    };
   };
 
   adfs?: {
-    adfs_server?: {
+    meta_data_source?: {
+      label?: string;
+      helper_text?: string;
+      options?: {
+        meta_data_url?: {
+          label?: string;
+        };
+        meta_data_file?: {
+          label?: string;
+        };
+      };
+    };
+    meta_data_url?: {
       label?: string;
       placeholder?: string;
       helper_text?: string;
       error?: string;
     };
-    fedMetadataXml?: {
+    meta_data_location_url?: {
       label?: string;
       placeholder?: string;
       helper_text?: string;
       error?: string;
     };
+    federation_meta_data_file?: {
+      label?: string;
+      placeholder?: string;
+      helper_text?: string;
+      error?: string;
+    };
+    upload_button_label?: string;
   };
 
-  google_apps?: {
+  'google-apps'?: {
     domain?: {
       label?: string;
       placeholder?: string;
@@ -96,14 +121,26 @@ export interface ProviderConfigureFieldsMessages {
       helper_text?: string;
       error?: string;
     };
+    callback_url?: {
+      label?: string;
+      placeholder?: string;
+      helper_text?: string;
+      error?: string;
+    };
   };
 
   oidc?: {
     type?: {
       label?: string;
-      placeholder?: string;
       helper_text?: string;
-      error?: string;
+      options?: {
+        back_channel?: {
+          label?: string;
+        };
+        front_channel?: {
+          label?: string;
+        };
+      };
     };
     client_id?: {
       label?: string;
@@ -125,89 +162,63 @@ export interface ProviderConfigureFieldsMessages {
     };
   };
 
-  ping_federate?: {
-    signatureAlgorithm?: {
+  'ping-federate'?: {
+    meta_data_url?: {
       label?: string;
       placeholder?: string;
       helper_text?: string;
       error?: string;
     };
-    digestAlgorithm?: {
+    sign_cert?: {
       label?: string;
       placeholder?: string;
       helper_text?: string;
       error?: string;
     };
-    signSAMLRequest?: {
-      label?: string;
-      placeholder?: string;
-      helper_text?: string;
-      error?: string;
-    };
-    metadataUrl?: {
-      label?: string;
-      placeholder?: string;
-      helper_text?: string;
-      error?: string;
-    };
-    cert?: {
-      label?: string;
-      placeholder?: string;
-      helper_text?: string;
-      error?: string;
-    };
-    signingCert?: {
-      label?: string;
-      placeholder?: string;
-      helper_text?: string;
-      error?: string;
-    };
-    idpInitiated?: {
-      label?: string;
-      placeholder?: string;
-      helper_text?: string;
-      error?: string;
-    };
-    icon_url?: {
-      label?: string;
-      placeholder?: string;
-      helper_text?: string;
-      error?: string;
+    advanced_settings?: {
+      title?: string;
+      upload_button_label?: string;
+      sign_request?: {
+        label?: string;
+        placeholder?: string;
+        helper_text?: string;
+        error?: string;
+      };
+      sign_request_algorithm?: {
+        label?: string;
+        placeholder?: string;
+        helper_text?: string;
+        error?: string;
+      };
+      sign_request_algorithm_digest?: {
+        label?: string;
+        placeholder?: string;
+        helper_text?: string;
+        error?: string;
+      };
     };
   };
 
   samlp?: {
-    signatureAlgorithm?: {
+    meta_data_source?: {
+      label?: string;
+      helper_text?: string;
+      options?: {
+        meta_data_url?: {
+          label?: string;
+        };
+        meta_data_file?: {
+          label?: string;
+        };
+      };
+    };
+    meta_data_url?: {
       label?: string;
       placeholder?: string;
       helper_text?: string;
       error?: string;
     };
-    digestAlgorithm?: {
-      label?: string;
-      placeholder?: string;
-      helper_text?: string;
-      error?: string;
-    };
-    protocolBinding?: {
-      label?: string;
-      placeholder?: string;
-      helper_text?: string;
-      error?: string;
-    };
-    signSAMLRequest?: {
-      label?: string;
-      placeholder?: string;
-      helper_text?: string;
-      error?: string;
-    };
-    bindingMethod?: {
-      label?: string;
-      placeholder?: string;
-      helper_text?: string;
-      error?: string;
-    };
-    metadataUrl?: {
+    single_sign_on_login_url?: {
       label?: string;
       placeholder?: string;
       helper_text?: string;
@@ -219,17 +230,32 @@ export interface ProviderConfigureFieldsMessages {
       helper_text?: string;
       error?: string;
     };
-    idpInitiated?: {
-      label?: string;
-      placeholder?: string;
-      helper_text?: string;
-      error?: string;
-    };
-    icon_url?: {
-      label?: string;
-      placeholder?: string;
-      helper_text?: string;
-      error?: string;
+    advanced_settings?: {
+      title?: string;
+      sign_request?: {
+        label?: string;
+        placeholder?: string;
+        helper_text?: string;
+        error?: string;
+      };
+      request_protocol_binding?: {
+        label?: string;
+        placeholder?: string;
+        helper_text?: string;
+        error?: string;
+      };
+      sign_request_algorithm?: {
+        label?: string;
+        placeholder?: string;
+        helper_text?: string;
+        error?: string;
+      };
+      sign_request_algorithm_digest?: {
+        label?: string;
+        placeholder?: string;
+        helper_text?: string;
+        error?: string;
+      };
     };
   };
 
@@ -253,6 +279,12 @@ export interface ProviderConfigureFieldsMessages {
       error?: string;
     };
     icon_url?: {
+      label?: string;
+      placeholder?: string;
+      helper_text?: string;
+      error?: string;
+    };
+    callback_url?: {
       label?: string;
       placeholder?: string;
       helper_text?: string;

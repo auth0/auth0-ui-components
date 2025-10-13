@@ -2,57 +2,88 @@ import { Copy } from 'lucide-react';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
-import { TextField } from '@/components/ui/text-field';
+import { TextField, type TextFieldProps } from '@/components/ui/text-field';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks';
+import { cn } from '@/lib/theme-utils';
 
-interface CopyableTextFieldProps {
-  value: string;
-  label?: string;
+export interface CopyableTextFieldProps extends TextFieldProps {
   onCopy?: () => void;
+  copyButtonClassName?: string;
+  tooltipSide?: 'top' | 'bottom' | 'left' | 'right';
+  tooltipAlign?: 'start' | 'center' | 'end';
 }
 
-export function CopyableTextField({ value, label, onCopy }: CopyableTextFieldProps) {
-  const { t } = useTranslator('common');
-  const [tooltipText, setTooltipText] = React.useState(t('copy'));
-  const [tooltipOpen, setTooltipOpen] = React.useState(false);
+const CopyableTextField = React.forwardRef<HTMLInputElement, CopyableTextFieldProps>(
+  (
+    {
+      onCopy,
+      copyButtonClassName,
+      tooltipSide = 'top',
+      tooltipAlign = 'end',
+      readOnly = true,
+      endAdornment,
+      ...props
+    },
+    ref,
+  ) => {
+    const { t } = useTranslator('common');
+    const [tooltipText, setTooltipText] = React.useState(t('copy'));
+    const [tooltipOpen, setTooltipOpen] = React.useState(false);
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(value);
-    setTooltipText(t('copied'));
-    setTooltipOpen(true);
-    setTimeout(() => {
-      setTooltipText(t('copy'));
-      setTooltipOpen(false);
-    }, 1000);
-    onCopy?.();
-  };
-
-  return (
-    <TextField
-      readOnly
-      value={value}
-      aria-label={label}
-      className="text-sm"
-      endAdornment={
-        <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={handleCopy}
-              aria-label={t('copy')}
-            >
-              <Copy className="h-4 w-4" aria-hidden="true" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="top" align="end" sideOffset={5} className="z-[1000]">
-            {tooltipText}
-          </TooltipContent>
-        </Tooltip>
+    const handleCopy = async () => {
+      if (props.value) {
+        await navigator.clipboard.writeText(String(props.value));
+        setTooltipText(t('copied'));
+        setTooltipOpen(true);
+        setTimeout(() => {
+          setTooltipText(t('copy'));
+          setTooltipOpen(false);
+        }, 1000);
+        onCopy?.();
       }
-    />
-  );
-}
+    };
+
+    const copyButton = (
+      <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className={cn('h-8 w-8', copyButtonClassName)}
+            onClick={handleCopy}
+            aria-label={t('copy')}
+          >
+            <Copy className="h-4 w-4" aria-hidden="true" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side={tooltipSide} align={tooltipAlign} sideOffset={5} className="z-[1000]">
+          {tooltipText}
+        </TooltipContent>
+      </Tooltip>
+    );
+
+    return (
+      <TextField
+        ref={ref}
+        readOnly={readOnly}
+        {...props}
+        endAdornment={
+          endAdornment ? (
+            <div className="flex items-center gap-1">
+              {endAdornment}
+              {copyButton}
+            </div>
+          ) : (
+            copyButton
+          )
+        }
+      />
+    );
+  },
+);
+
+CopyableTextField.displayName = 'CopyableTextField';
+
+export { CopyableTextField };

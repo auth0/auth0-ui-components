@@ -61,9 +61,27 @@ export interface ProviderConfigureSchema {
       maxLength?: number;
       required?: boolean;
     };
+    callback_url?: {
+      regex?: RegExp;
+      errorMessage?: string;
+      minLength?: number;
+      maxLength?: number;
+      required?: boolean;
+    };
   };
 
   adfs?: {
+    meta_data_source?: {
+      required?: boolean;
+      errorMessage?: string;
+    };
+    meta_data_location_url?: {
+      regex?: RegExp;
+      errorMessage?: string;
+      minLength?: number;
+      maxLength?: number;
+      required?: boolean;
+    };
     adfs_server?: {
       regex?: RegExp;
       errorMessage?: string;
@@ -103,6 +121,13 @@ export interface ProviderConfigureSchema {
       required?: boolean;
     };
     icon_url?: {
+      regex?: RegExp;
+      errorMessage?: string;
+      minLength?: number;
+      maxLength?: number;
+      required?: boolean;
+    };
+    callback_url?: {
       regex?: RegExp;
       errorMessage?: string;
       minLength?: number;
@@ -168,13 +193,6 @@ export interface ProviderConfigureSchema {
       maxLength?: number;
       required?: boolean;
     };
-    cert?: {
-      regex?: RegExp;
-      errorMessage?: string;
-      minLength?: number;
-      maxLength?: number;
-      required?: boolean;
-    };
     signingCert?: {
       regex?: RegExp;
       errorMessage?: string;
@@ -196,6 +214,14 @@ export interface ProviderConfigureSchema {
   };
 
   samlp?: {
+    meta_data_source?: {
+      required?: boolean;
+      errorMessage?: string;
+    };
+    single_sign_on_login_url?: {
+      required?: boolean;
+      errorMessage?: string;
+    };
     signatureAlgorithm?: {
       regex?: RegExp;
       errorMessage?: string;
@@ -278,6 +304,13 @@ export interface ProviderConfigureSchema {
       required?: boolean;
     };
     icon_url?: {
+      regex?: RegExp;
+      errorMessage?: string;
+      minLength?: number;
+      maxLength?: number;
+      required?: boolean;
+    };
+    callback_url?: {
       regex?: RegExp;
       errorMessage?: string;
       minLength?: number;
