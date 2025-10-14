@@ -5,10 +5,12 @@ import type { I18nInitOptions } from '../i18n';
 import { createI18nService } from '../i18n';
 
 import type {
-  ServicesConfig,
   AuthDetailsCore,
   BaseCoreClientInterface,
   CoreClientInterface,
+  ServicesConfig,
+  MyAccountAPIServiceInterface,
+  MyOrgAPIServiceInterface,
 } from './auth-types';
 import { AuthUtils } from './auth-utils';
 import { createTokenManager } from './token-manager';
@@ -76,6 +78,63 @@ const CoreUtils = {
     }
     return authDetails;
   },
+
+  /**
+   * Creates services configuration from auth details with proper defaults.
+   *
+   * @param authDetails - The authentication details containing service enablement flags
+   * @returns ServicesConfig object with proper defaults applied
+   */
+  createServicesConfig(authDetails: AuthDetailsCore): ServicesConfig {
+    return {
+      myAccount: { enabled: authDetails.enableMyAccount ?? true },
+      myOrg: { enabled: authDetails.enableMyOrg ?? false },
+    };
+  },
+
+  async initializeServices(
+    baseCoreClient: BaseCoreClientInterface,
+    servicesConfig: ServicesConfig,
+  ) {
+    const services: {
+      myAccountApiService?: MyAccountAPIServiceInterface;
+      myOrgApiService?: MyOrgAPIServiceInterface;
+    } = {};
+    const errors: string[] = [];
+
+    // Initialize MyAccount API service
+    if (servicesConfig.myAccount.enabled) {
+      try {
+        services.myAccountApiService = await createMyAccountAPIService(baseCoreClient);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        errors.push(`MyAccount service: ${message}`);
+      }
+    }
+
+    // Initialize MyOrg API service
+    if (servicesConfig.myOrg.enabled) {
+      try {
+        services.myOrgApiService = await createMyOrgAPIService(baseCoreClient);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        errors.push(`MyOrg service: ${message}`);
+      }
+    }
+
+    const enabledCount =
+      (servicesConfig.myAccount.enabled ? 1 : 0) + (servicesConfig.myOrg.enabled ? 1 : 0);
+
+    if (enabledCount > 0 && errors.length === enabledCount) {
+      const formattedErrors = errors.map((error, index) => `  ${index + 1}. ${error}`).join('\n');
+
+      throw new Error(
+        `Service initialization failed:\n\n${formattedErrors}\n\nPlease check your configuration and network connectivity.`,
+      );
+    }
+
+    return services;
+  },
 };
 
 /**
@@ -106,19 +165,19 @@ const CoreUtils = {
  */
 export async function createCoreClient(
   authDetails: AuthDetailsCore,
-  servicesConfig: ServicesConfig,
   i18nOptions?: I18nInitOptions,
 ): Promise<CoreClientInterface> {
-  // Initialize i18n service
-  const i18nService = await createI18nService(
-    i18nOptions || {
-      currentLanguage: 'en-US',
-      fallbackLanguage: 'en-US',
-    },
-  );
+  const [i18nService, auth] = await Promise.all([
+    createI18nService(
+      i18nOptions || {
+        currentLanguage: 'en-US',
+        fallbackLanguage: 'en-US',
+      },
+    ),
+    CoreUtils.initializeAuthDetails(authDetails),
+  ]);
 
-  // Initialize auth details
-  const auth = await CoreUtils.initializeAuthDetails(authDetails);
+  const servicesConfig = CoreUtils.createServicesConfig(authDetails);
 
   // Initialize token manager service
   const tokenManagerService = createTokenManager(auth);
@@ -126,7 +185,6 @@ export async function createCoreClient(
   // Return the complete object with functional core
   const baseCoreClient: BaseCoreClientInterface = {
     auth,
-    servicesConfig,
     i18nService,
 
     async getToken(scope: string, audiencePath: string, ignoreCache = false) {
@@ -142,19 +200,23 @@ export async function createCoreClient(
     },
   };
 
-  // Initialize MyAccount API service
-  const myAccountApiService = await createMyAccountAPIService(baseCoreClient);
-
-  // Initialize MyOrg API service if it's enabled
-  const myOrgApiService = servicesConfig.myOrg.enabled
-    ? await createMyOrgAPIService(baseCoreClient)
-    : undefined;
+  const { myAccountApiService, myOrgApiService } = await CoreUtils.initializeServices(
+    baseCoreClient,
+    servicesConfig,
+  );
 
   const coreClient: CoreClientInterface = {
     ...baseCoreClient,
     myAccountApiService,
     myOrgApiService,
-    getMyAccountApiService: () => myAccountApiService,
+    getMyAccountApiService: () => {
+      if (!myAccountApiService) {
+        throw new Error(
+          'myAccountApiService is not enabled. Please use it within Auth0ComponentProvider.',
+        );
+      }
+      return myAccountApiService;
+    },
     getMyOrgApiService: () => {
       if (!myOrgApiService) {
         throw new Error(

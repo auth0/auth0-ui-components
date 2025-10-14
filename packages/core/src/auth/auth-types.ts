@@ -96,7 +96,12 @@ export interface MyOrgServiceConfig {
   enabled: boolean;
 }
 
+export interface MyAccountServiceConfig {
+  enabled: boolean;
+}
+
 export interface ServicesConfig {
+  myAccount: MyAccountServiceConfig;
   myOrg: MyOrgServiceConfig;
 }
 
@@ -107,11 +112,12 @@ export interface AuthDetailsCore {
   scopes?: string | undefined;
   authProxyUrl?: string | undefined;
   contextInterface?: BasicAuth0ContextInterface | undefined;
+  enableMyAccount?: boolean;
+  enableMyOrg?: boolean;
 }
 
 export interface BaseCoreClientInterface {
   auth: AuthDetailsCore;
-  servicesConfig: ServicesConfig;
   i18nService: I18nServiceInterface;
   getToken: (
     scope: string,
@@ -123,7 +129,7 @@ export interface BaseCoreClientInterface {
 }
 
 export interface CoreClientInterface extends BaseCoreClientInterface {
-  myAccountApiService: MyAccountAPIServiceInterface;
+  myAccountApiService: MyAccountAPIServiceInterface | undefined;
   myOrgApiService: MyOrgAPIServiceInterface | undefined;
   getMyAccountApiService: () => MyAccountAPIServiceInterface;
   getMyOrgApiService: () => MyOrgAPIServiceInterface;

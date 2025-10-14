@@ -39,19 +39,9 @@ export const SpaProvider = ({
     ],
   );
 
-  const memoizedServicesConfig = React.useMemo(
-    () => ({
-      myOrg: {
-        enabled: auth0ContextInterface.user?.org_id !== undefined,
-      },
-    }),
-    [auth0ContextInterface.user?.org_id],
-  );
-
   const coreClient = useCoreClientInitialization({
     authDetails: memoizedAuthDetails,
     i18nOptions: i18n,
-    servicesConfig: memoizedServicesConfig,
   });
 
   const coreClientValue = React.useMemo(

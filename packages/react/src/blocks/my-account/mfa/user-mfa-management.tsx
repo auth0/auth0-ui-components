@@ -16,7 +16,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { List, ListItem } from '@/components/ui/list';
-import { Toaster } from '@/components/ui/sonner';
 import { Spinner } from '@/components/ui/spinner';
 import { withAuthenticationService } from '@/hoc';
 import { useTheme, useMFA, useTranslator } from '@/hooks';
@@ -261,7 +260,6 @@ function UserMFAMgmtComponent({
 
   return (
     <div style={currentStyles.variables}>
-      <Toaster position="top-right" />
       {loading ? (
         <div className="flex items-center justify-center py-16">{loader || <Spinner />}</div>
       ) : (

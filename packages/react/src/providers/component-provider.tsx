@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { Toaster } from '@/components/ui/sonner';
 import { Spinner } from '@/components/ui/spinner';
 import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 
@@ -78,25 +79,28 @@ export const Auth0ComponentProvider = ({
   children,
 }: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
   return (
-    <ThemeProvider
-      themeSettings={{
-        mode: themeSettings.mode,
-        variables: themeSettings.variables,
-        loader,
-        theme: themeSettings.theme,
-      }}
-    >
-      <React.Suspense fallback={loader || <Spinner />}>
-        {authDetails?.authProxyUrl ? (
-          <ProxyProvider i18n={i18n} authDetails={authDetails}>
-            {children}
-          </ProxyProvider>
-        ) : (
-          <SpaProvider i18n={i18n} authDetails={authDetails}>
-            {children}
-          </SpaProvider>
-        )}
-      </React.Suspense>
-    </ThemeProvider>
+    <>
+      <Toaster position="top-right" />
+      <ThemeProvider
+        themeSettings={{
+          mode: themeSettings.mode,
+          variables: themeSettings.variables,
+          loader,
+          theme: themeSettings.theme,
+        }}
+      >
+        <React.Suspense fallback={loader || <Spinner />}>
+          {authDetails?.authProxyUrl ? (
+            <ProxyProvider i18n={i18n} authDetails={authDetails}>
+              {children}
+            </ProxyProvider>
+          ) : (
+            <SpaProvider i18n={i18n} authDetails={authDetails}>
+              {children}
+            </SpaProvider>
+          )}
+        </React.Suspense>
+      </ThemeProvider>
+    </>
   );
 };

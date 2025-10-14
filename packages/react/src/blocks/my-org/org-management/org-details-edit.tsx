@@ -1,6 +1,5 @@
 import { getComponentStyles } from '@auth0-web-ui-components/core';
 import * as React from 'react';
-import { Toaster } from 'sonner';
 
 import { OrgDetails } from '@/components/my-org/org-management/org-details';
 import { Header } from '@/components/ui/header';
@@ -54,7 +53,6 @@ function OrgDetailsEditComponent({
 
   return (
     <div style={currentStyles.variables} className="w-full">
-      <Toaster position="top-right" />
       {!hideHeader && (
         <div className="mb-8">
           <Header
