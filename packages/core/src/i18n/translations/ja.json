@@ -498,5 +498,54 @@
         "install_guardian_description": "続行するには、お使いのモバイルデバイスからアプリストア経由でAuth0 Guardianアプリをインストールしてください。"
       }
     }
+  },
+  "provisioning_management": {
+    "manage_tokens": {
+      "title": "ベアラートークン",
+      "description": "IDプロバイダーに提供するためのベアラートークンを生成します。最大2つのトークンを作成できます。",
+      "generate_button_label": "トークンを生成",
+      "max_tokens_tooltip": "最大2つのトークンまで許可されます",
+      "empty_state": {
+        "title": "トークンがありません",
+        "description": "開始するには、IDプロバイダーに提供する新しいベアラートークンを生成してください。"
+      },
+      "table": {
+        "token_id_label": "トークンID",
+        "created_label": "作成日時",
+        "expires_label": "有効期限",
+        "actions_label": "アクション"
+      },
+      "token_item": {
+        "token_prefix": "トークン",
+        "never_expire": "このトークンは期限切れになりません。",
+        "last_used": "最終使用: mm/dd/aa hh:mm:ss",
+        "status_active": "有効",
+        "status_expired": "期限切れ",
+        "delete_button_label": "削除"
+      },
+      "create_modal": {
+        "title": "ベアラートークン情報",
+        "copy_and_close_button_label": "コピーして閉じる"
+      },
+      "delete_modal": {
+        "title": "トークン ${tokenId} を削除",
+        "cancel_button_label": "キャンセル",
+        "delete_button_label": "トークンを削除"
+      }
+    },
+    "create_token": {
+      "modal_content": {
+        "description": "ベアラートークンをコピーしてIDプロバイダーに提供してください。このダイアログを閉じると再表示されません。",
+        "field": {
+          "label": "トークン"
+        }
+      }
+    },
+    "delete_token": {
+      "modal_content": {
+        "confirmation": "トークン ${tokenId} を削除してもよろしいですか？この操作は元に戻すことができません。",
+        "description": "ダウンタイムを避けるため、このトークンを削除する前に、2番目のトークンを作成してプロビジョニングクライアントに提供することを検討してください。"
+      }
+    }
   }
 }

@@ -110,7 +110,18 @@ export const FormActions: React.FC<FormActionsProps> = ({
           className="FormActions-next"
           {...(nextButtonProps.type !== 'submit' && { onClick: handleNextClick })}
         >
-          {isLoading ? <Spinner size="sm" aria-hidden="true" /> : nextButtonProps.label}
+          {isLoading ? (
+            <Spinner size="sm" aria-hidden="true" />
+          ) : (
+            <>
+              {nextButtonProps.icon && (
+                <span className="mr-2" aria-hidden="true">
+                  {nextButtonProps.icon as React.ReactNode}
+                </span>
+              )}
+              {nextButtonProps.label}
+            </>
+          )}
         </Button>
       )}
     </div>

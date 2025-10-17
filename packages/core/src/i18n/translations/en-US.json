@@ -497,5 +497,54 @@
         "install_guardian_description": "In order to continue, install the Auth0 Guardian app via the app store from your mobile device"
       }
     }
+  },
+  "provisioning_management": {
+    "manage_tokens": {
+      "title": "Bearer Tokens",
+      "description": "Generate a bearer token to provide your identity provider. You can create up to two tokens.",
+      "generate_button_label": "Generate Token",
+      "max_tokens_tooltip": "Maximum 2 tokens allowed",
+      "empty_state": {
+        "title": "No tokens created yet",
+        "description": "Generate a bearer token to authenticate SCIM requests from your identity provider."
+      },
+      "table": {
+        "token_id_label": "Token ID",
+        "created_label": "Created",
+        "expires_label": "Expires",
+        "actions_label": "Actions"
+      },
+      "token_item": {
+        "token_prefix": "Token",
+        "never_expire": "This token will never expire.",
+        "last_used": "Last used: mm/dd/aa hh:mm:ss",
+        "status_active": "Active",
+        "status_expired": "Expired",
+        "delete_button_label": "Delete"
+      },
+      "create_modal": {
+        "title": "Bearer Token Information",
+        "copy_and_close_button_label": "Copy and Close"
+      },
+      "delete_modal": {
+        "title": "Delete token ${tokenId}",
+        "cancel_button_label": "Cancel",
+        "delete_button_label": "Delete Token"
+      }
+    },
+    "create_token": {
+      "modal_content": {
+        "description": "Copy the bearer token to provide your identity provider. It will not be displayed again upon closing this dialog.",
+        "field": {
+          "label": "Token"
+        }
+      }
+    },
+    "delete_token": {
+      "modal_content": {
+        "confirmation": "Are you sure you want to delete token ${tokenId}? This action cannot be undone.",
+        "description": "To avoid downtime, consider creating a second token and supplying it to your provisioning client before deleting this one."
+      }
+    }
   }
 }
