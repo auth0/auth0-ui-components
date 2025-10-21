@@ -2,22 +2,31 @@ import type { BaseCoreClientInterface } from '@core/auth/auth-types';
 import type { MyOrgClient } from 'auth0-myorg-sdk';
 
 import type {
+  CreateIdentityProviderRequestContentPrivate,
   ListIdentityProvidersResponseContent,
   DetachIdpProviderResponseContent,
+  CreateIdentityProviderRequestContent,
+  CreateIdentityProviderResponseContent,
   UpdateIdentityProviderRequestContent,
   UpdateIdentityProviderResponseContent,
-} from './idp-types';
+} from '../idp-types';
+
+import { SsoProviderMappers } from './sso-provider-mappers';
 import {
   getIdentityProviders,
   deleteIdentityProvider,
   detachIdentityProvider,
   updateIdentityProvider,
+  createIdentityProvider,
 } from './sso-provider-service';
 
 export interface IdentityProvidersController {
   list(): Promise<ListIdentityProvidersResponseContent>;
   delete(idpId: string): Promise<void>;
   detach(idpId: string): Promise<DetachIdpProviderResponseContent>;
+  create(
+    provider: CreateIdentityProviderRequestContentPrivate,
+  ): Promise<CreateIdentityProviderResponseContent>;
   update(
     idpId: string,
     data: UpdateIdentityProviderRequestContent,
@@ -43,6 +52,25 @@ export function createIdentityProvidersController(
         () => getIdentityProviders(coreClient.getApiBaseUrl()),
         () => myOrgClient!.organization.identityProviders.list(),
       ),
+
+    create: (provider: CreateIdentityProviderRequestContentPrivate) => {
+      const { strategy, name, display_name, ...configOptions } = provider;
+
+      const providerRequestData = {
+        strategy,
+        name,
+        display_name,
+        options: configOptions,
+      };
+
+      const apiRequestData: CreateIdentityProviderRequestContent =
+        SsoProviderMappers.createToAPI(providerRequestData);
+
+      return delegateCall(
+        () => createIdentityProvider(coreClient.getApiBaseUrl(), apiRequestData),
+        () => myOrgClient!.organization.identityProviders.create(apiRequestData),
+      );
+    },
 
     delete: (idpId: string) =>
       delegateCall(

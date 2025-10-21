@@ -1,4 +1,8 @@
-import { getComponentStyles, type IdentityProvider } from '@auth0-web-ui-components/core';
+import {
+  getComponentStyles,
+  type IdentityProvider,
+  STRATEGY_DISPLAY_NAMES,
+} from '@auth0-web-ui-components/core';
 import { Plus } from 'lucide-react';
 import * as React from 'react';
 
@@ -14,20 +18,6 @@ import { useTheme } from '../../../hooks/use-theme';
 import { useTranslator } from '../../../hooks/use-translator';
 import { cn } from '../../../lib/theme-utils';
 import type { SsoProviderTableProps } from '../../../types';
-
-const getStrategyDisplayName = (strategy: string): string => {
-  const strategyMap: Record<string, string> = {
-    adfs: 'ADFS',
-    'google-apps': 'Google Workspace',
-    oidc: 'OpenID Connect',
-    okta: 'Okta',
-    pingfederate: 'PingFederate',
-    samlp: 'SAML',
-    waad: 'Azure Active Directory',
-  };
-
-  return strategyMap[strategy] || strategy.charAt(0).toUpperCase() + strategy.slice(1);
-};
 
 /**
  * SsoProviderTable Component
@@ -176,7 +166,7 @@ function SsoProviderTableComponent({
         title: t('table.columns.identity_provider'),
         width: '25%',
         render: (idp) => (
-          <div className="text-muted-foreground">{getStrategyDisplayName(idp.strategy)}</div>
+          <div className="text-muted-foreground">{STRATEGY_DISPLAY_NAMES[idp.strategy]}</div>
         ),
       },
       {

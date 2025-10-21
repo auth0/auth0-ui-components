@@ -1,10 +1,13 @@
 import { SsoProviderTable, type IdentityProvider } from '@auth0-web-ui-components/react';
 import { useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const SsoProviderPage = () => {
+  const navigate = useNavigate();
+
   const handleCreate = useCallback(() => {
     console.log('Navigate to create SSO provider page');
-    // router.push('/sso-providers/create');
+    navigate('/sso-provider/create');
   }, []);
 
   const handleEdit = useCallback((provider: IdentityProvider) => {

@@ -3,16 +3,26 @@ import type {
   ProviderSelectMessages,
   ProviderDetailsMessages,
   IdpStrategy,
-  ProviderDetailsFormValues,
   ProviderSelectionFormValues,
-  ProviderConfigureFormValues,
   IdentityProvider,
   ProviderConfigureMessages,
   ProviderConfigureFieldsMessages,
+  SsoProviderCreateMessages,
+  ProviderDetailsFormValues,
+  ProviderConfigureFormValues,
+  SsoProviderFormValues,
+  SsoProviderSchema,
+  ComponentAction,
+  BackButton,
+  CreateIdentityProviderRequestContentPrivate,
 } from '@auth0-web-ui-components/core';
+import type { LucideIcon } from 'lucide-react';
+import type React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
 export interface SsoProviderCreateClasses {
+  'SsoProviderCreate-header'?: string;
+  'SsoProviderCreate-wizard'?: string;
   'ProviderSelect-root'?: string;
   'ProviderDetails-root'?: string;
   'ProviderConfigure-root'?: string;
@@ -29,21 +39,41 @@ export interface ProviderSelectProps
 
 export interface ProviderDetailsProps
   extends SharedComponentProps<ProviderDetailsMessages, SsoProviderCreateClasses> {
-  form: UseFormReturn<ProviderDetailsFormValues>;
+  initialData?: Partial<ProviderDetailsFormValues>;
   className?: string;
 }
 
 export interface ProviderConfigureProps
   extends SharedComponentProps<ProviderConfigureMessages, SsoProviderCreateClasses> {
-  form: UseFormReturn<ProviderConfigureFormValues>;
   className?: string;
-  strategy?: IdpStrategy;
-  provider?: IdentityProvider;
+  strategy: IdpStrategy;
+  initialData?: Partial<ProviderConfigureFormValues>;
 }
 
 export interface ProviderConfigureFieldsProps
   extends SharedComponentProps<ProviderConfigureFieldsMessages, SsoProviderCreateClasses> {
-  form: UseFormReturn<ProviderConfigureFormValues>;
+  strategy: IdpStrategy;
+  initialData?: Partial<ProviderConfigureFormValues>;
   className?: string;
-  strategy?: IdpStrategy;
+}
+
+export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'> {
+  icon?: LucideIcon;
+  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+}
+export interface SsoProviderCreateProps
+  extends SharedComponentProps<
+    SsoProviderCreateMessages,
+    SsoProviderCreateClasses,
+    SsoProviderSchema
+  > {
+  create: ComponentAction<CreateIdentityProviderRequestContentPrivate, IdentityProvider>;
+  backButton?: SsoProviderCreateBackButton;
+  onPrevious?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
+  onNext?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
+}
+
+export interface UseSsoProviderCreateOptions {
+  create?: SsoProviderCreateProps['create'];
+  customMessages?: SsoProviderCreateProps['customMessages'];
 }

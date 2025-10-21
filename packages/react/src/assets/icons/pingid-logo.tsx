@@ -1,28 +1,28 @@
-import { OktaLogoSvg } from '@auth0-web-ui-components/core';
+import { PingIdLogoSvg } from '@auth0-web-ui-components/core';
 import React from 'react';
 
-export interface OktaLogoProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+export interface PingIdProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   width?: number | string;
   height?: number | string;
   title?: string;
 }
 
 /**
- * OktaLogo component renders the Okta logo.
+ * PingIdLogo component renders the PingId logo.
  *
  * @param props - Props including width, height, title, and standard img attributes.
- * @returns A JSX img element of the Okta logo.
+ * @returns A JSX img element of the PingId logo.
  */
-const OktaLogo: React.FC<OktaLogoProps> = ({
+const PingIdLogo: React.FC<PingIdProps> = ({
   width = 17,
   height = 17,
-  title = 'Okta logo',
+  title = 'PingId logo',
   className,
   ...props
 }) => {
   return (
     <img
-      src={OktaLogoSvg}
+      src={PingIdLogoSvg}
       alt={title}
       width={width}
       height={height}
@@ -32,4 +32,4 @@ const OktaLogo: React.FC<OktaLogoProps> = ({
   );
 };
 
-export default React.memo(OktaLogo);
+export default React.memo(PingIdLogo);

@@ -1,12 +1,13 @@
 'use client';
 
 import { SsoProviderTable, type IdentityProvider } from '@auth0-web-ui-components/react';
+import { useRouter } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 
 export default function IdpManagementPage() {
+  const router = useRouter();
   const handleCreate = useCallback((): void => {
-    console.log('Navigate to create SSO provider page');
-    // router.push('/idp-management/create');
+    router.push('/sso-provider-create');
   }, []);
 
   const handleEdit = useCallback((provider: IdentityProvider): void => {

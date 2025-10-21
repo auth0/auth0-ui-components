@@ -38,3 +38,5 @@ export {
 export * from './types';
 
 export * from './services/my-org';
+
+export * from './assets/icons';

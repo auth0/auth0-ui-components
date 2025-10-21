@@ -1,35 +1,30 @@
 'use client';
 
 import * as React from 'react';
-import type { z } from 'zod';
 
-import { useFormErrors } from '../../hooks/use-form-errors';
 import { cn } from '../../lib/theme-utils';
 
 import { Card, CardContent } from './card';
 import { FormActions } from './form-actions';
+import { Spinner } from './spinner';
 import { WizardStepper } from './wizard-stepper';
 
-export interface StepFormActions<WizardData> {
+export interface StepFormActions {
   showPrevious?: boolean;
   showNext?: boolean;
-  onPreviousAction?: (stepId: string, data: WizardData) => Promise<void> | void;
-  onNextAction?: (stepId: string, data: WizardData) => Promise<void> | void;
+  onPreviousAction?: (stepId: string) => Promise<boolean> | boolean;
+  onNextAction?: (stepId: string) => Promise<boolean> | boolean;
 }
 
-export interface WizardStep<WizardData, StepSchema = z.ZodSchema> {
+export interface WizardStep {
   id: string;
   title: string;
   description?: string;
-  schema?: StepSchema;
-  content: React.ComponentType<StepProps<WizardData>>;
-  actions?: StepFormActions<WizardData>;
+  content: React.ComponentType<StepProps>;
+  actions?: StepFormActions;
 }
 
-export interface StepProps<WizardData> {
-  wizardData: WizardData;
-  errors: Record<string, string>;
-  onChange: (name: string, value: unknown) => void;
+export interface StepProps {
   onPrevious?: () => void;
   onNext?: () => void;
   isLoading?: boolean;
@@ -41,87 +36,64 @@ export interface FormActionLabels {
   completeButtonLabel?: string;
 }
 
-export interface WizardProps<WizardData> {
-  defaultData: WizardData;
-  steps: WizardStep<WizardData>[];
+export interface WizardProps {
+  steps: WizardStep[];
   initialStep?: number;
-  onComplete?: (data: WizardData) => Promise<void> | void;
+  onComplete?: () => Promise<void> | void;
   className?: string;
   formActionLabels?: FormActionLabels;
   hideStepperNumbers?: boolean;
+  isLoading?: boolean;
 }
 
-function Wizard<WizardData>({
-  defaultData,
+function Wizard({
   steps,
   initialStep = 0,
   onComplete,
   className,
   formActionLabels,
   hideStepperNumbers = false,
-}: WizardProps<WizardData>) {
+  isLoading = false,
+}: WizardProps) {
   const [activeStep, setActiveStep] = React.useState(initialStep);
-  const [wizardData, setWizardData] = React.useState<WizardData>(defaultData);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const { errors, validateData, clearAllErrors, updateFieldError } = useFormErrors();
 
   const currentStepConfig = steps[activeStep];
   const isFirstStep = activeStep === 0;
   const isLastStep = activeStep === steps.length - 1;
 
-  const handleChange = React.useCallback(
-    (name: string, value: unknown) => {
-      setWizardData((prev) => ({ ...prev, [name]: value }));
-      updateFieldError(name);
-    },
-    [updateFieldError],
-  );
-
-  const validateCurrentStep = React.useCallback(async (): Promise<boolean> => {
-    const step = steps[activeStep];
-    if (!step.schema) return true;
-    const { isValid } = validateData(step.schema, wizardData);
-    return isValid;
-  }, [activeStep, steps, wizardData, validateData]);
-
   const handleNext = React.useCallback(async () => {
-    setIsLoading(true);
-    clearAllErrors();
+    if (isLoading) return;
 
-    try {
-      const isValid = await validateCurrentStep();
-      if (!isValid) return;
+    const step = steps[activeStep];
 
-      const step = steps[activeStep];
-      if (step.actions?.onNextAction) {
-        await step.actions.onNextAction(step.id, wizardData);
+    if (step.actions?.onNextAction) {
+      const canProceed = await step.actions.onNextAction(step.id);
+      if (!canProceed) {
+        return;
       }
-
-      if (isLastStep) {
-        onComplete?.(wizardData);
-      } else {
-        setActiveStep((prev) => prev + 1);
-      }
-    } finally {
-      setIsLoading(false);
     }
-  }, [activeStep, isLastStep, steps, wizardData, onComplete, validateCurrentStep, clearAllErrors]);
+
+    if (isLastStep) {
+      await onComplete?.();
+    } else {
+      setActiveStep((prev) => prev + 1);
+    }
+  }, [activeStep, isLastStep, steps, onComplete, isLoading]);
 
   const handlePrevious = React.useCallback(async () => {
     if (isFirstStep) return;
-    setIsLoading(true);
-    clearAllErrors();
 
-    try {
-      const step = steps[activeStep];
-      if (step.actions?.onPreviousAction) {
-        await step.actions.onPreviousAction(step.id, wizardData);
+    const step = steps[activeStep];
+
+    if (step.actions?.onPreviousAction) {
+      const canProceed = await step.actions.onPreviousAction(step.id);
+      if (!canProceed) {
+        return;
       }
-      setActiveStep((prev) => prev - 1);
-    } finally {
-      setIsLoading(false);
     }
-  }, [activeStep, isFirstStep, steps, wizardData, clearAllErrors]);
+
+    setActiveStep((prev) => prev - 1);
+  }, [activeStep, isFirstStep, steps]);
 
   const CurrentStepComponent = currentStepConfig.content;
   const showPrevious = currentStepConfig.actions?.showPrevious !== false && !isFirstStep;
@@ -139,15 +111,19 @@ function Wizard<WizardData>({
       <WizardStepper steps={steps} currentStep={activeStep} hideNumbers={hideStepperNumbers} />
 
       <Card>
-        <CardContent className="p-6">
-          <CurrentStepComponent
-            wizardData={wizardData}
-            errors={errors}
-            onChange={handleChange}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-            isLoading={isLoading}
-          />
+        <CardContent className="p-6 relative">
+          {isLoading && (
+            <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10">
+              <Spinner />
+            </div>
+          )}
+          <div className={cn(isLoading && 'opacity-50 pointer-events-none')}>
+            <CurrentStepComponent
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+              isLoading={isLoading}
+            />
+          </div>
         </CardContent>
       </Card>
 

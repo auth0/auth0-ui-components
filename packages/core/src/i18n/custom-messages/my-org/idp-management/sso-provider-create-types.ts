@@ -162,8 +162,8 @@ export interface ProviderConfigureFieldsMessages {
     };
   };
 
-  'ping-federate'?: {
-    meta_data_url?: {
+  pingfederate?: {
+    ping_federate_baseurl?: {
       label?: string;
       placeholder?: string;
       helper_text?: string;
@@ -260,7 +260,7 @@ export interface ProviderConfigureFieldsMessages {
   };
 
   waad?: {
-    domain?: {
+    tenant_domain?: {
       label?: string;
       placeholder?: string;
       helper_text?: string;
@@ -301,4 +301,18 @@ export interface ProviderConfigureMessages {
   description?: string;
   guided_setup_button_text?: string;
   fields?: ProviderConfigureFieldsMessages;
+}
+
+export interface SsoProviderCreateMessages {
+  header?: {
+    title?: string;
+    back_button_text?: string;
+  };
+  provider_select?: ProviderSelectMessages;
+  provider_details?: ProviderDetailsMessages;
+  provider_configure?: ProviderConfigureMessages;
+  notifications?: {
+    general_error?: string;
+    provider_create_success?: string;
+  };
 }

@@ -1,56 +1,76 @@
+import { STRATEGIES } from '@auth0-web-ui-components/core';
+import * as React from 'react';
+
 import { cn } from '../../../../../lib/theme-utils';
 import type { ProviderConfigureFieldsProps } from '../../../../../types';
-import { Form } from '../../../../ui/form';
 
-import AdfsProviderForm from './adfs-sso-configure-form';
-import GoogleAppsProviderForm from './google-apps-sso-configure-form';
-import OidcProviderForm from './oidc-sso-configure-form';
-import OktaProviderForm from './okta-sso-configure-form';
-import PingFederateProviderForm from './ping-federate-sso-configure-form';
-import SamlpProviderForm from './samlp-sso-configure-form';
-import WaadProviderForm from './waad-sso-configure-form';
+import { AdfsProviderForm, type AdfsConfigureFormHandle } from './adfs-sso-configure-form';
+import {
+  GoogleAppsProviderForm,
+  type GoogleAppsConfigureFormHandle,
+} from './google-apps-sso-configure-form';
+import { OidcProviderForm, type OidcConfigureFormHandle } from './oidc-sso-configure-form';
+import { OktaProviderForm, type OktaConfigureFormHandle } from './okta-sso-configure-form';
+import {
+  PingFederateProviderForm,
+  type PingFederateConfigureFormHandle,
+} from './ping-federate-sso-configure-form';
+import { SamlpProviderForm, type SamlpConfigureFormHandle } from './samlp-sso-configure-form';
+import { WaadProviderForm, type WaadConfigureFormHandle } from './waad-sso-configure-form';
 
-export function ProviderConfigureFields({
-  form,
-  readOnly = false,
-  customMessages = {},
-  className,
-  strategy,
-}: ProviderConfigureFieldsProps) {
+export type ProviderConfigureFormHandle =
+  | OktaConfigureFormHandle
+  | GoogleAppsConfigureFormHandle
+  | WaadConfigureFormHandle
+  | PingFederateConfigureFormHandle
+  | AdfsConfigureFormHandle
+  | SamlpConfigureFormHandle
+  | OidcConfigureFormHandle;
+
+export const ProviderConfigureFields = React.forwardRef<
+  ProviderConfigureFormHandle,
+  ProviderConfigureFieldsProps
+>(function ProviderConfigureFields({ strategy, className, ...props }, ref) {
   const renderProviderForm = () => {
     switch (strategy) {
-      case 'okta':
-        return <OktaProviderForm form={form} readOnly={readOnly} customMessages={customMessages} />;
-      case 'google-apps':
+      case STRATEGIES.OKTA:
         return (
-          <GoogleAppsProviderForm form={form} readOnly={readOnly} customMessages={customMessages} />
+          <OktaProviderForm ref={ref as React.ForwardedRef<OktaConfigureFormHandle>} {...props} />
         );
-      case 'waad':
-        return <WaadProviderForm form={form} readOnly={readOnly} customMessages={customMessages} />;
-      case 'ping-federate':
+      case STRATEGIES.GOOGLE_APPS:
         return (
-          <PingFederateProviderForm
-            form={form}
-            readOnly={readOnly}
-            customMessages={customMessages}
+          <GoogleAppsProviderForm
+            ref={ref as React.ForwardedRef<GoogleAppsConfigureFormHandle>}
+            {...props}
           />
         );
-      case 'adfs':
-        return <AdfsProviderForm form={form} readOnly={readOnly} customMessages={customMessages} />;
-      case 'samlp':
+      case STRATEGIES.WAAD:
         return (
-          <SamlpProviderForm form={form} readOnly={readOnly} customMessages={customMessages} />
+          <WaadProviderForm ref={ref as React.ForwardedRef<WaadConfigureFormHandle>} {...props} />
         );
-      case 'oidc':
-        return <OidcProviderForm form={form} readOnly={readOnly} customMessages={customMessages} />;
+      case STRATEGIES.PINGFEDERATE:
+        return (
+          <PingFederateProviderForm
+            ref={ref as React.ForwardedRef<PingFederateConfigureFormHandle>}
+            {...props}
+          />
+        );
+      case STRATEGIES.ADFS:
+        return (
+          <AdfsProviderForm ref={ref as React.ForwardedRef<AdfsConfigureFormHandle>} {...props} />
+        );
+      case STRATEGIES.SAMLP:
+        return (
+          <SamlpProviderForm ref={ref as React.ForwardedRef<SamlpConfigureFormHandle>} {...props} />
+        );
+      case STRATEGIES.OIDC:
+        return (
+          <OidcProviderForm ref={ref as React.ForwardedRef<OidcConfigureFormHandle>} {...props} />
+        );
       default:
         return null;
     }
   };
 
-  return (
-    <div className={cn('space-y-6', className)}>
-      <Form {...form}>{renderProviderForm()}</Form>
-    </div>
-  );
-}
+  return <div className={cn('space-y-6', className)}>{renderProviderForm()}</div>;
+});

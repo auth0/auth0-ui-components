@@ -1,0 +1,13 @@
+<svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="PingId logo">
+  <title>PingId logo</title>
+  <g clip-path="url(#clip0_3877_18857)">
+    <path d="M16.1665 0.5H0.166504V16.5H16.1665V0.5Z" fill="black"/>
+    <path d="M16.1665 0.5H0.166504V16.5H16.1665V0.5Z" fill="white"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M16.1665 0.5H0.166504V16.5H16.1665V0.5ZM4.36647 6.676H2.12646V8.916H4.36647V6.676ZM5.4465 6.676H8.9665C10.9665 6.676 12.2465 8.42 12.2465 10.66C12.2465 12.9 10.9665 14.676 8.9665 14.676H5.4465V6.676ZM7.60647 8.308C9.36647 8.308 9.92647 8.9 9.92647 10.74C9.92647 12.58 9.36647 13.188 7.60647 13.188V8.308ZM2.12646 9.87597H4.36647V14.676H2.12646V9.87597Z" fill="#B8232F"/>
+  </g>
+  <defs>
+    <clipPath id="clip0_3877_18857">
+      <rect width="16" height="16" fill="white" transform="translate(0.166504 0.5)"/>
+    </clipPath>
+  </defs>
+</svg>

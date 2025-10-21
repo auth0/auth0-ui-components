@@ -1,16 +1,9 @@
-import { MyOrgClient, type Auth0MyOrg } from 'auth0-myorg-sdk';
+import { MyOrgClient } from 'auth0-myorg-sdk';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 import { auth0Config } from '@/config/auth';
 import { auth0 } from '@/lib/auth0';
-
-export type UpdateOrganizationDetailsRequestContent =
-  Auth0MyOrg.UpdateOrganizationDetailsRequestContent;
-
-export type CreateIdentityProviderRequestContent = Auth0MyOrg.CreateIdentityProviderRequestContent;
-
-export type UpdateIdentityProviderRequestContent = Auth0MyOrg.UpdateIdentityProviderRequestContent;
 
 const createErrorResponse = (message: string, status: number, details?: string) => {
   return NextResponse.json(details ? { error: message, details } : { error: message }, { status });
@@ -18,146 +11,136 @@ const createErrorResponse = (message: string, status: number, details?: string) 
 
 const createMyOrgClient = async (): Promise<MyOrgClient> => {
   const { token } = (await auth0.getAccessToken()) || {};
-  if (!token) {
-    throw new Error('No access token available');
-  }
-
-  return new MyOrgClient({
-    domain: auth0Config.issuerBaseUrl,
-    token: token,
-  });
+  if (!token) throw new Error('No access token available');
+  return new MyOrgClient({ domain: auth0Config.issuerBaseUrl, token: token });
 };
 
-interface RouteConfig {
-  method: string;
-  pattern: RegExp;
-  handler: (
-    myOrgClient: MyOrgClient,
-    body?: Record<string, unknown>,
-    pathParams?: Record<string, string>,
-  ) => Promise<unknown>;
+interface SdkAction {
+  sdkMethod: string;
+  hasBody?: boolean;
+  isVoid?: boolean;
 }
 
-const routes: RouteConfig[] = [
-  // My Org - Organization Details
-  {
-    method: 'GET',
-    pattern: /^\/my-org\/details$/,
-    handler: async (myOrgClient) => {
-      return await myOrgClient.organizationDetails.get();
-    },
-  },
-  {
-    method: 'PATCH',
-    pattern: /^\/my-org\/details$/,
-    handler: async (myOrgClient, body) => {
-      return await myOrgClient.organizationDetails.update(
-        body as UpdateOrganizationDetailsRequestContent,
-      );
-    },
-  },
+type RestAction = Partial<SdkAction> & { withId?: string; withoutId?: string };
 
-  // My Org - Identity Providers
+interface SdkRoute {
+  basePath: string;
+  sdkPath: string[];
+  actions: {
+    [method in 'GET' | 'POST' | 'PATCH' | 'DELETE']?: RestAction;
+  };
+  specialActions?: Record<string, SdkAction & { method: string }>;
+}
+
+const sdkRoutes: SdkRoute[] = [
   {
-    method: 'GET',
-    pattern: /^\/my-org\/identity-providers\/(?<idpId>[^/]+)$/,
-    handler: async (myOrgClient, body, pathParams) => {
-      return await myOrgClient.organization.identityProviders.get(pathParams!.idpId);
+    basePath: '/my-org/details',
+    sdkPath: ['organizationDetails'],
+    actions: {
+      GET: { withoutId: 'get' },
+      PATCH: { withoutId: 'update', hasBody: true },
     },
   },
   {
-    method: 'PATCH',
-    pattern: /^\/my-org\/identity-providers\/(?<idpId>[^/]+)$/,
-    handler: async (myOrgClient, body, pathParams) => {
-      return await myOrgClient.organization.identityProviders.update(
-        pathParams!.idpId,
-        body as UpdateIdentityProviderRequestContent,
-      );
+    basePath: '/my-org/identity-providers',
+    sdkPath: ['organization', 'identityProviders'],
+    actions: {
+      GET: { withId: 'get', withoutId: 'list' },
+      POST: { withId: 'create', withoutId: 'create', hasBody: true },
+      PATCH: { withId: 'update', hasBody: true },
+      DELETE: { withId: 'delete', isVoid: true },
     },
-  },
-  {
-    method: 'DELETE',
-    pattern: /^\/my-org\/identity-providers\/(?<idpId>[^/]+)$/,
-    handler: async (myOrgClient, body, pathParams) => {
-      return await myOrgClient.organization.identityProviders.delete(pathParams!.idpId);
-    },
-  },
-  {
-    method: 'POST',
-    pattern: /^\/my-org\/identity-providers\/(?<idpId>[^/]+)\/detach$/,
-    handler: async (myOrgClient, body, pathParams) => {
-      return await myOrgClient.organization.identityProviders.detach(pathParams!.idpId);
-    },
-  },
-  {
-    method: 'GET',
-    pattern: /^\/my-org\/identity-providers$/,
-    handler: async (myOrgClient) => {
-      return await myOrgClient.organization.identityProviders.list();
-    },
-  },
-  {
-    method: 'POST',
-    pattern: /^\/my-org\/identity-providers$/,
-    handler: async (myOrgClient, body) => {
-      return await myOrgClient.organization.identityProviders.create(
-        body as unknown as CreateIdentityProviderRequestContent,
-      );
+    specialActions: {
+      detach: { method: 'POST', sdkMethod: 'detach', isVoid: true },
     },
   },
 ];
 
-const extractPathParams = (match: RegExpMatchArray): Record<string, string> => {
-  return match.groups || {};
-};
-
 const proxyHandler = async (req: NextRequest) => {
   try {
-    const path = req.nextUrl.pathname.substring('/api'.length);
-    const method = req.method;
-
     const session = await auth0.getSession();
     if (!session) {
       return createErrorResponse('Not authenticated', 401, 'No user session found.');
     }
 
-    const route = routes.find((r) => {
-      return r.method === method && r.pattern.test(path);
-    });
+    const path = req.nextUrl.pathname.substring('/api'.length);
+    const method = (req.method ?? 'GET') as keyof SdkRoute['actions'];
 
+    const route = sdkRoutes.find((r) => path.startsWith(r.basePath));
     if (!route) {
       return createErrorResponse('Route not found', 404, `No handler for ${method} ${path}`);
     }
 
-    const myOrgClient = await createMyOrgClient();
-
-    let body: Record<string, unknown> | undefined;
-    if (['POST', 'PUT', 'PATCH'].includes(method)) {
-      body = await req.json();
+    const remainingPath = path.substring(route.basePath.length);
+    const pathSegments = remainingPath.split('/').filter(Boolean);
+    const actionSegment = pathSegments.length > 1 ? pathSegments[1] : undefined;
+    const specialAction = actionSegment ? route.specialActions?.[actionSegment] : undefined;
+    let sdkAction: SdkAction | undefined;
+    const id = specialAction ? pathSegments[0] : pathSegments[0] || undefined;
+    if (specialAction && method === specialAction.method) {
+      sdkAction = specialAction;
+    } else {
+      const actionMap = route.actions[method];
+      if (actionMap) {
+        const sdkMethod = id ? actionMap.withId : actionMap.withoutId;
+        if (sdkMethod) sdkAction = { ...actionMap, sdkMethod };
+      }
+    }
+    if (!sdkAction?.sdkMethod) {
+      return createErrorResponse('Method not supported for this route', 405);
     }
 
-    const match = path.match(route.pattern);
-    const pathParams = match ? extractPathParams(match) : {};
+    const myOrgClient = await createMyOrgClient();
 
-    const result = await route.handler(myOrgClient, body, pathParams);
+    const targetObject = route.sdkPath.reduce(
+      (obj: Record<string, unknown> | null, key: string): Record<string, unknown> | null => {
+        if (!obj) {
+          return null;
+        }
+        const nextObj = obj[key];
+        return nextObj && typeof nextObj === 'object' ? (nextObj as Record<string, unknown>) : null;
+      },
+      myOrgClient as unknown as Record<string, unknown>,
+    );
+
+    if (!targetObject) {
+      return createErrorResponse(
+        'Invalid SDK path',
+        500,
+        `Could not resolve path: ${route.sdkPath.join('.')}`,
+      );
+    }
+
+    const sdkMethod = targetObject[sdkAction.sdkMethod];
+    if (typeof sdkMethod !== 'function') {
+      return createErrorResponse(
+        'Method not found on SDK object',
+        404,
+        `Action "${sdkAction.sdkMethod}" is not a function.`,
+      );
+    }
+
+    const args: (string | object)[] = id ? [id] : [];
+    if (sdkAction.hasBody) {
+      const text = await req.text();
+      if (text) args.push(JSON.parse(text));
+    }
+
+    const result = await sdkMethod.apply(targetObject, args);
+
+    if (sdkAction.isVoid) {
+      return new NextResponse(null, { status: 204 });
+    }
     return NextResponse.json(result);
   } catch (error) {
     console.error('Proxy error:', error);
-
     if (error instanceof Error) {
       if (error.message.includes('No access token')) {
         return createErrorResponse('Unauthorized', 401, 'Failed to obtain access token.');
       }
-      if (error.message.includes('No current session')) {
-        return createErrorResponse('Authentication required', 401, 'Please log in again.');
-      }
+      return createErrorResponse('Internal proxy error', 500, error.message);
     }
-
-    return createErrorResponse(
-      'Internal proxy error',
-      500,
-      error instanceof Error ? error.message : 'An unknown error occurred.',
-    );
+    return createErrorResponse('Internal proxy error', 500, 'An unknown error occurred.');
   }
 };
 

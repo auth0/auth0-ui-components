@@ -1,5 +1,4 @@
 import {
-  createStringSchema,
   createBooleanSchema,
   createFieldSchema,
   COMMON_FIELD_CONFIGS,
@@ -7,6 +6,7 @@ import {
   type BooleanFieldOptions,
 } from '@core/schemas/common';
 import type { IdpStrategy } from '@core/services';
+import { AVAILABLE_STRATEGY_LIST } from '@core/services';
 import { z } from 'zod';
 
 import type {
@@ -21,6 +21,7 @@ interface OktaOptions {
   client_id?: FieldOptions;
   client_secret?: FieldOptions;
   icon_url?: FieldOptions;
+  callback_url?: FieldOptions;
 }
 
 interface AdfsOptions {
@@ -35,6 +36,7 @@ interface GoogleAppsOptions {
   client_id?: FieldOptions;
   client_secret?: FieldOptions;
   icon_url?: FieldOptions;
+  callback_url?: FieldOptions;
 }
 
 interface OidcOptions {
@@ -45,12 +47,12 @@ interface OidcOptions {
 }
 
 interface PingFederateOptions {
+  pingFederateBaseUrl?: FieldOptions;
   signatureAlgorithm?: FieldOptions;
   digestAlgorithm?: FieldOptions;
   signSAMLRequest?: BooleanFieldOptions;
-  metadataUrl?: FieldOptions;
-  cert?: FieldOptions;
   signingCert?: FieldOptions;
+  cert?: FieldOptions;
   icon_url?: FieldOptions;
   idpInitiated?: FieldOptions;
 }
@@ -69,10 +71,11 @@ interface SamlpOptions {
 }
 
 interface WaadOptions {
-  domain?: FieldOptions;
+  tenant_domain?: FieldOptions;
   client_id?: FieldOptions;
   client_secret?: FieldOptions;
   icon_url?: FieldOptions;
+  callback_url?: FieldOptions;
 }
 
 const STRATEGY_BUILDERS = {
@@ -80,60 +83,77 @@ const STRATEGY_BUILDERS = {
     z.object({
       domain: createFieldSchema(
         COMMON_FIELD_CONFIGS.domain,
-        options.domain,
+        { ...options.domain, required: true },
         'Please enter a valid Okta domain',
       ),
-      client_id: createFieldSchema(COMMON_FIELD_CONFIGS.client_id, options.client_id),
-      client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, options.client_secret),
+      client_id: createFieldSchema(COMMON_FIELD_CONFIGS.client_id, {
+        ...options.client_id,
+        required: true,
+      }),
+      client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, {
+        ...options.client_secret,
+        required: true,
+      }),
       icon_url: createFieldSchema(COMMON_FIELD_CONFIGS.icon_url, {
         ...options.icon_url,
         required: false,
       }),
       callback_url: createFieldSchema(COMMON_FIELD_CONFIGS.callback_url, {
-        ...options.icon_url,
+        ...options.callback_url,
         required: false,
       }),
     }),
 
   adfs: (options: AdfsOptions = {}) =>
-    z.object({
-      meta_data_source: z
-        .string({
-          required_error: 'Please enter a metadata source',
-        })
-        .min(1, 'Metadata source is required'),
-      meta_data_location_url: createFieldSchema(
-        COMMON_FIELD_CONFIGS.url,
-        options.meta_data_location_url,
-        'Please enter a valid metadata location URL',
-      ),
-      adfs_server: createFieldSchema(
-        COMMON_FIELD_CONFIGS.url,
-        options.adfs_server,
-        'Please enter a valid ADFS server URL',
-      ),
-      fedMetadataXml: createFieldSchema(
-        COMMON_FIELD_CONFIGS.metadata,
-        options.fedMetadataXml,
-        'Please enter valid Federation Metadata XML',
-      ),
-    }),
+    z
+      .object({
+        meta_data_source: z
+          .string({
+            required_error: 'Please enter a metadata source',
+          })
+          .min(1, 'Metadata source is required'),
+        meta_data_location_url: createFieldSchema(
+          COMMON_FIELD_CONFIGS.url,
+          options.meta_data_location_url,
+          'Please enter a valid metadata location URL',
+        ),
+        adfs_server: createFieldSchema(
+          COMMON_FIELD_CONFIGS.url,
+          { ...options.adfs_server, required: false },
+          'Please enter a valid ADFS server URL',
+        ),
+        fedMetadataXml: createFieldSchema(
+          COMMON_FIELD_CONFIGS.metadata,
+          { ...options.fedMetadataXml, required: false },
+          'Please enter valid Federation Metadata XML',
+        ),
+      })
+      .refine((data) => data.adfs_server || data.fedMetadataXml, {
+        message: 'Either ADFS server URL or Federation Metadata XML is required',
+        path: ['adfs_server'],
+      }),
 
   'google-apps': (options: GoogleAppsOptions = {}) =>
     z.object({
       domain: createFieldSchema(
         COMMON_FIELD_CONFIGS.domain,
-        options.domain,
+        { ...options.domain, required: true },
         'Please enter a valid Google Workspace domain',
       ),
-      client_id: createFieldSchema(COMMON_FIELD_CONFIGS.client_id, options.client_id),
-      client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, options.client_secret),
+      client_id: createFieldSchema(COMMON_FIELD_CONFIGS.client_id, {
+        ...options.client_id,
+        required: true,
+      }),
+      client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, {
+        ...options.client_secret,
+        required: true,
+      }),
       icon_url: createFieldSchema(COMMON_FIELD_CONFIGS.icon_url, {
         ...options.icon_url,
         required: false,
       }),
       callback_url: createFieldSchema(COMMON_FIELD_CONFIGS.callback_url, {
-        ...options.icon_url,
+        ...options.callback_url,
         required: false,
       }),
     }),
@@ -142,52 +162,55 @@ const STRATEGY_BUILDERS = {
     z.object({
       type: createFieldSchema(
         COMMON_FIELD_CONFIGS.algorithm,
-        { ...options.type, required: false },
+        { ...options.type, required: true },
         'Please enter a valid type',
       ),
-      client_id: createFieldSchema(COMMON_FIELD_CONFIGS.client_id, options.client_id),
+      client_id: createFieldSchema(COMMON_FIELD_CONFIGS.client_id, {
+        ...options.client_id,
+        required: true,
+      }),
       client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, {
         ...options.client_secret,
-        required: false,
+        required: true,
       }),
       discovery_url: createFieldSchema(
         COMMON_FIELD_CONFIGS.url,
-        options.discovery_url,
+        { ...options.discovery_url, required: true },
         'Please enter a valid discovery URL',
       ),
     }),
 
-  'ping-federate': (options: PingFederateOptions = {}) =>
+  pingfederate: (options: PingFederateOptions = {}) =>
     z.object({
+      pingFederateBaseUrl: createFieldSchema(
+        COMMON_FIELD_CONFIGS.url,
+        { ...options.pingFederateBaseUrl, required: true },
+        'Please enter a valid PingFederate base URL',
+      ),
       signatureAlgorithm: createFieldSchema(
         COMMON_FIELD_CONFIGS.algorithm,
-        { ...options.signatureAlgorithm, required: false },
+        { ...options.signatureAlgorithm, required: true },
         'Please enter a valid signature algorithm',
       ),
       digestAlgorithm: createFieldSchema(
         COMMON_FIELD_CONFIGS.algorithm,
-        { ...options.digestAlgorithm, required: false },
+        { ...options.digestAlgorithm, required: true },
         'Please enter a valid digest algorithm',
       ),
       signSAMLRequest: createBooleanSchema({
-        required: options.signSAMLRequest?.required ?? false,
+        required: true,
         errorMessage:
-          options.signSAMLRequest?.errorMessage ?? 'Invalid SAML request signing option',
+          options.signSAMLRequest?.errorMessage ?? 'SAML request signing option is required',
       }),
-      metadataUrl: createFieldSchema(
-        COMMON_FIELD_CONFIGS.url,
-        { ...options.metadataUrl, required: false },
-        'Please enter a valid metadata URL',
+      signingCert: createFieldSchema(
+        COMMON_FIELD_CONFIGS.certificate,
+        { ...options.signingCert, required: true },
+        'Please enter a valid signing certificate',
       ),
       cert: createFieldSchema(COMMON_FIELD_CONFIGS.certificate, {
         ...options.cert,
         required: false,
       }),
-      signingCert: createFieldSchema(
-        COMMON_FIELD_CONFIGS.certificate,
-        { ...options.signingCert, required: false },
-        'Please enter a valid signing certificate',
-      ),
       idpInitiated: z
         .object({
           enabled: z.boolean().optional(),
@@ -230,9 +253,9 @@ const STRATEGY_BUILDERS = {
         'Please enter a valid protocol binding',
       ),
       signSAMLRequest: createBooleanSchema({
-        required: options.signSAMLRequest?.required ?? false,
+        required: true,
         errorMessage:
-          options.signSAMLRequest?.errorMessage ?? 'Invalid SAML request signing option',
+          options.signSAMLRequest?.errorMessage ?? 'SAML request signing option is required',
       }),
       bindingMethod: createFieldSchema(
         COMMON_FIELD_CONFIGS.algorithm,
@@ -241,12 +264,12 @@ const STRATEGY_BUILDERS = {
       ),
       metadataUrl: createFieldSchema(
         COMMON_FIELD_CONFIGS.url,
-        { ...options.metadataUrl, required: false },
+        { ...options.metadataUrl, required: true },
         'Please enter a valid metadata URL',
       ),
       cert: createFieldSchema(COMMON_FIELD_CONFIGS.certificate, {
         ...options.cert,
-        required: false,
+        required: true,
       }),
       idpInitiated: z
         .object({
@@ -264,19 +287,25 @@ const STRATEGY_BUILDERS = {
 
   waad: (options: WaadOptions = {}) =>
     z.object({
-      domain: createFieldSchema(
+      tenant_domain: createFieldSchema(
         COMMON_FIELD_CONFIGS.domain,
-        options.domain,
-        'Please enter a valid Azure AD domain',
+        { ...options.tenant_domain, required: true },
+        'Please enter a valid Azure AD tenant domain',
       ),
-      client_id: createFieldSchema(COMMON_FIELD_CONFIGS.client_id, options.client_id),
-      client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, options.client_secret),
+      client_id: createFieldSchema(COMMON_FIELD_CONFIGS.client_id, {
+        ...options.client_id,
+        required: true,
+      }),
+      client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, {
+        ...options.client_secret,
+        required: true,
+      }),
       icon_url: createFieldSchema(COMMON_FIELD_CONFIGS.icon_url, {
         ...options.icon_url,
         required: false,
       }),
       callback_url: createFieldSchema(COMMON_FIELD_CONFIGS.callback_url, {
-        ...options.icon_url,
+        ...options.callback_url,
         required: false,
       }),
     }),
@@ -285,15 +314,14 @@ const STRATEGY_BUILDERS = {
 /**
  * Creates a schema for Step 1: Provider Selection
  */
+
 export const createProviderSelectionSchema = (options: ProviderSelectionSchema = {}) => {
   const { strategy = {} } = options;
-
   return z.object({
-    strategy: z
-      .string({
-        required_error: strategy.errorMessage || 'Please select a provider strategy',
-      })
-      .min(1, 'Provider strategy is required'),
+    strategy: z.enum(AVAILABLE_STRATEGY_LIST as [IdpStrategy, ...IdpStrategy[]], {
+      required_error: strategy.errorMessage || 'Please select a provider strategy',
+      invalid_type_error: strategy.errorMessage || 'Please select a valid provider strategy',
+    }),
   });
 };
 
@@ -304,20 +332,24 @@ export const createProviderDetailsSchema = (options: ProviderDetailsSchema = {})
   const { name = {}, displayName = {} } = options;
 
   return z.object({
-    name: createStringSchema({
-      required: name.required ?? true,
-      regex: name.regex,
-      errorMessage: name.errorMessage || 'Please enter a valid provider name',
-      minLength: name.minLength || 1,
-      maxLength: name.maxLength || 100,
-    }),
-    display_name: createStringSchema({
-      required: displayName.required ?? true,
-      regex: displayName.regex,
-      errorMessage: displayName.errorMessage || 'Please enter a valid display name',
-      minLength: displayName.minLength || 1,
-      maxLength: displayName.maxLength || 100,
-    }),
+    name: z
+      .string({
+        required_error: name.errorMessage || 'Please enter a valid provider name',
+      })
+      .min(1, 'Provider name is required')
+      .regex(
+        name.regex || /^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$/,
+        "The name of the connection. Must start and end with an alphanumeric character and can only contain alphanumeric characters and '-'. Max length 128",
+      ),
+    display_name: z
+      .string({
+        required_error: displayName.errorMessage || 'Please enter a valid display name',
+      })
+      .min(1, 'Display name is required')
+      .regex(
+        displayName.regex || /.*/,
+        displayName.errorMessage || 'Please enter a valid display name',
+      ),
   });
 };
 
@@ -326,7 +358,7 @@ type StrategySchemaMap = {
   adfs: ReturnType<typeof STRATEGY_BUILDERS.adfs>;
   'google-apps': ReturnType<(typeof STRATEGY_BUILDERS)['google-apps']>;
   oidc: ReturnType<typeof STRATEGY_BUILDERS.oidc>;
-  'ping-federate': ReturnType<(typeof STRATEGY_BUILDERS)['ping-federate']>;
+  pingfederate: ReturnType<(typeof STRATEGY_BUILDERS)['pingfederate']>;
   samlp: ReturnType<typeof STRATEGY_BUILDERS.samlp>;
   waad: ReturnType<typeof STRATEGY_BUILDERS.waad>;
 };
@@ -351,30 +383,13 @@ export function createProviderConfigureSchema<T extends IdpStrategy>(
 /**
  * Creates a complete schema for SSO provider form validation
  */
+/**
+ * Creates a complete schema for SSO provider form validation that combines all three steps
+ */
 export const createSsoProviderSchema = (options: SsoProviderSchema = {}) => {
-  const { name = {}, displayName = {}, strategy = {} } = options;
-
-  return z.object({
-    name: createStringSchema({
-      required: name.required ?? true,
-      regex: name.regex,
-      errorMessage: name.errorMessage || 'Please enter a valid provider name',
-      minLength: name.minLength || 1,
-      maxLength: name.maxLength || 100,
-    }),
-    display_name: createStringSchema({
-      required: displayName.required ?? true,
-      regex: displayName.regex,
-      errorMessage: displayName.errorMessage || 'Please enter a valid display name',
-      minLength: displayName.minLength || 1,
-      maxLength: displayName.maxLength || 100,
-    }),
-    strategy: z
-      .string({
-        required_error: strategy.errorMessage || 'Please select a provider strategy',
-      })
-      .min(1, 'Provider strategy is required'),
-  });
+  const selectionSchema = createProviderSelectionSchema(options);
+  const detailsSchema = createProviderDetailsSchema(options);
+  return selectionSchema.merge(detailsSchema);
 };
 
 export const providerSelectionSchema = createProviderSelectionSchema();
@@ -393,7 +408,7 @@ export type GoogleAppsConfigureFormValues = z.infer<
 >;
 export type OidcConfigureFormValues = z.infer<ReturnType<typeof STRATEGY_BUILDERS.oidc>>;
 export type PingFederateConfigureFormValues = z.infer<
-  ReturnType<(typeof STRATEGY_BUILDERS)['ping-federate']>
+  ReturnType<(typeof STRATEGY_BUILDERS)['pingfederate']>
 >;
 export type SamlpConfigureFormValues = z.infer<ReturnType<typeof STRATEGY_BUILDERS.samlp>>;
 export type WaadConfigureFormValues = z.infer<ReturnType<typeof STRATEGY_BUILDERS.waad>>;

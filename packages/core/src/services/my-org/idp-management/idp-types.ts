@@ -1,9 +1,20 @@
+import type {
+  ProviderDetailsFormValues,
+  ProviderConfigureFormValues,
+  ProviderSelectionFormValues,
+} from '@core/schemas';
 import type { Auth0MyOrg } from 'auth0-myorg-sdk';
 
 export type ListIdentityProvidersResponseContent = Auth0MyOrg.ListIdentityProvidersResponseContent;
 export type IdentityProvider = Auth0MyOrg.IdpKnown;
 export type DetachIdpProviderResponseContent = Auth0MyOrg.DetachIdpProviderResponseContent;
 export type CreateIdentityProviderRequestContent = Auth0MyOrg.CreateIdentityProviderRequestContent;
+export type CreateIdentityProviderResponseContent =
+  Auth0MyOrg.CreateIdentityProviderResponseContent;
+
+export type CreateIdentityProviderRequestContentPrivate = ProviderSelectionFormValues &
+  ProviderDetailsFormValues &
+  ProviderConfigureFormValues;
 export type UpdateIdentityProviderRequestContent = Auth0MyOrg.UpdateIdentityProviderRequestContent;
 export type UpdateIdentityProviderResponseContent =
   Auth0MyOrg.UpdateIdentityProviderResponseContent;
@@ -13,7 +24,7 @@ export type IdpStrategy =
   | 'google-apps'
   | 'oidc'
   | 'okta'
-  | 'ping-federate'
+  | 'pingfederate'
   | 'samlp'
   | 'waad';
 

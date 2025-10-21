@@ -135,7 +135,20 @@
       }
     },
     "create_sso_provider": {
-      "select_sso_provider": {
+      "steps": {
+        "one": "アイデンティティプロバイダー",
+        "two": "プロバイダー詳細",
+        "three": "プロバイダー設定"
+      },
+      "header": {
+        "title": "プロバイダーを追加",
+        "back_button_text": "シングルサインオンに戻る"
+      },
+      "notifications": {
+        "general_error": "リクエストの処理中に問題が発生しました。もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
+        "provider_create_success": "${providerName} が作成されました。"
+      },
+      "provider_select": {
         "title": "IDプロバイダーを選択",
         "description": "Auth0と統合する予定のIDプロバイダーを選択して、ステップバイステップの設定手順にアクセスしてください。"
       },
@@ -213,7 +226,7 @@
             }
           },
           "waad": {
-            "domain": {
+            "tenant_domain": {
               "label": "Microsoft Entra ID ドメイン",
               "placeholder": "your-entra-id-domain.com",
               "error": "有効な Microsoft Entra ID ドメインを入力してください"

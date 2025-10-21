@@ -167,7 +167,7 @@ export interface ProviderConfigureSchema {
     };
   };
 
-  'ping-federate'?: {
+  pingfederate?: {
     signatureAlgorithm?: {
       regex?: RegExp;
       errorMessage?: string;
@@ -320,24 +320,7 @@ export interface ProviderConfigureSchema {
   };
 }
 
-//TODO: to update once all the step components are done
-export interface SsoProviderSchema {
-  name?: {
-    regex?: RegExp;
-    errorMessage?: string;
-    minLength?: number;
-    maxLength?: number;
-    required?: boolean;
-  };
-  displayName?: {
-    regex?: RegExp;
-    errorMessage?: string;
-    minLength?: number;
-    maxLength?: number;
-    required?: boolean;
-  };
-  strategy?: {
-    required?: boolean;
-    errorMessage?: string;
-  };
-}
+export interface SsoProviderSchema
+  extends ProviderSelectionSchema,
+    ProviderDetailsSchema,
+    ProviderConfigureSchema {}
