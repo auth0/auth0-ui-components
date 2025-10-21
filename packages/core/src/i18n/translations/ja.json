@@ -426,6 +426,9 @@
             "delete_button_label": "削除"
           }
         }
+      },
+      "provider_details": {
+        "save_button_label": "保存"
       }
     },
     "delete_sso_provider": {

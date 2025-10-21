@@ -395,7 +395,6 @@ export const createSsoProviderSchema = (options: SsoProviderSchema = {}) => {
 export const providerSelectionSchema = createProviderSelectionSchema();
 export const providerDetailsSchema = createProviderDetailsSchema();
 export const ssoProviderSchema = createSsoProviderSchema();
-export const providerConfigureSchema = createProviderDetailsSchema();
 
 export type ProviderSelectionFormValues = z.infer<typeof providerSelectionSchema>;
 export type ProviderDetailsFormValues = z.infer<typeof providerDetailsSchema>;

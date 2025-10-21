@@ -18,6 +18,12 @@ export type CreateIdentityProviderRequestContentPrivate = ProviderSelectionFormV
 export type UpdateIdentityProviderRequestContent = Auth0MyOrg.UpdateIdentityProviderRequestContent;
 export type UpdateIdentityProviderResponseContent =
   Auth0MyOrg.UpdateIdentityProviderResponseContent;
+export type IdpUpdateBase = Auth0MyOrg.IdpUpdateBase;
+
+export type UpdateIdentityProviderRequestContentPrivate = ProviderSelectionFormValues &
+  Partial<IdpUpdateBase> &
+  Partial<ProviderDetailsFormValues> &
+  Partial<ProviderConfigureFormValues>;
 
 export type IdpStrategy =
   | 'adfs'

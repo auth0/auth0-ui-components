@@ -426,6 +426,9 @@
             "delete_button_label": "Delete"
           }
         }
+      },
+      "provider_details": {
+        "save_button_label": "Save"
       }
     },
     "delete_sso_provider": {

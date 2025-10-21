@@ -41,6 +41,7 @@ export interface ProviderDetailsProps
   extends SharedComponentProps<ProviderDetailsMessages, SsoProviderCreateClasses> {
   initialData?: Partial<ProviderDetailsFormValues>;
   className?: string;
+  hideHeader?: boolean;
 }
 
 export interface ProviderConfigureProps
@@ -76,4 +77,8 @@ export interface SsoProviderCreateProps
 export interface UseSsoProviderCreateOptions {
   create?: SsoProviderCreateProps['create'];
   customMessages?: SsoProviderCreateProps['customMessages'];
+}
+export interface WizardStepAction {
+  onBefore?: (stepId: string, values: SsoProviderFormValues) => boolean;
+  onAfter?: (stepId: string, values: SsoProviderFormValues) => void;
 }

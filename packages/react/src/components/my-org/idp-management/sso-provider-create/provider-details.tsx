@@ -20,12 +20,12 @@ import {
 import { Section } from '../../../ui/section';
 import { TextField } from '../../../ui/text-field';
 
-export interface ProviderDetailsHandle {
+export interface ProviderDetailsFormHandle {
   validate: () => Promise<boolean>;
   getData: () => ProviderDetailsFormValues;
 }
 
-export const ProviderDetails = React.forwardRef<ProviderDetailsHandle, ProviderDetailsProps>(
+export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, ProviderDetailsProps>(
   function ProviderDetails({ initialData, readOnly = false, customMessages = {}, className }, ref) {
     const { t } = useTranslator(
       'idp_management.create_sso_provider.provider_details',

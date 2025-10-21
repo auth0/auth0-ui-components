@@ -13,7 +13,7 @@ import ProviderConfigure, {
 } from '../../../components/my-org/idp-management/sso-provider-create/provider-configure/provider-configure';
 import {
   ProviderDetails,
-  type ProviderDetailsHandle,
+  type ProviderDetailsFormHandle,
 } from '../../../components/my-org/idp-management/sso-provider-create/provider-details';
 import { ProviderSelect } from '../../../components/my-org/idp-management/sso-provider-create/provider-select';
 import { Header } from '../../../components/ui/header';
@@ -53,7 +53,7 @@ export function SsoProviderCreate({
     customMessages,
   });
 
-  const detailsRef = useRef<ProviderDetailsHandle>(null);
+  const detailsRef = useRef<ProviderDetailsFormHandle>(null);
   const configureRef = useRef<ProviderConfigureHandle>(null);
 
   const currentStyles = useMemo(
@@ -64,7 +64,7 @@ export function SsoProviderCreate({
   const createStepActions = useCallback(
     (
       stepId: 'provider_details' | 'provider_configure',
-      ref: React.RefObject<ProviderDetailsHandle | ProviderConfigureHandle | null>,
+      ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,
     ) => {
       const dataKey = stepId === 'provider_details' ? 'details' : 'configure';
 
