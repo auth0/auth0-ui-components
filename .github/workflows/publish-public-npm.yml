@@ -1,268 +1,271 @@
 name: Publish to Public NPM
 
 on:
-    workflow_dispatch:
-        inputs:
-            core_version:
-                description: "Core package version (e.g., 1.0.0-beta.1, 1.0.0, 1.1.0-alpha.0)"
-                required: false
-                type: string
-            react_version:
-                description: "React package version (e.g., 1.0.0-beta.1, 1.0.0, 1.1.0-alpha.0)"
-                required: false
-                type: string
-            packages:
-                description: "Packages to publish"
-                required: true
-                type: choice
-                default: "both"
-                options:
-                    - "both"
-                    - "core"
-                    - "react"
-            npm_tag:
-                description: "NPM dist-tag (latest, beta, alpha, next)"
-                required: true
-                type: choice
-                default: "beta"
-                options:
-                    - "latest"
-                    - "beta"
-                    - "alpha"
-                    - "next"
-            dry_run:
-                description: "Dry run (preview without publishing)"
-                required: false
-                type: boolean
-                default: true
+  workflow_dispatch:
+    inputs:
+      core_version:
+        description: "Core package version (e.g., 1.0.0-beta.1, 1.0.0, 1.1.0-alpha.0)"
+        required: false
+        type: string
+      react_version:
+        description: "React package version (e.g., 1.0.0-beta.1, 1.0.0, 1.1.0-alpha.0)"
+        required: false
+        type: string
+      packages:
+        description: "Packages to publish"
+        required: true
+        type: choice
+        default: "both"
+        options:
+          - "both"
+          - "core"
+          - "react"
+      npm_tag:
+        description: "NPM dist-tag (latest, beta, alpha, next)"
+        required: true
+        type: choice
+        default: "beta"
+        options:
+          - "latest"
+          - "beta"
+          - "alpha"
+          - "next"
+      dry_run:
+        description: "Dry run (preview without publishing)"
+        required: false
+        type: boolean
+        default: true
 
 jobs:
-    publish:
-        name: Build & Publish to Public NPM
-        runs-on: ubuntu-22.04-2cpu-8ram-75ssd
-        permissions:
-            contents: write
-            id-token: write
+  publish:
+    name: Build & Publish to Public NPM
+    runs-on: ubuntu-22.04-2cpu-8ram-75ssd
+    permissions:
+      contents: write
+      id-token: write
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-            - name: Setup pnpm
-              uses: pnpm/action-setup@fe1a16ddf5f808a8d75eaaa4675e583c7ac9a21e  # v4.0.0 on 2024-10-04
-              with:
-                  version: 10.6.5
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.5
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "20"
-                  cache: "pnpm"
-                  registry-url: "https://registry.npmjs.org"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          registry-url: "https://registry.npmjs.org"
 
-            - name: Install dependencies
-              run: |
-                  echo "📦 Installing dependencies..."
-                  pnpm install --frozen-lockfile
-                  echo "✅ Dependencies installed"
+      - name: Install dependencies
+        run: |
+          echo "📦 Installing dependencies..."
+          pnpm install --frozen-lockfile
+          echo "✅ Dependencies installed"
 
-            - name: Build packages
-              run: |
-                  echo "🔨 Building packages..."
-                  pnpm run build
-                  echo "✅ Packages built successfully"
+      - name: Build packages
+        run: |
+          echo "🔨 Building packages..."
+          pnpm run build
+          echo "✅ Packages built successfully"
 
-            - name: Update package versions and names for public npm
-              run: |
-                  echo "🏷️ Updating package names and versions for public npm..."
+      - name: Update Core package for public npm
+        if: |
+          (github.event.inputs.packages == 'both' || github.event.inputs.packages == 'core') &&
+          github.event.inputs.core_version != ''
+        working-directory: ./packages/core
+        run: |
+          echo "🏷️ Updating @auth0/web-ui-components-core package.json for public npm..."
 
-                  # Function to update package.json
-                  update_package() {
-                    local package_dir=$1
-                    local new_name=$2
-                    local new_version=$3
-                    
-                    if [ -z "$new_version" ]; then
-                      echo "⏭️  Skipping $new_name (no version specified)"
-                      return
-                    fi
-                    
-                    cd "$package_dir"
-                    
-                    # Update package name and version
-                    node -e "
-                      const pkg = require('./package.json');
-                      pkg.name = '$new_name';
-                      pkg.version = '$new_version';
-                      
-                      // Add publishConfig for public npm
-                      pkg.publishConfig = {
-                        access: 'public',
-                        registry: 'https://registry.npmjs.org/'
-                      };
-                      
-                      // Update workspace dependency if it exists
-                      if (pkg.dependencies && pkg.dependencies['@auth0-web-ui-components/core']) {
-                        pkg.dependencies['@auth0/web-ui-components-core'] = pkg.dependencies['@auth0-web-ui-components/core'];
-                        delete pkg.dependencies['@auth0-web-ui-components/core'];
-                      }
-                      
-                      require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
-                    "
-                    
-                    echo "✅ Updated $new_name to version $new_version"
-                    cd - > /dev/null
-                  }
+          node -e "
+            const pkg = require('./package.json');
+            pkg.name = '@auth0/web-ui-components-core';
+            pkg.version = '${{ github.event.inputs.core_version }}';
+            
+            // Add publishConfig for public npm
+            pkg.publishConfig = {
+              access: 'public',
+              registry: 'https://registry.npmjs.org/'
+            };
+            
+            require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
 
-                  # Update core package
-                  if [ "${{ github.event.inputs.packages }}" = "both" ] || [ "${{ github.event.inputs.packages }}" = "core" ]; then
-                    if [ -n "${{ github.event.inputs.core_version }}" ]; then
-                      update_package "./packages/core" "@auth0/web-ui-components-core" "${{ github.event.inputs.core_version }}"
-                    fi
-                  fi
+          echo "✅ Updated @auth0/web-ui-components-core to version ${{ github.event.inputs.core_version }}"
 
-                  # Update react package
-                  if [ "${{ github.event.inputs.packages }}" = "both" ] || [ "${{ github.event.inputs.packages }}" = "react" ]; then
-                    if [ -n "${{ github.event.inputs.react_version }}" ]; then
-                      update_package "./packages/react" "@auth0/web-ui-components-react" "${{ github.event.inputs.react_version }}"
-                    fi
-                  fi
+      - name: Update React package for public npm
+        if: |
+          (github.event.inputs.packages == 'both' || github.event.inputs.packages == 'react') &&
+          github.event.inputs.react_version != ''
+        working-directory: ./packages/react
+        run: |
+          echo "🏷️ Updating @auth0/web-ui-components-react package.json for public npm..."
 
-            - name: Publish Core package to public npm
-              if: |
-                  (github.event.inputs.packages == 'both' || github.event.inputs.packages == 'core') &&
-                  github.event.inputs.core_version != ''
-              working-directory: ./packages/core
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-              run: |
-                  echo "📦 Publishing @auth0/web-ui-components-core@${{ github.event.inputs.core_version }} to public npm..."
-                  echo ""
-                  echo "Registry: https://registry.npmjs.org"
-                  echo "Tag: ${{ github.event.inputs.npm_tag }}"
-                  echo "Dry run: ${{ github.event.inputs.dry_run }}"
-                  echo ""
+          node -e "
+            const pkg = require('./package.json');
+            pkg.name = '@auth0/web-ui-components-react';
+            pkg.version = '${{ github.event.inputs.react_version }}';
+            
+            // Add publishConfig for public npm
+            pkg.publishConfig = {
+              access: 'public',
+              registry: 'https://registry.npmjs.org/'
+            };
+            
+            // Update workspace dependency if it exists
+            if (pkg.dependencies && pkg.dependencies['@auth0-web-ui-components/core']) {
+              // Replace workspace protocol with actual version
+              pkg.dependencies['@auth0/web-ui-components-core'] = '${{ github.event.inputs.core_version }}';
+              delete pkg.dependencies['@auth0-web-ui-components/core'];
+            }
+            
+            require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
 
-                  if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-                    echo "🔍 DRY RUN MODE - No actual publishing"
-                    pnpm publish --dry-run --no-git-checks --tag ${{ github.event.inputs.npm_tag }}
-                  else
-                    pnpm publish --no-git-checks --tag ${{ github.event.inputs.npm_tag }}
-                    echo "✅ Successfully published @auth0/web-ui-components-core@${{ github.event.inputs.core_version }}"
-                  fi
+          echo "✅ Updated @auth0/web-ui-components-react to version ${{ github.event.inputs.react_version }}"
 
-            - name: Publish React package to public npm
-              if: |
-                  (github.event.inputs.packages == 'both' || github.event.inputs.packages == 'react') &&
-                  github.event.inputs.react_version != ''
-              working-directory: ./packages/react
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-              run: |
-                  echo "📦 Publishing @auth0/web-ui-components-react@${{ github.event.inputs.react_version }} to public npm..."
-                  echo ""
-                  echo "Registry: https://registry.npmjs.org"
-                  echo "Tag: ${{ github.event.inputs.npm_tag }}"
-                  echo "Dry run: ${{ github.event.inputs.dry_run }}"
-                  echo ""
+      - name: Publish Core package to public npm
+        id: publish-core
+        if: |
+          (github.event.inputs.packages == 'both' || github.event.inputs.packages == 'core') &&
+          github.event.inputs.core_version != ''
+        working-directory: ./packages/core
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          current_version=$(node -p "require('./package.json').version")
+          echo "📦 Publishing @auth0/web-ui-components-core@$current_version to public npm..."
 
-                  if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-                    echo "🔍 DRY RUN MODE - No actual publishing"
-                    pnpm publish --dry-run --no-git-checks --tag ${{ github.event.inputs.npm_tag }}
-                  else
-                    pnpm publish --no-git-checks --tag ${{ github.event.inputs.npm_tag }}
-                    echo "✅ Successfully published @auth0/web-ui-components-react@${{ github.event.inputs.react_version }}"
-                  fi
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            echo "🔍 DRY RUN MODE - Skipping actual publish"
+            pnpm publish --dry-run --no-git-checks --tag ${{ github.event.inputs.npm_tag }}
+            echo "published=dry-run" >> $GITHUB_OUTPUT
+            echo "version=$current_version" >> $GITHUB_OUTPUT
+            echo "✅ Dry run completed for @auth0/web-ui-components-core@$current_version"
+          else
+            pnpm publish --no-git-checks --tag ${{ github.event.inputs.npm_tag }}
+            echo "published=true" >> $GITHUB_OUTPUT
+            echo "version=$current_version" >> $GITHUB_OUTPUT
+            echo "✅ Successfully published @auth0/web-ui-components-core@$current_version"
+          fi
 
-            - name: Generate Summary
-              run: |
-                  echo "## 📦 Public NPM Publication Summary" >> $GITHUB_STEP_SUMMARY
-                  echo "" >> $GITHUB_STEP_SUMMARY
+      - name: Publish React package to public npm
+        id: publish-react
+        if: |
+          (github.event.inputs.packages == 'both' || github.event.inputs.packages == 'react') &&
+          github.event.inputs.react_version != ''
+        working-directory: ./packages/react
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          current_version=$(node -p "require('./package.json').version")
+          echo "📦 Publishing @auth0/web-ui-components-react@$current_version to public npm..."
 
-                  if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-                    echo "### 🔍 DRY RUN MODE" >> $GITHUB_STEP_SUMMARY
-                    echo "No packages were actually published. This was a test run." >> $GITHUB_STEP_SUMMARY
-                    echo "" >> $GITHUB_STEP_SUMMARY
-                  fi
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            echo "🔍 DRY RUN MODE - Skipping actual publish"
+            pnpm publish --dry-run --no-git-checks --tag ${{ github.event.inputs.npm_tag }}
+            echo "published=dry-run" >> $GITHUB_OUTPUT
+            echo "version=$current_version" >> $GITHUB_OUTPUT
+            echo "✅ Dry run completed for @auth0/web-ui-components-react@$current_version"
+          else
+            pnpm publish --no-git-checks --tag ${{ github.event.inputs.npm_tag }}
+            echo "published=true" >> $GITHUB_OUTPUT
+            echo "version=$current_version" >> $GITHUB_OUTPUT
+            echo "✅ Successfully published @auth0/web-ui-components-react@$current_version"
+          fi
 
-                  echo "### Published Packages" >> $GITHUB_STEP_SUMMARY
-                  echo "" >> $GITHUB_STEP_SUMMARY
+      - name: Generate Summary
+        run: |
+          echo "## 📦 Public NPM Publication Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
 
-                  if [ "${{ github.event.inputs.packages }}" = "both" ] || [ "${{ github.event.inputs.packages }}" = "core" ]; then
-                    if [ -n "${{ github.event.inputs.core_version }}" ]; then
-                      echo "- 📦 \`@auth0/web-ui-components-core@${{ github.event.inputs.core_version }}\`" >> $GITHUB_STEP_SUMMARY
-                      echo "  - Tag: \`${{ github.event.inputs.npm_tag }}\`" >> $GITHUB_STEP_SUMMARY
-                      echo "  - Registry: https://registry.npmjs.org" >> $GITHUB_STEP_SUMMARY
-                      echo "  - Install: \`npm install @auth0/web-ui-components-core@${{ github.event.inputs.npm_tag }}\`" >> $GITHUB_STEP_SUMMARY
-                      echo "" >> $GITHUB_STEP_SUMMARY
-                    fi
-                  fi
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            echo "### 🔍 DRY RUN MODE" >> $GITHUB_STEP_SUMMARY
+            echo "No packages were actually published. This was a test run." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
 
-                  if [ "${{ github.event.inputs.packages }}" = "both" ] || [ "${{ github.event.inputs.packages }}" = "react" ]; then
-                    if [ -n "${{ github.event.inputs.react_version }}" ]; then
-                      echo "- 📦 \`@auth0/web-ui-components-react@${{ github.event.inputs.react_version }}\`" >> $GITHUB_STEP_SUMMARY
-                      echo "  - Tag: \`${{ github.event.inputs.npm_tag }}\`" >> $GITHUB_STEP_SUMMARY
-                      echo "  - Registry: https://registry.npmjs.org" >> $GITHUB_STEP_SUMMARY
-                      echo "  - Install: \`npm install @auth0/web-ui-components-react@${{ github.event.inputs.npm_tag }}\`" >> $GITHUB_STEP_SUMMARY
-                      echo "" >> $GITHUB_STEP_SUMMARY
-                    fi
-                  fi
+          echo "### Published Packages" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
 
-                  echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
-                  echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.inputs.packages }}" = "both" ] || [ "${{ github.event.inputs.packages }}" = "core" ]; then
+            if [ -n "${{ github.event.inputs.core_version }}" ]; then
+              echo "- 📦 \`@auth0/web-ui-components-core@${{ github.event.inputs.core_version }}\`" >> $GITHUB_STEP_SUMMARY
+              echo "  - Tag: \`${{ github.event.inputs.npm_tag }}\`" >> $GITHUB_STEP_SUMMARY
+              echo "  - Registry: https://registry.npmjs.org" >> $GITHUB_STEP_SUMMARY
+              echo "  - Install: \`npm install @auth0/web-ui-components-core@${{ github.event.inputs.npm_tag }}\`" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
 
-                  if [ "${{ github.event.inputs.packages }}" = "both" ] || [ "${{ github.event.inputs.packages }}" = "core" ]; then
-                    if [ -n "${{ github.event.inputs.core_version }}" ]; then
-                      echo "- [View @auth0/web-ui-components-core on npm](https://www.npmjs.com/package/@auth0/web-ui-components-core)" >> $GITHUB_STEP_SUMMARY
-                    fi
-                  fi
+          if [ "${{ github.event.inputs.packages }}" = "both" ] || [ "${{ github.event.inputs.packages }}" = "react" ]; then
+            if [ -n "${{ github.event.inputs.react_version }}" ]; then
+              echo "- 📦 \`@auth0/web-ui-components-react@${{ github.event.inputs.react_version }}\`" >> $GITHUB_STEP_SUMMARY
+              echo "  - Tag: \`${{ github.event.inputs.npm_tag }}\`" >> $GITHUB_STEP_SUMMARY
+              echo "  - Registry: https://registry.npmjs.org" >> $GITHUB_STEP_SUMMARY
+              echo "  - Install: \`npm install @auth0/web-ui-components-react@${{ github.event.inputs.npm_tag }}\`" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
 
-                  if [ "${{ github.event.inputs.packages }}" = "both" ] || [ "${{ github.event.inputs.packages }}" = "react" ]; then
-                    if [ -n "${{ github.event.inputs.react_version }}" ]; then
-                      echo "- [View @auth0/web-ui-components-react on npm](https://www.npmjs.com/package/@auth0/web-ui-components-react)" >> $GITHUB_STEP_SUMMARY
-                    fi
-                  fi
+          echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
 
-                  echo "" >> $GITHUB_STEP_SUMMARY
-                  echo "---" >> $GITHUB_STEP_SUMMARY
-                  echo "" >> $GITHUB_STEP_SUMMARY
-                  echo "**Note:** Your internal JFrog registry continues to use \`@auth0-web-ui-components/*\` packages unchanged." >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.inputs.packages }}" = "both" ] || [ "${{ github.event.inputs.packages }}" = "core" ]; then
+            if [ -n "${{ github.event.inputs.core_version }}" ]; then
+              echo "- [View @auth0/web-ui-components-core on npm](https://www.npmjs.com/package/@auth0/web-ui-components-core)" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
 
-            - name: Create Git tags
-              if: github.event.inputs.dry_run == 'false'
-              run: |
-                  echo "🏷️ Creating Git tags for published packages..."
+          if [ "${{ github.event.inputs.packages }}" = "both" ] || [ "${{ github.event.inputs.packages }}" = "react" ]; then
+            if [ -n "${{ github.event.inputs.react_version }}" ]; then
+              echo "- [View @auth0/web-ui-components-react on npm](https://www.npmjs.com/package/@auth0/web-ui-components-react)" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
 
-                  git config user.name "github-actions[bot]"
-                  git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note:** Your internal JFrog registry continues to use \`@auth0-web-ui-components/*\` packages unchanged." >> $GITHUB_STEP_SUMMARY
 
-                  # Tag core package
-                  if [ "${{ github.event.inputs.packages }}" = "both" ] || [ "${{ github.event.inputs.packages }}" = "core" ]; then
-                    if [ -n "${{ github.event.inputs.core_version }}" ]; then
-                      TAG_NAME="@auth0/core@${{ github.event.inputs.core_version }}"
-                      git tag -a "$TAG_NAME" -m "Release @auth0/web-ui-components-core@${{ github.event.inputs.core_version }}"
-                      git push origin "$TAG_NAME"
-                      echo "✅ Created and pushed tag: $TAG_NAME"
-                    fi
-                  fi
+      - name: Create Git tags
+        if: github.event.inputs.dry_run == 'false'
+        run: |
+          echo "🏷️ Creating Git tags for published packages..."
 
-                  # Tag react package
-                  if [ "${{ github.event.inputs.packages }}" = "both" ] || [ "${{ github.event.inputs.packages }}" = "react" ]; then
-                    if [ -n "${{ github.event.inputs.react_version }}" ]; then
-                      TAG_NAME="@auth0/react@${{ github.event.inputs.react_version }}"
-                      git tag -a "$TAG_NAME" -m "Release @auth0/web-ui-components-react@${{ github.event.inputs.react_version }}"
-                      git push origin "$TAG_NAME"
-                      echo "✅ Created and pushed tag: $TAG_NAME"
-                    fi
-                  fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-                  echo "🎉 All tags created successfully!"
+          # Tag core package
+          if [ "${{ github.event.inputs.packages }}" = "both" ] || [ "${{ github.event.inputs.packages }}" = "core" ]; then
+            if [ -n "${{ github.event.inputs.core_version }}" ]; then
+              TAG_NAME="@auth0/core@${{ github.event.inputs.core_version }}"
+              git tag -a "$TAG_NAME" -m "Release @auth0/web-ui-components-core@${{ github.event.inputs.core_version }}"
+              git push origin "$TAG_NAME"
+              echo "✅ Created and pushed tag: $TAG_NAME"
+            fi
+          fi
 
-            - name: Restore package.json files
-              if: always()
-              run: |
-                  echo "🔄 Restoring original package.json files..."
-                  git checkout packages/core/package.json packages/react/package.json || true
-                  echo "✅ Package files restored"
+          # Tag react package
+          if [ "${{ github.event.inputs.packages }}" = "both" ] || [ "${{ github.event.inputs.packages }}" = "react" ]; then
+            if [ -n "${{ github.event.inputs.react_version }}" ]; then
+              TAG_NAME="@auth0/react@${{ github.event.inputs.react_version }}"
+              git tag -a "$TAG_NAME" -m "Release @auth0/web-ui-components-react@${{ github.event.inputs.react_version }}"
+              git push origin "$TAG_NAME"
+              echo "✅ Created and pushed tag: $TAG_NAME"
+            fi
+          fi
+
+          echo "🎉 All tags created successfully!"
+
+      - name: Restore package.json files
+        if: always()
+        run: |
+          echo "🔄 Restoring original package.json files..."
+          git checkout packages/core/package.json packages/react/package.json || true
+          echo "✅ Package files restored"
