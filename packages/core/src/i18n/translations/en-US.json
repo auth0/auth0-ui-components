@@ -3,6 +3,22 @@
     "copy": "Copy",
     "copied": "Copied!"
   },
+  "domain_management": {
+    "domain_create": {
+      "modal": {
+        "title": "Add a Domain",
+        "field": {
+          "label": "Domain URL",
+          "placeholder": "domain-name.com",
+          "error": "Please enter a valid domain"
+        },
+        "actions": {
+          "cancel_button_text": "Cancel",
+          "create_button_text": "Add Domain"
+        }
+      }
+    }
+  },
   "org_management": {
     "org_details": {
       "sections": {

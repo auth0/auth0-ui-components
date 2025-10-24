@@ -41,7 +41,7 @@ export interface OrgEditBackButton extends Omit<BackButton, 'onClick'> {
 export interface OrgDetailsEditProps
   extends BlockComponentSharedProps<OrgDetailsEditMessages, OrgEditClasses, OrgDetailsEditSchemas> {
   saveAction?: ComponentAction<OrganizationPrivate>;
-  cancelAction?: ComponentAction<OrganizationPrivate>;
+  cancelAction?: Omit<ComponentAction<OrganizationPrivate>, 'onBefore'>;
   hideHeader?: boolean;
   backButton?: OrgEditBackButton;
 }

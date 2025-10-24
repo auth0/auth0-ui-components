@@ -18,6 +18,9 @@
     "build:ts": "tsup",
     "build": "pnpm build:ts",
     "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "clean": "rimraf dist",
     "typecheck": "tsc --noEmit",
     "registry:build": "shadcn build"
@@ -65,8 +68,12 @@
     "@auth0/auth0-react": "^2.0.0",
     "@tailwindcss/postcss": "^4.1.10",
     "@tailwindcss/typography": "^0.5.16",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "@vitest/coverage-v8": "^3.2.4",
     "postcss": "^8.5.5",
     "rimraf": "^5.0.0",
     "tailwindcss": "^4.1.10"

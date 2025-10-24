@@ -135,7 +135,10 @@ function OrgDetailsComponent({
     <div style={currentStyles.variables} className="w-full space-y-6">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onValid)} className="space-y-6">
-          <Card className={cn('p-6', currentStyles.classes?.OrgDetails_Card)}>
+          <Card
+            data-testid="org-details-card"
+            className={cn('p-6', currentStyles.classes?.OrgDetails_Card)}
+          >
             <div className="space-y-6">
               <SettingsDetails
                 form={form}
@@ -167,6 +170,8 @@ function OrgDetailsComponent({
                 }}
                 previousAction={{
                   label: t('cancel_button_label'),
+                  disabled:
+                    formActions?.previousAction?.disabled || formActions.isLoading || readOnly,
                   onClick: handlePreviousAction,
                 }}
                 showPrevious={formActions?.showPrevious}

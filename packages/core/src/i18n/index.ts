@@ -1,4 +1,4 @@
-export { createI18nService } from './i18n-service';
+export { createI18nService, I18nUtils } from './i18n-service';
 export type {
   LangTranslations,
   I18nInitOptions,

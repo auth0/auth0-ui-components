@@ -12,7 +12,7 @@ import type {
  * Pure utility functions for internationalization (i18n) functionality.
  * These functions handle translation loading, variable substitution, and namespace-based translation.
  */
-const I18nUtils = {
+export const I18nUtils = {
   /**
    * Regular expression for matching variable placeholders in translation strings.
    * Matches patterns like ${variableName} for dynamic content substitution.

@@ -40,7 +40,13 @@ export function BrandingDetails({
                 {t('sections.branding.fields.logo.label')}
               </FormLabel>
               <FormControl>
-                <ImagePreview error={fieldState.error?.message} {...field} disableFileUpload />
+                <ImagePreview
+                  error={fieldState.error?.message}
+                  // @ts-expect-error readOnly is available but not defined in ImagePreviewProps
+                  readOnly={readOnly}
+                  {...field}
+                  disableFileUpload
+                />
               </FormControl>
               <FormMessage
                 className="text-left text-sm text-(length:--font-size-paragraph)"

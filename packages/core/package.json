@@ -21,7 +21,8 @@
     "build:ts": "tsup",
     "build": "pnpm run clean && pnpm run build:ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [
     "i18n",
@@ -37,6 +38,7 @@
   "packageManager": "pnpm@10.6.5",
   "devDependencies": {
     "@types/node": "^22.15.27",
+    "@vitest/coverage-v8": "^3.2.4",
     "vitest": "^3.2.3"
   },
   "dependencies": {

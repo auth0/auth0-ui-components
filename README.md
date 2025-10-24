@@ -57,6 +57,50 @@ This project uses a **monorepo architecture** with multiple packages located in 
 
 ### Development
 
+#### Testing
+
+Running tests:
+
+```bash
+pnpm run test
+pnpm run test:react
+pnpm run test:core
+```
+
+To run specific test, go to each package folder and run:
+
+```bash
+pnpm run test org-details-edit
+```
+
+#### Shadcn local developement
+
+1. Update `registry.json` with your changes.
+
+2. Create new build based on `registry.json`
+
+```bash
+pnpm build:shadcn
+```
+
+3. Open `docs-site` and serve the registry.
+
+```bash
+cd examples/docs-site
+pnpm install
+pnpm run dev
+```
+
+4. Go to your app (you can use the `react-spa-shadcn`) and update the components.
+
+```bash
+npx shadcn@latest add http://localhost:5173/r/my-account/user-mfa-management.json --overwrite
+npx shadcn@latest add http://localhost:5173/r/my-org/org-details-edit.json --overwrite
+# ... other components
+```
+
+_Check the port, it can be different in case you have more apps running_
+
 ## 📖 Examples
 
 The `examples/` folder contains sample applications demonstrating how to use the components:

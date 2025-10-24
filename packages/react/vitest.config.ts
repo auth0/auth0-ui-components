@@ -7,10 +7,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   test: {
-    environment: 'node',
+    environment: 'jsdom',
     globals: true,
     reporters: ['verbose'],
-    include: ['./src/**/__tests__/**/*.test.ts'],
+    setupFiles: ['./vitest-setup.ts'],
+    include: ['./src/**/__tests__/**/*.test.{ts,tsx}'],
     exclude: ['node_modules', 'dist', '.git', '.cache'],
     coverage: {
       provider: 'v8',
@@ -26,6 +27,7 @@ export default defineConfig({
         '**/dist/**',
         '**/*.config.*',
         '**/*.test.*',
+        '**/vitest-setup.ts',
         '**/*.json',
         '**/assets/**',
         '**/*.css',
@@ -48,6 +50,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
+      // Resolve workspace packages to source files during testing
+      // This allows tests to run before build
+      '@auth0-web-ui-components/core': resolve(__dirname, '../core/src'),
+      '@core': resolve(__dirname, '../core/src'),
     },
   },
 });

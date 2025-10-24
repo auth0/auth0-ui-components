@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
@@ -13,9 +14,8 @@
     "moduleResolution": "node",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "strict": true,
-    "typeRoots": ["node_modules/@types"],
-    "types": []
+    "typeRoots": ["node_modules/@types"]
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"]
+  "exclude": ["node_modules", "dist"]
 }

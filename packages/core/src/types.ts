@@ -39,7 +39,6 @@ export interface BlockComponentSharedProps<
 }
 
 export interface ComponentAction<Item, Context = void> {
-  hide?: boolean;
   disabled?: boolean;
   onBefore?: (item: Item, context?: Context) => boolean;
   onAfter?: (item: Item, context?: Context) => void | boolean | Promise<boolean>;

@@ -3,6 +3,22 @@
     "copy": "コピー",
     "copied": "コピーしました"
   },
+  "domain_management": {
+    "domain_create": {
+      "modal": {
+        "title": "ドメインの追加",
+        "field": {
+          "label": "ドメインURL",
+          "placeholder": "ドメイン名を入力してください",
+          "error": "有効なドメインを入力してください"
+        },
+        "actions": {
+          "cancel_button_text": "キャンセル",
+          "create_button_text": "ドメインを追加"
+        }
+      }
+    }
+  },
   "org_management": {
     "org_details": {
       "sections": {

@@ -25,7 +25,16 @@
     "build:docs": "turbo run build --filter=auth0-ui-components-docs",
     "build:shadcn": "cd packages/react && pnpm registry:build && cp -r public/r ../../examples/docs-site/public/",
     "dev:docs": "turbo run dev --filter=auth0-ui-components-docs",
-    "test": "echo \"No tests configured yet.\"",
+    "test": "turbo run test",
+    "test:core": "turbo run test --filter=./packages/core",
+    "test:react": "turbo run test --filter=./packages/react",
+    "test:core:coverage": "turbo run test:coverage --filter=./packages/core",
+    "test:react:coverage": "turbo run test:coverage --filter=./packages/react",
+    "test:watch": "turbo run test:watch",
+    "test:core:watch": "turbo run test:watch --filter=./packages/core",
+    "test:react:watch": "turbo run test:watch --filter=./packages/react",
+    "test:coverage": "vitest run --coverage",
+    "test:coverage:sonar": "vitest run --coverage --reporter=verbose --reporter=junit --outputFile=coverage/junit.xml",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
@@ -45,8 +54,6 @@
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@eslint/js": "^8.56.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.3.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "@vitejs/plugin-react": "^4.4.1",
@@ -55,6 +62,7 @@
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react": "^7.33.2",
     "husky": "^8.0.3",
     "jsdom": "^26.1.0",
@@ -64,7 +72,6 @@
     "tsup": "^8.5.0",
     "turbo": "^2.5.4",
     "typescript": "^5.8.3",
-    "vitest": "^3.2.3",
-    "eslint-plugin-import": "^2.32.0"
+    "vitest": "^3.2.3"
   }
 }
