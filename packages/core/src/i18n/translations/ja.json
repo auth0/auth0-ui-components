@@ -17,6 +17,19 @@
           "create_button_text": "ドメインを追加"
         }
       }
+    },
+    "domain_delete": {
+      "modal": {
+        "title": "ドメインの削除",
+        "description": {
+          "pending": "${domainName} は確認待ちであり、処理に最大48時間かかる場合があります。このドメインを削除してもよろしいですか？この操作は元に戻せません。",
+          "verified": "${domainName} を削除すると、ユーザーのログインフローに影響を与える可能性があります。このドメインを削除してもよろしいですか？この操作は元に戻せません。"
+        },
+        "actions": {
+          "cancel_button_text": "キャンセル",
+          "delete_button_text": "削除"
+        }
+      }
     }
   },
   "org_management": {
