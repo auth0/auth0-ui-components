@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
+import { cn } from '../../../../lib/theme-utils';
 import { useTranslator } from '../../../hooks/use-translator';
 import type { DomainCreateModalProps } from '../../../types/my-org/domain-management/domain-create-types';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../../ui/form';
@@ -55,10 +56,10 @@ export function DomainCreateModal({
     <Modal
       open={isOpen}
       onOpenChange={(open) => !open && handleClose()}
-      className="p-10"
+      className={cn('p-10', className)}
       title={t('title')}
       content={
-        <div className={className}>
+        <div>
           <Form {...form}>
             <form id="domain-create-form">
               <FormField

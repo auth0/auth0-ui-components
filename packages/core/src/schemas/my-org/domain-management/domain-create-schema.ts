@@ -1,4 +1,4 @@
-import { createStringSchema } from '@core/schemas/common';
+import { createDomainSchema } from '@core/schemas/common';
 import { z } from 'zod';
 
 import { type DomainCreateSchemas } from './domain-create-schema-types';
@@ -29,12 +29,14 @@ const mergeFieldConfig = <T extends keyof DomainCreateSchemas>(
  */
 export const createDomainCreateSchema = (
   options: DomainCreateSchemas = {},
-  defaultErrorMessage = 'Invalid domain format',
+  defaultErrorMessage = 'Please enter a valid domain (e.g., example.com or https://example.com)',
 ) => {
+  const domainConfig = mergeFieldConfig(options, 'domainUrl', defaultErrorMessage);
+
   return z.object({
-    domain_url: createStringSchema({
+    domain_url: createDomainSchema({
       required: true,
-      ...mergeFieldConfig(options, 'domainUrl', defaultErrorMessage),
+      ...domainConfig,
     }),
   });
 };
