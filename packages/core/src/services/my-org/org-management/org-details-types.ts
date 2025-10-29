@@ -13,11 +13,12 @@ export type UpdateOrganizationDetailsResponseContent =
 
 export interface OrganizationPrivate extends OrganizationDetailsFormValues {
   id?: string;
-  name: string;
+  name?: string;
 }
 
 export interface Organization extends OrganizationPrivate {
   id: string;
+  name: string;
 }
 
 export type OrganizationDetailsFormValues = FormValues;

@@ -1,7 +1,6 @@
 import { getComponentStyles } from '@auth0-web-ui-components/core';
 import * as React from 'react';
 
-import { withMyOrgService } from '../../../../hoc/index';
 import { useTheme, useTranslator } from '../../../../hooks/index';
 import { cn } from '../../../../lib/theme-utils';
 import type { OrgDeleteProps } from '../../../../types/index';
@@ -17,7 +16,7 @@ import { OrgDeleteModal } from './';
  * Displays a card with delete warning message and a destructive action button.
  * Opens a modal with organization name confirmation before deletion.
  */
-function OrgDeleteComponent({
+export function OrgDelete({
   styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
   customMessages = {},
   onDelete,
@@ -96,5 +95,3 @@ function OrgDeleteComponent({
     </>
   );
 }
-
-export const OrgDelete = withMyOrgService(OrgDeleteComponent);

@@ -6,6 +6,8 @@ import { CoreClientContext } from '../hooks/use-core-client';
 import { useCoreClientInitialization } from '../hooks/use-core-client-initialization';
 import type { InternalProviderProps } from '../types/auth-types';
 
+import { ScopeManagerProvider } from './scope-manager-provider';
+
 export const ProxyProvider = ({
   i18n,
   authDetails,
@@ -32,7 +34,9 @@ export const ProxyProvider = ({
   );
 
   return (
-    <CoreClientContext.Provider value={coreClientValue}>{children}</CoreClientContext.Provider>
+    <CoreClientContext.Provider value={coreClientValue}>
+      <ScopeManagerProvider>{children}</ScopeManagerProvider>
+    </CoreClientContext.Provider>
   );
 };
 

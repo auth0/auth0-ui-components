@@ -1,6 +1,6 @@
 export {
   withServices,
-  withAuthenticationService,
+  withMyAccountService,
   withMyOrgService,
   withAllServices,
   type ServiceRequirements,

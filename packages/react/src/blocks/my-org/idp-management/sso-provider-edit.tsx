@@ -1,6 +1,6 @@
 'use client';
 
-import { getComponentStyles } from '@auth0-web-ui-components/core';
+import { getComponentStyles, MY_ORG_SSO_PROVIDER_EDIT_SCOPES } from '@auth0-web-ui-components/core';
 import React, { useState } from 'react';
 
 import { SsoProviderTab } from '../../../components/my-org/idp-management/sso-provider-edit/sso-provider-tab';
@@ -173,4 +173,7 @@ export function SsoProviderEditComponent({
   );
 }
 
-export const SsoProviderEdit = withMyOrgService(SsoProviderEditComponent);
+export const SsoProviderEdit = withMyOrgService(
+  SsoProviderEditComponent,
+  MY_ORG_SSO_PROVIDER_EDIT_SCOPES,
+);

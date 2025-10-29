@@ -196,17 +196,14 @@ importers:
         specifier: workspace:*
         version: link:../../packages/react
       '@auth0/nextjs-auth0':
-        specifier: ^4.9.0
-        version: 4.10.0(next@15.2.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: file:dependencies/nextjs-auth0/auth0-nextjs-auth0-4.11.0.tgz
+        version: file:examples/next-rwa/dependencies/nextjs-auth0/auth0-nextjs-auth0-4.11.0.tgz(next@15.2.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tailwindcss/postcss':
         specifier: ^4.1.10
         version: 4.1.10
       '@tailwindcss/vite':
         specifier: ^4.1.10
         version: 4.1.10(vite@6.3.5(@types/node@22.15.30)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.44.0)(yaml@2.8.0))
-      auth0-myorg-sdk:
-        specifier: file:./dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz
-        version: auth0-my-org@file:examples/next-rwa/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.21(postcss@8.5.5)
@@ -553,8 +550,8 @@ importers:
   packages/core:
     dependencies:
       '@auth0/myaccount':
-        specifier: file:./dependencies/my-account-sdk/auth0-myaccount-0.0.309.tgz
-        version: auth0-myaccount@file:packages/core/dependencies/my-account-sdk/auth0-myaccount-0.0.309.tgz
+        specifier: file:./dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz
+        version: my-account@file:packages/core/dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz
       auth0-myorg-sdk:
         specifier: file:./dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz
         version: auth0-my-org@file:packages/core/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz
@@ -731,8 +728,9 @@ packages:
   '@auth0/auth0-spa-js@2.2.0':
     resolution: {integrity: sha512-YaHHCxiSQxDb+Ju9gXOqcqgXWq8EkUSpZC4g24D3MoEBUaADKwOosrAnmjDZcslBZpnSFFdrl4dLYedAer3xlQ==}
 
-  '@auth0/nextjs-auth0@4.10.0':
-    resolution: {integrity: sha512-4CBuMlPJ4boxrB5IYisqMh9VBn74PGsspMfZpLG5JvrgDklw2CZsThW+UeAi1YMhE4/3VHyeht2yzN1Fs95bug==}
+  '@auth0/nextjs-auth0@file:examples/next-rwa/dependencies/nextjs-auth0/auth0-nextjs-auth0-4.11.0.tgz':
+    resolution: {integrity: sha512-pDDVA5pHh/6t8L5HCQ6bc685YTPyh5XKfVs5E2vdCDx/x1AyHDrPd8emxDDtUgggHeAIKrpyk0vAAtbDkotPkQ==, tarball: file:examples/next-rwa/dependencies/nextjs-auth0/auth0-nextjs-auth0-4.11.0.tgz}
+    version: 4.11.0
     peerDependencies:
       next: ^14.2.25 || ^15.2.3
       react: ^18.0.0 || ^19.0.0 || ^19.0.0-0
@@ -3622,19 +3620,9 @@ packages:
     resolution: {integrity: sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==}
     engines: {node: '>= 4.0.0'}
 
-  auth0-my-org@file:examples/next-rwa/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz:
-    resolution: {integrity: sha512-JAs3aZZT1RbGqYRnFtzARiU7C8BY0kdMrT2rwn8CRBkuCAxs+wwmbcXGVOrHaDDYIKsUIYwcWMYn7EuVZwVM1Q==, tarball: file:examples/next-rwa/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz}
-    version: 0.69.0
-    engines: {node: '>=18.0.0'}
-
   auth0-my-org@file:packages/core/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz:
     resolution: {integrity: sha512-JAs3aZZT1RbGqYRnFtzARiU7C8BY0kdMrT2rwn8CRBkuCAxs+wwmbcXGVOrHaDDYIKsUIYwcWMYn7EuVZwVM1Q==, tarball: file:packages/core/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz}
     version: 0.69.0
-    engines: {node: '>=18.0.0'}
-
-  auth0-myaccount@file:packages/core/dependencies/my-account-sdk/auth0-myaccount-0.0.309.tgz:
-    resolution: {integrity: sha512-9Hzf76MdmnGsjeFQ3rI28oFPtUTPbCiknKWmNtI/D+PTY/5WJ6QCP+0IDiDxUCXB1p021Nr3UvwKyByVMIWPcg==, tarball: file:packages/core/dependencies/my-account-sdk/auth0-myaccount-0.0.309.tgz}
-    version: 0.0.309
     engines: {node: '>=18.0.0'}
 
   autoprefixer@10.4.21:
@@ -5589,6 +5577,11 @@ packages:
     resolution: {integrity: sha512-WWdIxpyjEn+FhQJQQv9aQAYlHoNVdzIzUySNV1gHUPDSdZJ3yZn7pAAbQcV7B56Mvu881q9FZV+0Vx2xC44VWA==}
     engines: {node: ^18.17.0 || >=20.5.0}
 
+  my-account@file:packages/core/dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz:
+    resolution: {integrity: sha512-rY89oak18DUmMhfp+CDlXzDOmmUPF49zK354HKt6gc8IZpAX9b/hTGdzZrXwjftcjGGrevBwoO1Nhn3ZaViuuA==, tarball: file:packages/core/dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz}
+    version: 0.69.0
+    engines: {node: '>=18.0.0'}
+
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
 
@@ -5672,8 +5665,8 @@ packages:
   nwsapi@2.2.20:
     resolution: {integrity: sha512-/ieB+mDe4MrrKMT8z+mQL8klXydZWGR5Dowt4RAGKbJ3kIGEx3X4ljUo+6V73IXtUPWgfOlU5B9MlGxFO5T+cA==}
 
-  oauth4webapi@3.8.1:
-    resolution: {integrity: sha512-olkZDELNycOWQf9LrsELFq8n05LwJgV8UkrS0cburk6FOwf8GvLam+YB+Uj5Qvryee+vwWOfQVeI5Vm0MVg7SA==}
+  oauth4webapi@3.8.2:
+    resolution: {integrity: sha512-FzZZ+bht5X0FKe7Mwz3DAVAmlH1BV5blSak/lHMBKz0/EBMhX6B10GlQYI51+oRp8ObJaX0g6pXrAxZh5s8rjw==}
 
   object-assign@4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
@@ -7311,13 +7304,13 @@ snapshots:
 
   '@auth0/auth0-spa-js@2.2.0': {}
 
-  '@auth0/nextjs-auth0@4.10.0(next@15.2.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@auth0/nextjs-auth0@file:examples/next-rwa/dependencies/nextjs-auth0/auth0-nextjs-auth0-4.11.0.tgz(next@15.2.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@edge-runtime/cookies': 5.0.2
       '@panva/hkdf': 1.2.1
       jose: 6.1.0
       next: 15.2.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      oauth4webapi: 3.8.1
+      oauth4webapi: 3.8.2
       openid-client: 6.8.0
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
@@ -10886,15 +10879,9 @@ snapshots:
 
   at-least-node@1.0.0: {}
 
-  auth0-my-org@file:examples/next-rwa/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz:
-    dependencies:
-      '@auth0/auth0-auth-js': 1.2.0
-
   auth0-my-org@file:packages/core/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz:
     dependencies:
       '@auth0/auth0-auth-js': 1.2.0
-
-  auth0-myaccount@file:packages/core/dependencies/my-account-sdk/auth0-myaccount-0.0.309.tgz: {}
 
   autoprefixer@10.4.21(postcss@8.5.5):
     dependencies:
@@ -13133,6 +13120,8 @@ snapshots:
 
   mute-stream@2.0.0: {}
 
+  my-account@file:packages/core/dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz: {}
+
   mz@2.7.0:
     dependencies:
       any-promise: 1.3.0
@@ -13204,7 +13193,7 @@ snapshots:
 
   nwsapi@2.2.20: {}
 
-  oauth4webapi@3.8.1: {}
+  oauth4webapi@3.8.2: {}
 
   object-assign@4.1.1: {}
 
@@ -13273,7 +13262,7 @@ snapshots:
   openid-client@6.8.0:
     dependencies:
       jose: 6.1.0
-      oauth4webapi: 3.8.1
+      oauth4webapi: 3.8.2
 
   optionator@0.9.4:
     dependencies:

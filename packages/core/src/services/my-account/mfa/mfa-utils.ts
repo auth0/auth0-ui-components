@@ -52,16 +52,23 @@ export function buildEnrollParams(
   }
 }
 
-type EnrolledFactor = ListAuthenticationMethodsResponseContent['authentication_methods'][number] & {
-  type: Exclude<string, 'password'>;
+type AuthenticationMethod =
+  ListAuthenticationMethodsResponseContent['authentication_methods'][number];
+
+type EnrolledFactor = AuthenticationMethod & {
+  type: MFAType;
 };
 
 function getFactorDisplayName(type: MFAType, enrolledFactor: EnrolledFactor): string {
   switch (type) {
     case FACTOR_TYPE_PHONE:
-      return 'phone_number' in enrolledFactor ? enrolledFactor.phone_number || 'SMS' : 'SMS';
+      return 'phone_number' in enrolledFactor && typeof enrolledFactor.phone_number === 'string'
+        ? enrolledFactor.phone_number || 'SMS'
+        : 'SMS';
     case FACTOR_TYPE_EMAIL:
-      return 'email' in enrolledFactor ? enrolledFactor.email || 'Email' : 'Email';
+      return 'email' in enrolledFactor && typeof enrolledFactor.email === 'string'
+        ? enrolledFactor.email || 'Email'
+        : 'Email';
     case FACTOR_TYPE_RECOVERY_CODE:
       if (enrolledFactor.id && enrolledFactor.id.includes('|')) {
         const name = enrolledFactor.id.split('|')[1];
@@ -104,17 +111,14 @@ export function transformMyAccountFactors(
 
   const confirmedFactors = enrolledFactors.authentication_methods.filter(
     (factor): factor is EnrolledFactor => {
-      const skipTypes = ['password'];
-      return (
-        !skipTypes.includes(factor.type) && (!('confirmed' in factor) || factor.confirmed !== false)
-      );
+      return !('confirmed' in factor) || factor.confirmed !== false;
     },
   );
 
   if (onlyActive) {
     // Only return confirmed enrolled factors
     for (const factor of confirmedFactors) {
-      const mfaType = factor.type as MFAType;
+      const mfaType = factor.type;
 
       if (!result[mfaType]) {
         result[mfaType] = [];
@@ -132,7 +136,7 @@ export function transformMyAccountFactors(
 
   // Group confirmed enrolled factors by type
   for (const factor of confirmedFactors) {
-    const mfaType = factor.type as MFAType;
+    const mfaType = factor.type;
     if (!enrolledByType.has(mfaType)) {
       enrolledByType.set(mfaType, []);
     }

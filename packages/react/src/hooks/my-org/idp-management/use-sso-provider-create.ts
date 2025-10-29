@@ -1,6 +1,8 @@
-import type {
-  CreateIdentityProviderRequestContentPrivate,
-  IdentityProvider,
+import {
+  SsoProviderMappers,
+  type CreateIdentityProviderRequestContent,
+  type CreateIdentityProviderRequestContentPrivate,
+  type IdentityProvider,
 } from '@auth0-web-ui-components/core';
 import { useCallback, useState } from 'react';
 
@@ -37,9 +39,21 @@ export function useSsoProviderCreate({
           }
         }
 
+        const { strategy, name, display_name, ...configOptions } = data;
+
+        const formData = {
+          strategy,
+          name,
+          display_name,
+          options: configOptions,
+        };
+
+        const apiRequestData: CreateIdentityProviderRequestContent =
+          SsoProviderMappers.createToAPI(formData);
+
         const result: IdentityProvider = await coreClient
-          .getMyOrgApiService()
-          .organization.identityProviders.create(data);
+          .getMyOrgApiClient()
+          .organization.identityProviders.create(apiRequestData);
 
         showToast({
           type: 'success',

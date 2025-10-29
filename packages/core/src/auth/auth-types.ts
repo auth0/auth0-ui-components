@@ -1,11 +1,8 @@
+import type { MyAccountClient } from '@auth0/myaccount';
 import type { SafeAny } from '@core/types';
+import type { MyOrgClient } from 'auth0-myorg-sdk';
 
 import type { I18nServiceInterface } from '../i18n';
-import type {
-  MFAControllerInterface,
-  OrganizationDetailsController,
-  IdentityProvidersController,
-} from '../services';
 
 export type TokenEndpointResponse = {
   id_token: string;
@@ -94,57 +91,31 @@ export interface BasicAuth0ContextInterface<TUser = User> {
     (options: GetTokenSilentlyOptions): Promise<GetTokenSilentlyVerboseResponse | string>;
   };
   getAccessTokenWithPopup: (options?: SafeAny) => Promise<string | undefined>;
+  loginWithRedirect: (options?: SafeAny) => Promise<void>;
 }
 
-export interface MyOrgServiceConfig {
-  enabled: boolean;
-}
-
-export interface MyAccountServiceConfig {
-  enabled: boolean;
-}
-
-export interface ServicesConfig {
-  myAccount: MyAccountServiceConfig;
-  myOrg: MyOrgServiceConfig;
-}
-
-export interface AuthDetailsCore {
+export interface AuthDetails {
   domain?: string | undefined;
-  clientId?: string | undefined;
-  accessToken?: string | undefined;
-  scopes?: string | undefined;
   authProxyUrl?: string | undefined;
   contextInterface?: BasicAuth0ContextInterface | undefined;
-  servicesConfig: ServicesConfig;
+  scopes?: string | undefined;
 }
 
 export interface BaseCoreClientInterface {
-  auth: AuthDetailsCore;
+  auth: AuthDetails;
   i18nService: I18nServiceInterface;
   getToken: (
     scope: string,
     audiencePath: string,
     ignoreCache?: boolean,
   ) => Promise<string | undefined>;
-  getApiBaseUrl: () => string;
   isProxyMode: () => boolean;
+  ensureScopes: (requiredScopes: string, audiencePath: string) => Promise<void>;
 }
 
 export interface CoreClientInterface extends BaseCoreClientInterface {
-  myAccountApiService: MyAccountAPIServiceInterface | undefined;
-  myOrgApiService: MyOrgAPIServiceInterface | undefined;
-  getMyAccountApiService: () => MyAccountAPIServiceInterface;
-  getMyOrgApiService: () => MyOrgAPIServiceInterface;
-}
-
-export interface MyAccountAPIServiceInterface {
-  mfa: MFAControllerInterface;
-}
-
-export interface MyOrgAPIServiceInterface {
-  organizationDetails: OrganizationDetailsController;
-  organization: {
-    identityProviders: IdentityProvidersController;
-  };
+  myAccountApiClient: MyAccountClient | undefined;
+  myOrgApiClient: MyOrgClient | undefined;
+  getMyAccountApiClient: () => MyAccountClient;
+  getMyOrgApiClient: () => MyOrgClient;
 }

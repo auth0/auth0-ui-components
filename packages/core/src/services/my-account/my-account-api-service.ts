@@ -1,50 +1,62 @@
-import { MyAccountClient, type MyAccountClientOptions } from '@auth0/myaccount';
-import type { BaseCoreClientInterface, MyAccountAPIServiceInterface } from '@core/auth/auth-types';
+import { MyAccountClient } from '@auth0/myaccount';
 
-import { createMFAController } from './mfa';
-import { MY_ACCOUNT_SCOPES } from './my-account-api-constants';
+import type { AuthDetails } from '../../auth/auth-types';
+import type { createTokenManager } from '../../auth/token-manager';
 
-/**
- * Creates a configured MyOrgClient instance using user-based authentication
- */
-async function createMyAccountClient(
-  coreClient: BaseCoreClientInterface,
-): Promise<MyAccountClient> {
-  const audiencePath = 'me';
-  const token = await coreClient.getToken(MY_ACCOUNT_SCOPES, audiencePath);
-  const clientOptions: MyAccountClientOptions = {
-    domain: coreClient.auth.domain,
-    token: token || '',
+export function initializeMyAccountClient(
+  auth: AuthDetails,
+  tokenManagerService: ReturnType<typeof createTokenManager>,
+): {
+  client: MyAccountClient;
+  setLatestScopes: (scopes: string) => void;
+} {
+  let latestScopes = '';
+
+  const setLatestScopes = (scopes: string) => {
+    latestScopes = scopes;
   };
 
-  return new MyAccountClient(clientOptions);
-}
-
-/**
- * Creates an Authentication API service instance with access to various authentication operations.
- *
- * @param coreClient - The core client instance that provides authentication context and token management
- * @returns An authentication API service interface with MFA controller
- *
- * @example
- * ```typescript
- * const coreClient = await createCoreClient(authDetails);
- * const authService = createAuthenticationAPIService(coreClient);
- *
- * // Use MFA operations
- * const factors = await authService.mfa.fetchFactors();
- * ```
- */
-export async function createMyAccountAPIService(
-  coreClient: BaseCoreClientInterface,
-): Promise<MyAccountAPIServiceInterface> {
-  let myAccountClient: MyAccountClient | undefined;
-
-  if (!coreClient.isProxyMode()) {
-    myAccountClient = await createMyAccountClient(coreClient);
+  if (auth.authProxyUrl) {
+    const myAccountProxyPath = 'me';
+    const myAccountBaseUrl = `${auth.authProxyUrl.replace(/\/$/, '')}/${myAccountProxyPath}`;
+    const fetcher = async (url: string, init?: RequestInit) => {
+      return fetch(url, {
+        ...init,
+        headers: {
+          ...init?.headers,
+          ...(init?.body && { 'Content-Type': 'application/json' }),
+          ...(latestScopes && { 'auth0-scope': latestScopes }),
+        },
+      });
+    };
+    return {
+      client: new MyAccountClient({
+        domain: '',
+        baseUrl: myAccountBaseUrl.trim(),
+        telemetry: false,
+        fetcher,
+      }),
+      setLatestScopes,
+    };
+  } else if (auth.domain) {
+    const fetcher = async (url: string, init?: RequestInit) => {
+      const token = await tokenManagerService.getToken(latestScopes, 'me');
+      return fetch(url, {
+        ...init,
+        headers: {
+          ...init?.headers,
+          ...(init?.body && { 'Content-Type': 'application/json' }),
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+    };
+    return {
+      client: new MyAccountClient({
+        domain: auth.domain.trim(),
+        fetcher,
+      }),
+      setLatestScopes,
+    };
   }
-
-  return {
-    mfa: createMFAController(coreClient, myAccountClient),
-  };
+  throw new Error('Missing domain or proxy URL for MyAccountClient');
 }

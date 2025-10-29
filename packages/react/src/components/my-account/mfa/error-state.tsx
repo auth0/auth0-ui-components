@@ -13,10 +13,15 @@ export function MFAErrorState({ title, description, className }: ErrorStateProps
       role="alert"
       aria-live="assertive"
     >
-      <h1 className="text-base font-medium text-center text-destructive" id="mfa-error-title">
+      <h1
+        className="text-base font-medium text-center text-destructive-foreground"
+        id="mfa-error-title"
+      >
         {title}
       </h1>
-      <p className="text-sm text-center text-destructive whitespace-pre-line">{description}</p>
+      <p className="text-sm text-center text-destructive-foreground whitespace-pre-line">
+        {description}
+      </p>
     </div>
   );
 }

@@ -3,15 +3,12 @@ import type {
   EnrollOptions,
   ConfirmEnrollmentOptions,
 } from '@auth0-web-ui-components/core';
+import { MFAMappers } from '@auth0-web-ui-components/core';
 import { useCallback } from 'react';
 
 import type { UseMFAResult } from '../../../types/index';
 import { useCoreClient } from '../../use-core-client';
 
-/**
- * A custom React hook for managing all Multi-Factor Authentication (MFA) operations.
- * @returns {UseMfaResult} An object containing the functions to manage MFA factors.
- */
 export function useMFA(): UseMFAResult {
   const { coreClient } = useCoreClient();
 
@@ -20,20 +17,31 @@ export function useMFA(): UseMFAResult {
       'useMFA must be used within Auth0ComponentProvider with initialized CoreClient',
     );
   }
+
   const fetchFactors = useCallback(
-    (onlyActive = false) => coreClient.getMyAccountApiService().mfa.fetchFactors(onlyActive),
+    async (onlyActive = false) => {
+      const client = coreClient.getMyAccountApiClient();
+      const [availableFactorsResponse, enrolledFactorsResponse] = await Promise.all([
+        client.factors.list(),
+        client.authenticationMethods.list(),
+      ]);
+      return MFAMappers.fromAPI(availableFactorsResponse, enrolledFactorsResponse, onlyActive);
+    },
     [coreClient],
   );
 
   const enrollMfa = useCallback(
-    (factorName: MFAType, options: EnrollOptions = {}) =>
-      coreClient.getMyAccountApiService().mfa.enrollFactor(factorName, options),
+    (factorName: MFAType, options: EnrollOptions = {}) => {
+      const client = coreClient.getMyAccountApiClient();
+      const params = MFAMappers.buildEnrollParams(factorName, options);
+      return client.authenticationMethods.create(params);
+    },
     [coreClient],
   );
 
   const deleteMfa = useCallback(
     (authenticatorId: string) =>
-      coreClient.getMyAccountApiService().mfa.deleteFactor(authenticatorId),
+      coreClient.getMyAccountApiClient().authenticationMethods.delete(authenticatorId),
     [coreClient],
   );
 
@@ -43,10 +51,11 @@ export function useMFA(): UseMFAResult {
       authSession: string,
       authenticationMethodId: string,
       options: ConfirmEnrollmentOptions,
-    ) =>
-      coreClient
-        .getMyAccountApiService()
-        .mfa.confirmEnrollment(factorType, authSession, authenticationMethodId, options),
+    ) => {
+      const client = coreClient.getMyAccountApiClient();
+      const params = MFAMappers.buildConfirmEnrollmentParams(factorType, authSession, options);
+      return client.authenticationMethods.verify(authenticationMethodId, params);
+    },
     [coreClient],
   );
 

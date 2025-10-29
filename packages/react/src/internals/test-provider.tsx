@@ -1,15 +1,16 @@
-import type { CoreClientInterface, AuthDetailsCore } from '@auth0-web-ui-components/core';
+import type { CoreClientInterface, AuthDetails } from '@auth0-web-ui-components/core';
 import { render, type RenderResult } from '@testing-library/react';
 import React from 'react';
 
 import { CoreClientContext } from '../hooks/use-core-client';
+import { ScopeManagerProvider } from '../providers/scope-manager-provider';
 
-import { createMockCoreClient } from './__mocks__/core';
+import { createMockCoreClient } from './__mocks__/core/core-client.mocks';
 
 export interface TestProviderProps {
   children: React.ReactNode;
   coreClient?: CoreClientInterface;
-  authDetails?: Partial<AuthDetailsCore>;
+  authDetails?: Partial<AuthDetails>;
 }
 
 /**
@@ -29,7 +30,11 @@ export const TestProvider: React.FC<TestProviderProps> = ({
     [mockCoreClient],
   );
 
-  return <CoreClientContext.Provider value={contextValue}>{children}</CoreClientContext.Provider>;
+  return (
+    <CoreClientContext.Provider value={contextValue}>
+      <ScopeManagerProvider>{children}</ScopeManagerProvider>
+    </CoreClientContext.Provider>
+  );
 };
 
 /**
@@ -39,7 +44,7 @@ export const renderWithProviders = (
   component: React.ReactElement,
   options?: {
     coreClient?: CoreClientInterface;
-    authDetails?: Partial<AuthDetailsCore>;
+    authDetails?: Partial<AuthDetails>;
   },
 ): RenderResult => {
   return render(

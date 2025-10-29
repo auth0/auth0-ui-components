@@ -1,13 +1,13 @@
 import type {
   CoreClientInterface,
-  AuthDetailsCore,
+  AuthDetails,
   I18nInitOptions,
 } from '@auth0-web-ui-components/core';
 import { createCoreClient } from '@auth0-web-ui-components/core';
 import * as React from 'react';
 
 interface UseCoreClientInitializationProps {
-  authDetails: AuthDetailsCore;
+  authDetails: AuthDetails;
   i18nOptions?: I18nInitOptions;
 }
 
@@ -32,7 +32,7 @@ export const useCoreClientInitialization = ({
     };
 
     initializeCoreClient();
-  }, [authDetails, i18nOptions]);
+  }, [i18nOptions, authDetails]);
 
   return coreClient;
 };

@@ -8,6 +8,8 @@ import { CoreClientContext } from '../hooks/use-core-client';
 import { useCoreClientInitialization } from '../hooks/use-core-client-initialization';
 import type { InternalProviderProps } from '../types/auth-types';
 
+import { ScopeManagerProvider } from './scope-manager-provider';
+
 export const SpaProvider = ({
   i18n,
   authDetails,
@@ -31,12 +33,7 @@ export const SpaProvider = ({
       ...authDetails,
       contextInterface: auth0ContextInterface,
     }),
-    [
-      authDetails,
-      auth0ContextInterface.isAuthenticated,
-      auth0ContextInterface.getAccessTokenSilently,
-      auth0ContextInterface.user?.sub,
-    ],
+    [authDetails],
   );
 
   const coreClient = useCoreClientInitialization({
@@ -52,7 +49,9 @@ export const SpaProvider = ({
   );
 
   return (
-    <CoreClientContext.Provider value={coreClientValue}>{children}</CoreClientContext.Provider>
+    <CoreClientContext.Provider value={coreClientValue}>
+      <ScopeManagerProvider>{children}</ScopeManagerProvider>
+    </CoreClientContext.Provider>
   );
 };
 

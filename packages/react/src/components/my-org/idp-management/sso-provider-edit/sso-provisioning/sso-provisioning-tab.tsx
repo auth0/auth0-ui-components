@@ -1,7 +1,6 @@
 import { getComponentStyles } from '@auth0-web-ui-components/core';
 import * as React from 'react';
 
-import { withMyOrgService } from '../../../../../hoc/with-services';
 import { useSsoProviderEdit } from '../../../../../hooks/my-org/idp-management/use-sso-provider-edit';
 import { useTheme } from '../../../../../hooks/use-theme';
 import { useTranslator } from '../../../../../hooks/use-translator';
@@ -15,7 +14,7 @@ import { Switch } from '../../../../ui/switch';
 import { SsoProvisioningDeleteModal } from './sso-provisioning-delete-modal';
 import { SsoProvisioningDetails } from './sso-provisioning-details';
 
-function SsoProvisioningTabComponent({
+export function SsoProvisioningTab({
   provider,
   styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
   customMessages = {},
@@ -130,5 +129,3 @@ function SsoProvisioningTabComponent({
     </div>
   );
 }
-
-export const SsoProvisioningTab = withMyOrgService(SsoProvisioningTabComponent);

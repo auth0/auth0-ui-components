@@ -2,6 +2,7 @@ import {
   getComponentStyles,
   type IdentityProvider,
   STRATEGY_DISPLAY_NAMES,
+  MY_ORG_SSO_PROVIDER_TABLE_SCOPES,
 } from '@auth0-web-ui-components/core';
 import { Plus } from 'lucide-react';
 import * as React from 'react';
@@ -243,4 +244,7 @@ function SsoProviderTableComponent({
   );
 }
 
-export const SsoProviderTable = withMyOrgService(SsoProviderTableComponent);
+export const SsoProviderTable = withMyOrgService(
+  SsoProviderTableComponent,
+  MY_ORG_SSO_PROVIDER_TABLE_SCOPES,
+);

@@ -21,7 +21,7 @@ describe('useOrgDetailsEdit', () => {
 
     mockCoreClient = initMockCoreClient();
 
-    const apiService = mockCoreClient.getMyOrgApiService();
+    const apiService = mockCoreClient.getMyOrgApiClient();
     (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockResolvedValue(
       mockOrganization,
     );
@@ -39,9 +39,7 @@ describe('useOrgDetailsEdit', () => {
       renderHook(() => useOrgDetailsEdit({}));
 
       await waitFor(() => {
-        expect(mockCoreClient.getMyOrgApiService().organizationDetails.get).toHaveBeenCalledTimes(
-          1,
-        );
+        expect(mockCoreClient.getMyOrgApiClient().organizationDetails.get).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -80,11 +78,11 @@ describe('useOrgDetailsEdit', () => {
         await result.current.fetchOrgDetails();
       });
 
-      expect(mockCoreClient.getMyOrgApiService().organizationDetails.get).toHaveBeenCalledTimes(1);
+      expect(mockCoreClient.getMyOrgApiClient().organizationDetails.get).toHaveBeenCalledTimes(1);
     });
 
     it('should show error message if loading fails', async () => {
-      const apiService = mockCoreClient.getMyOrgApiService();
+      const apiService = mockCoreClient.getMyOrgApiClient();
       (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockRejectedValue(
         new Error('Network error'),
       );
@@ -110,13 +108,15 @@ describe('useOrgDetailsEdit', () => {
       await waitFor(() => {
         expect(result.current.organization).toEqual(mockOrganization);
       });
-
-      const updatedData = { ...mockOrganization, display_name: 'Updated Name' };
+      const updatedData = {
+        branding: mockOrganization.branding,
+        display_name: 'Updated Name',
+      };
       await act(async () => {
         await result.current.formActions.nextAction?.onClick?.(updatedData);
       });
 
-      expect(mockCoreClient.getMyOrgApiService().organizationDetails.update).toHaveBeenCalledWith(
+      expect(mockCoreClient.getMyOrgApiClient().organizationDetails.update).toHaveBeenCalledWith(
         updatedData,
       );
     });
@@ -180,7 +180,7 @@ describe('useOrgDetailsEdit', () => {
       });
 
       expect(onBefore).toHaveBeenCalledWith(mockOrganization);
-      expect(mockCoreClient.getMyOrgApiService().organizationDetails.update).toHaveBeenCalled();
+      expect(mockCoreClient.getMyOrgApiClient().organizationDetails.update).toHaveBeenCalled();
     });
 
     it('should allow onBefore callback to cancel save operation', async () => {
@@ -201,7 +201,7 @@ describe('useOrgDetailsEdit', () => {
       });
 
       expect(success!).toBe(false);
-      expect(mockCoreClient.getMyOrgApiService().organizationDetails.update).not.toHaveBeenCalled();
+      expect(mockCoreClient.getMyOrgApiClient().organizationDetails.update).not.toHaveBeenCalled();
     });
 
     it('should call onAfter callback after successful save', async () => {
@@ -221,7 +221,7 @@ describe('useOrgDetailsEdit', () => {
       });
 
       await waitFor(() => {
-        expect(mockCoreClient.getMyOrgApiService().organizationDetails.update).toHaveBeenCalled();
+        expect(mockCoreClient.getMyOrgApiClient().organizationDetails.update).toHaveBeenCalled();
       });
 
       await waitFor(() => {
@@ -230,7 +230,7 @@ describe('useOrgDetailsEdit', () => {
     });
 
     it('should handle save errors gracefully', async () => {
-      const apiService = mockCoreClient.getMyOrgApiService();
+      const apiService = mockCoreClient.getMyOrgApiClient();
       (apiService.organizationDetails.update as ReturnType<typeof vi.fn>).mockRejectedValue(
         new Error('Save failed'),
       );
@@ -298,7 +298,7 @@ describe('useOrgDetailsEdit', () => {
         onClick({} as Event);
       }
 
-      expect(mockCoreClient.getMyOrgApiService().organizationDetails.update).not.toHaveBeenCalled();
+      expect(mockCoreClient.getMyOrgApiClient().organizationDetails.update).not.toHaveBeenCalled();
     });
   });
 
@@ -322,7 +322,7 @@ describe('useOrgDetailsEdit', () => {
         resolveUpdate = resolve;
       });
 
-      const apiService = mockCoreClient.getMyOrgApiService();
+      const apiService = mockCoreClient.getMyOrgApiClient();
       (apiService.organizationDetails.update as ReturnType<typeof vi.fn>).mockReturnValue(
         updatePromise,
       );

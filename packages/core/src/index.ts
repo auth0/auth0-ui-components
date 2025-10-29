@@ -4,13 +4,7 @@ export { normalizeError, getStatusCode } from './api';
 
 export { createCoreClient } from './auth/core-client';
 
-export {
-  AuthDetailsCore,
-  CoreClientInterface,
-  MyOrgServiceConfig,
-  ServicesConfig,
-  BasicAuth0ContextInterface,
-} from './auth/auth-types';
+export { AuthDetails, CoreClientInterface, BasicAuth0ContextInterface } from './auth/auth-types';
 
 export * from './schemas';
 
@@ -38,5 +32,7 @@ export {
 export * from './types';
 
 export * from './services/my-org';
+
+export * from './services/my-account';
 
 export * from './assets/icons';

@@ -8,7 +8,6 @@ import {
 import { Trash2, Plus } from 'lucide-react';
 import * as React from 'react';
 
-import { withMyOrgService } from '../../../../../hoc';
 import { useTheme, useTranslator } from '../../../../../hooks';
 import { cn } from '../../../../../lib/theme-utils';
 import type { ProvisioningManageTokenProps } from '../../../../../types/my-org/idp-management/sso-provisioning/provisioning-manage-token-types';
@@ -34,7 +33,7 @@ const TOKEN_STATUS = {
   EXPIRED: 'expired',
 } as const;
 
-function ProvisioningManageTokenComponent({
+export function ProvisioningManageToken({
   isScimTokensLoading,
   isScimTokenCreating,
   isScimTokenDeleting,
@@ -245,5 +244,3 @@ function ProvisioningManageTokenComponent({
     </div>
   );
 }
-
-export const ProvisioningManageToken = withMyOrgService(ProvisioningManageTokenComponent);

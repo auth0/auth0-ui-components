@@ -74,7 +74,7 @@ describe('OrgDetailsEdit', () => {
     mockCoreClient = initMockCoreClient();
 
     // Override API responses to return full organization
-    const apiService = mockCoreClient.getMyOrgApiService();
+    const apiService = mockCoreClient.getMyOrgApiClient();
     (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockResolvedValue(
       mockOrganization,
     );
@@ -122,7 +122,7 @@ describe('OrgDetailsEdit', () => {
 
         // Verify API was not called due to validation failure
         expect(
-          mockCoreClient.getMyOrgApiService().organizationDetails.update,
+          mockCoreClient.getMyOrgApiClient().organizationDetails.update,
         ).not.toHaveBeenCalled();
       });
     });
@@ -294,7 +294,7 @@ describe('OrgDetailsEdit', () => {
             await waitFor(() => {
               expect(mockSaveAction.onBefore).toHaveBeenCalled();
               expect(
-                mockCoreClient.getMyOrgApiService().organizationDetails.update,
+                mockCoreClient.getMyOrgApiClient().organizationDetails.update,
               ).toHaveBeenCalled();
             });
           });
@@ -327,7 +327,7 @@ describe('OrgDetailsEdit', () => {
 
             // Verify API was NOT called
             expect(
-              mockCoreClient.getMyOrgApiService().organizationDetails.update,
+              mockCoreClient.getMyOrgApiClient().organizationDetails.update,
             ).not.toHaveBeenCalled();
           });
         });
@@ -360,7 +360,7 @@ describe('OrgDetailsEdit', () => {
           await waitFor(() => {
             expect(mockSaveAction.onAfter).toHaveBeenCalled();
             expect(
-              mockCoreClient.getMyOrgApiService().organizationDetails.update,
+              mockCoreClient.getMyOrgApiClient().organizationDetails.update,
             ).toHaveBeenCalled();
           });
         });

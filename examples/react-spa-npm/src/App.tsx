@@ -43,14 +43,6 @@ function App() {
 
   const defaultAuthDetails = {
     domain: config.auth0.domain,
-    servicesConfig: {
-      myAccount: {
-        enabled: config.auth0.enableMyAccount,
-      },
-      myOrg: {
-        enabled: config.auth0.enableMyOrg,
-      },
-    },
   };
 
   return (

@@ -3,6 +3,7 @@ import {
   FACTOR_TYPE_PUSH_NOTIFICATION,
   type MFAType,
   getComponentStyles,
+  USER_MFA_SCOPES,
 } from '@auth0-web-ui-components/core';
 import * as React from 'react';
 import { toast } from 'sonner';
@@ -17,7 +18,7 @@ import { Button } from '../../../components/ui/button';
 import { Card, CardContent, CardDescription, CardTitle } from '../../../components/ui/card';
 import { List, ListItem } from '../../../components/ui/list';
 import { Spinner } from '../../../components/ui/spinner';
-import { withAuthenticationService } from '../../../hoc/index';
+import { withMyAccountService } from '../../../hoc/';
 import { useTheme, useMFA, useTranslator } from '../../../hooks/index';
 import { ENROLL } from '../../../lib/mfa-constants';
 import type { CONFIRM } from '../../../lib/mfa-constants';
@@ -412,4 +413,4 @@ function UserMFAMgmtComponent({
   );
 }
 
-export const UserMFAMgmt = withAuthenticationService(UserMFAMgmtComponent);
+export const UserMFAMgmt = withMyAccountService(UserMFAMgmtComponent, USER_MFA_SCOPES);

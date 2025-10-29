@@ -1,78 +1,82 @@
 import * as React from 'react';
 
 import { Spinner } from '../components/ui/spinner';
-import { useTheme, useCoreClient } from '../hooks';
+import { useTheme, useScopeManager } from '../hooks';
 
 export interface ServiceRequirements {
-  myAccountApiService?: boolean;
-  myOrgService?: boolean;
+  myAccountApiScopes?: string;
+  myOrgApiScopes?: string;
 }
 
-/**
- * Higher-Order Component that ensures coreClient and required services are initialized
- * before rendering the wrapped component.
- *
- * This HOC provides a flexible way to specify which services are required for a component.
- *
- * @param WrappedComponent - The component that requires specific services
- * @param requirements - Configuration object specifying which services are required
- * @returns A new component that handles service initialization and loading states
- */
+function scopesSatisfied(required: string, ensured: string) {
+  if (!required) return true;
+  const requiredSet = required.split(' ').filter(Boolean);
+  const ensuredSet = new Set(ensured.split(' ').filter(Boolean));
+  return requiredSet.every((scope) => ensuredSet.has(scope));
+}
+
+function normalizeScopes(scopes?: string) {
+  return scopes
+    ? scopes
+        .split(' ')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .sort()
+        .join(' ')
+    : '';
+}
+
 export function withServices<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   requirements: ServiceRequirements = {},
 ): React.ComponentType<P> {
   const WithServicesComponent = (props: P) => {
     const { loader } = useTheme();
-    const { coreClient } = useCoreClient();
-
+    const { registerScopes, ensured } = useScopeManager();
     const defaultLoader = (
       <div className="fixed inset-0 flex items-center justify-center">
         <Spinner className="h-8 w-8" />
       </div>
     );
 
-    // Basic core client check
-    if (!coreClient) {
-      return <>{loader || defaultLoader}</>;
-    }
+    const requiredMe = normalizeScopes(requirements.myAccountApiScopes);
+    const requiredOrg = normalizeScopes(requirements.myOrgApiScopes);
 
-    // Check authentication service requirement
-    if (requirements.myAccountApiService && !coreClient.myAccountApiService) {
-      return <>{loader || defaultLoader}</>;
-    }
+    const meEnsured = scopesSatisfied(requiredMe, ensured.me);
+    const orgEnsured = scopesSatisfied(requiredOrg, ensured['my-org']);
 
-    // Check MyOrg service requirement
-    if (requirements.myOrgService && !coreClient.myOrgApiService) {
+    React.useEffect(() => {
+      if (requirements.myAccountApiScopes) {
+        registerScopes('me', requirements.myAccountApiScopes);
+      }
+      if (requirements.myOrgApiScopes) {
+        registerScopes('my-org', requirements.myOrgApiScopes);
+      }
+    }, [requirements.myAccountApiScopes, requirements.myOrgApiScopes, registerScopes]);
+
+    if (
+      (requirements.myAccountApiScopes && !meEnsured) ||
+      (requirements.myOrgApiScopes && !orgEnsured)
+    ) {
       return <>{loader || defaultLoader}</>;
     }
 
     return <WrappedComponent {...props} />;
   };
 
-  WithServicesComponent.displayName = `withServices(${WrappedComponent.displayName || WrappedComponent.name})`;
-
   return WithServicesComponent;
 }
 
-/**
- * HOC that requires authentication service (for MFA operations)
- */
-export const withAuthenticationService = <P extends object>(
+export function withMyOrgService<P extends object>(
   WrappedComponent: React.ComponentType<P>,
-) => withServices(WrappedComponent, { myAccountApiService: true });
+  scopes: string,
+): React.ComponentType<P> {
+  return withServices(WrappedComponent, { myOrgApiScopes: scopes });
+}
 
-/**
- * HOC that requires MyOrg service (for organization management)
- */
-export const withMyOrgService = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
-  withServices(WrappedComponent, { myOrgService: true });
-
-/**
- * HOC that requires all available services
- */
-export const withAllServices = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
-  withServices(WrappedComponent, {
-    myAccountApiService: true,
-    myOrgService: true,
-  });
+export function withMyAccountService<P extends object>(
+  WrappedComponent: React.ComponentType<P>,
+  scopes: string,
+): React.ComponentType<P> {
+  return withServices(WrappedComponent, { myAccountApiScopes: scopes });
+}

@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "auth0-myorg-sdk": "file:./dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz",
-    "@auth0/myaccount": "file:./dependencies/my-account-sdk/auth0-myaccount-0.0.309.tgz",
+    "@auth0/myaccount": "file:./dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz",
     "zod": "^3.25.56"
   }
 }

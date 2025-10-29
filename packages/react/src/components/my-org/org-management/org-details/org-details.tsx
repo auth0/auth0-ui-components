@@ -8,7 +8,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
-import { withMyOrgService } from '../../../../hoc/with-services';
 import { useTheme } from '../../../../hooks/use-theme';
 import { useTranslator } from '../../../../hooks/use-translator';
 import { cn } from '../../../../lib/theme-utils';
@@ -30,7 +29,7 @@ import { SettingsDetails } from './settings-details';
  * All data, validation, and business logic are handled via props passed from parent components.
  *
  */
-function OrgDetailsComponent({
+export function OrgDetails({
   organization,
   isLoading = false,
   schema,
@@ -187,5 +186,3 @@ function OrgDetailsComponent({
     </div>
   );
 }
-
-export const OrgDetails = withMyOrgService(OrgDetailsComponent);

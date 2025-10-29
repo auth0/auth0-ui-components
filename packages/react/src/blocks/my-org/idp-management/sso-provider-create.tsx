@@ -4,6 +4,7 @@ import {
   type ProviderDetailsFormValues,
   type ProviderConfigureFormValues,
   AVAILABLE_STRATEGY_LIST,
+  MY_ORG_SSO_PROVIDER_CREATE_SCOPES,
 } from '@auth0-web-ui-components/core';
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { Toaster } from 'sonner';
@@ -199,4 +200,7 @@ export function SsoProviderCreateComponent({
   );
 }
 
-export const SsoProviderCreate = withMyOrgService(SsoProviderCreateComponent);
+export const SsoProviderCreate = withMyOrgService(
+  SsoProviderCreateComponent,
+  MY_ORG_SSO_PROVIDER_CREATE_SCOPES,
+);

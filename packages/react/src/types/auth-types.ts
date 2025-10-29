@@ -1,13 +1,8 @@
-import type { AuthDetailsCore } from '@auth0-web-ui-components/core';
+import type { AuthDetails } from '@auth0-web-ui-components/core';
 import type * as React from 'react';
 
 import type { I18nOptions } from './i18n-types';
 import type { ThemeSettings } from './theme-types';
-
-/**
- * Auth0 authentication details with optional React-specific properties.
- */
-export type AuthDetails = Omit<AuthDetailsCore, 'accessToken'>;
 
 /**
  * Props for the Auth0ComponentProvider component.

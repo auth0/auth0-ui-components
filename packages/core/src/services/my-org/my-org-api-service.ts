@@ -1,42 +1,61 @@
-import type { BaseCoreClientInterface, MyOrgAPIServiceInterface } from '@core/auth/auth-types';
+import type { AuthDetails } from '@core/auth/auth-types';
+import type { createTokenManager } from '@core/auth/token-manager';
 import { MyOrgClient } from 'auth0-myorg-sdk';
 
-import { createIdentityProvidersController } from './idp-management';
-import { MY_ORG_SCOPES } from './my-org-api-constants';
-import { createOrganizationDetailsController } from './org-management';
+export function initializeMyOrgClient(
+  auth: AuthDetails,
+  tokenManagerService: ReturnType<typeof createTokenManager>,
+): {
+  client: MyOrgClient;
+  setLatestScopes: (scopes: string) => void;
+} {
+  let latestScopes = '';
 
-/**
- * Creates a configured MyOrgClient instance using user-based authentication
- */
-async function createMyOrgClient(coreClient: BaseCoreClientInterface): Promise<MyOrgClient> {
-  const { domain } = coreClient.auth;
-  const token = await coreClient.getToken(MY_ORG_SCOPES, 'my-org');
-
-  if (!domain?.trim() || !token?.trim()) {
-    throw new Error('Invalid or missing domain/token for MyOrg API client');
-  }
-
-  return new MyOrgClient({
-    domain: domain.trim(),
-    token: token.trim(),
-  });
-}
-
-/**
- * Creates an MyOrg API service instance with access to the different MyOrg operations.
- */
-export async function createMyOrgAPIService(
-  coreClient: BaseCoreClientInterface,
-): Promise<MyOrgAPIServiceInterface> {
-  let myOrgClient: MyOrgClient | undefined;
-
-  if (!coreClient.isProxyMode()) {
-    myOrgClient = await createMyOrgClient(coreClient);
-  }
-  return {
-    organizationDetails: createOrganizationDetailsController(coreClient, myOrgClient),
-    organization: {
-      identityProviders: createIdentityProvidersController(coreClient, myOrgClient),
-    },
+  const setLatestScopes = (scopes: string) => {
+    latestScopes = scopes;
   };
+
+  if (auth.authProxyUrl) {
+    const myOrgProxyPath = 'my-org';
+    const myOrgProxyBaseUrl = `${auth.authProxyUrl.replace(/\/$/, '')}/${myOrgProxyPath}`;
+    const fetcher = async (url: string, init?: RequestInit) => {
+      return fetch(url, {
+        ...init,
+        headers: {
+          ...init?.headers,
+          ...(init?.body && { 'Content-Type': 'application/json' }),
+          ...(latestScopes && { 'auth0-scope': latestScopes }),
+        },
+      });
+    };
+    return {
+      client: new MyOrgClient({
+        domain: '',
+        baseUrl: myOrgProxyBaseUrl.trim(),
+        telemetry: false,
+        fetcher,
+      }),
+      setLatestScopes,
+    };
+  } else if (auth.domain) {
+    const fetcher = async (url: string, init?: RequestInit) => {
+      const token = await tokenManagerService.getToken(latestScopes, 'my-org');
+      return fetch(url, {
+        ...init,
+        headers: {
+          ...init?.headers,
+          ...(init?.body && { 'Content-Type': 'application/json' }),
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+    };
+    return {
+      client: new MyOrgClient({
+        domain: auth.domain.trim(),
+        fetcher,
+      }),
+      setLatestScopes,
+    };
+  }
+  throw new Error('Missing domain or proxy URL for MyOrgClient');
 }

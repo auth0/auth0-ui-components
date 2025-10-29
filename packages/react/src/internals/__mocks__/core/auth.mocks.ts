@@ -1,20 +1,10 @@
-import type { AuthDetailsCore } from '@auth0-web-ui-components/core';
+import type { AuthDetails } from '@auth0-web-ui-components/core';
 import { vi } from 'vitest';
 
-export const createMockAuth = (overrides?: Partial<AuthDetailsCore>): AuthDetailsCore => ({
+export const createMockAuth = (overrides?: Partial<AuthDetails>): AuthDetails => ({
   domain: 'test-domain.auth0.com',
-  clientId: 'test-client-id',
-  accessToken: 'test-access-token',
   scopes: 'openid profile email',
   authProxyUrl: undefined,
-  servicesConfig: {
-    myAccount: {
-      enabled: true,
-    },
-    myOrg: {
-      enabled: true,
-    },
-  },
   contextInterface: {
     isAuthenticated: true,
     user: {
@@ -35,6 +25,7 @@ export const createMockAuth = (overrides?: Partial<AuthDetailsCore>): AuthDetail
         return 'mock-access-token';
       }),
     getAccessTokenWithPopup: vi.fn(),
+    loginWithRedirect: vi.fn(),
   },
   ...overrides,
 });

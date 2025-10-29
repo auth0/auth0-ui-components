@@ -1,5 +1,7 @@
 import {
   OrgDetailsFactory,
+  OrgDetailsMappers,
+  SsoProviderMappers,
   type IdentityProvider,
   type IdpId,
   type OrganizationPrivate,
@@ -57,7 +59,7 @@ export function useSsoProviderEdit(
     try {
       setIsLoading(true);
       const response = await coreClient
-        .getMyOrgApiService()
+        .getMyOrgApiClient()
         .organization.identityProviders.get(idpId);
 
       setProvider(response);
@@ -81,7 +83,9 @@ export function useSsoProviderEdit(
     try {
       setIsLoading(true);
 
-      const orgData = await coreClient.getMyOrgApiService().organizationDetails.get();
+      const response = await coreClient.getMyOrgApiClient().organizationDetails.get();
+      const orgData = OrgDetailsMappers.fromAPI(response);
+
       setOrganization(orgData);
     } catch (error) {
       const errorMessage =
@@ -106,7 +110,7 @@ export function useSsoProviderEdit(
     try {
       setIsProvisioningLoading(true);
       const result = await coreClient
-        .getMyOrgApiService()
+        .getMyOrgApiClient()
         .organization.identityProviders.provisioning.get(idpId);
 
       setProvisioningConfig(result);
@@ -144,9 +148,12 @@ export function useSsoProviderEdit(
           }
         }
 
+        const apiRequestData: UpdateIdentityProviderRequestContent = SsoProviderMappers.updateToAPI(
+          { strategy: provider.strategy, ...data },
+        );
         const result = await coreClient
-          .getMyOrgApiService()
-          .organization.identityProviders.update(idpId, { strategy: provider.strategy, ...data });
+          .getMyOrgApiClient()
+          .organization.identityProviders.update(idpId, apiRequestData);
         setProvider(result);
 
         showToast({
@@ -186,7 +193,7 @@ export function useSsoProviderEdit(
       }
 
       const result = await coreClient
-        .getMyOrgApiService()
+        .getMyOrgApiClient()
         .organization.identityProviders.provisioning.create(idpId);
 
       const updatedProvider = await fetchProvider();
@@ -229,7 +236,7 @@ export function useSsoProviderEdit(
       }
 
       await coreClient
-        .getMyOrgApiService()
+        .getMyOrgApiClient()
         .organization.identityProviders.provisioning.delete(idpId);
 
       setProvisioningConfig(null);
@@ -266,8 +273,8 @@ export function useSsoProviderEdit(
     try {
       setIsScimTokensLoading(true);
       const result = await coreClient
-        .getMyOrgApiService()
-        .organization.identityProviders.provisioning.listScimTokens(idpId);
+        .getMyOrgApiClient()
+        .organization.identityProviders.provisioning.scimTokens.list(idpId);
       return result;
     } catch (error) {
       showToast({
@@ -297,8 +304,8 @@ export function useSsoProviderEdit(
         }
 
         const result = await coreClient
-          .getMyOrgApiService()
-          .organization.identityProviders.provisioning.createScimToken(idpId, data);
+          .getMyOrgApiClient()
+          .organization.identityProviders.provisioning.scimTokens.create(idpId, data);
 
         showToast({
           type: 'success',
@@ -340,8 +347,8 @@ export function useSsoProviderEdit(
         }
 
         await coreClient
-          .getMyOrgApiService()
-          .organization.identityProviders.provisioning.deleteScimToken(idpId, idpScimTokenId);
+          .getMyOrgApiClient()
+          .organization.identityProviders.provisioning.scimTokens.delete(idpId, idpScimTokenId);
 
         showToast({
           type: 'success',
@@ -372,7 +379,7 @@ export function useSsoProviderEdit(
     try {
       setIsDeleting(true);
 
-      await coreClient.getMyOrgApiService().organization.identityProviders.delete(provider.id);
+      await coreClient.getMyOrgApiClient().organization.identityProviders.delete(provider.id);
 
       showToast({
         type: 'success',
@@ -410,7 +417,7 @@ export function useSsoProviderEdit(
 
       await fetchOrganizationDetails();
 
-      await coreClient.getMyOrgApiService().organization.identityProviders.detach(provider.id);
+      await coreClient.getMyOrgApiClient().organization.identityProviders.detach(provider.id);
 
       showToast({
         type: 'success',

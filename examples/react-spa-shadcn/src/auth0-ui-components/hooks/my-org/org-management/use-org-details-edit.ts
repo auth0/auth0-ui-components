@@ -1,4 +1,8 @@
-import { OrgDetailsFactory, type OrganizationPrivate } from '@auth0-web-ui-components/core';
+import {
+  OrgDetailsFactory,
+  OrgDetailsMappers,
+  type OrganizationPrivate,
+} from '@auth0-web-ui-components/core';
 import { useCallback, useMemo, useState, useEffect } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
@@ -38,7 +42,9 @@ export function useOrgDetailsEdit({
     try {
       setIsFetchLoading(true);
 
-      const orgData = await coreClient.getMyOrgApiService().organizationDetails.get();
+      const response = await coreClient.getMyOrgApiClient().organizationDetails.get();
+      const orgData = OrgDetailsMappers.fromAPI(response);
+
       setOrganization(orgData);
     } catch (error) {
       const errorMessage =
@@ -74,7 +80,11 @@ export function useOrgDetailsEdit({
           }
         }
 
-        const updatedOrg = await coreClient.getMyOrgApiService().organizationDetails.update(data);
+        const updateData = OrgDetailsMappers.toAPI(data);
+        const response = await coreClient
+          .getMyOrgApiClient()
+          .organizationDetails.update(updateData);
+        const updatedOrg = OrgDetailsMappers.fromAPI(response);
         setOrganization(updatedOrg);
 
         showToast({

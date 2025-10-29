@@ -1,8 +1,10 @@
-import type {
-  ComponentAction,
-  IdentityProvider,
-  OrganizationPrivate,
-  UpdateIdentityProviderRequestContentPrivate,
+import {
+  OrgDetailsMappers,
+  SsoProviderMappers,
+  type UpdateIdentityProviderRequestContent,
+  type ComponentAction,
+  type IdentityProvider,
+  type OrganizationPrivate,
 } from '@auth0-web-ui-components/core';
 import { useCallback, useState, useEffect } from 'react';
 
@@ -38,9 +40,11 @@ export function useSsoProviderTable(
     }
 
     try {
-      const response = await coreClient.getMyOrgApiService().organizationDetails.get();
-      setOrganization(response);
-      return response;
+      const response = await coreClient.getMyOrgApiClient().organizationDetails.get();
+      const orgData = OrgDetailsMappers.fromAPI(response);
+
+      setOrganization(orgData);
+      return orgData;
     } catch (error) {
       showToast({
         type: 'error',
@@ -58,7 +62,7 @@ export function useSsoProviderTable(
     try {
       setIsDataLoading(true);
 
-      const response = await coreClient.getMyOrgApiService().organization.identityProviders.list();
+      const response = await coreClient.getMyOrgApiClient().organization.identityProviders.list();
 
       const providers = response?.identity_providers ?? [];
       setProviders(providers as IdentityProvider[]);
@@ -88,14 +92,15 @@ export function useSsoProviderTable(
           }
         }
 
-        const updateData: UpdateIdentityProviderRequestContentPrivate = {
-          strategy: selectedIdp.strategy,
-          is_enabled: enabled,
-        };
-
+        const apiRequestData: UpdateIdentityProviderRequestContent = SsoProviderMappers.updateToAPI(
+          {
+            strategy: selectedIdp.strategy,
+            is_enabled: enabled,
+          },
+        );
         const updatedProvider = await coreClient
-          .getMyOrgApiService()
-          .organization.identityProviders.update(selectedIdp.id, updateData);
+          .getMyOrgApiClient()
+          .organization.identityProviders.update(selectedIdp.id, apiRequestData);
 
         if (enableAction?.onAfter) {
           await enableAction.onAfter(selectedIdp);
@@ -135,7 +140,7 @@ export function useSsoProviderTable(
       try {
         setIsDeleting(true);
 
-        await coreClient.getMyOrgApiService().organization.identityProviders.delete(selectedIdp.id);
+        await coreClient.getMyOrgApiClient().organization.identityProviders.delete(selectedIdp.id);
 
         if (deleteAction?.onAfter) {
           await deleteAction.onAfter(selectedIdp);
@@ -170,7 +175,7 @@ export function useSsoProviderTable(
 
         const orgData = await fetchOrganizationDetails();
 
-        await coreClient.getMyOrgApiService().organization.identityProviders.detach(selectedIdp.id);
+        await coreClient.getMyOrgApiClient().organization.identityProviders.detach(selectedIdp.id);
 
         if (removeFromOrg?.onAfter) {
           await removeFromOrg.onAfter(selectedIdp);

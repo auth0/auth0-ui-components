@@ -37,7 +37,7 @@ export function withServices<P extends object>(
     }
 
     // Check MyOrg service requirement
-    if (requirements.myOrgService && !coreClient.myOrgApiService) {
+    if (requirements.myOrgService && !coreClient.myOrgApiClient) {
       return <>{loader || <Spinner />}</>;
     }
 
