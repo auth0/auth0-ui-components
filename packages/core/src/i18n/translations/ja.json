@@ -528,7 +528,8 @@
             "header": {
               "title": "プロビジョニング",
               "description": "ユーザープロファイルを組織に同期するためのプロビジョニングを設定します。",
-              "guided_setup_button_label": "ガイド付きセットアップ"
+              "guided_setup_button_label": "ガイド付きセットアップ",
+              "enable_provisioning_tooltip": "プロビジョニングを作成するにはプロバイダーを有効にしてください"
             },
             "warning_alert_message": {
               "title": "プロビジョニングのマッピングが更新されました。",
@@ -539,6 +540,20 @@
             "notifications": {
               "provisioning_enabled_message": "${providerName}への変更が保存されました。",
               "provisioning_disabled_message": "プロビジョニングが無効になりました。"
+            },
+            "mappings": {
+              "title": "マッピング",
+              "description": "正しいユーザー属性がアイデンティティプロバイダーからサービスプロバイダーに渡されることを確認してください。",
+              "card": {
+                "title": "必須属性",
+                "description": "有効な<strategy>属性が次の属性にマッピングされていることを確認してください。",
+                "table": {
+                  "columns": {
+                    "attribute_name_label": "属性名",
+                    "external_field_label": "外部フィールド"
+                  }
+                }
+              }
             },
             "delete": {
               "modal": {

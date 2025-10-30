@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form';
 
 import { useCoreClient, useTheme } from '../../../../../hooks';
 import { useTranslator } from '../../../../../hooks';
+import { cn } from '../../../../../lib/theme-utils';
 import type { SsoProvisioningDetailsProps } from '../../../../../types/my-org/idp-management/sso-provisioning/sso-provisioning-tab-types';
 import { CopyableTextField } from '../../../../ui/copyable-text-field';
 import {
@@ -22,10 +23,10 @@ import {
   FormLabel,
   FormMessage,
 } from '../../../../ui/form';
-import { FormActions } from '../../../../ui/form-actions';
 import { TextField } from '../../../../ui/text-field';
 
 import { ProvisioningManageToken } from './provisioning-manage-token';
+import { ProvisioningFieldMappings } from './provisioning-mappings';
 
 export function SsoProvisioningDetails({
   provider,
@@ -68,12 +69,10 @@ export function SsoProvisioningDetails({
     },
   });
 
-  const { isDirty, isValid } = form.formState;
-
   return (
     <div
       style={currentStyles.variables}
-      className={currentStyles.classes?.['SsoProvisioningDetails-root']}
+      className={cn('space-y-6', currentStyles.classes?.['SsoProvisioningDetails-root'])}
     >
       <Form {...form}>
         <form className="space-y-6">
@@ -86,7 +85,7 @@ export function SsoProvisioningDetails({
                   {t('fields.user_id_attribute.label')}
                 </FormLabel>
                 <FormControl>
-                  <TextField error={Boolean(fieldState.error)} {...field} />
+                  <TextField readOnly error={Boolean(fieldState.error)} {...field} />
                 </FormControl>
                 <FormMessage
                   className="text-left text-sm text-(length:--font-size-paragraph)"
@@ -128,22 +127,14 @@ export function SsoProvisioningDetails({
               </FormItem>
             )}
           />
-
-          <FormActions
-            showNext={false}
-            nextAction={{
-              label: t('save_button_label'),
-              disabled: !isDirty || !isValid,
-              type: 'submit',
-            }}
-            showPrevious={false}
-            unsavedChangesText={t('unsaved_changes_text')}
-            showUnsavedChanges={isDirty}
-            align="right"
-            className={currentStyles.classes?.['SsoProvisioningDetails-formActions']}
-          />
         </form>
       </Form>
+      <div className="mt-6">
+        <ProvisioningFieldMappings
+          provisioningFieldMap={provisioningConfig?.fields ?? null}
+          customMessages={customMessages.field_mappings}
+        />
+      </div>
     </div>
   );
 }

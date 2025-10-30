@@ -10,7 +10,7 @@ function Accordion({ className, ...props }: React.ComponentProps<typeof Accordio
   return (
     <AccordionPrimitive.Root
       data-slot="accordion"
-      className={cn('w-full space-y-2', className)}
+      className={cn('w-full space-y-2 bg-card', className)}
       {...props}
     />
   );
@@ -24,7 +24,7 @@ function AccordionItem({
     <AccordionPrimitive.Item
       data-slot="accordion-item"
       className={cn(
-        'bg-input theme-default:hover:bg-muted/25 hover:bg-accent/15 shadow-input-resting hover:shadow-input-hover rounded-2xl transition-all duration-150 ease-in-out',
+        'text-card-foreground shadow-bevel-2xl flex flex-col rounded-2xl transition-all duration-150 ease-in-out',
         className,
       )}
       {...props}

@@ -8,6 +8,8 @@ import type {
   SsoProvisioningDetailsMessages,
   GetIdPProvisioningConfigResponseContent,
   SsoProvisioningDeleteMessages,
+  ProvisioningFieldMappingsMessages,
+  ProvisioningFieldMap,
 } from '@auth0-web-ui-components/core';
 
 import type { ProvisioningManageTokenClasses } from './provisioning-manage-token-types';
@@ -61,4 +63,10 @@ export interface SsoProvisioningDetailsProps
     data: CreateIdpProvisioningScimTokenRequestContent,
   ) => Promise<CreateIdpProvisioningScimTokenResponseContent | undefined>;
   onDeleteScimToken: (idpScimTokenId: string) => Promise<void>;
+}
+
+export interface ProvisioningFieldMappingsProps
+  extends SharedComponentProps<ProvisioningFieldMappingsMessages> {
+  provisioningFieldMap: ProvisioningFieldMap | null;
+  className?: string;
 }

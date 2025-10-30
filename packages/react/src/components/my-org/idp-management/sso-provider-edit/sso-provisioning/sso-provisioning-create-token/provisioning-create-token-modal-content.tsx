@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { useTranslator } from '../../../../../hooks';
-import { cn } from '../../../../../lib/theme-utils';
-import type { ProvisioningCreateTokenModalContentProps } from '../../../../../types/my-org/idp-management/sso-provisioning/provisioning-token-types';
-import { CopyableTextField } from '../../../../ui/copyable-text-field';
-import { Label } from '../../../../ui/label';
+import { useTranslator } from '../../../../../../hooks';
+import { cn } from '../../../../../../lib/theme-utils';
+import type { ProvisioningCreateTokenModalContentProps } from '../../../../../../types/my-org/idp-management/sso-provisioning/provisioning-token-types';
+import { CopyableTextField } from '../../../../../ui/copyable-text-field';
+import { Label } from '../../../../../ui/label';
 
 export function ProvisioningCreateTokenModalContent({
   token,

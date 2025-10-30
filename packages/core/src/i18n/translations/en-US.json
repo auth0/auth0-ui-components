@@ -528,7 +528,8 @@
             "header": {
               "title": "Provisioning",
               "description": "Set up provisioning to allow user profile syncing to your organization.",
-              "guided_setup_button_label": "Guided Setup"
+              "guided_setup_button_label": "Guided Setup",
+              "enable_provisioning_tooltip": "Enable provider to create provisioning"
             },
             "warning_alert_message": {
               "title": "Mappings for provisioning have been updated.",
@@ -539,6 +540,20 @@
             "notifications": {
               "provisioning_enabled_message": "Changes to ${providerName} have been saved.",
               "provisioning_disabled_message": "Provisioning has been disabled."
+            },
+            "mappings": {
+              "title": "Mapping",
+              "description": "Ensure that the correct user attributes are passed from the identity provider to the service provider.",
+              "card": {
+                "title": "Required Attributes",
+                "description": "Ensure that a valid <strategy> attribute is mapped to the following attributes.",
+                "table": {
+                  "columns": {
+                    "attribute_name_label": "Attribute Name",
+                    "external_field_label": "External Field"
+                  }
+                }
+              }
             },
             "delete": {
               "modal": {

@@ -24,8 +24,8 @@ import {
 import { Spinner } from '../../../../ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../../../ui/tooltip';
 
-import { ProvisioningCreateTokenModal } from './provisioning-create-token-modal';
-import { ProvisioningDeleteTokenModal } from './provisioning-delete-token-modal';
+import { ProvisioningCreateTokenModal } from './sso-provisioning-create-token/provisioning-create-token-modal';
+import { ProvisioningDeleteTokenModal } from './sso-provisioning-delete-token/provisioning-delete-token-modal';
 
 const MAX_TOKENS = 2;
 const TOKEN_STATUS = {

@@ -12,3 +12,4 @@ export type CreateIdpProvisioningScimTokenRequestContent =
   Auth0MyOrg.CreateIdpProvisioningScimTokenRequestContent;
 export type IdpProvisioningConfig = Auth0MyOrg.IdpProvisioningConfig;
 export type IdpScimTokenBase = Auth0MyOrg.IdpScimTokenBase;
+export type ProvisioningFieldMap = Auth0MyOrg.IdpProvisioningFieldMapItem[];

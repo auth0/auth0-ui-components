@@ -6,9 +6,17 @@ import { useTheme } from '../../../../../hooks/use-theme';
 import { useTranslator } from '../../../../../hooks/use-translator';
 import { cn } from '../../../../../lib/theme-utils';
 import type { SsoProvisioningTabProps } from '../../../../../types/my-org/idp-management/sso-provisioning/sso-provisioning-tab-types';
-import { Card, CardAction, CardDescription, CardHeader, CardTitle } from '../../../../ui/card';
+import {
+  Card,
+  CardAction,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from '../../../../ui/card';
 import { Spinner } from '../../../../ui/spinner';
 import { Switch } from '../../../../ui/switch';
+import { Tooltip, TooltipTrigger, TooltipContent } from '../../../../ui/tooltip';
 
 // import { ProvisioningWarningAlert } from './provisioning-warning-alert';
 import { SsoProvisioningDeleteModal } from './sso-provisioning-delete-modal';
@@ -72,6 +80,7 @@ export function SsoProvisioningTab({
 
   const isLoading = isProvisioningLoading || isProvisioningUpdating || isProvisioningDeleting;
   const isProvisioningEnabled = !!provisioningConfig;
+  const enableProvisioningToggle = isLoading || !provider?.id || !provider.is_enabled;
 
   return (
     <div
@@ -81,7 +90,7 @@ export function SsoProvisioningTab({
       {/* <ProvisioningWarningAlert/> */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-medium text-foreground text-left">
+          <CardTitle className="text-lg font-medium text-foreground text-left">
             {t('header.title')}
           </CardTitle>
           <CardDescription className="text-sm text-muted-foreground text-left">
@@ -93,32 +102,40 @@ export function SsoProvisioningTab({
                 {isLoading ? (
                   <Spinner className="w-4 h-4" />
                 ) : (
-                  <Switch
-                    checked={isProvisioningEnabled}
-                    onCheckedChange={handleProvisioningToggle}
-                    disabled={isLoading || !provider?.id}
-                  />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Switch
+                        checked={isProvisioningEnabled}
+                        onCheckedChange={handleProvisioningToggle}
+                        disabled={enableProvisioningToggle}
+                      />
+                    </TooltipTrigger>
+                    {!provider.is_enabled && (
+                      <TooltipContent>{t('header.enable_provisioning_tooltip')}</TooltipContent>
+                    )}
+                  </Tooltip>
                 )}
               </div>
             </div>
           </CardAction>
         </CardHeader>
+        <CardContent>
+          {isProvisioningEnabled && (
+            <SsoProvisioningDetails
+              provider={provider}
+              provisioningConfig={provisioningConfig}
+              isScimTokensLoading={isScimTokensLoading}
+              isScimTokenCreating={isScimTokenCreating}
+              isScimTokenDeleting={isScimTokenDeleting}
+              onListScimTokens={listScimTokens}
+              onCreateScimToken={createScimToken}
+              onDeleteScimToken={deleteScimToken}
+              customMessages={customMessages}
+              styling={styling}
+            />
+          )}
+        </CardContent>
       </Card>
-
-      {isProvisioningEnabled && (
-        <SsoProvisioningDetails
-          provider={provider}
-          provisioningConfig={provisioningConfig}
-          isScimTokensLoading={isScimTokensLoading}
-          isScimTokenCreating={isScimTokenCreating}
-          isScimTokenDeleting={isScimTokenDeleting}
-          onListScimTokens={listScimTokens}
-          onCreateScimToken={createScimToken}
-          onDeleteScimToken={deleteScimToken}
-          customMessages={customMessages}
-          styling={styling}
-        />
-      )}
 
       <SsoProvisioningDeleteModal
         open={isDeleteModalOpen}

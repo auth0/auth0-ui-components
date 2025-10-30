@@ -1,6 +1,6 @@
-import { useTranslator } from '../../../../../hooks';
-import { cn } from '../../../../../lib/theme-utils';
-import type { ProvisioningDeleteTokenModalContentProps } from '../../../../../types/my-org/idp-management/sso-provisioning/provisioning-token-types';
+import { useTranslator } from '../../../../../../hooks';
+import { cn } from '../../../../../../lib/theme-utils';
+import type { ProvisioningDeleteTokenModalContentProps } from '../../../../../../types/my-org/idp-management/sso-provisioning/provisioning-token-types';
 
 export function ProvisioningDeleteTokenModalContent({
   customMessages = {},

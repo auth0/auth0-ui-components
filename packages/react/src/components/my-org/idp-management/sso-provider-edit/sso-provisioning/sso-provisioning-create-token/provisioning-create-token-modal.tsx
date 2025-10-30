@@ -1,9 +1,9 @@
 import { Copy } from 'lucide-react';
 import * as React from 'react';
 
-import { useTranslator } from '../../../../../hooks';
-import type { ProvisioningCreateTokenModalProps } from '../../../../../types/my-org/idp-management/sso-provisioning/provisioning-manage-token-types';
-import { Modal } from '../../../../ui/modal';
+import { useTranslator } from '../../../../../../hooks';
+import type { ProvisioningCreateTokenModalProps } from '../../../../../../types/my-org/idp-management/sso-provisioning/provisioning-manage-token-types';
+import { Modal } from '../../../../../ui/modal';
 
 import { ProvisioningCreateTokenModalContent } from './provisioning-create-token-modal-content';
 

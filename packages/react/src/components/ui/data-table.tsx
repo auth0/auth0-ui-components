@@ -194,7 +194,7 @@ function CopyButton({
   };
 
   return (
-    <InlineCode className="max-w-[200px] flex items-center justify-between gap-2 pr-1">
+    <InlineCode className="w-full flex items-center justify-between gap-2 pr-1">
       <span className="truncate text-muted-foreground">{String(value)}</span>
 
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>

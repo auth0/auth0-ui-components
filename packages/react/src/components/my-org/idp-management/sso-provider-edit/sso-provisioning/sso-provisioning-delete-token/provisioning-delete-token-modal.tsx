@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { useTranslator } from '../../../../../hooks';
-import type { ProvisioningDeleteTokenModalProps } from '../../../../../types/my-org/idp-management/sso-provisioning/provisioning-manage-token-types';
-import { Modal } from '../../../../ui/modal';
+import { useTranslator } from '../../../../../../hooks';
+import type { ProvisioningDeleteTokenModalProps } from '../../../../../../types/my-org/idp-management/sso-provisioning/provisioning-manage-token-types';
+import { Modal } from '../../../../../ui/modal';
 
 import { ProvisioningDeleteTokenModalContent } from './provisioning-delete-token-modal-content';
 

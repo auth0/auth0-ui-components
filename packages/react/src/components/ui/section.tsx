@@ -104,7 +104,7 @@ export function Section({
           {title && (
             <h3
               className={cn(
-                'text-lg text-(length:--font-size-subtitle) font-semibold mb-1 text-left',
+                'text-lg text-foreground text-(length:--font-size-subtitle) font-semibold mb-1 text-left',
               )}
             >
               {title}
