@@ -54,7 +54,10 @@ export function OrgDelete({
   return (
     <>
       <div style={currentStyles.variables} className="w-full">
-        <Card className={cn('p-6', currentStyles.classes?.OrgDelete_card)}>
+        <Card
+          className={cn('p-6', currentStyles.classes?.OrgDelete_card)}
+          data-testid="org-delete-card"
+        >
           <CardContent className="flex items-start justify-between gap-6 p-0">
             <div className="flex-1 space-y-2">
               <h3
