@@ -10,7 +10,7 @@ export function ProvisioningFieldMappings({
   className,
 }: ProvisioningFieldMappingsProps) {
   const { t } = useTranslator(
-    'idp_management.edit_sso_provider.tabs.provisioning.content.mappings',
+    'idp_management.edit_sso_provider.tabs.provisioning.content.details.mappings',
     customMessages,
   );
 

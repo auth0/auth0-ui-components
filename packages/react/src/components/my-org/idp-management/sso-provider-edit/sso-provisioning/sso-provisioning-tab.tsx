@@ -130,7 +130,7 @@ export function SsoProvisioningTab({
               onListScimTokens={listScimTokens}
               onCreateScimToken={createScimToken}
               onDeleteScimToken={deleteScimToken}
-              customMessages={customMessages}
+              customMessages={customMessages.details}
               styling={styling}
             />
           )}

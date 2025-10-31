@@ -8,7 +8,7 @@ export function ProvisioningDeleteTokenModalContent({
   tokenId,
 }: ProvisioningDeleteTokenModalContentProps) {
   const { t } = useTranslator(
-    'idp_management.edit_sso_provider.tabs.provisioning.content.manage_tokens.delete_modal.content',
+    'idp_management.edit_sso_provider.tabs.provisioning.content.details.manage_tokens.delete_modal.content',
     customMessages,
   );
 

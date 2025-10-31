@@ -50,7 +50,7 @@ export interface SsoProviderRemoveFromOrgProps
     SsoProviderDeleteSchema
   > {
   provider: IdentityProvider;
-  organizationName: string;
+  organizationName: string | undefined;
   onRemove: (provider: IdentityProvider) => Promise<void>;
   isLoading?: boolean;
 }

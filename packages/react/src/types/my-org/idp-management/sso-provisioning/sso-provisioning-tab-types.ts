@@ -39,6 +39,8 @@ export interface SsoProvisioningTabProps
   onDeleteScimToken: (idpScimTokenId: string) => Promise<void>;
 }
 
+export interface SsoProvisioningTabSchemas {}
+
 export interface SsoProvisioningDetailsClasses extends ProvisioningManageTokenClasses {
   'SsoProvisioningDetails-root'?: string;
   'SsoProvisioningDetails-formActions'?: string;
@@ -52,7 +54,11 @@ export interface SsoProvisioningDeleteModalProps
 }
 
 export interface SsoProvisioningDetailsProps
-  extends SharedComponentProps<SsoProvisioningDetailsMessages, SsoProvisioningDetailsClasses> {
+  extends SharedComponentProps<
+    SsoProvisioningDetailsMessages,
+    SsoProvisioningDetailsClasses,
+    SsoProvisioningTabSchemas
+  > {
   provider: IdentityProvider;
   provisioningConfig: GetIdPProvisioningConfigResponseContent | null;
   isScimTokensLoading: boolean;

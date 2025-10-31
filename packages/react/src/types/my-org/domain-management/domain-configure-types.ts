@@ -1,6 +1,8 @@
-import type { Domain, DomainConfigureMessages } from '@auth0-web-ui-components/core';
-
-import type { IdentityProvider } from '../idp-management/sso-provider/sso-provider-table-types';
+import type {
+  Domain,
+  DomainConfigureMessages,
+  IdentityProviderAssociatedWithDomain,
+} from '@auth0-web-ui-components/core';
 
 export interface DomainConfigureProvidersModalProps {
   className?: string;
@@ -9,12 +11,16 @@ export interface DomainConfigureProvidersModalProps {
   isLoading: boolean;
   isLoadingSwitch: boolean;
   domain: Domain | null;
-  providers: IdentityProvider[];
+  providers: IdentityProviderAssociatedWithDomain[];
   onClose: () => void;
   // Enable/disable for selected provider
-  onToggleSwitch: (domain: Domain, provider: IdentityProvider, enable: boolean) => void;
+  onToggleSwitch: (
+    domain: Domain,
+    provider: IdentityProviderAssociatedWithDomain,
+    enable: boolean,
+  ) => void;
   // Open selected provider
-  onOpenProvider?: (provider: IdentityProvider) => void;
+  onOpenProvider?: (provider: IdentityProviderAssociatedWithDomain) => void;
   // Open create provider wizard
   onCreateProvider?: () => void;
 }

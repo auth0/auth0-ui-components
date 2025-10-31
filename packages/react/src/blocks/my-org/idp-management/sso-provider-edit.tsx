@@ -3,6 +3,7 @@
 import { getComponentStyles, MY_ORG_SSO_PROVIDER_EDIT_SCOPES } from '@auth0-web-ui-components/core';
 import React, { useState } from 'react';
 
+import { SsoDomainTab } from '../../../components/my-org/idp-management/sso-provider-edit/sso-domain-tab';
 import { SsoProviderTab } from '../../../components/my-org/idp-management/sso-provider-edit/sso-provider-tab';
 import { SsoProvisioningTab } from '../../../components/my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab';
 import { Header } from '../../../components/ui/header';
@@ -30,6 +31,8 @@ export function SsoProviderEditComponent({
     variables: { common: {}, light: {}, dark: {} },
     classes: {},
   },
+  domains,
+  schema,
 }: SsoProviderEditProps) {
   const { t } = useTranslator('idp_management.edit_sso_provider', customMessages);
   const { isDarkMode } = useTheme();
@@ -166,7 +169,14 @@ export function SsoProviderEditComponent({
         </TabsContent>
 
         <TabsContent value="domain">
-          <></>
+          <SsoDomainTab
+            customMessages={customMessages.tabs?.domains?.content}
+            styling={styling}
+            domains={domains}
+            schema={schema?.domains}
+            idpId={idpId}
+            provider={provider}
+          />
         </TabsContent>
       </Tabs>
     </div>

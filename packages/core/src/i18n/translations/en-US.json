@@ -535,26 +535,6 @@
               "title": "Mappings for provisioning have been updated.",
               "description": " Please review the attributes and update your identity provider configuration to ensure proper provisioning."
             },
-            "save_button_label": "Save",
-            "unsaved_changes_text": "Unsaved changes",
-            "notifications": {
-              "provisioning_enabled_message": "Changes to ${providerName} have been saved.",
-              "provisioning_disabled_message": "Provisioning has been disabled."
-            },
-            "mappings": {
-              "title": "Mapping",
-              "description": "Ensure that the correct user attributes are passed from the identity provider to the service provider.",
-              "card": {
-                "title": "Required Attributes",
-                "description": "Ensure that a valid <strategy> attribute is mapped to the following attributes.",
-                "table": {
-                  "columns": {
-                    "attribute_name_label": "Attribute Name",
-                    "external_field_label": "External Field"
-                  }
-                }
-              }
-            },
             "delete": {
               "modal": {
                 "title": "Disable provisioning",
@@ -567,62 +547,147 @@
                 }
               }
             },
-            "manage_tokens": {
-              "title": "Bearer Tokens",
-              "description": "Generate a bearer token to provide your identity provider. You can create up to two tokens.",
-              "generate_button_label": "Generate Token",
-              "max_tokens_tooltip": "Maximum 2 tokens allowed",
-              "empty_state": {
-                "title": "No tokens created yet",
-                "description": "Generate a bearer token to authenticate SCIM requests from your identity provider."
-              },
-              "table": {
-                "token_id_label": "Token ID",
-                "created_label": "Created",
-                "expires_label": "Expires",
-                "actions_label": "Actions"
-              },
-              "token_item": {
-                "token_prefix": "Token",
-                "never_expire": "This token will never expire.",
-                "last_used": "Last used: Never",
-                "status_active": "Active",
-                "status_expired": "Expired",
-                "delete_button_label": "Delete"
-              },
-              "create_modal": {
-                "title": "Bearer Token Information",
-                "copy_and_close_button_label": "Copy and Close",
-                "content": {
-                  "description": "Copy the bearer token to provide your identity provider. It will not be displayed again upon closing this dialog.",
-                  "field": {
-                    "label": "Token"
+            "details": {
+              "manage_tokens": {
+                "title": "Bearer Tokens",
+                "description": "Generate a bearer token to provide your identity provider. You can create up to two tokens.",
+                "generate_button_label": "Generate Token",
+                "max_tokens_tooltip": "Maximum 2 tokens allowed",
+                "empty_state": {
+                  "title": "No tokens created yet",
+                  "description": "Generate a bearer token to authenticate SCIM requests from your identity provider."
+                },
+                "table": {
+                  "token_id_label": "Token ID",
+                  "created_label": "Created",
+                  "expires_label": "Expires",
+                  "actions_label": "Actions"
+                },
+                "token_item": {
+                  "token_prefix": "Token",
+                  "never_expire": "This token will never expire.",
+                  "last_used": "Last used: Never",
+                  "status_active": "Active",
+                  "status_expired": "Expired",
+                  "delete_button_label": "Delete"
+                },
+                "create_modal": {
+                  "title": "Bearer Token Information",
+                  "copy_and_close_button_label": "Copy and Close",
+                  "content": {
+                    "description": "Copy the bearer token to provide your identity provider. It will not be displayed again upon closing this dialog.",
+                    "field": {
+                      "label": "Token"
+                    }
+                  }
+                },
+                "delete_modal": {
+                  "title": "Delete token ${tokenId}",
+                  "cancel_button_label": "Cancel",
+                  "delete_button_label": "Delete Token",
+                  "content": {
+                    "confirmation": "Are you sure you want to delete token ${tokenId}? This action cannot be undone.",
+                    "description": "To avoid downtime, consider creating a second token and supplying it to your provisioning client before deleting this one."
                   }
                 }
               },
-              "delete_modal": {
-                "title": "Delete token ${tokenId}",
-                "cancel_button_label": "Cancel",
-                "delete_button_label": "Delete Token",
-                "content": {
-                  "confirmation": "Are you sure you want to delete token ${tokenId}? This action cannot be undone.",
-                  "description": "To avoid downtime, consider creating a second token and supplying it to your provisioning client before deleting this one."
+              "fields": {
+                "user_id_attribute": {
+                  "label": "User ID Attribute",
+                  "helper_text": "The attribute that uniquely identifies a user."
+                },
+                "scim_endpoint_url": {
+                  "label": "SCIM Endpoint URL"
                 }
-              }
-            },
-            "fields": {
-              "user_id_attribute": {
-                "label": "User ID Attribute",
-                "helper_text": "The attribute that uniquely identifies a user."
               },
-              "scim_endpoint_url": {
-                "label": "SCIM Endpoint URL"
+              "mappings": {
+                "title": "Mapping",
+                "description": "Ensure that the correct user attributes are passed from the identity provider to the service provider.",
+                "card": {
+                  "title": "Required Attributes",
+                  "description": "Ensure that a valid <strategy> attribute is mapped to the following attributes.",
+                  "table": {
+                    "columns": {
+                      "attribute_name_label": "Attribute Name",
+                      "external_field_label": "External Field"
+                    }
+                  }
+                }
               }
             }
           }
         },
         "domains": {
-          "name": "Domains"
+          "name": "Domains",
+          "content": {
+            "title": "Domains",
+            "description": "Enhance security and streamline login by directing users to your identity provider based in their email domain.",
+            "create_button_text": "Add Domain",
+            "table": {
+              "empty_message": "You do not have any domains",
+              "columns": {
+                "name": "Domain Name",
+                "status": "Status",
+                "verify": "Verify"
+              },
+              "domain_statuses": {
+                "pending": "Pending",
+                "verified": "Verified",
+                "failed": "Failed"
+              }
+            },
+            "domain_create": {
+              "modal": {
+                "title": "Add a Domain",
+                "field": {
+                  "label": "Domain URL",
+                  "placeholder": "domain-name.com",
+                  "error": "Please enter a valid domain"
+                },
+                "actions": {
+                  "cancel_button_text": "Cancel",
+                  "create_button_text": "Add Domain"
+                }
+              }
+            },
+            "domain_delete": {
+              "modal": {
+                "title": "Delete a Domain",
+                "description": {
+                  "pending": "${domainName} is pending verification and may take up to 48 hours to process. Are you sure you want to delete this domain? This action cannot be undone.",
+                  "verified": "Deleting ${domainName} may disrupt login flows for users. Are you sure you want to delete this domain? This action cannot be undone."
+                },
+                "actions": {
+                  "cancel_button_text": "Cancel",
+                  "delete_button_text": "Delete"
+                }
+              }
+            },
+            "domain_verify": {
+              "modal": {
+                "title": "Add DNS records for ${domainName}",
+                "txt_record_name": {
+                  "label": "TXT Record Name"
+                },
+                "txt_record_content": {
+                  "label": "TXT Record Content"
+                },
+                "verification_status": {
+                  "label": "Verification Status:",
+                  "pending": "Pending",
+                  "description": "Your domain is pending verification. Click 'Verify' to refresh the status, or check back later. DNS changes may take up to 48 hours, but typically process faster."
+                },
+                "actions": {
+                  "verify_button_text": "Verify",
+                  "delete_button_text": "Delete",
+                  "done_button_text": "Done"
+                },
+                "errors": {
+                  "verification_failed": "${domainName} could not be verified. Please wait and try again or check with your DNS provider."
+                }
+              }
+            }
+          }
         }
       },
       "provider_details": {
@@ -678,6 +743,27 @@
       "remove_success": "${providerName} has been removed from ${organizationName}",
       "update_success": "Changes to ${providerName} have been saved.",
       "general_error": "There was an issue processing your request. Please try again or contact support if the issue persists.",
+      "domain_create": {
+        "success": "${domainName} has been created.",
+        "error": "There was an issue creating the domain.",
+        "on_before": "Domain is not valid."
+      },
+      "domain_verify": {
+        "success": "${domainName} has been verified.",
+        "error": "There was an issue verifying the domain.",
+        "on_before": "Domain verify validation is not correct.",
+        "verification_failed": "${domainName} could not be verified. Please wait and try again or check with your DNS provider."
+      },
+      "domain_delete": {
+        "success": "${domainName} has been deleted.",
+        "error": "There was an issue deleting the domain."
+      },
+      "domain_associate_provider": {
+        "success": "${domain} enabled for ${idp}"
+      },
+      "domain_delete_provider": {
+        "success": "${domain} disabled for ${idp}"
+      },
       "provisioning_disabled_success": "Provisioning has been disabled.",
       "scim_token_delete_sucess": "Token has been deleted.",
       "scim_token_create_success": "Token generated successfully"

@@ -52,7 +52,7 @@ export function ProvisioningManageToken({
   customMessages = {},
 }: ProvisioningManageTokenProps): React.JSX.Element {
   const { t } = useTranslator(
-    'idp_management.edit_sso_provider.tabs.provisioning.content.manage_tokens',
+    'idp_management.edit_sso_provider.tabs.provisioning.content.details.manage_tokens',
     customMessages,
   );
   const { isDarkMode } = useTheme();
@@ -149,6 +149,7 @@ export function ProvisioningManageToken({
               <TooltipTrigger asChild>
                 <span>
                   <Button
+                    type="button"
                     onClick={handleGenerateToken}
                     disabled={!canGenerateToken || isScimTokenCreating}
                     title={undefined}
@@ -197,6 +198,7 @@ export function ProvisioningManageToken({
                     <Button
                       variant="destructive"
                       size="default"
+                      type="button"
                       onClick={() => handleDeleteClick(token.token_id)}
                       disabled={isScimTokenDeleting}
                       aria-label={`${t('token_item.delete_button_label')} ${token.token_id}`}

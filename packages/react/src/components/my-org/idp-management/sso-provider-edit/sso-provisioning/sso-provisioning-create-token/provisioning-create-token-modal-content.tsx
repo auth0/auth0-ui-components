@@ -11,7 +11,7 @@ export function ProvisioningCreateTokenModalContent({
   className,
 }: ProvisioningCreateTokenModalContentProps) {
   const { t } = useTranslator(
-    'idp_management.edit_sso_provider.tabs.provisioning.content.manage_tokens.create_modal.content',
+    'idp_management.edit_sso_provider.tabs.provisioning.content.details.manage_tokens.create_modal.content',
     customMessages,
   );
 

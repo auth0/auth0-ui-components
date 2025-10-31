@@ -1,14 +1,12 @@
 import type {
   SharedComponentProps,
   BackButton,
-  SsoProvideEditMessages,
+  SsoProviderEditMessages,
   IdentityProvider,
   IdpId,
   OrganizationPrivate,
   ComponentAction,
   UpdateIdentityProviderRequestContentPrivate,
-  SsoProviderTabMessages,
-  SsoProviderDetailsMessages,
   CreateIdPProvisioningConfigResponseContent,
   CreateIdpProvisioningScimTokenResponseContent,
   CreateIdpProvisioningScimTokenRequestContent,
@@ -18,27 +16,45 @@ import type {
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 
-import type { FormActionsProps } from '../../../../components/ui/form-actions';
-import type { SsoProvisioningTabClasses } from '../sso-provisioning/sso-provisioning-tab-types';
-
-import type { SsoProviderCreateClasses } from './sso-provider-create-types';
 import type {
-  SsoProviderDeleteClasses,
-  SsoProviderRemoveClasses,
-} from './sso-provider-delete-types';
+  SsoDomainsTabEditProps,
+  SsoDomainTabClasses,
+  SsoProviderEditDomainsTabSchema,
+} from '../sso-domain/sso-domain-tab-types';
+import type {
+  SsoProvisioningTabClasses,
+  SsoProvisioningTabSchemas,
+} from '../sso-provisioning/sso-provisioning-tab-types';
+
+import type { SsoProviderTabClasses, SsoProviderTabSchemas } from './sso-provider-tab-types';
+
+/* ============ Components ============ */
 
 export interface SsoProviderEditBackButton extends Omit<BackButton, 'onClick'> {
   icon?: LucideIcon;
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-export interface SsoProviderEditClasses extends SsoProviderTabClasses, SsoProvisioningTabClasses {
+export interface SsoProviderEditClasses
+  extends SsoProviderTabClasses,
+    SsoProvisioningTabClasses,
+    SsoDomainTabClasses {
   'SsoProviderEdit-header'?: string;
   'SsoProviderEdit-tabs'?: string;
 }
 
+export interface SsoProviderEditSchema {
+  provider: SsoProviderTabSchemas;
+  provisioning: SsoProvisioningTabSchemas;
+  domains?: SsoProviderEditDomainsTabSchema;
+}
+
 export interface SsoProviderEditProps
-  extends SharedComponentProps<SsoProvideEditMessages, SsoProviderEditClasses> {
+  extends SharedComponentProps<
+    SsoProviderEditMessages,
+    SsoProviderEditClasses,
+    SsoProviderEditSchema
+  > {
   idpId: IdpId;
   backButton?: SsoProviderEditBackButton;
   update?: ComponentAction<IdentityProvider, IdentityProvider>;
@@ -54,7 +70,12 @@ export interface SsoProviderEditProps
   deleteScimToken?: ComponentAction<IdentityProvider, void>;
   delete: ComponentAction<IdentityProvider, void>;
   removeFromOrg: ComponentAction<IdentityProvider, void>;
+  domains?: SsoDomainsTabEditProps;
 }
+
+/* ============ Subcomponents ============ */
+
+/* ============ Hooks ============ */
 
 export interface UseSsoProviderEditOptions extends SharedComponentProps {
   update?: ComponentAction<IdentityProvider, IdentityProvider>;
@@ -99,51 +120,4 @@ export interface UseSsoProviderEditReturn {
   deleteScimToken: (idpScimTokenId: string) => Promise<void>;
   onDeleteConfirm: () => Promise<void>;
   onRemoveConfirm: () => Promise<void>;
-}
-
-export interface SsoProviderTabClasses extends SsoProviderDeleteClasses, SsoProviderRemoveClasses {
-  'ProviderDetails-root'?: string;
-  'ProviderConfigure-root'?: string;
-  'SsoProviderDetails-formActions'?: string;
-}
-
-export interface SsoProviderDetailsFormActions extends Omit<FormActionsProps, 'nextAction'> {
-  nextAction?: {
-    disabled: boolean;
-    onClick?: (data: UpdateIdentityProviderRequestContentPrivate) => Promise<void>;
-  };
-}
-
-export interface SsoProviderTabProps
-  extends SharedComponentProps<SsoProviderTabMessages, SsoProviderTabClasses> {
-  formActions: SsoProviderDetailsFormActions;
-  provider: IdentityProvider | null;
-  onDelete: (provider: IdentityProvider) => Promise<void>;
-  onRemove: (provider: IdentityProvider) => Promise<void>;
-  organization: OrganizationPrivate | null;
-  isDeleting: boolean;
-  isRemoving: boolean;
-}
-
-export interface ProviderDetailsClasses
-  extends Omit<
-    SsoProviderCreateClasses,
-    'SsoProviderCreate-header' | 'SsoProviderCreate-wizard' | 'ProviderSelect-root'
-  > {}
-
-export interface ProviderConfigureFieldsClasses
-  extends Omit<
-    SsoProviderCreateClasses,
-    'SsoProviderCreate-header' | 'SsoProviderCreate-wizard' | 'ProviderSelect-root'
-  > {}
-
-export interface SsoProviderDetailsClasses extends SsoProviderTabClasses {
-  'SsoProviderDetails-formActions'?: string;
-}
-
-export interface SsoProviderDetailsProps
-  extends SharedComponentProps<SsoProviderDetailsMessages, SsoProviderDetailsClasses> {
-  provider: IdentityProvider;
-  readOnly?: boolean;
-  formActions?: SsoProviderDetailsFormActions;
 }

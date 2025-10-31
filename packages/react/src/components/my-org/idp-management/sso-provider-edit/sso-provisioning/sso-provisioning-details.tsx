@@ -45,7 +45,7 @@ export function SsoProvisioningDetails({
   },
 }: SsoProvisioningDetailsProps) {
   const { t } = useTranslator(
-    'idp_management.edit_sso_provider.tabs.provisioning.content',
+    'idp_management.edit_sso_provider.tabs.provisioning.content.details',
     customMessages,
   );
   const { isDarkMode } = useTheme();
@@ -106,7 +106,7 @@ export function SsoProvisioningDetails({
             onListScimTokens={onListScimTokens}
             onCreateScimToken={onCreateScimToken}
             onDeleteScimToken={onDeleteScimToken}
-            customMessages={customMessages.manage_tokens}
+            customMessages={customMessages?.manage_tokens}
             styling={styling}
           />
 
@@ -133,7 +133,7 @@ export function SsoProvisioningDetails({
       <div className="mt-6">
         <ProvisioningFieldMappings
           provisioningFieldMap={provisioningConfig?.fields ?? null}
-          customMessages={customMessages.mappings} // TODO: Fix this
+          customMessages={customMessages.mappings}
         />
       </div>
     </div>

@@ -1,6 +1,7 @@
 import type { DomainVerifyMessages, Domain } from '@auth0-web-ui-components/core';
 
 export interface DomainVerifyModalProps {
+  translatorKey?: string;
   isOpen: boolean;
   isLoading?: boolean;
   domain: Domain | null;

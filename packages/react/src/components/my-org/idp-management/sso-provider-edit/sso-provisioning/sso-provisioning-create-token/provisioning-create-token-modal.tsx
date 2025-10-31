@@ -14,7 +14,7 @@ export function ProvisioningCreateTokenModal({
   customMessages = {},
 }: ProvisioningCreateTokenModalProps): React.JSX.Element {
   const { t } = useTranslator(
-    'idp_management.edit_sso_provider.tabs.provisioning.content.manage_tokens',
+    'idp_management.edit_sso_provider.tabs.provisioning.content.details.manage_tokens',
     customMessages,
   );
 

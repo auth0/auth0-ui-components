@@ -11,6 +11,7 @@ import type {
   DomainTableMessages,
   CreateOrganizationDomainRequestContent,
   EnhancedTranslationFunction,
+  IdentityProviderAssociatedWithDomain,
 } from '@auth0-web-ui-components/core';
 
 export type { Domain };
@@ -78,7 +79,7 @@ export interface UseDomainTableOptions {
 
 export interface UseDomainTableResult extends SharedComponentProps {
   domains: Domain[];
-  providers: IdentityProvider[];
+  providers: IdentityProviderAssociatedWithDomain[];
   isFetching: boolean;
   isLoadingProviders: boolean;
   isCreating: boolean;

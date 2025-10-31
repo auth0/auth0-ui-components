@@ -535,26 +535,6 @@
               "title": "プロビジョニングのマッピングが更新されました。",
               "description": "属性を確認し、適切なプロビジョニングを確保するためにアイデンティティプロバイダーの設定を更新してください。"
             },
-            "save_button_label": "保存",
-            "unsaved_changes_text": "未保存の変更",
-            "notifications": {
-              "provisioning_enabled_message": "${providerName}への変更が保存されました。",
-              "provisioning_disabled_message": "プロビジョニングが無効になりました。"
-            },
-            "mappings": {
-              "title": "マッピング",
-              "description": "正しいユーザー属性がアイデンティティプロバイダーからサービスプロバイダーに渡されることを確認してください。",
-              "card": {
-                "title": "必須属性",
-                "description": "有効な<strategy>属性が次の属性にマッピングされていることを確認してください。",
-                "table": {
-                  "columns": {
-                    "attribute_name_label": "属性名",
-                    "external_field_label": "外部フィールド"
-                  }
-                }
-              }
-            },
             "delete": {
               "modal": {
                 "title": "Disable provisioning",
@@ -567,62 +547,147 @@
                 }
               }
             },
-            "manage_tokens": {
-              "title": "ベアラートークン",
-              "description": "アイデンティティプロバイダーに提供するベアラートークンを生成します。最大2つのトークンを作成できます。",
-              "generate_button_label": "トークンを生成",
-              "max_tokens_tooltip": "最大2つのトークンが許可されています",
-              "empty_state": {
-                "title": "まだトークンが作成されていません",
-                "description": "アイデンティティプロバイダーからのSCIMリクエストを認証するためのベアラートークンを生成してください。"
-              },
-              "table": {
-                "token_id_label": "トークンID",
-                "created_label": "作成日時",
-                "expires_label": "有効期限",
-                "actions_label": "アクション"
-              },
-              "token_item": {
-                "token_prefix": "トークン",
-                "never_expire": "このトークンに有効期限はありません。",
-                "last_used": "最終使用: なし",
-                "status_active": "有効",
-                "status_expired": "期限切れ",
-                "delete_button_label": "削除"
-              },
-              "create_modal": {
-                "title": "ベアラートークン情報",
-                "copy_and_close_button_label": "コピーして閉じる",
-                "content": {
-                  "description": "ベアラートークンをコピーしてアイデンティティプロバイダーに提供してください。このダイアログを閉じると再表示されません。",
-                  "field": {
-                    "label": "トークン"
+            "details": {
+              "manage_tokens": {
+                "title": "ベアラートークン",
+                "description": "アイデンティティプロバイダーに提供するベアラートークンを生成します。最大2つのトークンを作成できます。",
+                "generate_button_label": "トークンを生成",
+                "max_tokens_tooltip": "最大2つのトークンが許可されています",
+                "empty_state": {
+                  "title": "まだトークンが作成されていません",
+                  "description": "アイデンティティプロバイダーからのSCIMリクエストを認証するためのベアラートークンを生成してください。"
+                },
+                "table": {
+                  "token_id_label": "トークンID",
+                  "created_label": "作成日時",
+                  "expires_label": "有効期限",
+                  "actions_label": "アクション"
+                },
+                "token_item": {
+                  "token_prefix": "トークン",
+                  "never_expire": "このトークンに有効期限はありません。",
+                  "last_used": "最終使用: なし",
+                  "status_active": "有効",
+                  "status_expired": "期限切れ",
+                  "delete_button_label": "削除"
+                },
+                "create_modal": {
+                  "title": "ベアラートークン情報",
+                  "copy_and_close_button_label": "コピーして閉じる",
+                  "content": {
+                    "description": "ベアラートークンをコピーしてアイデンティティプロバイダーに提供してください。このダイアログを閉じると再表示されません。",
+                    "field": {
+                      "label": "トークン"
+                    }
+                  }
+                },
+                "delete_modal": {
+                  "title": "トークン${tokenId}を削除",
+                  "cancel_button_label": "キャンセル",
+                  "delete_button_label": "トークンを削除",
+                  "content": {
+                    "confirmation": "トークン${tokenId}を削除してもよろしいですか？この操作は元に戻すことができません。",
+                    "description": "ダウンタイムを避けるために、このトークンを削除する前に2番目のトークンを作成してプロビジョニングクライアントに提供することを検討してください。"
                   }
                 }
               },
-              "delete_modal": {
-                "title": "トークン${tokenId}を削除",
-                "cancel_button_label": "キャンセル",
-                "delete_button_label": "トークンを削除",
-                "content": {
-                  "confirmation": "トークン${tokenId}を削除してもよろしいですか？この操作は元に戻すことができません。",
-                  "description": "ダウンタイムを避けるために、このトークンを削除する前に2番目のトークンを作成してプロビジョニングクライアントに提供することを検討してください。"
+              "fields": {
+                "user_id_attribute": {
+                  "label": "ユーザーID属性",
+                  "helper_text": "ユーザーを一意に識別する属性。"
+                },
+                "scim_endpoint_url": {
+                  "label": "SCIMエンドポイントURL"
                 }
-              }
-            },
-            "fields": {
-              "user_id_attribute": {
-                "label": "ユーザーID属性",
-                "helper_text": "ユーザーを一意に識別する属性。"
               },
-              "scim_endpoint_url": {
-                "label": "SCIMエンドポイントURL"
+              "mappings": {
+                "title": "マッピング",
+                "description": "正しいユーザー属性がアイデンティティプロバイダーからサービスプロバイダーに渡されることを確認してください。",
+                "card": {
+                  "title": "必須属性",
+                  "description": "有効な<strategy>属性が次の属性にマッピングされていることを確認してください。",
+                  "table": {
+                    "columns": {
+                      "attribute_name_label": "属性名",
+                      "external_field_label": "外部フィールド"
+                    }
+                  }
+                }
               }
             }
           }
         },
         "domains": {
-          "name": "ドメイン"
+          "name": "ドメイン",
+          "content": {
+            "title": "ドメイン",
+            "description": "ユーザーのメールドメインに基づいてアイデンティティプロバイダーへ誘導することで、セキュリティを強化しログインを効率化します。",
+            "create_button_text": "ドメインを追加",
+            "table": {
+              "empty_message": "ドメインがありません",
+              "columns": {
+                "name": "ドメイン名",
+                "status": "ステータス",
+                "verify": "検証"
+              },
+              "domain_statuses": {
+                "pending": "保留中",
+                "verified": "検証済み",
+                "failed": "失敗"
+              }
+            },
+            "domain_create": {
+              "modal": {
+                "title": "ドメインの追加",
+                "field": {
+                  "label": "ドメインURL",
+                  "placeholder": "domain-name.com",
+                  "error": "有効なドメインを入力してください"
+                },
+                "actions": {
+                  "cancel_button_text": "キャンセル",
+                  "create_button_text": "ドメインを追加"
+                }
+              }
+            },
+            "domain_delete": {
+              "modal": {
+                "title": "ドメインの削除",
+                "description": {
+                  "pending": "${domainName} は確認待ちであり、処理に最大48時間かかる場合があります。このドメインを削除してもよろしいですか？この操作は元に戻せません。",
+                  "verified": "${domainName} を削除すると、ユーザーのログインフローに影響を与える可能性があります。このドメインを削除してもよろしいですか？この操作は元に戻せません。"
+                },
+                "actions": {
+                  "cancel_button_text": "キャンセル",
+                  "delete_button_text": "削除"
+                }
+              }
+            },
+            "domain_verify": {
+              "modal": {
+                "title": "${domainName}のDNSレコードを追加",
+                "txt_record_name": {
+                  "label": "TXTレコード名"
+                },
+                "txt_record_content": {
+                  "label": "TXTレコードの内容"
+                },
+                "verification_status": {
+                  "label": "検証ステータス:",
+                  "pending": "保留中",
+                  "description": "ドメインの検証が保留中です。「検証」をクリックしてステータスを更新するか、後でもう一度確認してください。DNS変更には最大48時間かかる場合がありますが、通常はより早く処理されます。"
+                },
+                "actions": {
+                  "verify_button_text": "検証",
+                  "delete_button_text": "削除",
+                  "done_button_text": "完了"
+                },
+                "errors": {
+                  "verification_failed": "${domainName}を検証できませんでした。しばらく待ってから再度お試しいただくか、DNSプロバイダーをご確認ください。"
+                }
+              }
+            }
+          }
         }
       },
       "provider_details": {
@@ -679,6 +744,27 @@
       "remove_success": "${providerName}が${organizationName}から削除されました",
       "update_success": "${providerName}への変更が保存されました。",
       "general_error": "リクエストの処理中に問題が発生しました。もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
+      "domain_create": {
+        "success": "${domainName}が作成されました。",
+        "error": "ドメインの作成中に問題が発生しました。",
+        "on_before": "ドメインが有効ではありません。"
+      },
+      "domain_verify": {
+        "success": "${domainName}が検証されました。",
+        "error": "ドメインの検証中に問題が発生しました。",
+        "on_before": "ドメイン検証のバリデーションが正しくありません。",
+        "verification_failed": "${domainName}を検証できませんでした。しばらく待ってから再度お試しいただくか、DNSプロバイダーをご確認ください。"
+      },
+      "domain_delete": {
+        "success": "${domainName}が削除されました。",
+        "error": "ドメインの削除中に問題が発生しました。"
+      },
+      "domain_associate_provider": {
+        "success": "${domain}が${idp}で有効になりました"
+      },
+      "domain_delete_provider": {
+        "success": "${domain}が${idp}で無効になりました"
+      },
       "provisioning_disabled_success": "プロビジョニングが無効になりました。",
       "scim_token_delete_sucess": "トークンが削除されました。",
       "scim_token_create_success": "トークンが正常に生成されました"

@@ -14,6 +14,7 @@ export interface SsoProvisioningTabMessages {
     description?: string;
   };
   save_button_label?: string;
+  unsaved_changes_text?: string;
   notifications?: SsoProviderNotificationMessages;
   details?: SsoProvisioningDetailsMessages;
   delete?: SsoProvisioningDeleteMessages;
@@ -21,7 +22,6 @@ export interface SsoProvisioningTabMessages {
 
 export interface SsoProvisioningDetailsMessages {
   manage_tokens?: ProvisioningManageTokenMessages;
-  save_button_label?: string;
   fields?: {
     user_id_attribute?: {
       label?: string;

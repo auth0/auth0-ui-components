@@ -1,3 +1,4 @@
+import type { SsoDomainTabMessages } from '../sso-domain/sso-domain-tab-types';
 import type { SsoProvisioningTabMessages } from '../sso-provisioning/sso-provisioning-tab-types';
 
 import type {
@@ -9,7 +10,7 @@ import type {
   SsoProvideRemoveMessages,
 } from './sso-provider-delete-types';
 
-export interface SsoProvideEditMessages {
+export interface SsoProviderEditMessages {
   header?: {
     back_button_text?: string;
   };
@@ -24,6 +25,7 @@ export interface SsoProvideEditMessages {
     };
     domains?: {
       name?: string;
+      content?: SsoDomainTabMessages;
     };
   };
 }

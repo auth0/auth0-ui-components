@@ -55,6 +55,8 @@ export default [
       'coverage/**',
       '.turbo/**',
       '.next/**',
+      '**/.*//**', // Exclude all hidden folders
+      '.*', // Exclude hidden files in root
       '*.d.ts',
       'vitest.config.ts',
     ],
@@ -87,7 +89,7 @@ export default [
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
-      'import': importPlugin,
+      import: importPlugin,
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
@@ -96,20 +98,23 @@ export default [
       '@typescript-eslint/quotes': ['error', 'single', { avoidEscape: true }],
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
       // New rule to enforce alphabetical imports
-      'import/order': ['error', {
-        'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
-        'pathGroups': [
-          {
-            'pattern': '@/**',
-            'group': 'internal',
+      'import/order': [
+        'error',
+        {
+          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+          pathGroups: [
+            {
+              pattern: '@/**',
+              group: 'internal',
+            },
+          ],
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
           },
-        ],
-        'newlines-between': 'always',
-        'alphabetize': {
-          'order': 'asc',
-          'caseInsensitive': true,
         },
-      }],
+      ],
     },
   },
   {
