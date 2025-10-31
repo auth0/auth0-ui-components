@@ -68,6 +68,78 @@ export default function MyOrgIntroduction() {
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  SsoProviderTable{' '}
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-3">
+                    Available
+                  </span>
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Display and manage SSO identity providers with a comprehensive table interface
+                  including create, edit, delete, enable/disable, and remove from organization
+                  capabilities.
+                </p>
+              </div>
+              <a
+                href="/my-org/sso-provider-table"
+                className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
+              >
+                View Docs →
+              </a>
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:border-blue-300 hover:shadow-md transition-all">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  SsoProviderCreate{' '}
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-3">
+                    Available
+                  </span>
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Multi-step wizard for creating SSO providers with provider selection, details
+                  configuration, and authentication setup for Okta, ADFS, SAML, OIDC, Google
+                  Workspace, Azure AD, and PingFederate.
+                </p>
+              </div>
+              <a
+                href="/my-org/sso-provider-create"
+                className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
+              >
+                View Docs →
+              </a>
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:border-blue-300 hover:shadow-md transition-all">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  SsoProviderEdit{' '}
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-3">
+                    Available
+                  </span>
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Comprehensive SSO provider management with tabbed interface for configuring
+                  authentication settings, enabling provisioning with SCIM tokens, and managing
+                  domain associations.
+                </p>
+              </div>
+              <a
+                href="/my-org/sso-provider-edit"
+                className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
+              >
+                View Docs →
+              </a>
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:border-blue-300 hover:shadow-md transition-all">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   DomainTable{' '}
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-3">
                     Available

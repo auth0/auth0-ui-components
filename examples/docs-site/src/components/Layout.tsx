@@ -24,18 +24,21 @@ const navigationSections = [
     title: 'Getting Started',
     items: [
       { name: 'Introduction', href: '/' },
-      { name: 'Installation', href: '/getting-started' },
+      { name: 'Getting started', href: '/getting-started' },
     ],
   },
   {
     title: 'My Account',
-    items: [{ name: 'UserMFA', href: '/my-account/user-mfa' }],
+    items: [{ name: 'UserMFAMgmt', href: '/my-account/user-mfa-management' }],
   },
   {
     title: 'My Organization',
     items: [
       { name: 'Introduction', href: '/my-org' },
       { name: 'OrgDetailsEdit', href: '/my-org/org-details-edit' },
+      { name: 'SsoProviderTable', href: '/my-org/sso-provider-table' },
+      { name: 'SsoProviderCreate', href: '/my-org/sso-provider-create' },
+      { name: 'SsoProviderEdit', href: '/my-org/sso-provider-edit' },
       { name: 'DomainTable', href: '/my-org/domain-table' },
     ],
   },

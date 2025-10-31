@@ -2,8 +2,9 @@ import './App.css';
 import '@auth0/web-ui-components-react/dist/index.css';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Auth0ComponentProvider } from '@auth0/web-ui-components-react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { Navbar } from './components/nav-bar';
 import { Sidebar } from './components/side-bar';
@@ -17,6 +18,25 @@ import SsoProviderEditPage from './views/sso-provider-edit-page';
 import SsoProviderPage from './views/sso-provider-page';
 import UserProfilePage from './views/user-profile-page';
 
+// Protected Route wrapper
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, isLoading } = useAuth0();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-gray-600">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+};
+
 function AppContent() {
   const { isAuthenticated } = useAuth0();
 
@@ -27,13 +47,62 @@ function AppContent() {
       <main className={`pt-16 ${isAuthenticated ? 'ml-64' : ''}`}>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/profile" element={<UserProfilePage />} />
-          <Route path="/mfa" element={<MFAPage />} />
-          <Route path="/org-management" element={<OrgManagementPage />} />
-          <Route path="/sso-providers" element={<SsoProviderPage />} />
-          <Route path="/sso-provider/create" element={<SsoProviderCreatePage />} />
-          <Route path="/sso-provider/edit/:id" element={<SsoProviderEditPage />} />
-          <Route path="/domain-management" element={<DomainManagementPage />} />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <UserProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/mfa"
+            element={
+              <ProtectedRoute>
+                <MFAPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/org-management"
+            element={
+              <ProtectedRoute>
+                <OrgManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sso-providers"
+            element={
+              <ProtectedRoute>
+                <SsoProviderPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sso-provider/create"
+            element={
+              <ProtectedRoute>
+                <SsoProviderCreatePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sso-provider/edit/:id"
+            element={
+              <ProtectedRoute>
+                <SsoProviderEditPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/domain-management"
+            element={
+              <ProtectedRoute>
+                <DomainManagementPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
     </div>

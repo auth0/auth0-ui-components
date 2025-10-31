@@ -27,19 +27,21 @@ export default function SsoProviderEditPage() {
   return (
     <div className="p-6 pt-8 space-y-6">
       <SsoProviderEdit
-        idpId={idpId!}
-        update={updateAction}
+        providerId={idpId!}
+        sso={{
+          updateAction,
+          deleteAction: {
+            onAfter: () => {
+              router.push('/idp-management/');
+            },
+          },
+          deleteFromOrgAction: {
+            onAfter: () => {
+              router.push('/idp-management/');
+            },
+          },
+        }}
         backButton={{ onClick: handleBack }}
-        delete={{
-          onAfter: () => {
-            router.push('/idp-management/');
-          },
-        }}
-        removeFromOrg={{
-          onAfter: () => {
-            router.push('/idp-management/');
-          },
-        }}
       />
     </div>
   );

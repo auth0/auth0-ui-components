@@ -11,6 +11,7 @@ const getDescriptionKey = (domain: Domain | null) => {
 };
 
 export function DomainDeleteModal({
+  translatorKey = 'domain_management.domain_delete.modal',
   className,
   customMessages,
   domain,
@@ -19,7 +20,7 @@ export function DomainDeleteModal({
   onClose,
   onDelete,
 }: DomainDeleteModalProps) {
-  const { t } = useTranslator('domain_management.domain_delete.modal', customMessages);
+  const { t } = useTranslator(translatorKey, customMessages);
 
   const handleDelete = React.useCallback(() => {
     if (domain) {

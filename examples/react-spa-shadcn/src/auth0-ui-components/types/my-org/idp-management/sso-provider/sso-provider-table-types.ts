@@ -18,7 +18,7 @@ interface SsoProviderTableClasses {
   'SsoProviderTable-header'?: string;
   'SsoProviderTable-table'?: string;
   'SsoProviderTable-deleteProviderModal'?: string;
-  'SsoProviderTable-removeProviderFromOrgModal'?: string;
+  'SsoProviderTable-deleteProviderFromOrgModal'?: string;
 }
 
 export interface SsoProviderTableProps
@@ -27,11 +27,11 @@ export interface SsoProviderTableProps
     SsoProviderTableClasses,
     SsoProviderTableSchema
   > {
-  create: ComponentAction<void>;
-  edit: ComponentAction<IdentityProvider>;
-  delete?: ComponentAction<IdentityProvider>;
-  removeFromOrg?: ComponentAction<IdentityProvider>;
-  enableProvider?: ComponentAction<IdentityProvider, boolean>;
+  createAction: ComponentAction<void>;
+  editAction: ComponentAction<IdentityProvider>;
+  deleteAction?: ComponentAction<IdentityProvider>;
+  deleteFromOrgAction?: ComponentAction<IdentityProvider>;
+  enableProviderAction?: ComponentAction<IdentityProvider>;
 }
 
 export interface UseSsoProviderTableReturn extends SharedComponentProps {

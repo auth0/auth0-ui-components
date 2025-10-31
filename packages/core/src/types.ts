@@ -15,15 +15,17 @@ export interface ActionButton<Item = void> {
   type?: 'button' | 'submit';
 }
 
+export interface ComponentStyling<Classes> {
+  variables?: StylingVariables;
+  classes?: Partial<Classes>;
+}
+
 export interface SharedComponentProps<
   Messages extends object = Record<string, unknown>,
   Classes extends object = Record<string, string | undefined>,
   Schema extends object = object,
 > {
-  styling?: {
-    variables?: StylingVariables;
-    classes?: Partial<Classes>;
-  };
+  styling?: ComponentStyling<Classes>;
   customMessages?: Partial<Messages>;
   schema?: Partial<Schema>;
   readOnly?: boolean;

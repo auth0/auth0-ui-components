@@ -7,7 +7,7 @@ const SsoProviderCreatePage = () => {
   return (
     <div className="space-y-6">
       <SsoProviderCreate
-        create={{
+        createAction={{
           onAfter: () => {
             navigate('/sso-providers');
           },

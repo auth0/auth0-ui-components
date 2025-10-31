@@ -30,8 +30,11 @@
       }
     }
   },
-  "manage-org": {
-    "title": "組織を管理"
+  "organization-management": {
+    "title": "組織管理"
+  },
+  "identity-provider-management": {
+    "title": "IDプロバイダー管理"
   },
   "domain-management": {
     "title": "ドメイン管理"

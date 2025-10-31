@@ -12,6 +12,7 @@ import { Label } from '../../../ui/label';
 import { Modal } from '../../../ui/modal';
 
 export function DomainVerifyModal({
+  translatorKey = 'domain_management.domain_verify.modal',
   className,
   customMessages,
   isOpen,
@@ -22,7 +23,7 @@ export function DomainVerifyModal({
   onVerify,
   onDelete,
 }: DomainVerifyModalProps) {
-  const { t } = useTranslator('domain_management.domain_verify.modal', customMessages);
+  const { t } = useTranslator(translatorKey, customMessages);
 
   const handleVerify = React.useCallback(() => {
     if (domain) {

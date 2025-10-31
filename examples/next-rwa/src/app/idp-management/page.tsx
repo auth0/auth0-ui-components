@@ -35,7 +35,7 @@ export default function IdpManagementPage() {
 
   return (
     <div className="p-6 pt-8 space-y-6">
-      <SsoProviderTable create={createAction} edit={editAction} />
+      <SsoProviderTable createAction={createAction} editAction={editAction} />
     </div>
   );
 }

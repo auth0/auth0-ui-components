@@ -8,18 +8,20 @@ const SsoProviderEditPage = () => {
   return (
     <div className="space-y-6">
       <SsoProviderEdit
-        idpId={id!}
+        providerId={id!}
         backButton={{
           onClick: () => navigate('/sso-providers'),
         }}
-        delete={{
-          onAfter: () => {
-            navigate('/sso-providers');
+        sso={{
+          deleteAction: {
+            onAfter: () => {
+              navigate('/sso-providers');
+            },
           },
-        }}
-        removeFromOrg={{
-          onAfter: () => {
-            navigate('/sso-providers');
+          deleteFromOrgAction: {
+            onAfter: () => {
+              navigate('/sso-providers');
+            },
           },
         }}
       />

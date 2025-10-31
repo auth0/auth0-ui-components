@@ -47,9 +47,9 @@ export default function GettingStarted() {
                 title="1. Install Core Package"
               />
               <CodeBlock
-                code="npx shadcn@latest add https://auth0-web-ui-components.vercel.app/r/my-account/user-mfa-management.json"
+                code="npx shadcn@latest add https://auth0-web-ui-components.vercel.app/r/my-org/org-details-edit.json"
                 language="bash"
-                title="2. Add Shadcn Block (e.g., UserMFA)"
+                title="2. Add Shadcn Block (e.g., OrgDetailsEdit)"
               />
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
@@ -165,17 +165,9 @@ export default function GettingStarted() {
 import { Auth0ComponentProvider } from '@auth0/ui-components-react';
 
 const authDetails = {
-    domain: import.meta.env.VITE_AUTH0_DOMAIN,
-    clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
-    servicesConfig: {
-      myAccount: {
-        enabled: true, // Enable My Account components (MFA, etc.)
-      },
-      myOrg: {
-        enabled: true, // Enable My Organization components (Organization management)
-      },
-    },
-  };
+  domain: import.meta.env.VITE_AUTH0_DOMAIN,
+  clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
+};
 
 function App() {
   return (
@@ -198,10 +190,10 @@ function App() {
               2. Add an Auth0 UI component (e.g. UserMFAMgmt)
             </h3>
             <CodeBlock
-              code={`import { UserMFAMgmt } from '@auth0/ui-components-react';
+              code={`import { OrgDetailsEdit } from '@auth0/ui-components-react';
 import { useAuth0 } from '@auth0/auth0-react';
 
-function SecurityPage() {
+function EditOrgPage() {
   const { isAuthenticated, isLoading } = useAuth0();
 
   if (isLoading) return <div>Loading...</div>;
@@ -209,8 +201,7 @@ function SecurityPage() {
 
   return (
     <div>
-      <h1>Security Settings</h1>
-      <UserMFAMgmt />
+      <OrgDetailsEdit />
     </div>
   );
 }`}
@@ -260,8 +251,7 @@ function SecurityPage() {
                 </td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Yes</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  Authentication configuration including domain, clientId, and optional authProxyUrl
-                  and servicesConfig
+                  Authentication configuration including domain and optional authProxyUrl
                 </td>
               </tr>
               <tr>
@@ -341,18 +331,6 @@ function SecurityPage() {
                 </tr>
                 <tr>
                   <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                    clientId
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-500">
-                    <code className="text-xs">string</code>
-                  </td>
-                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Yes</td>
-                  <td className="px-4 py-2 text-sm text-gray-500">
-                    Your Auth0 application client ID
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                     authProxyUrl
                   </td>
                   <td className="px-4 py-2 text-sm text-gray-500">
@@ -362,18 +340,6 @@ function SecurityPage() {
                   <td className="px-4 py-2 text-sm text-gray-500">
                     URL to your authentication proxy server for server-side authentication (enables
                     Proxy Mode)
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                    servicesConfig
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-500">
-                    <code className="text-xs">ServicesConfig</code>
-                  </td>
-                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
-                  <td className="px-4 py-2 text-sm text-gray-500">
-                    Enable/disable specific Auth0 services (myAccount, myOrg)
                   </td>
                 </tr>
               </tbody>
@@ -697,7 +663,7 @@ function SecurityPage() {
                 Multi-factor authentication and user security management components.
               </p>
               <a
-                href="/my-account/user-mfa"
+                href="/my-account/user-mfa-management"
                 className="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-medium transition-colors"
               >
                 Explore UserMFA

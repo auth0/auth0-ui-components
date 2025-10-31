@@ -9,6 +9,9 @@ import GettingStarted from './pages/GettingStarted';
 import HomePage from './pages/HomePage';
 import MyOrgIntroduction from './pages/MyOrgIntroduction';
 import OrgDetailsEdit from './pages/OrgDetailsEdit';
+import SsoProviderCreateDocs from './pages/SsoProviderCreateDocs';
+import SsoProviderEditDocs from './pages/SsoProviderEditDocs';
+import SsoProviderTableDocs from './pages/SsoProviderTableDocs';
 import UserMFA from './pages/UserMFA';
 import '@auth0/web-ui-components-react/dist/index.css';
 
@@ -33,16 +36,18 @@ function AppContent() {
       <Auth0ComponentProvider
         authDetails={{
           domain: import.meta.env.VITE_AUTH0_DOMAIN,
-          clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
         }}
       >
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/getting-started" element={<GettingStarted />} />
-          <Route path="/my-account/user-mfa" element={<UserMFA />} />
+          <Route path="/my-account/user-mfa-management" element={<UserMFA />} />
           <Route path="/my-org" element={<MyOrgIntroduction />} />
           <Route path="/my-org/org-details-edit" element={<OrgDetailsEdit />} />
           <Route path="/my-org/domain-table" element={<DomainTableDocs />} />
+          <Route path="/my-org/sso-provider-table" element={<SsoProviderTableDocs />} />
+          <Route path="/my-org/sso-provider-create" element={<SsoProviderCreateDocs />} />
+          <Route path="/my-org/sso-provider-edit" element={<SsoProviderEditDocs />} />
         </Routes>
       </Auth0ComponentProvider>
     </Layout>

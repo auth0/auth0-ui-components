@@ -198,6 +198,12 @@
       "target": "auth0-ui-components/hooks/use-core-client-initialization.ts"
     },
     {
+      "path": "src/hooks/use-scope-manager.ts",
+      "content": "import { createContext, useContext } from 'react';\n\nexport type Audience = 'me' | 'my-org';\n\nexport interface ScopeManagerContextValue {\n  registerScopes: (audience: Audience, scopes: string) => void;\n  isReady: boolean;\n  ensured: Record<Audience, string>;\n}\n\nexport const ScopeManagerContext = createContext<ScopeManagerContextValue>({\n  registerScopes: () => {},\n  isReady: false,\n  ensured: { me: '', 'my-org': '' },\n});\n\nexport const useScopeManager = () => useContext(ScopeManagerContext);\n",
+      "type": "registry:hook",
+      "target": "auth0-ui-components/hooks/use-scope-manager.ts"
+    },
+    {
       "path": "src/hooks/use-theme.ts",
       "content": "'use client';\n\nimport { useContext } from 'react';\n\nimport { ThemeContext } from '../providers/theme-provider';\n\n/**\n * useTheme\n *\n * Access the current theme from context. Includes:\n * - mode\n * - styling (CSS variables)\n */\nexport function useTheme() {\n  const context = useContext(ThemeContext);\n  if (!context) {\n    throw new Error('useTheme must be used within a ThemeProvider');\n  }\n  return context;\n}\n",
       "type": "registry:hook",
@@ -264,6 +270,12 @@
       "target": "auth0-ui-components/providers/proxy-provider.tsx"
     },
     {
+      "path": "src/providers/scope-manager-provider.tsx",
+      "content": "import React, { useRef, useState, useCallback, useEffect, type ReactNode } from 'react';\n\nimport { useCoreClient } from '../hooks/use-core-client';\nimport { ScopeManagerContext, type Audience } from '../hooks/use-scope-manager';\n\nexport const ScopeManagerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {\n  const { coreClient } = useCoreClient();\n\n  const scopeRegistry = useRef<Record<Audience, Set<string>>>({\n    me: new Set(),\n    'my-org': new Set(),\n  });\n\n  const [ensured, setEnsured] = useState<Record<Audience, string>>({\n    me: '',\n    'my-org': '',\n  });\n\n  const [isReady, setIsReady] = useState(false);\n  const [version, setVersion] = useState(0);\n\n  const registerScopes = useCallback((audience: Audience, scopes: string) => {\n    if (!scopes?.trim()) return;\n\n    const newScopes = scopes\n      .split(/\\s+/)\n      .map((s) => s.trim())\n      .filter(Boolean);\n\n    const audienceSet = scopeRegistry.current[audience];\n    let changed = false;\n\n    newScopes.forEach((scope) => {\n      if (!audienceSet.has(scope)) {\n        audienceSet.add(scope);\n        changed = true;\n      }\n    });\n\n    if (changed) {\n      setIsReady(false);\n      setVersion((v) => v + 1);\n    }\n  }, []);\n\n  useEffect(() => {\n    if (!coreClient) return;\n\n    const ensureAllScopesSequential = async () => {\n      const nextEnsured: Record<Audience, string> = { ...ensured };\n      let hasScopes = false;\n      let updated = false;\n\n      for (const audience of ['me', 'my-org'] as const) {\n        const scopes = Array.from(scopeRegistry.current[audience]).sort();\n        const scopeString = scopes.join(' ');\n\n        if (scopes.length > 0) {\n          hasScopes = true;\n\n          if (scopeString !== ensured[audience]) {\n            await coreClient.ensureScopes(scopeString, audience);\n            nextEnsured[audience] = scopeString;\n            updated = true;\n          }\n        }\n      }\n\n      if (updated && JSON.stringify(nextEnsured) !== JSON.stringify(ensured)) {\n        setEnsured(nextEnsured);\n      }\n\n      setIsReady(hasScopes);\n    };\n\n    ensureAllScopesSequential();\n  }, [coreClient, version]);\n\n  return (\n    <ScopeManagerContext.Provider value={{ registerScopes, isReady, ensured }}>\n      {children}\n    </ScopeManagerContext.Provider>\n  );\n};\n",
+      "type": "registry:file",
+      "target": "auth0-ui-components/providers/scope-manager-provider.tsx"
+    },
+    {
       "path": "src/providers/spa-provider.tsx",
       "content": "'use client';\n\nimport { useAuth0 } from '@auth0/auth0-react';\nimport type { BasicAuth0ContextInterface } from '@auth0/web-ui-components-core';\nimport * as React from 'react';\n\nimport { CoreClientContext } from '../hooks/use-core-client';\nimport { useCoreClientInitialization } from '../hooks/use-core-client-initialization';\nimport type { InternalProviderProps } from '../types/auth-types';\n\nimport { ScopeManagerProvider } from './scope-manager-provider';\n\nexport const SpaProvider = ({\n  i18n,\n  authDetails,\n  children,\n}: InternalProviderProps & { children: React.ReactNode }) => {\n  let auth0ContextInterface: BasicAuth0ContextInterface = useAuth0();\n  // Check if user is using auth0-react SDK\n  if (!auth0ContextInterface) {\n    // Check if user is passing the auth0-spa-js SDK\n    if (authDetails?.contextInterface) {\n      auth0ContextInterface = authDetails.contextInterface;\n    } else {\n      throw new Error(\n        'Auth0ContextInterface is not available. Make sure you use auth0-react-sdk or auth0-spa-js and you are passing the client to the SDK',\n      );\n    }\n  }\n\n  const memoizedAuthDetails = React.useMemo(\n    () => ({\n      ...authDetails,\n      contextInterface: auth0ContextInterface,\n    }),\n    [authDetails],\n  );\n\n  const coreClient = useCoreClientInitialization({\n    authDetails: memoizedAuthDetails,\n    i18nOptions: i18n,\n  });\n\n  const coreClientValue = React.useMemo(\n    () => ({\n      coreClient,\n    }),\n    [coreClient],\n  );\n\n  return (\n    <CoreClientContext.Provider value={coreClientValue}>\n      <ScopeManagerProvider>{children}</ScopeManagerProvider>\n    </CoreClientContext.Provider>\n  );\n};\n\nexport default SpaProvider;\n",
       "type": "registry:file",
@@ -325,7 +337,7 @@
     },
     {
       "path": "src/lib/index.ts",
-      "content": "export * from './mfa-constants';\nexport * from './theme-utils';\n",
+      "content": "export * from './mfa-constants';\nexport * from './theme-utils';\nexport * from './my-org';\n",
       "type": "registry:file",
       "target": "auth0-ui-components/lib/index.ts"
     },

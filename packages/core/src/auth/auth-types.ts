@@ -98,7 +98,6 @@ export interface AuthDetails {
   domain?: string | undefined;
   authProxyUrl?: string | undefined;
   contextInterface?: BasicAuth0ContextInterface | undefined;
-  scopes?: string | undefined;
 }
 
 export interface BaseCoreClientInterface {

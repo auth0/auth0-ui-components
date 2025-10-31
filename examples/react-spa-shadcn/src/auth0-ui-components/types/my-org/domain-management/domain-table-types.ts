@@ -11,6 +11,7 @@ import type {
   DomainTableMessages,
   CreateOrganizationDomainRequestContent,
   EnhancedTranslationFunction,
+  IdentityProviderAssociatedWithDomain,
 } from '@auth0/web-ui-components-core';
 
 export type { Domain };
@@ -42,11 +43,11 @@ export interface DomainTableSchema {
 export interface DomainTableProps
   extends SharedComponentProps<DomainTableMainMessages, DomainTableClasses, DomainTableSchema> {
   hideHeader?: boolean;
-  create?: ComponentAction<Domain>;
-  verify?: ComponentAction<Domain>;
-  delete?: ComponentAction<Domain>;
-  associateToProvider?: ComponentAction<Domain, IdentityProvider>;
-  deleteFromProvider?: ComponentAction<Domain, IdentityProvider>;
+  createAction?: ComponentAction<Domain>;
+  verifyAction?: ComponentAction<Domain>;
+  deleteAction?: ComponentAction<Domain>;
+  associateToProviderAction?: ComponentAction<Domain, IdentityProvider>;
+  deleteFromProviderAction?: ComponentAction<Domain, IdentityProvider>;
   // Used in the "View" buttons to open an IdP
   onOpenProvider?: (provider: IdentityProvider) => void;
   // Used in the "Create provider" buttons to open the create IdP wizard
@@ -68,17 +69,17 @@ export interface DomainTableActionsColumnProps {
 /* ============ Hooks ============ */
 
 export interface UseDomainTableOptions {
-  create?: DomainTableProps['create'];
-  verify?: DomainTableProps['verify'];
-  deleteAction?: DomainTableProps['delete'];
-  associateToProvider?: DomainTableProps['associateToProvider'];
-  deleteFromProvider?: DomainTableProps['deleteFromProvider'];
+  createAction?: DomainTableProps['createAction'];
+  verifyAction?: DomainTableProps['verifyAction'];
+  deleteAction?: DomainTableProps['deleteAction'];
+  associateToProviderAction?: DomainTableProps['associateToProviderAction'];
+  deleteFromProviderAction?: DomainTableProps['deleteFromProviderAction'];
   customMessages?: DomainTableProps['customMessages'];
 }
 
 export interface UseDomainTableResult extends SharedComponentProps {
   domains: Domain[];
-  providers: IdentityProvider[];
+  providers: IdentityProviderAssociatedWithDomain[];
   isFetching: boolean;
   isLoadingProviders: boolean;
   isCreating: boolean;

@@ -15,6 +15,7 @@ import { Modal } from '../../../ui/modal';
 import { TextField } from '../../../ui/text-field';
 
 export function DomainCreateModal({
+  translatorKey = 'domain_management.domain_create.modal',
   className,
   customMessages,
   isOpen,
@@ -23,7 +24,7 @@ export function DomainCreateModal({
   onClose,
   onCreate,
 }: DomainCreateModalProps) {
-  const { t } = useTranslator('domain_management.domain_create.modal', customMessages);
+  const { t } = useTranslator(translatorKey, customMessages);
 
   const domainCreateSchema = React.useMemo(
     () => createDomainCreateSchema(schema, t('field.error')),

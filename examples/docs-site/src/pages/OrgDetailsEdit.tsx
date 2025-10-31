@@ -207,7 +207,9 @@ export function OrganizationSettingsPage() {
                 <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                   styling
                 </td>
-                <td className="px-4 py-2 text-sm text-gray-500">ComponentStyling</td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  ComponentStyling&lt;OrgEditClasses&gt;
+                </td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
                   {'{ variables: {}, classes: {} }'}
                 </td>
@@ -284,12 +286,15 @@ export function OrganizationSettingsPage() {
 interface OrgDetailsEditProps {
   schema?: OrgDetailsEditSchemas;
   customMessages?: Partial<OrgDetailsEditMessages>;
-  styling?: ComponentStyling;
+  styling?: ComponentStyling<OrgDetailsEditClasses>;
   readOnly?: boolean;
   hideHeader?: boolean;
   saveAction?: ComponentAction<OrganizationPrivate>;
   cancelAction?: ComponentAction<OrganizationPrivate>;
-  backButton?: OrgEditBackButton;
+  backButton?: {
+    icon?: LucideIcon;
+    onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  };
 }
 
 // Action interface
@@ -297,12 +302,6 @@ interface ComponentAction<T> {
   disabled?: boolean;
   onBefore?: (data: T) => boolean | Promise<boolean>;
   onAfter?: (data: T) => void | Promise<void>;
-}
-
-// Back button interface
-interface OrgEditBackButton {
-  icon?: LucideIcon;
-  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }`}
             language="typescript"
             title="Complete TypeScript definitions"
@@ -763,7 +762,8 @@ export default function App() {
         <h2 className="text-2xl font-semibold text-gray-900">Advanced Customization</h2>
         <p className="text-gray-600">
           The <b>OrgDetailsEdit</b> component is composed of smaller subcomponents and hooks. You
-          can import them individually to build custom organization editing workflows.
+          can import them individually to build custom organization editing workflows if you use
+          shadcn.
         </p>
         <div className="space-y-8">
           <div>
@@ -785,32 +785,6 @@ export default function App() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-sm text-blue-800 space-y-2">
               <code>useOrgDetailsEdit</code> – Data fetching, form management, and API updates
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Common Issues */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold text-gray-900">Common Issues</h2>
-        <div className="space-y-4">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-2">Authentication Errors</h4>
-            <p className="text-gray-700 text-sm">
-              Make sure the user is an organization member with edit permissions.
-            </p>
-          </div>
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-2">Component Not Loading</h4>
-            <p className="text-gray-700 text-sm">
-              Check that My Organization API is enabled and your app has the required scopes.
-            </p>
-          </div>
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-2">Save Errors</h4>
-            <p className="text-gray-700 text-sm">
-              Verify the user has <code>read:my_org:details update:my_org:details</code> permissions
-              and form data is valid.
-            </p>
           </div>
         </div>
       </section>

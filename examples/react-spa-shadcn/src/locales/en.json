@@ -20,7 +20,7 @@
     "change-language-button": "Change Language"
   },
   "user-profile": {
-    "title": "User Profile",
+    "title": "Multi-Factor Authentication",
     "mfa": {
       "title": "Multi-Factor Authentication",
       "description": "Manage your security methods for logging in.",
@@ -30,8 +30,11 @@
       }
     }
   },
-  "manage-org": {
-    "title": "Manage Organization"
+  "organization-management": {
+    "title": "Organization Management"
+  },
+  "identity-provider-management": {
+    "title": "Identity Provider Management"
   },
   "domain-management": {
     "title": "Domain Management"

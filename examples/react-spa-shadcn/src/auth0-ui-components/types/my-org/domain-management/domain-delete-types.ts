@@ -1,6 +1,7 @@
 import type { Domain, DomainDeleteMessages } from '@auth0/web-ui-components-core';
 
 export interface DomainDeleteModalProps {
+  translatorKey?: string;
   className?: string;
   customMessages?: Partial<DomainDeleteMessages>;
   domain: Domain | null;

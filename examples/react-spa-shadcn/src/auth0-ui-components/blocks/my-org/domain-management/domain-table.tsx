@@ -19,22 +19,8 @@ import { useDomainTable } from '../../../hooks/my-org/domain-management/use-doma
 import { useDomainTableLogic } from '../../../hooks/my-org/domain-management/use-domain-table-logic';
 import { useTheme } from '../../../hooks/use-theme';
 import { useTranslator } from '../../../hooks/use-translator';
+import { getStatusBadgeVariant } from '../../../lib/my-org/domain-management';
 import type { DomainTableProps } from '../../../types/my-org/domain-management/domain-table-types';
-
-export function getStatusBadgeVariant(
-  status: Domain['status'],
-): 'success' | 'warning' | 'destructive' | 'outline' {
-  switch (status) {
-    case 'verified':
-      return 'success';
-    case 'pending':
-      return 'warning';
-    case 'failed':
-      return 'destructive';
-    default:
-      return 'outline';
-  }
-}
 
 /**
  * DomainTable Component
@@ -48,11 +34,11 @@ function DomainTableComponent({
   },
   hideHeader = false,
   readOnly = false,
-  create,
-  verify,
-  delete: deleteAction,
-  associateToProvider,
-  deleteFromProvider,
+  createAction,
+  verifyAction,
+  deleteAction,
+  associateToProviderAction,
+  deleteFromProviderAction,
   onOpenProvider,
   onCreateProvider,
 }: DomainTableProps) {
@@ -75,11 +61,11 @@ function DomainTableComponent({
     onAssociateToProvider,
     onDeleteFromProvider,
   } = useDomainTable({
-    create,
-    verify,
+    createAction,
+    verifyAction,
     deleteAction,
-    associateToProvider,
-    deleteFromProvider,
+    associateToProviderAction,
+    deleteFromProviderAction,
     customMessages,
   });
 
@@ -171,7 +157,7 @@ function DomainTableComponent({
                 label: t('domain_table.header.create_button_text'),
                 onClick: () => handleCreateClick(),
                 icon: Plus,
-                disabled: create?.disabled || readOnly || isFetching,
+                disabled: createAction?.disabled || readOnly || isFetching,
               },
             ]}
           />

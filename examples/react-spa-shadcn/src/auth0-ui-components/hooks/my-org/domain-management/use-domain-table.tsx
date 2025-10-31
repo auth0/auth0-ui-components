@@ -18,11 +18,11 @@ import { useTranslator } from '../../use-translator';
  * Custom hook for managing domain table data and actions.
  */
 export function useDomainTable({
-  create,
+  createAction,
   deleteAction,
-  verify,
-  associateToProvider,
-  deleteFromProvider,
+  verifyAction,
+  associateToProviderAction,
+  deleteFromProviderAction,
   customMessages,
 }: UseDomainTableOptions): UseDomainTableResult {
   const { t } = useTranslator('domain_management.domain_table.notifications', customMessages);
@@ -89,8 +89,8 @@ export function useDomainTable({
     async (data: CreateOrganizationDomainRequestContent): Promise<Domain | null> => {
       setIsCreating(true);
 
-      if (create?.onBefore) {
-        const canProceed = create.onBefore(data as Domain); // TODO: Check how to use different types to onBefore and onAfter
+      if (createAction?.onBefore) {
+        const canProceed = createAction.onBefore(data as Domain); // TODO: Check how to use different types to onBefore and onAfter
         if (!canProceed) {
           setIsCreating(false);
           throw new BusinessError({ message: t('domain_create.on_before') });
@@ -102,22 +102,22 @@ export function useDomainTable({
           .getMyOrgApiClient()
           .organization.domains.create(data);
 
-        create?.onAfter?.(result);
+        createAction?.onAfter?.(result);
         await fetchDomains();
         return result;
       } finally {
         setIsCreating(false);
       }
     },
-    [coreClient, create, t],
+    [coreClient, createAction, t],
   );
 
   const onVerifyDomain = useCallback(
     async (selectedDomain: Domain): Promise<boolean> => {
       setIsVerifying(true);
 
-      if (verify?.onBefore) {
-        const canProceed = verify.onBefore(selectedDomain);
+      if (verifyAction?.onBefore) {
+        const canProceed = verifyAction.onBefore(selectedDomain);
         if (!canProceed) {
           setIsVerifying(false);
           throw new BusinessError({ message: t('domain_verify.on_before') });
@@ -129,8 +129,8 @@ export function useDomainTable({
           .getMyOrgApiClient()
           .organization.domains.verify.create(selectedDomain.id);
 
-        if (verify?.onAfter) {
-          await verify.onAfter(selectedDomain);
+        if (verifyAction?.onAfter) {
+          await verifyAction.onAfter(selectedDomain);
         }
 
         return response.status === 'verified';
@@ -138,7 +138,7 @@ export function useDomainTable({
         setIsVerifying(false);
       }
     },
-    [verify, t, coreClient],
+    [verifyAction, t, coreClient],
   );
 
   const onDeleteDomain = useCallback(
@@ -170,8 +170,8 @@ export function useDomainTable({
 
   const onAssociateToProvider = useCallback(
     async (selectedDomain: Domain, provider: IdentityProvider) => {
-      if (associateToProvider?.onBefore) {
-        const canProceed = associateToProvider.onBefore(selectedDomain, provider);
+      if (associateToProviderAction?.onBefore) {
+        const canProceed = associateToProviderAction.onBefore(selectedDomain, provider);
         if (!canProceed) {
           throw new BusinessError({ message: t('domain_associate_provider.on_before') });
         }
@@ -183,19 +183,19 @@ export function useDomainTable({
           domain: selectedDomain.domain,
         });
 
-      if (associateToProvider?.onAfter) {
-        await associateToProvider.onAfter(selectedDomain, provider);
+      if (associateToProviderAction?.onAfter) {
+        await associateToProviderAction.onAfter(selectedDomain, provider);
       }
 
       await fetchProviders(selectedDomain);
     },
-    [associateToProvider, t, coreClient, fetchProviders],
+    [associateToProviderAction, t, coreClient, fetchProviders],
   );
 
   const onDeleteFromProvider = useCallback(
     async (selectedDomain: Domain, provider: IdentityProvider) => {
-      if (deleteFromProvider?.onBefore) {
-        const canProceed = deleteFromProvider.onBefore(selectedDomain, provider);
+      if (deleteFromProviderAction?.onBefore) {
+        const canProceed = deleteFromProviderAction.onBefore(selectedDomain, provider);
         if (!canProceed) {
           throw new BusinessError({ message: t('domain_delete_provider.on_before') });
         }
@@ -205,13 +205,13 @@ export function useDomainTable({
         .getMyOrgApiClient()
         .organization.identityProviders.domains.delete(provider.id!, selectedDomain.domain);
 
-      if (deleteFromProvider?.onAfter) {
-        await deleteFromProvider.onAfter(selectedDomain);
+      if (deleteFromProviderAction?.onAfter) {
+        await deleteFromProviderAction.onAfter(selectedDomain, provider);
       }
 
       await fetchProviders(selectedDomain);
     },
-    [deleteFromProvider, t, coreClient, fetchProviders],
+    [deleteFromProviderAction, t, coreClient, fetchProviders],
   );
 
   return {
