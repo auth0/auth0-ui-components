@@ -3,7 +3,7 @@ import {
   type IdentityProvider,
   type CreateOrganizationDomainRequestContent,
   type IdentityProviderAssociatedWithDomain,
-  BusinessError,
+  SilentError,
 } from '@auth0/web-ui-components-core';
 import { useCallback, useState } from 'react';
 
@@ -92,8 +92,7 @@ export function useDomainTable({
       if (createAction?.onBefore) {
         const canProceed = createAction.onBefore(data as Domain); // TODO: Check how to use different types to onBefore and onAfter
         if (!canProceed) {
-          setIsCreating(false);
-          throw new BusinessError({ message: t('domain_create.on_before') });
+          throw new SilentError({ message: t('domain_create.on_before') });
         }
       }
 
@@ -119,8 +118,7 @@ export function useDomainTable({
       if (verifyAction?.onBefore) {
         const canProceed = verifyAction.onBefore(selectedDomain);
         if (!canProceed) {
-          setIsVerifying(false);
-          throw new BusinessError({ message: t('domain_verify.on_before') });
+          throw new SilentError({ message: t('domain_verify.on_before') });
         }
       }
 
@@ -148,8 +146,7 @@ export function useDomainTable({
       if (deleteAction?.onBefore) {
         const canProceed = deleteAction.onBefore(selectedDomain);
         if (!canProceed) {
-          setIsDeleting(false);
-          throw new BusinessError({ message: t('domain_delete.on_before') });
+          throw new SilentError({ message: t('domain_delete.on_before') });
         }
       }
 
@@ -173,7 +170,7 @@ export function useDomainTable({
       if (associateToProviderAction?.onBefore) {
         const canProceed = associateToProviderAction.onBefore(selectedDomain, provider);
         if (!canProceed) {
-          throw new BusinessError({ message: t('domain_associate_provider.on_before') });
+          throw new SilentError({ message: t('domain_associate_provider.on_before') });
         }
       }
 
@@ -197,7 +194,7 @@ export function useDomainTable({
       if (deleteFromProviderAction?.onBefore) {
         const canProceed = deleteFromProviderAction.onBefore(selectedDomain, provider);
         if (!canProceed) {
-          throw new BusinessError({ message: t('domain_delete_provider.on_before') });
+          throw new SilentError({ message: t('domain_delete_provider.on_before') });
         }
       }
 

@@ -1,7 +1,16 @@
 {
   "common": {
     "copy": "Copy",
-    "copied": "Copied!"
+    "copied": "Copied!",
+    "error": {
+      "notifications": {
+        "bad_request": "The request is invalid. Please check your input and try again.",
+        "missing_token": "Your session has expired. Please log in again.",
+        "insufficient_scope": "You do not have the required scope permissions to perform this action.",
+        "not_found": "The requested resource was not found.",
+        "rate_limit": "Too many requests. Please wait a moment and try again."
+      }
+    }
   },
   "domain_management": {
     "domain_table": {
@@ -30,12 +39,12 @@
         "domain_create": {
           "success": "${domainName} has been created.",
           "error": "There was an issue creating the domain.",
-          "on_before": "Domain is not valid."
+          "on_before": "onBefore: Domain is not valid."
         },
         "domain_verify": {
           "success": "${domainName} has been verified.",
           "error": "There was an issue verifying the domain.",
-          "on_before": "Domain verify validation is not correct.",
+          "on_before": "onBefore: Domain verify validation is not correct.",
           "verification_failed": "${domainName} could not be verified. Please wait and try again or check with your DNS provider."
         },
         "domain_delete": {
@@ -45,12 +54,12 @@
         "domain_associate_provider": {
           "success": "${domainName} enabled for ${idp} provider.",
           "error": "There was an issue associating the domain to the provider.",
-          "on_before": "Domain associate to provider validation is not correct."
+          "on_before": "onBefore: Domain associate to provider validation is not correct."
         },
         "domain_delete_provider": {
           "success": "${domainName} disabled for ${idp} provider.",
           "error": "There was an issue removing the domain from the provider.",
-          "on_before": "Domain delete from provider validation is not correct."
+          "on_before": "onBefore: Domain delete from provider validation is not correct."
         }
       }
     },
@@ -809,7 +818,7 @@
     "deleting": "Deleting...",
     "errors": {
       "factors_loading_error": "Error loading MFA factors!",
-      "unknown_error": "Unknown error occurred",
+      "unknown_error": "An unexpected error occurred",
       "delete_factor": "Delete authenticator failed",
       "failed": "failed: ${message}",
       "phone_number_required": "Phone number is required for SMS enrollment.",
@@ -818,27 +827,23 @@
       "invalid_phone_number": "Invalid phone number",
       "unsupported_mfa_type": "Unsupported MFA type: ${factorName}",
       "push-notification": {
-        "too_many_entities": "You reached the limit of entities of the push notification type for this user.",
-        "unsupported_challenge_type": "Auth0 Verifier is disabled for your tenant. You can turn it on from dashboard turning on \"Push notifications\" on Guardian MFA section.",
-        "invalid_request": "Missing required parameter",
-        "authorization_pending": "Authorization pending: please repeat the request in a few seconds."
+        "400": "Missing required parameter",
+        "429": "You reached the limit of entities of the push notification type for this user."
       },
       "totp": {
-        "invalid_request": "Missing required parameter",
-        "too_many_entities": "You reached the limit of entities of the totp type for this user.",
-        "unsupported_challenge_type": "OTP Verifier is disabled for your tenant. You can turn it on from dashboard turning on \"Push notifications\" on Guardian MFA section (Push notications include OTP).",
-        "invalid_grant": "Invalid Otp Code"
+        "400": "Missing required parameter",
+        "403": "Invalid OTP code",
+        "429": "You reached the limit of entities of the totp type for this user."
       },
       "phone": {
-        "unsupported_challenge_type": "SMS Verifier is disabled for your tenant. You can turn it on from dashboard turning on \"SMS\" on Guardian MFA section.",
-        "bad_gateway": "The phone number is invalid.",
-        "too_many_entities": "You reached the limit of entities of the sms type for this user."
+        "400": "The phone number is invalid.",
+        "403": "Invalid code",
+        "429": "You reached the limit of entities of the sms type for this user."
       },
       "email": {
-        "expired_token": "Verification code is expired",
-        "invalid_grant": "Invalid Code",
-        "access_denied": "Could not find the requested authenticator",
-        "too_many_entities": "You reached the limit of entities of the email type for this user."
+        "400": "The email address is invalid.",
+        "403": "Invalid code",
+        "429": "You reached the limit of entities of the email type for this user."
       }
     },
     "phone": {

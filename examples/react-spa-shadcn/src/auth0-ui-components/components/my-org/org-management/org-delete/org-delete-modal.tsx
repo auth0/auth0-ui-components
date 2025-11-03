@@ -97,7 +97,6 @@ export function OrgDeleteModal({
           label: t('delete_button_label'),
           onClick: handleConfirmDelete,
           variant: 'destructive',
-          className: currentStyles.classes?.OrgDelete_button,
           disabled: isLoading,
         },
         previousAction: {

@@ -10,6 +10,7 @@ import { showToast } from '../../../components/ui/toast';
 import { useCoreClient } from '../../../hooks/use-core-client';
 import { useTranslator } from '../../../hooks/use-translator';
 import type { UseSsoProviderCreateOptions } from '../../../types/my-org/idp-management/sso-provider/sso-provider-create-types';
+import { useErrorHandler } from '../../use-error-handler';
 
 export interface UseSsoProviderCreateReturn {
   createProvider: (data: CreateIdentityProviderRequestContentPrivate) => Promise<void>;
@@ -21,6 +22,7 @@ export function useSsoProviderCreate({
   customMessages = {},
 }: UseSsoProviderCreateOptions = {}): UseSsoProviderCreateReturn {
   const { coreClient } = useCoreClient();
+  const { handleError } = useErrorHandler();
   const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -61,13 +63,8 @@ export function useSsoProviderCreate({
         });
 
         createAction?.onAfter?.(data, result);
-      } catch (err) {
-        showToast({
-          type: 'error',
-          message: t('notifications.general_error'),
-        });
-
-        throw err;
+      } catch (error) {
+        handleError(error, { fallbackMessage: t('notifications.general_error') });
       } finally {
         setIsCreating(false);
       }

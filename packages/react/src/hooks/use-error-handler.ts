@@ -1,9 +1,12 @@
-import { hasApiErrorBody, isBusinessError } from '@auth0/web-ui-components-core';
+import { hasApiErrorBody, isBusinessError, isSilentError } from '@auth0/web-ui-components-core';
 import { useCallback } from 'react';
 
 import { showToast } from '../components/ui/toast';
 
+import { useTranslator } from './use-translator';
+
 interface ErrorHandlerOptions {
+  errorMessage?: string;
   fallbackMessage?: string;
   showToastNotification?: boolean;
 }
@@ -12,32 +15,58 @@ interface ErrorHandlerOptions {
  * Hook for handling errors with optional toast notifications
  */
 export const useErrorHandler = () => {
+  const { t } = useTranslator('common.error.notifications');
+
   const handleError = useCallback((error: unknown, options: ErrorHandlerOptions = {}) => {
-    const { fallbackMessage = 'An error occurred', showToastNotification = true } = options;
+    const {
+      errorMessage,
+      fallbackMessage = 'An error occurred',
+      showToastNotification = true,
+    } = options;
 
     // Extract error message from various error types
-    let errorMessage: string;
+    let message: string;
+    if (isSilentError(error)) {
+      console.warn('SilentError:', error);
+      return null;
+    }
 
-    if (isBusinessError(error)) {
-      errorMessage = error.message;
-    } else if (hasApiErrorBody(error) && error.body?.detail) {
-      errorMessage = error.body.detail;
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-    } else if (typeof error === 'string') {
-      errorMessage = error;
+    if (errorMessage) {
+      message = errorMessage;
+    } else if (isBusinessError(error)) {
+      message = error.message;
+    } else if (hasApiErrorBody(error) && error.body?.status) {
+      switch (error.body.status) {
+        case 400:
+          message = t('bad_request');
+          break;
+        case 401:
+          message = t('missing_token');
+          break;
+        case 403:
+          message = t('insufficient_scope');
+          break;
+        case 404:
+          message = t('not_found');
+          break;
+        case 429:
+          message = t('too_many_requests');
+          break;
+        default:
+          message = fallbackMessage;
+      }
     } else {
-      errorMessage = fallbackMessage;
+      message = fallbackMessage;
     }
 
     if (showToastNotification) {
       showToast({
         type: 'error',
-        message: errorMessage,
+        message,
       });
     }
 
-    return errorMessage;
+    return message;
   }, []);
 
   return { handleError };

@@ -1,21 +1,3 @@
-import type { ApiError } from './api-types';
-
-/**
- * Type guard to determine if a given value is an ApiError.
- *
- * @param error - The unknown value to test.
- * @returns `true` if the value conforms to the ApiError shape; otherwise, `false`.
- */
-export function isApiError(error: unknown): error is ApiError {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    (error as ApiError).name === 'ApiError' &&
-    typeof (error as ApiError).message === 'string' &&
-    typeof (error as ApiError).status === 'number'
-  );
-}
-
 /**
  * Type guard to check if an error has a structured API error body
  */
@@ -47,20 +29,17 @@ export function hasApiErrorBody(
 export function normalizeError(
   error: unknown,
   options?: {
-    resolver?: (code: string) => string | undefined | null;
+    resolver?: (code: number) => string | undefined | null;
     fallbackMessage?: string;
   },
 ): Error {
-  if (typeof error === 'string') return new Error(error);
-  if (error instanceof Error) return error;
-
-  if (isApiError(error)) {
-    const code = error.data?.error;
-    if (typeof code === 'string' && options?.resolver) {
+  if (hasApiErrorBody(error)) {
+    const code = error.body?.status;
+    if (typeof code === 'number' && options?.resolver) {
       const resolved = options.resolver(code);
       if (resolved) return new Error(resolved);
     }
-    return new Error(error.message ?? options?.fallbackMessage ?? 'Unknown API error');
+    return new Error(error.body?.detail ?? options?.fallbackMessage ?? 'Unknown API error');
   }
 
   return new Error(options?.fallbackMessage ?? 'An unknown error occurred');

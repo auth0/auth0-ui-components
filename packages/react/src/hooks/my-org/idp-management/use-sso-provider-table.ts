@@ -11,6 +11,7 @@ import { useCallback, useState, useEffect } from 'react';
 import { showToast } from '../../../components/ui/toast';
 import type { UseSsoProviderTableReturn } from '../../../types/my-org/idp-management/sso-provider/sso-provider-table-types';
 import { useCoreClient } from '../../use-core-client';
+import { useErrorHandler } from '../../use-error-handler';
 import { useTranslator } from '../../use-translator';
 
 /**
@@ -24,6 +25,7 @@ export function useSsoProviderTable(
 ): UseSsoProviderTableReturn {
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const { coreClient } = useCoreClient();
+  const { handleError } = useErrorHandler();
 
   const [providers, setProviders] = useState<IdentityProvider[]>([]);
   const [organization, setOrganization] = useState<OrganizationPrivate | null>(null);
@@ -46,10 +48,7 @@ export function useSsoProviderTable(
       setOrganization(orgData);
       return orgData;
     } catch (error) {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
+      handleError(error, { fallbackMessage: t('general_error') });
       return null;
     }
   }, [coreClient, t]);
@@ -67,10 +66,7 @@ export function useSsoProviderTable(
       const providers = response?.identity_providers ?? [];
       setProviders(providers as IdentityProvider[]);
     } catch (error) {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
+      handleError(error, { fallbackMessage: t('general_error') });
     } finally {
       setIsDataLoading(false);
     }
@@ -119,10 +115,7 @@ export function useSsoProviderTable(
 
         return true;
       } catch (error) {
-        showToast({
-          type: 'error',
-          message: t('general_error'),
-        });
+        handleError(error, { fallbackMessage: t('general_error') });
         return false;
       } finally {
         setIsUpdating(false);
@@ -153,10 +146,7 @@ export function useSsoProviderTable(
 
         await fetchProviders();
       } catch (error) {
-        showToast({
-          type: 'error',
-          message: t('general_error'),
-        });
+        handleError(error, { fallbackMessage: t('general_error') });
       } finally {
         setIsDeleting(false);
       }
@@ -191,10 +181,7 @@ export function useSsoProviderTable(
 
         await fetchProviders();
       } catch (error) {
-        showToast({
-          type: 'error',
-          message: t('general_error'),
-        });
+        handleError(error, { fallbackMessage: t('general_error') });
       } finally {
         setIsRemoving(false);
       }
