@@ -10,8 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@auth0/auth0-react": "^2.8.0",
     "@auth0/web-ui-components-react": "workspace:*",
-    "@auth0/auth0-react": "^2.0.0",
     "@tailwindcss/vite": "^4.1.10",
     "i18next": "^25.2.1",
     "lucide-react": "^0.511.0",

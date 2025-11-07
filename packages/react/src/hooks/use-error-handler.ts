@@ -44,7 +44,9 @@ export const useErrorHandler = () => {
           message = t('missing_token');
           break;
         case 403:
-          message = t('insufficient_scope');
+          message = error.body.type?.includes('A0E-403-0002')
+            ? t('insufficient_scope')
+            : t('forbidden');
           break;
         case 404:
           message = t('not_found');

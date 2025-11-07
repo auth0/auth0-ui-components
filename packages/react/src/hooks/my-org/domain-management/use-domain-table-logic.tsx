@@ -203,13 +203,7 @@ export function useDomainTableLogic({
   useEffect(() => {
     if (!coreClient) return;
 
-    try {
-      fetchDomains();
-    } catch (error) {
-      handleError(error, {
-        fallbackMessage: t('domain_table.notifications.fetch_domains_error'),
-      });
-    }
+    fetchDomains();
   }, [coreClient]);
 
   return {

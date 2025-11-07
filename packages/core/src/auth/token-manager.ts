@@ -123,21 +123,31 @@ const TokenUtils = {
         'error' in error &&
         FALLBACK_ERRORS.has((error as { error: string }).error)
       ) {
-        const errorType = (error as { error: string }).error;
-        const prompt = errorType === 'login_required' ? 'login' : 'consent';
+        if (error.error === 'login_required') {
+          const url = new URL(window.location.href);
+          const returnTo = `${url.pathname}${url.search}${url.hash}`;
 
-        const token = await contextInterface.getAccessTokenWithPopup({
-          authorizationParams: {
-            audience,
-            scope,
-            prompt,
-          },
-        });
-
-        if (!token) {
-          throw new Error('getAccessTokenWithPopup: Access token is not defined');
+          await contextInterface.loginWithRedirect({
+            authorizationParams: {
+              audience,
+              scope,
+            },
+            appState: {
+              returnTo,
+            },
+          });
+        } else {
+          const token = await contextInterface.getAccessTokenWithPopup({
+            authorizationParams: {
+              audience,
+              scope,
+            },
+          });
+          if (!token) {
+            throw new Error('getAccessTokenWithPopup: Access token is not defined');
+          }
+          return token;
         }
-        return token;
       }
       throw new Error('getAccessToken: failed', { cause: error });
     }

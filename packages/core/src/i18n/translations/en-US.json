@@ -7,6 +7,7 @@
         "bad_request": "The request is invalid. Please check your input and try again.",
         "missing_token": "Your session has expired. Please log in again.",
         "insufficient_scope": "You do not have the required scope permissions to perform this action.",
+        "forbidden": "You do not have permissions to perform this action.",
         "not_found": "The requested resource was not found.",
         "rate_limit": "Too many requests. Please wait a moment and try again."
       }

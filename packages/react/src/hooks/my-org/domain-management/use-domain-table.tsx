@@ -12,6 +12,7 @@ import type {
   UseDomainTableResult,
 } from '../../../types/my-org/domain-management/domain-table-types';
 import { useCoreClient } from '../../use-core-client';
+import { useErrorHandler } from '../../use-error-handler';
 import { useTranslator } from '../../use-translator';
 
 /**
@@ -27,6 +28,7 @@ export function useDomainTable({
 }: UseDomainTableOptions): UseDomainTableResult {
   const { t } = useTranslator('domain_management.domain_table.notifications', customMessages);
   const { coreClient } = useCoreClient();
+  const { handleError } = useErrorHandler();
 
   const [domains, setDomains] = useState<Domain[]>([]);
   const [providers, setProviders] = useState<IdentityProviderAssociatedWithDomain[]>([]);
@@ -67,6 +69,10 @@ export function useDomainTable({
         );
 
         setProviders(providersWithAssociation);
+      } catch (error) {
+        await handleError(error, {
+          fallbackMessage: t('fetch_providers_error'),
+        });
       } finally {
         setIsLoadingProviders(false);
       }
@@ -75,15 +81,19 @@ export function useDomainTable({
   );
 
   const fetchDomains = useCallback(async (): Promise<void> => {
+    setIsFetching(true);
     try {
-      setIsFetching(true);
       const response = await coreClient!.getMyOrgApiClient().organization.domains.list();
       const domains = response?.organization_domains ?? [];
       setDomains(domains);
+    } catch (error) {
+      await handleError(error, {
+        fallbackMessage: t('fetch_domains_error'),
+      });
     } finally {
       setIsFetching(false);
     }
-  }, [coreClient, t]);
+  }, [coreClient, handleError, t]);
 
   const onCreateDomain = useCallback(
     async (data: CreateOrganizationDomainRequestContent): Promise<Domain | null> => {
