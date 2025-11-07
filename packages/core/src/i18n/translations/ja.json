@@ -238,6 +238,9 @@
         "title": "プロバイダーを追加",
         "back_button_text": "シングルサインオンに戻る"
       },
+      "nextButtonLabel": "次へ",
+      "previousButtonLabel": "戻る",
+      "completeButtonLabel": "プロバイダーを作成",
       "notifications": {
         "general_error": "リクエストの処理中に問題が発生しました。もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
         "provider_create_success": "${providerName} が作成されました。"

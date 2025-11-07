@@ -197,6 +197,11 @@ export function SsoProviderCreateComponent({
           hideStepperNumbers
           steps={wizardSteps}
           onComplete={handleCreate}
+          formActionLabels={{
+            nextButtonLabel: t('nextButtonLabel'),
+            previousButtonLabel: t('previousButtonLabel'),
+            completeButtonLabel: t('completeButtonLabel'),
+          }}
           className={currentStyles?.classes?.['SsoProviderCreate-wizard']}
         />
       </div>

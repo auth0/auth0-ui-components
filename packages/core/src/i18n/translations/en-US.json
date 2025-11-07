@@ -238,12 +238,15 @@
         "title": "Add a Provider",
         "back_button_text": "Back to Single Sign-On"
       },
+      "nextButtonLabel": "Next",
+      "previousButtonLabel": "Back",
+      "completeButtonLabel": "Create Provider",
       "notifications": {
         "general_error": "There was an issue processing your request. Please try again or contact support if the issue persists.",
         "provider_create_success": "${providerName} has been created."
       },
       "provider_select": {
-        "title": "Select Your Indentity Provider",
+        "title": "Select Your Identity Provider",
         "description": "Choose the identity provider you plan to integrate with Auth0 to access step-by-step configuration instructions."
       },
       "provider_details": {

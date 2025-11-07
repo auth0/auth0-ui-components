@@ -90,7 +90,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
             name="discovery_url"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.oidc.discovery_url.label')}
                 </FormLabel>
                 <FormControl>
@@ -120,7 +120,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
             name="type"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.oidc.type.label')}
                 </FormLabel>
                 <FormControl>
@@ -160,7 +160,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
             name="client_id"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.oidc.client_id.label')}
                 </FormLabel>
                 <FormControl>
@@ -191,7 +191,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
               name="client_secret"
               render={({ field, fieldState }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                  <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                     {t('fields.oidc.client_secret.label')}
                   </FormLabel>
                   <FormControl>

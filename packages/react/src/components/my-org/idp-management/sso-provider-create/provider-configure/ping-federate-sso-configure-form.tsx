@@ -121,7 +121,7 @@ export const PingFederateProviderForm = React.forwardRef<
           name="pingFederateBaseUrl"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                 {t('fields.ping-federate.ping_federate_baseurl.label')}
               </FormLabel>
               <FormControl>
@@ -150,7 +150,7 @@ export const PingFederateProviderForm = React.forwardRef<
           name="signingCert"
           render={() => (
             <FormItem>
-              <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                 {t('fields.ping-federate.sign_cert.label')}
               </FormLabel>
               <FormControl>
@@ -196,7 +196,7 @@ export const PingFederateProviderForm = React.forwardRef<
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm font-normal cursor-pointer">
+                      <FormLabel className="text-sm font-medium cursor-pointer">
                         {t('fields.ping-federate.advanced_settings.sign_request.label')}
                       </FormLabel>
                       <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
@@ -231,7 +231,7 @@ export const PingFederateProviderForm = React.forwardRef<
                     name="signatureAlgorithm"
                     render={({ field, fieldState }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                        <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                           {t('fields.ping-federate.advanced_settings.sign_request_algorithm.label')}
                         </FormLabel>
                         <Select onValueChange={field.onChange} value={field.value || ''}>
@@ -265,7 +265,7 @@ export const PingFederateProviderForm = React.forwardRef<
                     name="digestAlgorithm"
                     render={({ field, fieldState }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                        <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                           {t(
                             'fields.ping-federate.advanced_settings.sign_request_algorithm_digest.label',
                           )}

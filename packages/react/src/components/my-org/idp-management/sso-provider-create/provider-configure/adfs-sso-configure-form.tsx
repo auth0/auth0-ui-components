@@ -93,7 +93,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
             name="meta_data_source"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.adfs.meta_data_source.label')}
                 </FormLabel>
                 <FormControl>
@@ -128,63 +128,67 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="adfs_server"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
-                  {t('fields.adfs.meta_data_url.label')}
-                </FormLabel>
-                <FormControl>
-                  <TextField
-                    type="url"
-                    placeholder={t('fields.adfs.meta_data_url.placeholder')}
-                    error={Boolean(fieldState.error)}
-                    readOnly={readOnly}
-                    aria-required={true}
-                    aria-invalid={Boolean(fieldState.error)}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage
-                  role="alert"
-                  className="text-sm text-left text-(length:--font-size-paragraph)"
-                />
-                <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
-                  {t('fields.adfs.meta_data_url.helper_text')}
-                </FormDescription>
-              </FormItem>
-            )}
-          />
+          {typeValue === 'meta_data_url' && (
+            <>
+              <FormField
+                control={form.control}
+                name="adfs_server"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                      {t('fields.adfs.meta_data_url.label')}
+                    </FormLabel>
+                    <FormControl>
+                      <TextField
+                        type="url"
+                        placeholder={t('fields.adfs.meta_data_url.placeholder')}
+                        error={Boolean(fieldState.error)}
+                        readOnly={readOnly}
+                        aria-required={true}
+                        aria-invalid={Boolean(fieldState.error)}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage
+                      role="alert"
+                      className="text-sm text-left text-(length:--font-size-paragraph)"
+                    />
+                    <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                      {t('fields.adfs.meta_data_url.helper_text')}
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
 
-          <FormField
-            control={form.control}
-            name="meta_data_location_url"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
-                  {t('fields.adfs.meta_data_location_url.label')}
-                </FormLabel>
-                <FormControl>
-                  <CopyableTextField
-                    type="url"
-                    placeholder={t('fields.adfs.meta_data_location_url.placeholder')}
-                    error={Boolean(fieldState.error)}
-                    readOnly={readOnly}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage
-                  role="alert"
-                  className="text-sm text-left text-(length:--font-size-paragraph)"
-                />
-                <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
-                  {t('fields.adfs.meta_data_location_url.helper_text')}
-                </FormDescription>
-              </FormItem>
-            )}
-          />
+              <FormField
+                control={form.control}
+                name="meta_data_location_url"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                      {t('fields.adfs.meta_data_location_url.label')}
+                    </FormLabel>
+                    <FormControl>
+                      <CopyableTextField
+                        type="url"
+                        placeholder={t('fields.adfs.meta_data_location_url.placeholder')}
+                        error={Boolean(fieldState.error)}
+                        readOnly={readOnly}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage
+                      role="alert"
+                      className="text-sm text-left text-(length:--font-size-paragraph)"
+                    />
+                    <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                      {t('fields.adfs.meta_data_location_url.helper_text')}
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
 
           {showFederationMetadataFile && (
             <FormField
@@ -192,7 +196,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
               name="fedMetadataXml"
               render={() => (
                 <FormItem>
-                  <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                  <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                     {t('fields.adfs.federation_metadata_file.label')}
                   </FormLabel>
                   <FormControl>

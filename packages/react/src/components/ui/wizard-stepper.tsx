@@ -24,7 +24,12 @@ function WizardStepper({
   hideNumbers = true,
 }: WizardStepperProps) {
   return (
-    <Stepper currentStep={currentStep} enableAllSteps={!!onStepClick} className={className}>
+    <Stepper
+      currentStep={currentStep}
+      enableAllSteps={!!onStepClick}
+      onStepClick={onStepClick}
+      className={className}
+    >
       {steps.map((step, index) => (
         <Step key={step.id || index} step={index} id={step.id} hideNumber={hideNumbers}>
           <StepTitle className="text-(length:--font-size-label)">{step.title}</StepTitle>

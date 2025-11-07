@@ -111,7 +111,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
           {...(nextButtonProps.type !== 'submit' && { onClick: handleNextClick })}
         >
           {isLoading ? (
-            <Spinner size="sm" aria-hidden="true" />
+            <Spinner colorScheme="foreground" size="sm" aria-hidden="true" />
           ) : (
             <>
               {nextButtonProps.icon && (

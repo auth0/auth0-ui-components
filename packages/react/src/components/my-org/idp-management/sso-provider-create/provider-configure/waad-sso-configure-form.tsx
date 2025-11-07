@@ -45,7 +45,7 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
     const { coreClient } = useCoreClient();
 
     const callbackUrl = React.useMemo(() => {
-      const domain = coreClient?.auth?.domain || 'your domain';
+      const domain = coreClient?.auth?.domain || 'YOUR_DOMAIN';
       return `https://${domain}/login/callback`;
     }, [coreClient?.auth?.domain]);
 
@@ -85,7 +85,7 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
             name="tenant_domain"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.waad.tenant_domain.label')}
                 </FormLabel>
                 <FormControl>
@@ -101,9 +101,6 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
                   role="alert"
                   className="text-sm text-left text-(length:--font-size-paragraph)"
                 />
-                <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
-                  {t('fields.waad.tenant_domain.helper_text')}
-                </FormDescription>
               </FormItem>
             )}
           />
@@ -113,7 +110,7 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
             name="client_id"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.waad.client_id.label')}
                 </FormLabel>
                 <FormControl>
@@ -141,7 +138,7 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
             name="client_secret"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.waad.client_secret.label')}
                 </FormLabel>
                 <FormControl>
@@ -169,7 +166,7 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
             name="callback_url"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.waad.callback_url.label')}
                 </FormLabel>
                 <FormControl>

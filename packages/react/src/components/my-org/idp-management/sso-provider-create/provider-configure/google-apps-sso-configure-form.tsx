@@ -47,7 +47,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
   const { coreClient } = useCoreClient();
 
   const callbackUrl = React.useMemo(() => {
-    const domain = coreClient?.auth?.domain || 'your domain';
+    const domain = coreClient?.auth?.domain || 'YOUR_DOMAIN';
     return `https://${domain}/login/callback`;
   }, [coreClient?.auth?.domain]);
 
@@ -87,7 +87,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
           name="domain"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                 {t('fields.google-apps.domain.label')}
               </FormLabel>
               <FormControl>
@@ -112,7 +112,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
           name="client_id"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                 {t('fields.google-apps.client_id.label')}
               </FormLabel>
               <FormControl>
@@ -140,7 +140,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
           name="client_secret"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                 {t('fields.google-apps.client_secret.label')}
               </FormLabel>
               <FormControl>
@@ -168,7 +168,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
           name="callback_url"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                 {t('fields.google-apps.callback_url.label')}
               </FormLabel>
               <FormControl>

@@ -302,26 +302,32 @@ export default function MyOrgIntroduction() {
                       - read:my_org:identity_providers_domains
                     </div>
                     <div className="text-xs text-gray-600">
-                      - create:my_org:identity_provider_domains
+                      - create:my_org:identity_providers_domains
                     </div>
                     <div className="text-xs text-gray-600">
-                      - delete:my_org:identity_provider_domains
+                      - delete:my_org:identity_providers_domains
                     </div>
                     <div className="text-xs text-gray-600">- read:my_org:domains</div>
                     <div className="text-xs text-gray-600">- delete:my_org:domains</div>
                     <div className="text-xs text-gray-600">- create:my_org:domains</div>
                     <div className="text-xs text-gray-600">- update:my_org:domains</div>
-                    <div className="text-xs text-gray-600">- read:my_org:scim_tokens</div>
-                    <div className="text-xs text-gray-600">- create:my_org:scim_tokens</div>
-                    <div className="text-xs text-gray-600">- delete:my_org:scim_tokens</div>
                     <div className="text-xs text-gray-600">
-                      - create:my_org:identity_provider_provisioning
+                      - read:my_org:identity_providers_scim_tokens
                     </div>
                     <div className="text-xs text-gray-600">
-                      - read:my_org:identity_provider_provisioning
+                      - create:my_org:identity_providers_scim_tokens
                     </div>
                     <div className="text-xs text-gray-600">
-                      - delete:my_org:identity_provider_provisioning
+                      - delete:my_org:identity_providers_scim_tokens
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      - create::my_org:identity_providers_provisioning
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      - read::my_org:identity_providers_provisioning
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      - delete::my_org:identity_providers_provisioning
                     </div>
                     <div className="text-xs text-gray-600">- read:my_org:configuration</div>
                   </div>
@@ -377,18 +383,18 @@ export default function MyOrgIntroduction() {
     "delete:my_org:identity_providers",
     "update:my_org:identity_providers_detach",
     "read:my_org:identity_providers_domains",
-    "create:my_org:identity_provider_domains",
-    "delete:my_org:identity_provider_domains",
+    "create:my_org:identity_providers_domains",
+    "delete:my_org:identity_providers_domains",
     "read:my_org:domains",
     "delete:my_org:domains",
     "create:my_org:domains",
     "update:my_org:domains",
-    "read:my_org:scim_tokens",
-    "create:my_org:scim_tokens",
-    "delete:my_org:scim_tokens",
-    "create:my_org:identity_provider_provisioning",
-    "read:my_org:identity_provider_provisioning",
-    "delete:my_org:identity_provider_provisioning",
+    "read:my_org:identity_providers_scim_tokens",
+    "create:my_org:identity_providers_scim_tokens",
+    "delete:my_org:identity_providers_scim_tokens",
+    "create:my_org:identity_providers_provisioning",
+    "read:my_org:identity_providers_provisioning",
+    "delete:my_org:identity_providers_provisioning",
     "read:my_org:configuration"
   ],
   "client_id": "{{auth0_client_id}}", // use your app client_id

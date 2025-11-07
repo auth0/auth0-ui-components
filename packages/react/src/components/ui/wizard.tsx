@@ -44,6 +44,7 @@ export interface WizardProps {
   formActionLabels?: FormActionLabels;
   hideStepperNumbers?: boolean;
   isLoading?: boolean;
+  allowStepNavigation?: boolean;
 }
 
 function Wizard({
@@ -54,6 +55,7 @@ function Wizard({
   formActionLabels,
   hideStepperNumbers = false,
   isLoading = false,
+  allowStepNavigation = true,
 }: WizardProps) {
   const [activeStep, setActiveStep] = React.useState(initialStep);
 
@@ -95,6 +97,18 @@ function Wizard({
     setActiveStep((prev) => prev - 1);
   }, [activeStep, isFirstStep, steps]);
 
+  const handleStepClick = React.useCallback(
+    async (stepIndex: number) => {
+      if (isLoading || !allowStepNavigation) return;
+
+      // Only allow navigation to previous steps or the current step
+      if (stepIndex > activeStep) return;
+
+      setActiveStep(stepIndex);
+    },
+    [activeStep, isLoading, allowStepNavigation],
+  );
+
   const CurrentStepComponent = currentStepConfig.content;
   const showPrevious = currentStepConfig.actions?.showPrevious !== false && !isFirstStep;
   const showNext = currentStepConfig.actions?.showNext ?? true;
@@ -108,7 +122,12 @@ function Wizard({
 
   return (
     <div className={cn('space-y-6', className)}>
-      <WizardStepper steps={steps} currentStep={activeStep} hideNumbers={hideStepperNumbers} />
+      <WizardStepper
+        steps={steps}
+        currentStep={activeStep}
+        hideNumbers={hideStepperNumbers}
+        onStepClick={allowStepNavigation ? handleStepClick : undefined}
+      />
 
       <Card>
         <CardContent className="p-6 relative">

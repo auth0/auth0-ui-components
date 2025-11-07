@@ -52,7 +52,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
     const { coreClient } = useCoreClient();
 
     const callbackUrl = React.useMemo(() => {
-      const domain = coreClient?.auth?.domain || 'your domain';
+      const domain = coreClient?.auth?.domain || 'YOUR_DOMAIN';
       return `https://${domain}/login/callback`;
     }, [coreClient?.auth?.domain]);
 
@@ -93,7 +93,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
             name="domain"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.okta.domain.label')}
                 </FormLabel>
                 <FormControl>
@@ -135,7 +135,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
             name="client_id"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.okta.client_id.label')}
                 </FormLabel>
                 <FormControl>
@@ -177,7 +177,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
             name="client_secret"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.okta.client_secret.label')}
                 </FormLabel>
                 <FormControl>
@@ -219,7 +219,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
             name="callback_url"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.okta.callback_url.label')}
                 </FormLabel>
                 <FormControl>

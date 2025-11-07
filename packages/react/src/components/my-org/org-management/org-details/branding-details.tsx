@@ -1,8 +1,9 @@
+import { LinkIcon } from 'lucide-react';
 import * as React from 'react';
 
 import { useTranslator } from '../../../../hooks/use-translator';
 import type { BrandingDetailsProps } from '../../../../types/my-org/org-management/org-details-types';
-import { ColorPicker } from '../../../ui/color-picker';
+import { ColorPickerInput } from '../../../ui/color-picker';
 import {
   FormControl,
   FormDescription,
@@ -11,7 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from '../../../ui/form';
-import { ImagePreview } from '../../../ui/image-preview';
+import { ImagePreviewField } from '../../../ui/image-preview-field';
 import { Section } from '../../../ui/section';
 
 /**
@@ -22,7 +23,6 @@ import { Section } from '../../../ui/section';
  */
 export function BrandingDetails({
   form,
-  readOnly = false,
   customMessages = {},
   className,
 }: BrandingDetailsProps): React.JSX.Element {
@@ -34,18 +34,19 @@ export function BrandingDetails({
         <FormField
           control={form.control}
           name="branding.logo_url"
-          render={({ field, fieldState }) => (
+          render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm text-(length:--font-size-label) font-normal">
+              <FormLabel className="text-sm text-(length:--font-size-label) font-medium">
                 {t('sections.branding.fields.logo.label')}
               </FormLabel>
               <FormControl>
-                <ImagePreview
-                  error={fieldState.error?.message}
-                  // @ts-expect-error readOnly is available but not defined in ImagePreviewProps
-                  readOnly={readOnly}
+                <ImagePreviewField
                   {...field}
-                  disableFileUpload
+                  startAdornment={
+                    <div className="p-1.5">
+                      <LinkIcon />
+                    </div>
+                  }
                 />
               </FormControl>
               <FormMessage
@@ -62,21 +63,16 @@ export function BrandingDetails({
         <FormField
           control={form.control}
           name="branding.colors.primary"
-          render={({ field, fieldState }) => (
+          render={({ field }) => (
             <FormItem>
               <FormLabel
-                className="text-sm text-(length:--font-size-label) font-normal"
+                className="text-sm text-(length:--font-size-label) font-medium"
                 htmlFor="primary-color"
               >
                 {t('sections.branding.fields.primary_color.label')}
               </FormLabel>
               <FormControl>
-                <ColorPicker
-                  id="primary-color"
-                  error={!!fieldState.error}
-                  readOnly={readOnly}
-                  {...field}
-                />
+                <ColorPickerInput {...field} />
               </FormControl>
               <FormMessage
                 className="text-left text-sm text-(length:--font-size-paragraph)"
@@ -92,21 +88,16 @@ export function BrandingDetails({
         <FormField
           control={form.control}
           name="branding.colors.page_background"
-          render={({ field, fieldState }) => (
+          render={({ field }) => (
             <FormItem>
               <FormLabel
-                className="text-sm text-(length:--font-size-label) font-normal"
+                className="text-sm text-(length:--font-size-label) font-medium"
                 htmlFor="page-background-color"
               >
                 {t('sections.branding.fields.page_background_color.label')}
               </FormLabel>
               <FormControl>
-                <ColorPicker
-                  id="page-background-color"
-                  error={!!fieldState.error}
-                  readOnly={readOnly}
-                  {...field}
-                />
+                <ColorPickerInput {...field} />
               </FormControl>
               <FormMessage
                 className="text-left text-sm text-(length:--font-size-paragraph)"

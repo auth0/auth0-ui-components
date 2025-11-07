@@ -319,6 +319,9 @@ export interface SsoProviderCreateMessages {
     title?: string;
     back_button_text?: string;
   };
+  nextButtonLabel?: string;
+  previousButtonLabel?: string;
+  completeButtonLabel?: string;
   provider_select?: ProviderSelectMessages;
   provider_details?: ProviderDetailsMessages;
   provider_configure?: ProviderConfigureMessages;
