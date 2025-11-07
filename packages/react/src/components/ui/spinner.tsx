@@ -5,23 +5,29 @@ import * as React from 'react';
 import { cn } from '../../lib/theme-utils';
 
 const spinnerVariants = cva(
-  'text-surface inline-block h-8 w-8 rounded-full duration-[5000] ease-linear',
+  'inline-block h-8 w-8 animate-spin rounded-full border-2 border-transparent',
   {
     variants: {
       variant: {
-        dots: 'border-primary animate-[spin_5s_linear_infinite] border-6 border-dotted',
-        pulse: 'bg-primary animate-pulse',
-        solid: 'border-primary animate-spin border-2 border-e-transparent',
+        solid: 'border-t-current',
+        dots: 'animate-[spin_5s_linear_infinite] border-6 border-dotted border-current',
+        pulse: 'animate-pulse bg-current',
       },
       size: {
         sm: 'size-4',
         md: 'size-8',
         lg: 'size-12',
       },
+      colorScheme: {
+        primary: 'text-primary',
+        foreground: 'text-primary-foreground',
+        muted: 'text-muted-foreground',
+      },
     },
     defaultVariants: {
       variant: 'solid',
       size: 'md',
+      colorScheme: 'primary',
     },
   },
 );
@@ -30,9 +36,9 @@ export interface SpinnerProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof spinnerVariants> {}
 
-export function Spinner({ variant, size, className, ...props }: SpinnerProps) {
+export function Spinner({ variant, size, colorScheme, className, ...props }: SpinnerProps) {
   return (
-    <div className={cn(spinnerVariants({ variant, size }), className)} {...props}>
+    <div className={cn(spinnerVariants({ variant, size, colorScheme }), className)} {...props}>
       <span className="sr-only">Loading...</span>
     </div>
   );

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useTranslator } from '../../../../../hooks/use-translator';
 import type { ProviderConfigureProps } from '../../../../../types/my-org/idp-management/sso-provider/sso-provider-create-types';
 import { Section } from '../../../../ui/section';
+import { Spinner } from '../../../../ui/spinner';
 
 import {
   ProviderConfigureFields,
@@ -17,7 +18,15 @@ export interface ProviderConfigureHandle {
 
 export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, ProviderConfigureProps>(
   function ProviderConfigure(
-    { strategy, initialData, readOnly = false, customMessages = {}, className },
+    {
+      strategy,
+      initialData,
+      readOnly = false,
+      customMessages = {},
+      className,
+      idpConfig,
+      isLoading,
+    },
     ref,
   ) {
     const { t } = useTranslator(
@@ -36,6 +45,14 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
       },
     }));
 
+    if (isLoading) {
+      return (
+        <div className="flex justify-center items-center p-8">
+          <Spinner />
+        </div>
+      );
+    }
+
     return (
       <div className={className}>
         <Section title={t('title')} description={t('description')}>
@@ -45,6 +62,7 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
             initialData={initialData}
             readOnly={readOnly}
             customMessages={customMessages.fields}
+            idpConfig={idpConfig}
           />
         </Section>
       </div>

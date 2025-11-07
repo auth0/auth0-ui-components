@@ -10,6 +10,7 @@ import type {
 } from '@auth0/web-ui-components-core';
 
 import type { FormActionsProps } from '../../../../components/ui/form-actions';
+import type { IdpConfig } from '../../config/config-idp-types';
 
 import type { SsoProviderCreateClasses } from './sso-provider-create-types';
 import type {
@@ -46,6 +47,8 @@ export interface SsoProviderTabProps
     SsoProviderTabSchemas
   > {
   formActions: SsoProviderDetailsFormActions;
+  idpConfig: IdpConfig | null;
+  shouldAllowDeletion: boolean;
   provider: IdentityProvider | null;
   onDelete: (provider: IdentityProvider) => Promise<void>;
   onRemove: (provider: IdentityProvider) => Promise<void>;
@@ -78,6 +81,7 @@ export interface SsoProviderDetailsClasses {
 export interface SsoProviderDetailsProps
   extends SharedComponentProps<SsoProviderDetailsMessages, SsoProviderDetailsClasses> {
   provider: IdentityProvider;
+  idpConfig: IdpConfig | null;
   readOnly?: boolean;
   formActions?: SsoProviderDetailsFormActions;
 }

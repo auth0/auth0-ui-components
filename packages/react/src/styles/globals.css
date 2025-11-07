@@ -2,6 +2,8 @@
 
 @import 'tw-animate-css';
 
+@import './font-sizes.css';
+
 @import './themes/default.css';
 @import './themes/minimal.css';
 @import './themes/rounded.css';
@@ -50,30 +52,40 @@
   }
 }
 
-@theme {
+@theme inline {
+  /**
+   * STANDARD SHADCN VARIABLES (with auth0 fallbacks)
+   * Map shadcn standard variable names defined by the user to auth0 ones
+   */
+  --color-background: var(--background, var(--color-neutral-min));
+  --color-foreground: var(--foreground, var(--color-neutral-12));
+  --color-card: var(--card, var(--color-neutral-min));
+  --color-card-foreground: var(--card-foreground, var(--color-neutral-max));
+  --color-primary: var(--primary, var(--color-carbon-9));
+  --color-primary-foreground: var(--primary-foreground, var(--color-neutral-min));
+  --color-secondary: var(--secondary, var(--color-neutral-3));
+  --color-secondary-foreground: var(--secondary-foreground, var(--color-neutral-1));
+  --color-accent: var(--accent, var(--color-neutral-2));
+  --color-accent-foreground: var(--accent-foreground, var(--color-neutral-12));
+  --color-muted: var(--muted, var(--color-neutral-2));
+  --color-muted-foreground: var(--muted-foreground, var(--color-neutral-11));
+  --color-destructive: var(--destructive, var(--color-red-3));
+  --color-destructive-foreground: var(--destructive-foreground, var(--color-red-9));
+  --color-popover: var(--popover, var(--color-neutral-1));
+  --color-popover-foreground: var(--popover-foreground, var(--color-neutral-12));
+  --color-input: var(--input, var(--color-neutral-1));
+  --color-border: var(--border, var(--color-neutral-6));
+  --color-ring: var(--ring, hsla(var(--color-neutral-7), 0.2));
+
+  /**
+   * CUSTOM AUTH0 VARIABLES (no shadcn equivalents)
+   * These are auth0-specific and don't map to standard shadcn variables
+   */
+
+  /* Page background */
   --color-page: var(--color-neutral-2);
-  --color-background: var(--color-neutral-min);
-  --color-foreground: var(--color-neutral-12);
 
-  --color-card: var(--color-neutral-min);
-  --color-card-foreground: var(--color-neutral-max);
-
-  --color-primary: var(--color-carbon-9);
-  --color-primary-foreground: var(--color-neutral-min);
-
-  --color-secondary: var(--color-neutral-3);
-  --color-secondary-foreground: var(--color-neutral-1);
-
-  --color-accent: var(--color-neutral-2);
-  --color-accent-foreground: var(--color-neutral-12);
-
-  --color-muted: var(--color-neutral-2);
-  --color-muted-foreground: var(--color-neutral-11);
-
-  --color-border: var(--color-neutral-6);
-
-  --color-ring: hsla(var(--color-neutral-7), 0.2);
-
+  /* Status colors */
   --color-info: var(--color-blue-3);
   --color-info-foreground: var(--color-blue-9);
   --color-success: var(--color-green-3);
@@ -81,18 +93,13 @@
   --color-warning: var(--color-yellow-3);
   --color-warning-foreground: var(--color-yellow-11);
 
-  --color-destructive: var(--color-red-3);
-  --color-destructive-foreground: var(--color-red-9);
+  /* Extended semantic colors */
   --color-destructive-border: var(--color-red-10);
-
-  --color-popover: var(--color-neutral-1);
-  --color-popover-foreground: var(--color-neutral-12);
   --color-popover-border: var(--color-neutral-6);
-
-  --color-input: var(--color-neutral-1);
   --color-input-foreground: var(--color-neutral-12);
   --color-input-muted: var(--color-neutral-2);
 
+  /* Shadows */
   --shadow-bevel-xs: var(--shadow-bevel-xs);
   --shadow-bevel-sm: var(--shadow-bevel-sm);
   --shadow-bevel-md: var(--shadow-bevel-md);
@@ -128,6 +135,7 @@
   --shadow-switch-thumb: var(--shadow-switch-thumb);
   --shadow-switch-thumb-dark: var(--shadow-switch-thumb-dark);
 
+  /* Border radius */
   --radius-xs: var(--radius-xs);
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
@@ -142,20 +150,13 @@
   --radius-8xl: var(--radius-8xl);
   --radius-9xl: var(--radius-9xl);
 
-  --font-size-heading: 1.5rem;
-  /* Default for text-2xl */
-  --font-size-title: 1.25rem;
-  /* Default for text-xl */
-  --font-size-subtitle: 1.125rem;
-  /* Default for text-lg */
-  --font-size-body: 1rem;
-  /* Default for text-base (For main body text size) */
-  --font-size-paragraph: 0.875rem;
-  /* Default for text-sm (For general smaller paragraphs/details) */
-  --font-size-label: 0.875rem;
-  /* Default for text-sm (Specifically for labels like FieldLabel) */
-  --font-size-page-header: 2.25rem;
-  /* Default for text-4xl (For main page headers/titles) */
-  --font-size-page-description: 0.875rem;
-  /* Default for text-sm (For page descriptions/subtitles) */
+  /* Defined in font-sizes.css */
+  --font-size-page-header: var(--font-size-page-header);
+  --font-size-page-description: var(--font-size-page-description);
+  --font-size-heading: var(--font-size-heading);
+  --font-size-title: var(--font-size-title);
+  --font-size-subtitle: var(--font-size-subtitle);
+  --font-size-body: var(--font-size-body);
+  --font-size-paragraph: var(--font-size-paragraph);
+  --font-size-label: var(--font-size-label);
 }

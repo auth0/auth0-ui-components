@@ -32,6 +32,8 @@ export function SsoProviderTab({
   organization,
   isDeleting,
   isRemoving,
+  idpConfig,
+  shouldAllowDeletion,
   formActions,
 }: SsoProviderTabProps) {
   const { t } = useTranslator('idp_management.edit_sso_provider.tabs.sso', customMessages);
@@ -61,13 +63,14 @@ export function SsoProviderTab({
               formActions={formActions}
               customMessages={customMessages.details}
               styling={styling}
+              idpConfig={idpConfig}
             />
           )}
         </CardContent>
       </Card>
 
       <div className="space-y-4">
-        {provider && organization && (
+        {provider && organization && shouldAllowDeletion && (
           <SsoProviderRemoveFromOrg
             provider={provider}
             organizationName={organization?.name}
@@ -77,7 +80,7 @@ export function SsoProviderTab({
           />
         )}
 
-        {provider && (
+        {provider && shouldAllowDeletion && (
           <SsoProviderDelete
             provider={provider}
             onDelete={onDelete}

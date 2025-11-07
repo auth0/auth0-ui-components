@@ -2,9 +2,21 @@
 
 A comprehensive library of reusable UI components and utilities for Auth0 integrations, built with modern web technologies and designed for scalability.
 
+## 📖 Documentation
+
+For detailed information on how to use these components and get started with Auth0, please refer to the following resources:
+
+- **[Auth0 Quickstarts](https://auth0.com/docs/quickstarts)**: Official guides for creating and configuring your application on the Auth0 platform.
+- **[Auth0 APIs](https://auth0.com/docs/api)**: Comprehensive documentation for Auth0's APIs.
+- **[Component Documentation](https://auth0-ui-components.vercel.app/)**: Live Storybook showcasing all available components, their props, and usage examples.
+- **[Examples Folder](./examples/)**: Practical, hands-on sample applications demonstrating how to integrate and use these components in a real project.
+
 ## 📦 Packages Overview
 
-This project uses a **monorepo architecture** with multiple packages located in the `packages/` folder. Each package serves a specific purpose and can be used independently or together:
+This project uses a **monorepo architecture** designed for multi-framework support. It is organized into two main types of packages:
+
+- A framework-agnostic `@auth0/web-ui-components-core` package that contains all the core logic, services, and utilities.
+- Framework-specific packages (like `@auth0/web-ui-components-react`) that provide UI components and hooks for a particular technology. This structure allows for the future addition of packages for other frameworks like Vue or Angular.
 
 ### `packages/core/`
 
@@ -12,10 +24,10 @@ This project uses a **monorepo architecture** with multiple packages located in 
 
 **What it provides:**
 
-- 🌐 **Internationalization (i18n)**: Translation functions and utilities for multi-language support
-- 🔌 **API Services**: HTTP client utilities with error handling for Auth0 API interactions
-- 🔐 **MFA Services**: Multi-factor authentication utilities including enrollment, confirmation, and factor management
-- 🛠️ **Shared Types**: TypeScript type definitions used across all packages
+- 📦 **Internal Services**: Handles all API logic for "My Account" and "My Org" components, using the "My Account" and "My Org" SDKs.
+- 🌐 **Internationalization (i18n)**: Contains all translation files for multi-language support and utils.
+- 🛡️ **Schema Validation**: Defines and maintains types for schema validation.
+- 🛠️ **Shared Utilities**: Provides shared functions, TypeScript types, and theme management utilities.
 
 ### `packages/react/`
 
@@ -23,12 +35,18 @@ This project uses a **monorepo architecture** with multiple packages located in 
 
 **What it provides:**
 
-- ⚛️ **React Components**: Pre-built UI components for Auth0 features (MFA management, user profiles, etc.)
-- 🎣 **Custom Hooks**: React hooks for Auth0 state management and API interactions
-- 🎨 **Styled Components**: Beautiful, accessible components built with Radix UI and Tailwind CSS
-- 🔄 **Providers**: React context providers for Auth0 state management
+- ⚛️ **React Components**: Pre-built UI components for Auth0 features (MFA management, user profiles, ,org management etc.)
+- 🎣 **Custom Hooks**: React hooks for component state management and API interactions
+- 🎨 **UI Elements**: Beautiful, accessible components built with Radix UI and Tailwind CSS, following shadcn design patterns.
+- 🔄 **Providers**: React context providers for managing authentication, theme, and internationalization.
 
-## 🚀 Getting Started
+## 🚀 Using the Library
+
+For detailed instructions on how to install and use the components in your project, please refer to the `README.md` file within the specific framework package you are using.
+
+- **[React Usage Guide](./packages/react/README.md)**
+
+## 🛠️ Getting Started (for Contributors)
 
 ### Prerequisites
 
@@ -37,25 +55,41 @@ This project uses a **monorepo architecture** with multiple packages located in 
 
 ### Installation
 
-1. **Clone the repository:**
+1.  **Clone the repository:**
 
-   ```bash
-   git clone https://github.com/atko-cic/auth0-ui-components
-   cd auth0-ui-components
-   ```
+    ```bash
+    git clone https://github.com/atko-cic/auth0-ui-components
+    cd auth0-ui-components
+    ```
 
-2. **Install dependencies:**
+2.  **Install dependencies:**
 
-   ```bash
-   pnpm install
-   ```
+    ```bash
+    pnpm install
+    ```
 
-3. **Build all packages:**
-   ```bash
-   pnpm run build
-   ```
+3.  **Build all packages:**
+    ```bash
+    pnpm run build
+    ```
 
 ### Development
+
+#### Local Development Workflow
+
+To make and test changes locally:
+
+1.  Make your desired changes in any of the packages (e.g., `packages/core` or `packages/react`).
+2.  Re-build all packages to apply your changes:
+    ```bash
+    pnpm run build
+    ```
+3.  Navigate to a technology-specific example application in the `examples/` directory (e.g., `examples/react-spa-npm`).
+4.  Configure the required environment variables in a `.env` file as per the example's `README`.
+5.  Start the development server to see your changes in action:
+    ```bash
+    pnpm run dev
+    ```
 
 #### Testing
 
@@ -67,45 +101,44 @@ pnpm run test:react
 pnpm run test:core
 ```
 
-To run specific test, go to each package folder and run:
+To run a specific test, go to the relevant package folder and run:
 
 ```bash
 pnpm run test org-details-edit
 ```
 
-#### Shadcn local developement
+#### Shadcn Local Development
 
-1. Update `registry.json` with your changes.
+1.  Update `registry.json` with your changes.
 
-2. Create new build based on `registry.json`
+2.  Create a new build based on `registry.json`:
+
+    ```bash
+    pnpm build:shadcn
+    ```
+
+3.  Open `docs-site` and serve the registry:
 
 ```bash
-pnpm build:shadcn
-```
-
-3. Open `docs-site` and serve the registry.
-
-```bash
-cd examples/docs-site
+cd docs-site
 pnpm install
 pnpm run dev
 ```
 
-4. Go to your app (you can use the `react-spa-shadcn`) and update the components.
+4.  Go to your app (e.g., `react-spa-shadcn`) and update the components:
 
-```bash
-npx shadcn@latest add http://localhost:5173/r/my-account/user-mfa-management.json --overwrite
-npx shadcn@latest add http://localhost:5173/r/my-org/org-details-edit.json --overwrite
-# ... other components
-```
+    ```bash
+    npx shadcn@latest add http://localhost:5173/r/my-account/user-mfa-management.json --overwrite
+    npx shadcn@latest add http://localhost:5173/r/my-org/org-details-edit.json --overwrite
+    # ... other components
+    ```
 
-_Check the port, it can be different in case you have more apps running_
+    _Note: The port may differ if other applications are running._
 
-## 📖 Examples
+## 🤝 Contributing
 
-The `examples/` folder contains sample applications demonstrating how to use the components:
+Contributions are welcome! Please feel free to submit a pull request or open an issue for any bugs, feature requests, or improvements.
 
-- **`react-spa-npm/`**: React SPA showing UI Components Functionality using npm package
-  - See [examples/react-spa-npm/README.md](examples/react-spa-npm/README.md) for setup and running instructions
-- **`react-spa-shadcn/`**: React SPA showing UI Components Functionality using shadcn components
-  - See [examples/react-spa-shadcn/README.md](examples/react-spa-shadcn/README.md) for setup and running instructions
+## 📜 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

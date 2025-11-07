@@ -20,6 +20,8 @@ import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
+import type { IdpConfig } from '../../config/config-idp-types';
+
 export interface SsoProviderCreateClasses {
   'SsoProviderCreate-header'?: string;
   'SsoProviderCreate-wizard'?: string;
@@ -30,6 +32,7 @@ export interface SsoProviderCreateClasses {
 
 export interface ProviderSelectProps
   extends SharedComponentProps<ProviderSelectMessages, SsoProviderCreateClasses> {
+  isLoading: boolean;
   strategyList: IdpStrategy[];
   onClickStrategy: (strategy: IdpStrategy) => void;
   selectedStrategy?: IdpStrategy | null;
@@ -48,8 +51,10 @@ export interface ProviderDetailsProps
 export interface ProviderConfigureProps
   extends SharedComponentProps<ProviderConfigureMessages, SsoProviderCreateClasses> {
   className?: string;
+  isLoading: boolean;
   strategy: IdpStrategy;
   initialData?: Partial<ProviderConfigureFormValues>;
+  idpConfig: IdpConfig | null;
 }
 
 export interface ProviderConfigureFieldsProps
@@ -58,6 +63,7 @@ export interface ProviderConfigureFieldsProps
   initialData?: Partial<ProviderConfigureFormValues>;
   className?: string;
   onFormDirty?: (isDirty: boolean) => void;
+  idpConfig: IdpConfig | null;
 }
 
 export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'> {

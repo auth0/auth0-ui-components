@@ -68,6 +68,14 @@ export interface ProviderConfigureSchema {
       maxLength?: number;
       required?: boolean;
     };
+    show_as_button?: {
+      required?: boolean;
+      errorMessage?: string;
+    };
+    assign_membership_on_login?: {
+      required?: boolean;
+      errorMessage?: string;
+    };
   };
 
   adfs?: {
@@ -95,6 +103,14 @@ export interface ProviderConfigureSchema {
       minLength?: number;
       maxLength?: number;
       required?: boolean;
+    };
+    show_as_button?: {
+      required?: boolean;
+      errorMessage?: string;
+    };
+    assign_membership_on_login?: {
+      required?: boolean;
+      errorMessage?: string;
     };
   };
 
@@ -134,6 +150,14 @@ export interface ProviderConfigureSchema {
       maxLength?: number;
       required?: boolean;
     };
+    show_as_button?: {
+      required?: boolean;
+      errorMessage?: string;
+    };
+    assign_membership_on_login?: {
+      required?: boolean;
+      errorMessage?: string;
+    };
   };
 
   oidc?: {
@@ -166,6 +190,14 @@ export interface ProviderConfigureSchema {
       required?: boolean;
     };
     isFrontChannel?: boolean;
+    show_as_button?: {
+      required?: boolean;
+      errorMessage?: string;
+    };
+    assign_membership_on_login?: {
+      required?: boolean;
+      errorMessage?: string;
+    };
   };
 
   pingfederate?: {
@@ -211,6 +243,14 @@ export interface ProviderConfigureSchema {
       minLength?: number;
       maxLength?: number;
       required?: boolean;
+    };
+    show_as_button?: {
+      required?: boolean;
+      errorMessage?: string;
+    };
+    assign_membership_on_login?: {
+      required?: boolean;
+      errorMessage?: string;
     };
   };
 
@@ -280,6 +320,14 @@ export interface ProviderConfigureSchema {
       maxLength?: number;
       required?: boolean;
     };
+    show_as_button?: {
+      required?: boolean;
+      errorMessage?: string;
+    };
+    assign_membership_on_login?: {
+      required?: boolean;
+      errorMessage?: string;
+    };
   };
 
   waad?: {
@@ -317,6 +365,14 @@ export interface ProviderConfigureSchema {
       minLength?: number;
       maxLength?: number;
       required?: boolean;
+    };
+    show_as_button?: {
+      required?: boolean;
+      errorMessage?: string;
+    };
+    assign_membership_on_login?: {
+      required?: boolean;
+      errorMessage?: string;
     };
   };
 }

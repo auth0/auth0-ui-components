@@ -36,7 +36,7 @@ export function SettingsDetails({
           render={({ field }) => (
             <FormItem>
               <FormLabel
-                className="text-sm text-(length:--font-size-label) font-normal"
+                className="text-sm text-(length:--font-size-label) font-medium"
                 htmlFor="organization-name"
               >
                 {t('sections.settings.fields.name.label')}
@@ -68,7 +68,7 @@ export function SettingsDetails({
           render={({ field }) => (
             <FormItem>
               <FormLabel
-                className="text-sm text-(length:--font-size-label) font-normal"
+                className="text-sm text-(length:--font-size-label) font-medium"
                 htmlFor="organization-display-name"
               >
                 {t('sections.settings.fields.display_name.label')}

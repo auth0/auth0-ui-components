@@ -22,6 +22,8 @@ import {
 } from '../../../../ui/form';
 import { TextField } from '../../../../ui/text-field';
 
+import { CommonConfigureFields } from './common-configure-fields';
+
 export interface GoogleAppsConfigureFormHandle {
   validate: () => Promise<boolean>;
   getData: () => GoogleAppsConfigureFormValues;
@@ -34,7 +36,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
   GoogleAppsConfigureFormHandle,
   GoogleAppsConfigureFormProps
 >(function GoogleAppsProviderForm(
-  { initialData, readOnly = false, customMessages = {}, className, onFormDirty },
+  { initialData, readOnly = false, customMessages = {}, className, onFormDirty, idpConfig },
   ref,
 ) {
   const { t } = useTranslator(
@@ -45,7 +47,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
   const { coreClient } = useCoreClient();
 
   const callbackUrl = React.useMemo(() => {
-    const domain = coreClient?.auth?.domain || 'your domain';
+    const domain = coreClient?.auth?.domain || 'YOUR_DOMAIN';
     return `https://${domain}/login/callback`;
   }, [coreClient?.auth?.domain]);
 
@@ -85,7 +87,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
           name="domain"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                 {t('fields.google-apps.domain.label')}
               </FormLabel>
               <FormControl>
@@ -110,7 +112,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
           name="client_id"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                 {t('fields.google-apps.client_id.label')}
               </FormLabel>
               <FormControl>
@@ -138,7 +140,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
           name="client_secret"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                 {t('fields.google-apps.client_secret.label')}
               </FormLabel>
               <FormControl>
@@ -166,7 +168,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
           name="callback_url"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                 {t('fields.google-apps.callback_url.label')}
               </FormLabel>
               <FormControl>
@@ -187,6 +189,12 @@ export const GoogleAppsProviderForm = React.forwardRef<
               </FormDescription>
             </FormItem>
           )}
+        />
+
+        <CommonConfigureFields
+          idpConfig={idpConfig}
+          readOnly={readOnly}
+          customMessages={customMessages}
         />
       </div>
     </Form>

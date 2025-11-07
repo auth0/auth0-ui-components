@@ -59,13 +59,13 @@ jobs:
           echo "Project ID: $VERCEL_PROJECT_ID"
           echo "Org ID: $VERCEL_ORG_ID"
           echo "Contents of docs-site dist folder:"
-          ls -la examples/docs-site/dist/
+          ls -la docs-site/dist/
 
           # Create a completely isolated deployment directory
           mkdir -p /tmp/static-deploy
 
           # Copy only the built static files
-          cp -r examples/docs-site/dist/* /tmp/static-deploy/
+          cp -r docs-site/dist/* /tmp/static-deploy/
 
           # Create a vercel.json that forces static deployment
           echo '{"builds":[{"src":"**/*","use":"@vercel/static"}],"rewrites":[{"source":"/(.*)","destination":"/index.html"}]}' > /tmp/static-deploy/vercel.json

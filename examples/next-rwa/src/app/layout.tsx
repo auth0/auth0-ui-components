@@ -8,7 +8,6 @@ import { Sidebar } from '@/components/navigation/side-bar';
 import { ClientProvider } from '@/providers/client-provider';
 
 import './globals.css';
-import '@auth0/web-ui-components-react/dist/index.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,13 +19,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full">
-      <body className={`${inter.className} h-full bg-white`}>
+      <body className={`${inter.className} h-full`}>
         <Auth0Provider>
           <ClientProvider>
-            <div className="min-h-full bg-white">
+            <div className="flex flex-col h-full min-h-screen">
               <Navbar />
-              <Sidebar />
-              <main className="ml-64 pt-16 min-h-full bg-white overflow-auto">{children}</main>
+              <div className="flex flex-1">
+                <Sidebar />
+                <main className="flex-1 p-6 overflow-auto">{children}</main>
+              </div>
             </div>
           </ClientProvider>
         </Auth0Provider>

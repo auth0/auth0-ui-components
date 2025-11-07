@@ -45,7 +45,7 @@ export type IdentityProviderAssociatedWithDomain = IdentityProvider & {
   is_associated: boolean;
 };
 
-type Method = 'scim' | 'google-sync';
+export type ProvisioningMethod = 'scim' | 'google-sync';
 
 export interface ProvisioningField {
   provisioning_field: string;
@@ -58,7 +58,7 @@ export interface Provisioning {
   identity_provider_id: string;
   identity_provider_name: string;
   strategy: IdpStrategy;
-  method: Method;
+  method: ProvisioningMethod;
   fields: ProvisioningField[];
   updated_on: string;
   created_at: string;

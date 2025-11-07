@@ -3,11 +3,9 @@ import {
   type IdpStrategy,
   type ProviderDetailsFormValues,
   type ProviderConfigureFormValues,
-  AVAILABLE_STRATEGY_LIST,
   MY_ORG_SSO_PROVIDER_CREATE_SCOPES,
 } from '@auth0/web-ui-components-core';
 import React, { useState, useRef, useCallback, useMemo } from 'react';
-import { Toaster } from 'sonner';
 
 import ProviderConfigure, {
   type ProviderConfigureHandle,
@@ -21,6 +19,8 @@ import { Header } from '../../../components/ui/header';
 import { Wizard } from '../../../components/ui/wizard';
 import type { StepProps } from '../../../components/ui/wizard';
 import { withMyOrgService } from '../../../hoc/with-services';
+import { useConfig } from '../../../hooks/my-org/config/use-config';
+import { useIdpConfig } from '../../../hooks/my-org/config/use-idp-config';
 import { useSsoProviderCreate } from '../../../hooks/my-org/idp-management/use-sso-provider-create';
 import { useTheme } from '../../../hooks/use-theme';
 import { useTranslator } from '../../../hooks/use-translator';
@@ -53,6 +53,8 @@ export function SsoProviderCreateComponent({
     createAction,
     customMessages,
   });
+  const { isLoadingConfig, filteredStrategies } = useConfig();
+  const { isLoadingIdpConfig, idpConfig } = useIdpConfig();
 
   const detailsRef = useRef<ProviderDetailsFormHandle>(null);
   const configureRef = useRef<ProviderConfigureHandle>(null);
@@ -110,7 +112,8 @@ export function SsoProviderCreateComponent({
         title: t('steps.one'),
         content: ({ onNext: navigate }: StepProps) => (
           <ProviderSelect
-            strategyList={AVAILABLE_STRATEGY_LIST}
+            isLoading={isLoadingConfig}
+            strategyList={filteredStrategies}
             onClickStrategy={(selected) => {
               setFormData((prev) => ({
                 strategy: selected,
@@ -152,8 +155,10 @@ export function SsoProviderCreateComponent({
             <ProviderConfigure
               ref={configureRef}
               strategy={strategy}
+              isLoading={isLoadingIdpConfig}
               initialData={configure ?? undefined}
               customMessages={customMessages.provider_configure}
+              idpConfig={idpConfig}
               className={currentStyles?.classes?.['ProviderConfigure-root']}
             />
           ) : null,
@@ -176,7 +181,6 @@ export function SsoProviderCreateComponent({
 
   return (
     <div style={currentStyles.variables} className="w-full">
-      <Toaster position="top-right" />
       <Header
         title={t('header.title')}
         backButton={
@@ -193,6 +197,11 @@ export function SsoProviderCreateComponent({
           hideStepperNumbers
           steps={wizardSteps}
           onComplete={handleCreate}
+          formActionLabels={{
+            nextButtonLabel: t('nextButtonLabel'),
+            previousButtonLabel: t('previousButtonLabel'),
+            completeButtonLabel: t('completeButtonLabel'),
+          }}
           className={currentStyles?.classes?.['SsoProviderCreate-wizard']}
         />
       </div>

@@ -1,6 +1,6 @@
 {
   "buildCommand": "pnpm build && pnpm build:docs",
-  "outputDirectory": "examples/docs-site/dist",
+  "outputDirectory": "docs-site/dist",
   "installCommand": "pnpm install --no-frozen-lockfile",
   "rewrites": [
     {

@@ -300,6 +300,11 @@
           "target": "auth0-ui-components/styles/globals.css"
         },
         {
+          "path": "src/styles/font-sizes.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/font-sizes.css"
+        },
+        {
           "path": "src/styles/dark.css",
           "type": "registry:file",
           "target": "auth0-ui-components/styles/dark.css"
@@ -569,6 +574,11 @@
           "path": "src/styles/globals.css",
           "type": "registry:file",
           "target": "auth0-ui-components/styles/globals.css"
+        },
+        {
+          "path": "src/styles/font-sizes.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/font-sizes.css"
         },
         {
           "path": "src/styles/dark.css",
@@ -884,6 +894,11 @@
           "target": "auth0-ui-components/styles/globals.css"
         },
         {
+          "path": "src/styles/font-sizes.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/font-sizes.css"
+        },
+        {
           "path": "src/styles/dark.css",
           "type": "registry:file",
           "target": "auth0-ui-components/styles/dark.css"
@@ -1178,6 +1193,11 @@
           "path": "src/styles/globals.css",
           "type": "registry:file",
           "target": "auth0-ui-components/styles/globals.css"
+        },
+        {
+          "path": "src/styles/font-sizes.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/font-sizes.css"
         },
         {
           "path": "src/styles/dark.css",
@@ -1544,6 +1564,11 @@
           "path": "src/styles/globals.css",
           "type": "registry:file",
           "target": "auth0-ui-components/styles/globals.css"
+        },
+        {
+          "path": "src/styles/font-sizes.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/font-sizes.css"
         },
         {
           "path": "src/styles/dark.css",
@@ -2064,6 +2089,41 @@
           "path": "src/lib/my-org/domain-management.ts",
           "type": "registry:file",
           "target": "auth0-ui-components/lib/my-org/domain-management.ts"
+        },
+        {
+          "path": "src/styles/globals.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/globals.css"
+        },
+        {
+          "path": "src/styles/font-sizes.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/font-sizes.css"
+        },
+        {
+          "path": "src/styles/dark.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/dark.css"
+        },
+        {
+          "path": "src/styles/light.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/light.css"
+        },
+        {
+          "path": "src/styles/themes/default.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/themes/default.css"
+        },
+        {
+          "path": "src/styles/themes/minimal.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/themes/minimal.css"
+        },
+        {
+          "path": "src/styles/themes/rounded.css",
+          "type": "registry:file",
+          "target": "auth0-ui-components/styles/themes/rounded.css"
         }
       ],
       "dependencies": [

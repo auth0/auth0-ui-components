@@ -23,6 +23,8 @@ import {
 import { Link } from '../../../../ui/link';
 import { TextField } from '../../../../ui/text-field';
 
+import { CommonConfigureFields } from './common-configure-fields';
+
 const OKTA_HELP_LINKS = {
   domain: 'https://developer.okta.com/docs/guides/find-your-domain/main/',
   client_id: 'https://developer.okta.com/docs/guides/find-your-app-credentials/main',
@@ -39,7 +41,7 @@ interface OktaConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'str
 
 export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaConfigureFormProps>(
   function OktaProviderForm(
-    { initialData, readOnly = false, customMessages = {}, className, onFormDirty },
+    { initialData, readOnly = false, customMessages = {}, className, onFormDirty, idpConfig },
     ref,
   ) {
     const { t } = useTranslator(
@@ -50,7 +52,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
     const { coreClient } = useCoreClient();
 
     const callbackUrl = React.useMemo(() => {
-      const domain = coreClient?.auth?.domain || 'your domain';
+      const domain = coreClient?.auth?.domain || 'YOUR_DOMAIN';
       return `https://${domain}/login/callback`;
     }, [coreClient?.auth?.domain]);
 
@@ -91,7 +93,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
             name="domain"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.okta.domain.label')}
                 </FormLabel>
                 <FormControl>
@@ -133,7 +135,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
             name="client_id"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.okta.client_id.label')}
                 </FormLabel>
                 <FormControl>
@@ -175,7 +177,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
             name="client_secret"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.okta.client_secret.label')}
                 </FormLabel>
                 <FormControl>
@@ -217,7 +219,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
             name="callback_url"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.okta.callback_url.label')}
                 </FormLabel>
                 <FormControl>
@@ -238,6 +240,12 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
                 </FormDescription>
               </FormItem>
             )}
+          />
+
+          <CommonConfigureFields
+            idpConfig={idpConfig}
+            readOnly={readOnly}
+            customMessages={customMessages}
           />
         </div>
       </Form>

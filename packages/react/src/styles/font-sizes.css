@@ -1,0 +1,10 @@
+:root {
+  --font-size-page-header: 2.25rem; /* text-4xl (For main page headers/titles) */
+  --font-size-page-description: 0.875rem; /* text-sm (For page descriptions/subtitles) */
+  --font-size-heading: 1.5rem; /* text-2xl */
+  --font-size-title: 1.25rem; /* text-xl */
+  --font-size-subtitle: 1.125rem; /* text-lg */
+  --font-size-body: 1rem; /* text-base (For main body text size) */
+  --font-size-paragraph: 0.875rem; /* text-sm (For general smaller paragraphs/details) */
+  --font-size-label: 0.875rem; /* text-sm (Specifically for labels like FieldLabel) */
+}

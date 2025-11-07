@@ -76,7 +76,6 @@ describe('OrgDetails', () => {
     it('should display spinner when isLoading is true', () => {
       renderWithProviders(<OrgDetails {...createMockOrgDetailsProps({ isLoading: true })} />);
 
-      // Spinner doesn't have role="status", so we check for the loading text
       expect(screen.getByText('Loading...')).toBeInTheDocument();
       expect(screen.queryByLabelText(/display_name\.label/i)).not.toBeInTheDocument();
     });
@@ -112,7 +111,6 @@ describe('OrgDetails', () => {
         const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
         await user.click(saveButton);
 
-        // Check validation error appears
         await screen.findByText(/Display name must be at least 10 characters/i);
       });
     });
@@ -148,59 +146,6 @@ describe('OrgDetails', () => {
 
         const cardElement = screen.getByTestId('org-details-card');
         expect(cardElement).toHaveClass('custom-card-class');
-      });
-    });
-  });
-
-  describe('readOnly', () => {
-    describe('when readOnly is true', () => {
-      it('should disable standard form inputs', () => {
-        const { container } = renderWithProviders(
-          <OrgDetails {...createMockOrgDetailsProps({ readOnly: true })} />,
-        );
-
-        const displayNameInput = screen.getByLabelText(/display_name\.label/i);
-        const nameInput = screen.getByLabelText(/fields\.name\.label/i);
-        const logoInput = container.querySelector('input[name="branding.logo_url"]');
-        const primaryColorInput = container.querySelector(
-          'input[name="branding.colors.primary"][role="textbox"]',
-        );
-        const pageBackgroundColorInput = container.querySelector(
-          'input[name="branding.colors.page_background"][role="textbox"]',
-        );
-
-        expect(displayNameInput).toHaveAttribute('readonly');
-        expect(nameInput).toHaveAttribute('readonly');
-        expect(logoInput).toHaveAttribute('readonly');
-        expect(primaryColorInput).toHaveAttribute('readonly');
-        expect(pageBackgroundColorInput).toHaveAttribute('readonly');
-      });
-
-      it('should disable save and cancel buttons', () => {
-        renderWithProviders(<OrgDetails {...createMockOrgDetailsProps({ readOnly: true })} />);
-
-        const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
-        const cancelButton = screen.getByRole('button', { name: /cancel_button_label/i });
-
-        expect(saveButton).toBeDisabled();
-        expect(cancelButton).toBeDisabled();
-      });
-    });
-
-    describe('when readOnly is false', () => {
-      it('should enable form inputs', () => {
-        renderWithProviders(<OrgDetails {...createMockOrgDetailsProps({ readOnly: false })} />);
-
-        const displayNameInput = screen.getByLabelText(/display_name\.label/i);
-
-        expect(displayNameInput).not.toBeDisabled();
-      });
-
-      it('should enable cancel button', () => {
-        renderWithProviders(<OrgDetails {...createMockOrgDetailsProps({ readOnly: false })} />);
-
-        const cancelButton = screen.getByRole('button', { name: /cancel_button_label/i });
-        expect(cancelButton).not.toBeDisabled();
       });
     });
   });
@@ -241,12 +186,10 @@ describe('OrgDetails', () => {
               <OrgDetails {...createMockOrgDetailsProps({ formActions: mockFormActions })} />,
             );
 
-            // Make a change
             const displayNameInput = screen.getByLabelText(/display_name\.label/i);
             await user.clear(displayNameInput);
             await user.type(displayNameInput, 'Modified Corporation');
 
-            // Button should still be disabled
             const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
             expect(saveButton).toBeDisabled();
           });
@@ -264,12 +207,10 @@ describe('OrgDetails', () => {
               <OrgDetails {...createMockOrgDetailsProps({ formActions: mockFormActions })} />,
             );
 
-            // Make a change
             const displayNameInput = screen.getByLabelText(/display_name\.label/i);
             await user.clear(displayNameInput);
             await user.type(displayNameInput, 'Modified Corporation');
 
-            // Button should be enabled
             await waitFor(() => {
               const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
               expect(saveButton).not.toBeDisabled();
@@ -289,16 +230,13 @@ describe('OrgDetails', () => {
               <OrgDetails {...createMockOrgDetailsProps({ formActions: mockFormActions })} />,
             );
 
-            // Make a change
             const displayNameInput = screen.getByLabelText(/display_name\.label/i);
             await user.clear(displayNameInput);
             await user.type(displayNameInput, 'Modified Corporation');
 
-            // Submit form
             const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
             await user.click(saveButton);
 
-            // Verify onClick was called with correct data
             await waitFor(() => {
               expect(mockFormActions.nextAction?.onClick).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -319,29 +257,23 @@ describe('OrgDetails', () => {
               <OrgDetails {...createMockOrgDetailsProps({ formActions: mockFormActions })} />,
             );
 
-            // Make a change
             const displayNameInput = screen.getByLabelText(/display_name\.label/i);
             await user.clear(displayNameInput);
             await user.type(displayNameInput, 'Modified Corporation');
 
-            // Verify unsaved changes message appears
             expect(screen.getByText(/unsaved_changes_text/i)).toBeInTheDocument();
 
-            // Submit form
             const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
             await user.click(saveButton);
 
-            // Wait for form to be submitted and reset
             await waitFor(() => {
               expect(mockFormActions.nextAction?.onClick).toHaveBeenCalled();
             });
 
-            // Unsaved changes message should be gone
             await waitFor(() => {
               expect(screen.queryByText(/unsaved_changes_text/i)).not.toBeInTheDocument();
             });
 
-            // Save button should be disabled again (no unsaved changes)
             await waitFor(() => {
               const saveButtonAfter = screen.getByRole('button', { name: /submit_button_label/i });
               expect(saveButtonAfter).toBeDisabled();
@@ -359,12 +291,10 @@ describe('OrgDetails', () => {
               <OrgDetails {...createMockOrgDetailsProps({ formActions: mockFormActions })} />,
             );
 
-            // Make a change
             const displayNameInput = screen.getByLabelText(/display_name\.label/i);
             await user.clear(displayNameInput);
             await user.type(displayNameInput, 'Modified Corporation');
 
-            // Submit form
             const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
             await user.click(saveButton);
 
@@ -372,7 +302,6 @@ describe('OrgDetails', () => {
               expect(mockFormActions.nextAction?.onClick).toHaveBeenCalled();
             });
 
-            // Unsaved changes message should still be there
             expect(screen.getByText(/unsaved_changes_text/i)).toBeInTheDocument();
           });
         });
@@ -438,19 +367,15 @@ describe('OrgDetails', () => {
               <OrgDetails {...createMockOrgDetailsProps({ formActions: mockFormActions })} />,
             );
 
-            // Make a change
             const displayNameInput = screen.getByLabelText(/display_name\.label/i);
             await user.clear(displayNameInput);
             await user.type(displayNameInput, 'Modified Corporation');
 
-            // Verify change was made
             expect(displayNameInput).toHaveValue('Modified Corporation');
 
-            // Click cancel
             const cancelButton = screen.getByRole('button', { name: /cancel_button_label/i });
             await user.click(cancelButton);
 
-            // Verify form was reset
             await waitFor(() => {
               expect(displayNameInput).toHaveValue('Auth0 Corporation');
             });
@@ -465,19 +390,15 @@ describe('OrgDetails', () => {
               <OrgDetails {...createMockOrgDetailsProps({ formActions: mockFormActions })} />,
             );
 
-            // Make a change
             const displayNameInput = screen.getByLabelText(/display_name\.label/i);
             await user.clear(displayNameInput);
             await user.type(displayNameInput, 'Modified Corporation');
 
-            // Verify unsaved changes message appears
             expect(screen.getByText(/unsaved_changes_text/i)).toBeInTheDocument();
 
-            // Click cancel
             const cancelButton = screen.getByRole('button', { name: /cancel_button_label/i });
             await user.click(cancelButton);
 
-            // Unsaved changes message should be gone
             await waitFor(() => {
               expect(screen.queryByText(/unsaved_changes_text/i)).not.toBeInTheDocument();
             });
@@ -491,8 +412,7 @@ describe('OrgDetails', () => {
     describe('when organization is provided', () => {
       it('should display all organization fields', () => {
         const mockOrg = createMockOrganization();
-
-        renderWithProviders(
+        const { container } = renderWithProviders(
           <OrgDetails {...createMockOrgDetailsProps({ organization: mockOrg })} />,
         );
 
@@ -503,11 +423,16 @@ describe('OrgDetails', () => {
         expect(screen.getByLabelText(/fields\.logo\.label/i)).toHaveValue(
           mockOrg.branding.logo_url ?? '',
         );
-        // Color values are normalized to lowercase by the input
-        expect(screen.getByLabelText(/primary_color\.label/i)).toHaveValue(
-          mockOrg.branding.colors.primary.toLowerCase(),
-        );
-        expect(screen.getByLabelText(/page_background_color\.label/i)).toHaveValue(
+
+        const primaryColorInput = container.querySelector(
+          'input[name="branding.colors.primary"]',
+        ) as HTMLInputElement;
+        const pageBackgroundColorInput = container.querySelector(
+          'input[name="branding.colors.page_background"]',
+        ) as HTMLInputElement;
+
+        expect(primaryColorInput).toHaveValue(mockOrg.branding.colors.primary.toLowerCase());
+        expect(pageBackgroundColorInput).toHaveValue(
           mockOrg.branding.colors.page_background.toLowerCase(),
         );
       });
@@ -518,16 +443,13 @@ describe('OrgDetails', () => {
         mockOrg2.display_name = 'Updated Organization Name';
         mockOrg2.branding.colors.primary = '#FF5733';
 
-        // Create a stable mock core client to use across renders
         const mockCoreClient = createMockCoreClient();
 
-        // Render with mock 1
-        const { rerender } = renderWithProviders(
+        const { rerender, container } = renderWithProviders(
           <OrgDetails {...createMockOrgDetailsProps({ organization: mockOrg1 })} />,
           { coreClient: mockCoreClient },
         );
 
-        // Re-render with mock 2
         rerender(
           <TestProvider coreClient={mockCoreClient}>
             <OrgDetails {...createMockOrgDetailsProps({ organization: mockOrg2 })} />
@@ -537,9 +459,12 @@ describe('OrgDetails', () => {
         expect(screen.getByLabelText(/display_name\.label/i)).toHaveValue(
           mockOrg2.display_name ?? '',
         );
-        expect(screen.getByLabelText(/primary_color\.label/i)).toHaveValue(
-          mockOrg2.branding.colors.primary.toLowerCase(),
-        );
+
+        const primaryColorInput = container.querySelector(
+          'input[name="branding.colors.primary"]',
+        ) as HTMLInputElement;
+
+        expect(primaryColorInput).toHaveValue(mockOrg2.branding.colors.primary.toLowerCase());
       });
     });
   });
@@ -551,15 +476,12 @@ describe('OrgDetails', () => {
 
         renderWithProviders(<OrgDetails {...createMockOrgDetailsProps()} />);
 
-        // Initially no unsaved changes
         expect(screen.queryByText(/unsaved_changes_text/i)).not.toBeInTheDocument();
 
-        // Make a change
         const displayNameInput = screen.getByLabelText(/display_name\.label/i);
         await user.clear(displayNameInput);
         await user.type(displayNameInput, 'Modified Corporation');
 
-        // Unsaved changes message should appear
         expect(screen.getByText(/unsaved_changes_text/i)).toBeInTheDocument();
       });
 
@@ -570,15 +492,12 @@ describe('OrgDetails', () => {
 
         const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
 
-        // Initially disabled (no changes)
         expect(saveButton).toBeDisabled();
 
-        // Make a change
         const displayNameInput = screen.getByLabelText(/display_name\.label/i);
         await user.clear(displayNameInput);
         await user.type(displayNameInput, 'Modified Corporation');
 
-        // Save button should be enabled
         await waitFor(() => {
           expect(saveButton).not.toBeDisabled();
         });

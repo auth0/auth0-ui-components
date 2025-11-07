@@ -1,5 +1,4 @@
 import './App.css';
-import '@auth0/web-ui-components-react/dist/index.css';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Auth0ComponentProvider } from '@auth0/web-ui-components-react';
 import React from 'react';
@@ -121,7 +120,7 @@ function App() {
       authDetails={defaultAuthDetails}
       i18n={{ currentLanguage: i18n.language }}
       themeSettings={{
-        theme: 'minimal',
+        theme: 'default',
         mode: 'light',
       }}
     >

@@ -29,6 +29,17 @@ export interface ProviderDetailsMessages {
  * Interface for provider configuration field messages
  */
 export interface ProviderConfigureFieldsMessages {
+  common?: {
+    show_as_button?: {
+      label?: string;
+      helper_text?: string;
+    };
+    assign_membership_on_login?: {
+      label?: string;
+      helper_text?: string;
+    };
+  };
+
   okta?: {
     domain?: {
       label?: string;
@@ -308,6 +319,9 @@ export interface SsoProviderCreateMessages {
     title?: string;
     back_button_text?: string;
   };
+  nextButtonLabel?: string;
+  previousButtonLabel?: string;
+  completeButtonLabel?: string;
   provider_select?: ProviderSelectMessages;
   provider_details?: ProviderDetailsMessages;
   provider_configure?: ProviderConfigureMessages;

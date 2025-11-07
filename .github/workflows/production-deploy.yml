@@ -41,6 +41,6 @@ jobs:
           echo "Project ID: $VERCEL_PROJECT_ID"
           echo "Org ID: $VERCEL_ORG_ID"
           echo "Contents of docs-site dist folder:"
-          ls -la examples/docs-site/dist/
+          ls -la docs-site/dist/
           vercel --version
           vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes --scope=$VERCEL_ORG_ID

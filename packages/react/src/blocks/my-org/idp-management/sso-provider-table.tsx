@@ -12,8 +12,8 @@ import { SsoProviderRemoveFromOrgModal } from '../../../components/my-org/idp-ma
 import { SsoProviderTableActionsColumn } from '../../../components/my-org/idp-management/sso-provider-table/sso-provider-table-action';
 import { DataTable, type Column } from '../../../components/ui/data-table';
 import { Header } from '../../../components/ui/header';
-import { Spinner } from '../../../components/ui/spinner';
 import { withMyOrgService } from '../../../hoc/with-services';
+import { useConfig } from '../../../hooks/my-org/config/use-config';
 import { useSsoProviderTable } from '../../../hooks/my-org/idp-management/use-sso-provider-table';
 import { useTheme } from '../../../hooks/use-theme';
 import { useTranslator } from '../../../hooks/use-translator';
@@ -49,6 +49,7 @@ function SsoProviderTableComponent({
     onEnableProvider,
     organization,
   } = useSsoProviderTable(deleteAction, deleteFromOrgAction, enableProviderAction, customMessages);
+  const { shouldAllowDeletion, isLoadingConfig } = useConfig();
 
   const [showDeleteModal, setShowDeleteModal] = React.useState(false);
   const [showRemoveModal, setShowRemoveModal] = React.useState(false);
@@ -161,6 +162,7 @@ function SsoProviderTableComponent({
         render: (idp) => (
           <SsoProviderTableActionsColumn
             provider={idp}
+            shouldAllowDeletion={shouldAllowDeletion}
             readOnly={readOnly}
             isUpdating={isUpdating}
             customMessages={customMessages}
@@ -185,14 +187,6 @@ function SsoProviderTableComponent({
     ],
   );
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center p-8">
-        <Spinner />
-      </div>
-    );
-  }
-
   return (
     <div style={currentStyles.variables}>
       <div className={currentStyles.classes?.['SsoProviderTable-header']}>
@@ -212,6 +206,7 @@ function SsoProviderTableComponent({
       </div>
 
       <DataTable
+        loading={isLoading || isLoadingConfig}
         columns={columns}
         data={providers}
         emptyState={{ title: t('table.empty_message') }}

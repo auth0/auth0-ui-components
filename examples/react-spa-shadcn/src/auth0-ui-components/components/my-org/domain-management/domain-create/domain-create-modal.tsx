@@ -53,6 +53,14 @@ export function DomainCreateModal({
     onClose();
   }, [form, onClose]);
 
+  const onSubmit = React.useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      form.handleSubmit(handleCreate)();
+    },
+    [form, handleCreate],
+  );
+
   return (
     <Modal
       open={isOpen}
@@ -62,7 +70,7 @@ export function DomainCreateModal({
       content={
         <div>
           <Form {...form}>
-            <form id="domain-create-form">
+            <form id="domain-create-form" onSubmit={onSubmit}>
               <FormField
                 control={form.control}
                 name="domain_url"

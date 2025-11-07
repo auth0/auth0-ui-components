@@ -39,6 +39,8 @@ import {
 } from '../../../../ui/select';
 import { TextField } from '../../../../ui/text-field';
 
+import { CommonConfigureFields } from './common-configure-fields';
+
 const SAMLP_HELP_LINKS = {
   sign_request: 'domain/pem?cert=connection',
 } as const;
@@ -65,7 +67,7 @@ export const SamlpProviderForm = React.forwardRef<
   SamlpConfigureFormHandle,
   SamlpConfigureFormProps
 >(function SamlpProviderForm(
-  { initialData, readOnly = false, customMessages = {}, className, onFormDirty },
+  { initialData, readOnly = false, customMessages = {}, className, onFormDirty, idpConfig },
   ref,
 ) {
   const { t } = useTranslator(
@@ -126,7 +128,7 @@ export const SamlpProviderForm = React.forwardRef<
           name="meta_data_source"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                 {t('fields.samlp.meta_data_source.label')}
               </FormLabel>
               <FormControl>
@@ -163,7 +165,7 @@ export const SamlpProviderForm = React.forwardRef<
           name="metadataUrl"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                 {t('fields.samlp.meta_data_url.label')}
               </FormLabel>
               <FormControl>
@@ -195,7 +197,7 @@ export const SamlpProviderForm = React.forwardRef<
               name="single_sign_on_login_url"
               render={({ field, fieldState }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                  <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                     {t('fields.samlp.single_sign_on_login_url.label')}
                   </FormLabel>
                   <FormControl>
@@ -224,7 +226,7 @@ export const SamlpProviderForm = React.forwardRef<
               name="cert"
               render={() => (
                 <FormItem>
-                  <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                  <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                     {t('fields.samlp.cert.label')}
                   </FormLabel>
                   <FormControl>
@@ -272,7 +274,7 @@ export const SamlpProviderForm = React.forwardRef<
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm font-normal cursor-pointer">
+                      <FormLabel className="text-sm font-medium cursor-pointer">
                         {t('fields.samlp.advanced_settings.sign_request.label')}
                       </FormLabel>
                       <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
@@ -304,7 +306,7 @@ export const SamlpProviderForm = React.forwardRef<
                     name="signatureAlgorithm"
                     render={({ field, fieldState }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                        <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                           {t('fields.samlp.advanced_settings.sign_request_algorithm.label')}
                         </FormLabel>
                         <Select onValueChange={field.onChange} value={field.value || ''}>
@@ -338,7 +340,7 @@ export const SamlpProviderForm = React.forwardRef<
                     name="digestAlgorithm"
                     render={({ field, fieldState }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                        <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                           {t('fields.samlp.advanced_settings.sign_request_algorithm_digest.label')}
                         </FormLabel>
                         <Select onValueChange={field.onChange} value={field.value || ''}>
@@ -371,6 +373,12 @@ export const SamlpProviderForm = React.forwardRef<
             </AccordionContent>
           </AccordionItem>
         </Accordion>
+
+        <CommonConfigureFields
+          idpConfig={idpConfig}
+          readOnly={readOnly}
+          customMessages={customMessages}
+        />
       </div>
     </Form>
   );

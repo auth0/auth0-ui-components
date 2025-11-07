@@ -247,6 +247,9 @@
         "title": "プロバイダーを追加",
         "back_button_text": "シングルサインオンに戻る"
       },
+      "nextButtonLabel": "次へ",
+      "previousButtonLabel": "戻る",
+      "completeButtonLabel": "プロバイダーを作成",
       "notifications": {
         "general_error": "リクエストの処理中に問題が発生しました。もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
         "provider_create_success": "${providerName} が作成されました。"
@@ -277,6 +280,16 @@
         "title": "Configure Provider",
         "description": "Establish a connection between your identity provider and Auth0.",
         "fields": {
+          "common": {
+            "show_as_button": {
+              "label": "ボタンとして表示",
+              "helper_text": "この接続をログインページにボタンとして表示します"
+            },
+            "assign_membership_on_login": {
+              "label": "ログイン時にメンバーシップを割り当て",
+              "helper_text": "この接続を通じてログインしたユーザーに組織メンバーシップを自動的に付与します"
+            }
+          },
           "okta": {
             "domain": {
               "label": "Oktaドメイン",

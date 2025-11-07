@@ -136,7 +136,7 @@ export function ContactInputForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel
-                          className="text-left text-sm text-(length:--font-size-paragraph)"
+                          className="text-left text-sm text-(length:--font-size-paragraph) font-medium"
                           htmlFor="contact-input"
                         >
                           {factorType === FACTOR_TYPE_EMAIL

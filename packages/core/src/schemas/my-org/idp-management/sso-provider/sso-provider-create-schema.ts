@@ -103,36 +103,37 @@ const STRATEGY_BUILDERS = {
         ...options.callback_url,
         required: false,
       }),
+      show_as_button: z.boolean().optional(),
+      assign_membership_on_login: z.boolean().optional(),
     }),
 
   adfs: (options: AdfsOptions = {}) =>
-    z
-      .object({
-        meta_data_source: z
-          .string({
-            required_error: 'Please enter a metadata source',
-          })
-          .min(1, 'Metadata source is required'),
+    z.discriminatedUnion('meta_data_source', [
+      z.object({
+        meta_data_source: z.literal('meta_data_url'),
+        adfs_server: createFieldSchema(
+          COMMON_FIELD_CONFIGS.url,
+          { ...options.adfs_server, required: true },
+          'Please enter a valid ADFS server URL',
+        ),
         meta_data_location_url: createFieldSchema(
           COMMON_FIELD_CONFIGS.url,
           options.meta_data_location_url,
           'Please enter a valid metadata location URL',
         ),
-        adfs_server: createFieldSchema(
-          COMMON_FIELD_CONFIGS.url,
-          { ...options.adfs_server, required: false },
-          'Please enter a valid ADFS server URL',
-        ),
+        fedMetadataXml: z.string().optional(),
+      }),
+      z.object({
+        meta_data_source: z.literal('meta_data_file'),
         fedMetadataXml: createFieldSchema(
           COMMON_FIELD_CONFIGS.metadata,
-          { ...options.fedMetadataXml, required: false },
-          'Please enter valid Federation Metadata XML',
+          { ...options.fedMetadataXml, required: true },
+          'Please provide a Federation Metadata XML file',
         ),
-      })
-      .refine((data) => data.adfs_server || data.fedMetadataXml, {
-        message: 'Either ADFS server URL or Federation Metadata XML is required',
-        path: ['adfs_server'],
+        adfs_server: z.string().optional(),
+        meta_data_location_url: z.string().optional(),
       }),
+    ]),
 
   'google-apps': (options: GoogleAppsOptions = {}) =>
     z.object({
@@ -157,6 +158,8 @@ const STRATEGY_BUILDERS = {
         ...options.callback_url,
         required: false,
       }),
+      show_as_button: z.boolean().optional(),
+      assign_membership_on_login: z.boolean().optional(),
     }),
 
   oidc: (options: OidcOptions = {}) => {
@@ -179,6 +182,8 @@ const STRATEGY_BUILDERS = {
         { ...options.discovery_url, required: true },
         'Please enter a valid discovery URL',
       ),
+      show_as_button: z.boolean().optional(),
+      assign_membership_on_login: z.boolean().optional(),
     });
 
     // Add conditional validation for client_secret
@@ -241,6 +246,8 @@ const STRATEGY_BUILDERS = {
         ...options.icon_url,
         required: false,
       }),
+      show_as_button: z.boolean().optional(),
+      assign_membership_on_login: z.boolean().optional(),
     }),
 
   samlp: (options: SamlpOptions = {}) =>
@@ -301,6 +308,8 @@ const STRATEGY_BUILDERS = {
         ...options.icon_url,
         required: false,
       }),
+      show_as_button: z.boolean().optional(),
+      assign_membership_on_login: z.boolean().optional(),
     }),
 
   waad: (options: WaadOptions = {}) =>
@@ -326,6 +335,8 @@ const STRATEGY_BUILDERS = {
         ...options.callback_url,
         required: false,
       }),
+      show_as_button: z.boolean().optional(),
+      assign_membership_on_login: z.boolean().optional(),
     }),
 } as const;
 

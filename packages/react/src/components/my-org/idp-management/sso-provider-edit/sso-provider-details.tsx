@@ -22,6 +22,7 @@ import {
 export function SsoProviderDetails({
   provider,
   readOnly = false,
+  idpConfig,
   formActions,
   customMessages = {},
   styling = {
@@ -100,6 +101,7 @@ export function SsoProviderDetails({
           strategy={provider.strategy}
           initialData={provider.options}
           readOnly={readOnly}
+          idpConfig={idpConfig}
           customMessages={customMessages.configure_fields}
           className={currentStyles.classes?.['ProviderConfigure-root']}
           onFormDirty={setIsConfigureDirty}

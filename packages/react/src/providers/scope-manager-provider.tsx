@@ -27,6 +27,8 @@ export const ScopeManagerProvider: React.FC<{ children: ReactNode }> = ({ childr
       .map((s) => s.trim())
       .filter(Boolean);
 
+    if (newScopes.length === 0) return;
+
     const audienceSet = scopeRegistry.current[audience];
     let changed = false;
 
@@ -55,7 +57,7 @@ export const ScopeManagerProvider: React.FC<{ children: ReactNode }> = ({ childr
         const scopes = Array.from(scopeRegistry.current[audience]).sort();
         const scopeString = scopes.join(' ');
 
-        if (scopes.length > 0) {
+        if (scopes.length > 0 && scopeString.trim()) {
           hasScopes = true;
 
           if (scopeString !== ensured[audience]) {
@@ -74,7 +76,7 @@ export const ScopeManagerProvider: React.FC<{ children: ReactNode }> = ({ childr
     };
 
     ensureAllScopesSequential();
-  }, [coreClient, version]);
+  }, [coreClient, version, ensured]);
 
   return (
     <ScopeManagerContext.Provider value={{ registerScopes, isReady, ensured }}>

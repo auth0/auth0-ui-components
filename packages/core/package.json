@@ -1,6 +1,6 @@
 {
   "name": "@auth0/web-ui-components-core",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.5",
   "description": "Core utilities for Auth0 Web UI components",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -14,7 +14,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "clean": "rm -rf dist",
@@ -31,7 +32,7 @@
     "utilities"
   ],
   "author": "Auth0",
-  "license": "ISC",
+  "license": "MIT",
   "engines": {
     "node": ">=18"
   },

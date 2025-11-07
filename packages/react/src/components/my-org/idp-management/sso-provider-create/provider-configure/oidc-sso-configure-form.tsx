@@ -23,6 +23,8 @@ import { Label } from '../../../../ui/label';
 import { RadioGroup, RadioGroupItem } from '../../../../ui/radio-group';
 import { TextField } from '../../../../ui/text-field';
 
+import { CommonConfigureFields } from './common-configure-fields';
+
 export interface OidcConfigureFormHandle {
   validate: () => Promise<boolean>;
   getData: () => OidcConfigureFormValues;
@@ -33,7 +35,7 @@ interface OidcConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'str
 
 export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcConfigureFormProps>(
   function OidcProviderForm(
-    { initialData, readOnly = false, customMessages = {}, className, onFormDirty },
+    { initialData, readOnly = false, customMessages = {}, className, onFormDirty, idpConfig },
     ref,
   ) {
     const { t } = useTranslator(
@@ -88,7 +90,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
             name="discovery_url"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.oidc.discovery_url.label')}
                 </FormLabel>
                 <FormControl>
@@ -118,7 +120,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
             name="type"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.oidc.type.label')}
                 </FormLabel>
                 <FormControl>
@@ -158,7 +160,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
             name="client_id"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                   {t('fields.oidc.client_id.label')}
                 </FormLabel>
                 <FormControl>
@@ -189,7 +191,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
               name="client_secret"
               render={({ field, fieldState }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-normal text-(length:--font-size-label)">
+                  <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                     {t('fields.oidc.client_secret.label')}
                   </FormLabel>
                   <FormControl>
@@ -214,6 +216,12 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
               )}
             />
           )}
+
+          <CommonConfigureFields
+            idpConfig={idpConfig}
+            readOnly={readOnly}
+            customMessages={customMessages}
+          />
         </div>
       </Form>
     );

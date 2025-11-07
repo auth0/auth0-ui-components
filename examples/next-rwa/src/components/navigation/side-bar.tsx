@@ -9,7 +9,7 @@ export const Sidebar: React.FC = () => {
   const { user } = useUser();
   return (
     user && (
-      <div className="fixed top-0 left-0 z-40 h-full w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 shadow-lg pt-16">
+      <div className="w-64 flex-shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 shadow-lg pt-4 h-full">
         <div className="p-4 space-y-6">
           <div>
             <div className="flex items-center gap-2 mb-3 px-2">

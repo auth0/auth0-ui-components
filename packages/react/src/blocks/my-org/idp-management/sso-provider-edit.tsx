@@ -10,6 +10,8 @@ import { Header } from '../../../components/ui/header';
 import { Spinner } from '../../../components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
 import { withMyOrgService } from '../../../hoc/with-services';
+import { useConfig } from '../../../hooks/my-org/config/use-config';
+import { useIdpConfig } from '../../../hooks/my-org/config/use-idp-config';
 import { useSsoProviderEdit } from '../../../hooks/my-org/idp-management/use-sso-provider-edit';
 import { useTheme } from '../../../hooks/use-theme';
 import { useTranslator } from '../../../hooks/use-translator';
@@ -59,6 +61,12 @@ export function SsoProviderEditComponent({
     domains,
     customMessages,
   });
+  const { shouldAllowDeletion, isLoadingConfig } = useConfig();
+  const { idpConfig, isLoadingIdpConfig, isProvisioningEnabled, isProvisioningMethodEnabled } =
+    useIdpConfig();
+
+  const showProvisioningTab =
+    isProvisioningEnabled(provider?.strategy) && isProvisioningMethodEnabled(provider?.strategy);
 
   const [activeTab, setActiveTab] = useState('sso');
 
@@ -76,7 +84,7 @@ export function SsoProviderEditComponent({
     });
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingConfig || isLoadingIdpConfig) {
     return (
       <div className="flex justify-center items-center p-8">
         <Spinner />
@@ -112,13 +120,17 @@ export function SsoProviderEditComponent({
         onValueChange={setActiveTab}
         className={cn('space-y-10', currentStyles?.classes?.['SsoProviderEdit-tabs'])}
       >
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList
+          className={cn('grid w-full', showProvisioningTab ? 'grid-cols-3' : 'grid-cols-2')}
+        >
           <TabsTrigger value="sso" className="text-sm">
             {t('tabs.sso.name')}
           </TabsTrigger>
-          <TabsTrigger value="provisioning" className="text-sm">
-            {t('tabs.provisioning.name')}
-          </TabsTrigger>
+          {showProvisioningTab && (
+            <TabsTrigger value="provisioning" className="text-sm">
+              {t('tabs.provisioning.name')}
+            </TabsTrigger>
+          )}
           <TabsTrigger value="domain" className="text-sm">
             {t('tabs.domains.name')}
           </TabsTrigger>
@@ -132,6 +144,8 @@ export function SsoProviderEditComponent({
             onRemove={onRemoveConfirm}
             isDeleting={isDeleting}
             isRemoving={isRemoving}
+            idpConfig={idpConfig}
+            shouldAllowDeletion={shouldAllowDeletion}
             customMessages={customMessages.tabs?.sso?.content}
             styling={styling}
             formActions={{
@@ -144,23 +158,25 @@ export function SsoProviderEditComponent({
           />
         </TabsContent>
 
-        <TabsContent value="provisioning">
-          <SsoProvisioningTab
-            provider={provider!}
-            isProvisioningUpdating={isProvisioningUpdating}
-            isProvisioningDeleting={isProvisioningDeleting}
-            isScimTokensLoading={isScimTokensLoading}
-            isScimTokenCreating={isScimTokenCreating}
-            isScimTokenDeleting={isScimTokenDeleting}
-            onCreateProvisioning={createProvisioningAction}
-            onDeleteProvisioning={deleteProvisioningAction}
-            onListScimTokens={listScimTokens}
-            onCreateScimToken={createScimTokenAction}
-            onDeleteScimToken={deleteScimTokenAction}
-            customMessages={customMessages.tabs?.provisioning?.content}
-            styling={styling}
-          />
-        </TabsContent>
+        {showProvisioningTab && (
+          <TabsContent value="provisioning">
+            <SsoProvisioningTab
+              provider={provider!}
+              isProvisioningUpdating={isProvisioningUpdating}
+              isProvisioningDeleting={isProvisioningDeleting}
+              isScimTokensLoading={isScimTokensLoading}
+              isScimTokenCreating={isScimTokenCreating}
+              isScimTokenDeleting={isScimTokenDeleting}
+              onCreateProvisioning={createProvisioningAction}
+              onDeleteProvisioning={deleteProvisioningAction}
+              onListScimTokens={listScimTokens}
+              onCreateScimToken={createScimTokenAction}
+              onDeleteScimToken={deleteScimTokenAction}
+              customMessages={customMessages.tabs?.provisioning?.content}
+              styling={styling}
+            />
+          </TabsContent>
+        )}
 
         <TabsContent value="domain">
           <SsoDomainTab

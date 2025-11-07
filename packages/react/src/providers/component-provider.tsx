@@ -80,7 +80,6 @@ export const Auth0ComponentProvider = ({
 }: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
   return (
     <>
-      <Toaster position="top-right" />
       <ThemeProvider
         themeSettings={{
           mode: themeSettings.mode,
@@ -89,7 +88,16 @@ export const Auth0ComponentProvider = ({
           theme: themeSettings.theme,
         }}
       >
-        <React.Suspense fallback={loader || <Spinner />}>
+        <Toaster position="top-right" />
+        <React.Suspense
+          fallback={
+            loader || (
+              <div className="flex items-center justify-center min-h-[200px]">
+                <Spinner />
+              </div>
+            )
+          }
+        >
           {authDetails?.authProxyUrl ? (
             <ProxyProvider i18n={i18n} authDetails={authDetails}>
               {children}

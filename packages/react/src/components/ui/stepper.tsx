@@ -63,8 +63,8 @@ function Stepper({
   }, [children]);
 
   return (
-    <StepperContext.Provider value={contextValue} data-slot="stepper">
-      <Card className={cn('w-full p-0', className)}>
+    <StepperContext.Provider value={contextValue}>
+      <Card className={cn('w-full p-0', className)} data-slot="stepper">
         <nav aria-label="Progress" className="flex p-6 flex-col items-start gap-8 self-stretch">
           <div className="flex items-center w-full">{processedChildren}</div>
         </nav>
@@ -79,17 +79,20 @@ interface StepProps {
   hideNumber?: boolean;
   className?: string;
   children: React.ReactNode;
+  onClick?: () => void;
 }
 
-function Step({ step, id, hideNumber = true, className, children }: StepProps) {
+function Step({ step, id, hideNumber = true, className, children, onClick }: StepProps) {
   const { currentStep, isClickable, onStepClick } = useStepperContext();
 
   const isCurrent = step === currentStep;
   const isCompleted = step < currentStep;
+  const isClickableStep = isClickable && (isCompleted || isCurrent);
 
   const handleClick = () => {
-    if (isClickable && onStepClick) {
-      onStepClick(step, id);
+    if (isClickableStep) {
+      onClick?.();
+      onStepClick?.(step, id);
     }
   };
 
@@ -100,10 +103,22 @@ function Step({ step, id, hideNumber = true, className, children }: StepProps) {
       data-step={step}
       className={cn(
         'flex items-start',
-        isClickable && 'cursor-pointer hover:opacity-80 transition-opacity',
+        isClickableStep && 'cursor-pointer hover:opacity-80 transition-opacity',
         className,
       )}
       onClick={handleClick}
+      role={isClickableStep ? 'button' : undefined}
+      tabIndex={isClickableStep ? 0 : undefined}
+      onKeyDown={
+        isClickableStep
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleClick();
+              }
+            }
+          : undefined
+      }
     >
       <div
         className={cn(

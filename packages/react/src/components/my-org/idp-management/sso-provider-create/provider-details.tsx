@@ -69,7 +69,7 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
               name="name"
               render={({ field, fieldState }) => (
                 <FormItem>
-                  <FormLabel className="text-sm text-(length:--font-size-label) font-normal">
+                  <FormLabel className="text-sm text-(length:--font-size-label) font-medium">
                     {t('fields.name.label')}
                   </FormLabel>
                   <FormControl>
@@ -96,7 +96,7 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
               name="display_name"
               render={({ field, fieldState }) => (
                 <FormItem>
-                  <FormLabel className="text-sm text-(length:--font-size-label) font-normal">
+                  <FormLabel className="text-sm text-(length:--font-size-label) font-medium">
                     {t('fields.display_name.label')}
                   </FormLabel>
                   <FormControl>

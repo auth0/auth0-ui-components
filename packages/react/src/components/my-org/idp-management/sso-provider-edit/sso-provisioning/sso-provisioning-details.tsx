@@ -82,7 +82,7 @@ export function SsoProvisioningDetails({
             name="userIdAttribute"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm text-(length:--font-size-label) font-normal">
+                <FormLabel className="text-sm text-(length:--font-size-label) font-medium">
                   {t('fields.user_id_attribute.label')}
                 </FormLabel>
                 <FormControl>
@@ -115,7 +115,7 @@ export function SsoProvisioningDetails({
             name="scimEndpointUrl"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm text-(length:--font-size-label) font-normal">
+                <FormLabel className="text-sm text-(length:--font-size-label) font-medium">
                   {t('fields.scim_endpoint_url.label')}
                 </FormLabel>
                 <FormControl>

@@ -55,6 +55,7 @@ export interface SsoProviderTableActionsColumnProps
     SsoProviderTableSchema
   > {
   provider: IdentityProvider;
+  shouldAllowDeletion: boolean;
   isUpdating?: boolean;
   edit?: {
     disabled?: boolean;
