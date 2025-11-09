@@ -78,10 +78,10 @@ jobs:
         run: |
           CORE_VERSION=$(node -p "require('./packages/core/package.json').version")
           REACT_VERSION=$(node -p "require('./packages/react/package.json').version")
-          
+
           echo "core_version=${CORE_VERSION}" >> $GITHUB_OUTPUT
           echo "react_version=${REACT_VERSION}" >> $GITHUB_OUTPUT
-          
+
           determine_tag() {
             local version=$1
             if [[ "$version" == *"alpha"* ]]; then
@@ -94,13 +94,13 @@ jobs:
               echo "latest"
             fi
           }
-          
+
           CORE_TAG=$(determine_tag "$CORE_VERSION")
           REACT_TAG=$(determine_tag "$REACT_VERSION")
-          
+
           echo "core_npm_tag=${CORE_TAG}" >> $GITHUB_OUTPUT
           echo "react_npm_tag=${REACT_TAG}" >> $GITHUB_OUTPUT
-          
+
           echo "Detected versions:"
           echo "  Core: ${CORE_VERSION} → ${CORE_TAG}"
           echo "  React: ${REACT_VERSION} → ${REACT_TAG}"
@@ -111,15 +111,15 @@ jobs:
           CORE_VER="${{ github.event.inputs.core_version }}"
           REACT_VER="${{ github.event.inputs.react_version }}"
           NPM_TAG_INPUT="${{ github.event.inputs.npm_tag }}"
-          
+
           if [ -z "$CORE_VER" ]; then
             CORE_VER="${{ steps.detect.outputs.core_version }}"
           fi
-          
+
           if [ -z "$REACT_VER" ]; then
             REACT_VER="${{ steps.detect.outputs.react_version }}"
           fi
-          
+
           if [ "$NPM_TAG_INPUT" = "auto" ] || [ -z "$NPM_TAG_INPUT" ]; then
             CORE_TAG="${{ steps.detect.outputs.core_npm_tag }}"
             REACT_TAG="${{ steps.detect.outputs.react_npm_tag }}"
@@ -127,12 +127,12 @@ jobs:
             CORE_TAG="$NPM_TAG_INPUT"
             REACT_TAG="$NPM_TAG_INPUT"
           fi
-          
+
           echo "core_version=${CORE_VER}" >> $GITHUB_OUTPUT
           echo "react_version=${REACT_VER}" >> $GITHUB_OUTPUT
           echo "core_tag=${CORE_TAG}" >> $GITHUB_OUTPUT
           echo "react_tag=${REACT_TAG}" >> $GITHUB_OUTPUT
-          
+
           echo "Publishing:"
           echo "  Core: ${CORE_VER} @ ${CORE_TAG}"
           echo "  React: ${REACT_VER} @ ${REACT_TAG}"
@@ -303,15 +303,15 @@ jobs:
           name: "@auth0/web-ui-components-core@${{ steps.final.outputs.core_version }}"
           body: |
             Published to NPM
-            
+
             **Package**: `@auth0/web-ui-components-core`
             **Version**: `${{ steps.final.outputs.core_version }}`
             **NPM Tag**: `${{ steps.final.outputs.core_tag }}`
-            
+
             ```bash
             npm install @auth0/web-ui-components-core@${{ steps.final.outputs.core_version }}
             ```
-            
+
             [View on NPM](https://www.npmjs.com/package/@auth0/web-ui-components-core/v/${{ steps.final.outputs.core_version }})
           prerelease: ${{ steps.final.outputs.core_tag != 'latest' }}
           draft: false
@@ -326,16 +326,16 @@ jobs:
           name: "@auth0/web-ui-components-react@${{ steps.final.outputs.react_version }}"
           body: |
             Published to NPM
-            
+
             **Package**: `@auth0/web-ui-components-react`
             **Version**: `${{ steps.final.outputs.react_version }}`
             **NPM Tag**: `${{ steps.final.outputs.react_tag }}`
             **Requires**: `@auth0/web-ui-components-core@${{ steps.final.outputs.core_version }}`
-            
+
             ```bash
             npm install @auth0/web-ui-components-react@${{ steps.final.outputs.react_version }}
             ```
-            
+
             [View on NPM](https://www.npmjs.com/package/@auth0/web-ui-components-react/v/${{ steps.final.outputs.react_version }})
           prerelease: ${{ steps.final.outputs.react_tag != 'latest' }}
           draft: false
