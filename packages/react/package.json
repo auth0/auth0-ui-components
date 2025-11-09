@@ -1,6 +1,6 @@
 {
   "name": "@auth0/web-ui-components-react",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "private": false,
   "sideEffects": true,
   "main": "./dist/index.js",

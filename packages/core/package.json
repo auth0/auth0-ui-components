@@ -1,6 +1,6 @@
 {
   "name": "@auth0/web-ui-components-core",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "Core utilities for Auth0 Web UI components",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
