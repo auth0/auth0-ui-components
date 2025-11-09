@@ -297,7 +297,7 @@ jobs:
         if: |
           github.event.inputs.dry_run != 'true' && 
           steps.publish-core.outputs.published == 'true'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
         with:
           tag_name: core@${{ steps.final.outputs.core_version }}
           name: "@auth0/web-ui-components-core@${{ steps.final.outputs.core_version }}"
@@ -320,7 +320,7 @@ jobs:
         if: |
           github.event.inputs.dry_run != 'true' && 
           steps.publish-react.outputs.published == 'true'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
         with:
           tag_name: react@${{ steps.final.outputs.react_version }}
           name: "@auth0/web-ui-components-react@${{ steps.final.outputs.react_version }}"
