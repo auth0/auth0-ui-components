@@ -575,8 +575,8 @@ importers:
   packages/react:
     dependencies:
       '@auth0/web-ui-components-core':
-        specifier: 1.0.0-beta.2
-        version: 1.0.0-beta.2
+        specifier: workspace:*
+        version: link:../core
       '@hookform/resolvers':
         specifier: ^5.1.0
         version: 5.1.1(react-hook-form@7.57.0(react@19.1.0))
