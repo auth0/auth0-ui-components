@@ -197,7 +197,7 @@ jobs:
             echo "published=dry-run" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
           else
-            pnpm publish --provenance --no-git-checks --tag $npm_tag
+            pnpm publish --no-git-checks --tag $npm_tag
             echo "published=true" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
             echo "Published @auth0/web-ui-components-core@$current_version"
@@ -221,7 +221,7 @@ jobs:
             echo "published=dry-run" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
           else
-            pnpm publish --provenance --no-git-checks --tag $npm_tag
+            pnpm publish --no-git-checks --tag $npm_tag
             echo "published=true" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
             echo "Published @auth0/web-ui-components-react@$current_version"
