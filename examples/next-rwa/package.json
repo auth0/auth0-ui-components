@@ -10,8 +10,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth0/nextjs-auth0": "^4.12.0",
     "@auth0/web-ui-components-react": "workspace:*",
-    "@auth0/nextjs-auth0": "file:dependencies/nextjs-auth0/auth0-nextjs-auth0-4.11.0.tgz",
     "@tailwindcss/postcss": "^4.1.10",
     "@tailwindcss/vite": "^4.1.10",
     "autoprefixer": "^10.4.20",
