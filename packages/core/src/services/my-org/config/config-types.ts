@@ -1,3 +1,3 @@
-import type { Auth0MyOrg } from 'auth0-myorg-sdk';
+import type { MyOrganization } from '@auth0/myorganization-js';
 
-export type GetConfigurationResponseContent = Auth0MyOrg.GetConfigurationResponseContent;
+export type GetConfigurationResponseContent = MyOrganization.GetConfigurationResponseContent;

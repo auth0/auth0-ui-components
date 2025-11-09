@@ -1,34 +1,37 @@
+import type { MyOrganization } from '@auth0/myorganization-js';
 import type {
   ProviderDetailsFormValues,
   ProviderConfigureFormValues,
   ProviderSelectionFormValues,
 } from '@core/schemas';
-import type { Auth0MyOrg } from 'auth0-myorg-sdk';
 
-export type ListIdentityProvidersResponseContent = Auth0MyOrg.ListIdentityProvidersResponseContent;
-export type IdentityProvider = Auth0MyOrg.IdpKnown;
-export type DetachIdpProviderResponseContent = Auth0MyOrg.DetachIdpProviderResponseContent;
-export type CreateIdentityProviderRequestContent = Auth0MyOrg.CreateIdentityProviderRequestContent;
+export type ListIdentityProvidersResponseContent =
+  MyOrganization.ListIdentityProvidersResponseContent;
+export type IdentityProvider = MyOrganization.IdpKnownResponse;
+export type DetachIdpProviderResponseContent = MyOrganization.DetachIdpProviderResponseContent;
+export type CreateIdentityProviderRequestContent =
+  MyOrganization.CreateIdentityProviderRequestContent;
 export type CreateIdentityProviderResponseContent =
-  Auth0MyOrg.CreateIdentityProviderResponseContent;
-export type GetIdentityProviderResponseContent = Auth0MyOrg.GetIdentityProviderResponseContent;
-export type IdpId = Auth0MyOrg.IdpId;
-export type UpdateIdentityProviderRequestContent = Auth0MyOrg.UpdateIdentityProviderRequestContent;
+  MyOrganization.CreateIdentityProviderResponseContent;
+export type GetIdentityProviderResponseContent = MyOrganization.GetIdentityProviderResponseContent;
+export type IdpId = MyOrganization.IdpId;
+export type UpdateIdentityProviderRequestContent =
+  MyOrganization.UpdateIdentityProviderRequestContent;
 export type UpdateIdentityProviderResponseContent =
-  Auth0MyOrg.UpdateIdentityProviderResponseContent;
+  MyOrganization.UpdateIdentityProviderResponseContent;
 
 export type CreateIdentityProviderRequestContentPrivate = ProviderSelectionFormValues &
   ProviderDetailsFormValues &
   ProviderConfigureFormValues;
-export type IdpUpdateBase = Auth0MyOrg.IdpUpdateBase;
+export type IdpUpdateBase = MyOrganization.IdpUpdateBase;
 
 export type UpdateIdentityProviderRequestContentPrivate = ProviderSelectionFormValues &
   Partial<IdpUpdateBase> &
   Partial<ProviderDetailsFormValues> &
   Partial<ProviderConfigureFormValues>;
 
-export type CreateIdpDomainRequestContent = Auth0MyOrg.CreateIdpDomainRequestContent;
-export type CreateIdpDomainResponseContent = Auth0MyOrg.CreateIdpDomainResponseContent;
+export type CreateIdpDomainRequestContent = MyOrganization.CreateIdpDomainRequestContent;
+export type CreateIdpDomainResponseContent = MyOrganization.CreateIdpDomainResponseContent;
 
 export type IdpStrategy =
   | 'adfs'

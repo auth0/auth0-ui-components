@@ -93,7 +93,7 @@ export const SsoProviderMappers = {
       name: name.trim(),
       display_name,
       options: getValidOptionsForStrategy(strategy, options),
-    };
+    } as CreateIdentityProviderRequestContent;
   },
 
   /**

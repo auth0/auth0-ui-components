@@ -1,15 +1,15 @@
-import type { Auth0MyOrg } from 'auth0-myorg-sdk';
+import type { MyOrganization } from '@auth0/myorganization-js';
 
 export type GetIdPProvisioningConfigResponseContent =
-  Auth0MyOrg.GetIdPProvisioningConfigResponseContent;
+  MyOrganization.GetIdPProvisioningConfigResponseContent;
 export type CreateIdPProvisioningConfigResponseContent =
-  Auth0MyOrg.CreateIdPProvisioningConfigResponseContent;
+  MyOrganization.CreateIdPProvisioningConfigResponseContent;
 export type ListIdpProvisioningScimTokensResponseContent =
-  Auth0MyOrg.ListIdpProvisioningScimTokensResponseContent;
+  MyOrganization.ListIdpProvisioningScimTokensResponseContent;
 export type CreateIdpProvisioningScimTokenResponseContent =
-  Auth0MyOrg.CreateIdpProvisioningScimTokenResponseContent;
+  MyOrganization.CreateIdpProvisioningScimTokenResponseContent;
 export type CreateIdpProvisioningScimTokenRequestContent =
-  Auth0MyOrg.CreateIdpProvisioningScimTokenRequestContent;
-export type IdpProvisioningConfig = Auth0MyOrg.IdpProvisioningConfig;
-export type IdpScimTokenBase = Auth0MyOrg.IdpScimTokenBase;
-export type ProvisioningFieldMap = Auth0MyOrg.IdpProvisioningFieldMapItem[];
+  MyOrganization.CreateIdpProvisioningScimTokenRequestContent;
+export type IdpProvisioningConfig = MyOrganization.IdpProvisioningConfig;
+export type IdpScimTokenBase = MyOrganization.IdpScimTokenBase;
+export type ProvisioningFieldMap = MyOrganization.IdpProvisioningFieldMapItem[];

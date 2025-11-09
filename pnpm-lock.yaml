@@ -552,12 +552,12 @@ importers:
 
   packages/core:
     dependencies:
-      '@auth0/myaccount':
-        specifier: file:./dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz
-        version: my-account@file:packages/core/dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz
-      auth0-myorg-sdk:
-        specifier: file:./dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz
-        version: auth0-my-org@file:packages/core/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz
+      '@auth0/myaccount-js':
+        specifier: 1.0.0-beta.0
+        version: 1.0.0-beta.0
+      '@auth0/myorganization-js':
+        specifier: 1.0.0-beta.0
+        version: 1.0.0-beta.0
       zod:
         specifier: ^3.25.56
         version: 3.25.56
@@ -736,6 +736,14 @@ packages:
 
   '@auth0/auth0-spa-js@2.2.0':
     resolution: {integrity: sha512-YaHHCxiSQxDb+Ju9gXOqcqgXWq8EkUSpZC4g24D3MoEBUaADKwOosrAnmjDZcslBZpnSFFdrl4dLYedAer3xlQ==}
+
+  '@auth0/myaccount-js@1.0.0-beta.0':
+    resolution: {integrity: sha512-slj0RtNfieNk1BC1ERrCQw65qMUVKU5qacbTc8BFH8R316CUpsOhZ2MIiV9l3VEkaqY1hmCZm03+ZI6ym+3PZg==}
+    engines: {node: '>=18.0.0'}
+
+  '@auth0/myorganization-js@1.0.0-beta.0':
+    resolution: {integrity: sha512-UGyhOw+eSiV0GzH3zJEUVpdjeK9KfWIEDtgwppI9W+vgg0xj1qMD+DlKTAwChaGGmOOtRjnTgxVudmfLKVmS+g==}
+    engines: {node: '>=18.0.0'}
 
   '@auth0/nextjs-auth0@file:examples/next-rwa/dependencies/nextjs-auth0/auth0-nextjs-auth0-4.11.0.tgz':
     resolution: {integrity: sha512-KKVePMnZ1pTjicfBATdtCD/7NpdKHVGtiAxQ37w8hN8YlyJAv5AMk8kIFsg+yK5eAzM1+sxeSSfJMceFzZ4ltw==, tarball: file:examples/next-rwa/dependencies/nextjs-auth0/auth0-nextjs-auth0-4.11.0.tgz}
@@ -3766,11 +3774,6 @@ packages:
     resolution: {integrity: sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==}
     engines: {node: '>= 4.0.0'}
 
-  auth0-my-org@file:packages/core/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz:
-    resolution: {integrity: sha512-JAs3aZZT1RbGqYRnFtzARiU7C8BY0kdMrT2rwn8CRBkuCAxs+wwmbcXGVOrHaDDYIKsUIYwcWMYn7EuVZwVM1Q==, tarball: file:packages/core/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz}
-    version: 0.69.0
-    engines: {node: '>=18.0.0'}
-
   autoprefixer@10.4.21:
     resolution: {integrity: sha512-O+A6LWV5LDHSJD3LjHYoNi4VLsj/Whi7k6zG12xTYaU4cQ8oxQGckXNX8cRHK5yOZ/ppVHe0ZBXGzSV9jXdVbQ==}
     engines: {node: ^10 || ^12 || >=14}
@@ -5705,11 +5708,6 @@ packages:
     resolution: {integrity: sha512-WWdIxpyjEn+FhQJQQv9aQAYlHoNVdzIzUySNV1gHUPDSdZJ3yZn7pAAbQcV7B56Mvu881q9FZV+0Vx2xC44VWA==}
     engines: {node: ^18.17.0 || >=20.5.0}
 
-  my-account@file:packages/core/dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz:
-    resolution: {integrity: sha512-rY89oak18DUmMhfp+CDlXzDOmmUPF49zK354HKt6gc8IZpAX9b/hTGdzZrXwjftcjGGrevBwoO1Nhn3ZaViuuA==, tarball: file:packages/core/dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz}
-    version: 0.69.0
-    engines: {node: '>=18.0.0'}
-
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
 
@@ -7374,6 +7372,12 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
 
   '@auth0/auth0-spa-js@2.2.0': {}
+
+  '@auth0/myaccount-js@1.0.0-beta.0': {}
+
+  '@auth0/myorganization-js@1.0.0-beta.0':
+    dependencies:
+      '@auth0/auth0-auth-js': 1.2.0
 
   '@auth0/nextjs-auth0@file:examples/next-rwa/dependencies/nextjs-auth0/auth0-nextjs-auth0-4.11.0.tgz(next@15.2.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
@@ -11039,10 +11043,6 @@ snapshots:
 
   at-least-node@1.0.0: {}
 
-  auth0-my-org@file:packages/core/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz:
-    dependencies:
-      '@auth0/auth0-auth-js': 1.2.0
-
   autoprefixer@10.4.21(postcss@8.5.5):
     dependencies:
       browserslist: 4.25.0
@@ -13257,8 +13257,6 @@ snapshots:
   mute-stream@0.0.8: {}
 
   mute-stream@2.0.0: {}
-
-  my-account@file:packages/core/dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz: {}
 
   mz@2.7.0:
     dependencies:

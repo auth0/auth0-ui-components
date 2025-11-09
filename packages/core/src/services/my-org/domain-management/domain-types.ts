@@ -1,11 +1,12 @@
+import type { MyOrganization } from '@auth0/myorganization-js';
 import type { InternalDomainCreateFormValues } from '@core/schemas';
-import type { Auth0MyOrg } from 'auth0-myorg-sdk';
 
-export type GetOrganizationDomainResponseContent = Auth0MyOrg.GetOrganizationDomainResponseContent;
+export type GetOrganizationDomainResponseContent =
+  MyOrganization.GetOrganizationDomainResponseContent;
 export type CreateOrganizationDomainResponseContent =
-  Auth0MyOrg.CreateOrganizationDomainResponseContent;
+  MyOrganization.CreateOrganizationDomainResponseContent;
 export type CreateOrganizationDomainRequestContent =
-  Auth0MyOrg.CreateOrganizationDomainRequestContent;
+  MyOrganization.CreateOrganizationDomainRequestContent;
 
 export type CreateDomainRequestContentPrivate = InternalDomainCreateFormValues;
 

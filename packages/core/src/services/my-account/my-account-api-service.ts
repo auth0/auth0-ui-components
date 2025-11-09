@@ -1,4 +1,4 @@
-import { MyAccountClient } from '@auth0/myaccount';
+import { MyAccountClient } from '@auth0/myaccount-js';
 
 import type { AuthDetails } from '../../auth/auth-types';
 import type { createTokenManager } from '../../auth/token-manager';
@@ -41,13 +41,18 @@ export function initializeMyAccountClient(
   } else if (auth.domain) {
     const fetcher = async (url: string, init?: RequestInit) => {
       const token = await tokenManagerService.getToken(latestScopes, 'me');
+
+      const headers = new Headers(init?.headers);
+      if (init?.body && !headers.has('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
+      }
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
+
       return fetch(url, {
         ...init,
-        headers: {
-          ...init?.headers,
-          ...(init?.body && { 'Content-Type': 'application/json' }),
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
+        headers,
       });
     };
     return {
