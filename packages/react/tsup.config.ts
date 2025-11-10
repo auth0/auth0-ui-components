@@ -7,6 +7,6 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   minify: true,
-  external: ['react', 'react-dom', '@auth0/auth0-react'],
+  external: ['react', 'react-dom', '@auth0/auth0-react', 'qrcode'],
   injectStyle: true,
 });
