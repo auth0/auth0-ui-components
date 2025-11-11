@@ -147,6 +147,8 @@ export default function DomainTableDocs() {
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
         <CodeBlock
           code={`import { DomainTable } from '@auth0/web-ui-components-react';
+// For shadcn users:
+// import { DomainTable } from '@/auth0-ui-components/blocks/my-org/domain-management/domain-table'; 
 
 export function DomainsPage() {
   return (

@@ -145,7 +145,9 @@ export default function SsoProviderCreateDocs() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
         <CodeBlock
-          code={`import { SsoProviderCreate } from '@auth0/ui-components-react';
+          code={`import { SsoProviderCreate } from '@auth0/web-ui-components-react';
+// For shadcn users:
+// import { SsoProviderCreate } from '@/auth0-ui-components/blocks/my-org/idp-management/sso-provider-create';
 
 export function CreateProviderPage() {
   return (
@@ -799,9 +801,9 @@ interface ComponentAction<TInput, TOutput = void> {
         <h2 className="text-2xl font-semibold text-gray-900">Complete Integration Example</h2>
         <CodeBlock
           code={`import React from 'react';
-import { SsoProviderCreate } from '@auth0/ui-components-react';
+import { SsoProviderCreate } from '@auth0/web-ui-components-react';
 import { Auth0Provider } from '@auth0/auth0-react';
-import { Auth0ComponentProvider } from '@auth0/ui-components-react';
+import { Auth0ComponentProvider } from '@auth0/web-ui-components-react';
 import { useNavigate } from 'react-router-dom';
 import { analytics } from './lib/analytics';
 

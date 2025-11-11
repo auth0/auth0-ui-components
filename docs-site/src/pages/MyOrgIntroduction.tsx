@@ -299,9 +299,6 @@ export default function MyOrgIntroduction() {
                       - update:my_org:identity_providers_detach
                     </div>
                     <div className="text-xs text-gray-600">
-                      - read:my_org:identity_providers_domains
-                    </div>
-                    <div className="text-xs text-gray-600">
                       - create:my_org:identity_providers_domains
                     </div>
                     <div className="text-xs text-gray-600">

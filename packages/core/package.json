@@ -1,6 +1,6 @@
 {
   "name": "@auth0/web-ui-components-core",
-  "version": "0.1.0-alpha.5",
+  "version": "1.0.0-beta.4",
   "description": "Core utilities for Auth0 Web UI components",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -43,8 +43,8 @@
     "vitest": "^3.2.3"
   },
   "dependencies": {
-    "auth0-myorg-sdk": "file:./dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz",
-    "@auth0/myaccount": "file:./dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz",
+    "@auth0/myaccount-js": "1.0.0-beta.0",
+    "@auth0/myorganization-js": "1.0.0-beta.0",
     "zod": "^3.25.56"
   }
 }

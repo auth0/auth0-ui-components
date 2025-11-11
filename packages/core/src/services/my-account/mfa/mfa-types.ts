@@ -1,18 +1,18 @@
-import type { Auth0MyAccount } from '@auth0/myaccount';
+import type { MyAccount } from '@auth0/myaccount-js';
 import type { SafeAny } from '@core/types';
 
-export type ListFactorsResponseContent = Auth0MyAccount.ListFactorsResponseContent;
+export type ListFactorsResponseContent = MyAccount.ListFactorsResponseContent;
 export type ListAuthenticationMethodsResponseContent =
-  Auth0MyAccount.ListAuthenticationMethodsResponseContent;
+  MyAccount.ListAuthenticationMethodsResponseContent;
 export type CreateAuthenticationMethodRequestContent =
-  Auth0MyAccount.CreateAuthenticationMethodRequestContent;
+  MyAccount.CreateAuthenticationMethodRequestContent;
 export type CreateAuthenticationMethodResponseContent =
-  Auth0MyAccount.CreateAuthenticationMethodResponseContent;
-export type PathAuthenticationMethodId = Auth0MyAccount.PathAuthenticationMethodId;
+  MyAccount.CreateAuthenticationMethodResponseContent;
+export type PathAuthenticationMethodId = MyAccount.PathAuthenticationMethodId;
 export type VerifyAuthenticationMethodRequestContent =
-  Auth0MyAccount.VerifyAuthenticationMethodRequestContent;
+  MyAccount.VerifyAuthenticationMethodRequestContent;
 export type VerifyAuthenticationMethodResponseContent =
-  Auth0MyAccount.VerifyAuthenticationMethodResponseContent;
+  MyAccount.VerifyAuthenticationMethodResponseContent;
 
 export interface Authenticator {
   id: string;

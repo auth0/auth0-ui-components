@@ -36,9 +36,11 @@ MIT
 
 For issues and questions, visit our [GitHub repository](https://github.com/atko-cic/auth0-ui-components).
 
+## License
+
 Copyright 2025 Okta, Inc.
 
 Distributed under the MIT License found [here](https://github.com/atko-cic/auth0-ui-components/blob/main/LICENSE).
 
-Authors
+**Authors**  
 Okta Inc.

@@ -273,3 +273,12 @@ If you encounter any issues:
 ---
 
 **Note**: This setup guide assumes you're working with the latest version of the codebase. If you encounter version-specific issues, please refer to the project's main documentation or create an issue in the repository.
+
+### License
+
+Copyright 2025 Okta, Inc.
+
+Distributed under the MIT License found [here](https://github.com/atko-cic/auth0-ui-components/blob/main/LICENSE).
+
+**Authors**  
+Okta Inc.

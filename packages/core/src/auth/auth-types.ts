@@ -1,6 +1,6 @@
-import type { MyAccountClient } from '@auth0/myaccount';
+import type { MyAccountClient } from '@auth0/myaccount-js';
+import type { MyOrganizationClient } from '@auth0/myorganization-js';
 import type { SafeAny } from '@core/types';
-import type { MyOrgClient } from 'auth0-myorg-sdk';
 
 import type { I18nServiceInterface } from '../i18n';
 
@@ -114,7 +114,7 @@ export interface BaseCoreClientInterface {
 
 export interface CoreClientInterface extends BaseCoreClientInterface {
   myAccountApiClient: MyAccountClient | undefined;
-  myOrgApiClient: MyOrgClient | undefined;
+  myOrgApiClient: MyOrganizationClient | undefined;
   getMyAccountApiClient: () => MyAccountClient;
-  getMyOrgApiClient: () => MyOrgClient;
+  getMyOrgApiClient: () => MyOrganizationClient;
 }

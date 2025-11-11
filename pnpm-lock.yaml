@@ -196,8 +196,8 @@ importers:
   examples/next-rwa:
     dependencies:
       '@auth0/nextjs-auth0':
-        specifier: file:dependencies/nextjs-auth0/auth0-nextjs-auth0-4.11.0.tgz
-        version: file:examples/next-rwa/dependencies/nextjs-auth0/auth0-nextjs-auth0-4.11.0.tgz(next@15.2.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^4.12.0
+        version: 4.12.0(next@15.2.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@auth0/web-ui-components-react':
         specifier: workspace:*
         version: link:../../packages/react
@@ -552,12 +552,12 @@ importers:
 
   packages/core:
     dependencies:
-      '@auth0/myaccount':
-        specifier: file:./dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz
-        version: my-account@file:packages/core/dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz
-      auth0-myorg-sdk:
-        specifier: file:./dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz
-        version: auth0-my-org@file:packages/core/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz
+      '@auth0/myaccount-js':
+        specifier: 1.0.0-beta.0
+        version: 1.0.0-beta.0
+      '@auth0/myorganization-js':
+        specifier: 1.0.0-beta.0
+        version: 1.0.0-beta.0
       zod:
         specifier: ^3.25.56
         version: 3.25.56
@@ -575,8 +575,8 @@ importers:
   packages/react:
     dependencies:
       '@auth0/web-ui-components-core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 1.0.0-beta.4
+        version: 1.0.0-beta.4
       '@hookform/resolvers':
         specifier: ^5.1.0
         version: 5.1.1(react-hook-form@7.57.0(react@19.1.0))
@@ -644,10 +644,10 @@ importers:
         specifier: ^1.5.4
         version: 1.5.4
       react:
-        specifier: ^19.1.0
+        specifier: ^16.11.0 || ^17 || ^18 || ^19
         version: 19.1.0
       react-dom:
-        specifier: ^19.1.0
+        specifier: ^16.11.0 || ^17 || ^18 || ^19
         version: 19.1.0(react@19.1.0)
       react-hook-form:
         specifier: ^7.57.0
@@ -743,16 +743,24 @@ packages:
   '@auth0/auth0-spa-js@2.2.0':
     resolution: {integrity: sha512-YaHHCxiSQxDb+Ju9gXOqcqgXWq8EkUSpZC4g24D3MoEBUaADKwOosrAnmjDZcslBZpnSFFdrl4dLYedAer3xlQ==}
 
-  '@auth0/auth0-spa-js@2.8.0':
-    resolution: {integrity: sha512-Lu3dBius0CMRHNAWtw/RyIZH0b5B4jV9ZlVjpp5s7A11AO/XyABkNl0VW7Cz5ZHpAkXEba1CMnkxDG1/9LNIqg==}
+  '@auth0/myaccount-js@1.0.0-beta.0':
+    resolution: {integrity: sha512-slj0RtNfieNk1BC1ERrCQw65qMUVKU5qacbTc8BFH8R316CUpsOhZ2MIiV9l3VEkaqY1hmCZm03+ZI6ym+3PZg==}
+    engines: {node: '>=18.0.0'}
 
-  '@auth0/nextjs-auth0@file:examples/next-rwa/dependencies/nextjs-auth0/auth0-nextjs-auth0-4.11.0.tgz':
-    resolution: {integrity: sha512-KKVePMnZ1pTjicfBATdtCD/7NpdKHVGtiAxQ37w8hN8YlyJAv5AMk8kIFsg+yK5eAzM1+sxeSSfJMceFzZ4ltw==, tarball: file:examples/next-rwa/dependencies/nextjs-auth0/auth0-nextjs-auth0-4.11.0.tgz}
-    version: 4.11.0
+  '@auth0/myorganization-js@1.0.0-beta.0':
+    resolution: {integrity: sha512-UGyhOw+eSiV0GzH3zJEUVpdjeK9KfWIEDtgwppI9W+vgg0xj1qMD+DlKTAwChaGGmOOtRjnTgxVudmfLKVmS+g==}
+    engines: {node: '>=18.0.0'}
+
+  '@auth0/nextjs-auth0@4.12.0':
+    resolution: {integrity: sha512-2a9dvfJLUV7XJ4CVmNBjhSrpyEFxNnU10Z/msY6Si5UKaDnJiKQ9cgnMuJyh0xIjFlANDr4WsvRPo22gQOJqbw==}
     peerDependencies:
       next: ^14.2.25 || ^15.2.3
       react: ^18.0.0 || ^19.0.0 || ^19.0.0-0
       react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-0
+
+  '@auth0/web-ui-components-core@1.0.0-beta.4':
+    resolution: {integrity: sha512-RsV81efnLJ5Gray7yYnjtY+koRLU82nzsQMYFU+RG42FSKQ8IQ1Sb0Gkx5JARjasRbVVDB9IFJM8IAKi/H50DA==}
+    engines: {node: '>=18'}
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -3775,11 +3783,6 @@ packages:
     resolution: {integrity: sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==}
     engines: {node: '>= 4.0.0'}
 
-  auth0-my-org@file:packages/core/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz:
-    resolution: {integrity: sha512-JAs3aZZT1RbGqYRnFtzARiU7C8BY0kdMrT2rwn8CRBkuCAxs+wwmbcXGVOrHaDDYIKsUIYwcWMYn7EuVZwVM1Q==, tarball: file:packages/core/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz}
-    version: 0.69.0
-    engines: {node: '>=18.0.0'}
-
   autoprefixer@10.4.21:
     resolution: {integrity: sha512-O+A6LWV5LDHSJD3LjHYoNi4VLsj/Whi7k6zG12xTYaU4cQ8oxQGckXNX8cRHK5yOZ/ppVHe0ZBXGzSV9jXdVbQ==}
     engines: {node: ^10 || ^12 || >=14}
@@ -5723,11 +5726,6 @@ packages:
     resolution: {integrity: sha512-WWdIxpyjEn+FhQJQQv9aQAYlHoNVdzIzUySNV1gHUPDSdZJ3yZn7pAAbQcV7B56Mvu881q9FZV+0Vx2xC44VWA==}
     engines: {node: ^18.17.0 || >=20.5.0}
 
-  my-account@file:packages/core/dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz:
-    resolution: {integrity: sha512-rY89oak18DUmMhfp+CDlXzDOmmUPF49zK354HKt6gc8IZpAX9b/hTGdzZrXwjftcjGGrevBwoO1Nhn3ZaViuuA==, tarball: file:packages/core/dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz}
-    version: 0.69.0
-    engines: {node: '>=18.0.0'}
-
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
 
@@ -7399,13 +7397,13 @@ snapshots:
 
   '@auth0/auth0-spa-js@2.2.0': {}
 
-  '@auth0/auth0-spa-js@2.8.0':
-    dependencies:
-      browser-tabs-lock: 1.3.0
-      dpop: 2.1.1
-      es-cookie: 1.3.2
+  '@auth0/myaccount-js@1.0.0-beta.0': {}
 
-  '@auth0/nextjs-auth0@file:examples/next-rwa/dependencies/nextjs-auth0/auth0-nextjs-auth0-4.11.0.tgz(next@15.2.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@auth0/myorganization-js@1.0.0-beta.0':
+    dependencies:
+      '@auth0/auth0-auth-js': 1.2.0
+
+  '@auth0/nextjs-auth0@4.12.0(next@15.2.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@edge-runtime/cookies': 5.0.2
       '@panva/hkdf': 1.2.1
@@ -7416,6 +7414,12 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
       swr: 2.3.6(react@19.1.0)
+
+  '@auth0/web-ui-components-core@1.0.0-beta.4':
+    dependencies:
+      '@auth0/myaccount-js': 1.0.0-beta.0
+      '@auth0/myorganization-js': 1.0.0-beta.0
+      zod: 3.25.56
 
   '@babel/code-frame@7.27.1':
     dependencies:
@@ -11069,10 +11073,6 @@ snapshots:
 
   at-least-node@1.0.0: {}
 
-  auth0-my-org@file:packages/core/dependencies/my-org-sdk/auth0-my-org-0.69.0.tgz:
-    dependencies:
-      '@auth0/auth0-auth-js': 1.2.0
-
   autoprefixer@10.4.21(postcss@8.5.5):
     dependencies:
       browserslist: 4.25.0
@@ -11853,7 +11853,7 @@ snapshots:
       '@typescript-eslint/parser': 7.18.0(eslint@8.57.1)(typescript@5.8.3)
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1)
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1))(eslint@8.57.1)
       eslint-plugin-import: 2.32.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.5(eslint@8.57.1)
@@ -11877,7 +11877,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1):
+  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1))(eslint@8.57.1):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.1
@@ -11892,14 +11892,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 7.18.0(eslint@8.57.1)(typescript@5.8.3)
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1)
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1))(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -11924,7 +11924,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -13295,8 +13295,6 @@ snapshots:
   mute-stream@0.0.8: {}
 
   mute-stream@2.0.0: {}
-
-  my-account@file:packages/core/dependencies/my-account-sdk/auth0-my-account-0.69.0.tgz: {}
 
   mz@2.7.0:
     dependencies:

@@ -1,6 +1,6 @@
 {
   "name": "@auth0/web-ui-components-react",
-  "version": "0.1.0-alpha.5",
+  "version": "1.0.0-beta.5",
   "private": false,
   "sideEffects": true,
   "main": "./dist/index.js",
@@ -30,17 +30,11 @@
     "registry:build": "shadcn build"
   },
   "peerDependencies": {
-    "@auth0/auth0-react": "^2.0.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
-  },
-  "peerDependenciesMeta": {
-    "@auth0/auth0-react": {
-      "optional": true
-    }
+    "react": "^16.11.0 || ^17 || ^18 || ^19",
+    "react-dom": "^16.11.0 || ^17 || ^18 || ^19"
   },
   "dependencies": {
-    "@auth0/web-ui-components-core": "workspace:*",
+    "@auth0/web-ui-components-core": "1.0.0-beta.4",
     "@hookform/resolvers": "^5.1.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-checkbox": "^1.1.1",

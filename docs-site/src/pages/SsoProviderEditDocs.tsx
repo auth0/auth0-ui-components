@@ -146,6 +146,8 @@ export default function SsoProviderEditDocs() {
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
         <CodeBlock
           code={`import { SsoProviderEdit } from '@auth0/web-ui-components-react';
+// For shadcn users:
+// import { SsoProviderEdit } from '@/auth0-ui-components/blocks/my-org/idp-management/sso-provider-edit';
 import { useNavigate } from 'react-router-dom';
 
 export function ProviderEditPage({ providerId }: { providerId: string }) {

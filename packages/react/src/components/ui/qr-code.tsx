@@ -1,4 +1,3 @@
-import QRCode from 'qrcode';
 import * as React from 'react';
 
 import { useTheme } from '../../hooks/use-theme';
@@ -7,33 +6,11 @@ import { cn } from '../../lib/theme-utils';
 import { Spinner } from './spinner';
 
 export interface QRCodeDisplayerProps {
-  /**
-   * The URI/data to encode in the QR code (required)
-   */
   value: string;
-  /**
-   * Size of the QR code in pixels
-   * @default 150
-   */
   size?: number;
-  /**
-   * Additional CSS classes
-   */
   className?: string;
-  /**
-   * Alternative text for accessibility
-   * @default "QR Code"
-   */
   alt?: string;
-  /**
-   * Text to display while loading the QR code
-   * @default "Loading QR code"
-   */
   loadingMessage?: string;
-  /**
-   * Text to display in the error state
-   * @default "Failed to load QR code"
-   */
   errorMessage?: string;
 }
 
@@ -69,7 +46,9 @@ export function QRCodeDisplayer({
 
     const generateQRCode = async () => {
       try {
-        const dataURL = await QRCode.toDataURL(value, {
+        // Lazy load qrcode only in browser
+        const { toDataURL } = await import('qrcode');
+        const dataURL = await toDataURL(value, {
           width: size,
           margin: 1,
           color: qrCodeColorScheme,

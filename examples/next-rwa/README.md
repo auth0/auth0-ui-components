@@ -56,3 +56,12 @@ This example uses Auth0's Regular Web Application authentication flow with proxy
 ### Component-Specific Requirements
 
 **Important**: Each component may have specific Auth0 configuration requirements. Before using any component, please check the [Auth0 UI Components Documentation](https://auth0-ui-components.vercel.app/) for component-specific prerequisites and setup instructions.
+
+### License
+
+Copyright 2025 Okta, Inc.
+
+Distributed under the MIT License found [here](https://github.com/atko-cic/auth0-ui-components/blob/main/LICENSE).
+
+**Authors**  
+Okta Inc.

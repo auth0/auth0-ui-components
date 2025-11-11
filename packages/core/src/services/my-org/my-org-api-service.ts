@@ -1,12 +1,12 @@
+import { MyOrganizationClient } from '@auth0/myorganization-js';
 import type { AuthDetails } from '@core/auth/auth-types';
 import type { createTokenManager } from '@core/auth/token-manager';
-import { MyOrgClient } from 'auth0-myorg-sdk';
 
 export function initializeMyOrgClient(
   auth: AuthDetails,
   tokenManagerService: ReturnType<typeof createTokenManager>,
 ): {
-  client: MyOrgClient;
+  client: MyOrganizationClient;
   setLatestScopes: (scopes: string) => void;
 } {
   let latestScopes = '';
@@ -29,7 +29,7 @@ export function initializeMyOrgClient(
       });
     };
     return {
-      client: new MyOrgClient({
+      client: new MyOrganizationClient({
         domain: '',
         baseUrl: myOrgProxyBaseUrl.trim(),
         telemetry: false,
@@ -40,17 +40,22 @@ export function initializeMyOrgClient(
   } else if (auth.domain) {
     const fetcher = async (url: string, init?: RequestInit) => {
       const token = await tokenManagerService.getToken(latestScopes, 'my-org');
+
+      const headers = new Headers(init?.headers);
+      if (init?.body && !headers.has('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
+      }
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
+
       return fetch(url, {
         ...init,
-        headers: {
-          ...init?.headers,
-          ...(init?.body && { 'Content-Type': 'application/json' }),
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
+        headers,
       });
     };
     return {
-      client: new MyOrgClient({
+      client: new MyOrganizationClient({
         domain: auth.domain.trim(),
         fetcher,
       }),

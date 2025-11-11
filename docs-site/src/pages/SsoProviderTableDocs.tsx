@@ -145,6 +145,8 @@ export default function SsoProviderTableDocs() {
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
         <CodeBlock
           code={`import { SsoProviderTable } from '@auth0/web-ui-components-react';
+// For shadcn users:
+// import { SsoProviderTable } from '@/auth0-ui-components/blocks/my-org/idp-management/sso-provider-table';
 import { useNavigate } from 'react-router-dom';
 
 export function ProvidersPage() {

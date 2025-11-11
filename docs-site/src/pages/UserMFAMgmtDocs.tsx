@@ -162,7 +162,9 @@ export default function UserMFA() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
         <CodeBlock
-          code={`import { UserMFAMgmt } from '@auth0/ui-components-react';
+          code={`import { UserMFAMgmt } from '@auth0/web-ui-components-react';
+// For shadcn users:
+// import { UserMFAMgmt } from '@/auth0-ui-components/blocks/my-account/mfa/user-mfa-management';
 
 export function SecurityPage() {
   return (
@@ -736,9 +738,9 @@ interface UserMFAMgmtClasses {
         <h2 className="text-2xl font-semibold text-gray-900">Complete Integration Example</h2>
         <CodeBlock
           code={`import React from 'react';
-import { UserMFAMgmt } from '@auth0/ui-components-react';
+import { UserMFAMgmt } from '@auth0/web-ui-components-react';
 import { Auth0Provider } from '@auth0/auth0-react';
-import { Auth0ComponentProvider } from '@auth0/ui-components-react';
+import { Auth0ComponentProvider } from '@auth0/web-ui-components-react';
 
 function SecurityPage() {
   const handleMFAEnroll = () => {
