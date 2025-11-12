@@ -52,7 +52,7 @@ export const useErrorHandler = () => {
           message = t('not_found');
           break;
         case 429:
-          message = t('too_many_requests');
+          message = t('rate_limit');
           break;
         default:
           message = fallbackMessage;
