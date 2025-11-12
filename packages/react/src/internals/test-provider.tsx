@@ -1,7 +1,9 @@
 import type { CoreClientInterface, AuthDetails } from '@auth0/web-ui-components-core';
 import { render, type RenderResult } from '@testing-library/react';
 import React from 'react';
+import type { FieldValues, UseFormReturn } from 'react-hook-form';
 
+import { Form } from '../components/ui/form';
 import { CoreClientContext } from '../hooks/use-core-client';
 import { ScopeManagerProvider } from '../providers/scope-manager-provider';
 
@@ -53,3 +55,13 @@ export const renderWithProviders = (
     </TestProvider>,
   );
 };
+
+/**
+ * Utility function to render components with Form provider
+ */
+export function renderWithFormProvider<T extends FieldValues>(
+  component: React.ReactElement,
+  form: UseFormReturn<T>,
+) {
+  return renderWithProviders(<Form {...form}>{component}</Form>);
+}

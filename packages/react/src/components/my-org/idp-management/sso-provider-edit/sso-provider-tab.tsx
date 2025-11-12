@@ -70,13 +70,14 @@ export function SsoProviderTab({
       </Card>
 
       <div className="space-y-4">
-        {provider && organization && shouldAllowDeletion && (
+        {provider && organization && (
           <SsoProviderRemoveFromOrg
             provider={provider}
             organizationName={organization?.name}
             onRemove={onRemove}
             isLoading={isRemoving}
             readOnly={readOnly}
+            customMessages={customMessages.remove}
           />
         )}
 
@@ -86,6 +87,7 @@ export function SsoProviderTab({
             onDelete={onDelete}
             isLoading={isDeleting}
             readOnly={readOnly}
+            customMessages={customMessages.delete}
           />
         )}
       </div>

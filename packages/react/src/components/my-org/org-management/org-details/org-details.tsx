@@ -68,8 +68,15 @@ export function OrgDetails({
         'displayName',
         t('sections.settings.fields.display_name.error'),
       ),
-      color: mergeFieldConfig('color', t('sections.branding.fields.primary_color.error')),
+      primaryColor: mergeFieldConfig(
+        'primaryColor',
+        t('sections.branding.fields.primary_color.error'),
+      ),
       logoURL: mergeFieldConfig('logoURL', t('sections.branding.fields.logo.error')),
+      backgroundColor: mergeFieldConfig(
+        'backgroundColor',
+        t('sections.branding.fields.page_background_color.error'),
+      ),
     });
   }, [t, schema]);
 

@@ -40,9 +40,10 @@ export function QRCodeEnrollmentForm({
     },
     classes: {},
   },
+  customMessages = {},
 }: QRCodeEnrollmentFormProps) {
   const [phase, setPhase] = React.useState<Phase>(QR_PHASE_SCAN);
-  const { t } = useTranslator('mfa');
+  const { t } = useTranslator('mfa', customMessages);
   const { isDarkMode } = useTheme();
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -165,6 +166,7 @@ export function QRCodeEnrollmentForm({
       authenticationMethodId={otpData.authenticationMethodId}
       onBack={handleBack}
       styling={styling}
+      customMessages={customMessages}
     />
   );
 

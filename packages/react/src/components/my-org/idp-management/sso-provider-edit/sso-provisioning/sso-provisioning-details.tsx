@@ -134,6 +134,7 @@ export function SsoProvisioningDetails({
         <ProvisioningFieldMappings
           provisioningFieldMap={provisioningConfig?.fields ?? null}
           customMessages={customMessages.mappings}
+          className={currentStyles.classes?.['SsoProvisioningDetails-provisioningMapping']}
         />
       </div>
     </div>

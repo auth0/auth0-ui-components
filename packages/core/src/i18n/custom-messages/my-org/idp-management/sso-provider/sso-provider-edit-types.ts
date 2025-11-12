@@ -38,6 +38,7 @@ export interface SsoProviderTabMessages {
   delete?: SsoProvideDeleteMessages;
   remove?: SsoProvideRemoveMessages;
   details?: SsoProviderDetailsMessages;
+  description?: string;
 }
 
 export interface SsoProviderDetailsMessages {

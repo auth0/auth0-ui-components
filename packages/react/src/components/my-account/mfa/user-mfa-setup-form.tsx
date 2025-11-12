@@ -57,8 +57,9 @@ export function UserMFASetupForm({
     },
     classes: {},
   },
+  customMessages = {},
 }: UserMFASetupFormProps) {
-  const { t } = useTranslator('mfa');
+  const { t } = useTranslator('mfa', customMessages);
   const { isDarkMode } = useTheme();
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -176,6 +177,7 @@ export function UserMFASetupForm({
             onClose={onClose}
             schema={schema}
             styling={styling}
+            customMessages={customMessages}
           />
         );
       case ENTER_QR:
@@ -188,6 +190,7 @@ export function UserMFASetupForm({
             onSuccess={onSuccess}
             onClose={onClose}
             styling={styling}
+            customMessages={customMessages}
           />
         );
       case SHOW_RECOVERY_CODE:
@@ -208,6 +211,7 @@ export function UserMFASetupForm({
             styling={styling}
             factorType={factorType}
             loading={loading}
+            customMessages={customMessages}
           />
         );
       default:

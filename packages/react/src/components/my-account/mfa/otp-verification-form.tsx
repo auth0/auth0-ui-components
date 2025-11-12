@@ -74,8 +74,9 @@ export function OTPVerificationForm({
     variables: { common: {}, light: {}, dark: {} },
     classes: {},
   },
+  customMessages = {},
 }: OTPVerificationFormProps) {
-  const { t } = useTranslator('mfa');
+  const { t } = useTranslator('mfa', customMessages);
   const { isDarkMode } = useTheme();
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),

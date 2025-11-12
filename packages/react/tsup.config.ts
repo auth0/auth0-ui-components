@@ -8,5 +8,4 @@ export default defineConfig({
   clean: true,
   minify: true,
   external: ['react', 'react-dom', '@auth0/auth0-react'],
-  injectStyle: true,
 });

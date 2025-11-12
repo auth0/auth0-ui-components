@@ -31,6 +31,7 @@ export function SsoProviderEditComponent({
     classes: {},
   },
   schema,
+  readOnly = false,
 }: SsoProviderEditProps) {
   const { t } = useTranslator('idp_management.edit_sso_provider', customMessages);
   const { isDarkMode } = useTheme();
@@ -155,6 +156,7 @@ export function SsoProviderEditComponent({
                 onClick: updateProvider,
               },
             }}
+            readOnly={readOnly}
           />
         </TabsContent>
 
@@ -186,6 +188,7 @@ export function SsoProviderEditComponent({
             schema={schema?.domains}
             idpId={providerId}
             provider={provider}
+            readOnly={readOnly}
           />
         </TabsContent>
       </Tabs>

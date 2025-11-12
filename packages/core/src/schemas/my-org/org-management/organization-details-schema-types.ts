@@ -12,7 +12,11 @@ export interface OrgDetailsSchemas {
     maxLength?: number;
     required?: boolean;
   };
-  color?: {
+  primaryColor?: {
+    regex?: RegExp;
+    errorMessage?: string;
+  };
+  backgroundColor?: {
     regex?: RegExp;
     errorMessage?: string;
   };

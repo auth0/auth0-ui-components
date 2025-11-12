@@ -219,9 +219,6 @@ importers:
       next:
         specifier: 15.2.3
         version: 15.2.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      postcss-import:
-        specifier: ^15.1.0
-        version: 15.1.0(postcss@8.5.5)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -250,9 +247,6 @@ importers:
       eslint-config-next:
         specifier: 15.1.3
         version: 15.1.3(eslint@8.57.1)(typescript@5.8.3)
-      postcss:
-        specifier: ^8.5.5
-        version: 8.5.5
       string-replace-loader:
         specifier: ^3.2.0
         version: 3.2.0(webpack@5.101.3(@swc/core@1.12.6)(esbuild@0.25.5))
@@ -296,6 +290,9 @@ importers:
       '@eslint/js':
         specifier: ^9.25.0
         version: 9.28.0
+      '@tailwindcss/postcss':
+        specifier: ^4.1.10
+        version: 4.1.10
       '@types/node':
         specifier: ^22.15.27
         version: 22.15.30
@@ -575,8 +572,8 @@ importers:
   packages/react:
     dependencies:
       '@auth0/web-ui-components-core':
-        specifier: 1.0.0-beta.4
-        version: 1.0.0-beta.4
+        specifier: workspace:*
+        version: link:../core
       '@hookform/resolvers':
         specifier: ^5.1.0
         version: 5.1.1(react-hook-form@7.57.0(react@19.1.0))
@@ -661,9 +658,6 @@ importers:
       tailwind-merge:
         specifier: ^3.3.0
         version: 3.3.0
-      tw-animate-css:
-        specifier: ^1.3.2
-        version: 1.3.4
       zod:
         specifier: ^3.25.56
         version: 3.25.56
@@ -695,9 +689,6 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^3.2.4
         version: 3.2.4(vitest@3.2.3(@types/node@22.15.30)(jiti@2.4.2)(jsdom@26.1.0)(lightningcss@1.30.1)(msw@2.10.2(@types/node@22.15.30)(typescript@5.8.3))(terser@5.44.0)(yaml@2.8.0))
-      postcss:
-        specifier: ^8.5.5
-        version: 8.5.5
       rimraf:
         specifier: ^5.0.0
         version: 5.0.10
@@ -760,10 +751,6 @@ packages:
       next: ^14.2.25 || ^15.2.3
       react: ^18.0.0 || ^19.0.0 || ^19.0.0-0
       react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-0
-
-  '@auth0/web-ui-components-core@1.0.0-beta.4':
-    resolution: {integrity: sha512-RsV81efnLJ5Gray7yYnjtY+koRLU82nzsQMYFU+RG42FSKQ8IQ1Sb0Gkx5JARjasRbVVDB9IFJM8IAKi/H50DA==}
-    engines: {node: '>=18'}
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -7423,12 +7410,6 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
       swr: 2.3.6(react@19.1.0)
-
-  '@auth0/web-ui-components-core@1.0.0-beta.4':
-    dependencies:
-      '@auth0/myaccount-js': 1.0.0-beta.0
-      '@auth0/myorganization-js': 1.0.0-beta.0
-      zod: 3.25.56
 
   '@babel/code-frame@7.27.1':
     dependencies:

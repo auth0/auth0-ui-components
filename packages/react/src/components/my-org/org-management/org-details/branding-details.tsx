@@ -25,6 +25,7 @@ export function BrandingDetails({
   form,
   customMessages = {},
   className,
+  readOnly = false,
 }: BrandingDetailsProps): React.JSX.Element {
   const { t } = useTranslator('org_management.org_details', customMessages);
 
@@ -42,6 +43,7 @@ export function BrandingDetails({
               <FormControl>
                 <ImagePreviewField
                   {...field}
+                  readOnly={readOnly}
                   startAdornment={
                     <div className="p-1.5">
                       <LinkIcon />
@@ -72,7 +74,7 @@ export function BrandingDetails({
                 {t('sections.branding.fields.primary_color.label')}
               </FormLabel>
               <FormControl>
-                <ColorPickerInput {...field} />
+                <ColorPickerInput {...field} disabled={readOnly} />
               </FormControl>
               <FormMessage
                 className="text-left text-sm text-(length:--font-size-paragraph)"
@@ -97,7 +99,7 @@ export function BrandingDetails({
                 {t('sections.branding.fields.page_background_color.label')}
               </FormLabel>
               <FormControl>
-                <ColorPickerInput {...field} />
+                <ColorPickerInput {...field} disabled={readOnly} />
               </FormControl>
               <FormMessage
                 className="text-left text-sm text-(length:--font-size-paragraph)"

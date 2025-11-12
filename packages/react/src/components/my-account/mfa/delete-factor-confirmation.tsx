@@ -24,8 +24,9 @@ export function DeleteFactorConfirmation({
     },
     classes: {},
   },
+  customMessages = {},
 }: DeleteFactorConfirmationProps) {
-  const { t } = useTranslator('mfa');
+  const { t } = useTranslator('mfa', customMessages);
   const { isDarkMode } = useTheme();
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),

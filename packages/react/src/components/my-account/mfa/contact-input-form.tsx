@@ -49,9 +49,10 @@ export function ContactInputForm({
     },
     classes: {},
   },
+  customMessages = {},
 }: ContactInputFormProps) {
   const [phase, setPhase] = React.useState<Phase>(ENTER_CONTACT);
-  const { t } = useTranslator('mfa');
+  const { t } = useTranslator('mfa', customMessages);
   const { isDarkMode } = useTheme();
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -217,6 +218,7 @@ export function ContactInputForm({
       authenticationMethodId={contactData.authenticationMethodId}
       onBack={handleBack}
       styling={styling}
+      customMessages={customMessages}
     />
   );
 

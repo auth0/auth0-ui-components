@@ -1,10 +1,16 @@
 export interface StylingVariables {
   common?: {
+    // Font sizes
+    '--font-size-page-header'?: string;
+    '--font-size-page-description'?: string;
     '--font-size-heading'?: string;
-    '--font-size-description'?: string;
     '--font-size-title'?: string;
+    '--font-size-subtitle'?: string;
+    '--font-size-body'?: string;
     '--font-size-paragraph'?: string;
     '--font-size-label'?: string;
+
+    // Border radius
     '--radius-xs'?: string;
     '--radius-sm'?: string;
     '--radius-md'?: string;
@@ -20,36 +26,41 @@ export interface StylingVariables {
     '--radius-9xl'?: string;
   };
   light?: {
+    // Shadcn-compatible source variables (override these!)
+    '--background'?: string;
+    '--foreground'?: string;
+    '--card'?: string;
+    '--card-foreground'?: string;
+    '--primary'?: string;
+    '--primary-foreground'?: string;
+    '--secondary'?: string;
+    '--secondary-foreground'?: string;
+    '--accent'?: string;
+    '--accent-foreground'?: string;
+    '--muted'?: string;
+    '--muted-foreground'?: string;
+    '--destructive'?: string;
+    '--destructive-foreground'?: string;
+    '--popover'?: string;
+    '--popover-foreground'?: string;
+    '--input'?: string;
+    '--border'?: string;
+    '--ring'?: string;
+
+    // Custom Auth0 variables
     '--color-page'?: string;
-    '--color-background'?: string;
-    '--color-foreground'?: string;
-    '--color-card'?: string;
-    '--color-card-foreground'?: string;
-    '--color-primary'?: string;
-    '--color-primary-foreground'?: string;
-    '--color-secondary'?: string;
-    '--color-secondary-foreground'?: string;
-    '--color-accent'?: string;
-    '--color-accent-foreground'?: string;
-    '--color-muted'?: string;
-    '--color-muted-foreground'?: string;
-    '--color-border'?: string;
-    '--color-ring'?: string;
     '--color-info'?: string;
     '--color-info-foreground'?: string;
     '--color-success'?: string;
     '--color-success-foreground'?: string;
     '--color-warning'?: string;
     '--color-warning-foreground'?: string;
-    '--color-destructive'?: string;
-    '--color-destructive-foreground'?: string;
     '--color-destructive-border'?: string;
-    '--color-popover'?: string;
-    '--color-popover-foreground'?: string;
     '--color-popover-border'?: string;
-    '--color-input'?: string;
     '--color-input-foreground'?: string;
     '--color-input-muted'?: string;
+
+    // Shadows
     '--shadow-bevel-xs'?: string;
     '--shadow-bevel-sm'?: string;
     '--shadow-bevel-md'?: string;
@@ -77,38 +88,44 @@ export interface StylingVariables {
     '--shadow-switch-hover'?: string;
     '--shadow-switch-focus'?: string;
     '--shadow-switch-thumb'?: string;
+    '--shadow-switch-thumb-dark'?: string;
   };
   dark?: {
+    // Shadcn-compatible source variables
+    '--background'?: string;
+    '--foreground'?: string;
+    '--card'?: string;
+    '--card-foreground'?: string;
+    '--primary'?: string;
+    '--primary-foreground'?: string;
+    '--secondary'?: string;
+    '--secondary-foreground'?: string;
+    '--accent'?: string;
+    '--accent-foreground'?: string;
+    '--muted'?: string;
+    '--muted-foreground'?: string;
+    '--destructive'?: string;
+    '--destructive-foreground'?: string;
+    '--popover'?: string;
+    '--popover-foreground'?: string;
+    '--input'?: string;
+    '--border'?: string;
+    '--ring'?: string;
+
+    // Custom Auth0 variables
     '--color-page'?: string;
-    '--color-background'?: string;
-    '--color-foreground'?: string;
-    '--color-card'?: string;
-    '--color-card-foreground'?: string;
-    '--color-primary'?: string;
-    '--color-primary-foreground'?: string;
-    '--color-secondary'?: string;
-    '--color-secondary-foreground'?: string;
-    '--color-accent'?: string;
-    '--color-accent-foreground'?: string;
-    '--color-muted'?: string;
-    '--color-muted-foreground'?: string;
-    '--color-border'?: string;
-    '--color-ring'?: string;
     '--color-info'?: string;
     '--color-info-foreground'?: string;
     '--color-success'?: string;
     '--color-success-foreground'?: string;
     '--color-warning'?: string;
     '--color-warning-foreground'?: string;
-    '--color-destructive'?: string;
-    '--color-destructive-foreground'?: string;
     '--color-destructive-border'?: string;
-    '--color-popover'?: string;
-    '--color-popover-foreground'?: string;
     '--color-popover-border'?: string;
-    '--color-input'?: string;
     '--color-input-foreground'?: string;
     '--color-input-muted'?: string;
+
+    // Shadows
     '--shadow-bevel-xs'?: string;
     '--shadow-bevel-sm'?: string;
     '--shadow-bevel-md'?: string;
@@ -136,6 +153,7 @@ export interface StylingVariables {
     '--shadow-switch-hover'?: string;
     '--shadow-switch-focus'?: string;
     '--shadow-switch-thumb'?: string;
+    '--shadow-switch-thumb-dark'?: string;
   };
 }
 

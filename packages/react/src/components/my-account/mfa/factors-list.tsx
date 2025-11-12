@@ -32,8 +32,9 @@ export function FactorsList({
     },
     classes: {},
   },
+  customMessages = {},
 }: FactorsListProps) {
-  const { t } = useTranslator('mfa');
+  const { t } = useTranslator('mfa', customMessages);
   const { isDarkMode } = useTheme();
   const IconComponent = FACTOR_ICONS[factorType as keyof typeof FACTOR_ICONS];
 

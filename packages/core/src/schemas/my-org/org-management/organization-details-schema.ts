@@ -9,11 +9,24 @@ import { type OrgDetailsSchemas } from './organization-details-schema-types';
  * @returns Zod schema for organization detail validation
  */
 export const createOrganizationDetailSchema = (options: OrgDetailsSchemas = {}) => {
-  const { name = {}, displayName = {}, color = {}, logoURL = {} } = options;
+  const {
+    name = {},
+    displayName = {},
+    primaryColor = {},
+    logoURL = {},
+    backgroundColor = {},
+  } = options;
 
-  // Set defaults for color validation
-  const colorRegex = color.regex || /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-  const colorErrorMessage = color.errorMessage || 'Invalid color format';
+  const regex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+  const commonErrorMessage = 'Invalid color format';
+
+  // Set defaults for primary color validation
+  const primaryColorRegex = primaryColor.regex || regex;
+  const primaryColorErrorMessage = primaryColor.errorMessage || commonErrorMessage;
+
+  // Set defaults for background color validation
+  const backgroundColorRegex = backgroundColor.regex || regex;
+  const backgroundColorErrorMessage = backgroundColor.errorMessage || commonErrorMessage;
 
   return z.object({
     name: createStringSchema({
@@ -34,8 +47,8 @@ export const createOrganizationDetailSchema = (options: OrgDetailsSchemas = {}) 
         errorMessage: logoURL.errorMessage,
       }),
       colors: z.object({
-        primary: z.string().regex(colorRegex, colorErrorMessage),
-        page_background: z.string().regex(colorRegex, colorErrorMessage),
+        primary: z.string().regex(primaryColorRegex, primaryColorErrorMessage),
+        page_background: z.string().regex(backgroundColorRegex, backgroundColorErrorMessage),
       }),
     }),
   });
