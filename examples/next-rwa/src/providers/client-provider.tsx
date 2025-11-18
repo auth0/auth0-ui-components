@@ -1,6 +1,6 @@
 'use client';
 
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react';
+import { Auth0ComponentProvider } from '@auth0/web-ui-components-react/rwa';
 import React from 'react';
 
 import { I18nProvider } from './i18n-provider';

@@ -10,7 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@auth0/nextjs-auth0": "^4.12.0",
+    "@auth0/nextjs-auth0": "^4.12.1",
     "@auth0/web-ui-components-react": "workspace:*",
     "@tailwindcss/postcss": "^4.1.10",
     "@tailwindcss/vite": "^4.1.10",
@@ -18,8 +18,10 @@
     "i18next": "^25.2.1",
     "lucide-react": "^0.511.0",
     "next": "15.2.3",
+    "postcss": "^8.5.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-hook-form": "^7.57.0",
     "react-i18next": "^15.5.3",
     "tailwindcss": "^4.1.10"
   },

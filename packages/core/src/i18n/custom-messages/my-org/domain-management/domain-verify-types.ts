@@ -1,5 +1,5 @@
 export interface DomainVerifyMessages {
-  modal: {
+  modal?: {
     title?: string;
     txt_record_name?: {
       label?: string;
@@ -19,8 +19,8 @@ export interface DomainVerifyMessages {
       delete_button_text?: string;
       done_button_text?: string;
     };
-    errors: {
-      verification_failed: string;
+    errors?: {
+      verification_failed?: string;
     };
   };
 }

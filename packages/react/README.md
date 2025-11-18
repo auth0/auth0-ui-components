@@ -26,8 +26,16 @@ For detailed information on how to use these components and get started with Aut
 
 ### Installation
 
+**For SPA (Single Page Application):**
+
 ```bash
-npm install @auth0/web-ui-components-react
+npm install @auth0/web-ui-components-react @auth0/auth0-react
+```
+
+**For Next.js/Server-Side (RWA):**
+
+```bash
+npm install @auth0/web-ui-components-react @auth0/nextjs-auth0
 ```
 
 ### Step 1: Set up Auth0
@@ -40,27 +48,14 @@ Before using these components, you need an Auth0 account and application:
 
 For detailed setup instructions, follow the [Auth0 React Quickstart](https://auth0.com/docs/quickstart/spa/react).
 
-### Step 2: Install Dependencies
-
-For **SPA (Single Page Application)**:
-
-```bash
-npm install @auth0/web-ui-components-react @auth0/auth0-react
-```
-
-For **Next.js/Server-Side**:
-
-```bash
-npm install @auth0/web-ui-components-react @auth0/nextjs-auth0
-```
-
-### Step 3: Wrap Your App with Providers
+### Step 2: Wrap Your App with Providers
 
 #### For SPA Applications:
 
 ```tsx
 import { Auth0Provider } from '@auth0/auth0-react';
-import { Auth0ComponentProvider, UserMFAMgmt } from '@auth0/web-ui-components-react';
+import { Auth0ComponentProvider, UserMFAMgmt } from '@auth0/web-ui-components-react/spa';
+import '@auth0/web-ui-components-react/styles';
 
 function App() {
   return (
@@ -71,21 +66,15 @@ function App() {
         redirect_uri: window.location.origin,
       }}
     >
-      <AppWithComponents />
+      <Auth0ComponentProvider
+        authDetails={{
+          domain: 'your-domain.auth0.com',
+        }}
+        themeSettings={{ theme: 'default', mode: 'light' }}
+      >
+        <UserMFAMgmt />
+      </Auth0ComponentProvider>
     </Auth0Provider>
-  );
-}
-
-function AppWithComponents() {
-  return (
-    <Auth0ComponentProvider
-      authDetails={{
-        domain: 'your-domain.auth0.com',
-      }}
-      themeSettings={{ theme: 'default', mode: 'light' }}
-    >
-      <UserMFAMgmt />
-    </Auth0ComponentProvider>
   );
 }
 ```
@@ -94,33 +83,33 @@ function AppWithComponents() {
 
 ```tsx
 // app/layout.tsx or pages/_app.tsx
-import { Auth0Provider } from '@auth0/nextjs-auth0';
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react';
+import { Auth0ComponentProvider } from '@auth0/web-ui-components-react/rwa';
+import '@auth0/web-ui-components-react/styles';
 
 export default function RootLayout({ children }) {
   return (
     <html>
       <body>
-        <Auth0Provider>
-          <Auth0ComponentProvider
-            authDetails={{
-              authProxyUrl: '/', // Next.js API route
-            }}
-            themeSettings={{ theme: 'default', mode: 'light' }}
-          >
-            {children}
-          </Auth0ComponentProvider>
-        </Auth0Provider>
+        <Auth0ComponentProvider
+          authDetails={{
+            authProxyUrl: '/api/auth',
+          }}
+          themeSettings={{ theme: 'default', mode: 'light' }}
+        >
+          {children}
+        </Auth0ComponentProvider>
       </body>
     </html>
   );
 }
 ```
 
-### Step 4: Use Components
+### Step 3: Use Components
 
 ```tsx
-import { UserMFAMgmt, OrgManagement } from '@auth0/web-ui-components-react';
+import { UserMFAMgmt } from '@auth0/web-ui-components-react/spa';
+// or
+import { UserMFAMgmt } from '@auth0/web-ui-components-react/rwa';
 
 function MyPage() {
   return (
@@ -132,97 +121,25 @@ function MyPage() {
 }
 ```
 
-## Usage
-
-### Using Blocks
-
-```tsx
-import { UserMFAMgmt } from '@auth0/web-ui-components-react';
-
-function MyPage() {
-  return <UserMFAMgmt />;
-}
-```
-
-### Using Providers
-
-#### Direct Mode (Client-Side - SPA)
-
-For Single Page Applications using Auth0 React SDK:
-
-```tsx
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react';
-
-function App() {
-  return (
-    <Auth0ComponentProvider
-      authDetails={{
-        domain: 'your-domain.auth0.com',
-      }}
-      i18n={{ currentLanguage: 'en' }}
-      themeSettings={{
-        theme: 'default',
-        mode: 'light',
-      }}
-    >
-      {/* Your app */}
-    </Auth0ComponentProvider>
-  );
-}
-```
-
-#### Proxy Mode (Server-Side - Next.js/RWA)
-
-For React Web Applications (RWA) like Next.js with server-side authentication:
-
-```tsx
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react';
-
-function App() {
-  return (
-    <Auth0ComponentProvider
-      authDetails={{
-        authProxyUrl: '/', // Your API proxy endpoint (e.g., /api/auth/mfa, /api/auth/my-org)
-      }}
-      i18n={{ currentLanguage: 'en' }}
-      themeSettings={{
-        theme: 'default',
-        mode: 'light',
-      }}
-    >
-      {/* Your app */}
-    </Auth0ComponentProvider>
-  );
-}
-```
-
 ## Requirements
 
-### Peer Dependencies
-
-- **React** >= 16.11.0 (supports React 16, 17, 18, and 19)
-- **React DOM** >= 16.11.0 (supports React 16, 17, 18, and 19)
-- **@auth0/auth0-react** >= 2.0.0 (optional - only required for SPA/Direct Mode)
-
-### Styling
-
-- **Tailwind CSS** >= 4.0 (recommended for full styling support)
+- **React** >= 16.11.0
+- **React DOM** >= 16.11.0
+- **react-hook-form** >= 7.0.0
+- **Tailwind CSS** >= 3.0.0 || >= 4.0.0 (recommended)
+- **@auth0/auth0-react** >= 2.0.0 (required for `/spa` entry point only)
 
 ## Related Packages
 
 - [@auth0/web-ui-components-core](https://www.npmjs.com/package/@auth0/web-ui-components-core) - Core utilities (auto-installed)
-
-## Support
-
-For issues and questions, visit our [GitHub repository](https://github.com/atko-cic/auth0-ui-components).
-
----
+- [@auth0/auth0-react](https://www.npmjs.com/package/@auth0/auth0-react) - Auth0 SDK for React (SPA mode)
+- [@auth0/nextjs-auth0](https://www.npmjs.com/package/@auth0/nextjs-auth0) - Auth0 SDK for Next.js (RWA mode)
 
 ## License
 
 Copyright 2025 Okta, Inc.
 
-Distributed under the MIT License found [here](https://github.com/atko-cic/auth0-ui-components/blob/main/LICENSE).
+Distributed under the MIT License.
 
 **Authors**  
 Okta Inc.

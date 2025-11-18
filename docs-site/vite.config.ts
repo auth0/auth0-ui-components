@@ -10,7 +10,4 @@ export default defineConfig({
       '@': '/src',
     },
   },
-  optimizeDeps: {
-    exclude: ['@auth0/web-ui-components-react'], // 👈 Exclude this from pre-bundling
-  },
 });

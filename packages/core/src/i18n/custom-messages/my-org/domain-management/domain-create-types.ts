@@ -1,5 +1,5 @@
 export interface DomainCreateMessages {
-  modal: {
+  modal?: {
     title?: string;
     field?: {
       label?: string;

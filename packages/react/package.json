@@ -1,18 +1,25 @@
 {
   "name": "@auth0/web-ui-components-react",
-  "version": "1.0.0-beta.5",
+  "version": "1.0.0-beta.12",
   "private": false,
-  "sideEffects": true,
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "sideEffects": [
+    "*.css"
+  ],
+  "main": "./dist/spa.js",
+  "module": "./dist/spa.mjs",
+  "types": "./dist/spa.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+    "./rwa": {
+      "types": "./dist/rwa.d.ts",
+      "import": "./dist/rwa.mjs",
+      "require": "./dist/rwa.js"
     },
-    "./dist/index.css": "./dist/index.css"
+    "./spa": {
+      "types": "./dist/spa.d.ts",
+      "import": "./dist/spa.mjs",
+      "require": "./dist/spa.js"
+    },
+    "./styles": "./dist/styles.css"
   },
   "files": [
     "dist",
@@ -20,8 +27,9 @@
     "LICENSE"
   ],
   "scripts": {
+    "build:css": "npx @tailwindcss/cli -i ./src/styles/globals.css -o ./dist/styles.css --minify",
     "build:ts": "tsup",
-    "build": "pnpm build:ts",
+    "build": "pnpm build:ts && pnpm build:css",
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -33,7 +41,7 @@
   "peerDependencies": {
     "react": "^16.11.0 || ^17 || ^18 || ^19",
     "react-dom": "^16.11.0 || ^17 || ^18 || ^19",
-    "tailwindcss": "^3.0.0 || ^4.0.0"
+    "react-hook-form": "^7.0.0"
   },
   "dependencies": {
     "@auth0/web-ui-components-core": "workspace:*",
@@ -59,7 +67,6 @@
     "input-otp": "^1.4.2",
     "lucide-react": "^0.511.0",
     "qrcode": "^1.5.4",
-    "react-hook-form": "^7.57.0",
     "shadcn": "2.6.0-canary.3",
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.0",
@@ -69,14 +76,16 @@
   "license": "MIT",
   "devDependencies": {
     "@auth0/auth0-react": "^2.0.0",
+    "@tailwindcss/cli": "^4.1.17",
     "@tailwindcss/postcss": "^4.1.10",
-    "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitest/coverage-v8": "^3.2.4",
+    "postcss": "^8.5.6",
+    "react-hook-form": "^7.57.0",
     "rimraf": "^5.0.0",
     "tailwindcss": "^4.1.10"
   }

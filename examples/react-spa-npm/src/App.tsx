@@ -1,7 +1,7 @@
 import './App.css';
 import { useAuth0, withAuthenticationRequired } from '@auth0/auth0-react';
 import type { WithAuthenticationRequiredOptions } from '@auth0/auth0-react';
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react';
+import { Auth0ComponentProvider } from '@auth0/web-ui-components-react/spa';
 import type { ComponentType } from 'react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';

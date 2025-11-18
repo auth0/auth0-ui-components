@@ -89,7 +89,7 @@ function ImagePreviewField({
             sizes={imgSizes}
             decoding="async"
             alt="Preview"
-            className="animate-in fade-in-0 absolute aspect-square h-full max-h-24 w-full max-w-24 blur-none transition-all duration-200 ease-in-out"
+            className="animate-in fade-in-0 max-h-24 max-w-24 object-contain blur-none transition-all duration-200 ease-in-out"
             height={imgHeight}
             width={imgWidth}
             onLoad={handleImageLoad}

@@ -49,9 +49,7 @@ export const ScopeManagerProvider: React.FC<{ children: ReactNode }> = ({ childr
     if (!coreClient) return;
 
     const ensureAllScopesSequential = async () => {
-      const nextEnsured: Record<Audience, string> = { ...ensured };
       let hasScopes = false;
-      let updated = false;
 
       for (const audience of ['me', 'my-org'] as const) {
         const scopes = Array.from(scopeRegistry.current[audience]).sort();
@@ -60,23 +58,21 @@ export const ScopeManagerProvider: React.FC<{ children: ReactNode }> = ({ childr
         if (scopes.length > 0 && scopeString.trim()) {
           hasScopes = true;
 
-          if (scopeString !== ensured[audience]) {
-            await coreClient.ensureScopes(scopeString, audience);
-            nextEnsured[audience] = scopeString;
-            updated = true;
-          }
+          setEnsured((prev) => {
+            if (scopeString !== prev[audience]) {
+              coreClient.ensureScopes(scopeString, audience);
+              return { ...prev, [audience]: scopeString };
+            }
+            return prev;
+          });
         }
-      }
-
-      if (updated && JSON.stringify(nextEnsured) !== JSON.stringify(ensured)) {
-        setEnsured(nextEnsured);
       }
 
       setIsReady(hasScopes);
     };
 
     ensureAllScopesSequential();
-  }, [coreClient, version, ensured]);
+  }, [coreClient, version]);
 
   return (
     <ScopeManagerContext.Provider value={{ registerScopes, isReady, ensured }}>

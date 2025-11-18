@@ -1,7 +1,7 @@
 /* Import Tailwind CSS v4 */
 @import 'tailwindcss';
 
-@import '@auth0/web-ui-components-react/dist/index.css';
+@import '@auth0/web-ui-components-react/styles';
 
 /* Minimal Next.js specific fixes - keep only essential z-index fixes */
 [data-radix-portal],

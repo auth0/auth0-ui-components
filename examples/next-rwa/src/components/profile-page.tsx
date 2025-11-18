@@ -1,7 +1,7 @@
 'use client';
 
 import { useUser } from '@auth0/nextjs-auth0';
-import { UserMFAMgmt } from '@auth0/web-ui-components-react';
+import { UserMFAMgmt } from '@auth0/web-ui-components-react/rwa';
 import { User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';

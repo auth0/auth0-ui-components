@@ -1,5 +1,5 @@
 export interface DomainDeleteMessages {
-  modal: {
+  modal?: {
     title?: string;
     description?: {
       pending?: string;

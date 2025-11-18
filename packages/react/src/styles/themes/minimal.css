@@ -9,28 +9,31 @@
 
 @layer base {
   [data-theme='minimal'] {
+    /**
+     * STANDARD SHADCN VARIABLES with user fallbacks
+     * Users can override by defining --primary, --background, etc.
+     */
     --color-page: var(--color-neutral-2);
-    --color-background: var(--color-neutral-min);
-    --color-foreground: var(--color-neutral-12);
+    --color-background: var(--background, var(--color-neutral-min));
+    --color-foreground: var(--foreground, var(--color-neutral-12));
 
-    --color-card: var(--color-neutral-min);
-    --color-card-foreground: var(--color-neutral-max);
+    --color-card: var(--card, var(--color-neutral-min));
+    --color-card-foreground: var(--card-foreground, var(--color-neutral-max));
 
-    --color-primary: var(--color-carbon-9);
-    --color-primary-foreground: var(--color-neutral-min);
+    --color-primary: var(--primary, var(--color-carbon-9));
+    --color-primary-foreground: var(--primary-foreground, var(--color-neutral-min));
 
-    --color-secondary: var(--color-neutral-3);
-    --color-secondary-foreground: var(--color-neutral-1);
+    --color-secondary: var(--secondary, var(--color-neutral-3));
+    --color-secondary-foreground: var(--secondary-foreground, var(--color-neutral-1));
 
-    --color-accent: var(--color-neutral-9);
-    --color-accent-foreground: var(--color-neutral-12);
+    --color-accent: var(--accent, var(--color-neutral-9));
+    --color-accent-foreground: var(--accent-foreground, var(--color-neutral-12));
 
-    --color-muted: var(--color-neutral-3);
-    --color-muted-foreground: var(--color-neutral-10);
+    --color-muted: var(--muted, var(--color-neutral-3));
+    --color-muted-foreground: var(--muted-foreground, var(--color-neutral-10));
 
-    --color-border: var(--color-neutral-6);
-
-    --color-ring: oklch(from var(--color-neutral-7) l c h / 50%);
+    --color-border: var(--border, var(--color-neutral-6));
+    --color-ring: var(--ring, oklch(from var(--color-neutral-7) l c h / 50%));
 
     --color-info: var(--color-blue-3);
     --color-info-foreground: var(--color-blue-9);
@@ -39,14 +42,14 @@
     --color-warning: var(--color-yellow-3);
     --color-warning-foreground: var(--color-yellow-11);
 
-    --color-destructive: var(--color-red-3);
-    --color-destructive-foreground: var(--color-red-9);
+    --color-destructive: var(--destructive, var(--color-red-3));
+    --color-destructive-foreground: var(--destructive-foreground, var(--color-red-9));
     --color-destructive-border: var(--color-red-10);
 
-    --color-popover: var(--color-neutral-1);
-    --color-popover-foreground: var(--color-neutral-12);
+    --color-popover: var(--popover, var(--color-neutral-1));
+    --color-popover-foreground: var(--popover-foreground, var(--color-neutral-12));
 
-    --color-input: var(--color-neutral-3);
+    --color-input: var(--input, var(--color-neutral-3));
     --color-input-foreground: var(--color-neutral-12);
     --color-input-muted: var(--color-neutral-3);
 
