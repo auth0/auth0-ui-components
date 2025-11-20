@@ -92,7 +92,7 @@
       "modal": {
         "title": "Delete a Domain",
         "description": {
-          "pending": "${domainName} is pending verification and may take up to 48 hours to process. Are you sure you want to delete this domain? This action cannot be undone.",
+          "pending": "${domainName} is pending verification and may take up to 48 hours to process. Are you sure you want to delete this domain?",
           "verified": "Deleting ${domainName} may disrupt login flows for users. Are you sure you want to delete this domain? This action cannot be undone."
         },
         "actions": {

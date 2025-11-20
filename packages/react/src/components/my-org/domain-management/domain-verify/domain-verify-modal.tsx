@@ -60,7 +60,7 @@ export function DomainVerifyModal({
               id="txt-record-name"
               value={domain?.verification_host || ''}
               readOnly
-              className="font-mono text-sm"
+              className="text-sm"
             />
           </div>
 
@@ -72,13 +72,15 @@ export function DomainVerifyModal({
               id="txt-record-content"
               value={domain?.verification_txt || ''}
               readOnly
-              className="font-mono text-sm"
+              className="text-sm"
             />
           </div>
 
           <div className="space-y-2 pt-4 border-t border-gray-200">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">{t('verification_status.label')}</span>
+              <span className="text-sm text-muted-foreground font-medium">
+                {t('verification_status.label')}
+              </span>
               <Badge variant="warning">{t('verification_status.pending')}</Badge>
             </div>
             <p className={cn('text-sm text-muted-foreground text-(length:--font-size-paragraph')}>
