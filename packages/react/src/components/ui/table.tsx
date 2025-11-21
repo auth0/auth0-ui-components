@@ -3,8 +3,6 @@ import React from 'react';
 
 import { cn } from '../../lib/theme-utils';
 
-import { Button } from './button';
-
 interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
   className?: string;
 }
@@ -34,12 +32,17 @@ const TableBody = React.forwardRef<
 ));
 TableBody.displayName = 'TableBody';
 
-const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(
-  ({ className, ...props }, ref) => (
+interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
+  disableHover?: boolean;
+}
+
+const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(
+  ({ className, disableHover, ...props }, ref) => (
     <tr
       ref={ref}
       className={cn(
-        'hover:bg-muted/50 border-border/50 border-b text-sm transition-colors',
+        !disableHover && 'hover:bg-muted/50',
+        'border-border/50 border-b text-sm transition-colors',
         className,
       )}
       {...props}
@@ -54,40 +57,34 @@ interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
 }
 
 const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
-  ({ className, children, isSortable, sortDirection, ...props }, ref) => (
-    <th
-      ref={ref}
-      className={cn(
-        'hover:bg-accent/10 border-border/50 border-b px-4 py-2 text-left',
-        isSortable && 'select-none',
-        className,
-      )}
-      {...props}
-    >
-      <div className="flex items-center gap-1">
-        {children}
-        {isSortable && (
-          <div className="ml-2 flex items-center">
-            {sortDirection === false && (
-              <Button variant="ghost" size="sm" className="px-0.5 py-1">
-                <ChevronUpIcon className="text-muted-foreground h-4 w-4" />
-              </Button>
-            )}
-            {sortDirection === 'asc' && (
-              <Button variant="ghost" size="sm" className="px-0.5 py-1">
-                <ChevronUpIcon className="h-4 w-4" />
-              </Button>
-            )}
-            {sortDirection === 'desc' && (
-              <Button variant="ghost" size="sm" className="px-0.5 py-1">
-                <ChevronDownIcon className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
+  ({ className, children, isSortable, sortDirection, ...props }, ref) => {
+    const showSortIcon = isSortable !== undefined && sortDirection !== undefined;
+
+    return (
+      <th
+        ref={ref}
+        className={cn(
+          'hover:bg-accent/10 border-border/50 border-b px-4 py-2 text-left',
+          isSortable && 'group cursor-pointer select-none',
+          className,
         )}
-      </div>
-    </th>
-  ),
+        {...props}
+      >
+        <div className="flex items-center gap-1">
+          {children}
+          {showSortIcon && (
+            <div className="ml-2 flex items-center">
+              {sortDirection === false && (
+                <ChevronDownIcon className="text-muted-foreground h-4 w-4 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+              )}
+              {sortDirection === 'asc' && <ChevronUpIcon className="h-4 w-4" />}
+              {sortDirection === 'desc' && <ChevronDownIcon className="h-4 w-4" />}
+            </div>
+          )}
+        </div>
+      </th>
+    );
+  },
 );
 TableHead.displayName = 'TableHead';
 

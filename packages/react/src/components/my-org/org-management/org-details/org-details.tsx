@@ -108,7 +108,6 @@ export function OrgDetails({
       if (formActions?.nextAction?.onClick) {
         const payload: OrganizationPrivate = {
           ...values,
-          name: organization.name,
           id: organization.id,
         };
 

@@ -603,7 +603,7 @@ export const ColorPickerInput = ({
   }
 
   return (
-    <div className={cn('space-y-2', className)} {...props}>
+    <div className={cn(className)} {...props}>
       {showTextInput && (
         <div className={cn('relative', className)}>
           <TextField
@@ -661,7 +661,7 @@ export const ColorPickerInput = ({
                 }}
               >
                 {children || (
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     <ColorPickerSelection className="h-64 w-full" />
                     <div className="flex items-center justify-center gap-4">
                       <div className="flex flex-1 flex-col gap-2">
