@@ -68,12 +68,9 @@ const TokenUtils = {
    * @param scope - The OAuth scope being requested
    * @throws {Error} When domain is not configured or scope is missing
    */
-  validateTokenRequest(auth: AuthDetails, scope: string): void {
+  validateTokenRequest(auth: AuthDetails): void {
     if (!auth.domain) {
       throw new Error('TokenUtils: Auth0 domain is not configured');
-    }
-    if (!scope) {
-      throw new Error('TokenUtils: Scope is required');
     }
   },
 
@@ -204,7 +201,7 @@ export function createTokenManager(auth: AuthDetails) {
       TokenUtils.isCoreClientContextInterfaceInitialized(auth);
 
       // Validate request
-      TokenUtils.validateTokenRequest(auth, scope);
+      TokenUtils.validateTokenRequest(auth);
 
       // Build audience and request key
       const audience = TokenUtils.buildAudience(auth.domain!, audiencePath);

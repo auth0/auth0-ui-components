@@ -141,12 +141,14 @@ export function useDomainTable({
           await verifyAction.onAfter(selectedDomain);
         }
 
+        await fetchDomains();
+
         return response.status === 'verified';
       } finally {
         setIsVerifying(false);
       }
     },
-    [verifyAction, t, coreClient],
+    [verifyAction, t, coreClient, fetchDomains],
   );
 
   const onDeleteDomain = useCallback(

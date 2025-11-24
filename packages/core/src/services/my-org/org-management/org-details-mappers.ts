@@ -27,6 +27,7 @@ export const OrgDetailsMappers = {
       formValues.branding.logo_url.trim() !== '';
 
     const payload: UpdateOrganizationDetailsRequestContent = {
+      name: formValues.name,
       display_name: formValues.display_name,
       branding: {
         colors: {

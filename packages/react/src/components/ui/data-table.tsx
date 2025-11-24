@@ -6,7 +6,7 @@ import {
   flexRender,
 } from '@tanstack/react-table';
 import type { SortingState, ColumnDef } from '@tanstack/react-table';
-import { ChevronUpIcon, ChevronDownIcon, ArrowUpDownIcon, Copy } from 'lucide-react';
+import { Copy } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 
 import { cn } from '../../lib/theme-utils';
@@ -297,14 +297,6 @@ function EmptyState({ title, subtitle, action }: EmptyStateProps) {
   );
 }
 
-function SortIcon({ direction }: { direction: 'asc' | 'desc' | false }) {
-  const Icon =
-    direction === 'asc' ? ChevronUpIcon : direction === 'desc' ? ChevronDownIcon : ArrowUpDownIcon;
-  const className = direction ? 'h-4 w-4' : 'h-4 w-4 opacity-50';
-
-  return <Icon className={className} />;
-}
-
 export function DataTable<Item>({
   data,
   columns,
@@ -413,7 +405,7 @@ export function DataTable<Item>({
                   <TableHead
                     key={header.id}
                     className={cn(
-                      canSort && 'cursor-pointer select-none hover:bg-muted/50',
+                      canSort && 'hover:bg-muted/50',
                       'transition-colors',
                       ALIGNMENT_CLASSES.text[meta.headerAlign],
                     )}
@@ -423,16 +415,10 @@ export function DataTable<Item>({
                       maxWidth: meta.column.width,
                     }}
                     onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                    isSortable={canSort}
+                    sortDirection={sortDirection}
                   >
-                    <div
-                      className={cn(
-                        'flex items-center space-x-2',
-                        ALIGNMENT_CLASSES.flex[meta.headerAlign],
-                      )}
-                    >
-                      <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
-                      {canSort && <SortIcon direction={sortDirection} />}
-                    </div>
+                    {flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 );
               })}
@@ -441,7 +427,7 @@ export function DataTable<Item>({
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows.length === 0 ? (
-            <TableRow>
+            <TableRow disableHover>
               <TableCell colSpan={columns.length}>
                 <EmptyState
                   {...(emptyState ?? {

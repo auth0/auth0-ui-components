@@ -130,7 +130,7 @@ function Wizard({
       />
 
       <Card>
-        <CardContent className="p-6 relative">
+        <CardContent className="relative">
           {isLoading && (
             <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10">
               <Spinner />
