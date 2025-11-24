@@ -253,7 +253,8 @@
       "completeButtonLabel": "Create Provider",
       "notifications": {
         "general_error": "There was an issue processing your request. Please try again or contact support if the issue persists.",
-        "provider_create_success": "${providerName} has been created."
+        "provider_create_success": "${providerName} has been created.",
+        "provider_create_duplicated_provider_error": "${providerName} provider already exists. Please choose a different name."
       },
       "provider_select": {
         "title": "Select Your Identity Provider",

@@ -328,5 +328,6 @@ export interface SsoProviderCreateMessages {
   notifications?: {
     general_error?: string;
     provider_create_success?: string;
+    provider_create_duplicated_provider_error?: string;
   };
 }

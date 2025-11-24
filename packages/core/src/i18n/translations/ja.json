@@ -253,7 +253,8 @@
       "completeButtonLabel": "プロバイダーを作成",
       "notifications": {
         "general_error": "リクエストの処理中に問題が発生しました。もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
-        "provider_create_success": "${providerName} が作成されました。"
+        "provider_create_success": "${providerName}が作成されました。",
+        "provider_create_duplicated_provider_error": "${providerName}プロバイダーは既に存在します。別の名前を選択してください。"
       },
       "provider_select": {
         "title": "IDプロバイダーを選択",

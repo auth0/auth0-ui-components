@@ -1,4 +1,5 @@
 import {
+  hasApiErrorBody,
   SsoProviderMappers,
   type CreateIdentityProviderRequestContent,
   type CreateIdentityProviderRequestContentPrivate,
@@ -64,7 +65,19 @@ export function useSsoProviderCreate({
 
         createAction?.onAfter?.(data, result);
       } catch (error) {
-        handleError(error, { fallbackMessage: t('notifications.general_error') });
+        if (
+          hasApiErrorBody(error) &&
+          error.body?.status === 409 &&
+          error.body?.type === 'https://auth0.com/api-errors#A0E-409-0001'
+        ) {
+          handleError(error, {
+            errorMessage: t('notifications.provider_create_duplicated_provider_error', {
+              providerName: data.name,
+            }),
+          });
+        } else {
+          handleError(error, { fallbackMessage: t('notifications.general_error') });
+        }
       } finally {
         setIsCreating(false);
       }
