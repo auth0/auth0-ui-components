@@ -8,6 +8,7 @@ import { Toaster } from '../components/ui/sonner';
 import { Spinner } from '../components/ui/spinner';
 import { CoreClientContext } from '../hooks/use-core-client';
 import { useCoreClientInitialization } from '../hooks/use-core-client-initialization';
+import { useToastProvider } from '../hooks/use-toast-provider';
 import type { Auth0ComponentProviderProps } from '../types/auth-types';
 
 import { ScopeManagerProvider } from './scope-manager-provider';
@@ -25,7 +26,9 @@ import { ThemeProvider } from './theme-provider';
  *
  * <Auth0Provider domain="..." clientId="..." redirectUri="...">
  *   <Auth0SpaProvider
+ *     authDetails={authDetails}
  *     themeSettings={{ mode: 'dark', theme: 'rounded' }}
+ *     toastSettings={{ provider: 'custom', customMethods: {...} }}
  *   >
  *     <YourApp />
  *   </Auth0SpaProvider>
@@ -44,9 +47,13 @@ export const Auth0ComponentProvider = ({
       dark: {},
     },
   },
+  toastSettings,
   loader,
   children,
 }: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
+  // Use custom hook to handle toast configuration
+  const mergedToastSettings = useToastProvider(toastSettings);
+
   let auth0ContextInterface: BasicAuth0ContextInterface = useAuth0();
 
   // Check if user is using auth0-react SDK
@@ -90,7 +97,10 @@ export const Auth0ComponentProvider = ({
         theme: themeSettings.theme,
       }}
     >
-      <Toaster position="top-right" />
+      {/* Render Toaster only for Sonner provider */}
+      {mergedToastSettings.provider === 'sonner' && (
+        <Toaster position={mergedToastSettings.position} />
+      )}
       <React.Suspense
         fallback={
           loader || (

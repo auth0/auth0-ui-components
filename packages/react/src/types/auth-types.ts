@@ -3,6 +3,7 @@ import type * as React from 'react';
 
 import type { I18nOptions } from './i18n-types';
 import type { ThemeSettings } from './theme-types';
+import type { ToastSettings } from './toast-types';
 
 /**
  * Props for the Auth0ComponentProvider component.
@@ -12,6 +13,7 @@ export interface Auth0ComponentProviderProps {
   themeSettings?: ThemeSettings;
   authDetails: AuthDetails;
   loader?: React.ReactNode;
+  toastSettings?: ToastSettings;
 }
 
 /**
