@@ -12,13 +12,6 @@ const auth0Config = {
   authorizationParams: {
     redirect_uri: window.location.origin,
   },
-  onRedirectCallback: (appState?: { returnTo?: string }) => {
-    let returnTo = appState?.returnTo || window.location.pathname;
-    if (typeof returnTo !== 'string' || !returnTo.startsWith('/') || returnTo.startsWith('//')) {
-      returnTo = '/';
-    }
-    window.location.href = returnTo;
-  },
 };
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
