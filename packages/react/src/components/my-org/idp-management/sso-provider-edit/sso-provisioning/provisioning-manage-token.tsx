@@ -221,6 +221,7 @@ export function ProvisioningManageToken({
 
       <ProvisioningCreateTokenModal
         open={isCreateModalOpen}
+        isLoading={isScimTokenCreating}
         onOpenChange={(open) => {
           setIsCreateModalOpen(open);
           if (!open) {
@@ -234,6 +235,7 @@ export function ProvisioningManageToken({
 
       <ProvisioningDeleteTokenModal
         open={!!deleteTokenId}
+        isLoading={isScimTokenDeleting}
         onOpenChange={(open: boolean) => {
           if (!open) {
             setDeleteTokenId(null);

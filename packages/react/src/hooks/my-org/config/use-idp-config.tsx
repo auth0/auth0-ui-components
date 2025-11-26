@@ -49,7 +49,7 @@ export function useIdpConfig(): UseConfigIdpResult {
   // Fetch config on mount
   useEffect(() => {
     fetchIdpConfig();
-  }, [fetchIdpConfig]);
+  }, []);
 
   return {
     idpConfig,

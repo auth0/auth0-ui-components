@@ -30,6 +30,7 @@ export interface ProvisioningManageTokenProps
 export interface ProvisioningDeleteTokenModalProps
   extends SharedComponentProps<ProvisioningDeleteTokenModalMessages> {
   open: boolean;
+  isLoading: boolean;
   onOpenChange: (open: boolean) => void;
   tokenId: string | null;
   onConfirm: () => void;
@@ -37,6 +38,7 @@ export interface ProvisioningDeleteTokenModalProps
 export interface ProvisioningCreateTokenModalProps
   extends SharedComponentProps<ProvisioningCreateTokenModalMessages> {
   open: boolean;
+  isLoading: boolean;
   onOpenChange: (open: boolean) => void;
   createdToken: CreateIdpProvisioningScimTokenResponseContent | null;
 }

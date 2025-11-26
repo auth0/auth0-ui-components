@@ -9,7 +9,7 @@ const spinnerVariants = cva(
   {
     variants: {
       variant: {
-        solid: 'border-t-current',
+        solid: '!border-t-current',
         dots: 'animate-[spin_5s_linear_infinite] border-6 border-dotted border-current',
         pulse: 'animate-pulse bg-current',
       },

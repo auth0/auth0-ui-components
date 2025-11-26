@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuPortal,
 } from '../../../ui/dropdown-menu';
+import { Spinner } from '../../../ui/spinner';
 import { Switch } from '../../../ui/switch';
 
 /**
@@ -21,6 +22,7 @@ export function SsoProviderTableActionsColumn({
   shouldAllowDeletion,
   readOnly = false,
   isUpdating = false,
+  isUpdatingId,
   customMessages = {},
   edit,
   onToggleEnabled,
@@ -51,11 +53,15 @@ export function SsoProviderTableActionsColumn({
 
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
-      <Switch
-        checked={provider.is_enabled ?? false}
-        onCheckedChange={handleToggleEnabled}
-        disabled={readOnly || isUpdating}
-      />
+      {isUpdating && isUpdatingId === provider.id ? (
+        <Spinner size="sm" className="m-auto" />
+      ) : (
+        <Switch
+          checked={provider.is_enabled ?? false}
+          onCheckedChange={handleToggleEnabled}
+          disabled={readOnly || isUpdating}
+        />
+      )}
 
       <DropdownMenu>
         <DropdownMenuTrigger className="h-8 w-8 p-0 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">

@@ -10,6 +10,7 @@ import { Button } from '../../../ui/button';
 import { CopyableTextField } from '../../../ui/copyable-text-field';
 import { Label } from '../../../ui/label';
 import { Modal } from '../../../ui/modal';
+import { Spinner } from '../../../ui/spinner';
 
 export function DomainVerifyModal({
   translatorKey = 'domain_management.domain_verify.modal',
@@ -78,7 +79,7 @@ export function DomainVerifyModal({
 
           <div className="space-y-2 pt-4 border-t border-gray-200">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground font-medium">
+              <span className="text-sm text-foreground font-medium">
                 {t('verification_status.label')}
               </span>
               <Badge variant="warning">{t('verification_status.pending')}</Badge>
@@ -90,7 +91,7 @@ export function DomainVerifyModal({
 
           <div className="flex gap-2 pt-2">
             <Button variant="outline" onClick={handleVerify} disabled={isLoading}>
-              {t('actions.verify_button_text')}
+              {isLoading ? <Spinner size="sm" /> : t('actions.verify_button_text')}
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={isLoading}>
               {t('actions.delete_button_text')}

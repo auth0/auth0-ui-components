@@ -1,5 +1,6 @@
 'use client';
 
+import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 
@@ -47,9 +48,9 @@ function Button({
   as,
   ...props
 }: React.ComponentProps<'button'> & ButtonProps) {
-  const Comp = as ? React.Fragment : 'button';
+  const Comp = as ? Slot : 'button';
 
-  return <Comp className={cn('button', buttonVariants({ variant, size }), className)} {...props} />;
+  return <Comp className={cn(buttonVariants({ variant, size }), className)} {...props} />;
 }
 
 export { Button, buttonVariants };

@@ -102,18 +102,26 @@ export function SsoProvisioningTab({
                 {isLoading ? (
                   <Spinner className="w-4 h-4" />
                 ) : (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
+                  <>
+                    {!provider.is_enabled ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Switch
+                            checked={isProvisioningEnabled}
+                            onCheckedChange={handleProvisioningToggle}
+                            disabled={enableProvisioningToggle}
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>{t('header.enable_provisioning_tooltip')}</TooltipContent>
+                      </Tooltip>
+                    ) : (
                       <Switch
                         checked={isProvisioningEnabled}
                         onCheckedChange={handleProvisioningToggle}
                         disabled={enableProvisioningToggle}
                       />
-                    </TooltipTrigger>
-                    {!provider.is_enabled && (
-                      <TooltipContent>{t('header.enable_provisioning_tooltip')}</TooltipContent>
                     )}
-                  </Tooltip>
+                  </>
                 )}
               </div>
             </div>
@@ -139,6 +147,7 @@ export function SsoProvisioningTab({
 
       <SsoProvisioningDeleteModal
         open={isDeleteModalOpen}
+        isLoading={isProvisioningDeleting}
         onOpenChange={setDeleteModalOpen}
         onConfirm={handleDeleteProvisioningConfirm}
         customMessages={customMessages.delete}

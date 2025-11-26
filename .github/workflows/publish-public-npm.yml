@@ -4,35 +4,35 @@ on:
   workflow_dispatch:
     inputs:
       core_version:
-        description: "Core package version (leave empty to use package.json version)"
+        description: 'Core package version (leave empty to use package.json version)'
         required: false
         type: string
       react_version:
-        description: "React package version (leave empty to use package.json version)"
+        description: 'React package version (leave empty to use package.json version)'
         required: false
         type: string
       packages:
-        description: "Packages to publish"
+        description: 'Packages to publish'
         required: true
         type: choice
-        default: "both"
+        default: 'both'
         options:
-          - "both"
-          - "core"
-          - "react"
+          - 'both'
+          - 'core'
+          - 'react'
       npm_tag:
-        description: "NPM dist-tag (auto = detect from version)"
+        description: 'NPM dist-tag (auto = detect from version)'
         required: false
         type: choice
-        default: "auto"
+        default: 'auto'
         options:
-          - "auto"
-          - "latest"
-          - "beta"
-          - "alpha"
-          - "next"
+          - 'auto'
+          - 'latest'
+          - 'beta'
+          - 'alpha'
+          - 'next'
       dry_run:
-        description: "Dry run (preview without publishing)"
+        description: 'Dry run (preview without publishing)'
         required: false
         type: boolean
         default: true
@@ -63,9 +63,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "pnpm"
-          registry-url: "https://registry.npmjs.org"
+          node-version: '20'
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -300,7 +300,7 @@ jobs:
         uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
         with:
           tag_name: core@${{ steps.final.outputs.core_version }}
-          name: "@auth0/web-ui-components-core@${{ steps.final.outputs.core_version }}"
+          name: '@auth0/web-ui-components-core@${{ steps.final.outputs.core_version }}'
           body: |
             Published to NPM
 
@@ -323,7 +323,7 @@ jobs:
         uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
         with:
           tag_name: react@${{ steps.final.outputs.react_version }}
-          name: "@auth0/web-ui-components-react@${{ steps.final.outputs.react_version }}"
+          name: '@auth0/web-ui-components-react@${{ steps.final.outputs.react_version }}'
           body: |
             Published to NPM
 

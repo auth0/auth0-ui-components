@@ -64,6 +64,7 @@ export function SsoDomainTab({
     idpDomains,
     handleVerifyActionColumn,
     isUpdating,
+    isUpdatingId,
     handleToggleSwitch,
   } = useSsoDomainTab(idpId, {
     customMessages,
@@ -98,6 +99,7 @@ export function SsoDomainTab({
             idpDomains={idpDomains}
             readOnly={readOnly}
             isUpdating={isUpdating}
+            isUpdatingId={isUpdatingId}
             customMessages={customMessages}
             onToggle={handleToggleSwitch}
             handleVerify={handleVerifyActionColumn}

@@ -60,6 +60,7 @@ export interface SsoProvisioningDetailsClasses extends ProvisioningManageTokenCl
 export interface SsoProvisioningDeleteModalProps
   extends SharedComponentProps<SsoProvisioningDeleteMessages> {
   open: boolean;
+  isLoading: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
 }

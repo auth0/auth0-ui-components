@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useEffect, type ReactNode } from 'react';
+import React, { useState, useCallback, useEffect, type ReactNode } from 'react';
 
 import { useCoreClient } from '../hooks/use-core-client';
 import { ScopeManagerContext, type Audience } from '../hooks/use-scope-manager';
@@ -6,10 +6,10 @@ import { ScopeManagerContext, type Audience } from '../hooks/use-scope-manager';
 export const ScopeManagerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { coreClient } = useCoreClient();
 
-  const scopeRegistry = useRef<Record<Audience, Set<string>>>({
+  const [scopeRegistry, setScopeRegistry] = useState<Record<Audience, Set<string>>>(() => ({
     me: new Set(),
     'my-org': new Set(),
-  });
+  }));
 
   const [ensured, setEnsured] = useState<Record<Audience, string>>({
     me: '',
@@ -17,7 +17,6 @@ export const ScopeManagerProvider: React.FC<{ children: ReactNode }> = ({ childr
   });
 
   const [isReady, setIsReady] = useState(false);
-  const [version, setVersion] = useState(0);
 
   const registerScopes = useCallback((audience: Audience, scopes: string) => {
     if (!scopes?.trim()) return;
@@ -29,20 +28,26 @@ export const ScopeManagerProvider: React.FC<{ children: ReactNode }> = ({ childr
 
     if (newScopes.length === 0) return;
 
-    const audienceSet = scopeRegistry.current[audience];
-    let changed = false;
+    setScopeRegistry((currentRegistry) => {
+      const audienceSet = currentRegistry[audience];
+      let changed = false;
+      const nextAudienceSet = new Set(audienceSet);
 
-    newScopes.forEach((scope) => {
-      if (!audienceSet.has(scope)) {
-        audienceSet.add(scope);
-        changed = true;
+      newScopes.forEach((scope) => {
+        if (!nextAudienceSet.has(scope)) {
+          nextAudienceSet.add(scope);
+          changed = true;
+        }
+      });
+
+      if (changed) {
+        return {
+          ...currentRegistry,
+          [audience]: nextAudienceSet,
+        };
       }
+      return currentRegistry;
     });
-
-    if (changed) {
-      setIsReady(false);
-      setVersion((v) => v + 1);
-    }
   }, []);
 
   useEffect(() => {
@@ -50,33 +55,46 @@ export const ScopeManagerProvider: React.FC<{ children: ReactNode }> = ({ childr
 
     const ensureAllScopesSequential = async () => {
       let hasScopes = false;
+      let anyUpdated = false;
 
       for (const audience of ['me', 'my-org'] as const) {
-        const scopes = Array.from(scopeRegistry.current[audience]).sort();
+        const scopes = Array.from(scopeRegistry[audience]).sort();
         const scopeString = scopes.join(' ');
 
         if (scopes.length > 0 && scopeString.trim()) {
           hasScopes = true;
 
-          setEnsured((prev) => {
-            if (scopeString !== prev[audience]) {
-              coreClient.ensureScopes(scopeString, audience);
-              return { ...prev, [audience]: scopeString };
+          if (scopeString !== ensured[audience]) {
+            try {
+              await coreClient.ensureScopes(scopeString, audience);
+              anyUpdated = true;
+            } catch (error) {
+              console.error(`Failed to ensure scopes for ${audience}: ${scopeString}`, error);
             }
-            return prev;
-          });
+          }
         }
+      }
+
+      // Update ensured state to match current registry
+      if (anyUpdated) {
+        setEnsured({
+          me: Array.from(scopeRegistry.me).sort().join(' '),
+          'my-org': Array.from(scopeRegistry['my-org']).sort().join(' '),
+        });
       }
 
       setIsReady(hasScopes);
     };
 
     ensureAllScopesSequential();
-  }, [coreClient, version]);
+  }, [coreClient, scopeRegistry, ensured]);
+
+  const contextValue = React.useMemo(
+    () => ({ registerScopes, isReady, ensured }),
+    [registerScopes, isReady, ensured],
+  );
 
   return (
-    <ScopeManagerContext.Provider value={{ registerScopes, isReady, ensured }}>
-      {children}
-    </ScopeManagerContext.Provider>
+    <ScopeManagerContext.Provider value={contextValue}>{children}</ScopeManagerContext.Provider>
   );
 };

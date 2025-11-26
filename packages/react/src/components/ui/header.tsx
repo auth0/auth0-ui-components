@@ -6,6 +6,7 @@ import * as React from 'react';
 import { cn } from '../../lib/theme-utils';
 
 import { Button } from './button';
+import { Spinner } from './spinner';
 import { Switch } from './switch';
 
 export interface BaseActionProps extends Omit<CoreActionButton, 'icon' | 'onClick'> {
@@ -36,6 +37,7 @@ export interface HeaderProps {
     onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
   };
   actions?: ActionProps[];
+  isLoading?: boolean;
   className?: string;
 }
 
@@ -81,11 +83,14 @@ const SwitchAction: React.FC<SwitchActionProps> = ({
 export const Header = React.forwardRef<
   HTMLDivElement,
   HeaderProps & React.HTMLAttributes<HTMLDivElement>
->(({ title, description, backButton, actions, className, ...props }, ref) => {
+>(({ title, description, backButton, actions, isLoading, className, ...props }, ref) => {
   const BackIcon = backButton?.icon || ArrowLeft;
 
   const renderAction = (action: ActionProps, index: number) => {
     const key = `action-${index}`;
+    if (isLoading) {
+      return <Spinner className="w-4 h-4" />;
+    }
     return action.type === 'switch' ? (
       <SwitchAction key={key} {...action} />
     ) : (

@@ -286,7 +286,7 @@ function renderCopyColumn(value: unknown): React.ReactNode {
 function EmptyState({ title, subtitle, action }: EmptyStateProps) {
   return (
     <div className="text-center py-12">
-      <h3 className="text-md font-semibold text-foreground mb-2">{title}</h3>
+      <h3 className="text-md font-medium text-foreground mb-2">{title}</h3>
       {subtitle && <p className="text-sm text-muted-foreground mb-4">{subtitle}</p>}
       {action && (
         <Button variant={action.variant} onClick={action.onClick}>

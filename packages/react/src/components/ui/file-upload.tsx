@@ -57,17 +57,28 @@ export function FileUpload({
   const handleFiles = React.useCallback(
     (files: File[]) => {
       if (disabled) return;
-
       const validFiles = files.filter((file) => {
         if (maxSize && file.size > maxSize) return false;
         if (
           accept &&
           !accept.split(',').some((type) => {
-            const fileType = type.trim();
+            const fileType = type.trim().toLowerCase();
+            const fileName = file.name.toLowerCase();
+            const fileMimeType = file.type.toLowerCase();
             if (fileType.startsWith('.')) {
-              return file.name.toLowerCase().endsWith(fileType.toLowerCase());
+              return fileName.endsWith(fileType);
             }
-            return file.type.match(new RegExp(fileType.replace('*', '.*')));
+
+            if (fileType === fileMimeType) {
+              return true;
+            }
+
+            if (fileType.endsWith('/*')) {
+              const baseType = fileType.slice(0, -2);
+              return fileMimeType.startsWith(`${baseType}/`);
+            }
+
+            return false;
           })
         )
           return false;

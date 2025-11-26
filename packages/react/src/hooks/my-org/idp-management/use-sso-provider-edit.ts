@@ -388,13 +388,13 @@ export function useSsoProviderEdit(
   }, [sso, provider, fetchOrganizationDetails, t, coreClient, organization]);
 
   useEffect(() => {
-    if (!coreClient || !idpId) return;
+    if (!idpId) return;
 
     setIsLoading(true);
     Promise.allSettled([fetchProvider(), fetchOrganizationDetails()]).finally(() => {
       setIsLoading(false);
     });
-  }, [coreClient, idpId]);
+  }, [idpId]);
 
   return {
     provider,

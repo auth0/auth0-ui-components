@@ -32,6 +32,7 @@ export function useSsoProviderTable(
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [isUpdatingId, setIsUpdatingId] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
   const isLoading = !coreClient || isDataLoading;
@@ -80,6 +81,7 @@ export function useSsoProviderTable(
 
       try {
         setIsUpdating(true);
+        setIsUpdatingId(selectedIdp.id);
 
         if (enableAction?.onBefore) {
           const shouldProceed = enableAction.onBefore(selectedIdp);
@@ -119,6 +121,7 @@ export function useSsoProviderTable(
         return false;
       } finally {
         setIsUpdating(false);
+        setIsUpdatingId(null);
       }
     },
     [enableAction, t, coreClient],
@@ -190,12 +193,11 @@ export function useSsoProviderTable(
   );
 
   useEffect(() => {
-    if (!coreClient) return;
     setIsDataLoading(true);
     Promise.allSettled([fetchProviders(), fetchOrganizationDetails()]).finally(() => {
       setIsDataLoading(false);
     });
-  }, [coreClient]);
+  }, []);
 
   return {
     providers,
@@ -204,6 +206,7 @@ export function useSsoProviderTable(
     isDeleting,
     isRemoving,
     isUpdating,
+    isUpdatingId,
     fetchProviders,
     fetchOrganizationDetails,
     onDeleteConfirm,

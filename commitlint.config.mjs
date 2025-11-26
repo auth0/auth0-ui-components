@@ -1,18 +1,7 @@
 export default {
   extends: ['@commitlint/config-conventional'],
   rules: {
-    'scope-enum': [
-      2,
-      'always',
-      [
-        'core',
-        'react',
-        'docs',
-        'www',
-        'registry',
-        'examples',
-      ],
-    ],
+    'scope-enum': [2, 'always', ['core', 'react', 'docs', 'www', 'registry', 'examples']],
     'body-max-line-length': [2, 'always', 100],
     'header-max-length': [2, 'always', 72],
     'scope-case': [2, 'always', 'lower-case'],

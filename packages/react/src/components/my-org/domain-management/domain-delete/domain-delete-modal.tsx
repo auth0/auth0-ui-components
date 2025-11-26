@@ -42,6 +42,7 @@ export function DomainDeleteModal({
         </div>
       }
       modalActions={{
+        isLoading,
         nextAction: {
           type: 'button',
           label: t('actions.delete_button_text'),

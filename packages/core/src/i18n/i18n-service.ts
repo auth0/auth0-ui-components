@@ -46,6 +46,9 @@ export const I18nUtils = {
       if (current === null || typeof current !== 'object' || Array.isArray(current)) {
         return undefined;
       }
+      if (!Object.prototype.hasOwnProperty.call(current, key)) {
+        return undefined;
+      }
       current = (current as Record<string, unknown>)[key];
     }
 

@@ -9,6 +9,7 @@ export function SsoProvisioningDeleteModal({
   open,
   onOpenChange,
   onConfirm,
+  isLoading,
   customMessages,
 }: SsoProvisioningDeleteModalProps): React.JSX.Element {
   const { t } = useTranslator(
@@ -29,17 +30,20 @@ export function SsoProvisioningDeleteModal({
         </div>
       }
       modalActions={{
+        isLoading,
         showUnsavedChanges: false,
         previousAction: {
           type: 'button',
           label: t('modal.actions.cancel_button_label'),
           variant: 'outline',
+          disabled: isLoading,
           onClick: () => onOpenChange(false),
         },
         nextAction: {
           type: 'button',
           label: t('modal.actions.delete_button_label'),
           variant: 'destructive',
+          disabled: isLoading,
           onClick: onConfirm,
         },
       }}

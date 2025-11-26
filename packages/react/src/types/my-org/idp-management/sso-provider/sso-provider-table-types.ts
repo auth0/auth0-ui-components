@@ -41,6 +41,7 @@ export interface UseSsoProviderTableReturn extends SharedComponentProps {
   isDeleting: boolean;
   isRemoving: boolean;
   isUpdating: boolean;
+  isUpdatingId: string | null;
   fetchProviders: () => Promise<void>;
   fetchOrganizationDetails: () => Promise<OrganizationPrivate | null>;
   onDeleteConfirm: (selectedIdp: IdentityProvider) => Promise<void>;
@@ -57,6 +58,7 @@ export interface SsoProviderTableActionsColumnProps
   provider: IdentityProvider;
   shouldAllowDeletion: boolean;
   isUpdating?: boolean;
+  isUpdatingId?: string | null;
   edit?: {
     disabled?: boolean;
   };

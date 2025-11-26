@@ -53,6 +53,7 @@ export interface SsoDomainTabActionColumn
   domain: Domain;
   handleVerify: (domain: Domain) => Promise<void>;
   isUpdating: boolean;
+  isUpdatingId: string | null;
   onToggle: (domain: Domain, newCheckedValue: boolean) => Promise<void>;
 }
 
@@ -76,6 +77,7 @@ export interface UseSsoDomainTabReturn {
   isDeleting: boolean;
   idpDomains: string[];
   isUpdating: boolean;
+  isUpdatingId: string | null;
   setShowCreateModal: (show: boolean) => void;
   handleCreate: (domainUrl: string) => Promise<void>;
   handleCloseVerifyModal: () => void;

@@ -11,6 +11,7 @@ export function ProvisioningDeleteTokenModal({
   onOpenChange,
   tokenId,
   onConfirm,
+  isLoading,
   customMessages,
 }: ProvisioningDeleteTokenModalProps): React.JSX.Element {
   const { t } = useTranslator(
@@ -30,17 +31,20 @@ export function ProvisioningDeleteTokenModal({
         />
       }
       modalActions={{
+        isLoading,
         showUnsavedChanges: false,
         previousAction: {
           type: 'button',
           label: t('delete_modal.cancel_button_label'),
           variant: 'outline',
+          disabled: isLoading,
           onClick: () => onOpenChange(false),
         },
         nextAction: {
           type: 'button',
           label: t('delete_modal.delete_button_label'),
           variant: 'destructive',
+          disabled: isLoading,
           onClick: onConfirm,
         },
       }}

@@ -115,6 +115,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
                       components: {
                         link: (children: string) => (
                           <Link
+                            key="okta-domain-link"
                             href={OKTA_HELP_LINKS.domain}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -157,6 +158,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
                       components: {
                         link: (children: string) => (
                           <Link
+                            key="okta-client-id-link"
                             href={OKTA_HELP_LINKS.client_id}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -199,6 +201,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
                       components: {
                         link: (children: string) => (
                           <Link
+                            key="okta-client-secret-link"
                             href={OKTA_HELP_LINKS.client_secret}
                             target="_blank"
                             rel="noopener noreferrer"

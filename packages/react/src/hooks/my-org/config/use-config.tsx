@@ -49,7 +49,7 @@ export function useConfig(): UseConfigResult {
   // Fetch config on mount
   useEffect(() => {
     fetchConfig();
-  }, [fetchConfig]);
+  }, []);
 
   return {
     config,

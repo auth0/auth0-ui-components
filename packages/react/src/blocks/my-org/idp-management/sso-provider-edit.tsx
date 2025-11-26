@@ -104,6 +104,7 @@ export function SsoProviderEditComponent({
               text: t('header.back_button_text'),
             }
           }
+          isLoading={isUpdating}
           actions={[
             {
               type: 'switch',

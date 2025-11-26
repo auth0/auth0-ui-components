@@ -67,6 +67,7 @@ export function SsoProviderRemoveFromOrgModal({
         </div>
       }
       modalActions={{
+        isLoading,
         nextAction: {
           type: 'button',
           label: t('modal.actions.remove_button_text'),

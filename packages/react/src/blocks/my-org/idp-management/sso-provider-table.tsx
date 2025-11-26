@@ -44,6 +44,7 @@ function SsoProviderTableComponent({
     isDeleting,
     isRemoving,
     isUpdating,
+    isUpdatingId,
     onDeleteConfirm,
     onRemoveConfirm,
     onEnableProvider,
@@ -165,6 +166,7 @@ function SsoProviderTableComponent({
             shouldAllowDeletion={shouldAllowDeletion}
             readOnly={readOnly}
             isUpdating={isUpdating}
+            isUpdatingId={isUpdatingId}
             customMessages={customMessages}
             edit={editAction}
             onToggleEnabled={handleToggleEnabled}

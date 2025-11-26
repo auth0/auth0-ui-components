@@ -12,11 +12,6 @@ const auth0Config = {
   authorizationParams: {
     redirect_uri: window.location.origin,
   },
-  onRedirectCallback: (appState?: { returnTo?: string }) => {
-    // Redirect to the page the user was on before authentication
-    const returnTo = appState?.returnTo || window.location.pathname;
-    window.location.href = returnTo;
-  },
 };
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

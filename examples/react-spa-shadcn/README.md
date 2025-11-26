@@ -242,18 +242,15 @@ This project is built with:
 ### Common Issues
 
 1. **Auth0 Environment Variables Missing**
-
    - Ensure `.env` file is created with correct Auth0 credentials
    - Verify Auth0 application settings match your local environment
 
 2. **MFA Component Not Loading**
-
    - Check that the ShadCN installation completed successfully
    - Verify the `UserMFAMgmt` import path is correct
    - Ensure `Auth0ComponentProvider` wraps your component tree
 
 3. **Translation Keys Not Working**
-
    - Verify translation keys exist in your locale files
    - Check that i18next is properly configured
    - Ensure the correct language is being passed to `Auth0ComponentProvider`

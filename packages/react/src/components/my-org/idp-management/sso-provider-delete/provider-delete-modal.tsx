@@ -64,6 +64,7 @@ export function SsoProviderDeleteModal({
         </div>
       }
       modalActions={{
+        isLoading,
         nextAction: {
           type: 'button',
           label: t('modal.actions.delete_button_label'),

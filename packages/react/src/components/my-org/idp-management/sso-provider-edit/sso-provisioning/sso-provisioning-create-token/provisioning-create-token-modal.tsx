@@ -11,6 +11,7 @@ export function ProvisioningCreateTokenModal({
   open,
   onOpenChange,
   createdToken,
+  isLoading,
   customMessages = {},
 }: ProvisioningCreateTokenModalProps): React.JSX.Element {
   const { t } = useTranslator(
@@ -33,6 +34,7 @@ export function ProvisioningCreateTokenModal({
         )
       }
       modalActions={{
+        isLoading,
         showPrevious: false,
         showUnsavedChanges: false,
         nextAction: {
@@ -40,6 +42,7 @@ export function ProvisioningCreateTokenModal({
           label: t('create_modal.copy_and_close_button_label'),
           variant: 'primary',
           icon: <Copy className="w-4 h-4" />,
+          disabled: isLoading,
           onClick: () => {
             if (createdToken) {
               navigator.clipboard.writeText(createdToken.token!);

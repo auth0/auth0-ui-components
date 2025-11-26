@@ -489,7 +489,7 @@ export const ColorPickerInput = ({
    * - Automatically adds # prefix and filters invalid characters
    */
   const formatHexInput = (input: string): string => {
-    let cleanInput = input.replace(/^#/, '').toLowerCase();
+    let cleanInput = input.replace(/^#+/, '').toLowerCase();
 
     cleanInput = cleanInput.replace(/[^0-9a-f]/g, '');
 

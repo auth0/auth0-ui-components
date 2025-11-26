@@ -6,7 +6,6 @@ import type {
   UseDomainTableLogicOptions,
   UseDomainTableLogicResult,
 } from '../../../types/my-org/domain-management/domain-table-types';
-import { useCoreClient } from '../../use-core-client';
 import { useErrorHandler } from '../../use-error-handler';
 
 export function useDomainTableLogic({
@@ -19,8 +18,6 @@ export function useDomainTableLogic({
   fetchProviders,
   fetchDomains,
 }: UseDomainTableLogicOptions): UseDomainTableLogicResult {
-  const { coreClient } = useCoreClient();
-
   const { handleError } = useErrorHandler();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showConfigureModal, setShowConfigureModal] = useState(false);
@@ -201,10 +198,14 @@ export function useDomainTableLogic({
 
   // Initialization
   useEffect(() => {
-    if (!coreClient) return;
-
-    fetchDomains();
-  }, [coreClient]);
+    try {
+      fetchDomains();
+    } catch (error) {
+      handleError(error, {
+        fallbackMessage: t('domain_table.notifications.fetch_domains_error'),
+      });
+    }
+  }, []);
 
   return {
     // Modal state

@@ -26,7 +26,6 @@ A Next.js Regular Web App (RWA) example that demonstrates Auth0 authentication u
    ```
 
 3. Set up your Auth0 application:
-
    - Create a new Regular Web Application in your Auth0 dashboard
    - Configure the callback URLs, logout URLs, and web origins
    - Note your Domain and Client ID

@@ -100,6 +100,7 @@ export function DomainCreateModal({
         </div>
       }
       modalActions={{
+        isLoading,
         nextAction: {
           type: 'button',
           label: t('actions.create_button_text'),
