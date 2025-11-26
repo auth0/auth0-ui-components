@@ -18,7 +18,6 @@ import { Spinner } from '../../../../ui/spinner';
 import { Switch } from '../../../../ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '../../../../ui/tooltip';
 
-// import { ProvisioningWarningAlert } from './provisioning-warning-alert';
 import { SsoProvisioningDeleteModal } from './sso-provisioning-delete-modal';
 import { SsoProvisioningDetails } from './sso-provisioning-details';
 
@@ -87,7 +86,6 @@ export function SsoProvisioningTab({
       style={currentStyles.variables}
       className={cn('space-y-8', currentStyles.classes?.['SsoProvisioningTab-root'])}
     >
-      {/* <ProvisioningWarningAlert/> */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-medium text-foreground text-left">
