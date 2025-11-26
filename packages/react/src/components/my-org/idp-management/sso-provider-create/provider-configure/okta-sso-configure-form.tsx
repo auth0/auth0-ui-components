@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
+import { useProviderFormMode } from '../../../../../hooks/my-org/idp-management/use-provider-form-mode';
 import { useCoreClient } from '../../../../../hooks/use-core-client';
 import { useTranslator } from '../../../../../hooks/use-translator';
 import { cn } from '../../../../../lib/theme-utils';
@@ -41,7 +42,15 @@ interface OktaConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'str
 
 export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaConfigureFormProps>(
   function OktaProviderForm(
-    { initialData, readOnly = false, customMessages = {}, className, onFormDirty, idpConfig },
+    {
+      initialData,
+      readOnly = false,
+      customMessages = {},
+      className,
+      onFormDirty,
+      idpConfig,
+      mode = 'create',
+    },
     ref,
   ) {
     const { t } = useTranslator(
@@ -50,6 +59,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
     );
 
     const { coreClient } = useCoreClient();
+    const { showCopyButtons } = useProviderFormMode(mode);
 
     const callbackUrl = React.useMemo(() => {
       const domain = coreClient?.auth?.domain || 'YOUR_DOMAIN';
@@ -145,6 +155,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
                     placeholder={t('fields.okta.client_id.placeholder')}
                     error={Boolean(fieldState.error)}
                     readOnly={readOnly}
+                    showCopyButton={showCopyButtons}
                     {...field}
                   />
                 </FormControl>
@@ -188,6 +199,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
                     placeholder={t('fields.okta.client_secret.placeholder')}
                     error={Boolean(fieldState.error)}
                     readOnly={readOnly}
+                    showCopyButton={showCopyButtons}
                     {...field}
                   />
                 </FormControl>

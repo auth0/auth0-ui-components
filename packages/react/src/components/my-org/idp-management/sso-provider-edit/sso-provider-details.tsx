@@ -102,6 +102,7 @@ export function SsoProviderDetails({
           initialData={provider.options}
           readOnly={readOnly}
           idpConfig={idpConfig}
+          mode="edit"
           customMessages={customMessages.configure_fields}
           className={currentStyles.classes?.['ProviderConfigure-root']}
           onFormDirty={setIsConfigureDirty}
