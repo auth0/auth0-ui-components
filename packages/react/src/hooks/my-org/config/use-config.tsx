@@ -42,7 +42,7 @@ export function useConfig(): UseConfigResult {
   const shouldAllowDeletion = useMemo((): boolean => {
     return (
       config?.connection_deletion_behavior === 'allow' ||
-      config?.connection_deletion_behavior === 'allow_if_empty' // TODO: get members count and check if it's empty
+      config?.connection_deletion_behavior === 'allow_if_empty'
     );
   }, [config]);
 

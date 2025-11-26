@@ -97,7 +97,7 @@ export function useSsoDomainTab(
   const onCreateDomain = useCallback(
     async (data: CreateOrganizationDomainRequestContent): Promise<Domain | null> => {
       if (domains?.createAction?.onBefore) {
-        const canProceed = domains.createAction.onBefore(data as Domain); // TODO: Check use different types to onBefore and onAfter
+        const canProceed = domains.createAction.onBefore(data as Domain);
         if (!canProceed) {
           setIsCreating(false);
           throw new BusinessError({ message: t('domain_create.on_before') });

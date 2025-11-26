@@ -50,9 +50,6 @@ export interface GetTokenSilentlyOptions {
   detailedResponse?: boolean;
 }
 
-/**
- * TODO: Not all frameworks share the same interface. We should have adapters to a common interface.
- */
 export interface Auth0ContextInterface<TUser = User> {
   user?: TUser;
   // auth0-spa-js: getUser()

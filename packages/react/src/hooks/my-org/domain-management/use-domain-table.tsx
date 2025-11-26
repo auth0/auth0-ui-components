@@ -90,7 +90,7 @@ export function useDomainTable({
       setIsCreating(true);
 
       if (createAction?.onBefore) {
-        const canProceed = createAction.onBefore(data as Domain); // TODO: Check how to use different types to onBefore and onAfter
+        const canProceed = createAction.onBefore(data as Domain);
         if (!canProceed) {
           setIsCreating(false);
           throw new BusinessError({ message: t('domain_create.on_before') });

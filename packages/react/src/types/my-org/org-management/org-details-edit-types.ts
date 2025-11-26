@@ -9,20 +9,9 @@ import type {
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 
-// TODO: Enable it when delete is enabled
-// import type { OrgDeleteClasses, OrgDeleteMessages } from './org-delete-types';
 import type { OrgDetailsClasses, OrgDetailsFormActions } from './org-details-types';
 
-/* ============ Components ============ */
-
-/**
- * Messages that extends both OrgDetails and OrgDelete messages.
- */
-
-/**
- * Styling that can be used to override default styles.
- */
-export type OrgEditClasses = OrgDetailsClasses; // TODO: Add OrgDeleteClasses when delete is enabled
+export type OrgEditClasses = OrgDetailsClasses;
 
 /**
  * Schemas that can be used to override default schemas.
@@ -45,9 +34,6 @@ export interface OrgDetailsEditProps
   hideHeader?: boolean;
   backButton?: OrgEditBackButton;
 }
-
-/* ============ Hooks ============ */
-
 export interface UseOrgDetailsEditOptions {
   saveAction?: OrgDetailsEditProps['saveAction'];
   cancelAction?: OrgDetailsEditProps['cancelAction'];
