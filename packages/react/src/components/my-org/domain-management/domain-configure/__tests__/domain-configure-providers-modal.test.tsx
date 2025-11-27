@@ -207,7 +207,8 @@ describe('DomainConfigureProvidersModal', () => {
       })[0];
 
       // When View button is clicked, should trigger onOpenProvider callback
-      await user.click(firstViewButton);
+
+      await user.click(firstViewButton!);
 
       // When onOpenProvider is called, should receive correct provider object
       expect(onOpenProvider).toHaveBeenCalledTimes(1);
@@ -281,7 +282,8 @@ describe('DomainConfigureProvidersModal', () => {
       const firstSwitch = screen.getAllByRole('switch')[0];
 
       // When switch is clicked, should toggle from checked to unchecked
-      await user.click(firstSwitch);
+
+      await user.click(firstSwitch!);
 
       // When onToggleSwitch is called, should receive correct domain and provider data
       expect(onToggleSwitch).toHaveBeenCalledTimes(1);
@@ -309,7 +311,8 @@ describe('DomainConfigureProvidersModal', () => {
       const secondSwitch = screen.getAllByRole('switch')[1]; // Okta Enterprise (unchecked)
 
       // When unchecked switch is clicked, should toggle from false to true
-      await user.click(secondSwitch);
+
+      await user.click(secondSwitch!);
 
       // When onToggleSwitch is called, should receive new value as true
       expect(onToggleSwitch).toHaveBeenCalledTimes(1);
@@ -363,7 +366,8 @@ describe('DomainConfigureProvidersModal', () => {
         expect(onClose).toHaveBeenCalledTimes(1);
       } else {
         // When fallback close button is clicked, should trigger onClose
-        await user.click(closeButtons[0]);
+
+        await user.click(closeButtons[0]!);
         expect(onClose).toHaveBeenCalledTimes(1);
       }
     });
@@ -482,9 +486,10 @@ describe('DomainConfigureProvidersModal', () => {
       renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
       const firstSwitch = screen.getAllByRole('switch')[0];
-      firstSwitch.focus();
 
-      expect(firstSwitch).toHaveFocus();
+      firstSwitch!.focus();
+
+      expect(firstSwitch!).toHaveFocus();
 
       // Simulate space key press to toggle
       await user.keyboard(' ');
@@ -550,9 +555,12 @@ describe('DomainConfigureProvidersModal', () => {
       const switches = screen.getAllByRole('switch');
 
       // Rapidly toggle multiple switches
-      await user.click(switches[0]);
-      await user.click(switches[1]);
-      await user.click(switches[0]);
+
+      await user.click(switches[0]!);
+
+      await user.click(switches[1]!);
+
+      await user.click(switches[0]!);
 
       expect(onToggleSwitch).toHaveBeenCalledTimes(3);
     });
@@ -571,11 +579,13 @@ describe('DomainConfigureProvidersModal', () => {
       const viewButtons = screen.getAllByRole('button', {
         name: 'table.actions.view_provider_button_text',
       });
-      await user.click(viewButtons[0]);
+
+      await user.click(viewButtons[0]!);
 
       // Then toggle switch
       const switches = screen.getAllByRole('switch');
-      await user.click(switches[0]);
+
+      await user.click(switches[0]!);
 
       expect(onOpenProvider).toHaveBeenCalledTimes(1);
       expect(onToggleSwitch).toHaveBeenCalledTimes(1);
