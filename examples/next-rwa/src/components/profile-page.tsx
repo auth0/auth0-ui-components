@@ -1,7 +1,6 @@
 'use client';
 
 import { useUser } from '@auth0/nextjs-auth0';
-import { UserMFAMgmt } from '@auth0/web-ui-components-react/rwa';
 import { User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
@@ -54,7 +53,7 @@ export function ProfilePage() {
                 <img
                   className="h-16 w-16 rounded-full"
                   src={user.picture}
-                  alt={user.name || 'Profile'}
+                  alt={user.name || 'User'}
                 />
               ) : (
                 <div className="h-16 w-16 rounded-full bg-gray-300 flex items-center justify-center">
@@ -68,23 +67,6 @@ export function ProfilePage() {
                 <p className="text-gray-600 dark:text-gray-400">{user.name || user.email}</p>
                 <p className="text-sm text-gray-500 dark:text-gray-500">{user.email}</p>
               </div>
-            </div>
-          </div>
-
-          {/* MFA Management Section */}
-          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                {t('profile.mfa-title')}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                {t('profile.mfa-description')}
-              </p>
-            </div>
-
-            {/* UserMFAMgmt Component with proxy mode */}
-            <div className="space-y-6">
-              <UserMFAMgmt />
             </div>
           </div>
         </div>
