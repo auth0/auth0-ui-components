@@ -8,10 +8,21 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "moduleResolution": "node",
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "paths": {
       "@core/*": ["packages/core/src/*"],
       "@react/*": ["packages/react/src/*"]
     }
-  },
-  "include": ["packages", "apps", "examples", "docs-site"]
+  }
 }

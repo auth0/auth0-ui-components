@@ -1,7 +1,5 @@
 import { useTranslation } from 'react-i18next';
 
-import { UserMFAMgmt } from '@/auth0-ui-components/blocks/my-account/mfa/user-mfa-management';
-
 const Profile = () => {
   const { t } = useTranslation();
 
@@ -12,9 +10,7 @@ const Profile = () => {
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-medium text-gray-900 mb-4">{t('user-profile.mfa.title')}</h2>
           <p className="text-gray-600 mb-4">{t('user-profile.mfa.description')}</p>
-          <div style={{ all: 'initial', fontFamily: 'inherit' }}>
-            <UserMFAMgmt />
-          </div>
+          <div style={{ all: 'initial', fontFamily: 'inherit' }}>{/* <UserMFAMgmt /> */}</div>
         </div>
       </div>
     </div>

@@ -116,7 +116,7 @@ export const SamlpProviderForm = React.forwardRef<
   const handleFileUpload = (files: File[]) => {
     setUploadedFiles(files);
     if (files.length > 0) {
-      form.setValue('cert', files[0].name);
+      form.setValue('cert', files?.[0]?.name);
     }
   };
 

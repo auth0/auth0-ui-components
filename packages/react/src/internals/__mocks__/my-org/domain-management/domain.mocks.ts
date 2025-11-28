@@ -1,0 +1,58 @@
+import type {
+  Domain,
+  IdentityProvider,
+  IdentityProviderAssociatedWithDomain,
+} from '@auth0/web-ui-components-core';
+
+export const createMockDomain = (overrides?: Partial<Domain>): Domain => ({
+  id: 'domain_abc123xyz456',
+  org_id: 'org_abc123xyz456',
+  domain: 'example.auth0.com',
+  status: 'pending',
+  verification_txt: 'auth0-domain-verification=abc123xyz456def789',
+  verification_host: '_auth0-challenge.example.auth0.com',
+  ...overrides,
+});
+
+export const createMockVerifiedDomain = (): Domain =>
+  createMockDomain({
+    status: 'verified',
+  });
+
+export const createMockFailedDomain = (): Domain =>
+  createMockDomain({
+    status: 'failed',
+  });
+
+export const createMockIdentityProvider = (
+  overrides: Partial<IdentityProvider> = {},
+): IdentityProvider => {
+  const baseProvider = {
+    id: 'con_abc123xyz456',
+    name: 'mock-provider',
+    display_name: 'Mock Provider',
+    strategy: 'samlp' as const,
+  };
+
+  return {
+    ...baseProvider,
+    ...overrides,
+  } as IdentityProvider;
+};
+
+export const createMockIdentityProviderAssociatedWithDomain = (
+  overrides: Partial<IdentityProviderAssociatedWithDomain> = {},
+): IdentityProviderAssociatedWithDomain => {
+  const baseProvider = {
+    id: 'con_test123',
+    display_name: 'Test Provider',
+    strategy: 'samlp',
+    name: 'test-provider',
+    is_associated: false,
+  } as const;
+
+  return {
+    ...baseProvider,
+    ...overrides,
+  } as IdentityProviderAssociatedWithDomain;
+};

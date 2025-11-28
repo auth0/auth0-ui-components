@@ -522,7 +522,9 @@
     },
     "edit_sso_provider": {
       "header": {
-        "back_button_text": "Back to Single Sign-On"
+        "back_button_text": "Back to Single Sign-On",
+        "enable_provider_tooltip_text": "Toggle to enable the provider.",
+        "disable_provider_tooltip_text": "Toggle to disable the provider."
       },
       "tabs": {
         "sso": {
@@ -611,6 +613,9 @@
                 },
                 "scim_endpoint_url": {
                   "label": "SCIM Endpoint URL"
+                },
+                "external_namespace": {
+                  "label": "External Namespace"
                 }
               },
               "mappings": {
@@ -618,7 +623,7 @@
                 "description": "Ensure that the correct user attributes are passed from the identity provider to the service provider.",
                 "card": {
                   "title": "Required Attributes",
-                  "description": "Ensure that a valid <strategy> attribute is mapped to the following attributes.",
+                  "description": "Ensure that a valid ${strategy} attribute is mapped to the following attributes.",
                   "table": {
                     "columns": {
                       "attribute_name_label": "Attribute Name",

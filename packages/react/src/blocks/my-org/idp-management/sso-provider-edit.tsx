@@ -111,6 +111,11 @@ export function SsoProviderEditComponent({
               checked: provider?.is_enabled ?? false,
               onCheckedChange: handleToggleProvider,
               disabled: isUpdating,
+              tooltip: {
+                content: provider?.is_enabled
+                  ? t('header.disable_provider_tooltip_text')
+                  : t('header.enable_provider_tooltip_text'),
+              },
             },
           ]}
           className={currentStyles?.classes?.['SsoProviderEdit-header']}

@@ -14,6 +14,7 @@ import { DataTable, type Column } from '../../../components/ui/data-table';
 import { Header } from '../../../components/ui/header';
 import { withMyOrgService } from '../../../hoc/with-services';
 import { useConfig } from '../../../hooks/my-org/config/use-config';
+import { useIdpConfig } from '../../../hooks/my-org/config/use-idp-config';
 import { useSsoProviderTable } from '../../../hooks/my-org/idp-management/use-sso-provider-table';
 import { useTheme } from '../../../hooks/use-theme';
 import { useTranslator } from '../../../hooks/use-translator';
@@ -50,7 +51,11 @@ function SsoProviderTableComponent({
     onEnableProvider,
     organization,
   } = useSsoProviderTable(deleteAction, deleteFromOrgAction, enableProviderAction, customMessages);
-  const { shouldAllowDeletion, isLoadingConfig } = useConfig();
+  const { isLoadingConfig, shouldAllowDeletion, isConfigValid } = useConfig();
+  const { isLoadingIdpConfig, isIdpConfigValid } = useIdpConfig();
+
+  const shouldHideCreate = !isConfigValid || !isIdpConfigValid;
+  const isViewLoading = isLoading || isLoadingConfig || isLoadingIdpConfig;
 
   const [showDeleteModal, setShowDeleteModal] = React.useState(false);
   const [showRemoveModal, setShowRemoveModal] = React.useState(false);
@@ -201,6 +206,7 @@ function SsoProviderTableComponent({
               label: t('header.create_button_text'),
               onClick: () => handleCreate(),
               icon: Plus,
+              hidden: shouldHideCreate || isViewLoading,
               disabled: createAction?.disabled || readOnly,
             },
           ]}
@@ -208,7 +214,7 @@ function SsoProviderTableComponent({
       </div>
 
       <DataTable
-        loading={isLoading || isLoadingConfig}
+        loading={isViewLoading}
         columns={columns}
         data={providers}
         emptyState={{ title: t('table.empty_message') }}

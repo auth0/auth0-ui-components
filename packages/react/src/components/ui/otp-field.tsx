@@ -162,7 +162,7 @@ function OTPField({
     }
 
     for (let i = 0; i < digitsToPaste.length && startIndex + i < length; i++) {
-      newOtp[startIndex + i] = digitsToPaste[i];
+      newOtp[startIndex + i] = digitsToPaste[i] ?? '';
     }
 
     setOtp(newOtp);

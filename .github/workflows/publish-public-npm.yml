@@ -4,38 +4,43 @@ on:
   workflow_dispatch:
     inputs:
       core_version:
-        description: 'Core package version (leave empty to use package.json version)'
+        description: "Core package version (leave empty to use package.json version)"
         required: false
         type: string
       react_version:
-        description: 'React package version (leave empty to use package.json version)'
+        description: "React package version (leave empty to use package.json version)"
         required: false
         type: string
       packages:
-        description: 'Packages to publish'
+        description: "Packages to publish"
         required: true
         type: choice
-        default: 'both'
+        default: "both"
         options:
-          - 'both'
-          - 'core'
-          - 'react'
+          - "both"
+          - "core"
+          - "react"
       npm_tag:
-        description: 'NPM dist-tag (auto = detect from version)'
+        description: "NPM dist-tag (auto = detect from version)"
         required: false
         type: choice
-        default: 'auto'
+        default: "auto"
         options:
-          - 'auto'
-          - 'latest'
-          - 'beta'
-          - 'alpha'
-          - 'next'
+          - "auto"
+          - "latest"
+          - "beta"
+          - "alpha"
+          - "next"
       dry_run:
-        description: 'Dry run (preview without publishing)'
+        description: "Dry run (preview without publishing)"
         required: false
         type: boolean
         default: true
+      skip_slack_notification:
+        description: "Skip Slack notification"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -51,21 +56,21 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
         with:
           version: 10.6.5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "20"
+          cache: "pnpm"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -78,9 +83,6 @@ jobs:
         run: |
           CORE_VERSION=$(node -p "require('./packages/core/package.json').version")
           REACT_VERSION=$(node -p "require('./packages/react/package.json').version")
-
-          echo "core_version=${CORE_VERSION}" >> $GITHUB_OUTPUT
-          echo "react_version=${REACT_VERSION}" >> $GITHUB_OUTPUT
 
           determine_tag() {
             local version=$1
@@ -98,53 +100,84 @@ jobs:
           CORE_TAG=$(determine_tag "$CORE_VERSION")
           REACT_TAG=$(determine_tag "$REACT_VERSION")
 
-          echo "core_npm_tag=${CORE_TAG}" >> $GITHUB_OUTPUT
-          echo "react_npm_tag=${REACT_TAG}" >> $GITHUB_OUTPUT
+          echo "Detected package versions and tags from package:"
+          echo "Core Version: $CORE_VERSION"
+          echo "React Version: $REACT_VERSION"
+          echo "Core Tag: ${CORE_TAG}"
+          echo "React Tag: ${REACT_TAG}"
 
-          echo "Detected versions:"
-          echo "  Core: ${CORE_VERSION} → ${CORE_TAG}"
-          echo "  React: ${REACT_VERSION} → ${REACT_TAG}"
+          echo "Setting environment variables: core_version, react_version, core_npm_tag & react_npm_tag"
+          echo "core_version=${CORE_VERSION}" >> $GITHUB_ENV
+          echo "react_version=${REACT_VERSION}" >> $GITHUB_ENV
+          echo "core_npm_tag=${CORE_TAG}" >> $GITHUB_ENV
+          echo "react_npm_tag=${REACT_TAG}" >> $GITHUB_ENV
 
-      - name: Set final versions and tags
+      - name: Set finalized versions, tags and packages to publish
         id: final
+        env:
+          CORE_VER: ${{ github.event.inputs.core_version }}
+          REACT_VER: ${{ github.event.inputs.react_version }}
+          NPM_TAG_INPUT: ${{ github.event.inputs.npm_tag }}
+          PACKAGES_INPUT: ${{ github.event.inputs.packages }}
         run: |
-          CORE_VER="${{ github.event.inputs.core_version }}"
-          REACT_VER="${{ github.event.inputs.react_version }}"
-          NPM_TAG_INPUT="${{ github.event.inputs.npm_tag }}"
+          # Validation(Sanitize) function, exit on invalid input
+          validate_input() {
+              local input="$1"
+              # Allow empty input
+              if [[ -z "$input" ]]; then
+                  echo ""
+                  return 0
+              fi
+              if [[ "$input" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+                  echo "$input"
+              else
+                  echo "Invalid input: $input" >&2
+                  exit 1
+              fi
+          }
+
+          # Validate user inputs for malicious content, exit if invalid
+          validate_input "$CORE_VER" || exit 1
+          validate_input "$REACT_VER" || exit 1
+          validate_input "$NPM_TAG_INPUT" || exit 1
+          validate_input "$PACKAGES_INPUT" || exit 1
 
           if [ -z "$CORE_VER" ]; then
-            CORE_VER="${{ steps.detect.outputs.core_version }}"
+            CORE_VER="$core_version"
           fi
 
           if [ -z "$REACT_VER" ]; then
-            REACT_VER="${{ steps.detect.outputs.react_version }}"
+            REACT_VER="$react_version"
           fi
 
           if [ "$NPM_TAG_INPUT" = "auto" ] || [ -z "$NPM_TAG_INPUT" ]; then
-            CORE_TAG="${{ steps.detect.outputs.core_npm_tag }}"
-            REACT_TAG="${{ steps.detect.outputs.react_npm_tag }}"
+            CORE_TAG="$core_npm_tag"
+            REACT_TAG="$react_npm_tag"
           else
             CORE_TAG="$NPM_TAG_INPUT"
             REACT_TAG="$NPM_TAG_INPUT"
           fi
 
-          echo "core_version=${CORE_VER}" >> $GITHUB_OUTPUT
-          echo "react_version=${REACT_VER}" >> $GITHUB_OUTPUT
-          echo "core_tag=${CORE_TAG}" >> $GITHUB_OUTPUT
-          echo "react_tag=${REACT_TAG}" >> $GITHUB_OUTPUT
+          # Assign final tag values into environment variables
+          echo "CORE_VER=${CORE_VER}" >> $GITHUB_ENV
+          echo "REACT_VER=${REACT_VER}" >> $GITHUB_ENV
+          echo "CORE_TAG=${CORE_TAG}" >> $GITHUB_ENV
+          echo "REACT_TAG=${REACT_TAG}" >> $GITHUB_ENV
+          echo "PACKAGES_INPUT=${PACKAGES_INPUT}" >> $GITHUB_ENV
 
           echo "Publishing:"
-          echo "  Core: ${CORE_VER} @ ${CORE_TAG}"
-          echo "  React: ${REACT_VER} @ ${REACT_TAG}"
+          echo "Core: ${CORE_VER} @ ${CORE_TAG}"
+          echo "React: ${REACT_VER} @ ${REACT_TAG}"
+          echo "Packages: ${PACKAGES_INPUT}"
 
       - name: Update Core package for public npm
         if: |
-          (github.event.inputs.packages == 'both' || github.event.inputs.packages == 'core')
+          (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'core')
         working-directory: ./packages/core
         run: |
           node -e "
             const pkg = require('./package.json');
-            pkg.version = '${{ steps.final.outputs.core_version }}';
+            pkg.version = process.env.CORE_VER;
             
             pkg.publishConfig = {
               access: 'public',
@@ -154,16 +187,14 @@ jobs:
             require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
           "
 
-          echo "Updated @auth0/web-ui-components-core to ${{ steps.final.outputs.core_version }}"
-
       - name: Update React package for public npm
         if: |
-          (github.event.inputs.packages == 'both' || github.event.inputs.packages == 'react')
+          (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'react')
         working-directory: ./packages/react
         run: |
           node -e "
             const pkg = require('./package.json');
-            pkg.version = '${{ steps.final.outputs.react_version }}';
+            pkg.version = process.env.REACT_VER;
             
             pkg.publishConfig = {
               access: 'public',
@@ -171,33 +202,33 @@ jobs:
             };
             
             if (pkg.dependencies && pkg.dependencies['@auth0/web-ui-components-core']) {
-              pkg.dependencies['@auth0/web-ui-components-core'] = '${{ steps.final.outputs.core_version }}';
+              pkg.dependencies['@auth0/web-ui-components-core'] = process.env.CORE_VER;
             }
             
             require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
           "
 
-          echo "Updated @auth0/web-ui-components-react to ${{ steps.final.outputs.react_version }}"
-
       - name: Publish Core package to public npm
         id: publish-core
         if: |
-          (github.event.inputs.packages == 'both' || github.event.inputs.packages == 'core')
+          (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'core')
         working-directory: ./packages/core
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           current_version=$(node -p "require('./package.json').version")
-          npm_tag="${{ steps.final.outputs.core_tag }}"
-          echo "Publishing @auth0/web-ui-components-core@$current_version with tag: $npm_tag"
+          echo "Publishing @auth0/web-ui-components-core@$current_version with tag: $CORE_TAG"
 
-          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+          if [ "$DRY_RUN" = "true" ]; then
             echo "DRY RUN - Skipping publish"
-            pnpm publish --dry-run --no-git-checks --tag $npm_tag
+            pnpm publish --dry-run --no-git-checks --tag="$CORE_TAG"
             echo "published=dry-run" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
+
+            echo "Published @auth0/web-ui-components-core@$current_version (dry run)"
           else
-            pnpm publish --no-git-checks --tag $npm_tag
+            pnpm publish --no-git-checks --tag="$CORE_TAG"
             echo "published=true" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
             echo "Published @auth0/web-ui-components-core@$current_version"
@@ -206,33 +237,35 @@ jobs:
       - name: Publish React package to public npm
         id: publish-react
         if: |
-          (github.event.inputs.packages == 'both' || github.event.inputs.packages == 'react')
+          (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'react')
         working-directory: ./packages/react
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           current_version=$(node -p "require('./package.json').version")
-          npm_tag="${{ steps.final.outputs.react_tag }}"
-          echo "Publishing @auth0/web-ui-components-react@$current_version with tag: $npm_tag"
+          echo "Publishing @auth0/web-ui-components-react@$current_version with tag: $REACT_TAG"
 
-          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+          if [ "$DRY_RUN" = "true" ]; then
             echo "DRY RUN - Skipping publish"
-            pnpm publish --dry-run --no-git-checks --tag $npm_tag
+            pnpm publish --dry-run --no-git-checks --tag="$REACT_TAG"
             echo "published=dry-run" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
           else
-            pnpm publish --no-git-checks --tag $npm_tag
+            pnpm publish --no-git-checks --tag="$REACT_TAG"
             echo "published=true" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
             echo "Published @auth0/web-ui-components-react@$current_version"
           fi
 
       - name: Generate Summary
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           echo "## Public NPM Publication Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+          if [ "$DRY_RUN" = "true" ]; then
             echo "### DRY RUN MODE" >> $GITHUB_STEP_SUMMARY
             echo "No packages were published. This was a test run." >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
@@ -242,18 +275,18 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ "${{ steps.publish-core.outputs.published }}" != "" ]; then
-            echo "- \`@auth0/web-ui-components-core@${{ steps.final.outputs.core_version }}\`" >> $GITHUB_STEP_SUMMARY
-            echo "  - Tag: \`${{ steps.final.outputs.core_tag }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`@auth0/web-ui-components-core@${CORE_VER}\`" >> $GITHUB_STEP_SUMMARY
+            echo "  - Tag: \`${CORE_TAG}\`" >> $GITHUB_STEP_SUMMARY
             echo "  - Registry: https://registry.npmjs.org" >> $GITHUB_STEP_SUMMARY
-            echo "  - Install: \`npm install @auth0/web-ui-components-core@${{ steps.final.outputs.core_tag }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "  - Install: \`npm install @auth0/web-ui-components-core@${CORE_TAG}\`" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
 
           if [ "${{ steps.publish-react.outputs.published }}" != "" ]; then
-            echo "- \`@auth0/web-ui-components-react@${{ steps.final.outputs.react_version }}\`" >> $GITHUB_STEP_SUMMARY
-            echo "  - Tag: \`${{ steps.final.outputs.react_tag }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`@auth0/web-ui-components-react@${REACT_VER}\`" >> $GITHUB_STEP_SUMMARY
+            echo "  - Tag: \`${REACT_TAG}\`" >> $GITHUB_STEP_SUMMARY
             echo "  - Registry: https://registry.npmjs.org" >> $GITHUB_STEP_SUMMARY
-            echo "  - Install: \`npm install @auth0/web-ui-components-react@${{ steps.final.outputs.react_tag }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "  - Install: \`npm install @auth0/web-ui-components-react@${REACT_TAG}\`" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
 
@@ -280,15 +313,15 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           if [ "${{ steps.publish-core.outputs.published }}" = "true" ]; then
-            TAG_NAME="core@${{ steps.final.outputs.core_version }}"
-            git tag -a "$TAG_NAME" -m "Release @auth0/web-ui-components-core@${{ steps.final.outputs.core_version }}"
+            TAG_NAME="core@$CORE_VER"
+            git tag -a "$TAG_NAME" -m "Release @auth0/web-ui-components-core@$CORE_VER"
             git push origin "$TAG_NAME"
             echo "Created tag: $TAG_NAME"
           fi
 
           if [ "${{ steps.publish-react.outputs.published }}" = "true" ]; then
-            TAG_NAME="react@${{ steps.final.outputs.react_version }}"
-            git tag -a "$TAG_NAME" -m "Release @auth0/web-ui-components-react@${{ steps.final.outputs.react_version }}"
+            TAG_NAME="react@$REACT_VER"
+            git tag -a "$TAG_NAME" -m "Release @auth0/web-ui-components-react@$REACT_VER"
             git push origin "$TAG_NAME"
             echo "Created tag: $TAG_NAME"
           fi
@@ -299,21 +332,21 @@ jobs:
           steps.publish-core.outputs.published == 'true'
         uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
         with:
-          tag_name: core@${{ steps.final.outputs.core_version }}
-          name: '@auth0/web-ui-components-core@${{ steps.final.outputs.core_version }}'
+          tag_name: core@${{ env.CORE_VER }}
+          name: "@auth0/web-ui-components-core@${{ env.CORE_VER }}"
           body: |
             Published to NPM
 
             **Package**: `@auth0/web-ui-components-core`
-            **Version**: `${{ steps.final.outputs.core_version }}`
-            **NPM Tag**: `${{ steps.final.outputs.core_tag }}`
+            **Version**: `${{ env.CORE_VER }}`
+            **NPM Tag**: `${{ env.CORE_TAG }}`
 
             ```bash
-            npm install @auth0/web-ui-components-core@${{ steps.final.outputs.core_version }}
+            npm install @auth0/web-ui-components-core@${{ env.CORE_VER }}
             ```
 
-            [View on NPM](https://www.npmjs.com/package/@auth0/web-ui-components-core/v/${{ steps.final.outputs.core_version }})
-          prerelease: ${{ steps.final.outputs.core_tag != 'latest' }}
+            [View on NPM](https://www.npmjs.com/package/@auth0/web-ui-components-core/v/${{ env.CORE_VER }})
+          prerelease: ${{ env.CORE_TAG != 'latest' }}
           draft: false
 
       - name: Create GitHub Release for React
@@ -322,25 +355,155 @@ jobs:
           steps.publish-react.outputs.published == 'true'
         uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
         with:
-          tag_name: react@${{ steps.final.outputs.react_version }}
-          name: '@auth0/web-ui-components-react@${{ steps.final.outputs.react_version }}'
+          tag_name: react@${{ env.REACT_VER }}
+          name: "@auth0/web-ui-components-react@${{ env.REACT_VER }}"
           body: |
             Published to NPM
 
             **Package**: `@auth0/web-ui-components-react`
-            **Version**: `${{ steps.final.outputs.react_version }}`
-            **NPM Tag**: `${{ steps.final.outputs.react_tag }}`
-            **Requires**: `@auth0/web-ui-components-core@${{ steps.final.outputs.core_version }}`
+            **Version**: `${{ env.REACT_VER }}`
+            **NPM Tag**: `${{ env.REACT_TAG }}`
+            **Requires**: `@auth0/web-ui-components-core@${{ env.CORE_VER }}`
 
             ```bash
-            npm install @auth0/web-ui-components-react@${{ steps.final.outputs.react_version }}
+            npm install @auth0/web-ui-components-react@${{ env.REACT_VER }}
             ```
 
-            [View on NPM](https://www.npmjs.com/package/@auth0/web-ui-components-react/v/${{ steps.final.outputs.react_version }})
-          prerelease: ${{ steps.final.outputs.react_tag != 'latest' }}
+            [View on NPM](https://www.npmjs.com/package/@auth0/web-ui-components-react/v/${{ env.REACT_VER }})
+          prerelease: ${{ env.REACT_TAG != 'latest' }}
           draft: false
 
       - name: Restore package.json files
         if: always()
         run: |
           git checkout packages/core/package.json packages/react/package.json || true
+
+      - name: Send Slack notification
+        if: |
+          always() && 
+          !cancelled() && 
+          github.event.inputs.dry_run != 'true' && 
+          github.event.inputs.skip_slack_notification != 'true'
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          SLACK_WORKFLOW_WEBHOOK: ${{ secrets.SLACK_WORKFLOW_WEBHOOK }}
+        run: |
+          echo "Preparing Slack notification..."
+
+          # Determine what was actually published
+          PUBLISHED_PACKAGES=""
+          PUBLISH_ERRORS=""
+
+          # Check core package publishing
+          if [ "${{ steps.publish-core.outputs.published }}" = "true" ]; then
+            PUBLISHED_PACKAGES="@auth0/web-ui-components-core@${{ steps.publish-core.outputs.version }}"
+          elif [ "${{ steps.publish-core.outputs.published }}" = "dry-run" ]; then
+            PUBLISHED_PACKAGES="@auth0/web-ui-components-core@${{ steps.publish-core.outputs.version }} (dry run)"
+          elif [ "${{ steps.publish-core.outcome }}" = "failure" ]; then
+            PUBLISH_ERRORS="core package failed to publish"
+          fi
+
+          # Check react package publishing
+          if [ "${{ steps.publish-react.outputs.published }}" = "true" ]; then
+            if [ -n "$PUBLISHED_PACKAGES" ]; then
+              PUBLISHED_PACKAGES="$PUBLISHED_PACKAGES, @auth0/web-ui-components-react@${{ steps.publish-react.outputs.version }}"
+            else
+              PUBLISHED_PACKAGES="@auth0/web-ui-components-react@${{ steps.publish-react.outputs.version }}"
+            fi
+          elif [ "${{ steps.publish-react.outputs.published }}" = "dry-run" ]; then
+            if [ -n "$PUBLISHED_PACKAGES" ]; then
+              PUBLISHED_PACKAGES="$PUBLISHED_PACKAGES, @auth0/web-ui-components-react@${{ steps.publish-react.outputs.version }} (dry run)"
+            else
+              PUBLISHED_PACKAGES="@auth0/web-ui-components-react@${{ steps.publish-react.outputs.version }} (dry run)"
+            fi
+          elif [ "${{ steps.publish-react.outcome }}" = "failure" ]; then
+            if [ -n "$PUBLISH_ERRORS" ]; then
+              PUBLISH_ERRORS="$PUBLISH_ERRORS, react package failed to publish"
+            else
+              PUBLISH_ERRORS="react package failed to publish"
+            fi
+          fi
+
+          # Determine overall status and message
+          if [ -n "$PUBLISHED_PACKAGES" ] && [ -z "$PUBLISH_ERRORS" ]; then
+            STATUS="SUCCESS: Packages published to public NPM"
+            MESSAGE="Published: $PUBLISHED_PACKAGES"
+          elif [ -n "$PUBLISHED_PACKAGES" ] && [ -n "$PUBLISH_ERRORS" ]; then
+            STATUS="WARNING: Partial publishing failure"
+            MESSAGE="Published: $PUBLISHED_PACKAGES. Errors: $PUBLISH_ERRORS"
+          elif [ -n "$PUBLISH_ERRORS" ]; then
+            STATUS="FAILED: Package publishing failed"
+            MESSAGE="Errors: $PUBLISH_ERRORS"
+          else
+            STATUS="INFO: No packages published"
+            MESSAGE="No packages were selected for publishing"
+          fi
+
+          # Get individual package versions for Slack
+          CORE_VERSION="Not published"
+          REACT_VERSION="Not published"
+
+          if [ "${{ steps.publish-core.outputs.published }}" = "true" ] || [ "${{ steps.publish-core.outputs.published }}" = "dry-run" ]; then
+            CORE_VERSION="${{ steps.publish-core.outputs.version }}"
+          fi
+
+          if [ "${{ steps.publish-react.outputs.published }}" = "true" ] || [ "${{ steps.publish-react.outputs.published }}" = "dry-run" ]; then
+            REACT_VERSION="${{ steps.publish-react.outputs.version }}"
+          fi
+
+          # Output summary for GitHub logs
+          echo "=== WORKFLOW SUMMARY ==="
+          echo "Status: $STATUS"
+          echo "Message: $MESSAGE"
+          echo ""
+
+          # Send notification to Slack (if webhook is configured)
+          if [ -n "$SLACK_WORKFLOW_WEBHOOK" ]; then
+            echo "Sending Slack notification..."
+            HTTP_CODE=$(curl -X POST "$SLACK_WORKFLOW_WEBHOOK" \
+              -H "Content-Type: application/json" \
+              -w "%{http_code}" \
+              -o /tmp/slack_response.txt \
+              -d "{
+                \"status\": \"$STATUS\",
+                \"message\": \"$MESSAGE\",
+                \"package_details\": \"${PUBLISHED_PACKAGES:-'No packages published'}\",
+                \"core_version\": \"$CORE_VERSION\",
+                \"react_version\": \"$REACT_VERSION\",
+                \"registry\": \"https://registry.npmjs.org\",
+                \"trigger\": \"${{ github.event_name }}\",
+                \"actor\": \"${{ github.actor }}\",
+                \"action_url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+              }")
+            
+            if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+              echo "Slack notification sent successfully (HTTP $HTTP_CODE)"
+            else
+              echo "WARNING: Slack notification failed (HTTP $HTTP_CODE)"
+              cat /tmp/slack_response.txt
+            fi
+          else
+            echo "Slack webhook not configured, skipping notification"
+          fi
+
+      - name: Handle workflow failure
+        if: failure()
+        run: |
+          echo "## Workflow Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The workflow encountered an error. Please check the logs above for details." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Common Issues" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Authentication**: Verify NPM_TOKEN secret is configured correctly" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version conflict**: Package version may already exist on npm" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build failure**: Check if packages build successfully" >> $GITHUB_STEP_SUMMARY
+          echo "- **Network issues**: NPM registry may be unreachable" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review the error logs in this workflow run" >> $GITHUB_STEP_SUMMARY
+          echo "2. Fix the issue and retry the workflow" >> $GITHUB_STEP_SUMMARY
+          echo "3. If needed, manually publish using: \`pnpm publish\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY

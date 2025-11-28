@@ -28,7 +28,7 @@ export interface ProviderDetailsFormHandle {
 
 export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, ProviderDetailsProps>(
   function ProviderDetails(
-    { initialData, readOnly = false, customMessages = {}, className, onFormDirty },
+    { initialData, mode, readOnly = false, customMessages = {}, className, onFormDirty },
     ref,
   ) {
     const { t } = useTranslator(
@@ -76,7 +76,7 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
                     <TextField
                       placeholder={t('fields.name.placeholder')}
                       error={Boolean(fieldState.error)}
-                      readOnly={readOnly}
+                      readOnly={mode === 'edit' ? true : readOnly}
                       {...field}
                     />
                   </FormControl>

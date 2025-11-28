@@ -3,7 +3,6 @@
 import { useUser } from '@auth0/nextjs-auth0';
 import { User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 export function ProfilePage() {

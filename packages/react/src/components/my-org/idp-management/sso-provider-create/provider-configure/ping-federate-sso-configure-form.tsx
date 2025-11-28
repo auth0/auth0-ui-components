@@ -109,7 +109,7 @@ export const PingFederateProviderForm = React.forwardRef<
   const handleFileUpload = (files: File[]) => {
     setUploadedFiles(files);
     if (files.length > 0) {
-      form.setValue('signingCert', files[0].name);
+      form.setValue('signingCert', files?.[0]?.name);
     }
   };
 

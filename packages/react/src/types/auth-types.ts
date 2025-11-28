@@ -13,16 +13,3 @@ export interface Auth0ComponentProviderProps {
   authDetails: AuthDetails;
   loader?: React.ReactNode;
 }
-
-/**
- * Props for the InternalProvider component.
- */
-export interface InternalProviderProps {
-  i18n?: I18nOptions;
-  authDetails: AuthDetails;
-}
-
-/**
- * Configuration for Auth0ComponentProvider excluding authentication details.
- */
-export type Auth0ComponentConfig = Omit<Auth0ComponentProviderProps, 'authDetails' | 'i18n'>;

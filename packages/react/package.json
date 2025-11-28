@@ -27,15 +27,15 @@
     "LICENSE"
   ],
   "scripts": {
+    "clean": "rimraf dist",
     "build:css": "npx @tailwindcss/cli -i ./src/styles/globals.css -o ./dist/styles.css --minify",
+    "type-check": "tsc --noEmit",
     "build:ts": "tsup",
-    "build": "pnpm build:ts && pnpm build:css",
+    "build": "pnpm clean && pnpm type-check && pnpm build:ts && pnpm build:css",
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "clean": "rimraf dist",
-    "typecheck": "tsc --noEmit",
     "registry:build": "shadcn build"
   },
   "peerDependencies": {

@@ -26,7 +26,7 @@ describe('Email Schema', () => {
       const result = customSchema.safeParse({ contact: 'invalid-email' });
 
       expect(result.success).toBe(false);
-      if (!result.success) {
+      if (!result.success && result.error && result.error.errors[0]) {
         expect(result.error.errors[0].message).toBe(customMessage);
       }
     });

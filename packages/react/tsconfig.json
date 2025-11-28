@@ -3,6 +3,7 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
+    "moduleResolution": "node",
     "jsx": "react-jsx",
     "importHelpers": true,
     "esModuleInterop": true,
@@ -11,10 +12,8 @@
     "declaration": true,
     "declarationDir": "dist",
     "sourceMap": true,
-    "moduleResolution": "node",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "strict": true,
-    "typeRoots": ["node_modules/@types"]
+    "strict": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

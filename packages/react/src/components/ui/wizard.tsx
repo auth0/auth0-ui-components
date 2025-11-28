@@ -68,7 +68,7 @@ function Wizard({
 
     const step = steps[activeStep];
 
-    if (step.actions?.onNextAction) {
+    if (step?.actions?.onNextAction) {
       const canProceed = await step.actions.onNextAction(step.id);
       if (!canProceed) {
         return;
@@ -87,7 +87,7 @@ function Wizard({
 
     const step = steps[activeStep];
 
-    if (step.actions?.onPreviousAction) {
+    if (step?.actions?.onPreviousAction) {
       const canProceed = await step.actions.onPreviousAction(step.id);
       if (!canProceed) {
         return;
@@ -109,9 +109,9 @@ function Wizard({
     [activeStep, isLoading, allowStepNavigation],
   );
 
-  const CurrentStepComponent = currentStepConfig.content;
-  const showPrevious = currentStepConfig.actions?.showPrevious !== false && !isFirstStep;
-  const showNext = currentStepConfig.actions?.showNext ?? true;
+  const CurrentStepComponent = currentStepConfig?.content;
+  const showPrevious = currentStepConfig?.actions?.showPrevious !== false && !isFirstStep;
+  const showNext = currentStepConfig?.actions?.showNext ?? true;
 
   const labels = {
     nextButtonLabel: 'Next',
@@ -137,11 +137,13 @@ function Wizard({
             </div>
           )}
           <div className={cn(isLoading && 'opacity-50 pointer-events-none')}>
-            <CurrentStepComponent
-              onNext={handleNext}
-              onPrevious={handlePrevious}
-              isLoading={isLoading}
-            />
+            {CurrentStepComponent ? (
+              <CurrentStepComponent
+                onNext={handleNext}
+                onPrevious={handlePrevious}
+                isLoading={isLoading}
+              />
+            ) : null}
           </div>
         </CardContent>
       </Card>

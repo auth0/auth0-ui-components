@@ -12,7 +12,7 @@ export function SsoProviderDeleteModalContent({
   className,
 }: SsoProviderDeleteModalContentProps) {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onChange('providerName', event.target.value);
+    onChange(event.target.value);
   };
 
   const { t } = useTranslator('idp_management.delete_sso_provider.modal.content', customMessages);

@@ -4,8 +4,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Auth0ComponentProvider } from '@/auth0-ui-components/providers/component-provider';
-
 import Header from './components/Header';
 import { Routes, Route, BrowserRouter, Navigate } from './components/RouterCompat';
 import { Sidebar } from './components/side-bar';
@@ -17,6 +15,8 @@ import IdentityProviderManagementEdit from './pages/IdentityProviderManagementEd
 import Index from './pages/Index';
 import OrganizationManagement from './pages/OrganizationManagement';
 import Profile from './pages/Profile';
+
+import { Auth0ComponentProvider } from '@/auth0-ui-components/providers/component-provider';
 
 const queryClient = new QueryClient();
 

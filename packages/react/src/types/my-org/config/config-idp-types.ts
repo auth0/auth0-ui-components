@@ -21,4 +21,5 @@ export interface UseConfigIdpResult {
   fetchIdpConfig: () => Promise<void>;
   isProvisioningEnabled: (strategy: IdpStrategy | undefined) => boolean;
   isProvisioningMethodEnabled: (strategy: IdpStrategy | undefined) => boolean;
+  isIdpConfigValid: boolean;
 }

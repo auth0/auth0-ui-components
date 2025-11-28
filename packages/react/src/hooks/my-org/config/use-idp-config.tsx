@@ -1,4 +1,4 @@
-import type { IdpStrategy } from '@auth0/web-ui-components-core';
+import { hasApiErrorBody, type IdpStrategy } from '@auth0/web-ui-components-core';
 import { useCallback, useEffect, useState } from 'react';
 
 import type { IdpConfig, UseConfigIdpResult } from '../../../types/my-org/config/config-idp-types';
@@ -8,6 +8,7 @@ export function useIdpConfig(): UseConfigIdpResult {
   const { coreClient } = useCoreClient();
   const [idpConfig, setIdpConfig] = useState<IdpConfig | null>(null);
   const [isLoadingIdpConfig, setIsLoadingIdpConfig] = useState(false);
+  const [isIdpConfigValid, setIsIdpConfigValid] = useState(true);
 
   const fetchIdpConfig = useCallback(async (): Promise<void> => {
     if (!coreClient) {
@@ -21,6 +22,16 @@ export function useIdpConfig(): UseConfigIdpResult {
         .organization.configuration.identityProviders.get()) as unknown as IdpConfig;
 
       setIdpConfig(result);
+
+      // Validate the idpConfig after fetching
+      const hasStrategies = result.strategies && Object.keys(result.strategies).length > 0;
+      setIsIdpConfigValid(!!hasStrategies);
+    } catch (error) {
+      // If config is not set
+      if (hasApiErrorBody(error) && error.body?.status === 404) {
+        setIdpConfig(null);
+        setIsIdpConfigValid(false);
+      }
     } finally {
       setIsLoadingIdpConfig(false);
     }
@@ -57,5 +68,6 @@ export function useIdpConfig(): UseConfigIdpResult {
     fetchIdpConfig,
     isProvisioningEnabled,
     isProvisioningMethodEnabled,
+    isIdpConfigValid,
   };
 }

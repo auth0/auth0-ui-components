@@ -3,7 +3,7 @@
 import { useUser } from '@auth0/nextjs-auth0';
 import { User, LogOut } from 'lucide-react';
 import Link from 'next/link';
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export function ProfileDropdown() {

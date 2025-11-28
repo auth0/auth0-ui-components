@@ -138,6 +138,7 @@ export function SsoProviderCreateComponent({
         title: t('steps.two'),
         content: () => (
           <ProviderDetails
+            mode="create"
             ref={detailsRef}
             initialData={details ?? undefined}
             customMessages={customMessages.provider_details}

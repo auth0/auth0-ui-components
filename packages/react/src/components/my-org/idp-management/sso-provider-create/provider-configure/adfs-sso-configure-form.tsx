@@ -81,7 +81,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
     const handleFileUpload = (files: File[]) => {
       setUploadedFiles(files);
       if (files.length > 0) {
-        form.setValue('fedMetadataXml', files[0].name);
+        form.setValue('fedMetadataXml', files?.[0]?.name);
       }
     };
 

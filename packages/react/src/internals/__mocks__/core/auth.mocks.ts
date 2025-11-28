@@ -3,7 +3,6 @@ import { vi } from 'vitest';
 
 export const createMockAuth = (overrides?: Partial<AuthDetails>): AuthDetails => ({
   domain: 'test-domain.auth0.com',
-  scopes: 'openid profile email',
   authProxyUrl: undefined,
   contextInterface: {
     isAuthenticated: true,

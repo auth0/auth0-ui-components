@@ -2,10 +2,12 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
+    "sourceMap": true,
     "resolveJsonModule": true,
-    "declaration": false,
-    "emitDeclarationOnly": false,
-    "sourceMap": true
+    "declaration": true,
+    "declarationDir": "dist",
+    "strict": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

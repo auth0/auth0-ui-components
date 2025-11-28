@@ -1,5 +1,5 @@
 import type { MyAccount } from '@auth0/myaccount-js';
-import type { SafeAny } from '@core/types';
+import type { ArbitraryObject } from '@core/types';
 
 export type ListFactorsResponseContent = MyAccount.ListFactorsResponseContent;
 export type ListAuthenticationMethodsResponseContent =
@@ -55,12 +55,14 @@ export interface ConfirmEnrollmentOptions {
  * Interface for MFA controller.
  */
 export interface MFAControllerInterface {
-  fetchFactors(onlyActive?: boolean): Promise<unknown>;
+  fetchFactors(onlyActive?: boolean): Promise<ListFactorsResponseContent>;
   enrollFactor(
     factorType: string,
-    options?: SafeAny,
+    options?: ArbitraryObject,
   ): Promise<CreateAuthenticationMethodResponseContent>;
+
   deleteFactor(authenticatorId: string): Promise<void>;
+
   confirmEnrollment(
     factorType: string,
     authSession: string,

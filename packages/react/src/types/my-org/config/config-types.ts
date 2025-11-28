@@ -6,4 +6,5 @@ export interface UseConfigResult {
   fetchConfig: () => Promise<void>;
   filteredStrategies: IdpStrategy[];
   shouldAllowDeletion: boolean;
+  isConfigValid: boolean;
 }

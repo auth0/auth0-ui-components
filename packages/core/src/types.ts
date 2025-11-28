@@ -1,6 +1,6 @@
 import type { StylingVariables } from './theme';
 
-export type SafeAny = any; // eslint-disable-line
+export type ArbitraryObject = Record<string, unknown>;
 
 export interface ActionButton<Item = void> {
   label: string;

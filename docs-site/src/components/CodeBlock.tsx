@@ -1,6 +1,6 @@
 import { Copy, Check } from 'lucide-react';
 import Prism from 'prismjs';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import 'prismjs/themes/prism-tomorrow.css';
 import 'prismjs/components/prism-markup';
 import 'prismjs/components/prism-css';

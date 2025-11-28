@@ -14,8 +14,8 @@ describe('theme-utils', () => {
         it('should merge common and light styles', () => {
           const styling: StylingVariables = {
             common: { '--font-size-heading': '24px' },
-            light: { '--color-primary': '#007bff' },
-            dark: { '--color-primary': '#4dabf7' },
+            light: { '--primary': '#007bff' },
+            dark: { '--primary': '#4dabf7' },
           };
 
           const result = getCoreStyles(styling, false);
@@ -23,7 +23,7 @@ describe('theme-utils', () => {
           expect(result).toEqual({
             variables: {
               '--font-size-heading': '24px',
-              '--color-primary': '#007bff',
+              '--primary': '#007bff',
             },
           });
         });
@@ -33,8 +33,8 @@ describe('theme-utils', () => {
         it('should merge common and dark styles', () => {
           const styling: StylingVariables = {
             common: { '--font-size-heading': '24px' },
-            light: { '--color-primary': '#007bff' },
-            dark: { '--color-primary': '#4dabf7' },
+            light: { '--primary': '#007bff' },
+            dark: { '--primary': '#4dabf7' },
           };
 
           const result = getCoreStyles(styling, true);
@@ -42,7 +42,7 @@ describe('theme-utils', () => {
           expect(result).toEqual({
             variables: {
               '--font-size-heading': '24px',
-              '--color-primary': '#4dabf7',
+              '--primary': '#4dabf7',
             },
           });
         });
@@ -77,15 +77,15 @@ describe('theme-utils', () => {
       it('should let dark mode override light mode variables with same key', () => {
         const styling: StylingVariables = {
           common: { '--font-size-heading': '24px' },
-          light: { '--color-foreground': '#000', '--color-background': '#fff' },
-          dark: { '--color-foreground': '#fff', '--color-background': '#000' },
+          light: { '--foreground': '#000', '--background': '#fff' },
+          dark: { '--foreground': '#fff', '--background': '#000' },
         };
 
         const lightResult = getCoreStyles(styling, false);
         const darkResult = getCoreStyles(styling, true);
 
-        expect(lightResult.variables).toHaveProperty('--color-foreground', '#000');
-        expect(darkResult.variables).toHaveProperty('--color-foreground', '#fff');
+        expect(lightResult.variables).toHaveProperty('--foreground', '#000');
+        expect(darkResult.variables).toHaveProperty('--foreground', '#fff');
       });
     });
   });
@@ -96,8 +96,8 @@ describe('theme-utils', () => {
         const styling = {
           variables: {
             common: { '--font-size-heading': '24px' },
-            light: { '--color-primary': '#007bff' },
-            dark: { '--color-primary': '#4dabf7' },
+            light: { '--primary': '#007bff' },
+            dark: { '--primary': '#4dabf7' },
           },
           classes: { container: 'custom-container' },
         };
@@ -106,7 +106,7 @@ describe('theme-utils', () => {
 
         expect(result.variables).toEqual({
           '--font-size-heading': '24px',
-          '--color-primary': '#007bff',
+          '--primary': '#007bff',
         });
         expect(result.classes).toEqual({ container: 'custom-container' });
       });
@@ -160,8 +160,8 @@ describe('theme-utils', () => {
       const styling = {
         variables: {
           common: { '--font-size-heading': '24px' },
-          light: { '--color-background': '#ffffff' },
-          dark: { '--color-background': '#000000' },
+          light: { '--background': '#ffffff' },
+          dark: { '--background': '#000000' },
         },
       };
 
@@ -169,7 +169,7 @@ describe('theme-utils', () => {
         it('should apply light mode variables', () => {
           const result = getComponentStyles(styling, false);
 
-          expect(result.variables).toHaveProperty('--color-background', '#ffffff');
+          expect(result.variables).toHaveProperty('--background', '#ffffff');
           expect(result.variables).toHaveProperty('--font-size-heading', '24px');
         });
       });
@@ -178,7 +178,7 @@ describe('theme-utils', () => {
         it('should apply dark mode variables', () => {
           const result = getComponentStyles(styling, true);
 
-          expect(result.variables).toHaveProperty('--color-background', '#000000');
+          expect(result.variables).toHaveProperty('--background', '#000000');
           expect(result.variables).toHaveProperty('--font-size-heading', '24px');
         });
       });
@@ -204,8 +204,8 @@ describe('theme-utils', () => {
         it('should set light variables, default theme, and remove dark class', () => {
           const styling: StylingVariables = {
             common: { '--font-size-heading': '24px' },
-            light: { '--color-background': '#ffffff' },
-            dark: { '--color-background': '#000000' },
+            light: { '--background': '#ffffff' },
+            dark: { '--background': '#000000' },
           };
 
           applyStyleOverrides(styling);
@@ -214,7 +214,7 @@ describe('theme-utils', () => {
           expect(mockHtml.classList.remove).toHaveBeenCalledWith('dark');
           expect(mockHtml.classList.add).not.toHaveBeenCalledWith('dark');
           expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--font-size-heading', '24px');
-          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--color-background', '#ffffff');
+          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--background', '#ffffff');
         });
       });
     });
@@ -224,8 +224,8 @@ describe('theme-utils', () => {
         it('should apply dark variables and add dark class', () => {
           const styling: StylingVariables = {
             common: { '--font-size-heading': '24px' },
-            light: { '--color-background': '#ffffff' },
-            dark: { '--color-background': '#000000' },
+            light: { '--background': '#ffffff' },
+            dark: { '--background': '#000000' },
           };
 
           applyStyleOverrides(styling, 'dark');
@@ -234,7 +234,7 @@ describe('theme-utils', () => {
           expect(mockHtml.classList.add).toHaveBeenCalledWith('dark');
           expect(mockHtml.classList.remove).not.toHaveBeenCalledWith('dark');
           expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--font-size-heading', '24px');
-          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--color-background', '#000000');
+          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--background', '#000000');
         });
       });
     });
@@ -287,8 +287,8 @@ describe('theme-utils', () => {
 
     describe('when switching between light and dark modes', () => {
       const styling: StylingVariables = {
-        light: { '--color-foreground': '#000000' },
-        dark: { '--color-foreground': '#ffffff' },
+        light: { '--foreground': '#000000' },
+        dark: { '--foreground': '#ffffff' },
       };
 
       describe('in light mode', () => {
@@ -296,7 +296,7 @@ describe('theme-utils', () => {
           applyStyleOverrides(styling, 'light');
 
           expect(mockHtml.classList.remove).toHaveBeenCalledWith('dark');
-          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--color-foreground', '#000000');
+          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--foreground', '#000000');
         });
       });
 
@@ -305,7 +305,7 @@ describe('theme-utils', () => {
           applyStyleOverrides(styling, 'dark');
 
           expect(mockHtml.classList.add).toHaveBeenCalledWith('dark');
-          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--color-foreground', '#ffffff');
+          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--foreground', '#ffffff');
         });
       });
     });
@@ -314,7 +314,7 @@ describe('theme-utils', () => {
       it('should apply both theme variant and mode variables correctly', () => {
         const styling: StylingVariables = {
           common: { '--radius-md': '4px' },
-          dark: { '--color-background': '#1a1a1a' },
+          dark: { '--background': '#1a1a1a' },
         };
 
         applyStyleOverrides(styling, 'dark', 'rounded');
@@ -322,7 +322,7 @@ describe('theme-utils', () => {
         expect(mockHtml.dataset.theme).toBe('rounded');
         expect(mockHtml.classList.add).toHaveBeenCalledWith('dark');
         expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--radius-md', '4px');
-        expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--color-background', '#1a1a1a');
+        expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--background', '#1a1a1a');
       });
     });
   });

@@ -1,9 +1,7 @@
-import { useNavigate, useParams } from 'react-router-dom';
-
-import { SsoProviderEdit } from '@/auth0-ui-components/blocks/my-org/idp-management/sso-provider-edit';
+import { useParams } from 'react-router-dom';
 
 const IdentityProviderManagementEdit = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
   if (!id) {
@@ -16,7 +14,7 @@ const IdentityProviderManagementEdit = () => {
 
   return (
     <div className="p-6">
-      <SsoProviderEdit
+      {/* <SsoProviderEdit
         providerId={id}
         backButton={{
           onClick: () => navigate('/idp-management'),
@@ -35,7 +33,7 @@ const IdentityProviderManagementEdit = () => {
             },
           },
         }}
-      />
+      /> */}
     </div>
   );
 };

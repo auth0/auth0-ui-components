@@ -15,7 +15,7 @@ export interface SsoProviderRemoveClasses {
 }
 export interface SsoProviderDeleteModalContentProps
   extends SharedComponentProps<SsoProviderDeleteModalContentMessages, SsoProviderDeleteClasses> {
-  onChange: (name: string, value: string) => void;
+  onChange: (value: string) => void;
   className?: string;
 }
 

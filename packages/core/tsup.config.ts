@@ -10,4 +10,5 @@ export default defineConfig({
   loader: {
     '.svg': 'dataurl',
   },
+  external: [],
 });

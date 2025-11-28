@@ -128,21 +128,16 @@ export function DataPagination({
   const labels = useMemo(() => ({ ...defaultLabels, ...customLabels }), [customLabels]);
   const ariaLiveRegionRef = useRef<HTMLDivElement | null>(null);
 
-  if (!paginationState) {
-    return null;
-  }
-
   const isRegular = type === 'regular';
   const regularState = isRegular ? (paginationState as RegularPaginationState) : null;
   const checkpointState = !isRegular ? (paginationState as CheckpointPaginationState) : null;
 
-  const shouldShowPageNumbers = isRegular;
+  const currentPageSize = paginationState ? paginationState.pageSize : undefined;
+
   const shouldShowPageSizeSelector = showPageSizeSelector;
 
-  const currentPageSize = paginationState.pageSize;
-
   const allPageSizeOptions = useMemo(() => {
-    if (!shouldShowPageSizeSelector || !pageSizeOptions) return [];
+    if (!shouldShowPageSizeSelector || !pageSizeOptions || currentPageSize === undefined) return [];
     const uniqueOptions = new Set([...pageSizeOptions, currentPageSize]);
     return Array.from(uniqueOptions).sort((a, b) => a - b);
   }, [shouldShowPageSizeSelector, pageSizeOptions, currentPageSize]);
@@ -168,6 +163,13 @@ export function DataPagination({
       }
     }
   }, [type, paginationState, isRegular, regularState, checkpointState]);
+
+  if (!paginationState) {
+    return null;
+  }
+
+  const shouldShowPageNumbers = isRegular;
+  const safeCurrentPageSize = currentPageSize as number;
 
   return (
     <div
@@ -226,11 +228,11 @@ export function DataPagination({
           <div className="flex items-center justify-center gap-2 whitespace-nowrap sm:justify-start">
             <span className="text-sm text-foreground">{labels.show}</span>
             <Select
-              value={currentPageSize.toString()}
+              value={safeCurrentPageSize.toString()}
               onValueChange={(value) => onPageSizeChange?.(Number(value))}
             >
               <SelectTrigger className="w-20 h-9">
-                <SelectValue placeholder={formatNumber(currentPageSize, locale)} />
+                <SelectValue placeholder={formatNumber(safeCurrentPageSize, locale)} />
               </SelectTrigger>
               <SelectContent>
                 {allPageSizeOptions.map((size) => (

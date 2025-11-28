@@ -19,8 +19,9 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
     "build:ts": "tsup",
-    "build": "pnpm run clean && pnpm run build:ts",
+    "build": "pnpm clean && pnpm type-check && pnpm build:ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"

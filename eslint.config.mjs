@@ -2,111 +2,89 @@ import js from '@eslint/js';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import reactPlugin from 'eslint-plugin-react';
+import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import importPlugin from 'eslint-plugin-import';
+import globals from 'globals';
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
 
-/**
- * Shared browser globals
- */
-const browserGlobals = {
-  window: 'readonly',
-  document: 'readonly',
-  navigator: 'readonly',
-  location: 'readonly',
-  console: 'readonly',
-  setTimeout: 'readonly',
-  clearTimeout: 'readonly',
-  fetch: 'readonly',
-  Request: 'readonly',
-  Response: 'readonly',
-  Headers: 'readonly',
-  localStorage: 'readonly',
-  sessionStorage: 'readonly',
-};
-
-/**
- * Shared Node.js globals
- */
-const nodeGlobals = {
-  module: 'readonly',
-  require: 'readonly',
-  exports: 'readonly',
-};
-
-/**
- * Common rules across all file types
- */
-const commonRules = {
-  quotes: ['error', 'single', { avoidEscape: true }],
-  'jsx-quotes': ['error', 'prefer-double'],
-  semi: ['error', 'always'],
-  'comma-dangle': ['error', 'always-multiline'],
-  'no-console': ['warn', { allow: ['warn', 'error'] }],
-  eqeqeq: ['error', 'always'],
-  'object-curly-spacing': ['error', 'always'],
-  'arrow-parens': ['error', 'always'],
-};
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default [
+  js.configs.recommended,
+
+  // Global ignores
   {
     ignores: [
       '**/node_modules/**',
       '**/dist/**',
       '**/build/**',
-      'coverage/**',
-      '.turbo/**',
-      '.next/**',
-      '**/.*//**', // Exclude all hidden folders
-      '.*', // Exclude hidden files in root
-      '*.d.ts',
-      'vitest.config.ts',
+      '**/coverage/**',
+      '**/.turbo/**',
+      '**/.next/**',
+      '**/*.d.ts',
     ],
   },
-  {
-    ...js.configs.recommended,
-    languageOptions: {
-      ...js.configs.recommended.languageOptions,
-      globals: {
-        ...js.configs.recommended.languageOptions?.globals,
-        ...browserGlobals,
-      },
-    },
-    rules: {
-      ...js.configs.recommended.rules,
-      ...commonRules,
-    },
-  },
 
+  // TypeScript and React files configuration
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: './tsconfig.json',
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true,
+        },
+        tsconfigRootDir: __dirname,
+        project: false,
       },
       globals: {
-        ...browserGlobals,
+        ...globals.browser,
+        ...globals.node,
+        ...globals.es2021,
+        React: 'readonly',
       },
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
-      import: importPlugin,
+      'react': reactPlugin,
+      'react-hooks': reactHooksPlugin,
+      'import': importPlugin,
     },
     rules: {
-      ...tsPlugin.configs.recommended.rules,
-      ...commonRules,
-      quotes: 'off',
-      '@typescript-eslint/quotes': ['error', 'single', { avoidEscape: true }],
-      '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
-      // New rule to enforce alphabetical imports
+      // Disable base rules that TypeScript handles
+      'no-unused-vars': 'off',
+      'no-undef': 'off',
+      
+      // TypeScript specific rules
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'type-imports' },
+      ],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      
+      // React rules
+      'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
+      
+      // React Hooks rules
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'off',
+      
+      // Import ordering
       'import/order': [
         'error',
         {
-          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
-          pathGroups: [
-            {
-              pattern: '@/**',
-              group: 'internal',
-            },
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            'parent',
+            'sibling',
+            'index',
           ],
           'newlines-between': 'always',
           alphabetize: {
@@ -115,16 +93,12 @@ export default [
           },
         },
       ],
-    },
-  },
-  {
-    files: ['packages/react/**/*.{ts,tsx}'],
-    plugins: {
-      react: reactPlugin,
-    },
-    rules: {
-      ...reactPlugin.configs.recommended.rules,
-      'react/react-in-jsx-scope': 'off', // Not needed in React 17+
+      
+      // Disable conflicting import rules
+      'import/named': 'off',
+      'import/namespace': 'off',
+      'import/default': 'off',
+      'import/no-named-as-default-member': 'off',
     },
     settings: {
       react: {
@@ -132,12 +106,15 @@ export default [
       },
     },
   },
+
+  // JavaScript files configuration
   {
-    files: ['**/*.js'],
+    files: ['**/*.js', '**/*.mjs', '**/*.cjs'],
     languageOptions: {
       globals: {
-        ...browserGlobals,
-        ...nodeGlobals, // Add Node.js globals for JS files
+        ...globals.browser,
+        ...globals.node,
+        ...globals.es2021,
       },
     },
   },

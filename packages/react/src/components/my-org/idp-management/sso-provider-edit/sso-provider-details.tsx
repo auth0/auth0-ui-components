@@ -85,6 +85,7 @@ export function SsoProviderDetails({
     <div style={currentStyles.variables} className={cn('space-y-8')}>
       <div className="space-y-4">
         <ProviderDetails
+          mode="edit"
           ref={providerDetailsRef}
           initialData={providerDetailsData}
           readOnly={readOnly}
@@ -102,6 +103,7 @@ export function SsoProviderDetails({
           initialData={provider.options}
           readOnly={readOnly}
           idpConfig={idpConfig}
+          mode="edit"
           customMessages={customMessages.configure_fields}
           className={currentStyles.classes?.['ProviderConfigure-root']}
           onFormDirty={setIsConfigureDirty}

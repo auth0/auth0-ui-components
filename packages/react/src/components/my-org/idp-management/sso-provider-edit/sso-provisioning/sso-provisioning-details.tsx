@@ -130,13 +130,12 @@ export function SsoProvisioningDetails({
           />
         </form>
       </Form>
-      <div className="mt-6">
-        <ProvisioningFieldMappings
-          provisioningFieldMap={provisioningConfig?.fields ?? null}
-          customMessages={customMessages.mappings}
-          className={currentStyles.classes?.['SsoProvisioningDetails-provisioningMapping']}
-        />
-      </div>
+      <ProvisioningFieldMappings
+        provisioningStrategy={provisioningConfig?.strategy || null}
+        provisioningFieldMap={provisioningConfig?.fields ?? null}
+        customMessages={customMessages.mappings}
+        className={currentStyles.classes?.['SsoProvisioningDetails-provisioningMapping']}
+      />
     </div>
   );
 }

@@ -163,18 +163,9 @@ const STRATEGY_BUILDERS = {
     }),
 
   oidc: (options: OidcOptions = {}) => {
-    const baseSchema = z.object({
-      type: createFieldSchema(
-        COMMON_FIELD_CONFIGS.algorithm,
-        { ...options.type, required: true },
-        'Please enter a valid type',
-      ),
+    const commonFields = {
       client_id: createFieldSchema(COMMON_FIELD_CONFIGS.client_id, {
         ...options.client_id,
-        required: true,
-      }),
-      client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, {
-        ...options.client_secret,
         required: true,
       }),
       discovery_url: createFieldSchema(
@@ -184,23 +175,29 @@ const STRATEGY_BUILDERS = {
       ),
       show_as_button: z.boolean().optional(),
       assign_membership_on_login: z.boolean().optional(),
-    });
+    };
 
-    // Add conditional validation for client_secret
-    return baseSchema.superRefine((data, ctx) => {
-      const isFrontChannel = data.type === 'front_channel';
+    return z.discriminatedUnion('type', [
+      // Scenario A: Back Channel (Client Secret is REQUIRED)
+      z.object({
+        type: z.literal('back_channel'),
+        client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, {
+          ...options.client_secret,
+          required: true, // STRICTLY REQUIRED
+        }),
+        ...commonFields,
+      }),
 
-      // Only require client_secret for back_channel
-      if (!isFrontChannel) {
-        if (!data.client_secret || data.client_secret.trim() === '') {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Client secret is required',
-            path: ['client_secret'],
-          });
-        }
-      }
-    });
+      // Scenario B: Front Channel (Client Secret is OPTIONAL/HIDDEN)
+      z.object({
+        type: z.literal('front_channel'),
+        client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, {
+          ...options.client_secret,
+          required: false,
+        }),
+        ...commonFields,
+      }),
+    ]);
   },
 
   pingfederate: (options: PingFederateOptions = {}) =>
