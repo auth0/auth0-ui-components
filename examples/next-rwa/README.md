@@ -1,45 +1,83 @@
-# Next.js RWA Example
+# **Universal Components** Demo for Next.js
 
-A Next.js Regular Web App (RWA) example that demonstrates Auth0 authentication using proxy mode with Auth0 UI components.
+A Next.js example that demonstrates Auth0 authentication using proxy mode along with Auth0 Universal Components demonstrating delegated administration.
 
-## Features
+## Jump to a section
 
-- **Next.js 15** - Latest version of Next.js with App Router
+- [Quickstart](#quickstart)
+- [Adding a Universal Component](#adding-a-universal-component-to-your-app)
+- [Universal Component Docs](#component-specific-requirements)
+
+## Overview
+
+This example uses Auth0's Regular Web Application authentication flow with proxy mode. The Auth0 UI Components automatically detect the proxy configuration and use server-side authentication.
+
+You will see the following features leveraged within the demo app.
+
+- **Next.js 15** - A regular web app framework
+- **Auth0 Universal Components** - Pre-build UI building blocks from Auth0
 - **Auth0 Authentication** - Server-side authentication using proxy mode
-- **MFA Management** - Complete Multi-Factor Authentication management UI
 - **TypeScript** - Full type safety
 - **Tailwind CSS** - Modern styling
 - **Internationalization** - Multi-language support
 
-## Getting Started
+## Prerequisites
 
-1. Clone the repository and navigate to this example:
+1. Node.js v20 or later is required to run the bootstrapping process. We recommend using [`nvm`](https://github.com/nvm-sh/nvm) to manage node versions in your development environment. Click these links to [learn how to install nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script) or [how to use nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#usage) to make sure you're using Node 20+ in your development environment.
+2. You must have [`pnpm`](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) or a comparable package manager installed in your development environment. These instructions assume that you're using `pnpm`, which is automatically included as part of the Node.js installation from prerequisite 1.
+3. Create a new Auth0 tenant. **This is important!** Using a new Auth0 tenant for this sample application ensures you don't encounter any conflicts due to existing configuration in an existing tenant.
+
+   The tenant you create will be configured automatically by our bootstrapping command during the installation process. You can sign up for a free Auth0 account at [https://auth0.com/signup](https://auth0.com/signup?utm_source=github&utm_medium=thirdpartyutm_campaign=saastart). See [Create Tenants](https://auth0.com/docs/get-started/auth0-overview/create-tenants) in the Auth0 docs if you need help.
+
+   Once you've created a tenant, nothing else needs to be done inside Auth0 - you can return to this README.md and begin completing the steps below.
+
+## Quickstart
+
+1. Clone the repository and navigate to its folder:
 
    ```bash
-   cd examples/next-rwa
+   git clone https://github.com/auth0/auth0-ui-components
+   cd auth0-ui-components
    ```
 
-2. Install dependencies:
+2. Build the components package and install dependencies:
 
    ```bash
+   pnpm run build
    pnpm install
    ```
 
-3. Set up your Auth0 application:
-   - Create a new Regular Web Application in your Auth0 dashboard
-   - Configure the callback URLs, logout URLs, and web origins
-   - Note your Domain and Client ID
+3. Navigate to the examples folder and install dependencies:
 
-4. Create a `.env.local` file in the project root:
-
-   ```env
-   AUTH0_SECRET='use [openssl rand -hex 32] to generate a 32 bytes value'
-   APP_BASE_URL='http://localhost:5173'
-   AUTH0_DOMAIN='https://your-domain.auth0.com'
-   AUTH0_CLIENT_ID='your-client-id'
-   AUTH0_CLIENT_SECRET='your-client-secret'
-   AUTH0_SCOPE='openid profile email create:me:authentication_methods read:me:authentication_methods delete:me:authentication_methods update:me:authentication_methods read:me:factors'
+   ```bash
+   cd examples/next-rwa
+   pnpm install
    ```
+
+4. Login to `auth0-cli` and execute the bootstrap script to setup your tenant:
+
+   Below `cli` command opens up a login prompt in your browser to select relevant tenant and confirm permissions.
+
+   ```bash
+   auth0 login --scopes "read:connection_profiles,create:connection_profiles,update:connection_profiles,read:user_attribute_profiles,create:user_attribute_profiles,update:user_attribute_profiles,read:client_grants,create:client_grants,update:client_grants,delete:client_grants,read:connections,create:connections,update:connections,create:organization_connections,create:organization_members,create:organization_member_roles,read:clients,create:clients,update:clients,read:client_keys,read:roles,create:roles,update:roles,read:resource_servers,create:resource_servers,update:resource_servers,update:tenant_settings"
+   ```
+
+   Retrieve the domain of the tenant using the cli
+
+   ```bash
+   auth0 tenants list
+   ```
+
+   > [!WARNING]
+   > The step below will modify your tenant configuration. Only execute this against a dev tenant.
+
+   Execute the bootstrap script with the domain of your tenant from the previous step.
+
+   ```bash
+   pnpm run auth0:bootstrap <your tenant domain>
+   ```
+
+   This scripts configures your tenant. If required it will also ask you to create an org admin and set password that you can use to login to the demo.
 
 5. Run the development server:
    ```bash
@@ -48,9 +86,30 @@ A Next.js Regular Web App (RWA) example that demonstrates Auth0 authentication u
 
 Open [http://localhost:5173](http://localhost:5173) to see the result.
 
-## Auth0 Configuration
+## Adding a Universal Component to your app
 
-This example uses Auth0's Regular Web Application authentication flow with proxy mode. The Auth0 UI Components automatically detect the proxy configuration and use server-side authentication.
+In this example, we have routes defined within the side-bar at `examples/next-rwa/src/components/navigation/side-bar.tsx`.
+
+The Domains route is served by `examples/next-rwa/src/app/domain-management/page.tsx` which currently renders an empty page.
+
+Edit this file to uncomment `<DomainTable />` and deleted the `<p>` entry and save. Final result should look like below.
+
+```typescript
+'use client';
+
+import { DomainTable } from '@auth0/web-ui-components-react/rwa';
+
+export default function OrgManagementPage() {
+  return (
+    <div className="p-6 pt-8 space-y-6">
+      <p>Follow Quickstart guidance on how to add Domain Management component.</p>
+        <DomainTable />
+    </div>
+  );
+}
+```
+
+Navigate to `Domains` menu items to view the Domain Management Universal Component.
 
 ### Component-Specific Requirements
 
