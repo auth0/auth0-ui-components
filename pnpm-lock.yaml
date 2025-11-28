@@ -147,6 +147,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.17
         version: 4.1.17
+      execa:
+        specifier: ^9.1.0
+        version: 9.6.0
       i18next:
         specifier: ^25.2.1
         version: 25.6.3(typescript@5.8.3)
@@ -156,6 +159,9 @@ importers:
       next:
         specifier: 15.4.7
         version: 15.4.7(@babel/core@7.28.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      ora:
+        specifier: ^8.0.1
+        version: 8.2.0
       postcss:
         specifier: ^8.5.5
         version: 8.5.6
