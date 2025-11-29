@@ -1,5 +1,4 @@
 import * as readline from "node:readline/promises"
-import { $ } from "execa"
 
 /**
  * Wait for user confirmation before proceeding
@@ -42,6 +41,7 @@ export async function getPasswordFromUser(message) {
   rl._writeToOutput = function (stringToWrite) {
     if (rl.stdoutMuted) {
       // mask user input characters
+      // eslint-disable-next-line no-control-regex
       rl.output.write("*".repeat(stringToWrite.replace(/\r?\n|\u0004/g, "").length));
     } else {
       rl.output.write(stringToWrite);

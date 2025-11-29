@@ -24,7 +24,7 @@ export async function checkAuth0CLI() {
   try {
     await $`auth0 --version`
     cliCheck.succeed()
-  } catch (e) {
+  } catch {
     cliCheck.fail(
       "The Auth0 CLI must be installed: https://github.com/auth0/auth0-cli"
     )

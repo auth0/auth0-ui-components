@@ -18,7 +18,6 @@ export const DEFAULT_CONNECTION_NAME = "Universal-Components-Demo"
  */
 export async function checkOrgMembers(
   existingOrgs,
-  existingOrgMembers,
 ) {
   const existingOrg = existingOrgs.find((r) => r.name === DEMO_ORG_NAME)
   if (!existingOrg) {
@@ -121,13 +120,13 @@ export async function applyOrgMemberChanges(changePlan, org, connection, role) {
         throw new Error(`Organization not found: ${DEMO_ORG_NAME}`)
       }
      
-      const memberRes = await auth0ApiCall("post", `organizations/${org}/members`, {
+      await auth0ApiCall("post", `organizations/${org}/members`, {
         members: [ targetUser.user_id ],
       })
 
       // Add role to Member
-      const escapedUserId = targetUser.user_id.replace(/\|/g, '\|')
-      const roleAssignments = await auth0ApiCall("post", `organizations/${org}/members/${escapedUserId}/roles`, {
+      const escapedUserId = targetUser.user_id.replace(/\|/g, '|')
+      await auth0ApiCall("post", `organizations/${org}/members/${escapedUserId}/roles`, {
         roles: [ role ]
       })
       

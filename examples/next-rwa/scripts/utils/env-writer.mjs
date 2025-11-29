@@ -9,10 +9,6 @@ export async function writeEnvFile(
   domain,
   dashboardClientId,
   dashboardClientSecret,
-  myOrgResourceServerId,
-  adminRoleId,
-  memberRoleId,
-  connectionId
 ) {
   const spinner = ora({
     text: `Writing .env.local file`,

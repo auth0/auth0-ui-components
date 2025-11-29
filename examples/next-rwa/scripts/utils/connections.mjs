@@ -207,7 +207,7 @@ export async function applyDatabaseConnectionChanges(
     }).start()
 
     try {
-      const { existing, updates } = changePlan
+      const { existing } = changePlan
       const existingEnabledClients = existing.enabled_clients || []
 
       // Use the actual client IDs instead of the ones from the change plan

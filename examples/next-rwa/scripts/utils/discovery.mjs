@@ -29,7 +29,7 @@ export const DEMO_ORG_NAME = "demo-org"
 /**
  * Get existing resources from tenant
  */
-export async function discoverExistingResources(domain) {
+export async function discoverExistingResources() {
   const spinner = ora({
     text: `Discovering existing resources in tenant`,
   }).start()
