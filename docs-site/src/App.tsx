@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Layout from './components/Layout';
+import { TechProvider } from './contexts/TechContext';
 import DomainTableDocs from './pages/DomainTableDocs';
 import GettingStarted from './pages/GettingStarted';
 import MyAccountIntroduction from './pages/MyAccountIntroduction';
@@ -33,7 +34,9 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <AppContent />
+      <TechProvider>
+        <AppContent />
+      </TechProvider>
     </Router>
   );
 }

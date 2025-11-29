@@ -1,4 +1,5 @@
 import CodeBlock from '../components/CodeBlock';
+import TabbedCodeBlock from '../components/TabbedCodeBlock';
 
 export default function SsoProviderEditDocs() {
   return (
@@ -99,10 +100,18 @@ export default function SsoProviderEditDocs() {
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-3">Option 1: NPM Package</h3>
             <p className="text-gray-600 mb-4">Install the React package:</p>
-            <CodeBlock
-              code="npm install @auth0/web-ui-components-react"
+            <TabbedCodeBlock
+              tabs={[
+                {
+                  label: 'npm',
+                  code: 'npm install @auth0/web-ui-components-react',
+                },
+                {
+                  label: 'pnpm',
+                  code: 'pnpm add @auth0/web-ui-components-react',
+                },
+              ]}
               language="bash"
-              title="npm"
             />
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
               <p className="text-sm text-blue-800">
@@ -120,8 +129,17 @@ export default function SsoProviderEditDocs() {
               project. You'll still need to install the core package separately:
             </p>
             <div className="space-y-3">
-              <CodeBlock
-                code="npm install @auth0/web-ui-components-core"
+              <TabbedCodeBlock
+                tabs={[
+                  {
+                    label: 'npm',
+                    code: 'npm install @auth0/web-ui-components-core',
+                  },
+                  {
+                    label: 'pnpm',
+                    code: 'pnpm add @auth0/web-ui-components-core',
+                  },
+                ]}
                 language="bash"
                 title="1. Install Core Package"
               />
@@ -145,7 +163,12 @@ export default function SsoProviderEditDocs() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
         <CodeBlock
-          code={`import { SsoProviderEdit } from '@auth0/web-ui-components-react';
+          code={`// For SPA applications:
+import { SsoProviderEdit } from '@auth0/web-ui-components-react/spa';
+
+// For Next.js/RWA applications:
+// import { SsoProviderEdit } from '@auth0/web-ui-components-react/rwa';
+
 // For shadcn users:
 // import { SsoProviderEdit } from '@/auth0-ui-components/blocks/my-org/idp-management/sso-provider-edit';
 import { useNavigate } from 'react-router-dom';
@@ -1354,9 +1377,9 @@ interface ComponentAction<T, U = undefined> {
         </p>
         <CodeBlock
           code={`import React from 'react';
-import { SsoProviderEdit } from '@auth0/web-ui-components-react';
+import { SsoProviderEdit } from '@auth0/web-ui-components-react/spa';
 import { Auth0Provider } from '@auth0/auth0-react';
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react';
+import { Auth0ComponentProvider } from '@auth0/web-ui-components-react/spa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
@@ -1455,8 +1478,11 @@ export default function App() {
     <Auth0Provider
       {...authDetails}
       redirectUri={window.location.origin}
+      authorizationParams={{
+        redirect_uri: window.location.origin
+      }}
     >
-      <Auth0ComponentProvider authDetails={authDetails}>
+      <Auth0ComponentProvider>
         <ProviderEditScreen />
       </Auth0ComponentProvider>
     </Auth0Provider>
