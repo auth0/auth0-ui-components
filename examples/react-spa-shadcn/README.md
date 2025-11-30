@@ -52,7 +52,7 @@ Before running the application, you need to configure your Auth0 credentials:
    - **Allowed Logout URLs**: `http://localhost:5173`
    - **Allowed Web Origins**: `http://localhost:5173`
 
-### 2. Setup the Monorepo
+### 2. Build the components package and install dependencies
 
 Make sure you run install and build scripts **at the root of the project** before starting the dev server.
 
@@ -77,11 +77,11 @@ Once the development server is running, you can access the application at:
 
 The application should now be running with Auth0 authentication integrated.
 
-## Adding an Auth0 Component
+## Adding an Auth0 Component with Shadcn
 
-### Step 1: Setup ShadCN UI
+### Step 1: Setup Shadcn UI
 
-If you haven't already set up ShadCN UI in your project, run the following command to initialize it:
+If you haven't already set up Shadcn UI in your project, run the following command to initialize it:
 
 ```sh
 npx shadcn@latest init
@@ -115,6 +115,8 @@ npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-org/org-detail
 ```
 
 This will install the `OrgDetailsEdit` component in your `blocks/` directory.
+
+**[Check docs](https://auth0-ui-components.vercel.app/) to view all available components.**
 
 **Note:** If you encounter certificate issues, use this workaround:
 

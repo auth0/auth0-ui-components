@@ -52,7 +52,7 @@ Before running the application, you need to configure your Auth0 credentials:
    - **Allowed Logout URLs**: `http://localhost:5173`
    - **Allowed Web Origins**: `http://localhost:5173`
 
-### 2. Setup the Monorepo
+### 2. Build the components package and install dependencies
 
 Make sure you run install and build scripts **at the root of the project** before starting the dev server.
 

@@ -12,10 +12,10 @@ import DomainManagementPage from './views/domain-management-page';
 import HomePage from './views/home-page';
 import MFAPage from './views/mfa-page';
 import OrgManagementPage from './views/org-management-page';
+import ProfilePage from './views/profile-page';
 import SsoProviderCreatePage from './views/sso-provider-create-page';
 import SsoProviderEditPage from './views/sso-provider-edit-page';
 import SsoProviderPage from './views/sso-provider-page';
-import UserProfilePage from './views/user-profile-page';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -50,7 +50,7 @@ function AppContent() {
             path="/profile"
             element={
               <ProtectedRoute>
-                <UserProfilePage />
+                <ProfilePage />
               </ProtectedRoute>
             }
           />

@@ -13,6 +13,7 @@ import IdentityProviderManagement from './pages/IdentityProviderManagement';
 import IdentityProviderManagementCreate from './pages/IdentityProviderManagementCreate';
 import IdentityProviderManagementEdit from './pages/IdentityProviderManagementEdit';
 import Index from './pages/Index';
+import MFAManagement from './pages/MFAManagement';
 import OrganizationManagement from './pages/OrganizationManagement';
 import Profile from './pages/Profile';
 
@@ -80,6 +81,14 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <Profile />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/mfa"
+                    element={
+                      <ProtectedRoute>
+                        <MFAManagement />
                       </ProtectedRoute>
                     }
                   />
