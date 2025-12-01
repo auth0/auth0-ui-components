@@ -545,6 +545,8 @@ describe('DomainCreateModal', () => {
   describe('schema and form handling', () => {
     describe('when custom schema is provided', () => {
       it('should use custom schema for validation', async () => {
+        const user = userEvent.setup();
+        const mockOnCreate = vi.fn().mockResolvedValue(undefined);
         const customSchema = {
           domainUrl: {
             regex: /^[a-z0-9.-]+\.[a-z]{2,}$/,
@@ -553,7 +555,12 @@ describe('DomainCreateModal', () => {
         };
 
         renderWithProviders(
-          <DomainCreateModal {...createMockDomainCreateModalProps({ schema: customSchema })} />,
+          <DomainCreateModal
+            {...createMockDomainCreateModalProps({
+              onCreate: mockOnCreate,
+              schema: customSchema,
+            })}
+          />,
         );
 
         await waitForComponentToLoad();
@@ -561,6 +568,24 @@ describe('DomainCreateModal', () => {
         // Component should render without error with custom schema
         expect(screen.getByRole('dialog')).toBeInTheDocument();
         expect(screen.getByLabelText('field.label')).toBeInTheDocument();
+
+        // Test that custom schema validation works and form can be saved
+        const domainInput = screen.getByLabelText('field.label');
+        const validDomain = 'valid-domain.com'; // Matches custom regex pattern
+
+        // Enter valid domain according to custom schema
+        await user.type(domainInput, validDomain);
+
+        // Submit form to test that schema validation passes and form saves
+        const createButton = screen.getByRole('button', {
+          name: 'actions.create_button_text',
+        });
+        await user.click(createButton);
+
+        // Confirm that the schema is applied and form data is saved
+        await waitFor(() => {
+          expect(mockOnCreate).toHaveBeenCalledWith(validDomain);
+        });
       });
     });
 

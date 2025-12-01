@@ -41,7 +41,8 @@ describe('DomainTableActionsColumn', () => {
       expect(trigger).toHaveClass('h-8', 'w-8');
     });
 
-    it('should render with custom messages', () => {
+    it('should render with custom messages', async () => {
+      const user = userEvent.setup();
       const customMessages = {
         table: {
           empty_message: 'No domains',
@@ -52,15 +53,20 @@ describe('DomainTableActionsColumn', () => {
           actions: {
             delete_button_text: 'Custom Delete',
             configure_button_text: 'Custom Configure',
-            view_button_text: 'table.actions.view_button_text',
-            verify_button_text: 'table.actions.verify_button_text',
+            view_button_text: 'Custom View',
+            verify_button_text: 'Custom Verify',
           },
         },
       };
       const props = createMockDomainTableActionsColumnProps({ customMessages });
       renderWithProviders(<DomainTableActionsColumn {...props} />);
 
-      expect(screen.getByRole('button')).toBeInTheDocument();
+      const trigger = screen.getByRole('button');
+      await user.click(trigger);
+
+      expect(screen.getByRole('menuitem', { name: 'Custom Delete' })).toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: 'Custom View' })).toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: 'Custom Verify' })).toBeInTheDocument();
     });
 
     it('should have proper accessibility attributes', () => {
@@ -428,17 +434,65 @@ describe('DomainTableActionsColumn', () => {
   });
 
   describe('Callback Functionality', () => {
-    it('should call correct callback functions', () => {
+    it('should call correct callback functions', async () => {
+      const user = userEvent.setup();
       const onConfigure = vi.fn();
-      const domain = createMockVerifiedDomain();
-      const props = createMockDomainTableActionsColumnProps({
-        domain,
+      const onVerify = vi.fn();
+      const onDelete = vi.fn();
+
+      // Test with pending domain (shows View, Verify, Delete actions)
+      const pendingDomain = createMockDomain({ status: 'pending' });
+      const pendingProps = createMockDomainTableActionsColumnProps({
+        domain: pendingDomain,
         onConfigure,
+        onVerify,
+        onDelete,
       });
 
-      renderWithProviders(<DomainTableActionsColumn {...props} />);
+      const { unmount } = renderWithProviders(<DomainTableActionsColumn {...pendingProps} />);
 
-      expect(screen.getByRole('button')).toBeInTheDocument();
+      const trigger = screen.getByRole('button');
+      await user.click(trigger);
+
+      const viewMenuItem = screen.getByRole('menuitem', { name: 'table.actions.view_button_text' });
+      await user.click(viewMenuItem);
+      expect(onConfigure).toHaveBeenCalledWith(pendingDomain);
+
+      await user.click(trigger); // Reopen the menu
+      const verifyMenuItem = screen.getByRole('menuitem', {
+        name: 'table.actions.verify_button_text',
+      });
+      await user.click(verifyMenuItem);
+      expect(onVerify).toHaveBeenCalledWith(pendingDomain);
+
+      // Cleanup and test verified domain
+      unmount();
+      vi.clearAllMocks();
+
+      const verifiedDomain = createMockVerifiedDomain();
+      const verifiedProps = createMockDomainTableActionsColumnProps({
+        domain: verifiedDomain,
+        onConfigure,
+        onDelete,
+      });
+
+      renderWithProviders(<DomainTableActionsColumn {...verifiedProps} />);
+
+      const triggerVerified = screen.getByRole('button');
+      await user.click(triggerVerified);
+
+      const configureMenuItem = screen.getByRole('menuitem', {
+        name: 'table.actions.configure_button_text',
+      });
+      await user.click(configureMenuItem);
+      expect(onConfigure).toHaveBeenCalledWith(verifiedDomain);
+
+      await user.click(triggerVerified);
+      const deleteMenuItem = screen.getByRole('menuitem', {
+        name: 'table.actions.delete_button_text',
+      });
+      await user.click(deleteMenuItem);
+      expect(onDelete).toHaveBeenCalledWith(verifiedDomain);
     });
   });
 
