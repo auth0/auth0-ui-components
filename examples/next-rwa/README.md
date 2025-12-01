@@ -43,8 +43,8 @@ You will see the following features leveraged within the demo app.
 2. Build the components package and install dependencies:
 
    ```bash
-   pnpm run build
    pnpm install
+   pnpm run build
    ```
 
 3. Navigate to the examples folder and install dependencies:
