@@ -1,4 +1,4 @@
-# Auth0 Web UI Components
+# Auth0 Web Universal Components
 
 A comprehensive library of reusable UI components and utilities for Auth0 integrations, built with modern web technologies and designed for scalability.
 

@@ -1,6 +1,6 @@
-# React SPA with ShadCN UI - Setup Guide
+# React SPA with Auth0 Universal Components (shadcn) - Setup Guide
 
-A modern React single-page application built with Vite, TypeScript, and ShadCN UI components, featuring integrated Auth0 authentication and multi-factor authentication (MFA) management capabilities.
+This guide will walk you through setting up and running the React SPA with Auth0 Universal Components (shadcn).
 
 ## Prerequisites
 
@@ -12,7 +12,8 @@ Before you begin, make sure you have the following installed on your system:
 
 **Auth0 Configuration Requirements:**
 
-Different Auth0 UI components may have specific configuration requirements. Please refer to the [Auth0 UI Components Documentation](https://auth0-ui-components.vercel.app/getting-started) for detailed prerequisites for each component you plan to use.
+Different Auth0 Universal components may have specific configuration requirements.
+**Please refer to the [Auth0 Universal Components Documentation](https://auth0-ui-components.vercel.app/getting-started) for detailed prerequisites for each component you plan to use.**
 
 Basic Auth0 setup requirements for this sample application:
 
@@ -26,25 +27,41 @@ For component-specific Auth0 configuration (such as MFA grant types, social conn
 
 ### 1. Environment Setup
 
-Create a `.env` file in the sample app directory (react-spa-shadcn):
+Before running the application, you need to configure your Auth0 credentials:
 
-```env
-VITE_AUTH0_DOMAIN=your-auth0-domain.auth0.com
-VITE_AUTH0_CLIENT_ID=your-auth0-client-id
+1. **Create environment file:**
+
+   In the root directory of your project (or in the example directory if working with monorepo), create a `.env` file:
+
+   ```env
+   VITE_AUTH0_DOMAIN=your-auth0-domain.auth0.com
+   VITE_AUTH0_CLIENT_ID=your-auth0-client-id
+   ```
+
+2. **Configure Auth0 values:**
+
+   Replace the placeholder values with your actual Auth0 credentials:
+   - `VITE_AUTH0_DOMAIN`: Your Auth0 domain (found in your Auth0 Dashboard > Applications > Settings)
+   - `VITE_AUTH0_CLIENT_ID`: Your Auth0 application client ID (found in the same location)
+
+3. **Auth0 Application Settings:**
+
+   Make sure your Auth0 application is configured with the following settings:
+   - **Application Type**: Single Page Application
+   - **Allowed Callback URLs**: `http://localhost:5173`
+   - **Allowed Logout URLs**: `http://localhost:5173`
+   - **Allowed Web Origins**: `http://localhost:5173`
+
+### 2. Build the components package and install dependencies
+
+Make sure you run install and build scripts **at the root of the project** before starting the dev server.
+
+```sh
+pnpm install
+pnpm run build
 ```
 
-Replace the values with your actual Auth0 domain and client ID.
-
-**Auth0 Application Settings:**
-
-Ensure your Auth0 application has the following settings:
-
-- **Application Type**: Single Page Application
-- **Allowed Callback URLs**: `http://localhost:5173`
-- **Allowed Logout URLs**: `http://localhost:5173`
-- **Allowed Web Origins**: `http://localhost:5173`
-
-### 2. Run the Development Server
+### 3. Run the Development Server
 
 ```sh
 pnpm run dev
@@ -52,7 +69,7 @@ pnpm run dev
 
 Run this command from the `examples/react-spa-shadcn` directory.
 
-### 3. Access the Application
+### 4. Access the Application
 
 Once the development server is running, you can access the application at:
 
@@ -60,11 +77,11 @@ Once the development server is running, you can access the application at:
 
 The application should now be running with Auth0 authentication integrated.
 
-## Adding an Auth0 Component
+## Adding an Auth0 Component with Shadcn
 
-### Step 1: Setup ShadCN UI
+### Step 1: Setup Shadcn UI
 
-If you haven't already set up ShadCN UI in your project, run the following command to initialize it:
+If you haven't already set up Shadcn UI in your project, run the following command to initialize it:
 
 ```sh
 npx shadcn@latest init
@@ -89,20 +106,22 @@ This will:
 - Create a `src/lib/utils.ts` file with utility functions
 - Set up the proper directory structure for components
 
-### Step 2: Install a Component (e.g. MFA Component)
+### Step 2: Install a Component (e.g. OrgDetailsEdit Component)
 
-Use the ShadCN CLI to add the MFA component:
+Use the ShadCN CLI to add the OrgDetailsEdit component:
 
 ```sh
-npx shadcn@latest add https://auth0-ui-components.vercel.app/r/user-mfa-management.json
+npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-org/org-details-edit.json
 ```
 
-This will install the `UserMFAMgmt` component in your `src/blocks/` directory.
+This will install the `OrgDetailsEdit` component in your `blocks/` directory.
+
+**[Check docs](https://auth0-ui-components.vercel.app/) to view all available components.**
 
 **Note:** If you encounter certificate issues, use this workaround:
 
 ```sh
-NODE_TLS_REJECT_UNAUTHORIZED=0 npx shadcn@latest add https://auth0-ui-components.vercel.app/r/user-mfa-management.json
+NODE_TLS_REJECT_UNAUTHORIZED=0 npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-org/org-details-edit.json
 ```
 
 ### Step 3: Configure the Auth0 Component Provider
@@ -114,12 +133,12 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Routes, Route, BrowserRouter } from '@/components/RouterCompat';
 import Index from './pages/Index';
-import Profile from './pages/Profile';
+import OrganizationManagement from './pages/OrganizationManagement';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { useTranslation } from 'react-i18next';
 import { config } from './config/env';
-// ========== Importing Component Provider ==========
-import { Auth0ComponentProvider } from '@/providers/component-provider';
+// ========== Importing Component Provider (choose the right folder path) ==========
+import { Auth0ComponentProvider } from '@/providers/spa-provider';
 
 const queryClient = new QueryClient();
 
@@ -138,14 +157,14 @@ const App = () => {
             clientId={config.auth0.clientId}
             authorizationParams={{ redirect_uri: window.location.origin }}
           >
-            {/* Wrapping routes with Auth0ComponentProvider for MFA and localization */}
+            {/* Wrapping routes with Auth0ComponentProvider*/}
             <Auth0ComponentProvider
               authDetails={defaultAuthDetails}
               i18n={{ currentLanguage: i18n.language }}
             >
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/profile" element={<Profile />} />
+                <Route path="/org-management" element={<OrganizationManagement />} />
               </Routes>
             </Auth0ComponentProvider>
           </Auth0Provider>
@@ -158,60 +177,43 @@ const App = () => {
 export default App;
 ```
 
-### Step 4: Using a Component (e.g. UserMFAMgmt Component)
+### Step 4: Using a Component (e.g. OrgDetailsEdit Component)
 
-Here's how to integrate the MFA component in your profile page (`src/pages/Profile.tsx`):
+Here's how to integrate the OrgDetailsEdit component in your organization management page (`src/pages/OrganizationManagement.tsx`):
 
 ```tsx
 import Header from '@/components/Header';
 import { useTranslation } from 'react-i18next';
-// ========== Importing UserMFAMgmt ==========
-import { UserMFAMgmt } from '@/blocks/user-mfa-management';
+// ========== Importing OrgDetailsEdit (choose the right folder path) ==========
+import { OrgDetailsEdit } from '@/blocks/my-org/org-management/org-details-edit';
 
-const Profile = () => {
+const OrganizationManagement = () => {
   const { t } = useTranslation();
 
   return (
     <div className="min-h-screen">
       <Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-semibold text-gray-900 mb-6">{t('user-profile.title')}</h1>
+        <h1 className="text-3xl font-semibold text-gray-900 mb-6">{t('org-management.title')}</h1>
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-medium text-gray-900 mb-4">{t('user-profile.mfa.title')}</h2>
-          <p className="text-gray-600 mb-4">{t('user-profile.mfa.description')}</p>
-          {/* Manage MFA Section */}
-          {/* ==========  MFA SECTION START ========== */}
-          <UserMFAMgmt
-            factorConfig={{
-              duo: {
-                visible: false,
-              },
-              'webauthn-platform': {
-                visible: false,
-              },
-              'recovery-code': {
-                visible: false,
-              },
-              'webauthn-roaming': {
-                visible: false,
-              },
-            }}
-          />
-          {/* ========== MFA SECTION END ========== */}
+          <h2 className="text-xl font-medium text-gray-900 mb-4">{t('org-management.subtitle')}</h2>
+          <p className="text-gray-600 mb-4">{t('org-management.description')}</p>
+          {/* ========== Adding the component ========== */}
+          <OrgDetailsEdit />
         </div>
       </div>
     </div>
   );
 };
 
-export default Profile;
+export default OrganizationManagement;
 ```
 
 ## Component Documentation
 
 For detailed configuration options, props, troubleshooting, and component-specific requirements, please refer to the official component documentation:
 
-**[Auth0 UI Components Documentation](https://auth0-ui-components.vercel.app/getting-started)**
+**[Auth0 Universal Components Documentation](https://auth0-ui-components.vercel.app/getting-started)**
 
 Each component has its own documentation page with:
 
@@ -241,23 +243,22 @@ This project is built with:
 
 ### Common Issues
 
-1. **Auth0 Environment Variables Missing**
-   - Ensure `.env` file is created with correct Auth0 credentials
-   - Verify Auth0 application settings match your local environment
+1. **Build Errors in Monorepo Setup**
+   - Make sure you run `pnpm run build` at the project root before starting the dev server
+   - Ensure all dependencies are installed with `pnpm install` at the root
 
-2. **MFA Component Not Loading**
-   - Check that the ShadCN installation completed successfully
-   - Verify the `UserMFAMgmt` import path is correct
-   - Ensure `Auth0ComponentProvider` wraps your component tree
+2. **Auth0 Configuration Issues**
+   - Verify your `.env` file is in the correct location
+   - Check that your Auth0 domain and client ID are correct
+   - Ensure Auth0 application settings match your local development URL
 
-3. **Translation Keys Not Working**
-   - Verify translation keys exist in your locale files
-   - Check that i18next is properly configured
-   - Ensure the correct language is being passed to `Auth0ComponentProvider`
+3. **Port Already in Use**
+   - If port 5173 is already in use, Vite will automatically use the next available port
+   - Check the terminal output for the actual port being used
 
-4. **Certificate Chain Issues**
-   - Use the `NODE_TLS_REJECT_UNAUTHORIZED=0` workaround when installing components
-   - This is a temporary solution for development environments
+4. **pnpm Command Not Found**
+   - Install pnpm globally: `npm install -g pnpm`
+   - Or use npx: `npx pnpm install`
 
 ### Getting Help
 

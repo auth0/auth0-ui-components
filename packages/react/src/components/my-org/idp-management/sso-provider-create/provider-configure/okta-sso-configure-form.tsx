@@ -36,6 +36,7 @@ export interface OktaConfigureFormHandle {
   validate: () => Promise<boolean>;
   getData: () => OktaConfigureFormValues;
   isDirty: () => boolean;
+  reset: (data?: OktaConfigureFormValues) => void;
 }
 
 interface OktaConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
@@ -93,6 +94,13 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
       },
       getData: () => form.getValues(),
       isDirty: () => form.formState.isDirty,
+      reset: (data) => {
+        if (data) {
+          form.reset(data);
+        } else {
+          form.reset();
+        }
+      },
     }));
 
     return (

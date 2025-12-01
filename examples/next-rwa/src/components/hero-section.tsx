@@ -19,13 +19,17 @@ export function HeroSection() {
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <a
-                href="https://auth0.com/docs/quickstart/spa/react/interactive"
+                href="https://auth0-ui-components.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="px-5 py-2 mt-6 text-sm font-medium leading-5 text-center text-white capitalize bg-slate-900 rounded-lg hover:bg-slate-700 lg:mx-0 lg:w-auto focus:outline-none"
               >
                 {t('hero-section.get-started-button')}
               </a>
               <a
                 href="https://auth0.com/docs"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="px-5 py-2 mt-6 text-sm font-semibold leading-6 text-gray-900 dark:text-white"
               >
                 {t('hero-section.learn-more-button')}

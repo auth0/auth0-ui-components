@@ -1,4 +1,5 @@
 import CodeBlock from '../components/CodeBlock';
+import TabbedCodeBlock from '../components/TabbedCodeBlock';
 
 export default function UserMFA() {
   return (
@@ -113,10 +114,18 @@ export default function UserMFA() {
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-3">Option 1: NPM Package</h3>
             <p className="text-gray-600 mb-4">Install the React package:</p>
-            <CodeBlock
-              code="npm install @auth0/web-ui-components-react"
+            <TabbedCodeBlock
+              tabs={[
+                {
+                  label: 'npm',
+                  code: 'npm install @auth0/web-ui-components-react',
+                },
+                {
+                  label: 'pnpm',
+                  code: 'pnpm add @auth0/web-ui-components-react',
+                },
+              ]}
               language="bash"
-              title="npm"
             />
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
               <p className="text-sm text-blue-800">
@@ -134,8 +143,17 @@ export default function UserMFA() {
               You'll still need to install the core package separately:
             </p>
             <div className="space-y-3">
-              <CodeBlock
-                code="npm install @auth0/web-ui-components-core"
+              <TabbedCodeBlock
+                tabs={[
+                  {
+                    label: 'npm',
+                    code: 'npm install @auth0/web-ui-components-core',
+                  },
+                  {
+                    label: 'pnpm',
+                    code: 'pnpm add @auth0/web-ui-components-core',
+                  },
+                ]}
                 language="bash"
                 title="1. Install Core Package"
               />
@@ -160,7 +178,12 @@ export default function UserMFA() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
         <CodeBlock
-          code={`import { UserMFAMgmt } from '@auth0/web-ui-components-react';
+          code={`// For SPA applications:
+import { UserMFAMgmt } from '@auth0/web-ui-components-react/spa';
+
+// For Next.js/RWA applications:
+// import { UserMFAMgmt } from '@auth0/web-ui-components-react/rwa';
+
 // For shadcn users:
 // import { UserMFAMgmt } from '@/auth0-ui-components/blocks/my-account/mfa/user-mfa-management';
 
@@ -736,9 +759,8 @@ interface UserMFAMgmtClasses {
         <h2 className="text-2xl font-semibold text-gray-900">Complete Integration Example</h2>
         <CodeBlock
           code={`import React from 'react';
-import { UserMFAMgmt } from '@auth0/web-ui-components-react';
+import { UserMFAMgmt, Auth0ComponentProvider } from '@auth0/web-ui-components-react/spa';
 import { Auth0Provider } from '@auth0/auth0-react';
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react';
 
 function SecurityPage() {
   const handleMFAEnroll = () => {
@@ -792,8 +814,11 @@ export default function App() {
     <Auth0Provider
       {...authDetails}
       redirectUri={window.location.origin}
+      authorizationParams={{
+        redirect_uri: window.location.origin
+      }}
     >
-      <Auth0ComponentProvider authDetails={authDetails}>
+      <Auth0ComponentProvider>
         <SecurityPage />
       </Auth0ComponentProvider>
     </Auth0Provider>

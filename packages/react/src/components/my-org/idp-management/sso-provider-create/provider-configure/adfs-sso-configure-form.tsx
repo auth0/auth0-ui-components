@@ -31,6 +31,7 @@ export interface AdfsConfigureFormHandle {
   validate: () => Promise<boolean>;
   getData: () => AdfsConfigureFormValues;
   isDirty: () => boolean;
+  reset: (data?: AdfsConfigureFormValues) => void;
 }
 
 interface AdfsConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
@@ -73,6 +74,13 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
       },
       getData: () => form.getValues(),
       isDirty: () => form.formState.isDirty,
+      reset: (data) => {
+        if (data) {
+          form.reset(data);
+        } else {
+          form.reset();
+        }
+      },
     }));
 
     const typeValue = form.watch('meta_data_source');

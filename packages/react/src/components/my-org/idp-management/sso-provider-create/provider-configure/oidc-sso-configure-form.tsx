@@ -30,6 +30,7 @@ export interface OidcConfigureFormHandle {
   validate: () => Promise<boolean>;
   getData: () => OidcConfigureFormValues;
   isDirty: () => boolean;
+  reset: (data?: OidcConfigureFormValues) => void;
 }
 
 interface OidcConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
@@ -80,6 +81,13 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
       },
       getData: () => form.getValues(),
       isDirty: () => form.formState.isDirty,
+      reset: (data) => {
+        if (data) {
+          form.reset(data);
+        } else {
+          form.reset();
+        }
+      },
     }));
 
     const typeValue = form.watch('type');

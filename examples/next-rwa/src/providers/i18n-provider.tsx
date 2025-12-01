@@ -13,8 +13,7 @@ i18n.use(initReactI18next).init({
         'nav-bar.sign-out-button': 'Sign Out',
         'nav-bar.profile-button': 'Profile',
         'hero-section.title': 'Universal Components',
-        'hero-section.description':
-          'A Next.js quickstart demonstrating delegated Organization Management leveraging Auth0 Universal Components.',
+        'hero-section.description': 'A Next.js quickstart demonstrating delegated Organization Management leveraging Auth0 Universal Components.',
         'hero-section.get-started-button': 'Get Started',
         'hero-section.learn-more-button': 'Learn More',
         'profile.title': 'User',

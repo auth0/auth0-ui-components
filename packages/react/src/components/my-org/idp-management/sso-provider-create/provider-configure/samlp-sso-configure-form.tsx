@@ -59,6 +59,7 @@ export interface SamlpConfigureFormHandle {
   validate: () => Promise<boolean>;
   getData: () => SamlpConfigureFormValues;
   isDirty: () => boolean;
+  reset: (data?: SamlpConfigureFormValues) => void;
 }
 
 interface SamlpConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
@@ -106,6 +107,13 @@ export const SamlpProviderForm = React.forwardRef<
     },
     getData: () => form.getValues(),
     isDirty: () => form.formState.isDirty,
+    reset: (data) => {
+      if (data) {
+        form.reset(data);
+      } else {
+        form.reset();
+      }
+    },
   }));
 
   const typeValue = form.watch('meta_data_source');

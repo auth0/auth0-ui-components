@@ -57,6 +57,7 @@ export interface PingFederateConfigureFormHandle {
   validate: () => Promise<boolean>;
   getData: () => PingFederateConfigureFormValues;
   isDirty: () => boolean;
+  reset: (data?: PingFederateConfigureFormValues) => void;
 }
 
 interface PingFederateConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
@@ -102,6 +103,13 @@ export const PingFederateProviderForm = React.forwardRef<
     },
     getData: () => form.getValues(),
     isDirty: () => form.formState.isDirty,
+    reset: (data) => {
+      if (data) {
+        form.reset(data);
+      } else {
+        form.reset();
+      }
+    },
   }));
 
   const signRequestEnabled = form.watch('signSAMLRequest');

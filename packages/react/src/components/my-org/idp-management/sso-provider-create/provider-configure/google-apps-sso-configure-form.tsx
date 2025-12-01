@@ -29,6 +29,7 @@ export interface GoogleAppsConfigureFormHandle {
   validate: () => Promise<boolean>;
   getData: () => GoogleAppsConfigureFormValues;
   isDirty: () => boolean;
+  reset: (data?: GoogleAppsConfigureFormValues) => void;
 }
 
 interface GoogleAppsConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
@@ -87,6 +88,13 @@ export const GoogleAppsProviderForm = React.forwardRef<
     },
     getData: () => form.getValues(),
     isDirty: () => form.formState.isDirty,
+    reset: (data) => {
+      if (data) {
+        form.reset(data);
+      } else {
+        form.reset();
+      }
+    },
   }));
 
   return (

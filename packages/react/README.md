@@ -1,4 +1,4 @@
-![Auth0 React Web UI Components SDK for JavaScript/TypeScript](https://cdn.auth0.com/website/sdks/banners/web-ui-components-react.png)
+![Auth0 React Web Universal Components SDK for JavaScript/TypeScript](https://cdn.auth0.com/website/sdks/banners/web-ui-components-react.png)
 
 React component library for Auth0 integrations. Built with TypeScript, Radix UI, and Tailwind CSS.
 
@@ -54,7 +54,7 @@ For detailed setup instructions, follow the [Auth0 React Quickstart](https://aut
 
 ```tsx
 import { Auth0Provider } from '@auth0/auth0-react';
-import { Auth0ComponentProvider, UserMFAMgmt } from '@auth0/web-ui-components-react/spa';
+import { Auth0ComponentProvider, OrgDetailsEdit } from '@auth0/web-ui-components-react/spa';
 import '@auth0/web-ui-components-react/styles';
 
 function App() {
@@ -72,7 +72,7 @@ function App() {
         }}
         themeSettings={{ theme: 'default', mode: 'light' }}
       >
-        <UserMFAMgmt />
+        <OrgDetailsEdit />
       </Auth0ComponentProvider>
     </Auth0Provider>
   );
@@ -107,15 +107,15 @@ export default function RootLayout({ children }) {
 ### Step 3: Use Components
 
 ```tsx
-import { UserMFAMgmt } from '@auth0/web-ui-components-react/spa';
+import { OrgDetailsEdit } from '@auth0/web-ui-components-react/spa';
 // or
-import { UserMFAMgmt } from '@auth0/web-ui-components-react/rwa';
+import { OrgDetailsEdit } from '@auth0/web-ui-components-react/rwa';
 
 function MyPage() {
   return (
     <div>
-      <h1>Security Settings</h1>
-      <UserMFAMgmt />
+      <h1>Organization Settings</h1>
+      <OrgDetailsEdit />
     </div>
   );
 }

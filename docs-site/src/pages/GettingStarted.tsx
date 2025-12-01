@@ -1,11 +1,16 @@
 import CodeBlock from '../components/CodeBlock';
+import TabbedCodeBlock from '../components/TabbedCodeBlock';
+
+import { useTech } from '@/contexts/TechContext';
 
 export default function GettingStarted() {
+  const { selectedTech } = useTech();
+
   return (
     <div className="max-w-6xl mx-auto space-y-12">
       <div className="space-y-4">
         <h1 className="text-4xl font-bold text-gray-900">
-          Auth0 UI Components{' '}
+          Auth0 Universal Components{' '}
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
             BETA
           </span>
@@ -159,10 +164,12 @@ export default function GettingStarted() {
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-3">Option 1: NPM Package</h3>
             <p className="text-gray-600 mb-4">Install the React package:</p>
-            <CodeBlock
-              code="npm install @auth0/web-ui-components-react"
+            <TabbedCodeBlock
+              tabs={[
+                { label: 'npm', code: 'npm install @auth0/web-ui-components-react' },
+                { label: 'pnpm', code: 'pnpm add @auth0/web-ui-components-react' },
+              ]}
               language="bash"
-              title="npm"
             />
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
               <p className="text-sm text-blue-800">
@@ -180,8 +187,11 @@ export default function GettingStarted() {
               still need to install the core package separately:
             </p>
             <div className="space-y-3">
-              <CodeBlock
-                code="npm install @auth0/web-ui-components-core"
+              <TabbedCodeBlock
+                tabs={[
+                  { label: 'npm', code: 'npm install @auth0/web-ui-components-core' },
+                  { label: 'pnpm', code: 'pnpm add @auth0/web-ui-components-core' },
+                ]}
                 language="bash"
                 title="1. Install Core Package"
               />
@@ -192,12 +202,22 @@ export default function GettingStarted() {
               />
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-blue-800 mb-3">
                 <strong>Note:</strong> Shadcn installs the React component source code in your{' '}
                 <code>src/auth0-ui-components/</code> directory along with all UI dependencies, but
                 you must install the core package separately via npm.
               </p>
+              <p className="text-sm text-blue-800">
+                <strong>Important:</strong> When using Shadcn components, you must import the global
+                styles in your root file:
+              </p>
             </div>
+            <CodeBlock
+              code={`// In your App.tsx or main entry file
+import 'src/auth0-ui-components/styles/globals.css';`}
+              language="tsx"
+              title="3. Import Global Styles"
+            />
           </div>
         </div>
       </section>
@@ -244,8 +264,8 @@ export default function GettingStarted() {
                 />
               </svg>
               <div>
-                <strong>React Application:</strong> This package is designed for React 18+
-                applications
+                <strong>React 16.11+:</strong> This package supports React 16.11.0 and above,
+                including React 17, 18, and 19
               </div>
             </li>
             <li className="flex items-start">
@@ -261,19 +281,125 @@ export default function GettingStarted() {
                 />
               </svg>
               <div>
-                <strong>Auth0 React SDK:</strong> Install and configure{' '}
+                <strong>Tailwind CSS Configured:</strong> Follow the{' '}
                 <a
-                  href="https://github.com/auth0/auth0-react"
+                  href="https://tailwindcss.com/docs/installation"
                   className="text-blue-600 hover:underline font-medium"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  @auth0/auth0-react
+                  Tailwind CSS installation guide
                 </a>
               </div>
             </li>
           </ul>
         </div>
+      </section>
+
+      {/* Peer Dependencies */}
+      <section className="space-y-6">
+        <h2 className="text-2xl font-semibold text-gray-900">Peer Dependencies</h2>
+        <p className="text-gray-600">
+          The following packages must be installed in your application:
+        </p>
+
+        {selectedTech === 'react' && (
+          <>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+              <ul className="space-y-2 text-gray-800">
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    react ^16.11.0 || ^17 || ^18 || ^19
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    react-dom ^16.11.0 || ^17 || ^18 || ^19
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    react-hook-form ^7.0.0
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    tailwindcss ^3.0.0 || ^4.0.0
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    @auth0/auth0-react ^2.0.0
+                  </code>
+                </li>
+              </ul>
+            </div>
+
+            <TabbedCodeBlock
+              tabs={[
+                {
+                  label: 'npm',
+                  code: 'npm install react react-dom react-hook-form tailwindcss @auth0/auth0-react',
+                },
+                {
+                  label: 'pnpm',
+                  code: 'pnpm add react react-dom react-hook-form tailwindcss @auth0/auth0-react',
+                },
+              ]}
+              language="bash"
+              title="Install Peer Dependencies"
+            />
+          </>
+        )}
+
+        {selectedTech === 'nextjs' && (
+          <>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+              <ul className="space-y-2 text-gray-800">
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    react ^16.11.0 || ^17 || ^18 || ^19
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    react-dom ^16.11.0 || ^17 || ^18 || ^19
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    react-hook-form ^7.0.0
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    tailwindcss ^3.0.0 || ^4.0.0
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    @auth0/nextjs-auth0 ^4.0.0
+                  </code>
+                </li>
+              </ul>
+            </div>
+
+            <TabbedCodeBlock
+              tabs={[
+                {
+                  label: 'npm',
+                  code: 'npm install react react-dom react-hook-form tailwindcss @auth0/nextjs-auth0',
+                },
+                {
+                  label: 'pnpm',
+                  code: 'pnpm add react react-dom react-hook-form tailwindcss @auth0/nextjs-auth0',
+                },
+              ]}
+              language="bash"
+              title="Install Peer Dependencies"
+            />
+          </>
+        )}
       </section>
 
       {/* Component Configuration */}
@@ -307,24 +433,35 @@ export default function GettingStarted() {
       {/* Quick Start */}
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Quick Start</h2>
-        <div className="space-y-6">
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-3">
-              1. Wrap Your App with Auth0Provider and Auth0ComponentProvider
+
+        {selectedTech === 'react' && (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-blue-600 flex items-center gap-2">
+              <span className="text-2xl">⚛️</span>
+              React SPA
             </h3>
-            <CodeBlock
-              code={`import { Auth0Provider } from '@auth0/auth0-react';
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react';
+
+            <div>
+              <h4 className="text-lg font-medium text-gray-900 mb-3">
+                1. Wrap Your App with Auth0Provider and Auth0ComponentProvider
+              </h4>
+              <CodeBlock
+                code={`import { Auth0Provider } from '@auth0/auth0-react';
+import { Auth0ComponentProvider } from '@auth0/web-ui-components-react/spa';
+import '@auth0/web-ui-components-react/styles';
 
 const authDetails = {
   domain: import.meta.env.VITE_AUTH0_DOMAIN,
-  clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
 };
 
 function App() {
   return (
     <Auth0Provider
-      {...authDetails}
+      domain={authDetails.domain}
+      clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
+      authorizationParams={{
+        redirect_uri: window.location.origin
+      }}
     >
       <Auth0ComponentProvider authDetails={authDetails}>
         {/* Your app components */}
@@ -332,22 +469,20 @@ function App() {
     </Auth0Provider>
   );
 }`}
-              language="tsx"
-              title="App.tsx"
-            />
-          </div>
+                language="tsx"
+                title="App.tsx"
+              />
+            </div>
 
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-3">
-              2. Add an Auth0 UI component (e.g. UserMFAMgmt)
-            </h3>
-            <CodeBlock
-              code={`import { useAuth0 } from '@auth0/auth0-react';
-import { OrgDetailsEdit } from '@auth0/web-ui-components-react';
-// For shadcn users:
-// import { OrgDetailsEdit } from '@/auth0-ui-components/blocks/my-org/org-management/org-details-edit';
+            <div>
+              <h4 className="text-lg font-medium text-gray-900 mb-3">
+                2. Use an Auth0 Universal Component
+              </h4>
+              <CodeBlock
+                code={`import { useAuth0 } from '@auth0/auth0-react';
+import { OrgDetailsEdit } from '@auth0/web-ui-components-react/spa';
 
-function EditOrgPage() {
+function OrganizationManagementPage() {
   const { isAuthenticated, isLoading } = useAuth0();
 
   if (isLoading) return <div>Loading...</div>;
@@ -359,11 +494,77 @@ function EditOrgPage() {
     </div>
   );
 }`}
-              language="tsx"
-              title="SecurityPage.tsx"
-            />
+                language="tsx"
+                title="OrganizationManagementPage.tsx"
+              />
+            </div>
           </div>
-        </div>
+        )}
+
+        {selectedTech === 'nextjs' && (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-blue-600 flex items-center gap-2">
+              <span className="text-2xl">▲</span>
+              Next.js (App Router)
+            </h3>
+
+            <div>
+              <h4 className="text-lg font-medium text-gray-900 mb-3">
+                1. Set up Auth0ComponentProvider in Root Layout
+              </h4>
+              <CodeBlock
+                code={`'use client';
+
+import { Auth0ComponentProvider } from '@auth0/web-ui-components-react/rwa';
+import '@auth0/web-ui-components-react/styles';
+
+const authDetails = {
+  authProxyUrl: '/',
+  domain: process.env.NEXT_PUBLIC_AUTH0_DOMAIN,
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        <Auth0ComponentProvider authDetails={authDetails}>
+          {children}
+        </Auth0ComponentProvider>
+      </body>
+    </html>
+  );
+}`}
+                language="tsx"
+                title="app/layout.tsx"
+              />
+            </div>
+
+            <div>
+              <h4 className="text-lg font-medium text-gray-900 mb-3">
+                2. Use an Auth0 Universal Component in a Page
+              </h4>
+              <CodeBlock
+                code={`'use client';
+
+import { OrgDetailsEdit } from '@auth0/web-ui-components-react/rwa';
+
+export default function OrganizationManagementPage() {
+  return (
+    <div>
+      <OrgDetailsEdit />
+    </div>
+  );
+}`}
+                language="tsx"
+                title="OrganizationManagementPage.tsx"
+              />
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Provider Configuration */}
@@ -638,13 +839,22 @@ function EditOrgPage() {
                     <strong>Typography:</strong>
                     <ul className="list-disc ml-4 text-xs">
                       <li>
+                        <code>--font-size-page-header</code>
+                      </li>
+                      <li>
+                        <code>--font-size-page-description</code>
+                      </li>
+                      <li>
                         <code>--font-size-heading</code>
                       </li>
                       <li>
-                        <code>--font-size-description</code>
+                        <code>--font-size-title</code>
                       </li>
                       <li>
-                        <code>--font-size-title</code>
+                        <code>--font-size-subtitle</code>
+                      </li>
+                      <li>
+                        <code>--font-size-body</code>
                       </li>
                       <li>
                         <code>--font-size-paragraph</code>
@@ -674,49 +884,64 @@ function EditOrgPage() {
                     <strong>Colors:</strong>
                     <ul className="list-disc ml-4 text-xs">
                       <li>
+                        <code>--background</code>
+                      </li>
+                      <li>
+                        <code>--foreground</code>
+                      </li>
+                      <li>
+                        <code>--card</code>
+                      </li>
+                      <li>
+                        <code>--card-foreground</code>
+                      </li>
+                      <li>
+                        <code>--primary</code>
+                      </li>
+                      <li>
+                        <code>--primary-foreground</code>
+                      </li>
+                      <li>
+                        <code>--secondary</code>
+                      </li>
+                      <li>
+                        <code>--secondary-foreground</code>
+                      </li>
+                      <li>
+                        <code>--accent</code>
+                      </li>
+                      <li>
+                        <code>--accent-foreground</code>
+                      </li>
+                      <li>
+                        <code>--muted</code>
+                      </li>
+                      <li>
+                        <code>--muted-foreground</code>
+                      </li>
+                      <li>
+                        <code>--destructive</code>
+                      </li>
+                      <li>
+                        <code>--destructive-foreground</code>
+                      </li>
+                      <li>
+                        <code>--popover</code>
+                      </li>
+                      <li>
+                        <code>--popover-foreground</code>
+                      </li>
+                      <li>
+                        <code>--input</code>
+                      </li>
+                      <li>
+                        <code>--border</code>
+                      </li>
+                      <li>
+                        <code>--ring</code>
+                      </li>
+                      <li>
                         <code>--color-page</code>
-                      </li>
-                      <li>
-                        <code>--color-background</code>
-                      </li>
-                      <li>
-                        <code>--color-foreground</code>
-                      </li>
-                      <li>
-                        <code>--color-card</code>
-                      </li>
-                      <li>
-                        <code>--color-card-foreground</code>
-                      </li>
-                      <li>
-                        <code>--color-primary</code>
-                      </li>
-                      <li>
-                        <code>--color-primary-foreground</code>
-                      </li>
-                      <li>
-                        <code>--color-secondary</code>
-                      </li>
-                      <li>
-                        <code>--color-secondary-foreground</code>
-                      </li>
-                      <li>
-                        <code>--color-accent</code>
-                      </li>
-                      <li>
-                        <code>--color-accent-foreground</code>
-                      </li>
-                      <li>
-                        <code>--color-muted</code>
-                      </li>
-                      <li>
-                        <code>--color-muted-foreground</code>
-                      </li>
-                      <li>
-                        <code>--color-border</code>
-                      </li>
-                      <li>
-                        <code>--color-ring</code>
                       </li>
                       <li>
                         <code>--color-info</code>
@@ -737,25 +962,10 @@ function EditOrgPage() {
                         <code>--color-warning-foreground</code>
                       </li>
                       <li>
-                        <code>--color-destructive</code>
-                      </li>
-                      <li>
-                        <code>--color-destructive-foreground</code>
-                      </li>
-                      <li>
                         <code>--color-destructive-border</code>
                       </li>
                       <li>
-                        <code>--color-popover</code>
-                      </li>
-                      <li>
-                        <code>--color-popover-foreground</code>
-                      </li>
-                      <li>
                         <code>--color-popover-border</code>
-                      </li>
-                      <li>
-                        <code>--color-input</code>
                       </li>
                       <li>
                         <code>--color-input-foreground</code>
@@ -790,7 +1000,7 @@ function EditOrgPage() {
                         <code>--shadow-checkbox-*</code> (resting, hover)
                       </li>
                       <li>
-                        <code>--shadow-switch-*</code> (resting, hover, focus, thumb)
+                        <code>--shadow-switch-*</code> (resting, hover, focus, thumb, thumb-dark)
                       </li>
                     </ul>
                   </div>
@@ -893,8 +1103,8 @@ function EditOrgPage() {
         <div className="mt-8 bg-white border rounded-lg p-6">
           <h3 className="text-lg font-medium mb-3">Example Implementation</h3>
           <p className="text-gray-600 mb-4">
-            See complete working examples in the "react-spa-npm" or "react-spa-shadcn" sample
-            applications.
+            See complete working examples in the "react-spa-npm", "react-spa-shadcn", "next-rwa"
+            sample applications.
           </p>
           <a
             href="https://github.com/atko-cic/auth0-ui-components/tree/main/examples"

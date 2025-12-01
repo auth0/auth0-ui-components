@@ -1,34 +1,35 @@
 {
   "hero-section": {
-    "title": "セキュアな認証コンポーネント",
-    "description": "React、TypeScript、Shadcn UIで構築された美しく、安全で、カスタマイズ可能な認証コンポーネント。モダンなWebアプリケーションに最適です。",
+    "title": "ユニバーサルコンポーネント",
+    "description": "Auth0ユニバーサルコンポーネントを活用した委任型組織管理を実証するReactクイックスタート",
     "get-started-button": "始める",
     "learn-more-button": "詳細を見る"
   },
   "nav-bar": {
-    "sign-in-button": "サインイン"
+    "sign-in-button": "サインイン",
+    "profile-button": "プロフィール",
+    "sign-out-button": "サインアウト"
   },
   "auth": {
     "sign-in": "サインイン",
     "sign-out": "サインアウト"
   },
-  "profile-drop-down": {
-    "profile": "プロフィール",
-    "sign-out": "サインアウト"
-  },
   "language-drop-down": {
     "change-language-button": "言語を変更"
   },
-  "user-profile": {
-    "title": "ユーザープロフィール",
-    "mfa": {
-      "title": "多要素認証",
-      "description": "ログインのためのセキュリティ方法を管理します。",
-      "placeholder": {
-        "title": "UserMFAMgmt コンポーネント プレースホルダー",
-        "description": "ここに UserMFAMgmt コンポーネントが配置されます"
-      }
-    }
+  "profile": {
+    "title": "ユーザー"
+  },
+  "sidebar": {
+    "my-account": "マイアカウント",
+    "multi-factor-authentication": "多要素認証",
+    "my-organization": "マイ組織",
+    "organization-management": "組織管理",
+    "identity-provider-management": "IDプロバイダー管理",
+    "domain-management": "ドメイン管理"
+  },
+  "mfa": {
+    "title": "多要素認証"
   },
   "organization-management": {
     "title": "組織管理"

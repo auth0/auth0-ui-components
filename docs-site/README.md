@@ -1,6 +1,6 @@
-# Auth0 UI Components Documentation
+# Auth0 Universal Components Documentation
 
-A documentation site for the Auth0 UI Components library.
+A documentation site for the Auth0 Universal Components library.
 
 ## Prerequisites
 

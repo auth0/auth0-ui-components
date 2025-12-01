@@ -12,8 +12,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Next.js RWA - Auth0 UI Components',
-  description: 'Next.js Regular Web App with Auth0 UI Components',
+  title: 'Next.js RWA - Auth0 Universal Components',
+  description: 'Next.js Regular Web App with Auth0 Universal Components',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

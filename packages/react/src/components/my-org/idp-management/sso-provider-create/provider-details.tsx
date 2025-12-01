@@ -24,6 +24,7 @@ export interface ProviderDetailsFormHandle {
   validate: () => Promise<boolean>;
   getData: () => ProviderDetailsFormValues;
   isDirty: () => boolean;
+  reset: (data?: ProviderDetailsFormValues) => void;
 }
 
 export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, ProviderDetailsProps>(
@@ -58,6 +59,13 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
       },
       getData: () => form.getValues(),
       isDirty: () => form.formState.isDirty,
+      reset: (data) => {
+        if (data) {
+          form.reset(data);
+        } else {
+          form.reset();
+        }
+      },
     }));
 
     return (

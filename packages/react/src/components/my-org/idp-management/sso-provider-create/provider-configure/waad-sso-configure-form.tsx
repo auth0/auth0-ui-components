@@ -29,6 +29,7 @@ export interface WaadConfigureFormHandle {
   validate: () => Promise<boolean>;
   getData: () => WaadConfigureFormValues;
   isDirty: () => boolean;
+  reset: (data?: WaadConfigureFormValues) => void;
 }
 
 interface WaadConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
@@ -85,6 +86,13 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
       },
       getData: () => form.getValues(),
       isDirty: () => form.formState.isDirty,
+      reset: (data) => {
+        if (data) {
+          form.reset(data);
+        } else {
+          form.reset();
+        }
+      },
     }));
 
     return (

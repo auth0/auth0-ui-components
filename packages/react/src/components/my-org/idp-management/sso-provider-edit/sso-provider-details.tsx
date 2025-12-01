@@ -73,6 +73,10 @@ export function SsoProviderDetails({
 
     await formActions.nextAction.onClick(updateData);
 
+    // Reset forms to mark current values as the new baseline
+    providerDetailsRef.current?.reset(detailsData);
+    providerConfigureRef.current?.reset(configureData as never);
+
     setIsDetailsDirty(false);
     setIsConfigureDirty(false);
   };

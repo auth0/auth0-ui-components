@@ -1,6 +1,6 @@
-# React SPA with Auth0 UI Components (npm) - Setup Guide
+# React SPA with Auth0 Universal Components (npm) - Setup Guide
 
-This guide will walk you through setting up and running the React SPA with Auth0 UI Components (npm).
+This guide will walk you through setting up and running the React SPA with Auth0 Universal Components (npm).
 
 ## Prerequisites
 
@@ -8,18 +8,20 @@ Before you begin, make sure you have the following installed on your system:
 
 - **Node.js** (v18 or higher) - [Download from nodejs.org](https://nodejs.org/)
 - **pnpm** - [Install pnpm](https://pnpm.io/installation)
-
 - **Auth0 Account** - [Sign up for Auth0](https://auth0.com/signup)
 
-1. **Enable MFA Grant Types**
-   - Navigate to your Auth0 Dashboard > Applications > [Your Application] > Advanced Settings > Grant Types
-   - Ensure **MFA** grant type is enabled for the MFA component to work properly
-   - Save the changes and redeploy if necessary
+**Auth0 Configuration Requirements:**
 
-2. **Enable Google OAuth2 Connection**
-   - Go to Auth0 Dashboard > Authentication > Social > Google
-   - Make sure the Google OAuth2 connection is enabled and properly configured
-   - Verify the connection is associated with your application under Applications tab
+Different Auth0 Universal components may have specific configuration requirements.
+**Please refer to the [Auth0 Universal Components Documentation](https://auth0-ui-components.vercel.app/getting-started) for detailed prerequisites for each component you plan to use.**
+
+Basic Auth0 setup requirements for this sample application:
+
+- Auth0 Application configured as Single Page Application
+- Proper callback URLs, logout URLs, and web origins configured
+- Required grant types enabled based on the components you're using
+
+For component-specific Auth0 configuration (such as MFA grant types, social connections, etc.), check the individual component documentation pages.
 
 ## Getting Started
 
@@ -50,7 +52,16 @@ Before running the application, you need to configure your Auth0 credentials:
    - **Allowed Logout URLs**: `http://localhost:5173`
    - **Allowed Web Origins**: `http://localhost:5173`
 
-### 2. Run the Development Server
+### 2. Build the components package and install dependencies
+
+Make sure you run install and build scripts **at the root of the project** before starting the dev server.
+
+```sh
+pnpm install
+pnpm run build
+```
+
+### 3. Run the Development Server
 
 ```sh
 pnpm run dev
@@ -58,7 +69,7 @@ pnpm run dev
 
 Run this command from the `examples/react-spa-npm` directory.
 
-### 3. Access the Application
+### 4. Access the Application
 
 Once the development server is running, you can access the application at:
 
@@ -91,10 +102,9 @@ The application should now be running with Auth0 authentication integrated.
 
 If you encounter any issues:
 
-1. Check the terminal output for error messages
-2. Verify all prerequisites are installed
-3. Ensure Auth0 configuration is correct
-4. Check that all environment variables are properly set
+- Check the [Auth0 Documentation](https://auth0.com/docs)
+- Review [ShadCN UI Documentation](https://ui.shadcn.com)
+- Open an issue in the project repository
 
 ---
 

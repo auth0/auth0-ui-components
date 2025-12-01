@@ -21,7 +21,7 @@ export function isApiError(error: unknown): error is ApiError {
  */
 export function hasApiErrorBody(
   error: unknown,
-): error is { body?: { detail?: string; title?: string; status?: number } } {
+): error is { body?: { detail?: string; title?: string; status?: number; type?: string } } {
   return (
     typeof error === 'object' &&
     error !== null &&

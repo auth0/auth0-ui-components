@@ -1,6 +1,6 @@
 # @auth0/web-ui-components-core
 
-Core utilities and services for Auth0 Web UI components. Framework-agnostic functionality for Auth0 integrations.
+Core utilities and services for Auth0 Web Universal components. Framework-agnostic functionality for Auth0 integrations.
 
 ## Installation
 

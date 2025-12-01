@@ -1,17 +1,7 @@
-import { useAuth0 } from '@auth0/auth0-react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
   const { t } = useTranslation();
-  const { isAuthenticated, loginWithRedirect } = useAuth0();
-
-  const handleGetStarted = () => {
-    if (!isAuthenticated) {
-      loginWithRedirect();
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -26,26 +16,22 @@ const LandingPage = () => {
                 {t('hero-section.description')}
               </p>
               <div className="mt-10 flex items-center justify-center gap-x-6">
-                {isAuthenticated ? (
-                  <Link
-                    to="/profile"
-                    className="rounded-md bg-gray-900 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800"
-                  >
-                    {t('hero-section.get-started-button')}
-                  </Link>
-                ) : (
-                  <button
-                    onClick={handleGetStarted}
-                    className="rounded-md bg-gray-900 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800"
-                  >
-                    {t('hero-section.get-started-button')}
-                  </button>
-                )}
+                <a
+                  href="https://auth0-ui-components.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-2 mt-6 text-sm font-medium leading-5 text-center text-white capitalize bg-slate-900 rounded-lg hover:bg-slate-700 lg:mx-0 lg:w-auto focus:outline-none"
+                >
+                  {t('hero-section.get-started-button')}
+                </a>
                 <a
                   href="https://auth0.com/docs"
-                  className="text-sm font-semibold leading-6 text-gray-900"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-2 mt-6 text-sm font-semibold leading-6 text-gray-900 dark:text-white"
                 >
-                  {t('hero-section.learn-more-button')} <span aria-hidden="true">→</span>
+                  {t('hero-section.learn-more-button')}
+                  <span aria-hidden="true">→</span>
                 </a>
               </div>
             </div>

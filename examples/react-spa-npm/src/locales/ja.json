@@ -1,24 +1,27 @@
 {
   "hero-section": {
-    "title": "優れたコンポーネントで次のアプリを構築しましょう",
-    "description": "Auth0とシームレスに統合された洗練されたReact UIコンポーネントのライブデモンストレーションをご覧ください。これにより、セキュアでエンタープライズ対応の認証が実現します。",
+    "title": "ユニバーサルコンポーネント",
+    "description": "Auth0ユニバーサルコンポーネントを活用した委任型組織管理を実証するReactクイックスタート",
     "get-started-button": "始める",
     "learn-more-button": "詳細を見る"
   },
   "nav-bar": {
-    "sign-in-button": "サインイン"
-  },
-  "profile-drop-down": {
-    "settings": "設定",
-    "sign-out": "サインアウト"
+    "sign-in-button": "サインイン",
+    "sign-out-button": "サインアウト",
+    "profile-button": "プロフィール"
   },
   "language-drop-down": {
     "change-language-button": "言語を変更"
   },
-  "user-profile": {
-    "mfa": {
-      "title": "多要素認証",
-      "description": "ログインのためのセキュリティ方法を管理します。"
-    }
+  "profile": {
+    "title": "ユーザー"
+  },
+  "sidebar": {
+    "my-account": "マイアカウント",
+    "multi-factor-authentication": "多要素認証",
+    "my-organization": "マイ組織",
+    "organization-management": "組織管理",
+    "sso-provider": "SSOプロバイダー",
+    "domain-management": "ドメイン管理"
   }
 }

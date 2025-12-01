@@ -1,4 +1,5 @@
 import { STRATEGY_DISPLAY_NAMES } from '@auth0/web-ui-components-core';
+import { Info } from 'lucide-react';
 
 import { useTranslator } from '../../../../../hooks/use-translator';
 import type { ProvisioningFieldMappingsProps } from '../../../../../types/my-org/idp-management/sso-provisioning/sso-provisioning-tab-types';
@@ -6,6 +7,7 @@ import { CopyableTextField } from '../../../../ui/copyable-text-field';
 import type { Column } from '../../../../ui/data-table';
 import { Label } from '../../../../ui/label';
 import { Mapping } from '../../../../ui/mapping';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../../../../ui/tooltip';
 
 export function ProvisioningFieldMappings({
   provisioningFieldMap,
@@ -18,25 +20,37 @@ export function ProvisioningFieldMappings({
     customMessages,
   );
 
-  const columns: Column<{ attribute: string; external: string }>[] = [
+  const columns: Column<{ attribute: string; external: string; description: string }>[] = [
     {
       accessorKey: 'attribute',
       type: 'text',
-      width: '40%',
+      width: '30%',
       title: t('mappings.card.table.columns.attribute_name_label'),
+      render: (provisioning) => (
+        <div className="flex items-center justify-start gap-2 min-w-0">
+          {provisioning.attribute}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="h-4 w-4" aria-hidden="true" />
+            </TooltipTrigger>
+            <TooltipContent>{provisioning.description}</TooltipContent>
+          </Tooltip>
+        </div>
+      ),
     },
     {
       accessorKey: 'external',
       type: 'copy',
-      width: '60%',
+      width: '70%',
       title: t('mappings.card.table.columns.external_field_label'),
     },
   ];
 
   const items =
     provisioningFieldMap?.map((field) => ({
-      attribute: field.provisioning_field,
-      external: field.user_attribute,
+      attribute: field.label || '',
+      external: field.provisioning_field,
+      description: field.description || '',
     })) || [];
 
   let strategy = '';
