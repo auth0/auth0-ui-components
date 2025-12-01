@@ -22,7 +22,7 @@
     "type-check": "tsc --noEmit",
     "build:ts": "tsup",
     "build": "pnpm clean && pnpm type-check && pnpm build:ts",
-    "test": "vitest run",
+    "test": "vitest run --coverage",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
