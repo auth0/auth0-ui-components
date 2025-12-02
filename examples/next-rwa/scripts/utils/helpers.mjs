@@ -34,28 +34,34 @@ export async function getInputFromUser(message) {
  * Capture temp password for org admin
  */
 export async function getPasswordFromUser(message) {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  })
-  rl._writeToOutput = function (stringToWrite) {
-    if (rl.stdoutMuted) {
-      // mask user input characters
-      // eslint-disable-next-line no-control-regex
-      rl.output.write("*".repeat(stringToWrite.replace(/\r?\n|\u0004/g, "").length));
-    } else {
-      rl.output.write(stringToWrite);
-    }
-  }
+  // use the classic readline (not the promises wrapper) to allow _writeToOutput override
+  const { createInterface } = await import("node:readline");
 
-  // write the prompt unmasked, then enable masking for input
-  rl.output.write(`${message} `);
-  rl.stdoutMuted = true;
+  return await new Promise((resolve) => {
+    const rl = createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: true,
+    });
 
-  const answer = await rl.question("");
-  rl.stdoutMuted = false;
-  rl.output.write("\n");
-  rl.close()
+    rl._writeToOutput = function (stringToWrite) {
+      if (rl.stdoutMuted) {
+        // mask user input characters
+        // eslint-disable-next-line no-control-regex
+        rl.output.write("*".repeat(stringToWrite.replace(/\r?\n|\u0004/g, "").length));
+      } else {
+        rl.output.write(stringToWrite);
+      }
+    };
 
-  return answer
+    // ask the question (this prints the prompt synchronously)
+    rl.question(`${message} `, (answer) => {
+      rl.close();
+      process.stdout.write("\n");
+      resolve(answer);
+    });
+
+    // enable masking for the subsequent user input
+    rl.stdoutMuted = true;
+  });
 }

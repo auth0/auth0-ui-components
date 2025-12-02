@@ -95,6 +95,18 @@ export async function validateTenant(tenantName) {
       process.exit(1)
     }
 
+    // Verify if my-org API exists 
+    const myOrgApiArgs = ["apis", "show", `https://${tenantName}/my-org/`]
+    
+    try {
+      await $`auth0 ${myOrgApiArgs}`
+    } catch (e) {
+      spinner.fail("My Organization API not found")
+      console.error(`\n❌ My Organization API not found on tenant: ${tenantName}`)
+      console.error(`   Please enable My Organization API on the tenant first.`)
+      process.exit(1)
+    } 
+
     spinner.succeed(`Validated tenant: ${cliDomain}`)
     return cliDomain
   } catch (e) {
