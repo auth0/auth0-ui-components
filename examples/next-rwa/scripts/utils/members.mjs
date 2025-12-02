@@ -96,7 +96,8 @@ export async function applyOrgMemberChanges(changePlan, org, connection, role) {
         targetUser = existingUser
         spinner.succeed(`User already exists on connection: ${changePlan.email}`)
       } else {
-        const pass = await getPasswordFromUser('Please provide temporary password for org admin: ')
+        console.log("DEBUG: Creating user for org member, asking for password:", changePlan.email);
+        const pass = await getPasswordFromUser('Please set password for org admin to test login: ')
         const createUserArgs = [
           "users", "create",
           "--connection-name", DEFAULT_CONNECTION_NAME,
@@ -113,9 +114,6 @@ export async function applyOrgMemberChanges(changePlan, org, connection, role) {
 
       // Use Management API to add user as member to the organization
       // Find organization by name
-
-      console.log("DEBUG: Org ID", org);
-
       if (!org) {
         throw new Error(`Organization not found: ${DEMO_ORG_NAME}`)
       }
