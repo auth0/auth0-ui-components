@@ -521,18 +521,18 @@ describe('SSO Provider Create Schema', () => {
         expect(result.success).toBe(false);
       });
 
-      it('should reject missing required signatureAlgorithm', () => {
+      it('should accept optional signatureAlgorithm', () => {
         const schema = createProviderConfigureSchema('pingfederate');
         const { signatureAlgorithm, ...withoutSignatureAlgorithm } = validPingConfig;
         const result = schema.safeParse(withoutSignatureAlgorithm);
-        expect(result.success).toBe(false);
+        expect(result.success).toBe(true);
       });
 
-      it('should reject missing required signSAMLRequest', () => {
+      it('should accept optional signSAMLRequest', () => {
         const schema = createProviderConfigureSchema('pingfederate');
         const { signSAMLRequest, ...withoutSignSAMLRequest } = validPingConfig;
         const result = schema.safeParse(withoutSignSAMLRequest);
-        expect(result.success).toBe(false);
+        expect(result.success).toBe(true);
       });
 
       it('should accept optional idpInitiated configuration', () => {
@@ -591,10 +591,25 @@ describe('SSO Provider Create Schema', () => {
         expect(result.success).toBe(false);
       });
 
-      it('should reject missing required cert', () => {
+      it('should accept optional cert for meta_data_url', () => {
         const schema = createProviderConfigureSchema('samlp');
         const { cert, ...withoutCert } = validSamlConfig;
         const result = schema.safeParse(withoutCert);
+        expect(result.success).toBe(true);
+      });
+
+      it('should reject missing required cert for meta_data_file', () => {
+        const schema = createProviderConfigureSchema('samlp');
+        const fileConfig = {
+          meta_data_source: 'meta_data_file' as const,
+          single_sign_on_login_url: 'https://idp.example.com/sso',
+          signatureAlgorithm: 'rsa-sha256',
+          digestAlgorithm: 'sha256',
+          protocolBinding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+          signSAMLRequest: true,
+          bindingMethod: 'POST',
+        };
+        const result = schema.safeParse(fileConfig);
         expect(result.success).toBe(false);
       });
 
