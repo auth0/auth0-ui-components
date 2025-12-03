@@ -121,10 +121,17 @@ export const SamlpProviderForm = React.forwardRef<
 
   const signRequestEnabled = form.watch('signSAMLRequest');
 
-  const handleFileUpload = (files: File[]) => {
+  const handleFileUpload = async (files: File[]) => {
     setUploadedFiles(files);
-    if (files.length > 0) {
-      form.setValue('cert', files?.[0]?.name);
+
+    const file = files[0];
+    if (file) {
+      try {
+        const content = await file.text();
+        form.setValue('cert', content);
+      } catch (error) {
+        console.error('Error reading file:', error);
+      }
     }
   };
 

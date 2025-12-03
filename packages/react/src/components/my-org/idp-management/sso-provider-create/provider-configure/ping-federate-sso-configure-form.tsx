@@ -114,10 +114,17 @@ export const PingFederateProviderForm = React.forwardRef<
 
   const signRequestEnabled = form.watch('signSAMLRequest');
 
-  const handleFileUpload = (files: File[]) => {
+  const handleFileUpload = async (files: File[]) => {
     setUploadedFiles(files);
-    if (files.length > 0) {
-      form.setValue('signingCert', files?.[0]?.name);
+
+    const file = files[0];
+    if (file) {
+      try {
+        const content = await file.text();
+        form.setValue('signingCert', content);
+      } catch (error) {
+        console.error('Error reading file:', error);
+      }
     }
   };
 
