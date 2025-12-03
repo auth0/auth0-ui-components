@@ -86,8 +86,8 @@ export const PingFederateProviderForm = React.forwardRef<
       pingFederateBaseUrl: pingFederateData?.pingFederateBaseUrl || '',
       signingCert: pingFederateData?.signingCert || '',
       signSAMLRequest: pingFederateData?.signSAMLRequest || false,
-      signatureAlgorithm: pingFederateData?.signatureAlgorithm || '',
-      digestAlgorithm: pingFederateData?.digestAlgorithm || '',
+      signatureAlgorithm: pingFederateData?.signatureAlgorithm || 'rsa-sha256',
+      digestAlgorithm: pingFederateData?.digestAlgorithm || 'sha256',
     },
   });
 

@@ -551,7 +551,7 @@ describe('SSO Provider Create Schema', () => {
 
     describe('SAMLP strategy', () => {
       const validSamlConfig: SamlpConfigureFormValues = {
-        meta_data_source: 'url',
+        meta_data_source: 'meta_data_url',
         single_sign_on_login_url: 'https://idp.example.com/sso',
         signatureAlgorithm: 'rsa-sha256',
         digestAlgorithm: 'sha256',
