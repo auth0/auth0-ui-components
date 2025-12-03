@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
+import { useSecretField } from '../../../../../hooks/common/use-secret-field';
 import { useProviderFormMode } from '../../../../../hooks/my-org/idp-management/use-provider-form-mode';
 import { useTranslator } from '../../../../../hooks/use-translator';
 import { cn } from '../../../../../lib/theme-utils';
@@ -22,6 +23,7 @@ import {
 } from '../../../../ui/form';
 import { Label } from '../../../../ui/label';
 import { RadioGroup, RadioGroupItem } from '../../../../ui/radio-group';
+import { SecretTextField } from '../../../../ui/secret-text-field';
 import { TextField } from '../../../../ui/text-field';
 
 import { CommonConfigureFields } from './common-configure-fields';
@@ -57,15 +59,21 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
 
     const oidcData = initialData as OidcConfigureFormValues | undefined;
 
+    const { hasExistingSecret, getInitialSecretValue, filterSecretFromData } = useSecretField(
+      oidcData,
+      'client_secret',
+      mode === 'edit',
+    );
+
     const form = useForm<OidcConfigureFormValues>({
-      resolver: zodResolver(createProviderConfigureSchema('oidc')),
+      resolver: zodResolver(createProviderConfigureSchema('oidc', {}, mode)),
       mode: 'onSubmit',
       reValidateMode: 'onChange',
       defaultValues: {
         discovery_url: oidcData?.discovery_url || '',
         type: oidcData?.type || 'back_channel',
         client_id: oidcData?.client_id || '',
-        client_secret: oidcData?.client_secret || '',
+        client_secret: getInitialSecretValue(oidcData?.client_secret),
       },
     });
 
@@ -79,7 +87,9 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
       validate: async () => {
         return await form.trigger();
       },
-      getData: () => form.getValues(),
+      getData: () => {
+        return filterSecretFromData(form.getValues()) as OidcConfigureFormValues;
+      },
       isDirty: () => form.formState.isDirty,
       reset: (data) => {
         if (data) {
@@ -215,15 +225,20 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
                     {t('fields.oidc.client_secret.label')}
                   </FormLabel>
                   <FormControl>
-                    <CopyableTextField
+                    <SecretTextField
                       type="password"
                       placeholder={t('fields.oidc.client_secret.placeholder')}
                       error={Boolean(fieldState.error)}
                       readOnly={readOnly}
                       showCopyButton={showCopyButtons}
-                      aria-required={true}
+                      required={mode !== 'edit'}
+                      showPlaceholder={hasExistingSecret}
+                      aria-required={mode !== 'edit'}
                       aria-invalid={Boolean(fieldState.error)}
-                      {...field}
+                      name={field.name}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
                     />
                   </FormControl>
                   <FormMessage
