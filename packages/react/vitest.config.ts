@@ -12,7 +12,7 @@ export default defineConfig({
     reporters: ['verbose'],
     setupFiles: ['./vitest-setup.ts'],
     include: ['./src/**/__tests__/**/*.test.{ts,tsx}'],
-    exclude: ['node_modules', 'dist', '.git', '.cache'],
+    exclude: ['node_modules', 'dist', '.git', '.cache', 'docs-site', 'examples'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
@@ -25,6 +25,8 @@ export default defineConfig({
         '**/__tests__/**',
         '**/node_modules/**',
         '**/dist/**',
+        '**/docs-site/**',
+        '**/examples/**',
         '**/*.config.*',
         '**/*.test.*',
         '**/vitest-setup.ts',
