@@ -102,6 +102,7 @@ export async function validateTenant(tenantName) {
       await $`auth0 ${myOrgApiArgs}`
     } catch (e) {
       spinner.fail("My Organization API not found")
+      console.error("Error details: ", e.message);
       console.error(`\n❌ My Organization API not found on tenant: ${tenantName}`)
       console.error(`   Please enable My Organization API on the tenant first.`)
       process.exit(1)
