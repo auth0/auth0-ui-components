@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
+import { useSecretField } from '../../../../../hooks/common/use-secret-field';
 import { useProviderFormMode } from '../../../../../hooks/my-org/idp-management/use-provider-form-mode';
 import { useCoreClient } from '../../../../../hooks/use-core-client';
 import { useTranslator } from '../../../../../hooks/use-translator';
@@ -22,6 +23,7 @@ import {
   FormDescription,
 } from '../../../../ui/form';
 import { Link } from '../../../../ui/link';
+import { SecretTextField } from '../../../../ui/secret-text-field';
 import { TextField } from '../../../../ui/text-field';
 
 import { CommonConfigureFields } from './common-configure-fields';
@@ -69,14 +71,20 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
 
     const oktaData = initialData as OktaConfigureFormValues | undefined;
 
+    const { hasExistingSecret, getInitialSecretValue, filterSecretFromData } = useSecretField(
+      oktaData,
+      'client_secret',
+      mode === 'edit',
+    );
+
     const form = useForm<OktaConfigureFormValues>({
-      resolver: zodResolver(createProviderConfigureSchema('okta')),
+      resolver: zodResolver(createProviderConfigureSchema('okta', {}, mode)),
       mode: 'onSubmit',
       reValidateMode: 'onChange',
       defaultValues: {
         domain: oktaData?.domain || '',
         client_id: oktaData?.client_id || '',
-        client_secret: oktaData?.client_secret || '',
+        client_secret: getInitialSecretValue(oktaData?.client_secret),
         icon_url: oktaData?.icon_url || '',
         callback_url: oktaData?.callback_url || callbackUrl,
       },
@@ -92,7 +100,9 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
       validate: async () => {
         return await form.trigger();
       },
-      getData: () => form.getValues(),
+      getData: () => {
+        return filterSecretFromData(form.getValues());
+      },
       isDirty: () => form.formState.isDirty,
       reset: (data) => {
         if (data) {
@@ -202,13 +212,18 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
                   {t('fields.okta.client_secret.label')}
                 </FormLabel>
                 <FormControl>
-                  <CopyableTextField
+                  <SecretTextField
                     type="password"
                     placeholder={t('fields.okta.client_secret.placeholder')}
                     error={Boolean(fieldState.error)}
                     readOnly={readOnly}
                     showCopyButton={showCopyButtons}
-                    {...field}
+                    required={mode !== 'edit'}
+                    showPlaceholder={hasExistingSecret}
+                    name={field.name}
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
                   />
                 </FormControl>
                 <FormMessage

@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
+import { useSecretField } from '../../../../../hooks/common/use-secret-field';
 import { useProviderFormMode } from '../../../../../hooks/my-org/idp-management/use-provider-form-mode';
 import { useCoreClient } from '../../../../../hooks/use-core-client';
 import { useTranslator } from '../../../../../hooks/use-translator';
@@ -21,6 +22,7 @@ import {
   FormMessage,
   FormDescription,
 } from '../../../../ui/form';
+import { SecretTextField } from '../../../../ui/secret-text-field';
 import { TextField } from '../../../../ui/text-field';
 
 import { CommonConfigureFields } from './common-configure-fields';
@@ -62,14 +64,20 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
 
     const waadData = initialData as WaadConfigureFormValues | undefined;
 
+    const { hasExistingSecret, getInitialSecretValue, filterSecretFromData } = useSecretField(
+      waadData,
+      'client_secret',
+      mode === 'edit',
+    );
+
     const form = useForm<WaadConfigureFormValues>({
-      resolver: zodResolver(createProviderConfigureSchema('waad')),
+      resolver: zodResolver(createProviderConfigureSchema('waad', {}, mode)),
       mode: 'onSubmit',
       reValidateMode: 'onChange',
       defaultValues: {
         tenant_domain: waadData?.tenant_domain || '',
         client_id: waadData?.client_id || '',
-        client_secret: waadData?.client_secret || '',
+        client_secret: getInitialSecretValue(waadData?.client_secret),
         callback_url: waadData?.callback_url || callbackUrl,
       },
     });
@@ -84,7 +92,9 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
       validate: async () => {
         return await form.trigger();
       },
-      getData: () => form.getValues(),
+      getData: () => {
+        return filterSecretFromData(form.getValues());
+      },
       isDirty: () => form.formState.isDirty,
       reset: (data) => {
         if (data) {
@@ -161,13 +171,18 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
                   {t('fields.waad.client_secret.label')}
                 </FormLabel>
                 <FormControl>
-                  <CopyableTextField
+                  <SecretTextField
                     type="password"
                     placeholder={t('fields.waad.client_secret.placeholder')}
                     error={Boolean(fieldState.error)}
                     readOnly={readOnly}
                     showCopyButton={showCopyButtons}
-                    {...field}
+                    required={mode !== 'edit'}
+                    showPlaceholder={hasExistingSecret}
+                    name={field.name}
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
                   />
                 </FormControl>
                 <FormMessage

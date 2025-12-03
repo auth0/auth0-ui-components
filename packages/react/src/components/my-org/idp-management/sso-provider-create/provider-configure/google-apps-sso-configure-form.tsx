@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
+import { useSecretField } from '../../../../../hooks/common/use-secret-field';
 import { useProviderFormMode } from '../../../../../hooks/my-org/idp-management/use-provider-form-mode';
 import { useCoreClient } from '../../../../../hooks/use-core-client';
 import { useTranslator } from '../../../../../hooks/use-translator';
@@ -21,6 +22,7 @@ import {
   FormMessage,
   FormDescription,
 } from '../../../../ui/form';
+import { SecretTextField } from '../../../../ui/secret-text-field';
 import { TextField } from '../../../../ui/text-field';
 
 import { CommonConfigureFields } from './common-configure-fields';
@@ -64,14 +66,19 @@ export const GoogleAppsProviderForm = React.forwardRef<
 
   const googleAppsData = initialData as GoogleAppsConfigureFormValues | undefined;
 
+  const { hasExistingSecret, getInitialSecretValue, filterSecretFromData } = useSecretField(
+    googleAppsData,
+    'client_secret',
+    mode === 'edit',
+  );
   const form = useForm<GoogleAppsConfigureFormValues>({
-    resolver: zodResolver(createProviderConfigureSchema('google-apps')),
+    resolver: zodResolver(createProviderConfigureSchema('google-apps', {}, mode)),
     mode: 'onSubmit',
     reValidateMode: 'onChange',
     defaultValues: {
       domain: googleAppsData?.domain || '',
       client_id: googleAppsData?.client_id || '',
-      client_secret: googleAppsData?.client_secret || '',
+      client_secret: getInitialSecretValue(googleAppsData?.client_secret),
       callback_url: callbackUrl || '',
     },
   });
@@ -86,7 +93,9 @@ export const GoogleAppsProviderForm = React.forwardRef<
     validate: async () => {
       return await form.trigger();
     },
-    getData: () => form.getValues(),
+    getData: () => {
+      return filterSecretFromData(form.getValues());
+    },
     isDirty: () => form.formState.isDirty,
     reset: (data) => {
       if (data) {
@@ -163,13 +172,18 @@ export const GoogleAppsProviderForm = React.forwardRef<
                 {t('fields.google-apps.client_secret.label')}
               </FormLabel>
               <FormControl>
-                <CopyableTextField
+                <SecretTextField
                   type="password"
                   placeholder={t('fields.google-apps.client_secret.placeholder')}
                   error={Boolean(fieldState.error)}
                   readOnly={readOnly}
                   showCopyButton={showCopyButtons}
-                  {...field}
+                  required={mode !== 'edit'}
+                  showPlaceholder={hasExistingSecret}
+                  name={field.name}
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
                 />
               </FormControl>
               <FormMessage

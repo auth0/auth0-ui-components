@@ -80,7 +80,7 @@ interface WaadOptions {
 }
 
 const STRATEGY_BUILDERS = {
-  okta: (options: OktaOptions = {}) =>
+  okta: (options: OktaOptions = {}, mode?: 'create' | 'edit') =>
     z.object({
       domain: createFieldSchema(
         COMMON_FIELD_CONFIGS.domain,
@@ -93,7 +93,7 @@ const STRATEGY_BUILDERS = {
       }),
       client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, {
         ...options.client_secret,
-        required: true,
+        required: mode !== 'edit',
       }),
       icon_url: createFieldSchema(COMMON_FIELD_CONFIGS.icon_url, {
         ...options.icon_url,
@@ -135,7 +135,7 @@ const STRATEGY_BUILDERS = {
       }),
     ]),
 
-  'google-apps': (options: GoogleAppsOptions = {}) =>
+  'google-apps': (options: GoogleAppsOptions = {}, mode?: 'create' | 'edit') =>
     z.object({
       domain: createFieldSchema(
         COMMON_FIELD_CONFIGS.domain,
@@ -148,7 +148,7 @@ const STRATEGY_BUILDERS = {
       }),
       client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, {
         ...options.client_secret,
-        required: true,
+        required: mode !== 'edit',
       }),
       icon_url: createFieldSchema(COMMON_FIELD_CONFIGS.icon_url, {
         ...options.icon_url,
@@ -323,7 +323,7 @@ const STRATEGY_BUILDERS = {
     ]);
   },
 
-  waad: (options: WaadOptions = {}) =>
+  waad: (options: WaadOptions = {}, mode?: 'create' | 'edit') =>
     z.object({
       tenant_domain: createFieldSchema(
         COMMON_FIELD_CONFIGS.domain,
@@ -336,7 +336,7 @@ const STRATEGY_BUILDERS = {
       }),
       client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, {
         ...options.client_secret,
-        required: true,
+        required: mode !== 'edit',
       }),
       icon_url: createFieldSchema(COMMON_FIELD_CONFIGS.icon_url, {
         ...options.icon_url,
@@ -409,15 +409,16 @@ type StrategySchemaMap = {
 export function createProviderConfigureSchema<T extends IdpStrategy>(
   strategy: T,
   options: ProviderConfigureSchema = {},
+  mode?: 'create' | 'edit',
 ): StrategySchemaMap[T] {
-  const strategyOptions = { ...(options[strategy] || {}) };
+  const strategyOptions = options[strategy] || {};
   const builder = STRATEGY_BUILDERS[strategy];
 
   if (!builder) {
     throw new Error(`Unsupported strategy: ${strategy}`);
   }
 
-  return builder(strategyOptions as Parameters<typeof builder>[0]) as StrategySchemaMap[T];
+  return builder(strategyOptions as Parameters<typeof builder>[0], mode) as StrategySchemaMap[T];
 }
 
 /**
