@@ -424,7 +424,8 @@
               "title": "Advanced Settings",
               "sign_request": {
                 "label": "Sign Request",
-                "helper_text": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature. This needs to be enabled first in the SAMLP. Once enabled, share the metadata URL for integration."
+                "helper_text_metadata_file": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature. This needs to be enabled first in the SAMLP. Once enabled, share the metadata URL for integration.",
+                "helper_text_metadata_url": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature."
               },
               "request_protocol_binding": {
                 "label": "Request Protocol Binding",
