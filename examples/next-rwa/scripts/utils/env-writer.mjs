@@ -22,7 +22,7 @@ APP_BASE_URL='http://localhost:5173'
 AUTH0_DOMAIN='https://${domain}'
 AUTH0_CLIENT_ID='${dashboardClientId}'
 AUTH0_CLIENT_SECRET='${dashboardClientSecret}'
-AUTH0_SCOPE='openid profile email offline_access read:my_org:details update:my_org:details read:my_org:identity_providers create:my_org:identity_providers update:my_org:identity_providers delete:my_org:identity_providers update:my_org:identity_providers_detach read:my_org:configuration read::my_org:identity_providers_provisioning create:my_org:identity_providers_provisioning delete:my_org:identity_providers_provisioning read:my_org:identity_providers_domains create:my_org:identity_providers_domains delete:my_org:identity_providers_domains read:my_org:identity_providers_scim_tokens create:my_org:identity_providers_scim_tokens delete:my_org:identity_providers_scim_tokens read:my_org:domains delete:my_org:domains create:my_org:domains update:my_org:domains'
+AUTH0_SCOPE='openid profile email offline_access read:my_org:details update:my_org:details read:my_org:identity_providers create:my_org:identity_providers update:my_org:identity_providers delete:my_org:identity_providers update:my_org:identity_providers_detach read:my_org:configuration read:my_org:identity_providers_provisioning create:my_org:identity_providers_provisioning delete:my_org:identity_providers_provisioning create:my_org:identity_providers_domains delete:my_org:identity_providers_domains read:my_org:identity_providers_scim_tokens create:my_org:identity_providers_scim_tokens delete:my_org:identity_providers_scim_tokens read:my_org:domains delete:my_org:domains create:my_org:domains update:my_org:domains'
 `
     // Check if .env.local.user exists and merge it
     let finalContent = envContent
