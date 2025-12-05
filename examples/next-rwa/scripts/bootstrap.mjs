@@ -132,20 +132,20 @@ async function main() {
   )
   console.log("")
 
-  // 6c. Dashboard Client
+  // 6c. Resource Server (My Organization API)
+  console.log("Configuring My Organization API...")
+  const myOrgResourceServer = await applyMyOrgResourceServerChanges(
+    plan.resourceServer,
+    domain
+  )
+  console.log("")
+
+  // 6d. Dashboard Client
   console.log("Configuring Dashboard Client...")
   const dashboardClient = await applyDashboardClientChanges(
     plan.clients.dashboard,
     connectionProfile.id,
     userAttributeProfile.id
-  )
-  console.log("")
-
-  // 6d. Resource Server (My Organization API)
-  console.log("Configuring My Organization API...")
-  const myOrgResourceServer = await applyMyOrgResourceServerChanges(
-    plan.resourceServer,
-    domain
   )
   console.log("")
 

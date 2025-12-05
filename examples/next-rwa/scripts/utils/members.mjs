@@ -110,7 +110,6 @@ export async function applyOrgMemberChanges(changePlan, org, connection, role) {
         } catch (e) {
           //Likely a case of private cloud where CLI client ID is not authorized to create users on this connection
           //extract client_id from error message and add to connection's enabled clients and retry
-
           const msg = (e.stderr || e.message || String(e) || "")
           const clientId = msg.match(/client_id:\s*([^\s)]+)/i)[1]
           if (clientId) {
@@ -118,18 +117,18 @@ export async function applyOrgMemberChanges(changePlan, org, connection, role) {
             const res = await auth0ApiCall(
               "patch",
               `connections/${connection}/clients`,
-              {
-                "client_id": [clientId],
+              [{
+                "client_id": clientId,
                 "status": true
-              }
+              }]
             )
             // Retry user creation
             try { 
               const { stdout: userStdout } = await $`auth0 ${createUserArgs}`
+              targetUser = JSON.parse(userStdout)
             } catch (e2) {
               throw new Error(`Unable to create org admin: ${e2.message || e2}`)
             }
-            targetUser = JSON.parse(userStdout)
             spinner.succeed(`Created user after updating connection: ${changePlan.email}`)  
           } else {
             throw new Error("Unable to create org admin") 
