@@ -23,6 +23,10 @@ AUTH0_DOMAIN='https://${domain}'
 AUTH0_CLIENT_ID='${dashboardClientId}'
 AUTH0_CLIENT_SECRET='${dashboardClientSecret}'
 AUTH0_SCOPE='openid profile email offline_access read:my_org:details update:my_org:details read:my_org:identity_providers create:my_org:identity_providers update:my_org:identity_providers delete:my_org:identity_providers update:my_org:identity_providers_detach read:my_org:configuration read:my_org:identity_providers_provisioning create:my_org:identity_providers_provisioning delete:my_org:identity_providers_provisioning create:my_org:identity_providers_domains delete:my_org:identity_providers_domains read:my_org:identity_providers_scim_tokens create:my_org:identity_providers_scim_tokens delete:my_org:identity_providers_scim_tokens read:my_org:domains delete:my_org:domains create:my_org:domains update:my_org:domains'
+# Auth0 Configuration - Public and exposed to the Browser
+NEXT_PUBLIC_AUTH0_DOMAIN='${domain}'
+# Feature Flags - Public and exposed to the Browser
+NEXT_PUBLIC_ENABLE_MY_ACCOUNT='false'
 `
     // Check if .env.local.user exists and merge it
     let finalContent = envContent
