@@ -233,6 +233,7 @@ export async function applyDashboardClientChanges(
       return fullClient
     } catch (e) {
       spinner.fail(`Failed to create the ${DASHBOARD_CLIENT_NAME} client`)
+      spinner.fail(`Ensure your tenant supports My Organization feature.`)
       throw e
     }
   }
