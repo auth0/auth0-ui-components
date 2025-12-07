@@ -58,7 +58,7 @@ For detailed instructions on how to install and use the components in your proje
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/atko-cic/auth0-ui-components
+    git clone https://github.com/auth0/auth0-ui-components
     cd auth0-ui-components
     ```
 

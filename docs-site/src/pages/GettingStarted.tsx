@@ -1107,7 +1107,7 @@ export default function OrganizationManagementPage() {
             sample applications.
           </p>
           <a
-            href="https://github.com/atko-cic/auth0-ui-components/tree/main/examples"
+            href="https://github.com/auth0/auth0-ui-components/tree/main/examples"
             className="text-blue-600 hover:underline font-medium"
             target="_blank"
             rel="noopener noreferrer"

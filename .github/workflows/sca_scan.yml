@@ -1,10 +1,13 @@
 name: SCA
 
 on:
-  push:
-    branches: ['main']
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
 
 jobs:
   snyk-cli:
-    uses: atko-security/devsecops-tooling/.github/workflows/sca-scan.yml@main
-    secrets: inherit
+    uses: auth0/devsecops-tooling/.github/workflows/sca-scan.yml@main
+    with:
+      additional-arguments: "--exclude=README.md,.jfrog"

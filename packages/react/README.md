@@ -3,7 +3,7 @@
 React component library for Auth0 integrations. Built with TypeScript, Radix UI, and Tailwind CSS.
 
 [![npm version](https://img.shields.io/npm/v/@auth0/web-ui-components-react.svg?style=flat-square)](https://www.npmjs.com/package/@auth0/web-ui-components-react)
-[![license](https://img.shields.io/npm/l/@auth0/web-ui-components-react.svg?style=flat-square)](https://github.com/atko-cic/auth0-ui-components/blob/main/LICENSE)
+[![license](https://img.shields.io/npm/l/@auth0/web-ui-components-react.svg?style=flat-square)](https://github.com/auth0/auth0-ui-components/blob/main/LICENSE)
 [![downloads](https://img.shields.io/npm/dm/@auth0/web-ui-components-react.svg?style=flat-square)](https://www.npmjs.com/package/@auth0/web-ui-components-react)
 
 **What it provides:**

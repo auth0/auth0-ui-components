@@ -49,7 +49,7 @@ permissions:
 jobs:
   publish:
     name: Build & Publish to Public NPM
-    runs-on: ubuntu-22.04-2cpu-8ram-75ssd
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       id-token: write

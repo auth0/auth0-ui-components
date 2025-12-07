@@ -1,6 +1,6 @@
 {
   "name": "@auth0/web-ui-components-react",
-  "version": "1.0.0-beta.18",
+  "version": "1.0.0-beta.19",
   "private": false,
   "sideEffects": [
     "*.css"
@@ -39,8 +39,8 @@
     "registry:build": "shadcn build"
   },
   "peerDependencies": {
-    "react": "^16.11.0 || ^17 || ^18 || ^19",
-    "react-dom": "^16.11.0 || ^17 || ^18 || ^19",
+    "react": "^16.11.0 || ^17 || ^18 || ^19.2.1",
+    "react-dom": "^16.11.0 || ^17 || ^18 || ^19.2.1",
     "react-hook-form": "^7.0.0"
   },
   "dependencies": {
