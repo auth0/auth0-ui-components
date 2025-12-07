@@ -33,7 +33,7 @@
     "build:ts": "tsup",
     "build": "pnpm clean && pnpm type-check && pnpm build:ts && pnpm build:css",
     "dev": "tsup --watch",
-    "test": "vitest run",
+    "test": "vitest run --coverage",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "registry:build": "shadcn build"

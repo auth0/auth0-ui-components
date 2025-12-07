@@ -21,12 +21,22 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrgApiClient'] => {
         update: vi.fn().mockResolvedValue({}),
         delete: vi.fn().mockResolvedValue(undefined),
         detach: vi.fn().mockResolvedValue(undefined),
+        domains: {
+          create: vi.fn().mockResolvedValue(undefined),
+          delete: vi.fn().mockResolvedValue(undefined),
+        },
       },
       domains: {
         list: vi.fn().mockResolvedValue([]),
         create: vi.fn().mockResolvedValue({}),
         update: vi.fn().mockResolvedValue({}),
         delete: vi.fn().mockResolvedValue(undefined),
+        verify: {
+          create: vi.fn().mockResolvedValue({ status: 'verified' }),
+        },
+        identityProviders: {
+          get: vi.fn().mockResolvedValue({ identity_providers: [] }),
+        },
       },
     },
   } as unknown as CoreClientInterface['myOrgApiClient'];

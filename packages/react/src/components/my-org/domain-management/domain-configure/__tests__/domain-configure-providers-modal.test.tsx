@@ -55,12 +55,13 @@ describe('DomainConfigureProvidersModal', () => {
       expect(screen.getByText('title')).toBeInTheDocument();
     });
 
-    it('should not render modal when isOpen prop is false', () => {
-      // When isOpen is set to false, the modal should not render
-      const props = createMockDomainConfigureProvidersModalProps({ isOpen: false });
-      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+    describe('when isOpen prop is false', () => {
+      it('should not render modal', () => {
+        const props = createMockDomainConfigureProvidersModalProps({ isOpen: false });
+        renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
     });
 
     it('should render domain-specific title and description', () => {
@@ -72,12 +73,13 @@ describe('DomainConfigureProvidersModal', () => {
       expect(screen.getByText('description')).toBeInTheDocument();
     });
 
-    it('should not render content when domain prop is null', () => {
-      // When domain is null, the modal content should not render
-      const props = createMockDomainConfigureProvidersModalProps({ domain: null });
-      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+    describe('when domain prop is null', () => {
+      it('should not render content', () => {
+        const props = createMockDomainConfigureProvidersModalProps({ domain: null });
+        renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
-      expect(screen.queryByText(/description/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/description/)).not.toBeInTheDocument();
+      });
     });
 
     it('should apply custom className', () => {
@@ -132,93 +134,95 @@ describe('DomainConfigureProvidersModal', () => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
-    it('should render empty state when no providers are available', () => {
-      // When providers array is empty, should show empty state message
-      const props = createMockDomainConfigureProvidersModalProps({ providers: [] });
-      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+    describe('when no providers are available', () => {
+      it('should render empty state', () => {
+        const props = createMockDomainConfigureProvidersModalProps({ providers: [] });
+        renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
-      // When no providers exist, should display empty message
-      expect(screen.getByText('table.empty_message')).toBeInTheDocument();
+        expect(screen.getByText('table.empty_message')).toBeInTheDocument();
+      });
     });
 
-    it('should render empty state with add provider button when onCreateProvider callback is provided', () => {
-      // When onCreateProvider is provided and no providers exist, should show add button
-      const onCreateProvider = vi.fn();
-      const props = createMockDomainConfigureProvidersModalProps({
-        providers: [],
-        onCreateProvider,
-      });
-      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+    describe('when onCreateProvider callback is provided', () => {
+      it('should render empty state with add provider button', () => {
+        const onCreateProvider = vi.fn();
+        const props = createMockDomainConfigureProvidersModalProps({
+          providers: [],
+          onCreateProvider,
+        });
+        renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
-      const addButton = screen.getByRole('button', {
-        name: 'table.actions.add_provider_button_text',
+        const addButton = screen.getByRole('button', {
+          name: 'table.actions.add_provider_button_text',
+        });
+        expect(addButton).toBeInTheDocument();
       });
-      expect(addButton).toBeInTheDocument();
     });
 
-    it('should not render add provider button in empty state when onCreateProvider callback is not provided', () => {
-      // When onCreateProvider is not provided, should not show add button even in empty state
-      const props = createMockDomainConfigureProvidersModalProps({
-        providers: [],
-        onCreateProvider: undefined,
-      });
-      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+    describe('when onCreateProvider callback is not provided', () => {
+      it('should not render add provider button in empty state', () => {
+        const props = createMockDomainConfigureProvidersModalProps({
+          providers: [],
+          onCreateProvider: undefined,
+        });
+        renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
-      expect(
-        screen.queryByRole('button', { name: 'table.actions.add_provider_button_text' }),
-      ).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole('button', { name: 'table.actions.add_provider_button_text' }),
+        ).not.toBeInTheDocument();
+      });
     });
   });
 
   describe('Provider Actions', () => {
-    it('should render View buttons for each provider when onOpenProvider callback is provided', () => {
-      // When onOpenProvider callback is provided, should render View buttons for each provider
-      const onOpenProvider = vi.fn();
-      const props = createMockDomainConfigureProvidersModalProps({ onOpenProvider });
-      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+    describe('when onOpenProvider callback is provided', () => {
+      it('should render View buttons for each provider', () => {
+        const onOpenProvider = vi.fn();
+        const props = createMockDomainConfigureProvidersModalProps({ onOpenProvider });
+        renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
-      const viewButtons = screen.getAllByRole('button', {
-        name: 'table.actions.view_provider_button_text',
+        const viewButtons = screen.getAllByRole('button', {
+          name: 'table.actions.view_provider_button_text',
+        });
+        expect(viewButtons).toHaveLength(2);
       });
-      expect(viewButtons).toHaveLength(2);
     });
 
-    it('should not render View buttons when onOpenProvider callback is not provided', () => {
-      // When onOpenProvider callback is not provided, should not render any View buttons
-      const props = createMockDomainConfigureProvidersModalProps({
-        onOpenProvider: undefined,
-      });
-      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+    describe('when onOpenProvider callback is not provided', () => {
+      it('should not render View buttons', () => {
+        const props = createMockDomainConfigureProvidersModalProps({
+          onOpenProvider: undefined,
+        });
+        renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
-      expect(
-        screen.queryByRole('button', { name: 'table.actions.view_provider_button_text' }),
-      ).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole('button', { name: 'table.actions.view_provider_button_text' }),
+        ).not.toBeInTheDocument();
+      });
     });
 
-    it('should call onOpenProvider when View provider button is clicked', async () => {
-      // When View button is clicked, should call onOpenProvider with correct provider data
-      const user = userEvent.setup();
-      const onOpenProvider = vi.fn();
-      const props = createMockDomainConfigureProvidersModalProps({ onOpenProvider });
-      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+    describe('when View provider button is clicked', () => {
+      it('should call onOpenProvider', async () => {
+        const user = userEvent.setup();
+        const onOpenProvider = vi.fn();
+        const props = createMockDomainConfigureProvidersModalProps({ onOpenProvider });
+        renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
-      const firstViewButton = screen.getAllByRole('button', {
-        name: 'table.actions.view_provider_button_text',
-      })[0];
+        const firstViewButton = screen.getAllByRole('button', {
+          name: 'table.actions.view_provider_button_text',
+        })[0];
 
-      // When View button is clicked, should trigger onOpenProvider callback
+        await user.click(firstViewButton!);
 
-      await user.click(firstViewButton!);
-
-      // When onOpenProvider is called, should receive correct provider object
-      expect(onOpenProvider).toHaveBeenCalledTimes(1);
-      expect(onOpenProvider).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: 'con_google123',
-          display_name: 'Google Workspace',
-          strategy: 'google-apps',
-        }),
-      );
+        expect(onOpenProvider).toHaveBeenCalledTimes(1);
+        expect(onOpenProvider).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 'con_google123',
+            display_name: 'Google Workspace',
+            strategy: 'google-apps',
+          }),
+        );
+      });
     });
   });
 
@@ -255,84 +259,80 @@ describe('DomainConfigureProvidersModal', () => {
       expect(switchElement).not.toBeChecked();
     });
 
-    it('should disable switches when isLoadingSwitch prop is true', () => {
-      // When isLoadingSwitch is true, all provider switches should be disabled
-      const props = createMockDomainConfigureProvidersModalProps({ isLoadingSwitch: true });
-      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+    describe('when isLoadingSwitch prop is true', () => {
+      it('should disable switches', () => {
+        const props = createMockDomainConfigureProvidersModalProps({ isLoadingSwitch: true });
+        renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
-      const switches = screen.getAllByRole('switch');
+        const switches = screen.getAllByRole('switch');
 
-      // When switches are checked, they should all be disabled due to loading state
-      switches.forEach((switchElement) => {
-        expect(switchElement).toBeDisabled();
+        switches.forEach((switchElement) => {
+          expect(switchElement).toBeDisabled();
+        });
       });
     });
 
-    it('should call onToggleSwitch when provider switch is toggled', async () => {
-      // When a provider switch is toggled, should call onToggleSwitch with correct parameters
-      const user = userEvent.setup();
-      const onToggleSwitch = vi.fn();
-      const domain = createMockDomain();
-      const props = createMockDomainConfigureProvidersModalProps({
-        onToggleSwitch,
-        domain,
+    describe('when provider switch is toggled', () => {
+      it('should call onToggleSwitch', async () => {
+        const user = userEvent.setup();
+        const onToggleSwitch = vi.fn();
+        const domain = createMockDomain();
+        const props = createMockDomainConfigureProvidersModalProps({
+          onToggleSwitch,
+          domain,
+        });
+        renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+        const firstSwitch = screen.getAllByRole('switch')[0];
+
+        await user.click(firstSwitch!);
+
+        expect(onToggleSwitch).toHaveBeenCalledTimes(1);
+        expect(onToggleSwitch).toHaveBeenCalledWith(
+          domain,
+          expect.objectContaining({
+            id: 'con_google123',
+            display_name: 'Google Workspace',
+          }),
+          false, // When toggling from true to false
+        );
       });
-      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
-
-      const firstSwitch = screen.getAllByRole('switch')[0];
-
-      // When switch is clicked, should toggle from checked to unchecked
-
-      await user.click(firstSwitch!);
-
-      // When onToggleSwitch is called, should receive correct domain and provider data
-      expect(onToggleSwitch).toHaveBeenCalledTimes(1);
-      expect(onToggleSwitch).toHaveBeenCalledWith(
-        domain,
-        expect.objectContaining({
-          id: 'con_google123',
-          display_name: 'Google Workspace',
-        }),
-        false, // When toggling from true to false
-      );
     });
 
-    it('should call onToggleSwitch with correct new value when unchecked provider switch is clicked', async () => {
-      // When an unchecked switch is clicked, should call onToggleSwitch with new value = true
-      const user = userEvent.setup();
-      const onToggleSwitch = vi.fn();
-      const domain = createMockDomain();
-      const props = createMockDomainConfigureProvidersModalProps({
-        onToggleSwitch,
-        domain,
+    describe('when unchecked provider switch is clicked', () => {
+      it('should call onToggleSwitch with correct new value', async () => {
+        const user = userEvent.setup();
+        const onToggleSwitch = vi.fn();
+        const domain = createMockDomain();
+        const props = createMockDomainConfigureProvidersModalProps({
+          onToggleSwitch,
+          domain,
+        });
+        renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+        const secondSwitch = screen.getAllByRole('switch')[1]; // Okta Enterprise (unchecked)
+
+        await user.click(secondSwitch!);
+
+        expect(onToggleSwitch).toHaveBeenCalledTimes(1);
+        expect(onToggleSwitch).toHaveBeenCalledWith(
+          domain,
+          expect.objectContaining({
+            id: 'con_okta456',
+            display_name: 'Okta Enterprise',
+          }),
+          true, // When toggling from false to true
+        );
       });
-      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
-
-      const secondSwitch = screen.getAllByRole('switch')[1]; // Okta Enterprise (unchecked)
-
-      // When unchecked switch is clicked, should toggle from false to true
-
-      await user.click(secondSwitch!);
-
-      // When onToggleSwitch is called, should receive new value as true
-      expect(onToggleSwitch).toHaveBeenCalledTimes(1);
-      expect(onToggleSwitch).toHaveBeenCalledWith(
-        domain,
-        expect.objectContaining({
-          id: 'con_okta456',
-          display_name: 'Okta Enterprise',
-        }),
-        true, // When toggling from false to true
-      );
     });
 
-    it('should not call onToggleSwitch when domain prop is null', () => {
-      // When domain is null, switches should not render and onToggleSwitch should not be called
-      // This is more of a safety test since the UI doesn't render when domain is null
-      const props = createMockDomainConfigureProvidersModalProps({ domain: null });
-      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+    describe('when domain prop is null', () => {
+      it('should not call onToggleSwitch', () => {
+        const props = createMockDomainConfigureProvidersModalProps({ domain: null });
+        renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
-      expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+        expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+      });
     });
   });
 
@@ -346,30 +346,28 @@ describe('DomainConfigureProvidersModal', () => {
       expect(closeButtons.length).toBeGreaterThan(0);
     });
 
-    it('should call onClose when modal close button is clicked', async () => {
-      // When the close button is clicked, should trigger the onClose callback
-      const user = userEvent.setup();
-      const onClose = vi.fn();
-      const props = createMockDomainConfigureProvidersModalProps({ onClose });
-      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+    describe('when modal close button is clicked', () => {
+      it('should call onClose', async () => {
+        const user = userEvent.setup();
+        const onClose = vi.fn();
+        const props = createMockDomainConfigureProvidersModalProps({ onClose });
+        renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
-      // Get the main close button (not the X button)
-      const closeButtons = screen.getAllByRole('button', { name: 'actions.close_button_text' });
-      const mainCloseButton = closeButtons.find(
-        (button) =>
-          button.textContent === 'actions.close_button_text' && !button.querySelector('svg'),
-      );
+        // Get the main close button (not the X button)
+        const closeButtons = screen.getAllByRole('button', { name: 'actions.close_button_text' });
+        const mainCloseButton = closeButtons.find(
+          (button) =>
+            button.textContent === 'actions.close_button_text' && !button.querySelector('svg'),
+        );
 
-      if (mainCloseButton) {
-        // When main close button is clicked, should trigger onClose
-        await user.click(mainCloseButton);
-        expect(onClose).toHaveBeenCalledTimes(1);
-      } else {
-        // When fallback close button is clicked, should trigger onClose
-
-        await user.click(closeButtons[0]!);
-        expect(onClose).toHaveBeenCalledTimes(1);
-      }
+        if (mainCloseButton) {
+          await user.click(mainCloseButton);
+          expect(onClose).toHaveBeenCalledTimes(1);
+        } else {
+          await user.click(closeButtons[0]!);
+          expect(onClose).toHaveBeenCalledTimes(1);
+        }
+      });
     });
 
     it('should not show next/previous navigation buttons', () => {
@@ -604,39 +602,41 @@ describe('DomainConfigureProvidersModal', () => {
   });
 
   describe('Modal onOpenChange Arrow Function Coverage', () => {
-    it('should trigger onClose through onOpenChange arrow function when modal is closed', async () => {
-      const user = userEvent.setup();
-      const onClose = vi.fn();
+    describe('when modal is closed via onOpenChange arrow function', () => {
+      it('should trigger onClose', async () => {
+        const user = userEvent.setup();
+        const onClose = vi.fn();
 
-      renderWithProviders(
-        <DomainConfigureProvidersModal
-          {...createMockDomainConfigureProvidersModalProps({ onClose, isOpen: true })}
-        />,
-      );
+        renderWithProviders(
+          <DomainConfigureProvidersModal
+            {...createMockDomainConfigureProvidersModalProps({ onClose, isOpen: true })}
+          />,
+        );
 
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
 
-      // Find and trigger the modal's onOpenChange with false to test arrow function: (open) => !open && onClose()
+        // Simulate ESC key press that would trigger onOpenChange(false)
+        await user.keyboard('{Escape}');
 
-      // Simulate ESC key press that would trigger onOpenChange(false)
-      await user.keyboard('{Escape}');
-
-      expect(onClose).toHaveBeenCalledTimes(1);
+        expect(onClose).toHaveBeenCalledTimes(1);
+      });
     });
 
-    it('should not trigger onClose when onOpenChange receives true (modal opening)', () => {
-      const onClose = vi.fn();
+    describe('when onOpenChange receives true (modal opening)', () => {
+      it('should not trigger onClose', () => {
+        const onClose = vi.fn();
 
-      // Test the arrow function logic directly
-      const onOpenChangeCallback = (open: boolean) => !open && onClose();
+        // Test the arrow function logic directly
+        const onOpenChangeCallback = (open: boolean) => !open && onClose();
 
-      // When modal opens (onOpenChange(true)), the arrow function should not call onClose
-      onOpenChangeCallback(true);
-      expect(onClose).not.toHaveBeenCalled();
+        // When modal opens (onOpenChange(true)), the arrow function should not call onClose
+        onOpenChangeCallback(true);
+        expect(onClose).not.toHaveBeenCalled();
 
-      // When modal closes (onOpenChange(false)), the arrow function should call onClose
-      onOpenChangeCallback(false);
-      expect(onClose).toHaveBeenCalledTimes(1);
+        // When modal closes (onOpenChange(false)), the arrow function should call onClose
+        onOpenChangeCallback(false);
+        expect(onClose).toHaveBeenCalledTimes(1);
+      });
     });
 
     it('should test the onOpenChange logic behavior directly', () => {
