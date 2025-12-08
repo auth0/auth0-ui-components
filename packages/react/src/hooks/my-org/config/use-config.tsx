@@ -27,7 +27,7 @@ export function useConfig(): UseConfigResult {
         .organization.configuration.get();
       setConfig(result);
 
-      // Validate the config after fetching
+      // Validate the config after fetching - test
       const hasAllowedStrategies =
         result.allowed_strategies && result.allowed_strategies.length > 0;
       setIsConfigValid(!!hasAllowedStrategies);
