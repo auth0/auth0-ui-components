@@ -59,16 +59,22 @@ The tenant you create will be configured automatically by our bootstrapping comm
    auth0 login --scopes "read:connection_profiles,create:connection_profiles,update:connection_profiles,read:user_attribute_profiles,create:user_attribute_profiles,update:user_attribute_profiles,read:client_grants,create:client_grants,update:client_grants,delete:client_grants,read:connections,create:connections,update:connections,create:organization_connections,create:organization_members,create:organization_member_roles,read:clients,create:clients,update:clients,read:client_keys,read:roles,create:roles,update:roles,read:resource_servers,create:resource_servers,update:resource_servers,update:tenant_settings"
    ```
 
-   Retrieve the domain of the tenant using the cli
+   For a private-cloud tenant, authenticate using client-id and secret. If required, create a Machine to Machine application on your tenant authorized for Management API with relevant scopes.
+
+   ```bash
+   auth0 login --domain <tenant-domain> --client-id <client-id> --client-secret <client-secret>
+   ```
+
+   After successful login, verify your selected tenant is Active.
 
    ```bash
    auth0 tenants list
    ```
 
-   > [!WARNING]
+   > [!WARNING]  
    > The step below will modify your tenant configuration. Only execute this against a dev tenant.
 
-   Execute the bootstrap script with the domain of your tenant from the previous step.
+   Execute the bootstrap script with the domain of your tenant.
 
    ```bash
    pnpm run auth0:bootstrap <your tenant domain>

@@ -105,11 +105,14 @@ export async function applyMyOrgResourceServerChanges(changePlan, domain) {
       ];
 
       const { stdout } = await $`auth0 ${createMyOrgResourceServerArgs}`
-      const rs = JSON.parse(stdout)
+      const { error, rs } = JSON.parse(stdout)
+      if (error) {
+        throw new Error("Failed to enable My Organization API")
+      }
       spinner.succeed("Enabled My Organization API")
       return rs
     } catch (e) {
-      spinner.fail(`Failed to enable My Organization API on Tenant`)
+      spinner.fail(`Failed to enable My Organization API on Tenant. Please ensure your tenant supports My Organization feature.`)
       throw e
     }
   }

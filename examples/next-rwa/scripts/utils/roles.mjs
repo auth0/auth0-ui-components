@@ -18,12 +18,12 @@ export async function checkAdminRoleChanges(
   domain,
   myOrgApiScopes
 ) {
-  const existingRole = existingRoles.find((r) => r.name === "My Org Admin")
+  const existingRole = existingRoles.find((r) => r.name === "admin")
 
   if (!existingRole) {
     return createChangeItem(ChangeAction.CREATE, {
       resource: "Admin Role",
-      name: "My Org Admin",
+      name: "admin",
       permissions: myOrgApiScopes,
       domain,
     })
@@ -51,7 +51,7 @@ export async function checkAdminRoleChanges(
   if (missingPerms.length > 0) {
     return createChangeItem(ChangeAction.UPDATE, {
       resource: "Admin Role",
-      name: "My Org Admin",
+      name: "admin",
       existing: existingRole,
       updates: {
         missingPermissions: missingPerms,
@@ -63,7 +63,7 @@ export async function checkAdminRoleChanges(
 
   return createChangeItem(ChangeAction.SKIP, {
     resource: "Admin Role",
-    name: "My Org Admin",
+    name: "admin",
     existing: existingRole,
   })
 }

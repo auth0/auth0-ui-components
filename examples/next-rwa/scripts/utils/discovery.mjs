@@ -91,6 +91,18 @@ export async function discoverExistingResources() {
     } else {
       resources.orgMembers = []
     }
+    spinner.stop()
+    if (resources.orgMembers && resources.orgMembers.length > 0) {
+      console.log("")
+      console.log("Following org members can be used for testing:");
+      resources.orgMembers.forEach((member) => {
+        const email = member.email || "unknown email";
+        console.log("- ",email);
+      });
+      console.log("");
+    } else {
+      console.log("Found no org members");
+    }
 
     spinner.succeed("Resource discovery complete")
     return resources

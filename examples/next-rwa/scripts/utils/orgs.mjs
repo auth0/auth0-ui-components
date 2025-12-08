@@ -114,8 +114,6 @@ export async function applyOrgsChanges(changePlan, connection) {
         }
       )
 
-      console.log("DEBUG: Org connection setup result", result); 
-
       if (!result) {
         throw new Error("Failed to set up connection for Org")
       }
