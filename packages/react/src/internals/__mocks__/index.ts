@@ -6,6 +6,8 @@ export * from './my-org/domain-management/domain.mocks';
 export * from './my-org/org-management/org-details.mocks';
 export * from './my-org/domain-management/domain.mocks';
 export * from './my-org/idp-management/sso-domain.mocks';
+export * from './my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details.mocks';
+export * from './my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.mocks';
 
 export * from './my-account/mfa/delete-factor-confirmation.mocks';
 export * from './my-account/mfa/empty-state.mocks';
