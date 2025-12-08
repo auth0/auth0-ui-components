@@ -114,7 +114,7 @@ export async function applyOrgMemberChanges(changePlan, org, connection, role) {
           const clientId = msg.match(/client_id:\s*([^\s)]+)/i)[1]
           if (clientId) {
             // use clientId as needed
-            const res = await auth0ApiCall(
+            await auth0ApiCall(
               "patch",
               `connections/${connection}/clients`,
               [{
