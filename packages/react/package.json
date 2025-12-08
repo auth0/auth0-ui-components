@@ -36,7 +36,7 @@
     "test": "vitest run --coverage",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "registry:build": "shadcn build"
+    "registry:build": "shadcn build -o ../../docs-site/public/r"
   },
   "peerDependencies": {
     "react": "^16.11.0 || ^17 || ^18 || ^19.2.1",

@@ -295,7 +295,7 @@
     },
     {
       "path": "src/types/auth-types.ts",
-      "content": "import type { AuthDetails } from '@auth0/web-ui-components-core';\nimport type * as React from 'react';\n\nimport type { I18nOptions } from './i18n-types';\nimport type { ThemeSettings } from './theme-types';\n\n/**\n * Props for the Auth0ComponentProvider component.\n */\nexport interface Auth0ComponentProviderProps {\n  i18n?: I18nOptions;\n  themeSettings?: ThemeSettings;\n  authDetails: AuthDetails;\n  loader?: React.ReactNode;\n}\n\n/**\n * Props for the InternalProvider component.\n */\nexport interface InternalProviderProps {\n  i18n?: I18nOptions;\n  authDetails: AuthDetails;\n}\n\n/**\n * Configuration for Auth0ComponentProvider excluding authentication details.\n */\nexport type Auth0ComponentConfig = Omit<Auth0ComponentProviderProps, 'authDetails' | 'i18n'>;\n",
+      "content": "import type { AuthDetails } from '@auth0/web-ui-components-core';\nimport type * as React from 'react';\n\nimport type { I18nOptions } from './i18n-types';\nimport type { ThemeSettings } from './theme-types';\n\n/**\n * Props for the Auth0ComponentProvider component.\n */\nexport interface Auth0ComponentProviderProps {\n  i18n?: I18nOptions;\n  themeSettings?: ThemeSettings;\n  authDetails: AuthDetails;\n  loader?: React.ReactNode;\n}\n",
       "type": "registry:file",
       "target": "auth0-ui-components/types/auth-types.ts"
     },
