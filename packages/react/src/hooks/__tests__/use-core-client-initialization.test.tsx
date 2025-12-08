@@ -1,0 +1,127 @@
+import { createCoreClient } from '@auth0/web-ui-components-core';
+import type { CoreClientInterface } from '@auth0/web-ui-components-core';
+import { renderHook, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+import { useCoreClientInitialization } from '../use-core-client-initialization';
+
+vi.mock('@auth0/web-ui-components-core', () => ({
+  createCoreClient: vi.fn(),
+}));
+
+const mockCreateCoreClient = vi.mocked(createCoreClient);
+
+describe('useCoreClientInitialization', () => {
+  const mockCoreClient = {
+    initialize: vi.fn(),
+  } as unknown as CoreClientInterface;
+
+  const defaultProps = {
+    authDetails: {
+      authProxyUrl: '/api/auth',
+    },
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should return null initially', () => {
+    mockCreateCoreClient.mockReturnValue(new Promise(() => {}));
+
+    const { result } = renderHook(() => useCoreClientInitialization(defaultProps));
+
+    expect(result.current).toBeNull();
+  });
+
+  it('should return coreClient after successful initialization', async () => {
+    mockCreateCoreClient.mockResolvedValue(mockCoreClient);
+
+    const { result } = renderHook(() => useCoreClientInitialization(defaultProps));
+
+    await waitFor(() => {
+      expect(result.current).toBe(mockCoreClient);
+    });
+
+    expect(mockCreateCoreClient).toHaveBeenCalledWith(defaultProps.authDetails, undefined);
+  });
+
+  it('should pass i18nOptions to createCoreClient', async () => {
+    mockCreateCoreClient.mockResolvedValue(mockCoreClient);
+
+    const propsWithI18n = {
+      authDetails: { authProxyUrl: '/api/auth' },
+      i18nOptions: { currentLanguage: 'es', fallbackLanguage: 'en' },
+    };
+
+    const { result } = renderHook(() => useCoreClientInitialization(propsWithI18n));
+
+    await waitFor(() => {
+      expect(result.current).toBe(mockCoreClient);
+    });
+
+    expect(mockCreateCoreClient).toHaveBeenCalledWith(
+      propsWithI18n.authDetails,
+      propsWithI18n.i18nOptions,
+    );
+  });
+
+  it('should return null on initialization error', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const error = new Error('Initialization failed');
+    mockCreateCoreClient.mockRejectedValue(error);
+
+    const { result } = renderHook(() => useCoreClientInitialization(defaultProps));
+
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith(error);
+    });
+
+    expect(result.current).toBeNull();
+    consoleSpy.mockRestore();
+  });
+
+  it('should reinitialize when authProxyUrl changes', async () => {
+    mockCreateCoreClient.mockResolvedValue(mockCoreClient);
+
+    const { result, rerender } = renderHook((props) => useCoreClientInitialization(props), {
+      initialProps: defaultProps,
+    });
+
+    await waitFor(() => {
+      expect(result.current).toBe(mockCoreClient);
+    });
+
+    rerender({
+      authDetails: { authProxyUrl: '/api/auth-v2' },
+    });
+
+    await waitFor(() => {
+      expect(mockCreateCoreClient).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it('should reinitialize when domain changes', async () => {
+    mockCreateCoreClient.mockResolvedValue(mockCoreClient);
+
+    const propsWithDomain = {
+      authDetails: { authProxyUrl: '/api/auth', domain: 'test.auth0.com' },
+    };
+
+    const { result, rerender } = renderHook((props) => useCoreClientInitialization(props), {
+      initialProps: propsWithDomain,
+    });
+
+    await waitFor(() => {
+      expect(result.current).toBe(mockCoreClient);
+    });
+
+    rerender({
+      authDetails: { authProxyUrl: '/api/auth', domain: 'new.auth0.com' },
+    });
+
+    await waitFor(() => {
+      expect(mockCreateCoreClient).toHaveBeenCalledTimes(2);
+    });
+  });
+});

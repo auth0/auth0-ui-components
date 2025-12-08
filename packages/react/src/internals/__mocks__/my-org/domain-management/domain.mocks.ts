@@ -56,3 +56,20 @@ export const createMockIdentityProviderAssociatedWithDomain = (
     ...overrides,
   } as IdentityProviderAssociatedWithDomain;
 };
+
+export const createMockIdentityProviderWithoutProvisioning = (
+  overrides: Partial<IdentityProvider> = {},
+): IdentityProvider => {
+  // Use a strategy that doesn't have provisioning enabled by default
+  const baseProvider = {
+    id: 'con_abc123xyz456',
+    name: 'mock-provider-no-provisioning',
+    display_name: 'Mock Provider Without Provisioning',
+    strategy: 'oidc' as const,
+  };
+
+  return {
+    ...baseProvider,
+    ...overrides,
+  } as IdentityProvider;
+};

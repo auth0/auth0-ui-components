@@ -15,3 +15,4 @@ export * from './my-account/mfa/error-state.mocks';
 export * from './my-account/mfa/factor-list.mocks';
 export * from './my-account/mfa/otp-verification-form.mocks';
 export * from './my-account/mfa/user-mfa-setup-form.mocks';
+export * from './my-account/mfa/mfa.mocks';

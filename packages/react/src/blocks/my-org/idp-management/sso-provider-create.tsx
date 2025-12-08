@@ -192,7 +192,7 @@ export function SsoProviderCreateComponent({
         }
         className={currentStyles?.classes?.['SsoProviderCreate-header']}
       />
-      <div className="sso-provider-create__content">
+      <div className="sso-provider-create__content" data-testid="sso-provider-create-content">
         <Wizard
           isLoading={isCreating}
           hideStepperNumbers
