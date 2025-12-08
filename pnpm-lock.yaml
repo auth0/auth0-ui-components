@@ -161,8 +161,8 @@ importers:
   examples/next-rwa:
     dependencies:
       '@auth0/nextjs-auth0':
-        specifier: ^4.12.2
-        version: 4.13.1(next@16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        specifier: ^4.13.2
+        version: 4.13.2(next@16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@auth0/web-ui-components-react':
         specifier: workspace:*
         version: link:../../packages/react
@@ -653,10 +653,10 @@ packages:
     resolution: {integrity: sha512-JkTWs564hDPjYK91jvfDD4TtZgpmqoVV4ekn+CExbgCuuciyTLWNbtrY2VtDGZ0EfIdPFCeLaKw3eH7xvSYJig==}
     engines: {node: '>=18.0.0'}
 
-  '@auth0/nextjs-auth0@4.13.1':
-    resolution: {integrity: sha512-RGZKddUa/kNdudhxYsJ0xSPtx10qr3qQ6i1aq2PY5x+JJ7f1Ifkb6QwuwREzxJlWh80YQ0S5Ef26JWHCPN2PkQ==}
+  '@auth0/nextjs-auth0@4.13.2':
+    resolution: {integrity: sha512-yOEyB+xTRpEp63dNcA6F5rV0wDzjEFf054f2q6uq/joM/1nu6ziG1ALV3lKJdL/1o4Mn1aRADylRJ4PFRWBCVw==}
     peerDependencies:
-      next: ^14.2.25 || ^15.2.3 || ^16.0.0
+      next: ^14.2.25 || ~15.0.5 || ~15.1.9 || ~15.2.6 || ~15.3.6 || ~15.4.8 || ~15.5.7 || ^16.0.7
       react: 19.2.1
       react-dom: 19.2.1
 
@@ -4517,6 +4517,9 @@ packages:
   jose@6.1.2:
     resolution: {integrity: sha512-MpcPtHLE5EmztuFIqB0vzHAWJPpmN1E6L4oo+kze56LIs3MyXIj9ZHMDxqOvkP38gBR7K1v3jqd4WU2+nrfONQ==}
 
+  jose@6.1.3:
+    resolution: {integrity: sha512-0TpaTfihd4QMNwrz/ob2Bp7X04yuxJkjRGi4aKmOqwhov54i6u79oCv7T+C7lo70MKH6BesI3vscD1yb/yzKXQ==}
+
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
     engines: {node: '>=10'}
@@ -5739,8 +5742,8 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  swr@2.3.6:
-    resolution: {integrity: sha512-wfHRmHWk/isGNMwlLGlZX5Gzz/uTgo0o2IRuTMcf4CPuPFJZlq0rDaKUx+ozB5nBOReNV1kiOyzMfj+MBMikLw==}
+  swr@2.3.7:
+    resolution: {integrity: sha512-ZEquQ82QvalqTxhBVv/DlAg2mbmUjF4UgpPg9wwk4ufb9rQnZXh1iKyyKBqV6bQGu1Ie7L1QwSYO07qFIa1p+g==}
     peerDependencies:
       react: 19.2.1
 
@@ -6378,17 +6381,17 @@ snapshots:
     dependencies:
       '@auth0/auth0-auth-js': 1.2.0
 
-  '@auth0/nextjs-auth0@4.13.1(next@16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
+  '@auth0/nextjs-auth0@4.13.2(next@16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
     dependencies:
       '@edge-runtime/cookies': 5.0.2
       '@panva/hkdf': 1.2.1
-      jose: 6.1.2
+      jose: 6.1.3
       next: 16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       oauth4webapi: 3.8.3
       openid-client: 6.8.1
       react: 19.2.1
       react-dom: 19.2.1(react@19.2.1)
-      swr: 2.3.6(react@19.2.1)
+      swr: 2.3.7(react@19.2.1)
 
   '@babel/code-frame@7.27.1':
     dependencies:
@@ -10404,6 +10407,8 @@ snapshots:
 
   jose@6.1.2: {}
 
+  jose@6.1.3: {}
+
   joycon@3.1.1: {}
 
   js-tokens@4.0.0: {}
@@ -11730,7 +11735,7 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  swr@2.3.6(react@19.2.1):
+  swr@2.3.7(react@19.2.1):
     dependencies:
       dequal: 2.0.3
       react: 19.2.1
