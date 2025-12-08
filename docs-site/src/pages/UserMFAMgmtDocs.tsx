@@ -158,7 +158,7 @@ export default function UserMFA() {
                 title="1. Install Core Package"
               />
               <CodeBlock
-                code="npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-account/user-mfa-management.json"
+                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-account/user-mfa-management.json"
                 language="bash"
                 title="2. Add Shadcn Block"
               />

@@ -143,7 +143,7 @@ export default function SsoProviderTableDocs() {
                 title="1. Install Core Package"
               />
               <CodeBlock
-                code="npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-org/sso-provider-table.json"
+                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-org/sso-provider-table.json"
                 language="bash"
                 title="2. Add Shadcn Block"
               />
