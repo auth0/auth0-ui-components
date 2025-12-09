@@ -134,7 +134,7 @@ async function main() {
 
   // 6c. Resource Server (My Organization API)
   console.log("Configuring My Organization API...")
-  const myOrgResourceServer = await applyMyOrgResourceServerChanges(
+  await applyMyOrgResourceServerChanges(
     plan.resourceServer,
     domain
   )
@@ -187,10 +187,7 @@ async function main() {
   await writeEnvFile(
     domain,
     dashboardClient.client_id,
-    dashboardClient.client_secret,
-    myOrgResourceServer.identifier,
-    adminRole.id,
-    connection.id
+    dashboardClient.client_secret
   )
 
   // Done!
