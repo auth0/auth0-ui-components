@@ -331,10 +331,6 @@ describe('DomainTable', () => {
           const actionButton = within(firstRow!).getByRole('button');
 
           await user.click(actionButton);
-
-          // TODO: add disabled check
-          // const verifyButton = screen.getByRole('menuitem', { name: /verify/i });
-          // expect(verifyButton).toBeDisabled();
         });
       });
     });
@@ -458,10 +454,6 @@ describe('DomainTable', () => {
           const actionButton = within(firstRow!).getByRole('button');
 
           await user.click(actionButton);
-
-          // TODO: add disabled check
-          // const deleteButton = screen.getByRole('menuitem', { name: /delete/i });
-          // expect(deleteButton).toBeDisabled();
         });
       });
     });
