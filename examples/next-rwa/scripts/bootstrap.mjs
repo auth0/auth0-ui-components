@@ -15,7 +15,7 @@ import {
 import { writeEnvFile } from "./utils/env-writer.mjs"
 import { confirmWithUser } from "./utils/helpers.mjs"
 import { applyUserAttributeProfileChanges } from "./utils/profiles.mjs"
-// import { applyMyOrgResourceServerChanges } from "./utils/resource-servers.mjs"
+import { applyMyOrgResourceServerChanges } from "./utils/resource-servers.mjs"
 import {
   applyAdminRoleChanges,
 } from "./utils/roles.mjs"
@@ -133,12 +133,12 @@ async function main() {
   console.log("")
 
   // 6c. Resource Server (My Organization API)
-  // console.log("Configuring My Organization API...")
-  // const myOrgResourceServer = await applyMyOrgResourceServerChanges(
-  //   plan.resourceServer,
-  //   domain
-  // )
-  // console.log("")
+  console.log("Configuring My Organization API...")
+  await applyMyOrgResourceServerChanges(
+    plan.resourceServer,
+    domain
+  )
+  console.log("")
 
   // 6d. Dashboard Client
   console.log("Configuring Dashboard Client...")
