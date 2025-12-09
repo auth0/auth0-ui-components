@@ -187,10 +187,7 @@ async function main() {
   await writeEnvFile(
     domain,
     dashboardClient.client_id,
-    dashboardClient.client_secret,
-    myOrgResourceServer.identifier,
-    adminRole.id,
-    connection.id
+    dashboardClient.client_secret
   )
 
   // Done!
