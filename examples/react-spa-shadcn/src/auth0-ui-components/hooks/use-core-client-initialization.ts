@@ -11,9 +11,6 @@ interface UseCoreClientInitializationProps {
   i18nOptions?: I18nInitOptions;
 }
 
-/**
- * Custom hook to handle CoreClient initialization
- */
 export const useCoreClientInitialization = ({
   authDetails,
   i18nOptions,
