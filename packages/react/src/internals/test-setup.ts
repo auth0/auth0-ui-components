@@ -42,3 +42,20 @@ export const mockCore = () => {
     },
   };
 };
+
+export const mockCreateCoreClient = () => {
+  const { createCoreClient } = vi.hoisted(() => ({
+    createCoreClient: vi.fn(),
+  }));
+
+  vi.mock('@auth0/universal-components-core', async (importOriginal) => {
+    const actual = await importOriginal();
+
+    return {
+      ...(actual as Record<string, unknown>),
+      createCoreClient,
+    };
+  });
+
+  return { createCoreClient };
+};
