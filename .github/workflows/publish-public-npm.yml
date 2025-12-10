@@ -387,10 +387,10 @@ jobs:
       - name: Create PR to update package versions
         id: create-version-pr
         if: |
-          github.event.inputs.dry_run != 'true' && 
-          (steps.publish-core.outputs.published == 'true' || 
-           steps.publish-react.outputs.published == 'true' ||
-           github.event.inputs.create_version_pr_only == 'true')
+          (github.event.inputs.dry_run != 'true' && 
+           (steps.publish-core.outputs.published == 'true' || 
+            steps.publish-react.outputs.published == 'true')) ||
+          github.event.inputs.create_version_pr_only == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
