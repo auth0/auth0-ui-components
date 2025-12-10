@@ -489,7 +489,7 @@ jobs:
             echo "No version changes to commit"
           fi
 
-      - name: Approve and auto-merge PR
+      - name: Approve and merge PR
         id: approve-pr
         if: |
           github.event.inputs.dry_run != 'true' && 
@@ -498,15 +498,15 @@ jobs:
           GH_TOKEN: ${{ secrets.SVC_PAT }}
         run: |
           PR_NUMBER="${{ steps.create-version-pr.outputs.pr_number }}"
-          echo "Approving PR #$PR_NUMBER using service account..."
+          echo "Approving and merging PR #$PR_NUMBER using service account..."
           
           # Auto-approve PR using service account token
           gh pr review "$PR_NUMBER" --approve --body "✅ Auto-approved by service account after successful npm publish"
           
-          # Enable auto-merge
-          gh pr merge "$PR_NUMBER" --auto --squash --delete-branch
+          # Merge PR immediately
+          gh pr merge "$PR_NUMBER" --squash --delete-branch
           
-          echo "PR #$PR_NUMBER approved and set to auto-merge"
+          echo "PR #$PR_NUMBER approved and merged"
 
       - name: Restore package.json files
         if: always()
