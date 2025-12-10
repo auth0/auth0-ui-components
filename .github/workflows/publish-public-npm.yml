@@ -567,8 +567,8 @@ jobs:
       - name: Approve and merge PR
         id: approve-pr
         if: |
-          github.event.inputs.dry_run != 'true' && 
-          steps.create-version-pr.outputs.pr_number != ''
+          steps.create-version-pr.outputs.pr_number != '' &&
+          (github.event.inputs.dry_run != 'true' || github.event.inputs.create_version_pr_only == 'true')
         env:
           GH_TOKEN: ${{ secrets.SVC_PAT }}
         run: |
