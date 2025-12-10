@@ -36,6 +36,11 @@ on:
         required: false
         type: boolean
         default: true
+      create_version_pr_only:
+        description: "Skip publish and only create version bump PR"
+        required: false
+        type: boolean
+        default: false
       skip_slack_notification:
         description: "Skip Slack notification"
         required: false
@@ -215,7 +220,8 @@ jobs:
       - name: Publish Core package to public npm
         id: publish-core
         if: |
-          (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'core')
+          (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'core') &&
+          github.event.inputs.create_version_pr_only != 'true'
         working-directory: ./packages/core
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -241,7 +247,8 @@ jobs:
       - name: Publish React package to public npm
         id: publish-react
         if: |
-          (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'react')
+          (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'react') &&
+          github.event.inputs.create_version_pr_only != 'true'
         working-directory: ./packages/react
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -381,7 +388,9 @@ jobs:
         id: create-version-pr
         if: |
           github.event.inputs.dry_run != 'true' && 
-          (steps.publish-core.outputs.published == 'true' || steps.publish-react.outputs.published == 'true')
+          (steps.publish-core.outputs.published == 'true' || 
+           steps.publish-react.outputs.published == 'true' ||
+           github.event.inputs.create_version_pr_only == 'true')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -395,36 +404,71 @@ jobs:
           BRANCH_NAME="chore/update-package-versions-$(date +%s)"
           git checkout -b "$BRANCH_NAME"
           
-          # Update package.json files with published versions
-          if [ "${{ steps.publish-core.outputs.published }}" = "true" ]; then
-            cd packages/core
-            node -e "
-              const pkg = require('./package.json');
-              pkg.version = '${{ steps.publish-core.outputs.version }}';
-              require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
-            "
-            git add package.json
-            cd ../..
-          fi
-          
-          if [ "${{ steps.publish-react.outputs.published }}" = "true" ]; then
-            cd packages/react
-            node -e "
-              const pkg = require('./package.json');
-              pkg.version = '${{ steps.publish-react.outputs.version }}';
-              if (pkg.dependencies && pkg.dependencies['@auth0/universal-components-core']) {
-                pkg.dependencies['@auth0/universal-components-core'] = '${{ steps.publish-core.outputs.version }}';
-              }
-              require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
-            "
-            git add package.json
-            cd ../..
+          # Update package.json files with target versions
+          if [ "${{ github.event.inputs.create_version_pr_only }}" = "true" ]; then
+            # PR-only mode: use input versions directly
+            if [ "$PACKAGES_INPUT" = "both" ] || [ "$PACKAGES_INPUT" = "core" ]; then
+              cd packages/core
+              node -e "
+                const pkg = require('./package.json');
+                pkg.version = process.env.CORE_VER;
+                require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+              "
+              git add package.json
+              cd ../..
+            fi
+            
+            if [ "$PACKAGES_INPUT" = "both" ] || [ "$PACKAGES_INPUT" = "react" ]; then
+              cd packages/react
+              node -e "
+                const pkg = require('./package.json');
+                pkg.version = process.env.REACT_VER;
+                if (pkg.dependencies && pkg.dependencies['@auth0/universal-components-core']) {
+                  pkg.dependencies['@auth0/universal-components-core'] = process.env.CORE_VER;
+                }
+                require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+              "
+              git add package.json
+              cd ../..
+            fi
+          else
+            # Normal mode: use published versions
+            if [ "${{ steps.publish-core.outputs.published }}" = "true" ]; then
+              cd packages/core
+              node -e "
+                const pkg = require('./package.json');
+                pkg.version = '${{ steps.publish-core.outputs.version }}';
+                require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+              "
+              git add package.json
+              cd ../..
+            fi
+            
+            if [ "${{ steps.publish-react.outputs.published }}" = "true" ]; then
+              cd packages/react
+              node -e "
+                const pkg = require('./package.json');
+                pkg.version = '${{ steps.publish-react.outputs.version }}';
+                if (pkg.dependencies && pkg.dependencies['@auth0/universal-components-core']) {
+                  pkg.dependencies['@auth0/universal-components-core'] = '${{ steps.publish-core.outputs.version }}';
+                }
+                require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+              "
+              git add package.json
+              cd ../..
+            fi
           fi
           
           # Check if there are changes to commit
           if ! git diff --staged --quiet; then
             # Commit and push changes
-            COMMIT_MSG="chore: update package versions after npm publish
+            if [ "${{ github.event.inputs.create_version_pr_only }}" = "true" ]; then
+              COMMIT_MSG="chore: bump package versions
+
+          - @auth0/universal-components-core: $CORE_VER
+          - @auth0/universal-components-react: $REACT_VER"
+            else
+              COMMIT_MSG="chore: update package versions after npm publish
 
           - @auth0/universal-components-core: ${{ steps.publish-core.outputs.version }}
           - @auth0/universal-components-react: ${{ steps.publish-react.outputs.version }}
@@ -432,51 +476,78 @@ jobs:
           Published to npm with tags:
           - Core: ${{ env.CORE_TAG }}
           - React: ${{ env.REACT_TAG }}"
+            fi
             
             git commit -m "$COMMIT_MSG"
             git push origin "$BRANCH_NAME"
             
             # Create PR using GitHub CLI
-            PR_BODY="## Summary
+            if [ "${{ github.event.inputs.create_version_pr_only }}" = "true" ]; then
+              PR_TITLE="chore: bump package versions"
+              PR_BODY="## Summary
+
+          Bumps package.json versions for upcoming release.
+
+          ## Changes
+
+          "
+              
+              if [ "$PACKAGES_INPUT" = "both" ] || [ "$PACKAGES_INPUT" = "core" ]; then
+                PR_BODY="${PR_BODY}- \`@auth0/universal-components-core\`: \`$CORE_VER\`
+          "
+              fi
+              
+              if [ "$PACKAGES_INPUT" = "both" ] || [ "$PACKAGES_INPUT" = "react" ]; then
+                PR_BODY="${PR_BODY}- \`@auth0/universal-components-react\`: \`$REACT_VER\`
+          "
+              fi
+              
+              PR_BODY="${PR_BODY}
+          ---
+          *Auto-generated by publish workflow (version bump only): [\`${{ github.run_id }}\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})*"
+            else
+              PR_TITLE="chore: update package versions after npm publish"
+              PR_BODY="## Summary
 
           Updates package.json versions to match the packages published to npm.
 
           ## Changes
 
           "
-            
-            if [ "${{ steps.publish-core.outputs.published }}" = "true" ]; then
-              PR_BODY="${PR_BODY}- \`@auth0/universal-components-core\`: \`${{ steps.publish-core.outputs.version }}\` (tag: \`${{ env.CORE_TAG }}\`)
+              
+              if [ "${{ steps.publish-core.outputs.published }}" = "true" ]; then
+                PR_BODY="${PR_BODY}- \`@auth0/universal-components-core\`: \`${{ steps.publish-core.outputs.version }}\` (tag: \`${{ env.CORE_TAG }}\`)
           "
-            fi
-            
-            if [ "${{ steps.publish-react.outputs.published }}" = "true" ]; then
-              PR_BODY="${PR_BODY}- \`@auth0/universal-components-react\`: \`${{ steps.publish-react.outputs.version }}\` (tag: \`${{ env.REACT_TAG }}\`)
+              fi
+              
+              if [ "${{ steps.publish-react.outputs.published }}" = "true" ]; then
+                PR_BODY="${PR_BODY}- \`@auth0/universal-components-react\`: \`${{ steps.publish-react.outputs.version }}\` (tag: \`${{ env.REACT_TAG }}\`)
           "
-            fi
-            
-            PR_BODY="${PR_BODY}
+              fi
+              
+              PR_BODY="${PR_BODY}
           ## Published Packages
 
           "
-            
-            if [ "${{ steps.publish-core.outputs.published }}" = "true" ]; then
-              PR_BODY="${PR_BODY}- [View @auth0/universal-components-core on npm](https://www.npmjs.com/package/@auth0/universal-components-core/v/${{ steps.publish-core.outputs.version }})
+              
+              if [ "${{ steps.publish-core.outputs.published }}" = "true" ]; then
+                PR_BODY="${PR_BODY}- [View @auth0/universal-components-core on npm](https://www.npmjs.com/package/@auth0/universal-components-core/v/${{ steps.publish-core.outputs.version }})
           "
-            fi
-            
-            if [ "${{ steps.publish-react.outputs.published }}" = "true" ]; then
-              PR_BODY="${PR_BODY}- [View @auth0/universal-components-react on npm](https://www.npmjs.com/package/@auth0/universal-components-react/v/${{ steps.publish-react.outputs.version }})
+              fi
+              
+              if [ "${{ steps.publish-react.outputs.published }}" = "true" ]; then
+                PR_BODY="${PR_BODY}- [View @auth0/universal-components-react on npm](https://www.npmjs.com/package/@auth0/universal-components-react/v/${{ steps.publish-react.outputs.version }})
           "
-            fi
-            
-            PR_BODY="${PR_BODY}
+              fi
+              
+              PR_BODY="${PR_BODY}
           ---
           *Auto-generated by publish workflow: [\`${{ github.run_id }}\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})*"
+            fi
             
             # Create PR
             PR_URL=$(gh pr create \
-              --title "chore: update package versions after npm publish" \
+              --title "$PR_TITLE" \
               --body "$PR_BODY" \
               --base main \
               --head "$BRANCH_NAME")
