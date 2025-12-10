@@ -78,7 +78,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build packages
-        run: pnpm run build
+        run: |
+          pnpm --filter @auth0/universal-components-core build
+          pnpm --filter @auth0/universal-components-react build
 
       - name: Detect versions and npm tags
         id: detect
@@ -380,6 +382,8 @@ jobs:
         if: |
           github.event.inputs.dry_run != 'true' && 
           (steps.publish-core.outputs.published == 'true' || steps.publish-react.outputs.published == 'true')
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           echo "Creating PR to update package.json versions..."
           
