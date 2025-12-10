@@ -1,6 +1,6 @@
 {
   "name": "@auth0/universal-components-core",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "Core utilities for Auth0 Universal Components",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -47,5 +47,9 @@
     "@auth0/myaccount-js": "^1.0.0-beta.0",
     "@auth0/myorganization-js": "^1.0.0-beta.2",
     "zod": "^3.22.4"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }
