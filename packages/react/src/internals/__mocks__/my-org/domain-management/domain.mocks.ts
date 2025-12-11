@@ -1,8 +1,12 @@
 import type {
+  ComponentAction,
   Domain,
   IdentityProvider,
   IdentityProviderAssociatedWithDomain,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
+import { vi } from 'vitest';
+
+import type { DomainTableProps } from '../../../../types/my-org/domain-management/domain-table-types';
 
 export const createMockDomain = (overrides?: Partial<Domain>): Domain => ({
   id: 'domain_abc123xyz456',
@@ -73,3 +77,40 @@ export const createMockIdentityProviderWithoutProvisioning = (
     ...overrides,
   } as IdentityProvider;
 };
+
+export const createMockDomainTableProps = (
+  overrides?: Partial<DomainTableProps>,
+): DomainTableProps => ({
+  schema: undefined,
+  customMessages: {},
+  styling: {
+    variables: { common: {}, light: {}, dark: {} },
+    classes: {},
+  },
+  hideHeader: false,
+  readOnly: false,
+  createAction: undefined,
+  verifyAction: undefined,
+  deleteAction: undefined,
+  associateToProviderAction: undefined,
+  deleteFromProviderAction: undefined,
+  ...overrides,
+});
+
+export const createMockCreateAction = (): ComponentAction<Domain> => ({
+  disabled: false,
+  onBefore: vi.fn(() => true),
+  onAfter: vi.fn(),
+});
+
+export const createMockVerifyAction = (): ComponentAction<Domain> => ({
+  disabled: false,
+  onBefore: vi.fn(() => true),
+  onAfter: vi.fn(),
+});
+
+export const createMockDeleteAction = (): ComponentAction<Domain> => ({
+  disabled: false,
+  onBefore: vi.fn(() => true),
+  onAfter: vi.fn(),
+});

@@ -4,7 +4,7 @@ import {
   getComponentStyles,
   type ProvisioningDetailsFormValues,
   ssoProvisioningSchema,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';

@@ -42,6 +42,24 @@ const createMockBackButton = () => ({
   onClick: vi.fn(),
 });
 
+const createMockSsoActions = () => ({
+  updateAction: {
+    disabled: false,
+    onBefore: vi.fn(() => true),
+    onAfter: vi.fn(),
+  },
+  deleteAction: {
+    disabled: false,
+    onBefore: vi.fn(() => true),
+    onAfter: vi.fn(),
+  },
+  deleteFromOrgAction: {
+    disabled: false,
+    onBefore: vi.fn(() => true),
+    onAfter: vi.fn(),
+  },
+});
+
 // ===== Local utils =====
 
 const waitForComponentToLoad = async () => {
@@ -360,23 +378,7 @@ describe('SsoProviderEdit', () => {
     describe('when sso.updateAction is provided', () => {
       it('should call onBefore when toggling provider', async () => {
         const user = userEvent.setup();
-        const ssoActions = {
-          updateAction: {
-            disabled: false,
-            onBefore: vi.fn(() => true),
-            onAfter: vi.fn(),
-          },
-          deleteAction: {
-            disabled: false,
-            onBefore: vi.fn(() => true),
-            onAfter: vi.fn(),
-          },
-          deleteFromOrgAction: {
-            disabled: false,
-            onBefore: vi.fn(() => true),
-            onAfter: vi.fn(),
-          },
-        };
+        const ssoActions = createMockSsoActions();
 
         renderWithProviders(
           <SsoProviderEdit {...createMockSsoProviderEditProps({ sso: ssoActions })} />,
@@ -400,23 +402,7 @@ describe('SsoProviderEdit', () => {
 
       it('should call onAfter after successful update', async () => {
         const user = userEvent.setup();
-        const ssoActions = {
-          updateAction: {
-            disabled: false,
-            onBefore: vi.fn(() => true),
-            onAfter: vi.fn(),
-          },
-          deleteAction: {
-            disabled: false,
-            onBefore: vi.fn(() => true),
-            onAfter: vi.fn(),
-          },
-          deleteFromOrgAction: {
-            disabled: false,
-            onBefore: vi.fn(() => true),
-            onAfter: vi.fn(),
-          },
-        };
+        const ssoActions = createMockSsoActions();
 
         renderWithProviders(
           <SsoProviderEdit {...createMockSsoProviderEditProps({ sso: ssoActions })} />,
@@ -438,23 +424,8 @@ describe('SsoProviderEdit', () => {
 
       it('should not update when onBefore returns false', async () => {
         const user = userEvent.setup();
-        const ssoActions = {
-          updateAction: {
-            disabled: false,
-            onBefore: vi.fn(() => false),
-            onAfter: vi.fn(),
-          },
-          deleteAction: {
-            disabled: false,
-            onBefore: vi.fn(() => true),
-            onAfter: vi.fn(),
-          },
-          deleteFromOrgAction: {
-            disabled: false,
-            onBefore: vi.fn(() => true),
-            onAfter: vi.fn(),
-          },
-        };
+        const ssoActions = createMockSsoActions();
+        ssoActions.updateAction.onBefore = vi.fn(() => false);
 
         renderWithProviders(
           <SsoProviderEdit {...createMockSsoProviderEditProps({ sso: ssoActions })} />,
@@ -480,18 +451,7 @@ describe('SsoProviderEdit', () => {
 
     describe('when sso.deleteAction is provided', () => {
       it('should render with deleteAction props', async () => {
-        const ssoActions = {
-          deleteAction: {
-            disabled: false,
-            onBefore: vi.fn(() => true),
-            onAfter: vi.fn(),
-          },
-          deleteFromOrgAction: {
-            disabled: false,
-            onBefore: vi.fn(() => true),
-            onAfter: vi.fn(),
-          },
-        };
+        const ssoActions = createMockSsoActions();
 
         renderWithProviders(
           <SsoProviderEdit {...createMockSsoProviderEditProps({ sso: ssoActions })} />,
@@ -512,18 +472,7 @@ describe('SsoProviderEdit', () => {
 
     describe('when sso.deleteFromOrgAction is provided', () => {
       it('should render with deleteFromOrg action props', async () => {
-        const ssoActions = {
-          deleteAction: {
-            disabled: false,
-            onBefore: vi.fn(() => true),
-            onAfter: vi.fn(),
-          },
-          deleteFromOrgAction: {
-            disabled: false,
-            onBefore: vi.fn(() => true),
-            onAfter: vi.fn(),
-          },
-        };
+        const ssoActions = createMockSsoActions();
 
         renderWithProviders(
           <SsoProviderEdit {...createMockSsoProviderEditProps({ sso: ssoActions })} />,

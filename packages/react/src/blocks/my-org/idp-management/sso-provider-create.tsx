@@ -4,7 +4,7 @@ import {
   type ProviderDetailsFormValues,
   type ProviderConfigureFormValues,
   MY_ORG_SSO_PROVIDER_CREATE_SCOPES,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 
 import ProviderConfigure, {

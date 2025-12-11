@@ -5,7 +5,7 @@ import {
   type EmailContactForm,
   type SmsContactForm,
   getComponentStyles,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MailIcon, SmartphoneIcon } from 'lucide-react';
 import * as React from 'react';

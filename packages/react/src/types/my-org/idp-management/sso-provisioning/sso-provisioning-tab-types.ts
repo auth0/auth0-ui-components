@@ -13,7 +13,7 @@ import type {
   ComponentAction,
   CreateIdPProvisioningConfigResponseContent,
   IdpStrategy,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 
 import type { ProvisioningManageTokenClasses } from './provisioning-manage-token-types';
 

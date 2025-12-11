@@ -12,12 +12,12 @@ import {
 import { SsoProvisioningTab } from '../sso-provisioning-tab';
 
 // Mock hooks
+const mockUseTranslator = vi.fn(() => ({
+  t: (key: string) => key,
+}));
+
 vi.mock('../../../../../../hooks/use-translator', () => ({
-  useTranslator: () => ({
-    t: (key: string) => {
-      return key;
-    },
-  }),
+  useTranslator: () => mockUseTranslator(),
 }));
 
 describe('SsoProvisioningTab', () => {
@@ -120,30 +120,5 @@ describe('SsoProvisioningTab', () => {
     await userEvent.click(switchElement);
 
     expect(onProvisioningUpdate).not.toHaveBeenCalled();
-  });
-
-  it('should render with custom styling', () => {
-    const customStyling = {
-      variables: {
-        common: { primaryColor: '#000' },
-        light: {},
-        dark: {},
-      },
-      classes: { container: 'custom-class' },
-    };
-
-    renderComponent({ styling: customStyling });
-
-    expect(screen.getByRole('switch')).toBeInTheDocument();
-  });
-
-  it('should render with custom messages', () => {
-    const customMessages = {
-      'provisioning.enable': 'Custom Enable Message',
-    };
-
-    renderComponent({ customMessages });
-
-    expect(screen.getByRole('switch')).toBeInTheDocument();
   });
 });

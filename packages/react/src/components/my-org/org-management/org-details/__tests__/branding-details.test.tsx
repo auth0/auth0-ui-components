@@ -1,4 +1,4 @@
-import type { OrganizationDetailsFormValues } from '@auth0/web-ui-components-core';
+import type { OrganizationDetailsFormValues } from '@auth0/universal-components-core';
 import { screen } from '@testing-library/react';
 import { renderHook } from '@testing-library/react';
 import { useForm } from 'react-hook-form';

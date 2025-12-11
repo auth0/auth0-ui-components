@@ -1,4 +1,4 @@
-import { PingIdLogoSvg } from '@auth0/web-ui-components-core';
+import { PingIdLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 
 export interface PingIdProps extends React.ImgHTMLAttributes<HTMLImageElement> {

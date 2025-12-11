@@ -1,4 +1,4 @@
-import { SsoProviderEdit } from '@auth0/web-ui-components-react/spa';
+import { SsoProviderEdit } from '@auth0/universal-components-react/spa';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const SsoProviderEditPage = () => {

@@ -2,7 +2,7 @@ import type {
   ComponentAction,
   IdentityProvider,
   CreateIdentityProviderRequestContentPrivate,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -228,15 +228,6 @@ describe('SsoProviderCreate', () => {
           // Complete the wizard
           const completeButton = screen.getByRole('button', { name: /completebuttonlabel/i });
           await user.click(completeButton);
-
-          // TODO: Verify that the API was not called because createAction is disabled
-          // packages/react/src/hooks/my-org/idp-management/use-sso-provider-create.ts
-          // disabled action is not handled here currently
-          // await waitFor(() => {
-          //   expect(
-          //     mockCoreClient.getMyOrgApiClient().organization.identityProviders.create,
-          //   ).not.toHaveBeenCalled();
-          // });
         });
       });
 

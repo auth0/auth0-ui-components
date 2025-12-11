@@ -1,4 +1,4 @@
-import { STRATEGY_DISPLAY_NAMES } from '@auth0/web-ui-components-core';
+import { STRATEGY_DISPLAY_NAMES } from '@auth0/universal-components-core';
 import { Info } from 'lucide-react';
 
 import { useTranslator } from '../../../../../hooks/use-translator';

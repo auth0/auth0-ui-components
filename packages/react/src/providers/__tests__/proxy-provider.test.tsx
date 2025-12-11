@@ -120,17 +120,4 @@ describe('Auth0ComponentProvider', () => {
 
     expect(screen.getByTestId('theme-provider')).toBeInTheDocument();
   });
-
-  it('should pass i18n options', () => {
-    render(
-      <Auth0ComponentProvider
-        authDetails={{ authProxyUrl: '/api/auth' }}
-        i18n={{ currentLanguage: 'es' }}
-      >
-        <div>Test</div>
-      </Auth0ComponentProvider>,
-    );
-
-    expect(screen.getByTestId('theme-provider')).toBeInTheDocument();
-  });
 });

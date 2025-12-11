@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.13.2",
-    "@auth0/web-ui-components-react": "workspace:*",
+    "@auth0/universal-components-react": "workspace:*",
     "@tailwindcss/postcss": "^4.1.17",
     "execa": "^9.1.0",
     "i18next": "^25.2.1",

@@ -1,4 +1,4 @@
-import { type EnhancedTranslationFunction } from '@auth0/web-ui-components-core';
+import { type EnhancedTranslationFunction } from '@auth0/universal-components-core';
 import { useMemo, useCallback } from 'react';
 
 import { useCoreClient } from './use-core-client';

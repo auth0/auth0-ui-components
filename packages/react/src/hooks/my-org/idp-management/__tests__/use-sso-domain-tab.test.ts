@@ -1,4 +1,4 @@
-import { BusinessError } from '@auth0/web-ui-components-core';
+import { BusinessError } from '@auth0/universal-components-core';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 

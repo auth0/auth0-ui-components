@@ -1,4 +1,3 @@
-import type { Domain, ComponentAction } from '@auth0/web-ui-components-core';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -9,53 +8,19 @@ import {
   createMockVerifiedDomain,
   createMockIdentityProvider,
   createMockIdentityProviderAssociatedWithDomain,
+  createMockDomainTableProps,
+  createMockCreateAction,
+  createMockVerifyAction,
+  createMockDeleteAction,
 } from '../../../../internals/__mocks__/my-org/domain-management/domain.mocks';
 import { renderWithProviders } from '../../../../internals/test-provider';
 import { mockCore, mockToast } from '../../../../internals/test-setup';
-import type { DomainTableProps } from '../../../../types/my-org/domain-management/domain-table-types';
 import { DomainTable } from '../domain-table';
 
 // ===== Mock packages =====
 
 mockToast();
 const { initMockCoreClient } = mockCore();
-
-// ===== Local mock creators =====
-
-const createMockDomainTableProps = (overrides?: Partial<DomainTableProps>): DomainTableProps => ({
-  schema: undefined,
-  customMessages: {},
-  styling: {
-    variables: { common: {}, light: {}, dark: {} },
-    classes: {},
-  },
-  hideHeader: false,
-  readOnly: false,
-  createAction: undefined,
-  verifyAction: undefined,
-  deleteAction: undefined,
-  associateToProviderAction: undefined,
-  deleteFromProviderAction: undefined,
-  ...overrides,
-});
-
-const createMockCreateAction = (): ComponentAction<Domain> => ({
-  disabled: false,
-  onBefore: vi.fn(() => true),
-  onAfter: vi.fn(),
-});
-
-const createMockVerifyAction = (): ComponentAction<Domain> => ({
-  disabled: false,
-  onBefore: vi.fn(() => true),
-  onAfter: vi.fn(),
-});
-
-const createMockDeleteAction = (): ComponentAction<Domain> => ({
-  disabled: false,
-  onBefore: vi.fn(() => true),
-  onAfter: vi.fn(),
-});
 
 // ===== Local utils =====
 
@@ -366,10 +331,6 @@ describe('DomainTable', () => {
           const actionButton = within(firstRow!).getByRole('button');
 
           await user.click(actionButton);
-
-          // TODO: add disabled check
-          // const verifyButton = screen.getByRole('menuitem', { name: /verify/i });
-          // expect(verifyButton).toBeDisabled();
         });
       });
     });
@@ -493,10 +454,6 @@ describe('DomainTable', () => {
           const actionButton = within(firstRow!).getByRole('button');
 
           await user.click(actionButton);
-
-          // TODO: add disabled check
-          // const deleteButton = screen.getByRole('menuitem', { name: /delete/i });
-          // expect(deleteButton).toBeDisabled();
         });
       });
     });

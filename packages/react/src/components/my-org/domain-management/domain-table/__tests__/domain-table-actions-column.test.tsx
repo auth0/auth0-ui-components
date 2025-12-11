@@ -1,4 +1,4 @@
-import type { Domain } from '@auth0/web-ui-components-core';
+import type { Domain } from '@auth0/universal-components-core';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

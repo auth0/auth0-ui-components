@@ -1,4 +1,4 @@
-import type { IdpStrategy, ProvisioningMethod } from '@auth0/web-ui-components-core';
+import type { IdpStrategy, ProvisioningMethod } from '@auth0/universal-components-core';
 
 export type ProvisioningFeatures = 'provisioning' | 'logout';
 

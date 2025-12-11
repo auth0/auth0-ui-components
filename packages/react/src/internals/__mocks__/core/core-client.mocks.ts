@@ -1,4 +1,4 @@
-import type { CoreClientInterface, AuthDetails } from '@auth0/web-ui-components-core';
+import type { CoreClientInterface, AuthDetails } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 import {

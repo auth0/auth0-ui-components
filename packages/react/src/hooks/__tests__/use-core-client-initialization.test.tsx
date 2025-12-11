@@ -1,15 +1,11 @@
-import { createCoreClient } from '@auth0/web-ui-components-core';
-import type { CoreClientInterface } from '@auth0/web-ui-components-core';
+import type { CoreClientInterface } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { mockCreateCoreClient } from '../../internals';
 import { useCoreClientInitialization } from '../use-core-client-initialization';
 
-vi.mock('@auth0/web-ui-components-core', () => ({
-  createCoreClient: vi.fn(),
-}));
-
-const mockCreateCoreClient = vi.mocked(createCoreClient);
+const { createCoreClient } = mockCreateCoreClient();
 
 describe('useCoreClientInitialization', () => {
   const mockCoreClient = {
@@ -27,7 +23,7 @@ describe('useCoreClientInitialization', () => {
   });
 
   it('should return null initially', () => {
-    mockCreateCoreClient.mockReturnValue(new Promise(() => {}));
+    createCoreClient.mockReturnValue(new Promise(() => {}));
 
     const { result } = renderHook(() => useCoreClientInitialization(defaultProps));
 
@@ -35,7 +31,7 @@ describe('useCoreClientInitialization', () => {
   });
 
   it('should return coreClient after successful initialization', async () => {
-    mockCreateCoreClient.mockResolvedValue(mockCoreClient);
+    createCoreClient.mockResolvedValue(mockCoreClient);
 
     const { result } = renderHook(() => useCoreClientInitialization(defaultProps));
 
@@ -43,11 +39,11 @@ describe('useCoreClientInitialization', () => {
       expect(result.current).toBe(mockCoreClient);
     });
 
-    expect(mockCreateCoreClient).toHaveBeenCalledWith(defaultProps.authDetails, undefined);
+    expect(createCoreClient).toHaveBeenCalledWith(defaultProps.authDetails, undefined);
   });
 
   it('should pass i18nOptions to createCoreClient', async () => {
-    mockCreateCoreClient.mockResolvedValue(mockCoreClient);
+    createCoreClient.mockResolvedValue(mockCoreClient);
 
     const propsWithI18n = {
       authDetails: { authProxyUrl: '/api/auth' },
@@ -60,7 +56,7 @@ describe('useCoreClientInitialization', () => {
       expect(result.current).toBe(mockCoreClient);
     });
 
-    expect(mockCreateCoreClient).toHaveBeenCalledWith(
+    expect(createCoreClient).toHaveBeenCalledWith(
       propsWithI18n.authDetails,
       propsWithI18n.i18nOptions,
     );
@@ -69,7 +65,7 @@ describe('useCoreClientInitialization', () => {
   it('should return null on initialization error', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const error = new Error('Initialization failed');
-    mockCreateCoreClient.mockRejectedValue(error);
+    createCoreClient.mockRejectedValue(error);
 
     const { result } = renderHook(() => useCoreClientInitialization(defaultProps));
 
@@ -82,7 +78,7 @@ describe('useCoreClientInitialization', () => {
   });
 
   it('should reinitialize when authProxyUrl changes', async () => {
-    mockCreateCoreClient.mockResolvedValue(mockCoreClient);
+    createCoreClient.mockResolvedValue(mockCoreClient);
 
     const { result, rerender } = renderHook((props) => useCoreClientInitialization(props), {
       initialProps: defaultProps,
@@ -97,12 +93,12 @@ describe('useCoreClientInitialization', () => {
     });
 
     await waitFor(() => {
-      expect(mockCreateCoreClient).toHaveBeenCalledTimes(2);
+      expect(createCoreClient).toHaveBeenCalledTimes(2);
     });
   });
 
   it('should reinitialize when domain changes', async () => {
-    mockCreateCoreClient.mockResolvedValue(mockCoreClient);
+    createCoreClient.mockResolvedValue(mockCoreClient);
 
     const propsWithDomain = {
       authDetails: { authProxyUrl: '/api/auth', domain: 'test.auth0.com' },
@@ -121,7 +117,7 @@ describe('useCoreClientInitialization', () => {
     });
 
     await waitFor(() => {
-      expect(mockCreateCoreClient).toHaveBeenCalledTimes(2);
+      expect(createCoreClient).toHaveBeenCalledTimes(2);
     });
   });
 });

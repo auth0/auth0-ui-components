@@ -1,4 +1,4 @@
-import { FACTOR_TYPE_EMAIL, FACTOR_TYPE_PHONE } from '@auth0/web-ui-components-core';
+import { FACTOR_TYPE_EMAIL, FACTOR_TYPE_PHONE } from '@auth0/universal-components-core';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';

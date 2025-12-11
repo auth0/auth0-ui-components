@@ -1,4 +1,4 @@
-import type { CoreClientInterface } from '@auth0/web-ui-components-core';
+import type { CoreClientInterface } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 const CoreClientContext = React.createContext<{

@@ -15,7 +15,7 @@ import type {
   ComponentAction,
   BackButton,
   CreateIdentityProviderRequestContentPrivate,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 import type { UseFormReturn } from 'react-hook-form';

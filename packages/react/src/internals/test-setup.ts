@@ -1,4 +1,4 @@
-import type { CoreClientInterface } from '@auth0/web-ui-components-core';
+import type { CoreClientInterface } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 import { createMockCoreClient } from './__mocks__/core/core-client.mocks';
@@ -18,7 +18,7 @@ export const mockToast = () => {
 export const mockCore = () => {
   let mockCoreClientInstance: CoreClientInterface = createMockCoreClient();
 
-  vi.mock('@auth0/web-ui-components-core', async (importOriginal) => {
+  vi.mock('@auth0/universal-components-core', async (importOriginal) => {
     const actual = await importOriginal();
 
     return {
@@ -41,4 +41,21 @@ export const mockCore = () => {
       return mockCoreClientInstance;
     },
   };
+};
+
+export const mockCreateCoreClient = () => {
+  const { createCoreClient } = vi.hoisted(() => ({
+    createCoreClient: vi.fn(),
+  }));
+
+  vi.mock('@auth0/universal-components-core', async (importOriginal) => {
+    const actual = await importOriginal();
+
+    return {
+      ...(actual as Record<string, unknown>),
+      createCoreClient,
+    };
+  });
+
+  return { createCoreClient };
 };

@@ -1,17 +1,17 @@
-# @auth0/web-ui-components-core
+# @auth0/universal-components-core
 
 Core utilities and services for Auth0 Web Universal components. Framework-agnostic functionality for Auth0 integrations.
 
 ## Installation
 
 ```bash
-npm install @auth0/web-ui-components-core
+npm install @auth0/universal-components-core
 ```
 
 ## Usage
 
 ```typescript
-import { createCoreClient } from '@auth0/web-ui-components-core';
+import { createCoreClient } from '@auth0/universal-components-core';
 
 const client = createCoreClient({
   domain: 'your-domain.auth0.com',
@@ -26,7 +26,7 @@ const client = createCoreClient({
 
 ## Related Packages
 
-- [@auth0/web-ui-components-react](https://www.npmjs.com/package/@auth0/web-ui-components-react) - React UI components
+- [@auth0/universal-components-react](https://www.npmjs.com/package/@auth0/universal-components-react) - React UI components
 
 ## License
 

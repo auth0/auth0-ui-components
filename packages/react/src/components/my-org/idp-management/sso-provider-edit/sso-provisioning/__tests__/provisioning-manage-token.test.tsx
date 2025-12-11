@@ -1,4 +1,4 @@
-import type { IdpScimTokenBase } from '@auth0/web-ui-components-core';
+import type { IdpScimTokenBase } from '@auth0/universal-components-core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';

@@ -1,4 +1,4 @@
-import type { Authenticator, MFAType } from '@auth0/web-ui-components-core';
+import type { Authenticator, MFAType } from '@auth0/universal-components-core';
 
 export const createMockAuthenticator = (overrides?: Partial<Authenticator>): Authenticator => ({
   id: 'auth_mock123',

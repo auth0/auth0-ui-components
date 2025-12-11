@@ -166,8 +166,8 @@ export default function GettingStarted() {
             <p className="text-gray-600 mb-4">Install the React package:</p>
             <TabbedCodeBlock
               tabs={[
-                { label: 'npm', code: 'npm install @auth0/web-ui-components-react' },
-                { label: 'pnpm', code: 'pnpm add @auth0/web-ui-components-react' },
+                { label: 'npm', code: 'npm install @auth0/universal-components-react' },
+                { label: 'pnpm', code: 'pnpm add @auth0/universal-components-react' },
               ]}
               language="bash"
             />
@@ -189,14 +189,14 @@ export default function GettingStarted() {
             <div className="space-y-3">
               <TabbedCodeBlock
                 tabs={[
-                  { label: 'npm', code: 'npm install @auth0/web-ui-components-core' },
-                  { label: 'pnpm', code: 'pnpm add @auth0/web-ui-components-core' },
+                  { label: 'npm', code: 'npm install @auth0/universal-components-core' },
+                  { label: 'pnpm', code: 'pnpm add @auth0/universal-components-core' },
                 ]}
                 language="bash"
                 title="1. Install Core Package"
               />
               <CodeBlock
-                code="npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-org/org-details-edit.json"
+                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-org/org-details-edit.json"
                 language="bash"
                 title="2. Add Shadcn Block (e.g., OrgDetailsEdit)"
               />
@@ -447,8 +447,8 @@ import 'src/auth0-ui-components/styles/globals.css';`}
               </h4>
               <CodeBlock
                 code={`import { Auth0Provider } from '@auth0/auth0-react';
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react/spa';
-import '@auth0/web-ui-components-react/styles';
+import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
+import '@auth0/universal-components-react/styles';
 
 const authDetails = {
   domain: import.meta.env.VITE_AUTH0_DOMAIN,
@@ -480,7 +480,7 @@ function App() {
               </h4>
               <CodeBlock
                 code={`import { useAuth0 } from '@auth0/auth0-react';
-import { OrgDetailsEdit } from '@auth0/web-ui-components-react/spa';
+import { OrgDetailsEdit } from '@auth0/universal-components-react/spa';
 
 function OrganizationManagementPage() {
   const { isAuthenticated, isLoading } = useAuth0();
@@ -515,8 +515,8 @@ function OrganizationManagementPage() {
               <CodeBlock
                 code={`'use client';
 
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react/rwa';
-import '@auth0/web-ui-components-react/styles';
+import { Auth0ComponentProvider } from '@auth0/universal-components-react/rwa';
+import '@auth0/universal-components-react/styles';
 
 const authDetails = {
   authProxyUrl: '/',
@@ -550,7 +550,7 @@ export default function RootLayout({
               <CodeBlock
                 code={`'use client';
 
-import { OrgDetailsEdit } from '@auth0/web-ui-components-react/rwa';
+import { OrgDetailsEdit } from '@auth0/universal-components-react/rwa';
 
 export default function OrganizationManagementPage() {
   return (

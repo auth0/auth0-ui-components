@@ -163,7 +163,7 @@ importers:
       '@auth0/nextjs-auth0':
         specifier: ^4.13.2
         version: 4.13.2(next@16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      '@auth0/web-ui-components-react':
+      '@auth0/universal-components-react':
         specifier: workspace:*
         version: link:../../packages/react
       '@tailwindcss/postcss':
@@ -212,7 +212,7 @@ importers:
       '@auth0/auth0-react':
         specifier: ^2.0.0
         version: 2.9.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      '@auth0/web-ui-components-react':
+      '@auth0/universal-components-react':
         specifier: workspace:*
         version: link:../../packages/react
       i18next:
@@ -273,7 +273,7 @@ importers:
       '@auth0/auth0-react':
         specifier: ^2.3.0
         version: 2.9.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      '@auth0/web-ui-components-core':
+      '@auth0/universal-components-core':
         specifier: workspace:*
         version: link:../../packages/core
       '@hookform/resolvers':
@@ -491,7 +491,7 @@ importers:
 
   packages/react:
     dependencies:
-      '@auth0/web-ui-components-core':
+      '@auth0/universal-components-core':
         specifier: workspace:*
         version: link:../core
       '@hookform/resolvers':

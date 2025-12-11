@@ -1,4 +1,4 @@
-import type { Domain, IdentityProvider } from '@auth0/web-ui-components-core';
+import type { Domain, IdentityProvider } from '@auth0/universal-components-core';
 
 export const createMockSsoDomain = (overrides?: Partial<Domain>): Domain => ({
   id: 'domain-1',

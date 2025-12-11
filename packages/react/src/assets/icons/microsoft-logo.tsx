@@ -1,4 +1,4 @@
-import { MicrosoftLogoSvg } from '@auth0/web-ui-components-core';
+import { MicrosoftLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 
 export interface MicrosoftLogoProps extends React.ImgHTMLAttributes<HTMLImageElement> {

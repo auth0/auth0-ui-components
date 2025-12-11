@@ -1,5 +1,5 @@
-import type { CreateOrganizationDomainRequestContent } from '@auth0/web-ui-components-core';
-import { BusinessError, type Domain, type IdpId } from '@auth0/web-ui-components-core';
+import type { CreateOrganizationDomainRequestContent } from '@auth0/universal-components-core';
+import { BusinessError, type Domain, type IdpId } from '@auth0/universal-components-core';
 import { useCallback, useState, useEffect } from 'react';
 
 import { showToast } from '../../../components/ui/toast';

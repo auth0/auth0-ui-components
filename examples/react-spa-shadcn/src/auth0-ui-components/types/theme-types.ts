@@ -1,4 +1,4 @@
-import type { StylingVariables } from '@auth0/web-ui-components-core';
+import type { StylingVariables } from '@auth0/universal-components-core';
 import type React from 'react';
 
 /**

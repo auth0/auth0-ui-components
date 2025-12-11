@@ -4,7 +4,7 @@ import {
   type CreateOrganizationDomainRequestContent,
   type IdentityProviderAssociatedWithDomain,
   BusinessError,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { useCallback, useState } from 'react';
 
 import type {

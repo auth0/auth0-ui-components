@@ -1,6 +1,9 @@
 'use client';
 
-import { getComponentStyles, MY_ORG_SSO_PROVIDER_EDIT_SCOPES } from '@auth0/web-ui-components-core';
+import {
+  getComponentStyles,
+  MY_ORG_SSO_PROVIDER_EDIT_SCOPES,
+} from '@auth0/universal-components-core';
 import React, { useState } from 'react';
 
 import { SsoDomainTab } from '../../../components/my-org/idp-management/sso-provider-edit/sso-domain-tab';

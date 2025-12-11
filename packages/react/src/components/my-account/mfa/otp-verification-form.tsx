@@ -4,7 +4,7 @@ import {
   FACTOR_TYPE_TOTP,
   FACTOR_TYPE_PUSH_NOTIFICATION,
   getComponentStyles,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 

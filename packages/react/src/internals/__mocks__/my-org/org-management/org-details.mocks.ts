@@ -1,4 +1,4 @@
-import type { Organization } from '@auth0/web-ui-components-core';
+import type { Organization } from '@auth0/universal-components-core';
 
 export const createMockOrganization = (): Organization => ({
   id: 'org_abc123xyz456',

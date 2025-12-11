@@ -15,12 +15,12 @@ For detailed information on how to use these components and get started with Aut
 
 This project uses a **monorepo architecture** designed for multi-framework support. It is organized into two main types of packages:
 
-- A framework-agnostic `@auth0/web-ui-components-core` package that contains all the core logic, services, and utilities.
-- Framework-specific packages (like `@auth0/web-ui-components-react`) that provide UI components and hooks for a particular technology. This structure allows for the future addition of packages for other frameworks like Vue or Angular.
+- A framework-agnostic `@auth0/universal-components-core` package that contains all the core logic, services, and utilities.
+- Framework-specific packages (like `@auth0/universal-components-react`) that provide UI components and hooks for a particular technology. This structure allows for the future addition of packages for other frameworks like Vue or Angular.
 
 ### `packages/core/`
 
-**@auth0/web-ui-components-core** - The foundational package containing core utilities and services.
+**@auth0/universal-components-core** - The foundational package containing core utilities and services.
 
 **What it provides:**
 
@@ -31,7 +31,7 @@ This project uses a **monorepo architecture** designed for multi-framework suppo
 
 ### `packages/react/`
 
-**@auth0/web-ui-components-react** - React-specific UI components and hooks for Auth0 integrations.
+**@auth0/universal-components-react** - React-specific UI components and hooks for Auth0 integrations.
 
 **What it provides:**
 

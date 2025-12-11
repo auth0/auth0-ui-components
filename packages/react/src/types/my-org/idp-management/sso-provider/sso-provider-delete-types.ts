@@ -5,7 +5,7 @@ import type {
   IdentityProvider,
   SsoProviderDeleteSchema,
   SsoProvideRemoveMessages,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 
 export interface SsoProviderDeleteClasses {
   'ProviderDelete-root'?: string;

@@ -5,7 +5,7 @@ import type {
   SsoProviderTableMessages,
   IdentityProvider as CoreIdentityProvider,
   OrganizationPrivate,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 
 export type IdentityProvider = CoreIdentityProvider;
 

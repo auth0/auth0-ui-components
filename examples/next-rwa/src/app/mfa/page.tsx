@@ -1,6 +1,6 @@
 'use client';
 
-import { UserMFAMgmt } from '@auth0/web-ui-components-react/rwa';
+import { UserMFAMgmt } from '@auth0/universal-components-react/rwa';
 
 export default function UserManagementPage() {
   return <UserMFAMgmt />;

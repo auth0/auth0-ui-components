@@ -1,4 +1,4 @@
-import { FACTOR_TYPE_EMAIL } from '@auth0/web-ui-components-core';
+import { FACTOR_TYPE_EMAIL } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 import type { UserMFASetupFormProps } from '../../../../types/my-account/mfa/mfa-types';

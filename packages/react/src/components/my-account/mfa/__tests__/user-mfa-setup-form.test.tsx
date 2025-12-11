@@ -1,11 +1,11 @@
-import type { MFAType } from '@auth0/web-ui-components-core';
+import type { MFAType } from '@auth0/universal-components-core';
 import {
   FACTOR_TYPE_EMAIL,
   FACTOR_TYPE_PHONE,
   FACTOR_TYPE_TOTP,
   FACTOR_TYPE_PUSH_NOTIFICATION,
   FACTOR_TYPE_RECOVERY_CODE,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';

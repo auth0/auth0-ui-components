@@ -65,7 +65,7 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
       // Resolve workspace packages to source files during testing
       // This allows tests to run before build
-      '@auth0/web-ui-components-core': resolve(__dirname, '../core/src'),
+      '@auth0/universal-components-core': resolve(__dirname, '../core/src'),
       '@core': resolve(__dirname, '../core/src'),
     },
   },

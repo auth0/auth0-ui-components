@@ -2,7 +2,7 @@ export { TestProvider, renderWithProviders, renderWithFormProvider } from './tes
 export type { TestProviderProps } from './test-provider';
 
 // Global test setup utilities
-export { mockToast, mockCore } from './test-setup';
+export { mockToast, mockCore, mockCreateCoreClient } from './test-setup';
 
 // Test utilities - mock generators and setup functions
 export {

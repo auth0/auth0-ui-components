@@ -108,6 +108,6 @@ describe('ProvisioningDeleteTokenModal', () => {
   it('handles null tokenId gracefully', () => {
     render(<ProvisioningDeleteTokenModal {...defaultProps} tokenId={null} />);
 
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText('confirmation')).toBeInTheDocument();
   });
 });

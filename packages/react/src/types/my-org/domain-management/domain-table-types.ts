@@ -12,7 +12,7 @@ import type {
   CreateOrganizationDomainRequestContent,
   EnhancedTranslationFunction,
   IdentityProviderAssociatedWithDomain,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 
 export type { Domain };
 

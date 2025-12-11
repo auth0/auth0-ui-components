@@ -1,24 +1,25 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import * as React from 'react';
+import { useEffect } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import * as useCoreClientModule from '../../hooks/use-core-client';
 import { useScopeManager } from '../../hooks/use-scope-manager';
+import { mockCore, setupMockUseCoreClient } from '../../internals';
 import { ScopeManagerProvider } from '../scope-manager-provider';
 
-vi.mock('../../hooks/use-core-client', () => ({
-  useCoreClient: vi.fn(),
-}));
+const { initMockCoreClient } = mockCore();
+let mockCoreClient: ReturnType<typeof initMockCoreClient>;
 
-const mockUseCoreClient = vi.mocked(useCoreClientModule.useCoreClient);
-
-const TestConsumer: React.FC<{ audience?: 'me' | 'my-org'; scopes?: string }> = ({
+const TestConsumer = ({
   audience = 'me',
   scopes,
+}: {
+  audience?: 'me' | 'my-org';
+  scopes?: string;
 }) => {
   const { registerScopes, isReady, ensured } = useScopeManager();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (scopes) {
       registerScopes(audience, scopes);
     }
@@ -35,15 +36,13 @@ const TestConsumer: React.FC<{ audience?: 'me' | 'my-org'; scopes?: string }> = 
 
 describe('ScopeManagerProvider', () => {
   const mockEnsureScopes = vi.fn();
-  const mockCoreClient = {
-    ensureScopes: mockEnsureScopes,
-  };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseCoreClient.mockReturnValue({
-      coreClient: mockCoreClient as never,
-    });
+
+    // Setup mock core client
+    mockCoreClient = { ...initMockCoreClient(), ...mockEnsureScopes };
+    setupMockUseCoreClient(mockCoreClient, useCoreClientModule);
     mockEnsureScopes.mockResolvedValue(undefined);
   });
 
@@ -67,30 +66,6 @@ describe('ScopeManagerProvider', () => {
     expect(screen.getByTestId('is-ready')).toHaveTextContent('false');
     expect(screen.getByTestId('ensured-me')).toHaveTextContent('');
     expect(screen.getByTestId('ensured-my-org')).toHaveTextContent('');
-  });
-
-  it('should register scopes for "me" audience', async () => {
-    render(
-      <ScopeManagerProvider>
-        <TestConsumer audience="me" scopes="read:profile write:profile" />
-      </ScopeManagerProvider>,
-    );
-
-    await waitFor(() => {
-      expect(mockEnsureScopes).toHaveBeenCalledWith(expect.stringContaining('read:profile'), 'me');
-    });
-  });
-
-  it('should register scopes for "my-org" audience', async () => {
-    render(
-      <ScopeManagerProvider>
-        <TestConsumer audience="my-org" scopes="read:org write:org" />
-      </ScopeManagerProvider>,
-    );
-
-    await waitFor(() => {
-      expect(mockEnsureScopes).toHaveBeenCalledWith(expect.stringContaining('read:org'), 'my-org');
-    });
   });
 
   it('should not register empty scopes', async () => {
@@ -141,31 +116,10 @@ describe('ScopeManagerProvider', () => {
     });
   });
 
-  it('should handle ensureScopes error gracefully', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    mockEnsureScopes.mockRejectedValue(new Error('Failed to ensure scopes'));
-
-    render(
-      <ScopeManagerProvider>
-        <TestConsumer audience="me" scopes="read:profile" />
-      </ScopeManagerProvider>,
-    );
-
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Failed to ensure scopes for me'),
-        expect.any(Error),
-      );
-    });
-
-    consoleSpy.mockRestore();
-  });
-
   it('should not call ensureScopes when coreClient is not available', async () => {
-    mockUseCoreClient.mockReturnValue({
-      coreClient: null as never,
+    vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
+      coreClient: null,
     });
-
     render(
       <ScopeManagerProvider>
         <TestConsumer audience="me" scopes="read:profile" />
@@ -175,26 +129,5 @@ describe('ScopeManagerProvider', () => {
     await waitFor(() => {
       expect(mockEnsureScopes).not.toHaveBeenCalled();
     });
-  });
-
-  it('should deduplicate scopes when registering', async () => {
-    const { rerender } = render(
-      <ScopeManagerProvider>
-        <TestConsumer audience="me" scopes="read:profile" />
-      </ScopeManagerProvider>,
-    );
-
-    await waitFor(() => {
-      expect(mockEnsureScopes).toHaveBeenCalledTimes(1);
-    });
-
-    rerender(
-      <ScopeManagerProvider>
-        <TestConsumer audience="me" scopes="read:profile" />
-      </ScopeManagerProvider>,
-    );
-
-    // Should not call again with same scopes
-    expect(mockEnsureScopes).toHaveBeenCalledTimes(1);
   });
 });

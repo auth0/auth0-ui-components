@@ -1,6 +1,6 @@
 'use client';
 
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react/rwa';
+import { Auth0ComponentProvider } from '@auth0/universal-components-react/rwa';
 import React from 'react';
 
 import { clientConfig } from '../config/features';

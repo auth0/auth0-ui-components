@@ -1,4 +1,4 @@
-import type { AuthDetails } from '@auth0/web-ui-components-core';
+import type { AuthDetails } from '@auth0/universal-components-core';
 import type * as React from 'react';
 
 import type { I18nOptions } from './i18n-types';

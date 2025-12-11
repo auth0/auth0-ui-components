@@ -5,7 +5,7 @@ import type {
   IdentityProvider,
   SharedComponentProps,
   SsoDomainTabMessages,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 
 /* ============ Components ============ */
 

@@ -2,9 +2,9 @@
 
 React component library for Auth0 integrations. Built with TypeScript, Radix UI, and Tailwind CSS.
 
-[![npm version](https://img.shields.io/npm/v/@auth0/web-ui-components-react.svg?style=flat-square)](https://www.npmjs.com/package/@auth0/web-ui-components-react)
-[![license](https://img.shields.io/npm/l/@auth0/web-ui-components-react.svg?style=flat-square)](https://github.com/auth0/auth0-ui-components/blob/main/LICENSE)
-[![downloads](https://img.shields.io/npm/dm/@auth0/web-ui-components-react.svg?style=flat-square)](https://www.npmjs.com/package/@auth0/web-ui-components-react)
+[![npm version](https://img.shields.io/npm/v/@auth0/universal-components-react.svg?style=flat-square)](https://www.npmjs.com/package/@auth0/universal-components-react)
+[![license](https://img.shields.io/npm/l/@auth0/universal-components-react.svg?style=flat-square)](https://github.com/auth0/auth0-ui-components/blob/main/LICENSE)
+[![downloads](https://img.shields.io/npm/dm/@auth0/universal-components-react.svg?style=flat-square)](https://www.npmjs.com/package/@auth0/universal-components-react)
 
 **What it provides:**
 
@@ -29,13 +29,13 @@ For detailed information on how to use these components and get started with Aut
 **For SPA (Single Page Application):**
 
 ```bash
-npm install @auth0/web-ui-components-react @auth0/auth0-react
+npm install @auth0/universal-components-react @auth0/auth0-react
 ```
 
 **For Next.js/Server-Side (RWA):**
 
 ```bash
-npm install @auth0/web-ui-components-react @auth0/nextjs-auth0
+npm install @auth0/universal-components-react @auth0/nextjs-auth0
 ```
 
 ### Step 1: Set up Auth0
@@ -54,8 +54,8 @@ For detailed setup instructions, follow the [Auth0 React Quickstart](https://aut
 
 ```tsx
 import { Auth0Provider } from '@auth0/auth0-react';
-import { Auth0ComponentProvider, OrgDetailsEdit } from '@auth0/web-ui-components-react/spa';
-import '@auth0/web-ui-components-react/styles';
+import { Auth0ComponentProvider, OrgDetailsEdit } from '@auth0/universal-components-react/spa';
+import '@auth0/universal-components-react/styles';
 
 function App() {
   return (
@@ -83,8 +83,8 @@ function App() {
 
 ```tsx
 // app/layout.tsx or pages/_app.tsx
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react/rwa';
-import '@auth0/web-ui-components-react/styles';
+import { Auth0ComponentProvider } from '@auth0/universal-components-react/rwa';
+import '@auth0/universal-components-react/styles';
 
 export default function RootLayout({ children }) {
   return (
@@ -107,9 +107,9 @@ export default function RootLayout({ children }) {
 ### Step 3: Use Components
 
 ```tsx
-import { OrgDetailsEdit } from '@auth0/web-ui-components-react/spa';
+import { OrgDetailsEdit } from '@auth0/universal-components-react/spa';
 // or
-import { OrgDetailsEdit } from '@auth0/web-ui-components-react/rwa';
+import { OrgDetailsEdit } from '@auth0/universal-components-react/rwa';
 
 function MyPage() {
   return (
@@ -131,7 +131,7 @@ function MyPage() {
 
 ## Related Packages
 
-- [@auth0/web-ui-components-core](https://www.npmjs.com/package/@auth0/web-ui-components-core) - Core utilities (auto-installed)
+- [@auth0/universal-components-core](https://www.npmjs.com/package/@auth0/universal-components-core) - Core utilities (auto-installed)
 - [@auth0/auth0-react](https://www.npmjs.com/package/@auth0/auth0-react) - Auth0 SDK for React (SPA mode)
 - [@auth0/nextjs-auth0](https://www.npmjs.com/package/@auth0/nextjs-auth0) - Auth0 SDK for Next.js (RWA mode)
 

@@ -1,22 +1,33 @@
-import { FACTOR_TYPE_EMAIL, FACTOR_TYPE_PHONE } from '@auth0/web-ui-components-core';
+import { FACTOR_TYPE_EMAIL, FACTOR_TYPE_PHONE } from '@auth0/universal-components-core';
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { mockCore, setupAllCommonMocks } from '../../../../internals';
 import { ENROLL } from '../../../../lib/mfa-constants';
+import * as useCoreClientModule from '../../../use-core-client';
+import * as useErrorHandlerModule from '../../../use-error-handler';
+import * as useTranslatorModule from '../../../use-translator';
 import { useContactEnrollment } from '../use-contact-enrollment';
 
-vi.mock('../../../use-translator', () => ({
-  useTranslator: () => ({
-    t: (key: string, _params: unknown, fallback: string) => fallback || key,
-  }),
-}));
+// ===== Mock packages =====
+const { initMockCoreClient } = mockCore();
+let mockCoreClient: ReturnType<typeof initMockCoreClient>;
 
 describe('useContactEnrollment', () => {
   const mockEnrollMfa = vi.fn();
   const mockOnError = vi.fn();
+  mockCoreClient = initMockCoreClient();
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Setup all common hook mocks
+    setupAllCommonMocks({
+      useTranslatorModule,
+      coreClient: mockCoreClient,
+      useCoreClientModule,
+      useErrorHandlerModule,
+    });
   });
 
   it('should return initial state', () => {

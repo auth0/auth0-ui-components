@@ -54,6 +54,19 @@ const waitForComponentToLoad = async () => {
   });
 };
 
+const setupEnrolledTotpFactor = (
+  apiService: ReturnType<ReturnType<typeof initMockCoreClient>['getMyAccountApiClient']>,
+) => {
+  apiService.authenticationMethods.list = vi.fn().mockResolvedValue(
+    createMockAuthenticationMethodsResponse([
+      createMockAuthenticator({
+        type: 'totp',
+        enrolled: true,
+      }),
+    ]),
+  );
+};
+
 // ===== Tests =====
 
 describe('UserMFAMgmt', () => {
@@ -320,14 +333,7 @@ describe('UserMFAMgmt', () => {
 
         // Mock a factor that's already enrolled
         const apiService = mockCoreClient.getMyAccountApiClient();
-        apiService.authenticationMethods.list = vi.fn().mockResolvedValue(
-          createMockAuthenticationMethodsResponse([
-            createMockAuthenticator({
-              type: 'totp',
-              enrolled: true,
-            }),
-          ]),
-        );
+        setupEnrolledTotpFactor(apiService);
 
         renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ onDelete })} />);
 
@@ -440,14 +446,7 @@ describe('UserMFAMgmt', () => {
 
         // Mock a factor that's already enrolled
         const apiService = mockCoreClient.getMyAccountApiClient();
-        apiService.authenticationMethods.list = vi.fn().mockResolvedValue(
-          createMockAuthenticationMethodsResponse([
-            createMockAuthenticator({
-              type: 'totp',
-              enrolled: true,
-            }),
-          ]),
-        );
+        setupEnrolledTotpFactor(apiService);
 
         // Mock deletion to fail with a specific error
         const deleteError = createMockAPIError('Failed to delete factor', 403);
@@ -590,14 +589,7 @@ describe('UserMFAMgmt', () => {
 
         // Mock a factor that's already enrolled
         const apiService = mockCoreClient.getMyAccountApiClient();
-        apiService.authenticationMethods.list = vi.fn().mockResolvedValue(
-          createMockAuthenticationMethodsResponse([
-            createMockAuthenticator({
-              type: 'totp',
-              enrolled: true,
-            }),
-          ]),
-        );
+        setupEnrolledTotpFactor(apiService);
 
         renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ onBeforeAction })} />);
 
@@ -640,14 +632,7 @@ describe('UserMFAMgmt', () => {
 
         // Mock a factor that's already enrolled
         const apiService = mockCoreClient.getMyAccountApiClient();
-        apiService.authenticationMethods.list = vi.fn().mockResolvedValue(
-          createMockAuthenticationMethodsResponse([
-            createMockAuthenticator({
-              type: 'totp',
-              enrolled: true,
-            }),
-          ]),
-        );
+        setupEnrolledTotpFactor(apiService);
 
         renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ onBeforeAction })} />);
 

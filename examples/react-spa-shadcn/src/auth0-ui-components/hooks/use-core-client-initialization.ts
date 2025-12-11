@@ -2,8 +2,8 @@ import type {
   CoreClientInterface,
   AuthDetails,
   I18nInitOptions,
-} from '@auth0/web-ui-components-core';
-import { createCoreClient } from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
+import { createCoreClient } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 interface UseCoreClientInitializationProps {

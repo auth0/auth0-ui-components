@@ -1,4 +1,4 @@
-import { hasApiErrorBody, isBusinessError } from '@auth0/web-ui-components-core';
+import { hasApiErrorBody, isBusinessError } from '@auth0/universal-components-core';
 import { useCallback } from 'react';
 
 import { showToast } from '../components/ui/toast';

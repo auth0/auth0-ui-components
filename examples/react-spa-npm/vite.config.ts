@@ -7,6 +7,6 @@ export default defineConfig({
     alias: {},
   },
   optimizeDeps: {
-    exclude: ['@auth0/web-ui-components-react'],
+    exclude: ['@auth0/universal-components-react'],
   },
 });

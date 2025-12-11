@@ -4,7 +4,7 @@ import {
   normalizeError,
   type MFAType,
   type CreateAuthenticationMethodResponseContent,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { useState, useCallback } from 'react';
 
 import { ENROLL } from '../../../lib/mfa-constants';

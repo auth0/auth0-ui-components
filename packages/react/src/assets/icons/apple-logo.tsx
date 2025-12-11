@@ -1,4 +1,4 @@
-import { AppleLogoSvg } from '@auth0/web-ui-components-core';
+import { AppleLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 
 export interface AppleLogoProps extends React.ImgHTMLAttributes<HTMLImageElement> {

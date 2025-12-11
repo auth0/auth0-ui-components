@@ -2,7 +2,7 @@
  * Test Utilities
  */
 
-import type { CoreClientInterface } from '@auth0/web-ui-components-core';
+import type { CoreClientInterface } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 import { createMockI18nService } from './__mocks__/core/i18n-service.mocks';
