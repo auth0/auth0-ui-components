@@ -22,6 +22,7 @@ export async function createCoreClient(
   const i18nService = await createI18nService(
     i18nOptions || { currentLanguage: 'en-US', fallbackLanguage: 'en-US' },
   );
+  console.log('TEST');
   const auth = initializeAuthDetails(authDetails);
 
   const tokenManagerService = createTokenManager(auth);
