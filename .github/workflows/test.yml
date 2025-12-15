@@ -8,11 +8,11 @@ on:
       - opened
       - synchronize
     branches:
-      - feat/add-intergrate-codecov
+      - main
       - production
   push:
     branches:
-      - feat/add-intergrate-codecov
+      - main
       - production
 
 permissions:
@@ -20,7 +20,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/feat/add-intergrate-codecov' }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   test:
