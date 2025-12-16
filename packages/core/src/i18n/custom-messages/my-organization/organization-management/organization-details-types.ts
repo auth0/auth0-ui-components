@@ -1,7 +1,7 @@
 /**
  * Messages that can be used to override default messages.
  */
-export interface OrgDetailsMessages {
+export interface OrganizationDetailsMessages {
   sections?: {
     settings?: {
       title?: string;
