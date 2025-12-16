@@ -1,7 +1,14 @@
-import { MyAccountClient } from '@auth0/myaccount-js';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import type { createTokenManager } from '../../../auth/token-manager';
+import {
+  saveOriginalFetch,
+  restoreOriginalFetch,
+  createMockFetch,
+  getConfigFromMockCalls,
+  getFetcherFromMockCalls,
+  getHeadersFromFetchCall,
+} from '../../../internals/__mocks__/shared/sdk-client.mocks';
 import { initializeMyAccountClient } from '../my-account-api-service';
 
 import {
@@ -19,31 +26,30 @@ import {
   expectedErrors,
 } from './__mocks__/my-account-api-service.mocks';
 
-// Store original fetch
-const originalFetch = global.fetch;
+const TEST_URL = 'https://test.com';
 
-// Mock MyAccountClient to capture constructor options
-vi.mock('@auth0/myaccount-js', () => {
-  return {
-    MyAccountClient: vi.fn().mockImplementation((config) => {
-      return {
-        config,
-        authenticationMethods: {
-          list: vi.fn(),
-        },
-      };
-    }),
-  };
-});
+// Hoist mock to avoid vi.mock hoisting issues
+const mockMyAccountClient = vi.hoisted(() =>
+  vi.fn().mockImplementation((config) => ({
+    config,
+    authenticationMethods: {
+      list: vi.fn(),
+    },
+  })),
+);
+
+vi.mock('@auth0/myaccount-js', () => ({
+  MyAccountClient: mockMyAccountClient,
+}));
 
 describe('initializeMyAccountClient', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    global.fetch = vi.fn();
+    saveOriginalFetch();
   });
 
   afterEach(() => {
-    global.fetch = originalFetch;
+    restoreOriginalFetch();
     vi.restoreAllMocks();
   });
 
@@ -55,15 +61,14 @@ describe('initializeMyAccountClient', () => {
 
         expect(result).toHaveProperty('client');
         expect(result).toHaveProperty('setLatestScopes');
-        expect(MyAccountClient).toHaveBeenCalled();
+        expect(mockMyAccountClient).toHaveBeenCalled();
       });
 
       it('should construct correct base URL from proxy URL', () => {
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyAccountClient);
 
         expect(config.baseUrl).toBe(getExpectedProxyBaseUrl(mockAuthWithProxyUrl.authProxyUrl!));
       });
@@ -72,8 +77,7 @@ describe('initializeMyAccountClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithProxyUrlTrailingSlash, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyAccountClient);
 
         // Should not have double slashes
         expect(config.baseUrl).not.toContain('//me');
@@ -84,8 +88,7 @@ describe('initializeMyAccountClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyAccountClient);
 
         expect(config.domain).toBe('');
       });
@@ -94,8 +97,7 @@ describe('initializeMyAccountClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyAccountClient);
 
         expect(config.telemetry).toBe(false);
       });
@@ -104,8 +106,7 @@ describe('initializeMyAccountClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyAccountClient);
 
         expect(config.fetcher).toBeDefined();
         expect(typeof config.fetcher).toBe('function');
@@ -146,37 +147,33 @@ describe('initializeMyAccountClient', () => {
 
     describe('custom fetcher behavior in proxy mode', () => {
       it('should create fetcher that calls fetch', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', {});
+        await fetcher!(TEST_URL, {});
 
         expect(mockFetch).toHaveBeenCalled();
       });
 
       it('should add scope header when scopes are set', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
         result.setLatestScopes(mockScopes.mfa);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', {});
+        await fetcher!(TEST_URL, {});
 
         expect(mockFetch).toHaveBeenCalledWith(
-          'https://test.com',
+          TEST_URL,
           expect.objectContaining({
             headers: expect.objectContaining({
               'auth0-scope': mockScopes.mfa,
@@ -186,20 +183,18 @@ describe('initializeMyAccountClient', () => {
       });
 
       it('should add Content-Type header when body is present', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', { body: JSON.stringify({ test: 'data' }) });
+        await fetcher!(TEST_URL, { body: JSON.stringify({ test: 'data' }) });
 
         expect(mockFetch).toHaveBeenCalledWith(
-          'https://test.com',
+          TEST_URL,
           expect.objectContaining({
             headers: expect.objectContaining({
               'Content-Type': 'application/json',
@@ -209,43 +204,38 @@ describe('initializeMyAccountClient', () => {
       });
 
       it('should not add scope header when scope is empty', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
         result.setLatestScopes('');
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', {});
+        await fetcher!(TEST_URL, {});
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers as Record<string, string>;
+        const headers = getHeadersFromFetchCall(mockFetch) as Record<string, string>;
         expect(headers['auth0-scope']).toBeUndefined();
       });
 
       it('should preserve existing headers', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', {
+        await fetcher!(TEST_URL, {
           headers: {
             'X-Custom-Header': 'custom-value',
           },
         });
 
         expect(mockFetch).toHaveBeenCalledWith(
-          'https://test.com',
+          TEST_URL,
           expect.objectContaining({
             headers: expect.objectContaining({
               'X-Custom-Header': 'custom-value',
@@ -255,25 +245,23 @@ describe('initializeMyAccountClient', () => {
       });
 
       it('should update scope header when scopes change', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
         result.setLatestScopes(mockScopes.mfa);
-        await fetcher!('https://test.com', {});
+        await fetcher!(TEST_URL, {});
 
         result.setLatestScopes(mockScopes.profile);
-        await fetcher!('https://test.com', {});
+        await fetcher!(TEST_URL, {});
 
         expect(mockFetch).toHaveBeenNthCalledWith(
           1,
-          'https://test.com',
+          TEST_URL,
           expect.objectContaining({
             headers: expect.objectContaining({
               'auth0-scope': mockScopes.mfa,
@@ -283,7 +271,7 @@ describe('initializeMyAccountClient', () => {
 
         expect(mockFetch).toHaveBeenNthCalledWith(
           2,
-          'https://test.com',
+          TEST_URL,
           expect.objectContaining({
             headers: expect.objectContaining({
               'auth0-scope': mockScopes.profile,
@@ -299,8 +287,7 @@ describe('initializeMyAccountClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(authWithPath, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyAccountClient);
 
         expect(config.baseUrl).toBe('https://example.com/api/v1/me');
       });
@@ -310,8 +297,7 @@ describe('initializeMyAccountClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(authWithPort, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyAccountClient);
 
         expect(config.baseUrl).toBe('https://example.com:8080/me');
       });
@@ -321,8 +307,7 @@ describe('initializeMyAccountClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(authWithQuery, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyAccountClient);
 
         expect(config.baseUrl).toBe('https://example.com?param=value/me');
       });
@@ -331,8 +316,7 @@ describe('initializeMyAccountClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithProxyUrlWhitespace, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyAccountClient);
 
         expect(config.baseUrl).not.toMatch(/^\s/);
         expect(config.baseUrl).not.toMatch(/\s$/);
@@ -349,15 +333,14 @@ describe('initializeMyAccountClient', () => {
 
         expect(result).toHaveProperty('client');
         expect(result).toHaveProperty('setLatestScopes');
-        expect(MyAccountClient).toHaveBeenCalled();
+        expect(mockMyAccountClient).toHaveBeenCalled();
       });
 
       it('should trim whitespace from domain', () => {
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomainWhitespace, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyAccountClient);
 
         expect(config.domain).not.toMatch(/^\s/);
         expect(config.domain).not.toMatch(/\s$/);
@@ -367,8 +350,7 @@ describe('initializeMyAccountClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyAccountClient);
 
         expect(config.baseUrl).toBeUndefined();
       });
@@ -377,8 +359,7 @@ describe('initializeMyAccountClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyAccountClient);
 
         expect(config.fetcher).toBeDefined();
         expect(typeof config.fetcher).toBe('function');
@@ -405,83 +386,72 @@ describe('initializeMyAccountClient', () => {
 
     describe('custom fetcher behavior in domain mode', () => {
       it('should call tokenManager.getToken with scopes and audience', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
         result.setLatestScopes(mockScopes.mfa);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', {});
+        await fetcher!(TEST_URL, {});
 
         expect(tokenManager.getToken).toHaveBeenCalledWith(mockScopes.mfa, 'me');
       });
 
       it('should add Authorization header with Bearer token', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager('mock-access-token');
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', {});
+        await fetcher!(TEST_URL, {});
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers as Headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Authorization')).toBe('Bearer mock-access-token');
       });
 
       it('should add Content-Type header when body is present', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', { body: JSON.stringify({ test: 'data' }) });
+        await fetcher!(TEST_URL, { body: JSON.stringify({ test: 'data' }) });
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers as Headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Content-Type')).toBe('application/json');
       });
 
       it('should not override existing Content-Type header', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', {
+        await fetcher!(TEST_URL, {
           body: JSON.stringify({ test: 'data' }),
           headers: {
             'Content-Type': 'application/custom',
           },
         });
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers as Headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Content-Type')).toBe('application/custom');
       });
 
       it('should handle undefined token', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager: ReturnType<typeof createTokenManager> = {
@@ -489,163 +459,139 @@ describe('initializeMyAccountClient', () => {
         };
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await expect(fetcher!('https://test.com', {})).resolves.toBeDefined();
+        await expect(fetcher!(TEST_URL, {})).resolves.toBeDefined();
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers as Headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Authorization')).toBeNull();
       });
 
       it('should handle empty token', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager('');
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', {});
+        await fetcher!(TEST_URL, {});
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers as Headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Authorization')).toBeNull();
       });
 
       it('should use Headers object for header management', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', {});
+        await fetcher!(TEST_URL, {});
 
         const fetchCall = mockFetch.mock.calls[0]!;
         expect(fetchCall[1]!.headers).toBeInstanceOf(Headers);
       });
 
       it('should preserve existing headers from init', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', {
+        await fetcher!(TEST_URL, {
           headers: {
             'X-Custom-Header': 'custom-value',
           },
         });
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers as Headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('X-Custom-Header')).toBe('custom-value');
       });
 
       it('should not add Content-Type for GET requests without body', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', { method: 'GET' });
+        await fetcher!(TEST_URL, { method: 'GET' });
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers as Headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Content-Type')).toBeNull();
       });
     });
 
     describe('token retrieval', () => {
       it('should request token with latest scopes', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
         result.setLatestScopes(mockScopes.mfa);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', {});
+        await fetcher!(TEST_URL, {});
 
         expect(tokenManager.getToken).toHaveBeenCalledWith(mockScopes.mfa, 'me');
       });
 
       it('should request token with "me" audience path', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', {});
+        await fetcher!(TEST_URL, {});
 
         const getTokenCalls = vi.mocked(tokenManager.getToken).mock.calls;
         expect(getTokenCalls[0]![1]).toBe('me');
       });
 
       it('should handle very long tokens', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const longToken = 'a'.repeat(2000);
         const tokenManager = createMockTokenManager(longToken);
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', {});
+        await fetcher!(TEST_URL, {});
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers as Headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Authorization')).toBe(`Bearer ${longToken}`);
       });
 
       it('should handle tokens with special characters', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const specialToken = 'token+with/special=chars';
         const tokenManager = createMockTokenManager(specialToken);
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        await fetcher!('https://test.com', {});
+        await fetcher!(TEST_URL, {});
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers as Headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Authorization')).toBe(`Bearer ${specialToken}`);
       });
     });
@@ -656,8 +602,7 @@ describe('initializeMyAccountClient', () => {
       const tokenManager = createMockTokenManager();
       initializeMyAccountClient(mockAuthWithBothDomainAndProxy, tokenManager);
 
-      const calls = vi.mocked(MyAccountClient).mock.calls;
-      const config = calls[0]![0];
+      const config = getConfigFromMockCalls(mockMyAccountClient);
 
       // Proxy mode should be used (has baseUrl, domain is '')
       expect(config.baseUrl).toBeDefined();
@@ -668,8 +613,7 @@ describe('initializeMyAccountClient', () => {
       const tokenManager = createMockTokenManager();
       initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-      const calls = vi.mocked(MyAccountClient).mock.calls;
-      const config = calls[0]![0];
+      const config = getConfigFromMockCalls(mockMyAccountClient);
 
       expect(config.domain).toBe(mockAuthWithDomain.domain?.trim());
       expect(config.baseUrl).toBeUndefined();
@@ -679,8 +623,7 @@ describe('initializeMyAccountClient', () => {
       const tokenManager = createMockTokenManager();
       initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-      const calls = vi.mocked(MyAccountClient).mock.calls;
-      const config = calls[0]![0];
+      const config = getConfigFromMockCalls(mockMyAccountClient);
 
       expect(config.baseUrl).toBeDefined();
       expect(config.domain).toBe('');
@@ -727,8 +670,7 @@ describe('initializeMyAccountClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomainWhitespace, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyAccountClient);
 
         expect(config.domain).toBe(mockAuthWithDomain.domain);
       });
@@ -737,8 +679,7 @@ describe('initializeMyAccountClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithProxyUrlWhitespace, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyAccountClient);
 
         // baseUrl should have whitespace only on the URL itself - trim() is only called on final baseUrl
         expect(config.baseUrl).toContain('/me');
@@ -752,8 +693,7 @@ describe('initializeMyAccountClient', () => {
         // which is allowed by MyAccountClient, so it should not throw
         const result = initializeMyAccountClient(authWithWhitespace, tokenManager);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyAccountClient);
 
         expect(result.client).toBeDefined();
         expect(config.domain).toBe('');
@@ -824,16 +764,14 @@ describe('initializeMyAccountClient', () => {
       });
 
       it('should handle concurrent fetcher calls in proxy mode', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
         result.setLatestScopes(mockScopes.mfa);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
         await Promise.all([
           fetcher!('https://test.com/1', {}),
@@ -845,16 +783,14 @@ describe('initializeMyAccountClient', () => {
       });
 
       it('should handle concurrent fetcher calls in domain mode', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+        const mockFetch = createMockFetch();
         global.fetch = mockFetch;
 
         const tokenManager = createMockTokenManager();
         const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
         result.setLatestScopes(mockScopes.mfa);
 
-        const calls = vi.mocked(MyAccountClient).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
         await Promise.all([
           fetcher!('https://test.com/1', {}),
@@ -883,7 +819,7 @@ describe('initializeMyAccountClient', () => {
       const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
       expect(result.client).toBeDefined();
-      expect(MyAccountClient).toHaveBeenCalled();
+      expect(mockMyAccountClient).toHaveBeenCalled();
     });
 
     it('should have setLatestScopes as a function', () => {
@@ -905,7 +841,7 @@ describe('initializeMyAccountClient', () => {
 
   describe('integration scenarios', () => {
     it('should handle complete proxy mode workflow', async () => {
-      const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+      const mockFetch = createMockFetch();
       global.fetch = mockFetch;
 
       const tokenManager = createMockTokenManager();
@@ -915,12 +851,11 @@ describe('initializeMyAccountClient', () => {
       result.setLatestScopes(mockScopes.mfa);
 
       // Get the fetcher
-      const calls = vi.mocked(MyAccountClient).mock.calls;
-      const config = calls[0]![0];
+      const config = getConfigFromMockCalls(mockMyAccountClient);
       const fetcher = config.fetcher;
 
       // Make a request
-      await fetcher!('https://test.com', { body: JSON.stringify({ test: 'data' }) });
+      await fetcher!(TEST_URL, { body: JSON.stringify({ test: 'data' }) });
 
       // Verify configuration
       expect(config.baseUrl).toBeDefined();
@@ -929,7 +864,7 @@ describe('initializeMyAccountClient', () => {
 
       // Verify fetch was called correctly
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://test.com',
+        TEST_URL,
         expect.objectContaining({
           headers: expect.objectContaining({
             'auth0-scope': mockScopes.mfa,
@@ -940,7 +875,7 @@ describe('initializeMyAccountClient', () => {
     });
 
     it('should handle complete domain mode workflow', async () => {
-      const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+      const mockFetch = createMockFetch();
       global.fetch = mockFetch;
 
       const tokenManager = createMockTokenManager(mockTokens.standard);
@@ -950,12 +885,11 @@ describe('initializeMyAccountClient', () => {
       result.setLatestScopes(mockScopes.mfa);
 
       // Get the fetcher
-      const calls = vi.mocked(MyAccountClient).mock.calls;
-      const config = calls[0]![0];
+      const config = getConfigFromMockCalls(mockMyAccountClient);
       const fetcher = config.fetcher;
 
       // Make a request
-      await fetcher!('https://test.com', { body: JSON.stringify({ test: 'data' }) });
+      await fetcher!(TEST_URL, { body: JSON.stringify({ test: 'data' }) });
 
       // Verify configuration
       expect(config.domain).toBe(mockAuthWithDomain.domain);
@@ -965,30 +899,28 @@ describe('initializeMyAccountClient', () => {
       expect(tokenManager.getToken).toHaveBeenCalledWith(mockScopes.mfa, 'me');
 
       // Verify fetch was called correctly
-      const fetchCall = mockFetch.mock.calls[0]!;
-      const headers = fetchCall[1]!.headers as Headers;
+      const headers = getHeadersFromFetchCall(mockFetch) as Headers;
       expect(headers.get('Authorization')).toBe(`Bearer ${mockTokens.standard}`);
       expect(headers.get('Content-Type')).toBe('application/json');
     });
 
     it('should handle switching from empty scope to populated scope', async () => {
-      const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+      const mockFetch = createMockFetch();
       global.fetch = mockFetch;
 
       const tokenManager = createMockTokenManager(mockTokens.standard);
       const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-      const calls = vi.mocked(MyAccountClient).mock.calls;
-      const config = calls[0]![0];
+      const config = getConfigFromMockCalls(mockMyAccountClient);
       const fetcher = config.fetcher;
 
       // Start with empty scope
       result.setLatestScopes('');
-      await fetcher!('https://test.com', {});
+      await fetcher!(TEST_URL, {});
 
       // Change to populated scope
       result.setLatestScopes(mockScopes.mfa);
-      await fetcher!('https://test.com', {});
+      await fetcher!(TEST_URL, {});
 
       // Verify both calls
       expect(tokenManager.getToken).toHaveBeenCalledTimes(2);
