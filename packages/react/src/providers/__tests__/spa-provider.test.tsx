@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useCoreClientInitialization } from '../../hooks/use-core-client-initialization';
-import { Auth0ComponentProvider } from '../spa-provider';
+import { Auth0ComponentProviderSpa } from '../spa-provider';
 
 vi.mock('@auth0/auth0-react', () => ({
   useAuth0: vi.fn(),
@@ -16,7 +16,7 @@ vi.mock('../../hooks/use-core-client-initialization', () => ({
 const mockUseAuth0 = vi.mocked(useAuth0);
 const mockUseCoreClientInitialization = vi.mocked(useCoreClientInitialization);
 
-describe('Auth0ComponentProvider (SPA)', () => {
+describe('Auth0ComponentProviderSpa (SPA)', () => {
   const mockAuth0Context = {
     isAuthenticated: true,
     isLoading: false,
@@ -39,9 +39,9 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   it('should render children when initialized', () => {
     render(
-      <Auth0ComponentProvider authDetails={{}}>
+      <Auth0ComponentProviderSpa authDetails={{}}>
         <div data-testid="child-content">Test Content</div>
-      </Auth0ComponentProvider>,
+      </Auth0ComponentProviderSpa>,
     );
 
     expect(screen.getByTestId('child-content')).toBeInTheDocument();
@@ -50,9 +50,9 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   it('should use auth0 context from useAuth0 hook', () => {
     render(
-      <Auth0ComponentProvider authDetails={{}}>
+      <Auth0ComponentProviderSpa authDetails={{}}>
         <div data-testid="child-content">Test Content</div>
-      </Auth0ComponentProvider>,
+      </Auth0ComponentProviderSpa>,
     );
 
     expect(mockUseAuth0).toHaveBeenCalled();
@@ -76,9 +76,11 @@ describe('Auth0ComponentProvider (SPA)', () => {
     mockUseAuth0.mockReturnValue({} as ReturnType<typeof useAuth0>);
 
     render(
-      <Auth0ComponentProvider authDetails={{ contextInterface: customContextInterface as never }}>
+      <Auth0ComponentProviderSpa
+        authDetails={{ contextInterface: customContextInterface as never }}
+      >
         <div data-testid="child-content">Test Content</div>
-      </Auth0ComponentProvider>,
+      </Auth0ComponentProviderSpa>,
     );
 
     expect(mockUseCoreClientInitialization).toHaveBeenCalledWith(
@@ -95,9 +97,9 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
     expect(() => {
       render(
-        <Auth0ComponentProvider authDetails={{}}>
+        <Auth0ComponentProviderSpa authDetails={{}}>
           <div>Test</div>
-        </Auth0ComponentProvider>,
+        </Auth0ComponentProviderSpa>,
       );
     }).toThrow(
       'Auth0ContextInterface is not available. Make sure you wrap your app with Auth0Provider from @auth0/auth0-react, or pass a contextInterface via authDetails.',
@@ -106,9 +108,9 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   it('should apply default theme settings', () => {
     render(
-      <Auth0ComponentProvider authDetails={{}}>
+      <Auth0ComponentProviderSpa authDetails={{}}>
         <div data-testid="child-content">Test Content</div>
-      </Auth0ComponentProvider>,
+      </Auth0ComponentProviderSpa>,
     );
 
     expect(screen.getByTestId('child-content')).toBeInTheDocument();
@@ -116,7 +118,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   it('should apply custom theme settings', () => {
     render(
-      <Auth0ComponentProvider
+      <Auth0ComponentProviderSpa
         authDetails={{}}
         themeSettings={{
           mode: 'dark',
@@ -129,7 +131,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
         }}
       >
         <div data-testid="child-content">Test Content</div>
-      </Auth0ComponentProvider>,
+      </Auth0ComponentProviderSpa>,
     );
 
     expect(screen.getByTestId('child-content')).toBeInTheDocument();
@@ -137,12 +139,12 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   it('should render custom loader in suspense fallback', () => {
     render(
-      <Auth0ComponentProvider
+      <Auth0ComponentProviderSpa
         authDetails={{}}
         loader={<div data-testid="custom-loader">Loading...</div>}
       >
         <div data-testid="child-content">Test Content</div>
-      </Auth0ComponentProvider>,
+      </Auth0ComponentProviderSpa>,
     );
 
     expect(screen.getByTestId('child-content')).toBeInTheDocument();
@@ -152,9 +154,9 @@ describe('Auth0ComponentProvider (SPA)', () => {
     const i18nOptions = { currentLanguage: 'es' };
 
     render(
-      <Auth0ComponentProvider authDetails={{}} i18n={i18nOptions}>
+      <Auth0ComponentProviderSpa authDetails={{}} i18n={i18nOptions}>
         <div data-testid="child-content">Test Content</div>
-      </Auth0ComponentProvider>,
+      </Auth0ComponentProviderSpa>,
     );
 
     expect(mockUseCoreClientInitialization).toHaveBeenCalledWith(
@@ -166,9 +168,9 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   it('should provide coreClient through context', () => {
     render(
-      <Auth0ComponentProvider authDetails={{}}>
+      <Auth0ComponentProviderSpa authDetails={{}}>
         <div data-testid="child-content">Test Content</div>
-      </Auth0ComponentProvider>,
+      </Auth0ComponentProviderSpa>,
     );
 
     expect(mockUseCoreClientInitialization).toHaveBeenCalled();

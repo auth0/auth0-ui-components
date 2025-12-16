@@ -26,7 +26,7 @@ import { ThemeProvider } from './theme-provider';
  * </Auth0ProxyProvider>
  * ```
  */
-export const Auth0ComponentProvider = ({
+export const Auth0ComponentProviderProxy = ({
   i18n,
   authDetails,
   themeSettings = {
@@ -88,4 +88,4 @@ export const Auth0ComponentProvider = ({
   );
 };
 
-export default Auth0ComponentProvider;
+export default Auth0ComponentProviderProxy;

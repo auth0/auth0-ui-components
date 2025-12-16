@@ -13,7 +13,7 @@ import type { Auth0ComponentProviderProps } from '../types/auth-types';
 import { ScopeManagerProvider } from './scope-manager-provider';
 import { ThemeProvider } from './theme-provider';
 
-export const Auth0ComponentProvider = ({
+export const Auth0ComponentProviderSpa = ({
   i18n,
   authDetails,
   themeSettings = {
@@ -91,4 +91,4 @@ export const Auth0ComponentProvider = ({
   );
 };
 
-export default Auth0ComponentProvider;
+export default Auth0ComponentProviderSpa;
