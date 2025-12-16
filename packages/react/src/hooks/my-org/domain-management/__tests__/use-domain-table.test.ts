@@ -108,14 +108,16 @@ describe('useDomainTable', () => {
         await result.current.fetchDomains();
       });
 
-      expect(mockCoreClient.getMyOrgApiClient().organization.domains.list).toHaveBeenCalled();
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
+      ).toHaveBeenCalled();
     });
 
     it('should handle fetchDomains error and reset loading state', async () => {
       const { result } = renderHook(() => useDomainTable(mockOptions));
 
       const error = new Error('Network error');
-      mockCoreClient.getMyOrgApiClient().organization.domains.list = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.list = vi
         .fn()
         .mockRejectedValue(error);
 
@@ -158,14 +160,14 @@ describe('useDomainTable', () => {
       });
 
       // Mock all providers response
-      mockCoreClient.getMyOrgApiClient().organization.identityProviders.list = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
         .fn()
         .mockResolvedValue({
           identity_providers: [provider1, provider2, provider3],
         });
 
       // Mock associated providers response - only provider1 and provider3 are associated
-      mockCoreClient.getMyOrgApiClient().organization.domains.identityProviders.get = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get = vi
         .fn()
         .mockResolvedValue({
           identity_providers: [{ id: 'provider-1' }, { id: 'provider-3' }],
@@ -178,10 +180,10 @@ describe('useDomainTable', () => {
       });
 
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.identityProviders.list,
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list,
       ).toHaveBeenCalled();
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.domains.identityProviders.get,
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get,
       ).toHaveBeenCalledWith(mockDomain.id);
 
       // Verify the providers are correctly matched with association status
@@ -218,14 +220,14 @@ describe('useDomainTable', () => {
       });
 
       // Mock all providers response
-      mockCoreClient.getMyOrgApiClient().organization.identityProviders.list = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
         .fn()
         .mockResolvedValue({
           identity_providers: [provider1, provider2],
         });
 
       // Mock empty associated providers response
-      mockCoreClient.getMyOrgApiClient().organization.domains.identityProviders.get = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get = vi
         .fn()
         .mockResolvedValue({
           identity_providers: [],
@@ -256,14 +258,14 @@ describe('useDomainTable', () => {
       });
 
       // Mock all providers response
-      mockCoreClient.getMyOrgApiClient().organization.identityProviders.list = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
         .fn()
         .mockResolvedValue({
           identity_providers: [provider1, provider2],
         });
 
       // Mock all providers as associated
-      mockCoreClient.getMyOrgApiClient().organization.domains.identityProviders.get = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get = vi
         .fn()
         .mockResolvedValue({
           identity_providers: [{ id: 'provider-1' }, { id: 'provider-2' }],
@@ -287,7 +289,7 @@ describe('useDomainTable', () => {
       const { result } = renderHook(() => useDomainTable(mockOptions));
 
       const error = new Error('Network error');
-      mockCoreClient.getMyOrgApiClient().organization.identityProviders.list = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
         .fn()
         .mockRejectedValue(error);
 
@@ -306,12 +308,12 @@ describe('useDomainTable', () => {
       const mockDomain = createMockDomain();
 
       // Mock null responses
-      mockCoreClient.getMyOrgApiClient().organization.identityProviders.list = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
         .fn()
         .mockResolvedValue({
           identity_providers: null,
         });
-      mockCoreClient.getMyOrgApiClient().organization.domains.identityProviders.get = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get = vi
         .fn()
         .mockResolvedValue({
           identity_providers: null,
@@ -340,9 +342,9 @@ describe('useDomainTable', () => {
       });
 
       expect(mockOptions.createAction!.onBefore).toHaveBeenCalledWith(createData);
-      expect(mockCoreClient.getMyOrgApiClient().organization.domains.create).toHaveBeenCalledWith(
-        createData,
-      );
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.create,
+      ).toHaveBeenCalledWith(createData);
     });
 
     it('should handle onBefore callback returning false', async () => {
@@ -362,13 +364,15 @@ describe('useDomainTable', () => {
         }),
       ).rejects.toThrow(BusinessError);
 
-      expect(mockCoreClient.getMyOrgApiClient().organization.domains.create).not.toHaveBeenCalled();
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.create,
+      ).not.toHaveBeenCalled();
     });
 
     it('should handle create domain API error', async () => {
       const createData: CreateOrganizationDomainRequestContent = { domain: 'test.com' };
       const error = new Error('API error');
-      mockCoreClient.getMyOrgApiClient().organization.domains.create = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.create = vi
         .fn()
         .mockRejectedValue(error);
 
@@ -396,9 +400,9 @@ describe('useDomainTable', () => {
         await result.current.onCreateDomain(createData);
       });
 
-      expect(mockCoreClient.getMyOrgApiClient().organization.domains.create).toHaveBeenCalledWith(
-        createData,
-      );
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.create,
+      ).toHaveBeenCalledWith(createData);
     });
   });
 
@@ -413,14 +417,14 @@ describe('useDomainTable', () => {
 
       expect(mockOptions.verifyAction!.onBefore).toHaveBeenCalledWith(mockDomain);
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.domains.verify.create,
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.verify.create,
       ).toHaveBeenCalledWith(mockDomain.id);
       expect(isVerified).toBe(true);
     });
 
     it('should verify domain and return false when status is not verified', async () => {
       const mockDomain = createMockDomain();
-      mockCoreClient.getMyOrgApiClient().organization.domains.verify.create = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.verify.create = vi
         .fn()
         .mockResolvedValue({
           status: 'pending',
@@ -453,7 +457,7 @@ describe('useDomainTable', () => {
       ).rejects.toThrow(BusinessError);
 
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.domains.verify.create,
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.verify.create,
       ).not.toHaveBeenCalled();
     });
 
@@ -470,7 +474,7 @@ describe('useDomainTable', () => {
       });
 
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.domains.verify.create,
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.verify.create,
       ).toHaveBeenCalledWith(mockDomain.id);
       expect(isVerified).toBe(true);
     });
@@ -486,9 +490,9 @@ describe('useDomainTable', () => {
       });
 
       expect(mockOptions.deleteAction!.onBefore).toHaveBeenCalledWith(mockDomain);
-      expect(mockCoreClient.getMyOrgApiClient().organization.domains.delete).toHaveBeenCalledWith(
-        mockDomain.id,
-      );
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.delete,
+      ).toHaveBeenCalledWith(mockDomain.id);
       expect(mockOptions.deleteAction!.onAfter).toHaveBeenCalledWith(mockDomain);
     });
 
@@ -509,7 +513,9 @@ describe('useDomainTable', () => {
         }),
       ).rejects.toThrow(BusinessError);
 
-      expect(mockCoreClient.getMyOrgApiClient().organization.domains.delete).not.toHaveBeenCalled();
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.delete,
+      ).not.toHaveBeenCalled();
     });
 
     it('should work without onBefore and onAfter callbacks', async () => {
@@ -524,9 +530,9 @@ describe('useDomainTable', () => {
         await result.current.onDeleteDomain(mockDomain);
       });
 
-      expect(mockCoreClient.getMyOrgApiClient().organization.domains.delete).toHaveBeenCalledWith(
-        mockDomain.id,
-      );
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.delete,
+      ).toHaveBeenCalledWith(mockDomain.id);
     });
   });
 
@@ -546,7 +552,7 @@ describe('useDomainTable', () => {
         mockProvider,
       );
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.identityProviders.domains.create,
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.create,
       ).toHaveBeenCalledWith(mockProvider.id, { domain: mockDomain.domain });
     });
 
@@ -569,7 +575,7 @@ describe('useDomainTable', () => {
       ).rejects.toThrow(BusinessError);
 
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.identityProviders.domains.create,
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.create,
       ).not.toHaveBeenCalled();
     });
 
@@ -587,7 +593,7 @@ describe('useDomainTable', () => {
       });
 
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.identityProviders.domains.create,
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.create,
       ).toHaveBeenCalledWith(mockProvider.id, { domain: mockDomain.domain });
     });
   });
@@ -608,7 +614,7 @@ describe('useDomainTable', () => {
         mockProvider,
       );
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.identityProviders.domains.delete,
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.delete,
       ).toHaveBeenCalledWith(mockProvider.id, mockDomain.domain);
     });
 
@@ -631,7 +637,7 @@ describe('useDomainTable', () => {
       ).rejects.toThrow(BusinessError);
 
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.identityProviders.domains.delete,
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.delete,
       ).not.toHaveBeenCalled();
     });
 
@@ -649,7 +655,7 @@ describe('useDomainTable', () => {
       });
 
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.identityProviders.domains.delete,
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.delete,
       ).toHaveBeenCalledWith(mockProvider.id, mockDomain.domain);
     });
   });
@@ -666,7 +672,7 @@ describe('useDomainTable', () => {
       });
 
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.identityProviders.domains.create,
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.create,
       ).toHaveBeenCalledWith(undefined, { domain: mockDomain.domain });
     });
 
@@ -681,7 +687,7 @@ describe('useDomainTable', () => {
       });
 
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.identityProviders.domains.delete,
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.delete,
       ).toHaveBeenCalledWith(undefined, mockDomain.domain);
     });
 

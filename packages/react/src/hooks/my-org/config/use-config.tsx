@@ -23,7 +23,7 @@ export function useConfig(): UseConfigResult {
 
     try {
       const result: GetConfigurationResponseContent = await coreClient
-        .getMyOrgApiClient()
+        .getMyOrganizationApiClient()
         .organization.configuration.get();
       setConfig(result);
 

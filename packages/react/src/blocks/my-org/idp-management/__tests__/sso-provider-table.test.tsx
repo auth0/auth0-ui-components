@@ -86,7 +86,7 @@ describe('SsoProviderTable', () => {
 
     mockCoreClient = initMockCoreClient();
 
-    const apiService = mockCoreClient.getMyOrgApiClient();
+    const apiService = mockCoreClient.getMyOrganizationApiClient();
     (apiService.organization.identityProviders.list as ReturnType<typeof vi.fn>).mockResolvedValue({
       identity_providers: [mockProvider],
     });
@@ -704,7 +704,7 @@ describe('SsoProviderTable', () => {
           // onAfter should be called after successful removal
           await waitFor(() => {
             expect(
-              mockCoreClient.getMyOrgApiClient().organization.identityProviders.detach,
+              mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.detach,
             ).toHaveBeenCalled();
             expect(mockDeleteFromOrgAction.onAfter).toHaveBeenCalledWith(mockProvider);
           });
@@ -745,7 +745,7 @@ describe('SsoProviderTable', () => {
         // API update should be called
         await waitFor(() => {
           expect(
-            mockCoreClient.getMyOrgApiClient().organization.identityProviders.update,
+            mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.update,
           ).toHaveBeenCalled();
         });
 
@@ -784,7 +784,7 @@ describe('SsoProviderTable', () => {
 
         // API update should NOT be called since onBefore returned false
         expect(
-          mockCoreClient.getMyOrgApiClient().organization.identityProviders.update,
+          mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.update,
         ).not.toHaveBeenCalled();
 
         // onAfter should NOT be called

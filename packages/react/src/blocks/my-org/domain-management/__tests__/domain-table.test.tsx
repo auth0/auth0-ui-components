@@ -42,7 +42,7 @@ describe('DomainTable', () => {
 
     mockCoreClient = initMockCoreClient();
 
-    const apiService = mockCoreClient.getMyOrgApiClient();
+    const apiService = mockCoreClient.getMyOrganizationApiClient();
     (apiService.organization.domains.list as ReturnType<typeof vi.fn>).mockResolvedValue({
       organization_domains: [mockDomain, mockVerifiedDomain],
     });
@@ -262,7 +262,7 @@ describe('DomainTable', () => {
               expect(mockCreateAction.onBefore).toHaveBeenCalled();
             });
 
-            const apiService = mockCoreClient.getMyOrgApiClient();
+            const apiService = mockCoreClient.getMyOrganizationApiClient();
             expect(apiService.organization.domains.create).not.toHaveBeenCalled();
           });
         });
@@ -276,7 +276,7 @@ describe('DomainTable', () => {
           const mockCreateAction = createMockCreateAction();
 
           const mockCreatedDomain = createMockDomain();
-          const apiService = mockCoreClient.getMyOrgApiClient();
+          const apiService = mockCoreClient.getMyOrganizationApiClient();
           (apiService.organization.domains.create as ReturnType<typeof vi.fn>).mockResolvedValue(
             mockCreatedDomain,
           );
@@ -390,7 +390,7 @@ describe('DomainTable', () => {
             await waitFor(() => {
               expect(mockVerifyAction.onBefore).toHaveBeenCalled();
               expect(
-                mockCoreClient.getMyOrgApiClient().organization.domains.verify.create,
+                mockCoreClient.getMyOrganizationApiClient().organization.domains.verify.create,
               ).not.toHaveBeenCalled();
             });
           });
@@ -423,7 +423,7 @@ describe('DomainTable', () => {
           await waitFor(() => {
             expect(mockVerifyAction.onBefore).toHaveBeenCalled();
             expect(
-              mockCoreClient.getMyOrgApiClient().organization.domains.verify.create,
+              mockCoreClient.getMyOrganizationApiClient().organization.domains.verify.create,
             ).toHaveBeenCalled();
             expect(mockVerifyAction.onAfter).toHaveBeenCalledWith(mockDomain);
           });
@@ -492,7 +492,7 @@ describe('DomainTable', () => {
             await waitFor(() => {
               expect(mockDeleteAction.onBefore).toHaveBeenCalled();
               expect(
-                mockCoreClient.getMyOrgApiClient().organization.domains.delete,
+                mockCoreClient.getMyOrganizationApiClient().organization.domains.delete,
               ).toHaveBeenCalledWith(mockDomain.id);
             });
           });
@@ -532,7 +532,7 @@ describe('DomainTable', () => {
             });
 
             expect(
-              mockCoreClient.getMyOrgApiClient().organization.domains.delete,
+              mockCoreClient.getMyOrganizationApiClient().organization.domains.delete,
             ).not.toHaveBeenCalled();
           });
         });
@@ -570,7 +570,9 @@ describe('DomainTable', () => {
             expect(mockDeleteAction.onBefore).toHaveBeenCalled();
           });
 
-          expect(mockCoreClient.getMyOrgApiClient().organization.domains.delete).toHaveBeenCalled();
+          expect(
+            mockCoreClient.getMyOrganizationApiClient().organization.domains.delete,
+          ).toHaveBeenCalled();
           expect(mockDeleteAction.onAfter).toHaveBeenCalledWith(mockDomain);
         });
       });
@@ -588,7 +590,7 @@ describe('DomainTable', () => {
           name: 'view-provider',
         });
 
-        const apiService = mockCoreClient.getMyOrgApiClient();
+        const apiService = mockCoreClient.getMyOrganizationApiClient();
         (
           apiService.organization.identityProviders.list as ReturnType<typeof vi.fn>
         ).mockResolvedValue({

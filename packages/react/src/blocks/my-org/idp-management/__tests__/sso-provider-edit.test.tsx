@@ -84,7 +84,7 @@ describe('SsoProviderEdit', () => {
     mockCoreClient = initMockCoreClient();
 
     // Ensure domains API returns an array
-    const orgApi = mockCoreClient.getMyOrgApiClient().organization;
+    const orgApi = mockCoreClient.getMyOrganizationApiClient().organization;
     Object.defineProperty(orgApi, 'domains', {
       value: {
         getAll: vi.fn().mockResolvedValue([]),
@@ -345,7 +345,7 @@ describe('SsoProviderEdit', () => {
       describe('when provisioning is not enabled for strategy', () => {
         it('should not display provisioning tab when conditions are not met', async () => {
           const providerWithoutProvisioning = createMockIdentityProviderWithoutProvisioning();
-          const apiService = mockCoreClient.getMyOrgApiClient().organization;
+          const apiService = mockCoreClient.getMyOrganizationApiClient().organization;
           apiService.identityProviders.get = vi.fn().mockResolvedValue(providerWithoutProvisioning);
 
           renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
@@ -701,7 +701,7 @@ describe('SsoProviderEdit', () => {
 
         await waitFor(() => {
           expect(
-            mockCoreClient.getMyOrgApiClient().organization.identityProviders.update,
+            mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.update,
           ).toHaveBeenCalled();
         });
       });

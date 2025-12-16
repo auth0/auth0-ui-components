@@ -9,7 +9,7 @@ vi.mock('../../../use-core-client');
 describe('useIdpConfig', () => {
   const mockGet = vi.fn();
   const mockCoreClient = {
-    getMyOrgApiClient: () => ({
+    getMyOrganizationApiClient: () => ({
       organization: {
         configuration: {
           identityProviders: {

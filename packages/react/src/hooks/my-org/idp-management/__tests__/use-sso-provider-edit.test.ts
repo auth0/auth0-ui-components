@@ -52,7 +52,7 @@ describe('useSsoProviderEdit', () => {
   });
 
   const mockCoreClient = {
-    getMyOrgApiClient: () => ({
+    getMyOrganizationApiClient: () => ({
       organization: {
         identityProviders: {
           get: mockGet,

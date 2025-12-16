@@ -18,7 +18,7 @@ export function useIdpConfig(): UseConfigIdpResult {
 
     try {
       const result = (await coreClient
-        .getMyOrgApiClient()
+        .getMyOrganizationApiClient()
         .organization.configuration.identityProviders.get()) as unknown as IdpConfig;
 
       setIdpConfig(result);

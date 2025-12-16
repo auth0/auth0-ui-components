@@ -43,13 +43,13 @@ export function useDomainTable({
         setIsLoadingProviders(true);
         // Get all providers
         const responseAllProviders = await coreClient!
-          .getMyOrgApiClient()
+          .getMyOrganizationApiClient()
           .organization.identityProviders.list();
         const allProviders = responseAllProviders?.identity_providers ?? [];
 
         // Get associated providers
         const responseAssociatedProviders = await coreClient!
-          .getMyOrgApiClient()
+          .getMyOrganizationApiClient()
           .organization.domains.identityProviders.get(domain.id);
         const associatedProviders = responseAssociatedProviders?.identity_providers ?? [];
 
@@ -77,7 +77,7 @@ export function useDomainTable({
   const fetchDomains = useCallback(async (): Promise<void> => {
     try {
       setIsFetching(true);
-      const response = await coreClient!.getMyOrgApiClient().organization.domains.list();
+      const response = await coreClient!.getMyOrganizationApiClient().organization.domains.list();
       const domains = response?.organization_domains ?? [];
       setDomains(domains);
     } finally {
@@ -99,7 +99,7 @@ export function useDomainTable({
 
       try {
         const result: Domain = await coreClient!
-          .getMyOrgApiClient()
+          .getMyOrganizationApiClient()
           .organization.domains.create(data);
 
         createAction?.onAfter?.(result);
@@ -126,7 +126,7 @@ export function useDomainTable({
 
       try {
         const response = await coreClient!
-          .getMyOrgApiClient()
+          .getMyOrganizationApiClient()
           .organization.domains.verify.create(selectedDomain.id);
 
         if (verifyAction?.onAfter) {
@@ -156,7 +156,9 @@ export function useDomainTable({
       }
 
       try {
-        await coreClient!.getMyOrgApiClient().organization.domains.delete(selectedDomain.id);
+        await coreClient!
+          .getMyOrganizationApiClient()
+          .organization.domains.delete(selectedDomain.id);
 
         if (deleteAction?.onAfter) {
           await deleteAction.onAfter(selectedDomain);
@@ -180,7 +182,7 @@ export function useDomainTable({
       }
 
       await coreClient!
-        .getMyOrgApiClient()
+        .getMyOrganizationApiClient()
         .organization.identityProviders.domains.create(provider.id!, {
           domain: selectedDomain.domain,
         });
@@ -204,7 +206,7 @@ export function useDomainTable({
       }
 
       await coreClient!
-        .getMyOrgApiClient()
+        .getMyOrganizationApiClient()
         .organization.identityProviders.domains.delete(provider.id!, selectedDomain.domain);
 
       if (deleteFromProviderAction?.onAfter) {

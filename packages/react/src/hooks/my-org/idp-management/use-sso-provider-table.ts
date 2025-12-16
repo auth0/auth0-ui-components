@@ -1,5 +1,5 @@
 import {
-  OrgDetailsMappers,
+  OrganizationDetailsMappers,
   SsoProviderMappers,
   type UpdateIdentityProviderRequestContent,
   type ComponentAction,
@@ -41,8 +41,8 @@ export function useSsoProviderTable(
     }
 
     try {
-      const response = await coreClient.getMyOrgApiClient().organizationDetails.get();
-      const orgData = OrgDetailsMappers.fromAPI(response);
+      const response = await coreClient.getMyOrganizationApiClient().organizationDetails.get();
+      const orgData = OrganizationDetailsMappers.fromAPI(response);
 
       setOrganization(orgData);
       return orgData;
@@ -63,7 +63,9 @@ export function useSsoProviderTable(
     try {
       setIsDataLoading(true);
 
-      const response = await coreClient.getMyOrgApiClient().organization.identityProviders.list();
+      const response = await coreClient
+        .getMyOrganizationApiClient()
+        .organization.identityProviders.list();
 
       const providers = response?.identity_providers ?? [];
       setProviders(providers as IdentityProvider[]);
@@ -101,7 +103,7 @@ export function useSsoProviderTable(
           },
         );
         const updatedProvider = await coreClient
-          .getMyOrgApiClient()
+          .getMyOrganizationApiClient()
           .organization.identityProviders.update(selectedIdp.id, apiRequestData);
 
         if (enableAction?.onAfter) {
@@ -143,7 +145,9 @@ export function useSsoProviderTable(
       try {
         setIsDeleting(true);
 
-        await coreClient.getMyOrgApiClient().organization.identityProviders.delete(selectedIdp.id);
+        await coreClient
+          .getMyOrganizationApiClient()
+          .organization.identityProviders.delete(selectedIdp.id);
 
         if (deleteAction?.onAfter) {
           await deleteAction.onAfter(selectedIdp);
@@ -178,7 +182,9 @@ export function useSsoProviderTable(
 
         const orgData = await fetchOrganizationDetails();
 
-        await coreClient.getMyOrgApiClient().organization.identityProviders.detach(selectedIdp.id);
+        await coreClient
+          .getMyOrganizationApiClient()
+          .organization.identityProviders.detach(selectedIdp.id);
 
         if (removeFromOrg?.onAfter) {
           await removeFromOrg.onAfter(selectedIdp);

@@ -288,7 +288,7 @@ describe('SsoProviderCreate', () => {
           // Verify that the API was called because createAction is enabled
           await waitFor(() => {
             expect(
-              mockCoreClient.getMyOrgApiClient().organization.identityProviders.create,
+              mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.create,
             ).toHaveBeenCalled();
           });
         });
@@ -357,7 +357,7 @@ describe('SsoProviderCreate', () => {
             });
             await waitFor(() => {
               expect(
-                mockCoreClient.getMyOrgApiClient().organization.identityProviders.create,
+                mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.create,
               ).toHaveBeenCalled();
             });
           });
@@ -427,7 +427,7 @@ describe('SsoProviderCreate', () => {
             // Verify that the API was NOT called because onBefore returned false
             await waitFor(() => {
               expect(
-                mockCoreClient.getMyOrgApiClient().organization.identityProviders.create,
+                mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.create,
               ).not.toHaveBeenCalled();
             });
           });
@@ -496,7 +496,7 @@ describe('SsoProviderCreate', () => {
           // Verify that the create API was called
           await waitFor(() => {
             expect(
-              mockCoreClient.getMyOrgApiClient().organization.identityProviders.create,
+              mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.create,
             ).toHaveBeenCalled();
           });
 
@@ -711,7 +711,7 @@ describe('SsoProviderCreate', () => {
         // Verify that the create API was called
         await waitFor(() => {
           expect(
-            mockCoreClient.getMyOrgApiClient().organization.identityProviders.create,
+            mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.create,
           ).toHaveBeenCalled();
         });
       });

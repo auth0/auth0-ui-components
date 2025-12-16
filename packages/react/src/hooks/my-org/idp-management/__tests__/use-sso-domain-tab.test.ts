@@ -42,7 +42,7 @@ describe('useSsoDomainTab', () => {
     mockCoreClient = initMockCoreClient();
     mockHandleError = vi.fn();
 
-    const apiService = mockCoreClient.getMyOrgApiClient();
+    const apiService = mockCoreClient.getMyOrganizationApiClient();
 
     // Mock existing API methods
     (apiService.organization.domains.list as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -107,14 +107,18 @@ describe('useSsoDomainTab', () => {
       renderHook(() => useSsoDomainTab('idp-1'));
 
       await waitFor(() => {
-        expect(mockCoreClient.getMyOrgApiClient().organization.domains.list).toHaveBeenCalledOnce();
+        expect(
+          mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
+        ).toHaveBeenCalledOnce();
       });
     });
 
     it('should not fetch domains if idpId is not provided', () => {
       renderHook(() => useSsoDomainTab(''));
 
-      expect(mockCoreClient.getMyOrgApiClient().organization.domains.list).not.toHaveBeenCalled();
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
+      ).not.toHaveBeenCalled();
     });
   });
 
@@ -131,7 +135,9 @@ describe('useSsoDomainTab', () => {
     it('should handle domain listing error', async () => {
       const error = new Error('API Error');
       (
-        mockCoreClient.getMyOrgApiClient().organization.domains.list as ReturnType<typeof vi.fn>
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
+          typeof vi.fn
+        >
       ).mockRejectedValue(error);
 
       const { result } = renderHook(() => useSsoDomainTab('idp-1'));
@@ -173,12 +179,16 @@ describe('useSsoDomainTab', () => {
     it('should create domain successfully', async () => {
       // Setup: Mock the API responses properly
       (
-        mockCoreClient.getMyOrgApiClient().organization.domains.create as ReturnType<typeof vi.fn>
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.create as ReturnType<
+          typeof vi.fn
+        >
       ).mockResolvedValue(mockDomain);
 
       // Mock listDomains to return empty array to simplify the async chain
       (
-        mockCoreClient.getMyOrgApiClient().organization.domains.list as ReturnType<typeof vi.fn>
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
+          typeof vi.fn
+        >
       ).mockResolvedValue({
         organization_domains: [],
       });
@@ -190,7 +200,9 @@ describe('useSsoDomainTab', () => {
       });
 
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.domains.create as ReturnType<typeof vi.fn>,
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.create as ReturnType<
+          typeof vi.fn
+        >,
       ).toHaveBeenCalledWith({
         domain: 'newdomain.com',
       });
@@ -200,7 +212,9 @@ describe('useSsoDomainTab', () => {
     it('should handle domain creation error', async () => {
       const error = new Error('Creation failed');
       (
-        mockCoreClient.getMyOrgApiClient().organization.domains.create as ReturnType<typeof vi.fn>
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.create as ReturnType<
+          typeof vi.fn
+        >
       ).mockRejectedValue(error);
 
       const { result } = renderHook(() => useSsoDomainTab('idp-1'));
@@ -221,7 +235,9 @@ describe('useSsoDomainTab', () => {
       const onBefore = vi.fn().mockReturnValue(true);
       const onAfter = vi.fn();
       (
-        mockCoreClient.getMyOrgApiClient().organization.domains.create as ReturnType<typeof vi.fn>
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.create as ReturnType<
+          typeof vi.fn
+        >
       ).mockResolvedValue(mockDomain);
 
       const { result } = renderHook(() =>
@@ -240,7 +256,7 @@ describe('useSsoDomainTab', () => {
         expect(onBefore).toHaveBeenCalled();
         expect(onAfter).toHaveBeenCalledWith(mockDomain);
         expect(
-          mockCoreClient.getMyOrgApiClient().organization.domains.create as ReturnType<
+          mockCoreClient.getMyOrganizationApiClient().organization.domains.create as ReturnType<
             typeof vi.fn
           >,
         ).toHaveBeenCalled();
@@ -250,7 +266,9 @@ describe('useSsoDomainTab', () => {
     it('should call onBefore callback and stop if returns false', async () => {
       const onBefore = vi.fn().mockReturnValue(false);
       (
-        mockCoreClient.getMyOrgApiClient().organization.domains.create as ReturnType<typeof vi.fn>
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.create as ReturnType<
+          typeof vi.fn
+        >
       ).mockResolvedValue(mockDomain);
 
       const { result } = renderHook(() =>
@@ -372,7 +390,9 @@ describe('useSsoDomainTab', () => {
   describe('domain deletion', () => {
     it('should delete domain successfully', async () => {
       (
-        mockCoreClient.getMyOrgApiClient().organization.domains.delete as ReturnType<typeof vi.fn>
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.delete as ReturnType<
+          typeof vi.fn
+        >
       ).mockResolvedValue({});
 
       const { result } = renderHook(() => useSsoDomainTab('idp-1'));
@@ -382,7 +402,9 @@ describe('useSsoDomainTab', () => {
       });
 
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.domains.delete as ReturnType<typeof vi.fn>,
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.delete as ReturnType<
+          typeof vi.fn
+        >,
       ).toHaveBeenCalledWith(mockDomain.id);
       expect(result.current.isDeleting).toBe(false);
     });
@@ -390,7 +412,9 @@ describe('useSsoDomainTab', () => {
     it('should handle deletion error', async () => {
       const error = new Error('Deletion failed');
       (
-        mockCoreClient.getMyOrgApiClient().organization.domains.delete as ReturnType<typeof vi.fn>
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.delete as ReturnType<
+          typeof vi.fn
+        >
       ).mockRejectedValue(error);
 
       const { result } = renderHook(() => useSsoDomainTab('idp-1'));
@@ -423,7 +447,9 @@ describe('useSsoDomainTab', () => {
       const onBefore = vi.fn().mockReturnValue(true);
       const onAfter = vi.fn();
       (
-        mockCoreClient.getMyOrgApiClient().organization.domains.delete as ReturnType<typeof vi.fn>
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.delete as ReturnType<
+          typeof vi.fn
+        >
       ).mockResolvedValue({});
 
       const { result } = renderHook(() =>
@@ -575,7 +601,9 @@ describe('useSsoDomainTab', () => {
       // When coreClient is null, loading starts but then the function returns early
       // so isLoading may still be true initially but no API calls are made
       expect(
-        mockCoreClient.getMyOrgApiClient().organization.domains.list as ReturnType<typeof vi.fn>,
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
+          typeof vi.fn
+        >,
       ).not.toHaveBeenCalled();
       expect(result.current.domainsList).toEqual([]);
     });

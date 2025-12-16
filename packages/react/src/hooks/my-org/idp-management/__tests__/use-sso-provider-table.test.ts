@@ -43,7 +43,7 @@ const mockOrganization: OrganizationPrivate = {
 
 describe('useSsoProviderTable', () => {
   const mockCoreClient = {
-    getMyOrgApiClient: vi.fn(),
+    getMyOrganizationApiClient: vi.fn(),
   };
 
   const mockTranslator = vi.fn((key: string, params?: Record<string, string>) => {
@@ -75,7 +75,7 @@ describe('useSsoProviderTable', () => {
         identity_providers: mockIdentityProviders,
       });
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: mockList,
@@ -101,7 +101,7 @@ describe('useSsoProviderTable', () => {
     it('should handle fetch providers error', async () => {
       const mockList = vi.fn().mockRejectedValue(new Error('Network error'));
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: mockList,
@@ -146,7 +146,7 @@ describe('useSsoProviderTable', () => {
     it('should fetch and set organization details successfully', async () => {
       const mockGet = vi.fn().mockResolvedValue(mockOrganization);
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: [] }),
@@ -172,7 +172,7 @@ describe('useSsoProviderTable', () => {
     it('should handle fetch organization details error', async () => {
       const mockGet = vi.fn().mockRejectedValue(new Error('Not found'));
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: [] }),
@@ -203,7 +203,7 @@ describe('useSsoProviderTable', () => {
       const updatedProvider = { ...mockIdentityProviders[1], is_enabled: true };
       const mockUpdate = vi.fn().mockResolvedValue(updatedProvider);
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -239,7 +239,7 @@ describe('useSsoProviderTable', () => {
       const updatedProvider = { ...mockIdentityProviders[0], is_enabled: false };
       const mockUpdate = vi.fn().mockResolvedValue(updatedProvider);
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -271,7 +271,7 @@ describe('useSsoProviderTable', () => {
       const onBefore = vi.fn().mockReturnValue(false);
       const mockUpdate = vi.fn();
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -300,7 +300,7 @@ describe('useSsoProviderTable', () => {
     it('should handle enable provider error', async () => {
       const mockUpdate = vi.fn().mockRejectedValue(new Error('Update failed'));
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -332,7 +332,7 @@ describe('useSsoProviderTable', () => {
     it('should return false if provider has no id', async () => {
       const providerWithoutId = { ...mockIdentityProviders[0], id: undefined };
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -364,7 +364,7 @@ describe('useSsoProviderTable', () => {
         .fn()
         .mockResolvedValue({ identity_providers: [mockIdentityProviders[1]] });
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: mockList,
@@ -397,7 +397,7 @@ describe('useSsoProviderTable', () => {
       const onAfter = vi.fn();
       const mockDelete = vi.fn().mockResolvedValue(undefined);
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -425,7 +425,7 @@ describe('useSsoProviderTable', () => {
     it('should handle delete provider error', async () => {
       const mockDelete = vi.fn().mockRejectedValue(new Error('Delete failed'));
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -457,7 +457,7 @@ describe('useSsoProviderTable', () => {
       const providerWithoutId = { ...mockIdentityProviders[0], id: undefined };
       const mockDelete = vi.fn();
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -491,7 +491,7 @@ describe('useSsoProviderTable', () => {
         .mockResolvedValue({ identity_providers: [mockIdentityProviders[1]] });
       const mockOrgGet = vi.fn().mockResolvedValue(mockOrganization);
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: mockList,
@@ -524,7 +524,7 @@ describe('useSsoProviderTable', () => {
       const onAfter = vi.fn();
       const mockDetach = vi.fn().mockResolvedValue(undefined);
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -552,7 +552,7 @@ describe('useSsoProviderTable', () => {
     it('should handle remove provider error', async () => {
       const mockDetach = vi.fn().mockRejectedValue(new Error('Remove failed'));
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -584,7 +584,7 @@ describe('useSsoProviderTable', () => {
       const providerWithoutId = { ...mockIdentityProviders[0], id: undefined };
       const mockDetach = vi.fn();
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -619,7 +619,7 @@ describe('useSsoProviderTable', () => {
           () => new Promise((resolve) => setTimeout(() => resolve(updatedProvider), 100)),
         );
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -651,7 +651,7 @@ describe('useSsoProviderTable', () => {
         .fn()
         .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -682,7 +682,7 @@ describe('useSsoProviderTable', () => {
         .fn()
         .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -714,7 +714,7 @@ describe('useSsoProviderTable', () => {
     it('should pass custom messages to translator', () => {
       const customMessages = { update_success: 'Custom update message' };
 
-      mockCoreClient.getMyOrgApiClient.mockReturnValue({
+      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
           identityProviders: {
             list: vi.fn().mockResolvedValue({ identity_providers: [] }),

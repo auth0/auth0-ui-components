@@ -53,7 +53,7 @@ export function useSsoProviderCreate({
           SsoProviderMappers.createToAPI(formData);
 
         const result: IdentityProvider = await coreClient
-          .getMyOrgApiClient()
+          .getMyOrganizationApiClient()
           .organization.identityProviders.create(apiRequestData);
 
         showToast({

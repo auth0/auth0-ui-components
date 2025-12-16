@@ -40,7 +40,7 @@ export function useSsoDomainTab(
       }
 
       const response = await coreClient
-        .getMyOrgApiClient()
+        .getMyOrganizationApiClient()
         .organization.domains.identityProviders.get(domainId);
 
       const isIdpEnabled = response.identity_providers?.some((idp) => idp.id === idpId);
@@ -83,7 +83,7 @@ export function useSsoDomainTab(
 
     try {
       setIsLoading(true);
-      const response = await coreClient.getMyOrgApiClient().organization.domains.list();
+      const response = await coreClient.getMyOrganizationApiClient().organization.domains.list();
 
       setDomainsList(response.organization_domains);
 
@@ -108,7 +108,7 @@ export function useSsoDomainTab(
       }
 
       const result: Domain = await coreClient!
-        .getMyOrgApiClient()
+        .getMyOrganizationApiClient()
         .organization.domains.create(data);
 
       domains?.createAction?.onAfter?.(result);
@@ -131,7 +131,7 @@ export function useSsoDomainTab(
       }
 
       const updatedDomain = await coreClient!
-        .getMyOrgApiClient()
+        .getMyOrganizationApiClient()
         .organization.domains.verify.create(selectedDomain.id);
 
       if (domains?.verifyAction?.onAfter) {
@@ -166,7 +166,7 @@ export function useSsoDomainTab(
         }
       }
 
-      await coreClient.getMyOrgApiClient().organization.domains.delete(selectedDomain.id);
+      await coreClient.getMyOrganizationApiClient().organization.domains.delete(selectedDomain.id);
 
       if (domains?.deleteAction?.onAfter) {
         await domains.deleteAction.onAfter(selectedDomain);
@@ -186,9 +186,11 @@ export function useSsoDomainTab(
         }
       }
 
-      await coreClient!.getMyOrgApiClient().organization.identityProviders.domains.create(idpId, {
-        domain: domain.domain,
-      });
+      await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.identityProviders.domains.create(idpId, {
+          domain: domain.domain,
+        });
 
       // Update IdP domains
       setIdpDomains((prevIdpDomains) =>
@@ -216,7 +218,7 @@ export function useSsoDomainTab(
       }
 
       await coreClient!
-        .getMyOrgApiClient()
+        .getMyOrganizationApiClient()
         .organization.identityProviders.domains.delete(provider.id!, selectedDomain.domain);
 
       // Update IdP domains

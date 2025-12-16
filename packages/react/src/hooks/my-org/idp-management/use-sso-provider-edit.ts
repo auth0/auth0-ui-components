@@ -1,6 +1,6 @@
 import {
-  OrgDetailsFactory,
-  OrgDetailsMappers,
+  OrganizationDetailsFactory,
+  OrganizationDetailsMappers,
   SsoProviderMappers,
   type IdentityProvider,
   type IdpId,
@@ -28,7 +28,9 @@ export function useSsoProviderEdit(
   const { t } = useTranslator('idp_management.notifications', customMessages);
 
   const [provider, setProvider] = useState<IdentityProvider | null>(null);
-  const [organization, setOrganization] = useState<OrganizationPrivate>(OrgDetailsFactory.create());
+  const [organization, setOrganization] = useState<OrganizationPrivate>(
+    OrganizationDetailsFactory.create(),
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -50,7 +52,7 @@ export function useSsoProviderEdit(
     try {
       setIsLoading(true);
       const response = await coreClient
-        .getMyOrgApiClient()
+        .getMyOrganizationApiClient()
         .organization.identityProviders.get(idpId);
 
       setProvider(response);
@@ -74,8 +76,8 @@ export function useSsoProviderEdit(
     try {
       setIsLoading(true);
 
-      const response = await coreClient.getMyOrgApiClient().organizationDetails.get();
-      const orgData = OrgDetailsMappers.fromAPI(response);
+      const response = await coreClient.getMyOrganizationApiClient().organizationDetails.get();
+      const orgData = OrganizationDetailsMappers.fromAPI(response);
 
       setOrganization(orgData);
     } catch (error) {
@@ -101,7 +103,7 @@ export function useSsoProviderEdit(
     try {
       setIsProvisioningLoading(true);
       const result = await coreClient
-        .getMyOrgApiClient()
+        .getMyOrganizationApiClient()
         .organization.identityProviders.provisioning.get(idpId);
 
       setProvisioningConfig(result);
@@ -143,7 +145,7 @@ export function useSsoProviderEdit(
           { strategy: provider.strategy, ...data },
         );
         const result = await coreClient
-          .getMyOrgApiClient()
+          .getMyOrganizationApiClient()
           .organization.identityProviders.update(idpId, apiRequestData);
         setProvider(result);
 
@@ -184,7 +186,7 @@ export function useSsoProviderEdit(
       }
 
       const result = await coreClient
-        .getMyOrgApiClient()
+        .getMyOrganizationApiClient()
         .organization.identityProviders.provisioning.create(idpId);
 
       const updatedProvider = await fetchProvider();
@@ -227,7 +229,7 @@ export function useSsoProviderEdit(
       }
 
       await coreClient
-        .getMyOrgApiClient()
+        .getMyOrganizationApiClient()
         .organization.identityProviders.provisioning.delete(idpId);
 
       setProvisioningConfig(null);
@@ -264,7 +266,7 @@ export function useSsoProviderEdit(
     try {
       setIsScimTokensLoading(true);
       const result = await coreClient
-        .getMyOrgApiClient()
+        .getMyOrganizationApiClient()
         .organization.identityProviders.provisioning.scimTokens.list(idpId);
       return result;
     } catch (error) {
@@ -295,7 +297,7 @@ export function useSsoProviderEdit(
         }
 
         const result = await coreClient
-          .getMyOrgApiClient()
+          .getMyOrganizationApiClient()
           .organization.identityProviders.provisioning.scimTokens.create(idpId, data);
 
         showToast({
@@ -338,7 +340,7 @@ export function useSsoProviderEdit(
         }
 
         await coreClient
-          .getMyOrgApiClient()
+          .getMyOrganizationApiClient()
           .organization.identityProviders.provisioning.scimTokens.delete(idpId, idpScimTokenId);
 
         showToast({
@@ -370,7 +372,9 @@ export function useSsoProviderEdit(
     try {
       setIsDeleting(true);
 
-      await coreClient.getMyOrgApiClient().organization.identityProviders.delete(provider.id);
+      await coreClient
+        .getMyOrganizationApiClient()
+        .organization.identityProviders.delete(provider.id);
 
       showToast({
         type: 'success',
@@ -408,7 +412,9 @@ export function useSsoProviderEdit(
 
       await fetchOrganizationDetails();
 
-      await coreClient.getMyOrgApiClient().organization.identityProviders.detach(provider.id);
+      await coreClient
+        .getMyOrganizationApiClient()
+        .organization.identityProviders.detach(provider.id);
 
       showToast({
         type: 'success',

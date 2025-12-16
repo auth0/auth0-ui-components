@@ -30,7 +30,7 @@ describe('useSsoProviderCreate', () => {
   });
 
   const mockCoreClient = {
-    getMyOrgApiClient: () => ({
+    getMyOrganizationApiClient: () => ({
       organization: {
         identityProviders: {
           create: mockCreate,

@@ -28,7 +28,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   const mockCoreClient = {
     getMyAccountApiClient: vi.fn(),
-    getMyOrgApiClient: vi.fn(),
+    getMyOrganizationApiClient: vi.fn(),
   };
 
   beforeEach(() => {

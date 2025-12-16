@@ -10,7 +10,7 @@ vi.mock('../../../use-core-client');
 describe('useConfig', () => {
   const mockGet = vi.fn();
   const mockCoreClient = {
-    getMyOrgApiClient: () => ({
+    getMyOrganizationApiClient: () => ({
       organization: {
         configuration: {
           get: mockGet,
