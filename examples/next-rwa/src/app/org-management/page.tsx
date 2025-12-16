@@ -1,6 +1,6 @@
 'use client';
 
-import { OrgDetailsEdit } from '@auth0/universal-components-react/rwa';
+import { OrgDetailsEdit } from '@auth0/universal-components-react';
 
 export default function OrgManagementPage() {
   return (

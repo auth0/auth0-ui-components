@@ -2,7 +2,7 @@ import type { IdentityProviderAssociatedWithDomain } from '@auth0/universal-comp
 import React from 'react';
 
 import { useTranslator } from '../../../../hooks/use-translator';
-import { cn } from '../../../../lib/theme-utils';
+import { cn } from '../../../../lib/utils';
 import type { DomainConfigureProvidersModalProps } from '../../../../types/my-org/domain-management/domain-configure-types';
 import { Button } from '../../../ui/button';
 import { type Column, DataTable } from '../../../ui/data-table';

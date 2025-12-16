@@ -1,6 +1,6 @@
 import './App.css';
 import { useAuth0 } from '@auth0/auth0-react';
-import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
+import { Auth0ComponentProvider } from '@auth0/universal-components-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Routes, Route, Navigate } from 'react-router-dom';

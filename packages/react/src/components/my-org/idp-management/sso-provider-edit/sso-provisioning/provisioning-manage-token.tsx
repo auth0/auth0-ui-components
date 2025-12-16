@@ -10,7 +10,7 @@ import * as React from 'react';
 
 import { useTheme } from '../../../../../hooks/use-theme';
 import { useTranslator } from '../../../../../hooks/use-translator';
-import { cn } from '../../../../../lib/theme-utils';
+import { cn } from '../../../../../lib/utils';
 import type { ProvisioningManageTokenProps } from '../../../../../types/my-org/idp-management/sso-provisioning/provisioning-manage-token-types';
 import { Badge } from '../../../../ui/badge';
 import { Button } from '../../../../ui/button';

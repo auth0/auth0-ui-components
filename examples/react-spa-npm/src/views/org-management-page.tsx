@@ -1,4 +1,4 @@
-import { OrgDetailsEdit } from '@auth0/universal-components-react/spa';
+import { OrgDetailsEdit } from '@auth0/universal-components-react';
 
 const OrgManagementPage = () => {
   return (

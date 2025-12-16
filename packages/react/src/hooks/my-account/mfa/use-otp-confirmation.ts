@@ -1,7 +1,7 @@
 import { normalizeError, type MFAType } from '@auth0/universal-components-core';
 import { useState, useCallback } from 'react';
 
-import { CONFIRM } from '../../../lib/mfa-constants';
+import { CONFIRM } from '../../../lib/my-account/mfa-constants';
 import { useTranslator } from '../../use-translator';
 
 type OtpForm = {

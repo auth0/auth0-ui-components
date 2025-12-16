@@ -22,9 +22,9 @@ import { withMyAccountService } from '../../../hoc/with-services';
 import { useMFA } from '../../../hooks/my-account/mfa/use-mfa';
 import { useTheme } from '../../../hooks/use-theme';
 import { useTranslator } from '../../../hooks/use-translator';
-import { ENROLL } from '../../../lib/mfa-constants';
-import type { CONFIRM } from '../../../lib/mfa-constants';
-import { cn } from '../../../lib/theme-utils';
+import { ENROLL } from '../../../lib/my-account/mfa-constants';
+import type { CONFIRM } from '../../../lib/my-account/mfa-constants';
+import { cn } from '../../../lib/utils';
 import type { UserMFAMgmtProps } from '../../../types/my-account/mfa/mfa-types';
 
 /**

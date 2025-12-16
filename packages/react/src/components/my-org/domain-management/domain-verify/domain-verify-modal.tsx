@@ -2,7 +2,7 @@ import { MessageSquare } from 'lucide-react';
 import React from 'react';
 
 import { useTranslator } from '../../../../hooks/use-translator';
-import { cn } from '../../../../lib/theme-utils';
+import { cn } from '../../../../lib/utils';
 import type { DomainVerifyModalProps } from '../../../../types/my-org/domain-management/domain-verify-types';
 import { Alert, AlertDescription } from '../../../ui/alert';
 import { Badge } from '../../../ui/badge';

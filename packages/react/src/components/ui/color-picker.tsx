@@ -16,7 +16,7 @@ import React, {
   type HTMLAttributes,
 } from 'react';
 
-import { cn } from '../../lib/theme-utils';
+import { cn } from '../../lib/utils';
 
 import { Button } from './button';
 import { Popover, PopoverContent, PopoverTrigger } from './popover';

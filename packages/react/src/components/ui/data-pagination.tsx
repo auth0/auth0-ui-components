@@ -1,6 +1,6 @@
 import { useMemo, useRef, useEffect } from 'react';
 
-import { cn } from '../../lib/theme-utils';
+import { cn } from '../../lib/utils';
 
 import {
   Pagination,

@@ -1,7 +1,7 @@
 import type { ActionButton } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { cn } from '../../lib/theme-utils';
+import { cn } from '../../lib/utils';
 
 import { Button } from './button';
 import { Spinner } from './spinner';

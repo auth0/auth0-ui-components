@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { useTranslator } from '../../../../../hooks/use-translator';
-import { cn } from '../../../../../lib/theme-utils';
+import { cn } from '../../../../../lib/utils';
 import type { ProviderConfigureFieldsProps } from '../../../../../types/my-org/idp-management/sso-provider/sso-provider-create-types';
 import {
   Accordion,

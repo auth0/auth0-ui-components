@@ -8,7 +8,7 @@ import type {
   SharedComponentProps,
 } from '@auth0/universal-components-core';
 
-import type { ENROLL, CONFIRM } from '../../../lib/mfa-constants';
+import type { ENROLL, CONFIRM } from '../../../lib/my-account/mfa-constants';
 
 export interface UserMFAMgmtClasses {
   'UserMFAMgmt-card'?: string;

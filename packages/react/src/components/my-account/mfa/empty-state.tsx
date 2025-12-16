@@ -1,4 +1,4 @@
-import { cn } from '../../../lib/theme-utils';
+import { cn } from '../../../lib/utils';
 
 interface MFAEmptyStateProps {
   message: string;

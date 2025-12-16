@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form';
 
 import { useTheme } from '../../../../hooks/use-theme';
 import { useTranslator } from '../../../../hooks/use-translator';
-import { cn } from '../../../../lib/theme-utils';
+import { cn } from '../../../../lib/utils';
 import type { OrgDetailsProps } from '../../../../types/my-org/org-management/org-details-types';
 import { Card } from '../../../ui/card';
 import { Form } from '../../../ui/form';

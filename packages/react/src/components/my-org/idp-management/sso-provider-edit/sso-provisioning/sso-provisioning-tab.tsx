@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useSsoProviderEdit } from '../../../../../hooks/my-org/idp-management/use-sso-provider-edit';
 import { useTheme } from '../../../../../hooks/use-theme';
 import { useTranslator } from '../../../../../hooks/use-translator';
-import { cn } from '../../../../../lib/theme-utils';
+import { cn } from '../../../../../lib/utils';
 import type { SsoProvisioningTabProps } from '../../../../../types/my-org/idp-management/sso-provisioning/sso-provisioning-tab-types';
 import {
   Card,

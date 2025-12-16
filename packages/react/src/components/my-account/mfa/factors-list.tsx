@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import { useTheme } from '../../../hooks/use-theme';
 import { useTranslator } from '../../../hooks/use-translator';
-import { cn } from '../../../lib/theme-utils';
+import { cn } from '../../../lib/utils';
 import type { FactorsListProps } from '../../../types/my-account/mfa/mfa-types';
 import { Button } from '../../ui/button';
 import { Card, CardContent } from '../../ui/card';

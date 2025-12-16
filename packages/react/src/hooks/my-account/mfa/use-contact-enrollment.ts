@@ -7,7 +7,7 @@ import {
 } from '@auth0/universal-components-core';
 import { useState, useCallback } from 'react';
 
-import { ENROLL } from '../../../lib/mfa-constants';
+import { ENROLL } from '../../../lib/my-account/mfa-constants';
 import { useTranslator } from '../../use-translator';
 
 type ContactForm = {

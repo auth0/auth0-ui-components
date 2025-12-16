@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { useTheme } from '../../hooks/use-theme';
-import { cn } from '../../lib/theme-utils';
+import { cn } from '../../lib/utils';
 
 import { Spinner } from './spinner';
 

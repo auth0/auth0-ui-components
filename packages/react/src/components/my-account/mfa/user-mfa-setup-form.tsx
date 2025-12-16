@@ -14,14 +14,14 @@ import GoogleLogo from '../../../assets/icons/google-logo';
 import { useRecoveryCodeGeneration } from '../../../hooks/my-account/mfa/use-recovery-code';
 import { useTheme } from '../../../hooks/use-theme';
 import { useTranslator } from '../../../hooks/use-translator';
-import type { ENTER_OTP } from '../../../lib/mfa-constants';
+import type { ENTER_OTP } from '../../../lib/my-account/mfa-constants';
 import {
   ENTER_QR,
   ENTER_CONTACT,
   QR_PHASE_INSTALLATION,
   SHOW_RECOVERY_CODE,
-} from '../../../lib/mfa-constants';
-import { cn } from '../../../lib/theme-utils';
+} from '../../../lib/my-account/mfa-constants';
+import { cn } from '../../../lib/utils';
 import type { UserMFASetupFormProps } from '../../../types/my-account/mfa/mfa-types';
 import { Button } from '../../ui/button';
 import { Card } from '../../ui/card';

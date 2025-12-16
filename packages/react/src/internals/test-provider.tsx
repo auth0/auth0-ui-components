@@ -5,7 +5,7 @@ import type { FieldValues, UseFormReturn } from 'react-hook-form';
 
 import { Form } from '../components/ui/form';
 import { CoreClientContext } from '../hooks/use-core-client';
-import { ScopeManagerProvider } from '../providers/scope-manager-provider';
+import { ScopeManagerContext, type Audience } from '../hooks/use-scope-manager';
 
 import { createMockCoreClient } from './__mocks__/core/core-client.mocks';
 
@@ -16,8 +16,53 @@ export interface TestProviderProps {
 }
 
 /**
- * Test provider that wraps components with the necessary context for testing
+ * Mock ScopeRegistryProvider for testing - doesn't call real ensureScopes
  */
+function MockScopeRegistryProvider({ children }: { children: React.ReactNode }) {
+  const [scopeRegistry, setScopeRegistry] = React.useState<Record<Audience, Set<string>>>(() => ({
+    me: new Set(),
+    'my-org': new Set(),
+  }));
+  const [ensuredScopes, setEnsuredScopes] = React.useState<Record<Audience, string>>({
+    me: '',
+    'my-org': '',
+  });
+
+  const registerScopes = React.useCallback((audience: Audience, scopes: string) => {
+    if (!scopes?.trim()) return;
+    const newScopes = scopes
+      .split(/\s+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (!newScopes.length) return;
+
+    setScopeRegistry((prev) => {
+      const nextSet = new Set(prev[audience]);
+      let changed = false;
+      newScopes.forEach((s) => {
+        if (!nextSet.has(s)) {
+          nextSet.add(s);
+          changed = true;
+        }
+      });
+      return changed ? { ...prev, [audience]: nextSet } : prev;
+    });
+
+    setEnsuredScopes((prev) => {
+      const currentScopes = prev[audience] ? prev[audience].split(' ').filter(Boolean) : [];
+      const allScopes = [...new Set([...currentScopes, ...newScopes])].sort().join(' ');
+      return { ...prev, [audience]: allScopes };
+    });
+  }, []);
+
+  const value = React.useMemo(
+    () => ({ registerScopes, isReady: true, ensured: ensuredScopes }),
+    [registerScopes, ensuredScopes],
+  );
+
+  return <ScopeManagerContext.Provider value={value}>{children}</ScopeManagerContext.Provider>;
+}
+
 export const TestProvider: React.FC<TestProviderProps> = ({
   children,
   coreClient,
@@ -34,14 +79,11 @@ export const TestProvider: React.FC<TestProviderProps> = ({
 
   return (
     <CoreClientContext.Provider value={contextValue}>
-      <ScopeManagerProvider>{children}</ScopeManagerProvider>
+      <MockScopeRegistryProvider>{children}</MockScopeRegistryProvider>
     </CoreClientContext.Provider>
   );
 };
 
-/**
- * Utility function to render components with TestProvider
- */
 export const renderWithProviders = (
   component: React.ReactElement,
   options?: {
@@ -56,9 +98,6 @@ export const renderWithProviders = (
   );
 };
 
-/**
- * Utility function to render components with Form provider
- */
 export function renderWithFormProvider<T extends FieldValues>(
   component: React.ReactElement,
   form: UseFormReturn<T>,

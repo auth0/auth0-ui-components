@@ -3,7 +3,7 @@ import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { mockCore, setupAllCommonMocks } from '../../../../internals';
-import { ENROLL } from '../../../../lib/mfa-constants';
+import { ENROLL } from '../../../../lib/my-account/mfa-constants';
 import * as useCoreClientModule from '../../../use-core-client';
 import * as useErrorHandlerModule from '../../../use-error-handler';
 import * as useTranslatorModule from '../../../use-translator';

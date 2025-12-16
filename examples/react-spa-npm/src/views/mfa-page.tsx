@@ -1,4 +1,4 @@
-import { UserMFAMgmt } from '@auth0/universal-components-react/spa';
+import { UserMFAMgmt } from '@auth0/universal-components-react';
 
 const MFAPage = () => {
   return (

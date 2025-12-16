@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import { useCoreClient } from '../../../../../hooks/use-core-client';
 import { useTheme } from '../../../../../hooks/use-theme';
 import { useTranslator } from '../../../../../hooks/use-translator';
-import { cn } from '../../../../../lib/theme-utils';
+import { cn } from '../../../../../lib/utils';
 import type { SsoProvisioningDetailsProps } from '../../../../../types/my-org/idp-management/sso-provisioning/sso-provisioning-tab-types';
 import { CopyableTextField } from '../../../../ui/copyable-text-field';
 import {

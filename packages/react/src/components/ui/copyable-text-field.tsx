@@ -2,7 +2,7 @@ import { Copy } from 'lucide-react';
 import * as React from 'react';
 
 import { useTranslator } from '../../hooks/use-translator';
-import { cn } from '../../lib/theme-utils';
+import { cn } from '../../lib/utils';
 
 import { Button } from './button';
 import { TextField, type TextFieldProps } from './text-field';

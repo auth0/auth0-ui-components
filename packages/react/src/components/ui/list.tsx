@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { cn } from '../../lib/theme-utils';
+import { cn } from '../../lib/utils';
 
 export interface ListProps extends React.HTMLAttributes<HTMLUListElement> {
   variant?: 'bullet' | 'number' | 'icon' | 'plain';

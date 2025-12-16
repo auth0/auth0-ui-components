@@ -2,7 +2,7 @@
 
 import { useContext } from 'react';
 
-import { ThemeContext } from '../providers/theme-provider';
+import { ThemeContext } from '../providers/component-provider';
 
 /**
  * useTheme

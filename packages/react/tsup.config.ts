@@ -2,8 +2,7 @@ import { defineConfig } from 'tsup';
 
 export default defineConfig({
   entry: {
-    spa: 'src/spa.ts',
-    rwa: 'src/rwa.ts',
+    index: 'src/index.ts',
   },
   format: ['esm', 'cjs'],
   dts: true,

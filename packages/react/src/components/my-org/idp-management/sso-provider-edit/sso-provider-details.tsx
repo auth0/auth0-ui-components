@@ -4,7 +4,7 @@ import React from 'react';
 import { FormActions } from '../../../../components/ui/form-actions';
 import { useTheme } from '../../../../hooks/use-theme';
 import { useTranslator } from '../../../../hooks/use-translator';
-import { cn } from '../../../../lib/theme-utils';
+import { cn } from '../../../../lib/utils';
 import type { SsoProviderDetailsProps } from '../../../../types/my-org/idp-management/sso-provider/sso-provider-tab-types';
 import {
   ProviderConfigureFields,

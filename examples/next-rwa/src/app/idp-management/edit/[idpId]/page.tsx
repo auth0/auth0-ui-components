@@ -1,6 +1,6 @@
 'use client';
 
-import { SsoProviderEdit } from '@auth0/universal-components-react/rwa';
+import { SsoProviderEdit } from '@auth0/universal-components-react';
 import { useRouter, useParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 

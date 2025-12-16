@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { useTheme } from '../../../hooks/use-theme';
 import { useTranslator } from '../../../hooks/use-translator';
-import { cn } from '../../../lib/theme-utils';
+import { cn } from '../../../lib/utils';
 import type { DeleteFactorConfirmationProps } from '../../../types/my-account/mfa/mfa-types';
 import { Button } from '../../ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../ui/dialog';

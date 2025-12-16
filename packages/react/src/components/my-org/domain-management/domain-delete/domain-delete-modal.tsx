@@ -2,7 +2,7 @@ import type { Domain } from '@auth0/universal-components-core';
 import React from 'react';
 
 import { useTranslator } from '../../../../hooks/use-translator';
-import { cn } from '../../../../lib/theme-utils';
+import { cn } from '../../../../lib/utils';
 import type { DomainDeleteModalProps } from '../../../../types/my-org/domain-management/domain-delete-types';
 import { Modal } from '../../../ui/modal';
 

@@ -3,7 +3,7 @@
 import type { ClipboardEvent, KeyboardEvent } from 'react';
 import React, { useRef, useState } from 'react';
 
-import { cn } from '../../lib/theme-utils';
+import { cn } from '../../lib/utils';
 
 import { TextField } from './text-field';
 

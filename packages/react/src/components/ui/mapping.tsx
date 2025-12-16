@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { cn } from '../../lib/theme-utils';
+import { cn } from '../../lib/utils';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './accordion';
 import { CardTitle, CardDescription } from './card';
