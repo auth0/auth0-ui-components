@@ -1,5 +1,5 @@
 import { initializeMyAccountClient } from '@core/services/my-account/my-account-api-service';
-import { initializeMyOrganizationClient } from '@core/services/my-org/my-org-api-service';
+import { initializeMyOrganizationClient } from '@core/services/my-organization/my-org-api-service';
 
 import type { I18nInitOptions } from '../i18n';
 import { createI18nService } from '../i18n';
