@@ -1,9 +1,9 @@
 import type {
   SharedComponentProps,
   OrganizationPrivate,
-  OrgDetailsSchemas as CoreOrgDetailsSchemas,
+  OrganizationDetailsSchemas as CoreOrganizationDetailsSchemas,
   OrganizationDetailsFormValues,
-  OrgDetailsMessages,
+  OrganizationDetailsMessages,
 } from '@auth0/universal-components-core';
 import type { UseFormReturn } from 'react-hook-form';
 
@@ -14,42 +14,46 @@ import type { FormActionsProps } from '../../../components/ui/form-actions';
 /**
  * Styling that can be used to override default styles.
  */
-export interface OrgDetailsClasses {
-  OrgDetails_Card?: string;
-  OrgDetails_FormActions?: string;
-  OrgDetails_SettingsDetails?: string;
-  OrgDetails_BrandingDetails?: string;
+export interface OrganizationDetailsClasses {
+  OrganizationDetails_Card?: string;
+  OrganizationDetails_FormActions?: string;
+  OrganizationDetails_SettingsDetails?: string;
+  OrganizationDetails_BrandingDetails?: string;
 }
 
 /**
  * Schemas that can be used to override default schemas.
  */
-export type OrgDetailsSchemas = CoreOrgDetailsSchemas;
+export type OrganizationDetailsSchemas = CoreOrganizationDetailsSchemas;
 
-export interface OrgDetailsFormActions extends Omit<FormActionsProps, 'nextAction'> {
+export interface OrganizationDetailsFormActions extends Omit<FormActionsProps, 'nextAction'> {
   nextAction?: {
     disabled: boolean;
     onClick?: (data: OrganizationPrivate) => boolean | Promise<boolean>;
   };
 }
 
-export interface OrgDetailsProps
-  extends SharedComponentProps<OrgDetailsMessages, OrgDetailsClasses, OrgDetailsSchemas> {
+export interface OrganizationDetailsProps
+  extends SharedComponentProps<
+    OrganizationDetailsMessages,
+    OrganizationDetailsClasses,
+    OrganizationDetailsSchemas
+  > {
   organization: OrganizationPrivate;
   isLoading?: boolean;
-  formActions: OrgDetailsFormActions;
+  formActions: OrganizationDetailsFormActions;
 }
 
 /* ============ Subcomponents ============ */
 
 export interface BrandingDetailsProps
-  extends SharedComponentProps<OrgDetailsMessages, OrgDetailsClasses> {
+  extends SharedComponentProps<OrganizationDetailsMessages, OrganizationDetailsClasses> {
   form: UseFormReturn<OrganizationDetailsFormValues>;
   className?: string;
 }
 
 export interface SettingsDetailsProps
-  extends SharedComponentProps<OrgDetailsMessages, OrgDetailsClasses> {
+  extends SharedComponentProps<OrganizationDetailsMessages, OrganizationDetailsClasses> {
   form: UseFormReturn<OrganizationDetailsFormValues>;
   className?: string;
 }

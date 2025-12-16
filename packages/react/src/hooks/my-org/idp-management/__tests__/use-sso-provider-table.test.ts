@@ -489,7 +489,7 @@ describe('useSsoProviderTable', () => {
       const mockList = vi
         .fn()
         .mockResolvedValue({ identity_providers: [mockIdentityProviders[1]] });
-      const mockOrgGet = vi.fn().mockResolvedValue(mockOrganization);
+      const mockOrganizationGet = vi.fn().mockResolvedValue(mockOrganization);
 
       mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
         organization: {
@@ -499,7 +499,7 @@ describe('useSsoProviderTable', () => {
           },
         },
         organizationDetails: {
-          get: mockOrgGet,
+          get: mockOrganizationGet,
         },
       });
 

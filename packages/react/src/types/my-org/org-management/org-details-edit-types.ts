@@ -1,52 +1,59 @@
 import type {
   BlockComponentSharedProps,
-  OrgDetailsSchemas,
+  OrganizationDetailsSchemas,
   ComponentAction,
   BackButton,
   OrganizationPrivate,
-  OrgDetailsEditMessages,
+  OrganizationDetailsEditMessages,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 
-import type { OrgDetailsClasses, OrgDetailsFormActions } from './org-details-types';
+import type {
+  OrganizationDetailsClasses,
+  OrganizationDetailsFormActions,
+} from './org-details-types';
 
-export type OrgEditClasses = OrgDetailsClasses;
+export type OrganizationEditClasses = OrganizationDetailsClasses;
 
 /**
  * Schemas that can be used to override default schemas.
  */
-export type OrgDetailsEditSchemas = {
-  details?: OrgDetailsSchemas;
+export type OrganizationDetailsEditSchemas = {
+  details?: OrganizationDetailsSchemas;
 };
 
-export interface OrgEditSaveAction extends ComponentAction<OrganizationPrivate> {}
+export interface OrganizationEditSaveAction extends ComponentAction<OrganizationPrivate> {}
 
-export interface OrgEditBackButton extends Omit<BackButton, 'onClick'> {
+export interface OrganizationEditBackButton extends Omit<BackButton, 'onClick'> {
   icon?: LucideIcon;
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-export interface OrgDetailsEditProps
-  extends BlockComponentSharedProps<OrgDetailsEditMessages, OrgEditClasses, OrgDetailsEditSchemas> {
+export interface OrganizationDetailsEditProps
+  extends BlockComponentSharedProps<
+    OrganizationDetailsEditMessages,
+    OrganizationEditClasses,
+    OrganizationDetailsEditSchemas
+  > {
   saveAction?: ComponentAction<OrganizationPrivate>;
   cancelAction?: Omit<ComponentAction<OrganizationPrivate>, 'onBefore'>;
   hideHeader?: boolean;
-  backButton?: OrgEditBackButton;
+  backButton?: OrganizationEditBackButton;
 }
-export interface UseOrgDetailsEditOptions {
-  saveAction?: OrgDetailsEditProps['saveAction'];
-  cancelAction?: OrgDetailsEditProps['cancelAction'];
-  readOnly?: OrgDetailsEditProps['readOnly'];
-  customMessages?: OrgDetailsEditProps['customMessages'];
+export interface UseOrganizationDetailsEditOptions {
+  saveAction?: OrganizationDetailsEditProps['saveAction'];
+  cancelAction?: OrganizationDetailsEditProps['cancelAction'];
+  readOnly?: OrganizationDetailsEditProps['readOnly'];
+  customMessages?: OrganizationDetailsEditProps['customMessages'];
 }
 
-export interface UseOrgDetailsEditResult {
+export interface UseOrganizationDetailsEditResult {
   organization: OrganizationPrivate;
   isFetchLoading: boolean;
   isSaveLoading: boolean;
   isInitializing: boolean;
-  formActions: OrgDetailsFormActions;
+  formActions: OrganizationDetailsFormActions;
   fetchOrgDetails: () => Promise<void>;
   updateOrgDetails: (data: OrganizationPrivate) => Promise<boolean>;
 }

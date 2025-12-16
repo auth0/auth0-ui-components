@@ -10,8 +10,8 @@ import {
   TestProvider,
 } from '../../../../../internals';
 import type {
-  OrgDetailsFormActions,
-  OrgDetailsProps,
+  OrganizationDetailsFormActions,
+  OrganizationDetailsProps,
 } from '../../../../../types/my-org/org-management';
 import { OrgDetails } from '../org-details';
 
@@ -21,7 +21,9 @@ const { initMockCoreClient } = mockCore();
 
 // ===== Local mock creators =====
 
-const createMockOrgDetailsProps = (overrides?: Partial<OrgDetailsProps>): OrgDetailsProps => {
+const createMockOrgDetailsProps = (
+  overrides?: Partial<OrganizationDetailsProps>,
+): OrganizationDetailsProps => {
   const mockOrganization = createMockOrganization();
 
   return {
@@ -50,8 +52,8 @@ const createMockOrgDetailsProps = (overrides?: Partial<OrgDetailsProps>): OrgDet
 };
 
 const createMockFormActions = (
-  overrides?: Partial<OrgDetailsFormActions>,
-): OrgDetailsFormActions => ({
+  overrides?: Partial<OrganizationDetailsFormActions>,
+): OrganizationDetailsFormActions => ({
   isLoading: false,
   nextAction: {
     disabled: false,

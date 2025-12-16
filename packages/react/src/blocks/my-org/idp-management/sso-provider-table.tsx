@@ -12,7 +12,7 @@ import { SsoProviderRemoveFromOrgModal } from '../../../components/my-org/idp-ma
 import { SsoProviderTableActionsColumn } from '../../../components/my-org/idp-management/sso-provider-table/sso-provider-table-action';
 import { DataTable, type Column } from '../../../components/ui/data-table';
 import { Header } from '../../../components/ui/header';
-import { withMyOrgService } from '../../../hoc/with-services';
+import { withMyOrganizationService } from '../../../hoc/with-services';
 import { useConfig } from '../../../hooks/my-org/config/use-config';
 import { useIdpConfig } from '../../../hooks/my-org/config/use-idp-config';
 import { useSsoProviderTable } from '../../../hooks/my-org/idp-management/use-sso-provider-table';
@@ -249,7 +249,7 @@ function SsoProviderTableComponent({
   );
 }
 
-export const SsoProviderTable = withMyOrgService(
+export const SsoProviderTable = withMyOrganizationService(
   SsoProviderTableComponent,
   MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES,
 );

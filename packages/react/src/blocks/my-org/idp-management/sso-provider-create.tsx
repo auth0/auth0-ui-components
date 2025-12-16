@@ -18,7 +18,7 @@ import { ProviderSelect } from '../../../components/my-org/idp-management/sso-pr
 import { Header } from '../../../components/ui/header';
 import { Wizard } from '../../../components/ui/wizard';
 import type { StepProps } from '../../../components/ui/wizard';
-import { withMyOrgService } from '../../../hoc/with-services';
+import { withMyOrganizationService } from '../../../hoc/with-services';
 import { useConfig } from '../../../hooks/my-org/config/use-config';
 import { useIdpConfig } from '../../../hooks/my-org/config/use-idp-config';
 import { useSsoProviderCreate } from '../../../hooks/my-org/idp-management/use-sso-provider-create';
@@ -210,7 +210,7 @@ export function SsoProviderCreateComponent({
   );
 }
 
-export const SsoProviderCreate = withMyOrgService(
+export const SsoProviderCreate = withMyOrganizationService(
   SsoProviderCreateComponent,
   MY_ORGANIZATION_SSO_PROVIDER_CREATE_SCOPES,
 );

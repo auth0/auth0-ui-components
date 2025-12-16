@@ -7,9 +7,9 @@ import { useCallback, useMemo, useState, useEffect } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
 import type {
-  OrgDetailsFormActions,
-  UseOrgDetailsEditOptions,
-  UseOrgDetailsEditResult,
+  OrganizationDetailsFormActions,
+  UseOrganizationDetailsEditOptions,
+  UseOrganizationDetailsEditResult,
 } from '../../../types/my-org/org-management';
 import { useCoreClient } from '../../use-core-client';
 import { useTranslator } from '../../use-translator';
@@ -22,7 +22,7 @@ export function useOrgDetailsEdit({
   cancelAction,
   readOnly = false,
   customMessages = {},
-}: UseOrgDetailsEditOptions): UseOrgDetailsEditResult {
+}: UseOrganizationDetailsEditOptions): UseOrganizationDetailsEditResult {
   const { t } = useTranslator('org_management.org_details_edit', customMessages);
   const { coreClient } = useCoreClient();
 
@@ -45,8 +45,8 @@ export function useOrgDetailsEdit({
       setIsFetchLoading(true);
 
       const response = await coreClient.getMyOrganizationApiClient().organizationDetails.get();
-      const orgData = OrganizationDetailsMappers.fromAPI(response);
-      setOrganization(orgData);
+      const organizationData = OrganizationDetailsMappers.fromAPI(response);
+      setOrganization(organizationData);
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -120,7 +120,7 @@ export function useOrgDetailsEdit({
   );
 
   const formActions = useMemo(
-    (): OrgDetailsFormActions => ({
+    (): OrganizationDetailsFormActions => ({
       isLoading: isSaveLoading,
       previousAction: {
         disabled:

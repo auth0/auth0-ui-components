@@ -77,9 +77,9 @@ export function useSsoProviderEdit(
       setIsLoading(true);
 
       const response = await coreClient.getMyOrganizationApiClient().organizationDetails.get();
-      const orgData = OrganizationDetailsMappers.fromAPI(response);
+      const organizationData = OrganizationDetailsMappers.fromAPI(response);
 
-      setOrganization(orgData);
+      setOrganization(organizationData);
     } catch (error) {
       const errorMessage =
         error instanceof Error

@@ -8,8 +8,8 @@ import { createMockOrganization } from '../../../../internals/__mocks__/my-org/o
 import { renderWithProviders } from '../../../../internals/test-provider';
 import { mockCore, mockToast } from '../../../../internals/test-setup';
 import type {
-  OrgDetailsEditProps,
-  OrgEditBackButton,
+  OrganizationDetailsEditProps,
+  OrganizationEditBackButton,
 } from '../../../../types/my-org/org-management';
 import { OrgDetailsEdit } from '../org-details-edit';
 
@@ -21,8 +21,8 @@ const { initMockCoreClient } = mockCore();
 // ===== Local mock creators =====
 
 const createMockOrgDetailsEditProps = (
-  overrides?: Partial<OrgDetailsEditProps>,
-): OrgDetailsEditProps => ({
+  overrides?: Partial<OrganizationDetailsEditProps>,
+): OrganizationDetailsEditProps => ({
   schema: undefined,
   customMessages: {},
   styling: {
@@ -37,7 +37,7 @@ const createMockOrgDetailsEditProps = (
   ...overrides,
 });
 
-const createMockBackButton = (): OrgEditBackButton => ({
+const createMockBackButton = (): OrganizationEditBackButton => ({
   onClick: vi.fn(),
 });
 

@@ -14,7 +14,7 @@ import { DomainVerifyModal } from '../../../components/my-org/domain-management/
 import { Badge } from '../../../components/ui/badge';
 import { DataTable, type Column } from '../../../components/ui/data-table';
 import { Header } from '../../../components/ui/header';
-import { withMyOrgService } from '../../../hoc/with-services';
+import { withMyOrganizationService } from '../../../hoc/with-services';
 import { useDomainTable } from '../../../hooks/my-org/domain-management/use-domain-table';
 import { useDomainTableLogic } from '../../../hooks/my-org/domain-management/use-domain-table-logic';
 import { useTheme } from '../../../hooks/use-theme';
@@ -221,4 +221,7 @@ function DomainTableComponent({
   );
 }
 
-export const DomainTable = withMyOrgService(DomainTableComponent, MY_ORGANIZATION_DOMAIN_SCOPES);
+export const DomainTable = withMyOrganizationService(
+  DomainTableComponent,
+  MY_ORGANIZATION_DOMAIN_SCOPES,
+);

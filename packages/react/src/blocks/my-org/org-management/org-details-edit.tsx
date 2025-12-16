@@ -7,11 +7,11 @@ import * as React from 'react';
 import { OrgDetails } from '../../../components/my-org/org-management/org-details/org-details';
 import { Header } from '../../../components/ui/header';
 import { Spinner } from '../../../components/ui/spinner';
-import { withMyOrgService } from '../../../hoc/with-services';
+import { withMyOrganizationService } from '../../../hoc/with-services';
 import { useOrgDetailsEdit } from '../../../hooks/my-org/org-management/use-org-details-edit';
 import { useTheme } from '../../../hooks/use-theme';
 import { useTranslator } from '../../../hooks/use-translator';
-import type { OrgDetailsEditProps } from '../../../types/my-org/org-management/org-details-edit-types';
+import type { OrganizationDetailsEditProps } from '../../../types/my-org/org-management/org-details-edit-types';
 
 /**
  * OrgDetailsEdit Component
@@ -32,7 +32,7 @@ function OrgDetailsEditComponent({
   cancelAction,
   hideHeader = false,
   backButton,
-}: OrgDetailsEditProps): React.JSX.Element {
+}: OrganizationDetailsEditProps): React.JSX.Element {
   const { t } = useTranslator('org_management.org_details_edit', customMessages);
   const { isDarkMode } = useTheme();
 
@@ -95,7 +95,7 @@ function OrgDetailsEditComponent({
   );
 }
 
-export const OrgDetailsEdit = withMyOrgService(
+export const OrgDetailsEdit = withMyOrganizationService(
   OrgDetailsEditComponent,
   MY_ORGANIZATION_DETAILS_EDIT_SCOPES,
 );

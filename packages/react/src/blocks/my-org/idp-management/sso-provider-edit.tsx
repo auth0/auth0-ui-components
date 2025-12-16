@@ -12,7 +12,7 @@ import { SsoProvisioningTab } from '../../../components/my-org/idp-management/ss
 import { Header } from '../../../components/ui/header';
 import { Spinner } from '../../../components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
-import { withMyOrgService } from '../../../hoc/with-services';
+import { withMyOrganizationService } from '../../../hoc/with-services';
 import { useConfig } from '../../../hooks/my-org/config/use-config';
 import { useIdpConfig } from '../../../hooks/my-org/config/use-idp-config';
 import { useSsoProviderEdit } from '../../../hooks/my-org/idp-management/use-sso-provider-edit';
@@ -205,7 +205,7 @@ export function SsoProviderEditComponent({
   );
 }
 
-export const SsoProviderEdit = withMyOrgService(
+export const SsoProviderEdit = withMyOrganizationService(
   SsoProviderEditComponent,
   MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES,
 );

@@ -1,7 +1,7 @@
 import type {
   OrganizationDetailsFormValues,
   OrganizationPrivate,
-  OrgDetailsSchemas,
+  OrganizationDetailsSchemas,
 } from '@auth0/universal-components-core';
 import {
   getComponentStyles,
@@ -14,7 +14,7 @@ import { useForm } from 'react-hook-form';
 import { useTheme } from '../../../../hooks/use-theme';
 import { useTranslator } from '../../../../hooks/use-translator';
 import { cn } from '../../../../lib/theme-utils';
-import type { OrgDetailsProps } from '../../../../types/my-org/org-management/org-details-types';
+import type { OrganizationDetailsProps } from '../../../../types/my-org/org-management/org-details-types';
 import { Card } from '../../../ui/card';
 import { Form } from '../../../ui/form';
 import { FormActions } from '../../../ui/form-actions';
@@ -43,7 +43,7 @@ export function OrgDetails({
   },
   readOnly = false,
   formActions,
-}: OrgDetailsProps): React.JSX.Element {
+}: OrganizationDetailsProps): React.JSX.Element {
   const { t } = useTranslator('org_management.org_details', customMessages);
 
   const { isDarkMode } = useTheme();
@@ -53,7 +53,7 @@ export function OrgDetails({
   );
 
   const organizationDetailSchema = React.useMemo(() => {
-    const mergeFieldConfig = (field: keyof OrgDetailsSchemas, defaultError: string) => {
+    const mergeFieldConfig = (field: keyof OrganizationDetailsSchemas, defaultError: string) => {
       const fieldConfig = schema?.[field];
       return fieldConfig
         ? {
