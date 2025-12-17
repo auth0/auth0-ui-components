@@ -578,7 +578,7 @@ describe('MFAMappers', () => {
         );
 
         expect(result).toEqual(mockVerifyRequestWithOtp);
-        expect('otp_code' in result && result.otp_code).toBe('123456');
+        expect((result as { otp_code?: string }).otp_code).toBe('123456');
       });
 
       it('should include otp_code for EMAIL when userOtpCode is provided', () => {
@@ -589,7 +589,7 @@ describe('MFAMappers', () => {
         );
 
         expect(result).toEqual(mockVerifyRequestWithOtp);
-        expect('otp_code' in result && result.otp_code).toBe('123456');
+        expect((result as { otp_code?: string }).otp_code).toBe('123456');
       });
     });
 
@@ -601,10 +601,9 @@ describe('MFAMappers', () => {
           mockConfirmEnrollmentWithSpacesOtpOptions,
         );
 
-        if ('otp_code' in result) {
-          expect(result.otp_code).toBe('123456');
-          expect(result.otp_code).not.toContain(' ');
-        }
+        const otpCode = (result as { otp_code?: string }).otp_code;
+        expect(otpCode).toBe('123456');
+        expect(otpCode).not.toContain(' ');
       });
 
       it('should not include otp_code when userOtpCode is only whitespace', () => {
@@ -637,7 +636,7 @@ describe('MFAMappers', () => {
           options,
         );
 
-        expect('otp_code' in result && result.otp_code).toBe('12 34 56');
+        expect((result as { otp_code?: string }).otp_code).toBe('12 34 56');
       });
     });
 
@@ -766,7 +765,7 @@ describe('MFAMappers', () => {
           options,
         );
 
-        expect('otp_code' in result && result.otp_code).toBe('000000');
+        expect((result as { otp_code?: string }).otp_code).toBe('000000');
       });
 
       it('should handle alphanumeric OTP codes', () => {
@@ -777,7 +776,7 @@ describe('MFAMappers', () => {
           options,
         );
 
-        expect('otp_code' in result && result.otp_code).toBe('ABC123');
+        expect((result as { otp_code?: string }).otp_code).toBe('ABC123');
       });
     });
 
@@ -793,9 +792,8 @@ describe('MFAMappers', () => {
         expect(result).toHaveProperty('auth_session');
         expect(typeof result.auth_session).toBe('string');
 
-        if ('otp_code' in result) {
-          expect(typeof result.otp_code).toBe('string');
-        }
+        const otpCode = (result as { otp_code?: string }).otp_code;
+        expect(typeof otpCode).toBe('string');
       });
 
       it('should only contain auth_session and optionally otp_code', () => {
@@ -832,10 +830,9 @@ describe('MFAMappers', () => {
           options,
         );
 
-        if ('otp_code' in result) {
-          expect(result.otp_code).toBe(longOtp);
-          expect(result.otp_code?.length).toBe(100);
-        }
+        const otpCode = (result as { otp_code?: string }).otp_code;
+        expect(otpCode).toBe(longOtp);
+        expect(otpCode?.length).toBe(100);
       });
 
       it('should handle OTP codes with special characters', () => {
@@ -847,7 +844,7 @@ describe('MFAMappers', () => {
           options,
         );
 
-        expect('otp_code' in result && result.otp_code).toBe(specialOtp);
+        expect((result as { otp_code?: string }).otp_code).toBe(specialOtp);
       });
 
       it('should handle single character OTP', () => {
@@ -858,7 +855,7 @@ describe('MFAMappers', () => {
           options,
         );
 
-        expect('otp_code' in result && result.otp_code).toBe('1');
+        expect((result as { otp_code?: string }).otp_code).toBe('1');
       });
 
       it('should handle OTP with only numbers', () => {
@@ -869,7 +866,7 @@ describe('MFAMappers', () => {
           options,
         );
 
-        expect('otp_code' in result && result.otp_code).toBe('999999');
+        expect((result as { otp_code?: string }).otp_code).toBe('999999');
       });
     });
 

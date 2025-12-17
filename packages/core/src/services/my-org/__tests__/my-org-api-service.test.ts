@@ -1,7 +1,14 @@
-import { MyOrganizationClient } from '@auth0/myorganization-js';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import type { createTokenManager } from '../../../auth/token-manager';
+import {
+  saveOriginalFetch,
+  restoreOriginalFetch,
+  createMockFetch,
+  getConfigFromMockCalls,
+  getFetcherFromMockCalls,
+  getHeadersFromFetchCall,
+} from '../../../internals/__mocks__/shared/sdk-client.mocks';
 import { initializeMyOrgClient } from '../my-org-api-service';
 
 import {
@@ -23,25 +30,31 @@ import {
   expectedErrors,
 } from './__mocks__/my-org-api-service.mocks';
 
-// Mock the MyOrganizationClient
+const TEST_URL = 'https://api.example.com/test';
+
+// Hoist mock to avoid vi.mock hoisting issues
+const mockMyOrganizationClient = vi.hoisted(() => vi.fn());
+
 vi.mock('@auth0/myorganization-js', () => ({
-  MyOrganizationClient: vi.fn(),
+  MyOrganizationClient: mockMyOrganizationClient,
 }));
 
-// Mock global fetch
-const mockFetch = vi.fn();
-global.fetch = mockFetch;
-
 describe('initializeMyOrgClient', () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    saveOriginalFetch();
+    mockFetch = createMockFetch();
     mockFetch.mockResolvedValue({
       ok: true,
       json: async () => ({}),
     });
+    global.fetch = mockFetch;
   });
 
   afterEach(() => {
+    restoreOriginalFetch();
     vi.restoreAllMocks();
   });
 
@@ -51,15 +64,14 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-        expect(MyOrganizationClient).toHaveBeenCalledTimes(1);
+        expect(mockMyOrganizationClient).toHaveBeenCalledTimes(1);
       });
 
       it('should construct correct base URL from proxy URL', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyOrganizationClient);
         expect(config.baseUrl).toBe('https://proxy.example.com/my-org');
       });
 
@@ -67,8 +79,7 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithProxyUrlTrailingSlash, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyOrganizationClient);
         expect(config.baseUrl).toBe('https://proxy.example.com/my-org');
         expect(config.baseUrl).not.toContain('//my-org');
       });
@@ -77,8 +88,7 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyOrganizationClient);
         expect(config.domain).toBe('');
       });
 
@@ -86,8 +96,7 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyOrganizationClient);
         expect(config.telemetry).toBe(false);
       });
 
@@ -95,8 +104,7 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyOrganizationClient);
         expect(config.fetcher).toBeDefined();
         expect(typeof config.fetcher).toBe('function');
       });
@@ -138,11 +146,9 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
-        await fetcher('https://api.example.com/test', mockRequestInits.get);
+        await fetcher!(TEST_URL, mockRequestInits.get);
 
         expect(mockFetch).toHaveBeenCalledTimes(1);
       });
@@ -151,15 +157,12 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         const { setLatestScopes } = initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
         setLatestScopes(mockScopes.orgRead);
-        await fetcher('https://api.example.com/test', mockRequestInits.post);
+        await fetcher!(TEST_URL, mockRequestInits.post);
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Record<string, string>;
         expect(headers['auth0-scope']).toBe(mockScopes.orgRead);
       });
 
@@ -167,15 +170,12 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         const { setLatestScopes } = initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
         setLatestScopes(mockScopes.orgRead);
-        await fetcher('https://api.example.com/test', mockRequestInits.post);
+        await fetcher!(TEST_URL, mockRequestInits.post);
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Record<string, string>;
         expect(headers['Content-Type']).toBe('application/json');
       });
 
@@ -183,14 +183,11 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
-        await fetcher('https://api.example.com/test', mockRequestInits.post);
+        await fetcher!(TEST_URL, mockRequestInits.post);
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Record<string, string>;
         expect(headers['auth0-scope']).toBeUndefined();
       });
 
@@ -198,15 +195,12 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         const { setLatestScopes } = initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
         setLatestScopes(mockScopes.orgRead);
-        await fetcher('https://api.example.com/test', mockRequestInits.postWithHeaders);
+        await fetcher!(TEST_URL, mockRequestInits.postWithHeaders);
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Record<string, string>;
         expect(headers['X-Custom-Header']).toBe('custom-value');
         expect(headers['auth0-scope']).toBe(mockScopes.orgRead);
       });
@@ -215,13 +209,11 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         const { setLatestScopes } = initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
         // First call with orgRead scope
         setLatestScopes(mockScopes.orgRead);
-        await fetcher('https://api.example.com/test', mockRequestInits.post);
+        await fetcher!(TEST_URL, mockRequestInits.post);
 
         const firstCall = mockFetch.mock.calls[0]!;
         const firstHeaders = firstCall[1]!.headers;
@@ -229,7 +221,7 @@ describe('initializeMyOrgClient', () => {
 
         // Second call with complex scope
         setLatestScopes(mockScopes.complex);
-        await fetcher('https://api.example.com/test', mockRequestInits.post);
+        await fetcher!(TEST_URL, mockRequestInits.post);
 
         const secondCall = mockFetch.mock.calls[1]!;
         const secondHeaders = secondCall[1]!.headers;
@@ -240,14 +232,11 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
-        await fetcher('https://api.example.com/test', mockRequestInits.get);
+        await fetcher!(TEST_URL, mockRequestInits.get);
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Record<string, string>;
         expect(headers['Content-Type']).toBeUndefined();
       });
 
@@ -255,15 +244,13 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
-        await fetcher('https://api.example.com/test');
+        await fetcher!(TEST_URL);
 
         expect(mockFetch).toHaveBeenCalledTimes(1);
         expect(mockFetch).toHaveBeenCalledWith(
-          'https://api.example.com/test',
+          TEST_URL,
           expect.objectContaining({
             headers: expect.any(Object),
           }),
@@ -279,8 +266,7 @@ describe('initializeMyOrgClient', () => {
         };
         initializeMyOrgClient(authWithPath, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyOrganizationClient);
         expect(config.baseUrl).toBe('https://proxy.example.com/api/v1/my-org');
       });
 
@@ -291,8 +277,7 @@ describe('initializeMyOrgClient', () => {
         };
         initializeMyOrgClient(authWithPort, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyOrganizationClient);
         expect(config.baseUrl).toBe('https://proxy.example.com:8080/my-org');
       });
 
@@ -303,8 +288,7 @@ describe('initializeMyOrgClient', () => {
         };
         initializeMyOrgClient(authWithQuery, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyOrganizationClient);
         expect(config.baseUrl).toBe('https://proxy.example.com?param=value/my-org');
       });
 
@@ -312,10 +296,9 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithProxyUrlWhitespace, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyOrganizationClient);
         // The trim() is applied to the final baseUrl
-        expect(config.baseUrl.trim()).toBe(config.baseUrl);
+        expect(config.baseUrl!.trim()).toBe(config.baseUrl);
       });
     });
   });
@@ -326,15 +309,14 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-        expect(MyOrganizationClient).toHaveBeenCalledTimes(1);
+        expect(mockMyOrganizationClient).toHaveBeenCalledTimes(1);
       });
 
       it('should trim whitespace from domain', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithDomainWhitespace, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyOrganizationClient);
         expect(config.domain).toBe('test.auth0.com');
       });
 
@@ -342,8 +324,7 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyOrganizationClient);
         expect(config.baseUrl).toBeUndefined();
       });
 
@@ -351,8 +332,7 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyOrganizationClient);
         expect(config.telemetry).toBeUndefined();
       });
 
@@ -360,8 +340,7 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager();
         initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
+        const config = getConfigFromMockCalls(mockMyOrganizationClient);
         expect(config.fetcher).toBeDefined();
         expect(typeof config.fetcher).toBe('function');
       });
@@ -380,12 +359,10 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManagerWithScopes(mockTokens.standard);
         const { setLatestScopes } = initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
         setLatestScopes(mockScopes.orgRead);
-        await fetcher('https://api.example.com/test', mockRequestInits.post);
+        await fetcher!(TEST_URL, mockRequestInits.post);
 
         expect(tokenManager.getToken).toHaveBeenCalledTimes(1);
         const getTokenCalls = (tokenManager.getToken as ReturnType<typeof vi.fn>).mock.calls;
@@ -397,14 +374,11 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager(mockTokens.standard);
         initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
-        await fetcher('https://api.example.com/test', mockRequestInits.post);
+        await fetcher!(TEST_URL, mockRequestInits.post);
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Authorization')).toBe(`Bearer ${mockTokens.standard}`);
       });
 
@@ -412,14 +386,11 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager(mockTokens.standard);
         initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
-        await fetcher('https://api.example.com/test', mockRequestInits.post);
+        await fetcher!(TEST_URL, mockRequestInits.post);
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Content-Type')).toBe('application/json');
       });
 
@@ -430,14 +401,11 @@ describe('initializeMyOrgClient', () => {
         };
         initializeMyOrgClient(mockAuthWithDomain, tokenManagerUndefined);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
-        await fetcher('https://api.example.com/test', mockRequestInits.post);
+        await fetcher!(TEST_URL, mockRequestInits.post);
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Authorization')).toBeNull();
       });
 
@@ -445,14 +413,11 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager(mockTokens.standard);
         initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
-        await fetcher('https://api.example.com/test', mockRequestInits.withContentType);
+        await fetcher!(TEST_URL, mockRequestInits.withContentType);
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Content-Type')).toBe('application/x-www-form-urlencoded');
       });
 
@@ -460,20 +425,18 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManagerWithScopes(mockTokens.standard);
         const { setLatestScopes } = initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
         // First call with orgRead scope
         setLatestScopes(mockScopes.orgRead);
-        await fetcher('https://api.example.com/test', mockRequestInits.post);
+        await fetcher!(TEST_URL, mockRequestInits.post);
 
         expect(tokenManager.lastScope).toBe(mockScopes.orgRead);
         expect(tokenManager.lastAudiencePath).toBe('my-org');
 
         // Second call with complex scope
         setLatestScopes(mockScopes.complex);
-        await fetcher('https://api.example.com/test', mockRequestInits.post);
+        await fetcher!(TEST_URL, mockRequestInits.post);
 
         expect(tokenManager.lastScope).toBe(mockScopes.complex);
         expect(tokenManager.lastAudiencePath).toBe('my-org');
@@ -483,14 +446,11 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager(mockTokens.standard);
         initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
-        await fetcher('https://api.example.com/test', mockRequestInits.post);
+        await fetcher!(TEST_URL, mockRequestInits.post);
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Record<string, string>;
         expect(headers).toBeInstanceOf(Headers);
       });
 
@@ -498,11 +458,9 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager(mockTokens.standard);
         initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
-        await fetcher('https://api.example.com/test');
+        await fetcher!(TEST_URL);
 
         expect(mockFetch).toHaveBeenCalledTimes(1);
         expect(tokenManager.getToken).toHaveBeenCalledTimes(1);
@@ -512,11 +470,9 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManagerWithScopes(mockTokens.standard);
         initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
-        await fetcher('https://api.example.com/test', mockRequestInits.post);
+        await fetcher!(TEST_URL, mockRequestInits.post);
 
         expect(tokenManager.lastScope).toBe('');
         expect(tokenManager.lastAudiencePath).toBe('my-org');
@@ -526,14 +482,11 @@ describe('initializeMyOrgClient', () => {
         const tokenManager = createMockTokenManager(mockTokens.standard);
         initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-        const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
-        const config = calls[0]![0];
-        const fetcher = config.fetcher;
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
 
-        await fetcher('https://api.example.com/test', mockRequestInits.get);
+        await fetcher!(TEST_URL, mockRequestInits.get);
 
-        const fetchCall = mockFetch.mock.calls[0]!;
-        const headers = fetchCall[1]!.headers;
+        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Content-Type')).toBeNull();
       });
     });
@@ -544,7 +497,7 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManager();
       initializeMyOrgClient(mockAuthWithBothDomainAndProxy, tokenManager);
 
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       expect(config.baseUrl).toBe('https://proxy.example.com/my-org');
       expect(config.domain).toBe('');
@@ -554,7 +507,7 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManager();
       initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       expect(config.domain).toBe('test.auth0.com');
       expect(config.baseUrl).toBeUndefined();
@@ -564,7 +517,7 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManager();
       initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       expect(config.baseUrl).toBe('https://proxy.example.com/my-org');
       expect(config.domain).toBe('');
@@ -600,11 +553,11 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManagerWithError();
       initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       const fetcher = config.fetcher;
 
-      await expect(fetcher('https://api.example.com/test', mockRequestInits.post)).rejects.toThrow(
+      await expect(fetcher(TEST_URL, mockRequestInits.post)).rejects.toThrow(
         expectedErrors.tokenManagerError,
       );
     });
@@ -616,12 +569,12 @@ describe('initializeMyOrgClient', () => {
       const { setLatestScopes } = initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
       const longScope = 'read:organization '.repeat(100).trim();
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       const fetcher = config.fetcher;
 
       setLatestScopes(longScope);
-      await fetcher('https://api.example.com/test', mockRequestInits.post);
+      await fetcher!(TEST_URL, mockRequestInits.post);
 
       const fetchCall = mockFetch.mock.calls[0]!;
       const headers = fetchCall[1]!.headers;
@@ -632,11 +585,11 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManager(mockTokens.long);
       initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       const fetcher = config.fetcher;
 
-      await fetcher('https://api.example.com/test', mockRequestInits.post);
+      await fetcher!(TEST_URL, mockRequestInits.post);
 
       const fetchCall = mockFetch.mock.calls[0]!;
       const headers = fetchCall[1]!.headers;
@@ -647,11 +600,11 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManager(mockTokens.withSpecialChars);
       initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       const fetcher = config.fetcher;
 
-      await fetcher('https://api.example.com/test', mockRequestInits.post);
+      await fetcher!(TEST_URL, mockRequestInits.post);
 
       const fetchCall = mockFetch.mock.calls[0]!;
       const headers = fetchCall[1]!.headers;
@@ -662,13 +615,13 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManager();
       const { setLatestScopes } = initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       const fetcher = config.fetcher;
 
       for (let i = 0; i < 5; i++) {
         setLatestScopes(`scope${i}`);
-        await fetcher('https://api.example.com/test', mockRequestInits.post);
+        await fetcher!(TEST_URL, mockRequestInits.post);
 
         const fetchCall = mockFetch.mock.calls[i]!;
         const headers = fetchCall[1]!.headers;
@@ -680,14 +633,14 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManager(mockTokens.standard);
       initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       const fetcher = config.fetcher;
 
       const headersObj = new Headers();
       headersObj.set('X-Custom', 'value');
 
-      await fetcher('https://api.example.com/test', {
+      await fetcher!(TEST_URL, {
         method: 'POST',
         body: JSON.stringify({ test: 'data' }),
         headers: headersObj,
@@ -703,13 +656,13 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManager();
       initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       const fetcher = config.fetcher;
 
       // Note: The proxy mode implementation spreads init.headers directly
       // Array headers get spread as array indices, not header key-value pairs
-      await fetcher('https://api.example.com/test', {
+      await fetcher!(TEST_URL, {
         method: 'POST',
         body: JSON.stringify({ test: 'data' }),
         headers: { 'X-Custom': 'value' } as HeadersInit,
@@ -724,12 +677,12 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManager();
       const { setLatestScopes } = initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       const fetcher = config.fetcher;
 
       setLatestScopes(mockScopes.withSpaces);
-      await fetcher('https://api.example.com/test', mockRequestInits.post);
+      await fetcher!(TEST_URL, mockRequestInits.post);
 
       const fetchCall = mockFetch.mock.calls[0]!;
       const headers = fetchCall[1]!.headers;
@@ -740,11 +693,11 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManager(mockTokens.standard);
       initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       const fetcher = config.fetcher;
 
-      await fetcher('https://api.example.com/test', mockRequestInits.patch);
+      await fetcher!(TEST_URL, mockRequestInits.patch);
 
       const fetchCall = mockFetch.mock.calls[0]!;
       const headers = fetchCall[1]!.headers;
@@ -756,11 +709,11 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManager();
       initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       const fetcher = config.fetcher;
 
-      await fetcher('https://api.example.com/test', {
+      await fetcher!(TEST_URL, {
         method: 'POST',
         body: undefined,
       });
@@ -774,11 +727,11 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManager();
       initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       const fetcher = config.fetcher;
 
-      await fetcher('https://api.example.com/test', {
+      await fetcher!(TEST_URL, {
         method: 'POST',
         body: null,
       });
@@ -802,7 +755,7 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManager();
       const { client } = initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-      expect(client).toBeInstanceOf(MyOrganizationClient);
+      expect(client).toBeInstanceOf(mockMyOrganizationClient);
     });
 
     it('should return function as setLatestScopes', () => {
@@ -832,14 +785,14 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManager();
       const { client, setLatestScopes } = initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager);
 
-      expect(client).toBeInstanceOf(MyOrganizationClient);
+      expect(client).toBeInstanceOf(mockMyOrganizationClient);
 
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       const fetcher = config.fetcher;
 
       setLatestScopes(mockScopes.orgRead);
-      await fetcher('https://api.example.com/test', mockRequestInits.post);
+      await fetcher!(TEST_URL, mockRequestInits.post);
 
       expect(mockFetch).toHaveBeenCalled();
       const fetchCall = mockFetch.mock.calls[0]!;
@@ -851,14 +804,14 @@ describe('initializeMyOrgClient', () => {
       const tokenManager = createMockTokenManagerWithScopes(mockTokens.standard);
       const { client, setLatestScopes } = initializeMyOrgClient(mockAuthWithDomain, tokenManager);
 
-      expect(client).toBeInstanceOf(MyOrganizationClient);
+      expect(client).toBeInstanceOf(mockMyOrganizationClient);
 
-      const calls = (MyOrganizationClient as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = mockMyOrganizationClient.mock.calls;
       const config = calls[0]![0];
       const fetcher = config.fetcher;
 
       setLatestScopes(mockScopes.complex);
-      await fetcher('https://api.example.com/test', mockRequestInits.post);
+      await fetcher!(TEST_URL, mockRequestInits.post);
 
       expect(tokenManager.getToken).toHaveBeenCalledWith(mockScopes.complex, 'my-org');
       expect(mockFetch).toHaveBeenCalled();
@@ -871,9 +824,9 @@ describe('initializeMyOrgClient', () => {
       const proxyClient = initializeMyOrgClient(mockAuthWithProxyUrl, tokenManager1);
       const domainClient = initializeMyOrgClient(mockAuthWithDomain, tokenManager2);
 
-      expect(proxyClient.client).toBeInstanceOf(MyOrganizationClient);
-      expect(domainClient.client).toBeInstanceOf(MyOrganizationClient);
-      expect(MyOrganizationClient).toHaveBeenCalledTimes(2);
+      expect(proxyClient.client).toBeInstanceOf(mockMyOrganizationClient);
+      expect(domainClient.client).toBeInstanceOf(mockMyOrganizationClient);
+      expect(mockMyOrganizationClient).toHaveBeenCalledTimes(2);
     });
   });
 });
