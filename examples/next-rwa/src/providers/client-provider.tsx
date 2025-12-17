@@ -18,6 +18,7 @@ export function ClientProvider({ children }: ClientProviderProps) {
         authDetails={{
           authProxyUrl: '/', // Use the auth proxy base (For example, MFA service will add /mfa/authenticators)
           domain: clientConfig.auth0Domain,
+          scope: 'openid profile email offline_access',
         }}
         themeSettings={{
           mode: 'light',

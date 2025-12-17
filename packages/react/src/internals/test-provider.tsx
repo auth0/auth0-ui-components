@@ -19,10 +19,6 @@ export interface TestProviderProps {
  * Mock ScopeRegistryProvider for testing - doesn't call real ensureScopes
  */
 function MockScopeRegistryProvider({ children }: { children: React.ReactNode }) {
-  const [scopeRegistry, setScopeRegistry] = React.useState<Record<Audience, Set<string>>>(() => ({
-    me: new Set(),
-    'my-org': new Set(),
-  }));
   const [ensuredScopes, setEnsuredScopes] = React.useState<Record<Audience, string>>({
     me: '',
     'my-org': '',
@@ -35,18 +31,6 @@ function MockScopeRegistryProvider({ children }: { children: React.ReactNode }) 
       .map((s) => s.trim())
       .filter(Boolean);
     if (!newScopes.length) return;
-
-    setScopeRegistry((prev) => {
-      const nextSet = new Set(prev[audience]);
-      let changed = false;
-      newScopes.forEach((s) => {
-        if (!nextSet.has(s)) {
-          nextSet.add(s);
-          changed = true;
-        }
-      });
-      return changed ? { ...prev, [audience]: nextSet } : prev;
-    });
 
     setEnsuredScopes((prev) => {
       const currentScopes = prev[audience] ? prev[audience].split(' ').filter(Boolean) : [];

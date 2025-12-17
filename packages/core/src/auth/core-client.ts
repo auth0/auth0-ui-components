@@ -1,18 +1,96 @@
-import { initializeMyAccountClient } from '@core/services/my-account/my-account-api-service';
-import { initializeMyOrgClient } from '@core/services/my-org/my-org-api-service';
+import { MyAccountClient } from '@auth0/myaccount-js';
+import { MyOrganizationClient } from '@auth0/myorganization-js';
 
 import type { I18nInitOptions } from '../i18n';
 import { createI18nService } from '../i18n';
 
-import type { AuthDetails, BaseCoreClientInterface, CoreClientInterface } from './auth-types';
+import type { AuthDetails, CoreClientInterface, BoundClientOptions } from './auth-types';
+import { AuthUtils } from './auth-utils';
 import { createTokenManager } from './token-manager';
 
-function isProxyMode(auth: AuthDetails): boolean {
-  return !!auth.authProxyUrl;
+const AUDIENCE = {
+  ORG: 'my-org',
+  ME: 'me',
+} as const;
+
+const DEFAULT_SCOPES = 'openid profile email offline_access';
+
+async function handleAuthStepUp(
+  response: Response,
+  baseScope: string | undefined,
+  currentScope: string,
+): Promise<Response> {
+  if (response.status !== 403 || typeof window === 'undefined') return response;
+
+  try {
+    const data = await response.clone().json();
+
+    const isScopeError =
+      data.error === 'insufficient_scope' ||
+      data.title === 'Insufficient Scope' ||
+      (typeof data.type === 'string' && data.type.includes('A0E-403-0002'));
+
+    if (isScopeError) {
+      const finalScope = AuthUtils.mergeScopes(baseScope || DEFAULT_SCOPES, currentScope);
+
+      const safeReturnTo = window.location.pathname + window.location.search;
+      const params = new URLSearchParams({ scope: finalScope, returnTo: safeReturnTo });
+
+      // Redirect and halt execution
+      window.location.assign(`/auth/login?${params}`);
+      return new Promise(() => {});
+    }
+  } catch {
+    /* Ignore non-JSON errors */
+  }
+
+  return response;
 }
 
-function initializeAuthDetails(authDetails: AuthDetails): AuthDetails {
-  return authDetails;
+function createBoundClient<T>({
+  auth,
+  tokenManager,
+  audience,
+  clientBuilder,
+}: BoundClientOptions<T>) {
+  let latestScopes = '';
+  const isProxy = Boolean(auth.authProxyUrl);
+
+  const fetcher = async (url: string, init?: RequestInit) => {
+    const headers = new Headers(init?.headers);
+    if (init?.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+
+    if (isProxy) {
+      if (latestScopes) headers.set('auth0-scope', latestScopes);
+    } else {
+      const token = await tokenManager.getToken(latestScopes, audience);
+      if (token) headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    const response = await fetch(url, {
+      ...init,
+      headers,
+      ...(isProxy && { credentials: 'include' }),
+    });
+
+    return isProxy ? handleAuthStepUp(response, auth.scope, latestScopes) : response;
+  };
+
+  const baseUrl = isProxy ? `${auth.authProxyUrl?.replace(/\/$/, '')}/${audience}` : undefined;
+
+  const client = clientBuilder({
+    domain: isProxy ? '' : (auth.domain || '').trim(),
+    baseUrl,
+    telemetry: false,
+    fetcher,
+  });
+
+  return {
+    client,
+    setLatestScopes: (newScopes: string) => {
+      latestScopes = AuthUtils.mergeScopes(latestScopes, newScopes);
+    },
+  };
 }
 
 export async function createCoreClient(
@@ -22,74 +100,56 @@ export async function createCoreClient(
   const i18nService = await createI18nService(
     i18nOptions || { currentLanguage: 'en-US', fallbackLanguage: 'en-US' },
   );
-  const auth = initializeAuthDetails(authDetails);
 
-  const tokenManagerService = createTokenManager(auth);
-  const { client: myOrgApiClient, setLatestScopes: setOrgScopes } = initializeMyOrgClient(
-    auth,
-    tokenManagerService,
-  );
-  const { client: myAccountApiClient, setLatestScopes: setAccountScopes } =
-    initializeMyAccountClient(auth, tokenManagerService);
+  const tokenManager = createTokenManager(authDetails);
+  const isProxy = !!authDetails.authProxyUrl;
 
-  const baseCoreClient: BaseCoreClientInterface = {
-    auth,
+  const orgClientBinding = createBoundClient({
+    auth: authDetails,
+    tokenManager,
+    audience: AUDIENCE.ORG,
+    clientBuilder: (config) => new MyOrganizationClient(config),
+  });
+
+  const accountClientBinding = createBoundClient({
+    auth: authDetails,
+    tokenManager,
+    audience: AUDIENCE.ME,
+    clientBuilder: (config) => new MyAccountClient(config),
+  });
+
+  const scopeSetters = {
+    [AUDIENCE.ORG]: orgClientBinding.setLatestScopes,
+    [AUDIENCE.ME]: accountClientBinding.setLatestScopes,
+  };
+
+  return {
+    auth: authDetails,
     i18nService,
-
-    async getToken(scope: string, audiencePath: string, ignoreCache = false) {
-      return tokenManagerService.getToken(scope, audiencePath, ignoreCache);
+    myAccountApiClient: accountClientBinding.client,
+    myOrgApiClient: orgClientBinding.client,
+    isProxyMode: () => isProxy,
+    async getToken(scope, audiencePath, ignoreCache = false) {
+      return tokenManager.getToken(scope, audiencePath, ignoreCache);
     },
+    ensureScopes: async (requiredScopes, audiencePath) => {
+      const setScopes = scopeSetters[audiencePath as keyof typeof scopeSetters];
+      if (setScopes) {
+        setScopes(requiredScopes);
+      }
 
-    isProxyMode() {
-      return isProxyMode(auth);
-    },
-
-    ensureScopes: async (requiredScopes: string, audiencePath: string) => {
-      if (isProxyMode(auth) && auth.authProxyUrl) {
-        if (audiencePath === 'my-org') {
-          setOrgScopes(requiredScopes);
-        }
-        if (audiencePath === 'me') {
-          setAccountScopes(requiredScopes);
-        }
-      } else {
-        if (!auth.domain) {
+      if (!isProxy) {
+        if (!authDetails.domain) {
           throw new Error('Authentication domain is missing, cannot initialize SPA service.');
         }
-        if (audiencePath === 'my-org') {
-          setOrgScopes(requiredScopes);
-        }
-        if (audiencePath === 'me') {
-          setAccountScopes(requiredScopes);
-        }
 
-        const token = await tokenManagerService.getToken(requiredScopes, audiencePath, true);
+        const token = await tokenManager.getToken(requiredScopes, audiencePath, true);
         if (!token) {
           throw new Error(`Failed to retrieve token for audience: ${audiencePath}`);
         }
       }
     },
-  };
-
-  return {
-    ...baseCoreClient,
-    myAccountApiClient,
-    myOrgApiClient,
-    getMyAccountApiClient() {
-      if (!myAccountApiClient) {
-        throw new Error(
-          'myAccountApiClient is not enabled. Please use it within Auth0ComponentProvider.',
-        );
-      }
-      return myAccountApiClient;
-    },
-    getMyOrgApiClient() {
-      if (!myOrgApiClient) {
-        throw new Error(
-          'myOrgApiClient is not enabled. Please ensure you are in an Auth0 Organization context.',
-        );
-      }
-      return myOrgApiClient;
-    },
+    getMyAccountApiClient: () => accountClientBinding.client,
+    getMyOrgApiClient: () => orgClientBinding.client,
   };
 }

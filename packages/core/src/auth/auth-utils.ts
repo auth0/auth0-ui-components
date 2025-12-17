@@ -22,4 +22,19 @@ export const AuthUtils = {
     }
     return `https://${domainWithSlash}`;
   },
+
+  /**
+   * Merges multiple scope strings into a single deduplicated string.
+   *
+   * @param scopes - Scope strings to merge (can be undefined)
+   * @returns A single space-separated string of unique scopes
+   *
+   * @example
+   * ```typescript
+   * mergeScopes('openid profile', 'email profile') // Returns: 'openid profile email'
+   * ```
+   */
+  mergeScopes(...scopes: (string | undefined)[]): string {
+    return [...new Set(scopes.join(' ').split(/\s+/).filter(Boolean))].join(' ');
+  },
 };

@@ -1,5 +1,6 @@
 import type { MyAccountClient } from '@auth0/myaccount-js';
 import type { MyOrganizationClient } from '@auth0/myorganization-js';
+import type { createTokenManager } from '@core/auth/token-manager';
 import type { ArbitraryObject } from '@core/types';
 
 import type { I18nServiceInterface } from '../i18n';
@@ -95,6 +96,7 @@ export interface AuthDetails {
   domain?: string | undefined;
   authProxyUrl?: string | undefined;
   contextInterface?: BasicAuth0ContextInterface | undefined;
+  scope?: string | undefined;
 }
 
 export interface BaseCoreClientInterface {
@@ -114,4 +116,17 @@ export interface CoreClientInterface extends BaseCoreClientInterface {
   myOrgApiClient: MyOrganizationClient | undefined;
   getMyAccountApiClient: () => MyAccountClient;
   getMyOrgApiClient: () => MyOrganizationClient;
+}
+
+interface SdkInitOptions {
+  domain: string;
+  baseUrl?: string;
+  telemetry?: boolean;
+  fetcher: (url: string, init?: RequestInit) => Promise<Response>;
+}
+export interface BoundClientOptions<TSdk> {
+  auth: AuthDetails;
+  tokenManager: ReturnType<typeof createTokenManager>;
+  audience: string;
+  clientBuilder: (options: SdkInitOptions) => TSdk;
 }
