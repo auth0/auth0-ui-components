@@ -65,7 +65,7 @@ describe('createCoreClient', () => {
       });
     });
 
-    it('initializes i18n with provided options', async () => {
+    it('initializes i18n with provided language options', async () => {
       const i18nOptions = { currentLanguage: 'es', fallbackLanguage: 'en' };
       const authDetails = createAuthDetails();
       await createCoreClient(authDetails, i18nOptions);

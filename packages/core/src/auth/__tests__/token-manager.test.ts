@@ -22,7 +22,15 @@ describe('token-manager', () => {
     ...overrides,
   });
 
-  beforeEach(() => {});
+  const mockToken = 'mock-access-token';
+
+  beforeEach(() => {
+    vi.mocked(mockContextInterface.getAccessTokenSilently).mockResolvedValue({
+      access_token: mockToken,
+      id_token: 'mock-id-token',
+      expires_in: 3600,
+    });
+  });
 
   afterEach(() => {
     vi.clearAllMocks();
@@ -86,13 +94,6 @@ describe('token-manager', () => {
 
     describe('successful token retrieval', () => {
       it('should fetch token with correct audience and scope', async () => {
-        const mockToken = 'mock-access-token';
-        vi.mocked(mockContextInterface.getAccessTokenSilently).mockResolvedValue({
-          access_token: mockToken,
-          id_token: 'mock-id-token',
-          expires_in: 3600,
-        });
-
         const auth = createAuthConfig();
         const tokenManager = createTokenManager(auth);
         const token = await tokenManager.getToken('read:users', 'management');
@@ -108,13 +109,6 @@ describe('token-manager', () => {
       });
 
       it('should build audience URL correctly for MFA', async () => {
-        const mockToken = 'mock-mfa-token';
-        vi.mocked(mockContextInterface.getAccessTokenSilently).mockResolvedValue({
-          access_token: mockToken,
-          id_token: 'mock-id-token',
-          expires_in: 3600,
-        });
-
         const auth = createAuthConfig();
         const tokenManager = createTokenManager(auth);
         await tokenManager.getToken('read:me:authentication_methods', 'mfa');
@@ -130,12 +124,6 @@ describe('token-manager', () => {
 
       it('should handle domain with https protocol', async () => {
         const authWithHttps = createAuthConfig({ domain: 'https://example.auth0.com' });
-        const mockToken = 'mock-token';
-        vi.mocked(mockContextInterface.getAccessTokenSilently).mockResolvedValue({
-          access_token: mockToken,
-          id_token: 'mock-id-token',
-          expires_in: 3600,
-        });
 
         const tokenManager = createTokenManager(authWithHttps);
         await tokenManager.getToken('read:users', 'management');
@@ -152,13 +140,6 @@ describe('token-manager', () => {
 
     describe('cache management', () => {
       it('should not use cacheMode option when ignoreCache is false', async () => {
-        const mockToken = 'mock-token';
-        vi.mocked(mockContextInterface.getAccessTokenSilently).mockResolvedValue({
-          access_token: mockToken,
-          id_token: 'mock-id-token',
-          expires_in: 3600,
-        });
-
         const auth = createAuthConfig();
         const tokenManager = createTokenManager(auth);
         await tokenManager.getToken('read:users', 'management', false);
@@ -173,13 +154,6 @@ describe('token-manager', () => {
       });
 
       it('should use cacheMode off when ignoreCache is true', async () => {
-        const mockToken = 'mock-token';
-        vi.mocked(mockContextInterface.getAccessTokenSilently).mockResolvedValue({
-          access_token: mockToken,
-          id_token: 'mock-id-token',
-          expires_in: 3600,
-        });
-
         const auth = createAuthConfig();
         const tokenManager = createTokenManager(auth);
         await tokenManager.getToken('read:users', 'management', true);
@@ -328,13 +302,6 @@ describe('token-manager', () => {
       });
 
       it('should clean up pending request after completion', async () => {
-        const mockToken = 'mock-token';
-        vi.mocked(mockContextInterface.getAccessTokenSilently).mockResolvedValue({
-          access_token: mockToken,
-          id_token: 'mock-id-token',
-          expires_in: 3600,
-        });
-
         const auth = createAuthConfig();
         const tokenManager = createTokenManager(auth);
 
@@ -517,13 +484,6 @@ describe('token-manager', () => {
 
     describe('edge cases', () => {
       it('should handle empty scope', async () => {
-        const mockToken = 'mock-token';
-        vi.mocked(mockContextInterface.getAccessTokenSilently).mockResolvedValue({
-          access_token: mockToken,
-          id_token: 'mock-id-token',
-          expires_in: 3600,
-        });
-
         const auth = createAuthConfig();
         const tokenManager = createTokenManager(auth);
         await tokenManager.getToken('', 'management');
@@ -538,13 +498,6 @@ describe('token-manager', () => {
       });
 
       it('should handle empty audiencePath', async () => {
-        const mockToken = 'mock-token';
-        vi.mocked(mockContextInterface.getAccessTokenSilently).mockResolvedValue({
-          access_token: mockToken,
-          id_token: 'mock-id-token',
-          expires_in: 3600,
-        });
-
         const auth = createAuthConfig();
         const tokenManager = createTokenManager(auth);
         await tokenManager.getToken('read:users', '');
@@ -559,13 +512,6 @@ describe('token-manager', () => {
       });
 
       it('should handle special characters in scope', async () => {
-        const mockToken = 'mock-token';
-        vi.mocked(mockContextInterface.getAccessTokenSilently).mockResolvedValue({
-          access_token: mockToken,
-          id_token: 'mock-id-token',
-          expires_in: 3600,
-        });
-
         const auth = createAuthConfig();
         const tokenManager = createTokenManager(auth);
         const scope = 'read:users write:users update:users:self';
