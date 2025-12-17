@@ -24,8 +24,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
         with:
-          node-version: '22'
-          cache: 'pnpm'
+          node-version: "22"
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -41,6 +41,59 @@ jobs:
 
       - name: Build packages
         run: pnpm build
+  notify:
+    name: 📢 Slack Notification
+    needs: [ci]
+    if: always()
+    runs-on:
+      labels: ubuntu-22.04-2cpu-8ram-75ssd
+    steps:
+      - name: Send Slack notification
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_CI_WORKFLOW_WEBHOOK }}
+        run: |
+          echo "Preparing Slack notification..."
+
+          # Determine overall status
+          CI_RESULT="${{ needs.ci.result }}"
+
+          if [[ "$CI_RESULT" == "success" ]]; then
+            STATUS="✅ SUCCESS: CI/CD Pipeline passed"
+          else
+            STATUS="❌ FAILED: CI/CD Pipeline failed"
+          fi
+
+          # Output summary for GitHub logs
+          echo "=== WORKFLOW SUMMARY ==="
+          echo "Status: $STATUS"
+          echo "CI Result: $CI_RESULT"
+          echo ""
+
+          # Send notification to Slack (if webhook is configured)
+          if [ -n "$SLACK_WEBHOOK" ]; then
+            echo "Sending Slack notification..."
+            HTTP_CODE=$(curl -X POST "$SLACK_WEBHOOK" \
+              -H "Content-Type: application/json" \
+              -w "%{http_code}" \
+              -o /tmp/slack_response.txt \
+              -d "{
+                \"status\": \"$STATUS\",
+                \"repository\": \"${{ github.repository }}\",
+                \"branch\": \"${{ github.head_ref || github.ref_name }}\",
+                \"ci_result\": \"$CI_RESULT\",
+                \"actor\": \"${{ github.actor }}\",
+                \"action_url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+              }")
+            
+            if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+              echo "Slack notification sent successfully (HTTP $HTTP_CODE)"
+            else
+              echo "WARNING: Slack notification failed (HTTP $HTTP_CODE)"
+              cat /tmp/slack_response.txt
+            fi
+          else
+            echo "Slack webhook not configured, skipping notification"
+          fi
 
   # CD job to be configured later
   # cd:
