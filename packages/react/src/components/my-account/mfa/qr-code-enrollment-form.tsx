@@ -2,7 +2,7 @@ import {
   getComponentStyles,
   FACTOR_TYPE_TOTP,
   FACTOR_TYPE_PUSH_NOTIFICATION,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { useOtpEnrollment } from '../../../hooks/my-account/mfa/use-otp-enrollment';

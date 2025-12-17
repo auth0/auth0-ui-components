@@ -1,4 +1,4 @@
-import { getComponentStyles } from '@auth0/web-ui-components-core';
+import { getComponentStyles } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { useSsoProviderEdit } from '../../../../../hooks/my-org/idp-management/use-sso-provider-edit';

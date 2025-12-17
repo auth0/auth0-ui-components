@@ -2,7 +2,7 @@ import {
   OrgDetailsFactory,
   OrgDetailsMappers,
   type OrganizationPrivate,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { useCallback, useMemo, useState, useEffect } from 'react';
 
 import { showToast } from '../../../components/ui/toast';

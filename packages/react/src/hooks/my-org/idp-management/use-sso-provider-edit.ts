@@ -9,7 +9,7 @@ import {
   type CreateIdpProvisioningScimTokenRequestContent,
   type GetIdPProvisioningConfigResponseContent,
   getStatusCode,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { useCallback, useState, useEffect } from 'react';
 
 import { showToast } from '../../../components/ui/toast';

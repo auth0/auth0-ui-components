@@ -1,8 +1,8 @@
 import type {
   CreateOrganizationDomainRequestContent,
   EnhancedTranslationFunction,
-} from '@auth0/web-ui-components-core';
-import { BusinessError } from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
+import { BusinessError } from '@auth0/universal-components-core';
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 

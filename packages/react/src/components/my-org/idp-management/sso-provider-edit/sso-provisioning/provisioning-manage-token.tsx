@@ -4,7 +4,7 @@ import {
   getComponentStyles,
   type IdpScimTokenBase,
   type CreateIdpProvisioningScimTokenResponseContent,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { Trash2, Plus } from 'lucide-react';
 import * as React from 'react';
 

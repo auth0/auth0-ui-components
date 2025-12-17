@@ -1,4 +1,4 @@
-import { SsoProviderCreate } from '@auth0/web-ui-components-react/spa';
+import { SsoProviderCreate } from '@auth0/universal-components-react/spa';
 import { useNavigate } from 'react-router-dom';
 
 const SsoProviderCreatePage = () => {

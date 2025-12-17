@@ -1,4 +1,4 @@
-import { SamlpLogoSvg } from '@auth0/web-ui-components-core';
+import { SamlpLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 
 export interface SamlpProps extends React.ImgHTMLAttributes<HTMLImageElement> {

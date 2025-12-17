@@ -1,6 +1,6 @@
 'use client';
 
-import { applyStyleOverrides, type StylingVariables } from '@auth0/web-ui-components-core';
+import { applyStyleOverrides, type StylingVariables } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import type { ThemeContextValue, ThemeInput } from '../types/theme-types';

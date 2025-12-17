@@ -1,4 +1,4 @@
-import { hasApiErrorBody, type IdpStrategy } from '@auth0/web-ui-components-core';
+import { hasApiErrorBody, type IdpStrategy } from '@auth0/universal-components-core';
 import { useCallback, useEffect, useState } from 'react';
 
 import type { IdpConfig, UseConfigIdpResult } from '../../../types/my-org/config/config-idp-types';

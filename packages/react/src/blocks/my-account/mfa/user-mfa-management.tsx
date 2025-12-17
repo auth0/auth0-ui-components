@@ -1,10 +1,10 @@
-import type { Authenticator } from '@auth0/web-ui-components-core';
+import type { Authenticator } from '@auth0/universal-components-core';
 import {
   FACTOR_TYPE_PUSH_NOTIFICATION,
   type MFAType,
   getComponentStyles,
   USER_MFA_SCOPES,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import * as React from 'react';
 import { toast } from 'sonner';
 

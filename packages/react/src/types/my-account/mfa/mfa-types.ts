@@ -6,7 +6,7 @@ import type {
   ConfirmEnrollmentOptions,
   MFAMessages,
   SharedComponentProps,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 
 import type { ENROLL, CONFIRM } from '../../../lib/mfa-constants';
 

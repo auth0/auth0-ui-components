@@ -1,7 +1,7 @@
 import {
   createDomainCreateSchema,
   type InternalDomainCreateFormValues,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';

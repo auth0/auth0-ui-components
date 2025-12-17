@@ -1,4 +1,4 @@
-import { normalizeError, type MFAType } from '@auth0/web-ui-components-core';
+import { normalizeError, type MFAType } from '@auth0/universal-components-core';
 import { useState, useCallback } from 'react';
 
 import { CONFIRM } from '../../../lib/mfa-constants';

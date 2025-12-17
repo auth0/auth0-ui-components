@@ -1,7 +1,9 @@
 'use client';
 
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react/rwa';
+import { Auth0ComponentProvider } from '@auth0/universal-components-react/rwa';
 import React from 'react';
+
+import { clientConfig } from '../config/features';
 
 import { I18nProvider } from './i18n-provider';
 
@@ -15,6 +17,7 @@ export function ClientProvider({ children }: ClientProviderProps) {
       <Auth0ComponentProvider
         authDetails={{
           authProxyUrl: '/', // Use the auth proxy base (For example, MFA service will add /mfa/authenticators)
+          domain: clientConfig.auth0Domain,
         }}
         themeSettings={{
           mode: 'light',

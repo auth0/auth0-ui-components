@@ -4,7 +4,7 @@ import type {
   OrgDetailsSchemas as CoreOrgDetailsSchemas,
   OrganizationDetailsFormValues,
   OrgDetailsMessages,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import type { UseFormReturn } from 'react-hook-form';
 
 import type { FormActionsProps } from '../../../components/ui/form-actions';

@@ -1,5 +1,5 @@
-import type { I18nServiceInterface } from '@auth0/web-ui-components-core';
-import { I18nUtils } from '@auth0/web-ui-components-core';
+import type { I18nServiceInterface } from '@auth0/universal-components-core';
+import { I18nUtils } from '@auth0/universal-components-core';
 
 const createMockTranslator = (_namespace: string, customMessages?: Record<string, unknown>) => {
   const translationFn = (key: string) => {

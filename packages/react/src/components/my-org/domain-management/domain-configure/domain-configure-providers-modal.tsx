@@ -1,4 +1,4 @@
-import type { IdentityProviderAssociatedWithDomain } from '@auth0/web-ui-components-core';
+import type { IdentityProviderAssociatedWithDomain } from '@auth0/universal-components-core';
 import React from 'react';
 
 import { useTranslator } from '../../../../hooks/use-translator';

@@ -3,7 +3,7 @@ import {
   hasApiErrorBody,
   type GetConfigurationResponseContent,
   type IdpStrategy,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { UseConfigResult } from '../../../types/my-org/config/config-types';

@@ -1,5 +1,5 @@
-import type { Domain } from '@auth0/web-ui-components-core';
-import { getComponentStyles } from '@auth0/web-ui-components-core';
+import type { Domain } from '@auth0/universal-components-core';
+import { getComponentStyles } from '@auth0/universal-components-core';
 import { Plus } from 'lucide-react';
 import React from 'react';
 

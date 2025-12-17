@@ -1,4 +1,4 @@
-import type { AuthDetails } from '@auth0/web-ui-components-core';
+import type { AuthDetails } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 export const createMockAuth = (overrides?: Partial<AuthDetails>): AuthDetails => ({

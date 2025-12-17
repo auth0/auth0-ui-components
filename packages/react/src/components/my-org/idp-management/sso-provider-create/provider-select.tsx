@@ -1,5 +1,5 @@
-import type { IdpStrategy } from '@auth0/web-ui-components-core';
-import { STRATEGY_DISPLAY_NAMES, STRATEGIES } from '@auth0/web-ui-components-core';
+import type { IdpStrategy } from '@auth0/universal-components-core';
+import { STRATEGY_DISPLAY_NAMES, STRATEGIES } from '@auth0/universal-components-core';
 import React from 'react';
 
 import EntraIdLogo from '../../../../assets/icons/entraid-logo';

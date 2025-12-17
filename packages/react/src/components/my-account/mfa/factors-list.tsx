@@ -1,5 +1,5 @@
-import { FACTOR_TYPE_PHONE, FACTOR_TYPE_EMAIL } from '@auth0/web-ui-components-core';
-import { getComponentStyles } from '@auth0/web-ui-components-core';
+import { FACTOR_TYPE_PHONE, FACTOR_TYPE_EMAIL } from '@auth0/universal-components-core';
+import { getComponentStyles } from '@auth0/universal-components-core';
 import { MoreVertical, Trash2, Mail, Smartphone } from 'lucide-react';
 import * as React from 'react';
 

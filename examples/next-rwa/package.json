@@ -7,15 +7,18 @@
     "dev": "next dev -p 5173",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "auth0:bootstrap": "node ./scripts/bootstrap.mjs"
   },
   "dependencies": {
-    "@auth0/nextjs-auth0": "^4.12.2",
-    "@auth0/web-ui-components-react": "workspace:*",
+    "@auth0/nextjs-auth0": "^4.13.2",
+    "@auth0/universal-components-react": "workspace:*",
     "@tailwindcss/postcss": "^4.1.17",
+    "execa": "^9.1.0",
     "i18next": "^25.2.1",
     "lucide-react": "^0.511.0",
-    "next": "16.0.7",
+    "next": "16.0.10",
+    "ora": "^8.0.1",
     "postcss": "^8.5.5",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",

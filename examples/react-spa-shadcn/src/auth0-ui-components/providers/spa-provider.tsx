@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth0 } from '@auth0/auth0-react';
-import type { BasicAuth0ContextInterface } from '@auth0/web-ui-components-core';
+import type { BasicAuth0ContextInterface } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Toaster } from '../components/ui/sonner';

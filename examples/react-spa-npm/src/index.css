@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-@import '@auth0/web-ui-components-react/styles';
+@import '@auth0/universal-components-react/styles';
 
 :root {
   --radius: 0.625rem;

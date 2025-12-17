@@ -106,11 +106,11 @@ export default function OrgDetailsEdit() {
               tabs={[
                 {
                   label: 'npm',
-                  code: 'npm install @auth0/web-ui-components-react',
+                  code: 'npm install @auth0/universal-components-react',
                 },
                 {
                   label: 'pnpm',
-                  code: 'pnpm add @auth0/web-ui-components-react',
+                  code: 'pnpm add @auth0/universal-components-react',
                 },
               ]}
               language="bash"
@@ -135,18 +135,18 @@ export default function OrgDetailsEdit() {
                 tabs={[
                   {
                     label: 'npm',
-                    code: 'npm install @auth0/web-ui-components-core',
+                    code: 'npm install @auth0/universal-components-core',
                   },
                   {
                     label: 'pnpm',
-                    code: 'pnpm add @auth0/web-ui-components-core',
+                    code: 'pnpm add @auth0/universal-components-core',
                   },
                 ]}
                 language="bash"
                 title="1. Install Core Package"
               />
               <CodeBlock
-                code="npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-org/org-details-edit.json"
+                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-org/org-details-edit.json"
                 language="bash"
                 title="2. Add Shadcn Block"
               />
@@ -167,10 +167,10 @@ export default function OrgDetailsEdit() {
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
         <CodeBlock
           code={`// For SPA applications:
-import { OrgDetailsEdit } from '@auth0/web-ui-components-react/spa';
+import { OrgDetailsEdit } from '@auth0/universal-components-react/spa';
 
 // For Next.js/RWA applications:
-// import { OrgDetailsEdit } from '@auth0/web-ui-components-react/rwa';
+// import { OrgDetailsEdit } from '@auth0/universal-components-react/rwa';
 
 // For shadcn users:
 // import { OrgDetailsEdit } from '@/auth0-ui-components/blocks/my-org/org-management/org-details-edit';
@@ -717,9 +717,9 @@ interface ComponentAction<T> {
         <h2 className="text-2xl font-semibold text-gray-900">Complete Integration Example</h2>
         <CodeBlock
           code={`import React from 'react';
-import { OrgDetailsEdit } from '@auth0/web-ui-components-react/spa';
+import { OrgDetailsEdit } from '@auth0/universal-components-react/spa';
 import { Auth0Provider } from '@auth0/auth0-react';
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react/spa';
+import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
 import { useNavigate } from 'react-router-dom';
 
 function OrganizationEditPage() {

@@ -7,8 +7,8 @@ export function HeroSection() {
   const { t } = useTranslation();
 
   return (
-    <div className="bg-white dark:bg-gray-900 min-h-screen">
-      <div className="relative isolate px-6 pt-14 lg:px-8 min-h-screen flex items-center">
+    <div className="bg-white dark:bg-gray-900">
+      <div className="relative isolate px-6 lg:px-8 flex items-center">
         <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
           <div className="text-center">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-6xl">

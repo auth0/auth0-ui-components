@@ -1,4 +1,4 @@
-import { getComponentStyles } from '@auth0/web-ui-components-core';
+import { getComponentStyles } from '@auth0/universal-components-core';
 import React from 'react';
 
 import {

@@ -1,4 +1,4 @@
-import { getComponentStyles } from '@auth0/web-ui-components-core';
+import { getComponentStyles } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { useTheme } from '../../../hooks/use-theme';

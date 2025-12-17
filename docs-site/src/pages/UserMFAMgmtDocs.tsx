@@ -118,11 +118,11 @@ export default function UserMFA() {
               tabs={[
                 {
                   label: 'npm',
-                  code: 'npm install @auth0/web-ui-components-react',
+                  code: 'npm install @auth0/universal-components-react',
                 },
                 {
                   label: 'pnpm',
-                  code: 'pnpm add @auth0/web-ui-components-react',
+                  code: 'pnpm add @auth0/universal-components-react',
                 },
               ]}
               language="bash"
@@ -147,18 +147,18 @@ export default function UserMFA() {
                 tabs={[
                   {
                     label: 'npm',
-                    code: 'npm install @auth0/web-ui-components-core',
+                    code: 'npm install @auth0/universal-components-core',
                   },
                   {
                     label: 'pnpm',
-                    code: 'pnpm add @auth0/web-ui-components-core',
+                    code: 'pnpm add @auth0/universal-components-core',
                   },
                 ]}
                 language="bash"
                 title="1. Install Core Package"
               />
               <CodeBlock
-                code="npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-account/user-mfa-management.json"
+                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-account/user-mfa-management.json"
                 language="bash"
                 title="2. Add Shadcn Block"
               />
@@ -179,10 +179,10 @@ export default function UserMFA() {
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
         <CodeBlock
           code={`// For SPA applications:
-import { UserMFAMgmt } from '@auth0/web-ui-components-react/spa';
+import { UserMFAMgmt } from '@auth0/universal-components-react/spa';
 
 // For Next.js/RWA applications:
-// import { UserMFAMgmt } from '@auth0/web-ui-components-react/rwa';
+// import { UserMFAMgmt } from '@auth0/universal-components-react/rwa';
 
 // For shadcn users:
 // import { UserMFAMgmt } from '@/auth0-ui-components/blocks/my-account/mfa/user-mfa-management';
@@ -759,7 +759,7 @@ interface UserMFAMgmtClasses {
         <h2 className="text-2xl font-semibold text-gray-900">Complete Integration Example</h2>
         <CodeBlock
           code={`import React from 'react';
-import { UserMFAMgmt, Auth0ComponentProvider } from '@auth0/web-ui-components-react/spa';
+import { UserMFAMgmt, Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
 import { Auth0Provider } from '@auth0/auth0-react';
 
 function SecurityPage() {

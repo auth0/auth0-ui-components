@@ -49,7 +49,7 @@ permissions:
 jobs:
   publish:
     name: Build & Publish to Public NPM
-    runs-on: ubuntu-22.04-2cpu-8ram-75ssd
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       id-token: write
@@ -201,8 +201,8 @@ jobs:
               registry: 'https://registry.npmjs.org/'
             };
             
-            if (pkg.dependencies && pkg.dependencies['@auth0/web-ui-components-core']) {
-              pkg.dependencies['@auth0/web-ui-components-core'] = process.env.CORE_VER;
+            if (pkg.dependencies && pkg.dependencies['@auth0/universal-components-core']) {
+              pkg.dependencies['@auth0/universal-components-core'] = process.env.CORE_VER;
             }
             
             require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
@@ -218,7 +218,7 @@ jobs:
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           current_version=$(node -p "require('./package.json').version")
-          echo "Publishing @auth0/web-ui-components-core@$current_version with tag: $CORE_TAG"
+          echo "Publishing @auth0/universal-components-core@$current_version with tag: $CORE_TAG"
 
           if [ "$DRY_RUN" = "true" ]; then
             echo "DRY RUN - Skipping publish"
@@ -226,12 +226,12 @@ jobs:
             echo "published=dry-run" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
 
-            echo "Published @auth0/web-ui-components-core@$current_version (dry run)"
+            echo "Published @auth0/universal-components-core@$current_version (dry run)"
           else
             pnpm publish --no-git-checks --tag="$CORE_TAG"
             echo "published=true" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
-            echo "Published @auth0/web-ui-components-core@$current_version"
+            echo "Published @auth0/universal-components-core@$current_version"
           fi
 
       - name: Publish React package to public npm
@@ -244,7 +244,7 @@ jobs:
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           current_version=$(node -p "require('./package.json').version")
-          echo "Publishing @auth0/web-ui-components-react@$current_version with tag: $REACT_TAG"
+          echo "Publishing @auth0/universal-components-react@$current_version with tag: $REACT_TAG"
 
           if [ "$DRY_RUN" = "true" ]; then
             echo "DRY RUN - Skipping publish"
@@ -255,7 +255,7 @@ jobs:
             pnpm publish --no-git-checks --tag="$REACT_TAG"
             echo "published=true" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
-            echo "Published @auth0/web-ui-components-react@$current_version"
+            echo "Published @auth0/universal-components-react@$current_version"
           fi
 
       - name: Generate Summary
@@ -275,18 +275,18 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ "${{ steps.publish-core.outputs.published }}" != "" ]; then
-            echo "- \`@auth0/web-ui-components-core@${CORE_VER}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`@auth0/universal-components-core@${CORE_VER}\`" >> $GITHUB_STEP_SUMMARY
             echo "  - Tag: \`${CORE_TAG}\`" >> $GITHUB_STEP_SUMMARY
             echo "  - Registry: https://registry.npmjs.org" >> $GITHUB_STEP_SUMMARY
-            echo "  - Install: \`npm install @auth0/web-ui-components-core@${CORE_TAG}\`" >> $GITHUB_STEP_SUMMARY
+            echo "  - Install: \`npm install @auth0/universal-components-core@${CORE_TAG}\`" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
 
           if [ "${{ steps.publish-react.outputs.published }}" != "" ]; then
-            echo "- \`@auth0/web-ui-components-react@${REACT_VER}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`@auth0/universal-components-react@${REACT_VER}\`" >> $GITHUB_STEP_SUMMARY
             echo "  - Tag: \`${REACT_TAG}\`" >> $GITHUB_STEP_SUMMARY
             echo "  - Registry: https://registry.npmjs.org" >> $GITHUB_STEP_SUMMARY
-            echo "  - Install: \`npm install @auth0/web-ui-components-react@${REACT_TAG}\`" >> $GITHUB_STEP_SUMMARY
+            echo "  - Install: \`npm install @auth0/universal-components-react@${REACT_TAG}\`" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
 
@@ -294,11 +294,11 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ "${{ steps.publish-core.outputs.published }}" != "" ]; then
-            echo "- [View @auth0/web-ui-components-core on npm](https://www.npmjs.com/package/@auth0/web-ui-components-core)" >> $GITHUB_STEP_SUMMARY
+            echo "- [View @auth0/universal-components-core on npm](https://www.npmjs.com/package/@auth0/universal-components-core)" >> $GITHUB_STEP_SUMMARY
           fi
 
           if [ "${{ steps.publish-react.outputs.published }}" != "" ]; then
-            echo "- [View @auth0/web-ui-components-react on npm](https://www.npmjs.com/package/@auth0/web-ui-components-react)" >> $GITHUB_STEP_SUMMARY
+            echo "- [View @auth0/universal-components-react on npm](https://www.npmjs.com/package/@auth0/universal-components-react)" >> $GITHUB_STEP_SUMMARY
           fi
 
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -314,14 +314,14 @@ jobs:
 
           if [ "${{ steps.publish-core.outputs.published }}" = "true" ]; then
             TAG_NAME="core@$CORE_VER"
-            git tag -a "$TAG_NAME" -m "Release @auth0/web-ui-components-core@$CORE_VER"
+            git tag -a "$TAG_NAME" -m "Release @auth0/universal-components-core@$CORE_VER"
             git push origin "$TAG_NAME"
             echo "Created tag: $TAG_NAME"
           fi
 
           if [ "${{ steps.publish-react.outputs.published }}" = "true" ]; then
             TAG_NAME="react@$REACT_VER"
-            git tag -a "$TAG_NAME" -m "Release @auth0/web-ui-components-react@$REACT_VER"
+            git tag -a "$TAG_NAME" -m "Release @auth0/universal-components-react@$REACT_VER"
             git push origin "$TAG_NAME"
             echo "Created tag: $TAG_NAME"
           fi
@@ -333,19 +333,19 @@ jobs:
         uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
         with:
           tag_name: core@${{ env.CORE_VER }}
-          name: "@auth0/web-ui-components-core@${{ env.CORE_VER }}"
+          name: "@auth0/universal-components-core@${{ env.CORE_VER }}"
           body: |
             Published to NPM
 
-            **Package**: `@auth0/web-ui-components-core`
+            **Package**: `@auth0/universal-components-core`
             **Version**: `${{ env.CORE_VER }}`
             **NPM Tag**: `${{ env.CORE_TAG }}`
 
             ```bash
-            npm install @auth0/web-ui-components-core@${{ env.CORE_VER }}
+            npm install @auth0/universal-components-core@${{ env.CORE_VER }}
             ```
 
-            [View on NPM](https://www.npmjs.com/package/@auth0/web-ui-components-core/v/${{ env.CORE_VER }})
+            [View on NPM](https://www.npmjs.com/package/@auth0/universal-components-core/v/${{ env.CORE_VER }})
           prerelease: ${{ env.CORE_TAG != 'latest' }}
           draft: false
 
@@ -356,20 +356,20 @@ jobs:
         uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
         with:
           tag_name: react@${{ env.REACT_VER }}
-          name: "@auth0/web-ui-components-react@${{ env.REACT_VER }}"
+          name: "@auth0/universal-components-react@${{ env.REACT_VER }}"
           body: |
             Published to NPM
 
-            **Package**: `@auth0/web-ui-components-react`
+            **Package**: `@auth0/universal-components-react`
             **Version**: `${{ env.REACT_VER }}`
             **NPM Tag**: `${{ env.REACT_TAG }}`
-            **Requires**: `@auth0/web-ui-components-core@${{ env.CORE_VER }}`
+            **Requires**: `@auth0/universal-components-core@${{ env.CORE_VER }}`
 
             ```bash
-            npm install @auth0/web-ui-components-react@${{ env.REACT_VER }}
+            npm install @auth0/universal-components-react@${{ env.REACT_VER }}
             ```
 
-            [View on NPM](https://www.npmjs.com/package/@auth0/web-ui-components-react/v/${{ env.REACT_VER }})
+            [View on NPM](https://www.npmjs.com/package/@auth0/universal-components-react/v/${{ env.REACT_VER }})
           prerelease: ${{ env.REACT_TAG != 'latest' }}
           draft: false
 
@@ -396,9 +396,9 @@ jobs:
 
           # Check core package publishing
           if [ "${{ steps.publish-core.outputs.published }}" = "true" ]; then
-            PUBLISHED_PACKAGES="@auth0/web-ui-components-core@${{ steps.publish-core.outputs.version }}"
+            PUBLISHED_PACKAGES="@auth0/universal-components-core@${{ steps.publish-core.outputs.version }}"
           elif [ "${{ steps.publish-core.outputs.published }}" = "dry-run" ]; then
-            PUBLISHED_PACKAGES="@auth0/web-ui-components-core@${{ steps.publish-core.outputs.version }} (dry run)"
+            PUBLISHED_PACKAGES="@auth0/universal-components-core@${{ steps.publish-core.outputs.version }} (dry run)"
           elif [ "${{ steps.publish-core.outcome }}" = "failure" ]; then
             PUBLISH_ERRORS="core package failed to publish"
           fi
@@ -406,15 +406,15 @@ jobs:
           # Check react package publishing
           if [ "${{ steps.publish-react.outputs.published }}" = "true" ]; then
             if [ -n "$PUBLISHED_PACKAGES" ]; then
-              PUBLISHED_PACKAGES="$PUBLISHED_PACKAGES, @auth0/web-ui-components-react@${{ steps.publish-react.outputs.version }}"
+              PUBLISHED_PACKAGES="$PUBLISHED_PACKAGES, @auth0/universal-components-react@${{ steps.publish-react.outputs.version }}"
             else
-              PUBLISHED_PACKAGES="@auth0/web-ui-components-react@${{ steps.publish-react.outputs.version }}"
+              PUBLISHED_PACKAGES="@auth0/universal-components-react@${{ steps.publish-react.outputs.version }}"
             fi
           elif [ "${{ steps.publish-react.outputs.published }}" = "dry-run" ]; then
             if [ -n "$PUBLISHED_PACKAGES" ]; then
-              PUBLISHED_PACKAGES="$PUBLISHED_PACKAGES, @auth0/web-ui-components-react@${{ steps.publish-react.outputs.version }} (dry run)"
+              PUBLISHED_PACKAGES="$PUBLISHED_PACKAGES, @auth0/universal-components-react@${{ steps.publish-react.outputs.version }} (dry run)"
             else
-              PUBLISHED_PACKAGES="@auth0/web-ui-components-react@${{ steps.publish-react.outputs.version }} (dry run)"
+              PUBLISHED_PACKAGES="@auth0/universal-components-react@${{ steps.publish-react.outputs.version }} (dry run)"
             fi
           elif [ "${{ steps.publish-react.outcome }}" = "failure" ]; then
             if [ -n "$PUBLISH_ERRORS" ]; then
