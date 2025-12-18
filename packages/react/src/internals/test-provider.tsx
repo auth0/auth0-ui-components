@@ -19,7 +19,7 @@ export interface TestProviderProps {
  * Mock ScopeRegistryProvider for testing - doesn't call real ensureScopes
  */
 function MockScopeRegistryProvider({ children }: { children: React.ReactNode }) {
-  const [scopeRegistry, setScopeRegistry] = React.useState<Record<Audience, Set<string>>>(() => ({
+  const [, setScopeRegistry] = React.useState<Record<Audience, Set<string>>>(() => ({
     me: new Set(),
     'my-org': new Set(),
   }));

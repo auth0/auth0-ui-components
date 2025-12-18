@@ -831,6 +831,14 @@ describe('SsoProviderTable', () => {
 
     describe('when no providers exist', () => {
       it('should display empty state', async () => {
+        // Override the mock to return empty providers
+        const apiService = mockCoreClient.getMyOrgApiClient();
+        (
+          apiService.organization.identityProviders.list as ReturnType<typeof vi.fn>
+        ).mockResolvedValue({
+          identity_providers: [],
+        });
+
         renderWithProviders(<SsoProviderTable {...createMockSsoProviderTableProps()} />);
 
         await waitForComponentToLoad();
