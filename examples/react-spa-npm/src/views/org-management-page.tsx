@@ -1,9 +1,9 @@
-import { OrgDetailsEdit } from '@auth0/universal-components-react/spa';
+import { OrganizationDetailsEdit } from '@auth0/universal-components-react/spa';
 
 const OrgManagementPage = () => {
   return (
     <div className="space-y-6">
-      <OrgDetailsEdit />
+      <OrganizationDetailsEdit />
     </div>
   );
 };

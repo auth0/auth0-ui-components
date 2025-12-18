@@ -18,7 +18,7 @@ const SsoProviderEditPage = () => {
               navigate('/sso-providers');
             },
           },
-          deleteFromOrgAction: {
+          deleteFromOrganizationAction: {
             onAfter: () => {
               navigate('/sso-providers');
             },
