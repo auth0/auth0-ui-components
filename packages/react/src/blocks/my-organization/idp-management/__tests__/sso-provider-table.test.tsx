@@ -38,7 +38,7 @@ const createMockSsoProviderTableProps = (
     onAfter: vi.fn(),
   },
   deleteAction: undefined,
-  deleteFromOrgAction: undefined,
+  deleteFromOrganizationAction: undefined,
   enableProviderAction: undefined,
   ...overrides,
 });
@@ -61,7 +61,7 @@ const createMockDeleteAction = (): ComponentAction<IdentityProvider> => ({
   onAfter: vi.fn(),
 });
 
-const createMockDeleteFromOrgAction = (): ComponentAction<IdentityProvider> => ({
+const createMockDeleteFromOrganizationAction = (): ComponentAction<IdentityProvider> => ({
   disabled: false,
   onBefore: vi.fn(() => true),
   onAfter: vi.fn(),
@@ -528,18 +528,18 @@ describe('SsoProviderTable', () => {
     });
   });
 
-  describe('deleteFromOrgAction', () => {
-    describe('deleteFromOrgAction.disabled', () => {
+  describe('deleteFromOrganizationAction', () => {
+    describe('deleteFromOrganizationAction.disabled', () => {
       describe('when is true', () => {
         it('should disable remove from organization button when readOnly is true', async () => {
           const user = userEvent.setup();
-          const mockDeleteFromOrgAction = createMockDeleteFromOrgAction();
-          mockDeleteFromOrgAction.disabled = true;
+          const mockDeleteFromOrganizationAction = createMockDeleteFromOrganizationAction();
+          mockDeleteFromOrganizationAction.disabled = true;
 
           renderWithProviders(
             <SsoProviderTable
               {...createMockSsoProviderTableProps({
-                deleteFromOrgAction: mockDeleteFromOrgAction,
+                deleteFromOrganizationAction: mockDeleteFromOrganizationAction,
                 readOnly: true,
               })}
             />,
@@ -567,18 +567,18 @@ describe('SsoProviderTable', () => {
       });
     });
 
-    describe('deleteFromOrgAction.onBefore', () => {
+    describe('deleteFromOrganizationAction.onBefore', () => {
       describe('when user removes provider from organization', () => {
         describe('when onBefore returns true', () => {
           it('should call onBefore and proceed with removal modal', async () => {
             const user = userEvent.setup();
-            const mockDeleteFromOrgAction = createMockDeleteFromOrgAction();
-            mockDeleteFromOrgAction.onBefore = vi.fn(() => true);
+            const mockDeleteFromOrganizationAction = createMockDeleteFromOrganizationAction();
+            mockDeleteFromOrganizationAction.onBefore = vi.fn(() => true);
 
             renderWithProviders(
               <SsoProviderTable
                 {...createMockSsoProviderTableProps({
-                  deleteFromOrgAction: mockDeleteFromOrgAction,
+                  deleteFromOrganizationAction: mockDeleteFromOrganizationAction,
                 })}
               />,
             );
@@ -603,7 +603,7 @@ describe('SsoProviderTable', () => {
             await user.click(removeMenuItem);
 
             // onBefore should be called with the provider data
-            expect(mockDeleteFromOrgAction.onBefore).toHaveBeenCalledWith(mockProvider);
+            expect(mockDeleteFromOrganizationAction.onBefore).toHaveBeenCalledWith(mockProvider);
 
             // Remove modal should be shown
             await waitFor(() => {
@@ -615,13 +615,13 @@ describe('SsoProviderTable', () => {
         describe('when onBefore returns false', () => {
           it('should call onBefore and not proceed with removal modal', async () => {
             const user = userEvent.setup();
-            const mockDeleteFromOrgAction = createMockDeleteFromOrgAction();
-            mockDeleteFromOrgAction.onBefore = vi.fn(() => false);
+            const mockDeleteFromOrganizationAction = createMockDeleteFromOrganizationAction();
+            mockDeleteFromOrganizationAction.onBefore = vi.fn(() => false);
 
             renderWithProviders(
               <SsoProviderTable
                 {...createMockSsoProviderTableProps({
-                  deleteFromOrgAction: mockDeleteFromOrgAction,
+                  deleteFromOrganizationAction: mockDeleteFromOrganizationAction,
                 })}
               />,
             );
@@ -646,7 +646,7 @@ describe('SsoProviderTable', () => {
             await user.click(removeMenuItem);
 
             // onBefore should be called with the provider data
-            expect(mockDeleteFromOrgAction.onBefore).toHaveBeenCalledWith(mockProvider);
+            expect(mockDeleteFromOrganizationAction.onBefore).toHaveBeenCalledWith(mockProvider);
 
             // Remove modal should NOT be shown
             expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -655,16 +655,16 @@ describe('SsoProviderTable', () => {
       });
     });
 
-    describe('deleteFromOrgAction.onAfter', () => {
+    describe('deleteFromOrganizationAction.onAfter', () => {
       describe('when removal is successful', () => {
         it('should call onAfter after confirming removal in modal', async () => {
           const user = userEvent.setup();
-          const mockDeleteFromOrgAction = createMockDeleteFromOrgAction();
+          const mockDeleteFromOrganizationAction = createMockDeleteFromOrganizationAction();
 
           renderWithProviders(
             <SsoProviderTable
               {...createMockSsoProviderTableProps({
-                deleteFromOrgAction: mockDeleteFromOrgAction,
+                deleteFromOrganizationAction: mockDeleteFromOrganizationAction,
               })}
             />,
           );
@@ -708,7 +708,7 @@ describe('SsoProviderTable', () => {
             expect(
               mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.detach,
             ).toHaveBeenCalled();
-            expect(mockDeleteFromOrgAction.onAfter).toHaveBeenCalledWith(mockProvider);
+            expect(mockDeleteFromOrganizationAction.onAfter).toHaveBeenCalledWith(mockProvider);
           });
         });
       });

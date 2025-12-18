@@ -53,7 +53,7 @@ const createMockSsoActions = () => ({
     onBefore: vi.fn(() => true),
     onAfter: vi.fn(),
   },
-  deleteFromOrgAction: {
+  deleteFromOrganizationAction: {
     disabled: false,
     onBefore: vi.fn(() => true),
     onAfter: vi.fn(),
@@ -470,7 +470,7 @@ describe('SsoProviderEdit', () => {
       });
     });
 
-    describe('when sso.deleteFromOrgAction is provided', () => {
+    describe('when sso.deleteFromOrganizationAction is provided', () => {
       it('should render with deleteFromOrg action props', async () => {
         const ssoActions = createMockSsoActions();
 

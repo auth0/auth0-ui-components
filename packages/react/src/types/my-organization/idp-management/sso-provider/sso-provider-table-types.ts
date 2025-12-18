@@ -30,7 +30,7 @@ export interface SsoProviderTableProps
   createAction: ComponentAction<void>;
   editAction: ComponentAction<IdentityProvider>;
   deleteAction?: ComponentAction<IdentityProvider>;
-  deleteFromOrgAction?: ComponentAction<IdentityProvider>;
+  deleteFromOrganizationAction?: ComponentAction<IdentityProvider>;
   enableProviderAction?: ComponentAction<IdentityProvider>;
 }
 

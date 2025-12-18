@@ -33,7 +33,7 @@ function SsoProviderTableComponent({
   createAction,
   editAction,
   deleteAction,
-  deleteFromOrgAction: deleteFromOrgAction,
+  deleteFromOrganizationAction,
   enableProviderAction,
 }: SsoProviderTableProps) {
   const { isDarkMode } = useTheme();
@@ -50,7 +50,12 @@ function SsoProviderTableComponent({
     onRemoveConfirm,
     onEnableProvider,
     organization,
-  } = useSsoProviderTable(deleteAction, deleteFromOrgAction, enableProviderAction, customMessages);
+  } = useSsoProviderTable(
+    deleteAction,
+    deleteFromOrganizationAction,
+    enableProviderAction,
+    customMessages,
+  );
   const { isLoadingConfig, shouldAllowDeletion, isConfigValid } = useConfig();
   const { isLoadingIdpConfig, isIdpConfigValid } = useIdpConfig();
 
@@ -99,14 +104,14 @@ function SsoProviderTableComponent({
     (idp: IdentityProvider) => {
       setSelectedIdp(idp);
 
-      if (deleteFromOrgAction?.onBefore) {
-        const shouldProceed = deleteFromOrgAction.onBefore(idp);
+      if (deleteFromOrganizationAction?.onBefore) {
+        const shouldProceed = deleteFromOrganizationAction.onBefore(idp);
         if (!shouldProceed) return;
       }
 
       setShowRemoveModal(true);
     },
-    [deleteFromOrgAction],
+    [deleteFromOrganizationAction],
   );
 
   const handleToggleEnabled = React.useCallback(
