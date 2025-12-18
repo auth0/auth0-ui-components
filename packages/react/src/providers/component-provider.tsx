@@ -14,23 +14,18 @@ import { Toaster } from '../components/ui/sonner';
 import { Spinner } from '../components/ui/spinner';
 import { CoreClientContext, useCoreClient } from '../hooks/use-core-client';
 import { ScopeManagerContext, type Audience } from '../hooks/use-scope-manager';
+import { ThemeContext } from '../hooks/use-theme';
 import type { Auth0ComponentProviderProps } from '../types/auth-types';
 import type { I18nOptions } from '../types/i18n-types';
-import type { ThemeContextValue, ThemeInput } from '../types/theme-types';
+import type { ThemeInput } from '../types/theme-types';
 
 const DEFAULT_STYLE_OVERRIDES: StylingVariables = { common: {}, light: {}, dark: {} };
-
-export const ThemeContext = React.createContext<ThemeContextValue>({
-  isDarkMode: false,
-  variables: DEFAULT_STYLE_OVERRIDES,
-  loader: null,
-});
 
 interface Auth0ReactPackage {
   useAuth0: () => BasicAuth0ContextInterface;
 }
 
-function ScopeRegistryProvider({ children }: { children: React.ReactNode }) {
+const ScopeRegistryProvider = ({ children }: { children: React.ReactNode }) => {
   const { coreClient } = useCoreClient();
   const [isReady, setIsReady] = React.useState(false);
   const [scopeRegistry, setScopeRegistry] = React.useState<Record<Audience, Set<string>>>(() => ({
@@ -98,9 +93,9 @@ function ScopeRegistryProvider({ children }: { children: React.ReactNode }) {
   );
 
   return <ScopeManagerContext.Provider value={value}>{children}</ScopeManagerContext.Provider>;
-}
+};
 
-function CoreServicesProvider({
+const CoreServicesProvider = ({
   authDetails,
   i18n,
   loader,
@@ -110,7 +105,7 @@ function CoreServicesProvider({
   children: React.ReactNode;
   i18n?: I18nOptions;
   loader?: React.ReactNode;
-}) {
+}) => {
   const [coreClient, setCoreClient] = React.useState<CoreClientInterface | null>(null);
 
   React.useEffect(() => {
@@ -136,9 +131,9 @@ function CoreServicesProvider({
       </React.Suspense>
     </>
   );
-}
+};
 
-function ThemeProvider({
+const ThemeProvider = ({
   themeSettings,
   loader,
   children,
@@ -146,7 +141,7 @@ function ThemeProvider({
   themeSettings?: ThemeInput;
   loader?: React.ReactNode;
   children: React.ReactNode;
-}) {
+}) => {
   const { variables, mode, theme } = React.useMemo(
     () => ({
       variables: themeSettings?.variables ?? DEFAULT_STYLE_OVERRIDES,
@@ -166,7 +161,7 @@ function ThemeProvider({
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
-}
+};
 
 const WithAuth0Hook = ({
   module,
@@ -193,7 +188,7 @@ const WithAuth0Hook = ({
   );
 };
 
-function Auth0Orchestrator({
+const Auth0Orchestrator = ({
   authDetails,
   i18n,
   loader,
@@ -203,37 +198,23 @@ function Auth0Orchestrator({
   children: React.ReactNode;
   i18n?: I18nOptions;
   loader?: React.ReactNode;
-}) {
+}) => {
   const isProxy = !!(authDetails.authProxyUrl || authDetails.contextInterface);
-
-  const [status, setStatus] = React.useState<'idle' | 'loading' | 'loaded' | 'failed'>(
-    isProxy ? 'idle' : 'loading',
-  );
-  const [module, setModule] = React.useState<Auth0ReactPackage | null>(null);
+  const [auth0Module, setAuth0Module] = React.useState<Auth0ReactPackage | null>(null);
+  const [isLoading, setIsLoading] = React.useState(!isProxy);
 
   React.useEffect(() => {
-    if (isProxy || typeof window === 'undefined') {
-      if (!isProxy) setStatus('failed');
+    if (isProxy) {
       return;
     }
 
     import('@auth0/auth0-react')
-      .then((mod) => {
-        setModule(mod as Auth0ReactPackage);
-        setStatus('loaded');
-      })
-      .catch(() => setStatus('failed'));
+      .then((mod) => setAuth0Module(mod as Auth0ReactPackage))
+      .catch((e) => console.error('Failed to load @auth0/auth0-react:', e))
+      .finally(() => setIsLoading(false));
   }, [isProxy]);
 
-  if (status === 'loaded' && module) {
-    return (
-      <WithAuth0Hook module={module} authDetails={authDetails} i18n={i18n} loader={loader}>
-        {children}
-      </WithAuth0Hook>
-    );
-  }
-
-  if (status === 'loading') {
+  if (isLoading) {
     return (
       loader || (
         <div className="flex items-center justify-center min-h-[200px]">
@@ -243,12 +224,20 @@ function Auth0Orchestrator({
     );
   }
 
+  if (auth0Module) {
+    return (
+      <WithAuth0Hook module={auth0Module} authDetails={authDetails} i18n={i18n} loader={loader}>
+        {children}
+      </WithAuth0Hook>
+    );
+  }
+
   return (
     <CoreServicesProvider authDetails={authDetails} i18n={i18n} loader={loader}>
       {children}
     </CoreServicesProvider>
   );
-}
+};
 
 export const Auth0ComponentProvider = ({
   authDetails,
