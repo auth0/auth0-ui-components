@@ -1,7 +1,7 @@
 import type { Organization } from '@auth0/universal-components-core';
 
 export const createMockOrganization = (): Organization => ({
-  id: 'org_abc123xyz456',
+  id: 'organization_abc123xyz456',
   name: 'auth0-corp',
   display_name: 'Auth0 Corporation',
   branding: {

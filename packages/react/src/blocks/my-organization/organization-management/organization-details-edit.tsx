@@ -14,7 +14,7 @@ import { useTranslator } from '../../../hooks/use-translator';
 import type { OrganizationDetailsEditProps } from '../../../types/my-organization/organization-management/organization-details-edit-types';
 
 /**
- * OrgDetailsEdit Component
+ * OrganizationDetailsEdit Component
  *
  * A comprehensive organization editing component that combines organization details
  * editing and deletion capabilities in a single interface. This component provides

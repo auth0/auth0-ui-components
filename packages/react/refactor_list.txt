@@ -1,0 +1,60 @@
+src/hoc/with-services.tsx
+47:    const organizationEnsured = scopesSatisfied(requiredOrganization, ensured['my-org']);
+54:        registerScopes('my-org', requirements.myOrganizationApiScopes);
+
+README.md
+11:- ⚛️ **React Components**: Pre-built UI components for Auth0 features (MFA management, org management etc.)
+
+src/blocks/my-organization/organization-management/organization-details-edit.tsx
+36:  const { t } = useTranslator('org_management.org_details_edit', customMessages);
+72:              orgName: organization.display_name || organization.name || '',
+
+src/components/my-organization/organization-management/organization-details/organization-details.tsx
+47:  const { t } = useTranslator('org_management.org_details', customMessages);
+
+src/blocks/my-organization/idp-management/__tests__/sso-provider-edit.test.tsx
+87:    const orgApi = mockCoreClient.getMyOrganizationApiClient().organization;
+88:    Object.defineProperty(orgApi, 'domains', {
+99:    Object.defineProperty(orgApi, 'identityProviders', {
+101:        ...orgApi.identityProviders,
+
+src/components/my-organization/organization-management/organization-details/branding-details.tsx
+30:  const { t } = useTranslator('org_management.org_details', customMessages);
+
+src/providers/scope-manager-provider.tsx
+11:    'my-org': new Set(),
+16:    'my-org': '',
+60:      for (const audience of ['me', 'my-org'] as const) {
+82:          'my-org': Array.from(scopeRegistry['my-org']).sort().join(' '),
+
+src/internals/__mocks__/my-organization/idp-management/sso-domain.mocks.ts
+5:  org_id: 'organization-1',
+
+src/hooks/my-organization/organization-management/use-organization-details-edit.ts
+26:  const { t } = useTranslator('org_management.org_details_edit', customMessages);
+53:          ? t('org_changes_error_message', { message: error.message })
+54:          : t('org_changes_error_message_generic');
+94:            orgName: data.display_name || data.name,
+106:            ? t('org_changes_error_message', { message: error.message })
+107:            : t('org_changes_error_message_generic');
+
+src/providers/__tests__/scope-manager-provider.test.tsx
+17:  audience?: 'me' | 'my-org';
+32:      <div data-testid="ensured-my-org">{ensured['my-org']}</div>
+68:    expect(screen.getByTestId('ensured-my-org')).toHaveTextContent('');
+
+src/internals/__mocks__/my-organization/domain-management/domain.mocks.ts
+13:  org_id: 'organization_abc123xyz456',
+
+src/hooks/use-scope-manager.ts
+3:export type Audience = 'me' | 'my-org';
+14:  ensured: { me: '', 'my-org': '' },
+
+src/components/my-organization/organization-management/organization-details/settings-details.tsx
+28:  const { t } = useTranslator('org_management.org_details', customMessages);
+
+src/hooks/my-organization/domain-management/__tests__/use-domain-table.test.ts
+63:    mockT = createMockI18nService().translator('my-org');
+
+src/hooks/my-organization/domain-management/__tests__/use-domain-table-logic.test.ts
+26:  t: createMockI18nService().translator('my-org'),

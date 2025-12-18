@@ -33,7 +33,7 @@ function SsoProviderTableComponent({
   createAction,
   editAction,
   deleteAction,
-  deleteFromOrgAction,
+  deleteFromOrgAction: deleteFromOrgAction,
   enableProviderAction,
 }: SsoProviderTableProps) {
   const { isDarkMode } = useTheme();

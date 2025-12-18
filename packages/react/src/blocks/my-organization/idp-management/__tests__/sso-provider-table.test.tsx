@@ -531,7 +531,7 @@ describe('SsoProviderTable', () => {
   describe('deleteFromOrgAction', () => {
     describe('deleteFromOrgAction.disabled', () => {
       describe('when is true', () => {
-        it('should disable remove from org button when readOnly is true', async () => {
+        it('should disable remove from organization button when readOnly is true', async () => {
           const user = userEvent.setup();
           const mockDeleteFromOrgAction = createMockDeleteFromOrgAction();
           mockDeleteFromOrgAction.disabled = true;
@@ -558,7 +558,7 @@ describe('SsoProviderTable', () => {
           expect(rowActionButton).toBeDefined();
           await user.click(rowActionButton!);
 
-          // Remove from org menu item should be disabled when readOnly is true
+          // Remove from organization menu item should be disabled when readOnly is true
           const removeMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.remove_button_text/i,
           });
@@ -568,7 +568,7 @@ describe('SsoProviderTable', () => {
     });
 
     describe('deleteFromOrgAction.onBefore', () => {
-      describe('when user removes provider from org', () => {
+      describe('when user removes provider from organization', () => {
         describe('when onBefore returns true', () => {
           it('should call onBefore and proceed with removal modal', async () => {
             const user = userEvent.setup();
@@ -596,7 +596,7 @@ describe('SsoProviderTable', () => {
             expect(rowActionButton).toBeDefined();
             await user.click(rowActionButton!);
 
-            // Click the remove from org menu item
+            // Click the remove from organization menu item
             const removeMenuItem = screen.getByRole('menuitem', {
               name: /table.actions.remove_button_text/i,
             });
@@ -639,7 +639,7 @@ describe('SsoProviderTable', () => {
             expect(rowActionButton).toBeDefined();
             await user.click(rowActionButton!);
 
-            // Click the remove from org menu item
+            // Click the remove from organization menu item
             const removeMenuItem = screen.getByRole('menuitem', {
               name: /table.actions.remove_button_text/i,
             });
@@ -663,7 +663,9 @@ describe('SsoProviderTable', () => {
 
           renderWithProviders(
             <SsoProviderTable
-              {...createMockSsoProviderTableProps({ deleteFromOrgAction: mockDeleteFromOrgAction })}
+              {...createMockSsoProviderTableProps({
+                deleteFromOrgAction: mockDeleteFromOrgAction,
+              })}
             />,
           );
 
@@ -680,7 +682,7 @@ describe('SsoProviderTable', () => {
           expect(rowActionButton).toBeDefined();
           await user.click(rowActionButton!);
 
-          // Click the remove from org menu item
+          // Click the remove from organization menu item
           const removeMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.remove_button_text/i,
           });

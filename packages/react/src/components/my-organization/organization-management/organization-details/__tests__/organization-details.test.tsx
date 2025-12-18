@@ -139,8 +139,8 @@ describe('OrganizationDetails', () => {
   });
 
   describe('styling', () => {
-    describe('when OrgDetails_Card custom classes are provided', () => {
-      it('should apply custom class to OrgDetails_Card', () => {
+    describe('when OrganizationDetails_Card custom classes are provided', () => {
+      it('should apply custom class to OrganizationDetails_Card', () => {
         const customStyling = {
           variables: { common: {}, light: {}, dark: {} },
           classes: {
@@ -154,7 +154,7 @@ describe('OrganizationDetails', () => {
           />,
         );
 
-        const cardElement = screen.getByTestId('org-details-card');
+        const cardElement = screen.getByTestId('organization-details-card');
         expect(cardElement).toHaveClass('custom-card-class');
       });
     });

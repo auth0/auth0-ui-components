@@ -10,4 +10,4 @@ export {
   useOtpEnrollment,
   useMFA,
 } from './my-account/mfa';
-export { useOrganizationDetailsEdit as useOrgDetailsEdit } from './my-org/organization-management/use-organization-details-edit';
+export { useOrganizationDetailsEdit } from './my-organization/organization-management/use-organization-details-edit';

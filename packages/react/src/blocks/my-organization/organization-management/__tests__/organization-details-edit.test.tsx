@@ -60,7 +60,7 @@ const waitForComponentToLoad = async () => {
 
 // ===== Tests =====
 
-describe('OrgDetailsEdit', () => {
+describe('OrganizationDetailsEdit', () => {
   const mockOrganization = createMockOrganization();
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;
 
@@ -132,7 +132,7 @@ describe('OrgDetailsEdit', () => {
       it('should override header title', async () => {
         const customMessages = {
           header: {
-            title: 'Custom Org Settings',
+            title: 'Custom Organization Settings',
           },
         };
 
@@ -144,15 +144,15 @@ describe('OrgDetailsEdit', () => {
 
         await waitForComponentToLoad();
 
-        expect(screen.getByText('Custom Org Settings')).toBeInTheDocument();
+        expect(screen.getByText('Custom Organization Settings')).toBeInTheDocument();
       });
     });
   });
 
   describe('styling', () => {
     describe('styling.classes', () => {
-      describe('when classes are provided for OrgDetails_Card', () => {
-        it('should apply the custom class to OrgDetails_Card', async () => {
+      describe('when classes are provided for OrganizationDetails_Card', () => {
+        it('should apply the custom class to OrganizationDetails_Card', async () => {
           const customStyling = {
             variables: { common: {}, light: {}, dark: {} },
             classes: {
@@ -168,7 +168,7 @@ describe('OrgDetailsEdit', () => {
 
           await waitForComponentToLoad();
 
-          const cardElement = screen.getByTestId('org-details-card');
+          const cardElement = screen.getByTestId('organization-details-card');
           expect(cardElement).toHaveClass('custom-card-class');
         });
       });

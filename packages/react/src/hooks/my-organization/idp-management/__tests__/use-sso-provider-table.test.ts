@@ -29,9 +29,9 @@ const mockIdentityProviders: IdentityProvider[] = [
 ];
 
 const mockOrganization: OrganizationPrivate = {
-  id: 'org-123',
+  id: 'organization-123',
   display_name: 'Test Organization',
-  name: 'test-org',
+  name: 'test-organization',
   branding: {
     colors: {
       primary: '#0059d6',
@@ -483,7 +483,7 @@ describe('useSsoProviderTable', () => {
 
   describe('onRemoveConfirm', () => {
     // Test: Verifies that a provider can be successfully removed from an organization
-    // Should call detach API, show success toast with org name, and refresh providers list
+    // Should call detach API, show success toast with organization name, and refresh providers list
     it('should remove provider from organization successfully', async () => {
       const mockDetach = vi.fn().mockResolvedValue(undefined);
       const mockList = vi

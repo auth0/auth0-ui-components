@@ -12,7 +12,7 @@ const { initMockCoreClient } = mockCore();
 
 // ===== Tests =====
 
-describe('useOrgDetailsEdit', () => {
+describe('useOrganizationDetailsEdit', () => {
   const mockOrganization = createMockOrganization();
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;
 

@@ -36,9 +36,9 @@ describe('SsoProviderTab', () => {
     onDelete: vi.fn(),
     onRemove: vi.fn(),
     organization: {
-      id: 'org-123',
+      id: 'organization-123',
       name: 'Test Organization',
-      display_name: 'Test Org Display',
+      display_name: 'Test Organization Display',
       branding: {
         colors: {
           primary: '',

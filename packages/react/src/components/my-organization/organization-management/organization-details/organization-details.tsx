@@ -144,7 +144,7 @@ export function OrganizationDetails({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onValid)} className="space-y-6">
           <Card
-            data-testid="org-details-card"
+            data-testid="organization-details-card"
             className={cn('p-6', currentStyles.classes?.OrganizationDetails_Card)}
           >
             <div className="space-y-6">

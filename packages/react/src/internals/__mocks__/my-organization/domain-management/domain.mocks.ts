@@ -10,7 +10,7 @@ import type { DomainTableProps } from '../../../../types/my-organization/domain-
 
 export const createMockDomain = (overrides?: Partial<Domain>): Domain => ({
   id: 'domain_abc123xyz456',
-  org_id: 'org_abc123xyz456',
+  org_id: 'organization_abc123xyz456',
   domain: 'example.auth0.com',
   status: 'pending',
   verification_txt: 'auth0-domain-verification=abc123xyz456def789',

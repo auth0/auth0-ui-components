@@ -62,7 +62,7 @@ describe('SsoProviderRemoveFromOrgModal', () => {
         const provider = createMockSsoProvider({ name: 'test-provider' });
         renderWithProviders(
           <SsoProviderRemoveFromOrgModal
-            {...createMockRemoveModal({ provider, organizationName: 'Test Org' })}
+            {...createMockRemoveModal({ provider, organizationName: 'Test Organization 1' })}
           />,
         );
 

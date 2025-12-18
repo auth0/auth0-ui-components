@@ -86,8 +86,8 @@ describe('useSsoProviderEdit', () => {
   };
 
   const mockOrganization: OrganizationPrivate = {
-    id: 'org_123',
-    name: 'test-org',
+    id: 'organization_123',
+    name: 'test-organization',
     display_name: 'Test Organization',
     branding: {
       colors: {

@@ -42,10 +42,10 @@ export function useSsoProviderTable(
 
     try {
       const response = await coreClient.getMyOrganizationApiClient().organizationDetails.get();
-      const orgData = OrganizationDetailsMappers.fromAPI(response);
+      const organizationData = OrganizationDetailsMappers.fromAPI(response);
 
-      setOrganization(orgData);
-      return orgData;
+      setOrganization(organizationData);
+      return organizationData;
     } catch (error) {
       showToast({
         type: 'error',
@@ -180,7 +180,7 @@ export function useSsoProviderTable(
       try {
         setIsRemoving(true);
 
-        const orgData = await fetchOrganizationDetails();
+        const organizationData = await fetchOrganizationDetails();
 
         await coreClient
           .getMyOrganizationApiClient()
@@ -194,7 +194,7 @@ export function useSsoProviderTable(
           type: 'success',
           message: t('remove_success', {
             providerName: selectedIdp.display_name,
-            organizationName: orgData?.display_name,
+            organizationName: organizationData?.display_name,
           }),
         });
 

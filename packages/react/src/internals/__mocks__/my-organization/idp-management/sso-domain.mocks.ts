@@ -2,7 +2,7 @@ import type { Domain, IdentityProvider } from '@auth0/universal-components-core'
 
 export const createMockSsoDomain = (overrides?: Partial<Domain>): Domain => ({
   id: 'domain-1',
-  org_id: 'org-1',
+  org_id: 'organization-1',
   domain: 'example.com',
   status: 'pending',
   verification_txt: 'auth0-domain-verification=test-token',
