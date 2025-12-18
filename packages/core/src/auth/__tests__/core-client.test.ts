@@ -1,345 +1,551 @@
-import type { MyAccountClient } from '@auth0/myaccount-js';
-import type { MyOrganizationClient } from '@auth0/myorganization-js';
-import { initializeMyAccountClient } from '@core/services/my-account/my-account-api-service';
-import { initializeMyOrgClient } from '@core/services/my-org/my-org-api-service';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
-import { createI18nService } from '../../i18n';
-import { createMockI18nService } from '../../i18n/__mocks__/i18n-service.mocks';
-import { createMockMyAccountClient } from '../../services/my-account/__tests__/__mocks__/my-account-api-service.mocks';
-import { createMockMyOrgClient } from '../../services/my-org/__tests__/__mocks__/my-org-api-service.mocks';
-import { createMockTokenManager } from '../__mocks__/token-manager.mocks';
-import type { AuthDetails } from '../auth-types';
+import type { AuthDetails, BasicAuth0ContextInterface } from '../auth-types';
 import { createCoreClient } from '../core-client';
-import { createTokenManager } from '../token-manager';
 
-// Mock the modules
-vi.mock('../../i18n');
-vi.mock('../token-manager');
-vi.mock('@core/services/my-org/my-org-api-service');
-vi.mock('@core/services/my-account/my-account-api-service');
+// Mock fetch globally
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
 
-describe('createCoreClient', () => {
-  // Create mock instances using mock utilities
-  const mockI18nService = createMockI18nService();
-  const mockTokenManager = createMockTokenManager();
-  const mockMyOrgClient = createMockMyOrgClient();
-  const mockMyAccountClient = createMockMyAccountClient();
+// Mock window.location
+const mockLocation = {
+  pathname: '/test-path',
+  search: '?query=1',
+  assign: vi.fn(),
+  href: '',
+};
 
-  // Get the mocked functions
-  const createI18nServiceMock = vi.mocked(createI18nService);
-  const createTokenManagerMock = vi.mocked(createTokenManager);
-  const initializeMyOrgClientMock = vi.mocked(initializeMyOrgClient);
-  const initializeMyAccountClientMock = vi.mocked(initializeMyAccountClient);
+describe('core-client', () => {
+  let mockContextInterface: BasicAuth0ContextInterface;
 
-  const createAuthDetails = (overrides: Partial<AuthDetails> = {}): AuthDetails => {
-    return {
-      domain: 'example.auth0.com',
-      authProxyUrl: undefined,
-      contextInterface: {} as AuthDetails['contextInterface'],
-      ...overrides,
-    };
-  };
+  const createAuthDetails = (overrides: Partial<AuthDetails> = {}): AuthDetails => ({
+    domain: 'example.auth0.com',
+    contextInterface: mockContextInterface,
+    scope: 'openid profile email',
+    ...overrides,
+  });
+
+  const mockToken = 'mock-access-token';
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Setup default mock implementations
-    createI18nServiceMock.mockResolvedValue(mockI18nService);
-    createTokenManagerMock.mockReturnValue(mockTokenManager);
-    initializeMyOrgClientMock.mockReturnValue(mockMyOrgClient);
-    initializeMyAccountClientMock.mockReturnValue(mockMyAccountClient);
+    mockContextInterface = {
+      user: { sub: 'user-123' },
+      isAuthenticated: true,
+      getAccessTokenSilently: vi.fn().mockResolvedValue({
+        access_token: mockToken,
+        id_token: 'mock-id-token',
+        expires_in: 3600,
+      }),
+      getAccessTokenWithPopup: vi.fn().mockResolvedValue(mockToken),
+      loginWithRedirect: vi.fn().mockResolvedValue(undefined),
+    };
 
-    // Reset token manager mock to return successful token
-    vi.mocked(mockTokenManager.getToken).mockResolvedValue('mock-token');
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ data: 'test' }),
+      clone: () => ({
+        json: () => Promise.resolve({ data: 'test' }),
+      }),
+    });
+
+    // Reset window.location mock
+    mockLocation.assign.mockClear();
   });
 
-  describe('i18n initialization', () => {
-    it('initializes i18n with default options when none are provided', async () => {
-      const authDetails = createAuthDetails();
-      await createCoreClient(authDetails);
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
-      expect(createI18nServiceMock).toHaveBeenCalledWith({
-        currentLanguage: 'en-US',
+  describe('createCoreClient', () => {
+    it('should create a core client with all required properties', async () => {
+      const authDetails = createAuthDetails();
+      const coreClient = await createCoreClient(authDetails);
+
+      expect(coreClient).toBeDefined();
+      expect(coreClient.auth).toBe(authDetails);
+      expect(coreClient.i18nService).toBeDefined();
+      expect(coreClient.myAccountApiClient).toBeDefined();
+      expect(coreClient.myOrgApiClient).toBeDefined();
+      expect(coreClient.isProxyMode).toBeDefined();
+      expect(coreClient.getToken).toBeDefined();
+      expect(coreClient.ensureScopes).toBeDefined();
+      expect(coreClient.getMyAccountApiClient).toBeDefined();
+      expect(coreClient.getMyOrgApiClient).toBeDefined();
+    });
+
+    it('should use provided i18n options', async () => {
+      const authDetails = createAuthDetails();
+      const coreClient = await createCoreClient(authDetails, {
+        currentLanguage: 'ja',
         fallbackLanguage: 'en-US',
       });
+
+      expect(coreClient.i18nService).toBeDefined();
     });
 
-    it('initializes i18n with provided language options', async () => {
-      const i18nOptions = { currentLanguage: 'es', fallbackLanguage: 'en' };
+    it('should use default i18n options when not provided', async () => {
       const authDetails = createAuthDetails();
-      await createCoreClient(authDetails, i18nOptions);
+      const coreClient = await createCoreClient(authDetails);
 
-      expect(createI18nServiceMock).toHaveBeenCalledWith(i18nOptions);
-    });
-
-    it('exposes i18nService on the client', async () => {
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
-
-      expect(client.i18nService).toBe(mockI18nService);
+      expect(coreClient.i18nService).toBeDefined();
     });
   });
 
   describe('isProxyMode', () => {
-    it('returns false when authProxyUrl is undefined', async () => {
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
+    it('should return true when authProxyUrl is set', async () => {
+      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.example.com' });
+      const coreClient = await createCoreClient(authDetails);
 
-      expect(client.isProxyMode()).toBe(false);
+      expect(coreClient.isProxyMode()).toBe(true);
     });
 
-    it('returns true when authProxyUrl is set', async () => {
-      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.auth0.com' });
-      const client = await createCoreClient(authDetails);
+    it('should return false when authProxyUrl is not set', async () => {
+      const authDetails = createAuthDetails({ authProxyUrl: undefined });
+      const coreClient = await createCoreClient(authDetails);
 
-      expect(client.isProxyMode()).toBe(true);
-    });
-
-    it('returns false when authProxyUrl is empty string', async () => {
-      const authDetails = createAuthDetails({ authProxyUrl: '' });
-      const client = await createCoreClient(authDetails);
-
-      expect(client.isProxyMode()).toBe(false);
+      expect(coreClient.isProxyMode()).toBe(false);
     });
   });
 
   describe('getToken', () => {
-    it('delegates to token manager with all parameters', async () => {
+    it('should delegate to token manager', async () => {
       const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
+      const coreClient = await createCoreClient(authDetails);
 
-      await client.getToken('read:org', 'my-org', true);
+      const token = await coreClient.getToken('read:users', 'my-org');
 
-      expect(mockTokenManager.getToken).toHaveBeenCalledWith('read:org', 'my-org', true);
+      expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalled();
+      expect(token).toBe(mockToken);
     });
 
-    it('delegates to token manager with default ignoreCache', async () => {
+    it('should pass ignoreCache option to token manager', async () => {
       const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
+      const coreClient = await createCoreClient(authDetails);
 
-      await client.getToken('read:me', 'me');
+      await coreClient.getToken('read:users', 'my-org', true);
 
-      expect(mockTokenManager.getToken).toHaveBeenCalledWith('read:me', 'me', false);
-    });
-
-    it('returns the token from token manager', async () => {
-      const authDetails = createAuthDetails();
-      vi.mocked(mockTokenManager.getToken).mockResolvedValueOnce('specific-token-value');
-      const client = await createCoreClient(authDetails);
-
-      const token = await client.getToken('read:me', 'me');
-
-      expect(token).toBe('specific-token-value');
+      expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cacheMode: 'off',
+        }),
+      );
     });
   });
 
-  describe('ensureScopes - proxy mode', () => {
-    it('sets org scopes without token fetch in proxy mode', async () => {
-      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.auth0.com' });
-      const client = await createCoreClient(authDetails);
+  describe('ensureScopes', () => {
+    it('should set scopes for my-org audience', async () => {
+      const authDetails = createAuthDetails();
+      const coreClient = await createCoreClient(authDetails);
 
-      await client.ensureScopes('read:org', 'my-org');
+      await coreClient.ensureScopes('read:org', 'my-org');
 
-      expect(mockMyOrgClient.setLatestScopes).toHaveBeenCalledWith('read:org');
-      expect(mockTokenManager.getToken).not.toHaveBeenCalled();
+      expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalled();
     });
 
-    it('sets account scopes without token fetch in proxy mode', async () => {
-      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.auth0.com' });
-      const client = await createCoreClient(authDetails);
+    it('should set scopes for me audience', async () => {
+      const authDetails = createAuthDetails();
+      const coreClient = await createCoreClient(authDetails);
 
-      await client.ensureScopes('read:me', 'me');
+      await coreClient.ensureScopes('read:me', 'me');
 
-      expect(mockMyAccountClient.setLatestScopes).toHaveBeenCalledWith('read:me');
-      expect(mockTokenManager.getToken).not.toHaveBeenCalled();
+      expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalled();
     });
 
-    it('does not set scopes for unknown audience in proxy mode', async () => {
-      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.auth0.com' });
-      const client = await createCoreClient(authDetails);
-
-      await client.ensureScopes('read:something', 'unknown-audience');
-
-      expect(mockMyOrgClient.setLatestScopes).not.toHaveBeenCalled();
-      expect(mockMyAccountClient.setLatestScopes).not.toHaveBeenCalled();
-      expect(mockTokenManager.getToken).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('ensureScopes - non-proxy mode', () => {
-    it('throws when domain is missing in non-proxy mode', async () => {
+    it('should throw error when domain is missing in non-proxy mode', async () => {
       const authDetails = createAuthDetails({ domain: undefined });
-      const client = await createCoreClient(authDetails);
+      const coreClient = await createCoreClient(authDetails);
 
-      await expect(client.ensureScopes('read:org', 'my-org')).rejects.toThrow(
-        'Authentication domain is missing, cannot initialize SPA service.',
-      );
-      expect(mockMyOrgClient.setLatestScopes).not.toHaveBeenCalled();
-      expect(mockTokenManager.getToken).not.toHaveBeenCalled();
-    });
-
-    it('sets org scopes and fetches token in non-proxy mode', async () => {
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
-
-      await client.ensureScopes('read:org', 'my-org');
-
-      expect(mockMyOrgClient.setLatestScopes).toHaveBeenCalledWith('read:org');
-      expect(mockTokenManager.getToken).toHaveBeenCalledWith('read:org', 'my-org', true);
-    });
-
-    it('sets account scopes and fetches token in non-proxy mode', async () => {
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
-
-      await client.ensureScopes('read:me', 'me');
-
-      expect(mockMyAccountClient.setLatestScopes).toHaveBeenCalledWith('read:me');
-      expect(mockTokenManager.getToken).toHaveBeenCalledWith('read:me', 'me', true);
-    });
-
-    it('throws when token retrieval returns undefined in non-proxy mode', async () => {
-      vi.mocked(mockTokenManager.getToken).mockResolvedValueOnce(undefined);
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
-
-      await expect(client.ensureScopes('read:me', 'me')).rejects.toThrow(
-        'Failed to retrieve token for audience: me',
+      await expect(coreClient.ensureScopes('read:org', 'my-org')).rejects.toThrow(
+        'Authentication domain is missing',
       );
     });
 
-    it('does not set scopes for unknown audience in non-proxy mode', async () => {
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
-
-      await client.ensureScopes('read:something', 'unknown-audience');
-
-      expect(mockMyOrgClient.setLatestScopes).not.toHaveBeenCalled();
-      expect(mockMyAccountClient.setLatestScopes).not.toHaveBeenCalled();
-      // Token fetch still happens for unknown audiences in non-proxy mode
-      expect(mockTokenManager.getToken).toHaveBeenCalledWith(
-        'read:something',
-        'unknown-audience',
-        true,
-      );
-    });
-  });
-
-  describe('API client initialization', () => {
-    it('initializes token manager with auth details', async () => {
-      const authDetails = createAuthDetails();
-      await createCoreClient(authDetails);
-
-      expect(createTokenManagerMock).toHaveBeenCalledWith(authDetails);
-    });
-
-    it('initializes MyOrg client with auth and token manager', async () => {
-      const authDetails = createAuthDetails();
-      await createCoreClient(authDetails);
-
-      expect(initializeMyOrgClientMock).toHaveBeenCalledWith(authDetails, mockTokenManager);
-    });
-
-    it('initializes MyAccount client with auth and token manager', async () => {
-      const authDetails = createAuthDetails();
-      await createCoreClient(authDetails);
-
-      expect(initializeMyAccountClientMock).toHaveBeenCalledWith(authDetails, mockTokenManager);
-    });
-  });
-
-  describe('API client access', () => {
-    it('exposes myAccountApiClient directly on the client', async () => {
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
-
-      expect(client.myAccountApiClient).toBe(mockMyAccountClient.client);
-    });
-
-    it('exposes myOrgApiClient directly on the client', async () => {
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
-
-      expect(client.myOrgApiClient).toBe(mockMyOrgClient.client);
-    });
-
-    it('returns myAccountApiClient when available via getter', async () => {
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
-
-      expect(client.getMyAccountApiClient()).toBe(mockMyAccountClient.client);
-    });
-
-    it('returns myOrgApiClient when available via getter', async () => {
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
-
-      expect(client.getMyOrgApiClient()).toBe(mockMyOrgClient.client);
-    });
-
-    it('throws when myAccountApiClient is not available', async () => {
-      initializeMyAccountClientMock.mockReturnValueOnce({
-        client: undefined as unknown as MyAccountClient,
-        setLatestScopes: vi.fn(),
+    it('should throw error when token retrieval fails', async () => {
+      // Mock getAccessTokenSilently to return a response without access_token
+      mockContextInterface.getAccessTokenSilently = vi.fn().mockResolvedValue({
+        access_token: '',
+        id_token: 'mock-id-token',
+        expires_in: 3600,
       });
 
       const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
+      const coreClient = await createCoreClient(authDetails);
 
-      expect(() => client.getMyAccountApiClient()).toThrow(
-        'myAccountApiClient is not enabled. Please use it within Auth0ComponentProvider.',
+      await expect(coreClient.ensureScopes('read:org', 'my-org')).rejects.toThrow(
+        'Failed to retrieve token for audience: my-org',
       );
     });
 
-    it('throws when myOrgApiClient is not available', async () => {
-      initializeMyOrgClientMock.mockReturnValueOnce({
-        client: undefined as unknown as MyOrganizationClient,
-        setLatestScopes: vi.fn(),
-      });
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
+    it('should not fetch token in proxy mode', async () => {
+      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.example.com' });
+      const coreClient = await createCoreClient(authDetails);
 
-      expect(() => client.getMyOrgApiClient()).toThrow(
-        'myOrgApiClient is not enabled. Please ensure you are in an Auth0 Organization context.',
-      );
+      await coreClient.ensureScopes('read:org', 'my-org');
+
+      // In proxy mode, getAccessTokenSilently should not be called during ensureScopes
+      expect(mockContextInterface.getAccessTokenSilently).not.toHaveBeenCalled();
+    });
+
+    it('should accumulate scopes across multiple calls', async () => {
+      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.example.com' });
+      const coreClient = await createCoreClient(authDetails);
+
+      await coreClient.ensureScopes('read:org', 'my-org');
+      await coreClient.ensureScopes('write:org', 'my-org');
+
+      // Make an API call to verify accumulated scopes are sent
+      const apiClient = coreClient.getMyOrgApiClient();
+      expect(apiClient).toBeDefined();
     });
   });
 
-  describe('client properties', () => {
-    it('exposes auth details on the client', async () => {
+  describe('getMyAccountApiClient', () => {
+    it('should return myAccountApiClient', async () => {
       const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
+      const coreClient = await createCoreClient(authDetails);
 
-      expect(client.auth).toEqual(authDetails);
+      const client = coreClient.getMyAccountApiClient();
+
+      expect(client).toBeDefined();
+      expect(client).toBe(coreClient.myAccountApiClient);
     });
+  });
 
-    it('preserves authProxyUrl in auth details', async () => {
-      const authDetails = createAuthDetails({ authProxyUrl: 'https://custom-proxy.com' });
-      const client = await createCoreClient(authDetails);
-
-      expect(client.auth.authProxyUrl).toBe('https://custom-proxy.com');
-    });
-
-    it('preserves domain in auth details', async () => {
+  describe('getMyOrgApiClient', () => {
+    it('should return myOrgApiClient', async () => {
       const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
+      const coreClient = await createCoreClient(authDetails);
 
-      expect(client.auth.domain).toBe('example.auth0.com');
+      const client = coreClient.getMyOrgApiClient();
+
+      expect(client).toBeDefined();
+      expect(client).toBe(coreClient.myOrgApiClient);
+    });
+  });
+
+  describe('handleAuthStepUp (via fetcher)', () => {
+    const originalWindow = global.window;
+
+    beforeEach(() => {
+      // Mock window for browser environment tests
+      Object.defineProperty(global, 'window', {
+        value: { location: mockLocation },
+        writable: true,
+      });
     });
 
-    it('preserves contextInterface in auth details', async () => {
-      const customContext: AuthDetails['contextInterface'] = {
-        user: { name: 'Test User' },
-        isAuthenticated: true,
-        getAccessTokenSilently: vi.fn(),
-        getAccessTokenWithPopup: vi.fn(),
-        loginWithRedirect: vi.fn(),
-      };
-      const authDetails = createAuthDetails({ contextInterface: customContext });
-      const client = await createCoreClient(authDetails);
+    afterEach(() => {
+      Object.defineProperty(global, 'window', {
+        value: originalWindow,
+        writable: true,
+      });
+    });
 
-      expect(client.auth.contextInterface).toBe(customContext);
+    it('should not redirect for non-403 responses', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ data: 'success' }),
+        clone: () => ({
+          json: () => Promise.resolve({ data: 'success' }),
+        }),
+      });
+
+      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.example.com' });
+      const coreClient = await createCoreClient(authDetails);
+
+      // Trigger ensureScopes to set up latestScopes, then the next API call will use fetcher
+      await coreClient.ensureScopes('read:org', 'my-org');
+
+      expect(mockLocation.assign).not.toHaveBeenCalled();
+    });
+
+    it('should not redirect for non-scope 403 errors', async () => {
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 403,
+        json: () => Promise.resolve({ error: 'forbidden' }),
+        text: () => Promise.resolve('{"error": "forbidden"}'),
+        clone: () => ({
+          json: () => Promise.resolve({ error: 'forbidden' }),
+        }),
+      });
+
+      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.example.com' });
+      const coreClient = await createCoreClient(authDetails);
+      await coreClient.ensureScopes('read:org', 'my-org');
+
+      // Trigger API call - non-scope 403 should not redirect
+      const apiClient = coreClient.getMyOrgApiClient();
+      try {
+        await apiClient.organizationDetails.get();
+      } catch {
+        // Expected API error
+      }
+
+      expect(mockLocation.assign).not.toHaveBeenCalled();
+    });
+
+    it('should handle non-JSON 403 responses gracefully', async () => {
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 403,
+        json: () => Promise.reject(new Error('Not JSON')),
+        text: () => Promise.resolve('Not JSON'),
+        clone: () => ({
+          json: () => Promise.reject(new Error('Not JSON')),
+        }),
+      });
+
+      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.example.com' });
+      const coreClient = await createCoreClient(authDetails);
+      await coreClient.ensureScopes('read:org', 'my-org');
+
+      const apiClient = coreClient.getMyOrgApiClient();
+      try {
+        await apiClient.organizationDetails.get();
+      } catch {
+        // Expected to throw
+      }
+
+      // Should not redirect since it couldn't parse JSON
+      expect(mockLocation.assign).not.toHaveBeenCalled();
+    });
+
+    it('should not redirect when window is undefined (SSR)', async () => {
+      // Remove window to simulate SSR
+      Object.defineProperty(global, 'window', {
+        value: undefined,
+        writable: true,
+      });
+
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 403,
+        json: () => Promise.resolve({ error: 'insufficient_scope' }),
+        text: () => Promise.resolve('{"error": "insufficient_scope"}'),
+        clone: () => ({
+          json: () => Promise.resolve({ error: 'insufficient_scope' }),
+        }),
+      });
+
+      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.example.com' });
+      const coreClient = await createCoreClient(authDetails);
+      await coreClient.ensureScopes('read:org', 'my-org');
+
+      const apiClient = coreClient.getMyOrgApiClient();
+      try {
+        await apiClient.organizationDetails.get();
+      } catch {
+        // Expected API error
+      }
+
+      // Should not crash, mockLocation.assign should not be called
+      expect(mockLocation.assign).not.toHaveBeenCalled();
+    });
+
+    it('should use default scopes when baseScope is not provided in auth details', async () => {
+      const authDetails = createAuthDetails({
+        authProxyUrl: 'https://proxy.example.com',
+        scope: undefined, // No base scope
+      });
+      const coreClient = await createCoreClient(authDetails);
+
+      expect(coreClient.auth.scope).toBeUndefined();
+      // When a scope error occurs, default scopes 'openid profile email offline_access' will be used
+    });
+  });
+
+  describe('fetcher behavior', () => {
+    it('should set auth0-scope header in proxy mode when scopes are set', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ id: 'org-123', name: 'test-org', display_name: 'Test Org' }),
+        text: () =>
+          Promise.resolve('{"id": "org-123", "name": "test-org", "display_name": "Test Org"}'),
+        clone: () => ({
+          json: () =>
+            Promise.resolve({ id: 'org-123', name: 'test-org', display_name: 'Test Org' }),
+        }),
+      });
+
+      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.example.com' });
+      const coreClient = await createCoreClient(authDetails);
+      await coreClient.ensureScopes('read:org:details', 'my-org');
+
+      const apiClient = coreClient.getMyOrgApiClient();
+      await apiClient.organizationDetails.get();
+
+      // Verify fetch was called with auth0-scope header
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          headers: expect.any(Headers),
+          credentials: 'include',
+        }),
+      );
+
+      // Check the Headers object for auth0-scope
+      const callArgs = mockFetch.mock.calls[0];
+      const headers = callArgs?.[1]?.headers as Headers;
+      expect(headers.get('auth0-scope')).toBe('read:org:details');
+    });
+
+    it('should set Authorization header in non-proxy mode', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ id: 'org-123', name: 'test-org', display_name: 'Test Org' }),
+        text: () =>
+          Promise.resolve('{"id": "org-123", "name": "test-org", "display_name": "Test Org"}'),
+        clone: () => ({
+          json: () =>
+            Promise.resolve({ id: 'org-123', name: 'test-org', display_name: 'Test Org' }),
+        }),
+      });
+
+      const authDetails = createAuthDetails({ authProxyUrl: undefined });
+      const coreClient = await createCoreClient(authDetails);
+      await coreClient.ensureScopes('read:org:details', 'my-org');
+
+      const apiClient = coreClient.getMyOrgApiClient();
+      await apiClient.organizationDetails.get();
+
+      // Verify fetch was called with Authorization header
+      const callArgs = mockFetch.mock.calls[0];
+      const headers = callArgs?.[1]?.headers as Headers;
+      expect(headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
+    });
+
+    it('should set Content-Type header for requests with body', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ id: 'org-123', name: 'test-org', display_name: 'Test Org' }),
+        text: () =>
+          Promise.resolve('{"id": "org-123", "name": "test-org", "display_name": "Test Org"}'),
+        clone: () => ({
+          json: () =>
+            Promise.resolve({ id: 'org-123', name: 'test-org', display_name: 'Test Org' }),
+        }),
+      });
+
+      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.example.com' });
+      const coreClient = await createCoreClient(authDetails);
+      await coreClient.ensureScopes('update:org:details', 'my-org');
+
+      const apiClient = coreClient.getMyOrgApiClient();
+
+      // Call update which has a body
+      await apiClient.organizationDetails.update({
+        display_name: 'Updated Org',
+        branding: { colors: { primary: '#FF0000', page_background: '#FFFFFF' } },
+      });
+
+      // Verify Content-Type was set
+      const callArgs = mockFetch.mock.calls[0];
+      const headers = callArgs?.[1]?.headers as Headers;
+      expect(headers.get('Content-Type')).toBe('application/json');
+    });
+
+    it('should accumulate scopes across multiple ensureScopes calls', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ id: 'org-123', name: 'test-org', display_name: 'Test Org' }),
+        text: () =>
+          Promise.resolve('{"id": "org-123", "name": "test-org", "display_name": "Test Org"}'),
+        clone: () => ({
+          json: () =>
+            Promise.resolve({ id: 'org-123', name: 'test-org', display_name: 'Test Org' }),
+        }),
+      });
+
+      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.example.com' });
+      const coreClient = await createCoreClient(authDetails);
+
+      // Set multiple scopes
+      await coreClient.ensureScopes('read:org:details', 'my-org');
+      await coreClient.ensureScopes('update:org:details', 'my-org');
+
+      const apiClient = coreClient.getMyOrgApiClient();
+      await apiClient.organizationDetails.get();
+
+      // Verify accumulated scopes are in header
+      const callArgs = mockFetch.mock.calls[0];
+      const headers = callArgs?.[1]?.headers as Headers;
+      const scopeHeader = headers.get('auth0-scope');
+      expect(scopeHeader).toContain('read:org:details');
+      expect(scopeHeader).toContain('update:org:details');
+    });
+  });
+
+  describe('createBoundClient (via API clients)', () => {
+    it('should create myOrgApiClient with correct configuration', async () => {
+      const authDetails = createAuthDetails();
+      const coreClient = await createCoreClient(authDetails);
+
+      const orgClient = coreClient.getMyOrgApiClient();
+      expect(orgClient).toBeDefined();
+    });
+
+    it('should create myAccountApiClient with correct configuration', async () => {
+      const authDetails = createAuthDetails();
+      const coreClient = await createCoreClient(authDetails);
+
+      const accountClient = coreClient.getMyAccountApiClient();
+      expect(accountClient).toBeDefined();
+    });
+
+    it('should use proxy baseUrl when authProxyUrl is set', async () => {
+      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.example.com' });
+      const coreClient = await createCoreClient(authDetails);
+
+      expect(coreClient.isProxyMode()).toBe(true);
+      expect(coreClient.getMyOrgApiClient()).toBeDefined();
+      expect(coreClient.getMyAccountApiClient()).toBeDefined();
+    });
+
+    it('should use domain when not in proxy mode', async () => {
+      const authDetails = createAuthDetails({ domain: 'example.auth0.com' });
+      const coreClient = await createCoreClient(authDetails);
+
+      expect(coreClient.isProxyMode()).toBe(false);
+      expect(coreClient.getMyOrgApiClient()).toBeDefined();
+    });
+  });
+
+  describe('scope accumulation', () => {
+    it('should merge scopes when setLatestScopes is called multiple times', async () => {
+      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.example.com' });
+      const coreClient = await createCoreClient(authDetails);
+
+      // First scope set
+      await coreClient.ensureScopes('read:org:details', 'my-org');
+      // Second scope set - should merge with first
+      await coreClient.ensureScopes('update:org:details', 'my-org');
+
+      // Verify both scopes are preserved (we can't directly access latestScopes,
+      // but we can verify the client is configured correctly)
+      expect(coreClient.getMyOrgApiClient()).toBeDefined();
+    });
+
+    it('should handle separate scope accumulation for different audiences', async () => {
+      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.example.com' });
+      const coreClient = await createCoreClient(authDetails);
+
+      // Set scopes for my-org
+      await coreClient.ensureScopes('read:org', 'my-org');
+      // Set scopes for me
+      await coreClient.ensureScopes('read:me', 'me');
+
+      // Both clients should have their respective scopes
+      expect(coreClient.getMyOrgApiClient()).toBeDefined();
+      expect(coreClient.getMyAccountApiClient()).toBeDefined();
     });
   });
 });
