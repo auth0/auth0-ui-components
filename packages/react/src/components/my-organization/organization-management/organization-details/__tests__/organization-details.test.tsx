@@ -13,7 +13,7 @@ import type {
   OrganizationDetailsFormActions,
   OrganizationDetailsProps,
 } from '../../../../../types/my-org/org-management';
-import { OrganizationDetails } from '../org-details';
+import { OrganizationDetails } from '../organization-details';
 
 // ===== Mock packages =====
 
@@ -21,7 +21,7 @@ const { initMockCoreClient } = mockCore();
 
 // ===== Local mock creators =====
 
-const createMockOrgDetailsProps = (
+const createMockOrganizationDetailsProps = (
   overrides?: Partial<OrganizationDetailsProps>,
 ): OrganizationDetailsProps => {
   const mockOrganization = createMockOrganization();
@@ -68,7 +68,7 @@ const createMockFormActions = (
 
 // ===== Tests =====
 
-describe('OrgDetails', () => {
+describe('OrganizationDetails', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     initMockCoreClient();
@@ -77,7 +77,7 @@ describe('OrgDetails', () => {
   describe('when loading', () => {
     it('should display spinner when isLoading is true', () => {
       renderWithProviders(
-        <OrganizationDetails {...createMockOrgDetailsProps({ isLoading: true })} />,
+        <OrganizationDetails {...createMockOrganizationDetailsProps({ isLoading: true })} />,
       );
 
       expect(screen.getByText('Loading...')).toBeInTheDocument();
@@ -86,7 +86,7 @@ describe('OrgDetails', () => {
 
     it('should display form when isLoading is false', () => {
       renderWithProviders(
-        <OrganizationDetails {...createMockOrgDetailsProps({ isLoading: false })} />,
+        <OrganizationDetails {...createMockOrganizationDetailsProps({ isLoading: false })} />,
       );
 
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
@@ -107,7 +107,7 @@ describe('OrgDetails', () => {
         };
 
         renderWithProviders(
-          <OrganizationDetails {...createMockOrgDetailsProps({ schema: customSchema })} />,
+          <OrganizationDetails {...createMockOrganizationDetailsProps({ schema: customSchema })} />,
         );
 
         const displayNameInput = screen.getByLabelText(/display_name\.label/i);
@@ -130,7 +130,7 @@ describe('OrgDetails', () => {
         };
 
         renderWithProviders(
-          <OrganizationDetails {...createMockOrgDetailsProps({ customMessages })} />,
+          <OrganizationDetails {...createMockOrganizationDetailsProps({ customMessages })} />,
         );
 
         expect(screen.getByRole('button', { name: 'Custom Save' })).toBeInTheDocument();
@@ -149,7 +149,9 @@ describe('OrgDetails', () => {
         };
 
         renderWithProviders(
-          <OrganizationDetails {...createMockOrgDetailsProps({ styling: customStyling })} />,
+          <OrganizationDetails
+            {...createMockOrganizationDetailsProps({ styling: customStyling })}
+          />,
         );
 
         const cardElement = screen.getByTestId('org-details-card');
@@ -166,7 +168,7 @@ describe('OrgDetails', () => {
 
           renderWithProviders(
             <OrganizationDetails
-              {...createMockOrgDetailsProps({ formActions: mockFormActions })}
+              {...createMockOrganizationDetailsProps({ formActions: mockFormActions })}
             />,
           );
 
@@ -194,7 +196,7 @@ describe('OrgDetails', () => {
 
             renderWithProviders(
               <OrganizationDetails
-                {...createMockOrgDetailsProps({ formActions: mockFormActions })}
+                {...createMockOrganizationDetailsProps({ formActions: mockFormActions })}
               />,
             );
 
@@ -217,7 +219,7 @@ describe('OrgDetails', () => {
 
             renderWithProviders(
               <OrganizationDetails
-                {...createMockOrgDetailsProps({ formActions: mockFormActions })}
+                {...createMockOrganizationDetailsProps({ formActions: mockFormActions })}
               />,
             );
 
@@ -242,7 +244,7 @@ describe('OrgDetails', () => {
 
             renderWithProviders(
               <OrganizationDetails
-                {...createMockOrgDetailsProps({ formActions: mockFormActions })}
+                {...createMockOrganizationDetailsProps({ formActions: mockFormActions })}
               />,
             );
 
@@ -271,7 +273,7 @@ describe('OrgDetails', () => {
 
             renderWithProviders(
               <OrganizationDetails
-                {...createMockOrgDetailsProps({ formActions: mockFormActions })}
+                {...createMockOrganizationDetailsProps({ formActions: mockFormActions })}
               />,
             );
 
@@ -307,7 +309,7 @@ describe('OrgDetails', () => {
 
             renderWithProviders(
               <OrganizationDetails
-                {...createMockOrgDetailsProps({ formActions: mockFormActions })}
+                {...createMockOrganizationDetailsProps({ formActions: mockFormActions })}
               />,
             );
 
@@ -338,7 +340,7 @@ describe('OrgDetails', () => {
 
             renderWithProviders(
               <OrganizationDetails
-                {...createMockOrgDetailsProps({ formActions: mockFormActions })}
+                {...createMockOrganizationDetailsProps({ formActions: mockFormActions })}
               />,
             );
 
@@ -355,7 +357,7 @@ describe('OrgDetails', () => {
 
             renderWithProviders(
               <OrganizationDetails
-                {...createMockOrgDetailsProps({ formActions: mockFormActions })}
+                {...createMockOrganizationDetailsProps({ formActions: mockFormActions })}
               />,
             );
 
@@ -374,7 +376,7 @@ describe('OrgDetails', () => {
 
             renderWithProviders(
               <OrganizationDetails
-                {...createMockOrgDetailsProps({ formActions: mockFormActions })}
+                {...createMockOrganizationDetailsProps({ formActions: mockFormActions })}
               />,
             );
 
@@ -391,7 +393,7 @@ describe('OrgDetails', () => {
 
             renderWithProviders(
               <OrganizationDetails
-                {...createMockOrgDetailsProps({ formActions: mockFormActions })}
+                {...createMockOrganizationDetailsProps({ formActions: mockFormActions })}
               />,
             );
 
@@ -416,7 +418,7 @@ describe('OrgDetails', () => {
 
             renderWithProviders(
               <OrganizationDetails
-                {...createMockOrgDetailsProps({ formActions: mockFormActions })}
+                {...createMockOrganizationDetailsProps({ formActions: mockFormActions })}
               />,
             );
 
@@ -443,7 +445,9 @@ describe('OrgDetails', () => {
       it('should display all organization fields', () => {
         const mockOrg = createMockOrganization();
         const { container } = renderWithProviders(
-          <OrganizationDetails {...createMockOrgDetailsProps({ organization: mockOrg })} />,
+          <OrganizationDetails
+            {...createMockOrganizationDetailsProps({ organization: mockOrg })}
+          />,
         );
 
         expect(screen.getByLabelText(/display_name\.label/i)).toHaveValue(
@@ -476,13 +480,17 @@ describe('OrgDetails', () => {
         const mockCoreClient = createMockCoreClient();
 
         const { rerender, container } = renderWithProviders(
-          <OrganizationDetails {...createMockOrgDetailsProps({ organization: mockOrg1 })} />,
+          <OrganizationDetails
+            {...createMockOrganizationDetailsProps({ organization: mockOrg1 })}
+          />,
           { coreClient: mockCoreClient },
         );
 
         rerender(
           <TestProvider coreClient={mockCoreClient}>
-            <OrganizationDetails {...createMockOrgDetailsProps({ organization: mockOrg2 })} />
+            <OrganizationDetails
+              {...createMockOrganizationDetailsProps({ organization: mockOrg2 })}
+            />
           </TestProvider>,
         );
 
@@ -504,7 +512,7 @@ describe('OrgDetails', () => {
       it('should show unsaved changes message', async () => {
         const user = userEvent.setup();
 
-        renderWithProviders(<OrganizationDetails {...createMockOrgDetailsProps()} />);
+        renderWithProviders(<OrganizationDetails {...createMockOrganizationDetailsProps()} />);
 
         expect(screen.queryByText(/unsaved_changes_text/i)).not.toBeInTheDocument();
 
@@ -518,7 +526,7 @@ describe('OrgDetails', () => {
       it('should enable save button when there are unsaved changes', async () => {
         const user = userEvent.setup();
 
-        renderWithProviders(<OrganizationDetails {...createMockOrgDetailsProps()} />);
+        renderWithProviders(<OrganizationDetails {...createMockOrganizationDetailsProps()} />);
 
         const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
 
@@ -536,13 +544,13 @@ describe('OrgDetails', () => {
 
     describe('when user has not made changes', () => {
       it('should not show unsaved changes message', () => {
-        renderWithProviders(<OrganizationDetails {...createMockOrgDetailsProps()} />);
+        renderWithProviders(<OrganizationDetails {...createMockOrganizationDetailsProps()} />);
 
         expect(screen.queryByText(/unsaved_changes_text/i)).not.toBeInTheDocument();
       });
 
       it('should disable save button', () => {
-        renderWithProviders(<OrganizationDetails {...createMockOrgDetailsProps()} />);
+        renderWithProviders(<OrganizationDetails {...createMockOrganizationDetailsProps()} />);
 
         const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
         expect(saveButton).toBeDisabled();

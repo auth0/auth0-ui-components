@@ -4,7 +4,7 @@ import {
 } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { OrganizationDetails } from '../../../components/my-org/org-management/org-details/org-details';
+import { OrganizationDetails } from '../../../components/my-organization/organization-management/organization-details/organization-details';
 import { Header } from '../../../components/ui/header';
 import { Spinner } from '../../../components/ui/spinner';
 import { withMyOrganizationService } from '../../../hoc/with-services';
