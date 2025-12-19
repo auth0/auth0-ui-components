@@ -8,7 +8,7 @@ import { Plus } from 'lucide-react';
 import * as React from 'react';
 
 import { SsoProviderDeleteModal } from '../../../components/my-organization/idp-management/sso-provider-delete/provider-delete-modal';
-import { SsoProviderRemoveFromOrgModal } from '../../../components/my-organization/idp-management/sso-provider-remove/provider-remove-modal';
+import { SsoProviderRemoveFromOrganizationModal } from '../../../components/my-organization/idp-management/sso-provider-remove/provider-remove-modal';
 import { SsoProviderTableActionsColumn } from '../../../components/my-organization/idp-management/sso-provider-table/sso-provider-table-action';
 import { DataTable, type Column } from '../../../components/ui/data-table';
 import { Header } from '../../../components/ui/header';
@@ -100,7 +100,7 @@ function SsoProviderTableComponent({
     [deleteAction],
   );
 
-  const handleDeleteFromOrg = React.useCallback(
+  const handleDeleteFromOrganization = React.useCallback(
     (idp: IdentityProvider) => {
       setSelectedIdp(idp);
 
@@ -182,7 +182,7 @@ function SsoProviderTableComponent({
             onToggleEnabled={handleToggleEnabled}
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onRemoveFromOrg={handleDeleteFromOrg}
+            onRemoveFromOrganization={handleDeleteFromOrganization}
           />
         ),
       },
@@ -194,7 +194,7 @@ function SsoProviderTableComponent({
       isUpdating,
       handleEdit,
       handleDelete,
-      handleDeleteFromOrg,
+      handleDeleteFromOrganization,
       handleToggleEnabled,
     ],
   );
@@ -239,8 +239,10 @@ function SsoProviderTableComponent({
       )}
 
       {selectedIdp && (
-        <SsoProviderRemoveFromOrgModal
-          className={currentStyles.classes?.['SsoProviderTable-deleteProviderFromOrgModal']}
+        <SsoProviderRemoveFromOrganizationModal
+          className={
+            currentStyles.classes?.['SsoProviderTable-deleteProviderFromOrganizationModal']
+          }
           isOpen={showRemoveModal}
           onClose={() => setShowRemoveModal(false)}
           provider={selectedIdp}

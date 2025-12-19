@@ -81,7 +81,7 @@ export default function SsoProviderTableDocs() {
               <p className="text-blue-800">
                 <strong>Setup guide:</strong>{' '}
                 <a
-                  href="/my-org"
+                  href="/my-organization"
                   className="text-blue-700 hover:text-blue-900 underline font-medium"
                 >
                   My Organization Components Introduction →
@@ -143,7 +143,7 @@ export default function SsoProviderTableDocs() {
                 title="1. Install Core Package"
               />
               <CodeBlock
-                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-org/sso-provider-table.json"
+                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-organization/sso-provider-table.json"
                 language="bash"
                 title="2. Add Shadcn Block"
               />
@@ -169,7 +169,7 @@ import { SsoProviderTable } from '@auth0/universal-components-react/spa';
 // import { SsoProviderTable } from '@auth0/universal-components-react/rwa';
 
 // For shadcn users:
-// import { SsoProviderTable } from '@/auth0-ui-components/blocks/my-org/idp-management/sso-provider-table';
+// import { SsoProviderTable } from '@/auth0-ui-components/blocks/my-organization/idp-management/sso-provider-table';
 import { useNavigate } from 'react-router-dom';
 
 export function ProvidersPage() {
@@ -340,7 +340,7 @@ export function ProvidersPage() {
               </tr>
               <tr>
                 <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  deleteFromOrgAction
+                  deleteFromOrganizationAction
                 </td>
                 <td
                   className="px-4 py-2 text-sm text-gray-500"
@@ -422,7 +422,7 @@ interface SsoProviderTableProps {
   createAction: ComponentAction<void>;
   editAction: ComponentAction<IdentityProvider>;
   deleteAction?: ComponentAction<IdentityProvider>;
-  deleteFromOrgAction?: ComponentAction<IdentityProvider>;
+  deleteFromOrganizationAction?: ComponentAction<IdentityProvider>;
   enableProviderAction?: ComponentAction<IdentityProvider>;
 }
 
@@ -506,7 +506,7 @@ interface ComponentAction<T, U = undefined> {
                   </ul>
                 </div>
                 <div>
-                  <strong>deleteFromOrgAction</strong> - Remove from org lifecycle
+                  <strong>deleteFromOrganizationAction</strong> - Remove from organization lifecycle
                   <ul className="ml-4 list-disc">
                     <li>
                       <code>disabled?: boolean</code> - Disable remove button
@@ -559,9 +559,9 @@ interface ComponentAction<T, U = undefined> {
   deleteAction={{
     onBefore: (provider) => confirm(\`Delete "\${provider.name}"?\`)
   }}
-  deleteFromOrgAction={{
+  deleteFromOrganizationAction={{
     onAfter: (provider) => {
-      analytics.track('Provider Removed From Org', {
+      analytics.track('Provider Removed From Organization', {
         providerId: provider.id,
       });
     }
@@ -628,7 +628,7 @@ interface ComponentAction<T, U = undefined> {
                   </ul>
                 </div>
                 <div>
-                  <strong>remove_modal</strong> - Remove from org modal
+                  <strong>remove_modal</strong> - Remove from organization modal
                   <ul className="ml-4 list-disc">
                     <li>title</li>
                     <li>description</li>
@@ -733,8 +733,8 @@ interface ComponentAction<T, U = undefined> {
                       <code>SsoProviderTable-deleteProviderModal?: string</code> - Delete modal
                     </li>
                     <li>
-                      <code>SsoProviderTable-deleteProviderFromOrgModal?: string</code> - Remove
-                      modal
+                      <code>SsoProviderTable-deleteProviderFromOrganizationModal?: string</code> -
+                      Remove modal
                     </li>
                   </ul>
                 </div>
@@ -797,8 +797,8 @@ interface ComponentAction<T, U = undefined> {
                   </ul>
                 </div>
                 <div>
-                  <strong>schema.remove.providerName</strong> - Remove from Org confirmation
-                  validation
+                  <strong>schema.remove.providerName</strong> - Remove from Organization
+                  confirmation validation
                   <ul className="ml-4 list-disc text-xs mt-1">
                     <li>
                       <code>required?: boolean</code> - Whether provider name confirmation is
@@ -895,12 +895,12 @@ function ProvidersListPage() {
             });
           }
         }}
-        deleteFromOrgAction={{
+        deleteFromOrganizationAction={{
           onBefore: (provider) => {
             return confirm(\`Remove "\${provider.name}" from organization?\`);
           },
           onAfter: (provider) => {
-            analytics.track('Provider Removed From Org', {
+            analytics.track('Provider Removed From Organization', {
               providerId: provider.id
             });
           }
@@ -983,8 +983,8 @@ export default function App() {
               <br />
               <code>SsoProviderDeleteModal</code> – Confirmation modal for provider deletion
               <br />
-              <code>SsoProviderRemoveFromOrgModal</code> – Confirmation modal for removing provider
-              from organization
+              <code>SsoProviderRemoveFromOrganizationModal</code> – Confirmation modal for removing
+              provider from organization
               <br />
               <code>DataTable</code> – Generic data table component with sorting and filtering
             </div>
@@ -993,7 +993,7 @@ export default function App() {
             <h3 className="text-lg font-medium mb-4">Available Hooks</h3>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-sm text-blue-800 space-y-2">
               <code>useSsoProviderTable</code> – Data fetching, table state management, and CRUD
-              operations (fetch providers, delete, remove from org, enable/disable)
+              operations (fetch providers, delete, remove from organization, enable/disable)
             </div>
           </div>
         </div>

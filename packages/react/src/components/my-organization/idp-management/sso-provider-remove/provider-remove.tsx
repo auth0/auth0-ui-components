@@ -4,18 +4,18 @@ import { Button } from '../../../../components/ui/button';
 import { Card, CardContent } from '../../../../components/ui/card';
 import { useTranslator } from '../../../../hooks/use-translator';
 import { cn } from '../../../../lib/theme-utils';
-import type { SsoProviderRemoveFromOrgProps } from '../../../../types/my-organization/idp-management/sso-provider/sso-provider-delete-types';
+import type { SsoProviderRemoveFromOrganizationProps } from '../../../../types/my-organization/idp-management/sso-provider/sso-provider-delete-types';
 
-import { SsoProviderRemoveFromOrgModal } from './provider-remove-modal';
+import { SsoProviderRemoveFromOrganizationModal } from './provider-remove-modal';
 
-export function SsoProviderRemoveFromOrg({
+export function SsoProviderRemoveFromOrganization({
   provider,
   organizationName,
   onRemove,
   customMessages = {},
   isLoading,
   readOnly,
-}: SsoProviderRemoveFromOrgProps) {
+}: SsoProviderRemoveFromOrganizationProps) {
   const { t } = useTranslator('idp_management.remove_sso_provider', customMessages);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
@@ -62,7 +62,7 @@ export function SsoProviderRemoveFromOrg({
         </Card>
       </div>
 
-      <SsoProviderRemoveFromOrgModal
+      <SsoProviderRemoveFromOrganizationModal
         isOpen={isModalOpen}
         onClose={closeModal}
         provider={provider}

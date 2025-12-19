@@ -28,7 +28,7 @@ export function SsoProviderTableActionsColumn({
   onToggleEnabled,
   onEdit,
   onDelete,
-  onRemoveFromOrg,
+  onRemoveFromOrganization,
 }: SsoProviderTableActionsColumnProps) {
   const { t } = useTranslator('idp_management.sso_provider_table', customMessages);
 
@@ -47,9 +47,9 @@ export function SsoProviderTableActionsColumn({
     onDelete(provider);
   }, [provider, onDelete]);
 
-  const handleRemoveFromOrg = React.useCallback(() => {
-    onRemoveFromOrg(provider);
-  }, [provider, onRemoveFromOrg]);
+  const handleRemoveFromOrganization = React.useCallback(() => {
+    onRemoveFromOrganization(provider);
+  }, [provider, onRemoveFromOrganization]);
 
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
@@ -84,7 +84,7 @@ export function SsoProviderTableActionsColumn({
               </DropdownMenuItem>
             )}
             <DropdownMenuItem
-              onClick={handleRemoveFromOrg}
+              onClick={handleRemoveFromOrganization}
               className="text-destructive-foreground focus:text-destructive-foreground"
               disabled={readOnly}
             >

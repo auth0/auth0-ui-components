@@ -82,7 +82,7 @@ export default function SsoProviderCreateDocs() {
               <p className="text-blue-800 mb-4">
                 <strong>Complete setup guide:</strong>{' '}
                 <a
-                  href="/my-org"
+                  href="/my-organization"
                   className="text-blue-700 hover:text-blue-900 underline font-medium"
                 >
                   My Organization Components Introduction →
@@ -144,7 +144,7 @@ export default function SsoProviderCreateDocs() {
                 title="1. Install Core Package"
               />
               <CodeBlock
-                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-org/sso-provider-create.json"
+                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-organization/sso-provider-create.json"
                 language="bash"
                 title="2. Add Shadcn Block"
               />
@@ -170,7 +170,7 @@ import { SsoProviderCreate } from '@auth0/universal-components-react/spa';
 // import { SsoProviderCreate } from '@auth0/universal-components-react/rwa';
 
 // For shadcn users:
-// import { SsoProviderCreate } from '@/auth0-ui-components/blocks/my-org/idp-management/sso-provider-create';
+// import { SsoProviderCreate } from '@/auth0-ui-components/blocks/my-organization/idp-management/sso-provider-create';
 
 export function CreateProviderPage() {
   return (

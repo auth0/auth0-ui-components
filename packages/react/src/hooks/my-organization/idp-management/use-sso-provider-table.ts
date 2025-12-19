@@ -18,7 +18,7 @@ import { useTranslator } from '../../use-translator';
  */
 export function useSsoProviderTable(
   deleteAction?: ComponentAction<IdentityProvider, void>,
-  removeFromOrg?: ComponentAction<IdentityProvider, void>,
+  removeFromOrganization?: ComponentAction<IdentityProvider, void>,
   enableAction?: ComponentAction<IdentityProvider>,
   customMessages = {},
 ): UseSsoProviderTableReturn {
@@ -186,8 +186,8 @@ export function useSsoProviderTable(
           .getMyOrganizationApiClient()
           .organization.identityProviders.detach(selectedIdp.id);
 
-        if (removeFromOrg?.onAfter) {
-          await removeFromOrg.onAfter(selectedIdp);
+        if (removeFromOrganization?.onAfter) {
+          await removeFromOrganization.onAfter(selectedIdp);
         }
 
         showToast({
@@ -208,7 +208,7 @@ export function useSsoProviderTable(
         setIsRemoving(false);
       }
     },
-    [removeFromOrg, fetchProviders, fetchOrganizationDetails, t, coreClient],
+    [removeFromOrganization, fetchProviders, fetchOrganizationDetails, t, coreClient],
   );
 
   useEffect(() => {
