@@ -1,7 +1,7 @@
 import CodeBlock from '../components/CodeBlock';
 import TabbedCodeBlock from '../components/TabbedCodeBlock';
 
-export default function OrgDetailsEdit() {
+export default function OrganizationDetailsEdit() {
   return (
     <div className="max-w-6xl mx-auto space-y-12">
       {/* Header */}
@@ -33,7 +33,7 @@ export default function OrgDetailsEdit() {
               BETA
             </span>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900">OrgDetailsEdit Component</h1>
+          <h1 className="text-4xl font-bold text-gray-900">OrganizationDetailsEdit Component</h1>
           <p className="text-xl text-gray-600">
             Edit organization details including name, display name, branding colors, and logo with
             built-in validation and API integration.
@@ -47,7 +47,7 @@ export default function OrgDetailsEdit() {
         <div className="max-w-none flex justify-center">
           <img
             src="/img/my-org/org-management/org-details-edit.png"
-            alt="OrgDetailsEdit"
+            alt="OrganizationDetailsEdit"
             width={700}
             height={500}
           />
@@ -77,13 +77,13 @@ export default function OrgDetailsEdit() {
                 Auth0 Configuration Required
               </h3>
               <p className="text-blue-800 mb-4">
-                Before using the <b>OrgDetailsEdit</b> component, ensure your tenant is configured
-                with the proper APIs, applications, and permissions.
+                Before using the <b>OrganizationDetailsEdit</b> component, ensure your tenant is
+                configured with the proper APIs, applications, and permissions.
               </p>
               <p className="text-blue-800 mb-4">
                 <strong>Complete setup guide:</strong>{' '}
                 <a
-                  href="/my-org"
+                  href="/my-organization"
                   className="text-blue-700 hover:text-blue-900 underline font-medium"
                 >
                   My Organization Components Introduction →
@@ -127,8 +127,8 @@ export default function OrgDetailsEdit() {
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-3">Option 2: Shadcn CLI</h3>
             <p className="text-gray-600 mb-4">
-              If you're using Shadcn, you can add the OrgDetailsEdit block directly to your project.
-              You'll still need to install the core package separately:
+              If you're using Shadcn, you can add the OrganizationDetailsEdit block directly to your
+              project. You'll still need to install the core package separately:
             </p>
             <div className="space-y-3">
               <TabbedCodeBlock
@@ -146,7 +146,7 @@ export default function OrgDetailsEdit() {
                 title="1. Install Core Package"
               />
               <CodeBlock
-                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-org/org-details-edit.json"
+                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-organization/organization-details-edit.json"
                 language="bash"
                 title="2. Add Shadcn Block"
               />
@@ -167,18 +167,18 @@ export default function OrgDetailsEdit() {
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
         <CodeBlock
           code={`// For SPA applications:
-import { OrgDetailsEdit } from '@auth0/universal-components-react/spa';
+import { OrganizationDetailsEdit } from '@auth0/universal-components-react/spa';
 
 // For Next.js/RWA applications:
-// import { OrgDetailsEdit } from '@auth0/universal-components-react/rwa';
+// import { OrganizationDetailsEdit } from '@auth0/universal-components-react/rwa';
 
 // For shadcn users:
-// import { OrgDetailsEdit } from '@/auth0-ui-components/blocks/my-org/org-management/org-details-edit';
+// import { OrganizationDetailsEdit } from '@/auth0-ui-components/blocks/my-organization/organization-management/organization-details-edit';
 
 export function OrganizationSettingsPage() {
   return (
     <div>
-      <OrgDetailsEdit />
+      <OrganizationDetailsEdit />
     </div>
   );
 }`}
@@ -213,7 +213,7 @@ export function OrganizationSettingsPage() {
                 <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                   schema
                 </td>
-                <td className="px-4 py-2 text-sm text-gray-500">OrgDetailsEditSchemas</td>
+                <td className="px-4 py-2 text-sm text-gray-500">OrganizationDetailsEditSchemas</td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">-</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
                   Validation schema for form fields including regex patterns and error messages
@@ -224,7 +224,7 @@ export function OrganizationSettingsPage() {
                   customMessages
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  Partial&lt;OrgDetailsEditMessages&gt;
+                  Partial&lt;OrganizationDetailsEditMessages&gt;
                 </td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{}</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
@@ -342,10 +342,10 @@ export function OrganizationSettingsPage() {
             </p>
             <CodeBlock
               code={`// Main component props interface
-interface OrgDetailsEditProps {
-  schema?: OrgDetailsEditSchemas;
-  customMessages?: Partial<OrgDetailsEditMessages>;
-  styling?: ComponentStyling<OrgDetailsEditClasses>;
+interface OrganizationDetailsEditProps {
+  schema?: OrganizationDetailsEditSchemas;
+  customMessages?: Partial<OrganizationDetailsEditMessages>;
+  styling?: ComponentStyling<OrganizationDetailsEditClasses>;
   readOnly?: boolean;
   hideHeader?: boolean;
   saveAction?: ComponentAction<OrganizationPrivate>;
@@ -433,7 +433,7 @@ interface ComponentAction<T> {
             </div>
 
             <CodeBlock
-              code={`<OrgDetailsEdit
+              code={`<OrganizationDetailsEdit
   saveAction={{
     onBefore: (organization) => {
       // Add your custom validation or confirmation logic here
@@ -514,7 +514,7 @@ interface ComponentAction<T> {
             </div>
 
             <CodeBlock
-              code={`<OrgDetailsEdit
+              code={`<OrganizationDetailsEdit
   customMessages={{
     header: {
       title: 'Configure {organizationName}',
@@ -570,16 +570,16 @@ interface ComponentAction<T> {
                   <strong>classes</strong> - CSS class overrides
                   <ul className="ml-4 list-disc">
                     <li>
-                      <code>OrgDetails_Card?: string</code> - Main card container
+                      <code>OrganizationDetails_Card?: string</code> - Main card container
                     </li>
                     <li>
-                      <code>OrgDetails_FormActions?: string</code> - Button container
+                      <code>OrganizationDetails_FormActions?: string</code> - Button container
                     </li>
                     <li>
-                      <code>OrgDetails_SettingsDetails?: string</code> - Settings section
+                      <code>OrganizationDetails_SettingsDetails?: string</code> - Settings section
                     </li>
                     <li>
-                      <code>OrgDetails_BrandingDetails?: string</code> - Branding section
+                      <code>OrganizationDetails_BrandingDetails?: string</code> - Branding section
                     </li>
                   </ul>
                 </div>
@@ -587,7 +587,7 @@ interface ComponentAction<T> {
             </div>
 
             <CodeBlock
-              code={`<OrgDetailsEdit
+              code={`<OrganizationDetailsEdit
   styling={{
     variables: {
       common: {
@@ -599,8 +599,8 @@ interface ComponentAction<T> {
       }
     },
     classes: {
-      OrgDetails_Card: 'shadow-xl rounded-xl border-2',
-      OrgDetails_FormActions: 'flex gap-4 pt-8'
+      OrganizationDetails_Card: 'shadow-xl rounded-xl border-2',
+      OrganizationDetails_FormActions: 'flex gap-4 pt-8'
     }
   }}
 />`}
@@ -689,7 +689,7 @@ interface ComponentAction<T> {
             </div>
 
             <CodeBlock
-              code={`<OrgDetailsEdit
+              code={`<OrganizationDetailsEdit
   schema={{
     details: {
       name: {
@@ -717,7 +717,7 @@ interface ComponentAction<T> {
         <h2 className="text-2xl font-semibold text-gray-900">Complete Integration Example</h2>
         <CodeBlock
           code={`import React from 'react';
-import { OrgDetailsEdit } from '@auth0/universal-components-react/spa';
+import { OrganizationDetailsEdit } from '@auth0/universal-components-react/spa';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
 import { useNavigate } from 'react-router-dom';
@@ -740,7 +740,7 @@ function OrganizationEditPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <OrgDetailsEdit
+      <OrganizationDetailsEdit
         schema={{
           details: {
             name: {
@@ -758,8 +758,8 @@ function OrganizationEditPage() {
           }
         }}
         saveAction={{
-          onBefore: (org) => {
-            return confirm(\`Save changes to \${org.display_name || org.name}?\`);
+          onBefore: (organization) => {
+            return confirm(\`Save changes to \${organization.display_name || organization.name}?\`);
           },
           onAfter: handleSaveSuccess
         }}
@@ -783,7 +783,7 @@ function OrganizationEditPage() {
             }
           },
           classes: {
-            'OrgDetailsEdit-card': 'shadow-xl rounded-lg'
+            'OrganizationDetailsEdit-card': 'shadow-xl rounded-lg'
           }
         }}
       />
@@ -820,29 +820,30 @@ export default function App() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Advanced Customization</h2>
         <p className="text-gray-600">
-          The <b>OrgDetailsEdit</b> component is composed of smaller subcomponents and hooks. You
-          can import them individually to build custom organization editing workflows if you use
-          shadcn.
+          The <b>OrganizationDetailsEdit</b> component is composed of smaller subcomponents and
+          hooks. You can import them individually to build custom organization editing workflows if
+          you use shadcn.
         </p>
         <div className="space-y-8">
           <div>
             <h3 className="text-lg font-medium mb-4">Available Subcomponents</h3>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-sm text-blue-800 space-y-2">
-              <code>OrgDetails</code> – Main organization form with settings and branding
+              <code>OrganizationDetails</code> – Main organization form with settings and branding
               <br />
               <code>SettingsDetails</code> – Name and display name fields
               <br />
               <code>BrandingDetails</code> – Logo and color customization fields
               <br />
-              <code>OrgDelete</code> – Organization deletion UI (future)
+              <code>OrganizationDelete</code> – Organization deletion UI (future)
               <br />
-              <code>OrgDeleteModal</code> – Confirmation modal for deletion (future)
+              <code>OrganizationDeleteModal</code> – Confirmation modal for deletion (future)
             </div>
           </div>
           <div>
             <h3 className="text-lg font-medium mb-4">Available Hooks</h3>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-sm text-blue-800 space-y-2">
-              <code>useOrgDetailsEdit</code> – Data fetching, form management, and API updates
+              <code>useOrganizationDetailsEdit</code> – Data fetching, form management, and API
+              updates
             </div>
           </div>
         </div>

@@ -20,12 +20,12 @@ function AppContent() {
         <Route path="/getting-started" element={<GettingStarted />} />
         <Route path="/my-account" element={<MyAccountIntroduction />} />
         <Route path="/my-account/user-mfa-management" element={<UserMFAMgmtDocs />} />
-        <Route path="/my-org" element={<MyOrgIntroduction />} />
-        <Route path="/my-org/org-details-edit" element={<OrgDetailsEditDocs />} />
-        <Route path="/my-org/domain-table" element={<DomainTableDocs />} />
-        <Route path="/my-org/sso-provider-table" element={<SsoProviderTableDocs />} />
-        <Route path="/my-org/sso-provider-create" element={<SsoProviderCreateDocs />} />
-        <Route path="/my-org/sso-provider-edit" element={<SsoProviderEditDocs />} />
+        <Route path="/my-organization" element={<MyOrgIntroduction />} />
+        <Route path="/my-organization/organization-details-edit" element={<OrgDetailsEditDocs />} />
+        <Route path="/my-organization/domain-table" element={<DomainTableDocs />} />
+        <Route path="/my-organization/sso-provider-table" element={<SsoProviderTableDocs />} />
+        <Route path="/my-organization/sso-provider-create" element={<SsoProviderCreateDocs />} />
+        <Route path="/my-organization/sso-provider-edit" element={<SsoProviderEditDocs />} />
       </Routes>
     </Layout>
   );

@@ -48,7 +48,7 @@ export default function MyOrgIntroduction() {
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  OrgDetailsEdit{' '}
+                  OrganizationDetailsEdit{' '}
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-3">
                     Available
                   </span>
@@ -59,7 +59,7 @@ export default function MyOrgIntroduction() {
                 </p>
               </div>
               <a
-                href="/my-org/org-details-edit"
+                href="/my-organization/organization-details-edit"
                 className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
               >
                 View Docs →
@@ -83,7 +83,7 @@ export default function MyOrgIntroduction() {
                 </p>
               </div>
               <a
-                href="/my-org/sso-provider-table"
+                href="/my-organization/sso-provider-table"
                 className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
               >
                 View Docs →
@@ -107,7 +107,7 @@ export default function MyOrgIntroduction() {
                 </p>
               </div>
               <a
-                href="/my-org/sso-provider-create"
+                href="/my-organization/sso-provider-create"
                 className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
               >
                 View Docs →
@@ -131,7 +131,7 @@ export default function MyOrgIntroduction() {
                 </p>
               </div>
               <a
-                href="/my-org/sso-provider-edit"
+                href="/my-organization/sso-provider-edit"
                 className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
               >
                 View Docs →
@@ -154,7 +154,7 @@ export default function MyOrgIntroduction() {
                 </p>
               </div>
               <a
-                href="/my-org/domain-table"
+                href="/my-organization/domain-table"
                 className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
               >
                 View Docs →
@@ -394,7 +394,7 @@ export default function MyOrgIntroduction() {
     "read:my_org:configuration"
   ],
   "client_id": "{{auth0_client_id}}", // use your app client_id
-  "audience": "https://{{auth0_domain}}/my-org/", // use your domain
+  "audience": "https://{{auth0_domain}}/my-organization/", // use your domain
   "subject_type": "user"
 }`}
                     language="json"
@@ -502,10 +502,10 @@ VITE_AUTH0_CLIENT_ID=your-spa-client-id`}
                 Edit organization settings, branding, and configuration details.
               </p>
               <a
-                href="/my-org/org-details-edit"
+                href="/my-organization/organization-details-edit"
                 className="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-medium transition-colors"
               >
-                Explore OrgDetailsEdit
+                Explore OrganizationDetailsEdit
                 <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -543,7 +543,7 @@ VITE_AUTH0_CLIENT_ID=your-spa-client-id`}
                 components for organization management, domain control, and more.
               </p>
               <a
-                href="/my-org"
+                href="/my-organization"
                 className="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-medium transition-colors"
               >
                 Browse Components

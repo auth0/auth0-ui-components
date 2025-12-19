@@ -4,8 +4,8 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import * as useCoreClientModule from '../../../../../hooks/use-core-client';
 import { createMockSsoProvider, mockCore, renderWithProviders } from '../../../../../internals';
-import type { SsoProviderRemoveFromOrgModalProps } from '../../../../../types/my-organization/idp-management/sso-provider/sso-provider-delete-types';
-import { SsoProviderRemoveFromOrgModal } from '../provider-remove-modal';
+import type { SsoProviderRemoveFromOrganizationModalProps } from '../../../../../types/my-organization/idp-management/sso-provider/sso-provider-delete-types';
+import { SsoProviderRemoveFromOrganizationModal } from '../provider-remove-modal';
 
 // ===== Mock packages =====
 
@@ -13,8 +13,8 @@ const { initMockCoreClient } = mockCore();
 
 // ===== Local mock creators =====
 const createMockRemoveModal = (
-  overrides?: Partial<SsoProviderRemoveFromOrgModalProps>,
-): SsoProviderRemoveFromOrgModalProps => ({
+  overrides?: Partial<SsoProviderRemoveFromOrganizationModalProps>,
+): SsoProviderRemoveFromOrganizationModalProps => ({
   isOpen: true,
   provider: createMockSsoProvider(),
   organizationName: 'Test Organization',
@@ -27,7 +27,7 @@ const createMockRemoveModal = (
 
 // ===== Tests =====
 
-describe('SsoProviderRemoveFromOrgModal', () => {
+describe('SsoProviderRemoveFromOrganizationModal', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;
 
   beforeEach(() => {
@@ -50,7 +50,7 @@ describe('SsoProviderRemoveFromOrgModal', () => {
     describe('when closed', () => {
       it('should not render anything', () => {
         renderWithProviders(
-          <SsoProviderRemoveFromOrgModal {...createMockRemoveModal({ isOpen: false })} />,
+          <SsoProviderRemoveFromOrganizationModal {...createMockRemoveModal({ isOpen: false })} />,
         );
 
         expect(screen.queryByText(/modal.title/i)).not.toBeInTheDocument();
@@ -61,7 +61,7 @@ describe('SsoProviderRemoveFromOrgModal', () => {
       it('should render modal with provider name and organization name', () => {
         const provider = createMockSsoProvider({ name: 'test-provider' });
         renderWithProviders(
-          <SsoProviderRemoveFromOrgModal
+          <SsoProviderRemoveFromOrganizationModal
             {...createMockRemoveModal({ provider, organizationName: 'Test Organization 1' })}
           />,
         );
@@ -84,7 +84,7 @@ describe('SsoProviderRemoveFromOrgModal', () => {
         };
 
         renderWithProviders(
-          <SsoProviderRemoveFromOrgModal {...createMockRemoveModal({ customMessages })} />,
+          <SsoProviderRemoveFromOrganizationModal {...createMockRemoveModal({ customMessages })} />,
         );
 
         expect(screen.getByText('Remove SSO Provider from Organization')).toBeInTheDocument();
@@ -103,7 +103,7 @@ describe('SsoProviderRemoveFromOrgModal', () => {
         };
 
         renderWithProviders(
-          <SsoProviderRemoveFromOrgModal {...createMockRemoveModal({ customMessages })} />,
+          <SsoProviderRemoveFromOrganizationModal {...createMockRemoveModal({ customMessages })} />,
         );
 
         expect(
@@ -120,7 +120,7 @@ describe('SsoProviderRemoveFromOrgModal', () => {
         const provider = createMockSsoProvider({ name: 'test-provider' });
 
         renderWithProviders(
-          <SsoProviderRemoveFromOrgModal
+          <SsoProviderRemoveFromOrganizationModal
             {...createMockRemoveModal({ provider, isLoading: false })}
           />,
         );
@@ -144,7 +144,7 @@ describe('SsoProviderRemoveFromOrgModal', () => {
         const provider = createMockSsoProvider({ name: 'test-provider' });
 
         renderWithProviders(
-          <SsoProviderRemoveFromOrgModal {...createMockRemoveModal({ provider })} />,
+          <SsoProviderRemoveFromOrganizationModal {...createMockRemoveModal({ provider })} />,
         );
 
         // Type incorrect text
@@ -164,7 +164,7 @@ describe('SsoProviderRemoveFromOrgModal', () => {
         const provider = createMockSsoProvider({ name: 'test-provider' });
 
         renderWithProviders(
-          <SsoProviderRemoveFromOrgModal {...createMockRemoveModal({ provider })} />,
+          <SsoProviderRemoveFromOrganizationModal {...createMockRemoveModal({ provider })} />,
         );
 
         // Type correct text
@@ -187,7 +187,7 @@ describe('SsoProviderRemoveFromOrgModal', () => {
         const mockOnRemove = vi.fn();
 
         renderWithProviders(
-          <SsoProviderRemoveFromOrgModal
+          <SsoProviderRemoveFromOrganizationModal
             {...createMockRemoveModal({ provider, onRemove: mockOnRemove })}
           />,
         );
@@ -211,7 +211,7 @@ describe('SsoProviderRemoveFromOrgModal', () => {
         const mockOnClose = vi.fn();
 
         renderWithProviders(
-          <SsoProviderRemoveFromOrgModal
+          <SsoProviderRemoveFromOrganizationModal
             {...createMockRemoveModal({ provider, onClose: mockOnClose })}
           />,
         );
@@ -238,7 +238,9 @@ describe('SsoProviderRemoveFromOrgModal', () => {
         const mockOnClose = vi.fn();
 
         renderWithProviders(
-          <SsoProviderRemoveFromOrgModal {...createMockRemoveModal({ onClose: mockOnClose })} />,
+          <SsoProviderRemoveFromOrganizationModal
+            {...createMockRemoveModal({ onClose: mockOnClose })}
+          />,
         );
 
         // Click cancel
@@ -258,7 +260,9 @@ describe('SsoProviderRemoveFromOrgModal', () => {
         const user = userEvent.setup();
         const provider = createMockSsoProvider({ name: 'test-provider' });
         const { rerender } = renderWithProviders(
-          <SsoProviderRemoveFromOrgModal {...createMockRemoveModal({ provider, isOpen: true })} />,
+          <SsoProviderRemoveFromOrganizationModal
+            {...createMockRemoveModal({ provider, isOpen: true })}
+          />,
         );
 
         // Type confirmation text
@@ -267,12 +271,16 @@ describe('SsoProviderRemoveFromOrgModal', () => {
 
         // Close modal
         rerender(
-          <SsoProviderRemoveFromOrgModal {...createMockRemoveModal({ provider, isOpen: false })} />,
+          <SsoProviderRemoveFromOrganizationModal
+            {...createMockRemoveModal({ provider, isOpen: false })}
+          />,
         );
 
         // Reopen modal
         rerender(
-          <SsoProviderRemoveFromOrgModal {...createMockRemoveModal({ provider, isOpen: true })} />,
+          <SsoProviderRemoveFromOrganizationModal
+            {...createMockRemoveModal({ provider, isOpen: true })}
+          />,
         );
 
         // Confirmation text should be cleared

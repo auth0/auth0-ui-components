@@ -83,7 +83,7 @@ export default function DomainTableDocs() {
               <p className="text-blue-800">
                 <strong>Setup guide:</strong>{' '}
                 <a
-                  href="/my-org"
+                  href="/my-organization"
                   className="text-blue-700 hover:text-blue-900 underline font-medium"
                 >
                   My Organization Components Introduction →
@@ -145,7 +145,7 @@ export default function DomainTableDocs() {
                 title="1. Install Core Package"
               />
               <CodeBlock
-                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-org/domain-table.json"
+                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-organization/domain-table.json"
                 language="bash"
                 title="2. Add Shadcn Block"
               />
@@ -171,7 +171,7 @@ import { DomainTable } from '@auth0/universal-components-react/spa';
 // import { DomainTable } from '@auth0/universal-components-react/rwa';
 
 // For shadcn users:
-// import { DomainTable } from '@/auth0-ui-components/blocks/my-org/domain-management/domain-table'; 
+// import { DomainTable } from '@/auth0-ui-components/blocks/my-organization/domain-management/domain-table'; 
 
 export function DomainsPage() {
   return (
