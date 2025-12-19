@@ -18,16 +18,29 @@ type AuthenticationMethod =
   ListAuthenticationMethodsResponseContent['authentication_methods'][number];
 
 /**
+ * Default usage for MFA authentication methods.
+ */
+const DEFAULT_USAGE: ['secondary'] = ['secondary'];
+
+/**
+ * Base properties shared by all MFA authentication methods.
+ */
+const createBaseAuthMethod = () => ({
+  created_at: '2024-01-01T00:00:00.000Z',
+  confirmed: true,
+  usage: DEFAULT_USAGE,
+});
+
+/**
  * Creates a mock enrolled authentication method
  */
 export const createMockAuthenticationMethod = (
   overrides?: Partial<AuthenticationMethod>,
 ): AuthenticationMethod =>
   ({
+    ...createBaseAuthMethod(),
     id: 'auth_method_123',
     type: FACTOR_TYPE_TOTP,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
     ...overrides,
   }) as unknown as AuthenticationMethod;
 
@@ -39,11 +52,10 @@ export const createMockEmailAuthMethod = (
   overrides?: Partial<AuthenticationMethod>,
 ): AuthenticationMethod =>
   ({
+    ...createBaseAuthMethod(),
     id: 'email|user@example.com',
     type: FACTOR_TYPE_EMAIL,
     email,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
     ...overrides,
   }) as unknown as AuthenticationMethod;
 
@@ -55,11 +67,10 @@ export const createMockPhoneAuthMethod = (
   overrides?: Partial<AuthenticationMethod>,
 ): AuthenticationMethod =>
   ({
+    ...createBaseAuthMethod(),
     id: 'phone|+1234567890',
     type: FACTOR_TYPE_PHONE,
     phone_number: phoneNumber,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
     ...overrides,
   }) as unknown as AuthenticationMethod;
 
@@ -71,10 +82,9 @@ export const createMockTotpAuthMethod = (
   overrides?: Partial<AuthenticationMethod>,
 ): AuthenticationMethod =>
   ({
+    ...createBaseAuthMethod(),
     id: `totp|${name}`,
     type: FACTOR_TYPE_TOTP,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
     ...overrides,
   }) as unknown as AuthenticationMethod;
 
@@ -86,10 +96,9 @@ export const createMockRecoveryCodeAuthMethod = (
   overrides?: Partial<AuthenticationMethod>,
 ): AuthenticationMethod =>
   ({
+    ...createBaseAuthMethod(),
     id: `recovery-code|${name}`,
     type: FACTOR_TYPE_RECOVERY_CODE,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
     ...overrides,
   }) as unknown as AuthenticationMethod;
 
@@ -101,11 +110,10 @@ export const createMockWebAuthnRoamingAuthMethod = (
   overrides?: Partial<AuthenticationMethod>,
 ): AuthenticationMethod =>
   ({
+    ...createBaseAuthMethod(),
     id: `webauthn-roaming|${name}`,
     type: FACTOR_TYPE_WEBAUTHN_ROAMING,
     name,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
     ...overrides,
   }) as unknown as AuthenticationMethod;
 
@@ -117,11 +125,10 @@ export const createMockWebAuthnPlatformAuthMethod = (
   overrides?: Partial<AuthenticationMethod>,
 ): AuthenticationMethod =>
   ({
+    ...createBaseAuthMethod(),
     id: `webauthn-platform|${name}`,
     type: FACTOR_TYPE_WEBAUTHN_PLATFORM,
     name,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
     ...overrides,
   }) as unknown as AuthenticationMethod;
 
@@ -132,10 +139,9 @@ export const createMockPushNotificationAuthMethod = (
   overrides?: Partial<AuthenticationMethod>,
 ): AuthenticationMethod =>
   ({
+    ...createBaseAuthMethod(),
     id: 'push-notification|123',
     type: FACTOR_TYPE_PUSH_NOTIFICATION,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
     ...overrides,
   }) as unknown as AuthenticationMethod;
 
