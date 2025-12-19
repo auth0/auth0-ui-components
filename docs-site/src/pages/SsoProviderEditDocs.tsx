@@ -1546,7 +1546,7 @@ export default function App() {
                     organization section
                   </div>
                   <div>
-                    <code>SsoProviderRemoveFromOrganizationModal</code> – Remove from org
+                    <code>SsoProviderRemoveFromOrganizationModal</code> – Remove from organization
                     confirmation modal
                   </div>
                 </div>
@@ -1609,8 +1609,8 @@ export default function App() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-sm text-blue-800 space-y-2">
               <div>
                 <code>useSsoProviderEdit</code> – Main hook for provider and provisioning editing
-                (fetch provider, update, delete, remove from org, provisioning CRUD, SCIM token
-                management)
+                (fetch provider, update, delete, remove from organization, provisioning CRUD, SCIM
+                token management)
               </div>
               <div>
                 <code>useSsoDomainTab</code> – Hook for domain management within provider edit
