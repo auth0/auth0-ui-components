@@ -11,14 +11,14 @@
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.8.0",
-    "@auth0/web-ui-components-react": "workspace:*",
+    "@auth0/universal-components-react": "workspace:*",
     "i18next": "^25.2.1",
     "lucide-react": "^0.511.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "react-hook-form": "^7.57.0",
     "react-i18next": "^15.5.3",
-    "react-router-dom": "^7.6.2",
+    "react-router-dom": "7.6.2",
     "tailwindcss": "^4.1.10"
   },
   "devDependencies": {

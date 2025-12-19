@@ -12,7 +12,16 @@ export default defineConfig({
     reporters: ['verbose'],
     setupFiles: ['./vitest-setup.ts'],
     include: ['./src/**/__tests__/**/*.test.{ts,tsx}'],
-    exclude: ['node_modules', 'dist', '.git', '.cache'],
+    exclude: [
+      'node_modules',
+      'dist',
+      '.git',
+      '.cache',
+      'docs-site',
+      'examples',
+      'src/components/ui/**/*',
+      '**/src/types/**',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
@@ -25,6 +34,8 @@ export default defineConfig({
         '**/__tests__/**',
         '**/node_modules/**',
         '**/dist/**',
+        '**/docs-site/**',
+        '**/examples/**',
         '**/*.config.*',
         '**/*.test.*',
         '**/vitest-setup.ts',
@@ -33,6 +44,8 @@ export default defineConfig({
         '**/*.css',
         '**/vite.config.*',
         '**/tsup.config.*',
+        'src/components/ui/**/*',
+        '**/src/types/**',
       ],
       include: ['src/**/*'],
       thresholds: {
@@ -52,7 +65,7 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
       // Resolve workspace packages to source files during testing
       // This allows tests to run before build
-      '@auth0/web-ui-components-core': resolve(__dirname, '../core/src'),
+      '@auth0/universal-components-core': resolve(__dirname, '../core/src'),
       '@core': resolve(__dirname, '../core/src'),
     },
   },

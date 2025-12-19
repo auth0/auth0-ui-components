@@ -5,7 +5,7 @@ import type {
   IdentityProvider,
   SsoProviderDeleteSchema,
   SsoProvideRemoveMessages,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 
 export interface SsoProviderDeleteClasses {
   'ProviderDelete-root'?: string;
@@ -15,7 +15,7 @@ export interface SsoProviderRemoveClasses {
 }
 export interface SsoProviderDeleteModalContentProps
   extends SharedComponentProps<SsoProviderDeleteModalContentMessages, SsoProviderDeleteClasses> {
-  onChange: (name: string, value: string) => void;
+  onChange: (value: string) => void;
   className?: string;
 }
 

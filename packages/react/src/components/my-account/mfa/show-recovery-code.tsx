@@ -1,4 +1,4 @@
-import { getComponentStyles, FACTOR_TYPE_RECOVERY_CODE } from '@auth0/web-ui-components-core';
+import { getComponentStyles, FACTOR_TYPE_RECOVERY_CODE } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { useOtpConfirmation } from '../../../hooks/my-account/mfa/use-otp-confirmation';

@@ -9,7 +9,6 @@ interface Auth0Config {
 }
 
 function getRequiredEnvVar(name: string): string {
-  // eslint-disable-next-line no-undef
   const value = process.env[name];
   if (!value) {
     // During build time, return placeholder values to prevent build failures
@@ -33,7 +32,6 @@ function getRequiredEnvVar(name: string): string {
 }
 
 function getOptionalEnvVar(name: string, defaultValue: string): string {
-  // eslint-disable-next-line no-undef
   return process.env[name] || defaultValue;
 }
 

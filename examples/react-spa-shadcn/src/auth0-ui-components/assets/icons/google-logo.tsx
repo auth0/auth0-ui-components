@@ -1,4 +1,4 @@
-import { GoogleLogoSvg } from '@auth0/web-ui-components-core';
+import { GoogleLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 
 export interface GoogleLogoProps extends React.ImgHTMLAttributes<HTMLImageElement> {

@@ -1,8 +1,9 @@
 import {
   AVAILABLE_STRATEGY_LIST,
+  hasApiErrorBody,
   type GetConfigurationResponseContent,
   type IdpStrategy,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { UseConfigResult } from '../../../types/my-org/config/config-types';
@@ -12,6 +13,7 @@ export function useConfig(): UseConfigResult {
   const { coreClient } = useCoreClient();
   const [config, setConfig] = useState<GetConfigurationResponseContent | null>(null);
   const [isLoadingConfig, setIsLoadingConfig] = useState(false);
+  const [isConfigValid, setIsConfigValid] = useState(true);
 
   const fetchConfig = useCallback(async (): Promise<void> => {
     if (!coreClient) {
@@ -24,6 +26,17 @@ export function useConfig(): UseConfigResult {
         .getMyOrgApiClient()
         .organization.configuration.get();
       setConfig(result);
+
+      // Validate the config after fetching
+      const hasAllowedStrategies =
+        result.allowed_strategies && result.allowed_strategies.length > 0;
+      setIsConfigValid(!!hasAllowedStrategies);
+    } catch (error) {
+      // If config is not set
+      if (hasApiErrorBody(error) && error.body?.status === 404) {
+        setConfig(null);
+        setIsConfigValid(false);
+      }
     } finally {
       setIsLoadingConfig(false);
     }
@@ -42,7 +55,7 @@ export function useConfig(): UseConfigResult {
   const shouldAllowDeletion = useMemo((): boolean => {
     return (
       config?.connection_deletion_behavior === 'allow' ||
-      config?.connection_deletion_behavior === 'allow_if_empty' // TODO: get members count and check if it's empty
+      config?.connection_deletion_behavior === 'allow_if_empty'
     );
   }, [config]);
 
@@ -57,5 +70,6 @@ export function useConfig(): UseConfigResult {
     fetchConfig,
     filteredStrategies,
     shouldAllowDeletion,
+    isConfigValid,
   };
 }

@@ -19,7 +19,7 @@ export function SsoProviderRemoveFromOrgModal({
   const { t } = useTranslator('idp_management.remove_sso_provider', customMessages);
   const [confirmationText, setConfirmationText] = React.useState('');
 
-  const handleModalContentChange = React.useCallback((field: string, value: string) => {
+  const handleModalContentChange = React.useCallback((value: string) => {
     setConfirmationText(value);
   }, []);
 

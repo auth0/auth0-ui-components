@@ -4,7 +4,7 @@ import {
   FACTOR_TYPE_TOTP,
   FACTOR_TYPE_PUSH_NOTIFICATION,
   getComponentStyles,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -51,7 +51,7 @@ const maskContact = (contact: string, factorType: MFAType): string => {
 
   if (factorType === FACTOR_TYPE_EMAIL) {
     const [local, domain] = contact.split('@');
-    if (!domain || local.length <= 2) return contact;
+    if (!domain || !local || local.length <= 2) return contact;
     return `${local.slice(0, 2)}${'*'.repeat(local.length - 2)}@${domain}`;
   }
 

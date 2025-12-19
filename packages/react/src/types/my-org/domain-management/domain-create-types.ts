@@ -1,4 +1,4 @@
-import type { DomainCreateMessages, DomainCreateSchemas } from '@auth0/web-ui-components-core';
+import type { DomainCreateMessages, DomainCreateSchemas } from '@auth0/universal-components-core';
 
 export interface DomainCreateModalProps {
   translatorKey?: string;

@@ -1,37 +1,19 @@
 'use client';
 
 import { useAuth0 } from '@auth0/auth0-react';
-import type { BasicAuth0ContextInterface } from '@auth0/web-ui-components-core';
+import type { BasicAuth0ContextInterface } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Toaster } from '../components/ui/sonner';
 import { Spinner } from '../components/ui/spinner';
 import { CoreClientContext } from '../hooks/use-core-client';
 import { useCoreClientInitialization } from '../hooks/use-core-client-initialization';
+import { useToastProvider } from '../hooks/use-toast-provider';
 import type { Auth0ComponentProviderProps } from '../types/auth-types';
 
 import { ScopeManagerProvider } from './scope-manager-provider';
 import { ThemeProvider } from './theme-provider';
 
-/**
- * Auth0 SPA Provider for client-side authentication
- *
- * Use this when using @auth0/auth0-react for client-side authentication.
- * Must be nested inside Auth0Provider from @auth0/auth0-react.
- *
- * @example
- * ```tsx
- * import { Auth0Provider } from '@auth0/auth0-react';
- *
- * <Auth0Provider domain="..." clientId="..." redirectUri="...">
- *   <Auth0SpaProvider
- *     themeSettings={{ mode: 'dark', theme: 'rounded' }}
- *   >
- *     <YourApp />
- *   </Auth0SpaProvider>
- * </Auth0Provider>
- * ```
- */
 export const Auth0ComponentProvider = ({
   i18n,
   authDetails,
@@ -44,22 +26,27 @@ export const Auth0ComponentProvider = ({
       dark: {},
     },
   },
+  toastSettings,
   loader,
   children,
 }: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
-  let auth0ContextInterface: BasicAuth0ContextInterface = useAuth0();
+  const mergedToastSettings = useToastProvider(toastSettings);
 
-  // Check if user is using auth0-react SDK
-  if (!auth0ContextInterface) {
-    // Check if user is passing the auth0-spa-js SDK
-    if (authDetails?.contextInterface) {
-      auth0ContextInterface = authDetails.contextInterface;
-    } else {
-      throw new Error(
-        'Auth0ContextInterface is not available. Make sure you wrap your app with Auth0Provider from @auth0/auth0-react',
-      );
+  const auth0ReactContext = useAuth0();
+
+  const auth0ContextInterface = React.useMemo(() => {
+    if (auth0ReactContext && 'isAuthenticated' in auth0ReactContext) {
+      return auth0ReactContext as BasicAuth0ContextInterface;
     }
-  }
+
+    if (authDetails?.contextInterface) {
+      return authDetails.contextInterface;
+    }
+
+    throw new Error(
+      'Auth0ContextInterface is not available. Make sure you wrap your app with Auth0Provider from @auth0/auth0-react, or pass a contextInterface via authDetails.',
+    );
+  }, [auth0ReactContext, authDetails?.contextInterface]);
 
   const memoizedAuthDetails = React.useMemo(
     () => ({
@@ -90,7 +77,12 @@ export const Auth0ComponentProvider = ({
         theme: themeSettings.theme,
       }}
     >
-      <Toaster position="top-right" />
+      {mergedToastSettings.provider === 'sonner' && (
+        <Toaster
+          position={mergedToastSettings.settings?.position || 'top-right'}
+          closeButton={mergedToastSettings.settings?.closeButton ?? true}
+        />
+      )}
       <React.Suspense
         fallback={
           loader || (

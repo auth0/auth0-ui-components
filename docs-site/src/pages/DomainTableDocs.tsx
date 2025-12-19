@@ -1,4 +1,5 @@
 import CodeBlock from '../components/CodeBlock';
+import TabbedCodeBlock from '../components/TabbedCodeBlock';
 
 export default function DomainTableDocs() {
   return (
@@ -100,10 +101,18 @@ export default function DomainTableDocs() {
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-3">Option 1: NPM Package</h3>
             <p className="text-gray-600 mb-4">Install the React package:</p>
-            <CodeBlock
-              code="npm install @auth0/web-ui-components-react"
+            <TabbedCodeBlock
+              tabs={[
+                {
+                  label: 'npm',
+                  code: 'npm install @auth0/universal-components-react',
+                },
+                {
+                  label: 'pnpm',
+                  code: 'pnpm add @auth0/universal-components-react',
+                },
+              ]}
               language="bash"
-              title="npm"
             />
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
               <p className="text-sm text-blue-800">
@@ -121,13 +130,22 @@ export default function DomainTableDocs() {
               You'll still need to install the core package separately:
             </p>
             <div className="space-y-3">
-              <CodeBlock
-                code="npm install @auth0/web-ui-components-core"
+              <TabbedCodeBlock
+                tabs={[
+                  {
+                    label: 'npm',
+                    code: 'npm install @auth0/universal-components-core',
+                  },
+                  {
+                    label: 'pnpm',
+                    code: 'pnpm add @auth0/universal-components-core',
+                  },
+                ]}
                 language="bash"
                 title="1. Install Core Package"
               />
               <CodeBlock
-                code="npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-org/domain-table.json"
+                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-org/domain-table.json"
                 language="bash"
                 title="2. Add Shadcn Block"
               />
@@ -146,7 +164,12 @@ export default function DomainTableDocs() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
         <CodeBlock
-          code={`import { DomainTable } from '@auth0/web-ui-components-react';
+          code={`// For SPA applications:
+import { DomainTable } from '@auth0/universal-components-react/spa';
+
+// For Next.js/RWA applications:          
+// import { DomainTable } from '@auth0/universal-components-react/rwa';
+
 // For shadcn users:
 // import { DomainTable } from '@/auth0-ui-components/blocks/my-org/domain-management/domain-table'; 
 
@@ -742,10 +765,12 @@ interface ComponentAction<T, U = undefined> {
         <h2 className="text-2xl font-semibold text-gray-900">Complete Integration Example</h2>
         <CodeBlock
           code={`import React from 'react';
-import { DomainTable } from '@auth0/web-ui-components-react';
-import { Auth0Provider } from '@auth0/auth0-react';
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react';
-import { useNavigate } from 'react-router-dom';
+import { DomainTable } from '@auth0/universal-components-react/rwa';
+// For SPA mode:
+// import { DomainTable } from '@auth0/universal-components-react/spa';
+import { UserProvider } from '@auth0/nextjs-auth0/client';
+import { Auth0ProxyProvider } from '@auth0/universal-components-react/rwa';
+import { useRouter } from 'next/navigation';
 
 function DomainsManagementPage() {
   const navigate = useNavigate();

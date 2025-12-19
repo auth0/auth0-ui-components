@@ -1,4 +1,4 @@
-import { SsoProviderTable, type IdentityProvider } from '@auth0/web-ui-components-react/spa';
+import { SsoProviderTable, type IdentityProvider } from '@auth0/universal-components-react/spa';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 

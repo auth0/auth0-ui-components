@@ -246,7 +246,8 @@ export interface ProviderConfigureFieldsMessages {
       sign_request?: {
         label?: string;
         placeholder?: string;
-        helper_text?: string;
+        helper_text_metadata_file?: string;
+        helper_text_metadata_url?: string;
         error?: string;
       };
       request_protocol_binding?: {

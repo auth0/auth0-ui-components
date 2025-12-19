@@ -2,7 +2,7 @@ import type {
   SharedComponentProps,
   ProvisioningCreateTokenModalContentMessages,
   ProvisioningDeleteTokenModalContentMessages,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 
 export interface ProvisioningTokenClasses {
   'ProvisioningToken-root'?: string;

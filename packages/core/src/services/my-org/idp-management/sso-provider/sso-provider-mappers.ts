@@ -30,6 +30,7 @@ const STRATEGY_FIELD_MAPPINGS = {
   [STRATEGIES.GOOGLE_APPS]: ['domain', 'client_id', 'client_secret', 'icon_url'],
   [STRATEGIES.OIDC]: ['type', 'client_id', 'client_secret', 'discovery_url'],
   [STRATEGIES.PINGFEDERATE]: [
+    'pingFederateBaseUrl',
     'signatureAlgorithm',
     'digestAlgorithm',
     'signSAMLRequest',
@@ -50,7 +51,7 @@ const STRATEGY_FIELD_MAPPINGS = {
     'idpInitiated',
     'icon_url',
   ],
-  [STRATEGIES.WAAD]: ['domain', 'client_id', 'client_secret', 'icon_url'],
+  [STRATEGIES.WAAD]: ['tenant_domain', 'client_id', 'client_secret', 'icon_url'],
 } as const;
 
 /**

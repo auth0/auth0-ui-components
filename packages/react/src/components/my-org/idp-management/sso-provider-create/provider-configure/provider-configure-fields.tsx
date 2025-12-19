@@ -1,4 +1,4 @@
-import { STRATEGIES } from '@auth0/web-ui-components-core';
+import { STRATEGIES } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { cn } from '../../../../../lib/theme-utils';

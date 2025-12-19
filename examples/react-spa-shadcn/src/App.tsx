@@ -4,8 +4,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Auth0ComponentProvider } from '@/auth0-ui-components/providers/component-provider';
-
 import Header from './components/Header';
 import { Routes, Route, BrowserRouter, Navigate } from './components/RouterCompat';
 import { Sidebar } from './components/side-bar';
@@ -15,8 +13,11 @@ import IdentityProviderManagement from './pages/IdentityProviderManagement';
 import IdentityProviderManagementCreate from './pages/IdentityProviderManagementCreate';
 import IdentityProviderManagementEdit from './pages/IdentityProviderManagementEdit';
 import Index from './pages/Index';
+import MFAManagement from './pages/MFAManagement';
 import OrganizationManagement from './pages/OrganizationManagement';
 import Profile from './pages/Profile';
+
+import { Auth0ComponentProvider } from '@/auth0-ui-components/providers/spa-provider';
 
 const queryClient = new QueryClient();
 
@@ -80,6 +81,14 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <Profile />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/mfa"
+                    element={
+                      <ProtectedRoute>
+                        <MFAManagement />
                       </ProtectedRoute>
                     }
                   />

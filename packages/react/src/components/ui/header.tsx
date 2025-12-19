@@ -1,4 +1,4 @@
-import type { ActionButton as CoreActionButton } from '@auth0/web-ui-components-core';
+import type { ActionButton as CoreActionButton } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import { ArrowLeft } from 'lucide-react';
 import * as React from 'react';
@@ -8,10 +8,22 @@ import { cn } from '../../lib/theme-utils';
 import { Button } from './button';
 import { Spinner } from './spinner';
 import { Switch } from './switch';
+import { Tooltip, TooltipTrigger, TooltipContent } from './tooltip';
+
+export interface TooltipProps {
+  content: React.ReactNode | string;
+}
+
+export interface WithTooltipProps {
+  trigger: React.ReactNode | string;
+  tooltip: TooltipProps;
+}
 
 export interface BaseActionProps extends Omit<CoreActionButton, 'icon' | 'onClick'> {
   icon?: LucideIcon;
   className?: string;
+  hidden?: boolean;
+  tooltip?: TooltipProps;
 }
 
 export interface ButtonActionProps extends BaseActionProps {
@@ -40,6 +52,17 @@ export interface HeaderProps {
   isLoading?: boolean;
   className?: string;
 }
+
+const WithTooltip: React.FC<WithTooltipProps> = ({ trigger, tooltip }) => (
+  <>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div>{trigger}</div>
+      </TooltipTrigger>
+      <TooltipContent>{tooltip.content}</TooltipContent>
+    </Tooltip>
+  </>
+);
 
 const ButtonAction: React.FC<ButtonActionProps> = ({
   icon: Icon,
@@ -91,11 +114,21 @@ export const Header = React.forwardRef<
     if (isLoading) {
       return <Spinner className="w-4 h-4" />;
     }
-    return action.type === 'switch' ? (
-      <SwitchAction key={key} {...action} />
-    ) : (
-      <ButtonAction key={key} {...action} />
-    );
+    if (action.hidden) {
+      return null;
+    }
+    const actionElement =
+      action.type === 'switch' ? (
+        <SwitchAction key={key} {...action} />
+      ) : (
+        <ButtonAction key={key} {...action} />
+      );
+    if (action.tooltip) {
+      return (
+        <WithTooltip key={`tooltip-${key}`} trigger={actionElement} tooltip={action.tooltip} />
+      );
+    }
+    return actionElement;
   };
 
   return (

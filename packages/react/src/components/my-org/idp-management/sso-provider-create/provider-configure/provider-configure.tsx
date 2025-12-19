@@ -1,4 +1,4 @@
-import type { ProviderConfigureFormValues } from '@auth0/web-ui-components-core';
+import type { ProviderConfigureFormValues } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { useTranslator } from '../../../../../hooks/use-translator';

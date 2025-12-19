@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { useTranslator } from '../../../../hooks/use-translator';
 import type { SsoDomainTabActionColumn } from '../../../../types/my-org/idp-management/sso-domain/sso-domain-tab-types';
 import { Button } from '../../../ui/button';

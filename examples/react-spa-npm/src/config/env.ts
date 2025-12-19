@@ -3,6 +3,9 @@ interface AppConfig {
     domain: string;
     clientId: string;
   };
+  features: {
+    enableMyAccount: boolean;
+  };
 }
 
 function getRequiredEnvVar(name: string): string {
@@ -13,9 +16,16 @@ function getRequiredEnvVar(name: string): string {
   return value;
 }
 
+function getOptionalEnvVar(name: string, defaultValue: string): string {
+  return import.meta.env[name] || defaultValue;
+}
+
 export const config: AppConfig = {
   auth0: {
     domain: getRequiredEnvVar('VITE_AUTH0_DOMAIN'),
     clientId: getRequiredEnvVar('VITE_AUTH0_CLIENT_ID'),
+  },
+  features: {
+    enableMyAccount: getOptionalEnvVar('VITE_ENABLE_MY_ACCOUNT', 'false') === 'true',
   },
 };

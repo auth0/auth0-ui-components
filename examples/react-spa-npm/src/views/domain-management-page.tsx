@@ -1,4 +1,4 @@
-import { DomainTable } from '@auth0/web-ui-components-react/spa';
+import { DomainTable } from '@auth0/universal-components-react/spa';
 
 const DomainManagementPage = () => {
   return (

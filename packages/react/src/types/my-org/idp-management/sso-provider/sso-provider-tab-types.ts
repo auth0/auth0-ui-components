@@ -7,7 +7,7 @@ import type {
   SsoProviderDetailsMessages,
   SsoProviderDetailsSchema,
   ComponentAction,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 
 import type { FormActionsProps } from '../../../../components/ui/form-actions';
 import type { IdpConfig } from '../../config/config-idp-types';

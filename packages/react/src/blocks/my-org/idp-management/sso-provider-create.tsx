@@ -4,7 +4,7 @@ import {
   type ProviderDetailsFormValues,
   type ProviderConfigureFormValues,
   MY_ORG_SSO_PROVIDER_CREATE_SCOPES,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 
 import ProviderConfigure, {
@@ -138,6 +138,7 @@ export function SsoProviderCreateComponent({
         title: t('steps.two'),
         content: () => (
           <ProviderDetails
+            mode="create"
             ref={detailsRef}
             initialData={details ?? undefined}
             customMessages={customMessages.provider_details}
@@ -191,7 +192,7 @@ export function SsoProviderCreateComponent({
         }
         className={currentStyles?.classes?.['SsoProviderCreate-header']}
       />
-      <div className="sso-provider-create__content">
+      <div className="sso-provider-create__content" data-testid="sso-provider-create-content">
         <Wizard
           isLoading={isCreating}
           hideStepperNumbers

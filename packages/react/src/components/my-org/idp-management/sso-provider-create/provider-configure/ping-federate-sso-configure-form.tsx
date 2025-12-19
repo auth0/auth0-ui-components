@@ -1,7 +1,7 @@
 import {
   createProviderConfigureSchema,
   type PingFederateConfigureFormValues,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useState } from 'react';
@@ -57,6 +57,7 @@ export interface PingFederateConfigureFormHandle {
   validate: () => Promise<boolean>;
   getData: () => PingFederateConfigureFormValues;
   isDirty: () => boolean;
+  reset: (data?: PingFederateConfigureFormValues) => void;
 }
 
 interface PingFederateConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
@@ -85,8 +86,8 @@ export const PingFederateProviderForm = React.forwardRef<
       pingFederateBaseUrl: pingFederateData?.pingFederateBaseUrl || '',
       signingCert: pingFederateData?.signingCert || '',
       signSAMLRequest: pingFederateData?.signSAMLRequest || false,
-      signatureAlgorithm: pingFederateData?.signatureAlgorithm || '',
-      digestAlgorithm: pingFederateData?.digestAlgorithm || '',
+      signatureAlgorithm: pingFederateData?.signatureAlgorithm || 'rsa-sha256',
+      digestAlgorithm: pingFederateData?.digestAlgorithm || 'sha256',
     },
   });
 
@@ -102,14 +103,28 @@ export const PingFederateProviderForm = React.forwardRef<
     },
     getData: () => form.getValues(),
     isDirty: () => form.formState.isDirty,
+    reset: (data) => {
+      if (data) {
+        form.reset(data);
+      } else {
+        form.reset();
+      }
+    },
   }));
 
   const signRequestEnabled = form.watch('signSAMLRequest');
 
-  const handleFileUpload = (files: File[]) => {
+  const handleFileUpload = async (files: File[]) => {
     setUploadedFiles(files);
-    if (files.length > 0) {
-      form.setValue('signingCert', files[0].name);
+
+    const file = files[0];
+    if (file) {
+      try {
+        const content = await file.text();
+        form.setValue('signingCert', content);
+      } catch (error) {
+        console.error('Error reading file:', error);
+      }
     }
   };
 

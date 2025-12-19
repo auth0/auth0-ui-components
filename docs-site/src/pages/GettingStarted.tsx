@@ -1,13 +1,16 @@
-import React from 'react';
-
 import CodeBlock from '../components/CodeBlock';
+import TabbedCodeBlock from '../components/TabbedCodeBlock';
+
+import { useTech } from '@/contexts/TechContext';
 
 export default function GettingStarted() {
+  const { selectedTech } = useTech();
+
   return (
     <div className="max-w-6xl mx-auto space-y-12">
       <div className="space-y-4">
         <h1 className="text-4xl font-bold text-gray-900">
-          Auth0 UI Components{' '}
+          Auth0 Universal Components{' '}
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
             BETA
           </span>
@@ -161,10 +164,12 @@ export default function GettingStarted() {
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-3">Option 1: NPM Package</h3>
             <p className="text-gray-600 mb-4">Install the React package:</p>
-            <CodeBlock
-              code="npm install @auth0/web-ui-components-react"
+            <TabbedCodeBlock
+              tabs={[
+                { label: 'npm', code: 'npm install @auth0/universal-components-react' },
+                { label: 'pnpm', code: 'pnpm add @auth0/universal-components-react' },
+              ]}
               language="bash"
-              title="npm"
             />
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
               <p className="text-sm text-blue-800">
@@ -182,24 +187,37 @@ export default function GettingStarted() {
               still need to install the core package separately:
             </p>
             <div className="space-y-3">
-              <CodeBlock
-                code="npm install @auth0/web-ui-components-core"
+              <TabbedCodeBlock
+                tabs={[
+                  { label: 'npm', code: 'npm install @auth0/universal-components-core' },
+                  { label: 'pnpm', code: 'pnpm add @auth0/universal-components-core' },
+                ]}
                 language="bash"
                 title="1. Install Core Package"
               />
               <CodeBlock
-                code="npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-org/org-details-edit.json"
+                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-org/org-details-edit.json"
                 language="bash"
                 title="2. Add Shadcn Block (e.g., OrgDetailsEdit)"
               />
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-blue-800 mb-3">
                 <strong>Note:</strong> Shadcn installs the React component source code in your{' '}
                 <code>src/auth0-ui-components/</code> directory along with all UI dependencies, but
                 you must install the core package separately via npm.
               </p>
+              <p className="text-sm text-blue-800">
+                <strong>Important:</strong> When using Shadcn components, you must import the global
+                styles in your root file:
+              </p>
             </div>
+            <CodeBlock
+              code={`// In your App.tsx or main entry file
+import 'src/auth0-ui-components/styles/globals.css';`}
+              language="tsx"
+              title="3. Import Global Styles"
+            />
           </div>
         </div>
       </section>
@@ -246,8 +264,8 @@ export default function GettingStarted() {
                 />
               </svg>
               <div>
-                <strong>React Application:</strong> This package is designed for React 18+
-                applications
+                <strong>React 16.11+:</strong> This package supports React 16.11.0 and above,
+                including React 17, 18, and 19
               </div>
             </li>
             <li className="flex items-start">
@@ -263,19 +281,125 @@ export default function GettingStarted() {
                 />
               </svg>
               <div>
-                <strong>Auth0 React SDK:</strong> Install and configure{' '}
+                <strong>Tailwind CSS Configured:</strong> Follow the{' '}
                 <a
-                  href="https://github.com/auth0/auth0-react"
+                  href="https://tailwindcss.com/docs/installation"
                   className="text-blue-600 hover:underline font-medium"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  @auth0/auth0-react
+                  Tailwind CSS installation guide
                 </a>
               </div>
             </li>
           </ul>
         </div>
+      </section>
+
+      {/* Peer Dependencies */}
+      <section className="space-y-6">
+        <h2 className="text-2xl font-semibold text-gray-900">Peer Dependencies</h2>
+        <p className="text-gray-600">
+          The following packages must be installed in your application:
+        </p>
+
+        {selectedTech === 'react' && (
+          <>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+              <ul className="space-y-2 text-gray-800">
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    react ^16.11.0 || ^17 || ^18 || ^19
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    react-dom ^16.11.0 || ^17 || ^18 || ^19
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    react-hook-form ^7.0.0
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    tailwindcss ^3.0.0 || ^4.0.0
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    @auth0/auth0-react ^2.0.0
+                  </code>
+                </li>
+              </ul>
+            </div>
+
+            <TabbedCodeBlock
+              tabs={[
+                {
+                  label: 'npm',
+                  code: 'npm install react react-dom react-hook-form tailwindcss @auth0/auth0-react',
+                },
+                {
+                  label: 'pnpm',
+                  code: 'pnpm add react react-dom react-hook-form tailwindcss @auth0/auth0-react',
+                },
+              ]}
+              language="bash"
+              title="Install Peer Dependencies"
+            />
+          </>
+        )}
+
+        {selectedTech === 'nextjs' && (
+          <>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+              <ul className="space-y-2 text-gray-800">
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    react ^16.11.0 || ^17 || ^18 || ^19
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    react-dom ^16.11.0 || ^17 || ^18 || ^19
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    react-hook-form ^7.0.0
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    tailwindcss ^3.0.0 || ^4.0.0
+                  </code>
+                </li>
+                <li className="flex items-center">
+                  <code className="text-sm bg-white px-3 py-1 rounded border">
+                    @auth0/nextjs-auth0 ^4.0.0
+                  </code>
+                </li>
+              </ul>
+            </div>
+
+            <TabbedCodeBlock
+              tabs={[
+                {
+                  label: 'npm',
+                  code: 'npm install react react-dom react-hook-form tailwindcss @auth0/nextjs-auth0',
+                },
+                {
+                  label: 'pnpm',
+                  code: 'pnpm add react react-dom react-hook-form tailwindcss @auth0/nextjs-auth0',
+                },
+              ]}
+              language="bash"
+              title="Install Peer Dependencies"
+            />
+          </>
+        )}
       </section>
 
       {/* Component Configuration */}
@@ -309,47 +433,58 @@ export default function GettingStarted() {
       {/* Quick Start */}
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Quick Start</h2>
-        <div className="space-y-6">
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-3">
-              1. Wrap Your App with Auth0Provider and Auth0ComponentProvider
+
+        {selectedTech === 'react' && (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-blue-600 flex items-center gap-2">
+              <span className="text-2xl">⚛️</span>
+              React SPA
             </h3>
-            <CodeBlock
-              code={`import { Auth0Provider } from '@auth0/auth0-react';
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react';
+
+            <div>
+              <h4 className="text-lg font-medium text-gray-900 mb-3">
+                1. Wrap Your App with Auth0Provider and Auth0ComponentProvider
+              </h4>
+              <CodeBlock
+                code={`import { Auth0Provider } from '@auth0/auth0-react';
+import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
+import '@auth0/universal-components-react/styles';
 
 const authDetails = {
   domain: import.meta.env.VITE_AUTH0_DOMAIN,
-  clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
 };
 
 function App() {
   return (
     <Auth0Provider
-      {...authDetails}
+      domain={authDetails.domain}
+      clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
+      authorizationParams={{
+        redirect_uri: window.location.origin
+      }}
     >
-      <Auth0ComponentProvider authDetails={authDetails}>
+      <Auth0ComponentProvider 
+        authDetails={authDetails}
+      >
         {/* Your app components */}
       </Auth0ComponentProvider>
     </Auth0Provider>
   );
 }`}
-              language="tsx"
-              title="App.tsx"
-            />
-          </div>
+                language="tsx"
+                title="App.tsx"
+              />
+            </div>
 
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-3">
-              2. Add an Auth0 UI component (e.g. UserMFAMgmt)
-            </h3>
-            <CodeBlock
-              code={`import { useAuth0 } from '@auth0/auth0-react';
-import { OrgDetailsEdit } from '@auth0/web-ui-components-react';
-// For shadcn users:
-// import { OrgDetailsEdit } from '@/auth0-ui-components/blocks/my-org/org-management/org-details-edit';
+            <div>
+              <h4 className="text-lg font-medium text-gray-900 mb-3">
+                2. Use an Auth0 Universal Component
+              </h4>
+              <CodeBlock
+                code={`import { useAuth0 } from '@auth0/auth0-react';
+import { OrgDetailsEdit } from '@auth0/universal-components-react/spa';
 
-function EditOrgPage() {
+function OrganizationManagementPage() {
   const { isAuthenticated, isLoading } = useAuth0();
 
   if (isLoading) return <div>Loading...</div>;
@@ -361,11 +496,77 @@ function EditOrgPage() {
     </div>
   );
 }`}
-              language="tsx"
-              title="SecurityPage.tsx"
-            />
+                language="tsx"
+                title="OrganizationManagementPage.tsx"
+              />
+            </div>
           </div>
-        </div>
+        )}
+
+        {selectedTech === 'nextjs' && (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-blue-600 flex items-center gap-2">
+              <span className="text-2xl">▲</span>
+              Next.js (App Router)
+            </h3>
+
+            <div>
+              <h4 className="text-lg font-medium text-gray-900 mb-3">
+                1. Set up Auth0ComponentProvider in Root Layout
+              </h4>
+              <CodeBlock
+                code={`'use client';
+
+import { Auth0ComponentProvider } from '@auth0/universal-components-react/rwa';
+import '@auth0/universal-components-react/styles';
+
+const authDetails = {
+  authProxyUrl: '/',
+  domain: process.env.NEXT_PUBLIC_AUTH0_DOMAIN,
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        <Auth0ComponentProvider authDetails={authDetails}>
+          {children}
+        </Auth0ComponentProvider>
+      </body>
+    </html>
+  );
+}`}
+                language="tsx"
+                title="app/layout.tsx"
+              />
+            </div>
+
+            <div>
+              <h4 className="text-lg font-medium text-gray-900 mb-3">
+                2. Use an Auth0 Universal Component in a Page
+              </h4>
+              <CodeBlock
+                code={`'use client';
+
+import { OrgDetailsEdit } from '@auth0/universal-components-react/rwa';
+
+export default function OrganizationManagementPage() {
+  return (
+    <div>
+      <OrgDetailsEdit />
+    </div>
+  );
+}`}
+                language="tsx"
+                title="OrganizationManagementPage.tsx"
+              />
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Provider Configuration */}
@@ -433,6 +634,19 @@ function EditOrgPage() {
                 <td className="px-4 py-2 text-sm text-gray-500">
                   Theme configuration including mode (light/dark), theme variant
                   (default/minimal/rounded), and CSS variables
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                  toastSettings
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  <code className="text-xs">ToastSettings</code>
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  Toast notification configuration including provider selection (sonner/custom),
+                  positioning, duration, and custom toast methods
                 </td>
               </tr>
               <tr>
@@ -640,13 +854,22 @@ function EditOrgPage() {
                     <strong>Typography:</strong>
                     <ul className="list-disc ml-4 text-xs">
                       <li>
+                        <code>--font-size-page-header</code>
+                      </li>
+                      <li>
+                        <code>--font-size-page-description</code>
+                      </li>
+                      <li>
                         <code>--font-size-heading</code>
                       </li>
                       <li>
-                        <code>--font-size-description</code>
+                        <code>--font-size-title</code>
                       </li>
                       <li>
-                        <code>--font-size-title</code>
+                        <code>--font-size-subtitle</code>
+                      </li>
+                      <li>
+                        <code>--font-size-body</code>
                       </li>
                       <li>
                         <code>--font-size-paragraph</code>
@@ -676,49 +899,64 @@ function EditOrgPage() {
                     <strong>Colors:</strong>
                     <ul className="list-disc ml-4 text-xs">
                       <li>
+                        <code>--background</code>
+                      </li>
+                      <li>
+                        <code>--foreground</code>
+                      </li>
+                      <li>
+                        <code>--card</code>
+                      </li>
+                      <li>
+                        <code>--card-foreground</code>
+                      </li>
+                      <li>
+                        <code>--primary</code>
+                      </li>
+                      <li>
+                        <code>--primary-foreground</code>
+                      </li>
+                      <li>
+                        <code>--secondary</code>
+                      </li>
+                      <li>
+                        <code>--secondary-foreground</code>
+                      </li>
+                      <li>
+                        <code>--accent</code>
+                      </li>
+                      <li>
+                        <code>--accent-foreground</code>
+                      </li>
+                      <li>
+                        <code>--muted</code>
+                      </li>
+                      <li>
+                        <code>--muted-foreground</code>
+                      </li>
+                      <li>
+                        <code>--destructive</code>
+                      </li>
+                      <li>
+                        <code>--destructive-foreground</code>
+                      </li>
+                      <li>
+                        <code>--popover</code>
+                      </li>
+                      <li>
+                        <code>--popover-foreground</code>
+                      </li>
+                      <li>
+                        <code>--input</code>
+                      </li>
+                      <li>
+                        <code>--border</code>
+                      </li>
+                      <li>
+                        <code>--ring</code>
+                      </li>
+                      <li>
                         <code>--color-page</code>
-                      </li>
-                      <li>
-                        <code>--color-background</code>
-                      </li>
-                      <li>
-                        <code>--color-foreground</code>
-                      </li>
-                      <li>
-                        <code>--color-card</code>
-                      </li>
-                      <li>
-                        <code>--color-card-foreground</code>
-                      </li>
-                      <li>
-                        <code>--color-primary</code>
-                      </li>
-                      <li>
-                        <code>--color-primary-foreground</code>
-                      </li>
-                      <li>
-                        <code>--color-secondary</code>
-                      </li>
-                      <li>
-                        <code>--color-secondary-foreground</code>
-                      </li>
-                      <li>
-                        <code>--color-accent</code>
-                      </li>
-                      <li>
-                        <code>--color-accent-foreground</code>
-                      </li>
-                      <li>
-                        <code>--color-muted</code>
-                      </li>
-                      <li>
-                        <code>--color-muted-foreground</code>
-                      </li>
-                      <li>
-                        <code>--color-border</code>
-                      </li>
-                      <li>
-                        <code>--color-ring</code>
                       </li>
                       <li>
                         <code>--color-info</code>
@@ -739,25 +977,10 @@ function EditOrgPage() {
                         <code>--color-warning-foreground</code>
                       </li>
                       <li>
-                        <code>--color-destructive</code>
-                      </li>
-                      <li>
-                        <code>--color-destructive-foreground</code>
-                      </li>
-                      <li>
                         <code>--color-destructive-border</code>
                       </li>
                       <li>
-                        <code>--color-popover</code>
-                      </li>
-                      <li>
-                        <code>--color-popover-foreground</code>
-                      </li>
-                      <li>
                         <code>--color-popover-border</code>
-                      </li>
-                      <li>
-                        <code>--color-input</code>
                       </li>
                       <li>
                         <code>--color-input-foreground</code>
@@ -792,12 +1015,237 @@ function EditOrgPage() {
                         <code>--shadow-checkbox-*</code> (resting, hover)
                       </li>
                       <li>
-                        <code>--shadow-switch-*</code> (resting, hover, focus, thumb)
+                        <code>--shadow-switch-*</code> (resting, hover, focus, thumb, thumb-dark)
                       </li>
                     </ul>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Toast Settings */}
+        <div className="mt-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-3">toastSettings</h3>
+          <p className="text-gray-600 mb-4">
+            Toast settings support two provider types: Sonner (default) or custom. Each provider has
+            its own configuration structure for better type safety.
+          </p>
+
+          {/* Sonner Provider */}
+          <div className="mb-6">
+            <h4 className="text-base font-medium text-gray-900 mb-3">Sonner Provider (Default)</h4>
+            <div className="overflow-x-auto">
+              <table className="w-full border border-gray-200 rounded-lg">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                      Property
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                      Type
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
+                      Default
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Description
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      provider
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">"sonner"</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">"sonner"</td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Uses the built-in Sonner toast library
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      settings.position
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">ToastPosition</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                      "top-right"
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Position where toasts appear: "top-left", "top-right", "bottom-left",
+                      "bottom-right", "top-center", "bottom-center"
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      settings.duration
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">number</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">4000</td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Duration in milliseconds before toast auto-dismisses
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      settings.maxToasts
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">number</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">3</td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Maximum number of toasts visible at once
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      settings.dismissible
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">boolean</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">true</td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Whether toasts can be manually dismissed by user interaction
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      settings.closeButton
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">boolean</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">true</td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Whether to show an explicit close button on toasts for better UX
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Custom Provider */}
+          <div className="mb-6">
+            <h4 className="text-base font-medium text-gray-900 mb-3">Custom Provider</h4>
+            <div className="overflow-x-auto">
+              <table className="w-full border border-gray-200 rounded-lg">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                      Property
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                      Type
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
+                      Required
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Description
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      provider
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">"custom"</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Yes</td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Uses your custom toast implementation
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      methods
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">CustomToastMethods</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Yes</td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Custom toast methods for success, error, warning, info, and dismiss actions
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Sonner Provider Example */}
+          <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-medium text-blue-900 mb-3">Sonner Provider Example</h4>
+            <div className="text-sm text-blue-800 space-y-3">
+              <p>Using the built-in Sonner toast library with custom settings:</p>
+
+              <div className="bg-white rounded p-3 font-mono text-xs overflow-x-auto">
+                <pre>{`const toastSettings = {
+  provider: 'sonner', // Optional, this is the default
+  settings: {
+    position: 'top-center',
+    duration: 6000,
+    maxToasts: 5,
+    dismissible: true,
+    closeButton: true // Enabled by default for better UX
+  }
+};`}</pre>
+              </div>
+            </div>
+          </div>
+
+          {/* Custom Provider Example */}
+          <div className="mt-4 bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <h4 className="font-medium text-purple-900 mb-3">Custom Provider Example</h4>
+            <div className="text-sm text-purple-800 space-y-3">
+              <p>
+                When using <code>provider: "custom"</code>, you need to provide custom methods:
+              </p>
+
+              <div className="bg-white rounded p-3 font-mono text-xs overflow-x-auto">
+                <pre>{`const toastSettings = {
+  provider: 'custom',
+  methods: {
+    success: (message: string) => {
+      // Your custom success toast implementation
+      myToastLibrary.success(message);
+    },
+    error: (message: string) => {
+      // Your custom error toast implementation
+      myToastLibrary.error(message);
+    },
+    warning: (message: string) => {
+      // Your custom warning toast implementation
+      myToastLibrary.warning(message);
+    },
+    info: (message: string) => {
+      // Your custom info toast implementation
+      myToastLibrary.info(message);
+    },
+    dismiss: (toastId?: string) => {
+      // Your custom dismiss implementation
+      myToastLibrary.dismiss(toastId);
+    }
+  }
+};`}</pre>
+              </div>
+              <p>
+                <strong>Note:</strong> Custom methods only receive the message text. Your custom
+                implementation handles all styling, positioning, and timing.
+              </p>
             </div>
           </div>
         </div>
@@ -895,11 +1343,11 @@ function EditOrgPage() {
         <div className="mt-8 bg-white border rounded-lg p-6">
           <h3 className="text-lg font-medium mb-3">Example Implementation</h3>
           <p className="text-gray-600 mb-4">
-            See complete working examples in the "react-spa-npm" or "react-spa-shadcn" sample
-            applications.
+            See complete working examples in the "react-spa-npm", "react-spa-shadcn", "next-rwa"
+            sample applications.
           </p>
           <a
-            href="https://github.com/atko-cic/auth0-ui-components/tree/main/examples"
+            href="https://github.com/auth0/auth0-ui-components/tree/main/examples"
             className="text-blue-600 hover:underline font-medium"
             target="_blank"
             rel="noopener noreferrer"

@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { cn } from '../../lib/theme-utils';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './accordion';
@@ -8,6 +10,7 @@ import { Section } from './section';
 export interface MappingProps<Item> {
   title: string;
   description: string;
+  content: React.ReactNode;
   card: {
     title: string;
     description: string;
@@ -24,12 +27,14 @@ export function Mapping<Item>({
   title,
   description,
   card,
+  content,
   className,
   expanded = true,
 }: MappingProps<Item>) {
   return (
     <div className={cn('w-full space-y-6', className)}>
       <Section title={title} description={description}>
+        {content}
         <Accordion
           type="single"
           defaultValue={expanded ? 'mapping-section' : undefined}

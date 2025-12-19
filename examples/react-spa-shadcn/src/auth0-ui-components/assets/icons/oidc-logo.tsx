@@ -1,4 +1,4 @@
-import { OidcLogoSvg } from '@auth0/web-ui-components-core';
+import { OidcLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 
 export interface OidcProps extends React.ImgHTMLAttributes<HTMLImageElement> {

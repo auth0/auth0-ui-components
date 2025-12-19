@@ -1,7 +1,5 @@
 import { useTranslation } from 'react-i18next';
 
-import { OrgDetailsEdit } from '@/auth0-ui-components/blocks/my-org/org-management/org-details-edit';
-
 const OrganizationManagement = () => {
   const { t } = useTranslation();
 
@@ -11,7 +9,7 @@ const OrganizationManagement = () => {
         {t('organization-management.title')}
       </h1>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <OrgDetailsEdit />
+        {/* <OrgDetailsEdit /> */}
       </div>
     </div>
   );

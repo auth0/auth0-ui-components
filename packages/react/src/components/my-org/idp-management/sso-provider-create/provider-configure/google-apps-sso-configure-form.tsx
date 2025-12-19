@@ -1,11 +1,12 @@
 import {
   createProviderConfigureSchema,
   type GoogleAppsConfigureFormValues,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
+import { useProviderFormMode } from '../../../../../hooks/my-org/idp-management/use-provider-form-mode';
 import { useCoreClient } from '../../../../../hooks/use-core-client';
 import { useTranslator } from '../../../../../hooks/use-translator';
 import { cn } from '../../../../../lib/theme-utils';
@@ -28,6 +29,7 @@ export interface GoogleAppsConfigureFormHandle {
   validate: () => Promise<boolean>;
   getData: () => GoogleAppsConfigureFormValues;
   isDirty: () => boolean;
+  reset: (data?: GoogleAppsConfigureFormValues) => void;
 }
 
 interface GoogleAppsConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
@@ -36,7 +38,15 @@ export const GoogleAppsProviderForm = React.forwardRef<
   GoogleAppsConfigureFormHandle,
   GoogleAppsConfigureFormProps
 >(function GoogleAppsProviderForm(
-  { initialData, readOnly = false, customMessages = {}, className, onFormDirty, idpConfig },
+  {
+    initialData,
+    readOnly = false,
+    customMessages = {},
+    className,
+    onFormDirty,
+    idpConfig,
+    mode = 'create',
+  },
   ref,
 ) {
   const { t } = useTranslator(
@@ -45,6 +55,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
   );
 
   const { coreClient } = useCoreClient();
+  const { showCopyButtons } = useProviderFormMode(mode);
 
   const callbackUrl = React.useMemo(() => {
     const domain = coreClient?.auth?.domain || 'YOUR_DOMAIN';
@@ -77,6 +88,13 @@ export const GoogleAppsProviderForm = React.forwardRef<
     },
     getData: () => form.getValues(),
     isDirty: () => form.formState.isDirty,
+    reset: (data) => {
+      if (data) {
+        form.reset(data);
+      } else {
+        form.reset();
+      }
+    },
   }));
 
   return (
@@ -121,6 +139,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
                   placeholder={t('fields.google-apps.client_id.placeholder')}
                   error={Boolean(fieldState.error)}
                   readOnly={readOnly}
+                  showCopyButton={showCopyButtons}
                   {...field}
                 />
               </FormControl>
@@ -149,6 +168,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
                   placeholder={t('fields.google-apps.client_secret.placeholder')}
                   error={Boolean(fieldState.error)}
                   readOnly={readOnly}
+                  showCopyButton={showCopyButtons}
                   {...field}
                 />
               </FormControl>

@@ -1,4 +1,4 @@
-import type { ActionButton as CoreActionButton } from '@auth0/web-ui-components-core';
+import type { ActionButton as CoreActionButton } from '@auth0/universal-components-core';
 import {
   useReactTable,
   getCoreRowModel,

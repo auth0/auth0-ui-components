@@ -1,25 +1,32 @@
-# React SPA with Auth0 UI Components (npm) - Setup Guide
+# **Universal Components** demo for React (npm)
 
-This guide will walk you through setting up and running the React SPA with Auth0 UI Components (npm).
+A React (npm) example that demonstrates Auth0 authentication using a SPA along with Auth0 Universal Components demonstrating delegated administration.
+
+## Jump to a section
+
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [Universal Component Docs (Component-Specific Requirements)](#universal-component-docs-component-specific-requirements)
+- [Troubleshooting](#troubleshooting)
 
 ## Prerequisites
 
-Before you begin, make sure you have the following installed on your system:
+1. **Node.js v20 or later** is required to run the bootstrapping process.
 
-- **Node.js** (v18 or higher) - [Download from nodejs.org](https://nodejs.org/)
-- **pnpm** - [Install pnpm](https://pnpm.io/installation)
+We recommend using [`nvm`](https://github.com/nvm-sh/nvm) to manage node versions in your development environment. Click these links to [learn how to install nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script) or [how to use nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#usage) to make sure you're using Node 20+.
 
-- **Auth0 Account** - [Sign up for Auth0](https://auth0.com/signup)
+2. **[`pnpm`](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) or a comparable package manager** installed in your development environment.
 
-1. **Enable MFA Grant Types**
-   - Navigate to your Auth0 Dashboard > Applications > [Your Application] > Advanced Settings > Grant Types
-   - Ensure **MFA** grant type is enabled for the MFA component to work properly
-   - Save the changes and redeploy if necessary
+These instructions assume that you're using `pnpm`, which is automatically included as part of the Node.js installation from prerequisite 1.
 
-2. **Enable Google OAuth2 Connection**
-   - Go to Auth0 Dashboard > Authentication > Social > Google
-   - Make sure the Google OAuth2 connection is enabled and properly configured
-   - Verify the connection is associated with your application under Applications tab
+3. **A new Auth0 tenant**.
+
+**This is important!** Using a new Auth0 tenant for this sample application ensures you don't encounter any conflicts due to existing configuration in an existing tenant. You can sign up for a free Auth0 account at [https://auth0.com/signup](https://auth0.com/signup?utm_source=github&utm_medium=thirdpartyutm_campaign=saastart). See [Create Tenants](https://auth0.com/docs/get-started/auth0-overview/create-tenants) in the Auth0 docs if you need help.
+
+4. **Configure your Auth0 tenant** based on the components you will use.
+
+Different Auth0 Universal components may have specific configuration requirements.
+**Please refer to the [Auth0 Universal Components Documentation](https://auth0-ui-components.vercel.app/getting-started) for detailed prerequisites for each component or group of components you plan to use.**
 
 ## Getting Started
 
@@ -27,30 +34,47 @@ Before you begin, make sure you have the following installed on your system:
 
 Before running the application, you need to configure your Auth0 credentials:
 
-1. **Create environment file:**
+1. **Clone the repository and navigate to its folder:**
 
-   In the root directory of your project (or in the example directory if working with monorepo), create a `.env` file:
+   ```bash
+   git clone https://github.com/auth0/auth0-ui-components
+   cd auth0-ui-components
+   ```
+
+2. **Create environment file:**
+
+   In the root directory of your project (or in the example directory if working with monorepo), copy the `.env.example` to an `.env` file:
 
    ```env
    VITE_AUTH0_DOMAIN=your-auth0-domain.auth0.com
    VITE_AUTH0_CLIENT_ID=your-auth0-client-id
    ```
 
-2. **Configure Auth0 values:**
+3. **Configure Auth0 values:**
 
    Replace the placeholder values with your actual Auth0 credentials:
    - `VITE_AUTH0_DOMAIN`: Your Auth0 domain (found in your Auth0 Dashboard > Applications > Settings)
    - `VITE_AUTH0_CLIENT_ID`: Your Auth0 application client ID (found in the same location)
 
-3. **Auth0 Application Settings:**
+### 2. Build the components package and install dependencies
 
-   Make sure your Auth0 application is configured with the following settings:
-   - **Application Type**: Single Page Application
-   - **Allowed Callback URLs**: `http://localhost:5173`
-   - **Allowed Logout URLs**: `http://localhost:5173`
-   - **Allowed Web Origins**: `http://localhost:5173`
+Make sure you run install and build scripts **at the root of the project** before starting the dev server.
 
-### 2. Run the Development Server
+1. Build the components package and install dependencies:
+
+   ```bash
+   pnpm install
+   pnpm run build
+   ```
+
+1. Navigate to the examples folder and install dependencies:
+
+   ```bash
+   cd examples/react-spa-npm
+   pnpm install
+   ```
+
+### 3. Run the Development Server
 
 ```sh
 pnpm run dev
@@ -58,13 +82,21 @@ pnpm run dev
 
 Run this command from the `examples/react-spa-npm` directory.
 
-### 3. Access the Application
+### 4. Access the Application
 
 Once the development server is running, you can access the application at:
 
 **http://localhost:5173**
 
 The application should now be running with Auth0 authentication integrated.
+
+## Universal Component Docs (Component-Specific Requirements)
+
+For detailed configuration options, props, troubleshooting, and component-specific requirements, please refer to the official component documentation:
+
+**[Auth0 Universal Components Documentation](https://auth0-ui-components.vercel.app/getting-started)**
+
+**Important**: Each component may have specific Auth0 configuration requirements. Before using any component, please check the [Auth0 UI Components Documentation](https://auth0-ui-components.vercel.app/) for component-specific prerequisites and setup instructions.
 
 ## Troubleshooting
 
@@ -91,20 +123,18 @@ The application should now be running with Auth0 authentication integrated.
 
 If you encounter any issues:
 
-1. Check the terminal output for error messages
-2. Verify all prerequisites are installed
-3. Ensure Auth0 configuration is correct
-4. Check that all environment variables are properly set
+- Check the [Auth0 Documentation](https://auth0.com/docs)
+- Open an issue in the project repository
 
 ---
 
 **Note**: This setup guide assumes you're working with the latest version of the codebase. If you encounter version-specific issues, please refer to the project's main documentation or create an issue in the repository.
 
-### License
+## License
 
 Copyright 2025 Okta, Inc.
 
-Distributed under the MIT License found [here](https://github.com/atko-cic/auth0-ui-components/blob/main/LICENSE).
+Distributed under the MIT License found [here](https://github.com/auth0/auth0-ui-components/blob/main/LICENSE).
 
 **Authors**  
 Okta Inc.

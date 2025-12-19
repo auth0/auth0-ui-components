@@ -1,4 +1,7 @@
-import type { GetConfigurationResponseContent, IdpStrategy } from '@auth0/web-ui-components-core';
+import type {
+  GetConfigurationResponseContent,
+  IdpStrategy,
+} from '@auth0/universal-components-core';
 
 export interface UseConfigResult {
   config: GetConfigurationResponseContent | null;
@@ -6,4 +9,5 @@ export interface UseConfigResult {
   fetchConfig: () => Promise<void>;
   filteredStrategies: IdpStrategy[];
   shouldAllowDeletion: boolean;
+  isConfigValid: boolean;
 }

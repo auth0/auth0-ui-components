@@ -1,0 +1,42 @@
+{
+  "name": "auth0-ui-components",
+  "homepage": "https://github.com/auth0/auth0-ui-components",
+  "items": [
+    {
+      "name": "my-account/user-mfa-management",
+      "type": "registry:block",
+      "title": "User MFA Management",
+      "description": "A block for managing Multi-Factor Authentication (MFA) factors, including enrollment and deletion."
+    },
+    {
+      "name": "my-org/org-details-edit",
+      "type": "registry:block",
+      "title": "Organization Management",
+      "description": "A block for managing organization details, including editing organization settings and branding, with delete functionality."
+    },
+    {
+      "name": "my-org/domain-table",
+      "type": "registry:block",
+      "title": "Domain Management Table",
+      "description": "A block for managing organization domains, including creating, verifying, configuring identity providers, and deleting domains."
+    },
+    {
+      "name": "my-org/sso-provider-table",
+      "type": "registry:block",
+      "title": "SSO Provider Table",
+      "description": "A block for managing SSO identity providers in a table format, including create, edit, delete, enable/disable, and remove from organization capabilities."
+    },
+    {
+      "name": "my-org/sso-provider-create",
+      "type": "registry:block",
+      "title": "SSO Provider Creation Wizard",
+      "description": "A multi-step wizard for creating SSO identity providers with support for multiple strategies including SAMLP, OIDC, ADFS, Okta, Google Workspace, Azure AD, and PingFederate."
+    },
+    {
+      "name": "my-org/sso-provider-edit",
+      "type": "registry:block",
+      "title": "SSO Provider Edit",
+      "description": "A comprehensive block for editing SSO identity providers with tabs for provider configuration, SCIM provisioning settings, and domain management. Includes token management, field mappings, and domain verification capabilities."
+    }
+  ]
+}

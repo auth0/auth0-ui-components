@@ -2,8 +2,8 @@ import type {
   MFAType,
   EnrollOptions,
   ConfirmEnrollmentOptions,
-} from '@auth0/web-ui-components-core';
-import { MFAMappers } from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
+import { MFAMappers } from '@auth0/universal-components-core';
 import { useCallback } from 'react';
 
 import type { UseMFAResult } from '../../../types/my-account/mfa/mfa-types';

@@ -163,18 +163,9 @@ const STRATEGY_BUILDERS = {
     }),
 
   oidc: (options: OidcOptions = {}) => {
-    const baseSchema = z.object({
-      type: createFieldSchema(
-        COMMON_FIELD_CONFIGS.algorithm,
-        { ...options.type, required: true },
-        'Please enter a valid type',
-      ),
+    const commonFields = {
       client_id: createFieldSchema(COMMON_FIELD_CONFIGS.client_id, {
         ...options.client_id,
-        required: true,
-      }),
-      client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, {
-        ...options.client_secret,
         required: true,
       }),
       discovery_url: createFieldSchema(
@@ -184,23 +175,29 @@ const STRATEGY_BUILDERS = {
       ),
       show_as_button: z.boolean().optional(),
       assign_membership_on_login: z.boolean().optional(),
-    });
+    };
 
-    // Add conditional validation for client_secret
-    return baseSchema.superRefine((data, ctx) => {
-      const isFrontChannel = data.type === 'front_channel';
+    return z.discriminatedUnion('type', [
+      // Scenario A: Back Channel (Client Secret is REQUIRED)
+      z.object({
+        type: z.literal('back_channel'),
+        client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, {
+          ...options.client_secret,
+          required: true, // STRICTLY REQUIRED
+        }),
+        ...commonFields,
+      }),
 
-      // Only require client_secret for back_channel
-      if (!isFrontChannel) {
-        if (!data.client_secret || data.client_secret.trim() === '') {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Client secret is required',
-            path: ['client_secret'],
-          });
-        }
-      }
-    });
+      // Scenario B: Front Channel (Client Secret is OPTIONAL/HIDDEN)
+      z.object({
+        type: z.literal('front_channel'),
+        client_secret: createFieldSchema(COMMON_FIELD_CONFIGS.client_secret, {
+          ...options.client_secret,
+          required: false,
+        }),
+        ...commonFields,
+      }),
+    ]);
   },
 
   pingfederate: (options: PingFederateOptions = {}) =>
@@ -212,16 +209,16 @@ const STRATEGY_BUILDERS = {
       ),
       signatureAlgorithm: createFieldSchema(
         COMMON_FIELD_CONFIGS.algorithm,
-        { ...options.signatureAlgorithm, required: true },
+        { ...options.signatureAlgorithm, required: false },
         'Please enter a valid signature algorithm',
       ),
       digestAlgorithm: createFieldSchema(
         COMMON_FIELD_CONFIGS.algorithm,
-        { ...options.digestAlgorithm, required: true },
+        { ...options.digestAlgorithm, required: false },
         'Please enter a valid digest algorithm',
       ),
       signSAMLRequest: createBooleanSchema({
-        required: true,
+        required: false,
         errorMessage:
           options.signSAMLRequest?.errorMessage ?? 'SAML request signing option is required',
       }),
@@ -250,17 +247,17 @@ const STRATEGY_BUILDERS = {
       assign_membership_on_login: z.boolean().optional(),
     }),
 
-  samlp: (options: SamlpOptions = {}) =>
-    z.object({
-      meta_data_source: z
-        .string({
-          required_error: 'Please enter a metadata source',
-        })
-        .min(1, 'Metadata source is required'),
-      single_sign_on_login_url: createFieldSchema(
-        COMMON_FIELD_CONFIGS.url,
-        { ...options.single_sign_on_login_url, required: false },
-        'Please enter a valid URL',
+  samlp: (options: SamlpOptions = {}) => {
+    const commonFields = {
+      signSAMLRequest: createBooleanSchema({
+        required: true,
+        errorMessage:
+          options.signSAMLRequest?.errorMessage ?? 'SAML request signing option is required',
+      }),
+      bindingMethod: createFieldSchema(
+        COMMON_FIELD_CONFIGS.algorithm,
+        { ...options.bindingMethod, required: false },
+        'Please enter a valid binding method',
       ),
       signatureAlgorithm: createFieldSchema(
         COMMON_FIELD_CONFIGS.algorithm,
@@ -277,25 +274,6 @@ const STRATEGY_BUILDERS = {
         { ...options.protocolBinding, required: false },
         'Please enter a valid protocol binding',
       ),
-      signSAMLRequest: createBooleanSchema({
-        required: true,
-        errorMessage:
-          options.signSAMLRequest?.errorMessage ?? 'SAML request signing option is required',
-      }),
-      bindingMethod: createFieldSchema(
-        COMMON_FIELD_CONFIGS.algorithm,
-        { ...options.bindingMethod, required: false },
-        'Please enter a valid binding method',
-      ),
-      metadataUrl: createFieldSchema(
-        COMMON_FIELD_CONFIGS.url,
-        { ...options.metadataUrl, required: true },
-        'Please enter a valid metadata URL',
-      ),
-      cert: createFieldSchema(COMMON_FIELD_CONFIGS.certificate, {
-        ...options.cert,
-        required: true,
-      }),
       idpInitiated: z
         .object({
           enabled: z.boolean().optional(),
@@ -310,7 +288,40 @@ const STRATEGY_BUILDERS = {
       }),
       show_as_button: z.boolean().optional(),
       assign_membership_on_login: z.boolean().optional(),
-    }),
+    };
+
+    return z.discriminatedUnion('meta_data_source', [
+      // Scenario A: Metadata URL (URL is Required)
+      z.object({
+        meta_data_source: z.literal('meta_data_url'),
+        metadataUrl: createFieldSchema(
+          COMMON_FIELD_CONFIGS.url,
+          { ...options.metadataUrl, required: true },
+          'Please enter a valid metadata URL',
+        ),
+        cert: z.string().optional(),
+        single_sign_on_login_url: z.string().optional(),
+        ...commonFields,
+      }),
+
+      // Scenario B: Metadata File (Cert is Required)
+      z.object({
+        meta_data_source: z.literal('meta_data_file'),
+        cert: createFieldSchema(COMMON_FIELD_CONFIGS.certificate, {
+          ...options.cert,
+          required: true,
+        }),
+        single_sign_on_login_url: createFieldSchema(
+          COMMON_FIELD_CONFIGS.url,
+          { ...options.single_sign_on_login_url, required: false },
+          'Please enter a valid URL',
+        ),
+        // Allow metadataUrl to exist (optional)
+        metadataUrl: z.string().optional(),
+        ...commonFields,
+      }),
+    ]);
+  },
 
   waad: (options: WaadOptions = {}) =>
     z.object({

@@ -72,13 +72,13 @@ function getFactorDisplayName(type: MFAType, enrolledFactor: EnrolledFactor): st
     case FACTOR_TYPE_RECOVERY_CODE:
       if (enrolledFactor.id && enrolledFactor.id.includes('|')) {
         const name = enrolledFactor.id.split('|')[1];
-        return name;
+        return name ?? 'Recovery Codes';
       }
       return 'Recovery Codes';
     case FACTOR_TYPE_TOTP:
       if (enrolledFactor.id && enrolledFactor.id.includes('|')) {
         const name = enrolledFactor.id.split('|')[1];
-        return name;
+        return name ?? 'Authenticator App';
       }
       return 'Authenticator App';
     default:

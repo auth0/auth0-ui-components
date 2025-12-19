@@ -1,7 +1,7 @@
 import './App.css';
 import { useAuth0, withAuthenticationRequired } from '@auth0/auth0-react';
 import type { WithAuthenticationRequiredOptions } from '@auth0/auth0-react';
-import { Auth0ComponentProvider } from '@auth0/web-ui-components-react/spa';
+import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
 import type { ComponentType } from 'react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -14,10 +14,10 @@ import DomainManagementPage from './views/domain-management-page';
 import HomePage from './views/home-page';
 import MFAPage from './views/mfa-page';
 import OrgManagementPage from './views/org-management-page';
+import ProfilePage from './views/profile-page';
 import SsoProviderCreatePage from './views/sso-provider-create-page';
 import SsoProviderEditPage from './views/sso-provider-edit-page';
 import SsoProviderPage from './views/sso-provider-page';
-import UserProfilePage from './views/user-profile-page';
 
 // Protected Route wrapper
 interface ProtectedRouteProps extends WithAuthenticationRequiredOptions {
@@ -39,7 +39,7 @@ function AppContent() {
       <main className={`pt-16 ${isAuthenticated ? 'ml-64' : ''}`}>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/profile" element={<ProtectedRoute component={UserProfilePage} />} />
+          <Route path="/profile" element={<ProtectedRoute component={ProfilePage} />} />
           <Route path="/mfa" element={<ProtectedRoute component={MFAPage} />} />
           <Route
             path="/org-management"

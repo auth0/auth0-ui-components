@@ -4,7 +4,7 @@ import {
   type CreateOrganizationDomainRequestContent,
   type IdentityProviderAssociatedWithDomain,
   SilentError,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { useCallback, useState } from 'react';
 
 import type {
@@ -100,7 +100,7 @@ export function useDomainTable({
       setIsCreating(true);
 
       if (createAction?.onBefore) {
-        const canProceed = createAction.onBefore(data as Domain); // TODO: Check how to use different types to onBefore and onAfter
+        const canProceed = createAction.onBefore(data as Domain);
         if (!canProceed) {
           throw new SilentError({ message: t('domain_create.on_before') });
         }

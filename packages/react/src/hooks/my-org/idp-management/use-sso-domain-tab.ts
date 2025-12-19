@@ -1,5 +1,5 @@
-import type { CreateOrganizationDomainRequestContent } from '@auth0/web-ui-components-core';
-import { SilentError, type Domain, type IdpId } from '@auth0/web-ui-components-core';
+import type { CreateOrganizationDomainRequestContent } from '@auth0/universal-components-core';
+import { SilentError, type Domain, type IdpId } from '@auth0/universal-components-core';
 import { useCallback, useState, useEffect } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
@@ -74,7 +74,7 @@ export function useSsoDomainTab(
         setIsLoading(false);
       }
     },
-    [fetchProviderfromDomain],
+    [fetchProviderfromDomain, handleError, t],
   );
 
   const listDomains = useCallback(async (): Promise<void> => {
@@ -96,12 +96,12 @@ export function useSsoDomainTab(
     } finally {
       setIsLoading(false);
     }
-  }, [coreClient, t]);
+  }, [coreClient, getAllProviderDomains, handleError, t]);
 
   const onCreateDomain = useCallback(
     async (data: CreateOrganizationDomainRequestContent): Promise<Domain | null> => {
       if (domains?.createAction?.onBefore) {
-        const canProceed = domains.createAction.onBefore(data as Domain); // TODO: Check use different types to onBefore and onAfter
+        const canProceed = domains.createAction.onBefore(data as Domain);
         if (!canProceed) {
           setIsCreating(false);
           throw new SilentError({ message: t('domain_create.on_before') });
@@ -118,7 +118,7 @@ export function useSsoDomainTab(
 
       return result;
     },
-    [coreClient, domains, t],
+    [coreClient, domains, listDomains, t],
   );
 
   const onVerifyDomain = useCallback(
@@ -200,7 +200,7 @@ export function useSsoDomainTab(
         await domains.associateToProviderAction.onAfter(domain, provider);
       }
     },
-    [domains, provider, t, coreClient],
+    [coreClient, domains, idpId, provider, t],
   );
 
   const onDeleteFromProvider = useCallback(
@@ -229,7 +229,7 @@ export function useSsoDomainTab(
         await domains.deleteFromProviderAction.onAfter(selectedDomain);
       }
     },
-    [domains, t, coreClient, domainsList],
+    [coreClient, domains, provider, t],
   );
 
   // ===== Handlers =====
@@ -259,7 +259,7 @@ export function useSsoDomainTab(
         setIsCreating(false);
       }
     },
-    [onCreateDomain, t],
+    [handleError, onCreateDomain, t],
   );
 
   const handleCloseVerifyModal = useCallback(() => {
@@ -295,7 +295,7 @@ export function useSsoDomainTab(
         setIsVerifying(false);
       }
     },
-    [onVerifyDomain, t],
+    [onVerifyDomain, t, handleError, onAssociateToProvider],
   );
 
   const handleDeleteClick = useCallback((domain: Domain) => {
@@ -328,7 +328,7 @@ export function useSsoDomainTab(
         setIsDeleting(false);
       }
     },
-    [onDeleteDomain, t],
+    [handleError, onDeleteDomain, t],
   );
 
   const handleVerifyActionColumn = useCallback(
@@ -364,7 +364,7 @@ export function useSsoDomainTab(
         setIsUpdatingId(null);
       }
     },
-    [onVerifyDomain, t],
+    [onVerifyDomain, t, handleError, onAssociateToProvider],
   );
 
   const handleToggleSwitch = useCallback(
@@ -412,7 +412,7 @@ export function useSsoDomainTab(
         }
       }
     },
-    [onAssociateToProvider, t, provider],
+    [onAssociateToProvider, t, provider, handleError, onDeleteFromProvider],
   );
 
   useEffect(() => {

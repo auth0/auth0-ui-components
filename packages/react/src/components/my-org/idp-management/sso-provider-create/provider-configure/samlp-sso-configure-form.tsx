@@ -1,7 +1,7 @@
 import {
   createProviderConfigureSchema,
   type SamlpConfigureFormValues,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useState } from 'react';
@@ -55,10 +55,16 @@ const DIGEST_ALGORITHMS = [
   { value: 'sha256', label: 'SHA256' },
 ] as const;
 
+const BINDING_METHODS = [
+  { value: 'HTTP-Redirect', label: 'HTTP-Redirect' },
+  { value: 'HTTP-POST', label: 'HTTP-POST' },
+] as const;
+
 export interface SamlpConfigureFormHandle {
   validate: () => Promise<boolean>;
   getData: () => SamlpConfigureFormValues;
   isDirty: () => boolean;
+  reset: (data?: SamlpConfigureFormValues) => void;
 }
 
 interface SamlpConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
@@ -89,8 +95,9 @@ export const SamlpProviderForm = React.forwardRef<
       single_sign_on_login_url: samlpData?.single_sign_on_login_url || '',
       cert: samlpData?.cert || '',
       signSAMLRequest: samlpData?.signSAMLRequest || false,
-      signatureAlgorithm: samlpData?.signatureAlgorithm || '',
-      digestAlgorithm: samlpData?.digestAlgorithm || '',
+      signatureAlgorithm: samlpData?.signatureAlgorithm || 'rsa-sha256',
+      digestAlgorithm: samlpData?.digestAlgorithm || 'sha256',
+      bindingMethod: samlpData?.bindingMethod || 'HTTP-POST',
     },
   });
 
@@ -106,6 +113,13 @@ export const SamlpProviderForm = React.forwardRef<
     },
     getData: () => form.getValues(),
     isDirty: () => form.formState.isDirty,
+    reset: (data) => {
+      if (data) {
+        form.reset(data);
+      } else {
+        form.reset();
+      }
+    },
   }));
 
   const typeValue = form.watch('meta_data_source');
@@ -113,10 +127,17 @@ export const SamlpProviderForm = React.forwardRef<
 
   const signRequestEnabled = form.watch('signSAMLRequest');
 
-  const handleFileUpload = (files: File[]) => {
+  const handleFileUpload = async (files: File[]) => {
     setUploadedFiles(files);
-    if (files.length > 0) {
-      form.setValue('cert', files[0].name);
+
+    const file = files[0];
+    if (file) {
+      try {
+        const content = await file.text();
+        form.setValue('cert', content);
+      } catch (error) {
+        console.error('Error reading file:', error);
+      }
     }
   };
 
@@ -279,20 +300,25 @@ export const SamlpProviderForm = React.forwardRef<
                       </FormLabel>
                       <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
                         <>
-                          {t.trans('fields.samlp.advanced_settings.sign_request.helper_text', {
-                            components: {
-                              link: (children: string) => (
-                                <Link
-                                  key="samlp-sign-request-link"
-                                  href={SAMLP_HELP_LINKS.sign_request}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  {children}
-                                </Link>
-                              ),
+                          {t.trans(
+                            typeValue === 'meta_data_url'
+                              ? 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_url'
+                              : 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_file',
+                            {
+                              components: {
+                                link: (children: string) => (
+                                  <Link
+                                    key="samlp-sign-request-link"
+                                    href={SAMLP_HELP_LINKS.sign_request}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    {children}
+                                  </Link>
+                                ),
+                              },
                             },
-                          })}
+                          )}
                         </>
                       </FormDescription>
                     </div>
@@ -371,6 +397,39 @@ export const SamlpProviderForm = React.forwardRef<
                   />
                 </>
               )}
+              <FormField
+                control={form.control}
+                name="bindingMethod"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                      {t('fields.samlp.advanced_settings.request_protocol_binding.label')}
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ''}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={t(
+                              'fields.samlp.advanced_settings.request_protocol_binding.placeholder',
+                            )}
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {BINDING_METHODS.map((method) => (
+                          <SelectItem key={method.value} value={method.value}>
+                            {method.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage
+                      role="alert"
+                      className="text-sm text-left text-(length:--font-size-paragraph)"
+                    />
+                  </FormItem>
+                )}
+              />
             </AccordionContent>
           </AccordionItem>
         </Accordion>

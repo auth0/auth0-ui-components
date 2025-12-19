@@ -1,11 +1,12 @@
 import {
   createProviderConfigureSchema,
   type OidcConfigureFormValues,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
+import { useProviderFormMode } from '../../../../../hooks/my-org/idp-management/use-provider-form-mode';
 import { useTranslator } from '../../../../../hooks/use-translator';
 import { cn } from '../../../../../lib/theme-utils';
 import type { ProviderConfigureFieldsProps } from '../../../../../types/my-org/idp-management/sso-provider/sso-provider-create-types';
@@ -29,19 +30,30 @@ export interface OidcConfigureFormHandle {
   validate: () => Promise<boolean>;
   getData: () => OidcConfigureFormValues;
   isDirty: () => boolean;
+  reset: (data?: OidcConfigureFormValues) => void;
 }
 
 interface OidcConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
 
 export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcConfigureFormProps>(
   function OidcProviderForm(
-    { initialData, readOnly = false, customMessages = {}, className, onFormDirty, idpConfig },
+    {
+      initialData,
+      readOnly = false,
+      customMessages = {},
+      className,
+      onFormDirty,
+      idpConfig,
+      mode = 'create',
+    },
     ref,
   ) {
     const { t } = useTranslator(
       'idp_management.create_sso_provider.provider_configure',
       customMessages,
     );
+
+    const { showCopyButtons } = useProviderFormMode(mode);
 
     const oidcData = initialData as OidcConfigureFormValues | undefined;
 
@@ -69,6 +81,13 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
       },
       getData: () => form.getValues(),
       isDirty: () => form.formState.isDirty,
+      reset: (data) => {
+        if (data) {
+          form.reset(data);
+        } else {
+          form.reset();
+        }
+      },
     }));
 
     const typeValue = form.watch('type');
@@ -169,6 +188,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
                     placeholder={t('fields.oidc.client_id.placeholder')}
                     error={Boolean(fieldState.error)}
                     readOnly={readOnly}
+                    showCopyButton={showCopyButtons}
                     aria-required={true}
                     aria-invalid={Boolean(fieldState.error)}
                     {...field}
@@ -200,6 +220,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
                       placeholder={t('fields.oidc.client_secret.placeholder')}
                       error={Boolean(fieldState.error)}
                       readOnly={readOnly}
+                      showCopyButton={showCopyButtons}
                       aria-required={true}
                       aria-invalid={Boolean(fieldState.error)}
                       {...field}

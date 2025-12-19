@@ -35,6 +35,9 @@ export interface SsoProvisioningDetailsMessages {
       helper_text?: string;
       error?: string;
     };
+    external_namespace?: {
+      label?: string;
+    };
   };
   mappings?: ProvisioningFieldMappingsMessages;
 }

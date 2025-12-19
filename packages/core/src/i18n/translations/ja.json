@@ -253,8 +253,8 @@
       "completeButtonLabel": "プロバイダーを作成",
       "notifications": {
         "general_error": "リクエストの処理中に問題が発生しました。もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
-        "provider_create_success": "${providerName}が作成されました。",
-        "provider_create_duplicated_provider_error": "${providerName}プロバイダーは既に存在します。別の名前を選択してください。"
+        "provider_create_success": "${providerName} が作成されました。",
+        "provider_create_duplicated_provider_error": "${providerName} プロバイダーは既に存在します。別の名前を選択してください。"
       },
       "provider_select": {
         "title": "IDプロバイダーを選択",
@@ -500,7 +500,8 @@
               "title": "詳細設定",
               "sign_request": {
                 "label": "リクエスト署名",
-                "helper_text": "有効にすると、SAML 認証リクエストが署名されます。<link>証明書</link>をダウンロードして、署名されたアサーションを受信する SAMLP に提供し、署名を検証してください。これは最初に SAMLP で有効にする必要があります。有効にしたら、統合用のメタデータ URL を共有してください。"
+                "helper_text_metadata_file": "有効にすると、SAML認証リクエストが署名されます。<link>証明書</link>をダウンロードし、署名付きアサーションを受信するSAMLPに提供して、署名の検証を行ってください。これはまずSAMLP側で有効にする必要があります。有効にした後、連携のためにメタデータURLを共有してください。",
+                "helper_text_metadata_url": "有効にすると、SAML認証リクエストが署名されます。<link>証明書</link>をダウンロードし、署名付きアサーションを受信するSAMLPに提供して、署名の検証を行ってください。"
               },
               "request_protocol_binding": {
                 "label": "リクエストプロトコルバインディング",
@@ -533,7 +534,9 @@
     },
     "edit_sso_provider": {
       "header": {
-        "back_button_text": "シングルサインオンに戻る"
+        "back_button_text": "シングルサインオンに戻る",
+        "enable_provider_tooltip_text": "トグルでプロバイダーを有効にします。",
+        "disable_provider_tooltip_text": "トグルでプロバイダーを無効にします。"
       },
       "tabs": {
         "sso": {
@@ -622,6 +625,9 @@
                 },
                 "scim_endpoint_url": {
                   "label": "SCIMエンドポイントURL"
+                },
+                "external_namespace": {
+                  "label": "外部ネームスペース"
                 }
               },
               "mappings": {
@@ -629,7 +635,7 @@
                 "description": "正しいユーザー属性がアイデンティティプロバイダーからサービスプロバイダーに渡されることを確認してください。",
                 "card": {
                   "title": "必須属性",
-                  "description": "有効な<strategy>属性が次の属性にマッピングされていることを確認してください。",
+                  "description": "有効な${strategy}属性が次の属性にマッピングされていることを確認してください。",
                   "table": {
                     "columns": {
                       "attribute_name_label": "属性名",

@@ -1,7 +1,7 @@
 import {
   createProviderDetailsSchema,
   type ProviderDetailsFormValues,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
@@ -24,11 +24,12 @@ export interface ProviderDetailsFormHandle {
   validate: () => Promise<boolean>;
   getData: () => ProviderDetailsFormValues;
   isDirty: () => boolean;
+  reset: (data?: ProviderDetailsFormValues) => void;
 }
 
 export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, ProviderDetailsProps>(
   function ProviderDetails(
-    { initialData, readOnly = false, customMessages = {}, className, onFormDirty },
+    { initialData, mode, readOnly = false, customMessages = {}, className, onFormDirty },
     ref,
   ) {
     const { t } = useTranslator(
@@ -58,6 +59,13 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
       },
       getData: () => form.getValues(),
       isDirty: () => form.formState.isDirty,
+      reset: (data) => {
+        if (data) {
+          form.reset(data);
+        } else {
+          form.reset();
+        }
+      },
     }));
 
     return (
@@ -76,7 +84,7 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
                     <TextField
                       placeholder={t('fields.name.placeholder')}
                       error={Boolean(fieldState.error)}
-                      readOnly={readOnly}
+                      readOnly={mode === 'edit' ? true : readOnly}
                       {...field}
                     />
                   </FormControl>

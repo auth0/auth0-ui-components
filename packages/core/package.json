@@ -1,7 +1,7 @@
 {
-  "name": "@auth0/web-ui-components-core",
-  "version": "1.0.0-beta.7",
-  "description": "Core utilities for Auth0 Web UI components",
+  "name": "@auth0/universal-components-core",
+  "version": "1.0.0-beta.4",
+  "description": "Core utilities for Auth0 Universal Components",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -19,9 +19,10 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
     "build:ts": "tsup",
-    "build": "pnpm run clean && pnpm run build:ts",
-    "test": "vitest run",
+    "build": "pnpm clean && pnpm type-check && pnpm build:ts",
+    "test": "vitest run --coverage",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
@@ -44,7 +45,7 @@
   },
   "dependencies": {
     "@auth0/myaccount-js": "^1.0.0-beta.0",
-    "@auth0/myorganization-js": "^1.0.0-beta.0",
+    "@auth0/myorganization-js": "^1.0.0-beta.2",
     "zod": "^3.22.4"
   }
 }

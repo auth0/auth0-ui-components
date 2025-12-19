@@ -1,4 +1,4 @@
-import { EntraIdLogoSvg } from '@auth0/web-ui-components-core';
+import { EntraIdLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 
 export interface EntraIdProps extends React.ImgHTMLAttributes<HTMLImageElement> {

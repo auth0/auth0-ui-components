@@ -1,34 +1,35 @@
 {
   "hero-section": {
-    "title": "Build Your Next App with our awesome components",
-    "description": "Explore a live demonstration of polished React UI components seamlessly integrated with Auth0 for secure, enterprise-ready authentication.",
+    "title": "Universal Components",
+    "description": "A React quickstart demonstrating delegated Organization Management leveraging Auth0 Universal Components",
     "get-started-button": "Get Started",
     "learn-more-button": "Learn more"
   },
   "nav-bar": {
-    "sign-in-button": "Sign in"
+    "sign-in-button": "Sign in",
+    "profile-button": "Profile",
+    "sign-out-button": "Sign out"
   },
   "auth": {
     "sign-in": "Sign In",
     "sign-out": "Sign Out"
   },
-  "profile-drop-down": {
-    "profile": "Profile",
-    "sign-out": "Sign out"
-  },
   "language-drop-down": {
     "change-language-button": "Change Language"
   },
-  "user-profile": {
-    "title": "Multi-Factor Authentication",
-    "mfa": {
-      "title": "Multi-Factor Authentication",
-      "description": "Manage your security methods for logging in.",
-      "placeholder": {
-        "title": "UserMFAMgmt Component Placeholder",
-        "description": "This is where the UserMFAMgmt component will be placed"
-      }
-    }
+  "profile": {
+    "title": "User"
+  },
+  "sidebar": {
+    "my-account": "My Account",
+    "multi-factor-authentication": "Multi-Factor Authentication",
+    "my-organization": "My Organization",
+    "organization-management": "Organization Management",
+    "identity-provider-management": "Identity Provider Management",
+    "domain-management": "Domain Management"
+  },
+  "mfa": {
+    "title": "Multi-Factor Authentication"
   },
   "organization-management": {
     "title": "Organization Management"

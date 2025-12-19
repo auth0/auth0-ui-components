@@ -1,4 +1,4 @@
-import { getComponentStyles } from '@auth0/web-ui-components-core';
+import { getComponentStyles } from '@auth0/universal-components-core';
 import React from 'react';
 
 import { FormActions } from '../../../../components/ui/form-actions';
@@ -73,6 +73,10 @@ export function SsoProviderDetails({
 
     await formActions.nextAction.onClick(updateData);
 
+    // Reset forms to mark current values as the new baseline
+    providerDetailsRef.current?.reset(detailsData);
+    providerConfigureRef.current?.reset(configureData as never);
+
     setIsDetailsDirty(false);
     setIsConfigureDirty(false);
   };
@@ -85,6 +89,7 @@ export function SsoProviderDetails({
     <div style={currentStyles.variables} className={cn('space-y-8')}>
       <div className="space-y-4">
         <ProviderDetails
+          mode="edit"
           ref={providerDetailsRef}
           initialData={providerDetailsData}
           readOnly={readOnly}
@@ -102,6 +107,7 @@ export function SsoProviderDetails({
           initialData={provider.options}
           readOnly={readOnly}
           idpConfig={idpConfig}
+          mode="edit"
           customMessages={customMessages.configure_fields}
           className={currentStyles.classes?.['ProviderConfigure-root']}
           onFormDirty={setIsConfigureDirty}

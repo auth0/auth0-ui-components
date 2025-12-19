@@ -379,7 +379,6 @@ export default function MyOrgIntroduction() {
     "update:my_org:identity_providers",
     "delete:my_org:identity_providers",
     "update:my_org:identity_providers_detach",
-    "read:my_org:identity_providers_domains",
     "create:my_org:identity_providers_domains",
     "delete:my_org:identity_providers_domains",
     "read:my_org:domains",

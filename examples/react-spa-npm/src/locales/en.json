@@ -1,24 +1,27 @@
 {
   "hero-section": {
-    "title": "Build Your Next App with our awesome components",
-    "description": "Explore a live demonstration of polished React UI components seamlessly integrated with Auth0 for secure, enterprise-ready authentication.",
+    "title": "Universal Components",
+    "description": "A React quickstart demonstrating delegated Organization Management leveraging Auth0 Universal Components",
     "get-started-button": "Get Started",
     "learn-more-button": "Learn more"
   },
   "nav-bar": {
-    "sign-in-button": "Sign in"
-  },
-  "profile-drop-down": {
-    "settings": "Settings",
-    "sign-out": "Sign out"
+    "sign-in-button": "Sign in",
+    "sign-out-button": "Sign out",
+    "profile-button": "Profile"
   },
   "language-drop-down": {
     "change-language-button": "Change Language"
   },
-  "user-profile": {
-    "mfa": {
-      "title": "Multi-Factor Authentication",
-      "description": "Manage your security methods for logging in."
-    }
+  "profile": {
+    "title": "User"
+  },
+  "sidebar": {
+    "my-account": "My Account",
+    "multi-factor-authentication": "Multi-Factor Authentication",
+    "my-organization": "My Organization",
+    "organization-management": "Organization Management",
+    "sso-provider": "SSO Provider",
+    "domain-management": "Domain Management"
   }
 }

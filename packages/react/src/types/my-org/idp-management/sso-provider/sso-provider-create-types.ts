@@ -15,12 +15,17 @@ import type {
   ComponentAction,
   BackButton,
   CreateIdentityProviderRequestContentPrivate,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
 import type { IdpConfig } from '../../config/config-idp-types';
+
+/**
+ * Form display mode for provider configuration
+ */
+export type FormMode = 'create' | 'edit';
 
 export interface SsoProviderCreateClasses {
   'SsoProviderCreate-header'?: string;
@@ -45,6 +50,7 @@ export interface ProviderDetailsProps
   initialData?: Partial<ProviderDetailsFormValues>;
   className?: string;
   hideHeader?: boolean;
+  mode: 'edit' | 'create';
   onFormDirty?: (isDirty: boolean) => void;
 }
 
@@ -64,6 +70,7 @@ export interface ProviderConfigureFieldsProps
   className?: string;
   onFormDirty?: (isDirty: boolean) => void;
   idpConfig: IdpConfig | null;
+  mode?: FormMode;
 }
 
 export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'> {

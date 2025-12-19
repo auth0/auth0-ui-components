@@ -25,7 +25,6 @@ export async function createCoreClient(
   const auth = initializeAuthDetails(authDetails);
 
   const tokenManagerService = createTokenManager(auth);
-
   const { client: myOrgApiClient, setLatestScopes: setOrgScopes } = initializeMyOrgClient(
     auth,
     tokenManagerService,

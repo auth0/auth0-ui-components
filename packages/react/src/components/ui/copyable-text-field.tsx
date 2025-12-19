@@ -13,6 +13,7 @@ export interface CopyableTextFieldProps extends TextFieldProps {
   copyButtonClassName?: string;
   tooltipSide?: 'top' | 'bottom' | 'left' | 'right';
   tooltipAlign?: 'start' | 'center' | 'end';
+  showCopyButton?: boolean;
 }
 
 const CopyableTextField = React.forwardRef<HTMLInputElement, CopyableTextFieldProps>(
@@ -24,6 +25,7 @@ const CopyableTextField = React.forwardRef<HTMLInputElement, CopyableTextFieldPr
       tooltipAlign = 'end',
       readOnly = true,
       endAdornment,
+      showCopyButton = true,
       ...props
     },
     ref,
@@ -71,13 +73,17 @@ const CopyableTextField = React.forwardRef<HTMLInputElement, CopyableTextFieldPr
         readOnly={readOnly}
         {...props}
         endAdornment={
-          endAdornment ? (
-            <div className="flex items-center gap-1">
-              {endAdornment}
-              {copyButton}
-            </div>
+          showCopyButton ? (
+            endAdornment ? (
+              <div className="flex items-center gap-1">
+                {endAdornment}
+                {copyButton}
+              </div>
+            ) : (
+              copyButton
+            )
           ) : (
-            copyButton
+            endAdornment
           )
         }
       />

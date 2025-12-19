@@ -1,6 +1,6 @@
 import type { MyAccountClient } from '@auth0/myaccount-js';
 import type { MyOrganizationClient } from '@auth0/myorganization-js';
-import type { SafeAny } from '@core/types';
+import type { ArbitraryObject } from '@core/types';
 
 import type { I18nServiceInterface } from '../i18n';
 
@@ -35,7 +35,7 @@ export interface User {
   address?: string;
   updated_at?: string;
   sub?: string;
-  [key: string]: SafeAny;
+  [key: string]: unknown;
 }
 
 export interface GetTokenSilentlyOptions {
@@ -44,24 +44,21 @@ export interface GetTokenSilentlyOptions {
     redirect_uri?: string;
     scope?: string;
     audience?: string;
-    [key: string]: SafeAny;
+    [key: string]: unknown;
   };
   timeoutInSeconds?: number;
   detailedResponse?: boolean;
 }
 
-/**
- * TODO: Not all frameworks share the same interface. We should have adapters to a common interface.
- */
 export interface Auth0ContextInterface<TUser = User> {
   user?: TUser;
   // auth0-spa-js: getUser()
   isAuthenticated: boolean;
   isLoading: boolean; // auth0-spa-js: do not exists
   error?: Error; // auth0-spa-js: do not exists
-  loginWithRedirect: (options?: SafeAny) => Promise<void>;
-  loginWithPopup: (options?: SafeAny) => Promise<void>;
-  logout: (options?: SafeAny) => Promise<void>;
+  loginWithRedirect: (options?: unknown) => Promise<void>;
+  loginWithPopup: (options?: unknown) => Promise<void>;
+  logout: (options?: unknown) => Promise<void>;
   getAccessTokenSilently: {
     (
       options: GetTokenSilentlyOptions & { detailedResponse: true },
@@ -70,14 +67,14 @@ export interface Auth0ContextInterface<TUser = User> {
     (options: GetTokenSilentlyOptions): Promise<GetTokenSilentlyVerboseResponse | string>;
   };
   // auth0-spa-js: getTokenSilently
-  getAccessTokenWithPopup: (options?: SafeAny) => Promise<string | undefined>;
+  getAccessTokenWithPopup: (options?: unknown) => Promise<string | undefined>;
   // auth0-spa-js: getTokenWithPopup
-  getIdTokenClaims: () => Promise<SafeAny>;
+  getIdTokenClaims: () => Promise<ArbitraryObject>;
   // auth0-spa-js: getIdTokenClaims(): Promise<undefined | IdToken>
   // react: getIdTokenClaims: (() => Promise<undefined | IdToken>);
   // vue: idTokenClaims: Ref<undefined | IdToken>;
   // angular: idTokenClaims$: Observable<undefined | null | IdToken>
-  handleRedirectCallback: () => Promise<SafeAny>;
+  handleRedirectCallback: () => Promise<ArbitraryObject>;
 }
 
 export interface BasicAuth0ContextInterface<TUser = User> {
@@ -90,8 +87,8 @@ export interface BasicAuth0ContextInterface<TUser = User> {
     (options?: GetTokenSilentlyOptions): Promise<string>;
     (options: GetTokenSilentlyOptions): Promise<GetTokenSilentlyVerboseResponse | string>;
   };
-  getAccessTokenWithPopup: (options?: SafeAny) => Promise<string | undefined>;
-  loginWithRedirect: (options?: SafeAny) => Promise<void>;
+  getAccessTokenWithPopup: (options?: unknown) => Promise<string | undefined>;
+  loginWithRedirect: (options?: unknown) => Promise<void>;
 }
 
 export interface AuthDetails {

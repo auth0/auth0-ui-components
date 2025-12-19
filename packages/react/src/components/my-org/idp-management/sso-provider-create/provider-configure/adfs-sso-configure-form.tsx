@@ -1,7 +1,7 @@
 import {
   createProviderConfigureSchema,
   type AdfsConfigureFormValues,
-} from '@auth0/web-ui-components-core';
+} from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useState } from 'react';
@@ -31,6 +31,7 @@ export interface AdfsConfigureFormHandle {
   validate: () => Promise<boolean>;
   getData: () => AdfsConfigureFormValues;
   isDirty: () => boolean;
+  reset: (data?: AdfsConfigureFormValues) => void;
 }
 
 interface AdfsConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
@@ -73,15 +74,29 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
       },
       getData: () => form.getValues(),
       isDirty: () => form.formState.isDirty,
+      reset: (data) => {
+        if (data) {
+          form.reset(data);
+        } else {
+          form.reset();
+        }
+      },
     }));
 
     const typeValue = form.watch('meta_data_source');
     const showFederationMetadataFile = typeValue === 'meta_data_file';
 
-    const handleFileUpload = (files: File[]) => {
+    const handleFileUpload = async (files: File[]) => {
       setUploadedFiles(files);
-      if (files.length > 0) {
-        form.setValue('fedMetadataXml', files[0].name);
+
+      const file = files[0];
+      if (file) {
+        try {
+          const content = await file.text();
+          form.setValue('fedMetadataXml', content);
+        } catch (error) {
+          console.error('Error reading file:', error);
+        }
       }
     };
 
@@ -202,7 +217,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
                   <FormControl>
                     <div className="space-y-3">
                       <FileUpload
-                        accept=".pem"
+                        accept=".xml"
                         onChange={handleFileUpload}
                         value={uploadedFiles}
                         maxFiles={1}

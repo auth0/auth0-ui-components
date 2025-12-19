@@ -115,7 +115,7 @@ export const I18nUtils = {
       }
 
       // Add the component
-      const component = components[componentKey];
+      const component = components ? components[componentKey as string] : undefined;
       if (component) {
         if (typeof component === 'function') {
           result.push(component(content));

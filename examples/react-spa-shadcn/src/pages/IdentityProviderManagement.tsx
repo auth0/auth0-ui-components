@@ -1,22 +1,18 @@
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-
-import { SsoProviderTable } from '@/auth0-ui-components/blocks/my-org/idp-management/sso-provider-table';
-import type { IdentityProvider } from '@/auth0-ui-components/types/my-org/idp-management/sso-provider/sso-provider-table-types';
 
 const IdentityProviderManagement = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  const handleCreate = () => {
-    // Navigate to create page or open create modal
-    navigate('/idp-management/create');
-  };
+  // const handleCreate = () => {
+  //   // Navigate to create page or open create modal
+  //   navigate('/idp-management/create');
+  // };
 
-  const handleEdit = (provider: IdentityProvider) => {
-    // Navigate to edit page with provider ID
-    navigate(`/idp-management/edit/${provider.id}`);
-  };
+  // const handleEdit = (provider: IdentityProvider) => {
+  //   // Navigate to edit page with provider ID
+  //   navigate(`/idp-management/edit/${provider.id}`);
+  // };
 
   return (
     <div className="p-6">
@@ -24,14 +20,14 @@ const IdentityProviderManagement = () => {
         {t('identity-provider-management.title')}
       </h1>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <SsoProviderTable
+        {/* <SsoProviderTable
           createAction={{
             onAfter: handleCreate,
           }}
           editAction={{
             onAfter: handleEdit,
           }}
-        />
+        /> */}
       </div>
     </div>
   );

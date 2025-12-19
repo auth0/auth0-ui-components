@@ -12,7 +12,8 @@ import type {
   ProvisioningFieldMap,
   ComponentAction,
   CreateIdPProvisioningConfigResponseContent,
-} from '@auth0/web-ui-components-core';
+  IdpStrategy,
+} from '@auth0/universal-components-core';
 
 import type { ProvisioningManageTokenClasses } from './provisioning-manage-token-types';
 
@@ -86,5 +87,6 @@ export interface SsoProvisioningDetailsProps
 export interface ProvisioningFieldMappingsProps
   extends SharedComponentProps<ProvisioningFieldMappingsMessages> {
   provisioningFieldMap: ProvisioningFieldMap | null;
+  provisioningStrategy: IdpStrategy | null;
   className?: string;
 }

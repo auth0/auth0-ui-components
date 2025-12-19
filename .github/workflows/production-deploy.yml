@@ -10,8 +10,7 @@ on:
   workflow_dispatch:
 jobs:
   Deploy-Production:
-    runs-on:
-      labels: ubuntu-22.04-2cpu-8ram-75ssd
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout the Codebase
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4

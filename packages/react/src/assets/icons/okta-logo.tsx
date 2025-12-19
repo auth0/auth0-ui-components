@@ -1,4 +1,4 @@
-import { OktaLogoSvg } from '@auth0/web-ui-components-core';
+import { OktaLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 
 export interface OktaLogoProps extends React.ImgHTMLAttributes<HTMLImageElement> {
