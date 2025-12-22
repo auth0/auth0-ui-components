@@ -29,4 +29,3 @@ Please describe how this can be tested by reviewers. Be specific about anything 
 - [ ] I have read the [Auth0 general contribution guidelines](https://github.com/auth0/.github/blob/master/CONTRIBUTING.md)
 - [ ] I have read the [Auth0 Code of Conduct](https://github.com/auth0/open-source-template/blob/master/CODE-OF-CONDUCT.md)
 - [ ] All existing and new tests complete without errors
-- [ ] All code guidelines in the [CONTRIBUTING documentation](https://github.com/auth0/.github/blob/master/CONTRIBUTING.md) have been run/followed
