@@ -13,6 +13,26 @@ export interface ThemeSettings {
 }
 
 /**
+ * BrandingTheme
+ *
+ * Controlled UL branding configuration.
+ */
+export type BrandingTheme = {
+  mode?: 'light' | 'dark' | 'system';
+  primaryColor?: string;
+  borderRadius?: number;
+  fontFamily?: string;
+  [key: string]: unknown;
+};
+
+/**
+ * CustomerOverrides
+ *
+ * Custom CSS variable overrides (e.g. "--button-radius": "6px").
+ */
+export type CustomOverrides = Record<string, string>;
+
+/**
  * ThemeInput
  *
  * Optional props passed into the ThemeProvider.

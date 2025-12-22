@@ -13,6 +13,7 @@ import type {
   EnhancedTranslationFunction,
   IdentityProviderAssociatedWithDomain,
 } from '@auth0/universal-components-core';
+import type { useDomainTable } from '@react/hooks/my-org/domain-management/use-domain-table';
 
 export type { Domain };
 
@@ -105,21 +106,29 @@ export interface UseDomainTableLogicOptions {
   fetchDomains: UseDomainTableResult['fetchDomains'];
 }
 
-export interface UseDomainTableLogicResult {
-  // Modal state
+// State management for Domain Table
+export interface DomainTableState {
   showCreateModal: boolean;
   showConfigureModal: boolean;
   showVerifyModal: boolean;
   showDeleteModal: boolean;
   verifyError: string | undefined;
   selectedDomain: Domain | null;
+}
 
+// State Actions for Domain Table
+export interface DomainTableStateActions {
   // State setters
   setShowCreateModal: (show: boolean) => void;
   setShowConfigureModal: (show: boolean) => void;
   setShowVerifyModal: (show: boolean) => void;
   setShowDeleteModal: (show: boolean) => void;
+  setSelectedDomain: (domain: Domain | null) => void;
+  setVerifyError: (error: string | undefined) => void;
+}
 
+// Logic management for Domain Table
+export interface DomainTableLogicActions {
   // Handlers
   handleCreate: (domainUrl: string) => Promise<void>;
   handleVerify: (domain: Domain) => Promise<void>;
@@ -130,4 +139,21 @@ export interface UseDomainTableLogicResult {
   handleConfigureClick: (domain: Domain) => void;
   handleVerifyClick: (domain: Domain) => Promise<void>;
   handleDeleteClick: (domain: Domain) => void;
+}
+
+export interface UseDomainTableLogicResult
+  extends DomainTableState,
+    DomainTableStateActions,
+    DomainTableLogicActions {}
+
+// State and logic props for Domain Table
+export interface DomainTableLogicProps {
+  state: DomainTableState & DomainTableStateActions;
+  actions: DomainTableLogicActions;
+  domainTableActions: ReturnType<typeof useDomainTable>;
+}
+
+// Presentational Domain Table component props
+export interface DomainTableUIProps extends DomainTableProps {
+  logic: DomainTableLogicProps;
 }

@@ -2,10 +2,7 @@ import { type Domain, type IdentityProvider } from '@auth0/universal-components-
 import { useCallback, useEffect, useState } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
-import type {
-  UseDomainTableLogicOptions,
-  UseDomainTableLogicResult,
-} from '../../../types/my-org/domain-management/domain-table-types';
+import type { UseDomainTableLogicOptions } from '../../../types/my-org/domain-management/domain-table-types';
 import { useErrorHandler } from '../../use-error-handler';
 
 export function useDomainTableLogic({
@@ -17,7 +14,7 @@ export function useDomainTableLogic({
   onDeleteFromProvider,
   fetchProviders,
   fetchDomains,
-}: UseDomainTableLogicOptions): UseDomainTableLogicResult {
+}: UseDomainTableLogicOptions) {
   const { handleError } = useErrorHandler();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showConfigureModal, setShowConfigureModal] = useState(false);
