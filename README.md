@@ -1,4 +1,4 @@
-# Auth0 Web Universal Components
+# Auth0 Universal Components for Web
 
 A comprehensive library of reusable UI components and utilities for Auth0 integrations, built with modern web technologies and designed for scalability.
 
@@ -6,10 +6,10 @@ A comprehensive library of reusable UI components and utilities for Auth0 integr
 
 For detailed information on how to use these components and get started with Auth0, please refer to the following resources:
 
+- **[Examples Folder](./examples/)**: Practical, hands-on sample applications demonstrating how to integrate and use these components in a real project.
 - **[Auth0 Quickstarts](https://auth0.com/docs/quickstarts)**: Official guides for creating and configuring your application on the Auth0 platform.
 - **[Auth0 APIs](https://auth0.com/docs/api)**: Comprehensive documentation for Auth0's APIs.
 - **[Component Documentation](https://auth0-ui-components.vercel.app/)**: Live Storybook showcasing all available components, their props, and usage examples.
-- **[Examples Folder](./examples/)**: Practical, hands-on sample applications demonstrating how to integrate and use these components in a real project.
 
 ## 📦 Packages Overview
 

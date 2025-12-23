@@ -67,7 +67,11 @@ const App = () => {
             clientId={config.auth0.clientId}
             authorizationParams={{
               redirect_uri: window.location.origin,
+              scope: 'offline_access openid profile email',
             }}
+            cacheLocation="localstorage"
+            useRefreshTokens={true}
+            useMrrt={true}
           >
             <Auth0ComponentProvider
               authDetails={defaultAuthDetails}
