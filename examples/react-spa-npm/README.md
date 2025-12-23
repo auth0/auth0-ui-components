@@ -6,6 +6,7 @@ A React (npm) example that demonstrates Auth0 authentication using a SPA along w
 
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
+- [Adding a Universal Component](#adding-a-universal-component-to-your-app)
 - [Universal Component Docs (Component-Specific Requirements)](#universal-component-docs-component-specific-requirements)
 - [Troubleshooting](#troubleshooting)
 
@@ -94,6 +95,31 @@ These instructions assume that you're using `pnpm`, which is automatically inclu
    **http://localhost:5173**
 
    The application should now be running with Auth0 authentication integrated.
+
+## Adding a Universal Component to your app
+
+In this example, we have routes defined within the side-bar at `examples/react-spa-npm/src/App.tsx`.
+
+The domain-management route is served by `examples/react-spa-npm/src/views/domain-management-page.tsx` which currently renders an empty page.
+
+Edit this file to uncomment `<DomainTable />` and deleted the `<p>` entry and save. Final result should look like below.
+
+```typescript
+import { DomainTable } from '@auth0/universal-components-react/spa';
+
+const DomainManagementPage = () => {
+  return (
+    <div className="space-y-6">
+      </p>
+         <DomainTable />
+    </div>
+  );
+};
+
+export default DomainManagementPage;
+```
+
+Navigate to `Domain Management` menu item to view the Domain Management Universal Component.
 
 ## Universal Component Docs (Component-Specific Requirements)
 
