@@ -77,7 +77,7 @@ export async function checkOrgChanges(
 /**
  * Apply Orgs changes
  */
-export async function applyOrganizationChanges(changePlan, connection) {
+export async function applyOrgsChanges(changePlan, connection) {
   if (changePlan.action === ChangeAction.SKIP) {
     const spinner = ora({
       text: `Org is up to date`,

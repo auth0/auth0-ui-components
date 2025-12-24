@@ -303,16 +303,16 @@ export async function applyDashboardClientChanges(
 }
 
 /**
- * Apply My Organization API Client Grant changes
+ * Apply My Org API Client Grant changes
  */
-export async function applyMyOrganizationClientGrantChanges(
+export async function applyMyOrgClientGrantChanges(
   changePlan,
   domain,
   clientId
 ) {
   if (changePlan.action === ChangeAction.SKIP) {
     const spinner = ora({
-      text: `My Organization API Client Grant is up to date`,
+      text: `My Org API Client Grant is up to date`,
     }).start()
     spinner.succeed()
     return changePlan.existing
@@ -320,7 +320,7 @@ export async function applyMyOrganizationClientGrantChanges(
 
   if (changePlan.action === ChangeAction.CREATE) {
     const spinner = ora({
-      text: `Creating ${DASHBOARD_CLIENT_NAME} client grants for My Organization API`,
+      text: `Creating ${DASHBOARD_CLIENT_NAME} client grants for My Org API`,
     }).start()
 
     try {
@@ -336,7 +336,7 @@ export async function applyMyOrganizationClientGrantChanges(
       ];
 
       await $`auth0 ${createClientGrantArgs}`
-      spinner.succeed(`Created My Organization API Client Grant`)
+      spinner.succeed(`Created My Org API Client Grant`)
     } catch (e) {
       spinner.fail(
         `Failed to create the ${DASHBOARD_CLIENT_NAME} client grants for My Organization API`
@@ -347,7 +347,7 @@ export async function applyMyOrganizationClientGrantChanges(
 
   if (changePlan.action === ChangeAction.UPDATE) {
     const spinner = ora({
-      text: `Adding missing scopes to My Organization API Client Grant`,
+      text: `Adding missing scopes to My Org API Client Grant`,
     }).start()
 
     try {
@@ -359,11 +359,11 @@ export async function applyMyOrganizationClientGrantChanges(
         scope: updatedScopes,
       })
       spinner.succeed(
-        `Updated My Organization API Client Grant with ${updates.missingScopes.length} new scope(s)`
+        `Updated My Org API Client Grant with ${updates.missingScopes.length} new scope(s)`
       )
       return existing
     } catch (e) {
-      spinner.fail(`Failed to update My Organization API Client Grant`)
+      spinner.fail(`Failed to update My Org API Client Grant`)
       throw e
     }
   }

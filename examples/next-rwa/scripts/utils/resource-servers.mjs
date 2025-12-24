@@ -78,7 +78,7 @@ export function checkMyOrgResourceServerChanges(
 /**
  * Apply My Organization Resource Server changes
  */
-export async function applyMyOrganizationResourceServerChanges(changePlan, domain) {
+export async function applyMyOrgResourceServerChanges(changePlan, domain) {
   if (changePlan.action === ChangeAction.SKIP) {
     const spinner = ora({
       text: `My Organization API is up to date`,

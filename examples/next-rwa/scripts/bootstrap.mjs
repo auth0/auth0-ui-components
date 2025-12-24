@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import {
   applyDashboardClientChanges,
-  applyMyOrganizationClientGrantChanges,
+  applyMyOrgClientGrantChanges,
 } from "./utils/clients.mjs"
 import {
   applyConnectionProfileChanges,
@@ -15,12 +15,12 @@ import {
 import { writeEnvFile } from "./utils/env-writer.mjs"
 import { confirmWithUser } from "./utils/helpers.mjs"
 import { applyUserAttributeProfileChanges } from "./utils/profiles.mjs"
-import { applyMyOrganizationResourceServerChanges } from "./utils/resource-servers.mjs"
+import { applyMyOrgResourceServerChanges } from "./utils/resource-servers.mjs"
 import {
   applyAdminRoleChanges,
 } from "./utils/roles.mjs"
-import { applyOrganizationChanges} from "./utils/orgs.mjs"
-import { applyOrganizationMemberChanges} from "./utils/members.mjs"
+import { applyOrgsChanges} from "./utils/orgs.mjs"
+import { applyOrgMemberChanges} from "./utils/members.mjs"
 import {
   applyPromptSettingsChanges,
   applyTenantSettingsChanges,
@@ -134,7 +134,7 @@ async function main() {
 
   // 6c. Resource Server (My Organization API)
   console.log("Configuring My Organization API...")
-  await applyMyOrganizationResourceServerChanges(
+  await applyMyOrgResourceServerChanges(
     plan.resourceServer,
     domain
   )
@@ -151,7 +151,7 @@ async function main() {
 
   // 6e. Grant Dashboard Client access to My Organization API
   console.log("Configuring Client Grants...")
-  await applyMyOrganizationClientGrantChanges(
+  await applyMyOrgClientGrantChanges(
     plan.clientGrants.myOrg,
     domain,
     dashboardClient.client_id
@@ -173,13 +173,13 @@ async function main() {
 
   // 6h. Orgs
   console.log("Creating Org...")
-  const org = await applyOrganizationChanges(plan.orgs, connection.id)
+  const org = await applyOrgsChanges(plan.orgs, connection.id)
   console.log("")
 
   // 6i. Org Members
   console.log("Adding Org Members...")
   // eslint-disable-next-line no-unused-vars
-  const orgMember = await applyOrganizationMemberChanges(plan.orgMembers, org.id, connection.id,adminRole.id)
+  const orgMember = await applyOrgMemberChanges(plan.orgMembers, org.id, connection.id,adminRole.id)
   console.log("")
   
   // Step 7: Generate .env.local

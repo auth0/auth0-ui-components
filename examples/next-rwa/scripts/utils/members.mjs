@@ -61,7 +61,7 @@ export async function checkOrgMembers(
 /**
  * Apply OrgMember changes
  */
-export async function applyOrganizationMemberChanges(changePlan, org, connection, role) {
+export async function applyOrgMemberChanges(changePlan, org, connection, role) {
   if (changePlan.action === ChangeAction.SKIP) {
     const spinner = ora({
       text: `No change for org member required`,
