@@ -24,7 +24,7 @@ This project uses a **monorepo architecture** designed for multi-framework suppo
 
 **What it provides:**
 
-- 📦 **Internal Services**: Handles all API logic for "My Account" and "My Org" components, using the "My Account" and "My Org" SDKs.
+- 📦 **Internal Services**: Handles all API logic for "My Account" and "My Organization" components, using the "My Account" and "My Organization" SDKs.
 - 🌐 **Internationalization (i18n)**: Contains all translation files for multi-language support and utils.
 - 🛡️ **Schema Validation**: Defines and maintains types for schema validation.
 - 🛠️ **Shared Utilities**: Provides shared functions, TypeScript types, and theme management utilities.
@@ -35,7 +35,7 @@ This project uses a **monorepo architecture** designed for multi-framework suppo
 
 **What it provides:**
 
-- ⚛️ **React Components**: Pre-built UI components for Auth0 features (MFA management, user profiles, ,org management etc.)
+- ⚛️ **React Components**: Pre-built UI components for Auth0 features (MFA management, user profiles, ,organization management etc.)
 - 🎣 **Custom Hooks**: React hooks for component state management and API interactions
 - 🎨 **UI Elements**: Beautiful, accessible components built with Radix UI and Tailwind CSS, following shadcn design patterns.
 - 🔄 **Providers**: React context providers for managing authentication, theme, and internationalization.
@@ -104,7 +104,7 @@ pnpm run test:core
 To run a specific test, go to the relevant package folder and run:
 
 ```bash
-pnpm run test org-details-edit
+pnpm run test organization-details-edit
 ```
 
 #### Shadcn Local Development
@@ -129,7 +129,7 @@ pnpm run dev
 
     ```bash
     npx shadcn@latest add http://localhost:5173/r/my-account/user-mfa-management.json --overwrite
-    npx shadcn@latest add http://localhost:5173/r/my-org/org-details-edit.json --overwrite
+    npx shadcn@latest add http://localhost:5173/r/my-organization/organization-details-edit.json --overwrite
     # ... other components
     ```
 

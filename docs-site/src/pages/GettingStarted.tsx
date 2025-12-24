@@ -136,7 +136,7 @@ export default function GettingStarted() {
                 Organization management and administration components.
               </p>
               <a
-                href="/my-org"
+                href="/my-organization"
                 className="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-medium transition-colors"
               >
                 Learn More
@@ -196,9 +196,9 @@ export default function GettingStarted() {
                 title="1. Install Core Package"
               />
               <CodeBlock
-                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-org/org-details-edit.json"
+                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-organization/organization-details-edit.json"
                 language="bash"
-                title="2. Add Shadcn Block (e.g., OrgDetailsEdit)"
+                title="2. Add Shadcn Block (e.g., OrganizationDetailsEdit)"
               />
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
@@ -482,7 +482,7 @@ function App() {
               </h4>
               <CodeBlock
                 code={`import { useAuth0 } from '@auth0/auth0-react';
-import { OrgDetailsEdit } from '@auth0/universal-components-react/spa';
+import { OrganizationDetailsEdit } from '@auth0/universal-components-react/spa';
 
 function OrganizationManagementPage() {
   const { isAuthenticated, isLoading } = useAuth0();
@@ -492,7 +492,7 @@ function OrganizationManagementPage() {
 
   return (
     <div>
-      <OrgDetailsEdit />
+      <OrganizationDetailsEdit />
     </div>
   );
 }`}
@@ -552,12 +552,12 @@ export default function RootLayout({
               <CodeBlock
                 code={`'use client';
 
-import { OrgDetailsEdit } from '@auth0/universal-components-react/rwa';
+import { OrganizationDetailsEdit } from '@auth0/universal-components-react/rwa';
 
 export default function OrganizationManagementPage() {
   return (
     <div>
-      <OrgDetailsEdit />
+      <OrganizationDetailsEdit />
     </div>
   );
 }`}
@@ -1321,7 +1321,7 @@ export default function OrganizationManagementPage() {
                 Organization management and administration components.
               </p>
               <a
-                href="/my-org"
+                href="/my-organization"
                 className="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-medium transition-colors"
               >
                 Explore My Organization

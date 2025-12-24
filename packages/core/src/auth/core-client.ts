@@ -1,5 +1,5 @@
 import { initializeMyAccountClient } from '@core/services/my-account/my-account-api-service';
-import { initializeMyOrgClient } from '@core/services/my-org/my-org-api-service';
+import { initializeMyOrganizationClient } from '@core/services/my-organization/my-organization-api-service';
 
 import type { I18nInitOptions } from '../i18n';
 import { createI18nService } from '../i18n';
@@ -25,10 +25,8 @@ export async function createCoreClient(
   const auth = initializeAuthDetails(authDetails);
 
   const tokenManagerService = createTokenManager(auth);
-  const { client: myOrgApiClient, setLatestScopes: setOrgScopes } = initializeMyOrgClient(
-    auth,
-    tokenManagerService,
-  );
+  const { client: myOrganizationApiClient, setLatestScopes: setOrgScopes } =
+    initializeMyOrganizationClient(auth, tokenManagerService);
   const { client: myAccountApiClient, setLatestScopes: setAccountScopes } =
     initializeMyAccountClient(auth, tokenManagerService);
 
@@ -74,7 +72,7 @@ export async function createCoreClient(
   return {
     ...baseCoreClient,
     myAccountApiClient,
-    myOrgApiClient,
+    myOrganizationApiClient,
     getMyAccountApiClient() {
       if (!myAccountApiClient) {
         throw new Error(
@@ -83,13 +81,13 @@ export async function createCoreClient(
       }
       return myAccountApiClient;
     },
-    getMyOrgApiClient() {
-      if (!myOrgApiClient) {
+    getMyOrganizationApiClient() {
+      if (!myOrganizationApiClient) {
         throw new Error(
-          'myOrgApiClient is not enabled. Please ensure you are in an Auth0 Organization context.',
+          'myOrganizationApiClient is not enabled. Please ensure you are in an Auth0 Organization context.',
         );
       }
-      return myOrgApiClient;
+      return myOrganizationApiClient;
     },
   };
 }

@@ -330,30 +330,30 @@
       ]
     },
     {
-      "name": "my-org/org-details-edit",
+      "name": "my-organization/organization-details-edit",
       "type": "registry:block",
       "title": "Organization Management",
       "description": "A block for managing organization details, including editing organization settings and branding, with delete functionality.",
       "files": [
         {
-          "path": "src/blocks/my-org/org-management/org-details-edit.tsx",
+          "path": "src/blocks/my-organization/organization-management/organization-details-edit.tsx",
           "type": "registry:block",
-          "target": "auth0-ui-components/blocks/my-org/org-management/org-details-edit.tsx"
+          "target": "auth0-ui-components/blocks/my-organization/organization-management/organization-details-edit.tsx"
         },
         {
-          "path": "src/components/my-org/org-management/org-details/org-details.tsx",
+          "path": "src/components/my-organization/organization-management/organization-details/organization-details.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/org-management/org-details/org-details.tsx"
+          "target": "auth0-ui-components/components/my-organization/organization-management/organization-details/organization-details.tsx"
         },
         {
-          "path": "src/components/my-org/org-management/org-details/settings-details.tsx",
+          "path": "src/components/my-organization/organization-management/organization-details/settings-details.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/org-management/org-details/settings-details.tsx"
+          "target": "auth0-ui-components/components/my-organization/organization-management/organization-details/settings-details.tsx"
         },
         {
-          "path": "src/components/my-org/org-management/org-details/branding-details.tsx",
+          "path": "src/components/my-organization/organization-management/organization-details/branding-details.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/org-management/org-details/branding-details.tsx"
+          "target": "auth0-ui-components/components/my-organization/organization-management/organization-details/branding-details.tsx"
         },
         {
           "path": "src/components/ui/button.tsx",
@@ -486,9 +486,9 @@
           "target": "auth0-ui-components/hooks/use-scope-manager.ts"
         },
         {
-          "path": "src/hooks/my-org/org-management/use-org-details-edit.ts",
+          "path": "src/hooks/my-organization/organization-management/use-organization-details-edit.ts",
           "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/my-org/org-management/use-org-details-edit.ts"
+          "target": "auth0-ui-components/hooks/my-organization/organization-management/use-organization-details-edit.ts"
         },
         {
           "path": "src/providers/proxy-provider.tsx",
@@ -511,14 +511,14 @@
           "target": "auth0-ui-components/providers/scope-manager-provider.tsx"
         },
         {
-          "path": "src/types/my-org/org-management/org-details-types.ts",
+          "path": "src/types/my-organization/organization-management/organization-details-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/org-management/org-details-types.ts"
+          "target": "auth0-ui-components/types/my-organization/organization-management/organization-details-types.ts"
         },
         {
-          "path": "src/types/my-org/org-management/org-details-edit-types.ts",
+          "path": "src/types/my-organization/organization-management/organization-details-edit-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/org-management/org-details-edit-types.ts"
+          "target": "auth0-ui-components/types/my-organization/organization-management/organization-details-edit-types.ts"
         },
         {
           "path": "src/types/auth-types.ts",
@@ -602,40 +602,40 @@
       ]
     },
     {
-      "name": "my-org/domain-table",
+      "name": "my-organization/domain-table",
       "type": "registry:block",
       "title": "Domain Management Table",
       "description": "A block for managing organization domains, including creating, verifying, configuring identity providers, and deleting domains.",
       "files": [
         {
-          "path": "src/blocks/my-org/domain-management/domain-table.tsx",
+          "path": "src/blocks/my-organization/domain-management/domain-table.tsx",
           "type": "registry:block",
-          "target": "auth0-ui-components/blocks/my-org/domain-management/domain-table.tsx"
+          "target": "auth0-ui-components/blocks/my-organization/domain-management/domain-table.tsx"
         },
         {
-          "path": "src/components/my-org/domain-management/domain-table/domain-table-actions-column.tsx",
+          "path": "src/components/my-organization/domain-management/domain-table/domain-table-actions-column.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/domain-management/domain-table/domain-table-actions-column.tsx"
+          "target": "auth0-ui-components/components/my-organization/domain-management/domain-table/domain-table-actions-column.tsx"
         },
         {
-          "path": "src/components/my-org/domain-management/domain-create/domain-create-modal.tsx",
+          "path": "src/components/my-organization/domain-management/domain-create/domain-create-modal.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/domain-management/domain-create/domain-create-modal.tsx"
+          "target": "auth0-ui-components/components/my-organization/domain-management/domain-create/domain-create-modal.tsx"
         },
         {
-          "path": "src/components/my-org/domain-management/domain-verify/domain-verify-modal.tsx",
+          "path": "src/components/my-organization/domain-management/domain-verify/domain-verify-modal.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/domain-management/domain-verify/domain-verify-modal.tsx"
+          "target": "auth0-ui-components/components/my-organization/domain-management/domain-verify/domain-verify-modal.tsx"
         },
         {
-          "path": "src/components/my-org/domain-management/domain-configure/domain-configure-providers-modal.tsx",
+          "path": "src/components/my-organization/domain-management/domain-configure/domain-configure-providers-modal.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/domain-management/domain-configure/domain-configure-providers-modal.tsx"
+          "target": "auth0-ui-components/components/my-organization/domain-management/domain-configure/domain-configure-providers-modal.tsx"
         },
         {
-          "path": "src/components/my-org/domain-management/domain-delete/domain-delete-modal.tsx",
+          "path": "src/components/my-organization/domain-management/domain-delete/domain-delete-modal.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/domain-management/domain-delete/domain-delete-modal.tsx"
+          "target": "auth0-ui-components/components/my-organization/domain-management/domain-delete/domain-delete-modal.tsx"
         },
         {
           "path": "src/components/ui/alert.tsx",
@@ -773,14 +773,14 @@
           "target": "auth0-ui-components/hooks/use-scope-manager.ts"
         },
         {
-          "path": "src/hooks/my-org/domain-management/use-domain-table.tsx",
+          "path": "src/hooks/my-organization/domain-management/use-domain-table.tsx",
           "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/my-org/domain-management/use-domain-table.tsx"
+          "target": "auth0-ui-components/hooks/my-organization/domain-management/use-domain-table.tsx"
         },
         {
-          "path": "src/hooks/my-org/domain-management/use-domain-table-logic.tsx",
+          "path": "src/hooks/my-organization/domain-management/use-domain-table-logic.tsx",
           "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/my-org/domain-management/use-domain-table-logic.tsx"
+          "target": "auth0-ui-components/hooks/my-organization/domain-management/use-domain-table-logic.tsx"
         },
         {
           "path": "src/providers/proxy-provider.tsx",
@@ -803,34 +803,34 @@
           "target": "auth0-ui-components/providers/scope-manager-provider.tsx"
         },
         {
-          "path": "src/types/my-org/domain-management/domain-table-types.ts",
+          "path": "src/types/my-organization/domain-management/domain-table-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/domain-management/domain-table-types.ts"
+          "target": "auth0-ui-components/types/my-organization/domain-management/domain-table-types.ts"
         },
         {
-          "path": "src/types/my-org/domain-management/domain-create-types.ts",
+          "path": "src/types/my-organization/domain-management/domain-create-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/domain-management/domain-create-types.ts"
+          "target": "auth0-ui-components/types/my-organization/domain-management/domain-create-types.ts"
         },
         {
-          "path": "src/types/my-org/domain-management/domain-verify-types.ts",
+          "path": "src/types/my-organization/domain-management/domain-verify-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/domain-management/domain-verify-types.ts"
+          "target": "auth0-ui-components/types/my-organization/domain-management/domain-verify-types.ts"
         },
         {
-          "path": "src/types/my-org/domain-management/domain-configure-types.ts",
+          "path": "src/types/my-organization/domain-management/domain-configure-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/domain-management/domain-configure-types.ts"
+          "target": "auth0-ui-components/types/my-organization/domain-management/domain-configure-types.ts"
         },
         {
-          "path": "src/types/my-org/domain-management/domain-delete-types.ts",
+          "path": "src/types/my-organization/domain-management/domain-delete-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/domain-management/domain-delete-types.ts"
+          "target": "auth0-ui-components/types/my-organization/domain-management/domain-delete-types.ts"
         },
         {
-          "path": "src/types/my-org/idp-management/sso-provider/sso-provider-table-types.ts",
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-table-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/idp-management/sso-provider/sso-provider-table-types.ts"
+          "target": "auth0-ui-components/types/my-organization/idp-management/sso-provider/sso-provider-table-types.ts"
         },
         {
           "path": "src/types/auth-types.ts",
@@ -858,9 +858,9 @@
           "target": "auth0-ui-components/lib/theme-utils.ts"
         },
         {
-          "path": "src/lib/my-org/domain-management.ts",
+          "path": "src/lib/my-organization/domain-management.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/lib/my-org/domain-management.ts"
+          "target": "auth0-ui-components/lib/my-organization/domain-management.ts"
         },
         {
           "path": "src/styles/globals.css",
@@ -918,45 +918,45 @@
       ]
     },
     {
-      "name": "my-org/sso-provider-table",
+      "name": "my-organization/sso-provider-table",
       "type": "registry:block",
       "title": "SSO Provider Table",
       "description": "A block for managing SSO identity providers in a table format, including create, edit, delete, enable/disable, and remove from organization capabilities.",
       "files": [
         {
-          "path": "src/blocks/my-org/idp-management/sso-provider-table.tsx",
+          "path": "src/blocks/my-organization/idp-management/sso-provider-table.tsx",
           "type": "registry:block",
-          "target": "auth0-ui-components/blocks/my-org/idp-management/sso-provider-table.tsx"
+          "target": "auth0-ui-components/blocks/my-organization/idp-management/sso-provider-table.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-table/sso-provider-table-action.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-table/sso-provider-table-action.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-table/sso-provider-table-action.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-table/sso-provider-table-action.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-delete/provider-delete-modal.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-delete/provider-delete-modal.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-delete/provider-delete-modal.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-delete/provider-delete-modal.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-delete/provider-delete-modal-content.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-delete/provider-delete-modal-content.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-delete/provider-delete-modal-content.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-delete/provider-delete-modal-content.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-delete/provider-delete.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-delete/provider-delete.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-delete/provider-delete.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-delete/provider-delete.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-remove/provider-remove-modal.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-remove/provider-remove-modal.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-remove/provider-remove-modal.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-remove/provider-remove-modal.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-remove/provider-remove.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-remove/provider-remove.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-remove/provider-remove.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-remove/provider-remove.tsx"
         },
         {
           "path": "src/components/ui/badge.tsx",
@@ -1089,9 +1089,9 @@
           "target": "auth0-ui-components/hooks/use-scope-manager.ts"
         },
         {
-          "path": "src/hooks/my-org/idp-management/use-sso-provider-table.ts",
+          "path": "src/hooks/my-organization/idp-management/use-sso-provider-table.ts",
           "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/my-org/idp-management/use-sso-provider-table.ts"
+          "target": "auth0-ui-components/hooks/my-organization/idp-management/use-sso-provider-table.ts"
         },
         {
           "path": "src/providers/proxy-provider.tsx",
@@ -1114,24 +1114,24 @@
           "target": "auth0-ui-components/providers/scope-manager-provider.tsx"
         },
         {
-          "path": "src/hooks/my-org/config/use-config.tsx",
+          "path": "src/hooks/my-organization/config/use-config.tsx",
           "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/my-org/config/use-config.tsx"
+          "target": "auth0-ui-components/hooks/my-organization/config/use-config.tsx"
         },
         {
-          "path": "src/hooks/my-org/config/use-idp-config.tsx",
+          "path": "src/hooks/my-organization/config/use-idp-config.tsx",
           "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/my-org/config/use-idp-config.tsx"
+          "target": "auth0-ui-components/hooks/my-organization/config/use-idp-config.tsx"
         },
         {
-          "path": "src/types/my-org/idp-management/sso-provider/sso-provider-table-types.ts",
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-table-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/idp-management/sso-provider/sso-provider-table-types.ts"
+          "target": "auth0-ui-components/types/my-organization/idp-management/sso-provider/sso-provider-table-types.ts"
         },
         {
-          "path": "src/types/my-org/idp-management/sso-provider/sso-provider-delete-types.ts",
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/idp-management/sso-provider/sso-provider-delete-types.ts"
+          "target": "auth0-ui-components/types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts"
         },
         {
           "path": "src/types/auth-types.ts",
@@ -1214,70 +1214,70 @@
       ]
     },
     {
-      "name": "my-org/sso-provider-create",
+      "name": "my-organization/sso-provider-create",
       "type": "registry:block",
       "title": "SSO Provider Creation Wizard",
       "description": "A multi-step wizard for creating SSO identity providers with support for multiple strategies including SAMLP, OIDC, ADFS, Okta, Google Workspace, Azure AD, and PingFederate.",
       "files": [
         {
-          "path": "src/blocks/my-org/idp-management/sso-provider-create.tsx",
+          "path": "src/blocks/my-organization/idp-management/sso-provider-create.tsx",
           "type": "registry:block",
-          "target": "auth0-ui-components/blocks/my-org/idp-management/sso-provider-create.tsx"
+          "target": "auth0-ui-components/blocks/my-organization/idp-management/sso-provider-create.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-select.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-select.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-select.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-select.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-details.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-details.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-details.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-details.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/provider-configure.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/provider-configure.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/provider-configure.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/provider-configure.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/provider-configure-fields.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/provider-configure-fields.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/provider-configure-fields.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/provider-configure-fields.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/okta-sso-configure-form.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/okta-sso-configure-form.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/okta-sso-configure-form.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/okta-sso-configure-form.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form.tsx"
         },
         {
           "path": "src/components/ui/accordion.tsx",
@@ -1435,14 +1435,14 @@
           "target": "auth0-ui-components/hooks/use-scope-manager.ts"
         },
         {
-          "path": "src/hooks/my-org/idp-management/use-sso-provider-create.ts",
+          "path": "src/hooks/my-organization/idp-management/use-sso-provider-create.ts",
           "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/my-org/idp-management/use-sso-provider-create.ts"
+          "target": "auth0-ui-components/hooks/my-organization/idp-management/use-sso-provider-create.ts"
         },
         {
-          "path": "src/hooks/my-org/idp-management/use-provider-form-mode.ts",
+          "path": "src/hooks/my-organization/idp-management/use-provider-form-mode.ts",
           "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/my-org/idp-management/use-provider-form-mode.ts"
+          "target": "auth0-ui-components/hooks/my-organization/idp-management/use-provider-form-mode.ts"
         },
         {
           "path": "src/providers/proxy-provider.tsx",
@@ -1465,24 +1465,24 @@
           "target": "auth0-ui-components/providers/scope-manager-provider.tsx"
         },
         {
-          "path": "src/hooks/my-org/config/use-config.tsx",
+          "path": "src/hooks/my-organization/config/use-config.tsx",
           "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/my-org/config/use-config.tsx"
+          "target": "auth0-ui-components/hooks/my-organization/config/use-config.tsx"
         },
         {
-          "path": "src/hooks/my-org/config/use-idp-config.tsx",
+          "path": "src/hooks/my-organization/config/use-idp-config.tsx",
           "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/my-org/config/use-idp-config.tsx"
+          "target": "auth0-ui-components/hooks/my-organization/config/use-idp-config.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx"
         },
         {
-          "path": "src/types/my-org/idp-management/sso-provider/sso-provider-create-types.ts",
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/idp-management/sso-provider/sso-provider-create-types.ts"
+          "target": "auth0-ui-components/types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts"
         },
         {
           "path": "src/types/auth-types.ts",
@@ -1599,165 +1599,165 @@
       ]
     },
     {
-      "name": "my-org/sso-provider-edit",
+      "name": "my-organization/sso-provider-edit",
       "type": "registry:block",
       "title": "SSO Provider Edit",
       "description": "A comprehensive block for editing SSO identity providers with tabs for provider configuration, SCIM provisioning settings, and domain management. Includes token management, field mappings, and domain verification capabilities.",
       "files": [
         {
-          "path": "src/blocks/my-org/idp-management/sso-provider-edit.tsx",
+          "path": "src/blocks/my-organization/idp-management/sso-provider-edit.tsx",
           "type": "registry:block",
-          "target": "auth0-ui-components/blocks/my-org/idp-management/sso-provider-edit.tsx"
+          "target": "auth0-ui-components/blocks/my-organization/idp-management/sso-provider-edit.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-edit/sso-domain-tab.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-edit/sso-domain-tab.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-edit/sso-domain-tab.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-edit/sso-domain-tab.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-edit/sso-domain-tab-action-column.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-edit/sso-domain-tab-action-column.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-edit/sso-domain-tab-action-column.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-edit/sso-domain-tab-action-column.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-edit/sso-provider-details.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-edit/sso-provider-details.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-edit/sso-provider-details.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-edit/sso-provider-details.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-edit/sso-provider-tab.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-edit/sso-provider-tab.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-edit/sso-provider-tab.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-edit/sso-provider-tab.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-delete/provider-delete.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-delete/provider-delete.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-delete/provider-delete.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-delete/provider-delete.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-delete/provider-delete-modal.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-delete/provider-delete-modal.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-delete/provider-delete-modal.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-delete/provider-delete-modal.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-delete/provider-delete-modal-content.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-delete/provider-delete-modal-content.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-delete/provider-delete-modal-content.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-delete/provider-delete-modal-content.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-remove/provider-remove.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-remove/provider-remove.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-remove/provider-remove.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-remove/provider-remove.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-remove/provider-remove-modal.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-remove/provider-remove-modal.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-remove/provider-remove-modal.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-remove/provider-remove-modal.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-edit/sso-provisioning/provisioning-manage-token.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/provisioning-manage-token.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-edit/sso-provisioning/provisioning-manage-token.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/provisioning-manage-token.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-edit/sso-provisioning/provisioning-mappings.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/provisioning-mappings.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-edit/sso-provisioning/provisioning-mappings.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/provisioning-mappings.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-modal.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-modal.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-modal.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-modal.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal-content.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal-content.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal-content.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal-content.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal-content.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal-content.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal-content.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal-content.tsx"
         },
         {
-          "path": "src/components/my-org/domain-management/domain-create/domain-create-modal.tsx",
+          "path": "src/components/my-organization/domain-management/domain-create/domain-create-modal.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/domain-management/domain-create/domain-create-modal.tsx"
+          "target": "auth0-ui-components/components/my-organization/domain-management/domain-create/domain-create-modal.tsx"
         },
         {
-          "path": "src/components/my-org/domain-management/domain-delete/domain-delete-modal.tsx",
+          "path": "src/components/my-organization/domain-management/domain-delete/domain-delete-modal.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/domain-management/domain-delete/domain-delete-modal.tsx"
+          "target": "auth0-ui-components/components/my-organization/domain-management/domain-delete/domain-delete-modal.tsx"
         },
         {
-          "path": "src/components/my-org/domain-management/domain-verify/domain-verify-modal.tsx",
+          "path": "src/components/my-organization/domain-management/domain-verify/domain-verify-modal.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/domain-management/domain-verify/domain-verify-modal.tsx"
+          "target": "auth0-ui-components/components/my-organization/domain-management/domain-verify/domain-verify-modal.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-details.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-details.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-details.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-details.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/provider-configure-fields.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/provider-configure-fields.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/provider-configure-fields.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/provider-configure-fields.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/okta-sso-configure-form.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/okta-sso-configure-form.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/okta-sso-configure-form.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/okta-sso-configure-form.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form.tsx"
         },
         {
           "path": "src/components/ui/accordion.tsx",
@@ -1915,19 +1915,19 @@
           "target": "auth0-ui-components/components/ui/tooltip.tsx"
         },
         {
-          "path": "src/hooks/my-org/idp-management/use-sso-domain-tab.ts",
+          "path": "src/hooks/my-organization/idp-management/use-sso-domain-tab.ts",
           "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/my-org/idp-management/use-sso-domain-tab.ts"
+          "target": "auth0-ui-components/hooks/my-organization/idp-management/use-sso-domain-tab.ts"
         },
         {
-          "path": "src/hooks/my-org/idp-management/use-sso-provider-edit.ts",
+          "path": "src/hooks/my-organization/idp-management/use-sso-provider-edit.ts",
           "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/my-org/idp-management/use-sso-provider-edit.ts"
+          "target": "auth0-ui-components/hooks/my-organization/idp-management/use-sso-provider-edit.ts"
         },
         {
-          "path": "src/hooks/my-org/idp-management/use-provider-form-mode.ts",
+          "path": "src/hooks/my-organization/idp-management/use-provider-form-mode.ts",
           "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/my-org/idp-management/use-provider-form-mode.ts"
+          "target": "auth0-ui-components/hooks/my-organization/idp-management/use-provider-form-mode.ts"
         },
         {
           "path": "src/hooks/use-core-client.ts",
@@ -1960,19 +1960,19 @@
           "target": "auth0-ui-components/hooks/use-translator.ts"
         },
         {
-          "path": "src/hooks/my-org/config/use-config.tsx",
+          "path": "src/hooks/my-organization/config/use-config.tsx",
           "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/my-org/config/use-config.tsx"
+          "target": "auth0-ui-components/hooks/my-organization/config/use-config.tsx"
         },
         {
-          "path": "src/hooks/my-org/config/use-idp-config.tsx",
+          "path": "src/hooks/my-organization/config/use-idp-config.tsx",
           "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/my-org/config/use-idp-config.tsx"
+          "target": "auth0-ui-components/hooks/my-organization/config/use-idp-config.tsx"
         },
         {
-          "path": "src/components/my-org/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx",
+          "path": "src/components/my-organization/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx",
           "type": "registry:component",
-          "target": "auth0-ui-components/components/my-org/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx"
+          "target": "auth0-ui-components/components/my-organization/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx"
         },
         {
           "path": "src/providers/proxy-provider.tsx",
@@ -1995,64 +1995,64 @@
           "target": "auth0-ui-components/providers/theme-provider.tsx"
         },
         {
-          "path": "src/types/my-org/domain-management/domain-create-types.ts",
+          "path": "src/types/my-organization/domain-management/domain-create-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/domain-management/domain-create-types.ts"
+          "target": "auth0-ui-components/types/my-organization/domain-management/domain-create-types.ts"
         },
         {
-          "path": "src/types/my-org/domain-management/domain-delete-types.ts",
+          "path": "src/types/my-organization/domain-management/domain-delete-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/domain-management/domain-delete-types.ts"
+          "target": "auth0-ui-components/types/my-organization/domain-management/domain-delete-types.ts"
         },
         {
-          "path": "src/types/my-org/domain-management/domain-table-types.ts",
+          "path": "src/types/my-organization/domain-management/domain-table-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/domain-management/domain-table-types.ts"
+          "target": "auth0-ui-components/types/my-organization/domain-management/domain-table-types.ts"
         },
         {
-          "path": "src/types/my-org/domain-management/domain-verify-types.ts",
+          "path": "src/types/my-organization/domain-management/domain-verify-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/domain-management/domain-verify-types.ts"
+          "target": "auth0-ui-components/types/my-organization/domain-management/domain-verify-types.ts"
         },
         {
-          "path": "src/types/my-org/idp-management/sso-domain/sso-domain-tab-types.ts",
+          "path": "src/types/my-organization/idp-management/sso-domain/sso-domain-tab-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/idp-management/sso-domain/sso-domain-tab-types.ts"
+          "target": "auth0-ui-components/types/my-organization/idp-management/sso-domain/sso-domain-tab-types.ts"
         },
         {
-          "path": "src/types/my-org/idp-management/sso-provider/sso-provider-edit-types.ts",
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-edit-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/idp-management/sso-provider/sso-provider-edit-types.ts"
+          "target": "auth0-ui-components/types/my-organization/idp-management/sso-provider/sso-provider-edit-types.ts"
         },
         {
-          "path": "src/types/my-org/idp-management/sso-provider/sso-provider-tab-types.ts",
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/idp-management/sso-provider/sso-provider-tab-types.ts"
+          "target": "auth0-ui-components/types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts"
         },
         {
-          "path": "src/types/my-org/idp-management/sso-provider/sso-provider-create-types.ts",
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/idp-management/sso-provider/sso-provider-create-types.ts"
+          "target": "auth0-ui-components/types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts"
         },
         {
-          "path": "src/types/my-org/idp-management/sso-provider/sso-provider-delete-types.ts",
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/idp-management/sso-provider/sso-provider-delete-types.ts"
+          "target": "auth0-ui-components/types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts"
         },
         {
-          "path": "src/types/my-org/idp-management/sso-provisioning/provisioning-manage-token-types.ts",
+          "path": "src/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/idp-management/sso-provisioning/provisioning-manage-token-types.ts"
+          "target": "auth0-ui-components/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types.ts"
         },
         {
-          "path": "src/types/my-org/idp-management/sso-provisioning/provisioning-token-types.ts",
+          "path": "src/types/my-organization/idp-management/sso-provisioning/provisioning-token-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/idp-management/sso-provisioning/provisioning-token-types.ts"
+          "target": "auth0-ui-components/types/my-organization/idp-management/sso-provisioning/provisioning-token-types.ts"
         },
         {
-          "path": "src/types/my-org/idp-management/sso-provisioning/sso-provisioning-tab-types.ts",
+          "path": "src/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/types/my-org/idp-management/sso-provisioning/sso-provisioning-tab-types.ts"
+          "target": "auth0-ui-components/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types.ts"
         },
         {
           "path": "src/types/auth-types.ts",
@@ -2080,9 +2080,9 @@
           "target": "auth0-ui-components/lib/theme-utils.ts"
         },
         {
-          "path": "src/lib/my-org/domain-management.ts",
+          "path": "src/lib/my-organization/domain-management.ts",
           "type": "registry:file",
-          "target": "auth0-ui-components/lib/my-org/domain-management.ts"
+          "target": "auth0-ui-components/lib/my-organization/domain-management.ts"
         },
         {
           "path": "src/styles/globals.css",

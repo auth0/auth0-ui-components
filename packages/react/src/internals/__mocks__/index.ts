@@ -2,12 +2,12 @@ export * from './core/auth.mocks';
 export * from './core/core-client.mocks';
 export * from './core/i18n-service.mocks';
 
-export * from './my-org/domain-management/domain.mocks';
-export * from './my-org/org-management/org-details.mocks';
-export * from './my-org/domain-management/domain.mocks';
-export * from './my-org/idp-management/sso-domain.mocks';
-export * from './my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details.mocks';
-export * from './my-org/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.mocks';
+export * from './my-organization/domain-management/domain.mocks';
+export * from './my-organization/organization-management/organization-details.mocks';
+export * from './my-organization/domain-management/domain.mocks';
+export * from './my-organization/idp-management/sso-domain.mocks';
+export * from './my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details.mocks';
+export * from './my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.mocks';
 
 export * from './my-account/mfa/delete-factor-confirmation.mocks';
 export * from './my-account/mfa/empty-state.mocks';

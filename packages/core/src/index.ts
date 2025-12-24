@@ -31,7 +31,7 @@ export {
 
 export * from './types';
 
-export * from './services/my-org';
+export * from './services/my-organization';
 
 export * from './services/my-account';
 

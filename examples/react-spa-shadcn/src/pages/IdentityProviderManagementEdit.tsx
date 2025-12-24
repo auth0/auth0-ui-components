@@ -26,7 +26,7 @@ const IdentityProviderManagementEdit = () => {
               navigate('/idp-management');
             },
           },
-          deleteFromOrgAction: {
+          deleteFromOrganizationAction: {
             onAfter: () => {
               // Navigate back to IDP management after removal
               navigate('/idp-management');

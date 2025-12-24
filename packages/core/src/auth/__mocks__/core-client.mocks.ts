@@ -117,89 +117,90 @@ export const createMockMyAccountApiClient = (): CoreClientInterface['myAccountAp
 /**
  * Creates a mock MyOrganizationClient service
  */
-export const createMockMyOrgApiClient = (): CoreClientInterface['myOrgApiClient'] => {
-  return {
-    organizationDetails: {
-      get: vi.fn().mockResolvedValue({
-        id: 'org_123',
-        name: 'Test Organization',
-        display_name: 'Test Organization',
-      }),
-      update: vi.fn().mockResolvedValue({
-        id: 'org_123',
-        name: 'Test Organization',
-        display_name: 'Test Organization',
-      }),
-    },
-    organization: {
-      identityProviders: {
-        list: vi.fn().mockResolvedValue([]),
+export const createMockMyOrganizationApiClient =
+  (): CoreClientInterface['myOrganizationApiClient'] => {
+    return {
+      organizationDetails: {
         get: vi.fn().mockResolvedValue({
-          id: 'idp_123',
-          name: 'Test Provider',
-          strategy: 'oidc',
+          id: 'organization_123',
+          name: 'Test Organization',
+          display_name: 'Test Organization',
         }),
-        create: vi.fn().mockResolvedValue({ id: 'idp_123' }),
-        update: vi.fn().mockResolvedValue({ id: 'idp_123' }),
-        delete: vi.fn().mockResolvedValue(undefined),
-        detach: vi.fn().mockResolvedValue(undefined),
-        domains: {
-          create: vi.fn().mockResolvedValue(undefined),
-          delete: vi.fn().mockResolvedValue(undefined),
-        },
-        provisioning: {
-          get: vi.fn().mockRejectedValue({ status: 404 }),
-          create: vi.fn().mockResolvedValue({}),
-          delete: vi.fn().mockResolvedValue(undefined),
-        },
+        update: vi.fn().mockResolvedValue({
+          id: 'organization_123',
+          name: 'Test Organization',
+          display_name: 'Test Organization',
+        }),
       },
-      domains: {
-        list: vi.fn().mockResolvedValue([]),
-        create: vi.fn().mockResolvedValue({
-          id: 'domain_123',
-          domain: 'example.com',
-          status: 'pending',
-        }),
-        update: vi.fn().mockResolvedValue({ id: 'domain_123' }),
-        delete: vi.fn().mockResolvedValue(undefined),
-        verify: {
-          create: vi.fn().mockResolvedValue({ status: 'verified' }),
-        },
+      organization: {
         identityProviders: {
-          get: vi.fn().mockResolvedValue({ identity_providers: [] }),
-        },
-      },
-      configuration: {
-        get: vi.fn().mockResolvedValue({
-          allowed_strategies: [
-            'samlp',
-            'oidc',
-            'adfs',
-            'waad',
-            'google-apps',
-            'pingfederate',
-            'okta',
-          ],
-          connection_deletion_behavior: 'allow',
-        }),
-        identityProviders: {
+          list: vi.fn().mockResolvedValue([]),
           get: vi.fn().mockResolvedValue({
-            strategies: {
-              samlp: {
-                enabled_features: ['provisioning'],
-                provisioning_methods: ['scim'],
-              },
-              oidc: {
-                enabled_features: [],
-                provisioning_methods: [],
-              },
-            },
+            id: 'idp_123',
+            name: 'Test Provider',
+            strategy: 'oidc',
           }),
+          create: vi.fn().mockResolvedValue({ id: 'idp_123' }),
+          update: vi.fn().mockResolvedValue({ id: 'idp_123' }),
+          delete: vi.fn().mockResolvedValue(undefined),
+          detach: vi.fn().mockResolvedValue(undefined),
+          domains: {
+            create: vi.fn().mockResolvedValue(undefined),
+            delete: vi.fn().mockResolvedValue(undefined),
+          },
+          provisioning: {
+            get: vi.fn().mockRejectedValue({ status: 404 }),
+            create: vi.fn().mockResolvedValue({}),
+            delete: vi.fn().mockResolvedValue(undefined),
+          },
+        },
+        domains: {
+          list: vi.fn().mockResolvedValue([]),
+          create: vi.fn().mockResolvedValue({
+            id: 'domain_123',
+            domain: 'example.com',
+            status: 'pending',
+          }),
+          update: vi.fn().mockResolvedValue({ id: 'domain_123' }),
+          delete: vi.fn().mockResolvedValue(undefined),
+          verify: {
+            create: vi.fn().mockResolvedValue({ status: 'verified' }),
+          },
+          identityProviders: {
+            get: vi.fn().mockResolvedValue({ identity_providers: [] }),
+          },
+        },
+        configuration: {
+          get: vi.fn().mockResolvedValue({
+            allowed_strategies: [
+              'samlp',
+              'oidc',
+              'adfs',
+              'waad',
+              'google-apps',
+              'pingfederate',
+              'okta',
+            ],
+            connection_deletion_behavior: 'allow',
+          }),
+          identityProviders: {
+            get: vi.fn().mockResolvedValue({
+              strategies: {
+                samlp: {
+                  enabled_features: ['provisioning'],
+                  provisioning_methods: ['scim'],
+                },
+                oidc: {
+                  enabled_features: [],
+                  provisioning_methods: [],
+                },
+              },
+            }),
+          },
         },
       },
-    },
-  } as unknown as CoreClientInterface['myOrgApiClient'];
-};
+    } as unknown as CoreClientInterface['myOrganizationApiClient'];
+  };
 
 /**
  * Creates a mock CoreClientInterface
@@ -208,17 +209,19 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
   const mockAuth = createMockAuthDetails(authDetails);
   const mockI18nService = createMockI18nService();
   const mockMyAccountApiClient = createMockMyAccountApiClient();
-  const mockMyOrgApiClient = createMockMyOrgApiClient();
+  const mockMyOrganizationApiClient = createMockMyOrganizationApiClient();
 
   return {
     auth: mockAuth,
     i18nService: mockI18nService,
     myAccountApiClient: mockMyAccountApiClient,
-    myOrgApiClient: mockMyOrgApiClient,
+    myOrganizationApiClient: mockMyOrganizationApiClient,
     getMyAccountApiClient: vi.fn(
       () => mockMyAccountApiClient,
     ) as CoreClientInterface['getMyAccountApiClient'],
-    getMyOrgApiClient: vi.fn(() => mockMyOrgApiClient) as CoreClientInterface['getMyOrgApiClient'],
+    getMyOrganizationApiClient: vi.fn(
+      () => mockMyOrganizationApiClient,
+    ) as CoreClientInterface['getMyOrganizationApiClient'],
     getToken: vi.fn().mockResolvedValue('mock-access-token'),
     isProxyMode: vi.fn().mockReturnValue(false),
     ensureScopes: vi.fn().mockResolvedValue(undefined),

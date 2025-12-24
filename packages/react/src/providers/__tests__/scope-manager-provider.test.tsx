@@ -29,7 +29,7 @@ const TestConsumer = ({
     <div>
       <div data-testid="is-ready">{isReady.toString()}</div>
       <div data-testid="ensured-me">{ensured.me}</div>
-      <div data-testid="ensured-my-org">{ensured['my-org']}</div>
+      <div data-testid="ensured-my-organization">{ensured['my-org']}</div>
     </div>
   );
 };
@@ -65,7 +65,7 @@ describe('ScopeManagerProvider', () => {
 
     expect(screen.getByTestId('is-ready')).toHaveTextContent('false');
     expect(screen.getByTestId('ensured-me')).toHaveTextContent('');
-    expect(screen.getByTestId('ensured-my-org')).toHaveTextContent('');
+    expect(screen.getByTestId('ensured-my-organization')).toHaveTextContent('');
   });
 
   it('should not register empty scopes', async () => {

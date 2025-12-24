@@ -82,12 +82,12 @@ export default function Layout({ children }: LayoutProps) {
       icon: Building2,
       color: 'text-emerald-500',
       items: [
-        { name: 'Overview', href: '/my-org' },
-        { name: 'OrgDetailsEdit', href: '/my-org/org-details-edit' },
-        { name: 'SsoProviderTable', href: '/my-org/sso-provider-table' },
-        { name: 'SsoProviderCreate', href: '/my-org/sso-provider-create' },
-        { name: 'SsoProviderEdit', href: '/my-org/sso-provider-edit' },
-        { name: 'DomainTable', href: '/my-org/domain-table' },
+        { name: 'Overview', href: '/my-organization' },
+        { name: 'OrganizationDetailsEdit', href: '/my-organization/organization-details-edit' },
+        { name: 'SsoProviderTable', href: '/my-organization/sso-provider-table' },
+        { name: 'SsoProviderCreate', href: '/my-organization/sso-provider-create' },
+        { name: 'SsoProviderEdit', href: '/my-organization/sso-provider-edit' },
+        { name: 'DomainTable', href: '/my-organization/domain-table' },
       ],
     },
   ];

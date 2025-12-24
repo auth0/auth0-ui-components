@@ -2,7 +2,7 @@
 
 // import { DomainTable } from '@auth0/universal-components-react/rwa';
 
-export default function OrgManagementPage() {
+export default function DomainManagementPage() {
   return (
     <div className="p-6 pt-8 space-y-6">
       <p>

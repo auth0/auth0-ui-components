@@ -6,7 +6,7 @@ import { useTheme } from '../hooks/use-theme';
 
 export interface ServiceRequirements {
   myAccountApiScopes?: string;
-  myOrgApiScopes?: string;
+  myOrganizationApiScopes?: string;
 }
 
 function scopesSatisfied(required: string, ensured: string) {
@@ -41,23 +41,23 @@ export function withServices<P extends object>(
     );
 
     const requiredMe = normalizeScopes(requirements.myAccountApiScopes);
-    const requiredOrg = normalizeScopes(requirements.myOrgApiScopes);
+    const requiredOrganization = normalizeScopes(requirements.myOrganizationApiScopes);
 
     const meEnsured = scopesSatisfied(requiredMe, ensured.me);
-    const orgEnsured = scopesSatisfied(requiredOrg, ensured['my-org']);
+    const organizationEnsured = scopesSatisfied(requiredOrganization, ensured['my-org']);
 
     React.useEffect(() => {
       if (requirements.myAccountApiScopes) {
         registerScopes('me', requirements.myAccountApiScopes);
       }
-      if (requirements.myOrgApiScopes) {
-        registerScopes('my-org', requirements.myOrgApiScopes);
+      if (requirements.myOrganizationApiScopes) {
+        registerScopes('my-org', requirements.myOrganizationApiScopes);
       }
-    }, [requirements.myAccountApiScopes, requirements.myOrgApiScopes, registerScopes]);
+    }, [requirements.myAccountApiScopes, requirements.myOrganizationApiScopes, registerScopes]);
 
     if (
       (requirements.myAccountApiScopes && !meEnsured) ||
-      (requirements.myOrgApiScopes && !orgEnsured)
+      (requirements.myOrganizationApiScopes && !organizationEnsured)
     ) {
       return <>{loader || defaultLoader}</>;
     }
@@ -68,11 +68,11 @@ export function withServices<P extends object>(
   return WithServicesComponent;
 }
 
-export function withMyOrgService<P extends object>(
+export function withMyOrganizationService<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   scopes: string,
 ): React.ComponentType<P> {
-  return withServices(WrappedComponent, { myOrgApiScopes: scopes });
+  return withServices(WrappedComponent, { myOrganizationApiScopes: scopes });
 }
 
 export function withMyAccountService<P extends object>(

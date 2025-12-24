@@ -45,7 +45,7 @@ export const Sidebar: React.FC = () => {
           <ul className="space-y-1">
             <li>
               <Link
-                to="/org-management"
+                to="/organization-management"
                 className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800 transition-colors"
               >
                 <Settings className="h-4 w-4 flex-shrink-0" />

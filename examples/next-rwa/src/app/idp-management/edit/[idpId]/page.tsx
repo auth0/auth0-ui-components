@@ -35,7 +35,7 @@ export default function SsoProviderEditPage() {
               router.push('/idp-management/');
             },
           },
-          deleteFromOrgAction: {
+          deleteFromOrganizationAction: {
             onAfter: () => {
               router.push('/idp-management/');
             },
