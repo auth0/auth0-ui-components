@@ -15,8 +15,8 @@ import { Badge } from '../../../components/ui/badge';
 import { DataTable, type Column } from '../../../components/ui/data-table';
 import { Header } from '../../../components/ui/header';
 import { withMyOrgService } from '../../../hoc/with-services';
-import { useDomainTable } from '../../../hooks/my-org/domain-management/use-domain-table';
 import { useDomainTableLogic } from '../../../hooks/my-org/domain-management/use-domain-table-logic';
+import { useDomainTableQuery } from '../../../hooks/my-org/domain-management/use-domain-table-query';
 import { useTheme } from '../../../hooks/use-theme';
 import { useTranslator } from '../../../hooks/use-translator';
 import { getStatusBadgeVariant } from '../../../lib/my-org/domain-management';
@@ -60,7 +60,7 @@ function DomainTableComponent({
     onDeleteDomain,
     onAssociateToProvider,
     onDeleteFromProvider,
-  } = useDomainTable({
+  } = useDomainTableQuery({
     createAction,
     verifyAction,
     deleteAction,
