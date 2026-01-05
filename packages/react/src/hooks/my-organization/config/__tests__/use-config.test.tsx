@@ -2,26 +2,26 @@ import { AVAILABLE_STRATEGY_LIST } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { createMockCoreClient } from '../../../../internals/__mocks__/core/core-client.mocks';
 import { useCoreClient } from '../../../use-core-client';
 import { useConfig } from '../use-config';
 
 vi.mock('../../../use-core-client');
 
 describe('useConfig', () => {
+  const mockCoreClient = createMockCoreClient();
   const mockGet = vi.fn();
-  const mockCoreClient = {
-    getMyOrganizationApiClient: () => ({
-      organization: {
-        configuration: {
-          get: mockGet,
-        },
-      },
-    }),
-  };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useCoreClient as any).mockReturnValue({ coreClient: mockCoreClient });
+
+    // Override the configuration.get method with our test mock
+    const mockMyOrganizationClient = mockCoreClient.getMyOrganizationApiClient();
+    mockMyOrganizationClient.organization.configuration.get = mockGet;
+
+    vi.mocked(useCoreClient).mockReturnValue({
+      coreClient: mockCoreClient,
+    });
   });
 
   it('should fetch config on mount', async () => {
@@ -176,7 +176,7 @@ describe('useConfig', () => {
   });
 
   it('should not fetch config when coreClient is not available', async () => {
-    (useCoreClient as any).mockReturnValue({ coreClient: null });
+    vi.mocked(useCoreClient).mockReturnValue({ coreClient: null });
 
     const { result } = renderHook(() => useConfig());
 
