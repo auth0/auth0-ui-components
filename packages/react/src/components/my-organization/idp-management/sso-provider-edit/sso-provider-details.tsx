@@ -54,8 +54,12 @@ export function SsoProviderDetails({
     };
   }, [provider]);
 
-  const hasUnsavedChanges = isDetailsDirty || isConfigureDirty;
+  const attributes = React.useMemo(() => {
+    if (!provider) return null;
+    return 'attributes' in provider ? (provider.attributes ?? null) : null;
+  }, [provider]);
 
+  const hasUnsavedChanges = isDetailsDirty || isConfigureDirty;
   const handleSave = async () => {
     if (!formActions?.nextAction?.onClick || !provider?.strategy) return;
 
@@ -121,62 +125,7 @@ export function SsoProviderDetails({
       <div className="space-y-4">
         <SsoProviderAttributeMappings
           strategy={provider?.strategy || null}
-          userAttributeMap={[
-            {
-              provisioning_field: 'userName',
-              user_attribute: 'preferred_username',
-              description: 'Preferred Username',
-              label: 'Preferred username',
-              is_required: true,
-              is_extra: false,
-              is_missing: false,
-            },
-            {
-              provisioning_field: 'externalId',
-              user_attribute: 'external_id',
-              description: 'External ID',
-              label: 'External ID',
-              is_required: true,
-              is_extra: true,
-              is_missing: false,
-            },
-            {
-              provisioning_field: 'emails',
-              user_attribute: 'email',
-              description: 'Email address',
-              label: 'Email',
-              is_required: true,
-              is_extra: false,
-              is_missing: true,
-            },
-            {
-              provisioning_field: 'name.givenName',
-              user_attribute: 'given_name',
-              description: 'Given Name',
-              label: 'Given Name',
-              is_required: false,
-              is_extra: false,
-              is_missing: false,
-            },
-            {
-              provisioning_field: 'name.familyName',
-              user_attribute: 'family_name',
-              description: 'Family Name',
-              label: 'Family Name',
-              is_required: false,
-              is_extra: true,
-              is_missing: true,
-            },
-            {
-              provisioning_field: 'phoneNumbers',
-              user_attribute: 'phone_number',
-              description: 'Phone Number',
-              label: 'Phone Number',
-              is_required: false,
-              is_extra: true,
-              is_missing: false,
-            },
-          ]}
+          userAttributeMap={attributes}
           customMessages={customMessages.mappings}
           className={currentStyles.classes?.['SsoProvider-attributeMapping']}
         />
