@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "@auth0/myaccount-js": "^1.0.0-beta.0",
-    "@auth0/myorganization-js": "^1.0.0-beta.2",
+    "@auth0/myorganization-js": "^1.0.0-beta.3",
     "zod": "^3.22.4"
   }
 }

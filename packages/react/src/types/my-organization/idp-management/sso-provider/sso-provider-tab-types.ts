@@ -75,6 +75,7 @@ export interface SsoProviderDetailsClasses {
   'SsoProviderDetails-formActions'?: string;
   'ProviderDetails-root'?: string;
   'ProviderConfigure-root'?: string;
+  'SsoProvider-attributeMapping'?: string;
   'SsoProviderDetails-FormActions'?: string;
 }
 

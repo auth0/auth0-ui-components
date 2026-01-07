@@ -48,6 +48,7 @@ export interface SsoProviderDetailsMessages {
   unsaved_changes_text?: string;
   details_fields?: ProviderDetailsMessages;
   configure_fields?: ProviderConfigureFieldsMessages;
+  mappings?: SsoProviderAttributeMappingsMessages;
 }
 
 export interface SsoProviderNotificationMessages {
@@ -57,4 +58,31 @@ export interface SsoProviderNotificationMessages {
   general_error?: string;
   provisioning_disabled_success?: string;
   scim_token_delete_sucess?: string;
+}
+
+export interface AttributeMappingSectionMessages {
+  title?: string;
+  description?: string;
+  table?: {
+    columns?: {
+      attribute_name_label?: string;
+      external_field_label?: string;
+    };
+    tags?: {
+      changed?: string;
+      removed?: string;
+      new?: string;
+    };
+  };
+}
+
+export interface SsoProviderAttributeMappingsMessages {
+  title?: string;
+  description?: string;
+  description_provider_tab?: string;
+  external_namespace?: {
+    label?: string;
+  };
+  required?: AttributeMappingSectionMessages;
+  optional?: AttributeMappingSectionMessages;
 }

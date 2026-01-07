@@ -8,11 +8,8 @@ import type {
   SsoProvisioningDetailsMessages,
   GetIdPProvisioningConfigResponseContent,
   SsoProvisioningDeleteMessages,
-  ProvisioningFieldMappingsMessages,
-  ProvisioningFieldMap,
   ComponentAction,
   CreateIdPProvisioningConfigResponseContent,
-  IdpStrategy,
 } from '@auth0/universal-components-core';
 
 import type { ProvisioningManageTokenClasses } from './provisioning-manage-token-types';
@@ -56,6 +53,7 @@ export interface SsoProvisioningTabSchemas {}
 export interface SsoProvisioningDetailsClasses extends ProvisioningManageTokenClasses {
   'SsoProvisioningDetails-root'?: string;
   'SsoProvisioningDetails-formActions'?: string;
+  'SsoProvisioningDetails-provisioningMapping'?: string;
 }
 
 export interface SsoProvisioningDeleteModalProps
@@ -82,11 +80,4 @@ export interface SsoProvisioningDetailsProps
     data: CreateIdpProvisioningScimTokenRequestContent,
   ) => Promise<CreateIdpProvisioningScimTokenResponseContent | undefined>;
   onDeleteScimToken: (idpScimTokenId: string) => Promise<void>;
-}
-
-export interface ProvisioningFieldMappingsProps
-  extends SharedComponentProps<ProvisioningFieldMappingsMessages> {
-  provisioningFieldMap: ProvisioningFieldMap | null;
-  provisioningStrategy: IdpStrategy | null;
-  className?: string;
 }

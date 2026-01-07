@@ -24,10 +24,11 @@ import {
   FormLabel,
   FormMessage,
 } from '../../../../ui/form';
+import { Separator } from '../../../../ui/separator';
 import { TextField } from '../../../../ui/text-field';
+import { SsoProviderAttributeMappings } from '../sso-provider-attribute-mappings';
 
 import { ProvisioningManageToken } from './provisioning-manage-token';
-import { ProvisioningFieldMappings } from './provisioning-mappings';
 
 export function SsoProvisioningDetails({
   provider,
@@ -130,9 +131,66 @@ export function SsoProvisioningDetails({
           />
         </form>
       </Form>
-      <ProvisioningFieldMappings
-        provisioningStrategy={provisioningConfig?.strategy || null}
-        provisioningFieldMap={provisioningConfig?.fields ?? null}
+      <Separator />
+      <SsoProviderAttributeMappings
+        strategy={provisioningConfig?.strategy || null}
+        isProvisioning
+        userAttributeMap={[
+          {
+            provisioning_field: 'userName',
+            user_attribute: 'preferred_username',
+            description: 'Preferred Username',
+            label: 'Preferred username',
+            is_required: true,
+            is_extra: false,
+            is_missing: false,
+          },
+          {
+            provisioning_field: 'externalId',
+            user_attribute: 'external_id',
+            description: 'External ID',
+            label: 'External ID',
+            is_required: true,
+            is_extra: true,
+            is_missing: false,
+          },
+          {
+            provisioning_field: 'emails',
+            user_attribute: 'email',
+            description: 'Email address',
+            label: 'Email',
+            is_required: true,
+            is_extra: false,
+            is_missing: true,
+          },
+          {
+            provisioning_field: 'name.givenName',
+            user_attribute: 'given_name',
+            description: 'Given Name',
+            label: 'Given Name',
+            is_required: false,
+            is_extra: false,
+            is_missing: false,
+          },
+          {
+            provisioning_field: 'name.familyName',
+            user_attribute: 'family_name',
+            description: 'Family Name',
+            label: 'Family Name',
+            is_required: false,
+            is_extra: true,
+            is_missing: true,
+          },
+          {
+            provisioning_field: 'phoneNumbers',
+            user_attribute: 'phone_number',
+            description: 'Phone Number',
+            label: 'Phone Number',
+            is_required: false,
+            is_extra: true,
+            is_missing: false,
+          },
+        ]}
         customMessages={customMessages.mappings}
         className={currentStyles.classes?.['SsoProvisioningDetails-provisioningMapping']}
       />

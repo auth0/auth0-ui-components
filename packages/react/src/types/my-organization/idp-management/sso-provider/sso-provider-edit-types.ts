@@ -10,6 +10,10 @@ import type {
   CreateIdpProvisioningScimTokenRequestContent,
   ListIdpProvisioningScimTokensResponseContent,
   GetIdPProvisioningConfigResponseContent,
+  SsoProviderAttributeMappingsMessages,
+  IdpProvisioningUserAttributeMap,
+  IdpUserAttributeMap,
+  IdpStrategy,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
@@ -103,4 +107,12 @@ export interface UseSsoProviderEditReturn {
   deleteScimToken: (idpScimTokenId: string) => Promise<void>;
   onDeleteConfirm: () => Promise<void>;
   onRemoveConfirm: () => Promise<void>;
+}
+
+export interface SsoProviderAttributeMappingsProps
+  extends SharedComponentProps<SsoProviderAttributeMappingsMessages> {
+  userAttributeMap: IdpProvisioningUserAttributeMap | IdpUserAttributeMap | null;
+  strategy: IdpStrategy | null;
+  isProvisioning?: boolean;
+  className?: string;
 }

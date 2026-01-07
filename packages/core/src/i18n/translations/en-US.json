@@ -528,6 +528,44 @@
         "enable_provider_tooltip_text": "Toggle to enable the provider.",
         "disable_provider_tooltip_text": "Toggle to disable the provider."
       },
+      "mappings": {
+        "title": "Mapping",
+        "description": "Ensure that the correct user attributes are passed from the identity provider to the service provider.",
+        "description_provider_tab": "Establish a connection between your identity provider and Auth0.",
+        "external_namespace": {
+          "label": "External Namespace"
+        },
+        "required": {
+          "title": "Required Attributes",
+          "description": "Ensure that a valid ${strategy} attribute is mapped to the following attributes.",
+          "table": {
+            "columns": {
+              "attribute_name_label": "Attribute Name",
+              "external_field_label": "External Field"
+            },
+            "tags": {
+              "changed": "Changed",
+              "removed": "Removed",
+              "new": "New"
+            }
+          }
+        },
+        "optional": {
+          "title": "Optional Attributes",
+          "description": "Mapping these attributes will enhance the user profile but is not required.",
+          "table": {
+            "columns": {
+              "attribute_name_label": "Attribute Name",
+              "external_field_label": "External Field"
+            },
+            "tags": {
+              "changed": "Changed",
+              "removed": "Removed",
+              "new": "New"
+            }
+          }
+        }
+      },
       "tabs": {
         "sso": {
           "name": "Single Sign-On",
@@ -615,23 +653,6 @@
                 },
                 "scim_endpoint_url": {
                   "label": "SCIM Endpoint URL"
-                },
-                "external_namespace": {
-                  "label": "External Namespace"
-                }
-              },
-              "mappings": {
-                "title": "Mapping",
-                "description": "Ensure that the correct user attributes are passed from the identity provider to the service provider.",
-                "card": {
-                  "title": "Required Attributes",
-                  "description": "Ensure that a valid ${strategy} attribute is mapped to the following attributes.",
-                  "table": {
-                    "columns": {
-                      "attribute_name_label": "Attribute Name",
-                      "external_field_label": "External Field"
-                    }
-                  }
                 }
               }
             }

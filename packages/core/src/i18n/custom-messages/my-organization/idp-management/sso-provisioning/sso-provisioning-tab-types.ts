@@ -1,4 +1,7 @@
-import type { SsoProviderNotificationMessages } from '../sso-provider/sso-provider-edit-types';
+import type {
+  SsoProviderNotificationMessages,
+  SsoProviderAttributeMappingsMessages,
+} from '../sso-provider/sso-provider-edit-types';
 
 import type { ProvisioningManageTokenMessages } from './provisioning-manage-token-types';
 
@@ -39,7 +42,7 @@ export interface SsoProvisioningDetailsMessages {
       label?: string;
     };
   };
-  mappings?: ProvisioningFieldMappingsMessages;
+  mappings?: SsoProviderAttributeMappingsMessages;
 }
 
 export interface SsoProvisioningDeleteModalContentMessages {
@@ -53,21 +56,6 @@ export interface SsoProvisioningDeleteMessages {
     actions?: {
       cancel_button_label?: string;
       delete_button_label?: string;
-    };
-  };
-}
-
-export interface ProvisioningFieldMappingsMessages {
-  title?: string;
-  description?: string;
-  card?: {
-    title?: string;
-    description?: string;
-    table?: {
-      columns?: {
-        attribute_name_label?: string;
-        external_field_label?: string;
-      };
     };
   };
 }

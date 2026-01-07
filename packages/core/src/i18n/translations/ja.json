@@ -528,6 +528,44 @@
         "enable_provider_tooltip_text": "トグルでプロバイダーを有効にします。",
         "disable_provider_tooltip_text": "トグルでプロバイダーを無効にします。"
       },
+      "mappings": {
+        "title": "マッピング",
+        "description": "正しいユーザー属性がアイデンティティプロバイダーからサービスプロバイダーに渡されることを確認してください。",
+        "description_provider_tab": "アイデンティティプロバイダーとAuth0間の接続を確立します。",
+        "external_namespace": {
+          "label": "外部ネームスペース"
+        },
+        "required": {
+          "title": "必須属性",
+          "description": "有効な${strategy}属性が次の属性にマッピングされていることを確認してください。",
+          "table": {
+            "columns": {
+              "attribute_name_label": "属性名",
+              "external_field_label": "外部フィールド"
+            },
+            "tags": {
+              "changed": "変更済み",
+              "removed": "削除済み",
+              "new": "新規"
+            }
+          }
+        },
+        "optional": {
+          "title": "オプション属性",
+          "description": "これらの属性をマッピングするとユーザープロファイルが強化されますが、必須ではありません。",
+          "table": {
+            "columns": {
+              "attribute_name_label": "属性名",
+              "external_field_label": "外部フィールド"
+            },
+            "tags": {
+              "changed": "変更済み",
+              "removed": "削除済み",
+              "new": "新規"
+            }
+          }
+        }
+      },
       "tabs": {
         "sso": {
           "name": "シングルサインオン",
@@ -615,23 +653,6 @@
                 },
                 "scim_endpoint_url": {
                   "label": "SCIMエンドポイントURL"
-                },
-                "external_namespace": {
-                  "label": "外部ネームスペース"
-                }
-              },
-              "mappings": {
-                "title": "マッピング",
-                "description": "正しいユーザー属性がアイデンティティプロバイダーからサービスプロバイダーに渡されることを確認してください。",
-                "card": {
-                  "title": "必須属性",
-                  "description": "有効な${strategy}属性が次の属性にマッピングされていることを確認してください。",
-                  "table": {
-                    "columns": {
-                      "attribute_name_label": "属性名",
-                      "external_field_label": "外部フィールド"
-                    }
-                  }
                 }
               }
             }
