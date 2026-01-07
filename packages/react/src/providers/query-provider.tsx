@@ -64,52 +64,25 @@ export interface QueryProviderProps {
 }
 
 /**
- * Context to track if QueryProvider is already mounted
- */
-const QueryProviderContext = React.createContext<boolean>(false);
-
-/**
- * Hook to check if QueryProvider is available
- */
-export function useQueryProviderCheck(): boolean {
-  return React.useContext(QueryProviderContext);
-}
-
-/**
  * QueryProvider component that wraps TanStack Query's QueryClientProvider
  *
  * Features:
- * - Singleton QueryClient management
- * - Prevents duplicate provider nesting
+ * - ISOLATED QueryClient - does not depend on or conflict with consumer's QueryClient
+ * - Singleton QueryClient management within this package
+ * - Always creates its own provider (no skipping based on external providers)
  *
  * @example
  * ```tsx
- * import { QueryProvider } from '@auth0/universal-components-react';
- *
- * function App() {
- *   return (
- *     <QueryProvider>
- *       <YourComponents />
- *     </QueryProvider>
- *   );
- * }
+ * // Internal use only - wrapped by Auth0ComponentProvider
+ * <QueryProvider>
+ *   <YourComponents />
+ * </QueryProvider>
  * ```
  */
 export function QueryProvider({ children, client }: QueryProviderProps) {
-  const isAlreadyProvided = useQueryProviderCheck();
-
   const queryClient = React.useMemo(() => {
     return client || getQueryClient();
   }, [client]);
 
-  // If already wrapped in a QueryProvider, just render children
-  if (isAlreadyProvided) {
-    return <>{children}</>;
-  }
-
-  return (
-    <QueryProviderContext.Provider value={true}>
-      <TanStackQueryClientProvider client={queryClient}>{children}</TanStackQueryClientProvider>
-    </QueryProviderContext.Provider>
-  );
+  return <TanStackQueryClientProvider client={queryClient}>{children}</TanStackQueryClientProvider>;
 }
