@@ -26,6 +26,12 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
+  const normalizedFileName = path.normalize(fileName).replace(/^(\.\.([\\/]|$))+/, '');
+
+  if (normalizedFileName !== fileName || normalizedFileName.includes('..')) {
+    return res.status(400).json({ error: 'Invalid file path' });
+  }
+
   const versionParam = req.query.version as string | undefined;
   let version = versionParam || DEFAULT_VERSION;
 
@@ -33,7 +39,12 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     version = LATEST_VERSION;
   }
 
-  const versionedPath = path.join(process.cwd(), 'public', 'r', version, fileName);
+  const baseDir = path.resolve(process.cwd(), 'public', 'r', version);
+  const versionedPath = path.resolve(baseDir, normalizedFileName);
+
+  if (!versionedPath.startsWith(baseDir + path.sep) && versionedPath !== baseDir) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
 
   if (fs.existsSync(versionedPath)) {
     const content = fs.readFileSync(versionedPath, 'utf-8');
