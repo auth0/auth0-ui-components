@@ -8,6 +8,7 @@ import {
   Zap,
   Github,
   BookOpenText,
+  GitBranch,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -67,6 +68,12 @@ export default function Layout({ children }: LayoutProps) {
       icon: BookOpen,
       color: 'text-purple-500',
       href: '/',
+    },
+    {
+      title: 'Registry Versioning',
+      icon: GitBranch,
+      color: 'text-orange-500',
+      href: '/registry-version-demo',
     },
     {
       title: 'My Account',
