@@ -69,8 +69,8 @@ jobs:
           # Copy the API serverless functions
           cp -r docs-site/api /tmp/static-deploy/
 
-          # Create a vercel.json with API functions and rewrites
-          echo '{"functions":{"api/**/*.ts":{"runtime":"@vercel/node@3.0.0"}},"rewrites":[{"source":"/r/:path*","destination":"/api/r?file=:path*"},{"source":"/(.*)","destination":"/index.html"}]}' > /tmp/static-deploy/vercel.json
+          # Create a vercel.json with API functions and rewrites (no build needed - already built)
+          echo '{"buildCommand":"","installCommand":"","functions":{"api/**/*.ts":{"runtime":"@vercel/node@3.0.0"}},"rewrites":[{"source":"/r/:path*","destination":"/api/r?file=:path*"},{"source":"/(.*)","destination":"/index.html"}]}' > /tmp/static-deploy/vercel.json
 
           echo "Contents of deployment directory:"
           ls -la /tmp/static-deploy/
