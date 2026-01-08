@@ -8,17 +8,28 @@ const DEFAULT_VERSION = 'v1';
 const LATEST_VERSION = 'v2';
 
 function getBasePath(): string {
-  // In Vercel production, files are in /var/task/
-  // In development, files are in process.cwd()/public
-  const productionPath = path.join('/var/task', 'r');
-  const devPath = path.join(process.cwd(), 'public', 'r');
+  // Vercel builds to docs-site/dist, which becomes the outputDirectory
+  // In production, cwd is /var/task and files are at /var/task/dist/r
+  const paths = [
+    path.join(process.cwd(), 'dist', 'r'), // Vercel production (cwd is /var/task)
+    path.join(process.cwd(), 'r'), // Alternative
+    path.join(process.cwd(), 'docs-site', 'dist', 'r'), // Local after build
+    path.join(process.cwd(), 'docs-site', 'public', 'r'), // Local dev
+  ];
 
-  return fs.existsSync(productionPath) ? '/var/task/r' : devPath;
+  for (const p of paths) {
+    if (fs.existsSync(p)) {
+      return p;
+    }
+  }
+
+  return paths[0]!; // Fallback
 }
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
+  // Extract file path from query parameter (from rewrite /r/:path* -> /api/r?file=:path*)
   const { file } = req.query;
-  const fileName = Array.isArray(file) ? file.join('/') : file;
+  const fileName = Array.isArray(file) ? file.join('/') : file || '';
 
   if (!fileName) {
     return res.status(400).json({ error: 'Bad Request', message: 'File path required' });

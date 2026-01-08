@@ -5,8 +5,8 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/r/:file*",
-      "destination": "/api/r/:file*"
+      "source": "/r/:path*",
+      "destination": "/api/r?file=:path*"
     },
     {
       "source": "/(.*)",
