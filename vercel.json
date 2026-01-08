@@ -2,11 +2,6 @@
   "buildCommand": "pnpm build && pnpm build:docs",
   "outputDirectory": "docs-site/dist",
   "installCommand": "pnpm install --no-frozen-lockfile",
-  "functions": {
-    "docs-site/api/**/*.ts": {
-      "runtime": "@vercel/node@3.0.0"
-    }
-  },
   "rewrites": [
     {
       "source": "/r/:path*",
