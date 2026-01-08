@@ -7,6 +7,15 @@ const SPECIAL_FILES = ['index.json', 'registry.json', 'versions.json'];
 const DEFAULT_VERSION = 'v1';
 const LATEST_VERSION = 'v2';
 
+function getBasePath(): string {
+  // In Vercel production, files are in /var/task/
+  // In development, files are in process.cwd()/public
+  const productionPath = path.join('/var/task', 'r');
+  const devPath = path.join(process.cwd(), 'public', 'r');
+
+  return fs.existsSync(productionPath) ? '/var/task/r' : devPath;
+}
+
 export default function handler(req: VercelRequest, res: VercelResponse) {
   const { file } = req.query;
   const fileName = Array.isArray(file) ? file.join('/') : file;
@@ -15,8 +24,10 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Bad Request', message: 'File path required' });
   }
 
+  const basePath = getBasePath();
+
   if (SPECIAL_FILES.includes(fileName)) {
-    const filePath = path.join(process.cwd(), 'public', 'r', fileName);
+    const filePath = path.join(basePath, fileName);
     if (fs.existsSync(filePath)) {
       const content = fs.readFileSync(filePath, 'utf-8');
       res.setHeader('Content-Type', 'application/json');
@@ -39,7 +50,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     version = LATEST_VERSION;
   }
 
-  const baseDir = path.resolve(process.cwd(), 'public', 'r', version);
+  const baseDir = path.resolve(basePath, version);
   const versionedPath = path.resolve(baseDir, normalizedFileName);
 
   if (!versionedPath.startsWith(baseDir + path.sep) && versionedPath !== baseDir) {
