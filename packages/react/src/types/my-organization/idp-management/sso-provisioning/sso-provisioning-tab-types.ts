@@ -26,9 +26,9 @@ export interface SsoProvisioningTabEditProps {
 export interface SsoProvisioningTabClasses {
   'SsoProvisioningTab-root'?: string;
   'SsoProvisioningDetails-root'?: string;
-  'SsoProvisioningDetails-provisioningMapping'?: string;
-  'SsoProvisioningDetails-provisioningOptional'?: string;
+  'SsoProvisioning-attributeMapping'?: string;
   'SsoProvisioningDetails-formActions'?: string;
+  'SsoProviderAttributeSyncAlert-root'?: string;
 }
 
 export interface SsoProvisioningTabProps
@@ -46,6 +46,9 @@ export interface SsoProvisioningTabProps
     data: CreateIdpProvisioningScimTokenRequestContent,
   ) => Promise<CreateIdpProvisioningScimTokenResponseContent | undefined>;
   onDeleteScimToken: (idpScimTokenId: string) => Promise<void>;
+  hasProvisioningAttributeSyncWarning?: boolean;
+  onAttributeSync?: () => void | Promise<void>;
+  isSyncingAttributes?: boolean;
 }
 
 export interface SsoProvisioningTabSchemas {}
@@ -53,7 +56,7 @@ export interface SsoProvisioningTabSchemas {}
 export interface SsoProvisioningDetailsClasses extends ProvisioningManageTokenClasses {
   'SsoProvisioningDetails-root'?: string;
   'SsoProvisioningDetails-formActions'?: string;
-  'SsoProvisioningDetails-provisioningMapping'?: string;
+  'SsoProvisioning-attributeMapping'?: string;
 }
 
 export interface SsoProvisioningDeleteModalProps

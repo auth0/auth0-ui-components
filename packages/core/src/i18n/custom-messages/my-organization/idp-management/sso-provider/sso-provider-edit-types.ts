@@ -33,14 +33,25 @@ export interface SsoProviderEditMessages {
 }
 
 export interface SsoProviderTabMessages {
-  alert?: {
-    warning: string;
-    error: string;
-  };
+  attribute_sync_alert?: AttributeSyncAlertMessages;
   delete?: SsoProvideDeleteMessages;
   remove?: SsoProvideRemoveMessages;
   details?: SsoProviderDetailsMessages;
   description?: string;
+}
+
+export interface AttributeSyncAlertMessages {
+  title?: string;
+  description?: string;
+  sync_button_label?: string;
+  sync_modal?: {
+    title?: string;
+    description?: string;
+    actions?: {
+      cancel_button_label?: string;
+      proceed_button_label?: string;
+    };
+  };
 }
 
 export interface SsoProviderDetailsMessages {
@@ -58,6 +69,8 @@ export interface SsoProviderNotificationMessages {
   general_error?: string;
   provisioning_disabled_success?: string;
   scim_token_delete_sucess?: string;
+  sso_attributes_sync_success?: string;
+  provisioning_attributes_sync_success?: string;
 }
 
 export interface AttributeMappingSectionMessages {
@@ -69,7 +82,7 @@ export interface AttributeMappingSectionMessages {
       external_field_label?: string;
     };
     tags?: {
-      changed?: string;
+      updated?: string;
       removed?: string;
       new?: string;
     };

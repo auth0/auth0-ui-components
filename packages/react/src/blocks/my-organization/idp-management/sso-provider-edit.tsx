@@ -51,12 +51,18 @@ export function SsoProviderEditComponent({
     isScimTokensLoading,
     isScimTokenCreating,
     isScimTokenDeleting,
+    isSsoAttributesSyncing,
+    isProvisioningAttributesSyncing,
+    hasSsoAttributeSyncWarning,
+    hasProvisioningAttributeSyncWarning,
     updateProvider,
     createProvisioning: createProvisioningAction,
     deleteProvisioning: deleteProvisioningAction,
     listScimTokens,
     createScimToken: createScimTokenAction,
     deleteScimToken: deleteScimTokenAction,
+    syncSsoAttributes,
+    syncProvisioningAttributes,
     onDeleteConfirm,
     onRemoveConfirm,
   } = useSsoProviderEdit(providerId, {
@@ -156,6 +162,9 @@ export function SsoProviderEditComponent({
             isRemoving={isRemoving}
             idpConfig={idpConfig}
             shouldAllowDeletion={shouldAllowDeletion}
+            hasSsoAttributeSyncWarning={hasSsoAttributeSyncWarning}
+            onAttributeSync={syncSsoAttributes}
+            isSyncingAttributes={isSsoAttributesSyncing}
             customMessages={customMessages.tabs?.sso?.content}
             styling={styling}
             formActions={{
@@ -178,6 +187,9 @@ export function SsoProviderEditComponent({
               isScimTokensLoading={isScimTokensLoading}
               isScimTokenCreating={isScimTokenCreating}
               isScimTokenDeleting={isScimTokenDeleting}
+              hasProvisioningAttributeSyncWarning={hasProvisioningAttributeSyncWarning}
+              onAttributeSync={syncProvisioningAttributes}
+              isSyncingAttributes={isProvisioningAttributesSyncing}
               onCreateProvisioning={createProvisioningAction}
               onDeleteProvisioning={deleteProvisioningAction}
               onListScimTokens={listScimTokens}

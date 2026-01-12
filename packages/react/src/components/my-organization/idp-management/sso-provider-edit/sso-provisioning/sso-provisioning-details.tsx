@@ -137,7 +137,7 @@ export function SsoProvisioningDetails({
         isProvisioning
         userAttributeMap={provisioningConfig?.attributes || null}
         customMessages={customMessages.mappings}
-        className={currentStyles.classes?.['SsoProvisioningDetails-provisioningMapping']}
+        className={currentStyles.classes?.['SsoProvisioning-attributeMapping']}
       />
     </div>
   );

@@ -10,7 +10,7 @@ import {
   type GetIdPProvisioningConfigResponseContent,
   getStatusCode,
 } from '@auth0/universal-components-core';
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useMemo } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
 import type {
@@ -41,6 +41,8 @@ export function useSsoProviderEdit(
   const [isScimTokenCreating, setIsScimTokenCreating] = useState(false);
   const [isScimTokenDeleting, setIsScimTokenDeleting] = useState(false);
   const [isProvisioningLoading, setIsProvisioningLoading] = useState(false);
+  const [isSsoAttributesSyncing, setIsSsoAttributesSyncing] = useState(false);
+  const [isProvisioningAttributesSyncing, setIsProvisioningAttributesSyncing] = useState(false);
   const [provisioningConfig, setProvisioningConfig] =
     useState<GetIdPProvisioningConfigResponseContent | null>(null);
 
@@ -364,6 +366,64 @@ export function useSsoProviderEdit(
     [coreClient, idpId, provider, provisioning, t],
   );
 
+  const syncSsoAttributes = useCallback(async (): Promise<void> => {
+    if (!coreClient || !idpId) {
+      return;
+    }
+
+    try {
+      setIsSsoAttributesSyncing(true);
+
+      await coreClient
+        .getMyOrganizationApiClient()
+        .organization.identityProviders.updateAttributes(idpId, {});
+
+      await fetchProvider();
+
+      showToast({
+        type: 'success',
+        message: t('sso_attributes_sync_success'),
+      });
+    } catch (error) {
+      showToast({
+        type: 'error',
+        message: t('general_error'),
+      });
+      throw error;
+    } finally {
+      setIsSsoAttributesSyncing(false);
+    }
+  }, [coreClient, idpId, fetchProvider, t]);
+
+  const syncProvisioningAttributes = useCallback(async (): Promise<void> => {
+    if (!coreClient || !idpId) {
+      return;
+    }
+
+    try {
+      setIsProvisioningAttributesSyncing(true);
+
+      await coreClient
+        .getMyOrganizationApiClient()
+        .organization.identityProviders.provisioning.updateAttributes(idpId, {});
+
+      await fetchProvisioning();
+
+      showToast({
+        type: 'success',
+        message: t('provisioning_attributes_sync_success'),
+      });
+    } catch (error) {
+      showToast({
+        type: 'error',
+        message: t('general_error'),
+      });
+      throw error;
+    } finally {
+      setIsProvisioningAttributesSyncing(false);
+    }
+  }, [coreClient, idpId, fetchProvisioning, t]);
+
   const onDeleteConfirm = useCallback(async (): Promise<void> => {
     if (!provider || !coreClient || !provider.id) {
       return;
@@ -446,6 +506,16 @@ export function useSsoProviderEdit(
     });
   }, [idpId]);
 
+  const hasSsoAttributeSyncWarning = useMemo(() => {
+    const attributes = provider && 'attributes' in provider ? (provider.attributes ?? []) : [];
+    return attributes.some((attr) => attr.is_extra || attr.is_missing);
+  }, [provider]);
+
+  const hasProvisioningAttributeSyncWarning = useMemo(() => {
+    const attributes = provisioningConfig?.attributes ?? [];
+    return attributes.some((attr) => attr.is_extra || attr.is_missing);
+  }, [provisioningConfig]);
+
   return {
     provider,
     organization,
@@ -460,6 +530,10 @@ export function useSsoProviderEdit(
     isScimTokensLoading,
     isScimTokenCreating,
     isScimTokenDeleting,
+    isSsoAttributesSyncing,
+    isProvisioningAttributesSyncing,
+    hasSsoAttributeSyncWarning,
+    hasProvisioningAttributeSyncWarning,
     fetchProvider,
     fetchOrganizationDetails,
     fetchProvisioning,
@@ -469,6 +543,8 @@ export function useSsoProviderEdit(
     listScimTokens,
     createScimToken,
     deleteScimToken,
+    syncSsoAttributes,
+    syncProvisioningAttributes,
     onDeleteConfirm,
     onRemoveConfirm,
   };

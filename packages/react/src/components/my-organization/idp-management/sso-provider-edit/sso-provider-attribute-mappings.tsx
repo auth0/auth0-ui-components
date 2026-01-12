@@ -17,15 +17,15 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../../../ui/tooltip';
 const SCIM_NAMESPACE = 'urn:ietf:params:scim:schemas:core:2.0:User';
 
 const CHANGE_STATUS = {
-  CHANGED: 'changed',
+  UPDATED: 'updated',
   REMOVED: 'removed',
   NEW: 'new',
 } as const;
 
 type ChangeStatus = (typeof CHANGE_STATUS)[keyof typeof CHANGE_STATUS];
 
-const STATUS_VARIANTS: Record<ChangeStatus, 'warning' | 'default'> = {
-  [CHANGE_STATUS.CHANGED]: 'warning',
+const STATUS_VARIANTS: Record<ChangeStatus, 'info' | 'warning' | 'default'> = {
+  [CHANGE_STATUS.UPDATED]: 'info',
   [CHANGE_STATUS.REMOVED]: 'warning',
   [CHANGE_STATUS.NEW]: 'default',
 };
@@ -33,7 +33,7 @@ const STATUS_VARIANTS: Record<ChangeStatus, 'warning' | 'default'> = {
 const getChangeStatus = (item: IdpBaseUserAttributeItem): ChangeStatus | null => {
   const { is_extra: isRemoved, is_missing: isNew } = item;
 
-  if (isRemoved && isNew) return CHANGE_STATUS.CHANGED;
+  if (isRemoved && isNew) return CHANGE_STATUS.UPDATED;
   if (isRemoved) return CHANGE_STATUS.REMOVED;
   if (isNew) return CHANGE_STATUS.NEW;
 

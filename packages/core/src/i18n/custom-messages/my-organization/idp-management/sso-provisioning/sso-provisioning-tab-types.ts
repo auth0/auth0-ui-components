@@ -1,6 +1,7 @@
 import type {
   SsoProviderNotificationMessages,
   SsoProviderAttributeMappingsMessages,
+  AttributeSyncAlertMessages,
 } from '../sso-provider/sso-provider-edit-types';
 
 import type { ProvisioningManageTokenMessages } from './provisioning-manage-token-types';
@@ -12,10 +13,7 @@ export interface SsoProvisioningTabMessages {
     guided_setup_button_label?: string;
     enable_provisioning_tooltip?: string;
   };
-  warning_alert_message?: {
-    title?: string;
-    description?: string;
-  };
+  attribute_sync_alert?: AttributeSyncAlertMessages;
   save_button_label?: string;
   unsaved_changes_text?: string;
   notifications?: SsoProviderNotificationMessages;

@@ -544,7 +544,7 @@
               "external_field_label": "External Field"
             },
             "tags": {
-              "changed": "Changed",
+              "updated": "Updated",
               "removed": "Removed",
               "new": "New"
             }
@@ -559,7 +559,7 @@
               "external_field_label": "External Field"
             },
             "tags": {
-              "changed": "Changed",
+              "updated": "Updated",
               "removed": "Removed",
               "new": "New"
             }
@@ -572,8 +572,18 @@
           "content": {
             "title": "Single Sign-On",
             "description": "Manage and configure single sign-on.",
-            "alert": {
-              "warning": "User attribute mappings for single sign-on have been updated. Please review the attributes and update your identity provider configuration to avoid login issues."
+            "attribute_sync_alert": {
+              "title": "Mappings for single sign-on have been updated.",
+              "description": "Please review the attributes and update your identity provider configuration to avoid login issues. Once complete, sync the updated mappings.",
+              "sync_button_label": "Sync",
+              "sync_modal": {
+                "title": "Sync Updated Mappings",
+                "description": "Syncing will update your provider configuration with the latest mappings. This action cannot be undone.",
+                "actions": {
+                  "cancel_button_label": "Cancel",
+                  "proceed_button_label": "Proceed"
+                }
+              }
             }
           }
         },
@@ -586,9 +596,18 @@
               "guided_setup_button_label": "Guided Setup",
               "enable_provisioning_tooltip": "Enable provider to create provisioning"
             },
-            "warning_alert_message": {
+            "attribute_sync_alert": {
               "title": "Mappings for provisioning have been updated.",
-              "description": " Please review the attributes and update your identity provider configuration to ensure proper provisioning."
+              "description": "Please review the attributes and update your identity provider configuration to avoid login issues. Once complete, sync the updated mappings. You will need to generate new tokens and re-add them to your identity provider.",
+              "sync_button_label": "Sync",
+              "sync_modal": {
+                "title": "Sync Updated Mappings",
+                "description": "Syncing will update your provisioning configuration with the latest mappings and delete your existing tokens. You will need to generate new tokens and re-add them to your identity provider. This action cannot be undone.",
+                "actions": {
+                  "cancel_button_label": "Cancel",
+                  "proceed_button_label": "Proceed"
+                }
+              }
             },
             "delete": {
               "modal": {
@@ -807,7 +826,9 @@
       },
       "provisioning_disabled_success": "Provisioning has been disabled.",
       "scim_token_delete_sucess": "Token has been deleted.",
-      "scim_token_create_success": "Token generated successfully"
+      "scim_token_create_success": "Token generated successfully",
+      "sso_attributes_sync_success": "The provider mappings have been updated.",
+      "provisioning_attributes_sync_success": "The provisioning mappings have been updated."
     }
   },
   "mfa": {

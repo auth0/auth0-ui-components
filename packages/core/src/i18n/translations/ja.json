@@ -544,7 +544,7 @@
               "external_field_label": "外部フィールド"
             },
             "tags": {
-              "changed": "変更済み",
+              "updated": "更新済み",
               "removed": "削除済み",
               "new": "新規"
             }
@@ -559,7 +559,7 @@
               "external_field_label": "外部フィールド"
             },
             "tags": {
-              "changed": "変更済み",
+              "updated": "更新済み",
               "removed": "削除済み",
               "new": "新規"
             }
@@ -572,8 +572,18 @@
           "content": {
             "title": "シングルサインオン",
             "description": "シングルサインオンを管理・設定します。",
-            "alert": {
-              "warning": "シングルサインオンのユーザー属性マッピングが更新されました。ログインの問題を回避するため、属性を確認してアイデンティティプロバイダーの設定を更新してください。"
+            "attribute_sync_alert": {
+              "title": "シングルサインオンのマッピングが更新されました。",
+              "description": "ログインの問題を回避するため、属性を確認してアイデンティティプロバイダーの設定を更新してください。完了したら、更新されたマッピングを同期してください。",
+              "sync_button_label": "同期",
+              "sync_modal": {
+                "title": "更新されたマッピングを同期",
+                "description": "同期すると、プロバイダーの設定が最新のマッピングで更新されます。この操作は元に戻せません。",
+                "actions": {
+                  "cancel_button_label": "キャンセル",
+                  "proceed_button_label": "続行"
+                }
+              }
             }
           }
         },
@@ -586,9 +596,18 @@
               "guided_setup_button_label": "ガイド付きセットアップ",
               "enable_provisioning_tooltip": "プロビジョニングを作成するにはプロバイダーを有効にしてください"
             },
-            "warning_alert_message": {
+            "attribute_sync_alert": {
               "title": "プロビジョニングのマッピングが更新されました。",
-              "description": "属性を確認し、適切なプロビジョニングを確保するためにアイデンティティプロバイダーの設定を更新してください。"
+              "description": "ログインの問題を回避するため、属性を確認してアイデンティティプロバイダーの設定を更新してください。完了したら、更新されたマッピングを同期してください。新しいトークンを生成し、アイデンティティプロバイダーに再追加する必要があります。",
+              "sync_button_label": "同期",
+              "sync_modal": {
+                "title": "更新されたマッピングを同期",
+                "description": "同期すると、プロビジョニング設定が最新のマッピングで更新され、既存のトークンが削除されます。新しいトークンを生成し、アイデンティティプロバイダーに再追加する必要があります。この操作は元に戻せません。",
+                "actions": {
+                  "cancel_button_label": "キャンセル",
+                  "proceed_button_label": "続行"
+                }
+              }
             },
             "delete": {
               "modal": {
@@ -808,7 +827,9 @@
       },
       "provisioning_disabled_success": "プロビジョニングが無効になりました。",
       "scim_token_delete_sucess": "トークンが削除されました。",
-      "scim_token_create_success": "トークンが正常に生成されました"
+      "scim_token_create_success": "トークンが正常に生成されました",
+      "sso_attributes_sync_success": "プロバイダーマッピングが更新されました。",
+      "provisioning_attributes_sync_success": "プロビジョニングマッピングが更新されました。"
     }
   },
   "mfa": {

@@ -14,6 +14,7 @@ import type {
   IdpProvisioningUserAttributeMap,
   IdpUserAttributeMap,
   IdpStrategy,
+  AttributeSyncAlertMessages,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
@@ -94,6 +95,10 @@ export interface UseSsoProviderEditReturn {
   isScimTokensLoading: boolean;
   isScimTokenCreating: boolean;
   isScimTokenDeleting: boolean;
+  isSsoAttributesSyncing: boolean;
+  isProvisioningAttributesSyncing: boolean;
+  hasSsoAttributeSyncWarning: boolean;
+  hasProvisioningAttributeSyncWarning: boolean;
   fetchProvider: () => Promise<IdentityProvider | null>;
   fetchOrganizationDetails: () => Promise<void>;
   fetchProvisioning: () => Promise<GetIdPProvisioningConfigResponseContent | null>;
@@ -105,6 +110,8 @@ export interface UseSsoProviderEditReturn {
     data: CreateIdpProvisioningScimTokenRequestContent,
   ) => Promise<CreateIdpProvisioningScimTokenResponseContent | undefined>;
   deleteScimToken: (idpScimTokenId: string) => Promise<void>;
+  syncSsoAttributes: () => Promise<void>;
+  syncProvisioningAttributes: () => Promise<void>;
   onDeleteConfirm: () => Promise<void>;
   onRemoveConfirm: () => Promise<void>;
 }
@@ -115,4 +122,12 @@ export interface SsoProviderAttributeMappingsProps
   strategy: IdpStrategy | null;
   isProvisioning?: boolean;
   className?: string;
+}
+
+export interface SsoProviderAttributeSyncAlertProps {
+  translatorKey?: string;
+  className?: string;
+  onSync?: () => void | Promise<void>;
+  isSyncing?: boolean;
+  customMessages?: Partial<AttributeSyncAlertMessages>;
 }
