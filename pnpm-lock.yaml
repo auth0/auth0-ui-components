@@ -473,8 +473,8 @@ importers:
         specifier: ^1.0.0-beta.0
         version: 1.0.0-beta.0
       '@auth0/myorganization-js':
-        specifier: ^1.0.0-beta.2
-        version: 1.0.0-beta.2
+        specifier: ^1.0.0-beta.3
+        version: 1.0.0-beta.3
       zod:
         specifier: ^3.22.4
         version: 3.25.76
@@ -649,8 +649,8 @@ packages:
     resolution: {integrity: sha512-slj0RtNfieNk1BC1ERrCQw65qMUVKU5qacbTc8BFH8R316CUpsOhZ2MIiV9l3VEkaqY1hmCZm03+ZI6ym+3PZg==}
     engines: {node: '>=18.0.0'}
 
-  '@auth0/myorganization-js@1.0.0-beta.2':
-    resolution: {integrity: sha512-JkTWs564hDPjYK91jvfDD4TtZgpmqoVV4ekn+CExbgCuuciyTLWNbtrY2VtDGZ0EfIdPFCeLaKw3eH7xvSYJig==}
+  '@auth0/myorganization-js@1.0.0-beta.3':
+    resolution: {integrity: sha512-ul7BmJjJinfgu1xAK3LPR4tgcSxEW9BgjCHy5RHHbF2UBbioYTlbx7dVLn+b8m09UnPmtxTvPisoza/KhacG3Q==}
     engines: {node: '>=18.0.0'}
 
   '@auth0/nextjs-auth0@4.13.2':
@@ -6360,7 +6360,7 @@ snapshots:
 
   '@auth0/auth0-auth-js@1.2.0':
     dependencies:
-      jose: 6.1.2
+      jose: 6.1.3
       openid-client: 6.8.1
 
   '@auth0/auth0-react@2.9.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
@@ -6377,7 +6377,7 @@ snapshots:
 
   '@auth0/myaccount-js@1.0.0-beta.0': {}
 
-  '@auth0/myorganization-js@1.0.0-beta.2':
+  '@auth0/myorganization-js@1.0.0-beta.3':
     dependencies:
       '@auth0/auth0-auth-js': 1.2.0
 

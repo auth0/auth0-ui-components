@@ -29,7 +29,9 @@ export interface SsoProviderTabEditProps {
 export interface SsoProviderTabClasses
   extends SsoProviderDetailsClasses,
     SsoProviderDeleteClasses,
-    SsoProviderRemoveClasses {}
+    SsoProviderRemoveClasses {
+  'SsoProviderAttributeSyncAlert-root'?: string;
+}
 
 export interface SsoProviderDetailsFormActions extends Omit<FormActionsProps, 'nextAction'> {
   nextAction?: {
@@ -55,6 +57,9 @@ export interface SsoProviderTabProps
   organization: OrganizationPrivate | null;
   isDeleting: boolean;
   isRemoving: boolean;
+  hasSsoAttributeSyncWarning?: boolean;
+  onAttributeSync?: () => void | Promise<void>;
+  isSyncingAttributes?: boolean;
 }
 
 /* ============ Subcomponents ============ */
@@ -75,6 +80,7 @@ export interface SsoProviderDetailsClasses {
   'SsoProviderDetails-formActions'?: string;
   'ProviderDetails-root'?: string;
   'ProviderConfigure-root'?: string;
+  'SsoProvider-attributeMapping'?: string;
   'SsoProviderDetails-FormActions'?: string;
 }
 

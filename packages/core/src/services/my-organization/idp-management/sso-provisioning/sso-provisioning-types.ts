@@ -12,4 +12,4 @@ export type CreateIdpProvisioningScimTokenRequestContent =
   MyOrganization.CreateIdpProvisioningScimTokenRequestContent;
 export type IdpProvisioningConfig = MyOrganization.IdpProvisioningConfig;
 export type IdpScimTokenBase = MyOrganization.IdpScimTokenBase;
-export type ProvisioningFieldMap = MyOrganization.IdpProvisioningFieldMapItem[];
+export type IdpProvisioningUserAttributeMap = MyOrganization.IdpProvisioningUserAttributeMapItem[];

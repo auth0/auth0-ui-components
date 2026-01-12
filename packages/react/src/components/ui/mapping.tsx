@@ -8,8 +8,8 @@ import { DataTable, type Column } from './data-table';
 import { Section } from './section';
 
 export interface MappingProps<Item> {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   content: React.ReactNode;
   card: {
     title: string;
@@ -45,7 +45,9 @@ export function Mapping<Item>({
             <AccordionTrigger className="py-4">
               <div className="text-left">
                 <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-                <CardDescription className="text-sm">{card.description}</CardDescription>
+                <CardDescription className="text-sm font-normal">
+                  {card.description}
+                </CardDescription>
               </div>
             </AccordionTrigger>
             <AccordionContent className="pb-6">
