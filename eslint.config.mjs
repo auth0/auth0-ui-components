@@ -4,6 +4,7 @@ import tsParser from '@typescript-eslint/parser';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import importPlugin from 'eslint-plugin-import';
+import tsdocPlugin from 'eslint-plugin-tsdoc';
 import globals from 'globals';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
@@ -24,6 +25,8 @@ export default [
       '**/.turbo/**',
       '**/.next/**',
       '**/*.d.ts',
+      '**/docs-api/**',
+      '**/examples/**',
     ],
   },
 
@@ -53,6 +56,7 @@ export default [
       'react': reactPlugin,
       'react-hooks': reactHooksPlugin,
       'import': importPlugin,
+      'tsdoc': tsdocPlugin,
     },
     rules: {
       // Disable base rules that TypeScript handles
@@ -99,6 +103,9 @@ export default [
       'import/namespace': 'off',
       'import/default': 'off',
       'import/no-named-as-default-member': 'off',
+
+      // TSDoc validation
+      'tsdoc/syntax': 'warn',
     },
     settings: {
       react: {

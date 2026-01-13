@@ -35,6 +35,8 @@ import type { UserMFAMgmtProps } from '../../../types/my-account/mfa/mfa-types';
  * It operates in both ProxyMode (RWA) and SPA modes for authentication.
  * - **ProxyMode (RWA)**: In this mode, the component interacts with a proxy service to manage MFA
  * - **SPA (Single Page Application)**: In this mode, the component communicates directly with the API to manage MFA factors.
+ *
+ * @internal
  */
 function UserMFAMgmtComponent({
   customMessages = {},
@@ -123,7 +125,7 @@ function UserMFAMgmtComponent({
    * Handles the enrollment button click for a specific MFA factor.
    * Opens the enrollment dialog for the chosen factor.
    *
-   * @param {MFAType} factor - The MFA factor to be enrolled.
+   * @param factor - The MFA factor to be enrolled.
    */
   const handleEnroll = (factor: MFAType) => {
     setEnrollFactor(factor);
@@ -152,9 +154,9 @@ function UserMFAMgmtComponent({
    * - Delete action is disabled
    * - onBeforeAction returns false
    *
-   * @param {string} factorId - The unique identifier of the MFA factor to delete
-   * @param {MFAType} factorType - The type of MFA factor being deleted (e.g., 'sms', 'email', 'otp')
-   * @returns {Promise<void>}
+   * @param factorId - The unique identifier of the MFA factor to delete
+   * @param factorType - The type of MFA factor being deleted (e.g., 'sms', 'email', 'otp')
+   * @returns A promise that resolves when the delete action completes
    */
   const handleDeleteFactor = React.useCallback(
     async (factorId: string, factorType: MFAType) => {
@@ -184,8 +186,8 @@ function UserMFAMgmtComponent({
    * 3. Shows success/error notifications
    * 4. Handles cleanup of dialog and loading states
    *
-   * @param {string} factorId - The unique identifier of the MFA factor to delete
-   * @throws {Error} When deletion fails or factors cannot be reloaded
+   * @param factorId - The unique identifier of the MFA factor to delete
+   * @throws When deletion fails or factors cannot be reloaded
    */
   const handleConfirmDelete = React.useCallback(
     async (factorId: string) => {
@@ -248,8 +250,8 @@ function UserMFAMgmtComponent({
   /**
    * Handles errors during the enrollment or confirmation process.
    *
-   * @param {Error} error - The error object containing the failure message.
-   * @param {string} stage - The stage of the process ('enroll' or 'confirm').
+   * @param error - The error object containing the failure message.
+   * @param stage - The stage of the process ('enroll' or 'confirm').
    */
   const handleEnrollError = React.useCallback(
     (error: Error, stage: typeof ENROLL | typeof CONFIRM) => {
@@ -418,4 +420,47 @@ function UserMFAMgmtComponent({
   );
 }
 
+/**
+ * UserMFAMgmt - Multi-Factor Authentication Management Component
+ *
+ * A ready-to-use block component for managing Multi-Factor Authentication (MFA) factors.
+ * This component provides a complete UI for users to view, enroll, and delete MFA factors
+ * including SMS, email, authenticator apps, push notifications, and recovery codes.
+ *
+ * The component automatically handles:
+ * - Fetching available and enrolled MFA factors
+ * - Enrollment flows for different factor types
+ * - Factor deletion with confirmation dialogs
+ * - Loading and error states
+ * - Dark mode support
+ *
+ * @example
+ * Basic usage:
+ * ```tsx
+ * import { UserMFAMgmt } from '@auth0/universal-components-react';
+ *
+ * function MyAccountPage() {
+ *   return <UserMFAMgmt />;
+ * }
+ * ```
+ *
+ * @example
+ * With event handlers and configuration:
+ * ```tsx
+ * <UserMFAMgmt
+ *   showActiveOnly={true}
+ *   factorConfig={{
+ *     sms: { visible: true, enabled: true },
+ *     email: { visible: true, enabled: true },
+ *   }}
+ *   onEnroll={() => toast.success('Factor enrolled!')}
+ *   onDelete={() => toast.success('Factor deleted!')}
+ *   onErrorAction={(error, action) => {
+ *     console.error(`MFA ${action} failed:`, error);
+ *   }}
+ * />
+ * ```
+ *
+ * @see {@link UserMFAMgmtProps} for all available props
+ */
 export const UserMFAMgmt = withMyAccountService(UserMFAMgmtComponent, USER_MFA_SCOPES);

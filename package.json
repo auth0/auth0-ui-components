@@ -25,6 +25,8 @@
     "build:docs": "turbo run build --filter=auth0-ui-components-docs",
     "build:shadcn": "cd packages/react && pnpm registry:build && cp -r public/r ../../docs-site/public/",
     "dev:docs": "turbo run dev --filter=auth0-ui-components-docs",
+    "docs:api": "typedoc",
+    "docs:api:watch": "typedoc --watch",
     "test": "turbo run test:coverage",
     "test:core": "turbo run test:coverage --filter=./packages/core",
     "test:react": "turbo run test:coverage --filter=./packages/react",
@@ -61,6 +63,7 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-tsdoc": "^0.5.0",
     "globals": "^16.5.0",
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
@@ -68,6 +71,8 @@
     "prettier": "^3.6.2",
     "tsup": "^8.5.1",
     "turbo": "^2.6.1",
+    "typedoc": "^0.28.16",
+    "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   }

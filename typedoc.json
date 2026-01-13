@@ -1,0 +1,39 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "Auth0 Universal Components",
+  "entryPoints": ["./packages/core/src/index.ts", "./packages/react/src/index.ts"],
+  "entryPointStrategy": "expand",
+  "out": "./docs-api",
+  "readme": "./README.md",
+  "treatWarningsAsErrors": true,
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "hideGenerator": true,
+  "cleanOutputDir": true,
+  "navigationLinks": {
+    "GitHub": "https://github.com/auth0/auth0-ui-components",
+    "Auth0": "https://auth0.com"
+  },
+  "categorizeByGroup": true,
+  "categoryOrder": ["Providers", "Components", "Hooks", "Types", "Utilities", "*"],
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "exclude": [
+    "**/node_modules/**",
+    "**/examples/**",
+    "**/__tests__/**",
+    "**/__mocks__/**",
+    "**/internals/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
+  ],
+  "externalPattern": ["**/node_modules/**"],
+  "skipErrorChecking": true,
+  "tsconfig": "./tsconfig.json"
+}

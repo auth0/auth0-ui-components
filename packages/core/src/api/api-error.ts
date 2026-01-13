@@ -17,7 +17,10 @@ export function isApiError(error: unknown): error is ApiError {
 }
 
 /**
- * Type guard to check if an error has a structured API error body
+ * Type guard to check if an error has a structured API error body.
+ *
+ * @param error - The unknown value to test
+ * @returns `true` if the error has a body property with optional detail, title, status, or type fields
  */
 export function hasApiErrorBody(
   error: unknown,
@@ -66,6 +69,18 @@ export function normalizeError(
   return new Error(options?.fallbackMessage ?? 'An unknown error occurred');
 }
 
+/**
+ * Extracts the HTTP status code from an unknown error object.
+ *
+ * This function checks multiple common locations where status codes may be stored:
+ * - `error.status`
+ * - `error.statusCode`
+ * - `error.response.status`
+ * - `error.body.status`
+ *
+ * @param error - The unknown error to extract the status code from
+ * @returns The HTTP status code if found, otherwise `undefined`
+ */
 export function getStatusCode(error: unknown): number | undefined {
   return typeof error === 'object' && error !== null
     ? [
