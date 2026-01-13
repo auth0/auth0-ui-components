@@ -2,6 +2,7 @@ import {
   QueryClient,
   QueryClientProvider as TanStackQueryClientProvider,
 } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import * as React from 'react';
 
 /**
@@ -84,5 +85,10 @@ export function QueryProvider({ children, client }: QueryProviderProps) {
     return client || getQueryClient();
   }, [client]);
 
-  return <TanStackQueryClientProvider client={queryClient}>{children}</TanStackQueryClientProvider>;
+  return (
+    <TanStackQueryClientProvider client={queryClient}>
+      {children}
+      <ReactQueryDevtools initialIsOpen={true} />
+    </TanStackQueryClientProvider>
+  );
 }
