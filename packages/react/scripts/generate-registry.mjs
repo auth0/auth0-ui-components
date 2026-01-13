@@ -400,7 +400,9 @@ async function generateBlockItem(blockFilePath) {
     const { title, description } = await promptForMetadata(autoMetadata, blockName);
 
     // Collect all file dependencies
-    const allFiles = collectFileDependencies(blockFilePath);
+    const visited = new Set();
+    const allFiles = new Set();
+    collectFileDependencies(blockFilePath, visited, allFiles);
     
     // Also add common infrastructure files that are always needed
     const infrastructureFiles = [
@@ -450,10 +452,10 @@ async function generateBlockItem(blockFilePath) {
         }
     });
     
-    // Add infrastructure files if they exist
+    // Add infrastructure files if they exist and collect their dependencies
     infrastructureFiles.forEach(file => {
         if (fs.existsSync(file)) {
-            allFiles.add(file);
+            collectFileDependencies(file, visited, allFiles);
         }
     });
     
@@ -520,10 +522,16 @@ async function generateBlockItem(blockFilePath) {
     // and build tools/dev-only packages
     const pkg = JSON.parse(fs.readFileSync(PACKAGE_JSON, 'utf-8'));
     const peerDeps = new Set(Object.keys(pkg.peerDependencies || {}));
+    // Allow react-hook-form to be included causing it to be installed when adding the component
+    if (peerDeps.has('react-hook-form')) {
+        peerDeps.delete('react-hook-form');
+    }
+
     const buildTools = new Set(['tailwindcss', '@tailwindcss/cli', 'typescript', 'tsup', 'vite', 'vitest']);
+    const excludedPackages = new Set(['@auth0/universal-components-core']);
     
     const dependencies = Array.from(npmDeps)
-        .filter(dep => !peerDeps.has(dep) && !buildTools.has(dep))
+        .filter(dep => !peerDeps.has(dep) && !buildTools.has(dep) && !excludedPackages.has(dep))
         .sort();
 
     return {

@@ -125,6 +125,11 @@
           "target": "auth0-ui-components/components/ui/separator.tsx"
         },
         {
+          "path": "src/components/ui/sonner.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/sonner.tsx"
+        },
+        {
           "path": "src/components/ui/spinner.tsx",
           "type": "registry:component",
           "target": "auth0-ui-components/components/ui/spinner.tsx"
@@ -133,6 +138,11 @@
           "path": "src/components/ui/text-field.tsx",
           "type": "registry:component",
           "target": "auth0-ui-components/components/ui/text-field.tsx"
+        },
+        {
+          "path": "src/components/ui/toast.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/toast.tsx"
         },
         {
           "path": "src/components/ui/tooltip.tsx",
@@ -180,6 +190,11 @@
           "target": "auth0-ui-components/hooks/my-account/mfa/use-recovery-code.ts"
         },
         {
+          "path": "src/hooks/use-core-client-initialization.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/use-core-client-initialization.ts"
+        },
+        {
           "path": "src/hooks/use-core-client.ts",
           "type": "registry:hook",
           "target": "auth0-ui-components/hooks/use-core-client.ts"
@@ -193,6 +208,11 @@
           "path": "src/hooks/use-theme.ts",
           "type": "registry:hook",
           "target": "auth0-ui-components/hooks/use-theme.ts"
+        },
+        {
+          "path": "src/hooks/use-toast-provider.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/use-toast-provider.ts"
         },
         {
           "path": "src/hooks/use-translator.ts",
@@ -248,6 +268,11 @@
           "path": "src/types/theme-types.ts",
           "type": "registry:file",
           "target": "auth0-ui-components/types/theme-types.ts"
+        },
+        {
+          "path": "src/types/toast-types.ts",
+          "type": "registry:file",
+          "target": "auth0-ui-components/types/toast-types.ts"
         },
         {
           "path": "src/lib/mfa-constants.ts",
@@ -308,21 +333,10 @@
           "path": "src/styles/themes/rounded.css",
           "type": "registry:file",
           "target": "auth0-ui-components/styles/themes/rounded.css"
-        },
-        {
-          "path": "src/components/ui/sonner.tsx",
-          "type": "registry:component",
-          "target": "auth0-ui-components/components/ui/sonner.tsx"
-        },
-        {
-          "path": "src/hooks/use-core-client-initialization.ts",
-          "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/use-core-client-initialization.ts"
         }
       ],
       "dependencies": [
         "@auth0/auth0-react",
-        "@auth0/universal-components-core",
         "@hookform/resolvers",
         "@radix-ui/react-dialog",
         "@radix-ui/react-label",
@@ -333,6 +347,7 @@
         "clsx",
         "lucide-react",
         "qrcode",
+        "react-hook-form",
         "sonner",
         "tailwind-merge"
       ]
@@ -474,6 +489,11 @@
           "target": "auth0-ui-components/components/ui/modal.tsx"
         },
         {
+          "path": "src/components/ui/sonner.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/sonner.tsx"
+        },
+        {
           "path": "src/components/ui/spinner.tsx",
           "type": "registry:component",
           "target": "auth0-ui-components/components/ui/spinner.tsx"
@@ -524,6 +544,11 @@
           "target": "auth0-ui-components/hooks/my-organization/index.ts"
         },
         {
+          "path": "src/hooks/use-core-client-initialization.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/use-core-client-initialization.ts"
+        },
+        {
           "path": "src/hooks/use-core-client.ts",
           "type": "registry:hook",
           "target": "auth0-ui-components/hooks/use-core-client.ts"
@@ -542,6 +567,11 @@
           "path": "src/hooks/use-theme.ts",
           "type": "registry:hook",
           "target": "auth0-ui-components/hooks/use-theme.ts"
+        },
+        {
+          "path": "src/hooks/use-toast-provider.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/use-toast-provider.ts"
         },
         {
           "path": "src/hooks/use-translator.ts",
@@ -682,21 +712,10 @@
           "path": "src/styles/themes/rounded.css",
           "type": "registry:file",
           "target": "auth0-ui-components/styles/themes/rounded.css"
-        },
-        {
-          "path": "src/components/ui/sonner.tsx",
-          "type": "registry:component",
-          "target": "auth0-ui-components/components/ui/sonner.tsx"
-        },
-        {
-          "path": "src/hooks/use-core-client-initialization.ts",
-          "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/use-core-client-initialization.ts"
         }
       ],
       "dependencies": [
         "@auth0/auth0-react",
-        "@auth0/universal-components-core",
         "@hookform/resolvers",
         "@radix-ui/react-dialog",
         "@radix-ui/react-dropdown-menu",
@@ -708,6 +727,7 @@
         "class-variance-authority",
         "clsx",
         "lucide-react",
+        "react-hook-form",
         "sonner",
         "tailwind-merge"
       ]
@@ -864,6 +884,11 @@
           "target": "auth0-ui-components/components/ui/separator.tsx"
         },
         {
+          "path": "src/components/ui/sonner.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/sonner.tsx"
+        },
+        {
           "path": "src/components/ui/spinner.tsx",
           "type": "registry:component",
           "target": "auth0-ui-components/components/ui/spinner.tsx"
@@ -939,6 +964,11 @@
           "target": "auth0-ui-components/hooks/my-organization/index.ts"
         },
         {
+          "path": "src/hooks/use-core-client-initialization.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/use-core-client-initialization.ts"
+        },
+        {
           "path": "src/hooks/use-core-client.ts",
           "type": "registry:hook",
           "target": "auth0-ui-components/hooks/use-core-client.ts"
@@ -952,6 +982,11 @@
           "path": "src/hooks/use-theme.ts",
           "type": "registry:hook",
           "target": "auth0-ui-components/hooks/use-theme.ts"
+        },
+        {
+          "path": "src/hooks/use-toast-provider.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/use-toast-provider.ts"
         },
         {
           "path": "src/hooks/use-translator.ts",
@@ -1112,21 +1147,10 @@
           "path": "src/styles/themes/rounded.css",
           "type": "registry:file",
           "target": "auth0-ui-components/styles/themes/rounded.css"
-        },
-        {
-          "path": "src/components/ui/sonner.tsx",
-          "type": "registry:component",
-          "target": "auth0-ui-components/components/ui/sonner.tsx"
-        },
-        {
-          "path": "src/hooks/use-core-client-initialization.ts",
-          "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/use-core-client-initialization.ts"
         }
       ],
       "dependencies": [
         "@auth0/auth0-react",
-        "@auth0/universal-components-core",
         "@hookform/resolvers",
         "@radix-ui/react-accordion",
         "@radix-ui/react-checkbox",
@@ -1139,6 +1163,7 @@
         "class-variance-authority",
         "clsx",
         "lucide-react",
+        "react-hook-form",
         "sonner",
         "tailwind-merge"
       ]
@@ -1445,6 +1470,11 @@
           "target": "auth0-ui-components/components/ui/select.tsx"
         },
         {
+          "path": "src/components/ui/sonner.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/sonner.tsx"
+        },
+        {
           "path": "src/components/ui/spinner.tsx",
           "type": "registry:component",
           "target": "auth0-ui-components/components/ui/spinner.tsx"
@@ -1520,6 +1550,11 @@
           "target": "auth0-ui-components/hooks/my-organization/index.ts"
         },
         {
+          "path": "src/hooks/use-core-client-initialization.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/use-core-client-initialization.ts"
+        },
+        {
           "path": "src/hooks/use-core-client.ts",
           "type": "registry:hook",
           "target": "auth0-ui-components/hooks/use-core-client.ts"
@@ -1538,6 +1573,11 @@
           "path": "src/hooks/use-theme.ts",
           "type": "registry:hook",
           "target": "auth0-ui-components/hooks/use-theme.ts"
+        },
+        {
+          "path": "src/hooks/use-toast-provider.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/use-toast-provider.ts"
         },
         {
           "path": "src/hooks/use-translator.ts",
@@ -1733,21 +1773,10 @@
           "path": "src/styles/themes/rounded.css",
           "type": "registry:file",
           "target": "auth0-ui-components/styles/themes/rounded.css"
-        },
-        {
-          "path": "src/components/ui/sonner.tsx",
-          "type": "registry:component",
-          "target": "auth0-ui-components/components/ui/sonner.tsx"
-        },
-        {
-          "path": "src/hooks/use-core-client-initialization.ts",
-          "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/use-core-client-initialization.ts"
         }
       ],
       "dependencies": [
         "@auth0/auth0-react",
-        "@auth0/universal-components-core",
         "@hookform/resolvers",
         "@radix-ui/react-accordion",
         "@radix-ui/react-checkbox",
@@ -1763,6 +1792,7 @@
         "class-variance-authority",
         "clsx",
         "lucide-react",
+        "react-hook-form",
         "sonner",
         "tailwind-merge"
       ]
@@ -1854,6 +1884,11 @@
           "target": "auth0-ui-components/components/ui/modal.tsx"
         },
         {
+          "path": "src/components/ui/sonner.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/sonner.tsx"
+        },
+        {
           "path": "src/components/ui/spinner.tsx",
           "type": "registry:component",
           "target": "auth0-ui-components/components/ui/spinner.tsx"
@@ -1909,6 +1944,11 @@
           "target": "auth0-ui-components/hooks/my-organization/index.ts"
         },
         {
+          "path": "src/hooks/use-core-client-initialization.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/use-core-client-initialization.ts"
+        },
+        {
           "path": "src/hooks/use-core-client.ts",
           "type": "registry:hook",
           "target": "auth0-ui-components/hooks/use-core-client.ts"
@@ -1922,6 +1962,11 @@
           "path": "src/hooks/use-theme.ts",
           "type": "registry:hook",
           "target": "auth0-ui-components/hooks/use-theme.ts"
+        },
+        {
+          "path": "src/hooks/use-toast-provider.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/use-toast-provider.ts"
         },
         {
           "path": "src/hooks/use-translator.ts",
@@ -2052,21 +2097,10 @@
           "path": "src/styles/themes/rounded.css",
           "type": "registry:file",
           "target": "auth0-ui-components/styles/themes/rounded.css"
-        },
-        {
-          "path": "src/components/ui/sonner.tsx",
-          "type": "registry:component",
-          "target": "auth0-ui-components/components/ui/sonner.tsx"
-        },
-        {
-          "path": "src/hooks/use-core-client-initialization.ts",
-          "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/use-core-client-initialization.ts"
         }
       ],
       "dependencies": [
         "@auth0/auth0-react",
-        "@auth0/universal-components-core",
         "@radix-ui/react-dialog",
         "@radix-ui/react-dropdown-menu",
         "@radix-ui/react-slot",
@@ -2182,6 +2216,11 @@
           "target": "auth0-ui-components/components/ui/separator.tsx"
         },
         {
+          "path": "src/components/ui/sonner.tsx",
+          "type": "registry:component",
+          "target": "auth0-ui-components/components/ui/sonner.tsx"
+        },
+        {
           "path": "src/components/ui/spinner.tsx",
           "type": "registry:component",
           "target": "auth0-ui-components/components/ui/spinner.tsx"
@@ -2232,6 +2271,11 @@
           "target": "auth0-ui-components/hooks/my-organization/organization-management/use-organization-details-edit.ts"
         },
         {
+          "path": "src/hooks/use-core-client-initialization.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/use-core-client-initialization.ts"
+        },
+        {
           "path": "src/hooks/use-core-client.ts",
           "type": "registry:hook",
           "target": "auth0-ui-components/hooks/use-core-client.ts"
@@ -2245,6 +2289,11 @@
           "path": "src/hooks/use-theme.ts",
           "type": "registry:hook",
           "target": "auth0-ui-components/hooks/use-theme.ts"
+        },
+        {
+          "path": "src/hooks/use-toast-provider.ts",
+          "type": "registry:hook",
+          "target": "auth0-ui-components/hooks/use-toast-provider.ts"
         },
         {
           "path": "src/hooks/use-translator.ts",
@@ -2360,21 +2409,10 @@
           "path": "src/styles/themes/rounded.css",
           "type": "registry:file",
           "target": "auth0-ui-components/styles/themes/rounded.css"
-        },
-        {
-          "path": "src/components/ui/sonner.tsx",
-          "type": "registry:component",
-          "target": "auth0-ui-components/components/ui/sonner.tsx"
-        },
-        {
-          "path": "src/hooks/use-core-client-initialization.ts",
-          "type": "registry:hook",
-          "target": "auth0-ui-components/hooks/use-core-client-initialization.ts"
         }
       ],
       "dependencies": [
         "@auth0/auth0-react",
-        "@auth0/universal-components-core",
         "@hookform/resolvers",
         "@radix-ui/react-label",
         "@radix-ui/react-popover",
@@ -2387,6 +2425,7 @@
         "class-variance-authority",
         "clsx",
         "lucide-react",
+        "react-hook-form",
         "sonner",
         "tailwind-merge"
       ]
