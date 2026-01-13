@@ -56,7 +56,9 @@ jobs:
           path: ./docs-api
 
   # Job 2: Deploy to GitHub Pages
+  # NOTE: Uncomment 'if' condition below once GitHub Pages is enabled in repo settings
   deploy:
+    if: false  # Temporarily disabled until GitHub Pages is configured
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
