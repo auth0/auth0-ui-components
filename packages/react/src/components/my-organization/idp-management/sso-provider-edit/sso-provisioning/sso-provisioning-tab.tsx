@@ -100,26 +100,22 @@ export function SsoProvisioningTab({
                 {isLoading ? (
                   <Spinner className="w-4 h-4" />
                 ) : (
-                  <>
-                    {!provider.is_enabled ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Switch
-                            checked={isProvisioningEnabled}
-                            onCheckedChange={handleProvisioningToggle}
-                            disabled={enableProvisioningToggle}
-                          />
-                        </TooltipTrigger>
-                        <TooltipContent>{t('header.enable_provisioning_tooltip')}</TooltipContent>
-                      </Tooltip>
-                    ) : (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
                       <Switch
                         checked={isProvisioningEnabled}
                         onCheckedChange={handleProvisioningToggle}
                         disabled={enableProvisioningToggle}
                       />
-                    )}
-                  </>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {!provider.is_enabled
+                        ? t('header.provider_disabled_tooltip')
+                        : isProvisioningEnabled
+                          ? t('header.disable_provisioning_tooltip')
+                          : t('header.enable_provisioning_tooltip')}
+                    </TooltipContent>
+                  </Tooltip>
                 )}
               </div>
             </div>

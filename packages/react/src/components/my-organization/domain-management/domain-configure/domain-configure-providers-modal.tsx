@@ -8,6 +8,7 @@ import { Button } from '../../../ui/button';
 import { type Column, DataTable } from '../../../ui/data-table';
 import { Modal } from '../../../ui/modal';
 import { Switch } from '../../../ui/switch';
+import { Tooltip, TooltipTrigger, TooltipContent } from '../../../ui/tooltip';
 
 export function DomainConfigureProvidersModal({
   className,
@@ -63,11 +64,20 @@ export function DomainConfigureProvidersModal({
                 {t('table.actions.view_provider_button_text')}
               </Button>
             )}
-            <Switch
-              checked={provider.is_associated ?? false}
-              onCheckedChange={(checked) => handleToggleSwitch(provider, checked)}
-              disabled={isLoadingSwitch}
-            />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Switch
+                  checked={provider.is_associated ?? false}
+                  onCheckedChange={(checked) => handleToggleSwitch(provider, checked)}
+                  disabled={isLoadingSwitch}
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                {provider.is_associated
+                  ? t('table.actions.disable_provider_tooltip')
+                  : t('table.actions.enable_provider_tooltip')}
+              </TooltipContent>
+            </Tooltip>
           </div>
         ),
       },

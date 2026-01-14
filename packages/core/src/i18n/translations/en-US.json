@@ -80,7 +80,9 @@
           },
           "actions": {
             "add_provider_button_text": "Add a Provider",
-            "view_provider_button_text": "View"
+            "view_provider_button_text": "View",
+            "enable_provider_tooltip": "Toggle to enable the domain for this provider",
+            "disable_provider_tooltip": "Toggle to disable the domain for this provider"
           }
         },
         "actions": {
@@ -216,7 +218,9 @@
         "actions": {
           "edit_button_text": "Edit",
           "delete_button_text": "Delete",
-          "remove_button_text": "Remove from organization"
+          "remove_button_text": "Remove from organization",
+          "enabled_tooltip": "Toggle to disable provisioning",
+          "disabled_tooltip": "Toggle to enable provisioning"
         }
       },
       "create_consent_modal": {
@@ -546,7 +550,9 @@
               "title": "Provisioning",
               "description": "Set up provisioning to allow user profile syncing to your organization.",
               "guided_setup_button_label": "Guided Setup",
-              "enable_provisioning_tooltip": "Enable provider to create provisioning"
+              "provider_disabled_tooltip": "Enable provider to create provisioning",
+              "enable_provisioning_tooltip": "Toggle to enable provisioning",
+              "disable_provisioning_tooltip": "Toggle to disable provisioning"
             },
             "warning_alert_message": {
               "title": "Mappings for provisioning have been updated.",
@@ -649,6 +655,10 @@
                 "name": "Domain Name",
                 "status": "Status",
                 "verify": "Verify"
+              },
+              "actions": {
+                "enable_domain_tooltip": "Toggle to enable this domain",
+                "disable_domain_tooltip": "Toggle to disable this domain"
               },
               "domain_statuses": {
                 "pending": "Pending",
