@@ -69,8 +69,8 @@ const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
               'w-full flex-1 bg-transparent px-3 py-2 outline-none file:border-0 file:bg-transparent file:text-sm file:font-medium',
               isDisabled &&
                 'bg-input-muted text-input-muted-foreground cursor-not-allowed opacity-50',
-              startAdornment && 'pl-0',
-              endAdornment && 'pr-0',
+              startAdornment && '!pl-0',
+              endAdornment && '!pr-0',
               size === 'default' && 'h-10',
               size === 'sm' && 'h-9',
               size === 'lg' && 'h-11',
