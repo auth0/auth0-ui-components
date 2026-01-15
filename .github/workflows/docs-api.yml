@@ -10,6 +10,11 @@ on:
         type: string
         default: "main"
 
+  # Temporary: trigger on push for testing - REMOVE BEFORE MERGING TO MAIN
+  push:
+    branches:
+      - 'typedoc-integeration-uic-410'
+
   # Automatically trigger after successful npm publish
   workflow_run:
     workflows: ["Publish to Public NPM"]
@@ -30,8 +35,8 @@ jobs:
   generate-docs:
     name: Generate API Docs
     runs-on: ubuntu-latest
-    # Only run if manually triggered OR if publish workflow succeeded
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    # Only run if manually triggered, push event, OR if publish workflow succeeded
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Determine target branch
