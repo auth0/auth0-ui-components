@@ -1,0 +1,123 @@
+name: Generate API Documentation
+
+on:
+  # Manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: "Branch to generate docs from (defaults to main)"
+        required: false
+        type: string
+        default: "main"
+
+  # Automatically trigger after successful npm publish
+  workflow_run:
+    workflows: ["Publish to Public NPM"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  generate-docs:
+    name: Generate API Docs
+    runs-on: ubuntu-latest
+    # Only run if manually triggered OR if publish workflow succeeded
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Determine target branch
+        id: branch
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            BRANCH="${{ inputs.target_branch }}"
+          else
+            BRANCH="main"
+          fi
+          echo "branch=${BRANCH:-main}" >> $GITHUB_OUTPUT
+          echo "Using branch: ${BRANCH:-main}"
+
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        with:
+          ref: ${{ steps.branch.outputs.branch }}
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@fe02b34f77f8bc703c70f5b7f801b7d5518f67d3 # v4
+        with:
+          version: 10.6.5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm run build
+
+      - name: Generate API documentation
+        run: pnpm docs:api
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: docs-api
+
+      - name: Generate Summary
+        run: |
+          echo "## 📚 API Documentation Generated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ steps.branch.outputs.branch }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger:** \`${{ github.event_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Generated Files" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          find docs-api -type f | head -30 >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📦 Artifact uploaded, proceeding to deploy..." >> $GITHUB_STEP_SUMMARY
+
+  deploy-docs:
+    name: Deploy to GitHub Pages
+    needs: generate-docs
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+
+      - name: Generate Deployment Summary
+        run: |
+          echo "## 🚀 API Documentation Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The API documentation is now live at:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **https://auth0.github.io/auth0-ui-components/**" >> $GITHUB_STEP_SUMMARY
+
