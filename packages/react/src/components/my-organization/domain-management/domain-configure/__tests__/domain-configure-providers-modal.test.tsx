@@ -1,14 +1,6 @@
-import { screen } from '@testing-library/react';
+import { screen, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
-
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
 
 import {
   renderWithProviders,
@@ -663,6 +655,235 @@ describe('DomainConfigureProvidersModal', () => {
       // Test when modal is opened (should not trigger onClose)
       onOpenChangeCallback(true);
       expect(mockOnClose).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Tooltip Functionality', () => {
+    it('should render switches that support tooltips', () => {
+      const props = createMockDomainConfigureProvidersModalProps();
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const switches = screen.getAllByRole('switch');
+      expect(switches).toHaveLength(2);
+      expect(switches[0]).toBeInTheDocument();
+      expect(switches[1]).toBeInTheDocument();
+    });
+
+    it('should render correct switch states for tooltip context', () => {
+      const providers = [
+        createMockIdentityProviderAssociatedWithDomain({
+          id: 'con_enabled',
+          display_name: 'Enabled Provider',
+          is_associated: true,
+        }),
+        createMockIdentityProviderAssociatedWithDomain({
+          id: 'con_disabled',
+          display_name: 'Disabled Provider',
+          is_associated: false,
+        }),
+      ];
+      const props = createMockDomainConfigureProvidersModalProps({ providers });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const switches = screen.getAllByRole('switch');
+      expect(switches[0]).toBeChecked(); // Associated provider
+      expect(switches[1]).not.toBeChecked(); // Not associated provider
+    });
+
+    it('should maintain switch interactivity with tooltip wrapper', async () => {
+      const user = userEvent.setup();
+      const onToggleSwitch = vi.fn();
+      const props = createMockDomainConfigureProvidersModalProps({ onToggleSwitch });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const switches = screen.getAllByRole('switch');
+      await act(async () => {
+        await user.click(switches[0]!);
+      });
+
+      expect(onToggleSwitch).toHaveBeenCalledTimes(1);
+    });
+
+    it('should show disable tooltip on hover for enabled provider', async () => {
+      vi.useFakeTimers();
+      const props = createMockDomainConfigureProvidersModalProps();
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const switches = screen.getAllByRole('switch');
+
+      await act(async () => {
+        fireEvent.pointerEnter(switches[0]!);
+        fireEvent.pointerMove(switches[0]!);
+        await vi.advanceTimersByTimeAsync(800);
+      });
+
+      const tooltips = screen.getAllByText('table.actions.disable_provider_tooltip');
+      expect(tooltips.length).toBeGreaterThan(0);
+
+      vi.useRealTimers();
+    });
+
+    it('should show enable tooltip on hover for disabled provider', async () => {
+      vi.useFakeTimers();
+      const props = createMockDomainConfigureProvidersModalProps();
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const switches = screen.getAllByRole('switch');
+
+      await act(async () => {
+        fireEvent.pointerEnter(switches[1]!);
+        fireEvent.pointerMove(switches[1]!);
+        await vi.advanceTimersByTimeAsync(800);
+      });
+
+      const tooltips = screen.getAllByText('table.actions.enable_provider_tooltip');
+      expect(tooltips.length).toBeGreaterThan(0);
+
+      vi.useRealTimers();
+    });
+
+    it('should show tooltip when hovering over disabled provider switch', async () => {
+      const user = userEvent.setup();
+      const props = createMockDomainConfigureProvidersModalProps();
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const switches = screen.getAllByRole('switch');
+      const triggerSwitch = switches[1]; // The unchecked switch
+
+      // Hover over the switch to trigger the tooltip
+      await user.hover(triggerSwitch!);
+
+      const tooltip = await screen.findByRole('tooltip');
+      expect(tooltip).toBeInTheDocument();
+      expect(tooltip).toHaveTextContent('table.actions.enable_provider_tooltip');
+    });
+
+    it('should show correct tooltip text based on provider state', async () => {
+      vi.useFakeTimers();
+
+      // Test enabled provider
+      const enabledProps = createMockDomainConfigureProvidersModalProps({
+        providers: [
+          createMockIdentityProviderAssociatedWithDomain({
+            id: 'con_enabled',
+            is_associated: true,
+          }),
+        ],
+      });
+      const { unmount } = renderWithProviders(<DomainConfigureProvidersModal {...enabledProps} />);
+
+      let switches = screen.getAllByRole('switch');
+      await act(async () => {
+        fireEvent.pointerEnter(switches[0]!);
+        fireEvent.pointerMove(switches[0]!);
+        await vi.advanceTimersByTimeAsync(800);
+      });
+
+      let tooltips = screen.getAllByText('table.actions.disable_provider_tooltip');
+      expect(tooltips.length).toBeGreaterThan(0);
+
+      vi.useRealTimers();
+      unmount();
+
+      // Test disabled provider
+      vi.useFakeTimers();
+      const disabledProps = createMockDomainConfigureProvidersModalProps({
+        providers: [
+          createMockIdentityProviderAssociatedWithDomain({
+            id: 'con_disabled',
+            is_associated: false,
+          }),
+        ],
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...disabledProps} />);
+
+      switches = screen.getAllByRole('switch');
+      await act(async () => {
+        fireEvent.pointerEnter(switches[0]!);
+        fireEvent.pointerMove(switches[0]!);
+        await vi.advanceTimersByTimeAsync(800);
+      });
+
+      tooltips = screen.getAllByText('table.actions.enable_provider_tooltip');
+      expect(tooltips.length).toBeGreaterThan(0);
+
+      vi.useRealTimers();
+    });
+
+    it('should show tooltip on keyboard focus', async () => {
+      vi.useFakeTimers();
+      const props = createMockDomainConfigureProvidersModalProps();
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const switches = screen.getAllByRole('switch');
+      switches[0]!.focus();
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(800);
+      });
+
+      const tooltips = screen.getAllByText('table.actions.disable_provider_tooltip');
+      expect(tooltips.length).toBeGreaterThan(0);
+
+      vi.useRealTimers();
+    });
+
+    it('should show tooltip even when switch is disabled', async () => {
+      vi.useFakeTimers();
+      const props = createMockDomainConfigureProvidersModalProps({ isLoadingSwitch: true });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const switches = screen.getAllByRole('switch');
+      expect(switches[0]).toBeDisabled();
+
+      await act(async () => {
+        fireEvent.pointerEnter(switches[0]!);
+        fireEvent.pointerMove(switches[0]!);
+        await vi.advanceTimersByTimeAsync(800);
+      });
+
+      const tooltips = screen.getAllByText('table.actions.disable_provider_tooltip');
+      expect(tooltips.length).toBeGreaterThan(0);
+
+      vi.useRealTimers();
+    });
+
+    it('should show correct tooltip for each provider independently', async () => {
+      vi.useFakeTimers();
+      const props = createMockDomainConfigureProvidersModalProps();
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const switches = screen.getAllByRole('switch');
+
+      // Hover first switch (enabled)
+      await act(async () => {
+        fireEvent.pointerEnter(switches[0]!);
+        fireEvent.pointerMove(switches[0]!);
+        await vi.advanceTimersByTimeAsync(800);
+      });
+
+      expect(screen.getAllByText('table.actions.disable_provider_tooltip').length).toBeGreaterThan(
+        0,
+      );
+
+      // Leave first switch
+      await act(async () => {
+        fireEvent.pointerLeave(switches[0]!);
+        await vi.advanceTimersByTimeAsync(200);
+      });
+
+      // Hover second switch (disabled)
+      await act(async () => {
+        fireEvent.pointerEnter(switches[1]!);
+        fireEvent.pointerMove(switches[1]!);
+        await vi.advanceTimersByTimeAsync(800);
+      });
+
+      expect(screen.getAllByText('table.actions.enable_provider_tooltip').length).toBeGreaterThan(
+        0,
+      );
+
+      vi.useRealTimers();
     });
   });
 });
