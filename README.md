@@ -10,7 +10,7 @@ For detailed information on how to use these components and get started with Aut
 - **[Auth0 APIs](https://auth0.com/docs/api)**: Comprehensive documentation for Auth0's APIs.
 - **[Component Documentation](https://auth0-ui-components.vercel.app/)**: Live Storybook showcasing all available components, their props, and usage examples.
 - **[Examples Folder](https://github.com/auth0/auth0-ui-components/tree/main/examples)**: Practical, hands-on sample applications demonstrating how to integrate and use these components in a real project.
-- **[API Reference](#-api-reference)**: Explore public API's available in @auth0/universal-components-react.
+- **[Component Reference](#-component-reference)**: Explore public components available in @auth0/universal-components-react.
 
 ## Packages Overview
 
@@ -136,9 +136,9 @@ pnpm run dev
 
     _Note: The port may differ if other applications are running._
 
-## 📚 API Reference
+## 📚 Component Reference
 
-Explore public API's available in @auth0/universal-components-react.
+Explore public components available in @auth0/universal-components-react.
 
 - [UserMfaManagement](https://auth0.github.io/auth0-ui-components/variables/_auth0_universal-components-react.UserMFAMgmt.html)
 - [DomainTable](https://auth0.github.io/auth0-ui-components/variables/_auth0_universal-components-react.DomainTable.html)
