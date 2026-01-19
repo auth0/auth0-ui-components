@@ -587,3 +587,22 @@ pnpm format:check && pnpm lint && pnpm test && pnpm build
 # 6. Commit with conventional format
 pnpm commit
 ```
+
+---
+
+## Agent Skills Reference
+
+This repository has additional AI agent skills installed for code reviews and audits.
+
+### Installed Skills
+
+| Skill                     | Location                                                                                                       | Purpose                                                                   |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **React Best Practices**  | [`.github/skills/vercel-react-best-practices/AGENTS.md`](.github/skills/vercel-react-best-practices/AGENTS.md) | 40+ React/Next.js performance rules (waterfalls, bundle size, re-renders) |
+| **Web Design Guidelines** | [`.github/skills/web-design-guidelines/SKILL.md`](.github/skills/web-design-guidelines/SKILL.md)               | UI/UX accessibility and design patterns (fetches from remote)             |
+
+### When to Apply
+
+- **PR Reviews:** Reference React Best Practices for performance issues
+- **Component Audits:** Use Web Design Guidelines for accessibility checks
+- **New Features:** Apply both when creating new UI components
