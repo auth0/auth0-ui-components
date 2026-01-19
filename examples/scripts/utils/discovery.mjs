@@ -305,12 +305,12 @@ export function displayChangePlan(plan) {
             `  • Add logout URLs: ${item.updates.missingLogoutUrls.join(", ")}`
           )
         }
-        if (item.updates.checkAppType.wrongAppType) {
+        if (item?.updates?.checkAppType?.wrongAppType) {
           if (!hasDetails) {
             console.log(`\n${label}:`)
             hasDetails = true
           }
-          console.log(`  • Set app_type to: ${item.updates.checkAppType.requiredAppType}`)
+          console.log(`  • Set app_type to: ${item.updates?.checkAppType?.requiredAppType}`)
         }
         if (item.updates.myOrgConfigNeedsUpdate) {
           if (!hasDetails) {

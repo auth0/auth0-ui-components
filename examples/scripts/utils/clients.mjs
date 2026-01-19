@@ -258,7 +258,7 @@ export async function applyDashboardClientChanges(
               "samlp",
             ],
           },
-          allowed_web_origins: desiredAllowedWebOrigins,
+          web_origins: desiredAllowedWebOrigins,
           refresh_token: {
             expiration_type: "expiring",
             rotation_type: "rotating",
