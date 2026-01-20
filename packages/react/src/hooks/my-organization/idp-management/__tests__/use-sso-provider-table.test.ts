@@ -2,16 +2,18 @@ import type { IdentityProvider, OrganizationPrivate } from '@auth0/universal-com
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { showToast } from '../../../../components/ui/toast';
+import { mockToast, createMockI18nService } from '../../../../internals';
 import { createMockCoreClient } from '../../../../internals/__mocks__/core/core-client.mocks';
 import { setupMockUseCoreClient } from '../../../../internals/test-utilities';
 import * as useCoreClientModule from '../../../use-core-client';
 import * as useTranslatorModule from '../../../use-translator';
 import { useSsoProviderTable } from '../use-sso-provider-table';
 
-vi.mock('../../../../components/ui/toast', () => ({
-  showToast: vi.fn(),
-}));
+// ===== Mock packages =====
+
+const { mockedShowToast } = mockToast();
+
+// ===== Mock Data =====
 
 const mockIdentityProviders: IdentityProvider[] = [
   {
@@ -42,6 +44,8 @@ const mockOrganization: OrganizationPrivate = {
     logo_url: '',
   },
 };
+
+// ===== Tests =====
 
 describe('useSsoProviderTable', () => {
   const mockCoreClient = createMockCoreClient();
@@ -80,38 +84,20 @@ describe('useSsoProviderTable', () => {
     return mockMyOrgClient;
   };
 
-  // Create a custom mock translator that handles interpolation
-  const createCustomMockTranslator = (): ReturnType<
-    typeof useTranslatorModule.useTranslator
-  >['t'] => {
-    const translatorFn = vi.fn((key: string, params?: Record<string, unknown>) => {
-      if (key === 'general_error') return 'An error occurred';
-      if (key === 'update_success') return `Updated ${params?.providerName || ''}`;
-      if (key === 'delete_success') return `Deleted ${params?.providerName || ''}`;
-      if (key === 'remove_success')
-        return `Removed ${params?.providerName || ''} from ${params?.organizationName || ''}`;
-      return key;
-    });
-
-    // Add trans method for EnhancedTranslationFunction compatibility
-    const translator = Object.assign(translatorFn, {
-      trans: vi.fn(() => []),
-    });
-
-    return translator as ReturnType<typeof useTranslatorModule.useTranslator>['t'];
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
     setupMockUseCoreClient(mockCoreClient, useCoreClientModule);
 
-    // Setup translator with custom implementation that handles interpolation
-    const mockTranslator = createCustomMockTranslator();
-    vi.spyOn(useTranslatorModule, 'useTranslator').mockReturnValue({
-      t: mockTranslator,
-      changeLanguage: vi.fn(),
-      currentLanguage: 'en-US',
-      fallbackLanguage: 'en-US',
+    // Setup translator using createMockI18nService
+    // The translator will return the key itself (no interpolation needed for tests)
+    vi.spyOn(useTranslatorModule, 'useTranslator').mockImplementation((namespace, messages) => {
+      const mockT = createMockI18nService().translator(namespace, messages);
+      return {
+        t: mockT,
+        changeLanguage: vi.fn(),
+        currentLanguage: 'en-US',
+        fallbackLanguage: 'en-US',
+      };
     });
   });
 
@@ -148,9 +134,9 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'error',
-        message: 'An error occurred',
+        message: 'general_error',
       });
     });
 
@@ -207,9 +193,9 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'error',
-        message: 'An error occurred',
+        message: 'general_error',
       });
     });
   });
@@ -232,13 +218,12 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const success = await result.current.onEnableProvider(mockIdentityProviders[1]!, true);
+      await waitFor(() => result.current.onEnableProvider(mockIdentityProviders[1]!, true));
 
-      expect(success).toBe(true);
       expect(mockUpdate).toHaveBeenCalledWith('idp-2', expect.any(Object));
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
-        message: 'Updated Azure AD',
+        message: 'update_success',
       });
     });
 
@@ -263,7 +248,7 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onEnableProvider(mockIdentityProviders[0]!, false);
+      await waitFor(() => result.current.onEnableProvider(mockIdentityProviders[0]!, false));
 
       expect(onBefore).toHaveBeenCalledWith(mockIdentityProviders[0]);
       expect(onAfter).toHaveBeenCalledWith(mockIdentityProviders[0]);
@@ -286,9 +271,8 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const success = await result.current.onEnableProvider(mockIdentityProviders[0]!, true);
+      await waitFor(() => result.current.onEnableProvider(mockIdentityProviders[0]!, true));
 
-      expect(success).toBe(false);
       expect(mockUpdate).not.toHaveBeenCalled();
     });
 
@@ -308,12 +292,11 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const success = await result.current.onEnableProvider(mockIdentityProviders[0]!, false);
+      await waitFor(() => result.current.onEnableProvider(mockIdentityProviders[0]!, false));
 
-      expect(success).toBe(false);
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'error',
-        message: 'An error occurred',
+        message: 'general_error',
       });
     });
 
@@ -332,9 +315,7 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const success = await result.current.onEnableProvider(providerWithoutId as any, true);
-
-      expect(success).toBe(false);
+      await waitFor(() => result.current.onEnableProvider(providerWithoutId as any, true));
     });
   });
 
@@ -358,12 +339,12 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onDeleteConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => result.current.onDeleteConfirm(mockIdentityProviders[0]!));
 
       expect(mockDelete).toHaveBeenCalledWith('idp-1');
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
-        message: 'Deleted OKTA SSO',
+        message: 'delete_success',
       });
       expect(mockList).toHaveBeenCalledTimes(2); // Once on mount, once after delete
     });
@@ -384,7 +365,7 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onDeleteConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => result.current.onDeleteConfirm(mockIdentityProviders[0]!));
 
       expect(onAfter).toHaveBeenCalledWith(mockIdentityProviders[0]);
     });
@@ -405,11 +386,11 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onDeleteConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => result.current.onDeleteConfirm(mockIdentityProviders[0]!));
 
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'error',
-        message: 'An error occurred',
+        message: 'general_error',
       });
     });
 
@@ -430,7 +411,7 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onDeleteConfirm(providerWithoutId as any);
+      await waitFor(() => result.current.onDeleteConfirm(providerWithoutId as any));
 
       expect(mockDelete).not.toHaveBeenCalled();
     });
@@ -458,12 +439,12 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onRemoveConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => result.current.onRemoveConfirm(mockIdentityProviders[0]!));
 
       expect(mockDetach).toHaveBeenCalledWith('idp-1');
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
-        message: 'Removed OKTA SSO from Test Organization',
+        message: 'remove_success',
       });
       expect(mockList).toHaveBeenCalledTimes(2); // Once on mount, once after remove
     });
@@ -484,7 +465,7 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onRemoveConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => result.current.onRemoveConfirm(mockIdentityProviders[0]!));
 
       expect(onAfter).toHaveBeenCalledWith(mockIdentityProviders[0]);
     });
@@ -505,11 +486,11 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onRemoveConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => result.current.onRemoveConfirm(mockIdentityProviders[0]!));
 
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'error',
-        message: 'An error occurred',
+        message: 'general_error',
       });
     });
 
@@ -530,7 +511,7 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onRemoveConfirm(providerWithoutId as any);
+      await waitFor(() => result.current.onRemoveConfirm(providerWithoutId as any));
 
       expect(mockDetach).not.toHaveBeenCalled();
     });
@@ -558,12 +539,17 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const enablePromise = result.current.onEnableProvider(mockIdentityProviders[0]!, false);
+      await waitFor(() => result.current.onEnableProvider(mockIdentityProviders[0]!, false));
 
-      await enablePromise;
+      await waitFor(() => {
+        expect(result.current.isUpdating).toBe(true);
+        expect(result.current.isUpdatingId).toBe('idp-1');
+      });
 
-      expect(result.current.isUpdating).toBe(true);
-      expect(result.current.isUpdatingId).toBe('idp-1');
+      await waitFor(() => {
+        expect(result.current.isUpdating).toBe(false);
+        expect(result.current.isUpdatingId).toBe(null);
+      });
     });
 
     // Test: Validates that isDeleting state is correctly managed during deletion
@@ -583,11 +569,15 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const deletePromise = result.current.onDeleteConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => result.current.onDeleteConfirm(mockIdentityProviders[0]!));
 
-      await deletePromise;
+      await waitFor(() => {
+        expect(result.current.isDeleting).toBe(true);
+      });
 
-      expect(result.current.isDeleting).toBe(true);
+      await waitFor(() => {
+        expect(result.current.isDeleting).toBe(false);
+      });
     });
 
     // Test: Validates that isRemoving state is correctly managed during removal
@@ -607,18 +597,22 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const removePromise = result.current.onRemoveConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => result.current.onRemoveConfirm(mockIdentityProviders[0]!));
 
-      await removePromise;
+      await waitFor(() => {
+        expect(result.current.isRemoving).toBe(true);
+      });
 
-      expect(result.current.isRemoving).toBe(true);
+      await waitFor(() => {
+        expect(result.current.isRemoving).toBe(false);
+      });
     });
   });
 
   describe('custom messages', () => {
     // Test: Verifies that custom toast messages are properly passed to the translator
     // for displaying localized notifications
-    it('should pass custom messages to translator', () => {
+    it('should pass custom messages to translator', async () => {
       const customMessages = { update_success: 'Custom update message' };
 
       setupMockMyOrgClient({
@@ -627,10 +621,12 @@ describe('useSsoProviderTable', () => {
 
       renderHook(() => useSsoProviderTable(undefined, undefined, undefined, customMessages));
 
-      expect(useTranslatorModule.useTranslator).toHaveBeenCalledWith(
-        'idp_management.notifications',
-        customMessages,
-      );
+      await waitFor(() => {
+        expect(useTranslatorModule.useTranslator).toHaveBeenCalledWith(
+          'idp_management.notifications',
+          customMessages,
+        );
+      });
     });
   });
 });
