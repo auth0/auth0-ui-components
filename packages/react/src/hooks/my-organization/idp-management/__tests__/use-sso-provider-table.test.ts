@@ -450,8 +450,8 @@ describe('useSsoProviderTable', () => {
       expect(mockList).toHaveBeenCalledTimes(2); // Once on mount, once after remove
     });
 
-    // Test: Validates that the removeFromOrg onAfter callback is invoked after removal
-    it('should call removeFromOrg onAfter callback', async () => {
+    // Test: Validates that the removeFromOrganization onAfter callback is invoked after removal
+    it('should call removeFromOrganization onAfter callback', async () => {
       const onAfter = vi.fn();
       const mockDetach = vi.fn().mockResolvedValue(undefined);
 

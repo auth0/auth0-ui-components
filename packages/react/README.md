@@ -8,7 +8,7 @@ React component library for Auth0 integrations. Built with TypeScript, Radix UI,
 
 **What it provides:**
 
-- ⚛️ **React Components**: Pre-built UI components for Auth0 features (MFA management, org management etc.)
+- ⚛️ **React Components**: Pre-built UI components for Auth0 features (MFA management, organization management etc.)
 - 🎣 **Custom Hooks**: React hooks for component state management and API interactions
 - 🎨 **UI Elements**: Beautiful, accessible components built with Radix UI and Tailwind CSS, following shadcn design patterns
 - 🔄 **Providers**: React context providers for managing authentication, theme, and internationalization

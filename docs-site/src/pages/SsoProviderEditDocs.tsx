@@ -46,7 +46,7 @@ export default function SsoProviderEditDocs() {
         <h2 className="text-2xl font-semibold text-gray-900">Component Preview</h2>
         <div className="max-w-none flex justify-center">
           <img
-            src="/img/my-org/idp-management/sso-provider-edit.png"
+            src="/img/my-organization/idp-management/sso-provider-edit.png"
             alt="SsoProviderEdit"
             width={700}
             height={500}
@@ -82,7 +82,7 @@ export default function SsoProviderEditDocs() {
               <p className="text-blue-800">
                 <strong>Setup guide:</strong>{' '}
                 <a
-                  href="/my-org"
+                  href="/my-organization"
                   className="text-blue-700 hover:text-blue-900 underline font-medium"
                 >
                   My Organization Components Introduction →
@@ -144,7 +144,7 @@ export default function SsoProviderEditDocs() {
                 title="1. Install Core Package"
               />
               <CodeBlock
-                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-org/sso-provider-edit.json"
+                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-organization/sso-provider-edit.json"
                 language="bash"
                 title="2. Add Shadcn Block"
               />
@@ -170,7 +170,7 @@ import { SsoProviderEdit } from '@auth0/universal-components-react/spa';
 // import { SsoProviderEdit } from '@auth0/universal-components-react/rwa';
 
 // For shadcn users:
-// import { SsoProviderEdit } from '@/auth0-ui-components/blocks/my-org/idp-management/sso-provider-edit';
+// import { SsoProviderEdit } from '@/auth0-ui-components/blocks/my-organization/idp-management/sso-provider-edit';
 import { useNavigate } from 'react-router-dom';
 
 export function ProviderEditPage({ providerId }: { providerId: string }) {
@@ -185,7 +185,7 @@ export function ProviderEditPage({ providerId }: { providerId: string }) {
         }}
         sso={{
           delete: {},
-          removeFromOrg: {}
+          removeFromOrganization: {}
         }}
       />
     </div>
@@ -321,7 +321,8 @@ export function ProviderEditPage({ providerId }: { providerId: string }) {
                 </td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">-</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  Configuration for the SSO tab including update, delete, and removeFromOrg actions
+                  Configuration for the SSO tab including update, delete, and removeFromOrganization
+                  actions
                 </td>
               </tr>
               <tr>
@@ -410,7 +411,7 @@ interface SsoProviderEditProps {
   sso?: {
     updateAction?: ComponentAction<IdentityProvider, IdentityProvider>;
     deleteAction?: ComponentAction<IdentityProvider>;
-    removeFromOrgAction?: ComponentAction<IdentityProvider>;
+    removeFromOrganizationAction?: ComponentAction<IdentityProvider>;
   };
   provisioning?: {
     createAction?: ComponentAction<
@@ -494,7 +495,7 @@ interface ComponentAction<T, U = undefined> {
                     </ul>
                   </div>
                   <div>
-                    <h6 className="font-semibold mb-2">sso.deleteFromOrgAction</h6>
+                    <h6 className="font-semibold mb-2">sso.deleteFromOrganizationAction</h6>
                     <ul className="space-y-1 list-disc list-inside">
                       <li>
                         <code>disabled</code> – Disable provider removal from organization
@@ -1155,7 +1156,7 @@ interface ComponentAction<T, U = undefined> {
   providerId={providerId}
   sso={{
     delete: {},
-    removeFromOrg: {}
+    removeFromOrganization: {}
   }}
   styling={{
     variables: {
@@ -1541,11 +1542,12 @@ export default function App() {
                     <code>SsoProviderDeleteModal</code> – Delete provider confirmation modal
                   </div>
                   <div>
-                    <code>SsoProviderRemoveFromOrg</code> – Remove provider from organization
-                    section
+                    <code>SsoProviderRemoveFromOrganization</code> – Remove provider from
+                    organization section
                   </div>
                   <div>
-                    <code>SsoProviderRemoveFromOrgModal</code> – Remove from org confirmation modal
+                    <code>SsoProviderRemoveFromOrganizationModal</code> – Remove from organization
+                    confirmation modal
                   </div>
                 </div>
               </div>
@@ -1607,8 +1609,8 @@ export default function App() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-sm text-blue-800 space-y-2">
               <div>
                 <code>useSsoProviderEdit</code> – Main hook for provider and provisioning editing
-                (fetch provider, update, delete, remove from org, provisioning CRUD, SCIM token
-                management)
+                (fetch provider, update, delete, remove from organization, provisioning CRUD, SCIM
+                token management)
               </div>
               <div>
                 <code>useSsoDomainTab</code> – Hook for domain management within provider edit

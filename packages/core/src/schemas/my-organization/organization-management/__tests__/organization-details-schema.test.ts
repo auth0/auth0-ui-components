@@ -8,8 +8,8 @@ import {
 
 describe('Organization Details Schema', () => {
   const validOrganizationDetails: InternalOrganizationDetailsFormValues = {
-    name: 'my-test-components-org',
-    display_name: 'My Test Components Org',
+    name: 'my-test-components-organization',
+    display_name: 'My Test Components Organization',
     branding: {
       logo_url: 'https://example.com/logo.png',
       colors: {
@@ -41,10 +41,10 @@ describe('Organization Details Schema', () => {
       });
 
       describe.each([
-        { input: 'org-name', shouldPass: true, description: 'kebab-case name' },
-        { input: 'org_name', shouldPass: true, description: 'snake_case name' },
-        { input: 'OrgName', shouldPass: true, description: 'PascalCase name' },
-        { input: 'org123', shouldPass: true, description: 'name with numbers' },
+        { input: 'organization-name', shouldPass: true, description: 'kebab-case name' },
+        { input: 'organization_name', shouldPass: true, description: 'snake_case name' },
+        { input: 'OrganizationName', shouldPass: true, description: 'PascalCase name' },
+        { input: 'organization123', shouldPass: true, description: 'name with numbers' },
         { input: 'a', shouldPass: true, description: 'single character name' },
         {
           input: 'very-long-organization-name-that-is-still-valid',
@@ -596,7 +596,7 @@ describe('Organization Details Schema', () => {
   describe('type inference', () => {
     it('should correctly infer the form values type', () => {
       const validData: InternalOrganizationDetailsFormValues = {
-        name: 'test-org',
+        name: 'test-organization',
         display_name: 'Test Organization',
         branding: {
           logo_url: 'https://example.com/logo.png',
@@ -610,7 +610,7 @@ describe('Organization Details Schema', () => {
 
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.name).toBe('test-org');
+        expect(result.data.name).toBe('test-organization');
         expect(result.data.display_name).toBe('Test Organization');
         expect(result.data.branding.colors.primary).toBe('#FF5733');
       }
@@ -679,7 +679,7 @@ describe('Organization Details Schema', () => {
     it('should handle special characters in name', () => {
       const result = organizationDetailSchema.safeParse({
         ...validOrganizationDetails,
-        name: 'org-name_123',
+        name: 'organization-name_123',
       });
       expect(result.success).toBe(true);
     });

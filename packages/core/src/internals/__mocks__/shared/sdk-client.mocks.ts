@@ -11,20 +11,6 @@ export interface MockClientConfig {
   fetcher?: (url: string, init?: RequestInit) => Promise<Response>;
 }
 
-// =============================================================================
-// Global Fetch Mock Helpers
-// =============================================================================
-
-const originalFetch = global.fetch;
-
-export const saveOriginalFetch = (): void => {
-  global.fetch = vi.fn();
-};
-
-export const restoreOriginalFetch = (): void => {
-  global.fetch = originalFetch;
-};
-
 export const createMockFetch = (): ReturnType<typeof vi.fn> =>
   vi.fn().mockResolvedValue({ ok: true });
 

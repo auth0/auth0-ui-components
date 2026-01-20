@@ -2,8 +2,6 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import type { createTokenManager } from '../../../auth/token-manager';
 import {
-  saveOriginalFetch,
-  restoreOriginalFetch,
   createMockFetch,
   getConfigFromMockCalls,
   getFetcherFromMockCalls,
@@ -45,12 +43,11 @@ vi.mock('@auth0/myaccount-js', () => ({
 describe('initializeMyAccountClient', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    saveOriginalFetch();
   });
 
   afterEach(() => {
-    restoreOriginalFetch();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   describe('proxy mode initialization', () => {
@@ -148,7 +145,7 @@ describe('initializeMyAccountClient', () => {
     describe('custom fetcher behavior in proxy mode', () => {
       it('should create fetcher that calls fetch', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
@@ -162,7 +159,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should add scope header when scopes are set', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
@@ -184,7 +181,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should add Content-Type header when body is present', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
@@ -205,7 +202,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should not add scope header when scope is empty', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
@@ -221,7 +218,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should preserve existing headers', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
@@ -246,7 +243,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should update scope header when scopes change', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
@@ -387,7 +384,7 @@ describe('initializeMyAccountClient', () => {
     describe('custom fetcher behavior in domain mode', () => {
       it('should call tokenManager.getToken with scopes and audience', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
@@ -402,7 +399,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should add Authorization header with Bearer token', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager('mock-access-token');
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
@@ -417,7 +414,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should add Content-Type header when body is present', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
@@ -432,7 +429,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should not override existing Content-Type header', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
@@ -452,7 +449,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should handle undefined token', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager: ReturnType<typeof createTokenManager> = {
           getToken: vi.fn(async () => undefined),
@@ -469,7 +466,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should handle empty token', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager('');
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
@@ -484,7 +481,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should use Headers object for header management', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
@@ -499,7 +496,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should preserve existing headers from init', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
@@ -518,7 +515,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should not add Content-Type for GET requests without body', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
@@ -535,7 +532,7 @@ describe('initializeMyAccountClient', () => {
     describe('token retrieval', () => {
       it('should request token with latest scopes', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
@@ -550,7 +547,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should request token with "me" audience path', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);
@@ -565,7 +562,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should handle very long tokens', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const longToken = 'a'.repeat(2000);
         const tokenManager = createMockTokenManager(longToken);
@@ -581,7 +578,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should handle tokens with special characters', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const specialToken = 'token+with/special=chars';
         const tokenManager = createMockTokenManager(specialToken);
@@ -765,7 +762,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should handle concurrent fetcher calls in proxy mode', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
@@ -784,7 +781,7 @@ describe('initializeMyAccountClient', () => {
 
       it('should handle concurrent fetcher calls in domain mode', async () => {
         const mockFetch = createMockFetch();
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
         const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
@@ -842,7 +839,7 @@ describe('initializeMyAccountClient', () => {
   describe('integration scenarios', () => {
     it('should handle complete proxy mode workflow', async () => {
       const mockFetch = createMockFetch();
-      global.fetch = mockFetch;
+      vi.stubGlobal('fetch', mockFetch);
 
       const tokenManager = createMockTokenManager();
       const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
@@ -876,7 +873,7 @@ describe('initializeMyAccountClient', () => {
 
     it('should handle complete domain mode workflow', async () => {
       const mockFetch = createMockFetch();
-      global.fetch = mockFetch;
+      vi.stubGlobal('fetch', mockFetch);
 
       const tokenManager = createMockTokenManager(mockTokens.standard);
       const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
@@ -906,7 +903,7 @@ describe('initializeMyAccountClient', () => {
 
     it('should handle switching from empty scope to populated scope', async () => {
       const mockFetch = createMockFetch();
-      global.fetch = mockFetch;
+      vi.stubGlobal('fetch', mockFetch);
 
       const tokenManager = createMockTokenManager(mockTokens.standard);
       const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);

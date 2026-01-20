@@ -84,8 +84,8 @@ describe('SsoProviderEdit', () => {
     mockCoreClient = initMockCoreClient();
 
     // Ensure domains API returns an array
-    const orgApi = mockCoreClient.getMyOrganizationApiClient().organization;
-    Object.defineProperty(orgApi, 'domains', {
+    const organizationApi = mockCoreClient.getMyOrganizationApiClient().organization;
+    Object.defineProperty(organizationApi, 'domains', {
       value: {
         getAll: vi.fn().mockResolvedValue([]),
         create: vi.fn().mockResolvedValue({}),
@@ -96,9 +96,9 @@ describe('SsoProviderEdit', () => {
     });
 
     // Ensure identity providers API returns proper data
-    Object.defineProperty(orgApi, 'identityProviders', {
+    Object.defineProperty(organizationApi, 'identityProviders', {
       value: {
-        ...orgApi.identityProviders,
+        ...organizationApi.identityProviders,
         get: vi.fn().mockResolvedValue(mockProvider),
         update: vi.fn().mockResolvedValue(mockProvider),
         delete: vi.fn().mockResolvedValue({}),

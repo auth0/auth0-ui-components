@@ -9,135 +9,133 @@ import {
 } from '../../../../services/my-account/mfa/mfa-constants';
 import type {
   Authenticator,
+  EnrolledFactor,
   ListAuthenticationMethodsResponseContent,
   ListFactorsResponseContent,
   MFAType,
 } from '../../../../services/my-account/mfa/mfa-types';
 
-type AuthenticationMethod =
-  ListAuthenticationMethodsResponseContent['authentication_methods'][number];
+type MockEmailAuthMethod = EnrolledFactor & { email: string };
+type MockPhoneAuthMethod = EnrolledFactor & { phone_number: string };
+type MockWebAuthnAuthMethod = EnrolledFactor & { name: string };
 
 /**
- * Creates a mock enrolled authentication method
+ * Default usage for MFA authentication methods.
+ */
+const DEFAULT_USAGE: ['secondary'] = ['secondary'];
+
+const createBaseAuthMethod = () => ({
+  id: '',
+  created_at: '2024-01-01T00:00:00.000Z',
+  confirmed: true,
+  usage: DEFAULT_USAGE,
+});
+
+/**
+ * Creates a mock enrolled authentication method.
  */
 export const createMockAuthenticationMethod = (
-  overrides?: Partial<AuthenticationMethod>,
-): AuthenticationMethod =>
-  ({
-    id: 'auth_method_123',
-    type: FACTOR_TYPE_TOTP,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
-    ...overrides,
-  }) as unknown as AuthenticationMethod;
+  overrides?: Partial<EnrolledFactor>,
+): EnrolledFactor => ({
+  ...createBaseAuthMethod(),
+  id: 'auth_method_123',
+  type: FACTOR_TYPE_TOTP as MFAType,
+  ...overrides,
+});
 
 /**
  * Creates a mock email authentication method
  */
 export const createMockEmailAuthMethod = (
   email = 'user@example.com',
-  overrides?: Partial<AuthenticationMethod>,
-): AuthenticationMethod =>
-  ({
-    id: 'email|user@example.com',
-    type: FACTOR_TYPE_EMAIL,
-    email,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
-    ...overrides,
-  }) as unknown as AuthenticationMethod;
+  overrides?: Partial<MockEmailAuthMethod>,
+): MockEmailAuthMethod => ({
+  ...createBaseAuthMethod(),
+  id: 'email|user@example.com',
+  type: FACTOR_TYPE_EMAIL as MFAType,
+  email,
+  ...overrides,
+});
 
 /**
  * Creates a mock phone authentication method
  */
 export const createMockPhoneAuthMethod = (
   phoneNumber = '+1234567890',
-  overrides?: Partial<AuthenticationMethod>,
-): AuthenticationMethod =>
-  ({
-    id: 'phone|+1234567890',
-    type: FACTOR_TYPE_PHONE,
-    phone_number: phoneNumber,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
-    ...overrides,
-  }) as unknown as AuthenticationMethod;
+  overrides?: Partial<MockPhoneAuthMethod>,
+): MockPhoneAuthMethod => ({
+  ...createBaseAuthMethod(),
+  id: 'phone|+1234567890',
+  type: FACTOR_TYPE_PHONE as MFAType,
+  phone_number: phoneNumber,
+  ...overrides,
+});
 
 /**
  * Creates a mock TOTP authentication method
  */
 export const createMockTotpAuthMethod = (
   name = 'Google Authenticator',
-  overrides?: Partial<AuthenticationMethod>,
-): AuthenticationMethod =>
-  ({
-    id: `totp|${name}`,
-    type: FACTOR_TYPE_TOTP,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
-    ...overrides,
-  }) as unknown as AuthenticationMethod;
+  overrides?: Partial<EnrolledFactor>,
+): EnrolledFactor => ({
+  ...createBaseAuthMethod(),
+  id: `totp|${name}`,
+  type: FACTOR_TYPE_TOTP as MFAType,
+  ...overrides,
+});
 
 /**
  * Creates a mock recovery code authentication method
  */
 export const createMockRecoveryCodeAuthMethod = (
   name = 'recovery-codes',
-  overrides?: Partial<AuthenticationMethod>,
-): AuthenticationMethod =>
-  ({
-    id: `recovery-code|${name}`,
-    type: FACTOR_TYPE_RECOVERY_CODE,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
-    ...overrides,
-  }) as unknown as AuthenticationMethod;
+  overrides?: Partial<EnrolledFactor>,
+): EnrolledFactor => ({
+  ...createBaseAuthMethod(),
+  id: `recovery-code|${name}`,
+  type: FACTOR_TYPE_RECOVERY_CODE as MFAType,
+  ...overrides,
+});
 
 /**
  * Creates a mock WebAuthn roaming authentication method
  */
 export const createMockWebAuthnRoamingAuthMethod = (
   name = 'YubiKey',
-  overrides?: Partial<AuthenticationMethod>,
-): AuthenticationMethod =>
-  ({
-    id: `webauthn-roaming|${name}`,
-    type: FACTOR_TYPE_WEBAUTHN_ROAMING,
-    name,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
-    ...overrides,
-  }) as unknown as AuthenticationMethod;
+  overrides?: Partial<MockWebAuthnAuthMethod>,
+): MockWebAuthnAuthMethod => ({
+  ...createBaseAuthMethod(),
+  id: `webauthn-roaming|${name}`,
+  type: FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType,
+  name,
+  ...overrides,
+});
 
 /**
  * Creates a mock WebAuthn platform authentication method
  */
 export const createMockWebAuthnPlatformAuthMethod = (
   name = 'TouchID',
-  overrides?: Partial<AuthenticationMethod>,
-): AuthenticationMethod =>
-  ({
-    id: `webauthn-platform|${name}`,
-    type: FACTOR_TYPE_WEBAUTHN_PLATFORM,
-    name,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
-    ...overrides,
-  }) as unknown as AuthenticationMethod;
+  overrides?: Partial<MockWebAuthnAuthMethod>,
+): MockWebAuthnAuthMethod => ({
+  ...createBaseAuthMethod(),
+  id: `webauthn-platform|${name}`,
+  type: FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType,
+  name,
+  ...overrides,
+});
 
 /**
  * Creates a mock push notification authentication method
  */
 export const createMockPushNotificationAuthMethod = (
-  overrides?: Partial<AuthenticationMethod>,
-): AuthenticationMethod =>
-  ({
-    id: 'push-notification|123',
-    type: FACTOR_TYPE_PUSH_NOTIFICATION,
-    created_at: '2024-01-01T00:00:00.000Z',
-    confirmed: true,
-    ...overrides,
-  }) as unknown as AuthenticationMethod;
+  overrides?: Partial<EnrolledFactor>,
+): EnrolledFactor => ({
+  ...createBaseAuthMethod(),
+  id: 'push-notification|123',
+  type: FACTOR_TYPE_PUSH_NOTIFICATION as MFAType,
+  ...overrides,
+});
 
 /**
  * Creates a mock list of enrolled authentication methods

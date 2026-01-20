@@ -2,10 +2,16 @@
 
 // import { DomainTable } from '@auth0/universal-components-react/rwa';
 
-export default function OrgManagementPage() {
+export default function DomainManagementPage() {
   return (
     <div className="p-6 pt-8 space-y-6">
-      <p>Follow Quickstart guidance on how to add Domain Management component.</p>
+      <p>
+        Follow{' '}
+        <a href="https://github.com/auth0/auth0-ui-components/tree/main/examples/next-rwa#adding-a-universal-component-to-your-app">
+          <u>Quickstart guidance</u>
+        </a>{' '}
+        on how to add Domain Management component.
+      </p>
       {/* <DomainTable /> */}
     </div>
   );

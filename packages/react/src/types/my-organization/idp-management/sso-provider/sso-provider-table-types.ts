@@ -18,7 +18,7 @@ interface SsoProviderTableClasses {
   'SsoProviderTable-header'?: string;
   'SsoProviderTable-table'?: string;
   'SsoProviderTable-deleteProviderModal'?: string;
-  'SsoProviderTable-deleteProviderFromOrgModal'?: string;
+  'SsoProviderTable-deleteProviderFromOrganizationModal'?: string;
 }
 
 export interface SsoProviderTableProps
@@ -65,5 +65,5 @@ export interface SsoProviderTableActionsColumnProps
   onToggleEnabled: (provider: IdentityProvider, enabled: boolean) => void;
   onEdit: (provider: IdentityProvider) => void;
   onDelete: (provider: IdentityProvider) => void;
-  onRemoveFromOrg: (provider: IdentityProvider) => void;
+  onRemoveFromOrganization: (provider: IdentityProvider) => void;
 }

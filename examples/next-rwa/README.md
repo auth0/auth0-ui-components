@@ -102,10 +102,9 @@ Edit this file to uncomment `<DomainTable />` and deleted the `<p>` entry and sa
 
 import { DomainTable } from '@auth0/universal-components-react/rwa';
 
-export default function OrgManagementPage() {
+export default function OrganizationManagementPage() {
   return (
     <div className="p-6 pt-8 space-y-6">
-      <p>Follow Quickstart guidance on how to add Domain Management component.</p>
         <DomainTable />
     </div>
   );

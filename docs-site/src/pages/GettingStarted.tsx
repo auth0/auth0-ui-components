@@ -136,7 +136,7 @@ export default function GettingStarted() {
                 Organization management and administration components.
               </p>
               <a
-                href="/my-org"
+                href="/my-organization"
                 className="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-medium transition-colors"
               >
                 Learn More
@@ -196,9 +196,9 @@ export default function GettingStarted() {
                 title="1. Install Core Package"
               />
               <CodeBlock
-                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-org/org-details-edit.json"
+                code="npx shadcn@latest add https://auth0-universal-components.vercel.app/r/my-organization/organization-details-edit.json"
                 language="bash"
-                title="2. Add Shadcn Block (e.g., OrgDetailsEdit)"
+                title="2. Add Shadcn Block (e.g., OrganizationDetailsEdit)"
               />
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
@@ -463,7 +463,9 @@ function App() {
         redirect_uri: window.location.origin
       }}
     >
-      <Auth0ComponentProvider authDetails={authDetails}>
+      <Auth0ComponentProvider 
+        authDetails={authDetails}
+      >
         {/* Your app components */}
       </Auth0ComponentProvider>
     </Auth0Provider>
@@ -480,7 +482,7 @@ function App() {
               </h4>
               <CodeBlock
                 code={`import { useAuth0 } from '@auth0/auth0-react';
-import { OrgDetailsEdit } from '@auth0/universal-components-react/spa';
+import { OrganizationDetailsEdit } from '@auth0/universal-components-react/spa';
 
 function OrganizationManagementPage() {
   const { isAuthenticated, isLoading } = useAuth0();
@@ -490,7 +492,7 @@ function OrganizationManagementPage() {
 
   return (
     <div>
-      <OrgDetailsEdit />
+      <OrganizationDetailsEdit />
     </div>
   );
 }`}
@@ -550,12 +552,12 @@ export default function RootLayout({
               <CodeBlock
                 code={`'use client';
 
-import { OrgDetailsEdit } from '@auth0/universal-components-react/rwa';
+import { OrganizationDetailsEdit } from '@auth0/universal-components-react/rwa';
 
 export default function OrganizationManagementPage() {
   return (
     <div>
-      <OrgDetailsEdit />
+      <OrganizationDetailsEdit />
     </div>
   );
 }`}
@@ -632,6 +634,19 @@ export default function OrganizationManagementPage() {
                 <td className="px-4 py-2 text-sm text-gray-500">
                   Theme configuration including mode (light/dark), theme variant
                   (default/minimal/rounded), and CSS variables
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                  toastSettings
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  <code className="text-xs">ToastSettings</code>
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  Toast notification configuration including provider selection (sonner/custom),
+                  positioning, duration, and custom toast methods
                 </td>
               </tr>
               <tr>
@@ -1009,6 +1024,231 @@ export default function OrganizationManagementPage() {
             </div>
           </div>
         </div>
+
+        {/* Toast Settings */}
+        <div className="mt-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-3">toastSettings</h3>
+          <p className="text-gray-600 mb-4">
+            Toast settings support two provider types: Sonner (default) or custom. Each provider has
+            its own configuration structure for better type safety.
+          </p>
+
+          {/* Sonner Provider */}
+          <div className="mb-6">
+            <h4 className="text-base font-medium text-gray-900 mb-3">Sonner Provider (Default)</h4>
+            <div className="overflow-x-auto">
+              <table className="w-full border border-gray-200 rounded-lg">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                      Property
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                      Type
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
+                      Default
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Description
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      provider
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">"sonner"</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">"sonner"</td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Uses the built-in Sonner toast library
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      settings.position
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">ToastPosition</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                      "top-right"
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Position where toasts appear: "top-left", "top-right", "bottom-left",
+                      "bottom-right", "top-center", "bottom-center"
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      settings.duration
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">number</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">4000</td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Duration in milliseconds before toast auto-dismisses
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      settings.maxToasts
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">number</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">3</td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Maximum number of toasts visible at once
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      settings.dismissible
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">boolean</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">true</td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Whether toasts can be manually dismissed by user interaction
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      settings.closeButton
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">boolean</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">true</td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Whether to show an explicit close button on toasts for better UX
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Custom Provider */}
+          <div className="mb-6">
+            <h4 className="text-base font-medium text-gray-900 mb-3">Custom Provider</h4>
+            <div className="overflow-x-auto">
+              <table className="w-full border border-gray-200 rounded-lg">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                      Property
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                      Type
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
+                      Required
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Description
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      provider
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">"custom"</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Yes</td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Uses your custom toast implementation
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      methods
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">CustomToastMethods</code>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Yes</td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      Custom toast methods for success, error, warning, info, and dismiss actions
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Sonner Provider Example */}
+          <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-medium text-blue-900 mb-3">Sonner Provider Example</h4>
+            <div className="text-sm text-blue-800 space-y-3">
+              <p>Using the built-in Sonner toast library with custom settings:</p>
+
+              <div className="bg-white rounded p-3 font-mono text-xs overflow-x-auto">
+                <pre>{`const toastSettings = {
+  provider: 'sonner', // Optional, this is the default
+  settings: {
+    position: 'top-center',
+    duration: 6000,
+    maxToasts: 5,
+    dismissible: true,
+    closeButton: true // Enabled by default for better UX
+  }
+};`}</pre>
+              </div>
+            </div>
+          </div>
+
+          {/* Custom Provider Example */}
+          <div className="mt-4 bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <h4 className="font-medium text-purple-900 mb-3">Custom Provider Example</h4>
+            <div className="text-sm text-purple-800 space-y-3">
+              <p>
+                When using <code>provider: "custom"</code>, you need to provide custom methods:
+              </p>
+
+              <div className="bg-white rounded p-3 font-mono text-xs overflow-x-auto">
+                <pre>{`const toastSettings = {
+  provider: 'custom',
+  methods: {
+    success: (message: string) => {
+      // Your custom success toast implementation
+      myToastLibrary.success(message);
+    },
+    error: (message: string) => {
+      // Your custom error toast implementation
+      myToastLibrary.error(message);
+    },
+    warning: (message: string) => {
+      // Your custom warning toast implementation
+      myToastLibrary.warning(message);
+    },
+    info: (message: string) => {
+      // Your custom info toast implementation
+      myToastLibrary.info(message);
+    },
+    dismiss: (toastId?: string) => {
+      // Your custom dismiss implementation
+      myToastLibrary.dismiss(toastId);
+    }
+  }
+};`}</pre>
+              </div>
+              <p>
+                <strong>Note:</strong> Custom methods only receive the message text. Your custom
+                implementation handles all styling, positioning, and timing.
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Next Steps */}
@@ -1081,7 +1321,7 @@ export default function OrganizationManagementPage() {
                 Organization management and administration components.
               </p>
               <a
-                href="/my-org"
+                href="/my-organization"
                 className="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-medium transition-colors"
               >
                 Explore My Organization

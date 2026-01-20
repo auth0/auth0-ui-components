@@ -3,10 +3,10 @@ import * as React from 'react';
 import { Modal } from '../../../../components/ui/modal';
 import { useTranslator } from '../../../../hooks/use-translator';
 import { cn } from '../../../../lib/theme-utils';
-import type { SsoProviderRemoveFromOrgModalProps } from '../../../../types/my-organization/idp-management/sso-provider/sso-provider-delete-types';
+import type { SsoProviderRemoveFromOrganizationModalProps } from '../../../../types/my-organization/idp-management/sso-provider/sso-provider-delete-types';
 import { SsoProviderDeleteModalContent } from '../sso-provider-delete/provider-delete-modal-content';
 
-export function SsoProviderRemoveFromOrgModal({
+export function SsoProviderRemoveFromOrganizationModal({
   className,
   isOpen,
   onClose,
@@ -15,7 +15,7 @@ export function SsoProviderRemoveFromOrgModal({
   onRemove,
   isLoading = false,
   customMessages = {},
-}: SsoProviderRemoveFromOrgModalProps) {
+}: SsoProviderRemoveFromOrganizationModalProps) {
   const { t } = useTranslator('idp_management.remove_sso_provider', customMessages);
   const [confirmationText, setConfirmationText] = React.useState('');
 

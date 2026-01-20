@@ -12,7 +12,7 @@ import { useTheme } from '../../../../hooks/use-theme';
 import { useTranslator } from '../../../../hooks/use-translator';
 import type { SsoProviderTabProps } from '../../../../types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 import { SsoProviderDelete } from '../sso-provider-delete/provider-delete';
-import { SsoProviderRemoveFromOrg } from '../sso-provider-remove/provider-remove';
+import { SsoProviderRemoveFromOrganization } from '../sso-provider-remove/provider-remove';
 
 import { SsoProviderDetails } from './sso-provider-details';
 
@@ -71,7 +71,7 @@ export function SsoProviderTab({
 
       <div className="space-y-4">
         {provider && organization && (
-          <SsoProviderRemoveFromOrg
+          <SsoProviderRemoveFromOrganization
             provider={provider}
             organizationName={organization?.name}
             onRemove={onRemove}

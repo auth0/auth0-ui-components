@@ -8,6 +8,7 @@ import { Toaster } from '../components/ui/sonner';
 import { Spinner } from '../components/ui/spinner';
 import { CoreClientContext } from '../hooks/use-core-client';
 import { useCoreClientInitialization } from '../hooks/use-core-client-initialization';
+import { useToastProvider } from '../hooks/use-toast-provider';
 import type { Auth0ComponentProviderProps } from '../types/auth-types';
 
 import { ScopeManagerProvider } from './scope-manager-provider';
@@ -25,9 +26,12 @@ export const Auth0ComponentProvider = ({
       dark: {},
     },
   },
+  toastSettings,
   loader,
   children,
 }: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
+  const mergedToastSettings = useToastProvider(toastSettings);
+
   const auth0ReactContext = useAuth0();
 
   const auth0ContextInterface = React.useMemo(() => {
@@ -73,7 +77,12 @@ export const Auth0ComponentProvider = ({
         theme: themeSettings.theme,
       }}
     >
-      <Toaster position="top-right" />
+      {mergedToastSettings.provider === 'sonner' && (
+        <Toaster
+          position={mergedToastSettings.settings?.position || 'top-right'}
+          closeButton={mergedToastSettings.settings?.closeButton ?? true}
+        />
+      )}
       <React.Suspense
         fallback={
           loader || (

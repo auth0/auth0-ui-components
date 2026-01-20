@@ -33,7 +33,7 @@ export {
 } from '../../../../internals/__mocks__/shared/api-service.mocks';
 
 // =============================================================================
-// MyOrg-specific Test Data
+// MyOrganization-specific Test Data
 // =============================================================================
 
 // Expected URLs
@@ -42,46 +42,46 @@ export const getExpectedProxyBaseUrl = (proxyUrl: string): string => {
   return `${cleanUrl}/my-org`;
 };
 
-// Scope Test Data (MyOrg-specific)
+// Scope Test Data (MyOrganization-specific)
 export const mockScopes = {
   empty: '',
-  orgRead: 'read:organization',
-  orgWrite: 'write:organization',
+  organizationRead: 'read:organization',
+  organizationWrite: 'write:organization',
   members: 'read:organization_members',
   complex: 'read:organization write:organization read:organization_members',
   withSpaces: '  read:organization  write:organization  ',
 };
 
-// Request Init Test Data (MyOrg-specific)
+// Request Init Test Data (MyOrganization-specific)
 export const mockRequestInits = {
   get: {
     method: 'GET',
   },
   post: {
     method: 'POST',
-    body: JSON.stringify({ name: 'Test Org' }),
+    body: JSON.stringify({ name: 'Test Organization' }),
   },
   postWithHeaders: {
     method: 'POST',
-    body: JSON.stringify({ name: 'Test Org' }),
+    body: JSON.stringify({ name: 'Test Organization' }),
     headers: {
       'X-Custom-Header': 'custom-value',
     },
   },
   withContentType: {
     method: 'POST',
-    body: JSON.stringify({ name: 'Test Org' }),
+    body: JSON.stringify({ name: 'Test Organization' }),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
   },
   patch: {
     method: 'PATCH',
-    body: JSON.stringify({ display_name: 'Updated Org' }),
+    body: JSON.stringify({ display_name: 'Updated Organization' }),
   },
 };
 
-// Error Messages (MyOrg-specific)
+// Error Messages (MyOrganization-specific)
 export const expectedErrors = {
   missingDomainOrProxy: 'Missing domain or proxy URL for MyOrganizationClient',
   tokenManagerError: 'Token retrieval failed',
@@ -94,10 +94,10 @@ export const mockMyOrganizationClientMethods = {
   updateOrganization: 'updateOrganization',
   listMembers: 'listMembers',
   listRoles: 'listRoles',
-} as const;
+};
 
 /**
- * Creates a mock MyOrg API client
+ * Creates a mock MyOrganization API client
  */
 export const createMockMyOrganizationClient = (): ReturnType<
   typeof initializeMyOrganizationClient

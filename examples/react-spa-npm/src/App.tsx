@@ -11,7 +11,7 @@ import { config } from './config/env';
 import DomainManagementPage from './views/domain-management-page';
 import HomePage from './views/home-page';
 import MFAPage from './views/mfa-page';
-import OrgManagementPage from './views/org-management-page';
+import OrganizationManagementPage from './views/organization-management-page';
 import ProfilePage from './views/profile-page';
 import SsoProviderCreatePage from './views/sso-provider-create-page';
 import SsoProviderEditPage from './views/sso-provider-edit-page';
@@ -63,10 +63,10 @@ function AppContent() {
             }
           />
           <Route
-            path="/org-management"
+            path="/organization-management"
             element={
               <ProtectedRoute>
-                <OrgManagementPage />
+                <OrganizationManagementPage />
               </ProtectedRoute>
             }
           />

@@ -4,6 +4,19 @@ import type { ArbitraryObject } from '@core/types';
 export type ListFactorsResponseContent = MyAccount.ListFactorsResponseContent;
 export type ListAuthenticationMethodsResponseContent =
   MyAccount.ListAuthenticationMethodsResponseContent;
+
+/**
+ * Single authentication method from the SDK response.
+ */
+export type AuthenticationMethod =
+  ListAuthenticationMethodsResponseContent['authentication_methods'][number];
+
+/**
+ * Enrolled factor with type property.
+ * The SDK's AuthenticationMethod doesn't include `type`, but the actual API response does.
+ */
+export type EnrolledFactor = AuthenticationMethod & { type: MFAType };
+
 export type CreateAuthenticationMethodRequestContent =
   MyAccount.CreateAuthenticationMethodRequestContent;
 export type CreateAuthenticationMethodResponseContent =

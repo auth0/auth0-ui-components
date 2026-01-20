@@ -60,7 +60,7 @@ describe('useDomainTable', () => {
 
     mockCoreClient = initMockCoreClient();
     mockOptions = createMockOptions();
-    mockT = createMockI18nService().translator('my-org');
+    mockT = createMockI18nService().translator('my-organization');
 
     vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
       coreClient: mockCoreClient,

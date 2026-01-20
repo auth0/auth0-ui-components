@@ -122,12 +122,12 @@ export const createMockMyOrganizationApiClient =
     return {
       organizationDetails: {
         get: vi.fn().mockResolvedValue({
-          id: 'org_123',
+          id: 'organization_123',
           name: 'Test Organization',
           display_name: 'Test Organization',
         }),
         update: vi.fn().mockResolvedValue({
-          id: 'org_123',
+          id: 'organization_123',
           name: 'Test Organization',
           display_name: 'Test Organization',
         }),

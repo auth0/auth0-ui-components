@@ -39,7 +39,7 @@ describe('ProvisioningManageToken', () => {
     },
     {
       token_id: 'token-2',
-      valid_until: '2025-12-31T23:59:59Z',
+      valid_until: '',
       created_at: '',
     },
   ];

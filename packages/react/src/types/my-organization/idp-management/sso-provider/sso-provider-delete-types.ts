@@ -44,7 +44,7 @@ export interface SsoProviderDeleteModalProps
   isLoading?: boolean;
 }
 
-export interface SsoProviderRemoveFromOrgProps
+export interface SsoProviderRemoveFromOrganizationProps
   extends SharedComponentProps<
     SsoProvideRemoveMessages,
     SsoProviderRemoveClasses,
@@ -56,7 +56,7 @@ export interface SsoProviderRemoveFromOrgProps
   isLoading?: boolean;
 }
 
-export interface SsoProviderRemoveFromOrgModalProps
+export interface SsoProviderRemoveFromOrganizationModalProps
   extends SharedComponentProps<
     SsoProvideRemoveMessages,
     SsoProviderRemoveClasses,

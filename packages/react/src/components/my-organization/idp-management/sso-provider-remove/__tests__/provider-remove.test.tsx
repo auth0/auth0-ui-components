@@ -4,8 +4,8 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import * as useCoreClientModule from '../../../../../hooks/use-core-client';
 import { createMockSsoProvider, mockCore, renderWithProviders } from '../../../../../internals';
-import type { SsoProviderRemoveFromOrgProps } from '../../../../../types/my-organization/idp-management/sso-provider/sso-provider-delete-types';
-import { SsoProviderRemoveFromOrg } from '../provider-remove';
+import type { SsoProviderRemoveFromOrganizationProps } from '../../../../../types/my-organization/idp-management/sso-provider/sso-provider-delete-types';
+import { SsoProviderRemoveFromOrganization } from '../provider-remove';
 
 // ===== Mock packages =====
 
@@ -13,8 +13,8 @@ const { initMockCoreClient } = mockCore();
 
 // ===== Local mock creators =====
 const createMockRemove = (
-  overrides?: Partial<SsoProviderRemoveFromOrgProps>,
-): SsoProviderRemoveFromOrgProps => ({
+  overrides?: Partial<SsoProviderRemoveFromOrganizationProps>,
+): SsoProviderRemoveFromOrganizationProps => ({
   provider: createMockSsoProvider(),
   organizationName: 'Test Organization',
   isLoading: false,
@@ -48,7 +48,9 @@ describe('SsoProviderRemoveFromOrg', () => {
     describe('when provider is provided', () => {
       it('should render remove button', () => {
         const provider = createMockSsoProvider({ name: 'test-provider' });
-        renderWithProviders(<SsoProviderRemoveFromOrg {...createMockRemove({ provider })} />);
+        renderWithProviders(
+          <SsoProviderRemoveFromOrganization {...createMockRemove({ provider })} />,
+        );
 
         expect(screen.getByRole('button', { name: /remove/i })).toBeInTheDocument();
       });
@@ -59,7 +61,7 @@ describe('SsoProviderRemoveFromOrg', () => {
     describe('when is false', () => {
       it('should enable remove button', () => {
         renderWithProviders(
-          <SsoProviderRemoveFromOrg {...createMockRemove({ isLoading: false })} />,
+          <SsoProviderRemoveFromOrganization {...createMockRemove({ isLoading: false })} />,
         );
 
         const removeButton = screen.getByRole('button', { name: /remove/i });
@@ -74,7 +76,9 @@ describe('SsoProviderRemoveFromOrg', () => {
         const user = userEvent.setup();
         const provider = createMockSsoProvider({ name: 'test-provider' });
 
-        renderWithProviders(<SsoProviderRemoveFromOrg {...createMockRemove({ provider })} />);
+        renderWithProviders(
+          <SsoProviderRemoveFromOrganization {...createMockRemove({ provider })} />,
+        );
 
         const removeButton = screen.getByRole('button', { name: /remove/i });
         await user.click(removeButton);
@@ -90,7 +94,9 @@ describe('SsoProviderRemoveFromOrg', () => {
         const mockOnRemove = vi.fn();
 
         renderWithProviders(
-          <SsoProviderRemoveFromOrg {...createMockRemove({ provider, onRemove: mockOnRemove })} />,
+          <SsoProviderRemoveFromOrganization
+            {...createMockRemove({ provider, onRemove: mockOnRemove })}
+          />,
         );
 
         // Click remove button to open modal
@@ -114,7 +120,9 @@ describe('SsoProviderRemoveFromOrg', () => {
         const user = userEvent.setup();
         const provider = createMockSsoProvider({ name: 'test-provider' });
 
-        renderWithProviders(<SsoProviderRemoveFromOrg {...createMockRemove({ provider })} />);
+        renderWithProviders(
+          <SsoProviderRemoveFromOrganization {...createMockRemove({ provider })} />,
+        );
 
         // Click remove button to open modal
         const removeButton = screen.getByRole('button', { name: /remove/i });
@@ -143,7 +151,9 @@ describe('SsoProviderRemoveFromOrg', () => {
         const mockOnRemove = vi.fn();
 
         renderWithProviders(
-          <SsoProviderRemoveFromOrg {...createMockRemove({ provider, onRemove: mockOnRemove })} />,
+          <SsoProviderRemoveFromOrganization
+            {...createMockRemove({ provider, onRemove: mockOnRemove })}
+          />,
         );
 
         // Click remove button to open modal

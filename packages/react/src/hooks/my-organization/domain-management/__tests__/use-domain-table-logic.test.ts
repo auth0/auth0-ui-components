@@ -23,7 +23,7 @@ const { initMockCoreClient } = mockCore();
 const createMockOptions = (
   overrides?: Partial<UseDomainTableLogicOptions>,
 ): UseDomainTableLogicOptions => ({
-  t: createMockI18nService().translator('my-org'),
+  t: createMockI18nService().translator('my-organization'),
   onCreateDomain: vi.fn(),
   onVerifyDomain: vi.fn(),
   onDeleteDomain: vi.fn(),

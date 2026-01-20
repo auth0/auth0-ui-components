@@ -9,8 +9,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslator } from '../../../../hooks/use-translator';
 import { cn } from '../../../../lib/theme-utils';
 import type { DomainCreateModalProps } from '../../../../types/my-organization/domain-management/domain-create-types';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '../../../ui/form';
-import { Label } from '../../../ui/label';
+import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from '../../../ui/form';
 import { Modal } from '../../../ui/modal';
 import { TextField } from '../../../ui/text-field';
 
@@ -36,7 +35,7 @@ export function DomainCreateModal({
     defaultValues: {
       domain_url: '',
     },
-    mode: 'onChange',
+    mode: 'onBlur',
   });
 
   const handleCreate = React.useCallback(
@@ -76,12 +75,12 @@ export function DomainCreateModal({
                 name="domain_url"
                 render={({ field }) => (
                   <FormItem>
-                    <Label
+                    <FormLabel
                       htmlFor="domain-url"
                       className="text-sm text-(length:--font-size-label) font-medium"
                     >
                       {t('field.label')}
-                    </Label>
+                    </FormLabel>
                     <FormControl>
                       <TextField
                         id="domain-url"

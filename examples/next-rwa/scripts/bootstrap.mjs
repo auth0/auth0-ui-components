@@ -100,12 +100,23 @@ async function main() {
     console.log(
       "✅ Bootstrap complete! Tenant is already properly configured.\n"
     )
+    // Confirm if env file should still be generated
+    const confirmed = await confirmWithUser("Do you want to generate the .env.local file?")
+    if (confirmed) {
+      await writeEnvFile(
+        domain,
+        plan.clients.dashboard.existing?.client_id,
+        plan.clients.dashboard.existing?.client_secret
+      )
+      console.log("\n✅ .env.local file generated!\n")
+    }
+  
     process.exit(0)
   }
 
   // Step 5: User Confirmation
   const confirmed = await confirmWithUser(
-    "Do you want to proceed with these changes? (yes/no): "
+    "Do you want to proceed with these changes? "
   )
   if (!confirmed) {
     console.log("\n❌ Bootstrap cancelled by user.\n")
@@ -172,12 +183,12 @@ async function main() {
   console.log("")
 
   // 6h. Orgs
-  console.log("Creating Org...")
+  console.log("Creating Organization...")
   const org = await applyOrgsChanges(plan.orgs, connection.id)
   console.log("")
 
   // 6i. Org Members
-  console.log("Adding Org Members...")
+  console.log("Adding Organization Members...")
   // eslint-disable-next-line no-unused-vars
   const orgMember = await applyOrgMemberChanges(plan.orgMembers, org.id, connection.id,adminRole.id)
   console.log("")
