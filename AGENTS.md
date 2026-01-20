@@ -46,28 +46,12 @@
 | `@auth0/universal-components-react/rwa`    | RWA/Proxy mode: `Auth0ComponentProvider`, blocks, hooks (uses auth proxy URL) |
 | `@auth0/universal-components-react/styles` | CSS stylesheet (`dist/styles.css`)                                            |
 
-### Available Blocks (Components)
+### Available Blocks and Hooks
 
-| Block                     | Purpose                                |
-| ------------------------- | -------------------------------------- |
-| `UserMFAMgmt`             | Multi-factor authentication management |
-| `OrganizationDetailsEdit` | Edit organization settings             |
-| `SsoProviderTable`        | List SSO providers                     |
-| `SsoProviderCreate`       | Create new SSO connection              |
-| `SsoProviderEdit`         | Edit SSO connection                    |
-| `DomainTable`             | Domain verification management         |
+For the full list of available blocks and hooks, see:
 
-### Available Hooks
-
-| Hook                         | Purpose                                   |
-| ---------------------------- | ----------------------------------------- |
-| `useCoreClient`              | Access CoreClient instance                |
-| `useTranslator`              | Translation function with custom messages |
-| `useTheme`                   | Theme mode and variables                  |
-| `useScopeManager`            | OAuth scope registration                  |
-| `useErrorHandler`            | Centralized error handling                |
-| `useMFA`                     | MFA operations                            |
-| `useOrganizationDetailsEdit` | Organization edit operations              |
+- **Blocks:** [`packages/react/src/blocks/index.ts`](packages/react/src/blocks/index.ts)
+- **Hooks:** [`packages/react/src/hooks/`](packages/react/src/hooks/)
 
 ---
 
@@ -154,7 +138,7 @@ import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
 import { Auth0ComponentProvider } from '@auth0/universal-components-react/rwa';
 
 <Auth0ComponentProvider
-  authDetails={{ authProxyUrl: '/api/auth' }}
+  authDetails={{ authProxyUrl: '/api/auth', domain: 'your-tenant.auth0.com' }}
   i18n={{ currentLanguage: 'en-US' }}
 >
   <App />
@@ -201,6 +185,7 @@ t('header.title', { organizationName: org.name });
 
 - Base translations: `packages/core/src/i18n/translations/`
 - Custom messages override via `customMessages` prop
+- Custom message types: `packages/core/src/i18n/custom-messages/`
 - Supports: `en-US`, `ja`
 
 ### Schema Validation
@@ -217,6 +202,13 @@ packages/core/src/schemas/
 ---
 
 ## Component Structure
+
+### Block Component Location
+
+| Type                   | Location                                     |
+| ---------------------- | -------------------------------------------- |
+| My Account blocks      | `packages/react/src/blocks/my-account/`      |
+| My Organization blocks | `packages/react/src/blocks/my-organization/` |
 
 ### Block Component Template
 
@@ -288,9 +280,43 @@ export const Component = withMyOrganizationService(ComponentInternal, REQUIRED_S
 | `__tests__/*.test.ts`  | Unit tests            |
 | `__tests__/*.test.tsx` | React component tests |
 
-### Test Utilities
+### Test Conventions
+
+- Reuse utilities from `internals` when possible
+- Add new mocks or update existing ones in `packages/react/src/internals/__mocks__/`
+- Follow the `describe`/`it` naming convention: "when..." for conditions, action in `it`
+- Use queries by priority: see [Testing Library query priority](https://testing-library.com/docs/queries/about/#priority)
+- Avoid common mistakes: see [Kent C. Dodds - Common mistakes with React Testing Library](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library)
+
+**Example test structure:**
 
 ```tsx
+describe('isOpen', () => {
+  describe('when is true', () => {
+    it('should render the modal', async () => {
+      renderWithProviders(<Modal {...props({ isOpen: true })} />);
+      await waitForComponentToLoad();
+      expect(screen.getByDisplayValue('example.auth0.com')).toBeInTheDocument();
+    });
+  });
+
+  describe('when is false', () => {
+    it('should not render the modal content', () => {
+      renderWithProviders(<Modal {...props({ isOpen: false })} />);
+      expect(screen.queryByDisplayValue('example.auth0.com')).not.toBeInTheDocument();
+    });
+  });
+});
+```
+
+### Test Utilities
+
+Common test utilities are available from `@auth0/universal-components-react/internals`.
+
+See full list of exports in: `packages/react/src/internals/index.ts`
+
+```tsx
+// Most commonly used utilities
 import {
   TestProvider,
   renderWithProviders,
@@ -440,6 +466,8 @@ npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-organization/o
 2. Run `pnpm build:shadcn`
 3. Registry files copied to `docs-site/public/r/`
 
+**Important:** Do not add `index` files to `registry.json` - only add individual component files.
+
 ---
 
 ## Environment Variables
@@ -486,7 +514,7 @@ npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-organization/o
 
 ## Anti-Patterns
 
-- ❌ Importing from internal paths (e.g., `packages/react/src/components/ui/button`)
+- ❌ Consumers importing from internal source paths instead of package exports (e.g., use `@auth0/universal-components-react/spa` not `packages/react/src/...`)
 - ❌ Using `@auth0/auth0-react` in RWA mode
 - ❌ Hardcoding translations instead of using `useTranslator`
 - ❌ Skipping `withServices` HOC for blocks requiring scopes
@@ -495,6 +523,8 @@ npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-organization/o
 - ❌ Creating components without proper TypeScript props interface
 - ❌ Ignoring schema validation for API inputs
 - ❌ Storing sensitive data in client-accessible props
+- ❌ Type casting (`as`) unless there is no other option
+- ❌ Using linter/tsc skip annotations (`// @ts-ignore`, `// eslint-disable`) unless there is no other option
 
 ---
 
@@ -539,28 +569,10 @@ npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-organization/o
 
 ## Dependency Graph
 
-```
-@auth0/universal-components-react
-    │
-    ├── @auth0/universal-components-core (workspace:*)
-    │       │
-    │       ├── @auth0/myaccount-js
-    │       ├── @auth0/myorganization-js
-    │       └── zod
-    │
-    ├── @radix-ui/* (UI primitives)
-    ├── @tanstack/react-table
-    ├── class-variance-authority
-    ├── lucide-react (icons)
-    ├── sonner (toasts)
-    └── tailwind-merge
-```
+See the full dependency list in the respective `package.json` files:
 
-**Peer Dependencies:**
-
-- `react`: ^16.11.0 || ^17 || ^18 || ^19.2.1
-- `react-dom`: ^16.11.0 || ^17 || ^18 || ^19.2.1
-- `react-hook-form`: ^7.0.0
+- **Core package:** [`packages/core/package.json`](packages/core/package.json)
+- **React package:** [`packages/react/package.json`](packages/react/package.json)
 
 ---
 
@@ -586,6 +598,11 @@ pnpm format:check && pnpm lint && pnpm test && pnpm build
 
 # 6. Commit with conventional format
 pnpm commit
+
+# 7. (Optional) Run an example app
+cd examples/react-spa-npm && pnpm dev
+# or
+cd examples/next-rwa && pnpm dev
 ```
 
 ---
