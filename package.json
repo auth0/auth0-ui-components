@@ -13,6 +13,10 @@
     ],
     "*.{json,css,md}": [
       "prettier --write"
+    ],
+    "packages/react/src/**/*.{ts,tsx}": [
+      "pnpm --filter @auth0/universal-components-react registry:workflow",
+      "git add packages/react/registry.json docs-site/public/r"
     ]
   },
   "config": {

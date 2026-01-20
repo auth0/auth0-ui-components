@@ -1,6 +1,6 @@
 {
   "name": "@auth0/universal-components-react",
-  "version": "1.0.0-beta.5",
+  "version": "2.0.0-beta.1",
   "private": false,
   "sideEffects": [
     "*.css"
@@ -36,7 +36,11 @@
     "test": "vitest run --coverage",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "registry:build": "shadcn build -o ../../docs-site/public/r"
+    "registry:generate": "node scripts/generate-registry.mjs",
+    "registry:generate:interactive": "node scripts/generate-registry.mjs --interactive",
+    "registry:validate": "node scripts/validate-registry.mjs",
+    "registry:build": "shadcn build -o ../../docs-site/public/r",
+    "registry:workflow": "node scripts/build-registry-workflow.mjs"
   },
   "peerDependencies": {
     "react": "^16.11.0 || ^17 || ^18 || ^19.2.1",
