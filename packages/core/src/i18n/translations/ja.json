@@ -80,7 +80,9 @@
           },
           "actions": {
             "add_provider_button_text": "プロバイダーを追加",
-            "view_provider_button_text": "表示"
+            "view_provider_button_text": "表示",
+            "enable_provider_tooltip": "トグルでこのプロバイダーのドメインを有効にします",
+            "disable_provider_tooltip": "トグルでこのプロバイダーのドメインを無効にします"
           }
         },
         "actions": {
@@ -216,7 +218,9 @@
         "actions": {
           "edit_button_text": "編集",
           "delete_button_text": "削除",
-          "remove_button_text": "組織から削除"
+          "remove_button_text": "組織から削除",
+          "enabled_tooltip": "日本語でのプロビジョニングを無効にするには、トグルを切り替えてください。",
+          "disabled_tooltip": "日本語でのプロビジョニングを有効にするには、トグルを切り替えてください。"
         }
       },
       "create_consent_modal": {
@@ -546,7 +550,9 @@
               "title": "プロビジョニング",
               "description": "ユーザープロファイルを組織に同期するためのプロビジョニングを設定します。",
               "guided_setup_button_label": "ガイド付きセットアップ",
-              "enable_provisioning_tooltip": "プロビジョニングを作成するにはプロバイダーを有効にしてください"
+              "provider_disabled_tooltip": "プロビジョニングを作成するにはプロバイダーを有効にしてください",
+              "enable_provisioning_tooltip": "トグルでプロビジョニングを有効にします",
+              "disable_provisioning_tooltip": "トグルでプロビジョニングを無効にします"
             },
             "warning_alert_message": {
               "title": "プロビジョニングのマッピングが更新されました。",
@@ -649,6 +655,10 @@
                 "name": "ドメイン名",
                 "status": "ステータス",
                 "verify": "検証"
+              },
+              "actions": {
+                "enable_domain_tooltip": "トグルでこのドメインを有効にします",
+                "disable_domain_tooltip": "トグルでこのドメインを無効にします"
               },
               "domain_statuses": {
                 "pending": "保留中",

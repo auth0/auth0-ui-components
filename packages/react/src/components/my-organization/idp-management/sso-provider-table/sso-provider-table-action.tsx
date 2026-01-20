@@ -12,6 +12,7 @@ import {
 } from '../../../ui/dropdown-menu';
 import { Spinner } from '../../../ui/spinner';
 import { Switch } from '../../../ui/switch';
+import { Tooltip, TooltipTrigger, TooltipContent } from '../../../ui/tooltip';
 
 /**
  * SsoProviderTableActionsColumn Component
@@ -56,11 +57,22 @@ export function SsoProviderTableActionsColumn({
       {isUpdating && isUpdatingId === provider.id ? (
         <Spinner size="sm" className="m-auto" />
       ) : (
-        <Switch
-          checked={provider.is_enabled ?? false}
-          onCheckedChange={handleToggleEnabled}
-          disabled={readOnly || isUpdating}
-        />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span>
+              <Switch
+                checked={provider.is_enabled ?? false}
+                onCheckedChange={handleToggleEnabled}
+                disabled={readOnly || isUpdating}
+              />
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            {provider.is_enabled
+              ? t('table.actions.enabled_tooltip')
+              : t('table.actions.disabled_tooltip')}
+          </TooltipContent>
+        </Tooltip>
       )}
 
       <DropdownMenu>
