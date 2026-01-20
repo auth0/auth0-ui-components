@@ -8,11 +8,13 @@ import { useIdpConfig } from '../use-idp-config';
 vi.mock('../../../use-core-client');
 
 describe('useIdpConfig', () => {
-  const mockGet = vi.fn();
   const mockCoreClient = createMockCoreClient();
+  const mockGet = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
+    const mockMyOrganizationClient = mockCoreClient.getMyOrganizationApiClient();
+    mockMyOrganizationClient.organization.configuration.identityProviders.get = mockGet;
     vi.mocked(useCoreClient).mockReturnValue({ coreClient: mockCoreClient });
   });
 
@@ -25,6 +27,7 @@ describe('useIdpConfig', () => {
         },
       },
     };
+
     mockGet.mockResolvedValue(mockIdpConfig);
 
     const { result } = renderHook(() => useIdpConfig());
@@ -209,7 +212,7 @@ describe('useIdpConfig', () => {
 
     expect(mockGet).toHaveBeenCalledTimes(1);
 
-    result.current.fetchIdpConfig();
+    await waitFor(() => result.current.fetchIdpConfig());
 
     await waitFor(() => {
       expect(mockGet).toHaveBeenCalledTimes(2);
