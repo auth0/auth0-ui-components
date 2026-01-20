@@ -540,9 +540,8 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await waitFor(() => result.current.onEnableProvider(mockIdentityProviders[0]!, false));
-
       await waitFor(() => {
+        result.current.onEnableProvider(mockIdentityProviders[0]!, false);
         expect(result.current.isUpdating).toBe(true);
         expect(result.current.isUpdatingId).toBe('idp-1');
       });
@@ -570,9 +569,8 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await waitFor(() => result.current.onDeleteConfirm(mockIdentityProviders[0]!));
-
       await waitFor(() => {
+        result.current.onDeleteConfirm(mockIdentityProviders[0]!);
         expect(result.current.isDeleting).toBe(true);
       });
 
@@ -598,9 +596,8 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await waitFor(() => result.current.onRemoveConfirm(mockIdentityProviders[0]!));
-
       await waitFor(() => {
+        result.current.onRemoveConfirm(mockIdentityProviders[0]!);
         expect(result.current.isRemoving).toBe(true);
       });
 
