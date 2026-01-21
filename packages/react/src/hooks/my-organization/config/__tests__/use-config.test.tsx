@@ -2,26 +2,23 @@ import { AVAILABLE_STRATEGY_LIST } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { createMockCoreClient } from '../../../../internals/__mocks__/core/core-client.mocks';
-import { useCoreClient } from '../../../use-core-client';
+import { mockCore } from '../../../../internals/test-setup';
+import * as useCoreClientModule from '../../../use-core-client';
 import { useConfig } from '../use-config';
 
-vi.mock('../../../use-core-client');
+const { initMockCoreClient } = mockCore();
 
 describe('useConfig', () => {
-  const mockCoreClient = createMockCoreClient();
-  const mockGet = vi.fn();
+  let mockGet: ReturnType<typeof vi.fn>;
+  let mockCoreClient: ReturnType<typeof initMockCoreClient>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    // Override the configuration.get method with our test mock
-    const mockMyOrganizationClient = mockCoreClient.getMyOrganizationApiClient();
-    mockMyOrganizationClient.organization.configuration.get = mockGet;
-
-    vi.mocked(useCoreClient).mockReturnValue({
+    mockCoreClient = initMockCoreClient();
+    vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
       coreClient: mockCoreClient,
     });
+    mockGet = vi.mocked(mockCoreClient.getMyOrganizationApiClient().organization.configuration.get);
   });
 
   it('should fetch config on mount', async () => {
@@ -168,15 +165,16 @@ describe('useConfig', () => {
 
     expect(mockGet).toHaveBeenCalledTimes(1);
 
-    result.current.fetchConfig();
-
     await waitFor(() => {
+      result.current.fetchConfig();
       expect(mockGet).toHaveBeenCalledTimes(2);
     });
   });
 
   it('should not fetch config when coreClient is not available', async () => {
-    vi.mocked(useCoreClient).mockReturnValue({ coreClient: null });
+    vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
+      coreClient: null,
+    });
 
     const { result } = renderHook(() => useConfig());
 
