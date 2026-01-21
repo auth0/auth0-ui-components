@@ -66,6 +66,10 @@ jobs:
           # Copy the built static files
           cp -r docs-site/dist/* /tmp/static-deploy/
 
+          # Copy the registry files from public (ensures we have the v1 structure)
+          mkdir -p /tmp/static-deploy/r
+          cp -r docs-site/public/r/* /tmp/static-deploy/r/
+
           # Copy the API serverless functions
           cp -r docs-site/api /tmp/static-deploy/
 
@@ -74,6 +78,8 @@ jobs:
 
           echo "Contents of deployment directory:"
           ls -la /tmp/static-deploy/
+          echo "Registry structure:"
+          ls -la /tmp/static-deploy/r/
           echo "Vercel config:"
           cat /tmp/static-deploy/vercel.json
 
