@@ -1,28 +1,21 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { createMockCoreClient } from '../../../../internals/__mocks__/core/core-client.mocks';
 import { useCoreClient } from '../../../use-core-client';
 import { useIdpConfig } from '../use-idp-config';
 
 vi.mock('../../../use-core-client');
 
 describe('useIdpConfig', () => {
+  const mockCoreClient = createMockCoreClient();
   const mockGet = vi.fn();
-  const mockCoreClient = {
-    getMyOrganizationApiClient: () => ({
-      organization: {
-        configuration: {
-          identityProviders: {
-            get: mockGet,
-          },
-        },
-      },
-    }),
-  };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useCoreClient as any).mockReturnValue({ coreClient: mockCoreClient });
+    const mockMyOrganizationClient = mockCoreClient.getMyOrganizationApiClient();
+    mockMyOrganizationClient.organization.configuration.identityProviders.get = mockGet;
+    vi.mocked(useCoreClient).mockReturnValue({ coreClient: mockCoreClient });
   });
 
   it('should fetch idp config on mount', async () => {
@@ -34,6 +27,7 @@ describe('useIdpConfig', () => {
         },
       },
     };
+
     mockGet.mockResolvedValue(mockIdpConfig);
 
     const { result } = renderHook(() => useIdpConfig());
@@ -156,7 +150,7 @@ describe('useIdpConfig', () => {
       expect(result.current.isLoadingIdpConfig).toBe(false);
     });
 
-    expect(result.current.isProvisioningEnabled('google-apps' as any)).toBe(false);
+    expect(result.current.isProvisioningEnabled('google-apps')).toBe(false);
   });
 
   it('should return true when scim provisioning method is enabled', async () => {
@@ -218,7 +212,7 @@ describe('useIdpConfig', () => {
 
     expect(mockGet).toHaveBeenCalledTimes(1);
 
-    result.current.fetchIdpConfig();
+    await waitFor(() => result.current.fetchIdpConfig());
 
     await waitFor(() => {
       expect(mockGet).toHaveBeenCalledTimes(2);
@@ -226,7 +220,7 @@ describe('useIdpConfig', () => {
   });
 
   it('should not fetch idp config when coreClient is not available', async () => {
-    (useCoreClient as any).mockReturnValue({ coreClient: null });
+    vi.mocked(useCoreClient).mockReturnValue({ coreClient: null });
 
     const { result } = renderHook(() => useIdpConfig());
 
