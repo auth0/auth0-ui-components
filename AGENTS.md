@@ -415,7 +415,7 @@ pnpm build
 
 ## Git Conventions
 
-### Commit Message Format (Conventional Commits)
+### Commit Message Format ([Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/))
 
 ```
 <type>(<scope>): <subject>
@@ -440,7 +440,9 @@ test(react): add MFA component tests
 
 ### Branch Naming
 
-Pattern: `{TICKET}-{description}` (e.g., `UIC-531-tooltip-for-toggle-action`)
+Pattern: `{type}/{description}` (e.g., `feat/UIC-531-tooltip-for-toggle-action`)
+
+**Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 ---
 
