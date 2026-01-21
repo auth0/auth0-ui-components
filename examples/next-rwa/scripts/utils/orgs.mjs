@@ -59,7 +59,7 @@ export async function checkOrgChanges(
       updates: {
         addConnection: true,
       },
-      summary: "Add connection to Org",
+      summary: "Add connection to Organization",
     })
   }
 
@@ -80,7 +80,7 @@ export async function checkOrgChanges(
 export async function applyOrgsChanges(changePlan, connection) {
   if (changePlan.action === ChangeAction.SKIP) {
     const spinner = ora({
-      text: `Org is up to date`,
+      text: `Organization is up to date`,
     }).start()
     spinner.succeed()
     return changePlan.existing
@@ -88,7 +88,7 @@ export async function applyOrgsChanges(changePlan, connection) {
 
   if (changePlan.action === ChangeAction.CREATE) {
     const spinner = ora({
-      text: `Creating Org`,
+      text: `Creating Organization`,
     }).start()
 
     try {
@@ -129,7 +129,7 @@ export async function applyOrgsChanges(changePlan, connection) {
 
   if (changePlan.action === ChangeAction.UPDATE) {
     const spinner = ora({
-      text: `Updating Org configuration`,
+      text: `Updating Organization configuration`,
     }).start()
 
     try {
@@ -147,10 +147,10 @@ export async function applyOrgsChanges(changePlan, connection) {
         )
       }
 
-      spinner.succeed("Updated Org configuration")
+      spinner.succeed("Updated Organization configuration")
       return existing
     } catch (e) {
-      spinner.fail(`Failed to update Org configuration`)
+      spinner.fail(`Failed to update Organization configuration`)
       throw e
     }
   }

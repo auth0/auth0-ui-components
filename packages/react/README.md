@@ -8,7 +8,7 @@ React component library for Auth0 integrations. Built with TypeScript, Radix UI,
 
 **What it provides:**
 
-- ⚛️ **React Components**: Pre-built UI components for Auth0 features (MFA management, org management etc.)
+- ⚛️ **React Components**: Pre-built UI components for Auth0 features (MFA management, organization management etc.)
 - 🎣 **Custom Hooks**: React hooks for component state management and API interactions
 - 🎨 **UI Elements**: Beautiful, accessible components built with Radix UI and Tailwind CSS, following shadcn design patterns
 - 🔄 **Providers**: React context providers for managing authentication, theme, and internationalization
@@ -54,7 +54,10 @@ For detailed setup instructions, follow the [Auth0 React Quickstart](https://aut
 
 ```tsx
 import { Auth0Provider } from '@auth0/auth0-react';
-import { Auth0ComponentProvider, OrgDetailsEdit } from '@auth0/universal-components-react/spa';
+import {
+  Auth0ComponentProvider,
+  OrganizationDetailsEdit,
+} from '@auth0/universal-components-react/spa';
 import '@auth0/universal-components-react/styles';
 
 function App() {
@@ -72,7 +75,7 @@ function App() {
         }}
         themeSettings={{ theme: 'default', mode: 'light' }}
       >
-        <OrgDetailsEdit />
+        <OrganizationDetailsEdit />
       </Auth0ComponentProvider>
     </Auth0Provider>
   );
@@ -107,15 +110,15 @@ export default function RootLayout({ children }) {
 ### Step 3: Use Components
 
 ```tsx
-import { OrgDetailsEdit } from '@auth0/universal-components-react/spa';
+import { OrganizationDetailsEdit } from '@auth0/universal-components-react/spa';
 // or
-import { OrgDetailsEdit } from '@auth0/universal-components-react/rwa';
+import { OrganizationDetailsEdit } from '@auth0/universal-components-react/rwa';
 
 function MyPage() {
   return (
     <div>
       <h1>Organization Settings</h1>
-      <OrgDetailsEdit />
+      <OrganizationDetailsEdit />
     </div>
   );
 }

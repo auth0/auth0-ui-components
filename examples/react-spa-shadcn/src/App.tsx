@@ -93,7 +93,7 @@ const App = () => {
                     }
                   />
                   <Route
-                    path="/org-management"
+                    path="/organization-management"
                     element={
                       <ProtectedRoute>
                         <OrganizationManagement />

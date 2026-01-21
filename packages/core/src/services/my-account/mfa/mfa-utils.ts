@@ -14,6 +14,7 @@ import type {
   ListFactorsResponseContent,
   ListAuthenticationMethodsResponseContent,
   CreateAuthenticationMethodRequestContent,
+  EnrolledFactor,
 } from './mfa-types';
 
 export function buildEnrollParams(
@@ -51,13 +52,6 @@ export function buildEnrollParams(
       throw new Error(`Unsupported factor type: ${factorType}`);
   }
 }
-
-type AuthenticationMethod =
-  ListAuthenticationMethodsResponseContent['authentication_methods'][number];
-
-type EnrolledFactor = AuthenticationMethod & {
-  type: MFAType;
-};
 
 function getFactorDisplayName(type: MFAType, enrolledFactor: EnrolledFactor): string {
   switch (type) {

@@ -1,13 +1,13 @@
 import type { MyAccountClient } from '@auth0/myaccount-js';
 import type { MyOrganizationClient } from '@auth0/myorganization-js';
 import { initializeMyAccountClient } from '@core/services/my-account/my-account-api-service';
-import { initializeMyOrgClient } from '@core/services/my-org/my-org-api-service';
+import { initializeMyOrganizationClient } from '@core/services/my-organization/my-organization-api-service';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createI18nService } from '../../i18n';
 import { createMockI18nService } from '../../i18n/__mocks__/i18n-service.mocks';
 import { createMockMyAccountClient } from '../../services/my-account/__tests__/__mocks__/my-account-api-service.mocks';
-import { createMockMyOrgClient } from '../../services/my-org/__tests__/__mocks__/my-org-api-service.mocks';
+import { createMockMyOrganizationClient } from '../../services/my-organization/__tests__/__mocks__/my-organization-api-service.mocks';
 import { createMockTokenManager } from '../__mocks__/token-manager.mocks';
 import type { AuthDetails } from '../auth-types';
 import { createCoreClient } from '../core-client';
@@ -16,20 +16,20 @@ import { createTokenManager } from '../token-manager';
 // Mock the modules
 vi.mock('../../i18n');
 vi.mock('../token-manager');
-vi.mock('@core/services/my-org/my-org-api-service');
+vi.mock('@core/services/my-organization/my-organization-api-service');
 vi.mock('@core/services/my-account/my-account-api-service');
 
 describe('createCoreClient', () => {
   // Create mock instances using mock utilities
   const mockI18nService = createMockI18nService();
   const mockTokenManager = createMockTokenManager();
-  const mockMyOrgClient = createMockMyOrgClient();
+  const mockMyOrganizationClient = createMockMyOrganizationClient();
   const mockMyAccountClient = createMockMyAccountClient();
 
   // Get the mocked functions
   const createI18nServiceMock = vi.mocked(createI18nService);
   const createTokenManagerMock = vi.mocked(createTokenManager);
-  const initializeMyOrgClientMock = vi.mocked(initializeMyOrgClient);
+  const initializeMyOrganizationClientMock = vi.mocked(initializeMyOrganizationClient);
   const initializeMyAccountClientMock = vi.mocked(initializeMyAccountClient);
 
   const createAuthDetails = (overrides: Partial<AuthDetails> = {}): AuthDetails => {
@@ -47,7 +47,7 @@ describe('createCoreClient', () => {
     // Setup default mock implementations
     createI18nServiceMock.mockResolvedValue(mockI18nService);
     createTokenManagerMock.mockReturnValue(mockTokenManager);
-    initializeMyOrgClientMock.mockReturnValue(mockMyOrgClient);
+    initializeMyOrganizationClientMock.mockReturnValue(mockMyOrganizationClient);
     initializeMyAccountClientMock.mockReturnValue(mockMyAccountClient);
 
     // Reset token manager mock to return successful token
@@ -141,7 +141,7 @@ describe('createCoreClient', () => {
 
       await client.ensureScopes('read:org', 'my-org');
 
-      expect(mockMyOrgClient.setLatestScopes).toHaveBeenCalledWith('read:org');
+      expect(mockMyOrganizationClient.setLatestScopes).toHaveBeenCalledWith('read:org');
       expect(mockTokenManager.getToken).not.toHaveBeenCalled();
     });
 
@@ -161,7 +161,7 @@ describe('createCoreClient', () => {
 
       await client.ensureScopes('read:something', 'unknown-audience');
 
-      expect(mockMyOrgClient.setLatestScopes).not.toHaveBeenCalled();
+      expect(mockMyOrganizationClient.setLatestScopes).not.toHaveBeenCalled();
       expect(mockMyAccountClient.setLatestScopes).not.toHaveBeenCalled();
       expect(mockTokenManager.getToken).not.toHaveBeenCalled();
     });
@@ -175,7 +175,7 @@ describe('createCoreClient', () => {
       await expect(client.ensureScopes('read:org', 'my-org')).rejects.toThrow(
         'Authentication domain is missing, cannot initialize SPA service.',
       );
-      expect(mockMyOrgClient.setLatestScopes).not.toHaveBeenCalled();
+      expect(mockMyOrganizationClient.setLatestScopes).not.toHaveBeenCalled();
       expect(mockTokenManager.getToken).not.toHaveBeenCalled();
     });
 
@@ -185,7 +185,7 @@ describe('createCoreClient', () => {
 
       await client.ensureScopes('read:org', 'my-org');
 
-      expect(mockMyOrgClient.setLatestScopes).toHaveBeenCalledWith('read:org');
+      expect(mockMyOrganizationClient.setLatestScopes).toHaveBeenCalledWith('read:org');
       expect(mockTokenManager.getToken).toHaveBeenCalledWith('read:org', 'my-org', true);
     });
 
@@ -215,7 +215,7 @@ describe('createCoreClient', () => {
 
       await client.ensureScopes('read:something', 'unknown-audience');
 
-      expect(mockMyOrgClient.setLatestScopes).not.toHaveBeenCalled();
+      expect(mockMyOrganizationClient.setLatestScopes).not.toHaveBeenCalled();
       expect(mockMyAccountClient.setLatestScopes).not.toHaveBeenCalled();
       // Token fetch still happens for unknown audiences in non-proxy mode
       expect(mockTokenManager.getToken).toHaveBeenCalledWith(
@@ -238,7 +238,10 @@ describe('createCoreClient', () => {
       const authDetails = createAuthDetails();
       await createCoreClient(authDetails);
 
-      expect(initializeMyOrgClientMock).toHaveBeenCalledWith(authDetails, mockTokenManager);
+      expect(initializeMyOrganizationClientMock).toHaveBeenCalledWith(
+        authDetails,
+        mockTokenManager,
+      );
     });
 
     it('initializes MyAccount client with auth and token manager', async () => {
@@ -257,11 +260,11 @@ describe('createCoreClient', () => {
       expect(client.myAccountApiClient).toBe(mockMyAccountClient.client);
     });
 
-    it('exposes myOrgApiClient directly on the client', async () => {
+    it('exposes myOrganizationApiClient directly on the client', async () => {
       const authDetails = createAuthDetails();
       const client = await createCoreClient(authDetails);
 
-      expect(client.myOrgApiClient).toBe(mockMyOrgClient.client);
+      expect(client.myOrganizationApiClient).toBe(mockMyOrganizationClient.client);
     });
 
     it('returns myAccountApiClient when available via getter', async () => {
@@ -271,11 +274,11 @@ describe('createCoreClient', () => {
       expect(client.getMyAccountApiClient()).toBe(mockMyAccountClient.client);
     });
 
-    it('returns myOrgApiClient when available via getter', async () => {
+    it('returns myOrganizationApiClient when available via getter', async () => {
       const authDetails = createAuthDetails();
       const client = await createCoreClient(authDetails);
 
-      expect(client.getMyOrgApiClient()).toBe(mockMyOrgClient.client);
+      expect(client.getMyOrganizationApiClient()).toBe(mockMyOrganizationClient.client);
     });
 
     it('throws when myAccountApiClient is not available', async () => {
@@ -292,16 +295,16 @@ describe('createCoreClient', () => {
       );
     });
 
-    it('throws when myOrgApiClient is not available', async () => {
-      initializeMyOrgClientMock.mockReturnValueOnce({
+    it('throws when myOrganizationApiClient is not available', async () => {
+      initializeMyOrganizationClientMock.mockReturnValueOnce({
         client: undefined as unknown as MyOrganizationClient,
         setLatestScopes: vi.fn(),
       });
       const authDetails = createAuthDetails();
       const client = await createCoreClient(authDetails);
 
-      expect(() => client.getMyOrgApiClient()).toThrow(
-        'myOrgApiClient is not enabled. Please ensure you are in an Auth0 Organization context.',
+      expect(() => client.getMyOrganizationApiClient()).toThrow(
+        'myOrganizationApiClient is not enabled. Please ensure you are in an Auth0 Organization context.',
       );
     });
   });

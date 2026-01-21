@@ -1,3 +1,3 @@
 export * from './my-account/mfa';
-export * from './my-org';
+export * from './my-organization';
 export * from './common';

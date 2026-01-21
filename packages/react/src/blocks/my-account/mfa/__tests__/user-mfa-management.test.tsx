@@ -429,13 +429,12 @@ describe('UserMFAMgmt', () => {
 
         // Verify callback was called with correct parameters
         expect(onErrorAction).toHaveBeenCalledTimes(1);
-        expect(onErrorAction).toHaveBeenCalledWith(
-          expect.objectContaining({
-            message: 'Failed to enroll factor',
-            statusCode: 400,
-          }),
-          'enroll',
-        );
+
+        const [errorArg, actionArg] = onErrorAction.mock.calls[0]!;
+        expect(actionArg).toBe('enroll');
+        expect(errorArg).toBeInstanceOf(Error);
+        // The error message is transformed to an i18n key
+        expect(errorArg.message).toBe('errors.totp.400');
       });
     });
 
@@ -486,13 +485,12 @@ describe('UserMFAMgmt', () => {
         );
 
         expect(onErrorAction).toHaveBeenCalledTimes(1);
-        expect(onErrorAction).toHaveBeenCalledWith(
-          expect.objectContaining({
-            message: 'Failed to delete factor',
-            statusCode: 403,
-          }),
-          'delete',
-        );
+
+        const [errorArg, actionArg] = onErrorAction.mock.calls[0]!;
+        expect(actionArg).toBe('delete');
+        expect(errorArg).toBeInstanceOf(Error);
+        // The error message is transformed to an i18n key
+        expect(errorArg.message).toBe('errors.delete_factor');
       });
     });
 
@@ -570,13 +568,11 @@ describe('UserMFAMgmt', () => {
           expect(onErrorAction).toHaveBeenCalled();
         });
 
-        expect(onErrorAction).toHaveBeenCalledWith(
-          expect.objectContaining({
-            message: 'Invalid OTP code',
-            statusCode: 400,
-          }),
-          'confirm',
-        );
+        const [errorArg, actionArg] = onErrorAction.mock.calls[0]!;
+        expect(actionArg).toBe('confirm');
+        expect(errorArg).toBeInstanceOf(Error);
+        // The error message is transformed to an i18n key
+        expect(errorArg.message).toBe('errors.totp.400');
       });
     });
   });

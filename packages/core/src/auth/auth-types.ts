@@ -111,7 +111,7 @@ export interface BaseCoreClientInterface {
 
 export interface CoreClientInterface extends BaseCoreClientInterface {
   myAccountApiClient: MyAccountClient | undefined;
-  myOrgApiClient: MyOrganizationClient | undefined;
+  myOrganizationApiClient: MyOrganizationClient | undefined;
   getMyAccountApiClient: () => MyAccountClient;
-  getMyOrgApiClient: () => MyOrganizationClient;
+  getMyOrganizationApiClient: () => MyOrganizationClient;
 }

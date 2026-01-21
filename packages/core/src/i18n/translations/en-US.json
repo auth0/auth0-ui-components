@@ -90,7 +90,9 @@
           },
           "actions": {
             "add_provider_button_text": "Add a Provider",
-            "view_provider_button_text": "View"
+            "view_provider_button_text": "View",
+            "enable_provider_tooltip": "Toggle to enable the domain for this provider",
+            "disable_provider_tooltip": "Toggle to disable the domain for this provider"
           }
         },
         "actions": {
@@ -143,8 +145,8 @@
       }
     }
   },
-  "org_management": {
-    "org_details": {
+  "organization_management": {
+    "organization_details": {
       "sections": {
         "settings": {
           "title": "Settings",
@@ -188,25 +190,25 @@
       "submit_button_label": "Save",
       "cancel_button_label": "Discard"
     },
-    "org_delete": {
-      "title": "Delete ${orgName}",
+    "organization_delete": {
+      "title": "Delete ${organizationName}",
       "description": "Once confirmed, this operation cannot be undone.",
       "delete_button_label": "Delete",
-      "modal_title": "Delete ${orgName}",
-      "modal_description": "Are you sure you want to delete ${orgName}? Users will be maintained but membership to this organization will be removed. Once confirmed, this action cannot be undone.",
-      "org_name_field_placeholder": "Type in the organization name",
-      "org_name_field_label": "Organization Name",
-      "org_name_field_error": "Please type \"${orgName}\" to confirm deletion",
+      "modal_title": "Delete ${organizationName}",
+      "modal_description": "Are you sure you want to delete ${organizationName}? Users will be maintained but membership to this organization will be removed. Once confirmed, this action cannot be undone.",
+      "organization_name_field_placeholder": "Type in the organization name",
+      "organization_name_field_label": "Organization Name",
+      "organization_name_field_error": "Please type \"${organizationName}\" to confirm deletion",
       "cancel_button_label": "Cancel"
     },
-    "org_details_edit": {
+    "organization_details_edit": {
       "header": {
         "back_button_text": "Back to Organizations",
-        "title": "${orgName}"
+        "title": "${organizationName}"
       },
-      "save_org_changes_message": "The changes have been saved for ${orgName}.",
-      "org_changes_error_message": "There was an issue processing your request. ${message}.",
-      "org_changes_error_message_generic": "There was an issue processing your request. Please try again or contact support if the issue persists."
+      "save_organization_changes_message": "The changes have been saved for ${organizationName}.",
+      "organization_changes_error_message": "There was an issue processing your request. ${message}.",
+      "organization_changes_error_message_generic": "There was an issue processing your request. Please try again or contact support if the issue persists."
     }
   },
   "idp_management": {
@@ -226,7 +228,9 @@
         "actions": {
           "edit_button_text": "Edit",
           "delete_button_text": "Delete",
-          "remove_button_text": "Remove from organization"
+          "remove_button_text": "Remove from organization",
+          "enabled_tooltip": "Toggle to disable provisioning",
+          "disabled_tooltip": "Toggle to enable provisioning"
         }
       },
       "create_consent_modal": {
@@ -556,7 +560,9 @@
               "title": "Provisioning",
               "description": "Set up provisioning to allow user profile syncing to your organization.",
               "guided_setup_button_label": "Guided Setup",
-              "enable_provisioning_tooltip": "Enable provider to create provisioning"
+              "provider_disabled_tooltip": "Enable provider to create provisioning",
+              "enable_provisioning_tooltip": "Toggle to enable provisioning",
+              "disable_provisioning_tooltip": "Toggle to disable provisioning"
             },
             "warning_alert_message": {
               "title": "Mappings for provisioning have been updated.",
@@ -659,6 +665,10 @@
                 "name": "Domain Name",
                 "status": "Status",
                 "verify": "Verify"
+              },
+              "actions": {
+                "enable_domain_tooltip": "Toggle to enable this domain",
+                "disable_domain_tooltip": "Toggle to disable this domain"
               },
               "domain_statuses": {
                 "pending": "Pending",

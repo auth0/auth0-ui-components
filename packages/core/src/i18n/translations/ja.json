@@ -90,7 +90,9 @@
           },
           "actions": {
             "add_provider_button_text": "プロバイダーを追加",
-            "view_provider_button_text": "表示"
+            "view_provider_button_text": "表示",
+            "enable_provider_tooltip": "トグルでこのプロバイダーのドメインを有効にします",
+            "disable_provider_tooltip": "トグルでこのプロバイダーのドメインを無効にします"
           }
         },
         "actions": {
@@ -143,8 +145,8 @@
       }
     }
   },
-  "org_management": {
-    "org_details": {
+  "organization_management": {
+    "organization_details": {
       "sections": {
         "settings": {
           "title": "設定",
@@ -188,25 +190,25 @@
       "submit_button_label": "保存",
       "cancel_button_label": "破棄"
     },
-    "org_delete": {
-      "title": "${orgName}を削除",
+    "organization_delete": {
+      "title": "${organizationName}を削除",
       "description": "一度確認すると、この操作は元に戻すことができません。",
       "delete_button_label": "削除",
-      "modal_title": "${orgName}を削除",
-      "modal_description": "${orgName}を削除してもよろしいですか？ユーザーは維持されますが、この組織へのメンバーシップは削除されます。一度確認すると、この操作は元に戻すことができません。",
-      "org_name_field_placeholder": "組織名を入力してください",
-      "org_name_field_label": "組織名",
-      "org_name_field_error": "削除を確認するために「${orgName}」と入力してください",
+      "modal_title": "${organizationName}を削除",
+      "modal_description": "${organizationName}を削除してもよろしいですか？ユーザーは維持されますが、この組織へのメンバーシップは削除されます。一度確認すると、この操作は元に戻すことができません。",
+      "organization_name_field_placeholder": "組織名を入力してください",
+      "organization_name_field_label": "組織名",
+      "organization_name_field_error": "削除を確認するために「${organizationName}」と入力してください",
       "cancel_button_label": "キャンセル"
     },
-    "org_details_edit": {
+    "organization_details_edit": {
       "header": {
         "back_button_text": "組織一覧に戻る",
-        "title": "${orgName}"
+        "title": "${organizationName}"
       },
-      "save_org_changes_message": "${orgName}の変更が保存されました。",
-      "org_changes_error_message": "リクエストの処理中に問題が発生しました。${message}.",
-      "org_changes_error_message_generic": "リクエストの処理中に問題が発生しました。再度お試しいただくか、問題が解決しない場合はサポートまでお問い合わせください。"
+      "save_organization_changes_message": "${organizationName}の変更が保存されました。",
+      "organization_changes_error_message": "リクエストの処理中に問題が発生しました。${message}.",
+      "organization_changes_error_message_generic": "リクエストの処理中に問題が発生しました。再度お試しいただくか、問題が解決しない場合はサポートまでお問い合わせください。"
     }
   },
   "idp_management": {
@@ -226,7 +228,9 @@
         "actions": {
           "edit_button_text": "編集",
           "delete_button_text": "削除",
-          "remove_button_text": "組織から削除"
+          "remove_button_text": "組織から削除",
+          "enabled_tooltip": "日本語でのプロビジョニングを無効にするには、トグルを切り替えてください。",
+          "disabled_tooltip": "日本語でのプロビジョニングを有効にするには、トグルを切り替えてください。"
         }
       },
       "create_consent_modal": {
@@ -556,7 +560,9 @@
               "title": "プロビジョニング",
               "description": "ユーザープロファイルを組織に同期するためのプロビジョニングを設定します。",
               "guided_setup_button_label": "ガイド付きセットアップ",
-              "enable_provisioning_tooltip": "プロビジョニングを作成するにはプロバイダーを有効にしてください"
+              "provider_disabled_tooltip": "プロビジョニングを作成するにはプロバイダーを有効にしてください",
+              "enable_provisioning_tooltip": "トグルでプロビジョニングを有効にします",
+              "disable_provisioning_tooltip": "トグルでプロビジョニングを無効にします"
             },
             "warning_alert_message": {
               "title": "プロビジョニングのマッピングが更新されました。",
@@ -659,6 +665,10 @@
                 "name": "ドメイン名",
                 "status": "ステータス",
                 "verify": "検証"
+              },
+              "actions": {
+                "enable_domain_tooltip": "トグルでこのドメインを有効にします",
+                "disable_domain_tooltip": "トグルでこのドメインを無効にします"
               },
               "domain_statuses": {
                 "pending": "保留中",

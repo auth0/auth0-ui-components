@@ -1,78 +1,8 @@
 import { describe, it, expect } from 'vitest';
 
-import { getStatusCode, hasApiErrorBody, isApiError, normalizeError } from '../api-error';
-import type { ApiError } from '../api-types';
+import { getStatusCode, hasApiErrorBody, normalizeError } from '../api-error';
 
 describe('api-error', () => {
-  describe('isApiError', () => {
-    it('should return true for valid ApiError with all required fields', () => {
-      const validApiError: ApiError = {
-        name: 'ApiError',
-        message: 'Something went wrong',
-        status: 500,
-      };
-      expect(isApiError(validApiError)).toBe(true);
-    });
-
-    it('should return true for ApiError with optional data property', () => {
-      const apiErrorWithData: ApiError = {
-        name: 'ApiError',
-        message: 'Bad request',
-        status: 400,
-        data: { error: 'invalid_request' },
-      };
-      expect(isApiError(apiErrorWithData)).toBe(true);
-    });
-
-    describe('invalid values', () => {
-      describe.each([
-        { value: null, description: 'null' },
-        { value: undefined, description: 'undefined' },
-        { value: '', description: 'empty string' },
-        { value: 'error message', description: 'string' },
-        { value: 123, description: 'number' },
-        { value: true, description: 'boolean' },
-        { value: [], description: 'array' },
-        { value: () => {}, description: 'function' },
-        { value: {}, description: 'empty object' },
-        { value: new Error('test'), description: 'Error instance' },
-      ])('when value is $description', ({ value }) => {
-        it('should return false', () => {
-          expect(isApiError(value)).toBe(false);
-        });
-      });
-
-      describe.each([
-        {
-          error: { message: 'test', status: 500 },
-          missing: 'name',
-        },
-        {
-          error: { name: 'ApiError', status: 500 },
-          missing: 'message',
-        },
-        {
-          error: { name: 'ApiError', message: 'test' },
-          missing: 'status',
-        },
-      ])('when $missing is missing', ({ error }) => {
-        it('should return false', () => {
-          expect(isApiError(error)).toBe(false);
-        });
-      });
-
-      describe.each([
-        { error: { name: 'Error', message: 'test', status: 500 }, issue: 'wrong name' },
-        { error: { name: 'ApiError', message: 123, status: 500 }, issue: 'non-string message' },
-        { error: { name: 'ApiError', message: 'test', status: '500' }, issue: 'non-number status' },
-      ])('when ApiError has $issue', ({ error }) => {
-        it('should return false', () => {
-          expect(isApiError(error)).toBe(false);
-        });
-      });
-    });
-  });
-
   describe('hasApiErrorBody', () => {
     describe('valid body property', () => {
       it('should return true for object body with various properties', () => {
@@ -126,89 +56,91 @@ describe('api-error', () => {
   });
 
   describe('normalizeError', () => {
-    describe('string errors', () => {
-      it('should return Error with the string as message', () => {
-        const result = normalizeError('Something went wrong');
-        expect(result).toBeInstanceOf(Error);
-        expect(result.message).toBe('Something went wrong');
-      });
-
-      it('should handle empty string', () => {
-        const result = normalizeError('');
-        expect(result.message).toBe('');
-      });
-    });
-
-    describe('Error instances', () => {
-      it('should return the same Error instance', () => {
-        const originalError = new Error('Original error');
-        expect(normalizeError(originalError)).toBe(originalError);
-      });
-
-      it('should preserve custom error types', () => {
-        class CustomError extends Error {
-          constructor(message: string) {
-            super(message);
-            this.name = 'CustomError';
-          }
-        }
-        const customError = new CustomError('Custom message');
-        const result = normalizeError(customError);
-        expect(result).toBe(customError);
-        expect(result.name).toBe('CustomError');
-      });
-    });
-
-    describe('ApiError handling', () => {
-      const baseApiError: ApiError = {
-        name: 'ApiError',
-        message: 'API request failed',
-        status: 400,
+    describe('errors with body property', () => {
+      const errorWithBody = {
+        body: {
+          detail: 'Invalid request parameters',
+          status: 400,
+        },
       };
 
-      it('should return Error with ApiError message', () => {
-        const result = normalizeError(baseApiError);
+      it('should return Error with body.detail as message', () => {
+        const result = normalizeError(errorWithBody);
         expect(result).toBeInstanceOf(Error);
-        expect(result.message).toBe('API request failed');
+        expect(result.message).toBe('Invalid request parameters');
       });
 
       describe('resolver option', () => {
         it('should use resolved message when resolver returns a value', () => {
-          const apiError: ApiError = {
-            ...baseApiError,
-            data: { error: 'invalid_token' },
+          const error = {
+            body: {
+              detail: 'Original detail',
+              status: 404,
+            },
           };
-          const resolver = (code: string) =>
-            code === 'invalid_token' ? 'Session expired' : undefined;
+          const resolver = (code: number) => (code === 404 ? 'Resource not found' : undefined);
 
-          expect(normalizeError(apiError, { resolver }).message).toBe('Session expired');
+          expect(normalizeError(error, { resolver }).message).toBe('Resource not found');
         });
 
-        it('should fall back to ApiError message when resolver returns undefined/null', () => {
-          const apiError: ApiError = { ...baseApiError, data: { error: 'unknown' } };
+        it('should fall back to body.detail when resolver returns undefined/null', () => {
+          const error = {
+            body: {
+              detail: 'Original detail',
+              status: 400,
+            },
+          };
           const resolver = () => undefined;
 
-          expect(normalizeError(apiError, { resolver }).message).toBe('API request failed');
+          expect(normalizeError(error, { resolver }).message).toBe('Original detail');
         });
 
-        it('should not call resolver when error code is missing or non-string', () => {
+        it('should not call resolver when status is missing or non-number', () => {
           let called = false;
           const resolver = () => {
             called = true;
             return 'Resolved';
           };
 
-          normalizeError(baseApiError, { resolver });
+          normalizeError({ body: { detail: 'test' } }, { resolver });
           expect(called).toBe(false);
 
-          normalizeError({ ...baseApiError, data: { error: 123 } }, { resolver });
+          normalizeError({ body: { detail: 'test', status: '400' } }, { resolver });
           expect(called).toBe(false);
+        });
+
+        it('should resolve different status codes correctly', () => {
+          const resolver = (code: number) => {
+            const messages: Record<number, string> = {
+              400: 'Bad Request',
+              401: 'Unauthorized',
+              403: 'Forbidden',
+              404: 'Not Found',
+              500: 'Internal Server Error',
+            };
+            return messages[code];
+          };
+
+          expect(normalizeError({ body: { status: 401 } }, { resolver }).message).toBe(
+            'Unauthorized',
+          );
+          expect(normalizeError({ body: { status: 403 } }, { resolver }).message).toBe('Forbidden');
+          expect(normalizeError({ body: { status: 500 } }, { resolver }).message).toBe(
+            'Internal Server Error',
+          );
         });
       });
 
-      it('should use ApiError message over fallbackMessage when available', () => {
-        const result = normalizeError(baseApiError, { fallbackMessage: 'Fallback' });
-        expect(result.message).toBe('API request failed');
+      it('should use fallbackMessage when body.detail is missing', () => {
+        const error = { body: { status: 400 } };
+        const result = normalizeError(error, { fallbackMessage: 'Custom fallback' });
+        expect(result.message).toBe('Custom fallback');
+      });
+
+      it('should use "Unknown API error" when no detail or fallback provided', () => {
+        const error = { body: { status: 400 } };
+        const result = normalizeError(error);
+        expect(result.message).toBe('Unknown API error');
       });
     });
 
@@ -236,15 +168,22 @@ describe('api-error', () => {
     });
 
     describe('edge cases', () => {
-      it('should handle ApiError with empty data object', () => {
-        const apiError: ApiError = { name: 'ApiError', message: 'Error', status: 400, data: {} };
-        expect(normalizeError(apiError).message).toBe('Error');
+      it('should handle error with body but no detail', () => {
+        const error = { body: {} };
+        expect(normalizeError(error).message).toBe('Unknown API error');
+      });
+
+      it('should handle error with body.detail but no status', () => {
+        const error = { body: { detail: 'Error message' } };
+        expect(normalizeError(error).message).toBe('Error message');
       });
 
       it('should handle various option combinations', () => {
         expect(normalizeError({}, {}).message).toBe('An unknown error occurred');
         expect(normalizeError({}, undefined).message).toBe('An unknown error occurred');
-        expect(normalizeError('error', { resolver: () => 'r' }).message).toBe('error');
+        expect(normalizeError({}, { resolver: () => 'r' }).message).toBe(
+          'An unknown error occurred',
+        );
       });
     });
   });

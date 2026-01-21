@@ -342,7 +342,7 @@ describe('token-manager', () => {
     });
 
     describe('error handling with fallback', () => {
-      it('should use popup with consent prompt for consent_required error', async () => {
+      it('should use popup for consent_required error', async () => {
         const mockToken = 'popup-token';
         vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue({
           error: 'consent_required',
@@ -358,33 +358,50 @@ describe('token-manager', () => {
           authorizationParams: {
             audience: 'https://example.auth0.com/management/',
             scope: 'read:users',
-            prompt: 'consent',
           },
         });
       });
 
-      it('should use popup with login prompt for login_required error', async () => {
-        const mockToken = 'popup-token';
+      it('should redirect to login for login_required error', async () => {
+        // Mock window.location using vi.stubGlobal for proper cleanup
+        vi.stubGlobal('window', {
+          location: {
+            href: 'https://example.com/dashboard?param=value#section',
+            pathname: '/dashboard',
+            search: '?param=value',
+            hash: '#section',
+          },
+        });
+
         vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue({
           error: 'login_required',
         });
-        vi.mocked(mockContextInterface.getAccessTokenWithPopup).mockResolvedValue(mockToken);
+        // loginWithRedirect initiates a redirect and doesn't return normally
+        vi.mocked(mockContextInterface.loginWithRedirect).mockResolvedValue(undefined);
 
         const auth = createAuthConfig();
         const tokenManager = createTokenManager(auth);
-        const token = await tokenManager.getToken('read:users', 'management');
 
-        expect(token).toBe(mockToken);
-        expect(mockContextInterface.getAccessTokenWithPopup).toHaveBeenCalledWith({
+        // The function will throw after loginWithRedirect completes since it falls through
+        await expect(tokenManager.getToken('read:users', 'management')).rejects.toThrow(
+          'getAccessToken: failed',
+        );
+
+        expect(mockContextInterface.loginWithRedirect).toHaveBeenCalledWith({
           authorizationParams: {
             audience: 'https://example.auth0.com/management/',
             scope: 'read:users',
-            prompt: 'login',
+          },
+          appState: {
+            returnTo: '/dashboard?param=value#section',
           },
         });
+        expect(mockContextInterface.getAccessTokenWithPopup).not.toHaveBeenCalled();
+
+        vi.unstubAllGlobals();
       });
 
-      it('should use popup with consent prompt for mfa_required error', async () => {
+      it('should use popup for mfa_required error', async () => {
         const mockToken = 'popup-token';
         vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue({
           error: 'mfa_required',
@@ -400,7 +417,6 @@ describe('token-manager', () => {
           authorizationParams: {
             audience: 'https://example.auth0.com/management/',
             scope: 'read:users',
-            prompt: 'consent',
           },
         });
       });

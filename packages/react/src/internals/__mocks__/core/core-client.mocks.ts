@@ -5,8 +5,8 @@ import {
   createMockAvailableFactors,
   createMockEmptyAuthenticationMethods,
 } from '../my-account/mfa/mfa.mocks';
-import { createMockIdentityProvider } from '../my-org/domain-management/domain.mocks';
-import { createMockOrganization } from '../my-org/org-management/org-details.mocks';
+import { createMockIdentityProvider } from '../my-organization/domain-management/domain.mocks';
+import { createMockOrganization } from '../my-organization/organization-management/organization-details.mocks';
 
 import { createMockAuth } from './auth.mocks';
 import { createMockI18nService } from './i18n-service.mocks';
@@ -28,7 +28,7 @@ const createMockMyAccountApiService = (): CoreClientInterface['myAccountApiClien
   } as unknown as CoreClientInterface['myAccountApiClient'];
 };
 
-const createMockMyOrgApiService = (): CoreClientInterface['myOrgApiClient'] => {
+const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClient'] => {
   const mockOrganization = createMockOrganization();
   const mockProvider = createMockIdentityProvider();
 
@@ -96,7 +96,7 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrgApiClient'] => {
         },
       },
     },
-  } as unknown as CoreClientInterface['myOrgApiClient'];
+  } as unknown as CoreClientInterface['myOrganizationApiClient'];
 };
 
 export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreClientInterface => {
@@ -107,11 +107,13 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
     auth: createMockAuth(authDetails),
     i18nService: createMockI18nService(),
     myAccountApiClient: mockMyAccountApiService as CoreClientInterface['myAccountApiClient'],
-    myOrgApiClient: mockMyOrgApiService as CoreClientInterface['myOrgApiClient'],
+    myOrganizationApiClient: mockMyOrgApiService as CoreClientInterface['myOrganizationApiClient'],
     getMyAccountApiClient: vi.fn(
       () => mockMyAccountApiService,
     ) as CoreClientInterface['getMyAccountApiClient'],
-    getMyOrgApiClient: vi.fn(() => mockMyOrgApiService) as CoreClientInterface['getMyOrgApiClient'],
+    getMyOrganizationApiClient: vi.fn(
+      () => mockMyOrgApiService,
+    ) as CoreClientInterface['getMyOrganizationApiClient'],
     getToken: async () => {
       return 'mock-access-token';
     },
