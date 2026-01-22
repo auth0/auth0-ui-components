@@ -6,8 +6,11 @@ import { showToast } from '../components/ui/toast';
 import { useTranslator } from './use-translator';
 
 interface ErrorHandlerOptions {
+  /** Custom error message to display in any case */
   errorMessage?: string;
+  /** Fallback error message to display if the error is not a BusinessError or known API generic error */
   fallbackMessage?: string;
+  /** Allow not to display toast notification for the error */
   showToastNotification?: boolean;
 }
 
