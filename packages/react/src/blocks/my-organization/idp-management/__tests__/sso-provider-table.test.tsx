@@ -70,8 +70,8 @@ const createMockDeleteFromOrganizationAction = (): ComponentAction<IdentityProvi
 // ===== Local utils =====
 
 const waitForComponentToLoad = async () => {
-  return await waitFor(() => {
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText(/loading\.\.\./i)).not.toBeInTheDocument();
   });
 };
 
@@ -833,8 +833,20 @@ describe('SsoProviderTable', () => {
 
     describe('when no providers exist', () => {
       it('should display empty state', async () => {
-        renderWithProviders(<SsoProviderTable {...createMockSsoProviderTableProps()} />);
+        mockCoreClient = initMockCoreClient();
 
+        const apiService = mockCoreClient.getMyOrganizationApiClient();
+        (
+          apiService.organization.identityProviders.list as ReturnType<typeof vi.fn>
+        ).mockResolvedValue({
+          identity_providers: [],
+        });
+
+        vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
+          coreClient: mockCoreClient,
+        });
+
+        renderWithProviders(<SsoProviderTable {...createMockSsoProviderTableProps()} />);
         await waitForComponentToLoad();
 
         expect(screen.getByText(/table.empty_message/i)).toBeInTheDocument();
