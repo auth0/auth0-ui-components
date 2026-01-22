@@ -28,14 +28,32 @@ import { cn } from '../../../lib/theme-utils';
 import type { UserMFAMgmtProps } from '../../../types/my-account/mfa/mfa-types';
 
 /**
- * UserMFAMgmt Component
+ * UserMFAMgmtComponent - Internal MFA Management Component
  *
  * A component responsible for managing Multi-Factor Authentication (MFA) factors for a user.
- * This component handles fetching the MFA access token, fetching authenticators, enrolling, and deletion of MFA factors, and manages the MFA access token.
- * It operates in both ProxyMode (RWA) and SPA modes for authentication.
+ * This component handles fetching the MFA access token, fetching authenticators, enrolling,
+ * and deletion of MFA factors, and manages the MFA access token.
+ *
+ * It operates in both ProxyMode (RWA) and SPA modes for authentication:
  * - **ProxyMode (RWA)**: In this mode, the component interacts with a proxy service to manage MFA
  * - **SPA (Single Page Application)**: In this mode, the component communicates directly with the API to manage MFA factors.
  *
+ * @param props - The component props.
+ * @param props.customMessages - Custom translation messages to override default MFA messages.
+ * @param props.styling - Custom styling configuration with CSS variables and class overrides.
+ * @param props.hideHeader - Whether to hide the component header.
+ * @param props.showActiveOnly - Whether to show only active (enrolled) MFA factors.
+ * @param props.disableEnroll - Whether to disable the ability to enroll new MFA factors.
+ * @param props.disableDelete - Whether to disable the ability to delete existing MFA factors.
+ * @param props.readOnly - Whether the component should be in read-only mode.
+ * @param props.factorConfig - Configuration for individual MFA factor types visibility and enabled state.
+ * @param props.onEnroll - Callback invoked after a factor is successfully enrolled.
+ * @param props.onDelete - Callback invoked after a factor is successfully deleted.
+ * @param props.onFetch - Callback invoked after factors are successfully fetched.
+ * @param props.onErrorAction - Callback invoked when an error occurs during an MFA action.
+ * @param props.onBeforeAction - Callback invoked before an MFA action is performed; return false to cancel.
+ * @param props.schema - Validation schema for email and phone number inputs.
+ * @returns The rendered MFA management component.
  * @internal
  */
 function UserMFAMgmtComponent({
@@ -125,13 +143,18 @@ function UserMFAMgmtComponent({
    * Handles the enrollment button click for a specific MFA factor.
    * Opens the enrollment dialog for the chosen factor.
    *
-   * @param factor - The MFA factor to be enrolled.
+   * @param factor - The MFA factor type to be enrolled.
    */
   const handleEnroll = (factor: MFAType) => {
     setEnrollFactor(factor);
     setDialogOpen(true);
   };
 
+  /**
+   * Handles closing the enrollment dialog.
+   * Reloads factors if closing a push notification enrollment to ensure
+   * the latest enrollment state is reflected.
+   */
   const handleCloseDialog = React.useCallback(() => {
     setDialogOpen(false);
 
@@ -228,7 +251,10 @@ function UserMFAMgmtComponent({
 
   /**
    * Handles the successful enrollment of an MFA factor.
-   * Displays a success message and reloads the factors list.
+   * Displays a success toast notification, invokes the onEnroll callback,
+   * and reloads the factors list to reflect the new enrollment.
+   *
+   * @returns A promise that resolves when the success handling is complete.
    */
   const handleEnrollSuccess = React.useCallback(async () => {
     setDialogOpen(false);
@@ -249,9 +275,10 @@ function UserMFAMgmtComponent({
 
   /**
    * Handles errors during the enrollment or confirmation process.
+   * Displays an error toast notification and invokes the onErrorAction callback.
    *
    * @param error - The error object containing the failure message.
-   * @param stage - The stage of the process ('enroll' or 'confirm').
+   * @param stage - The stage of the process where the error occurred ('enroll' or 'confirm').
    */
   const handleEnrollError = React.useCallback(
     (error: Error, stage: typeof ENROLL | typeof CONFIRM) => {

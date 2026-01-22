@@ -65,8 +65,7 @@ const TokenUtils = {
    * Validates the parameters required for a token request.
    *
    * @param auth - The authentication details containing domain configuration
-   * @param scope - The OAuth scope being requested
-   * @throws {Error} When domain is not configured or scope is missing
+   * @throws {Error} When domain is not configured
    */
   validateTokenRequest(auth: AuthDetails): void {
     if (!auth.domain) {

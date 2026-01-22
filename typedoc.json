@@ -20,7 +20,7 @@
   "validation": {
     "notExported": true,
     "invalidLink": true,
-    "notDocumented": false
+    "notDocumented": true
   },
   "exclude": [
     "**/node_modules/**",

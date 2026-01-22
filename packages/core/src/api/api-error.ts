@@ -42,9 +42,9 @@ export function hasApiErrorBody(
  * function to map API error codes to user-friendly messages.
  *
  * @param error - The unknown error object or value to normalize.
- * @param options - Optional settings including:
- *   - resolver: A function that maps error codes to user-friendly messages.
- *   - fallbackMessage: A default message used when the error cannot be mapped.
+ * @param options - Optional settings for error normalization.
+ * @param options.resolver - A function that maps error codes to user-friendly messages.
+ * @param options.fallbackMessage - A default message used when the error cannot be mapped.
  * @returns A standard Error object with an appropriate message.
  */
 export function normalizeError(

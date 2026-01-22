@@ -47,6 +47,7 @@ let globalToastSettings: ToastSettings = {
 
 /**
  * Sets global toast configuration. Called by Auth0ComponentProvider.
+ * @param settings
  * @internal
  */
 export const setGlobalToastSettings = (settings?: ToastSettings): void => {
@@ -109,11 +110,12 @@ const createDefaultIcon = (type: ToastType): ReactNode => {
 /**
  * Shows a toast notification using the configured provider.
  *
- * @param type - The type of toast ('success', 'error', 'info', 'warning', 'loading')
- * @param message - The message to display in the toast
- * @param className - Optional CSS class name for custom styling
- * @param icon - Optional custom icon to display
- * @param data - Additional options passed to the toast provider
+ * @param options - The toast configuration options
+ * @param options.type - The type of toast ('success', 'error', 'info', 'warning', 'loading')
+ * @param options.message - The message to display in the toast
+ * @param options.className - Optional CSS class name for custom styling
+ * @param options.icon - Optional custom icon to display
+ * @param options.data - Additional options passed to the toast provider
  * @returns The toast instance ID or result from custom method
  */
 export const showToast = ({

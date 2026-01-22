@@ -11,6 +11,22 @@ import type {
 import type { ENROLL, CONFIRM } from '../../../lib/mfa-constants';
 
 /**
+ * Configuration options for an individual MFA factor type.
+ */
+export interface FactorConfigOptions {
+  /** Whether the factor type should be visible in the UI */
+  visible?: boolean;
+  /** Whether the factor type can be enrolled/deleted */
+  enabled?: boolean;
+}
+
+/**
+ * Configuration object for MFA factor types.
+ * Maps each MFA factor type to its visibility and enabled settings.
+ */
+export type FactorConfig = Partial<Record<MFAType, FactorConfigOptions>>;
+
+/**
  * CSS class names for customizing the UserMFAMgmt component styling.
  *
  * @example
@@ -86,15 +102,11 @@ export interface UserMFAMgmtProps
    *   otp: { visible: false },
    * }}
    * ```
+   *
+   * @see {@link FactorConfig} for the type definition
+   * @see {@link FactorConfigOptions} for available options per factor
    */
-  factorConfig?: {
-    [key in MFAType]?: {
-      /** Whether the factor type should be visible in the UI */
-      visible?: boolean;
-      /** Whether the factor type can be enrolled/deleted */
-      enabled?: boolean;
-    };
-  };
+  factorConfig?: FactorConfig;
 
   /**
    * Callback invoked after a factor is successfully enrolled.
