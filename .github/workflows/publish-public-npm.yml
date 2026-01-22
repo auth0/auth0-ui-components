@@ -24,7 +24,7 @@ on:
         description: "NPM dist-tag (auto = detect from version)"
         required: false
         type: choice
-        default: "auto"
+        default: "latest"
         options:
           - "auto"
           - "latest"
@@ -214,7 +214,6 @@ jobs:
           (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'core')
         working-directory: ./packages/core
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           current_version=$(node -p "require('./package.json').version")
@@ -228,7 +227,7 @@ jobs:
 
             echo "Published @auth0/universal-components-core@$current_version (dry run)"
           else
-            pnpm publish --no-git-checks --tag="$CORE_TAG"
+            pnpm publish --provenance --no-git-checks --tag="$CORE_TAG"
             echo "published=true" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
             echo "Published @auth0/universal-components-core@$current_version"
@@ -240,7 +239,6 @@ jobs:
           (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'react')
         working-directory: ./packages/react
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           current_version=$(node -p "require('./package.json').version")
@@ -252,7 +250,7 @@ jobs:
             echo "published=dry-run" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
           else
-            pnpm publish --no-git-checks --tag="$REACT_TAG"
+            pnpm publish --provenance --no-git-checks --tag="$REACT_TAG"
             echo "published=true" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
             echo "Published @auth0/universal-components-react@$current_version"
@@ -314,6 +312,19 @@ jobs:
 
           if [ "${{ steps.publish-core.outputs.published }}" = "true" ]; then
             TAG_NAME="core@$CORE_VER"
+            
+            # Check if tag exists locally and delete it
+            if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+              echo "Tag $TAG_NAME exists locally, deleting..."
+              git tag -d "$TAG_NAME"
+            fi
+            
+            # Check if tag exists remotely and delete it
+            if git ls-remote --tags origin | grep -q "refs/tags/$TAG_NAME"; then
+              echo "Tag $TAG_NAME exists remotely, deleting..."
+              git push origin ":refs/tags/$TAG_NAME" || true
+            fi
+            
             git tag -a "$TAG_NAME" -m "Release @auth0/universal-components-core@$CORE_VER"
             git push origin "$TAG_NAME"
             echo "Created tag: $TAG_NAME"
@@ -321,6 +332,19 @@ jobs:
 
           if [ "${{ steps.publish-react.outputs.published }}" = "true" ]; then
             TAG_NAME="react@$REACT_VER"
+            
+            # Check if tag exists locally and delete it
+            if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+              echo "Tag $TAG_NAME exists locally, deleting..."
+              git tag -d "$TAG_NAME"
+            fi
+            
+            # Check if tag exists remotely and delete it
+            if git ls-remote --tags origin | grep -q "refs/tags/$TAG_NAME"; then
+              echo "Tag $TAG_NAME exists remotely, deleting..."
+              git push origin ":refs/tags/$TAG_NAME" || true
+            fi
+            
             git tag -a "$TAG_NAME" -m "Release @auth0/universal-components-react@$REACT_VER"
             git push origin "$TAG_NAME"
             echo "Created tag: $TAG_NAME"

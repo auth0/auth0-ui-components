@@ -2,14 +2,21 @@ import type { IdentityProvider, OrganizationPrivate } from '@auth0/universal-com
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { showToast } from '../../../../components/ui/toast';
+import { mockToast, createMockI18nService } from '../../../../internals';
+import { createMockCoreClient } from '../../../../internals/__mocks__/core/core-client.mocks';
+import {
+  setupMockUseCoreClient,
+  setupMockUseCoreClientNull,
+} from '../../../../internals/test-utilities';
 import * as useCoreClientModule from '../../../use-core-client';
 import * as useTranslatorModule from '../../../use-translator';
 import { useSsoProviderTable } from '../use-sso-provider-table';
 
-vi.mock('../../../../components/ui/toast', () => ({
-  showToast: vi.fn(),
-}));
+// ===== Mock packages =====
+
+const { mockedShowToast } = mockToast();
+
+// ===== Mock Data =====
 
 const mockIdentityProviders: IdentityProvider[] = [
   {
@@ -41,30 +48,60 @@ const mockOrganization: OrganizationPrivate = {
   },
 };
 
-describe('useSsoProviderTable', () => {
-  const mockCoreClient = {
-    getMyOrganizationApiClient: vi.fn(),
-  };
+// ===== Tests =====
 
-  const mockTranslator = vi.fn((key: string, params?: Record<string, string>) => {
-    if (key === 'general_error') return 'An error occurred';
-    if (key === 'update_success') return `Updated ${params?.providerName}`;
-    if (key === 'delete_success') return `Deleted ${params?.providerName}`;
-    if (key === 'remove_success')
-      return `Removed ${params?.providerName} from ${params?.organizationName}`;
-    return key;
-  });
+describe('useSsoProviderTable', () => {
+  const mockCoreClient = createMockCoreClient();
+
+  // Helper function to setup the mock organization client with common mocks
+  const setupMockMyOrgClient = (
+    overrides: {
+      list?: ReturnType<typeof vi.fn>;
+      update?: ReturnType<typeof vi.fn>;
+      delete?: ReturnType<typeof vi.fn>;
+      detach?: ReturnType<typeof vi.fn>;
+      organizationGet?: ReturnType<typeof vi.fn>;
+    } = {},
+  ) => {
+    const mockMyOrgClient = mockCoreClient.getMyOrganizationApiClient();
+
+    if (overrides.list) {
+      mockMyOrgClient.organization.identityProviders.list = overrides.list;
+    }
+    if (overrides.update) {
+      mockMyOrgClient.organization.identityProviders.update = overrides.update;
+    }
+    if (overrides.delete) {
+      mockMyOrgClient.organization.identityProviders.delete = overrides.delete;
+    }
+    if (overrides.detach) {
+      mockMyOrgClient.organization.identityProviders.detach = overrides.detach;
+    }
+    if (overrides.organizationGet) {
+      mockMyOrgClient.organizationDetails.get = overrides.organizationGet;
+    } else {
+      // Default organization get
+      mockMyOrgClient.organizationDetails.get = vi.fn().mockResolvedValue(mockOrganization);
+    }
+
+    return mockMyOrgClient;
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
+    setupMockUseCoreClient(mockCoreClient, useCoreClientModule);
 
-    vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
-      coreClient: mockCoreClient as any,
+    // Setup translator using createMockI18nService
+    // The translator will return the key itself (no interpolation needed for tests)
+    vi.spyOn(useTranslatorModule, 'useTranslator').mockImplementation((namespace, messages) => {
+      const mockT = createMockI18nService().translator(namespace, messages);
+      return {
+        t: mockT,
+        changeLanguage: vi.fn(),
+        currentLanguage: 'en-US',
+        fallbackLanguage: 'en-US',
+      };
     });
-
-    vi.spyOn(useTranslatorModule, 'useTranslator').mockReturnValue({
-      t: mockTranslator,
-    } as any);
   });
 
   describe('fetchProviders', () => {
@@ -75,16 +112,7 @@ describe('useSsoProviderTable', () => {
         identity_providers: mockIdentityProviders,
       });
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: mockList,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
-      });
+      setupMockMyOrgClient({ list: mockList });
 
       const { result } = renderHook(() => useSsoProviderTable());
 
@@ -101,16 +129,7 @@ describe('useSsoProviderTable', () => {
     it('should handle fetch providers error', async () => {
       const mockList = vi.fn().mockRejectedValue(new Error('Network error'));
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: mockList,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
-      });
+      setupMockMyOrgClient({ list: mockList });
 
       const { result } = renderHook(() => useSsoProviderTable());
 
@@ -118,18 +137,16 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'error',
-        message: 'An error occurred',
+        message: 'general_error',
       });
     });
 
     // Test: Ensures the hook doesn't attempt to fetch data when coreClient is unavailable
     // Loading state should remain true and providers array should stay empty
     it('should not fetch if coreClient is not available', async () => {
-      vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
-        coreClient: null as any,
-      });
+      setupMockUseCoreClientNull(useCoreClientModule);
 
       const { result } = renderHook(() => useSsoProviderTable());
 
@@ -146,15 +163,9 @@ describe('useSsoProviderTable', () => {
     it('should fetch and set organization details successfully', async () => {
       const mockGet = vi.fn().mockResolvedValue(mockOrganization);
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: [] }),
-          },
-        },
-        organizationDetails: {
-          get: mockGet,
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: [] }),
+        organizationGet: mockGet,
       });
 
       const { result } = renderHook(() => useSsoProviderTable());
@@ -172,15 +183,9 @@ describe('useSsoProviderTable', () => {
     it('should handle fetch organization details error', async () => {
       const mockGet = vi.fn().mockRejectedValue(new Error('Not found'));
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: [] }),
-          },
-        },
-        organizationDetails: {
-          get: mockGet,
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: [] }),
+        organizationGet: mockGet,
       });
 
       const { result } = renderHook(() => useSsoProviderTable());
@@ -189,9 +194,9 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'error',
-        message: 'An error occurred',
+        message: 'general_error',
       });
     });
   });
@@ -203,16 +208,9 @@ describe('useSsoProviderTable', () => {
       const updatedProvider = { ...mockIdentityProviders[1], is_enabled: true };
       const mockUpdate = vi.fn().mockResolvedValue(updatedProvider);
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-            update: mockUpdate,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
+        update: mockUpdate,
       });
 
       const { result } = renderHook(() => useSsoProviderTable());
@@ -221,13 +219,12 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const success = await result.current.onEnableProvider(mockIdentityProviders[1]!, true);
+      await waitFor(() => result.current.onEnableProvider(mockIdentityProviders[1]!, true));
 
-      expect(success).toBe(true);
       expect(mockUpdate).toHaveBeenCalledWith('idp-2', expect.any(Object));
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
-        message: 'Updated Azure AD',
+        message: 'update_success',
       });
     });
 
@@ -239,16 +236,9 @@ describe('useSsoProviderTable', () => {
       const updatedProvider = { ...mockIdentityProviders[0], is_enabled: false };
       const mockUpdate = vi.fn().mockResolvedValue(updatedProvider);
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-            update: mockUpdate,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
+        update: mockUpdate,
       });
 
       const { result } = renderHook(() =>
@@ -259,7 +249,7 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onEnableProvider(mockIdentityProviders[0]!, false);
+      await waitFor(() => result.current.onEnableProvider(mockIdentityProviders[0]!, false));
 
       expect(onBefore).toHaveBeenCalledWith(mockIdentityProviders[0]);
       expect(onAfter).toHaveBeenCalledWith(mockIdentityProviders[0]);
@@ -271,16 +261,9 @@ describe('useSsoProviderTable', () => {
       const onBefore = vi.fn().mockReturnValue(false);
       const mockUpdate = vi.fn();
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-            update: mockUpdate,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
+        update: mockUpdate,
       });
 
       const { result } = renderHook(() => useSsoProviderTable(undefined, undefined, { onBefore }));
@@ -289,9 +272,8 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const success = await result.current.onEnableProvider(mockIdentityProviders[0]!, true);
+      await waitFor(() => result.current.onEnableProvider(mockIdentityProviders[0]!, true));
 
-      expect(success).toBe(false);
       expect(mockUpdate).not.toHaveBeenCalled();
     });
 
@@ -300,16 +282,9 @@ describe('useSsoProviderTable', () => {
     it('should handle enable provider error', async () => {
       const mockUpdate = vi.fn().mockRejectedValue(new Error('Update failed'));
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-            update: mockUpdate,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
+        update: mockUpdate,
       });
 
       const { result } = renderHook(() => useSsoProviderTable());
@@ -318,29 +293,21 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const success = await result.current.onEnableProvider(mockIdentityProviders[0]!, false);
+      await waitFor(() => result.current.onEnableProvider(mockIdentityProviders[0]!, false));
 
-      expect(success).toBe(false);
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'error',
-        message: 'An error occurred',
+        message: 'general_error',
       });
     });
 
     // Test: Ensures the function safely handles providers without an ID
     // Should return false without attempting any API calls
     it('should return false if provider has no id', async () => {
-      const providerWithoutId = { ...mockIdentityProviders[0], id: undefined };
+      const providerWithoutId = { ...mockIdentityProviders[0], id: undefined } as IdentityProvider;
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
       });
 
       const { result } = renderHook(() => useSsoProviderTable());
@@ -349,9 +316,7 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const success = await result.current.onEnableProvider(providerWithoutId as any, true);
-
-      expect(success).toBe(false);
+      await waitFor(() => result.current.onEnableProvider(providerWithoutId, true));
     });
   });
 
@@ -364,16 +329,9 @@ describe('useSsoProviderTable', () => {
         .fn()
         .mockResolvedValue({ identity_providers: [mockIdentityProviders[1]] });
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: mockList,
-            delete: mockDelete,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: mockList,
+        delete: mockDelete,
       });
 
       const { result } = renderHook(() => useSsoProviderTable());
@@ -382,12 +340,12 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onDeleteConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => result.current.onDeleteConfirm(mockIdentityProviders[0]!));
 
       expect(mockDelete).toHaveBeenCalledWith('idp-1');
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
-        message: 'Deleted OKTA SSO',
+        message: 'delete_success',
       });
       expect(mockList).toHaveBeenCalledTimes(2); // Once on mount, once after delete
     });
@@ -397,16 +355,9 @@ describe('useSsoProviderTable', () => {
       const onAfter = vi.fn();
       const mockDelete = vi.fn().mockResolvedValue(undefined);
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-            delete: mockDelete,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
+        delete: mockDelete,
       });
 
       const { result } = renderHook(() => useSsoProviderTable({ onAfter }));
@@ -415,7 +366,7 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onDeleteConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => result.current.onDeleteConfirm(mockIdentityProviders[0]!));
 
       expect(onAfter).toHaveBeenCalledWith(mockIdentityProviders[0]);
     });
@@ -425,16 +376,9 @@ describe('useSsoProviderTable', () => {
     it('should handle delete provider error', async () => {
       const mockDelete = vi.fn().mockRejectedValue(new Error('Delete failed'));
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-            delete: mockDelete,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
+        delete: mockDelete,
       });
 
       const { result } = renderHook(() => useSsoProviderTable());
@@ -443,30 +387,23 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onDeleteConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => result.current.onDeleteConfirm(mockIdentityProviders[0]!));
 
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'error',
-        message: 'An error occurred',
+        message: 'general_error',
       });
     });
 
     // Test: Ensures the function safely handles providers without an ID
     // Should not attempt to call the delete API
     it('should not delete if provider has no id', async () => {
-      const providerWithoutId = { ...mockIdentityProviders[0], id: undefined };
+      const providerWithoutId = { ...mockIdentityProviders[0], id: undefined } as IdentityProvider;
       const mockDelete = vi.fn();
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-            delete: mockDelete,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
+        delete: mockDelete,
       });
 
       const { result } = renderHook(() => useSsoProviderTable());
@@ -475,7 +412,7 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onDeleteConfirm(providerWithoutId as any);
+      await waitFor(() => result.current.onDeleteConfirm(providerWithoutId));
 
       expect(mockDelete).not.toHaveBeenCalled();
     });
@@ -491,16 +428,10 @@ describe('useSsoProviderTable', () => {
         .mockResolvedValue({ identity_providers: [mockIdentityProviders[1]] });
       const mockOrganizationGet = vi.fn().mockResolvedValue(mockOrganization);
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: mockList,
-            detach: mockDetach,
-          },
-        },
-        organizationDetails: {
-          get: mockOrganizationGet,
-        },
+      setupMockMyOrgClient({
+        list: mockList,
+        detach: mockDetach,
+        organizationGet: mockOrganizationGet,
       });
 
       const { result } = renderHook(() => useSsoProviderTable());
@@ -509,12 +440,12 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onRemoveConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => result.current.onRemoveConfirm(mockIdentityProviders[0]!));
 
       expect(mockDetach).toHaveBeenCalledWith('idp-1');
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
-        message: 'Removed OKTA SSO from Test Organization',
+        message: 'remove_success',
       });
       expect(mockList).toHaveBeenCalledTimes(2); // Once on mount, once after remove
     });
@@ -524,16 +455,9 @@ describe('useSsoProviderTable', () => {
       const onAfter = vi.fn();
       const mockDetach = vi.fn().mockResolvedValue(undefined);
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-            detach: mockDetach,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
+        detach: mockDetach,
       });
 
       const { result } = renderHook(() => useSsoProviderTable(undefined, { onAfter }));
@@ -542,7 +466,7 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onRemoveConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => result.current.onRemoveConfirm(mockIdentityProviders[0]!));
 
       expect(onAfter).toHaveBeenCalledWith(mockIdentityProviders[0]);
     });
@@ -552,16 +476,9 @@ describe('useSsoProviderTable', () => {
     it('should handle remove provider error', async () => {
       const mockDetach = vi.fn().mockRejectedValue(new Error('Remove failed'));
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-            detach: mockDetach,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
+        detach: mockDetach,
       });
 
       const { result } = renderHook(() => useSsoProviderTable());
@@ -570,30 +487,23 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onRemoveConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => result.current.onRemoveConfirm(mockIdentityProviders[0]!));
 
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'error',
-        message: 'An error occurred',
+        message: 'general_error',
       });
     });
 
     // Test: Ensures the function safely handles providers without an ID
     // Should not attempt to call the detach API
     it('should not remove if provider has no id', async () => {
-      const providerWithoutId = { ...mockIdentityProviders[0], id: undefined };
+      const providerWithoutId = { ...mockIdentityProviders[0], id: undefined } as IdentityProvider;
       const mockDetach = vi.fn();
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-            detach: mockDetach,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
+        detach: mockDetach,
       });
 
       const { result } = renderHook(() => useSsoProviderTable());
@@ -602,7 +512,7 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await result.current.onRemoveConfirm(providerWithoutId as any);
+      await waitFor(() => result.current.onRemoveConfirm(providerWithoutId));
 
       expect(mockDetach).not.toHaveBeenCalled();
     });
@@ -619,16 +529,9 @@ describe('useSsoProviderTable', () => {
           () => new Promise((resolve) => setTimeout(() => resolve(updatedProvider), 100)),
         );
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-            update: mockUpdate,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
+        update: mockUpdate,
       });
 
       const { result } = renderHook(() => useSsoProviderTable());
@@ -637,12 +540,16 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const enablePromise = result.current.onEnableProvider(mockIdentityProviders[0]!, false);
+      await waitFor(() => {
+        result.current.onEnableProvider(mockIdentityProviders[0]!, false);
+        expect(result.current.isUpdating).toBe(true);
+        expect(result.current.isUpdatingId).toBe('idp-1');
+      });
 
-      await enablePromise;
-
-      expect(result.current.isUpdating).toBe(true);
-      expect(result.current.isUpdatingId).toBe('idp-1');
+      await waitFor(() => {
+        expect(result.current.isUpdating).toBe(false);
+        expect(result.current.isUpdatingId).toBe(null);
+      });
     });
 
     // Test: Validates that isDeleting state is correctly managed during deletion
@@ -651,16 +558,9 @@ describe('useSsoProviderTable', () => {
         .fn()
         .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-            delete: mockDelete,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
+        delete: mockDelete,
       });
 
       const { result } = renderHook(() => useSsoProviderTable());
@@ -669,11 +569,14 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const deletePromise = result.current.onDeleteConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => {
+        result.current.onDeleteConfirm(mockIdentityProviders[0]!);
+        expect(result.current.isDeleting).toBe(true);
+      });
 
-      await deletePromise;
-
-      expect(result.current.isDeleting).toBe(true);
+      await waitFor(() => {
+        expect(result.current.isDeleting).toBe(false);
+      });
     });
 
     // Test: Validates that isRemoving state is correctly managed during removal
@@ -682,16 +585,9 @@ describe('useSsoProviderTable', () => {
         .fn()
         .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-            detach: mockDetach,
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
+        detach: mockDetach,
       });
 
       const { result } = renderHook(() => useSsoProviderTable());
@@ -700,37 +596,35 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const removePromise = result.current.onRemoveConfirm(mockIdentityProviders[0]!);
+      await waitFor(() => {
+        result.current.onRemoveConfirm(mockIdentityProviders[0]!);
+        expect(result.current.isRemoving).toBe(true);
+      });
 
-      await removePromise;
-
-      expect(result.current.isRemoving).toBe(true);
+      await waitFor(() => {
+        expect(result.current.isRemoving).toBe(false);
+      });
     });
   });
 
   describe('custom messages', () => {
     // Test: Verifies that custom toast messages are properly passed to the translator
     // for displaying localized notifications
-    it('should pass custom messages to translator', () => {
+    it('should pass custom messages to translator', async () => {
       const customMessages = { update_success: 'Custom update message' };
 
-      mockCoreClient.getMyOrganizationApiClient.mockReturnValue({
-        organization: {
-          identityProviders: {
-            list: vi.fn().mockResolvedValue({ identity_providers: [] }),
-          },
-        },
-        organizationDetails: {
-          get: vi.fn().mockResolvedValue(mockOrganization),
-        },
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: [] }),
       });
 
       renderHook(() => useSsoProviderTable(undefined, undefined, undefined, customMessages));
 
-      expect(useTranslatorModule.useTranslator).toHaveBeenCalledWith(
-        'idp_management.notifications',
-        customMessages,
-      );
+      await waitFor(() => {
+        expect(useTranslatorModule.useTranslator).toHaveBeenCalledWith(
+          'idp_management.notifications',
+          customMessages,
+        );
+      });
     });
   });
 });

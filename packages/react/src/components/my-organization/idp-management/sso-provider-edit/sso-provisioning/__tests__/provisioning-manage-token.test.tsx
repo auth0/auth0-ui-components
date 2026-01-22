@@ -3,17 +3,16 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { createMockI18nService } from '../../../../../../internals/__mocks__/core/i18n-service.mocks';
 import { ProvisioningManageToken } from '../provisioning-manage-token';
 
 // Mock hooks
 vi.mock('../../../../../../hooks/use-translator', () => ({
   useTranslator: () => ({
-    t: (key: string, params?: any) => {
-      if (key === 'delete_button_label') return 'Delete';
-      if (key === 'remove_button_label') return 'Remove';
-      if (key === 'title' && params?.providerName) return `Delete ${params.providerName}`;
-      return key;
-    },
+    t: createMockI18nService().translator('idp_management.sso_provisioning.manage_token'),
+    changeLanguage: vi.fn(),
+    currentLanguage: 'en',
+    fallbackLanguage: 'en',
   }),
 }));
 
