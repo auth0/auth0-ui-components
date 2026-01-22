@@ -140,12 +140,12 @@ pnpm run dev
 
 Explore public components available in @auth0/universal-components-react.
 
-- [UserMfaManagement](https://auth0.github.io/auth0-ui-components/variables/_auth0_universal-components-react.UserMFAMgmt.html)
-- [DomainTable](https://auth0.github.io/auth0-ui-components/variables/_auth0_universal-components-react.DomainTable.html)
-- [SsoProviderCreate](https://auth0.github.io/auth0-ui-components/variables/_auth0_universal-components-react.SsoProviderCreate.html)
-- [SsoProviderEdit](https://auth0.github.io/auth0-ui-components/variables/_auth0_universal-components-react.SsoProviderEdit.html)
-- [SsoProviderTable](https://auth0.github.io/auth0-ui-components/variables/_auth0_universal-components-react.SsoProviderTable.html)
-- [OrganizationDetailsEdit](https://auth0.github.io/auth0-ui-components/variables/_auth0_universal-components-react.OrganizationDetailsEdit.html)
+- [UserMfaManagement](https://auth0.github.io/auth0-ui-components/variables/react_src.UserMFAMgmt.html)
+- [DomainTable](https://auth0.github.io/auth0-ui-components/variables/react_src.DomainTable.html)
+- [SsoProviderCreate](https://auth0.github.io/auth0-ui-components/variables/react_src.SsoProviderCreate.html)
+- [SsoProviderEdit](https://auth0.github.io/auth0-ui-components/variables/react_src.SsoProviderEdit.html)
+- [SsoProviderTable](https://auth0.github.io/auth0-ui-components/variables/react_src.SsoProviderTable.html)
+- [OrganizationDetailsEdit](https://auth0.github.io/auth0-ui-components/variables/react_src.OrganizationDetailsEdit.html)
 
 ## 🤝 Contributing
 
