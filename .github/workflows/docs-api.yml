@@ -10,10 +10,10 @@ on:
         type: string
         default: "main"
 
-  # Temporary: trigger on push for testing - REMOVE BEFORE MERGING TO MAIN
+  # Trigger on push to main for testing
   push:
     branches:
-      - 'typedoc-integeration-uic-410'
+      - 'main'
 
   # Automatically trigger after successful npm publish
   workflow_run:
