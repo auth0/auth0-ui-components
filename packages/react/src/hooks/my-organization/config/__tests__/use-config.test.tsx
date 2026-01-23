@@ -2,6 +2,7 @@ import { AVAILABLE_STRATEGY_LIST } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { createTestQueryClientWrapper } from '../../../../internals/test-provider';
 import { useCoreClient } from '../../../use-core-client';
 import { useConfig } from '../use-config';
 
@@ -24,6 +25,11 @@ describe('useConfig', () => {
     (useCoreClient as any).mockReturnValue({ coreClient: mockCoreClient });
   });
 
+  const renderUseConfig = () => {
+    const { wrapper, queryClient } = createTestQueryClientWrapper();
+    return { queryClient, ...renderHook(() => useConfig(), { wrapper }) };
+  };
+
   it('should fetch config on mount', async () => {
     const mockConfig = {
       allowed_strategies: ['okta', 'google-apps'],
@@ -31,7 +37,7 @@ describe('useConfig', () => {
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     expect(result.current.isLoadingConfig).toBe(true);
 
@@ -51,7 +57,7 @@ describe('useConfig', () => {
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
@@ -66,7 +72,7 @@ describe('useConfig', () => {
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
@@ -81,7 +87,7 @@ describe('useConfig', () => {
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
@@ -95,7 +101,7 @@ describe('useConfig', () => {
       body: { status: 404 },
     });
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
@@ -112,7 +118,7 @@ describe('useConfig', () => {
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
@@ -128,7 +134,7 @@ describe('useConfig', () => {
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
@@ -144,7 +150,7 @@ describe('useConfig', () => {
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
@@ -160,7 +166,7 @@ describe('useConfig', () => {
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result, queryClient } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
@@ -168,7 +174,11 @@ describe('useConfig', () => {
 
     expect(mockGet).toHaveBeenCalledTimes(1);
 
-    result.current.fetchConfig();
+    queryClient.setQueryData(['config', 'details'], mockConfig, {
+      updatedAt: Date.now() - 6 * 60 * 1000,
+    });
+
+    await result.current.fetchConfig();
 
     await waitFor(() => {
       expect(mockGet).toHaveBeenCalledTimes(2);
@@ -178,7 +188,7 @@ describe('useConfig', () => {
   it('should not fetch config when coreClient is not available', async () => {
     (useCoreClient as any).mockReturnValue({ coreClient: null });
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);

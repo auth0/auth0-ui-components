@@ -1,6 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { createTestQueryClientWrapper } from '../../../../internals/test-provider';
 import { useCoreClient } from '../../../use-core-client';
 import { useIdpConfig } from '../use-idp-config';
 
@@ -25,6 +26,11 @@ describe('useIdpConfig', () => {
     (useCoreClient as any).mockReturnValue({ coreClient: mockCoreClient });
   });
 
+  const renderUseIdpConfig = () => {
+    const { wrapper, queryClient } = createTestQueryClientWrapper();
+    return { queryClient, ...renderHook(() => useIdpConfig(), { wrapper }) };
+  };
+
   it('should fetch idp config on mount', async () => {
     const mockIdpConfig = {
       strategies: {
@@ -36,7 +42,7 @@ describe('useIdpConfig', () => {
     };
     mockGet.mockResolvedValue(mockIdpConfig);
 
-    const { result } = renderHook(() => useIdpConfig());
+    const { result } = renderUseIdpConfig();
 
     expect(result.current.isLoadingIdpConfig).toBe(true);
 
@@ -55,7 +61,7 @@ describe('useIdpConfig', () => {
     };
     mockGet.mockResolvedValue(mockIdpConfig);
 
-    const { result } = renderHook(() => useIdpConfig());
+    const { result } = renderUseIdpConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingIdpConfig).toBe(false);
@@ -69,7 +75,7 @@ describe('useIdpConfig', () => {
       body: { status: 404 },
     });
 
-    const { result } = renderHook(() => useIdpConfig());
+    const { result } = renderUseIdpConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingIdpConfig).toBe(false);
@@ -90,7 +96,7 @@ describe('useIdpConfig', () => {
     };
     mockGet.mockResolvedValue(mockIdpConfig);
 
-    const { result } = renderHook(() => useIdpConfig());
+    const { result } = renderUseIdpConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingIdpConfig).toBe(false);
@@ -110,7 +116,7 @@ describe('useIdpConfig', () => {
     };
     mockGet.mockResolvedValue(mockIdpConfig);
 
-    const { result } = renderHook(() => useIdpConfig());
+    const { result } = renderUseIdpConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingIdpConfig).toBe(false);
@@ -130,7 +136,7 @@ describe('useIdpConfig', () => {
     };
     mockGet.mockResolvedValue(mockIdpConfig);
 
-    const { result } = renderHook(() => useIdpConfig());
+    const { result } = renderUseIdpConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingIdpConfig).toBe(false);
@@ -150,7 +156,7 @@ describe('useIdpConfig', () => {
     };
     mockGet.mockResolvedValue(mockIdpConfig);
 
-    const { result } = renderHook(() => useIdpConfig());
+    const { result } = renderUseIdpConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingIdpConfig).toBe(false);
@@ -170,7 +176,7 @@ describe('useIdpConfig', () => {
     };
     mockGet.mockResolvedValue(mockIdpConfig);
 
-    const { result } = renderHook(() => useIdpConfig());
+    const { result } = renderUseIdpConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingIdpConfig).toBe(false);
@@ -190,7 +196,7 @@ describe('useIdpConfig', () => {
     };
     mockGet.mockResolvedValue(mockIdpConfig);
 
-    const { result } = renderHook(() => useIdpConfig());
+    const { result } = renderUseIdpConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingIdpConfig).toBe(false);
@@ -210,7 +216,7 @@ describe('useIdpConfig', () => {
     };
     mockGet.mockResolvedValue(mockIdpConfig);
 
-    const { result } = renderHook(() => useIdpConfig());
+    const { result, queryClient } = renderUseIdpConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingIdpConfig).toBe(false);
@@ -218,7 +224,11 @@ describe('useIdpConfig', () => {
 
     expect(mockGet).toHaveBeenCalledTimes(1);
 
-    result.current.fetchIdpConfig();
+    queryClient.setQueryData(['idp-config', 'config'], mockIdpConfig, {
+      updatedAt: Date.now() - 11 * 60 * 1000,
+    });
+
+    await result.current.fetchIdpConfig();
 
     await waitFor(() => {
       expect(mockGet).toHaveBeenCalledTimes(2);
@@ -228,7 +238,7 @@ describe('useIdpConfig', () => {
   it('should not fetch idp config when coreClient is not available', async () => {
     (useCoreClient as any).mockReturnValue({ coreClient: null });
 
-    const { result } = renderHook(() => useIdpConfig());
+    const { result } = renderUseIdpConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingIdpConfig).toBe(false);

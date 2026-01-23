@@ -3,6 +3,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { showToast } from '../../../../components/ui/toast';
+import { createTestQueryClientWrapper } from '../../../../internals/test-provider';
 import * as useCoreClientModule from '../../../use-core-client';
 import * as useTranslatorModule from '../../../use-translator';
 import { useSsoProviderTable } from '../use-sso-provider-table';
@@ -39,6 +40,11 @@ const mockOrganization: OrganizationPrivate = {
     },
     logo_url: '',
   },
+};
+
+const renderUseSsoProviderTable = (...args: Parameters<typeof useSsoProviderTable>) => {
+  const { wrapper } = createTestQueryClientWrapper();
+  return renderHook(() => useSsoProviderTable(...args), { wrapper });
 };
 
 describe('useSsoProviderTable', () => {
@@ -86,7 +92,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -112,7 +118,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -125,16 +131,16 @@ describe('useSsoProviderTable', () => {
     });
 
     // Test: Ensures the hook doesn't attempt to fetch data when coreClient is unavailable
-    // Loading state should remain true and providers array should stay empty
+    // Loading state should remain false and providers array should stay empty
     it('should not fetch if coreClient is not available', async () => {
       vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
         coreClient: null as any,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(true);
+        expect(result.current.isLoading).toBe(false);
       });
 
       expect(result.current.providers).toEqual([]);
@@ -157,7 +163,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -183,7 +189,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -215,7 +221,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -251,9 +257,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() =>
-        useSsoProviderTable(undefined, undefined, { onBefore, onAfter }),
-      );
+      const { result } = renderUseSsoProviderTable(undefined, undefined, { onBefore, onAfter });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -283,7 +287,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable(undefined, undefined, { onBefore }));
+      const { result } = renderUseSsoProviderTable(undefined, undefined, { onBefore });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -312,7 +316,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -343,7 +347,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -376,7 +380,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -409,7 +413,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable({ onAfter }));
+      const { result } = renderUseSsoProviderTable({ onAfter });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -437,7 +441,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -469,7 +473,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -503,7 +507,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -536,7 +540,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable(undefined, { onAfter }));
+      const { result } = renderUseSsoProviderTable(undefined, { onAfter });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -564,7 +568,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -596,7 +600,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -631,7 +635,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -639,10 +643,17 @@ describe('useSsoProviderTable', () => {
 
       const enablePromise = result.current.onEnableProvider(mockIdentityProviders[0]!, false);
 
+      await waitFor(() => {
+        expect(result.current.isUpdating).toBe(true);
+        expect(result.current.isUpdatingId).toBe('idp-1');
+      });
+
       await enablePromise;
 
-      expect(result.current.isUpdating).toBe(true);
-      expect(result.current.isUpdatingId).toBe('idp-1');
+      await waitFor(() => {
+        expect(result.current.isUpdating).toBe(false);
+        expect(result.current.isUpdatingId).toBe(null);
+      });
     });
 
     // Test: Validates that isDeleting state is correctly managed during deletion
@@ -663,7 +674,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -671,9 +682,15 @@ describe('useSsoProviderTable', () => {
 
       const deletePromise = result.current.onDeleteConfirm(mockIdentityProviders[0]!);
 
+      await waitFor(() => {
+        expect(result.current.isDeleting).toBe(true);
+      });
+
       await deletePromise;
 
-      expect(result.current.isDeleting).toBe(true);
+      await waitFor(() => {
+        expect(result.current.isDeleting).toBe(false);
+      });
     });
 
     // Test: Validates that isRemoving state is correctly managed during removal
@@ -694,7 +711,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -702,9 +719,15 @@ describe('useSsoProviderTable', () => {
 
       const removePromise = result.current.onRemoveConfirm(mockIdentityProviders[0]!);
 
+      await waitFor(() => {
+        expect(result.current.isRemoving).toBe(true);
+      });
+
       await removePromise;
 
-      expect(result.current.isRemoving).toBe(true);
+      await waitFor(() => {
+        expect(result.current.isRemoving).toBe(false);
+      });
     });
   });
 
@@ -725,7 +748,7 @@ describe('useSsoProviderTable', () => {
         },
       });
 
-      renderHook(() => useSsoProviderTable(undefined, undefined, undefined, customMessages));
+      renderUseSsoProviderTable(undefined, undefined, undefined, customMessages);
 
       expect(useTranslatorModule.useTranslator).toHaveBeenCalledWith(
         'idp_management.notifications',

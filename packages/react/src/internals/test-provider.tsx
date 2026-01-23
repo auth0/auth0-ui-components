@@ -11,7 +11,7 @@ import { ScopeManagerProvider } from '../providers/scope-manager-provider';
 import { createMockCoreClient } from './__mocks__/core/core-client.mocks';
 
 // Create a new QueryClient for each test to avoid shared state
-const createTestQueryClient = () =>
+export const createTestQueryClient = () =>
   new QueryClient({
     defaultOptions: {
       queries: {
@@ -24,6 +24,15 @@ const createTestQueryClient = () =>
       },
     },
   });
+
+export const createTestQueryClientWrapper = (queryClient?: QueryClient) => {
+  const client = queryClient || createTestQueryClient();
+  const wrapper = ({ children }: React.PropsWithChildren) => (
+    <QueryClientProvider client={client}>{children}</QueryClientProvider>
+  );
+
+  return { queryClient: client, wrapper };
+};
 
 export interface TestProviderProps {
   children: React.ReactNode;
