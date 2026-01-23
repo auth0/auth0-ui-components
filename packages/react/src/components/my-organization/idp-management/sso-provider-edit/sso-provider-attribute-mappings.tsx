@@ -70,13 +70,20 @@ const AttributeNameCell = ({
       )}
 
       {status && (
-        <Badge
-          variant={STATUS_VARIANTS[status]}
-          size="sm"
-          className="shrink-0 uppercase tracking-tight"
-        >
-          {t(`mappings.${section}.table.tags.${status}`)}
-        </Badge>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge
+              variant={STATUS_VARIANTS[status]}
+              size="sm"
+              className="shrink-0 uppercase tracking-tight cursor-help"
+            >
+              {t(`mappings.${section}.table.tags.${status}.label`)}
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="max-w-xs">
+            {t(`mappings.${section}.table.tags.${status}.tooltip`)}
+          </TooltipContent>
+        </Tooltip>
       )}
     </div>
   );

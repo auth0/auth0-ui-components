@@ -548,9 +548,18 @@
               "external_field_label": "External Field"
             },
             "tags": {
-              "updated": "Updated",
-              "removed": "Removed",
-              "new": "New"
+              "updated": {
+                "label": "Updated",
+                "tooltip": "This attribute has been updated. Update your identity provider configuration."
+              },
+              "removed": {
+                "label": "Removed",
+                "tooltip": "This attribute has been removed. Remove it from your identity provider configuration."
+              },
+              "new": {
+                "label": "New",
+                "tooltip": "This attribute has been added. Add it to your identity provider configuration."
+              }
             }
           }
         },
@@ -563,9 +572,18 @@
               "external_field_label": "External Field"
             },
             "tags": {
-              "updated": "Updated",
-              "removed": "Removed",
-              "new": "New"
+              "updated": {
+                "label": "Updated",
+                "tooltip": "This attribute has been updated. Update your identity provider configuration."
+              },
+              "removed": {
+                "label": "Removed",
+                "tooltip": "This attribute has been removed. Remove it from your identity provider configuration."
+              },
+              "new": {
+                "label": "New",
+                "tooltip": "This attribute has been added. Add it to your identity provider configuration."
+              }
             }
           }
         }
