@@ -28,6 +28,7 @@ export const Auth0ComponentProvider = ({
     },
   },
   toastSettings,
+  cacheConfig,
   loader,
   children,
 }: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
@@ -94,7 +95,7 @@ export const Auth0ComponentProvider = ({
         }
       >
         <CoreClientContext.Provider value={coreClientValue}>
-          <QueryProvider>
+          <QueryProvider cacheConfig={cacheConfig}>
             <ScopeManagerProvider>{children}</ScopeManagerProvider>
           </QueryProvider>
         </CoreClientContext.Provider>
