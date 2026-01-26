@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { useCoreClientInitialization } from '../../hooks/use-core-client-initialization';
 import { Auth0ComponentProvider } from '../proxy-provider';
 
 vi.mock('../../hooks/use-core-client-initialization', () => ({
@@ -10,6 +11,8 @@ vi.mock('../../hooks/use-core-client-initialization', () => ({
     error: undefined,
   })),
 }));
+
+const mockUseCoreClientInitialization = vi.mocked(useCoreClientInitialization);
 
 vi.mock('../../components/ui/sonner', () => ({
   Toaster: () => <div data-testid="toaster" />,
@@ -119,5 +122,24 @@ describe('Auth0ComponentProvider', () => {
     );
 
     expect(screen.getByTestId('theme-provider')).toBeInTheDocument();
+  });
+
+  it('should pass customFetch to useCoreClientInitialization', () => {
+    const mockCustomFetch = vi.fn();
+
+    render(
+      <Auth0ComponentProvider
+        authDetails={{ authProxyUrl: '/api/auth' }}
+        customFetch={mockCustomFetch}
+      >
+        <div data-testid="child-content">Test Content</div>
+      </Auth0ComponentProvider>,
+    );
+
+    expect(mockUseCoreClientInitialization).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customFetch: mockCustomFetch,
+      }),
+    );
   });
 });

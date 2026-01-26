@@ -21,6 +21,7 @@ import {
   getExpectedProxyBaseUrl,
   mockScopes,
   mockTokens,
+  mockRequestInits,
   expectedErrors,
 } from './__mocks__/my-account-api-service.mocks';
 
@@ -278,6 +279,32 @@ describe('initializeMyAccountClient', () => {
       });
     });
 
+    describe('customFetch parameter in proxy mode', () => {
+      it('should use customFetch when provided', async () => {
+        const tokenManager = createMockTokenManager();
+        const customFetch = vi.fn().mockResolvedValue(createMockFetch());
+
+        initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager, customFetch);
+
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
+        await fetcher!(TEST_URL, mockRequestInits.post);
+
+        expect(customFetch).toHaveBeenCalledTimes(1);
+      });
+
+      it('should pass url and init to customFetch', async () => {
+        const tokenManager = createMockTokenManager();
+        const customFetch = vi.fn().mockResolvedValue(createMockFetch());
+
+        initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager, customFetch);
+
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
+        await fetcher!(TEST_URL, mockRequestInits.post);
+
+        expect(customFetch).toHaveBeenCalledWith(TEST_URL, mockRequestInits.post);
+      });
+    });
+
     describe('URL handling', () => {
       it('should handle proxy URL with path', () => {
         const authWithPath = { authProxyUrl: 'https://example.com/api/v1' };
@@ -526,6 +553,45 @@ describe('initializeMyAccountClient', () => {
 
         const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Content-Type')).toBeNull();
+      });
+    });
+
+    describe('customFetch parameter in domain mode', () => {
+      it('should use customFetch when provided', async () => {
+        const tokenManager = createMockTokenManager();
+        const customFetch = vi.fn().mockResolvedValue(createMockFetch());
+
+        initializeMyAccountClient(mockAuthWithDomain, tokenManager, customFetch);
+
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
+        await fetcher!(TEST_URL, mockRequestInits.post);
+
+        expect(customFetch).toHaveBeenCalledTimes(1);
+      });
+
+      it('should pass url and init to customFetch', async () => {
+        const tokenManager = createMockTokenManager();
+        const customFetch = vi.fn().mockResolvedValue(createMockFetch());
+
+        initializeMyAccountClient(mockAuthWithDomain, tokenManager, customFetch);
+
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
+        await fetcher!(TEST_URL, mockRequestInits.post);
+
+        expect(customFetch).toHaveBeenCalledWith(TEST_URL, mockRequestInits.post);
+      });
+
+      it('should not call getToken when customFetch is provided', async () => {
+        const tokenManager = createMockTokenManager();
+        const customFetch = vi.fn().mockResolvedValue(createMockFetch());
+
+        initializeMyAccountClient(mockAuthWithDomain, tokenManager, customFetch);
+
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
+        await fetcher!(TEST_URL, mockRequestInits.post);
+
+        // tokenManager is not used when customFetch is provided
+        expect(tokenManager.getToken).not.toHaveBeenCalled();
       });
     });
 

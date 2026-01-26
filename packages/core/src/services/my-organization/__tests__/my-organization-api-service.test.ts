@@ -279,6 +279,38 @@ describe('initializeMyOrganizationClient', () => {
       });
     });
 
+    describe('customFetch parameter in proxy mode', () => {
+      it('should use customFetch when provided', async () => {
+        const tokenManager = createMockTokenManager();
+        const customFetch = vi.fn().mockResolvedValue(createMockFetch());
+
+        initializeMyOrganizationClient(mockAuthWithProxyUrl, tokenManager, customFetch);
+
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
+        await fetcher!(TEST_URL, mockRequestInits.post);
+
+        expect(customFetch).toHaveBeenCalledTimes(1);
+        expect(mockFetch).not.toHaveBeenCalled();
+      });
+
+      it('should pass url and init to customFetch', async () => {
+        const tokenManager = createMockTokenManager();
+        const customFetch = vi.fn().mockResolvedValue(createMockFetch());
+
+        initializeMyOrganizationClient(mockAuthWithProxyUrl, tokenManager, customFetch);
+
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
+        await fetcher!(TEST_URL, mockRequestInits.post);
+
+        expect(customFetch).toHaveBeenCalledWith(
+          TEST_URL,
+          expect.objectContaining({
+            body: mockRequestInits.post.body,
+          }),
+        );
+      });
+    });
+
     describe('URL handling', () => {
       it('should handle proxy URL with path', () => {
         const tokenManager = createMockTokenManager();
@@ -518,6 +550,51 @@ describe('initializeMyOrganizationClient', () => {
 
         const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Content-Type')).toBeNull();
+      });
+    });
+
+    describe('customFetch parameter in domain mode', () => {
+      it('should use customFetch when provided', async () => {
+        const tokenManager = createMockTokenManager(mockTokens.standard);
+        const customFetch = vi.fn().mockResolvedValue(createMockFetch());
+
+        initializeMyOrganizationClient(mockAuthWithDomain, tokenManager, customFetch);
+
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
+        await fetcher!(TEST_URL, mockRequestInits.post);
+
+        expect(customFetch).toHaveBeenCalledTimes(1);
+        expect(mockFetch).not.toHaveBeenCalled();
+      });
+
+      it('should pass url and init to customFetch', async () => {
+        const tokenManager = createMockTokenManager();
+        const customFetch = vi.fn().mockResolvedValue(createMockFetch());
+
+        initializeMyOrganizationClient(mockAuthWithDomain, tokenManager, customFetch);
+
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
+        await fetcher!(TEST_URL, mockRequestInits.post);
+
+        expect(customFetch).toHaveBeenCalledWith(TEST_URL, mockRequestInits.post);
+      });
+
+      it('should not call getToken when customFetch is provided', async () => {
+        const tokenManager = createMockTokenManager();
+        const customFetch = vi.fn().mockResolvedValue(createMockFetch());
+
+        const { setLatestScopes } = initializeMyOrganizationClient(
+          mockAuthWithDomain,
+          tokenManager,
+          customFetch,
+        );
+
+        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
+        setLatestScopes(mockScopes.organizationRead);
+        await fetcher!(TEST_URL, mockRequestInits.post);
+
+        // tokenManager is not used when customFetch is provided
+        expect(tokenManager.getToken).not.toHaveBeenCalled();
       });
     });
   });

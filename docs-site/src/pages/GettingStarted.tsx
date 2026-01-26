@@ -651,6 +651,18 @@ export default function OrganizationManagementPage() {
               </tr>
               <tr>
                 <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                  customFetch
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  <code className="text-xs">CustomFetch</code>
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  Custom fetch implementation to override the default fetch behavior
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                   loader
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-500">
