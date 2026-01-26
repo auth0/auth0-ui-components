@@ -39,7 +39,7 @@ describe('useCoreClientInitialization', () => {
       expect(result.current).toBe(mockCoreClient);
     });
 
-    expect(createCoreClient).toHaveBeenCalledWith(defaultProps.authDetails, undefined);
+    expect(createCoreClient).toHaveBeenCalledWith(defaultProps.authDetails, undefined, undefined);
   });
 
   it('should pass i18nOptions to createCoreClient', async () => {
@@ -59,6 +59,52 @@ describe('useCoreClientInitialization', () => {
     expect(createCoreClient).toHaveBeenCalledWith(
       propsWithI18n.authDetails,
       propsWithI18n.i18nOptions,
+      undefined,
+    );
+  });
+
+  it('should pass customFetch to createCoreClient', async () => {
+    createCoreClient.mockResolvedValue(mockCoreClient);
+
+    const customFetch = vi.fn();
+    const propsWithCustomFetch = {
+      authDetails: { authProxyUrl: '/api/auth' },
+      customFetch,
+    };
+
+    const { result } = renderHook(() => useCoreClientInitialization(propsWithCustomFetch));
+
+    await waitFor(() => {
+      expect(result.current).toBe(mockCoreClient);
+    });
+
+    expect(createCoreClient).toHaveBeenCalledWith(
+      propsWithCustomFetch.authDetails,
+      undefined,
+      customFetch,
+    );
+  });
+
+  it('should pass both i18nOptions and customFetch to createCoreClient', async () => {
+    createCoreClient.mockResolvedValue(mockCoreClient);
+
+    const customFetch = vi.fn();
+    const propsWithBoth = {
+      authDetails: { authProxyUrl: '/api/auth' },
+      i18nOptions: { currentLanguage: 'es', fallbackLanguage: 'en' },
+      customFetch,
+    };
+
+    const { result } = renderHook(() => useCoreClientInitialization(propsWithBoth));
+
+    await waitFor(() => {
+      expect(result.current).toBe(mockCoreClient);
+    });
+
+    expect(createCoreClient).toHaveBeenCalledWith(
+      propsWithBoth.authDetails,
+      propsWithBoth.i18nOptions,
+      customFetch,
     );
   });
 

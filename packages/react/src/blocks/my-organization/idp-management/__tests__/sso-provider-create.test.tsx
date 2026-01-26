@@ -57,7 +57,7 @@ const createMockBackButton = () => ({
 
 const waitForComponentToLoad = async () => {
   return await waitFor(() => {
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
   });
 };
 

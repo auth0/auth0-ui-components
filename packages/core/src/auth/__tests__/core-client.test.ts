@@ -241,6 +241,7 @@ describe('createCoreClient', () => {
       expect(initializeMyOrganizationClientMock).toHaveBeenCalledWith(
         authDetails,
         mockTokenManager,
+        undefined,
       );
     });
 
@@ -248,7 +249,35 @@ describe('createCoreClient', () => {
       const authDetails = createAuthDetails();
       await createCoreClient(authDetails);
 
-      expect(initializeMyAccountClientMock).toHaveBeenCalledWith(authDetails, mockTokenManager);
+      expect(initializeMyAccountClientMock).toHaveBeenCalledWith(
+        authDetails,
+        mockTokenManager,
+        undefined,
+      );
+    });
+
+    it('passes customFetch to MyOrg client when provided', async () => {
+      const authDetails = createAuthDetails();
+      const customFetch = vi.fn();
+      await createCoreClient(authDetails, undefined, customFetch);
+
+      expect(initializeMyOrganizationClientMock).toHaveBeenCalledWith(
+        authDetails,
+        mockTokenManager,
+        customFetch,
+      );
+    });
+
+    it('passes customFetch to MyAccount client when provided', async () => {
+      const authDetails = createAuthDetails();
+      const customFetch = vi.fn();
+      await createCoreClient(authDetails, undefined, customFetch);
+
+      expect(initializeMyAccountClientMock).toHaveBeenCalledWith(
+        authDetails,
+        mockTokenManager,
+        customFetch,
+      );
     });
   });
 

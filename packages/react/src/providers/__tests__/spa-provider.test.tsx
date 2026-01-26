@@ -174,4 +174,20 @@ describe('Auth0ComponentProvider (SPA)', () => {
     expect(mockUseCoreClientInitialization).toHaveBeenCalled();
     expect(screen.getByTestId('child-content')).toBeInTheDocument();
   });
+
+  it('should pass customFetch to useCoreClientInitialization', () => {
+    const mockCustomFetch = vi.fn();
+
+    render(
+      <Auth0ComponentProvider authDetails={{}} customFetch={mockCustomFetch}>
+        <div data-testid="child-content">Test Content</div>
+      </Auth0ComponentProvider>,
+    );
+
+    expect(mockUseCoreClientInitialization).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customFetch: mockCustomFetch,
+      }),
+    );
+  });
 });

@@ -1,11 +1,12 @@
 import { MyAccountClient } from '@auth0/myaccount-js';
 
-import type { AuthDetails } from '../../auth/auth-types';
+import type { AuthDetails, CustomFetch } from '../../auth/auth-types';
 import type { createTokenManager } from '../../auth/token-manager';
 
 export function initializeMyAccountClient(
   auth: AuthDetails,
   tokenManagerService: ReturnType<typeof createTokenManager>,
+  customFetch?: CustomFetch,
 ): {
   client: MyAccountClient;
   setLatestScopes: (scopes: string) => void;
@@ -19,16 +20,18 @@ export function initializeMyAccountClient(
   if (auth.authProxyUrl) {
     const myAccountProxyPath = 'me';
     const myAccountBaseUrl = `${auth.authProxyUrl.replace(/\/$/, '')}/${myAccountProxyPath}`;
-    const fetcher = async (url: string, init?: RequestInit) => {
-      return fetch(url, {
-        ...init,
-        headers: {
-          ...init?.headers,
-          ...(init?.body && { 'Content-Type': 'application/json' }),
-          ...(latestScopes && { 'auth0-scope': latestScopes }),
-        },
-      });
-    };
+    const fetcher = customFetch
+      ? customFetch
+      : async (url: string, init?: RequestInit) => {
+          return fetch(url, {
+            ...init,
+            headers: {
+              ...init?.headers,
+              ...(init?.body && { 'Content-Type': 'application/json' }),
+              ...(latestScopes && { 'auth0-scope': latestScopes }),
+            },
+          });
+        };
     return {
       client: new MyAccountClient({
         domain: '',
@@ -39,22 +42,24 @@ export function initializeMyAccountClient(
       setLatestScopes,
     };
   } else if (auth.domain) {
-    const fetcher = async (url: string, init?: RequestInit) => {
-      const token = await tokenManagerService.getToken(latestScopes, 'me');
+    const fetcher = customFetch
+      ? customFetch
+      : async (url: string, init?: RequestInit) => {
+          const token = await tokenManagerService.getToken(latestScopes, 'me');
 
-      const headers = new Headers(init?.headers);
-      if (init?.body && !headers.has('Content-Type')) {
-        headers.set('Content-Type', 'application/json');
-      }
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
+          const headers = new Headers(init?.headers);
+          if (init?.body && !headers.has('Content-Type')) {
+            headers.set('Content-Type', 'application/json');
+          }
+          if (token) {
+            headers.set('Authorization', `Bearer ${token}`);
+          }
 
-      return fetch(url, {
-        ...init,
-        headers,
-      });
-    };
+          return fetch(url, {
+            ...init,
+            headers,
+          });
+        };
     return {
       client: new MyAccountClient({
         domain: auth.domain.trim(),

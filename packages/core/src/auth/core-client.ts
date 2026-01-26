@@ -4,7 +4,12 @@ import { initializeMyOrganizationClient } from '@core/services/my-organization/m
 import type { I18nInitOptions } from '../i18n';
 import { createI18nService } from '../i18n';
 
-import type { AuthDetails, BaseCoreClientInterface, CoreClientInterface } from './auth-types';
+import type {
+  AuthDetails,
+  BaseCoreClientInterface,
+  CoreClientInterface,
+  CustomFetch,
+} from './auth-types';
 import { createTokenManager } from './token-manager';
 
 function isProxyMode(auth: AuthDetails): boolean {
@@ -18,6 +23,7 @@ function initializeAuthDetails(authDetails: AuthDetails): AuthDetails {
 export async function createCoreClient(
   authDetails: AuthDetails,
   i18nOptions?: I18nInitOptions,
+  customFetch?: CustomFetch,
 ): Promise<CoreClientInterface> {
   const i18nService = await createI18nService(
     i18nOptions || { currentLanguage: 'en-US', fallbackLanguage: 'en-US' },
@@ -26,9 +32,9 @@ export async function createCoreClient(
 
   const tokenManagerService = createTokenManager(auth);
   const { client: myOrganizationApiClient, setLatestScopes: setOrgScopes } =
-    initializeMyOrganizationClient(auth, tokenManagerService);
+    initializeMyOrganizationClient(auth, tokenManagerService, customFetch);
   const { client: myAccountApiClient, setLatestScopes: setAccountScopes } =
-    initializeMyAccountClient(auth, tokenManagerService);
+    initializeMyAccountClient(auth, tokenManagerService, customFetch);
 
   const baseCoreClient: BaseCoreClientInterface = {
     auth,

@@ -4,6 +4,8 @@ import type { ArbitraryObject } from '@core/types';
 
 import type { I18nServiceInterface } from '../i18n';
 
+export type CustomFetch = (url: string, init?: RequestInit | undefined) => Promise<Response>;
+
 export type TokenEndpointResponse = {
   id_token: string;
   access_token: string;

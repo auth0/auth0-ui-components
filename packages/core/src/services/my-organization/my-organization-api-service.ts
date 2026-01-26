@@ -1,10 +1,11 @@
 import { MyOrganizationClient } from '@auth0/myorganization-js';
-import type { AuthDetails } from '@core/auth/auth-types';
+import type { AuthDetails, CustomFetch } from '@core/auth/auth-types';
 import type { createTokenManager } from '@core/auth/token-manager';
 
 export function initializeMyOrganizationClient(
   auth: AuthDetails,
   tokenManagerService: ReturnType<typeof createTokenManager>,
+  customFetch?: CustomFetch,
 ): {
   client: MyOrganizationClient;
   setLatestScopes: (scopes: string) => void;
@@ -18,16 +19,18 @@ export function initializeMyOrganizationClient(
   if (auth.authProxyUrl) {
     const myOrganizationProxyPath = 'my-org';
     const myOrganizationProxyBaseUrl = `${auth.authProxyUrl.replace(/\/$/, '')}/${myOrganizationProxyPath}`;
-    const fetcher = async (url: string, init?: RequestInit) => {
-      return fetch(url, {
-        ...init,
-        headers: {
-          ...init?.headers,
-          ...(init?.body && { 'Content-Type': 'application/json' }),
-          ...(latestScopes && { 'auth0-scope': latestScopes }),
-        },
-      });
-    };
+    const fetcher = customFetch
+      ? customFetch
+      : async (url: string, init?: RequestInit) => {
+          return fetch(url, {
+            ...init,
+            headers: {
+              ...init?.headers,
+              ...(init?.body && { 'Content-Type': 'application/json' }),
+              ...(latestScopes && { 'auth0-scope': latestScopes }),
+            },
+          });
+        };
     return {
       client: new MyOrganizationClient({
         domain: '',
@@ -38,22 +41,24 @@ export function initializeMyOrganizationClient(
       setLatestScopes,
     };
   } else if (auth.domain) {
-    const fetcher = async (url: string, init?: RequestInit) => {
-      const token = await tokenManagerService.getToken(latestScopes, 'my-org');
+    const fetcher = customFetch
+      ? customFetch
+      : async (url: string, init?: RequestInit) => {
+          const token = await tokenManagerService.getToken(latestScopes, 'my-org');
 
-      const headers = new Headers(init?.headers);
-      if (init?.body && !headers.has('Content-Type')) {
-        headers.set('Content-Type', 'application/json');
-      }
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
+          const headers = new Headers(init?.headers);
+          if (init?.body && !headers.has('Content-Type')) {
+            headers.set('Content-Type', 'application/json');
+          }
+          if (token) {
+            headers.set('Authorization', `Bearer ${token}`);
+          }
 
-      return fetch(url, {
-        ...init,
-        headers,
-      });
-    };
+          return fetch(url, {
+            ...init,
+            headers,
+          });
+        };
     return {
       client: new MyOrganizationClient({
         domain: auth.domain.trim(),

@@ -16,6 +16,12 @@ vi.mock('../../../../../../hooks/use-translator', () => ({
   }),
 }));
 
+const waitForComponentToLoad = async () => {
+  return await waitFor(() => {
+    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+  });
+};
+
 describe('ProvisioningManageToken', () => {
   const mockOnListScimTokens = vi.fn();
   const mockOnCreateScimToken = vi.fn();
@@ -57,12 +63,16 @@ describe('ProvisioningManageToken', () => {
   it('should render title and description', async () => {
     render(<ProvisioningManageToken {...defaultProps} />);
 
+    await waitForComponentToLoad();
+
     expect(await screen.findByText('title')).toBeInTheDocument();
     expect(await screen.findByText('description')).toBeInTheDocument();
   });
 
   it('should render generate button', async () => {
     render(<ProvisioningManageToken {...defaultProps} />);
+
+    await waitForComponentToLoad();
 
     expect(await screen.findByText('generate_button_label')).toBeInTheDocument();
   });
@@ -71,19 +81,22 @@ describe('ProvisioningManageToken', () => {
     mockOnListScimTokens.mockResolvedValue({ scim_tokens: mockTokens });
     render(<ProvisioningManageToken {...defaultProps} />);
 
-    await waitFor(() => {
-      expect(mockOnListScimTokens).toHaveBeenCalled();
-    });
+    await waitForComponentToLoad();
+
+    expect(mockOnListScimTokens).toHaveBeenCalled();
   });
 
   it('should show loading spinner when isScimTokensLoading is true', async () => {
     render(<ProvisioningManageToken {...defaultProps} isScimTokensLoading={true} />);
+
     expect(await screen.findByText('Loading...')).toBeInTheDocument();
   });
 
   it('should display tokens when loaded', async () => {
     mockOnListScimTokens.mockResolvedValue({ scim_tokens: mockTokens });
     render(<ProvisioningManageToken {...defaultProps} />);
+
+    await waitForComponentToLoad();
 
     expect(await screen.findByText(/token-1/)).toBeInTheDocument();
     expect(await screen.findByText(/token-2/)).toBeInTheDocument();
@@ -93,6 +106,8 @@ describe('ProvisioningManageToken', () => {
     mockOnListScimTokens.mockResolvedValue({ scim_tokens: mockTokens });
     render(<ProvisioningManageToken {...defaultProps} />);
 
+    await waitForComponentToLoad();
+
     const badges = await screen.findAllByText('token_item.status_active');
     expect(badges).toHaveLength(2);
   });
@@ -100,6 +115,8 @@ describe('ProvisioningManageToken', () => {
   it('should show expired badge for expired tokens', async () => {
     mockOnListScimTokens.mockResolvedValue({ scim_tokens: [expiredToken] });
     render(<ProvisioningManageToken {...defaultProps} />);
+
+    await waitForComponentToLoad();
 
     expect(await screen.findByText('token_item.status_expired')).toBeInTheDocument();
   });
@@ -109,6 +126,8 @@ describe('ProvisioningManageToken', () => {
       scim_tokens: [{ token_id: 'token-1', valid_until: undefined }],
     });
     render(<ProvisioningManageToken {...defaultProps} />);
+
+    await waitForComponentToLoad();
 
     expect(await screen.findByText('token_item.never_expire')).toBeInTheDocument();
   });
@@ -124,6 +143,8 @@ describe('ProvisioningManageToken', () => {
 
     render(<ProvisioningManageToken {...defaultProps} />);
 
+    await waitForComponentToLoad();
+
     const generateButton = await screen.findByText('generate_button_label');
     await user.click(generateButton);
 
@@ -136,14 +157,16 @@ describe('ProvisioningManageToken', () => {
     mockOnListScimTokens.mockResolvedValue({ scim_tokens: mockTokens });
     render(<ProvisioningManageToken {...defaultProps} />);
 
+    await waitForComponentToLoad();
+
     const generateButton = await screen.findByText('generate_button_label');
     expect(generateButton).toBeDisabled();
   });
 
-  it('should disable generate button when isScimTokenCreating is true', () => {
+  it('should disable generate button when isScimTokenCreating is true', async () => {
     render(<ProvisioningManageToken {...defaultProps} isScimTokenCreating={true} />);
 
-    const generateButton = screen.getByText('generate_button_label');
+    const generateButton = await screen.findByText('generate_button_label');
     expect(generateButton).toBeDisabled();
   });
 
@@ -160,6 +183,8 @@ describe('ProvisioningManageToken', () => {
     });
     render(<ProvisioningManageToken {...defaultProps} />);
 
+    await waitForComponentToLoad();
+
     await screen.findByText(/token-1/);
 
     const deleteButton = screen.findByRole('button', { name: /delete/i });
@@ -173,6 +198,8 @@ describe('ProvisioningManageToken', () => {
       scim_tokens: [{ token_id: 'token-1', valid_until: null }],
     });
     render(<ProvisioningManageToken {...defaultProps} />);
+
+    await waitForComponentToLoad();
 
     await screen.findByText(/token-1/);
 
@@ -192,6 +219,8 @@ describe('ProvisioningManageToken', () => {
       scim_tokens: [{ token_id: 'token-1', valid_until: null }],
     });
     render(<ProvisioningManageToken {...defaultProps} isScimTokenDeleting={true} />);
+
+    await waitForComponentToLoad();
 
     await screen.findByText(/token-1/);
 
@@ -214,6 +243,8 @@ describe('ProvisioningManageToken', () => {
 
     render(<ProvisioningManageToken {...defaultProps} />);
 
+    await waitForComponentToLoad();
+
     const generateButton = await screen.findByText('generate_button_label');
     await user.click(generateButton);
 
@@ -233,6 +264,8 @@ describe('ProvisioningManageToken', () => {
 
     const { container } = render(<ProvisioningManageToken {...defaultProps} styling={styling} />);
 
+    await waitForComponentToLoad();
+
     await waitFor(() => {
       expect(container.querySelector('.custom-root-class')).toBeInTheDocument();
     });
@@ -241,6 +274,8 @@ describe('ProvisioningManageToken', () => {
   it('should not render card content when no tokens exist', async () => {
     mockOnListScimTokens.mockResolvedValue({ scim_tokens: [] });
     render(<ProvisioningManageToken {...defaultProps} />);
+
+    await waitForComponentToLoad();
 
     await waitFor(() => {
       expect(screen.queryByText('token_item.token_prefix')).not.toBeInTheDocument();
@@ -257,6 +292,8 @@ describe('ProvisioningManageToken', () => {
     mockOnListScimTokens.mockResolvedValue({ scim_tokens: [] });
 
     render(<ProvisioningManageToken {...defaultProps} />);
+
+    await waitForComponentToLoad();
 
     const generateButton = await screen.findByText('generate_button_label');
     await user.click(generateButton);
