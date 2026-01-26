@@ -27,6 +27,7 @@ export const Auth0ComponentProvider = ({
     },
   },
   toastSettings,
+  customFetch,
   loader,
   children,
 }: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
@@ -59,6 +60,7 @@ export const Auth0ComponentProvider = ({
   const coreClient = useCoreClientInitialization({
     authDetails: memoizedAuthDetails,
     i18nOptions: i18n,
+    customFetch,
   });
 
   const coreClientValue = React.useMemo(

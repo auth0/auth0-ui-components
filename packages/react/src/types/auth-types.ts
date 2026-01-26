@@ -1,4 +1,4 @@
-import type { AuthDetails } from '@auth0/universal-components-core';
+import type { AuthDetails, CustomFetch } from '@auth0/universal-components-core';
 import type * as React from 'react';
 
 import type { I18nOptions } from './i18n-types';
@@ -13,5 +13,6 @@ export interface Auth0ComponentProviderProps {
   themeSettings?: ThemeSettings;
   authDetails: AuthDetails;
   loader?: React.ReactNode;
+  customFetch?: CustomFetch;
   toastSettings?: ToastSettings;
 }
