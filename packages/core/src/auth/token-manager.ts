@@ -10,6 +10,27 @@ const pendingTokenRequests = new Map<string, Promise<string>>();
 const FALLBACK_ERRORS = new Set(['consent_required', 'login_required', 'mfa_required']);
 
 /**
+ * Extracts only the pathname for post-auth redirects.
+ * Query params/hash excluded to prevent open redirect attacks.
+ */
+function getSafeReturnPath(): string | undefined {
+  try {
+    const currentUrl = new URL(window.location.href);
+
+    const pathname = currentUrl.pathname;
+
+    if (!pathname || pathname.length === 0) {
+      return '/';
+    }
+
+    return pathname;
+  } catch (error) {
+    console.error('TokenManager: Failed to construct safe return path', error);
+    return undefined;
+  }
+}
+
+/**
  * Pure utility functions for token management operations.
  * These functions handle token requests, validation, and caching logic.
  */
@@ -121,17 +142,14 @@ const TokenUtils = {
         FALLBACK_ERRORS.has((error as { error: string }).error)
       ) {
         if (error.error === 'login_required') {
-          const url = new URL(window.location.href);
-          const returnTo = `${url.pathname}${url.search}${url.hash}`;
+          const returnTo = getSafeReturnPath();
 
           await contextInterface.loginWithRedirect({
             authorizationParams: {
               audience,
               scope,
             },
-            appState: {
-              returnTo,
-            },
+            ...(returnTo ? { appState: { returnTo } } : {}),
           });
         } else {
           const token = await contextInterface.getAccessTokenWithPopup({
@@ -229,9 +247,14 @@ export function createTokenManager(auth: AuthDetails) {
       pendingTokenRequests.set(requestKey, tokenPromise);
 
       try {
+        console.log('Fetching token for', audiencePath, scope);
         const token = await tokenPromise;
         return token;
+      } catch (error) {
+        console.log('Error', audiencePath, scope, error);
+        throw error;
       } finally {
+        console.log('Finished', audiencePath, scope);
         // Clean up the pending request after completion
         pendingTokenRequests.delete(requestKey);
       }
