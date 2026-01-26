@@ -362,7 +362,7 @@ describe('token-manager', () => {
         });
       });
 
-      it('should redirect to login for login_required error', async () => {
+      it('should redirect to login for login_required error with safe pathname', async () => {
         // Mock window.location using vi.stubGlobal for proper cleanup
         vi.stubGlobal('window', {
           location: {
@@ -393,10 +393,193 @@ describe('token-manager', () => {
             scope: 'read:users',
           },
           appState: {
-            returnTo: '/dashboard?param=value#section',
+            returnTo: '/dashboard',
           },
         });
         expect(mockContextInterface.getAccessTokenWithPopup).not.toHaveBeenCalled();
+
+        vi.unstubAllGlobals();
+      });
+
+      it('should redirect to login with pathname only (excluding query params and hash)', async () => {
+        vi.stubGlobal('window', {
+          location: {
+            href: 'https://example.com/users/profile?id=123&tab=settings#personal',
+            pathname: '/users/profile',
+            search: '?id=123&tab=settings',
+            hash: '#personal',
+          },
+        });
+
+        vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue({
+          error: 'login_required',
+        });
+        vi.mocked(mockContextInterface.loginWithRedirect).mockResolvedValue(undefined);
+
+        const auth = createAuthConfig();
+        const tokenManager = createTokenManager(auth);
+
+        await expect(tokenManager.getToken('read:users', 'management')).rejects.toThrow(
+          'getAccessToken: failed',
+        );
+
+        expect(mockContextInterface.loginWithRedirect).toHaveBeenCalledWith({
+          authorizationParams: {
+            audience: 'https://example.auth0.com/management/',
+            scope: 'read:users',
+          },
+          appState: {
+            returnTo: '/users/profile',
+          },
+        });
+
+        vi.unstubAllGlobals();
+      });
+
+      it('should redirect to root path when pathname is empty', async () => {
+        vi.stubGlobal('window', {
+          location: {
+            href: 'https://example.com',
+            pathname: '',
+            search: '',
+            hash: '',
+          },
+        });
+
+        vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue({
+          error: 'login_required',
+        });
+        vi.mocked(mockContextInterface.loginWithRedirect).mockResolvedValue(undefined);
+
+        const auth = createAuthConfig();
+        const tokenManager = createTokenManager(auth);
+
+        await expect(tokenManager.getToken('read:users', 'management')).rejects.toThrow(
+          'getAccessToken: failed',
+        );
+
+        expect(mockContextInterface.loginWithRedirect).toHaveBeenCalledWith({
+          authorizationParams: {
+            audience: 'https://example.auth0.com/management/',
+            scope: 'read:users',
+          },
+          appState: {
+            returnTo: '/',
+          },
+        });
+
+        vi.unstubAllGlobals();
+      });
+
+      it('should redirect to root path when pathname is just slash', async () => {
+        vi.stubGlobal('window', {
+          location: {
+            href: 'https://example.com/',
+            pathname: '/',
+            search: '',
+            hash: '',
+          },
+        });
+
+        vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue({
+          error: 'login_required',
+        });
+        vi.mocked(mockContextInterface.loginWithRedirect).mockResolvedValue(undefined);
+
+        const auth = createAuthConfig();
+        const tokenManager = createTokenManager(auth);
+
+        await expect(tokenManager.getToken('read:users', 'management')).rejects.toThrow(
+          'getAccessToken: failed',
+        );
+
+        expect(mockContextInterface.loginWithRedirect).toHaveBeenCalledWith({
+          authorizationParams: {
+            audience: 'https://example.auth0.com/management/',
+            scope: 'read:users',
+          },
+          appState: {
+            returnTo: '/',
+          },
+        });
+
+        vi.unstubAllGlobals();
+      });
+
+      it('should handle URL construction error gracefully', async () => {
+        // Mock console.error to verify error logging
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        // Mock an invalid window.location that throws when used with URL constructor
+        vi.stubGlobal('window', {
+          location: {
+            href: 'not-a-valid-url',
+            pathname: '/dashboard',
+            search: '',
+            hash: '',
+          },
+        });
+
+        vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue({
+          error: 'login_required',
+        });
+        vi.mocked(mockContextInterface.loginWithRedirect).mockResolvedValue(undefined);
+
+        const auth = createAuthConfig();
+        const tokenManager = createTokenManager(auth);
+
+        await expect(tokenManager.getToken('read:users', 'management')).rejects.toThrow(
+          'getAccessToken: failed',
+        );
+
+        // Should call loginWithRedirect without returnTo when URL construction fails
+        expect(mockContextInterface.loginWithRedirect).toHaveBeenCalledWith({
+          authorizationParams: {
+            audience: 'https://example.auth0.com/management/',
+            scope: 'read:users',
+          },
+        });
+
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          'TokenManager: Failed to construct safe return path',
+          expect.any(Error),
+        );
+
+        consoleErrorSpy.mockRestore();
+        vi.unstubAllGlobals();
+      });
+
+      it('should handle nested paths correctly', async () => {
+        vi.stubGlobal('window', {
+          location: {
+            href: 'https://example.com/admin/users/settings/profile',
+            pathname: '/admin/users/settings/profile',
+            search: '',
+            hash: '',
+          },
+        });
+
+        vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue({
+          error: 'login_required',
+        });
+        vi.mocked(mockContextInterface.loginWithRedirect).mockResolvedValue(undefined);
+
+        const auth = createAuthConfig();
+        const tokenManager = createTokenManager(auth);
+
+        await expect(tokenManager.getToken('read:users', 'management')).rejects.toThrow(
+          'getAccessToken: failed',
+        );
+
+        expect(mockContextInterface.loginWithRedirect).toHaveBeenCalledWith({
+          authorizationParams: {
+            audience: 'https://example.auth0.com/management/',
+            scope: 'read:users',
+          },
+          appState: {
+            returnTo: '/admin/users/settings/profile',
+          },
+        });
 
         vi.unstubAllGlobals();
       });
