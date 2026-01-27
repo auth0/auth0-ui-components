@@ -1,6 +1,7 @@
 import type { AuthDetails } from '@auth0/universal-components-core';
 import type * as React from 'react';
 
+import type { QueryCacheConfig } from './cache-types';
 import type { I18nOptions } from './i18n-types';
 import type { ThemeSettings } from './theme-types';
 import type { ToastSettings } from './toast-types';
@@ -14,4 +15,9 @@ export interface Auth0ComponentProviderProps {
   authDetails: AuthDetails;
   loader?: React.ReactNode;
   toastSettings?: ToastSettings;
+  /**
+   * Configuration for TanStack Query caching behavior.
+   * Pass `{ enabled: false }` to disable caching.
+   */
+  cacheConfig?: QueryCacheConfig;
 }

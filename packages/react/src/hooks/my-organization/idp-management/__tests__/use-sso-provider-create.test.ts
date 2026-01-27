@@ -6,6 +6,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 
 import { showToast } from '../../../../components/ui/toast';
+import { createTestQueryClientWrapper } from '../../../../internals/test-provider';
 import { useCoreClient } from '../../../use-core-client';
 import { useTranslator } from '../../../use-translator';
 import { useSsoProviderCreate } from '../use-sso-provider-create';
@@ -16,6 +17,15 @@ vi.mock('../../../../components/ui/toast');
 
 describe('useSsoProviderCreate', () => {
   const mockCreate = vi.fn();
+
+  const mockIdentityProvider: IdentityProvider = {
+    id: 'idp_123',
+    name: 'test-provider',
+    strategy: 'samlp',
+    display_name: 'Test Provider',
+    options: {},
+  };
+
   const mockT = vi.fn((key: string, params?: Record<string, string>) => {
     if (key === 'notifications.provider_create_success') {
       return `Provider ${params?.providerName} created successfully`;
@@ -45,8 +55,13 @@ describe('useSsoProviderCreate', () => {
     (useTranslator as Mock).mockReturnValue({ t: mockT });
   });
 
+  const renderUseSsoProviderCreate = (...args: Parameters<typeof useSsoProviderCreate>) => {
+    const { wrapper } = createTestQueryClientWrapper();
+    return renderHook(() => useSsoProviderCreate(...args), { wrapper });
+  };
+
   it('should initialize with isCreating as false', () => {
-    const { result } = renderHook(() => useSsoProviderCreate());
+    const { result } = renderUseSsoProviderCreate();
 
     expect(result.current.isCreating).toBe(false);
     expect(typeof result.current.createProvider).toBe('function');
@@ -60,17 +75,9 @@ describe('useSsoProviderCreate', () => {
       signingCert: 'cert123',
     };
 
-    const mockResult: IdentityProvider = {
-      id: 'idp_123',
-      name: 'test-provider',
-      strategy: 'samlp',
-      display_name: 'Test Provider',
-      options: {},
-    };
+    mockCreate.mockResolvedValue(mockIdentityProvider);
 
-    mockCreate.mockResolvedValue(mockResult);
-
-    const { result } = renderHook(() => useSsoProviderCreate());
+    const { result } = renderUseSsoProviderCreate();
 
     await result.current.createProvider(mockProviderData);
 
@@ -92,19 +99,23 @@ describe('useSsoProviderCreate', () => {
       signingCert: 'cert123',
     };
 
-    mockCreate.mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
+    mockCreate.mockImplementation(
+      () => new Promise((resolve) => setTimeout(() => resolve(mockIdentityProvider), 100)),
+    );
 
-    const { result } = renderHook(() => useSsoProviderCreate());
+    const { result } = renderUseSsoProviderCreate();
 
     const createPromise = result.current.createProvider(mockProviderData);
 
     await waitFor(() => {
-      expect(result.current.isCreating).toBe(false);
+      expect(result.current.isCreating).toBe(true);
     });
 
     await createPromise;
 
-    expect(result.current.isCreating).toBe(true);
+    await waitFor(() => {
+      expect(result.current.isCreating).toBe(false);
+    });
   });
 
   it('should handle duplicate provider error (409)', async () => {
@@ -124,9 +135,9 @@ describe('useSsoProviderCreate', () => {
 
     mockCreate.mockRejectedValue(error);
 
-    const { result } = renderHook(() => useSsoProviderCreate());
+    const { result } = renderUseSsoProviderCreate();
 
-    await result.current.createProvider(mockProviderData);
+    await expect(result.current.createProvider(mockProviderData)).rejects.toBeDefined();
 
     await waitFor(() => {
       expect(showToast).toHaveBeenCalledWith({
@@ -147,9 +158,9 @@ describe('useSsoProviderCreate', () => {
 
     mockCreate.mockRejectedValue(new Error('Network error'));
 
-    const { result } = renderHook(() => useSsoProviderCreate());
+    const { result } = renderUseSsoProviderCreate();
 
-    await result.current.createProvider(mockProviderData);
+    await expect(result.current.createProvider(mockProviderData)).rejects.toBeDefined();
 
     await waitFor(() => {
       expect(showToast).toHaveBeenCalledWith({
@@ -168,22 +179,12 @@ describe('useSsoProviderCreate', () => {
       signingCert: 'cert123',
     };
 
-    const mockResult: IdentityProvider = {
-      id: 'idp_123',
-      name: 'test-provider',
-      strategy: 'samlp',
-      display_name: 'Test Provider',
-      options: {},
-    };
-
     const onBefore = vi.fn().mockReturnValue(true);
-    mockCreate.mockResolvedValue(mockResult);
+    mockCreate.mockResolvedValue(mockIdentityProvider);
 
-    const { result } = renderHook(() =>
-      useSsoProviderCreate({
-        createAction: { onBefore },
-      }),
-    );
+    const { result } = renderUseSsoProviderCreate({
+      createAction: { onBefore },
+    });
 
     await result.current.createProvider(mockProviderData);
 
@@ -203,17 +204,22 @@ describe('useSsoProviderCreate', () => {
 
     const onBefore = vi.fn().mockReturnValue(false);
 
-    const { result } = renderHook(() =>
-      useSsoProviderCreate({
-        createAction: { onBefore },
-      }),
-    );
+    const { result } = renderUseSsoProviderCreate({
+      createAction: { onBefore },
+    });
 
-    await result.current.createProvider(mockProviderData);
+    await expect(result.current.createProvider(mockProviderData)).rejects.toThrow(
+      'Creation cancelled by onBefore hook',
+    );
 
     expect(onBefore).toHaveBeenCalledWith(mockProviderData);
     expect(mockCreate).not.toHaveBeenCalled();
-    expect(showToast).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(showToast).toHaveBeenCalledWith({
+        type: 'error',
+        message: 'An error occurred',
+      });
+    });
   });
 
   it('should call onAfter callback after successful creation', async () => {
@@ -224,27 +230,17 @@ describe('useSsoProviderCreate', () => {
       signingCert: 'cert123',
     };
 
-    const mockResult: IdentityProvider = {
-      id: 'idp_123',
-      name: 'test-provider',
-      strategy: 'samlp',
-      display_name: 'Test Provider',
-      options: {},
-    };
-
     const onAfter = vi.fn();
-    mockCreate.mockResolvedValue(mockResult);
+    mockCreate.mockResolvedValue(mockIdentityProvider);
 
-    const { result } = renderHook(() =>
-      useSsoProviderCreate({
-        createAction: { onAfter },
-      }),
-    );
+    const { result } = renderUseSsoProviderCreate({
+      createAction: { onAfter },
+    });
 
     await result.current.createProvider(mockProviderData);
 
     await waitFor(() => {
-      expect(onAfter).toHaveBeenCalledWith(mockProviderData, mockResult);
+      expect(onAfter).toHaveBeenCalledWith(mockProviderData, mockIdentityProvider);
     });
   });
 
@@ -259,13 +255,11 @@ describe('useSsoProviderCreate', () => {
     const onAfter = vi.fn();
     mockCreate.mockRejectedValue(new Error('Creation failed'));
 
-    const { result } = renderHook(() =>
-      useSsoProviderCreate({
-        createAction: { onAfter },
-      }),
-    );
+    const { result } = renderUseSsoProviderCreate({
+      createAction: { onAfter },
+    });
 
-    await result.current.createProvider(mockProviderData);
+    await expect(result.current.createProvider(mockProviderData)).rejects.toBeDefined();
 
     await waitFor(() => {
       expect(onAfter).not.toHaveBeenCalled();
@@ -282,11 +276,18 @@ describe('useSsoProviderCreate', () => {
       signingCert: 'cert123',
     };
 
-    const { result } = renderHook(() => useSsoProviderCreate());
+    const { result } = renderUseSsoProviderCreate();
 
-    await result.current.createProvider(mockProviderData);
+    await expect(result.current.createProvider(mockProviderData)).rejects.toThrow(
+      'Core client not available',
+    );
 
     expect(mockCreate).not.toHaveBeenCalled();
-    expect(showToast).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(showToast).toHaveBeenCalledWith({
+        type: 'error',
+        message: 'An error occurred',
+      });
+    });
   });
 });
