@@ -149,7 +149,7 @@ export default [
     },
   },
 
-  // Relaxed JSDoc rules for test, mock, and asset files
+  // Relaxed JSDoc rules for test, mock, asset, and UI atom component files
   {
     files: [
       '**/__mocks__/**', 
@@ -158,6 +158,7 @@ export default [
       '**/*.spec.{ts,tsx}',
       '**/assets/**',
       '**/internals/**',
+      '**/components/ui/**',  // shadcn/atom components - thin wrappers, not public API
     ],
     rules: {
       'jsdoc/require-param': 'off',
