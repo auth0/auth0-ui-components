@@ -27,8 +27,9 @@ export const ThemeContext = React.createContext<ThemeContextValue>({
  * Provides theme configuration via React Context to all components in the tree.
  * It merges optional styling overrides (CSS variables).
  *
- * @param themeSettings - Optional styling overrides
- * @param children - The components that will have access to the theme
+ * @param props - The provider props
+ * @param props.themeSettings - Optional styling overrides
+ * @param props.children - The components that will have access to the theme
  *
  * @example
  * ```tsx
