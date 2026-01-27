@@ -3,6 +3,7 @@ import type { SsoDomainTabActionColumn } from '../../../../types/my-organization
 import { Button } from '../../../ui/button';
 import { Spinner } from '../../../ui/spinner';
 import { Switch } from '../../../ui/switch';
+import { Tooltip, TooltipTrigger, TooltipContent } from '../../../ui/tooltip';
 
 /**
  * SsoDomainTabActionsColumn component
@@ -34,11 +35,20 @@ export function SsoDomainTabActionsColumn({
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
       {domain.status === 'verified' ? (
-        <Switch
-          checked={providerHasDomain}
-          onCheckedChange={(checked) => onToggle(domain, checked)}
-          disabled={readOnly || isUpdating}
-        />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Switch
+              checked={providerHasDomain}
+              onCheckedChange={(checked) => onToggle(domain, checked)}
+              disabled={readOnly || isUpdating}
+            />
+          </TooltipTrigger>
+          <TooltipContent>
+            {providerHasDomain
+              ? t('content.table.actions.disable_domain_tooltip')
+              : t('content.table.actions.enable_domain_tooltip')}
+          </TooltipContent>
+        </Tooltip>
       ) : (
         <Button variant="outline" size="sm" onClick={() => handleVerify(domain)}>
           {t('table.columns.verify')}
