@@ -36,6 +36,9 @@
     "test": "vitest run --coverage",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "registry:generate": "node scripts/generate-registry.mjs",
+    "registry:generate:interactive": "node scripts/generate-registry.mjs --interactive",
+    "registry:validate": "node scripts/validate-registry.mjs",
     "registry:build": "shadcn build -o ../../docs-site/public/r"
   },
   "peerDependencies": {
