@@ -8,7 +8,7 @@ import {
   BusinessError,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
 import type { UseSsoProviderTableReturn } from '../../../types/my-organization/idp-management/sso-provider/sso-provider-table-types';
@@ -40,6 +40,8 @@ export function useSsoProviderTable(
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
+  const hasShownProvidersError = useRef(false);
+  const hasShownOrganizationError = useRef(false);
 
   // ============================================
   // QUERIES - All data managed by TanStack Query
@@ -67,6 +69,34 @@ export function useSsoProviderTable(
     staleTime: CACHE_CONFIG.ORGANIZATION_STALE_TIME,
     enabled: !!coreClient,
   });
+
+  useEffect(() => {
+    if (providersQuery.isError && !hasShownProvidersError.current) {
+      showToast({
+        type: 'error',
+        message: t('general_error'),
+      });
+      hasShownProvidersError.current = true;
+    }
+
+    if (!providersQuery.isError) {
+      hasShownProvidersError.current = false;
+    }
+  }, [providersQuery.isError, t]);
+
+  useEffect(() => {
+    if (organizationQuery.isError && !hasShownOrganizationError.current) {
+      showToast({
+        type: 'error',
+        message: t('general_error'),
+      });
+      hasShownOrganizationError.current = true;
+    }
+
+    if (!organizationQuery.isError) {
+      hasShownOrganizationError.current = false;
+    }
+  }, [organizationQuery.isError, t]);
 
   // ============================================
   // MUTATIONS
@@ -221,7 +251,11 @@ export function useSsoProviderTable(
         return;
       }
 
-      await deleteProviderMutation.mutateAsync(selectedIdp);
+      try {
+        await deleteProviderMutation.mutateAsync(selectedIdp);
+      } catch {
+        // Errors are handled by mutation onError
+      }
     },
     [coreClient, deleteProviderMutation],
   );
@@ -232,7 +266,11 @@ export function useSsoProviderTable(
         return;
       }
 
-      await removeProviderMutation.mutateAsync(selectedIdp);
+      try {
+        await removeProviderMutation.mutateAsync(selectedIdp);
+      } catch {
+        // Errors are handled by mutation onError
+      }
     },
     [coreClient, removeProviderMutation],
   );
