@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -8,25 +8,42 @@ import {
   mockOnCreateProvisioning,
   mockOnDeleteProvisioning,
   mockOnListScimTokens,
+  renderWithProviders,
 } from '../../../../../../internals';
 import { SsoProvisioningTab } from '../sso-provisioning-tab';
 
 // Mock hooks
-const mockUseTranslator = vi.fn(() => ({
-  t: (key: string) => key,
-}));
+const mockUseSsoProviderEdit = vi.fn();
 
-vi.mock('../../../../../../hooks/use-translator', () => ({
-  useTranslator: () => mockUseTranslator(),
+vi.mock('../../../../../../hooks/my-organization/idp-management/use-sso-provider-edit', () => ({
+  useSsoProviderEdit: () => mockUseSsoProviderEdit(),
 }));
 
 describe('SsoProvisioningTab', () => {
   const renderComponent = (props = {}) => {
-    return render(<SsoProvisioningTab {...SsoProvisioningProps} {...props} />);
+    return renderWithProviders(<SsoProvisioningTab {...SsoProvisioningProps} {...props} />);
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Setup the hook mock to return default values
+    mockUseSsoProviderEdit.mockReturnValue({
+      provisioningConfig: null,
+      isProvisioningLoading: false,
+      isProvisioningUpdating: false,
+      isProvisioningDeleting: false,
+      isScimTokensLoading: false,
+      isScimTokenCreating: false,
+      isScimTokenDeleting: false,
+      fetchProvisioning: vi.fn(),
+      createProvisioning: mockOnCreateProvisioning,
+      deleteProvisioning: mockOnDeleteProvisioning,
+      listScimTokens: mockOnListScimTokens,
+      createScimToken: vi.fn(),
+      deleteScimToken: vi.fn(),
+    });
+
     mockOnCreateProvisioning.mockResolvedValue(undefined);
     mockOnDeleteProvisioning.mockResolvedValue(undefined);
     mockOnListScimTokens.mockResolvedValue({ scim_tokens: [] });
