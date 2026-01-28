@@ -1,6 +1,6 @@
 import { getComponentStyles, type Domain } from '@auth0/universal-components-core';
 import { useTheme, useTranslator } from '@react/hooks';
-import type { DomainTableUIProps } from '@react/types';
+import type { DomainTableViewProps } from '@react/types';
 import { Plus } from 'lucide-react';
 import * as React from 'react';
 
@@ -15,13 +15,10 @@ import { Header } from '../../../components/ui/header';
 import { getStatusBadgeVariant } from '../../../lib/my-org/domain-management';
 
 /**
- * Domain Table UI component.
+ * DomainTableView component.
  *
  * Renders domain table component but requires external state management via the `logic` prop.
  * Use this when you need custom Domain Table or want to integrate with your own state.
- * Alternatively, you can use hooks like `useDomainTableLogic` or `useDomainTableState` to build custom logic
- * without starting from scratch.
- *
  * @example
  * ```tsx
  * const customLogic = {
@@ -30,10 +27,10 @@ import { getStatusBadgeVariant } from '../../../lib/my-org/domain-management';
  *   domainTableActions: { createAction: async () => {...} }
  * };
  *
- * <DomainTableUI logic={customLogic} />
+ * <DomainTableView logic={customLogic} />
  * ```
  */
-export function DomainTableUI({
+export function DomainTableView({
   customMessages = {},
   schema,
   hideHeader = false,
@@ -46,7 +43,7 @@ export function DomainTableUI({
     classes: {},
   },
   logic,
-}: DomainTableUIProps) {
+}: DomainTableViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('domain_management', customMessages);
 

@@ -36,7 +36,8 @@
     "test": "vitest run --coverage",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "registry:build": "shadcn build -o ../../docs-site/public/r"
+    "registry:build": "shadcn build -o ../../docs-site/public/r",
+    "build:mintlify": "tsup --config ../../tsup.mintlify.config.ts && npx @tailwindcss/cli -i ./src/styles/globals.css -o ./dist/mintlify/styles.css --minify"
   },
   "peerDependencies": {
     "react": "^16.11.0 || ^17 || ^18 || ^19.2.1",

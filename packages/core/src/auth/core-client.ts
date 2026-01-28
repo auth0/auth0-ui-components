@@ -24,6 +24,33 @@ export async function createCoreClient(
   );
   const auth = initializeAuthDetails(authDetails);
 
+  // Skip API clients for docs sites
+  if (authDetails.offlineMode) {
+    const baseCoreClient: BaseCoreClientInterface = {
+      auth,
+      i18nService,
+      async getToken() {
+        return undefined;
+      },
+      isProxyMode() {
+        return false;
+      },
+      ensureScopes: async () => {},
+    };
+
+    return {
+      ...baseCoreClient,
+      myAccountApiClient: undefined,
+      myOrgApiClient: undefined,
+      getMyAccountApiClient() {
+        throw new Error('API clients are not available in docs/demo mode (skipApiClients=true)');
+      },
+      getMyOrgApiClient() {
+        throw new Error('API clients are not available in docs/demo mode (skipApiClients=true)');
+      },
+    };
+  }
+
   const tokenManagerService = createTokenManager(auth);
   const { client: myOrgApiClient, setLatestScopes: setOrgScopes } = initializeMyOrgClient(
     auth,

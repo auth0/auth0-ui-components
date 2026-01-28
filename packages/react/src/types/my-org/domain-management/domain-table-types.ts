@@ -153,7 +153,7 @@ export interface DomainTableLogicProps {
   domainTableActions: ReturnType<typeof useDomainTable>;
 }
 
-// Presentational Domain Table component props
-export interface DomainTableUIProps extends DomainTableProps {
+// DomainTableView component props
+export interface DomainTableViewProps extends DomainTableProps {
   logic: DomainTableLogicProps;
 }

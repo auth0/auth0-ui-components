@@ -5,11 +5,11 @@ import type * as React from 'react';
 import { withDomainTableLogic } from '../../../hoc/with-domain-table';
 import { withMyOrgService } from '../../../hoc/with-services';
 
-import { DomainTableUI } from './domain-table-ui';
+import { DomainTableView } from './domain-table-view';
 
 // Apply HOCs: My Org Services (WrappedComponent, scopes) + Domain Table logic (state management, actions etc)
 const DomainTableWithHOCs = withMyOrgService(
-  withDomainTableLogic(DomainTableUI),
+  withDomainTableLogic(DomainTableView),
   MY_ORG_DOMAIN_SCOPES,
 );
 

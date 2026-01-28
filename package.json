@@ -24,6 +24,7 @@
     "build": "turbo run build",
     "build:docs": "turbo run build --filter=auth0-ui-components-docs",
     "build:shadcn": "cd packages/react && pnpm registry:build && cp -r public/r ../../docs-site/public/",
+    "build:mintlify": "cd packages/react && pnpm build:mintlify",
     "dev:docs": "turbo run dev --filter=auth0-ui-components-docs",
     "test": "turbo run test:coverage",
     "test:core": "turbo run test:coverage --filter=./packages/core",
