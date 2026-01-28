@@ -1,12 +1,14 @@
 import type { ComponentAction, IdentityProvider } from '@auth0/universal-components-core';
+import type { QueryClient } from '@tanstack/react-query';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import * as useConfigModule from '../../../../hooks/my-organization/config/use-config';
+import { idpConfigQueryKeys } from '../../../../hooks/my-organization/config/use-idp-config';
 import * as useCoreClientModule from '../../../../hooks/use-core-client';
 import { createMockIdentityProvider } from '../../../../internals/__mocks__/my-organization/domain-management/domain.mocks';
-import { renderWithProviders } from '../../../../internals/test-provider';
+import { createTestQueryClient, renderWithProviders } from '../../../../internals/test-provider';
 import { mockCore, mockToast } from '../../../../internals/test-setup';
 import type { SsoProviderTableProps } from '../../../../types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 import { SsoProviderTable } from '../sso-provider-table';
@@ -71,20 +73,44 @@ const createMockDeleteFromOrganizationAction = (): ComponentAction<IdentityProvi
 
 const waitForComponentToLoad = async () => {
   return await waitFor(() => {
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
   });
 };
+
+const createMockIdpConfig = () => ({
+  organization: {
+    can_set_show_as_button: true,
+    can_set_assign_membership_on_login: true,
+  },
+  strategies: {
+    adfs: { enabled_features: [], provisioning_methods: [] },
+    'google-apps': { enabled_features: [], provisioning_methods: [] },
+    oidc: { enabled_features: [], provisioning_methods: [] },
+    okta: { enabled_features: [], provisioning_methods: [] },
+    pingfederate: { enabled_features: [], provisioning_methods: [] },
+    samlp: { enabled_features: [], provisioning_methods: [] },
+    waad: { enabled_features: [], provisioning_methods: [] },
+  },
+});
 
 // ===== Tests =====
 
 describe('SsoProviderTable', () => {
   const mockProvider = createMockIdentityProvider();
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;
+  let queryClient: QueryClient;
+
+  const renderTable = (overrides?: Partial<SsoProviderTableProps>) =>
+    renderWithProviders(<SsoProviderTable {...createMockSsoProviderTableProps(overrides)} />, {
+      queryClient,
+    });
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     mockCoreClient = initMockCoreClient();
+    queryClient = createTestQueryClient();
+    queryClient.setQueryData(idpConfigQueryKeys.config(), createMockIdpConfig());
 
     const apiService = mockCoreClient.getMyOrganizationApiClient();
     (apiService.organization.identityProviders.list as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -118,9 +144,7 @@ describe('SsoProviderTable', () => {
           },
         };
 
-        renderWithProviders(
-          <SsoProviderTable {...createMockSsoProviderTableProps({ customMessages })} />,
-        );
+        renderTable({ customMessages });
 
         await waitForComponentToLoad();
 
@@ -140,9 +164,7 @@ describe('SsoProviderTable', () => {
             },
           };
 
-          const { container } = renderWithProviders(
-            <SsoProviderTable {...createMockSsoProviderTableProps({ styling: customStyling })} />,
-          );
+          const { container } = renderTable({ styling: customStyling });
 
           await waitForComponentToLoad();
 
@@ -156,9 +178,7 @@ describe('SsoProviderTable', () => {
   describe('readOnly', () => {
     describe('when is true', () => {
       it('should disable action buttons', async () => {
-        renderWithProviders(
-          <SsoProviderTable {...createMockSsoProviderTableProps({ readOnly: true })} />,
-        );
+        renderTable({ readOnly: true });
 
         await waitForComponentToLoad();
 
@@ -169,9 +189,7 @@ describe('SsoProviderTable', () => {
 
     describe('when is false', () => {
       it('should enable action buttons', async () => {
-        renderWithProviders(
-          <SsoProviderTable {...createMockSsoProviderTableProps({ readOnly: false })} />,
-        );
+        renderTable({ readOnly: false });
 
         await waitForComponentToLoad();
 
@@ -188,11 +206,7 @@ describe('SsoProviderTable', () => {
           const mockCreateAction = createMockCreateAction();
           mockCreateAction.disabled = true;
 
-          renderWithProviders(
-            <SsoProviderTable
-              {...createMockSsoProviderTableProps({ createAction: mockCreateAction })}
-            />,
-          );
+          renderTable({ createAction: mockCreateAction });
 
           await waitForComponentToLoad();
 
@@ -206,11 +220,7 @@ describe('SsoProviderTable', () => {
           const mockCreateAction = createMockCreateAction();
           mockCreateAction.disabled = false;
 
-          renderWithProviders(
-            <SsoProviderTable
-              {...createMockSsoProviderTableProps({ createAction: mockCreateAction })}
-            />,
-          );
+          renderTable({ createAction: mockCreateAction });
 
           await waitForComponentToLoad();
 
@@ -226,11 +236,7 @@ describe('SsoProviderTable', () => {
           const user = userEvent.setup();
           const mockCreateAction = createMockCreateAction();
 
-          renderWithProviders(
-            <SsoProviderTable
-              {...createMockSsoProviderTableProps({ createAction: mockCreateAction })}
-            />,
-          );
+          renderTable({ createAction: mockCreateAction });
 
           await waitForComponentToLoad();
 
@@ -251,11 +257,7 @@ describe('SsoProviderTable', () => {
           const mockEditAction = createMockEditAction();
           mockEditAction.disabled = true;
 
-          renderWithProviders(
-            <SsoProviderTable
-              {...createMockSsoProviderTableProps({ editAction: mockEditAction })}
-            />,
-          );
+          renderTable({ editAction: mockEditAction });
 
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
@@ -284,11 +286,7 @@ describe('SsoProviderTable', () => {
           const mockEditAction = createMockEditAction();
           mockEditAction.disabled = false;
 
-          renderWithProviders(
-            <SsoProviderTable
-              {...createMockSsoProviderTableProps({ editAction: mockEditAction })}
-            />,
-          );
+          renderTable({ editAction: mockEditAction });
 
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
@@ -318,11 +316,7 @@ describe('SsoProviderTable', () => {
           const user = userEvent.setup();
           const mockEditAction = createMockEditAction();
 
-          renderWithProviders(
-            <SsoProviderTable
-              {...createMockSsoProviderTableProps({ editAction: mockEditAction })}
-            />,
-          );
+          renderTable({ editAction: mockEditAction });
 
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
@@ -358,14 +352,10 @@ describe('SsoProviderTable', () => {
           const mockDeleteAction = createMockDeleteAction();
           mockDeleteAction.disabled = true;
 
-          renderWithProviders(
-            <SsoProviderTable
-              {...createMockSsoProviderTableProps({
-                deleteAction: mockDeleteAction,
-                readOnly: true,
-              })}
-            />,
-          );
+          renderTable({
+            deleteAction: mockDeleteAction,
+            readOnly: true,
+          });
 
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
@@ -397,11 +387,7 @@ describe('SsoProviderTable', () => {
             const mockDeleteAction = createMockDeleteAction();
             mockDeleteAction.onBefore = vi.fn(() => true);
 
-            renderWithProviders(
-              <SsoProviderTable
-                {...createMockSsoProviderTableProps({ deleteAction: mockDeleteAction })}
-              />,
-            );
+            renderTable({ deleteAction: mockDeleteAction });
 
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
@@ -438,11 +424,7 @@ describe('SsoProviderTable', () => {
             const mockDeleteAction = createMockDeleteAction();
             mockDeleteAction.onBefore = vi.fn(() => false);
 
-            renderWithProviders(
-              <SsoProviderTable
-                {...createMockSsoProviderTableProps({ deleteAction: mockDeleteAction })}
-              />,
-            );
+            renderTable({ deleteAction: mockDeleteAction });
 
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
@@ -479,11 +461,7 @@ describe('SsoProviderTable', () => {
           const user = userEvent.setup();
           const mockDeleteAction = createMockDeleteAction();
 
-          renderWithProviders(
-            <SsoProviderTable
-              {...createMockSsoProviderTableProps({ deleteAction: mockDeleteAction })}
-            />,
-          );
+          renderTable({ deleteAction: mockDeleteAction });
 
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
@@ -536,14 +514,10 @@ describe('SsoProviderTable', () => {
           const mockDeleteFromOrganizationAction = createMockDeleteFromOrganizationAction();
           mockDeleteFromOrganizationAction.disabled = true;
 
-          renderWithProviders(
-            <SsoProviderTable
-              {...createMockSsoProviderTableProps({
-                deleteFromOrganizationAction: mockDeleteFromOrganizationAction,
-                readOnly: true,
-              })}
-            />,
-          );
+          renderTable({
+            deleteFromOrganizationAction: mockDeleteFromOrganizationAction,
+            readOnly: true,
+          });
 
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
@@ -575,13 +549,9 @@ describe('SsoProviderTable', () => {
             const mockDeleteFromOrganizationAction = createMockDeleteFromOrganizationAction();
             mockDeleteFromOrganizationAction.onBefore = vi.fn(() => true);
 
-            renderWithProviders(
-              <SsoProviderTable
-                {...createMockSsoProviderTableProps({
-                  deleteFromOrganizationAction: mockDeleteFromOrganizationAction,
-                })}
-              />,
-            );
+            renderTable({
+              deleteFromOrganizationAction: mockDeleteFromOrganizationAction,
+            });
 
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
@@ -618,13 +588,9 @@ describe('SsoProviderTable', () => {
             const mockDeleteFromOrganizationAction = createMockDeleteFromOrganizationAction();
             mockDeleteFromOrganizationAction.onBefore = vi.fn(() => false);
 
-            renderWithProviders(
-              <SsoProviderTable
-                {...createMockSsoProviderTableProps({
-                  deleteFromOrganizationAction: mockDeleteFromOrganizationAction,
-                })}
-              />,
-            );
+            renderTable({
+              deleteFromOrganizationAction: mockDeleteFromOrganizationAction,
+            });
 
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
@@ -661,13 +627,9 @@ describe('SsoProviderTable', () => {
           const user = userEvent.setup();
           const mockDeleteFromOrganizationAction = createMockDeleteFromOrganizationAction();
 
-          renderWithProviders(
-            <SsoProviderTable
-              {...createMockSsoProviderTableProps({
-                deleteFromOrganizationAction: mockDeleteFromOrganizationAction,
-              })}
-            />,
-          );
+          renderTable({
+            deleteFromOrganizationAction: mockDeleteFromOrganizationAction,
+          });
 
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
@@ -725,9 +687,7 @@ describe('SsoProviderTable', () => {
           onAfter: vi.fn(),
         };
 
-        renderWithProviders(
-          <SsoProviderTable {...createMockSsoProviderTableProps({ enableProviderAction })} />,
-        );
+        renderTable({ enableProviderAction });
 
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
@@ -765,9 +725,7 @@ describe('SsoProviderTable', () => {
           onAfter: vi.fn(),
         };
 
-        renderWithProviders(
-          <SsoProviderTable {...createMockSsoProviderTableProps({ enableProviderAction })} />,
-        );
+        renderTable({ enableProviderAction });
 
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
@@ -800,11 +758,7 @@ describe('SsoProviderTable', () => {
           onAfter: vi.fn(),
         };
 
-        renderWithProviders(
-          <SsoProviderTable
-            {...createMockSsoProviderTableProps({ enableProviderAction, readOnly: true })}
-          />,
-        );
+        renderTable({ enableProviderAction, readOnly: true });
 
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
@@ -820,7 +774,7 @@ describe('SsoProviderTable', () => {
   describe('table display', () => {
     describe('when providers are loaded', () => {
       it('should display provider information in table', async () => {
-        renderWithProviders(<SsoProviderTable {...createMockSsoProviderTableProps()} />);
+        renderTable();
 
         await waitForComponentToLoad();
 
@@ -833,7 +787,14 @@ describe('SsoProviderTable', () => {
 
     describe('when no providers exist', () => {
       it('should display empty state', async () => {
-        renderWithProviders(<SsoProviderTable {...createMockSsoProviderTableProps()} />);
+        const apiService = mockCoreClient.getMyOrganizationApiClient();
+        (
+          apiService.organization.identityProviders.list as ReturnType<typeof vi.fn>
+        ).mockResolvedValue({
+          identity_providers: [],
+        });
+
+        renderTable();
 
         await waitForComponentToLoad();
 

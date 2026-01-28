@@ -44,13 +44,6 @@ export function useSsoProviderCreate({
         throw new Error('Core client not available');
       }
 
-      if (createAction?.onBefore) {
-        const canProceed = createAction.onBefore(data);
-        if (!canProceed) {
-          throw new Error('Creation cancelled by onBefore hook');
-        }
-      }
-
       const { strategy, name, display_name, ...configOptions } = data;
 
       const formData = {
@@ -107,9 +100,24 @@ export function useSsoProviderCreate({
 
   const createProvider = useCallback(
     async (data: CreateIdentityProviderRequestContentPrivate): Promise<void> => {
+      if (!coreClient) {
+        showToast({
+          type: 'error',
+          message: t('notifications.general_error'),
+        });
+        return;
+      }
+
+      if (createAction?.onBefore) {
+        const canProceed = createAction.onBefore(data);
+        if (!canProceed) {
+          return;
+        }
+      }
+
       await createProviderMutation.mutateAsync(data);
     },
-    [createProviderMutation],
+    [coreClient, createAction, createProviderMutation],
   );
 
   return {

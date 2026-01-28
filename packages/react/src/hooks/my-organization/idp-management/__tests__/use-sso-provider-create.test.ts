@@ -79,7 +79,7 @@ describe('useSsoProviderCreate', () => {
 
     const { result } = renderUseSsoProviderCreate();
 
-    await result.current.createProvider(mockProviderData);
+    await expect(result.current.createProvider(mockProviderData)).resolves.toBeUndefined();
 
     await waitFor(() => {
       expect(mockCreate).toHaveBeenCalledTimes(1);
@@ -186,7 +186,7 @@ describe('useSsoProviderCreate', () => {
       createAction: { onBefore },
     });
 
-    await result.current.createProvider(mockProviderData);
+    await expect(result.current.createProvider(mockProviderData)).resolves.toBeUndefined();
 
     await waitFor(() => {
       expect(onBefore).toHaveBeenCalledWith(mockProviderData);
@@ -208,17 +208,12 @@ describe('useSsoProviderCreate', () => {
       createAction: { onBefore },
     });
 
-    await expect(result.current.createProvider(mockProviderData)).rejects.toThrow(
-      'Creation cancelled by onBefore hook',
-    );
+    await expect(result.current.createProvider(mockProviderData)).resolves.toBeUndefined();
 
     expect(onBefore).toHaveBeenCalledWith(mockProviderData);
     expect(mockCreate).not.toHaveBeenCalled();
     await waitFor(() => {
-      expect(showToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'An error occurred',
-      });
+      expect(showToast).not.toHaveBeenCalled();
     });
   });
 
@@ -237,7 +232,7 @@ describe('useSsoProviderCreate', () => {
       createAction: { onAfter },
     });
 
-    await result.current.createProvider(mockProviderData);
+    await expect(result.current.createProvider(mockProviderData)).resolves.toBeUndefined();
 
     await waitFor(() => {
       expect(onAfter).toHaveBeenCalledWith(mockProviderData, mockIdentityProvider);
@@ -278,9 +273,7 @@ describe('useSsoProviderCreate', () => {
 
     const { result } = renderUseSsoProviderCreate();
 
-    await expect(result.current.createProvider(mockProviderData)).rejects.toThrow(
-      'Core client not available',
-    );
+    await expect(result.current.createProvider(mockProviderData)).resolves.toBeUndefined();
 
     expect(mockCreate).not.toHaveBeenCalled();
     await waitFor(() => {

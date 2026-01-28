@@ -11,7 +11,7 @@ import {
   getStatusCode,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
 import type {
@@ -20,6 +20,12 @@ import type {
 } from '../../../types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 import { useCoreClient } from '../../use-core-client';
 import { useTranslator } from '../../use-translator';
+
+const ACTION_CANCELLED_ERROR = 'ACTION_CANCELLED';
+
+const isActionCancelledError = (error: unknown): boolean => {
+  return error instanceof Error && error.message === ACTION_CANCELLED_ERROR;
+};
 
 const CACHE_CONFIG = {
   PROVIDER_STALE_TIME: 5 * 60 * 1000,
@@ -45,6 +51,7 @@ export function useSsoProviderEdit(
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const queryClient = useQueryClient();
+  const hasShownProviderError = useRef(false);
 
   // ============================================
   // QUERIES - All data managed by TanStack Query
@@ -65,11 +72,6 @@ export function useSsoProviderEdit(
     staleTime: CACHE_CONFIG.PROVIDER_STALE_TIME,
     gcTime: CACHE_CONFIG.PROVIDER_GC_TIME,
     enabled: !!coreClient && !!idpId,
-    retry: (failureCount, error) => {
-      const status = getStatusCode(error);
-      if (status === 404) return false;
-      return failureCount < 3;
-    },
   });
 
   /**
@@ -117,6 +119,20 @@ export function useSsoProviderEdit(
     },
   });
 
+  useEffect(() => {
+    if (providerQuery.isError && !hasShownProviderError.current) {
+      showToast({
+        type: 'error',
+        message: t('general_error'),
+      });
+      hasShownProviderError.current = true;
+    }
+
+    if (!providerQuery.isError) {
+      hasShownProviderError.current = false;
+    }
+  }, [providerQuery.isError, t]);
+
   // ============================================
   // MUTATIONS - All actions that modify data
   // ============================================
@@ -134,7 +150,7 @@ export function useSsoProviderEdit(
       if (sso?.updateAction?.onBefore) {
         const canProceed = sso.updateAction.onBefore(provider);
         if (!canProceed) {
-          throw new Error('Update cancelled by onBefore hook');
+          throw new Error(ACTION_CANCELLED_ERROR);
         }
       }
 
@@ -164,7 +180,10 @@ export function useSsoProviderEdit(
         await sso.updateAction.onAfter(provider, result);
       }
     },
-    onError: () => {
+    onError: (error) => {
+      if (isActionCancelledError(error)) {
+        return;
+      }
       showToast({
         type: 'error',
         message: t('general_error'),
@@ -185,7 +204,7 @@ export function useSsoProviderEdit(
       if (provisioning?.createAction?.onBefore) {
         const canProceed = provisioning.createAction.onBefore(provider);
         if (!canProceed) {
-          throw new Error('Create provisioning cancelled by onBefore hook');
+          throw new Error(ACTION_CANCELLED_ERROR);
         }
       }
 
@@ -213,7 +232,10 @@ export function useSsoProviderEdit(
         await provisioning.createAction.onAfter(provider, result);
       }
     },
-    onError: () => {
+    onError: (error) => {
+      if (isActionCancelledError(error)) {
+        return;
+      }
       showToast({
         type: 'error',
         message: t('general_error'),
@@ -234,7 +256,7 @@ export function useSsoProviderEdit(
       if (provisioning?.deleteAction?.onBefore) {
         const canProceed = provisioning.deleteAction.onBefore(provider);
         if (!canProceed) {
-          throw new Error('Delete provisioning cancelled by onBefore hook');
+          throw new Error(ACTION_CANCELLED_ERROR);
         }
       }
 
@@ -260,7 +282,10 @@ export function useSsoProviderEdit(
         await provisioning.deleteAction.onAfter(provider);
       }
     },
-    onError: () => {
+    onError: (error) => {
+      if (isActionCancelledError(error)) {
+        return;
+      }
       showToast({
         type: 'error',
         message: t('general_error'),
@@ -281,7 +306,7 @@ export function useSsoProviderEdit(
       if (provisioning?.createScimTokenAction?.onBefore) {
         const canProceed = provisioning.createScimTokenAction.onBefore(provider);
         if (!canProceed) {
-          throw new Error('Create SCIM token cancelled by onBefore hook');
+          throw new Error(ACTION_CANCELLED_ERROR);
         }
       }
 
@@ -308,7 +333,10 @@ export function useSsoProviderEdit(
         await provisioning.createScimTokenAction.onAfter(provider, result);
       }
     },
-    onError: () => {
+    onError: (error) => {
+      if (isActionCancelledError(error)) {
+        return;
+      }
       showToast({
         type: 'error',
         message: t('general_error'),
@@ -329,7 +357,7 @@ export function useSsoProviderEdit(
       if (provisioning?.deleteScimTokenAction?.onBefore) {
         const canProceed = provisioning.deleteScimTokenAction.onBefore(provider);
         if (!canProceed) {
-          throw new Error('Delete SCIM token cancelled by onBefore hook');
+          throw new Error(ACTION_CANCELLED_ERROR);
         }
       }
 
@@ -354,7 +382,10 @@ export function useSsoProviderEdit(
         await provisioning.deleteScimTokenAction.onAfter(provider);
       }
     },
-    onError: () => {
+    onError: (error) => {
+      if (isActionCancelledError(error)) {
+        return;
+      }
       showToast({
         type: 'error',
         message: t('general_error'),
@@ -420,7 +451,7 @@ export function useSsoProviderEdit(
       if (sso?.deleteFromOrganizationAction?.onBefore) {
         const canProceed = sso.deleteFromOrganizationAction.onBefore(provider);
         if (!canProceed) {
-          throw new Error('Detach provider cancelled by onBefore hook');
+          throw new Error(ACTION_CANCELLED_ERROR);
         }
       }
 
@@ -454,7 +485,10 @@ export function useSsoProviderEdit(
         await sso.deleteFromOrganizationAction.onAfter(provider);
       }
     },
-    onError: () => {
+    onError: (error) => {
+      if (isActionCancelledError(error)) {
+        return;
+      }
       showToast({
         type: 'error',
         message: t('general_error'),
@@ -549,17 +583,35 @@ export function useSsoProviderEdit(
 
   const updateProvider = useCallback(
     async (data: UpdateIdentityProviderRequestContent): Promise<void> => {
-      await updateProviderMutation.mutateAsync(data);
+      try {
+        await updateProviderMutation.mutateAsync(data);
+      } catch (error) {
+        if (!isActionCancelledError(error)) {
+          throw error;
+        }
+      }
     },
     [updateProviderMutation],
   );
 
   const createProvisioning = useCallback(async (): Promise<void> => {
-    await createProvisioningMutation.mutateAsync();
+    try {
+      await createProvisioningMutation.mutateAsync();
+    } catch (error) {
+      if (!isActionCancelledError(error)) {
+        throw error;
+      }
+    }
   }, [createProvisioningMutation]);
 
   const deleteProvisioning = useCallback(async (): Promise<void> => {
-    await deleteProvisioningMutation.mutateAsync();
+    try {
+      await deleteProvisioningMutation.mutateAsync();
+    } catch (error) {
+      if (!isActionCancelledError(error)) {
+        throw error;
+      }
+    }
   }, [deleteProvisioningMutation]);
 
   /**
@@ -593,24 +645,49 @@ export function useSsoProviderEdit(
 
   const createScimToken = useCallback(
     async (data: CreateIdpProvisioningScimTokenRequestContent) => {
-      return await createScimTokenMutation.mutateAsync(data);
+      try {
+        return await createScimTokenMutation.mutateAsync(data);
+      } catch (error) {
+        if (!isActionCancelledError(error)) {
+          throw error;
+        }
+        return undefined;
+      }
     },
     [createScimTokenMutation],
   );
 
   const deleteScimToken = useCallback(
     async (idpScimTokenId: string): Promise<void> => {
-      await deleteScimTokenMutation.mutateAsync(idpScimTokenId);
+      try {
+        await deleteScimTokenMutation.mutateAsync(idpScimTokenId);
+      } catch (error) {
+        if (!isActionCancelledError(error)) {
+          throw error;
+        }
+      }
     },
     [deleteScimTokenMutation],
   );
 
   const onDeleteConfirm = useCallback(async (): Promise<void> => {
-    await deleteProviderMutation.mutateAsync();
+    try {
+      await deleteProviderMutation.mutateAsync();
+    } catch (error) {
+      if (!isActionCancelledError(error)) {
+        throw error;
+      }
+    }
   }, [deleteProviderMutation]);
 
   const onRemoveConfirm = useCallback(async (): Promise<void> => {
-    await detachProviderMutation.mutateAsync();
+    try {
+      await detachProviderMutation.mutateAsync();
+    } catch (error) {
+      if (!isActionCancelledError(error)) {
+        throw error;
+      }
+    }
   }, [detachProviderMutation]);
 
   return {
