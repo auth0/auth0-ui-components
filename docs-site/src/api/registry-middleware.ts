@@ -4,8 +4,30 @@ import path from 'path';
 import type { Plugin } from 'vite';
 
 const SPECIAL_FILES = ['index.json', 'registry.json', 'versions.json'];
-const DEFAULT_VERSION = 'v1';
-const LATEST_VERSION = 'v1';
+
+function getVersionInfo(): any {
+  try {
+    const versionsPath = path.join(process.cwd(), 'public', 'r', 'versions.json');
+    if (fs.existsSync(versionsPath)) {
+      const versionsData = JSON.parse(fs.readFileSync(versionsPath, 'utf-8'));
+      return {
+        ...versionsData,
+        currentPath: versionsData.currentPath || versionsData.current || 'v1',
+        latestPath: versionsData.latestPath || versionsData.latest || 'v1',
+      };
+    }
+  } catch (error) {
+    console.error('Failed to read versions.json:', error);
+  }
+  // Fallback - minimal defaults without hardcoded versions
+  return {
+    current: 'v1',
+    latest: 'v1',
+    currentPath: 'v1',
+    latestPath: 'v1',
+    majorVersions: {},
+  };
+}
 
 export function registryMiddleware(): Plugin {
   return {
@@ -24,14 +46,31 @@ export function registryMiddleware(): Plugin {
           return next();
         }
 
+        const versionInfo = getVersionInfo();
         const versionParam = url.searchParams.get('version');
-        let version = versionParam || DEFAULT_VERSION;
+        let versionPath: string;
 
-        if (version === 'latest') {
-          version = LATEST_VERSION;
+        if (!versionParam) {
+          versionPath = versionInfo.currentPath;
+        } else if (versionParam === 'latest') {
+          versionPath = versionInfo.latestPath;
+        } else if (versionParam.startsWith('v') && versionParam.includes('/')) {
+          // Full version path provided (e.g., 'v1/1.0.0-beta.5')
+          versionPath = versionParam;
+        } else if (versionParam.startsWith('v') && !versionParam.includes('/')) {
+          // Major version only (e.g., 'v1') - get latest for that major
+          versionPath = versionInfo.majorVersions?.[versionParam]?.path || versionInfo.currentPath;
+        } else {
+          // Just version number (e.g., '1.0.0-beta.5') - find the major and construct path
+          const versionData = versionInfo.versions?.[versionParam];
+          if (versionData) {
+            versionPath = `v${versionData.major}/${versionParam}`;
+          } else {
+            versionPath = versionInfo.currentPath;
+          }
         }
 
-        const versionedPath = path.join(process.cwd(), 'public', 'r', version, fileName);
+        const versionedPath = path.join(process.cwd(), 'public', 'r', versionPath, fileName);
 
         if (fs.existsSync(versionedPath)) {
           try {
@@ -56,7 +95,7 @@ export function registryMiddleware(): Plugin {
           res.end(
             JSON.stringify({
               error: 'Not Found',
-              message: `Component "${fileName}" does not exist in version "${version}"`,
+              message: `Component "${fileName}" does not exist in version "${versionPath}"`,
               hint: 'Check available versions or component name',
             }),
           );
