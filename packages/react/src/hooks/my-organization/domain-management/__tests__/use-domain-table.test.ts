@@ -166,8 +166,9 @@ describe('useDomainTable', () => {
         expect(result.current.isFetching).toBe(false);
       });
 
-      const initialCallCount =
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.list.mock.calls.length;
+      const initialCallCount = vi.mocked(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
+      ).mock.calls.length;
 
       // Manually set the query data with a fresh timestamp
       queryClient.setQueryData(['domains', 'list'], [], {
@@ -179,7 +180,8 @@ describe('useDomainTable', () => {
 
       // Should return early without calling the API again
       expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.list.mock.calls.length,
+        vi.mocked(mockCoreClient.getMyOrganizationApiClient().organization.domains.list).mock.calls
+          .length,
       ).toBe(initialCallCount);
     });
 
@@ -191,8 +193,9 @@ describe('useDomainTable', () => {
         expect(result.current.isFetching).toBe(false);
       });
 
-      const initialCallCount =
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.list.mock.calls.length;
+      const initialCallCount = vi.mocked(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
+      ).mock.calls.length;
 
       // Manually set the query data with a stale timestamp (older than 5 minutes)
       queryClient.setQueryData(['domains', 'list'], [], {
@@ -205,7 +208,8 @@ describe('useDomainTable', () => {
       // Should call the API again due to stale data
       await waitFor(() => {
         expect(
-          mockCoreClient.getMyOrganizationApiClient().organization.domains.list.mock.calls.length,
+          vi.mocked(mockCoreClient.getMyOrganizationApiClient().organization.domains.list).mock
+            .calls.length,
         ).toBeGreaterThan(initialCallCount);
       });
     });
@@ -218,8 +222,9 @@ describe('useDomainTable', () => {
         expect(result.current.isFetching).toBe(false);
       });
 
-      const initialCallCount =
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.list.mock.calls.length;
+      const initialCallCount = vi.mocked(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
+      ).mock.calls.length;
 
       // Invalidate the query
       await queryClient.invalidateQueries({ queryKey: ['domains', 'list'] });
@@ -230,7 +235,8 @@ describe('useDomainTable', () => {
       // Should call the API again due to invalidation
       await waitFor(() => {
         expect(
-          mockCoreClient.getMyOrganizationApiClient().organization.domains.list.mock.calls.length,
+          vi.mocked(mockCoreClient.getMyOrganizationApiClient().organization.domains.list).mock
+            .calls.length,
         ).toBeGreaterThan(initialCallCount);
       });
     });
@@ -453,7 +459,9 @@ describe('useDomainTable', () => {
       });
 
       expect(result.current.providers).toHaveLength(1);
-      expect(result.current.providers[0].is_associated).toBe(true);
+      const firstProvider = result.current.providers[0];
+      expect(firstProvider).toBeDefined();
+      expect(firstProvider!.is_associated).toBe(true);
     });
 
     it('should fetch providers from cache via ensureQueryData', async () => {
@@ -483,9 +491,9 @@ describe('useDomainTable', () => {
         expect(result.current.isLoadingProviders).toBe(false);
       });
 
-      const initialApiCallCount =
-        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list.mock.calls
-          .length;
+      const initialApiCallCount = vi.mocked(
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list,
+      ).mock.calls.length;
 
       // Second fetch - should use cached data since it's fresh
       await result.current.fetchProviders(mockDomain);
@@ -496,12 +504,14 @@ describe('useDomainTable', () => {
 
       // Verify providers are loaded correctly
       expect(result.current.providers).toHaveLength(1);
-      expect(result.current.providers[0].is_associated).toBe(true);
+      const cachedProvider = result.current.providers[0];
+      expect(cachedProvider).toBeDefined();
+      expect(cachedProvider!.is_associated).toBe(true);
 
       // Should use cache if available and fresh (not make additional API calls)
-      const finalApiCallCount =
-        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list.mock.calls
-          .length;
+      const finalApiCallCount = vi.mocked(
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list,
+      ).mock.calls.length;
 
       expect(finalApiCallCount).toBe(initialApiCallCount);
     });
