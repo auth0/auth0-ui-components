@@ -18,6 +18,9 @@ createRoot(document.getElementById('root')!).render(
         authorizationParams={{
           redirect_uri: window.location.origin,
         }}
+        useMrrt={true}
+        cacheLocation="localstorage"
+        useRefreshTokens={true}
       >
         <I18nextProvider i18n={i18n}>
           <App />

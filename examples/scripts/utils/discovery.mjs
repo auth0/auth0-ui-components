@@ -116,7 +116,7 @@ export async function discoverExistingResources() {
 /**
  * Check all resources and build comprehensive change plan
  */
-export async function buildChangePlan(resources, domain) {
+export async function buildChangePlan(resources, domain, exampleType) {
   const spinner = ora({
     text: `Analyzing required changes`,
   }).start()
@@ -142,7 +142,10 @@ export async function buildChangePlan(resources, domain) {
     plan.clients.dashboard = await checkDashboardClientChanges(
       resources.clients,
       connectionProfileId,
-      userAttributeProfileId
+      userAttributeProfileId,
+      exampleType,
+      domain,
+      MYORG_API_SCOPES
     )
 
     // Get client IDs (either existing or will be created)
@@ -302,12 +305,12 @@ export function displayChangePlan(plan) {
             `  • Add logout URLs: ${item.updates.missingLogoutUrls.join(", ")}`
           )
         }
-        if (item.updates.wrongAppType) {
+        if (item?.updates?.checkAppType?.wrongAppType) {
           if (!hasDetails) {
             console.log(`\n${label}:`)
             hasDetails = true
           }
-          console.log(`  • Set app_type to: regular_web`)
+          console.log(`  • Set app_type to: ${item.updates?.checkAppType?.requiredAppType}`)
         }
         if (item.updates.myOrgConfigNeedsUpdate) {
           if (!hasDetails) {
