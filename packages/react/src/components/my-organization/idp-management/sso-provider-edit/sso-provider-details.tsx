@@ -2,6 +2,7 @@ import { getComponentStyles } from '@auth0/universal-components-core';
 import React from 'react';
 
 import { FormActions } from '../../../../components/ui/form-actions';
+import { Separator } from '../../../../components/ui/separator';
 import { useTheme } from '../../../../hooks/use-theme';
 import { useTranslator } from '../../../../hooks/use-translator';
 import { cn } from '../../../../lib/theme-utils';
@@ -15,9 +16,18 @@ import {
   type ProviderDetailsFormHandle,
 } from '../sso-provider-create/provider-details';
 
+import { SsoProviderAttributeMappings } from './sso-provider-attribute-mappings';
+
 /**
  * SsoProviderDetails Component
  * Combines ProviderDetails and ProviderConfigureFields for editing SSO provider
+ * @param root0
+ * @param root0.provider
+ * @param root0.readOnly
+ * @param root0.idpConfig
+ * @param root0.formActions
+ * @param root0.customMessages
+ * @param root0.styling
  */
 export function SsoProviderDetails({
   provider,
@@ -51,8 +61,12 @@ export function SsoProviderDetails({
     };
   }, [provider]);
 
-  const hasUnsavedChanges = isDetailsDirty || isConfigureDirty;
+  const attributes = React.useMemo(() => {
+    if (!provider) return null;
+    return 'attributes' in provider ? (provider.attributes ?? null) : null;
+  }, [provider]);
 
+  const hasUnsavedChanges = isDetailsDirty || isConfigureDirty;
   const handleSave = async () => {
     if (!formActions?.nextAction?.onClick || !provider?.strategy) return;
 
@@ -111,6 +125,16 @@ export function SsoProviderDetails({
           customMessages={customMessages.configure_fields}
           className={currentStyles.classes?.['ProviderConfigure-root']}
           onFormDirty={setIsConfigureDirty}
+        />
+      </div>
+
+      <Separator />
+      <div className="space-y-4">
+        <SsoProviderAttributeMappings
+          strategy={provider?.strategy || null}
+          userAttributeMap={attributes}
+          customMessages={customMessages.mappings}
+          className={currentStyles.classes?.['SsoProvider-attributeMapping']}
         />
       </div>
 

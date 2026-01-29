@@ -17,14 +17,28 @@ import {
 import { Spinner } from '../../../../ui/spinner';
 import { Switch } from '../../../../ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '../../../../ui/tooltip';
+import { SsoProviderAttributeSyncAlert } from '../sso-provider-attribute-sync-alert';
 
 import { SsoProvisioningDeleteModal } from './sso-provisioning-delete-modal';
 import { SsoProvisioningDetails } from './sso-provisioning-details';
 
+/**
+ *
+ * @param root0
+ * @param root0.provider
+ * @param root0.styling
+ * @param root0.customMessages
+ * @param root0.hasProvisioningAttributeSyncWarning
+ * @param root0.onAttributeSync
+ * @param root0.isSyncingAttributes
+ */
 export function SsoProvisioningTab({
   provider,
   styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
   customMessages = {},
+  hasProvisioningAttributeSyncWarning,
+  onAttributeSync,
+  isSyncingAttributes = false,
 }: SsoProvisioningTabProps): React.JSX.Element {
   const { t } = useTranslator(
     'idp_management.edit_sso_provider.tabs.provisioning.content',
@@ -84,8 +98,18 @@ export function SsoProvisioningTab({
   return (
     <div
       style={currentStyles.variables}
-      className={cn('space-y-8', currentStyles.classes?.['SsoProvisioningTab-root'])}
+      className={cn('space-y-10', currentStyles.classes?.['SsoProvisioningTab-root'])}
     >
+      {hasProvisioningAttributeSyncWarning && (
+        <SsoProviderAttributeSyncAlert
+          translatorKey="idp_management.edit_sso_provider.tabs.provisioning.content.attribute_sync_alert"
+          onSync={onAttributeSync}
+          isSyncing={isSyncingAttributes}
+          customMessages={customMessages.attribute_sync_alert}
+          className={currentStyles.classes?.['SsoProviderAttributeSyncAlert-root']}
+        />
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-medium text-foreground text-left">

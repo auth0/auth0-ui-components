@@ -532,14 +532,80 @@
         "enable_provider_tooltip_text": "Toggle to enable the provider.",
         "disable_provider_tooltip_text": "Toggle to disable the provider."
       },
+      "mappings": {
+        "title": "Mapping",
+        "description": "Ensure that the correct user attributes are passed from the identity provider to the service provider.",
+        "description_provider_tab": "Establish a connection between your identity provider and Auth0.",
+        "external_namespace": {
+          "label": "External Namespace"
+        },
+        "required": {
+          "title": "Required Attributes",
+          "description": "Ensure that a valid ${strategy} attribute is mapped to the following attributes.",
+          "table": {
+            "columns": {
+              "attribute_name_label": "Attribute Name",
+              "external_field_label": "External Field"
+            },
+            "tags": {
+              "updated": {
+                "label": "Updated",
+                "tooltip": "This attribute has been updated. Update your identity provider configuration."
+              },
+              "removed": {
+                "label": "Removed",
+                "tooltip": "This attribute has been removed. Remove it from your identity provider configuration."
+              },
+              "new": {
+                "label": "New",
+                "tooltip": "This attribute has been added. Add it to your identity provider configuration."
+              }
+            }
+          }
+        },
+        "optional": {
+          "title": "Optional Attributes",
+          "description": "Mapping these attributes will enhance the user profile but is not required.",
+          "table": {
+            "columns": {
+              "attribute_name_label": "Attribute Name",
+              "external_field_label": "External Field"
+            },
+            "tags": {
+              "updated": {
+                "label": "Updated",
+                "tooltip": "This attribute has been updated. Update your identity provider configuration."
+              },
+              "removed": {
+                "label": "Removed",
+                "tooltip": "This attribute has been removed. Remove it from your identity provider configuration."
+              },
+              "new": {
+                "label": "New",
+                "tooltip": "This attribute has been added. Add it to your identity provider configuration."
+              }
+            }
+          }
+        }
+      },
       "tabs": {
         "sso": {
           "name": "Single Sign-On",
           "content": {
             "title": "Single Sign-On",
             "description": "Manage and configure single sign-on.",
-            "alert": {
-              "warning": "User attribute mappings for single sign-on have been updated. Please review the attributes and update your identity provider configuration to avoid login issues."
+            "attribute_sync_alert": {
+              "title": "Mappings for single sign-on have been updated.",
+              "description": "Please review the attributes and update your identity provider configuration to avoid login issues. Once complete, sync the updated mappings.",
+              "sync_button_label": "Sync",
+              "sync_modal": {
+                "title": "Sync Updated Mappings",
+                "description": "Syncing will update your provider configuration with the latest mappings. This action cannot be undone.",
+                "actions": {
+                  "cancel_button_label": "Cancel",
+                  "proceed_button_label": "Proceed"
+                }
+              }
             }
           }
         },
@@ -554,9 +620,18 @@
               "enable_provisioning_tooltip": "Toggle to enable provisioning",
               "disable_provisioning_tooltip": "Toggle to disable provisioning"
             },
-            "warning_alert_message": {
+            "attribute_sync_alert": {
               "title": "Mappings for provisioning have been updated.",
-              "description": " Please review the attributes and update your identity provider configuration to ensure proper provisioning."
+              "description": "Please review the attributes and update your identity provider configuration to avoid login issues. Once complete, sync the updated mappings. You will need to generate new tokens and re-add them to your identity provider.",
+              "sync_button_label": "Sync",
+              "sync_modal": {
+                "title": "Sync Updated Mappings",
+                "description": "Syncing will update your provisioning configuration with the latest mappings and delete your existing tokens. You will need to generate new tokens and re-add them to your identity provider. This action cannot be undone.",
+                "actions": {
+                  "cancel_button_label": "Cancel",
+                  "proceed_button_label": "Proceed"
+                }
+              }
             },
             "delete": {
               "modal": {
@@ -621,23 +696,6 @@
                 },
                 "scim_endpoint_url": {
                   "label": "SCIM Endpoint URL"
-                },
-                "external_namespace": {
-                  "label": "External Namespace"
-                }
-              },
-              "mappings": {
-                "title": "Mapping",
-                "description": "Ensure that the correct user attributes are passed from the identity provider to the service provider.",
-                "card": {
-                  "title": "Required Attributes",
-                  "description": "Ensure that a valid ${strategy} attribute is mapped to the following attributes.",
-                  "table": {
-                    "columns": {
-                      "attribute_name_label": "Attribute Name",
-                      "external_field_label": "External Field"
-                    }
-                  }
                 }
               }
             }
@@ -796,7 +854,9 @@
       },
       "provisioning_disabled_success": "Provisioning has been disabled.",
       "scim_token_delete_sucess": "Token has been deleted.",
-      "scim_token_create_success": "Token generated successfully"
+      "scim_token_create_success": "Token generated successfully",
+      "sso_attributes_sync_success": "The provider mappings have been updated.",
+      "provisioning_attributes_sync_success": "The provisioning mappings have been updated."
     }
   },
   "mfa": {

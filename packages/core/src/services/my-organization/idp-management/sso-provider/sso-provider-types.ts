@@ -78,3 +78,6 @@ export interface SCIMToken {
   created_at: string;
   valid_until?: string;
 }
+
+export type IdpUserAttributeMap = MyOrganization.IdpUserAttributeMapItem[];
+export type IdpBaseUserAttributeItem = MyOrganization.BaseUserAttributeMapItem;

@@ -24,11 +24,26 @@ import {
   FormLabel,
   FormMessage,
 } from '../../../../ui/form';
+import { Separator } from '../../../../ui/separator';
 import { TextField } from '../../../../ui/text-field';
+import { SsoProviderAttributeMappings } from '../sso-provider-attribute-mappings';
 
 import { ProvisioningManageToken } from './provisioning-manage-token';
-import { ProvisioningFieldMappings } from './provisioning-mappings';
 
+/**
+ *
+ * @param root0
+ * @param root0.provider
+ * @param root0.provisioningConfig
+ * @param root0.isScimTokensLoading
+ * @param root0.isScimTokenCreating
+ * @param root0.isScimTokenDeleting
+ * @param root0.onListScimTokens
+ * @param root0.onCreateScimToken
+ * @param root0.onDeleteScimToken
+ * @param root0.customMessages
+ * @param root0.styling
+ */
 export function SsoProvisioningDetails({
   provider,
   provisioningConfig,
@@ -130,11 +145,13 @@ export function SsoProvisioningDetails({
           />
         </form>
       </Form>
-      <ProvisioningFieldMappings
-        provisioningStrategy={provisioningConfig?.strategy || null}
-        provisioningFieldMap={provisioningConfig?.fields ?? null}
+      <Separator />
+      <SsoProviderAttributeMappings
+        strategy={provisioningConfig?.strategy || null}
+        isProvisioning
+        userAttributeMap={provisioningConfig?.attributes || null}
         customMessages={customMessages.mappings}
-        className={currentStyles.classes?.['SsoProvisioningDetails-provisioningMapping']}
+        className={currentStyles.classes?.['SsoProvisioning-attributeMapping']}
       />
     </div>
   );

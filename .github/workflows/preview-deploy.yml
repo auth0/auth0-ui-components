@@ -60,22 +60,18 @@ jobs:
           echo "Deploying docs-site to Vercel..."
           echo "Project ID: $VERCEL_PROJECT_ID"
           echo "Org ID: $VERCEL_ORG_ID"
-          echo "Contents of docs-site dist folder:"
-          ls -la docs-site/dist/
 
           # Create a completely isolated deployment directory
           mkdir -p /tmp/static-deploy
 
-          # Copy only the built static files
+          # Copy the built static files
           cp -r docs-site/dist/* /tmp/static-deploy/
 
-          # Create a vercel.json that forces static deployment
-          echo '{"builds":[{"src":"**/*","use":"@vercel/static"}],"rewrites":[{"source":"/(.*)","destination":"/index.html"}]}' > /tmp/static-deploy/vercel.json
+          # Copy the API serverless functions
+          cp -r docs-site/api /tmp/static-deploy/
 
-          echo "Contents of deployment directory:"
-          ls -la /tmp/static-deploy/
-          echo "Vercel config:"
-          cat /tmp/static-deploy/vercel.json
+          # Create a vercel.json with API functions and rewrites (no build needed - already built)
+          echo '{"buildCommand":"","installCommand":"","rewrites":[{"source":"/r/:path*","destination":"/api/r?file=:path*"},{"source":"/(.*)","destination":"/index.html"}]}' > /tmp/static-deploy/vercel.json
 
           vercel --version
           DEPLOYMENT_URL=$(vercel deploy /tmp/static-deploy --token=${{ secrets.VERCEL_TOKEN }} --yes --scope=$VERCEL_ORG_ID)

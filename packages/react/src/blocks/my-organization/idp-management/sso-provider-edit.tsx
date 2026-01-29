@@ -21,6 +21,20 @@ import { useTranslator } from '../../../hooks/use-translator';
 import { cn } from '../../../lib/theme-utils';
 import type { SsoProviderEditProps } from '../../../types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
+/**
+ *
+ * @param root0
+ * @param root0.providerId
+ * @param root0.backButton
+ * @param root0.sso
+ * @param root0.provisioning
+ * @param root0.domains
+ * @param root0.hideHeader
+ * @param root0.customMessages
+ * @param root0.styling
+ * @param root0.schema
+ * @param root0.readOnly
+ */
 export function SsoProviderEditComponent({
   providerId,
   backButton,
@@ -51,12 +65,18 @@ export function SsoProviderEditComponent({
     isScimTokensLoading,
     isScimTokenCreating,
     isScimTokenDeleting,
+    isSsoAttributesSyncing,
+    isProvisioningAttributesSyncing,
+    hasSsoAttributeSyncWarning,
+    hasProvisioningAttributeSyncWarning,
     updateProvider,
     createProvisioning: createProvisioningAction,
     deleteProvisioning: deleteProvisioningAction,
     listScimTokens,
     createScimToken: createScimTokenAction,
     deleteScimToken: deleteScimTokenAction,
+    syncSsoAttributes,
+    syncProvisioningAttributes,
     onDeleteConfirm,
     onRemoveConfirm,
   } = useSsoProviderEdit(providerId, {
@@ -156,6 +176,9 @@ export function SsoProviderEditComponent({
             isRemoving={isRemoving}
             idpConfig={idpConfig}
             shouldAllowDeletion={shouldAllowDeletion}
+            hasSsoAttributeSyncWarning={hasSsoAttributeSyncWarning}
+            onAttributeSync={syncSsoAttributes}
+            isSyncingAttributes={isSsoAttributesSyncing}
             customMessages={customMessages.tabs?.sso?.content}
             styling={styling}
             formActions={{
@@ -178,6 +201,9 @@ export function SsoProviderEditComponent({
               isScimTokensLoading={isScimTokensLoading}
               isScimTokenCreating={isScimTokenCreating}
               isScimTokenDeleting={isScimTokenDeleting}
+              hasProvisioningAttributeSyncWarning={hasProvisioningAttributeSyncWarning}
+              onAttributeSync={syncProvisioningAttributes}
+              isSyncingAttributes={isProvisioningAttributesSyncing}
               onCreateProvisioning={createProvisioningAction}
               onDeleteProvisioning={deleteProvisioningAction}
               onListScimTokens={listScimTokens}
