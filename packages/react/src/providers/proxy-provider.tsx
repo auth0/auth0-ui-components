@@ -9,6 +9,7 @@ import { useCoreClientInitialization } from '../hooks/use-core-client-initializa
 import { useToastProvider } from '../hooks/use-toast-provider';
 import type { Auth0ComponentProviderProps } from '../types/auth-types';
 
+import { ErrorHandlerProvider } from './error-handler-provider';
 import { ScopeManagerProvider } from './scope-manager-provider';
 import { ThemeProvider } from './theme-provider';
 
@@ -91,7 +92,9 @@ export const Auth0ComponentProvider = ({
         }
       >
         <CoreClientContext.Provider value={coreClientValue}>
-          <ScopeManagerProvider>{children}</ScopeManagerProvider>
+          <ErrorHandlerProvider>
+            <ScopeManagerProvider>{children}</ScopeManagerProvider>
+          </ErrorHandlerProvider>
         </CoreClientContext.Provider>
       </React.Suspense>
     </ThemeProvider>
