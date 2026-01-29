@@ -11,6 +11,7 @@ import { showToast } from '../../../components/ui/toast';
 import { useCoreClient } from '../../../hooks/use-core-client';
 import { useTranslator } from '../../../hooks/use-translator';
 import type { UseSsoProviderCreateOptions } from '../../../types/my-organization/idp-management/sso-provider/sso-provider-create-types';
+import { useErrorHandler } from '../../use-error-handler';
 
 export interface UseSsoProviderCreateReturn {
   createProvider: (data: CreateIdentityProviderRequestContentPrivate) => Promise<void>;
@@ -22,6 +23,7 @@ export function useSsoProviderCreate({
   customMessages = {},
 }: UseSsoProviderCreateOptions = {}): UseSsoProviderCreateReturn {
   const { coreClient } = useCoreClient();
+  const { handleError } = useErrorHandler();
   const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -68,17 +70,13 @@ export function useSsoProviderCreate({
           error.body?.status === 409 &&
           error.body?.type === 'https://auth0.com/api-errors#A0E-409-0001'
         ) {
-          showToast({
-            type: 'error',
-            message: t('notifications.provider_create_duplicated_provider_error', {
+          handleError(error, {
+            errorMessage: t('notifications.provider_create_duplicated_provider_error', {
               providerName: data.name,
             }),
           });
         } else {
-          showToast({
-            type: 'error',
-            message: t('notifications.general_error'),
-          });
+          handleError(error, { fallbackMessage: t('notifications.general_error') });
         }
       } finally {
         setIsCreating(false);

@@ -2,7 +2,7 @@ import type {
   CreateOrganizationDomainRequestContent,
   EnhancedTranslationFunction,
 } from '@auth0/universal-components-core';
-import { BusinessError } from '@auth0/universal-components-core';
+import { SilentError } from '@auth0/universal-components-core';
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
@@ -362,7 +362,7 @@ describe('useDomainTable', () => {
         act(async () => {
           await result.current.onCreateDomain(createData);
         }),
-      ).rejects.toThrow(BusinessError);
+      ).rejects.toThrow(SilentError);
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.domains.create,
@@ -454,7 +454,7 @@ describe('useDomainTable', () => {
         act(async () => {
           await result.current.onVerifyDomain(mockDomain);
         }),
-      ).rejects.toThrow(BusinessError);
+      ).rejects.toThrow(SilentError);
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.domains.verify.create,
@@ -511,7 +511,7 @@ describe('useDomainTable', () => {
         act(async () => {
           await result.current.onDeleteDomain(mockDomain);
         }),
-      ).rejects.toThrow(BusinessError);
+      ).rejects.toThrow(SilentError);
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.domains.delete,
@@ -572,7 +572,7 @@ describe('useDomainTable', () => {
         act(async () => {
           await result.current.onAssociateToProvider(mockDomain, mockProvider);
         }),
-      ).rejects.toThrow(BusinessError);
+      ).rejects.toThrow(SilentError);
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.create,
@@ -634,7 +634,7 @@ describe('useDomainTable', () => {
         act(async () => {
           await result.current.onDeleteFromProvider(mockDomain, mockProvider);
         }),
-      ).rejects.toThrow(BusinessError);
+      ).rejects.toThrow(SilentError);
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.delete,
