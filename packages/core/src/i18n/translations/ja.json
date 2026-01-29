@@ -542,14 +542,80 @@
         "enable_provider_tooltip_text": "トグルでプロバイダーを有効にします。",
         "disable_provider_tooltip_text": "トグルでプロバイダーを無効にします。"
       },
+      "mappings": {
+        "title": "マッピング",
+        "description": "正しいユーザー属性がアイデンティティプロバイダーからサービスプロバイダーに渡されることを確認してください。",
+        "description_provider_tab": "アイデンティティプロバイダーとAuth0間の接続を確立します。",
+        "external_namespace": {
+          "label": "外部ネームスペース"
+        },
+        "required": {
+          "title": "必須属性",
+          "description": "有効な${strategy}属性が次の属性にマッピングされていることを確認してください。",
+          "table": {
+            "columns": {
+              "attribute_name_label": "属性名",
+              "external_field_label": "外部フィールド"
+            },
+            "tags": {
+              "updated": {
+                "label": "更新済み",
+                "tooltip": "この属性は更新されました。アイデンティティプロバイダーの設定を更新してください。"
+              },
+              "removed": {
+                "label": "削除済み",
+                "tooltip": "この属性は削除されました。アイデンティティプロバイダーの設定から削除してください。"
+              },
+              "new": {
+                "label": "新規",
+                "tooltip": "この属性は追加されました。アイデンティティプロバイダーの設定に追加してください。"
+              }
+            }
+          }
+        },
+        "optional": {
+          "title": "オプション属性",
+          "description": "これらの属性をマッピングするとユーザープロファイルが強化されますが、必須ではありません。",
+          "table": {
+            "columns": {
+              "attribute_name_label": "属性名",
+              "external_field_label": "外部フィールド"
+            },
+            "tags": {
+              "updated": {
+                "label": "更新済み",
+                "tooltip": "この属性は更新されました。アイデンティティプロバイダーの設定を更新してください。"
+              },
+              "removed": {
+                "label": "削除済み",
+                "tooltip": "この属性は削除されました。アイデンティティプロバイダーの設定から削除してください。"
+              },
+              "new": {
+                "label": "新規",
+                "tooltip": "この属性は追加されました。アイデンティティプロバイダーの設定に追加してください。"
+              }
+            }
+          }
+        }
+      },
       "tabs": {
         "sso": {
           "name": "シングルサインオン",
           "content": {
             "title": "シングルサインオン",
             "description": "シングルサインオンを管理・設定します。",
-            "alert": {
-              "warning": "シングルサインオンのユーザー属性マッピングが更新されました。ログインの問題を回避するため、属性を確認してアイデンティティプロバイダーの設定を更新してください。"
+            "attribute_sync_alert": {
+              "title": "シングルサインオンのマッピングが更新されました。",
+              "description": "ログインの問題を回避するため、属性を確認してアイデンティティプロバイダーの設定を更新してください。完了したら、更新されたマッピングを同期してください。",
+              "sync_button_label": "同期",
+              "sync_modal": {
+                "title": "更新されたマッピングを同期",
+                "description": "同期すると、プロバイダーの設定が最新のマッピングで更新されます。この操作は元に戻せません。",
+                "actions": {
+                  "cancel_button_label": "キャンセル",
+                  "proceed_button_label": "続行"
+                }
+              }
             }
           }
         },
@@ -564,9 +630,18 @@
               "enable_provisioning_tooltip": "トグルでプロビジョニングを有効にします",
               "disable_provisioning_tooltip": "トグルでプロビジョニングを無効にします"
             },
-            "warning_alert_message": {
+            "attribute_sync_alert": {
               "title": "プロビジョニングのマッピングが更新されました。",
-              "description": "属性を確認し、適切なプロビジョニングを確保するためにアイデンティティプロバイダーの設定を更新してください。"
+              "description": "ログインの問題を回避するため、属性を確認してアイデンティティプロバイダーの設定を更新してください。完了したら、更新されたマッピングを同期してください。新しいトークンを生成し、アイデンティティプロバイダーに再追加する必要があります。",
+              "sync_button_label": "同期",
+              "sync_modal": {
+                "title": "更新されたマッピングを同期",
+                "description": "同期すると、プロビジョニング設定が最新のマッピングで更新され、既存のトークンが削除されます。新しいトークンを生成し、アイデンティティプロバイダーに再追加する必要があります。この操作は元に戻せません。",
+                "actions": {
+                  "cancel_button_label": "キャンセル",
+                  "proceed_button_label": "続行"
+                }
+              }
             },
             "delete": {
               "modal": {
@@ -631,23 +706,6 @@
                 },
                 "scim_endpoint_url": {
                   "label": "SCIMエンドポイントURL"
-                },
-                "external_namespace": {
-                  "label": "外部ネームスペース"
-                }
-              },
-              "mappings": {
-                "title": "マッピング",
-                "description": "正しいユーザー属性がアイデンティティプロバイダーからサービスプロバイダーに渡されることを確認してください。",
-                "card": {
-                  "title": "必須属性",
-                  "description": "有効な${strategy}属性が次の属性にマッピングされていることを確認してください。",
-                  "table": {
-                    "columns": {
-                      "attribute_name_label": "属性名",
-                      "external_field_label": "外部フィールド"
-                    }
-                  }
                 }
               }
             }
@@ -807,7 +865,9 @@
       },
       "provisioning_disabled_success": "プロビジョニングが無効になりました。",
       "scim_token_delete_sucess": "トークンが削除されました。",
-      "scim_token_create_success": "トークンが正常に生成されました"
+      "scim_token_create_success": "トークンが正常に生成されました",
+      "sso_attributes_sync_success": "プロバイダーマッピングが更新されました。",
+      "provisioning_attributes_sync_success": "プロビジョニングマッピングが更新されました。"
     }
   },
   "mfa": {

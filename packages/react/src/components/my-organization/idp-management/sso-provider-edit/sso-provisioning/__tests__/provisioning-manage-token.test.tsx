@@ -136,8 +136,10 @@ describe('ProvisioningManageToken', () => {
     mockOnListScimTokens.mockResolvedValue({ scim_tokens: mockTokens });
     render(<ProvisioningManageToken {...defaultProps} />);
 
-    const generateButton = await screen.findByText('generate_button_label');
-    expect(generateButton).toBeDisabled();
+    await waitFor(() => {
+      const generateButton = screen.getByText('generate_button_label');
+      expect(generateButton).toBeDisabled();
+    });
   });
 
   it('should disable generate button when isScimTokenCreating is true', () => {

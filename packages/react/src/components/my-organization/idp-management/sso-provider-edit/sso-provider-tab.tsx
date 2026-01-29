@@ -14,6 +14,7 @@ import type { SsoProviderTabProps } from '../../../../types/my-organization/idp-
 import { SsoProviderDelete } from '../sso-provider-delete/provider-delete';
 import { SsoProviderRemoveFromOrganization } from '../sso-provider-remove/provider-remove';
 
+import { SsoProviderAttributeSyncAlert } from './sso-provider-attribute-sync-alert';
 import { SsoProviderDetails } from './sso-provider-details';
 
 /**
@@ -35,6 +36,9 @@ export function SsoProviderTab({
   idpConfig,
   shouldAllowDeletion,
   formActions,
+  hasSsoAttributeSyncWarning,
+  onAttributeSync,
+  isSyncingAttributes = false,
 }: SsoProviderTabProps) {
   const { t } = useTranslator('idp_management.edit_sso_provider.tabs.sso', customMessages);
 
@@ -45,7 +49,16 @@ export function SsoProviderTab({
   );
 
   return (
-    <div style={currentStyles.variables} className="space-y-8">
+    <div style={currentStyles.variables} className="space-y-10">
+      {hasSsoAttributeSyncWarning && (
+        <SsoProviderAttributeSyncAlert
+          onSync={onAttributeSync}
+          isSyncing={isSyncingAttributes}
+          customMessages={customMessages.attribute_sync_alert}
+          className={currentStyles.classes?.['SsoProviderAttributeSyncAlert-root']}
+        />
+      )}
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div className="space-y-1">
