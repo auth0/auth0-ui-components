@@ -247,14 +247,9 @@ export function createTokenManager(auth: AuthDetails) {
       pendingTokenRequests.set(requestKey, tokenPromise);
 
       try {
-        console.log('Fetching token for', audiencePath, scope);
         const token = await tokenPromise;
         return token;
-      } catch (error) {
-        console.log('Error', audiencePath, scope, error);
-        throw error;
       } finally {
-        console.log('Finished', audiencePath, scope);
         // Clean up the pending request after completion
         pendingTokenRequests.delete(requestKey);
       }
