@@ -7,15 +7,18 @@ import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 
 import { showToast } from '../../../../components/ui/toast';
 import { useCoreClient } from '../../../use-core-client';
+import { useErrorHandler } from '../../../use-error-handler';
 import { useTranslator } from '../../../use-translator';
 import { useSsoProviderCreate } from '../use-sso-provider-create';
 
 vi.mock('../../../use-core-client');
+vi.mock('../../../use-error-handler');
 vi.mock('../../../use-translator');
 vi.mock('../../../../components/ui/toast');
 
 describe('useSsoProviderCreate', () => {
   const mockCreate = vi.fn();
+  const mockHandleError = vi.fn();
   const mockT = vi.fn((key: string, params?: Record<string, string>) => {
     if (key === 'notifications.provider_create_success') {
       return `Provider ${params?.providerName} created successfully`;
@@ -42,6 +45,7 @@ describe('useSsoProviderCreate', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (useCoreClient as Mock).mockReturnValue({ coreClient: mockCoreClient });
+    (useErrorHandler as Mock).mockReturnValue({ handleError: mockHandleError });
     (useTranslator as Mock).mockReturnValue({ t: mockT });
   });
 
@@ -129,9 +133,8 @@ describe('useSsoProviderCreate', () => {
     await result.current.createProvider(mockProviderData);
 
     await waitFor(() => {
-      expect(showToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'Provider duplicate-provider already exists',
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        errorMessage: 'Provider duplicate-provider already exists',
       });
       expect(result.current.isCreating).toBe(false);
     });
@@ -145,16 +148,16 @@ describe('useSsoProviderCreate', () => {
       signingCert: 'cert123',
     };
 
-    mockCreate.mockRejectedValue(new Error('Network error'));
+    const error = new Error('Network error');
+    mockCreate.mockRejectedValue(error);
 
     const { result } = renderHook(() => useSsoProviderCreate());
 
     await result.current.createProvider(mockProviderData);
 
     await waitFor(() => {
-      expect(showToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'An error occurred',
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: 'An error occurred',
       });
       expect(result.current.isCreating).toBe(false);
     });
