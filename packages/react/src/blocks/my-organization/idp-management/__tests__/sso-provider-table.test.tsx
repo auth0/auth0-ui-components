@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import * as useConfigModule from '../../../../hooks/my-organization/config/use-config';
+import * as useIdpConfigModule from '../../../../hooks/my-organization/config/use-idp-config';
 import * as useCoreClientModule from '../../../../hooks/use-core-client';
 import { createMockIdentityProvider } from '../../../../internals/__mocks__/my-organization/domain-management/domain.mocks';
 import { renderWithProviders } from '../../../../internals/test-provider';
@@ -102,6 +103,29 @@ describe('SsoProviderTable', () => {
       config: { connection_deletion_behavior: 'allow', allowed_strategies: [] },
       fetchConfig: vi.fn(),
       filteredStrategies: [],
+    });
+
+    vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue({
+      idpConfig: {
+        strategies: {
+          okta: { enabled_features: [], provisioning_methods: [] },
+          'google-apps': { enabled_features: [], provisioning_methods: [] },
+          adfs: { enabled_features: [], provisioning_methods: [] },
+          oidc: { enabled_features: [], provisioning_methods: [] },
+          pingfederate: { enabled_features: [], provisioning_methods: [] },
+          samlp: { enabled_features: [], provisioning_methods: [] },
+          waad: { enabled_features: [], provisioning_methods: [] },
+        },
+        organization: {
+          can_set_assign_membership_on_login: true,
+          can_set_show_as_button: true,
+        },
+      },
+      isLoadingIdpConfig: false,
+      isIdpConfigValid: true,
+      fetchIdpConfig: vi.fn(),
+      isProvisioningEnabled: vi.fn(() => false),
+      isProvisioningMethodEnabled: vi.fn(() => false),
     });
   });
 

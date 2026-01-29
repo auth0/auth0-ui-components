@@ -7,6 +7,8 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
+import * as useConfigModule from '../../../../hooks/my-organization/config/use-config';
+import * as useIdpConfigModule from '../../../../hooks/my-organization/config/use-idp-config';
 import * as useCoreClientModule from '../../../../hooks/use-core-client';
 import { renderWithProviders } from '../../../../internals/test-provider';
 import { mockCore, mockToast } from '../../../../internals/test-setup';
@@ -72,6 +74,41 @@ describe('SsoProviderCreate', () => {
 
     vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
       coreClient: mockCoreClient,
+    });
+
+    vi.spyOn(useConfigModule, 'useConfig').mockReturnValue({
+      isLoadingConfig: false,
+      shouldAllowDeletion: true,
+      isConfigValid: true,
+      config: {
+        connection_deletion_behavior: 'allow',
+        allowed_strategies: ['adfs', 'okta', 'samlp'],
+      },
+      fetchConfig: vi.fn(),
+      filteredStrategies: ['adfs', 'okta', 'samlp'],
+    });
+
+    vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue({
+      idpConfig: {
+        strategies: {
+          okta: { enabled_features: [], provisioning_methods: [] },
+          'google-apps': { enabled_features: [], provisioning_methods: [] },
+          adfs: { enabled_features: [], provisioning_methods: [] },
+          oidc: { enabled_features: [], provisioning_methods: [] },
+          pingfederate: { enabled_features: [], provisioning_methods: [] },
+          samlp: { enabled_features: [], provisioning_methods: [] },
+          waad: { enabled_features: [], provisioning_methods: [] },
+        },
+        organization: {
+          can_set_assign_membership_on_login: true,
+          can_set_show_as_button: true,
+        },
+      },
+      isLoadingIdpConfig: false,
+      isIdpConfigValid: true,
+      fetchIdpConfig: vi.fn(),
+      isProvisioningEnabled: vi.fn(() => false),
+      isProvisioningMethodEnabled: vi.fn(() => false),
     });
   });
 
