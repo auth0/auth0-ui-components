@@ -2,6 +2,7 @@ import { AVAILABLE_STRATEGY_LIST } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { createTestQueryClientWrapper } from '../../../../internals/test-provider';
 import { mockCore } from '../../../../internals/test-setup';
 import * as useCoreClientModule from '../../../use-core-client';
 import { useConfig } from '../use-config';
@@ -21,6 +22,11 @@ describe('useConfig', () => {
     mockGet = vi.mocked(mockCoreClient.getMyOrganizationApiClient().organization.configuration.get);
   });
 
+  const renderUseConfig = () => {
+    const { wrapper, queryClient } = createTestQueryClientWrapper();
+    return { queryClient, ...renderHook(() => useConfig(), { wrapper }) };
+  };
+
   it('should fetch config on mount', async () => {
     const mockConfig = {
       allowed_strategies: ['okta', 'google-apps'],
@@ -28,7 +34,7 @@ describe('useConfig', () => {
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     expect(result.current.isLoadingConfig).toBe(true);
 
@@ -48,7 +54,7 @@ describe('useConfig', () => {
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
@@ -63,7 +69,7 @@ describe('useConfig', () => {
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
@@ -78,7 +84,7 @@ describe('useConfig', () => {
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
@@ -92,7 +98,7 @@ describe('useConfig', () => {
       body: { status: 404 },
     });
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
@@ -109,7 +115,7 @@ describe('useConfig', () => {
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
@@ -125,7 +131,7 @@ describe('useConfig', () => {
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
@@ -141,7 +147,7 @@ describe('useConfig', () => {
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
@@ -150,24 +156,27 @@ describe('useConfig', () => {
     expect(result.current.shouldAllowDeletion).toBe(false);
   });
 
-  it('should refetch config when fetchConfig is called', async () => {
+  it('should invalidate and refetch when fetchConfig is called', async () => {
     const mockConfig = {
       allowed_strategies: ['okta'],
       connection_deletion_behavior: 'allow',
     };
     mockGet.mockResolvedValue(mockConfig);
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);
     });
 
-    expect(mockGet).toHaveBeenCalledTimes(1);
+    const initialCallCount = mockGet.mock.calls.length;
 
+    // Call fetchConfig - should always invalidate and trigger refetch
+    await result.current.fetchConfig();
+
+    // Should trigger a refetch
     await waitFor(() => {
-      result.current.fetchConfig();
-      expect(mockGet).toHaveBeenCalledTimes(2);
+      expect(mockGet.mock.calls.length).toBeGreaterThan(initialCallCount);
     });
   });
 
@@ -176,7 +185,7 @@ describe('useConfig', () => {
       coreClient: null,
     });
 
-    const { result } = renderHook(() => useConfig());
+    const { result } = renderUseConfig();
 
     await waitFor(() => {
       expect(result.current.isLoadingConfig).toBe(false);

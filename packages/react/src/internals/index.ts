@@ -1,4 +1,10 @@
-export { TestProvider, renderWithProviders, renderWithFormProvider } from './test-provider';
+export {
+  TestProvider,
+  renderWithProviders,
+  renderWithFormProvider,
+  createTestQueryClient,
+  createTestQueryClientWrapper as createQueryClientWrapper,
+} from './test-provider';
 export type { TestProviderProps } from './test-provider';
 
 // Global test setup utilities

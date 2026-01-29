@@ -4,43 +4,59 @@ import {
   type GetConfigurationResponseContent,
   type IdpStrategy,
 } from '@auth0/universal-components-core';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useMemo } from 'react';
 
 import type { UseConfigResult } from '../../../types/my-organization/config/config-types';
 import { useCoreClient } from '../../use-core-client';
 
+export const configQueryKeys = {
+  all: ['config'] as const,
+  details: () => [...configQueryKeys.all, 'details'] as const,
+};
+
 export function useConfig(): UseConfigResult {
   const { coreClient } = useCoreClient();
-  const [config, setConfig] = useState<GetConfigurationResponseContent | null>(null);
-  const [isLoadingConfig, setIsLoadingConfig] = useState(false);
-  const [isConfigValid, setIsConfigValid] = useState(true);
+  const queryClient = useQueryClient();
 
-  const fetchConfig = useCallback(async (): Promise<void> => {
-    if (!coreClient) {
-      return;
-    }
-    setIsLoadingConfig(true);
+  // ============================================
+  // QUERY - Config data managed by TanStack Query
+  // ============================================
 
-    try {
-      const result: GetConfigurationResponseContent = await coreClient
+  const configQuery = useQuery({
+    queryKey: configQueryKeys.details(),
+    queryFn: async () => {
+      const result: GetConfigurationResponseContent = await coreClient!
         .getMyOrganizationApiClient()
         .organization.configuration.get();
-      setConfig(result);
-
-      // Validate the config after fetching
-      const hasAllowedStrategies =
-        result.allowed_strategies && result.allowed_strategies.length > 0;
-      setIsConfigValid(!!hasAllowedStrategies);
-    } catch (error) {
-      // If config is not set
+      return result;
+    },
+    enabled: !!coreClient,
+    retry: (failureCount, error) => {
+      // Don't retry on 404 errors (config not set)
       if (hasApiErrorBody(error) && error.body?.status === 404) {
-        setConfig(null);
-        setIsConfigValid(false);
+        return false;
       }
-    } finally {
-      setIsLoadingConfig(false);
+      return failureCount < 3;
+    },
+  });
+
+  const config = configQuery.data ?? null;
+
+  // ============================================
+  // COMPUTED VALUES - Derived from query data
+  // ============================================
+
+  const isConfigValid = useMemo((): boolean => {
+    // If query errored with 404, config is not valid
+    if (configQuery.isError && !configQuery.data) {
+      return false;
     }
-  }, [coreClient]);
+
+    // Validate the config has allowed strategies
+    const hasAllowedStrategies = config?.allowed_strategies && config.allowed_strategies.length > 0;
+    return !!hasAllowedStrategies;
+  }, [config, configQuery.isError, configQuery.data]);
 
   const filteredStrategies = useMemo((): IdpStrategy[] => {
     const allowedStrategies = config?.allowed_strategies;
@@ -59,14 +75,17 @@ export function useConfig(): UseConfigResult {
     );
   }, [config]);
 
-  // Fetch config on mount
-  useEffect(() => {
-    fetchConfig();
-  }, []);
+  // ============================================
+  // ACTIONS - Cache management
+  // ============================================
+
+  const fetchConfig = useCallback(async (): Promise<void> => {
+    await queryClient.invalidateQueries({ queryKey: configQueryKeys.details() });
+  }, [queryClient]);
 
   return {
     config,
-    isLoadingConfig,
+    isLoadingConfig: configQuery.isLoading,
     fetchConfig,
     filteredStrategies,
     shouldAllowDeletion,

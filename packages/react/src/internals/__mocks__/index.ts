@@ -2,9 +2,11 @@ export * from './core/auth.mocks';
 export * from './core/core-client.mocks';
 export * from './core/i18n-service.mocks';
 
+export * from './my-organization/config/config.mocks';
 export * from './my-organization/domain-management/domain.mocks';
 export * from './my-organization/organization-management/organization-details.mocks';
 export * from './my-organization/domain-management/domain.mocks';
+export * from './my-organization/idp-management/idp-config.mocks';
 export * from './my-organization/idp-management/sso-domain.mocks';
 export * from './my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details.mocks';
 export * from './my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.mocks';
