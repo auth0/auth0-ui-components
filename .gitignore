@@ -37,3 +37,6 @@ coverage/
 .cache/
 .turbo
 .vercel
+
+# Generated API documentation
+docs-api/

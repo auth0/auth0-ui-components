@@ -20,6 +20,14 @@ import type {
 import { useCoreClient } from '../../use-core-client';
 import { useTranslator } from '../../use-translator';
 
+/**
+ *
+ * @param idpId
+ * @param root0
+ * @param root0.sso
+ * @param root0.provisioning
+ * @param root0.customMessages
+ */
 export function useSsoProviderEdit(
   idpId: IdpId,
   { sso, provisioning, customMessages = {} }: Partial<UseSsoProviderEditOptions> = {},

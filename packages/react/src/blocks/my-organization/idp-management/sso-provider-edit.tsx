@@ -21,6 +21,20 @@ import { useTranslator } from '../../../hooks/use-translator';
 import { cn } from '../../../lib/theme-utils';
 import type { SsoProviderEditProps } from '../../../types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
+/**
+ *
+ * @param root0
+ * @param root0.providerId
+ * @param root0.backButton
+ * @param root0.sso
+ * @param root0.provisioning
+ * @param root0.domains
+ * @param root0.hideHeader
+ * @param root0.customMessages
+ * @param root0.styling
+ * @param root0.schema
+ * @param root0.readOnly
+ */
 export function SsoProviderEditComponent({
   providerId,
   backButton,
