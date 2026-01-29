@@ -1,4 +1,4 @@
-import { BusinessError } from '@auth0/universal-components-core';
+import { SilentError } from '@auth0/universal-components-core';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -285,7 +285,7 @@ describe('useSsoDomainTab', () => {
 
       await waitFor(() => {
         expect(onBefore).toHaveBeenCalled();
-        expect(mockHandleError).toHaveBeenCalledWith(expect.any(BusinessError), expect.any(Object));
+        expect(mockHandleError).toHaveBeenCalledWith(expect.any(SilentError), expect.any(Object));
         expect(result.current.isCreating).toBe(false);
       });
     });

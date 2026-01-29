@@ -20,6 +20,7 @@ import { List, ListItem } from '../../../components/ui/list';
 import { Spinner } from '../../../components/ui/spinner';
 import { withMyAccountService } from '../../../hoc/with-services';
 import { useMFA } from '../../../hooks/my-account/mfa/use-mfa';
+import { useErrorHandler } from '../../../hooks/use-error-handler';
 import { useTheme } from '../../../hooks/use-theme';
 import { useTranslator } from '../../../hooks/use-translator';
 import { ENROLL } from '../../../lib/mfa-constants';
@@ -65,6 +66,7 @@ function UserMFAMgmtComponent({
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
   );
+  const { handleError } = useErrorHandler();
   const { fetchFactors, enrollMfa, deleteMfa, confirmEnrollment } = useMFA();
 
   const [factorsByType, setFactorsByType] = React.useState<Record<MFAType, Authenticator[]>>(
@@ -201,7 +203,9 @@ function UserMFAMgmtComponent({
         await deleteMfa(factorId);
       } catch (err) {
         const error = err instanceof Error ? err : new Error(t('errors.delete_factor'));
-        toast.error(t('errors.delete_factor'));
+        handleError(error, {
+          fallbackMessage: t('errors.delete_factor'),
+        });
         onErrorAction?.(error, 'delete');
         cleanUp();
         return;
@@ -241,7 +245,9 @@ function UserMFAMgmtComponent({
       await loadFactors();
     } catch {
       toast.dismiss();
-      toast.error(t('errors.factors_loading_error'));
+      handleError(null, {
+        fallbackMessage: t('errors.factors_loading_error'),
+      });
     }
   }, [loadFactors, onEnroll, t]);
 
@@ -253,9 +259,8 @@ function UserMFAMgmtComponent({
    */
   const handleEnrollError = React.useCallback(
     (error: Error, stage: typeof ENROLL | typeof CONFIRM) => {
-      toast.error(
-        `${stage === ENROLL ? t('enrollment') : t('confirmation')} ${t('errors.failed', { message: error.message })}`,
-      );
+      const errorMessage = `${stage === ENROLL ? t('enrollment') : t('confirmation')} ${t('errors.failed', { message: error.message })}`;
+      handleError(error, { errorMessage });
       onErrorAction?.(error, stage);
     },
     [onErrorAction, t],

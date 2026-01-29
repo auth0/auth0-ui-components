@@ -109,9 +109,11 @@ export const createMockEmptyAuthenticationMethods = () => ({
 });
 
 export const createMockAPIError = (message: string, statusCode?: number) => {
-  const error = new Error(message) as Error & { statusCode?: number; code?: string };
-  if (statusCode) {
-    error.statusCode = statusCode;
-  }
+  const error = {
+    body: {
+      detail: message,
+      status: statusCode,
+    },
+  };
   return error;
 };

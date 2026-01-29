@@ -18,6 +18,7 @@ import type {
   UseSsoProviderEditReturn,
 } from '../../../types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 import { useCoreClient } from '../../use-core-client';
+import { useErrorHandler } from '../../use-error-handler';
 import { useTranslator } from '../../use-translator';
 
 export function useSsoProviderEdit(
@@ -25,6 +26,7 @@ export function useSsoProviderEdit(
   { sso, provisioning, customMessages = {} }: Partial<UseSsoProviderEditOptions> = {},
 ): UseSsoProviderEditReturn {
   const { coreClient } = useCoreClient();
+  const { handleError } = useErrorHandler();
   const { t } = useTranslator('idp_management.notifications', customMessages);
 
   const [provider, setProvider] = useState<IdentityProvider | null>(null);
@@ -60,10 +62,7 @@ export function useSsoProviderEdit(
       setProvider(response);
       return response;
     } catch (error) {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
+      handleError(error, { fallbackMessage: t('general_error') });
       return null;
     } finally {
       setIsLoading(false);
@@ -83,15 +82,7 @@ export function useSsoProviderEdit(
 
       setOrganization(organizationData);
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? t('general_error', { message: error.message })
-          : t('general_error');
-
-      showToast({
-        type: 'error',
-        message: errorMessage,
-      });
+      handleError(error, { fallbackMessage: t('general_error') });
     } finally {
       setIsLoading(false);
     }
@@ -114,13 +105,9 @@ export function useSsoProviderEdit(
       const status = getStatusCode(error);
       if (status === 404) {
         setProvisioningConfig(null);
-        return null;
+      } else {
+        handleError(error, { fallbackMessage: t('general_error') });
       }
-
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
       return null;
     } finally {
       setIsProvisioningLoading(false);
@@ -160,11 +147,7 @@ export function useSsoProviderEdit(
           await sso.updateAction.onAfter(provider, result);
         }
       } catch (error) {
-        showToast({
-          type: 'error',
-          message: t('general_error'),
-        });
-        throw error;
+        handleError(error, { fallbackMessage: t('general_error') });
       } finally {
         setIsUpdating(false);
       }
@@ -205,11 +188,7 @@ export function useSsoProviderEdit(
         await provisioning.createAction.onAfter(provider, result);
       }
     } catch (error) {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-      throw error;
+      handleError(error, { fallbackMessage: t('general_error') });
     } finally {
       setIsProvisioningUpdating(false);
     }
@@ -250,11 +229,7 @@ export function useSsoProviderEdit(
         await provisioning.deleteAction.onAfter(provider);
       }
     } catch (error) {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-      throw error;
+      handleError(error, { fallbackMessage: t('general_error') });
     } finally {
       setIsProvisioningDeleting(false);
     }
@@ -272,10 +247,7 @@ export function useSsoProviderEdit(
         .organization.identityProviders.provisioning.scimTokens.list(idpId);
       return result;
     } catch (error) {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
+      handleError(error, { fallbackMessage: t('general_error') });
       return null;
     } finally {
       setIsScimTokensLoading(false);
@@ -313,11 +285,8 @@ export function useSsoProviderEdit(
 
         return result;
       } catch (error) {
-        showToast({
-          type: 'error',
-          message: t('general_error'),
-        });
-        throw error;
+        handleError(error, { fallbackMessage: t('general_error') });
+        return;
       } finally {
         setIsScimTokenCreating(false);
       }
@@ -354,11 +323,7 @@ export function useSsoProviderEdit(
           await provisioning.deleteScimTokenAction.onAfter(provider!);
         }
       } catch (error) {
-        showToast({
-          type: 'error',
-          message: t('general_error'),
-        });
-        throw error;
+        handleError(error, { fallbackMessage: t('general_error') });
       } finally {
         setIsScimTokenDeleting(false);
       }
@@ -445,11 +410,7 @@ export function useSsoProviderEdit(
         await sso.deleteAction.onAfter(provider);
       }
     } catch (error) {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-      throw error;
+      handleError(error, { fallbackMessage: t('general_error') });
     } finally {
       setIsDeleting(false);
     }
@@ -487,11 +448,7 @@ export function useSsoProviderEdit(
         await sso.deleteFromOrganizationAction.onAfter(provider);
       }
     } catch (error) {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-      throw error;
+      handleError(error, { fallbackMessage: t('general_error') });
     } finally {
       setIsRemoving(false);
     }

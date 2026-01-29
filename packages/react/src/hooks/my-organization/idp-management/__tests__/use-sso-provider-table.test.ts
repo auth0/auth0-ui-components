@@ -9,12 +9,14 @@ import {
   setupMockUseCoreClientNull,
 } from '../../../../internals/test-utilities';
 import * as useCoreClientModule from '../../../use-core-client';
+import * as useErrorHandlerModule from '../../../use-error-handler';
 import * as useTranslatorModule from '../../../use-translator';
 import { useSsoProviderTable } from '../use-sso-provider-table';
 
 // ===== Mock packages =====
 
 const { mockedShowToast } = mockToast();
+const mockHandleError = vi.fn();
 
 // ===== Mock Data =====
 
@@ -102,6 +104,11 @@ describe('useSsoProviderTable', () => {
         fallbackLanguage: 'en-US',
       };
     });
+
+    // Mock useErrorHandler
+    vi.spyOn(useErrorHandlerModule, 'useErrorHandler').mockReturnValue({
+      handleError: mockHandleError,
+    });
   });
 
   describe('fetchProviders', () => {
@@ -127,7 +134,8 @@ describe('useSsoProviderTable', () => {
     // Test: Validates error handling when the API call to fetch providers fails
     // Should display an error toast notification to the user
     it('should handle fetch providers error', async () => {
-      const mockList = vi.fn().mockRejectedValue(new Error('Network error'));
+      const error = new Error('Network error');
+      const mockList = vi.fn().mockRejectedValue(error);
 
       setupMockMyOrgClient({ list: mockList });
 
@@ -137,9 +145,8 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      expect(mockedShowToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'general_error',
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: 'general_error',
       });
     });
 
@@ -181,7 +188,8 @@ describe('useSsoProviderTable', () => {
     // Test: Validates error handling when fetching organization details fails
     // Should display an error toast notification
     it('should handle fetch organization details error', async () => {
-      const mockGet = vi.fn().mockRejectedValue(new Error('Not found'));
+      const error = new Error('Not found');
+      const mockGet = vi.fn().mockRejectedValue(error);
 
       setupMockMyOrgClient({
         list: vi.fn().mockResolvedValue({ identity_providers: [] }),
@@ -194,9 +202,8 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      expect(mockedShowToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'general_error',
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: 'general_error',
       });
     });
   });
@@ -280,7 +287,8 @@ describe('useSsoProviderTable', () => {
     // Test: Validates error handling when the provider update API call fails
     // Should display error toast and return false
     it('should handle enable provider error', async () => {
-      const mockUpdate = vi.fn().mockRejectedValue(new Error('Update failed'));
+      const error = new Error('Update failed');
+      const mockUpdate = vi.fn().mockRejectedValue(error);
 
       setupMockMyOrgClient({
         list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -295,9 +303,8 @@ describe('useSsoProviderTable', () => {
 
       await waitFor(() => result.current.onEnableProvider(mockIdentityProviders[0]!, false));
 
-      expect(mockedShowToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'general_error',
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: 'general_error',
       });
     });
 
@@ -374,7 +381,8 @@ describe('useSsoProviderTable', () => {
     // Test: Validates error handling when the delete API call fails
     // Should display an error toast notification
     it('should handle delete provider error', async () => {
-      const mockDelete = vi.fn().mockRejectedValue(new Error('Delete failed'));
+      const error = new Error('Delete failed');
+      const mockDelete = vi.fn().mockRejectedValue(error);
 
       setupMockMyOrgClient({
         list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -389,9 +397,8 @@ describe('useSsoProviderTable', () => {
 
       await waitFor(() => result.current.onDeleteConfirm(mockIdentityProviders[0]!));
 
-      expect(mockedShowToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'general_error',
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: 'general_error',
       });
     });
 
@@ -474,7 +481,8 @@ describe('useSsoProviderTable', () => {
     // Test: Validates error handling when the detach API call fails
     // Should display an error toast notification
     it('should handle remove provider error', async () => {
-      const mockDetach = vi.fn().mockRejectedValue(new Error('Remove failed'));
+      const error = new Error('Remove failed');
+      const mockDetach = vi.fn().mockRejectedValue(error);
 
       setupMockMyOrgClient({
         list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
@@ -489,9 +497,8 @@ describe('useSsoProviderTable', () => {
 
       await waitFor(() => result.current.onRemoveConfirm(mockIdentityProviders[0]!));
 
-      expect(mockedShowToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'general_error',
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: 'general_error',
       });
     });
 

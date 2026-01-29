@@ -1,10 +1,16 @@
-import { hasApiErrorBody, isBusinessError } from '@auth0/universal-components-core';
+import { hasApiErrorBody, isBusinessError, isSilentError } from '@auth0/universal-components-core';
 import { useCallback } from 'react';
 
 import { showToast } from '../components/ui/toast';
 
+import { useTranslator } from './use-translator';
+
 interface ErrorHandlerOptions {
+  /** Custom error message to display in any case */
+  errorMessage?: string;
+  /** Fallback error message to display if the error is not a BusinessError or known API generic error */
   fallbackMessage?: string;
+  /** Allow not to display toast notification for the error */
   showToastNotification?: boolean;
 }
 
@@ -12,33 +18,64 @@ interface ErrorHandlerOptions {
  * Hook for handling errors with optional toast notifications
  */
 export const useErrorHandler = () => {
-  const handleError = useCallback((error: unknown, options: ErrorHandlerOptions = {}) => {
-    const { fallbackMessage = 'An error occurred', showToastNotification = true } = options;
+  const { t } = useTranslator('common.error.notifications');
 
-    // Extract error message from various error types
-    let errorMessage: string;
+  const handleError = useCallback(
+    (error: unknown, options: ErrorHandlerOptions = {}) => {
+      const {
+        errorMessage,
+        fallbackMessage = 'An error occurred',
+        showToastNotification = true,
+      } = options;
 
-    if (isBusinessError(error)) {
-      errorMessage = error.message;
-    } else if (hasApiErrorBody(error) && error.body?.detail) {
-      errorMessage = error.body.detail;
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-    } else if (typeof error === 'string') {
-      errorMessage = error;
-    } else {
-      errorMessage = fallbackMessage;
-    }
+      // Extract error message from various error types
+      let message: string;
+      if (isSilentError(error)) {
+        console.warn('SilentError:', error);
+        return null;
+      }
 
-    if (showToastNotification) {
-      showToast({
-        type: 'error',
-        message: errorMessage,
-      });
-    }
+      if (errorMessage) {
+        message = errorMessage;
+      } else if (isBusinessError(error)) {
+        message = error.message;
+      } else if (hasApiErrorBody(error) && error.body?.status) {
+        switch (error.body.status) {
+          case 400:
+            message = t('bad_request');
+            break;
+          case 401:
+            message = t('missing_token');
+            break;
+          case 403:
+            message = error.body.type?.includes('A0E-403-0002')
+              ? t('insufficient_scope')
+              : t('forbidden');
+            break;
+          case 404:
+            message = t('not_found');
+            break;
+          case 429:
+            message = t('rate_limit');
+            break;
+          default:
+            message = fallbackMessage;
+        }
+      } else {
+        message = fallbackMessage;
+      }
 
-    return errorMessage;
-  }, []);
+      if (showToastNotification) {
+        showToast({
+          type: 'error',
+          message,
+        });
+      }
+
+      return message;
+    },
+    [t],
+  );
 
   return { handleError };
 };
