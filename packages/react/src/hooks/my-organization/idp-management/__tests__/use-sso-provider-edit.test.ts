@@ -8,10 +8,12 @@ import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 
 import { showToast } from '../../../../components/ui/toast';
 import { useCoreClient } from '../../../use-core-client';
+import { useErrorHandler } from '../../../use-error-handler';
 import { useTranslator } from '../../../use-translator';
 import { useSsoProviderEdit } from '../use-sso-provider-edit';
 
 vi.mock('../../../use-core-client');
+vi.mock('../../../use-error-handler');
 vi.mock('../../../use-translator');
 vi.mock('../../../../components/ui/toast');
 
@@ -28,6 +30,7 @@ describe('useSsoProviderEdit', () => {
   const mockScimTokensList = vi.fn();
   const mockScimTokensCreate = vi.fn();
   const mockScimTokensDelete = vi.fn();
+  const mockHandleError = vi.fn();
 
   const mockT = vi.fn((key: string, params?: Record<string, string>) => {
     if (key === 'update_success') {
@@ -101,6 +104,7 @@ describe('useSsoProviderEdit', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (useCoreClient as Mock).mockReturnValue({ coreClient: mockCoreClient });
+    (useErrorHandler as Mock).mockReturnValue({ handleError: mockHandleError });
     (useTranslator as Mock).mockReturnValue({ t: mockT });
     mockGet.mockResolvedValue(mockProvider);
     mockGetOrgDetails.mockResolvedValue(mockOrganization);
@@ -424,15 +428,13 @@ describe('useSsoProviderEdit', () => {
   });
 
   it('should handle fetch provider error', async () => {
-    mockGet.mockRejectedValue(new Error('Fetch failed'));
+    const error = new Error('Fetch failed');
+    mockGet.mockRejectedValue(error);
 
     const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
 
     await waitFor(() => {
-      expect(showToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'An error occurred',
-      });
+      expect(mockHandleError).toHaveBeenCalledWith(error, { fallbackMessage: 'An error occurred' });
       expect(result.current.isLoading).toBe(false);
     });
   });
@@ -1007,7 +1009,8 @@ describe('useSsoProviderEdit', () => {
 
   describe('error handling', () => {
     it('should handle update provider error', async () => {
-      mockUpdate.mockRejectedValue(new Error('Update failed'));
+      const error = new Error('Update failed');
+      mockUpdate.mockRejectedValue(error);
 
       const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
 
@@ -1015,21 +1018,19 @@ describe('useSsoProviderEdit', () => {
         expect(result.current.provider).toEqual(mockProvider);
       });
 
-      await expect(
-        result.current.updateProvider({ display_name: 'Test', strategy: 'samlp' }),
-      ).rejects.toThrow();
+      await result.current.updateProvider({ display_name: 'Test', strategy: 'samlp' });
 
       await waitFor(() => {
-        expect(showToast).toHaveBeenCalledWith({
-          type: 'error',
-          message: 'An error occurred',
+        expect(mockHandleError).toHaveBeenCalledWith(error, {
+          fallbackMessage: 'An error occurred',
         });
         expect(result.current.isUpdating).toBe(false);
       });
     });
 
     it('should handle create provisioning error', async () => {
-      mockProvisioningCreate.mockRejectedValue(new Error('Create failed'));
+      const error = new Error('Create failed');
+      mockProvisioningCreate.mockRejectedValue(error);
 
       const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
 
@@ -1037,18 +1038,18 @@ describe('useSsoProviderEdit', () => {
         expect(result.current.provider).toEqual(mockProvider);
       });
 
-      await expect(result.current.createProvisioning()).rejects.toThrow();
+      await result.current.createProvisioning();
 
       await waitFor(() => {
-        expect(showToast).toHaveBeenCalledWith({
-          type: 'error',
-          message: 'An error occurred',
+        expect(mockHandleError).toHaveBeenCalledWith(error, {
+          fallbackMessage: 'An error occurred',
         });
       });
     });
 
     it('should handle delete provisioning error', async () => {
-      mockProvisioningDelete.mockRejectedValue(new Error('Delete failed'));
+      const error = new Error('Delete failed');
+      mockProvisioningDelete.mockRejectedValue(error);
 
       const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
 
@@ -1056,18 +1057,18 @@ describe('useSsoProviderEdit', () => {
         expect(result.current.provider).toEqual(mockProvider);
       });
 
-      await expect(result.current.deleteProvisioning()).rejects.toThrow();
+      await result.current.deleteProvisioning();
 
       await waitFor(() => {
-        expect(showToast).toHaveBeenCalledWith({
-          type: 'error',
-          message: 'An error occurred',
+        expect(mockHandleError).toHaveBeenCalledWith(error, {
+          fallbackMessage: 'An error occurred',
         });
       });
     });
 
     it('should handle list SCIM tokens error', async () => {
-      mockScimTokensList.mockRejectedValue(new Error('List failed'));
+      const error = new Error('List failed');
+      mockScimTokensList.mockRejectedValue(error);
 
       const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
 
@@ -1078,14 +1079,12 @@ describe('useSsoProviderEdit', () => {
       const tokens = await result.current.listScimTokens();
 
       expect(tokens).toBe(null);
-      expect(showToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'An error occurred',
-      });
+      expect(mockHandleError).toHaveBeenCalledWith(error, { fallbackMessage: 'An error occurred' });
     });
 
     it('should handle create SCIM token error', async () => {
-      mockScimTokensCreate.mockRejectedValue(new Error('Create failed'));
+      const error = new Error('Create failed');
+      mockScimTokensCreate.mockRejectedValue(error);
 
       const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
 
@@ -1093,18 +1092,18 @@ describe('useSsoProviderEdit', () => {
         expect(result.current.provider).toEqual(mockProvider);
       });
 
-      await expect(result.current.createScimToken({})).rejects.toThrow();
+      await result.current.createScimToken({});
 
       await waitFor(() => {
-        expect(showToast).toHaveBeenCalledWith({
-          type: 'error',
-          message: 'An error occurred',
+        expect(mockHandleError).toHaveBeenCalledWith(error, {
+          fallbackMessage: 'An error occurred',
         });
       });
     });
 
     it('should handle delete SCIM token error', async () => {
-      mockScimTokensDelete.mockRejectedValue(new Error('Delete failed'));
+      const error = new Error('Delete failed');
+      mockScimTokensDelete.mockRejectedValue(error);
 
       const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
 
@@ -1112,18 +1111,18 @@ describe('useSsoProviderEdit', () => {
         expect(result.current.provider).toEqual(mockProvider);
       });
 
-      await expect(result.current.deleteScimToken('token_123')).rejects.toThrow();
+      await result.current.deleteScimToken('token_123');
 
       await waitFor(() => {
-        expect(showToast).toHaveBeenCalledWith({
-          type: 'error',
-          message: 'An error occurred',
+        expect(mockHandleError).toHaveBeenCalledWith(error, {
+          fallbackMessage: 'An error occurred',
         });
       });
     });
 
     it('should handle delete provider error', async () => {
-      mockDelete.mockRejectedValue(new Error('Delete failed'));
+      const error = new Error('Delete failed');
+      mockDelete.mockRejectedValue(error);
 
       const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
 
@@ -1131,18 +1130,18 @@ describe('useSsoProviderEdit', () => {
         expect(result.current.provider).toEqual(mockProvider);
       });
 
-      await expect(result.current.onDeleteConfirm()).rejects.toThrow();
+      await result.current.onDeleteConfirm();
 
       await waitFor(() => {
-        expect(showToast).toHaveBeenCalledWith({
-          type: 'error',
-          message: 'An error occurred',
+        expect(mockHandleError).toHaveBeenCalledWith(error, {
+          fallbackMessage: 'An error occurred',
         });
       });
     });
 
     it('should handle remove from organization error', async () => {
-      mockDetach.mockRejectedValue(new Error('Remove failed'));
+      const error = new Error('Remove failed');
+      mockDetach.mockRejectedValue(error);
 
       const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
 
@@ -1150,33 +1149,33 @@ describe('useSsoProviderEdit', () => {
         expect(result.current.provider).toEqual(mockProvider);
       });
 
-      await expect(result.current.onRemoveConfirm()).rejects.toThrow();
+      await result.current.onRemoveConfirm();
 
       await waitFor(() => {
-        expect(showToast).toHaveBeenCalledWith({
-          type: 'error',
-          message: 'An error occurred',
+        expect(mockHandleError).toHaveBeenCalledWith(error, {
+          fallbackMessage: 'An error occurred',
         });
       });
     });
 
     it('should handle fetch organization details error', async () => {
-      mockGetOrgDetails.mockRejectedValue(new Error('Fetch failed'));
+      const error = new Error('Fetch failed');
+      mockGetOrgDetails.mockRejectedValue(error);
 
       renderHook(() => useSsoProviderEdit(mockIdpId));
 
       await waitFor(() => {
-        expect(showToast).toHaveBeenCalledWith({
-          type: 'error',
-          message: 'An error occurred',
+        expect(mockHandleError).toHaveBeenCalledWith(error, {
+          fallbackMessage: 'An error occurred',
         });
       });
     });
 
     it('should handle non-404 error when fetching provisioning config', async () => {
-      mockProvisioningGet.mockRejectedValue({
+      const error = {
         body: { status: 500 },
-      });
+      };
+      mockProvisioningGet.mockRejectedValue(error);
 
       const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
 
@@ -1187,9 +1186,8 @@ describe('useSsoProviderEdit', () => {
       await result.current.fetchProvisioning();
 
       await waitFor(() => {
-        expect(showToast).toHaveBeenCalledWith({
-          type: 'error',
-          message: 'An error occurred',
+        expect(mockHandleError).toHaveBeenCalledWith(error, {
+          fallbackMessage: 'An error occurred',
         });
       });
     });
