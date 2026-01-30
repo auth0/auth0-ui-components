@@ -9,7 +9,19 @@ const Toaster = ({ ...props }: ToasterProps) => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? 'dark' : 'light';
 
-  return <Sonner theme={theme as ToasterProps['theme']} className="toaster group" {...props} />;
+  return (
+    <Sonner
+      theme={theme as ToasterProps['theme']}
+      className="toaster group"
+      toastOptions={{
+        style: {
+          width: 'fit-content',
+          maxWidth: '22.25rem',
+        },
+      }}
+      {...props}
+    />
+  );
 };
 
 export { Toaster };
