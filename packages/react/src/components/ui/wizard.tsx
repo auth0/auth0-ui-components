@@ -152,6 +152,7 @@ function Wizard({
         isLoading={isLoading}
         showPrevious={showPrevious}
         showNext={showNext}
+        showUnsavedChanges={false}
         nextAction={{
           type: 'button',
           label: isLastStep ? labels.completeButtonLabel : labels.nextButtonLabel,

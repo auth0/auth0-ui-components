@@ -69,6 +69,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
   );
 
   const showUnsavedIndicator = showUnsavedChanges && hasUnsavedChanges;
+  const isPreviousVisible = showUnsavedChanges ? showPrevious && hasUnsavedChanges : showPrevious;
 
   return (
     <div
@@ -79,13 +80,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
       )}
     >
       {showUnsavedIndicator && (
-        <div className="flex items-center gap-2">
-          <div
-            className="w-2 h-2 rounded-full bg-orange-500 transition-colors"
-            aria-hidden="true"
-          />
-          <span className="text-sm text-muted-foreground">{unsavedChangesText}</span>
-        </div>
+        <span className="text-sm text-muted-foreground">{unsavedChangesText}</span>
       )}
 
       {showPrevious && (
@@ -94,8 +89,15 @@ export const FormActions: React.FC<FormActionsProps> = ({
           variant={previousButtonProps.variant}
           size={previousButtonProps.size}
           onClick={handlePreviousClick}
-          disabled={previousButtonProps.disabled || isLoading}
-          className="FormActions-previous"
+          disabled={
+            previousButtonProps.disabled || isLoading || (showUnsavedChanges && !hasUnsavedChanges)
+          }
+          className={cn(
+            'FormActions-previous',
+            showUnsavedChanges && !isPreviousVisible && 'invisible',
+          )}
+          aria-hidden={showUnsavedChanges && !isPreviousVisible}
+          tabIndex={isPreviousVisible ? 0 : -1}
         >
           {previousButtonProps.label}
         </Button>
@@ -107,7 +109,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
           variant={nextButtonProps.variant}
           size={nextButtonProps.size}
           disabled={nextButtonProps.disabled || isLoading}
-          className="FormActions-next"
+          className="FormActions-next min-w-17.5"
           {...(nextButtonProps.type !== 'submit' && { onClick: handleNextClick })}
         >
           {isLoading ? (
