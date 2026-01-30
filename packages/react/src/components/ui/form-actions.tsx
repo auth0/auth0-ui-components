@@ -109,7 +109,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
           variant={nextButtonProps.variant}
           size={nextButtonProps.size}
           disabled={nextButtonProps.disabled || isLoading}
-          className="FormActions-next min-w-[70px]"
+          className="FormActions-next min-w-17.5"
           {...(nextButtonProps.type !== 'submit' && { onClick: handleNextClick })}
         >
           {isLoading ? (
