@@ -1,6 +1,5 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { EnhancedTranslationFunction } from 'packages/core/dist';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
