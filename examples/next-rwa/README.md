@@ -24,7 +24,7 @@ These instructions assume that you're using `pnpm`, which is automatically inclu
 
 **This is important!** Using a new Auth0 tenant for this sample application ensures you don't encounter any conflicts due to existing configuration in an existing tenant.
 
-The tenant you create will be configured automatically by our bootstrapping command during the installation process. You can sign up for a free Auth0 account at [https://auth0.com/signup](https://auth0.com/signup?utm_source=github&utm_medium=thirdpartyutm_campaign=saastart). See [Create Tenants](https://auth0.com/docs/get-started/auth0-overview/create-tenants) in the Auth0 docs if you need help.
+The tenant you create will be configured automatically by our bootstrapping command during the installation process. You can sign up for a free Auth0 account at [https://auth0.com/signup](https://auth0.com/signup?utm_source=github&utm_medium=thirdpartyutm_campaign=universal-components). See [Create Tenants](https://auth0.com/docs/get-started/auth0-overview/create-tenants) in the Auth0 docs if you need help.
 
 4. Continue with the **[Getting Started](#getting-started)** section.
 
@@ -82,12 +82,21 @@ The tenant you create will be configured automatically by our bootstrapping comm
 
    This scripts configures your tenant. If required it will also ask you to create an org admin and set password that you can use to login to the demo.
 
-5. **Run the development server:**
+5. **Navigate to examples folder, install dependencies & run:**
+
    ```bash
+   cd ../next-rwa
+   pnpm install
    pnpm run dev
    ```
 
-Open [http://localhost:5173](http://localhost:5173) to see the result.
+6. **Access the Application:**
+
+   Once the development server is running, you can access the application at:
+
+   **http://localhost:5173**
+
+   The application should now be running with Auth0 authentication integrated.
 
 ## Adding a Universal Component to your app
 
