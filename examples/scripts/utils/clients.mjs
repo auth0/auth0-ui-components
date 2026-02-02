@@ -18,14 +18,18 @@ export const DASHBOARD_CLIENT_NAME = "Universal Components Demo"
 export async function checkDashboardClientChanges(
   existingClients,
   connectionProfileId,
-  userAttributeProfileId
+  userAttributeProfileId,
+  exampleType,
+  domain,
+  myOrgApiScopes
 ) {
   const existingClient = existingClients.find(
     (c) => c.name === DASHBOARD_CLIENT_NAME
   )
 
-  const desiredCallbacks = [`${APP_BASE_URL}/auth/callback`]
+  const desiredCallbacks = (exampleType === 'next-rwa') ? [`${APP_BASE_URL}/auth/callback`] : [APP_BASE_URL]
   const desiredLogoutUrls = [APP_BASE_URL]
+  const desiredAllowedWebOrigins = (exampleType === 'next-rwa') ? [] : [APP_BASE_URL]
 
   if (!existingClient) {
     return createChangeItem(ChangeAction.CREATE, {
@@ -51,7 +55,13 @@ export async function checkDashboardClientChanges(
   const missingLogoutUrls = desiredLogoutUrls.filter(
     (url) => !clientToCheck.allowed_logout_urls?.includes(url)
   )
-  const wrongAppType = clientToCheck.app_type !== "regular_web"
+  const missingAllowedWebOrigins = desiredAllowedWebOrigins.filter(
+    (o) => !clientToCheck.allowed_web_origins?.includes(o)
+  )
+  const checkAppType = {
+    wrongAppType: (exampleType === 'next-rwa' ? clientToCheck.app_type !== "regular_web" : clientToCheck.app_type !== "spa"),
+    requiredAppType: (exampleType === 'next-rwa' ? "regular_web" : "spa")
+  }
 
   // Check if my_org config needs update
   // If profiles are TO_BE_CREATED, we'll need to update after creating them
@@ -69,12 +79,28 @@ export async function checkDashboardClientChanges(
     clientToCheck.organization_require_behavior !== "post_login_prompt" ||
     clientToCheck.organization_usage !== "require"
 
+  const refreshTokenPoliciesNeedUpdate = 
+    !clientToCheck.refresh_token?.policies?.some(
+      policy => (
+        policy.audience === `https://${domain}/my-org/` &&
+        policy.scope.slice().sort().toString() === myOrgApiScopes.slice().sort().toString()
+      )
+    )
+
+  const refreshTokenRotationNeedsUpdate =
+    clientToCheck.refresh_token?.rotation_type !== "rotating"
+
+  const refreshTokenNeedsUpdate =
+    refreshTokenPoliciesNeedUpdate || refreshTokenRotationNeedsUpdate
+
   const needsUpdate =
     missingCallbacks.length > 0 ||
     missingLogoutUrls.length > 0 ||
-    wrongAppType ||
+    missingAllowedWebOrigins.length > 0 ||
+    checkAppType.wrongAppType ||
     myOrgConfigNeedsUpdate ||
-    organizationSettingsNeedUpdate
+    organizationSettingsNeedUpdate ||
+    refreshTokenNeedsUpdate
 
   if (needsUpdate) {
     const changes = []
@@ -82,10 +108,14 @@ export async function checkDashboardClientChanges(
       changes.push(`Add ${missingCallbacks.length} callback(s)`)
     if (missingLogoutUrls.length > 0)
       changes.push(`Add ${missingLogoutUrls.length} logout URL(s)`)
-    if (wrongAppType) changes.push("Set app_type to regular_web")
+    if (missingAllowedWebOrigins.length > 0)
+      changes.push(`Add ${missingAllowedWebOrigins.length} allowed web origin(s)`)
+    if (checkAppType.wrongAppType) changes.push(`Set app_type to ${checkAppType.requiredAppType}`)
     if (myOrgConfigNeedsUpdate) changes.push("Update My Org configuration")
     if (organizationSettingsNeedUpdate)
       changes.push("Update organization settings")
+    if (refreshTokenNeedsUpdate)
+      changes.push("Update refresh token settings")
 
     return createChangeItem(ChangeAction.UPDATE, {
       resource: "Universal Components Demo Client",
@@ -94,11 +124,13 @@ export async function checkDashboardClientChanges(
       updates: {
         missingCallbacks,
         missingLogoutUrls,
-        wrongAppType,
+        missingAllowedWebOrigins,
+        checkAppType,
         myOrgConfigNeedsUpdate,
         organizationSettingsNeedUpdate,
         connectionProfileId,
         userAttributeProfileId,
+        refreshTokenNeedsUpdate
       },
       summary: changes.join(", "),
     })
@@ -166,7 +198,10 @@ export function checkMyOrgClientGrantChanges(
 export async function applyDashboardClientChanges(
   changePlan,
   connectionProfileId,
-  userAttributeProfileId
+  userAttributeProfileId,
+  exampleType,
+  domain,
+  myOrgApiScopes
 ) {
   if (changePlan.action === ChangeAction.SKIP) {
     const spinner = ora({
@@ -182,8 +217,11 @@ export async function applyDashboardClientChanges(
     }).start()
 
     try {
-      const desiredCallbacks = [`${APP_BASE_URL}/auth/callback`]
+      const desiredCallbacks = (exampleType === 'nextjs-rwa') ? [`${APP_BASE_URL}/auth/callback`] : [APP_BASE_URL]
       const desiredLogoutUrls = [APP_BASE_URL]
+      const desiredAppType = (exampleType === 'nextjs-rwa') ? "regular_web" : "spa" 
+      const desiredTokenEndpointAuthMethod = (exampleType === 'nextjs-rwa') ? "client_secret_post" : "none"
+      const desiredAllowedWebOrigins = desiredAppType === 'spa' ? [APP_BASE_URL] : []
 
       // prettier-ignore
       const createClientArgs = [
@@ -193,10 +231,12 @@ export async function applyDashboardClientChanges(
           description: "The client to facilitate login to the dashboard in the context of an organization.",
           callbacks: desiredCallbacks,
           allowed_logout_urls: desiredLogoutUrls,
-          initiate_login_uri: "https://example.com/auth/login",
-          app_type: "regular_web",
+          web_origins: desiredAllowedWebOrigins,
+          app_type: desiredAppType,
           oidc_conformant: true,
+          is_first_party: true,
           grant_types: ["authorization_code", "refresh_token"],
+          token_endpoint_auth_method: desiredTokenEndpointAuthMethod,
           organization_require_behavior: "post_login_prompt",
           organization_usage: "require",
           jwt_configuration: {
@@ -218,6 +258,19 @@ export async function applyDashboardClientChanges(
               "samlp",
             ],
           },
+          refresh_token: {
+            expiration_type: "expiring",
+            rotation_type: "rotating",
+            token_lifetime: 31557600,
+            idle_token_lifetime: 2592000,
+            leeway: 0,
+            infinite_token_lifetime: false,
+            infinite_idle_token_lifetime: false,
+            policies: [{
+              audience: `https://${domain}/my-org/`,
+              scope: myOrgApiScopes
+            }] 
+          }
         }),
       ];
 
@@ -226,7 +279,7 @@ export async function applyDashboardClientChanges(
 
       // Fetch full client details including client_secret
       const { stdout: fullClientStdout } =
-        await $`auth0 api get clients/${client.client_id}?fields=client_id,name,client_secret,app_type,callbacks,allowed_logout_urls,my_organization_configuration,organization_require_behavior,organization_usage`
+        await $`auth0 api get clients/${client.client_id}?fields=client_id,name,client_secret,app_type,callbacks,allowed_logout_urls,my_organization_configuration,organization_require_behavior,organization_usage,refresh_token`
       const fullClient = JSON.parse(fullClientStdout)
 
       spinner.succeed(`Created ${DASHBOARD_CLIENT_NAME} client`)
@@ -261,8 +314,16 @@ export async function applyDashboardClientChanges(
         ]
       }
 
-      if (updates.wrongAppType) {
-        updateData.app_type = "regular_web"
+      if (updates.missingAllowedWebOrigins && updates.missingAllowedWebOrigins.length > 0) {
+        updateData.web_origins = [
+          ...(existing.allowed_web_origins || []),
+          ...updates.missingAllowedWebOrigins,
+        ]
+      }
+
+      if (updates.checkAppType.wrongAppType) {
+        updateData.app_type = updates.checkAppType.requiredAppType
+        updateData.token_endpoint_auth_method = (updates.checkAppType.requiredAppType === 'regular_web') ? "client_secret_post" : "none"
       }
 
       if (updates.organizationSettingsNeedUpdate) {
@@ -284,6 +345,31 @@ export async function applyDashboardClientChanges(
             "oidc",
             "samlp",
           ],
+        }
+      }
+
+      if (updates.refreshTokenNeedsUpdate) {
+        const desiredPolicy = {
+          audience: `https://${domain}/my-org/`,
+          scope: myOrgApiScopes,
+        }
+
+        const existingPolicies = existing.refresh_token?.policies || []
+        const hasPolicy = existingPolicies.some(
+          (policy) =>
+            policy.audience === desiredPolicy.audience &&
+            policy.scope?.slice().sort().toString() ===
+              myOrgApiScopes.slice().sort().toString()
+        )
+
+        const newPolicies = hasPolicy
+          ? existingPolicies
+          : [...existingPolicies, desiredPolicy]
+
+        updateData.refresh_token = {
+          ...(existing.refresh_token || {}),
+          rotation_type: "rotating",
+          policies: newPolicies,
         }
       }
 
