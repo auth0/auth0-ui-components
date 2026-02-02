@@ -3,7 +3,7 @@ import {
   type IdentityProvider,
   type CreateOrganizationDomainRequestContent,
   type IdentityProviderAssociatedWithDomain,
-  BusinessError,
+  SilentError,
 } from '@auth0/universal-components-core';
 import { useCallback, useState } from 'react';
 
@@ -12,6 +12,7 @@ import type {
   UseDomainTableResult,
 } from '../../../types/my-organization/domain-management/domain-table-types';
 import { useCoreClient } from '../../use-core-client';
+import { useErrorHandler } from '../../use-error-handler';
 import { useTranslator } from '../../use-translator';
 
 /**
@@ -27,6 +28,7 @@ export function useDomainTable({
 }: UseDomainTableOptions): UseDomainTableResult {
   const { t } = useTranslator('domain_management.domain_table.notifications', customMessages);
   const { coreClient } = useCoreClient();
+  const { handleError } = useErrorHandler();
 
   const [domains, setDomains] = useState<Domain[]>([]);
   const [providers, setProviders] = useState<IdentityProviderAssociatedWithDomain[]>([]);
@@ -67,6 +69,10 @@ export function useDomainTable({
         );
 
         setProviders(providersWithAssociation);
+      } catch (error) {
+        await handleError(error, {
+          fallbackMessage: t('fetch_providers_error'),
+        });
       } finally {
         setIsLoadingProviders(false);
       }
@@ -75,15 +81,19 @@ export function useDomainTable({
   );
 
   const fetchDomains = useCallback(async (): Promise<void> => {
+    setIsFetching(true);
     try {
-      setIsFetching(true);
       const response = await coreClient!.getMyOrganizationApiClient().organization.domains.list();
       const domains = response?.organization_domains ?? [];
       setDomains(domains);
+    } catch (error) {
+      await handleError(error, {
+        fallbackMessage: t('fetch_domains_error'),
+      });
     } finally {
       setIsFetching(false);
     }
-  }, [coreClient, t]);
+  }, [coreClient, handleError, t]);
 
   const onCreateDomain = useCallback(
     async (data: CreateOrganizationDomainRequestContent): Promise<Domain | null> => {
@@ -92,8 +102,7 @@ export function useDomainTable({
       if (createAction?.onBefore) {
         const canProceed = createAction.onBefore(data as Domain);
         if (!canProceed) {
-          setIsCreating(false);
-          throw new BusinessError({ message: t('domain_create.on_before') });
+          throw new SilentError({ message: t('domain_create.on_before') });
         }
       }
 
@@ -119,8 +128,7 @@ export function useDomainTable({
       if (verifyAction?.onBefore) {
         const canProceed = verifyAction.onBefore(selectedDomain);
         if (!canProceed) {
-          setIsVerifying(false);
-          throw new BusinessError({ message: t('domain_verify.on_before') });
+          throw new SilentError({ message: t('domain_verify.on_before') });
         }
       }
 
@@ -150,8 +158,7 @@ export function useDomainTable({
       if (deleteAction?.onBefore) {
         const canProceed = deleteAction.onBefore(selectedDomain);
         if (!canProceed) {
-          setIsDeleting(false);
-          throw new BusinessError({ message: t('domain_delete.on_before') });
+          throw new SilentError({ message: t('domain_delete.on_before') });
         }
       }
 
@@ -177,7 +184,7 @@ export function useDomainTable({
       if (associateToProviderAction?.onBefore) {
         const canProceed = associateToProviderAction.onBefore(selectedDomain, provider);
         if (!canProceed) {
-          throw new BusinessError({ message: t('domain_associate_provider.on_before') });
+          throw new SilentError({ message: t('domain_associate_provider.on_before') });
         }
       }
 
@@ -201,7 +208,7 @@ export function useDomainTable({
       if (deleteFromProviderAction?.onBefore) {
         const canProceed = deleteFromProviderAction.onBefore(selectedDomain, provider);
         if (!canProceed) {
-          throw new BusinessError({ message: t('domain_delete_provider.on_before') });
+          throw new SilentError({ message: t('domain_delete_provider.on_before') });
         }
       }
 

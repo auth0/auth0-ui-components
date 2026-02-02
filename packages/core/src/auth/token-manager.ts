@@ -10,6 +10,27 @@ const pendingTokenRequests = new Map<string, Promise<string>>();
 const FALLBACK_ERRORS = new Set(['consent_required', 'login_required', 'mfa_required']);
 
 /**
+ * Extracts only the pathname for post-auth redirects.
+ * Query params/hash excluded to prevent open redirect attacks.
+ */
+function getSafeReturnPath(): string | undefined {
+  try {
+    const currentUrl = new URL(window.location.href);
+
+    const pathname = currentUrl.pathname;
+
+    if (!pathname || pathname.length === 0) {
+      return '/';
+    }
+
+    return pathname;
+  } catch (error) {
+    console.error('TokenManager: Failed to construct safe return path', error);
+    return undefined;
+  }
+}
+
+/**
  * Pure utility functions for token management operations.
  * These functions handle token requests, validation, and caching logic.
  */
@@ -120,21 +141,28 @@ const TokenUtils = {
         'error' in error &&
         FALLBACK_ERRORS.has((error as { error: string }).error)
       ) {
-        const errorType = (error as { error: string }).error;
-        const prompt = errorType === 'login_required' ? 'login' : 'consent';
+        if (error.error === 'login_required') {
+          const returnTo = getSafeReturnPath();
 
-        const token = await contextInterface.getAccessTokenWithPopup({
-          authorizationParams: {
-            audience,
-            scope,
-            prompt,
-          },
-        });
-
-        if (!token) {
-          throw new Error('getAccessTokenWithPopup: Access token is not defined');
+          await contextInterface.loginWithRedirect({
+            authorizationParams: {
+              audience,
+              scope,
+            },
+            ...(returnTo ? { appState: { returnTo } } : {}),
+          });
+        } else {
+          const token = await contextInterface.getAccessTokenWithPopup({
+            authorizationParams: {
+              audience,
+              scope,
+            },
+          });
+          if (!token) {
+            throw new Error('getAccessTokenWithPopup: Access token is not defined');
+          }
+          return token;
         }
-        return token;
       }
       throw new Error('getAccessToken: failed', { cause: error });
     }

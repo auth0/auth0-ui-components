@@ -12,6 +12,7 @@ import type {
   UseOrganizationDetailsEditResult,
 } from '../../../types/my-organization/organization-management';
 import { useCoreClient } from '../../use-core-client';
+import { useErrorHandler } from '../../use-error-handler';
 import { useTranslator } from '../../use-translator';
 
 /**
@@ -25,6 +26,7 @@ export function useOrganizationDetailsEdit({
 }: UseOrganizationDetailsEditOptions): UseOrganizationDetailsEditResult {
   const { t } = useTranslator('organization_management.organization_details_edit', customMessages);
   const { coreClient } = useCoreClient();
+  const { handleError } = useErrorHandler();
 
   const [organization, setOrganization] = useState<OrganizationPrivate>(
     OrganizationDetailsFactory.create(),
@@ -53,10 +55,7 @@ export function useOrganizationDetailsEdit({
           ? t('organization_changes_error_message', { message: error.message })
           : t('organization_changes_error_message_generic');
 
-      showToast({
-        type: 'error',
-        message: errorMessage,
-      });
+      handleError(error, { fallbackMessage: errorMessage });
     } finally {
       setIsFetchLoading(false);
     }
@@ -106,11 +105,7 @@ export function useOrganizationDetailsEdit({
             ? t('organization_changes_error_message', { message: error.message })
             : t('organization_changes_error_message_generic');
 
-        showToast({
-          type: 'error',
-          message: errorMessage,
-        });
-
+        handleError(error, { fallbackMessage: errorMessage });
         return false;
       } finally {
         setIsSaveLoading(false);

@@ -1,7 +1,17 @@
 {
   "common": {
     "copy": "コピー",
-    "copied": "コピーしました"
+    "copied": "コピーしました",
+    "error": {
+      "notifications": {
+        "bad_request": "リクエストが無効です。入力内容を確認して再度お試しください。",
+        "missing_token": "セッションの有効期限が切れました。再度ログインしてください。",
+        "insufficient_scope": "このアクションを実行するために必要なスコープ権限がありません。",
+        "forbidden": "このアクションを実行する権限がありません。",
+        "not_found": "要求されたリソースが見つかりませんでした。",
+        "rate_limit": "リクエストが多すぎます。しばらく待ってから再度お試しください。"
+      }
+    }
   },
   "domain_management": {
     "domain_table": {
@@ -30,12 +40,12 @@
         "domain_create": {
           "success": "${domainName}が作成されました。",
           "error": "ドメインの作成中に問題が発生しました。",
-          "on_before": "ドメインが有効ではありません。"
+          "on_before": "onBefore: ドメインが有効ではありません。"
         },
         "domain_verify": {
           "success": "${domainName}が検証されました。",
           "error": "ドメインの検証中に問題が発生しました。",
-          "on_before": "ドメイン検証のバリデーションが正しくありません。",
+          "on_before": "onBefore: ドメイン検証のバリデーションが正しくありません。",
           "verification_failed": "${domainName}を検証できませんでした。しばらく待ってから再度お試しいただくか、DNSプロバイダーをご確認ください。"
         },
         "domain_delete": {
@@ -45,12 +55,12 @@
         "domain_associate_provider": {
           "success": "${domainName}が${idp}プロバイダーで有効になりました。",
           "error": "ドメインをプロバイダーに関連付ける際に問題が発生しました。",
-          "on_before": "ドメインのプロバイダー関連付けバリデーションが正しくありません。"
+          "on_before": "onBefore: ドメインのプロバイダー関連付けバリデーションが正しくありません。"
         },
         "domain_delete_provider": {
           "success": "${domainName}が${idp}プロバイダーで無効になりました。",
           "error": "ドメインをプロバイダーから削除する際に問題が発生しました。",
-          "on_before": "ドメインのプロバイダー削除バリデーションが正しくありません。"
+          "on_before": "onBefore: ドメインのプロバイダー削除バリデーションが正しくありません。"
         }
       }
     },
@@ -901,7 +911,7 @@
     "deleting": "削除中...",
     "errors": {
       "factors_loading_error": "多要素認証の読み込みエラー！",
-      "unknown_error": "不明なエラーが発生しました",
+      "unknown_error": "予期しないエラーが発生しました",
       "delete_factor": "認証器の削除に失敗しました",
       "failed": "失敗しました: ${message}",
       "phone_number_required": "SMS登録には電話番号が必要です。",
@@ -910,27 +920,23 @@
       "invalid_phone_number": "無効な電話番号",
       "unsupported_mfa_type": "未対応のMFAタイプです: ${factorName}",
       "push-notification": {
-        "too_many_entities": "このユーザーのプッシュ通知エンティティの数には上限があります。",
-        "unsupported_challenge_type": "Auth0 Verifier がテナントで無効になっています。ダッシュボードの Guardian MFA セクションで「プッシュ通知」をオンにすると有効にできます。",
-        "invalid_request": "必須パラメーターがありません",
-        "authorization_pending": "承認保留中: 数秒後にリクエストを再試行してください。"
+        "400": "必須パラメーターがありません",
+        "429": "このユーザーのプッシュ通知エンティティの数には上限があります。"
       },
       "totp": {
-        "invalid_request": "必須パラメーターがありません",
-        "too_many_entities": "このユーザーのTOTPエンティティの数には上限があります。",
-        "unsupported_challenge_type": "OTP Verifier がテナントで無効になっています。ダッシュボードの Guardian MFA セクションで「プッシュ通知」をオンにすると有効にできます（プッシュ通知にはOTPが含まれます）。",
-        "invalid_grant": "OTPコードが無効です"
+        "400": "必須パラメーターがありません",
+        "403": "OTPコードが無効です",
+        "429": "このユーザーのTOTPエンティティの数には上限があります。"
       },
       "phone": {
-        "unsupported_challenge_type": "SMS Verifier がテナントで無効になっています。ダッシュボードの Guardian MFA セクションで「SMS」をオンにすると有効にできます。",
-        "bad_gateway": "電話番号が無効です。",
-        "too_many_entities": "このユーザーのSMSエンティティの数には上限があります。"
+        "400": "電話番号が無効です。",
+        "403": "コードが無効です",
+        "429": "このユーザーのSMSエンティティの数には上限があります。"
       },
       "email": {
-        "expired_token": "確認コードの有効期限が切れました",
-        "invalid_grant": "コードが無効です",
-        "access_denied": "要求された認証機能が見つかりませんでした",
-        "too_many_entities": "このユーザーのメールエンティティの数には上限があります。"
+        "400": "メールアドレスが無効です。",
+        "403": "コードが無効です",
+        "429": "このユーザーのメールエンティティの数には上限があります。"
       }
     },
     "phone": {

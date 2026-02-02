@@ -2,7 +2,7 @@ import type {
   CreateOrganizationDomainRequestContent,
   EnhancedTranslationFunction,
 } from '@auth0/universal-components-core';
-import { BusinessError } from '@auth0/universal-components-core';
+import { SilentError } from '@auth0/universal-components-core';
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
@@ -14,12 +14,14 @@ import {
 } from '../../../../internals';
 import type { UseDomainTableOptions } from '../../../../types/my-organization/domain-management/domain-table-types';
 import * as useCoreClientModule from '../../../use-core-client';
+import * as useErrorHandlerModule from '../../../use-error-handler';
 import * as useTranslatorModule from '../../../use-translator';
 import { useDomainTable } from '../use-domain-table';
 
 // ===== Mock packages =====
 
 const { initMockCoreClient } = mockCore();
+const mockHandleError = vi.fn();
 
 // ===== Mock Data =====
 
@@ -72,6 +74,11 @@ describe('useDomainTable', () => {
       currentLanguage: 'en',
       fallbackLanguage: 'en',
     });
+
+    // Mock useErrorHandler
+    vi.spyOn(useErrorHandlerModule, 'useErrorHandler').mockReturnValue({
+      handleError: mockHandleError,
+    });
   });
 
   describe('Initial State', () => {
@@ -122,14 +129,13 @@ describe('useDomainTable', () => {
         .mockRejectedValue(error);
 
       await act(async () => {
-        try {
-          await result.current.fetchDomains();
-        } catch (e) {
-          expect(e).toBe(error);
-        }
+        await result.current.fetchDomains();
       });
 
       expect(result.current.isFetching).toBe(false);
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: expect.any(String),
+      });
     });
 
     it('should handle empty domains response', async () => {
@@ -294,14 +300,13 @@ describe('useDomainTable', () => {
         .mockRejectedValue(error);
 
       await act(async () => {
-        try {
-          await result.current.fetchProviders(mockDomain);
-        } catch (e) {
-          expect(e).toBe(error);
-        }
+        await result.current.fetchProviders(mockDomain);
       });
 
       expect(result.current.isLoadingProviders).toBe(false);
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: expect.any(String),
+      });
     });
 
     it('should handle null/undefined responses gracefully', async () => {
@@ -362,7 +367,7 @@ describe('useDomainTable', () => {
         act(async () => {
           await result.current.onCreateDomain(createData);
         }),
-      ).rejects.toThrow(BusinessError);
+      ).rejects.toThrow(SilentError);
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.domains.create,
@@ -454,7 +459,7 @@ describe('useDomainTable', () => {
         act(async () => {
           await result.current.onVerifyDomain(mockDomain);
         }),
-      ).rejects.toThrow(BusinessError);
+      ).rejects.toThrow(SilentError);
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.domains.verify.create,
@@ -511,7 +516,7 @@ describe('useDomainTable', () => {
         act(async () => {
           await result.current.onDeleteDomain(mockDomain);
         }),
-      ).rejects.toThrow(BusinessError);
+      ).rejects.toThrow(SilentError);
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.domains.delete,
@@ -572,7 +577,7 @@ describe('useDomainTable', () => {
         act(async () => {
           await result.current.onAssociateToProvider(mockDomain, mockProvider);
         }),
-      ).rejects.toThrow(BusinessError);
+      ).rejects.toThrow(SilentError);
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.create,
@@ -634,7 +639,7 @@ describe('useDomainTable', () => {
         act(async () => {
           await result.current.onDeleteFromProvider(mockDomain, mockProvider);
         }),
-      ).rejects.toThrow(BusinessError);
+      ).rejects.toThrow(SilentError);
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.delete,

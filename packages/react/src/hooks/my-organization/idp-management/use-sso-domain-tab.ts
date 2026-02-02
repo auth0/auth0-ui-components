@@ -1,5 +1,5 @@
 import type { CreateOrganizationDomainRequestContent } from '@auth0/universal-components-core';
-import { BusinessError, type Domain, type IdpId } from '@auth0/universal-components-core';
+import { SilentError, type Domain, type IdpId } from '@auth0/universal-components-core';
 import { useCallback, useState, useEffect } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
@@ -34,41 +34,42 @@ export function useSsoDomainTab(
   const [isUpdatingId, setIsUpdatingId] = useState<string | null>(null);
 
   const fetchProviderfromDomain = useCallback(
-    async (domainId: string): Promise<string | undefined> => {
+    async (domainId: string): Promise<string | null> => {
       if (!coreClient) {
-        return undefined;
+        return null;
       }
 
-      const response = await coreClient
-        .getMyOrganizationApiClient()
-        .organization.domains.identityProviders.get(domainId);
-
-      const isIdpEnabled = response.identity_providers?.some((idp) => idp.id === idpId);
-
-      if (isIdpEnabled) {
-        setIdpDomains((prevIdpDomains) =>
-          prevIdpDomains.includes(domainId) ? prevIdpDomains : [...prevIdpDomains, domainId],
-        );
-        return domainId;
-      }
-
-      return undefined;
-    },
-    [coreClient, idpId],
-  );
-
-  const getAllProviderDomains = useCallback(
-    async (fetchedDomains: Domain[]) => {
       try {
-        setIsLoading(true);
+        const response = await coreClient
+          .getMyOrganizationApiClient()
+          .organization.domains.identityProviders.get(domainId);
 
-        await Promise.all(
-          fetchedDomains.map(async (domain) => await fetchProviderfromDomain(domain.id)),
-        );
+        const isIdpEnabled = response.identity_providers?.some((idp) => idp.id === idpId);
+
+        return isIdpEnabled ? domainId : null;
       } catch (error) {
         handleError(error, {
           fallbackMessage: t('general_error'),
         });
+        return null;
+      }
+    },
+    [coreClient, idpId, handleError, t],
+  );
+
+  const getAllProviderDomains = useCallback(
+    async (fetchedDomains: Domain[]) => {
+      setIsLoading(true);
+
+      try {
+        // Wait for all requests to complete (even if some fail)
+        const results = await Promise.all(
+          fetchedDomains.map(async (domain) => await fetchProviderfromDomain(domain.id)),
+        );
+
+        // Filter out nulls and set state once
+        const enabledDomainIds = results.filter((id): id is string => id !== null);
+        setIdpDomains(enabledDomainIds);
       } finally {
         setIsLoading(false);
       }
@@ -103,7 +104,7 @@ export function useSsoDomainTab(
         const canProceed = domains.createAction.onBefore(data as Domain);
         if (!canProceed) {
           setIsCreating(false);
-          throw new BusinessError({ message: t('domain_create.on_before') });
+          throw new SilentError({ message: t('domain_create.on_before') });
         }
       }
 
@@ -126,7 +127,7 @@ export function useSsoDomainTab(
         const canProceed = domains.verifyAction.onBefore(selectedDomain);
         if (!canProceed) {
           setIsVerifying(false);
-          throw new BusinessError({ message: t('domain_verify.on_before') });
+          throw new SilentError({ message: t('domain_verify.on_before') });
         }
       }
 
@@ -162,7 +163,7 @@ export function useSsoDomainTab(
         const canProceed = domains.deleteAction.onBefore(selectedDomain);
         if (!canProceed) {
           setIsDeleting(false);
-          throw new BusinessError({ message: t('domain_delete.on_before') });
+          throw new SilentError({ message: t('domain_delete.on_before') });
         }
       }
 
@@ -182,7 +183,7 @@ export function useSsoDomainTab(
       if (domains?.associateToProviderAction?.onBefore) {
         const canProceed = domains.associateToProviderAction.onBefore(domain, provider);
         if (!canProceed) {
-          throw new BusinessError({ message: t('domain_associate_provider.on_before') });
+          throw new SilentError({ message: t('domain_associate_provider.on_before') });
         }
       }
 
@@ -213,7 +214,7 @@ export function useSsoDomainTab(
       if (domains?.deleteFromProviderAction?.onBefore) {
         const canProceed = domains.deleteFromProviderAction.onBefore(selectedDomain, provider);
         if (!canProceed) {
-          throw new BusinessError({ message: t('domain_delete_provider.on_before') });
+          throw new SilentError({ message: t('domain_delete_provider.on_before') });
         }
       }
 

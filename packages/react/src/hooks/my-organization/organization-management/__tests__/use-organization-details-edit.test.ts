@@ -3,12 +3,14 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { createMockOrganization, mockCore, mockToast } from '../../../../internals';
 import * as useCoreClientModule from '../../../use-core-client';
+import * as useErrorHandlerModule from '../../../use-error-handler';
 import { useOrganizationDetailsEdit } from '../use-organization-details-edit';
 
 // ===== Mock packages =====
 
 const { mockedShowToast } = mockToast();
 const { initMockCoreClient } = mockCore();
+const mockHandleError = vi.fn();
 
 // ===== Tests =====
 
@@ -31,6 +33,11 @@ describe('useOrganizationDetailsEdit', () => {
 
     vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
       coreClient: mockCoreClient,
+    });
+
+    // Mock useErrorHandler
+    vi.spyOn(useErrorHandlerModule, 'useErrorHandler').mockReturnValue({
+      handleError: mockHandleError,
     });
   });
 
@@ -86,10 +93,9 @@ describe('useOrganizationDetailsEdit', () => {
     });
 
     it('should show error message if loading fails', async () => {
+      const error = new Error('Network error');
       const apiService = mockCoreClient.getMyOrganizationApiClient();
-      (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockRejectedValue(
-        new Error('Network error'),
-      );
+      (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockRejectedValue(error);
 
       const { result } = renderHook(() => useOrganizationDetailsEdit({}));
 
@@ -97,10 +103,9 @@ describe('useOrganizationDetailsEdit', () => {
         expect(result.current.isFetchLoading).toBe(false);
       });
 
-      // Should show error toast to the user
-      expect(mockedShowToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: expect.any(String),
+      // Should call handleError with the error
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: expect.any(String),
       });
     });
   });
@@ -240,10 +245,9 @@ describe('useOrganizationDetailsEdit', () => {
     });
 
     it('should handle save errors gracefully', async () => {
+      const error = new Error('Save failed');
       const apiService = mockCoreClient.getMyOrganizationApiClient();
-      (apiService.organizationDetails.update as ReturnType<typeof vi.fn>).mockRejectedValue(
-        new Error('Save failed'),
-      );
+      (apiService.organizationDetails.update as ReturnType<typeof vi.fn>).mockRejectedValue(error);
 
       const { result } = renderHook(() => useOrganizationDetailsEdit({}));
 
@@ -259,10 +263,9 @@ describe('useOrganizationDetailsEdit', () => {
       expect(success!).toBe(false);
       expect(result.current.isSaveLoading).toBe(false);
 
-      // Should show error toast to the user
-      expect(mockedShowToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: expect.any(String),
+      // Should call handleError with the error
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: expect.any(String),
       });
     });
   });
