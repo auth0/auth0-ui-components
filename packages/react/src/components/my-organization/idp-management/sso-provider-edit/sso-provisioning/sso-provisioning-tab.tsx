@@ -24,13 +24,13 @@ import { SsoProvisioningDetails } from './sso-provisioning-details';
 
 /**
  *
- * @param root0
- * @param root0.provider
- * @param root0.styling
- * @param root0.customMessages
- * @param root0.hasProvisioningAttributeSyncWarning
- * @param root0.onAttributeSync
- * @param root0.isSyncingAttributes
+ * @param props
+ * @param props.provider
+ * @param props.styling
+ * @param props.customMessages
+ * @param props.hasProvisioningAttributeSyncWarning
+ * @param props.onAttributeSync
+ * @param props.isSyncingAttributes
  */
 export function SsoProvisioningTab({
   provider,

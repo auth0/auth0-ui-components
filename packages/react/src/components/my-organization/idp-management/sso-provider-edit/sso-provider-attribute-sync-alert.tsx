@@ -17,12 +17,12 @@ import {
 
 /**
  *
- * @param root0
- * @param root0.translatorKey
- * @param root0.className
- * @param root0.customMessages
- * @param root0.onSync
- * @param root0.isSyncing
+ * @param props
+ * @param props.translatorKey
+ * @param props.className
+ * @param props.customMessages
+ * @param props.onSync
+ * @param props.isSyncing
  */
 export function SsoProviderAttributeSyncAlert({
   translatorKey = 'idp_management.edit_sso_provider.tabs.sso.content.attribute_sync_alert',

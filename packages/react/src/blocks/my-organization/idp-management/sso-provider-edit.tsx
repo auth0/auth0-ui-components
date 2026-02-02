@@ -23,17 +23,17 @@ import type { SsoProviderEditProps } from '../../../types/my-organization/idp-ma
 
 /**
  *
- * @param root0
- * @param root0.providerId
- * @param root0.backButton
- * @param root0.sso
- * @param root0.provisioning
- * @param root0.domains
- * @param root0.hideHeader
- * @param root0.customMessages
- * @param root0.styling
- * @param root0.schema
- * @param root0.readOnly
+ * @param props
+ * @param props.providerId
+ * @param props.backButton
+ * @param props.sso
+ * @param props.provisioning
+ * @param props.domains
+ * @param props.hideHeader
+ * @param props.customMessages
+ * @param props.styling
+ * @param props.schema
+ * @param props.readOnly
  */
 export function SsoProviderEditComponent({
   providerId,

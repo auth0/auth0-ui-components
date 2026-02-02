@@ -91,12 +91,12 @@ const AttributeNameCell = ({
 
 /**
  *
- * @param root0
- * @param root0.userAttributeMap
- * @param root0.strategy
- * @param root0.isProvisioning
- * @param root0.customMessages
- * @param root0.className
+ * @param props
+ * @param props.userAttributeMap
+ * @param props.strategy
+ * @param props.isProvisioning
+ * @param props.customMessages
+ * @param props.className
  */
 export function SsoProviderAttributeMappings({
   userAttributeMap = [],

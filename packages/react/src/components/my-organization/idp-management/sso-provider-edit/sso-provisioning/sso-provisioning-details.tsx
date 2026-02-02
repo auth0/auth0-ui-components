@@ -32,17 +32,17 @@ import { ProvisioningManageToken } from './provisioning-manage-token';
 
 /**
  *
- * @param root0
- * @param root0.provider
- * @param root0.provisioningConfig
- * @param root0.isScimTokensLoading
- * @param root0.isScimTokenCreating
- * @param root0.isScimTokenDeleting
- * @param root0.onListScimTokens
- * @param root0.onCreateScimToken
- * @param root0.onDeleteScimToken
- * @param root0.customMessages
- * @param root0.styling
+ * @param props
+ * @param props.provider
+ * @param props.provisioningConfig
+ * @param props.isScimTokensLoading
+ * @param props.isScimTokenCreating
+ * @param props.isScimTokenDeleting
+ * @param props.onListScimTokens
+ * @param props.onCreateScimToken
+ * @param props.onDeleteScimToken
+ * @param props.customMessages
+ * @param props.styling
  */
 export function SsoProvisioningDetails({
   provider,
