@@ -214,7 +214,7 @@ jobs:
           (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'core')
         working-directory: ./packages/core
         env:
-          NPM_CONFIG_PROVENANCE: true
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           current_version=$(node -p "require('./package.json').version")
@@ -228,7 +228,7 @@ jobs:
 
             echo "Published @auth0/universal-components-core@$current_version (dry run)"
           else
-            npm publish --provenance --access public --tag="$CORE_TAG"
+            npm publish --access public --tag="$CORE_TAG"
             echo "published=true" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
             echo "Published @auth0/universal-components-core@$current_version"
@@ -240,7 +240,7 @@ jobs:
           (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'react')
         working-directory: ./packages/react
         env:
-          NPM_CONFIG_PROVENANCE: true
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           current_version=$(node -p "require('./package.json').version")
@@ -252,7 +252,7 @@ jobs:
             echo "published=dry-run" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
           else
-            npm publish --provenance --access public --tag="$REACT_TAG"
+            npm publish --access public --tag="$REACT_TAG"
             echo "published=true" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
             echo "Published @auth0/universal-components-react@$current_version"
