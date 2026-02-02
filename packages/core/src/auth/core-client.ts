@@ -17,21 +17,17 @@ export async function createCoreClient(
 
   const tokenManagerService = createTokenManager(authDetails);
 
-  const { client: myOrgApi, setLatestScopes: setOrgScopes } = initializeMyOrganizationClient(
-    authDetails,
-    tokenManagerService,
-  );
+  const { client: myOrganizationApiClient, setLatestScopes: setOrgScopes } =
+    initializeMyOrganizationClient(authDetails, tokenManagerService);
 
-  const { client: myAccApi, setLatestScopes: setAccountScopes } = initializeMyAccountClient(
-    authDetails,
-    tokenManagerService,
-  );
+  const { client: myAccountApiClient, setLatestScopes: setAccountScopes } =
+    initializeMyAccountClient(authDetails, tokenManagerService);
 
   return {
     auth: authDetails,
     i18nService,
-    myAccountApiClient: myAccApi,
-    myOrganizationApiClient: myOrgApi,
+    myAccountApiClient,
+    myOrganizationApiClient,
 
     getToken: (scope, aud, ignoreCache) => tokenManagerService.getToken(scope, aud, ignoreCache),
     isProxyMode: () => !!authDetails.authProxyUrl,
@@ -64,19 +60,19 @@ export async function createCoreClient(
     },
 
     getMyAccountApiClient: () => {
-      if (!myAccApi)
+      if (!myAccountApiClient)
         throw new Error(
           'myAccountApiClient is not enabled. Please use it within Auth0ComponentProvider.',
         );
-      return myAccApi;
+      return myAccountApiClient;
     },
 
     getMyOrganizationApiClient: () => {
-      if (!myOrgApi)
+      if (!myOrganizationApiClient)
         throw new Error(
           'myOrganizationApiClient is not enabled. Please ensure you are in an Auth0 Organization context.',
         );
-      return myOrgApi;
+      return myOrganizationApiClient;
     },
   };
 }
