@@ -214,6 +214,7 @@ jobs:
           (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'core')
         working-directory: ./packages/core
         env:
+          NPM_CONFIG_PROVENANCE: true
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           current_version=$(node -p "require('./package.json').version")
@@ -239,6 +240,7 @@ jobs:
           (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'react')
         working-directory: ./packages/react
         env:
+          NPM_CONFIG_PROVENANCE: true
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           current_version=$(node -p "require('./package.json').version")
