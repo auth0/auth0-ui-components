@@ -7,6 +7,7 @@ export interface FileUploadProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value?: File[];
   onChange?: (files: File[]) => void;
+  onInvalidFiles?: (files: File[]) => void;
   onRemove?: (file: File) => void;
   maxSize?: number;
   accept?: string;
@@ -18,6 +19,7 @@ export interface FileUploadProps
 export function FileUpload({
   value = [],
   onChange,
+  onInvalidFiles,
   onRemove,
   maxSize,
   accept,
@@ -57,8 +59,15 @@ export function FileUpload({
   const handleFiles = React.useCallback(
     (files: File[]) => {
       if (disabled) return;
-      const validFiles = files.filter((file) => {
-        if (maxSize && file.size > maxSize) return false;
+      const validFiles: File[] = [];
+      const invalidFiles: File[] = [];
+
+      files.forEach((file) => {
+        if (maxSize && file.size > maxSize) {
+          invalidFiles.push(file);
+          return;
+        }
+
         if (
           accept &&
           !accept.split(',').some((type) => {
@@ -80,10 +89,17 @@ export function FileUpload({
 
             return false;
           })
-        )
-          return false;
-        return true;
+        ) {
+          invalidFiles.push(file);
+          return;
+        }
+
+        validFiles.push(file);
       });
+
+      if (invalidFiles.length > 0) {
+        onInvalidFiles?.(invalidFiles);
+      }
 
       if (maxFiles === 1) {
         onChange?.(validFiles.slice(0, 1));
@@ -93,7 +109,7 @@ export function FileUpload({
 
       if (inputRef.current) inputRef.current.value = '';
     },
-    [disabled, maxSize, accept, maxFiles, onChange, value],
+    [disabled, maxSize, accept, maxFiles, onChange, onInvalidFiles, value],
   );
 
   const removeFile = React.useCallback(
