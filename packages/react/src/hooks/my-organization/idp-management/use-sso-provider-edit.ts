@@ -23,10 +23,10 @@ import { useTranslator } from '../../use-translator';
 /**
  *
  * @param idpId
- * @param root0
- * @param root0.sso
- * @param root0.provisioning
- * @param root0.customMessages
+ * @param props
+ * @param props.sso
+ * @param props.provisioning
+ * @param props.customMessages
  */
 export function useSsoProviderEdit(
   idpId: IdpId,
