@@ -10,13 +10,10 @@ import type { PingFederateConfigureFormHandle } from '../ping-federate-sso-confi
 import { PingFederateProviderForm } from '../ping-federate-sso-configure-form';
 
 describe('PingFederateProviderForm', () => {
-  let mockT: EnhancedTranslationFunction;
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mockT = createMockI18nService().translator(
-      'idp_management.create_sso_provider.provider_configure',
-    );
+    createMockI18nService().translator('idp_management.create_sso_provider.provider_configure');
   });
 
   it('should render advanced settings fields when sign request is enabled', async () => {
