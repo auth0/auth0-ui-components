@@ -450,22 +450,16 @@ import 'src/auth0-ui-components/styles/globals.css';`}
 import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
 import '@auth0/universal-components-react/styles';
 
-const authDetails = {
-  domain: import.meta.env.VITE_AUTH0_DOMAIN,
-};
-
 function App() {
   return (
     <Auth0Provider
-      domain={authDetails.domain}
+      domain={import.meta.env.VITE_AUTH0_DOMAIN}
       clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
       authorizationParams={{
         redirect_uri: window.location.origin
       }}
     >
-      <Auth0ComponentProvider 
-        authDetails={authDetails}
-      >
+      <Auth0ComponentProvider>
         {/* Your app components */}
       </Auth0ComponentProvider>
     </Auth0Provider>
@@ -606,9 +600,9 @@ export default function OrganizationManagementPage() {
                 <td className="px-4 py-2 text-sm text-gray-500">
                   <code className="text-xs">AuthDetails</code>
                 </td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Yes</td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  Authentication configuration including domain and optional authProxyUrl
+                  Authentication configuration including optional domain and authProxyUrl
                 </td>
               </tr>
               <tr>
@@ -694,7 +688,7 @@ export default function OrganizationManagementPage() {
                   <td className="px-4 py-2 text-sm text-gray-500">
                     <code className="text-xs">string</code>
                   </td>
-                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Yes</td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
                   <td className="px-4 py-2 text-sm text-gray-500">
                     Your Auth0 domain (e.g., "your-tenant.auth0.com")
                   </td>
@@ -706,10 +700,10 @@ export default function OrganizationManagementPage() {
                   <td className="px-4 py-2 text-sm text-gray-500">
                     <code className="text-xs">string</code>
                   </td>
-                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Conditional</td>
                   <td className="px-4 py-2 text-sm text-gray-500">
-                    URL to your authentication proxy server for server-side authentication (enables
-                    Proxy Mode)
+                    URL to your authentication proxy server for server-side authentication. Required
+                    for RWA/Next.js mode (enables Proxy Mode).
                   </td>
                 </tr>
                 <tr>

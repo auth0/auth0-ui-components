@@ -3,6 +3,11 @@ import { MyAccountClient } from '@auth0/myaccount-js';
 import type { AuthDetails } from '../../auth/auth-types';
 import type { createTokenManager } from '../../auth/token-manager';
 
+/**
+ *
+ * @param auth
+ * @param tokenManagerService
+ */
 export function initializeMyAccountClient(
   auth: AuthDetails,
   tokenManagerService: ReturnType<typeof createTokenManager>,
@@ -38,7 +43,10 @@ export function initializeMyAccountClient(
       }),
       setLatestScopes,
     };
-  } else if (auth.domain) {
+  }
+
+  const domain = auth.domain ?? auth.contextInterface?.getConfiguration()?.domain;
+  if (domain) {
     const fetcher = async (url: string, init?: RequestInit) => {
       const token = await tokenManagerService.getToken(latestScopes, 'me');
 
@@ -57,7 +65,7 @@ export function initializeMyAccountClient(
     };
     return {
       client: new MyAccountClient({
-        domain: auth.domain.trim(),
+        domain: domain.trim(),
         fetcher,
       }),
       setLatestScopes,

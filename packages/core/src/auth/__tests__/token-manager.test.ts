@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
+import { TEST_DOMAIN, TEST_CLIENT_ID } from '../../internals/__mocks__/shared/api-service.mocks';
 import type {
   AuthDetails,
   BasicAuth0ContextInterface,
@@ -14,10 +15,14 @@ describe('token-manager', () => {
     getAccessTokenSilently: vi.fn(),
     getAccessTokenWithPopup: vi.fn(),
     loginWithRedirect: vi.fn(),
+    getConfiguration: vi.fn().mockReturnValue({
+      domain: TEST_DOMAIN,
+      clientId: TEST_CLIENT_ID,
+    }),
   };
 
   const createAuthConfig = (overrides: Partial<AuthDetails> = {}): AuthDetails => ({
-    domain: 'example.auth0.com',
+    domain: TEST_DOMAIN,
     contextInterface: mockContextInterface,
     ...overrides,
   });
@@ -64,7 +69,14 @@ describe('token-manager', () => {
       });
 
       it('should throw error when domain is not configured', async () => {
-        const authWithoutDomain = createAuthConfig({ domain: undefined });
+        const contextWithoutDomain = {
+          ...mockContextInterface,
+          getConfiguration: vi.fn().mockReturnValue({ domain: '', clientId: TEST_CLIENT_ID }),
+        };
+        const authWithoutDomain = createAuthConfig({
+          domain: undefined,
+          contextInterface: contextWithoutDomain,
+        });
         const tokenManager = createTokenManager(authWithoutDomain);
         await expect(tokenManager.getToken('read:users', 'management')).rejects.toThrow(
           'TokenUtils: Auth0 domain is not configured',
@@ -101,7 +113,7 @@ describe('token-manager', () => {
         expect(token).toBe(mockToken);
         expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
           authorizationParams: {
-            audience: 'https://example.auth0.com/management/',
+            audience: `https://${TEST_DOMAIN}/management/`,
             scope: 'read:users',
           },
           detailedResponse: true,
@@ -115,7 +127,7 @@ describe('token-manager', () => {
 
         expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
           authorizationParams: {
-            audience: 'https://example.auth0.com/mfa/',
+            audience: `https://${TEST_DOMAIN}/mfa/`,
             scope: 'read:me:authentication_methods',
           },
           detailedResponse: true,
@@ -123,14 +135,13 @@ describe('token-manager', () => {
       });
 
       it('should handle domain with https protocol', async () => {
-        const authWithHttps = createAuthConfig({ domain: 'https://example.auth0.com' });
-
+        const authWithHttps = createAuthConfig({ domain: `https://${TEST_DOMAIN}` });
         const tokenManager = createTokenManager(authWithHttps);
         await tokenManager.getToken('read:users', 'management');
 
         expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
           authorizationParams: {
-            audience: 'https://example.auth0.com/management/',
+            audience: `https://${TEST_DOMAIN}/management/`,
             scope: 'read:users',
           },
           detailedResponse: true,
@@ -146,7 +157,7 @@ describe('token-manager', () => {
 
         expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
           authorizationParams: {
-            audience: 'https://example.auth0.com/management/',
+            audience: `https://${TEST_DOMAIN}/management/`,
             scope: 'read:users',
           },
           detailedResponse: true,
@@ -160,7 +171,7 @@ describe('token-manager', () => {
 
         expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
           authorizationParams: {
-            audience: 'https://example.auth0.com/management/',
+            audience: `https://${TEST_DOMAIN}/management/`,
             scope: 'read:users',
           },
           detailedResponse: true,
@@ -356,7 +367,7 @@ describe('token-manager', () => {
         expect(token).toBe(mockToken);
         expect(mockContextInterface.getAccessTokenWithPopup).toHaveBeenCalledWith({
           authorizationParams: {
-            audience: 'https://example.auth0.com/management/',
+            audience: `https://${TEST_DOMAIN}/management/`,
             scope: 'read:users',
             prompt: 'consent',
           },
@@ -377,7 +388,7 @@ describe('token-manager', () => {
         expect(token).toBe(mockToken);
         expect(mockContextInterface.getAccessTokenWithPopup).toHaveBeenCalledWith({
           authorizationParams: {
-            audience: 'https://example.auth0.com/management/',
+            audience: `https://${TEST_DOMAIN}/management/`,
             scope: 'read:users',
             prompt: 'login',
           },
@@ -398,7 +409,7 @@ describe('token-manager', () => {
         expect(token).toBe(mockToken);
         expect(mockContextInterface.getAccessTokenWithPopup).toHaveBeenCalledWith({
           authorizationParams: {
-            audience: 'https://example.auth0.com/management/',
+            audience: `https://${TEST_DOMAIN}/management/`,
             scope: 'read:users',
             prompt: 'consent',
           },
@@ -490,7 +501,7 @@ describe('token-manager', () => {
 
         expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
           authorizationParams: {
-            audience: 'https://example.auth0.com/management/',
+            audience: `https://${TEST_DOMAIN}/management/`,
             scope: '',
           },
           detailedResponse: true,
@@ -504,7 +515,7 @@ describe('token-manager', () => {
 
         expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
           authorizationParams: {
-            audience: 'https://example.auth0.com//',
+            audience: `https://${TEST_DOMAIN}//`,
             scope: 'read:users',
           },
           detailedResponse: true,
@@ -519,7 +530,7 @@ describe('token-manager', () => {
 
         expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
           authorizationParams: {
-            audience: 'https://example.auth0.com/management/',
+            audience: `https://${TEST_DOMAIN}/management/`,
             scope,
           },
           detailedResponse: true,

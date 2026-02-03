@@ -10,6 +10,7 @@ import {
 import { initializeMyAccountClient } from '../my-account-api-service';
 
 import {
+  createMockContextInterface,
   mockAuthWithDomain,
   mockAuthWithProxyUrl,
   mockAuthWithProxyUrlTrailingSlash,
@@ -923,6 +924,111 @@ describe('initializeMyAccountClient', () => {
       expect(tokenManager.getToken).toHaveBeenCalledTimes(2);
       expect(tokenManager.getToken).toHaveBeenNthCalledWith(1, '', 'me');
       expect(tokenManager.getToken).toHaveBeenNthCalledWith(2, mockScopes.mfa, 'me');
+    });
+  });
+
+  describe('domain from contextInterface fallback', () => {
+    it('should use domain from contextInterface.getConfiguration() when auth.domain is undefined', () => {
+      const contextInterface = createMockContextInterface();
+      contextInterface.getConfiguration = vi.fn().mockReturnValue({ domain: 'context.auth0.com' });
+      const tokenManager = createMockTokenManager(mockTokens.standard);
+      const auth = { contextInterface };
+
+      const result = initializeMyAccountClient(auth, tokenManager);
+
+      expect(result.client).toBeDefined();
+      expect(mockMyAccountClient).toHaveBeenCalledWith(
+        expect.objectContaining({
+          domain: 'context.auth0.com',
+        }),
+      );
+    });
+
+    it('should prefer auth.domain over contextInterface.getConfiguration().domain', () => {
+      const contextInterface = createMockContextInterface();
+      contextInterface.getConfiguration = vi.fn().mockReturnValue({ domain: 'context.auth0.com' });
+      const tokenManager = createMockTokenManager(mockTokens.standard);
+      const auth = {
+        domain: 'direct.auth0.com',
+        contextInterface,
+      };
+
+      const result = initializeMyAccountClient(auth, tokenManager);
+
+      expect(result.client).toBeDefined();
+      expect(mockMyAccountClient).toHaveBeenCalledWith(
+        expect.objectContaining({
+          domain: 'direct.auth0.com',
+        }),
+      );
+      // Should not call getConfiguration when domain is provided directly
+      expect(contextInterface.getConfiguration).not.toHaveBeenCalled();
+    });
+
+    it('should throw error when contextInterface.getConfiguration() returns undefined domain', () => {
+      const contextInterface = createMockContextInterface();
+      contextInterface.getConfiguration = vi.fn().mockReturnValue({ domain: undefined });
+      const tokenManager = createMockTokenManager(mockTokens.standard);
+      const auth = { contextInterface };
+
+      expect(() => initializeMyAccountClient(auth, tokenManager)).toThrow(
+        expectedErrors.missingDomainOrProxy,
+      );
+    });
+
+    it('should throw error when contextInterface.getConfiguration() returns undefined', () => {
+      const contextInterface = createMockContextInterface();
+      contextInterface.getConfiguration = vi.fn().mockReturnValue(undefined);
+      const tokenManager = createMockTokenManager(mockTokens.standard);
+      const auth = { contextInterface };
+
+      expect(() => initializeMyAccountClient(auth, tokenManager)).toThrow(
+        expectedErrors.missingDomainOrProxy,
+      );
+    });
+
+    it('should throw error when contextInterface is undefined and domain is not provided', () => {
+      const tokenManager = createMockTokenManager(mockTokens.standard);
+      const auth = { contextInterface: undefined };
+
+      expect(() =>
+        initializeMyAccountClient(
+          auth as Parameters<typeof initializeMyAccountClient>[0],
+          tokenManager,
+        ),
+      ).toThrow(expectedErrors.missingDomainOrProxy);
+    });
+
+    it('should use domain from contextInterface and create functional fetcher', async () => {
+      const mockFetch = createMockFetch();
+      vi.stubGlobal('fetch', mockFetch);
+
+      const contextInterface = createMockContextInterface();
+      contextInterface.getConfiguration = vi.fn().mockReturnValue({ domain: 'context.auth0.com' });
+      const tokenManager = createMockTokenManager(mockTokens.standard);
+      const auth = { contextInterface };
+
+      const result = initializeMyAccountClient(auth, tokenManager);
+
+      const config = getConfigFromMockCalls(mockMyAccountClient);
+      const fetcher = config.fetcher;
+
+      // Execute the fetcher to verify it works
+      await fetcher!(TEST_URL, { method: 'GET' });
+
+      // Verify the fetch was called
+      expect(mockFetch).toHaveBeenCalledWith(
+        TEST_URL,
+        expect.objectContaining({
+          method: 'GET',
+        }),
+      );
+
+      // Verify token was retrieved
+      expect(tokenManager.getToken).toHaveBeenCalled();
+
+      // Verify the client was created
+      expect(result.client).toBeDefined();
     });
   });
 });

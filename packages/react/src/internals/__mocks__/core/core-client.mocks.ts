@@ -102,9 +102,10 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
 export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreClientInterface => {
   const mockMyAccountApiService = createMockMyAccountApiService();
   const mockMyOrgApiService = createMockMyOrgApiService();
+  const mockAuth = createMockAuth(authDetails);
 
   return {
-    auth: createMockAuth(authDetails),
+    auth: mockAuth,
     i18nService: createMockI18nService(),
     myAccountApiClient: mockMyAccountApiService as CoreClientInterface['myAccountApiClient'],
     myOrganizationApiClient: mockMyOrgApiService as CoreClientInterface['myOrganizationApiClient'],
@@ -121,5 +122,6 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
     ensureScopes() {
       return Promise.resolve();
     },
+    getDomain: () => mockAuth.domain ?? mockAuth.contextInterface?.getConfiguration()?.domain,
   };
 };

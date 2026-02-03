@@ -942,15 +942,10 @@ function ProvidersListPage() {
 }
 
 export default function App() {
-  const authDetails = {
-    domain: 'your-domain.auth0.com',
-    clientId: 'your-client-id'
-  };
-
   return (
     <Auth0Provider
-      {...authDetails}
-      redirectUri={window.location.origin}
+      domain="your-domain.auth0.com"
+      clientId="your-client-id"
       authorizationParams={{
         redirect_uri: window.location.origin
       }}

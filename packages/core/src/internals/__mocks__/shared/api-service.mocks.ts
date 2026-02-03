@@ -1,14 +1,34 @@
 import { vi } from 'vitest';
 
-import type { AuthDetails } from '../../../auth/auth-types';
+import type { AuthDetails, BasicAuth0ContextInterface } from '../../../auth/auth-types';
 import type { createTokenManager } from '../../../auth/token-manager';
+
+// =============================================================================
+// Test Constants
+// =============================================================================
+
+export const TEST_DOMAIN = 'test.auth0.com';
+export const TEST_CLIENT_ID = 'test-client-id';
+
+// =============================================================================
+// Mock Context Interface Helpers
+// =============================================================================
+
+export const createMockContextInterface = (): BasicAuth0ContextInterface => ({
+  isAuthenticated: true,
+  getAccessTokenSilently: vi.fn().mockResolvedValue('mock-access-token'),
+  getAccessTokenWithPopup: vi.fn().mockResolvedValue('mock-access-token'),
+  loginWithRedirect: vi.fn().mockResolvedValue(undefined),
+  getConfiguration: vi.fn().mockReturnValue({ domain: TEST_DOMAIN, clientId: TEST_CLIENT_ID }),
+});
 
 // =============================================================================
 // Auth Details Mocks
 // =============================================================================
 
 export const mockAuthWithDomain: AuthDetails = {
-  domain: 'test.auth0.com',
+  domain: TEST_DOMAIN,
+  contextInterface: createMockContextInterface(),
 };
 
 export const mockAuthWithProxyUrl: AuthDetails = {
@@ -149,7 +169,7 @@ export const expectedDomainHeaders = {
 // =============================================================================
 
 /**
- * Helper function to create AuthDetails with specific configurations
+ * Helper function to create AuthDetails with specific configurations.
  */
 export function createMockAuthDetails(options: {
   domain?: string;

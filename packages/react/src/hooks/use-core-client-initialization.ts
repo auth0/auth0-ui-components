@@ -13,13 +13,16 @@ interface UseCoreClientInitializationProps {
 
 /**
  * Custom hook to handle CoreClient initialization
+ * @param root0
+ * @param root0.authDetails
+ * @param root0.i18nOptions
  */
 export const useCoreClientInitialization = ({
   authDetails,
   i18nOptions,
 }: UseCoreClientInitializationProps) => {
   const [coreClient, setCoreClient] = React.useState<CoreClientInterface | null>(null);
-  const { domain, authProxyUrl } = authDetails;
+  const { authProxyUrl } = authDetails;
 
   React.useEffect(() => {
     const initializeCoreClient = async () => {
@@ -31,7 +34,7 @@ export const useCoreClientInitialization = ({
       }
     };
     initializeCoreClient();
-  }, [domain, authProxyUrl, i18nOptions]);
+  }, [authProxyUrl, i18nOptions]);
 
   return coreClient;
 };

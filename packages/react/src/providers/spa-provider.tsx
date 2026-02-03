@@ -50,7 +50,7 @@ export const Auth0ComponentProvider = ({
 
   const memoizedAuthDetails = React.useMemo(
     () => ({
-      ...authDetails,
+      ...(authDetails || {}),
       contextInterface: auth0ContextInterface,
     }),
     [authDetails, auth0ContextInterface],

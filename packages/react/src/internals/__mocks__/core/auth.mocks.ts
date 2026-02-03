@@ -25,6 +25,10 @@ export const createMockAuth = (overrides?: Partial<AuthDetails>): AuthDetails =>
       }),
     getAccessTokenWithPopup: vi.fn(),
     loginWithRedirect: vi.fn(),
+    getConfiguration: vi.fn().mockReturnValue({
+      domain: 'test-domain.auth0.com',
+      clientId: 'test-client-id',
+    }),
   },
   ...overrides,
 });

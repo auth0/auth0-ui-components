@@ -73,9 +73,9 @@ export function SsoProvisioningDetails({
   const { coreClient } = useCoreClient();
 
   const scimEndpointUrl = useMemo(() => {
-    const domain = coreClient?.auth?.domain || 'your domain';
+    const domain = coreClient?.getDomain() || 'your-domain';
     return `https://${domain}/scim/v2/connections/${provider.id}/`;
-  }, [coreClient?.auth?.domain]);
+  }, [coreClient, provider.id]);
 
   const form = useForm<ProvisioningDetailsFormValues>({
     resolver: zodResolver(ssoProvisioningSchema),

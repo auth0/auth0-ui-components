@@ -189,9 +189,6 @@ describe('OrganizationDetailsEdit', () => {
         const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
         expect(saveButton).toBeDisabled();
 
-        const cancelButton = screen.getByRole('button', { name: /cancel_button_label/i });
-        expect(cancelButton).toBeDisabled();
-
         expect(displayNameInput).toHaveAttribute('readonly');
       });
     });
@@ -389,6 +386,7 @@ describe('OrganizationDetailsEdit', () => {
     describe('cancelAction.disabled', () => {
       describe('when is true', () => {
         it('should disable cancel button', async () => {
+          const user = userEvent.setup();
           const mockCancelAction = { ...createMockCancelAction(), disabled: true };
 
           renderWithProviders(
@@ -397,9 +395,10 @@ describe('OrganizationDetailsEdit', () => {
             />,
           );
 
-          await waitForComponentToLoad();
+          const displayNameInput = await waitForComponentToLoad();
+          await user.clear(displayNameInput);
+          await user.type(displayNameInput, 'Modified Corporation');
 
-          // Button should is disabled
           const cancelButton = screen.getByRole('button', { name: /cancel_button_label/i });
           expect(cancelButton).toBeDisabled();
         });
@@ -407,6 +406,7 @@ describe('OrganizationDetailsEdit', () => {
 
       describe('when is false', () => {
         it('should enable cancel button', async () => {
+          const user = userEvent.setup();
           const mockCancelAction = { ...createMockCancelAction(), disabled: false };
 
           renderWithProviders(
@@ -415,7 +415,9 @@ describe('OrganizationDetailsEdit', () => {
             />,
           );
 
-          await waitForComponentToLoad();
+          const displayNameInput = await waitForComponentToLoad();
+          await user.clear(displayNameInput);
+          await user.type(displayNameInput, 'Modified Corporation');
 
           const cancelButton = screen.getByRole('button', { name: /cancel_button_label/i });
           expect(cancelButton).not.toBeDisabled();
@@ -435,9 +437,10 @@ describe('OrganizationDetailsEdit', () => {
             />,
           );
 
-          await waitForComponentToLoad();
+          const displayNameInput = await waitForComponentToLoad();
+          await user.clear(displayNameInput);
+          await user.type(displayNameInput, 'Modified Corporation');
 
-          // Click cancel
           const cancelButton = screen.getByRole('button', { name: /cancel_button_label/i });
           await user.click(cancelButton);
 

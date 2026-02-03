@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
+import type { AuthDetails } from '../../../auth/auth-types';
 import type { createTokenManager } from '../../../auth/token-manager';
 import {
   createMockFetch,
@@ -875,6 +876,122 @@ describe('initializeMyOrganizationClient', () => {
       expect(proxyClient.client).toBeInstanceOf(mockMyOrganizationClient);
       expect(domainClient.client).toBeInstanceOf(mockMyOrganizationClient);
       expect(mockMyOrganizationClient).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('domain from contextInterface fallback', () => {
+    it('should use domain from contextInterface.getConfiguration() when auth.domain is undefined', () => {
+      const tokenManager = createMockTokenManager();
+      const authWithContextInterfaceOnly: AuthDetails = {
+        contextInterface: {
+          isAuthenticated: true,
+          getAccessTokenSilently: vi.fn().mockResolvedValue('mock-token'),
+          getAccessTokenWithPopup: vi.fn().mockResolvedValue('mock-token'),
+          loginWithRedirect: vi.fn(),
+          getConfiguration: vi
+            .fn()
+            .mockReturnValue({ domain: 'context.auth0.com', clientId: 'client-id' }),
+        },
+      };
+
+      initializeMyOrganizationClient(authWithContextInterfaceOnly, tokenManager);
+
+      const config = getConfigFromMockCalls(mockMyOrganizationClient);
+      expect(config.domain).toBe('context.auth0.com');
+    });
+
+    it('should prefer auth.domain over contextInterface.getConfiguration().domain', () => {
+      const tokenManager = createMockTokenManager();
+      const authWithBothDomains: AuthDetails = {
+        domain: 'explicit.auth0.com',
+        contextInterface: {
+          isAuthenticated: true,
+          getAccessTokenSilently: vi.fn().mockResolvedValue('mock-token'),
+          getAccessTokenWithPopup: vi.fn().mockResolvedValue('mock-token'),
+          loginWithRedirect: vi.fn(),
+          getConfiguration: vi
+            .fn()
+            .mockReturnValue({ domain: 'context.auth0.com', clientId: 'client-id' }),
+        },
+      };
+
+      initializeMyOrganizationClient(authWithBothDomains, tokenManager);
+
+      const config = getConfigFromMockCalls(mockMyOrganizationClient);
+      expect(config.domain).toBe('explicit.auth0.com');
+    });
+
+    it('should throw error when contextInterface.getConfiguration() returns undefined domain', () => {
+      const tokenManager = createMockTokenManager();
+      const authWithNoConfigDomain: AuthDetails = {
+        contextInterface: {
+          isAuthenticated: true,
+          getAccessTokenSilently: vi.fn().mockResolvedValue('mock-token'),
+          getAccessTokenWithPopup: vi.fn().mockResolvedValue('mock-token'),
+          loginWithRedirect: vi.fn(),
+          getConfiguration: vi.fn().mockReturnValue({ clientId: 'client-id' }),
+        },
+      };
+
+      expect(() => {
+        initializeMyOrganizationClient(authWithNoConfigDomain, tokenManager);
+      }).toThrow(expectedErrors.missingDomainOrProxy);
+    });
+
+    it('should throw error when contextInterface.getConfiguration() returns undefined', () => {
+      const tokenManager = createMockTokenManager();
+      const authWithUndefinedConfig: AuthDetails = {
+        contextInterface: {
+          isAuthenticated: true,
+          getAccessTokenSilently: vi.fn().mockResolvedValue('mock-token'),
+          getAccessTokenWithPopup: vi.fn().mockResolvedValue('mock-token'),
+          loginWithRedirect: vi.fn(),
+          getConfiguration: vi.fn().mockReturnValue(undefined),
+        },
+      };
+
+      expect(() => {
+        initializeMyOrganizationClient(authWithUndefinedConfig, tokenManager);
+      }).toThrow(expectedErrors.missingDomainOrProxy);
+    });
+
+    it('should throw error when contextInterface is undefined and domain is not provided', () => {
+      const tokenManager = createMockTokenManager();
+      const authWithNoContextInterface: AuthDetails = {
+        contextInterface: undefined,
+      };
+
+      expect(() => {
+        initializeMyOrganizationClient(authWithNoContextInterface, tokenManager);
+      }).toThrow(expectedErrors.missingDomainOrProxy);
+    });
+
+    it('should use domain from contextInterface and create functional fetcher', async () => {
+      const tokenManager = createMockTokenManager('context-token');
+      const authWithContextInterfaceOnly: AuthDetails = {
+        contextInterface: {
+          isAuthenticated: true,
+          getAccessTokenSilently: vi.fn().mockResolvedValue('mock-token'),
+          getAccessTokenWithPopup: vi.fn().mockResolvedValue('mock-token'),
+          loginWithRedirect: vi.fn(),
+          getConfiguration: vi
+            .fn()
+            .mockReturnValue({ domain: 'context.auth0.com', clientId: 'client-id' }),
+        },
+      };
+
+      const { setLatestScopes } = initializeMyOrganizationClient(
+        authWithContextInterfaceOnly,
+        tokenManager,
+      );
+      const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
+
+      setLatestScopes(mockScopes.organizationRead);
+      await fetcher!(TEST_URL, mockRequestInits.post);
+
+      expect(tokenManager.getToken).toHaveBeenCalledWith(mockScopes.organizationRead, 'my-org');
+      const headers = getHeadersFromFetchCall(mockFetch) as Headers;
+      expect(headers.get('Authorization')).toBe('Bearer context-token');
     });
   });
 });

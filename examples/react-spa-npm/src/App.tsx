@@ -7,7 +7,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { Navbar } from './components/nav-bar';
 import { Sidebar } from './components/side-bar';
-import { config } from './config/env';
 import DomainManagementPage from './views/domain-management-page';
 import HomePage from './views/home-page';
 import MFAPage from './views/mfa-page';
@@ -111,13 +110,8 @@ function AppContent() {
 function App() {
   const { i18n } = useTranslation();
 
-  const defaultAuthDetails = {
-    domain: config.auth0.domain,
-  };
-
   return (
     <Auth0ComponentProvider
-      authDetails={defaultAuthDetails}
       i18n={{ currentLanguage: i18n.language }}
       themeSettings={{
         theme: 'default',

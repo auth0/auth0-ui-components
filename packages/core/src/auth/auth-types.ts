@@ -77,6 +77,17 @@ export interface Auth0ContextInterface<TUser = User> {
   handleRedirectCallback: () => Promise<ArbitraryObject>;
 }
 
+export interface ClientConfiguration {
+  /**
+   * The Auth0 domain that was configured
+   */
+  domain: string;
+  /**
+   * The Auth0 client ID that was configured
+   */
+  clientId: string;
+}
+
 export interface BasicAuth0ContextInterface<TUser = User> {
   user?: TUser;
   isAuthenticated: boolean;
@@ -89,6 +100,7 @@ export interface BasicAuth0ContextInterface<TUser = User> {
   };
   getAccessTokenWithPopup: (options?: unknown) => Promise<string | undefined>;
   loginWithRedirect: (options?: unknown) => Promise<void>;
+  getConfiguration: () => Readonly<ClientConfiguration>;
 }
 
 export interface AuthDetails {
@@ -107,6 +119,7 @@ export interface BaseCoreClientInterface {
   ) => Promise<string | undefined>;
   isProxyMode: () => boolean;
   ensureScopes: (requiredScopes: string, audiencePath: string) => Promise<void>;
+  getDomain: () => string | undefined;
 }
 
 export interface CoreClientInterface extends BaseCoreClientInterface {
