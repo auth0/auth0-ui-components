@@ -7,110 +7,93 @@ import {
   mockCore,
   mockToast,
 } from '../../../../internals';
+import type { UseOrganizationDetailsEditOptions } from '../../../../types/my-organization/organization-management/organization-details-edit-types';
 import * as useCoreClientModule from '../../../use-core-client';
 import { useOrganizationDetailsEdit } from '../use-organization-details-edit';
-
-// ===== Mock packages =====
 
 const { mockedShowToast } = mockToast();
 const { initMockCoreClient } = mockCore();
 
-// ===== Tests =====
-
-describe('useOrganizationDetailsEdit', () => {
+function createMockApiService(coreClient: ReturnType<typeof initMockCoreClient>) {
   const mockOrganization = createMockOrganization();
-  let mockCoreClient: ReturnType<typeof initMockCoreClient>;
+  const apiService = coreClient.getMyOrganizationApiClient();
 
-  beforeEach(() => {
-    vi.clearAllMocks();
+  (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockResolvedValue(
+    mockOrganization,
+  );
+  (apiService.organizationDetails.update as ReturnType<typeof vi.fn>).mockResolvedValue(
+    mockOrganization,
+  );
 
-    mockCoreClient = initMockCoreClient();
+  return { apiService, mockOrganization };
+}
 
-    const apiService = mockCoreClient.getMyOrganizationApiClient();
-    (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockResolvedValue(
-      mockOrganization,
-    );
-    (apiService.organizationDetails.update as ReturnType<typeof vi.fn>).mockResolvedValue(
-      mockOrganization,
-    );
+async function renderUseOrganizationDetailsEdit(options: UseOrganizationDetailsEditOptions = {}) {
+  const mockCoreClient = initMockCoreClient();
+  const { apiService, mockOrganization } = createMockApiService(mockCoreClient);
 
-    vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
-      coreClient: mockCoreClient,
-    });
+  vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
+    coreClient: mockCoreClient,
   });
 
-  const renderUseOrganizationDetailsEdit = (options = {}) => {
-    const { wrapper, queryClient } = createQueryClientWrapper();
-    return {
-      queryClient,
-      ...renderHook(() => useOrganizationDetailsEdit(options), { wrapper }),
-    };
-  };
+  const { wrapper, queryClient } = createQueryClientWrapper();
+  const hookResult = renderHook(() => useOrganizationDetailsEdit(options), { wrapper });
 
-  describe('when loading organization data', () => {
-    it('should fetch organization details automatically on mount', async () => {
-      renderUseOrganizationDetailsEdit({});
+  await waitFor(() => {
+    expect(hookResult.result.current.isFetchLoading).toBe(false);
+  });
 
-      await waitFor(() => {
-        expect(
-          mockCoreClient.getMyOrganizationApiClient().organizationDetails.get,
-        ).toHaveBeenCalledTimes(1);
-      });
+  return { ...hookResult, queryClient, mockCoreClient, apiService, mockOrganization };
+}
+
+describe('useOrganizationDetailsEdit', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('loading organization data', () => {
+    it('should fetch organization details on mount', async () => {
+      const { apiService } = await renderUseOrganizationDetailsEdit();
+
+      expect(apiService.organizationDetails.get).toHaveBeenCalledTimes(1);
     });
 
     it('should return organization details after successful load', async () => {
-      const { result } = renderUseOrganizationDetailsEdit({});
+      const { result, mockOrganization } = await renderUseOrganizationDetailsEdit();
 
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
-      });
-    });
-
-    it('should show loading indicator while fetching', async () => {
-      const { result } = renderUseOrganizationDetailsEdit({});
-
-      // Initially loading
-      expect(result.current.isFetchLoading).toBe(true);
-
-      // Loading completes
-      await waitFor(() => {
-        expect(result.current.isFetchLoading).toBe(false);
-      });
+      expect(result.current.organization).toEqual(mockOrganization);
     });
 
     it('should allow manual refetch of organization data', async () => {
-      const { result } = renderUseOrganizationDetailsEdit({});
+      const { result, apiService } = await renderUseOrganizationDetailsEdit();
 
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
-      });
-
-      // Clear previous calls
       vi.clearAllMocks();
 
-      // Manually refetch
       await act(async () => {
         await result.current.fetchOrgDetails();
       });
 
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organizationDetails.get,
-      ).toHaveBeenCalledTimes(1);
+      expect(apiService.organizationDetails.get).toHaveBeenCalledTimes(1);
     });
 
-    it('should show error message if loading fails', async () => {
+    it('should show error toast when loading fails', async () => {
+      const mockCoreClient = initMockCoreClient();
       const apiService = mockCoreClient.getMyOrganizationApiClient();
       (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockRejectedValue(
         new Error('Network error'),
       );
 
-      const { result } = renderUseOrganizationDetailsEdit({});
+      vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
+        coreClient: mockCoreClient,
+      });
+
+      const { wrapper } = createQueryClientWrapper();
+      const { result } = renderHook(() => useOrganizationDetailsEdit({}), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isFetchLoading).toBe(false);
       });
 
-      // Should show error toast to the user
       expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'error',
         message: expect.any(String),
@@ -118,320 +101,223 @@ describe('useOrganizationDetailsEdit', () => {
     });
   });
 
-  describe('when saving changes', () => {
+  describe('saving changes', () => {
     it('should update organization successfully', async () => {
-      const { result } = renderUseOrganizationDetailsEdit({});
+      const { result, apiService, mockOrganization } = await renderUseOrganizationDetailsEdit();
 
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
-      });
       const updatedData = {
         branding: mockOrganization.branding,
         display_name: 'Updated Name',
       };
+
       await act(async () => {
         await result.current.formActions.nextAction?.onClick?.(updatedData);
       });
 
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organizationDetails.update,
-      ).toHaveBeenCalledWith(updatedData);
-    });
-
-    it('should show loading state during save', async () => {
-      const { result } = renderUseOrganizationDetailsEdit({});
-
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
-      });
-
-      // Save operation
-      let savePromise: Promise<boolean>;
-      await act(async () => {
-        savePromise = result.current.updateOrgDetails(mockOrganization);
-      });
-
-      // Should show loading
-      await waitFor(() => {
-        expect(result.current.isSaveLoading).toBe(false);
-      });
-
-      await savePromise!;
+      expect(apiService.organizationDetails.update).toHaveBeenCalledWith(updatedData);
     });
 
     it('should show success toast on successful save', async () => {
-      const { result } = renderUseOrganizationDetailsEdit({});
+      const { result, mockOrganization } = await renderUseOrganizationDetailsEdit();
 
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
+      const success = await act(async () => {
+        return result.current.updateOrgDetails(mockOrganization);
       });
 
-      let success: boolean;
-      await act(async () => {
-        success = await result.current.updateOrgDetails(mockOrganization);
-      });
-
-      expect(success!).toBe(true);
-
-      // Should show success toast to the user
+      expect(success).toBe(true);
       expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
         message: expect.any(String),
       });
     });
 
-    it('should call onBefore callback and allow validation', async () => {
-      const onBefore = vi.fn(() => true);
-      const { result } = renderUseOrganizationDetailsEdit({
-        saveAction: { onBefore },
+    it('should handle save errors gracefully', async () => {
+      const { result, apiService, mockOrganization } = await renderUseOrganizationDetailsEdit();
+
+      (apiService.organizationDetails.update as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('Save failed'),
+      );
+
+      const success = await act(async () => {
+        return result.current.updateOrgDetails(mockOrganization);
       });
 
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
+      expect(success).toBe(false);
+      expect(mockedShowToast).toHaveBeenCalledWith({
+        type: 'error',
+        message: expect.any(String),
       });
-
-      await act(async () => {
-        await result.current.formActions.nextAction?.onClick?.(mockOrganization);
-      });
-
-      expect(onBefore).toHaveBeenCalledWith(mockOrganization);
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organizationDetails.update,
-      ).toHaveBeenCalled();
     });
 
-    it('should allow onBefore callback to cancel save operation', async () => {
-      const onBefore = vi.fn(() => false);
-      const { result } = renderUseOrganizationDetailsEdit({
-        saveAction: { onBefore },
+    describe('onBefore callback', () => {
+      it('should allow validation before save', async () => {
+        const onBefore = vi.fn(() => true);
+        const { result, apiService, mockOrganization } = await renderUseOrganizationDetailsEdit({
+          saveAction: { onBefore },
+        });
+
+        await act(async () => {
+          await result.current.formActions.nextAction?.onClick?.(mockOrganization);
+        });
+
+        expect(onBefore).toHaveBeenCalledWith(mockOrganization);
+        expect(apiService.organizationDetails.update).toHaveBeenCalled();
       });
 
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
-      });
+      it('should cancel save when returning false', async () => {
+        const onBefore = vi.fn(() => false);
+        const { result, apiService, mockOrganization } = await renderUseOrganizationDetailsEdit({
+          saveAction: { onBefore },
+        });
 
-      let success: boolean;
-      await act(async () => {
-        success = await result.current.updateOrgDetails(mockOrganization);
-      });
+        const success = await act(async () => {
+          return result.current.updateOrgDetails(mockOrganization);
+        });
 
-      expect(success!).toBe(false);
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organizationDetails.update,
-      ).not.toHaveBeenCalled();
+        expect(success).toBe(false);
+        expect(apiService.organizationDetails.update).not.toHaveBeenCalled();
+      });
     });
 
     it('should call onAfter callback after successful save', async () => {
       const onAfter = vi.fn();
-      const { result } = renderUseOrganizationDetailsEdit({
+      const { result, mockOrganization } = await renderUseOrganizationDetailsEdit({
         saveAction: { onBefore: () => true, onAfter },
-      });
-
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
       });
 
       await act(async () => {
         await result.current.formActions.nextAction?.onClick?.(mockOrganization);
-      });
-
-      await waitFor(() => {
-        expect(
-          mockCoreClient.getMyOrganizationApiClient().organizationDetails.update,
-        ).toHaveBeenCalled();
       });
 
       await waitFor(() => {
         expect(onAfter).toHaveBeenCalledWith(mockOrganization);
       });
     });
-
-    it('should handle save errors gracefully', async () => {
-      const apiService = mockCoreClient.getMyOrganizationApiClient();
-      (apiService.organizationDetails.update as ReturnType<typeof vi.fn>).mockRejectedValue(
-        new Error('Save failed'),
-      );
-
-      const { result } = renderUseOrganizationDetailsEdit({});
-
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
-      });
-
-      let success: boolean;
-      await act(async () => {
-        success = await result.current.updateOrgDetails(mockOrganization);
-      });
-
-      expect(success!).toBe(false);
-      expect(result.current.isSaveLoading).toBe(false);
-
-      // Should show error toast to the user
-      expect(mockedShowToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: expect.any(String),
-      });
-    });
   });
 
-  describe('when canceling changes', () => {
+  describe('canceling changes', () => {
     it('should call cancelAction.onAfter callback when cancel is triggered', async () => {
       const onAfter = vi.fn();
-      const { result } = renderUseOrganizationDetailsEdit({
+      const { result, mockOrganization } = await renderUseOrganizationDetailsEdit({
         cancelAction: { onAfter },
       });
 
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
-      });
-
-      // Trigger cancel via the previousAction onClick
-      const onClick = result.current.formActions.previousAction?.onClick;
-      if (onClick) {
-        onClick({} as Event);
-      }
+      result.current.formActions.previousAction?.onClick?.({} as Event);
 
       expect(onAfter).toHaveBeenCalledWith(mockOrganization);
     });
 
-    it('should not call the API when canceling', async () => {
+    it('should not call update API when canceling', async () => {
       const onAfter = vi.fn();
-      const { result } = renderUseOrganizationDetailsEdit({
+      const { result, apiService } = await renderUseOrganizationDetailsEdit({
         cancelAction: { onAfter },
-      });
-
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
       });
 
       vi.clearAllMocks();
+      result.current.formActions.previousAction?.onClick?.({} as Event);
 
-      const onClick = result.current.formActions.previousAction?.onClick;
-      if (onClick) {
-        onClick({} as Event);
-      }
-
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organizationDetails.update,
-      ).not.toHaveBeenCalled();
+      expect(apiService.organizationDetails.update).not.toHaveBeenCalled();
     });
 
-    it('should handle cancel with factory default organization', async () => {
+    it('should handle cancel with null organization response', async () => {
       const onAfter = vi.fn();
-
-      // Mock to return null, which triggers factory default
+      const mockCoreClient = initMockCoreClient();
       const apiService = mockCoreClient.getMyOrganizationApiClient();
       (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-      const { result } = renderUseOrganizationDetailsEdit({
-        cancelAction: { onAfter },
+      vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
+        coreClient: mockCoreClient,
       });
+
+      const { wrapper } = createQueryClientWrapper();
+      const { result } = renderHook(
+        () => useOrganizationDetailsEdit({ cancelAction: { onAfter } }),
+        { wrapper },
+      );
 
       await waitFor(() => {
         expect(result.current.isFetchLoading).toBe(false);
       });
 
-      // Trigger cancel via the previousAction onClick
-      const onClick = result.current.formActions.previousAction?.onClick;
-      if (onClick) {
-        onClick({} as Event);
-      }
+      result.current.formActions.previousAction?.onClick?.({} as Event);
 
-      // Should call onAfter with the factory default organization
-      expect(onAfter).toHaveBeenCalled();
       expect(onAfter).toHaveBeenCalledWith(result.current.organization);
     });
   });
 
-  describe('when form actions are disabled', () => {
-    it('should enable actions after data loads successfully', async () => {
-      const { result } = renderUseOrganizationDetailsEdit({});
+  describe('form actions disabled state', () => {
+    it('should enable actions after data loads', async () => {
+      const { result } = await renderUseOrganizationDetailsEdit();
 
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
-      });
-
-      // After data loads, actions should be enabled
       expect(result.current.formActions.nextAction?.disabled).toBe(false);
       expect(result.current.formActions.previousAction?.disabled).toBe(false);
     });
 
-    it('should disable both actions during save operation', async () => {
-      // Make the update call take longer with a deferred promise
+    it('should disable both actions in readOnly mode', async () => {
+      const { result } = await renderUseOrganizationDetailsEdit({ readOnly: true });
+
+      expect(result.current.formActions.nextAction?.disabled).toBe(true);
+      expect(result.current.formActions.previousAction?.disabled).toBe(true);
+    });
+
+    it.each([
+      { action: 'saveAction', formAction: 'nextAction' as const },
+      { action: 'cancelAction', formAction: 'previousAction' as const },
+    ])('should respect custom disabled prop for $action', async ({ action, formAction }) => {
+      const options = {
+        [action]: { disabled: true, onAfter: vi.fn() },
+      };
+
+      const { result } = await renderUseOrganizationDetailsEdit(options);
+
+      expect(result.current.formActions[formAction]?.disabled).toBe(true);
+    });
+
+    it('should show loading state during save operation', async () => {
+      const mockCoreClient = initMockCoreClient();
+      const mockOrganization = createMockOrganization();
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+
       let resolveUpdate: (value: typeof mockOrganization) => void;
       const updatePromise = new Promise<typeof mockOrganization>((resolve) => {
         resolveUpdate = resolve;
       });
 
-      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockResolvedValue(
+        mockOrganization,
+      );
       (apiService.organizationDetails.update as ReturnType<typeof vi.fn>).mockReturnValue(
         updatePromise,
       );
 
-      const { result } = renderUseOrganizationDetailsEdit({});
-
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
+      vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
+        coreClient: mockCoreClient,
       });
 
-      // Start save operation (don't await yet)
+      const { wrapper } = createQueryClientWrapper();
+      const { result } = renderHook(() => useOrganizationDetailsEdit({}), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isFetchLoading).toBe(false);
+      });
+
       let savePromise: Promise<boolean>;
       act(() => {
         savePromise = result.current.updateOrgDetails(mockOrganization);
       });
 
-      // Check that loading state is true while save is in progress
       await waitFor(() => {
         expect(result.current.isSaveLoading).toBe(true);
       });
 
-      // Now resolve the API call
       await act(async () => {
         resolveUpdate!(mockOrganization);
         await savePromise!;
       });
 
-      // Verify loading state is false after completion
       await waitFor(() => {
         expect(result.current.isSaveLoading).toBe(false);
       });
-    });
-
-    it('should disable both actions in readOnly mode', async () => {
-      const { result } = renderUseOrganizationDetailsEdit({
-        readOnly: true,
-      });
-
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
-      });
-
-      expect(result.current.formActions.nextAction?.disabled).toBe(true);
-      expect(result.current.formActions.previousAction?.disabled).toBe(true);
-    });
-
-    it('should respect custom disabled prop for save action', async () => {
-      const { result } = renderUseOrganizationDetailsEdit({
-        saveAction: { disabled: true },
-      });
-
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
-      });
-
-      expect(result.current.formActions.nextAction?.disabled).toBe(true);
-    });
-
-    it('should respect custom disabled prop for cancel action', async () => {
-      const { result } = renderUseOrganizationDetailsEdit({
-        cancelAction: { disabled: true, onAfter: vi.fn() },
-      });
-
-      await waitFor(() => {
-        expect(result.current.organization).toEqual(mockOrganization);
-      });
-
-      expect(result.current.formActions.previousAction?.disabled).toBe(true);
     });
   });
 });

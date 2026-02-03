@@ -3,8 +3,8 @@ import {
   OrganizationDetailsMappers,
   type OrganizationPrivate,
 } from '@auth0/universal-components-core';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
 import type {
@@ -15,14 +15,13 @@ import type {
 import { useCoreClient } from '../../use-core-client';
 import { useTranslator } from '../../use-translator';
 
-export const organizationDetailsQueryKeys = {
+const organizationDetailsQueryKeys = {
   all: ['organization-details'] as const,
   details: () => [...organizationDetailsQueryKeys.all, 'details'] as const,
 };
 
-/**
- * Custom hook for managing organization details form logic.
- */
+const EMPTY_ORGANIZATION = OrganizationDetailsFactory.create();
+
 export function useOrganizationDetailsEdit({
   saveAction,
   cancelAction,
@@ -35,44 +34,36 @@ export function useOrganizationDetailsEdit({
 
   const isInitializing = !coreClient;
 
-  // ============================================
-  // QUERY - Organization data managed by TanStack Query
-  // ============================================
+  const getErrorMessage = useCallback(
+    (error: unknown): string =>
+      error instanceof Error
+        ? t('organization_changes_error_message', { message: error.message })
+        : t('organization_changes_error_message_generic'),
+    [t],
+  );
 
-  const organizationQuery = useQuery<OrganizationPrivate>({
+  const organizationQuery = useQuery({
     queryKey: organizationDetailsQueryKeys.details(),
     queryFn: async () => {
-      try {
-        const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
-        return OrganizationDetailsMappers.fromAPI(response);
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error
-            ? t('organization_changes_error_message', { message: error.message })
-            : t('organization_changes_error_message_generic');
-
-        showToast({
-          type: 'error',
-          message: errorMessage,
-        });
-
-        throw error;
-      }
+      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
+      return OrganizationDetailsMappers.fromAPI(response);
     },
     enabled: !!coreClient,
-    retry: false,
   });
 
-  const organization: OrganizationPrivate =
-    organizationQuery.data ?? OrganizationDetailsFactory.create();
-  const isFetchLoading = organizationQuery.isFetching;
+  useEffect(() => {
+    if (organizationQuery.error) {
+      showToast({
+        type: 'error',
+        message: getErrorMessage(organizationQuery.error),
+      });
+    }
+  }, [organizationQuery.error, getErrorMessage]);
 
-  // ============================================
-  // MUTATION - Update organization
-  // ============================================
+  const organization = organizationQuery.data ?? EMPTY_ORGANIZATION;
 
   const updateMutation = useMutation({
-    mutationFn: async (data: OrganizationPrivate): Promise<OrganizationPrivate> => {
+    mutationFn: async (data: OrganizationPrivate) => {
       const updateData = OrganizationDetailsMappers.toAPI(data);
       const response = await coreClient!
         .getMyOrganizationApiClient()
@@ -80,88 +71,58 @@ export function useOrganizationDetailsEdit({
 
       return OrganizationDetailsMappers.fromAPI(response);
     },
-
-    onSuccess: (updatedOrg, originalData) => {
-      // Update cache immediately
+    onSuccess: (updatedOrg, variables) => {
       queryClient.setQueryData(organizationDetailsQueryKeys.details(), updatedOrg);
 
-      // Show success toast
       showToast({
         type: 'success',
         message: t('save_organization_changes_message', {
-          organizationName: originalData.display_name || originalData.name,
+          organizationName: variables.display_name || variables.name,
         }),
       });
 
-      // Execute onAfter callback
-      if (saveAction?.onAfter) {
-        saveAction.onAfter(originalData);
-      }
+      saveAction?.onAfter?.(variables);
     },
-
     onError: (error) => {
-      const errorMessage =
-        error instanceof Error
-          ? t('organization_changes_error_message', { message: error.message })
-          : t('organization_changes_error_message_generic');
-
       showToast({
         type: 'error',
-        message: errorMessage,
+        message: getErrorMessage(error),
       });
     },
   });
 
-  const isSaveLoading = updateMutation.isPending;
+  const hasData = !!organizationQuery.data;
+  const isActionDisabled = updateMutation.isPending || isInitializing;
 
-  // ============================================
-  // ACTIONS
-  // ============================================
-
-  /**
-   * Fetch organization details from the API.
-   */
   const fetchOrgDetails = useCallback(async (): Promise<void> => {
     await queryClient.invalidateQueries({ queryKey: organizationDetailsQueryKeys.details() });
   }, [queryClient]);
 
-  /**
-   * Update organization details in the API.
-   */
   const updateOrgDetails = useCallback(
     async (data: OrganizationPrivate): Promise<boolean> => {
-      if (!coreClient) {
+      if (saveAction?.onBefore && !saveAction.onBefore(data)) {
         return false;
-      }
-
-      if (saveAction?.onBefore) {
-        const canProceed = saveAction.onBefore(data);
-        if (!canProceed) {
-          return false;
-        }
       }
 
       try {
         await updateMutation.mutateAsync(data);
         return true;
-      } catch (error) {
+      } catch {
         return false;
       }
     },
-    [updateMutation, coreClient, saveAction],
+    [updateMutation, saveAction],
   );
 
   const formActions = useMemo(
     (): OrganizationDetailsFormActions => ({
-      isLoading: isSaveLoading,
+      isLoading: updateMutation.isPending,
       previousAction: {
-        disabled:
-          cancelAction?.disabled || readOnly || !organization || isSaveLoading || isInitializing,
-        onClick: () => (organization ? cancelAction?.onAfter?.(organization) : undefined),
+        disabled: cancelAction?.disabled || readOnly || !hasData || isActionDisabled,
+        onClick: () => cancelAction?.onAfter?.(organization),
       },
       nextAction: {
-        disabled:
-          saveAction?.disabled || readOnly || !organization || isSaveLoading || isInitializing,
+        disabled: saveAction?.disabled || readOnly || !hasData || isActionDisabled,
         onClick: updateOrgDetails,
       },
     }),
@@ -170,16 +131,16 @@ export function useOrganizationDetailsEdit({
       readOnly,
       cancelAction,
       saveAction?.disabled,
+      hasData,
+      isActionDisabled,
       organization,
-      isSaveLoading,
-      isInitializing,
     ],
   );
 
   return {
     organization,
-    isFetchLoading,
-    isSaveLoading,
+    isFetchLoading: organizationQuery.isFetching,
+    isSaveLoading: updateMutation.isPending,
     isInitializing,
     formActions,
     fetchOrgDetails,
