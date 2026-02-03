@@ -32,9 +32,10 @@ export async function checkDashboardClientChanges(
   const desiredAllowedWebOrigins = (exampleType === 'next-rwa') ? [] : [APP_BASE_URL]
 
   if (!existingClient) {
+    const appType = (exampleType === 'next-rwa') ? 'Regular Web Application' : 'Single Page Application';
     return createChangeItem(ChangeAction.CREATE, {
       resource: "Dashboard Client",
-      name: DASHBOARD_CLIENT_NAME,
+      name: `${DASHBOARD_CLIENT_NAME} - ${appType}`,
       connectionProfileId,
       userAttributeProfileId,
     })
@@ -117,9 +118,10 @@ export async function checkDashboardClientChanges(
     if (refreshTokenNeedsUpdate)
       changes.push("Update refresh token settings")
 
+    const appType = (clientToCheck.app_type === 'regular_web') ? 'Regular Web Application' : 'Single Page Application';
     return createChangeItem(ChangeAction.UPDATE, {
       resource: "Universal Components Demo Client",
-      name: DASHBOARD_CLIENT_NAME,
+      name: `${DASHBOARD_CLIENT_NAME} - ${appType}`,
       existing: clientToCheck,
       updates: {
         missingCallbacks,
@@ -132,13 +134,14 @@ export async function checkDashboardClientChanges(
         userAttributeProfileId,
         refreshTokenNeedsUpdate
       },
-      summary: changes.join(", "),
+      summary: `\n     - ${changes.join("\n     - ")}`,
     })
   }
 
+  const appType = (clientToCheck.app_type === 'regular_web') ? 'Regular Web Application' : 'Single Page Application';
   return createChangeItem(ChangeAction.SKIP, {
     resource: "Universal Components Demo Client",
-    name: DASHBOARD_CLIENT_NAME,
+    name: `${DASHBOARD_CLIENT_NAME} - ${appType}`,
     existing: clientToCheck,
   })
 }
