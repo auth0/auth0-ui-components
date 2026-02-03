@@ -217,10 +217,10 @@ export async function applyDashboardClientChanges(
     }).start()
 
     try {
-      const desiredCallbacks = (exampleType === 'nextjs-rwa') ? [`${APP_BASE_URL}/auth/callback`] : [APP_BASE_URL]
+      const desiredCallbacks = (exampleType === 'next-rwa') ? [`${APP_BASE_URL}/auth/callback`] : [APP_BASE_URL]
       const desiredLogoutUrls = [APP_BASE_URL]
-      const desiredAppType = (exampleType === 'nextjs-rwa') ? "regular_web" : "spa" 
-      const desiredTokenEndpointAuthMethod = (exampleType === 'nextjs-rwa') ? "client_secret_post" : "none"
+      const desiredAppType = (exampleType === 'next-rwa') ? "regular_web" : "spa" 
+      const desiredTokenEndpointAuthMethod = (exampleType === 'next-rwa') ? "client_secret_post" : "none"
       const desiredAllowedWebOrigins = desiredAppType === 'spa' ? [APP_BASE_URL] : []
 
       // prettier-ignore
