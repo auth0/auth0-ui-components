@@ -183,6 +183,77 @@ describe('createCoreClient', () => {
       expect(mockTokenManager.getToken).not.toHaveBeenCalled();
     });
 
+    it('uses domain from contextInterface.getConfiguration() when auth.domain is undefined', async () => {
+      const mockContext = {
+        ...createMockContextInterface(),
+        getConfiguration: vi
+          .fn()
+          .mockReturnValue({ domain: 'context.auth0.com', clientId: 'test-client-id' }),
+      };
+      const authDetails = createAuthDetails({ domain: undefined, contextInterface: mockContext });
+      const client = await createCoreClient(authDetails);
+
+      await client.ensureScopes('read:org', 'my-org');
+
+      expect(mockMyOrganizationClient.setLatestScopes).toHaveBeenCalledWith('read:org');
+      expect(mockTokenManager.getToken).toHaveBeenCalledWith('read:org', 'my-org', true);
+    });
+
+    it('prefers auth.domain over contextInterface.getConfiguration().domain', async () => {
+      const mockContext = {
+        ...createMockContextInterface(),
+        getConfiguration: vi
+          .fn()
+          .mockReturnValue({ domain: 'context.auth0.com', clientId: 'test-client-id' }),
+      };
+      const authDetails = createAuthDetails({
+        domain: 'explicit.auth0.com',
+        contextInterface: mockContext,
+      });
+      const client = await createCoreClient(authDetails);
+
+      await client.ensureScopes('read:org', 'my-org');
+
+      // Should not throw, meaning domain was found
+      expect(mockMyOrganizationClient.setLatestScopes).toHaveBeenCalledWith('read:org');
+      expect(mockTokenManager.getToken).toHaveBeenCalledWith('read:org', 'my-org', true);
+    });
+
+    it('throws when contextInterface.getConfiguration() returns undefined domain', async () => {
+      const mockContext = {
+        ...createMockContextInterface(),
+        getConfiguration: vi.fn().mockReturnValue({ clientId: 'test-client-id' }),
+      };
+      const authDetails = createAuthDetails({ domain: undefined, contextInterface: mockContext });
+      const client = await createCoreClient(authDetails);
+
+      await expect(client.ensureScopes('read:org', 'my-org')).rejects.toThrow(
+        'Authentication domain is missing, cannot initialize SPA service.',
+      );
+    });
+
+    it('throws when contextInterface.getConfiguration() returns undefined', async () => {
+      const mockContext = {
+        ...createMockContextInterface(),
+        getConfiguration: vi.fn().mockReturnValue(undefined),
+      };
+      const authDetails = createAuthDetails({ domain: undefined, contextInterface: mockContext });
+      const client = await createCoreClient(authDetails);
+
+      await expect(client.ensureScopes('read:org', 'my-org')).rejects.toThrow(
+        'Authentication domain is missing, cannot initialize SPA service.',
+      );
+    });
+
+    it('throws when contextInterface is undefined and domain is not provided', async () => {
+      const authDetails = createAuthDetails({ domain: undefined, contextInterface: undefined });
+      const client = await createCoreClient(authDetails);
+
+      await expect(client.ensureScopes('read:org', 'my-org')).rejects.toThrow(
+        'Authentication domain is missing, cannot initialize SPA service.',
+      );
+    });
+
     it('sets org scopes and fetches token in non-proxy mode', async () => {
       const authDetails = createAuthDetails();
       const client = await createCoreClient(authDetails);
