@@ -14,6 +14,7 @@ import { cn } from '../../lib/theme-utils';
 import { Badge } from './badge';
 import { Button } from './button';
 import { InlineCode } from './inline-code';
+import { MiddleEllipsisText } from './middle-ellipsis-text';
 import { Spinner } from './spinner';
 import { Switch } from './switch';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './table';
@@ -173,20 +174,22 @@ function CopyButton({
   labels?: CopyColumnLabels;
 }) {
   const [copied, setCopied] = useState(false);
-  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [copyTooltipOpen, setCopyTooltipOpen] = useState(false);
+  const [textTooltipOpen, setTextTooltipOpen] = useState(false);
+  const stringValue = String(value);
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!value) return;
 
     try {
-      await navigator.clipboard.writeText(String(value));
+      await navigator.clipboard.writeText(stringValue);
       setCopied(true);
-      setTooltipOpen(true);
+      setCopyTooltipOpen(true);
 
       setTimeout(() => {
         setCopied(false);
-        setTooltipOpen(false);
+        setCopyTooltipOpen(false);
       }, 2000);
     } catch (error) {
       console.error('Failed to copy text:', error);
@@ -195,9 +198,18 @@ function CopyButton({
 
   return (
     <InlineCode className="w-full flex items-center justify-between gap-2 pr-1">
-      <span className="truncate text-muted-foreground">{String(value)}</span>
+      <Tooltip open={textTooltipOpen} onOpenChange={setTextTooltipOpen}>
+        <TooltipTrigger asChild>
+          <span className="min-w-0 flex-1">
+            <MiddleEllipsisText text={stringValue} className="text-muted-foreground" />
+          </span>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-md break-all">
+          <p>{stringValue}</p>
+        </TooltipContent>
+      </Tooltip>
 
-      <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
+      <Tooltip open={copyTooltipOpen} onOpenChange={setCopyTooltipOpen}>
         <TooltipTrigger asChild>
           <Button
             variant="ghost"
