@@ -214,6 +214,7 @@ jobs:
           (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'core')
         working-directory: ./packages/core
         env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           current_version=$(node -p "require('./package.json').version")
@@ -221,13 +222,13 @@ jobs:
 
           if [ "$DRY_RUN" = "true" ]; then
             echo "DRY RUN - Skipping publish"
-            pnpm publish --dry-run --no-git-checks --tag="$CORE_TAG"
+            npm publish --dry-run --tag="$CORE_TAG"
             echo "published=dry-run" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
 
             echo "Published @auth0/universal-components-core@$current_version (dry run)"
           else
-            pnpm publish --provenance --no-git-checks --tag="$CORE_TAG"
+            npm publish --access public --tag="$CORE_TAG"
             echo "published=true" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
             echo "Published @auth0/universal-components-core@$current_version"
@@ -239,6 +240,7 @@ jobs:
           (env.PACKAGES_INPUT == 'both' || env.PACKAGES_INPUT == 'react')
         working-directory: ./packages/react
         env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           current_version=$(node -p "require('./package.json').version")
@@ -246,11 +248,11 @@ jobs:
 
           if [ "$DRY_RUN" = "true" ]; then
             echo "DRY RUN - Skipping publish"
-            pnpm publish --dry-run --no-git-checks --tag="$REACT_TAG"
+            npm publish --dry-run --tag="$REACT_TAG"
             echo "published=dry-run" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
           else
-            pnpm publish --provenance --no-git-checks --tag="$REACT_TAG"
+            npm publish --access public --tag="$REACT_TAG"
             echo "published=true" >> $GITHUB_OUTPUT
             echo "version=$current_version" >> $GITHUB_OUTPUT
             echo "Published @auth0/universal-components-react@$current_version"
