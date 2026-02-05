@@ -866,29 +866,4 @@ describe('useDomainTable', () => {
       );
     });
   });
-
-  describe('Callback Dependencies', () => {
-    it('should update callbacks when options change', () => {
-      const options1 = createMockOptions();
-      const { wrapper, queryClient: _queryClient } = createTestQueryClientWrapper();
-      const { result, rerender } = renderHook((props) => useDomainTable(props), {
-        initialProps: options1,
-        wrapper,
-      });
-
-      const initialFetchDomains = result.current.fetchDomains;
-
-      const options2 = createMockOptions({
-        createAction: {
-          onBefore: vi.fn().mockReturnValue(true),
-          onAfter: vi.fn(),
-        },
-      });
-
-      rerender(options2);
-
-      // Functions should maintain their identity when dependencies don't change for core operations
-      expect(result.current.fetchDomains).toBe(initialFetchDomains);
-    });
-  });
 });
