@@ -1,44 +1,11 @@
-import { hasApiErrorBody, isBusinessError } from '@auth0/universal-components-core';
-import { useCallback } from 'react';
+'use client';
 
-import { showToast } from '../components/ui/toast';
+import * as React from 'react';
 
-interface ErrorHandlerOptions {
-  fallbackMessage?: string;
-  showToastNotification?: boolean;
-}
+import { ErrorHandlerContext } from '../providers/error-handler-provider';
 
-/**
- * Hook for handling errors with optional toast notifications
- */
 export const useErrorHandler = () => {
-  const handleError = useCallback((error: unknown, options: ErrorHandlerOptions = {}) => {
-    const { fallbackMessage = 'An error occurred', showToastNotification = true } = options;
-
-    // Extract error message from various error types
-    let errorMessage: string;
-
-    if (isBusinessError(error)) {
-      errorMessage = error.message;
-    } else if (hasApiErrorBody(error) && error.body?.detail) {
-      errorMessage = error.body.detail;
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-    } else if (typeof error === 'string') {
-      errorMessage = error;
-    } else {
-      errorMessage = fallbackMessage;
-    }
-
-    if (showToastNotification) {
-      showToast({
-        type: 'error',
-        message: errorMessage,
-      });
-    }
-
-    return errorMessage;
-  }, []);
-
-  return { handleError };
+  const ctx = React.useContext(ErrorHandlerContext);
+  if (!ctx) throw new Error('useErrorHandler must be used within ErrorHandlerProvider');
+  return ctx;
 };
