@@ -1,8 +1,6 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-import { useDomainTableLogic } from '../use-domain-table-logic';
-
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import {
@@ -18,6 +16,9 @@ import type { UseDomainTableLogicOptions } from '@/types/my-organization/domain-
 
 const { mockedShowToast } = mockToast();
 const { initMockCoreClient } = mockCore();
+
+// eslint-disable-next-line import/order -- mock must be imported before the module it mocks
+import { useDomainTableLogic } from '../use-domain-table-logic';
 
 // ===== Mock Data =====
 

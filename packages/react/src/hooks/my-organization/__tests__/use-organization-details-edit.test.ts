@@ -1,8 +1,6 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-import { useOrganizationDetailsEdit } from '../use-organization-details-edit';
-
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { createMockOrganization, mockCore, mockToast } from '@/tests/utils';
 
@@ -10,6 +8,9 @@ import { createMockOrganization, mockCore, mockToast } from '@/tests/utils';
 
 const { mockedShowToast } = mockToast();
 const { initMockCoreClient } = mockCore();
+
+// eslint-disable-next-line import/order -- mock must be imported before the module it mocks
+import { useOrganizationDetailsEdit } from '../use-organization-details-edit';
 
 // ===== Tests =====
 

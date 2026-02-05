@@ -3,8 +3,6 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { SsoProviderTable } from '../sso-provider-table';
-
 import * as useConfigModule from '@/hooks/my-organization/use-config';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
@@ -16,6 +14,9 @@ import type { SsoProviderTableProps } from '@/types/my-organization/idp-manageme
 
 mockToast();
 const { initMockCoreClient } = mockCore();
+
+// eslint-disable-next-line import/order -- mock must be imported before the module it mocks
+import { SsoProviderTable } from '../sso-provider-table';
 
 // ===== Local mock creators =====
 
