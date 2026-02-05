@@ -47,7 +47,7 @@ vi.mock('@/hooks/shared/use-theme', () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock('@/hooks/auth0/my-organization/idp-management/use-sso-provider-edit', () => ({
+vi.mock('@/hooks/my-organization/use-sso-provider-edit', () => ({
   useSsoProviderEdit: () => mockUseSsoProviderEdit(),
 }));
 

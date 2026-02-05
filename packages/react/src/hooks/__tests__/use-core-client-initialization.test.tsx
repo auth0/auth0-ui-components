@@ -2,8 +2,9 @@ import type { CoreClientInterface } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
 import { mockCreateCoreClient } from '@/tests/utils';
+// eslint-disable-next-line import/order -- mock must be imported before the module it mocks
+import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
 
 const { createCoreClient } = mockCreateCoreClient();
 
