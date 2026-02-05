@@ -13,7 +13,11 @@
     "declarationDir": "dist",
     "sourceMap": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "strict": true
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

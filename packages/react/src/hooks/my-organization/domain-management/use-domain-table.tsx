@@ -7,12 +7,12 @@ import {
 } from '@auth0/universal-components-core';
 import { useCallback, useState } from 'react';
 
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseDomainTableOptions,
   UseDomainTableResult,
-} from '../../../types/my-organization/domain-management/domain-table-types';
-import { useCoreClient } from '../../use-core-client';
-import { useTranslator } from '../../use-translator';
+} from '@/types/my-organization/domain-management/domain-table-types';
 
 /**
  * Custom hook for managing domain table data and actions.

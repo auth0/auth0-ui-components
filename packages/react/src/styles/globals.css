@@ -1,10 +1,10 @@
 @import 'tailwindcss';
 
-@import './font-sizes.css';
+@import '@auth0/universal-components-core/styles/font-sizes.css';
 
-@import './themes/default.css';
-@import './themes/minimal.css';
-@import './themes/rounded.css';
+@import '@auth0/universal-components-core/styles/themes/default.css';
+@import '@auth0/universal-components-core/styles/themes/minimal.css';
+@import '@auth0/universal-components-core/styles/themes/rounded.css';
 
 :root {
   box-sizing: border-box;

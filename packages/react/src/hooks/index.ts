@@ -1,15 +1,13 @@
-export { useCoreClient, CoreClientContext } from './use-core-client';
-export { useTranslator } from './use-translator';
-export { useTheme } from './use-theme';
-export { useCoreClientInitialization } from './use-core-client-initialization';
-export { useScopeManager } from './use-scope-manager';
-export { useErrorHandler } from './use-error-handler';
-export {
-  useContactEnrollment,
-  useOtpConfirmation,
-  useOtpEnrollment,
-  useMFA,
-} from './my-account/mfa';
+export { useCoreClient, CoreClientContext } from './shared/use-core-client';
+export { useTranslator } from './shared/use-translator';
+export { useTheme } from './shared/use-theme';
+export { useCoreClientInitialization } from './shared/use-core-client-initialization';
+export { useScopeManager } from './shared/use-scope-manager';
+export { useErrorHandler } from './shared/use-error-handler';
+export { useContactEnrollment } from './my-account/mfa/use-contact-enrollment';
+export { useOtpConfirmation } from './my-account/mfa/use-otp-confirmation';
+export { useOtpEnrollment } from './my-account/mfa/use-otp-enrollment';
+export { useMFA } from './my-account/mfa/use-mfa';
 export { useOrganizationDetailsEdit } from './my-organization/organization-management/use-organization-details-edit';
 export { useDomainTable } from './my-organization/domain-management/use-domain-table';
 export { useDomainTableLogic } from './my-organization/domain-management/use-domain-table-logic';

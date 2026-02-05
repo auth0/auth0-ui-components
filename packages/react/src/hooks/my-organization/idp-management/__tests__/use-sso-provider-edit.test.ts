@@ -6,14 +6,15 @@ import type {
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 
-import { showToast } from '../../../../components/ui/toast';
-import { useCoreClient } from '../../../use-core-client';
-import { useTranslator } from '../../../use-translator';
 import { useSsoProviderEdit } from '../use-sso-provider-edit';
 
-vi.mock('../../../use-core-client');
-vi.mock('../../../use-translator');
-vi.mock('../../../../components/ui/toast');
+import { showToast } from '@/components/ui/toast';
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useTranslator } from '@/hooks/shared/use-translator';
+
+vi.mock('@/hooks/shared/use-core-client');
+vi.mock('@/hooks/shared/use-translator');
+vi.mock('@/components/ui/toast');
 
 describe('useSsoProviderEdit', () => {
   const mockIdpId = 'idp_123';

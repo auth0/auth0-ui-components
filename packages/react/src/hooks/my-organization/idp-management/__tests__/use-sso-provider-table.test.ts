@@ -2,15 +2,13 @@ import type { IdentityProvider, OrganizationPrivate } from '@auth0/universal-com
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { mockToast, createMockI18nService } from '../../../../internals';
-import { createMockCoreClient } from '../../../../internals/__mocks__/core/core-client.mocks';
-import {
-  setupMockUseCoreClient,
-  setupMockUseCoreClientNull,
-} from '../../../../internals/test-utilities';
-import * as useCoreClientModule from '../../../use-core-client';
-import * as useTranslatorModule from '../../../use-translator';
 import { useSsoProviderTable } from '../use-sso-provider-table';
+
+import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import * as useTranslatorModule from '@/hooks/shared/use-translator';
+import { mockToast, createMockI18nService } from '@/tests/utils';
+import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
+import { setupMockUseCoreClient, setupMockUseCoreClientNull } from '@/tests/utils/test-utilities';
 
 // ===== Mock packages =====
 

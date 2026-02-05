@@ -9,7 +9,6 @@ import type {
   ComponentAction,
 } from '@auth0/universal-components-core';
 
-import type { FormActionsProps } from '../../../../components/ui/form-actions';
 import type { IdpConfig } from '../../config/config-idp-types';
 
 import type { SsoProviderCreateClasses } from './sso-provider-create-types';
@@ -17,6 +16,8 @@ import type {
   SsoProviderDeleteClasses,
   SsoProviderRemoveClasses,
 } from './sso-provider-delete-types';
+
+import type { FormActionsProps } from '@/components/ui/form-actions';
 
 /* ============ Components ============ */
 

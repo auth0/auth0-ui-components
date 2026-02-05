@@ -1,12 +1,12 @@
 import { Copy } from 'lucide-react';
 import * as React from 'react';
 
-import { useTranslator } from '../../hooks/use-translator';
-import { cn } from '../../lib/theme-utils';
-
 import { Button } from './button';
 import { TextField, type TextFieldProps } from './text-field';
 import { Tooltip, TooltipTrigger, TooltipContent } from './tooltip';
+
+import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
 
 export interface CopyableTextFieldProps extends TextFieldProps {
   onCopy?: () => void;

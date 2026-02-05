@@ -13,12 +13,13 @@ import {
 import { useCallback, useState, useEffect, useMemo } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
+
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseSsoProviderEditOptions,
   UseSsoProviderEditReturn,
-} from '../../../types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
-import { useCoreClient } from '../../use-core-client';
-import { useTranslator } from '../../use-translator';
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
 export function useSsoProviderEdit(
   idpId: IdpId,

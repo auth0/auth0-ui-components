@@ -2,10 +2,10 @@ import type { ActionButton as CoreActionButton } from '@auth0/universal-componen
 import type { LucideIcon } from 'lucide-react';
 import * as React from 'react';
 
-import { cn } from '../../lib/theme-utils';
-
 import { Button } from './button';
 import { Toggle } from './toggle';
+
+import { cn } from '@/lib/utils';
 
 export interface BaseActionProps extends Omit<CoreActionButton, 'icon' | 'onClick'> {
   icon?: LucideIcon;

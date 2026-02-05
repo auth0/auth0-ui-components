@@ -8,9 +8,10 @@ import {
 import { useCallback, useState } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
-import { useCoreClient } from '../../../hooks/use-core-client';
-import { useTranslator } from '../../../hooks/use-translator';
-import type { UseSsoProviderCreateOptions } from '../../../types/my-organization/idp-management/sso-provider/sso-provider-create-types';
+
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useTranslator } from '@/hooks/shared/use-translator';
+import type { UseSsoProviderCreateOptions } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 /** Extracts domain from "discovery failure: <domain>" error detail */
 function extractDomainFromDiscoveryError(detail?: string): string | null {

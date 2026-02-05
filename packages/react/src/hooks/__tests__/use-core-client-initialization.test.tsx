@@ -2,8 +2,8 @@ import type { CoreClientInterface } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { mockCreateCoreClient } from '../../internals';
-import { useCoreClientInitialization } from '../use-core-client-initialization';
+import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
+import { mockCreateCoreClient } from '@/tests/utils';
 
 const { createCoreClient } = mockCreateCoreClient();
 

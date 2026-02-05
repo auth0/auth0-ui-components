@@ -3,12 +3,12 @@ import type { LucideIcon } from 'lucide-react';
 import { ArrowLeft } from 'lucide-react';
 import * as React from 'react';
 
-import { cn } from '../../lib/theme-utils';
-
 import { Button } from './button';
 import { Spinner } from './spinner';
 import { Switch } from './switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from './tooltip';
+
+import { cn } from '@/lib/utils';
 
 export interface TooltipProps {
   content: React.ReactNode | string;

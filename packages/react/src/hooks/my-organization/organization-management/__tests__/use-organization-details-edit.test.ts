@@ -1,9 +1,10 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-import { createMockOrganization, mockCore, mockToast } from '../../../../internals';
-import * as useCoreClientModule from '../../../use-core-client';
 import { useOrganizationDetailsEdit } from '../use-organization-details-edit';
+
+import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import { createMockOrganization, mockCore, mockToast } from '@/tests/utils';
 
 // ===== Mock packages =====
 

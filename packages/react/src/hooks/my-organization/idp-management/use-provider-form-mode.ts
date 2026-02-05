@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import type { FormMode } from '../../../types/my-organization/idp-management/sso-provider/sso-provider-create-types';
+import type { FormMode } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 /**
  * Custom hook to determine provider form behavior based on mode

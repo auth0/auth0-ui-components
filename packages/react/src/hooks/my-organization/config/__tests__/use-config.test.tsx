@@ -2,9 +2,10 @@ import { AVAILABLE_STRATEGY_LIST } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { mockCore } from '../../../../internals/test-setup';
-import * as useCoreClientModule from '../../../use-core-client';
 import { useConfig } from '../use-config';
+
+import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import { mockCore } from '@/tests/utils/test-setup';
 
 const { initMockCoreClient } = mockCore();
 

@@ -6,13 +6,14 @@ import {
 import { useCallback, useMemo, useState, useEffect } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
+
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   OrganizationDetailsFormActions,
   UseOrganizationDetailsEditOptions,
   UseOrganizationDetailsEditResult,
-} from '../../../types/my-organization/organization-management';
-import { useCoreClient } from '../../use-core-client';
-import { useTranslator } from '../../use-translator';
+} from '@/types/my-organization/organization-management/organization-details-edit-types';
 
 /**
  * Custom hook for managing organization details form logic.

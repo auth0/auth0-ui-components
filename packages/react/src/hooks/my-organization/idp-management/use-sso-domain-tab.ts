@@ -3,13 +3,14 @@ import { BusinessError, type Domain, type IdpId } from '@auth0/universal-compone
 import { useCallback, useState, useEffect } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
-import { useErrorHandler } from '../../../hooks/use-error-handler';
+
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseSsoDomainTabOptions,
   UseSsoDomainTabReturn,
-} from '../../../types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
-import { useCoreClient } from '../../use-core-client';
-import { useTranslator } from '../../use-translator';
+} from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
 export function useSsoDomainTab(
   idpId: IdpId,

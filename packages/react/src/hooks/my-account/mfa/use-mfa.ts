@@ -6,8 +6,8 @@ import type {
 import { MFAMappers } from '@auth0/universal-components-core';
 import { useCallback } from 'react';
 
-import type { UseMFAResult } from '../../../types/my-account/mfa/mfa-types';
-import { useCoreClient } from '../../use-core-client';
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import type { UseMFAResult } from '@/types/my-account/mfa/mfa-types';
 
 export function useMFA(): UseMFAResult {
   const { coreClient } = useCoreClient();

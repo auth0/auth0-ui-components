@@ -3,7 +3,7 @@
 import type { ToasterProps } from 'sonner';
 import { Toaster as Sonner } from 'sonner';
 
-import { useTheme } from '../../hooks/use-theme';
+import { useTheme } from '@/hooks/shared/use-theme';
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { isDarkMode } = useTheme();

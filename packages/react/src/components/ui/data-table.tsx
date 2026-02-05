@@ -9,8 +9,6 @@ import type { SortingState, ColumnDef } from '@tanstack/react-table';
 import { Copy } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 
-import { cn } from '../../lib/theme-utils';
-
 import { Badge } from './badge';
 import { Button } from './button';
 import { InlineCode } from './inline-code';
@@ -18,6 +16,8 @@ import { Spinner } from './spinner';
 import { Switch } from './switch';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './table';
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
+
+import { cn } from '@/lib/utils';
 
 interface ActionButton extends Omit<CoreActionButton, 'onClick'> {
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;

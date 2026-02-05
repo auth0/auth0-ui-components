@@ -1,17 +1,18 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
+import { useDomainTableLogic } from '../use-domain-table-logic';
+
+import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import {
   mockCore,
   mockToast,
   createMockDomain,
   createMockIdentityProvider,
   createMockI18nService,
-} from '../../../../internals';
-import type { UseDomainTableLogicOptions } from '../../../../types/my-organization/domain-management/domain-table-types';
-import * as useCoreClientModule from '../../../use-core-client';
-import * as useErrorHandlerModule from '../../../use-error-handler';
-import { useDomainTableLogic } from '../use-domain-table-logic';
+} from '@/tests/utils';
+import type { UseDomainTableLogicOptions } from '@/types/my-organization/domain-management/domain-table-types';
 
 // ===== Mock packages =====
 

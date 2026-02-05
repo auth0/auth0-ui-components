@@ -2,6 +2,11 @@ import { BusinessError } from '@auth0/universal-components-core';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { useSsoDomainTab } from '../use-sso-domain-tab';
+
+import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
+import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import {
   mockCore,
   mockToast,
@@ -10,11 +15,7 @@ import {
   createMockSsoProvider,
   setupAllCommonMocks,
   setupMockUseCoreClientNull,
-} from '../../../../internals';
-import * as useCoreClientModule from '../../../use-core-client';
-import * as useErrorHandlerModule from '../../../use-error-handler';
-import * as useTranslatorModule from '../../../use-translator';
-import { useSsoDomainTab } from '../use-sso-domain-tab';
+} from '@/tests/utils';
 
 // ===== Mock packages =====
 

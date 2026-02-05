@@ -6,8 +6,8 @@ import {
 } from '@auth0/universal-components-core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type { UseConfigResult } from '../../../types/my-organization/config/config-types';
-import { useCoreClient } from '../../use-core-client';
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import type { UseConfigResult } from '@/types/my-organization/config/config-types';
 
 export function useConfig(): UseConfigResult {
   const { coreClient } = useCoreClient();

@@ -2,8 +2,8 @@ import { Flag } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { toast, type ExternalToast } from 'sonner';
 
-import { DEFAULT_TOAST_SETTINGS } from '../../types/toast-types';
-import type { ToastOptions, ToastSettings, ToastType } from '../../types/toast-types';
+import { DEFAULT_TOAST_SETTINGS } from '@/types/toast-types';
+import type { ToastOptions, ToastSettings, ToastType } from '@/types/toast-types';
 
 const TOAST_COLOR_CLASSES: Record<ToastType, string> = {
   success: 'text-success-foreground',

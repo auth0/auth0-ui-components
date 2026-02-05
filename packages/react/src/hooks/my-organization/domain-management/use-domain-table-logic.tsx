@@ -2,11 +2,12 @@ import { type Domain, type IdentityProvider } from '@auth0/universal-components-
 import { useCallback, useEffect, useState } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
+
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import type {
   UseDomainTableLogicOptions,
   UseDomainTableLogicResult,
-} from '../../../types/my-organization/domain-management/domain-table-types';
-import { useErrorHandler } from '../../use-error-handler';
+} from '@/types/my-organization/domain-management/domain-table-types';
 
 export function useDomainTableLogic({
   t,

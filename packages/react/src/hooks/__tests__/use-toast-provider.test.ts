@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-import { DEFAULT_TOAST_SETTINGS, type ToastSettings } from '../../types/toast-types';
-import { useToastProvider } from '../use-toast-provider';
+import { useToastProvider } from '@/hooks/shared/use-toast-provider';
+import { DEFAULT_TOAST_SETTINGS, type ToastSettings } from '@/types/toast-types';
 
 // ===== Mock packages =====
 
@@ -10,7 +10,7 @@ const { mockSetGlobalToastSettings } = vi.hoisted(() => ({
   mockSetGlobalToastSettings: vi.fn(),
 }));
 
-vi.mock('../../components/ui/toast', () => ({
+vi.mock('@/components/ui/toast', () => ({
   setGlobalToastSettings: mockSetGlobalToastSettings,
 }));
 

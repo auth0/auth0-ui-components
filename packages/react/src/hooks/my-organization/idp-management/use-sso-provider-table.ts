@@ -9,9 +9,10 @@ import {
 import { useCallback, useState, useEffect } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
-import type { UseSsoProviderTableReturn } from '../../../types/my-organization/idp-management/sso-provider/sso-provider-table-types';
-import { useCoreClient } from '../../use-core-client';
-import { useTranslator } from '../../use-translator';
+
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useTranslator } from '@/hooks/shared/use-translator';
+import type { UseSsoProviderTableReturn } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
 /**
  * Custom hook for managing SSO provider table data and actions.

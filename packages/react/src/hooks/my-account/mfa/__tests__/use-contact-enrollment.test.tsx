@@ -2,12 +2,13 @@ import { FACTOR_TYPE_EMAIL, FACTOR_TYPE_PHONE } from '@auth0/universal-component
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { mockCore, setupAllCommonMocks } from '../../../../internals';
-import { ENROLL } from '../../../../lib/mfa-constants';
-import * as useCoreClientModule from '../../../use-core-client';
-import * as useErrorHandlerModule from '../../../use-error-handler';
-import * as useTranslatorModule from '../../../use-translator';
 import { useContactEnrollment } from '../use-contact-enrollment';
+
+import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
+import * as useTranslatorModule from '@/hooks/shared/use-translator';
+import { ENROLL } from '@/lib/constants/my-account/mfa/mfa-constants';
+import { mockCore, setupAllCommonMocks } from '@/tests/utils';
 
 // ===== Mock packages =====
 const { initMockCoreClient } = mockCore();

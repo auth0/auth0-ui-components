@@ -14,6 +14,12 @@ import type {
   OrganizationDetailsFormActions,
 } from './organization-details-types';
 
+// Re-export imported types for convenience
+export type {
+  OrganizationDetailsClasses,
+  OrganizationDetailsFormActions,
+} from './organization-details-types';
+
 export type OrganizationEditClasses = OrganizationDetailsClasses;
 
 /**

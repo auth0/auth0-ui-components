@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { cn } from '../../lib/theme-utils';
-
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './accordion';
 import { CardTitle, CardDescription } from './card';
 import { DataTable, type Column } from './data-table';
 import { Section } from './section';
+
+import { cn } from '@/lib/utils';
 
 export interface MappingProps<Item> {
   title?: string;

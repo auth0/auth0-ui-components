@@ -4,15 +4,15 @@ import { useAuth0 } from '@auth0/auth0-react';
 import type { BasicAuth0ContextInterface } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { Toaster } from '../components/ui/sonner';
-import { Spinner } from '../components/ui/spinner';
-import { CoreClientContext } from '../hooks/use-core-client';
-import { useCoreClientInitialization } from '../hooks/use-core-client-initialization';
-import { useToastProvider } from '../hooks/use-toast-provider';
-import type { Auth0ComponentProviderProps } from '../types/auth-types';
-
 import { ScopeManagerProvider } from './scope-manager-provider';
 import { ThemeProvider } from './theme-provider';
+
+import { Toaster } from '@/components/ui/sonner';
+import { Spinner } from '@/components/ui/spinner';
+import { CoreClientContext } from '@/hooks/shared/use-core-client';
+import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
+import { useToastProvider } from '@/hooks/shared/use-toast-provider';
+import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 
 export const Auth0ComponentProvider = ({
   i18n,
@@ -36,7 +36,9 @@ export const Auth0ComponentProvider = ({
 
   const auth0ContextInterface = React.useMemo(() => {
     if (auth0ReactContext && 'isAuthenticated' in auth0ReactContext) {
-      return auth0ReactContext as BasicAuth0ContextInterface;
+      // Cast via unknown because @auth0/auth0-react's Auth0ContextInterface
+      // doesn't include getConfiguration which our BasicAuth0ContextInterface requires
+      return auth0ReactContext as unknown as BasicAuth0ContextInterface;
     }
 
     if (authDetails?.contextInterface) {

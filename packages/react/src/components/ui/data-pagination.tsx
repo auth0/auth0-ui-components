@@ -1,7 +1,5 @@
 import { useMemo, useRef, useEffect } from 'react';
 
-import { cn } from '../../lib/theme-utils';
-
 import {
   Pagination,
   PaginationContent,
@@ -12,6 +10,8 @@ import {
   PaginationEllipsis,
 } from './pagination';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
+
+import { cn } from '@/lib/utils';
 
 export interface DataPaginationLabels {
   showing: string;

@@ -1,11 +1,11 @@
 import { hasApiErrorBody, type IdpStrategy } from '@auth0/universal-components-core';
 import { useCallback, useEffect, useState } from 'react';
 
+import { useCoreClient } from '@/hooks/shared/use-core-client';
 import type {
   IdpConfig,
   UseConfigIdpResult,
-} from '../../../types/my-organization/config/config-idp-types';
-import { useCoreClient } from '../../use-core-client';
+} from '@/types/my-organization/config/config-idp-types';
 
 export function useIdpConfig(): UseConfigIdpResult {
   const { coreClient } = useCoreClient();

@@ -2,12 +2,12 @@
 
 import * as React from 'react';
 
-import { cn } from '../../lib/theme-utils';
-
 import { Card, CardContent } from './card';
 import { FormActions } from './form-actions';
 import { Spinner } from './spinner';
 import { WizardStepper } from './wizard-stepper';
+
+import { cn } from '@/lib/utils';
 
 export interface StepFormActions {
   showPrevious?: boolean;

@@ -1,11 +1,12 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { createMockCoreClient } from '../../../../internals/__mocks__/core/core-client.mocks';
-import { useCoreClient } from '../../../use-core-client';
 import { useIdpConfig } from '../use-idp-config';
 
-vi.mock('../../../use-core-client');
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
+
+vi.mock('@/hooks/shared/use-core-client');
 
 describe('useIdpConfig', () => {
   const mockCoreClient = createMockCoreClient();

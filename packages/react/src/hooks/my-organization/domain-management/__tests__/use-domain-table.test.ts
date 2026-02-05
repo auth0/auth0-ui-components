@@ -6,16 +6,17 @@ import { BusinessError } from '@auth0/universal-components-core';
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
+import { useDomainTable } from '../use-domain-table';
+
+import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import {
   mockCore,
   createMockDomain,
   createMockIdentityProvider,
   createMockI18nService,
-} from '../../../../internals';
-import type { UseDomainTableOptions } from '../../../../types/my-organization/domain-management/domain-table-types';
-import * as useCoreClientModule from '../../../use-core-client';
-import * as useTranslatorModule from '../../../use-translator';
-import { useDomainTable } from '../use-domain-table';
+} from '@/tests/utils';
+import type { UseDomainTableOptions } from '@/types/my-organization/domain-management/domain-table-types';
 
 // ===== Mock packages =====
 
