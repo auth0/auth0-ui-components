@@ -1,13 +1,13 @@
 import { MessageSquare } from 'lucide-react';
 import React from 'react';
 
+import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
+import { Modal } from '@/components/auth0/shared/modal';
+import { Spinner } from '@/components/auth0/shared/spinner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CopyableTextField } from '@/components/ui/copyable-text-field';
 import { Label } from '@/components/ui/label';
-import { Modal } from '@/components/ui/modal';
-import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { DomainVerifyModalProps } from '@/types/my-organization/domain-management/domain-verify-types';

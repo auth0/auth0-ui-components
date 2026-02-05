@@ -13,6 +13,8 @@ import { useForm } from 'react-hook-form';
 
 import { OTPVerificationForm } from './otp-verification-form';
 
+import { Spinner } from '@/components/auth0/shared/spinner';
+import { TextField } from '@/components/auth0/shared/text-field';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -22,9 +24,7 @@ import {
   FormControl,
   FormMessage,
 } from '@/components/ui/form';
-import { Spinner } from '@/components/ui/spinner';
-import { TextField } from '@/components/ui/text-field';
-import { useContactEnrollment } from '@/hooks/my-account/mfa/use-contact-enrollment';
+import { useContactEnrollment } from '@/hooks/my-account/use-contact-enrollment';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { ENTER_CONTACT, ENTER_OTP } from '@/lib/constants/my-account/mfa/mfa-constants';

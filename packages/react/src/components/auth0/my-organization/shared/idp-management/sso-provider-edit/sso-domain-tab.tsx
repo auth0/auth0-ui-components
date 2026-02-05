@@ -9,10 +9,10 @@ import { DomainVerifyModal } from '../../domain-management/domain-verify/domain-
 
 import { SsoDomainTabActionsColumn } from './sso-domain-tab-action-column';
 
+import { DataTable, type Column } from '@/components/auth0/shared/data-table';
+import { Header } from '@/components/auth0/shared/header';
 import { Badge } from '@/components/ui/badge';
-import { DataTable, type Column } from '@/components/ui/data-table';
-import { Header } from '@/components/ui/header';
-import { useSsoDomainTab } from '@/hooks/my-organization/idp-management/use-sso-domain-tab';
+import { useSsoDomainTab } from '@/hooks/my-organization/use-sso-domain-tab';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';

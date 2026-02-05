@@ -6,18 +6,17 @@ import {
 import { Plus } from 'lucide-react';
 import * as React from 'react';
 
-import { Badge } from '../../../components/ui/badge';
-import { DataTable, type Column } from '../../../components/ui/data-table';
-import { Header } from '../../../components/ui/header';
-
 import { DomainConfigureProvidersModal } from '@/components/auth0/my-organization/shared/domain-management/domain-configure/domain-configure-providers-modal';
 import { DomainCreateModal } from '@/components/auth0/my-organization/shared/domain-management/domain-create/domain-create-modal';
 import { DomainDeleteModal } from '@/components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal';
 import { DomainTableActionsColumn } from '@/components/auth0/my-organization/shared/domain-management/domain-table/domain-table-actions-column';
 import { DomainVerifyModal } from '@/components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal';
+import { DataTable, type Column } from '@/components/auth0/shared/data-table';
+import { Header } from '@/components/auth0/shared/header';
+import { Badge } from '@/components/ui/badge';
 import { withMyOrganizationService } from '@/hoc/with-services';
-import { useDomainTable } from '@/hooks/my-organization/domain-management/use-domain-table';
-import { useDomainTableLogic } from '@/hooks/my-organization/domain-management/use-domain-table-logic';
+import { useDomainTable } from '@/hooks/my-organization/use-domain-table';
+import { useDomainTableLogic } from '@/hooks/my-organization/use-domain-table-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';

@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import { FormActions, type FormActionsProps } from './form-actions';
+
 import {
   Dialog,
   DialogContent,
@@ -7,8 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from './dialog';
-import { FormActions, type FormActionsProps } from './form-actions';
+} from '@/components/ui/dialog';
 
 interface ModalProps {
   open: boolean;

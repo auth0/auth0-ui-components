@@ -5,8 +5,7 @@ import {
 } from '@auth0/universal-components-core';
 import { useCallback, useMemo, useState, useEffect } from 'react';
 
-import { showToast } from '../../../components/ui/toast';
-
+import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {

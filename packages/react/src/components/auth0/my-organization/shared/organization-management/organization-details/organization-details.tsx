@@ -14,11 +14,11 @@ import { useForm } from 'react-hook-form';
 import { BrandingDetails } from './branding-details';
 import { SettingsDetails } from './settings-details';
 
+import { FormActions } from '@/components/auth0/shared/form-actions';
+import { Spinner } from '@/components/auth0/shared/spinner';
 import { Card } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { FormActions } from '@/components/ui/form-actions';
 import { Separator } from '@/components/ui/separator';
-import { Spinner } from '@/components/ui/spinner';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';

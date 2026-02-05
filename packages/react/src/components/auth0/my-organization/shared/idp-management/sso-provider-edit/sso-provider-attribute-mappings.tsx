@@ -5,11 +5,11 @@ import {
 import { Info } from 'lucide-react';
 import * as React from 'react';
 
+import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
+import type { Column } from '@/components/auth0/shared/data-table';
+import { Mapping } from '@/components/auth0/shared/mapping';
 import { Badge } from '@/components/ui/badge';
-import { CopyableTextField } from '@/components/ui/copyable-text-field';
-import type { Column } from '@/components/ui/data-table';
 import { Label } from '@/components/ui/label';
-import { Mapping } from '@/components/ui/mapping';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { SsoProviderAttributeMappingsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';

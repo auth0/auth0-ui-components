@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 
-import { setGlobalToastSettings } from '@/components/ui/toast';
+import { setGlobalToastSettings } from '@/components/auth0/shared/toast';
 import { DEFAULT_TOAST_SETTINGS, type ToastSettings } from '@/types/toast-types';
 
 /**

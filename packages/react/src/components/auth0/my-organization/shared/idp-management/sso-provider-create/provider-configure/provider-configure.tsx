@@ -6,8 +6,8 @@ import {
   type ProviderConfigureFormHandle,
 } from './provider-configure-fields';
 
-import { Section } from '@/components/ui/section';
-import { Spinner } from '@/components/ui/spinner';
+import { Section } from '@/components/auth0/shared/section';
+import { Spinner } from '@/components/auth0/shared/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { ProviderConfigureProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 

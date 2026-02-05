@@ -7,11 +7,11 @@ import * as React from 'react';
 
 import { OTPVerificationForm } from './otp-verification-form';
 
+import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
+import { QRCodeDisplayer } from '@/components/auth0/shared/qr-code';
+import { Spinner } from '@/components/auth0/shared/spinner';
 import { Button } from '@/components/ui/button';
-import { CopyableTextField } from '@/components/ui/copyable-text-field';
-import { QRCodeDisplayer } from '@/components/ui/qr-code';
-import { Spinner } from '@/components/ui/spinner';
-import { useOtpEnrollment } from '@/hooks/my-account/mfa/use-otp-enrollment';
+import { useOtpEnrollment } from '@/hooks/my-account/use-otp-enrollment';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { QR_PHASE_ENTER_OTP, QR_PHASE_SCAN } from '@/lib/constants/my-account/mfa/mfa-constants';

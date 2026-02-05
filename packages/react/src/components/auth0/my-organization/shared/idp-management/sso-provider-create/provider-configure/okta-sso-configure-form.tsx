@@ -8,7 +8,9 @@ import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from './common-configure-fields';
 
-import { CopyableTextField } from '@/components/ui/copyable-text-field';
+import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
+import { Link } from '@/components/auth0/shared/link';
+import { TextField } from '@/components/auth0/shared/text-field';
 import {
   Form,
   FormField,
@@ -18,9 +20,7 @@ import {
   FormMessage,
   FormDescription,
 } from '@/components/ui/form';
-import { Link } from '@/components/ui/link';
-import { TextField } from '@/components/ui/text-field';
-import { useProviderFormMode } from '@/hooks/my-organization/idp-management/use-provider-form-mode';
+import { useProviderFormMode } from '@/hooks/my-organization/use-provider-form-mode';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';

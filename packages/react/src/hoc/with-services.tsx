@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Spinner } from '@/components/ui/spinner';
+import { Spinner } from '@/components/auth0/shared/spinner';
 import { useScopeManager } from '@/hooks/shared/use-scope-manager';
 import { useTheme } from '@/hooks/shared/use-theme';
 

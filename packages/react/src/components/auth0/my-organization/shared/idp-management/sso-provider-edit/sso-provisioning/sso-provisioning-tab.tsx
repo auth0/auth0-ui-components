@@ -6,6 +6,7 @@ import { SsoProviderAttributeSyncAlert } from '../sso-provider-attribute-sync-al
 import { SsoProvisioningDeleteModal } from './sso-provisioning-delete-modal';
 import { SsoProvisioningDetails } from './sso-provisioning-details';
 
+import { Spinner } from '@/components/auth0/shared/spinner';
 import {
   Card,
   CardAction,
@@ -14,10 +15,9 @@ import {
   CardTitle,
   CardContent,
 } from '@/components/ui/card';
-import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { useSsoProviderEdit } from '@/hooks/my-organization/idp-management/use-sso-provider-edit';
+import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';

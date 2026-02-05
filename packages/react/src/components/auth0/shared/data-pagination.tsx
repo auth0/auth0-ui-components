@@ -9,8 +9,14 @@ import {
   PaginationNext,
   PaginationEllipsis,
 } from './pagination';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
 export interface DataPaginationLabels {

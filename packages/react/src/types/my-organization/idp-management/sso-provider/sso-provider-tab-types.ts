@@ -17,7 +17,7 @@ import type {
   SsoProviderRemoveClasses,
 } from './sso-provider-delete-types';
 
-import type { FormActionsProps } from '@/components/ui/form-actions';
+import type { FormActionsProps } from '@/components/auth0/shared/form-actions';
 
 /* ============ Components ============ */
 

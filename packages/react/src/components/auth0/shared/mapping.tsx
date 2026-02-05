@@ -1,10 +1,15 @@
 import React from 'react';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './accordion';
-import { CardTitle, CardDescription } from './card';
 import { DataTable, type Column } from './data-table';
 import { Section } from './section';
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { CardTitle, CardDescription } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 export interface MappingProps<Item> {

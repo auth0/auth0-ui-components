@@ -1,8 +1,7 @@
 import { type Domain, type IdentityProvider } from '@auth0/universal-components-core';
 import { useCallback, useEffect, useState } from 'react';
 
-import { showToast } from '../../../components/ui/toast';
-
+import { showToast } from '@/components/auth0/shared/toast';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import type {
   UseDomainTableLogicOptions,

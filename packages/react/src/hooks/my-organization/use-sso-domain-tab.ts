@@ -2,8 +2,7 @@ import type { CreateOrganizationDomainRequestContent } from '@auth0/universal-co
 import { BusinessError, type Domain, type IdpId } from '@auth0/universal-components-core';
 import { useCallback, useState, useEffect } from 'react';
 
-import { showToast } from '../../../components/ui/toast';
-
+import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';

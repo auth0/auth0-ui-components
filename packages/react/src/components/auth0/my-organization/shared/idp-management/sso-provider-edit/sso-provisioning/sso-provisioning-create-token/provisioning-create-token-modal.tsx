@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { ProvisioningCreateTokenModalContent } from './provisioning-create-token-modal-content';
 
-import { Modal } from '@/components/ui/modal';
+import { Modal } from '@/components/auth0/shared/modal';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { ProvisioningCreateTokenModalProps } from '@/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
 

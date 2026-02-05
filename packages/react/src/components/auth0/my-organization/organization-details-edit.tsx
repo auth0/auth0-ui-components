@@ -4,12 +4,11 @@ import {
 } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { Header } from '../../../components/ui/header';
-import { Spinner } from '../../../components/ui/spinner';
-
 import { OrganizationDetails } from '@/components/auth0/my-organization/shared/organization-management/organization-details/organization-details';
+import { Header } from '@/components/auth0/shared/header';
+import { Spinner } from '@/components/auth0/shared/spinner';
 import { withMyOrganizationService } from '@/hoc/with-services';
-import { useOrganizationDetailsEdit } from '@/hooks/my-organization/organization-management/use-organization-details-edit';
+import { useOrganizationDetailsEdit } from '@/hooks/my-organization/use-organization-details-edit';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { OrganizationDetailsEditProps } from '@/types/my-organization/organization-management/organization-details-edit-types';

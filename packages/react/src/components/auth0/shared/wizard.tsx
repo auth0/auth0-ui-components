@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 
-import { Card, CardContent } from './card';
 import { FormActions } from './form-actions';
 import { Spinner } from './spinner';
 import { WizardStepper } from './wizard-stepper';
 
+import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 export interface StepFormActions {

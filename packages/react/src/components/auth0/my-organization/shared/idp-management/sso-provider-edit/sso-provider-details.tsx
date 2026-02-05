@@ -12,7 +12,7 @@ import {
 
 import { SsoProviderAttributeMappings } from './sso-provider-attribute-mappings';
 
-import { FormActions } from '@/components/ui/form-actions';
+import { FormActions } from '@/components/auth0/shared/form-actions';
 import { Separator } from '@/components/ui/separator';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';

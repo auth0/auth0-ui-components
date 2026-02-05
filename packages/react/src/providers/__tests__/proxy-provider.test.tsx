@@ -11,11 +11,11 @@ vi.mock('@/hooks/shared/use-core-client-initialization', () => ({
   })),
 }));
 
-vi.mock('@/components/ui/sonner', () => ({
+vi.mock('@/components/auth0/shared/sonner', () => ({
   Toaster: () => <div data-testid="toaster" />,
 }));
 
-vi.mock('@/components/ui/spinner', () => ({
+vi.mock('@/components/auth0/shared/spinner', () => ({
   Spinner: () => <div data-testid="spinner" />,
 }));
 

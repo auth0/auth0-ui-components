@@ -10,7 +10,7 @@ const { mockSetGlobalToastSettings } = vi.hoisted(() => ({
   mockSetGlobalToastSettings: vi.fn(),
 }));
 
-vi.mock('@/components/ui/toast', () => ({
+vi.mock('@/components/auth0/shared/toast', () => ({
   setGlobalToastSettings: mockSetGlobalToastSettings,
 }));
 

@@ -8,7 +8,7 @@ export const mockToast = () => {
     mockedShowToast: vi.fn(),
   }));
 
-  vi.mock('@/components/ui/toast', () => ({
+  vi.mock('@/components/auth0/shared/toast', () => ({
     showToast: mockedShowToast,
   }));
 

@@ -1,7 +1,7 @@
 import { hasApiErrorBody, isBusinessError } from '@auth0/universal-components-core';
 import { useCallback } from 'react';
 
-import { showToast } from '@/components/ui/toast';
+import { showToast } from '@/components/auth0/shared/toast';
 
 interface ErrorHandlerOptions {
   fallbackMessage?: string;

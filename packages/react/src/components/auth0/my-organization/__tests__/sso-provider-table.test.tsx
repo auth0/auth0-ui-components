@@ -5,7 +5,7 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import { SsoProviderTable } from '../sso-provider-table';
 
-import * as useConfigModule from '@/hooks/my-organization/config/use-config';
+import * as useConfigModule from '@/hooks/my-organization/use-config';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';

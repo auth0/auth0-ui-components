@@ -7,10 +7,6 @@ import {
 } from '@auth0/universal-components-core';
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 
-import { Header } from '../../../components/ui/header';
-import { Wizard } from '../../../components/ui/wizard';
-import type { StepProps } from '../../../components/ui/wizard';
-
 import ProviderConfigure, {
   type ProviderConfigureHandle,
 } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure';
@@ -19,10 +15,13 @@ import {
   type ProviderDetailsFormHandle,
 } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details';
 import { ProviderSelect } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-select';
+import { Header } from '@/components/auth0/shared/header';
+import { Wizard } from '@/components/auth0/shared/wizard';
+import type { StepProps } from '@/components/auth0/shared/wizard';
 import { withMyOrganizationService } from '@/hoc/with-services';
-import { useConfig } from '@/hooks/my-organization/config/use-config';
-import { useIdpConfig } from '@/hooks/my-organization/config/use-idp-config';
-import { useSsoProviderCreate } from '@/hooks/my-organization/idp-management/use-sso-provider-create';
+import { useConfig } from '@/hooks/my-organization/use-config';
+import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
+import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-create';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { SsoProviderCreateProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';

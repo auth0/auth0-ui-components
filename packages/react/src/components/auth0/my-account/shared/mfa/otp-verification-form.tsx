@@ -8,6 +8,7 @@ import {
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
+import { OTPField } from '@/components/auth0/shared/otp-field';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -17,8 +18,7 @@ import {
   FormControl,
   FormMessage,
 } from '@/components/ui/form';
-import { OTPField } from '@/components/ui/otp-field';
-import { useOtpConfirmation } from '@/hooks/my-account/mfa/use-otp-confirmation';
+import { useOtpConfirmation } from '@/hooks/my-account/use-otp-confirmation';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';

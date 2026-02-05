@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
-import { useRecoveryCodeGeneration } from '@/hooks/my-account/mfa/use-recovery-code';
+import { useRecoveryCodeGeneration } from '@/hooks/my-account/use-recovery-code';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { ENTER_OTP } from '@/lib/constants/my-account/mfa/mfa-constants';

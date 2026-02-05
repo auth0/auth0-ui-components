@@ -1,9 +1,9 @@
 import type { ActionButton } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { Button } from './button';
 import { Spinner } from './spinner';
 
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export interface FormActionsProps<T = void> {

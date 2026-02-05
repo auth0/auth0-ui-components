@@ -6,6 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
+import { Modal } from '@/components/auth0/shared/modal';
+import { TextField } from '@/components/auth0/shared/text-field';
 import {
   Form,
   FormControl,
@@ -14,8 +16,6 @@ import {
   FormMessage,
   FormLabel,
 } from '@/components/ui/form';
-import { Modal } from '@/components/ui/modal';
-import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { DomainCreateModalProps } from '@/types/my-organization/domain-management/domain-create-types';

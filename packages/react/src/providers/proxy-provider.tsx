@@ -5,8 +5,8 @@ import * as React from 'react';
 import { ScopeManagerProvider } from './scope-manager-provider';
 import { ThemeProvider } from './theme-provider';
 
-import { Toaster } from '@/components/ui/sonner';
-import { Spinner } from '@/components/ui/spinner';
+import { Toaster } from '@/components/auth0/shared/sonner';
+import { Spinner } from '@/components/auth0/shared/spinner';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
 import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
 import { useToastProvider } from '@/hooks/shared/use-toast-provider';

@@ -1,8 +1,8 @@
 import { ImageIcon } from 'lucide-react';
 import * as React from 'react';
 
-import { TextField } from '../../components/ui/text-field';
-import type { TextFieldProps } from '../../components/ui/text-field';
+import { TextField } from './text-field';
+import type { TextFieldProps } from './text-field';
 
 import { cn } from '@/lib/utils';
 

@@ -9,6 +9,9 @@ import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from './common-configure-fields';
 
+import { FileUpload } from '@/components/auth0/shared/file-upload';
+import { Link } from '@/components/auth0/shared/link';
+import { TextField } from '@/components/auth0/shared/text-field';
 import {
   Accordion,
   AccordionContent,
@@ -16,7 +19,6 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
-import { FileUpload } from '@/components/ui/file-upload';
 import {
   Form,
   FormField,
@@ -27,7 +29,6 @@ import {
   FormDescription,
 } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
-import { Link } from '@/components/ui/link';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Select,
@@ -36,7 +37,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';

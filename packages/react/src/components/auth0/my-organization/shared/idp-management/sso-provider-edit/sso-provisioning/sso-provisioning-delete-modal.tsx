@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Modal } from '@/components/ui/modal';
+import { Modal } from '@/components/auth0/shared/modal';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { SsoProvisioningDeleteModalProps } from '@/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';

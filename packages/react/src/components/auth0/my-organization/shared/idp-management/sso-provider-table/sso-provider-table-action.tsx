@@ -1,6 +1,7 @@
 import { MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import * as React from 'react';
 
+import { Spinner } from '@/components/auth0/shared/spinner';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,7 +9,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
-import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';

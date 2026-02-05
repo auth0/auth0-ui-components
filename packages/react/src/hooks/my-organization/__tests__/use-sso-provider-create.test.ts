@@ -7,13 +7,13 @@ import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 
 import { useSsoProviderCreate } from '../use-sso-provider-create';
 
-import { showToast } from '@/components/ui/toast';
+import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 
 vi.mock('@/hooks/shared/use-core-client');
 vi.mock('@/hooks/shared/use-translator');
-vi.mock('@/components/ui/toast');
+vi.mock('@/components/auth0/shared/toast');
 
 describe('useSsoProviderCreate', () => {
   const mockCreate = vi.fn();

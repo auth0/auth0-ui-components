@@ -1,4 +1,4 @@
-import { CopyableTextField } from '@/components/ui/copyable-text-field';
+import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import { Label } from '@/components/ui/label';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';

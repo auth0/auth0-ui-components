@@ -1,7 +1,7 @@
 import React from 'react';
 
+import { TextField } from '@/components/auth0/shared/text-field';
 import { Label } from '@/components/ui/label';
-import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { SsoProviderDeleteModalContentProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-delete-types';

@@ -8,8 +8,7 @@ import {
 } from '@auth0/universal-components-core';
 import { useCallback, useState, useEffect } from 'react';
 
-import { showToast } from '../../../components/ui/toast';
-
+import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { UseSsoProviderTableReturn } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';

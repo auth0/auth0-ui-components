@@ -6,17 +6,16 @@ import {
 } from '@auth0/universal-components-core';
 import React, { useState } from 'react';
 
-import { Header } from '../../../components/ui/header';
-import { Spinner } from '../../../components/ui/spinner';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
-
 import { SsoDomainTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab';
 import { SsoProviderTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-tab';
 import { SsoProvisioningTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab';
+import { Header } from '@/components/auth0/shared/header';
+import { Spinner } from '@/components/auth0/shared/spinner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { withMyOrganizationService } from '@/hoc/with-services';
-import { useConfig } from '@/hooks/my-organization/config/use-config';
-import { useIdpConfig } from '@/hooks/my-organization/config/use-idp-config';
-import { useSsoProviderEdit } from '@/hooks/my-organization/idp-management/use-sso-provider-edit';
+import { useConfig } from '@/hooks/my-organization/use-config';
+import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
+import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
