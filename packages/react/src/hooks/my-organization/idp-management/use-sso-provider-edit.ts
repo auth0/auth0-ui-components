@@ -11,7 +11,7 @@ import {
   getStatusCode,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
 import type {
@@ -26,15 +26,6 @@ const ACTION_CANCELLED_ERROR = 'ACTION_CANCELLED';
 const isActionCancelledError = (error: unknown): boolean => {
   return error instanceof Error && error.message === ACTION_CANCELLED_ERROR;
 };
-
-const CACHE_CONFIG = {
-  PROVIDER_STALE_TIME: 5 * 60 * 1000,
-  PROVIDER_GC_TIME: 10 * 60 * 1000,
-  ORGANIZATION_STALE_TIME: 10 * 60 * 1000,
-  ORGANIZATION_GC_TIME: 15 * 60 * 1000,
-  PROVISIONING_STALE_TIME: 2 * 60 * 1000,
-  SCIM_TOKENS_STALE_TIME: 2 * 60 * 1000,
-} as const;
 
 export const ssoProviderEditQueryKeys = {
   all: ['sso-providers'] as const,
@@ -52,6 +43,8 @@ export function useSsoProviderEdit(
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const queryClient = useQueryClient();
   const hasShownProviderError = useRef(false);
+  const hasShownProvisioningError = useRef(false);
+  const hasShownOrganizationError = useRef(false);
 
   // ============================================
   // QUERIES - All data managed by TanStack Query
@@ -69,8 +62,6 @@ export function useSsoProviderEdit(
         .organization.identityProviders.get(idpId);
       return response;
     },
-    staleTime: CACHE_CONFIG.PROVIDER_STALE_TIME,
-    gcTime: CACHE_CONFIG.PROVIDER_GC_TIME,
     enabled: !!coreClient && !!idpId,
   });
 
@@ -84,8 +75,6 @@ export function useSsoProviderEdit(
       const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
       return OrganizationDetailsMappers.fromAPI(response);
     },
-    staleTime: CACHE_CONFIG.ORGANIZATION_STALE_TIME,
-    gcTime: CACHE_CONFIG.ORGANIZATION_GC_TIME,
     enabled: !!coreClient,
     initialData: OrganizationDetailsFactory.create(),
   });
@@ -110,13 +99,7 @@ export function useSsoProviderEdit(
         throw error;
       }
     },
-    staleTime: CACHE_CONFIG.PROVISIONING_STALE_TIME,
     enabled: !!coreClient && !!idpId,
-    retry: (failureCount, error) => {
-      const status = getStatusCode(error);
-      if (status === 404) return false;
-      return failureCount < 3;
-    },
   });
 
   useEffect(() => {
@@ -132,6 +115,39 @@ export function useSsoProviderEdit(
       hasShownProviderError.current = false;
     }
   }, [providerQuery.isError, t]);
+
+  useEffect(() => {
+    if (organizationQuery.isError && !hasShownOrganizationError.current) {
+      const errorMessage =
+        organizationQuery.error instanceof Error
+          ? t('general_error', { message: organizationQuery.error.message })
+          : t('general_error');
+
+      showToast({
+        type: 'error',
+        message: errorMessage,
+      });
+      hasShownOrganizationError.current = true;
+    }
+
+    if (!organizationQuery.isError) {
+      hasShownOrganizationError.current = false;
+    }
+  }, [organizationQuery.error, organizationQuery.isError, t]);
+
+  useEffect(() => {
+    if (provisioningQuery.isError && !hasShownProvisioningError.current) {
+      showToast({
+        type: 'error',
+        message: t('general_error'),
+      });
+      hasShownProvisioningError.current = true;
+    }
+
+    if (!provisioningQuery.isError) {
+      hasShownProvisioningError.current = false;
+    }
+  }, [provisioningQuery.isError, t]);
 
   // ============================================
   // MUTATIONS - All actions that modify data
@@ -530,22 +546,10 @@ export function useSsoProviderEdit(
       return;
     }
 
-    try {
-      await queryClient.invalidateQueries({
-        queryKey: ssoProviderEditQueryKeys.organization(),
-      });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? t('general_error', { message: error.message })
-          : t('general_error');
-
-      showToast({
-        type: 'error',
-        message: errorMessage,
-      });
-    }
-  }, [coreClient, queryClient, t]);
+    await queryClient.invalidateQueries({
+      queryKey: ssoProviderEditQueryKeys.organization(),
+    });
+  }, [coreClient, queryClient]);
 
   const fetchProvisioning =
     useCallback(async (): Promise<GetIdPProvisioningConfigResponseContent | null> => {
@@ -554,7 +558,7 @@ export function useSsoProviderEdit(
       }
 
       try {
-        const data = await queryClient.ensureQueryData({
+        const data = await queryClient.fetchQuery({
           queryKey: ssoProviderEditQueryKeys.provisioning(idpId),
           queryFn: async () => {
             try {
@@ -573,16 +577,24 @@ export function useSsoProviderEdit(
         });
         return data;
       } catch (error) {
-        showToast({
-          type: 'error',
-          message: t('general_error'),
-        });
+        const status = getStatusCode(error);
+        if (status !== 404) {
+          showToast({
+            type: 'error',
+            message: t('general_error'),
+          });
+        }
         return null;
       }
     }, [coreClient, idpId, queryClient, t]);
 
   const updateProvider = useCallback(
     async (data: UpdateIdentityProviderRequestContent): Promise<void> => {
+      const provider = providerQuery.data;
+      if (!coreClient || !idpId || !provider) {
+        return;
+      }
+
       try {
         await updateProviderMutation.mutateAsync(data);
       } catch (error) {
@@ -591,10 +603,15 @@ export function useSsoProviderEdit(
         }
       }
     },
-    [updateProviderMutation],
+    [coreClient, idpId, providerQuery.data, updateProviderMutation],
   );
 
   const createProvisioning = useCallback(async (): Promise<void> => {
+    const provider = providerQuery.data;
+    if (!coreClient || !idpId || !provider) {
+      return;
+    }
+
     try {
       await createProvisioningMutation.mutateAsync();
     } catch (error) {
@@ -602,9 +619,14 @@ export function useSsoProviderEdit(
         throw error;
       }
     }
-  }, [createProvisioningMutation]);
+  }, [coreClient, createProvisioningMutation, idpId, providerQuery.data]);
 
   const deleteProvisioning = useCallback(async (): Promise<void> => {
+    const provider = providerQuery.data;
+    if (!coreClient || !idpId || !provider) {
+      return;
+    }
+
     try {
       await deleteProvisioningMutation.mutateAsync();
     } catch (error) {
@@ -612,7 +634,7 @@ export function useSsoProviderEdit(
         throw error;
       }
     }
-  }, [deleteProvisioningMutation]);
+  }, [coreClient, deleteProvisioningMutation, idpId, providerQuery.data]);
 
   /**
    * List SCIM tokens mutation - fetches SCIM tokens for provisioning.
@@ -640,11 +662,20 @@ export function useSsoProviderEdit(
   });
 
   const listScimTokens = useCallback(async () => {
-    return await listScimTokensMutation.mutateAsync();
+    try {
+      return await listScimTokensMutation.mutateAsync();
+    } catch (error) {
+      return null;
+    }
   }, [listScimTokensMutation]);
 
   const createScimToken = useCallback(
     async (data: CreateIdpProvisioningScimTokenRequestContent) => {
+      const provider = providerQuery.data;
+      if (!coreClient || !idpId || !provider) {
+        return undefined;
+      }
+
       try {
         return await createScimTokenMutation.mutateAsync(data);
       } catch (error) {
@@ -654,11 +685,16 @@ export function useSsoProviderEdit(
         return undefined;
       }
     },
-    [createScimTokenMutation],
+    [coreClient, createScimTokenMutation, idpId, providerQuery.data],
   );
 
   const deleteScimToken = useCallback(
     async (idpScimTokenId: string): Promise<void> => {
+      const provider = providerQuery.data;
+      if (!coreClient || !idpId || !provider) {
+        return;
+      }
+
       try {
         await deleteScimTokenMutation.mutateAsync(idpScimTokenId);
       } catch (error) {
@@ -667,68 +703,77 @@ export function useSsoProviderEdit(
         }
       }
     },
-    [deleteScimTokenMutation],
+    [coreClient, deleteScimTokenMutation, idpId, providerQuery.data],
   );
+
+  const syncSsoAttributesMutation = useMutation({
+    mutationFn: async () => {
+      await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.identityProviders.updateAttributes(idpId, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ssoProviderEditQueryKeys.detail(idpId),
+      });
+      showToast({
+        type: 'success',
+        message: t('sso_attributes_sync_success'),
+      });
+    },
+    onError: () => {
+      showToast({
+        type: 'error',
+        message: t('general_error'),
+      });
+    },
+  });
 
   const syncSsoAttributes = useCallback(async (): Promise<void> => {
     if (!coreClient || !idpId) {
       return;
     }
 
-    try {
-      setIsSsoAttributesSyncing(true);
+    await syncSsoAttributesMutation.mutateAsync();
+  }, [coreClient, idpId, syncSsoAttributesMutation]);
 
-      await coreClient
+  const syncProvisioningAttributesMutation = useMutation({
+    mutationFn: async () => {
+      await coreClient!
         .getMyOrganizationApiClient()
-        .organization.identityProviders.updateAttributes(idpId, {});
-
-      await fetchProvider();
-
+        .organization.identityProviders.provisioning.updateAttributes(idpId, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ssoProviderEditQueryKeys.provisioning(idpId),
+      });
       showToast({
         type: 'success',
-        message: t('sso_attributes_sync_success'),
+        message: t('provisioning_attributes_sync_success'),
       });
-    } catch (error) {
+    },
+    onError: () => {
       showToast({
         type: 'error',
         message: t('general_error'),
       });
-      throw error;
-    } finally {
-      setIsSsoAttributesSyncing(false);
-    }
-  }, [coreClient, idpId, fetchProvider, t]);
+    },
+  });
 
   const syncProvisioningAttributes = useCallback(async (): Promise<void> => {
     if (!coreClient || !idpId) {
       return;
     }
 
-    try {
-      setIsProvisioningAttributesSyncing(true);
-
-      await coreClient
-        .getMyOrganizationApiClient()
-        .organization.identityProviders.provisioning.updateAttributes(idpId, {});
-
-      await fetchProvisioning();
-
-      showToast({
-        type: 'success',
-        message: t('provisioning_attributes_sync_success'),
-      });
-    } catch (error) {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-      throw error;
-    } finally {
-      setIsProvisioningAttributesSyncing(false);
-    }
-  }, [coreClient, idpId, fetchProvisioning, t]);
+    await syncProvisioningAttributesMutation.mutateAsync();
+  }, [coreClient, idpId, syncProvisioningAttributesMutation]);
 
   const onDeleteConfirm = useCallback(async (): Promise<void> => {
+    const provider = providerQuery.data;
+    if (!coreClient || !provider?.id) {
+      return;
+    }
+
     try {
       await deleteProviderMutation.mutateAsync();
     } catch (error) {
@@ -736,9 +781,14 @@ export function useSsoProviderEdit(
         throw error;
       }
     }
-  }, [deleteProviderMutation]);
+  }, [coreClient, deleteProviderMutation, providerQuery.data]);
 
   const onRemoveConfirm = useCallback(async (): Promise<void> => {
+    const provider = providerQuery.data;
+    if (!coreClient || !provider?.id) {
+      return;
+    }
+
     try {
       await detachProviderMutation.mutateAsync();
     } catch (error) {
@@ -746,17 +796,19 @@ export function useSsoProviderEdit(
         throw error;
       }
     }
-  }, [detachProviderMutation]);
+  }, [coreClient, detachProviderMutation, providerQuery.data]);
 
   const hasSsoAttributeSyncWarning = useMemo(() => {
+    const provider = providerQuery.data;
     const attributes = provider && 'attributes' in provider ? (provider.attributes ?? []) : [];
     return attributes.some((attr) => attr.is_extra || attr.is_missing);
-  }, [provider]);
+  }, [providerQuery.data]);
 
   const hasProvisioningAttributeSyncWarning = useMemo(() => {
+    const provisioningConfig = provisioningQuery.data;
     const attributes = provisioningConfig?.attributes ?? [];
     return attributes.some((attr) => attr.is_extra || attr.is_missing);
-  }, [provisioningConfig]);
+  }, [provisioningQuery.data]);
 
   return {
     // Data from TanStack Query - single source of truth
@@ -775,6 +827,12 @@ export function useSsoProviderEdit(
     isScimTokensLoading: listScimTokensMutation.isPending,
     isScimTokenCreating: createScimTokenMutation.isPending,
     isScimTokenDeleting: deleteScimTokenMutation.isPending,
+    isSsoAttributesSyncing: syncSsoAttributesMutation.isPending,
+    isProvisioningAttributesSyncing: syncProvisioningAttributesMutation.isPending,
+
+    // Warning states
+    hasSsoAttributeSyncWarning,
+    hasProvisioningAttributeSyncWarning,
 
     // Actions
     fetchProvider,
