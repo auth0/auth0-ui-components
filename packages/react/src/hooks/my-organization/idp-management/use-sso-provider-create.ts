@@ -15,6 +15,13 @@ import type { UseSsoProviderCreateOptions } from '../../../types/my-organization
 
 import { ssoProviderQueryKeys } from './use-sso-provider-table';
 
+/** Extracts domain from "discovery failure: <domain>" error detail */
+function extractDomainFromDiscoveryError(detail?: string): string | null {
+  if (!detail) return null;
+  const match = detail.match(/discovery failure:\s*(.+)/i);
+  return match?.[1]?.trim() ?? null;
+}
+
 export interface UseSsoProviderCreateReturn {
   createProvider: (data: CreateIdentityProviderRequestContentPrivate) => Promise<void>;
   isCreating: boolean;
@@ -85,12 +92,24 @@ export function useSsoProviderCreate({
             providerName: data.name,
           }),
         });
-      } else {
+        return;
+      }
+      // Handle discovery failure error for domain
+      const domainFromError = extractDomainFromDiscoveryError(error.body?.detail);
+      if (domainFromError) {
         showToast({
           type: 'error',
-          message: t('notifications.general_error'),
+          message: t('notifications.provider_create_discovery_failure', {
+            domain: domainFromError,
+          }),
         });
+        return;
       }
+
+      showToast({
+        type: 'error',
+        message: t('notifications.general_error'),
+      });
     },
   });
 

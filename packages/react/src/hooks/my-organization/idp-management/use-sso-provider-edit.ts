@@ -670,6 +670,64 @@ export function useSsoProviderEdit(
     [deleteScimTokenMutation],
   );
 
+  const syncSsoAttributes = useCallback(async (): Promise<void> => {
+    if (!coreClient || !idpId) {
+      return;
+    }
+
+    try {
+      setIsSsoAttributesSyncing(true);
+
+      await coreClient
+        .getMyOrganizationApiClient()
+        .organization.identityProviders.updateAttributes(idpId, {});
+
+      await fetchProvider();
+
+      showToast({
+        type: 'success',
+        message: t('sso_attributes_sync_success'),
+      });
+    } catch (error) {
+      showToast({
+        type: 'error',
+        message: t('general_error'),
+      });
+      throw error;
+    } finally {
+      setIsSsoAttributesSyncing(false);
+    }
+  }, [coreClient, idpId, fetchProvider, t]);
+
+  const syncProvisioningAttributes = useCallback(async (): Promise<void> => {
+    if (!coreClient || !idpId) {
+      return;
+    }
+
+    try {
+      setIsProvisioningAttributesSyncing(true);
+
+      await coreClient
+        .getMyOrganizationApiClient()
+        .organization.identityProviders.provisioning.updateAttributes(idpId, {});
+
+      await fetchProvisioning();
+
+      showToast({
+        type: 'success',
+        message: t('provisioning_attributes_sync_success'),
+      });
+    } catch (error) {
+      showToast({
+        type: 'error',
+        message: t('general_error'),
+      });
+      throw error;
+    } finally {
+      setIsProvisioningAttributesSyncing(false);
+    }
+  }, [coreClient, idpId, fetchProvisioning, t]);
+
   const onDeleteConfirm = useCallback(async (): Promise<void> => {
     try {
       await deleteProviderMutation.mutateAsync();
@@ -689,6 +747,16 @@ export function useSsoProviderEdit(
       }
     }
   }, [detachProviderMutation]);
+
+  const hasSsoAttributeSyncWarning = useMemo(() => {
+    const attributes = provider && 'attributes' in provider ? (provider.attributes ?? []) : [];
+    return attributes.some((attr) => attr.is_extra || attr.is_missing);
+  }, [provider]);
+
+  const hasProvisioningAttributeSyncWarning = useMemo(() => {
+    const attributes = provisioningConfig?.attributes ?? [];
+    return attributes.some((attr) => attr.is_extra || attr.is_missing);
+  }, [provisioningConfig]);
 
   return {
     // Data from TanStack Query - single source of truth
@@ -718,6 +786,8 @@ export function useSsoProviderEdit(
     listScimTokens,
     createScimToken,
     deleteScimToken,
+    syncSsoAttributes,
+    syncProvisioningAttributes,
     onDeleteConfirm,
     onRemoveConfirm,
   };

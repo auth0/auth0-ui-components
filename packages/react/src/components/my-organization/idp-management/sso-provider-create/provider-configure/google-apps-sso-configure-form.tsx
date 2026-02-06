@@ -58,9 +58,9 @@ export const GoogleAppsProviderForm = React.forwardRef<
   const { showCopyButtons } = useProviderFormMode(mode);
 
   const callbackUrl = React.useMemo(() => {
-    const domain = coreClient?.auth?.domain || 'YOUR_DOMAIN';
+    const domain = coreClient?.getDomain() || 'YOUR_DOMAIN';
     return `https://${domain}/login/callback`;
-  }, [coreClient?.auth?.domain]);
+  }, [coreClient]);
 
   const googleAppsData = initialData as GoogleAppsConfigureFormValues | undefined;
 

@@ -63,9 +63,9 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
     const { showCopyButtons } = useProviderFormMode(mode);
 
     const callbackUrl = React.useMemo(() => {
-      const domain = coreClient?.auth?.domain || 'YOUR_DOMAIN';
+      const domain = coreClient?.getDomain() || 'YOUR_DOMAIN';
       return `https://${domain}/login/callback`;
-    }, [coreClient?.auth?.domain]);
+    }, [coreClient]);
 
     const oktaData = initialData as OktaConfigureFormValues | undefined;
 

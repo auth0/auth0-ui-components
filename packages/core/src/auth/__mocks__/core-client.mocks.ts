@@ -1,6 +1,7 @@
 import { vi } from 'vitest';
 
 import { createMockI18nService } from '../../i18n/__mocks__/i18n-service.mocks';
+import { TEST_CLIENT_ID, TEST_DOMAIN } from '../../internals/__mocks__/shared/api-service.mocks';
 import type {
   AuthDetails,
   BasicAuth0ContextInterface,
@@ -54,6 +55,10 @@ export const createMockBasicAuth0Context = (
   }),
   getAccessTokenWithPopup: vi.fn().mockResolvedValue('mock-access-token'),
   loginWithRedirect: vi.fn().mockResolvedValue(undefined),
+  getConfiguration: vi.fn().mockReturnValue({
+    domain: TEST_DOMAIN,
+    clientId: TEST_CLIENT_ID,
+  }),
   ...overrides,
 });
 
@@ -92,7 +97,6 @@ export const createMockAuth0Context = (
  */
 export const createMockAuthDetails = (overrides?: Partial<AuthDetails>): AuthDetails => ({
   authProxyUrl: 'https://mock-auth-proxy.com',
-  domain: 'mock-domain.auth0.com',
   contextInterface: createMockBasicAuth0Context(),
   ...overrides,
 });
@@ -225,6 +229,9 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
     getToken: vi.fn().mockResolvedValue('mock-access-token'),
     isProxyMode: vi.fn().mockReturnValue(false),
     ensureScopes: vi.fn().mockResolvedValue(undefined),
+    getDomain: vi.fn(
+      () => mockAuth.domain ?? mockAuth.contextInterface?.getConfiguration()?.domain,
+    ),
   };
 };
 

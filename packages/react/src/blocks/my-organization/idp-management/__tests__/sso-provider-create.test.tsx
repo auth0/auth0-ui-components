@@ -11,7 +11,10 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import * as useConfigModule from '../../../../hooks/my-organization/config/use-config';
 import { idpConfigQueryKeys } from '../../../../hooks/my-organization/config/use-idp-config';
+import * as useIdpConfigModule from '../../../../hooks/my-organization/config/use-idp-config';
 import * as useCoreClientModule from '../../../../hooks/use-core-client';
+import { createMockUseConfig } from '../../../../internals/__mocks__/my-organization/config/config.mocks';
+import { createMockUseIdpConfig } from '../../../../internals/__mocks__/my-organization/idp-management/idp-config.mocks';
 import { createTestQueryClient, renderWithProviders } from '../../../../internals/test-provider';
 import { mockCore, mockToast } from '../../../../internals/test-setup';
 import type { SsoProviderCreateProps } from '../../../../types/my-organization/idp-management/sso-provider/sso-provider-create-types';
@@ -113,14 +116,17 @@ describe('SsoProviderCreate', () => {
       coreClient: mockCoreClient,
     });
 
-    vi.spyOn(useConfigModule, 'useConfig').mockReturnValue({
-      config: null,
-      isLoadingConfig: false,
-      fetchConfig: vi.fn(),
-      filteredStrategies: AVAILABLE_STRATEGY_LIST,
-      shouldAllowDeletion: true,
-      isConfigValid: true,
-    });
+    vi.spyOn(useConfigModule, 'useConfig').mockReturnValue(
+      createMockUseConfig({
+        config: {
+          connection_deletion_behavior: 'allow',
+          allowed_strategies: ['adfs', 'okta', 'samlp'],
+        },
+        filteredStrategies: ['adfs', 'okta', 'samlp'],
+      }),
+    );
+
+    vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue(createMockUseIdpConfig());
   });
 
   afterEach(() => {

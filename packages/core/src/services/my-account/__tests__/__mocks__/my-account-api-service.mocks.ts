@@ -15,6 +15,7 @@ export const createMockMyAccountClient = (): ReturnType<typeof initializeMyAccou
 
 // Re-export shared API service mocks
 export {
+  createMockContextInterface,
   // Auth Details Mocks
   mockAuthWithDomain,
   mockAuthWithProxyUrl,

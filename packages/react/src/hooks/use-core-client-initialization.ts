@@ -19,7 +19,7 @@ export const useCoreClientInitialization = ({
   i18nOptions,
 }: UseCoreClientInitializationProps) => {
   const [coreClient, setCoreClient] = React.useState<CoreClientInterface | null>(null);
-  const { domain, authProxyUrl } = authDetails;
+  const { authProxyUrl } = authDetails;
 
   React.useEffect(() => {
     const initializeCoreClient = async () => {
@@ -31,7 +31,7 @@ export const useCoreClientInitialization = ({
       }
     };
     initializeCoreClient();
-  }, [domain, authProxyUrl, i18nOptions]);
+  }, [authProxyUrl, i18nOptions]);
 
   return coreClient;
 };

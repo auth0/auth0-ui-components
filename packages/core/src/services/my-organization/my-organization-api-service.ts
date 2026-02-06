@@ -37,7 +37,10 @@ export function initializeMyOrganizationClient(
       }),
       setLatestScopes,
     };
-  } else if (auth.domain) {
+  }
+
+  const domain = auth.domain ?? auth.contextInterface?.getConfiguration()?.domain;
+  if (domain) {
     const fetcher = async (url: string, init?: RequestInit) => {
       const token = await tokenManagerService.getToken(latestScopes, 'my-org');
 
@@ -56,7 +59,7 @@ export function initializeMyOrganizationClient(
     };
     return {
       client: new MyOrganizationClient({
-        domain: auth.domain.trim(),
+        domain: domain.trim(),
         fetcher,
       }),
       setLatestScopes,

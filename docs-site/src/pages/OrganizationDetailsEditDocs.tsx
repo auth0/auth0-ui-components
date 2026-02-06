@@ -800,18 +800,15 @@ function OrganizationEditPage() {
 }
 
 export default function App() {
-  const authDetails = {
-    domain: "your-domain.auth0.com",
-  };
   return (
     <Auth0Provider
-      domain={authDetails.domain}
+      domain="your-domain.auth0.com"
       clientId="your-client-id"
       authorizationParams={{
         redirect_uri: window.location.origin
       }}
     >
-      <Auth0ComponentProvider authDetails={authDetails}>
+      <Auth0ComponentProvider>
         <OrganizationEditPage />
       </Auth0ComponentProvider>
     </Auth0Provider>

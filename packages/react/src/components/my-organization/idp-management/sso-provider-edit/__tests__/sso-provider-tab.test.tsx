@@ -197,4 +197,77 @@ describe('SsoProviderTab', () => {
       });
     });
   });
+
+  describe('attribute sync warning', () => {
+    it('should render SsoProviderAttributeSyncAlert when hasSsoAttributeSyncWarning is true', () => {
+      const props = { ...mockProps, hasSsoAttributeSyncWarning: true };
+      renderWithProviders(<SsoProviderTab {...props} />);
+
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+
+    it('should not render SsoProviderAttributeSyncAlert when hasSsoAttributeSyncWarning is false', () => {
+      const props = { ...mockProps, hasSsoAttributeSyncWarning: false };
+      renderWithProviders(<SsoProviderTab {...props} />);
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('should pass onAttributeSync to SsoProviderAttributeSyncAlert', async () => {
+      const onAttributeSync = vi.fn();
+      const props = {
+        ...mockProps,
+        hasSsoAttributeSyncWarning: true,
+        onAttributeSync,
+      };
+      renderWithProviders(<SsoProviderTab {...props} />);
+
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+
+    it('should pass isSyncingAttributes to SsoProviderAttributeSyncAlert', () => {
+      const props = {
+        ...mockProps,
+        hasSsoAttributeSyncWarning: true,
+        isSyncingAttributes: true,
+      };
+      renderWithProviders(<SsoProviderTab {...props} />);
+
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+  });
+
+  describe('styling', () => {
+    it('should apply custom styling variables', () => {
+      const customStyling = {
+        variables: {
+          common: { '--font-size-heading': '24px' },
+          light: {},
+          dark: {},
+        },
+        classes: {},
+      };
+      const props = { ...mockProps, styling: customStyling };
+      renderWithProviders(<SsoProviderTab {...props} />);
+
+      expect(screen.getByText('content.title')).toBeInTheDocument();
+    });
+
+    it('should apply custom styling classes', () => {
+      const customStyling = {
+        variables: { common: {}, light: {}, dark: {} },
+        classes: {
+          'SsoProviderAttributeSyncAlert-root': 'custom-alert-class',
+        },
+      };
+      const props = {
+        ...mockProps,
+        styling: customStyling,
+        hasSsoAttributeSyncWarning: true,
+      };
+      renderWithProviders(<SsoProviderTab {...props} />);
+
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+  });
 });

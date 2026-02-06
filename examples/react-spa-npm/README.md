@@ -6,6 +6,7 @@ A React (npm) example that demonstrates Auth0 authentication using a SPA along w
 
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
+- [Adding a Universal Component](#adding-a-universal-component-to-your-app)
 - [Universal Component Docs (Component-Specific Requirements)](#universal-component-docs-component-specific-requirements)
 - [Troubleshooting](#troubleshooting)
 
@@ -21,18 +22,11 @@ These instructions assume that you're using `pnpm`, which is automatically inclu
 
 3. **A new Auth0 tenant**.
 
-**This is important!** Using a new Auth0 tenant for this sample application ensures you don't encounter any conflicts due to existing configuration in an existing tenant. You can sign up for a free Auth0 account at [https://auth0.com/signup](https://auth0.com/signup?utm_source=github&utm_medium=thirdpartyutm_campaign=saastart). See [Create Tenants](https://auth0.com/docs/get-started/auth0-overview/create-tenants) in the Auth0 docs if you need help.
+**This is important!** Using a new Auth0 tenant for this sample application ensures you don't encounter any conflicts due to existing configuration in an existing tenant. You can sign up for a free Auth0 account at [https://auth0.com/signup](https://auth0.com/signup?utm_source=github&utm_medium=thirdpartyutm_campaign=universal-components). See [Create Tenants](https://auth0.com/docs/get-started/auth0-overview/create-tenants) in the Auth0 docs if you need help.
 
-4. **Configure your Auth0 tenant** based on the components you will use.
-
-Different Auth0 Universal components may have specific configuration requirements.
-**Please refer to the [Auth0 Universal Components Documentation](https://auth0-ui-components.vercel.app/getting-started) for detailed prerequisites for each component or group of components you plan to use.**
+4. Continue with the **[Getting Started](#getting-started)** section.
 
 ## Getting Started
-
-### 1. Environment Setup
-
-Before running the application, you need to configure your Auth0 credentials:
 
 1. **Clone the repository and navigate to its folder:**
 
@@ -41,62 +35,99 @@ Before running the application, you need to configure your Auth0 credentials:
    cd auth0-ui-components
    ```
 
-2. **Create environment file:**
-
-   In the root directory of your project (or in the example directory if working with monorepo), copy the `.env.example` to an `.env` file:
-
-   ```env
-   VITE_AUTH0_DOMAIN=your-auth0-domain.auth0.com
-   VITE_AUTH0_CLIENT_ID=your-auth0-client-id
-   ```
-
-3. **Configure Auth0 values:**
-
-   Replace the placeholder values with your actual Auth0 credentials:
-   - `VITE_AUTH0_DOMAIN`: Your Auth0 domain (found in your Auth0 Dashboard > Applications > Settings)
-   - `VITE_AUTH0_CLIENT_ID`: Your Auth0 application client ID (found in the same location)
-
-### 2. Build the components package and install dependencies
-
-Make sure you run install and build scripts **at the root of the project** before starting the dev server.
-
-1. Build the components package and install dependencies:
+2. **Build the components package and install dependencies:**
 
    ```bash
    pnpm install
    pnpm run build
    ```
 
-1. Navigate to the examples folder and install dependencies:
+3. **Navigate to `examples/scripts` and install bootstrap dependencies:**
 
    ```bash
-   cd examples/react-spa-npm
+   cd examples/scripts
    pnpm install
    ```
 
-### 3. Run the Development Server
+4. **Login to `auth0-cli` and execute the bootstrap script to setup your tenant:**
 
-```sh
-pnpm run dev
+   Below `cli` command opens up a login prompt in your browser to select relevant tenant and confirm permissions.
+
+   ```bash
+   auth0 login --scopes "read:connection_profiles,create:connection_profiles,update:connection_profiles,read:user_attribute_profiles,create:user_attribute_profiles,update:user_attribute_profiles,read:client_grants,create:client_grants,update:client_grants,delete:client_grants,read:connections,create:connections,update:connections,create:organization_connections,create:organization_members,create:organization_member_roles,read:clients,create:clients,update:clients,read:client_keys,read:roles,create:roles,update:roles,read:resource_servers,create:resource_servers,update:resource_servers,update:tenant_settings"
+   ```
+
+   For a private-cloud tenant, authenticate using client-id and secret. If required, create a Machine to Machine application on your tenant authorized for Management API with relevant scopes.
+
+   ```bash
+   auth0 login --domain <tenant-domain> --client-id <client-id> --client-secret <client-secret>
+   ```
+
+   After successful login, verify your selected tenant is Active.
+
+   ```bash
+   auth0 tenants list
+   ```
+
+   > [!WARNING]  
+   > The step below will modify your tenant configuration. Only execute this against a dev tenant.
+
+   Execute the bootstrap script with the domain of your tenant.
+
+   ```bash
+   pnpm run auth0:bootstrap <your tenant domain>
+   ```
+
+   This scripts configures your tenant. If required it will also ask you to create an org admin and set password that you can use to login to the demo.
+
+5. **Navigate to examples folder, install dependencies:**
+
+   ```bash
+   cd ../react-spa-npm
+   pnpm install
+   pnpm run dev
+   ```
+
+6. **Access the Application:**
+
+   Once the development server is running, you can access the application at:
+
+   **http://localhost:5173**
+
+   The application should now be running with Auth0 authentication integrated.
+
+## Adding a Universal Component to your app
+
+In this example, we have routes defined within the side-bar at `examples/react-spa-npm/src/App.tsx`.
+
+The domain-management route is served by `examples/react-spa-npm/src/views/domain-management-page.tsx` which currently renders an empty page.
+
+Edit this file to uncomment `<DomainTable />` and deleted the `<p>` entry and save. Final result should look like below.
+
+```typescript
+import { DomainTable } from '@auth0/universal-components-react/spa';
+
+const DomainManagementPage = () => {
+  return (
+    <div className="space-y-6">
+      </p>
+         <DomainTable />
+    </div>
+  );
+};
+
+export default DomainManagementPage;
 ```
 
-Run this command from the `examples/react-spa-npm` directory.
-
-### 4. Access the Application
-
-Once the development server is running, you can access the application at:
-
-**http://localhost:5173**
-
-The application should now be running with Auth0 authentication integrated.
+Navigate to `Domain Management` menu item to view the Domain Management Universal Component.
 
 ## Universal Component Docs (Component-Specific Requirements)
 
 For detailed configuration options, props, troubleshooting, and component-specific requirements, please refer to the official component documentation:
 
-**[Auth0 Universal Components Documentation](https://auth0-ui-components.vercel.app/getting-started)**
+**[Auth0 Universal Components Documentation](https://ui.auth0.com/getting-started)**
 
-**Important**: Each component may have specific Auth0 configuration requirements. Before using any component, please check the [Auth0 UI Components Documentation](https://auth0-ui-components.vercel.app/) for component-specific prerequisites and setup instructions.
+**Important**: Each component may have specific Auth0 configuration requirements. Before using any component, please check the [Auth0 UI Components Documentation](https://ui.auth0.com/) for component-specific prerequisites and setup instructions.
 
 ## Troubleshooting
 

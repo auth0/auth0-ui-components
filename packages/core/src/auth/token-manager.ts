@@ -62,14 +62,13 @@ const TokenUtils = {
   },
 
   /**
-   * Validates the parameters required for a token request.
+   * Validates that a domain is configured.
    *
-   * @param auth - The authentication details containing domain configuration
-   * @param scope - The OAuth scope being requested
-   * @throws {Error} When domain is not configured or scope is missing
+   * @param domain - The Auth0 domain to validate
+   * @throws {Error} When domain is not configured
    */
-  validateTokenRequest(auth: AuthDetails): void {
-    if (!auth.domain) {
+  validateDomain(domain: string | undefined): void {
+    if (!domain) {
       throw new Error('TokenUtils: Auth0 domain is not configured');
     }
   },
@@ -190,11 +189,11 @@ export function createTokenManager(auth: AuthDetails) {
       // Ensure core client "contextInterface" is initialized before getting a token
       TokenUtils.isCoreClientContextInterfaceInitialized(auth);
 
-      // Validate request
-      TokenUtils.validateTokenRequest(auth);
+      const domain = auth.domain ?? auth.contextInterface!.getConfiguration()?.domain;
+      TokenUtils.validateDomain(domain);
 
       // Build audience and request key
-      const audience = TokenUtils.buildAudience(auth.domain!, audiencePath);
+      const audience = TokenUtils.buildAudience(domain!, audiencePath);
       const requestKey = TokenUtils.createRequestKey(scope, audience);
 
       // If ignoreCache is true, clear any pending request for this key

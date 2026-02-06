@@ -24,10 +24,11 @@ import {
   FormLabel,
   FormMessage,
 } from '../../../../ui/form';
+import { Separator } from '../../../../ui/separator';
 import { TextField } from '../../../../ui/text-field';
+import { SsoProviderAttributeMappings } from '../sso-provider-attribute-mappings';
 
 import { ProvisioningManageToken } from './provisioning-manage-token';
-import { ProvisioningFieldMappings } from './provisioning-mappings';
 
 export function SsoProvisioningDetails({
   provider,
@@ -58,9 +59,9 @@ export function SsoProvisioningDetails({
   const { coreClient } = useCoreClient();
 
   const scimEndpointUrl = useMemo(() => {
-    const domain = coreClient?.auth?.domain || 'your domain';
+    const domain = coreClient?.getDomain() || 'your-domain';
     return `https://${domain}/scim/v2/connections/${provider.id}/`;
-  }, [coreClient?.auth?.domain]);
+  }, [coreClient, provider.id]);
 
   const form = useForm<ProvisioningDetailsFormValues>({
     resolver: zodResolver(ssoProvisioningSchema),
@@ -130,11 +131,13 @@ export function SsoProvisioningDetails({
           />
         </form>
       </Form>
-      <ProvisioningFieldMappings
-        provisioningStrategy={provisioningConfig?.strategy || null}
-        provisioningFieldMap={provisioningConfig?.fields ?? null}
+      <Separator />
+      <SsoProviderAttributeMappings
+        strategy={provisioningConfig?.strategy || null}
+        isProvisioning
+        userAttributeMap={provisioningConfig?.attributes || null}
         customMessages={customMessages.mappings}
-        className={currentStyles.classes?.['SsoProvisioningDetails-provisioningMapping']}
+        className={currentStyles.classes?.['SsoProvisioning-attributeMapping']}
       />
     </div>
   );

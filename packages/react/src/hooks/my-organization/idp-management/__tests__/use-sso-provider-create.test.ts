@@ -33,6 +33,9 @@ describe('useSsoProviderCreate', () => {
     if (key === 'notifications.provider_create_duplicated_provider_error') {
       return `Provider ${params?.providerName} already exists`;
     }
+    if (key === 'notifications.provider_create_discovery_failure') {
+      return `${params?.domain} not found. Check the domain and try again.`;
+    }
     if (key === 'notifications.general_error') {
       return 'An error occurred';
     }
@@ -145,6 +148,84 @@ describe('useSsoProviderCreate', () => {
         message: 'Provider duplicate-provider already exists',
       });
       expect(result.current.isCreating).toBe(false);
+    });
+  });
+
+  describe('discovery failure errors', () => {
+    const baseOktaProviderData: CreateIdentityProviderRequestContentPrivate = {
+      strategy: 'okta',
+      name: 'test-okta-provider',
+      display_name: 'Test Okta Provider',
+      domain: 'test.okta.com',
+      client_id: 'client123',
+      client_secret: 'secret123',
+    };
+
+    it('should handle discovery failure error with domain from error detail', async () => {
+      const error = {
+        body: {
+          status: 400,
+          detail: 'discovery failure: invalid-domain.okta.com',
+        },
+      };
+
+      mockCreate.mockRejectedValue(error);
+
+      const { result } = renderHook(() => useSsoProviderCreate());
+
+      await result.current.createProvider(baseOktaProviderData);
+
+      await waitFor(() => {
+        expect(showToast).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'invalid-domain.okta.com not found. Check the domain and try again.',
+        });
+        expect(result.current.isCreating).toBe(false);
+      });
+    });
+
+    it('should handle discovery failure error with uppercase detail', async () => {
+      const error = {
+        body: {
+          status: 400,
+          detail: 'Discovery Failure: test.okta.com',
+        },
+      };
+
+      mockCreate.mockRejectedValue(error);
+
+      const { result } = renderHook(() => useSsoProviderCreate());
+
+      await result.current.createProvider(baseOktaProviderData);
+
+      await waitFor(() => {
+        expect(showToast).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'test.okta.com not found. Check the domain and try again.',
+        });
+      });
+    });
+
+    it('should fall back to general error when detail does not contain discovery failure', async () => {
+      const error = {
+        body: {
+          status: 400,
+          detail: 'Some other error message',
+        },
+      };
+
+      mockCreate.mockRejectedValue(error);
+
+      const { result } = renderHook(() => useSsoProviderCreate());
+
+      await result.current.createProvider(baseOktaProviderData);
+
+      await waitFor(() => {
+        expect(showToast).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'An error occurred',
+        });
+      });
     });
   });
 

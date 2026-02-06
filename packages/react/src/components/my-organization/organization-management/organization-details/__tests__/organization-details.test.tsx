@@ -163,7 +163,8 @@ describe('OrganizationDetails', () => {
   describe('formActions', () => {
     describe('formActions.isLoading', () => {
       describe('when isLoading is true', () => {
-        it('should disable save and cancel buttons', () => {
+        it('should disable save and cancel buttons', async () => {
+          const user = userEvent.setup();
           const mockFormActions = createMockFormActions({ isLoading: true });
 
           renderWithProviders(
@@ -172,11 +173,12 @@ describe('OrganizationDetails', () => {
             />,
           );
 
-          const buttons = screen.getAllByRole('button');
-          const saveButton = buttons.find((btn) => btn.classList.contains('FormActions-next'));
-          const cancelButton = buttons.find((btn) =>
-            btn.classList.contains('FormActions-previous'),
-          );
+          const displayNameInput = screen.getByLabelText(/display_name\.label/i);
+          await user.clear(displayNameInput);
+          await user.type(displayNameInput, 'Modified Corporation');
+
+          const saveButton = document.querySelector('button[type="submit"]') as HTMLButtonElement;
+          const cancelButton = screen.getByRole('button', { name: /cancel_button_label/i });
 
           expect(saveButton).toBeDisabled();
           expect(cancelButton).toBeDisabled();
@@ -333,7 +335,8 @@ describe('OrganizationDetails', () => {
     describe('formActions.previousAction', () => {
       describe('formActions.previousAction.disabled', () => {
         describe('when disabled is true', () => {
-          it('should disable cancel button', () => {
+          it('should disable cancel button', async () => {
+            const user = userEvent.setup();
             const mockFormActions = createMockFormActions({
               previousAction: { disabled: true, onClick: vi.fn() },
             });
@@ -344,13 +347,18 @@ describe('OrganizationDetails', () => {
               />,
             );
 
+            const displayNameInput = screen.getByLabelText(/display_name\.label/i);
+            await user.clear(displayNameInput);
+            await user.type(displayNameInput, 'Modified Corporation');
+
             const cancelButton = screen.getByRole('button', { name: /cancel_button_label/i });
             expect(cancelButton).toBeDisabled();
           });
         });
 
         describe('when disabled is false', () => {
-          it('should enable cancel button', () => {
+          it('should enable cancel button', async () => {
+            const user = userEvent.setup();
             const mockFormActions = createMockFormActions({
               previousAction: { disabled: false, onClick: vi.fn() },
             });
@@ -360,6 +368,10 @@ describe('OrganizationDetails', () => {
                 {...createMockOrganizationDetailsProps({ formActions: mockFormActions })}
               />,
             );
+
+            const displayNameInput = screen.getByLabelText(/display_name\.label/i);
+            await user.clear(displayNameInput);
+            await user.type(displayNameInput, 'Modified Corporation');
 
             const cancelButton = screen.getByRole('button', { name: /cancel_button_label/i });
             expect(cancelButton).not.toBeDisabled();
@@ -379,6 +391,10 @@ describe('OrganizationDetails', () => {
                 {...createMockOrganizationDetailsProps({ formActions: mockFormActions })}
               />,
             );
+
+            const displayNameInput = screen.getByLabelText(/display_name\.label/i);
+            await user.clear(displayNameInput);
+            await user.type(displayNameInput, 'Modified Corporation');
 
             const cancelButton = screen.getByRole('button', { name: /cancel_button_label/i });
             await user.click(cancelButton);
