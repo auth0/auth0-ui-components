@@ -4,6 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import type { BasicAuth0ContextInterface } from '@auth0/universal-components-core';
 import * as React from 'react';
 
+import { QueryProvider } from './query-provider';
 import { ScopeManagerProvider } from './scope-manager-provider';
 import { ThemeProvider } from './theme-provider';
 
@@ -27,6 +28,7 @@ export const Auth0ComponentProvider = ({
     },
   },
   toastSettings,
+  cacheConfig,
   loader,
   children,
 }: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
@@ -95,7 +97,9 @@ export const Auth0ComponentProvider = ({
         }
       >
         <CoreClientContext.Provider value={coreClientValue}>
-          <ScopeManagerProvider>{children}</ScopeManagerProvider>
+          <QueryProvider cacheConfig={cacheConfig}>
+            <ScopeManagerProvider>{children}</ScopeManagerProvider>
+          </QueryProvider>
         </CoreClientContext.Provider>
       </React.Suspense>
     </ThemeProvider>
