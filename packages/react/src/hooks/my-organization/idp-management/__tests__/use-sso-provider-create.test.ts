@@ -171,9 +171,9 @@ describe('useSsoProviderCreate', () => {
 
       mockCreate.mockRejectedValue(error);
 
-      const { result } = renderHook(() => useSsoProviderCreate());
+      const { result } = renderUseSsoProviderCreate();
 
-      await result.current.createProvider(baseOktaProviderData);
+      await expect(result.current.createProvider(baseOktaProviderData)).rejects.toBeDefined();
 
       await waitFor(() => {
         expect(showToast).toHaveBeenCalledWith({
@@ -194,9 +194,9 @@ describe('useSsoProviderCreate', () => {
 
       mockCreate.mockRejectedValue(error);
 
-      const { result } = renderHook(() => useSsoProviderCreate());
+      const { result } = renderUseSsoProviderCreate();
 
-      await result.current.createProvider(baseOktaProviderData);
+      await expect(result.current.createProvider(baseOktaProviderData)).rejects.toBeDefined();
 
       await waitFor(() => {
         expect(showToast).toHaveBeenCalledWith({
@@ -216,9 +216,9 @@ describe('useSsoProviderCreate', () => {
 
       mockCreate.mockRejectedValue(error);
 
-      const { result } = renderHook(() => useSsoProviderCreate());
+      const { result } = renderUseSsoProviderCreate();
 
-      await result.current.createProvider(baseOktaProviderData);
+      await expect(result.current.createProvider(baseOktaProviderData)).rejects.toBeDefined();
 
       await waitFor(() => {
         expect(showToast).toHaveBeenCalledWith({

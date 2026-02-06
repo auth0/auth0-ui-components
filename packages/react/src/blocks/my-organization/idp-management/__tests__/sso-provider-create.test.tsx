@@ -84,15 +84,7 @@ const createMockIdpConfig = () => ({
     can_set_show_as_button: true,
     can_set_assign_membership_on_login: true,
   },
-  strategies: {
-    adfs: { enabled_features: [], provisioning_methods: [] },
-    'google-apps': { enabled_features: [], provisioning_methods: [] },
-    oidc: { enabled_features: [], provisioning_methods: [] },
-    okta: { enabled_features: [], provisioning_methods: [] },
-    pingfederate: { enabled_features: [], provisioning_methods: [] },
-    samlp: { enabled_features: [], provisioning_methods: [] },
-    waad: { enabled_features: [], provisioning_methods: [] },
-  },
+  strategies: AVAILABLE_STRATEGY_LIST,
 });
 
 // ===== Tests =====
