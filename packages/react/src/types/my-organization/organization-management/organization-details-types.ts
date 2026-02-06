@@ -7,7 +7,7 @@ import type {
 } from '@auth0/universal-components-core';
 import type { UseFormReturn } from 'react-hook-form';
 
-import type { FormActionsProps } from '../../../components/ui/form-actions';
+import type { FormActionsProps } from '@/components/auth0/shared/form-actions';
 
 /* ============ Components ============ */
 

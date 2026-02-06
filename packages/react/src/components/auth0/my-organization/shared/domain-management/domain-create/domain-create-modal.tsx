@@ -1,0 +1,127 @@
+import {
+  createDomainCreateSchema,
+  type InternalDomainCreateFormValues,
+} from '@auth0/universal-components-core';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as React from 'react';
+import { useForm } from 'react-hook-form';
+
+import { Modal } from '@/components/auth0/shared/modal';
+import { TextField } from '@/components/auth0/shared/text-field';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+  FormLabel,
+} from '@/components/ui/form';
+import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
+import type { DomainCreateModalProps } from '@/types/my-organization/domain-management/domain-create-types';
+
+export function DomainCreateModal({
+  translatorKey = 'domain_management.domain_create.modal',
+  className,
+  customMessages,
+  isOpen,
+  isLoading,
+  schema,
+  onClose,
+  onCreate,
+}: DomainCreateModalProps) {
+  const { t } = useTranslator(translatorKey, customMessages);
+
+  const domainCreateSchema = React.useMemo(
+    () => createDomainCreateSchema(schema, t('field.error')),
+    [schema, t],
+  );
+
+  const form = useForm<InternalDomainCreateFormValues>({
+    resolver: zodResolver(domainCreateSchema),
+    defaultValues: {
+      domain_url: '',
+    },
+    mode: 'onBlur',
+  });
+
+  const handleCreate = React.useCallback(
+    async (values: InternalDomainCreateFormValues) => {
+      if (!values.domain_url) return;
+      await onCreate(values.domain_url);
+      form.reset();
+    },
+    [form, onCreate],
+  );
+
+  const handleClose = React.useCallback(() => {
+    form.reset();
+    onClose();
+  }, [form, onClose]);
+
+  const onSubmit = React.useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      form.handleSubmit(handleCreate)();
+    },
+    [form, handleCreate],
+  );
+
+  return (
+    <Modal
+      open={isOpen}
+      onOpenChange={(open) => !open && handleClose()}
+      className={cn('p-10', className)}
+      title={t('title')}
+      content={
+        <div>
+          <Form {...form}>
+            <form id="domain-create-form" onSubmit={onSubmit}>
+              <FormField
+                control={form.control}
+                name="domain_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel
+                      htmlFor="domain-url"
+                      className="text-sm text-(length:--font-size-label) font-medium"
+                    >
+                      {t('field.label')}
+                    </FormLabel>
+                    <FormControl>
+                      <TextField
+                        id="domain-url"
+                        type="text"
+                        placeholder={t('field.placeholder')}
+                        className="mt-2"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+        </div>
+      }
+      modalActions={{
+        isLoading,
+        nextAction: {
+          type: 'button',
+          label: t('actions.create_button_text'),
+          variant: 'primary',
+          disabled: isLoading,
+          onClick: (e) => {
+            e.preventDefault();
+            form.handleSubmit(handleCreate)();
+          },
+        },
+        previousAction: {
+          label: t('actions.cancel_button_text'),
+          onClick: handleClose,
+        },
+      }}
+    />
+  );
+}

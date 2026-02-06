@@ -18,8 +18,8 @@ import { createCoreClient } from '../core-client';
 import { createTokenManager } from '../token-manager';
 
 // Mock the modules
-vi.mock('../../i18n');
-vi.mock('../token-manager');
+vi.mock('@core/i18n');
+vi.mock('@core/auth/token-manager');
 vi.mock('@core/services/my-organization/my-organization-api-service');
 vi.mock('@core/services/my-account/my-account-api-service');
 

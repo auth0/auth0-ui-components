@@ -4,18 +4,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { Auth0ComponentProvider } from '../proxy-provider';
 
-vi.mock('../../hooks/use-core-client-initialization', () => ({
+vi.mock('@/hooks/shared/use-core-client-initialization', () => ({
   useCoreClientInitialization: vi.fn(() => ({
     isInitialized: true,
     error: undefined,
   })),
 }));
 
-vi.mock('../../components/ui/sonner', () => ({
+vi.mock('@/components/auth0/shared/sonner', () => ({
   Toaster: () => <div data-testid="toaster" />,
 }));
 
-vi.mock('../../components/ui/spinner', () => ({
+vi.mock('@/components/auth0/shared/spinner', () => ({
   Spinner: () => <div data-testid="spinner" />,
 }));
 
