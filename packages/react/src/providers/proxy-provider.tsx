@@ -9,6 +9,7 @@ import { useCoreClientInitialization } from '../hooks/use-core-client-initializa
 import { useToastProvider } from '../hooks/use-toast-provider';
 import type { Auth0ComponentProviderProps } from '../types/auth-types';
 
+import { QueryProvider } from './query-provider';
 import { ScopeManagerProvider } from './scope-manager-provider';
 import { ThemeProvider } from './theme-provider';
 
@@ -41,6 +42,7 @@ export const Auth0ComponentProvider = ({
     },
   },
   toastSettings,
+  cacheConfig,
   loader,
   children,
 }: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
@@ -91,7 +93,9 @@ export const Auth0ComponentProvider = ({
         }
       >
         <CoreClientContext.Provider value={coreClientValue}>
-          <ScopeManagerProvider>{children}</ScopeManagerProvider>
+          <QueryProvider cacheConfig={cacheConfig}>
+            <ScopeManagerProvider>{children}</ScopeManagerProvider>
+          </QueryProvider>
         </CoreClientContext.Provider>
       </React.Suspense>
     </ThemeProvider>
