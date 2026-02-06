@@ -7,7 +7,7 @@ import type {
 } from '../../../types/my-organization/config/config-idp-types';
 import { useCoreClient } from '../../use-core-client';
 
-const idpConfigQueryKeys = {
+export const idpConfigQueryKeys = {
   all: ['idp-config'] as const,
   config: () => [...idpConfigQueryKeys.all, 'config'] as const,
 };

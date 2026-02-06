@@ -112,7 +112,7 @@ export const Header = React.forwardRef<
   const renderAction = (action: ActionProps, index: number) => {
     const key = `action-${index}`;
     if (isLoading) {
-      return <Spinner className="w-4 h-4" />;
+      return <Spinner key={`spinner-${key}`} className="w-4 h-4" />;
     }
     if (action.hidden) {
       return null;

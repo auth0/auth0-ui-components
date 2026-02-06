@@ -7,6 +7,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 
 import { showToast } from '../../../../components/ui/toast';
+import { createTestQueryClientWrapper } from '../../../../internals/test-provider';
 import { useCoreClient } from '../../../use-core-client';
 import { useTranslator } from '../../../use-translator';
 import { useSsoProviderEdit } from '../use-sso-provider-edit';
@@ -98,6 +99,11 @@ describe('useSsoProviderEdit', () => {
     },
   };
 
+  const renderUseSsoProviderEdit = (...args: Parameters<typeof useSsoProviderEdit>) => {
+    const { wrapper } = createTestQueryClientWrapper();
+    return renderHook(() => useSsoProviderEdit(...args), { wrapper });
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     (useCoreClient as Mock).mockReturnValue({ coreClient: mockCoreClient });
@@ -107,7 +113,7 @@ describe('useSsoProviderEdit', () => {
   });
 
   it('should initialize with correct default states', () => {
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     expect(result.current.provider).toBe(null);
     expect(result.current.isLoading).toBe(true);
@@ -116,7 +122,7 @@ describe('useSsoProviderEdit', () => {
     expect(result.current.isRemoving).toBe(false);
     expect(result.current.isProvisioningUpdating).toBe(false);
     expect(result.current.isProvisioningDeleting).toBe(false);
-    expect(result.current.isProvisioningLoading).toBe(false);
+    expect(result.current.isProvisioningLoading).toBe(true);
     expect(result.current.isScimTokensLoading).toBe(false);
     expect(result.current.isScimTokenCreating).toBe(false);
     expect(result.current.isScimTokenDeleting).toBe(false);
@@ -127,7 +133,7 @@ describe('useSsoProviderEdit', () => {
   });
 
   it('should fetch provider on mount', async () => {
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     await waitFor(() => {
       expect(mockGet).toHaveBeenCalledWith(mockIdpId);
@@ -136,8 +142,10 @@ describe('useSsoProviderEdit', () => {
     });
   });
 
-  it('should fetch organization details on mount', async () => {
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+  it('should fetch organization details when requested', async () => {
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await result.current.fetchOrganizationDetails();
 
     await waitFor(() => {
       expect(mockGetOrgDetails).toHaveBeenCalled();
@@ -148,7 +156,7 @@ describe('useSsoProviderEdit', () => {
   it('should delete provider successfully', async () => {
     mockDelete.mockResolvedValue(undefined);
 
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     await waitFor(() => {
       expect(result.current.provider).toEqual(mockProvider);
@@ -169,7 +177,7 @@ describe('useSsoProviderEdit', () => {
   it('should set isDeleting to true during deletion', async () => {
     mockDelete.mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     await waitFor(() => {
       expect(result.current.provider).toEqual(mockProvider);
@@ -187,7 +195,7 @@ describe('useSsoProviderEdit', () => {
   it('should remove provider from organization successfully', async () => {
     mockDetach.mockResolvedValue(undefined);
 
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     await waitFor(() => {
       expect(result.current.provider).toEqual(mockProvider);
@@ -210,7 +218,7 @@ describe('useSsoProviderEdit', () => {
       enabled: true,
     });
 
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     await waitFor(() => {
       expect(result.current.provider).toEqual(mockProvider);
@@ -235,7 +243,7 @@ describe('useSsoProviderEdit', () => {
       body: { status: 404 },
     });
 
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     await waitFor(() => {
       expect(result.current.provider).toEqual(mockProvider);
@@ -256,7 +264,7 @@ describe('useSsoProviderEdit', () => {
     });
     mockGet.mockResolvedValue(mockProvider);
 
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     await waitFor(() => {
       expect(result.current.provider).toEqual(mockProvider);
@@ -277,13 +285,11 @@ describe('useSsoProviderEdit', () => {
   it('should call onBefore callback for provisioning create and abort when it returns false', async () => {
     const onBefore = vi.fn().mockReturnValue(false);
 
-    const { result } = renderHook(() =>
-      useSsoProviderEdit(mockIdpId, {
-        provisioning: {
-          createAction: { onBefore },
-        },
-      }),
-    );
+    const { result } = renderUseSsoProviderEdit(mockIdpId, {
+      provisioning: {
+        createAction: { onBefore },
+      },
+    });
 
     await waitFor(() => {
       expect(result.current.provider).toEqual(mockProvider);
@@ -299,7 +305,7 @@ describe('useSsoProviderEdit', () => {
     mockProvisioningDelete.mockResolvedValue(undefined);
     mockGet.mockResolvedValue(mockProvider);
 
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     await waitFor(() => {
       expect(result.current.provider).toEqual(mockProvider);
@@ -318,7 +324,7 @@ describe('useSsoProviderEdit', () => {
     const mockTokens = [{ id: 'token_1', name: 'Token 1' }];
     mockScimTokensList.mockResolvedValue(mockTokens);
 
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     await waitFor(() => {
       expect(result.current.provider).toEqual(mockProvider);
@@ -339,7 +345,7 @@ describe('useSsoProviderEdit', () => {
     const mockNewToken = { id: 'token_123', name: 'New Token', token: 'secret_token' };
     mockScimTokensCreate.mockResolvedValue(mockNewToken);
 
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     await waitFor(() => {
       expect(result.current.provider).toEqual(mockProvider);
@@ -363,13 +369,11 @@ describe('useSsoProviderEdit', () => {
 
     const onBefore = vi.fn().mockReturnValue(false);
 
-    const { result } = renderHook(() =>
-      useSsoProviderEdit(mockIdpId, {
-        provisioning: {
-          createScimTokenAction: { onBefore },
-        },
-      }),
-    );
+    const { result } = renderUseSsoProviderEdit(mockIdpId, {
+      provisioning: {
+        createScimTokenAction: { onBefore },
+      },
+    });
 
     await waitFor(() => {
       expect(result.current.provider).toEqual(mockProvider);
@@ -385,7 +389,7 @@ describe('useSsoProviderEdit', () => {
     const tokenId = 'token_123';
     mockScimTokensDelete.mockResolvedValue(undefined);
 
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     await waitFor(() => {
       expect(result.current.provider).toEqual(mockProvider);
@@ -406,7 +410,7 @@ describe('useSsoProviderEdit', () => {
   it('should return early if coreClient is not available', async () => {
     (useCoreClient as Mock).mockReturnValue({ coreClient: null });
 
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     const provider = await result.current.fetchProvider();
 
@@ -415,7 +419,7 @@ describe('useSsoProviderEdit', () => {
   });
 
   it('should return early if idpId is not provided', async () => {
-    const { result } = renderHook(() => useSsoProviderEdit(''));
+    const { result } = renderUseSsoProviderEdit('');
 
     const provider = await result.current.fetchProvider();
 
@@ -426,7 +430,7 @@ describe('useSsoProviderEdit', () => {
   it('should handle fetch provider error', async () => {
     mockGet.mockRejectedValue(new Error('Fetch failed'));
 
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     await waitFor(() => {
       expect(showToast).toHaveBeenCalledWith({
@@ -442,7 +446,7 @@ describe('useSsoProviderEdit', () => {
       update_success: 'Custom update message',
     };
 
-    renderHook(() => useSsoProviderEdit(mockIdpId, { customMessages }));
+    renderUseSsoProviderEdit(mockIdpId, { customMessages });
 
     await waitFor(() => {
       expect(useTranslator).toHaveBeenCalledWith('idp_management.notifications', customMessages);
@@ -463,7 +467,7 @@ describe('useSsoProviderEdit', () => {
 
     mockUpdate.mockResolvedValue(updatedProvider);
 
-    const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     await waitFor(() => {
       expect(result.current.provider).toEqual(mockProvider);
@@ -513,10 +517,15 @@ describe('useSsoProviderEdit', () => {
       });
     });
 
+    const renderUseSsoProviderEdit = (...args: Parameters<typeof useSsoProviderEdit>) => {
+      const { wrapper } = createTestQueryClientWrapper();
+      return renderHook(() => useSsoProviderEdit(...args), { wrapper });
+    };
+
     it('should sync SSO attributes successfully', async () => {
       mockUpdateAttributes.mockResolvedValue(undefined);
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -537,7 +546,7 @@ describe('useSsoProviderEdit', () => {
     it('should handle error when syncing SSO attributes', async () => {
       mockUpdateAttributes.mockRejectedValue(new Error('Sync failed'));
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -556,7 +565,7 @@ describe('useSsoProviderEdit', () => {
     it('should return early if coreClient is not available', async () => {
       (useCoreClient as Mock).mockReturnValue({ coreClient: null });
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await result.current.syncSsoAttributes();
 
@@ -599,7 +608,7 @@ describe('useSsoProviderEdit', () => {
       mockProvisioningUpdateAttributes.mockResolvedValue(undefined);
       mockProvisioningGet.mockResolvedValue({ enabled: true });
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -620,7 +629,7 @@ describe('useSsoProviderEdit', () => {
     it('should handle error when syncing provisioning attributes', async () => {
       mockProvisioningUpdateAttributes.mockRejectedValue(new Error('Sync failed'));
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -639,7 +648,7 @@ describe('useSsoProviderEdit', () => {
     it('should return early if coreClient is not available', async () => {
       (useCoreClient as Mock).mockReturnValue({ coreClient: null });
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await result.current.syncProvisioningAttributes();
 
@@ -647,7 +656,7 @@ describe('useSsoProviderEdit', () => {
     });
 
     it('should return early if idpId is not provided', async () => {
-      const { result } = renderHook(() => useSsoProviderEdit(''));
+      const { result } = renderUseSsoProviderEdit('');
 
       await result.current.syncProvisioningAttributes();
 
@@ -663,7 +672,7 @@ describe('useSsoProviderEdit', () => {
       };
       mockGet.mockResolvedValue(providerWithExtraAttr);
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.hasSsoAttributeSyncWarning).toBe(true);
@@ -677,7 +686,7 @@ describe('useSsoProviderEdit', () => {
       };
       mockGet.mockResolvedValue(providerWithMissingAttr);
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.hasSsoAttributeSyncWarning).toBe(true);
@@ -691,7 +700,7 @@ describe('useSsoProviderEdit', () => {
       };
       mockGet.mockResolvedValue(providerWithNoIssues);
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.hasSsoAttributeSyncWarning).toBe(false);
@@ -701,7 +710,7 @@ describe('useSsoProviderEdit', () => {
     it('should return false when provider has no attributes property', async () => {
       mockGet.mockResolvedValue(mockProvider);
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.hasSsoAttributeSyncWarning).toBe(false);
@@ -711,7 +720,7 @@ describe('useSsoProviderEdit', () => {
     it('should return false when provider is null', async () => {
       mockGet.mockResolvedValue(null);
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.hasSsoAttributeSyncWarning).toBe(false);
@@ -726,7 +735,7 @@ describe('useSsoProviderEdit', () => {
         attributes: [{ is_extra: true, is_missing: false }],
       });
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -745,7 +754,7 @@ describe('useSsoProviderEdit', () => {
         attributes: [{ is_extra: false, is_missing: true }],
       });
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -764,7 +773,7 @@ describe('useSsoProviderEdit', () => {
         attributes: [{ is_extra: false, is_missing: false }],
       });
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -780,7 +789,7 @@ describe('useSsoProviderEdit', () => {
     it('should return false when provisioning config is null', async () => {
       mockProvisioningGet.mockRejectedValue({ body: { status: 404 } });
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -798,15 +807,13 @@ describe('useSsoProviderEdit', () => {
     it('should call onBefore callback for update and abort when it returns false', async () => {
       const onBefore = vi.fn().mockReturnValue(false);
 
-      const { result } = renderHook(() =>
-        useSsoProviderEdit(mockIdpId, {
-          sso: {
-            updateAction: { onBefore },
-            deleteAction: {},
-            deleteFromOrganizationAction: {},
-          },
-        }),
-      );
+      const { result } = renderUseSsoProviderEdit(mockIdpId, {
+        sso: {
+          updateAction: { onBefore },
+          deleteAction: {},
+          deleteFromOrganizationAction: {},
+        },
+      });
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -821,13 +828,11 @@ describe('useSsoProviderEdit', () => {
     it('should call onBefore callback for provisioning delete and abort when it returns false', async () => {
       const onBefore = vi.fn().mockReturnValue(false);
 
-      const { result } = renderHook(() =>
-        useSsoProviderEdit(mockIdpId, {
-          provisioning: {
-            deleteAction: { onBefore },
-          },
-        }),
-      );
+      const { result } = renderUseSsoProviderEdit(mockIdpId, {
+        provisioning: {
+          deleteAction: { onBefore },
+        },
+      });
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -842,13 +847,11 @@ describe('useSsoProviderEdit', () => {
     it('should call onBefore callback for SCIM token delete and abort when it returns false', async () => {
       const onBefore = vi.fn().mockReturnValue(false);
 
-      const { result } = renderHook(() =>
-        useSsoProviderEdit(mockIdpId, {
-          provisioning: {
-            deleteScimTokenAction: { onBefore },
-          },
-        }),
-      );
+      const { result } = renderUseSsoProviderEdit(mockIdpId, {
+        provisioning: {
+          deleteScimTokenAction: { onBefore },
+        },
+      });
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -863,14 +866,12 @@ describe('useSsoProviderEdit', () => {
     it('should call onBefore callback for remove from org and abort when it returns false', async () => {
       const onBefore = vi.fn().mockReturnValue(false);
 
-      const { result } = renderHook(() =>
-        useSsoProviderEdit(mockIdpId, {
-          sso: {
-            deleteAction: {},
-            deleteFromOrganizationAction: { onBefore },
-          },
-        }),
-      );
+      const { result } = renderUseSsoProviderEdit(mockIdpId, {
+        sso: {
+          deleteAction: {},
+          deleteFromOrganizationAction: { onBefore },
+        },
+      });
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -889,15 +890,13 @@ describe('useSsoProviderEdit', () => {
       mockUpdate.mockResolvedValue(updatedProvider);
       const onAfter = vi.fn();
 
-      const { result } = renderHook(() =>
-        useSsoProviderEdit(mockIdpId, {
-          sso: {
-            updateAction: { onAfter },
-            deleteAction: {},
-            deleteFromOrganizationAction: {},
-          },
-        }),
-      );
+      const { result } = renderUseSsoProviderEdit(mockIdpId, {
+        sso: {
+          updateAction: { onAfter },
+          deleteAction: {},
+          deleteFromOrganizationAction: {},
+        },
+      });
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -915,13 +914,11 @@ describe('useSsoProviderEdit', () => {
       mockProvisioningCreate.mockResolvedValue(provisioningResult);
       const onAfter = vi.fn();
 
-      const { result } = renderHook(() =>
-        useSsoProviderEdit(mockIdpId, {
-          provisioning: {
-            createAction: { onAfter },
-          },
-        }),
-      );
+      const { result } = renderUseSsoProviderEdit(mockIdpId, {
+        provisioning: {
+          createAction: { onAfter },
+        },
+      });
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -938,13 +935,11 @@ describe('useSsoProviderEdit', () => {
       mockProvisioningDelete.mockResolvedValue(undefined);
       const onAfter = vi.fn();
 
-      const { result } = renderHook(() =>
-        useSsoProviderEdit(mockIdpId, {
-          provisioning: {
-            deleteAction: { onAfter },
-          },
-        }),
-      );
+      const { result } = renderUseSsoProviderEdit(mockIdpId, {
+        provisioning: {
+          deleteAction: { onAfter },
+        },
+      });
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -962,13 +957,11 @@ describe('useSsoProviderEdit', () => {
       mockScimTokensCreate.mockResolvedValue(newToken);
       const onAfter = vi.fn();
 
-      const { result } = renderHook(() =>
-        useSsoProviderEdit(mockIdpId, {
-          provisioning: {
-            createScimTokenAction: { onAfter },
-          },
-        }),
-      );
+      const { result } = renderUseSsoProviderEdit(mockIdpId, {
+        provisioning: {
+          createScimTokenAction: { onAfter },
+        },
+      });
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -985,13 +978,11 @@ describe('useSsoProviderEdit', () => {
       mockScimTokensDelete.mockResolvedValue(undefined);
       const onAfter = vi.fn();
 
-      const { result } = renderHook(() =>
-        useSsoProviderEdit(mockIdpId, {
-          provisioning: {
-            deleteScimTokenAction: { onAfter },
-          },
-        }),
-      );
+      const { result } = renderUseSsoProviderEdit(mockIdpId, {
+        provisioning: {
+          deleteScimTokenAction: { onAfter },
+        },
+      });
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -1009,7 +1000,7 @@ describe('useSsoProviderEdit', () => {
     it('should handle update provider error', async () => {
       mockUpdate.mockRejectedValue(new Error('Update failed'));
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -1031,7 +1022,7 @@ describe('useSsoProviderEdit', () => {
     it('should handle create provisioning error', async () => {
       mockProvisioningCreate.mockRejectedValue(new Error('Create failed'));
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -1050,7 +1041,7 @@ describe('useSsoProviderEdit', () => {
     it('should handle delete provisioning error', async () => {
       mockProvisioningDelete.mockRejectedValue(new Error('Delete failed'));
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -1069,7 +1060,7 @@ describe('useSsoProviderEdit', () => {
     it('should handle list SCIM tokens error', async () => {
       mockScimTokensList.mockRejectedValue(new Error('List failed'));
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -1078,16 +1069,19 @@ describe('useSsoProviderEdit', () => {
       const tokens = await result.current.listScimTokens();
 
       expect(tokens).toBe(null);
-      expect(showToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'An error occurred',
+
+      await waitFor(() => {
+        expect(showToast).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'An error occurred',
+        });
       });
     });
 
     it('should handle create SCIM token error', async () => {
       mockScimTokensCreate.mockRejectedValue(new Error('Create failed'));
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -1106,7 +1100,7 @@ describe('useSsoProviderEdit', () => {
     it('should handle delete SCIM token error', async () => {
       mockScimTokensDelete.mockRejectedValue(new Error('Delete failed'));
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -1125,7 +1119,7 @@ describe('useSsoProviderEdit', () => {
     it('should handle delete provider error', async () => {
       mockDelete.mockRejectedValue(new Error('Delete failed'));
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -1144,7 +1138,7 @@ describe('useSsoProviderEdit', () => {
     it('should handle remove from organization error', async () => {
       mockDetach.mockRejectedValue(new Error('Remove failed'));
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
@@ -1163,7 +1157,9 @@ describe('useSsoProviderEdit', () => {
     it('should handle fetch organization details error', async () => {
       mockGetOrgDetails.mockRejectedValue(new Error('Fetch failed'));
 
-      renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await result.current.fetchOrganizationDetails();
 
       await waitFor(() => {
         expect(showToast).toHaveBeenCalledWith({
@@ -1178,14 +1174,13 @@ describe('useSsoProviderEdit', () => {
         body: { status: 500 },
       });
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => {
         expect(result.current.provider).toEqual(mockProvider);
       });
 
       await result.current.fetchProvisioning();
-
       await waitFor(() => {
         expect(showToast).toHaveBeenCalledWith({
           type: 'error',
@@ -1199,7 +1194,7 @@ describe('useSsoProviderEdit', () => {
     it('should return early from updateProvider if provider is null', async () => {
       mockGet.mockResolvedValue(null);
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await result.current.updateProvider({ display_name: 'Test', strategy: 'samlp' });
 
@@ -1209,7 +1204,7 @@ describe('useSsoProviderEdit', () => {
     it('should return early from createProvisioning if provider is null', async () => {
       mockGet.mockResolvedValue(null);
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await result.current.createProvisioning();
 
@@ -1219,7 +1214,7 @@ describe('useSsoProviderEdit', () => {
     it('should return early from deleteProvisioning if provider is null', async () => {
       mockGet.mockResolvedValue(null);
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await result.current.deleteProvisioning();
 
@@ -1229,7 +1224,7 @@ describe('useSsoProviderEdit', () => {
     it('should return early from listScimTokens if coreClient is null', async () => {
       (useCoreClient as Mock).mockReturnValue({ coreClient: null });
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       const tokens = await result.current.listScimTokens();
 
@@ -1240,7 +1235,7 @@ describe('useSsoProviderEdit', () => {
     it('should return early from createScimToken if coreClient is null', async () => {
       (useCoreClient as Mock).mockReturnValue({ coreClient: null });
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await result.current.createScimToken({});
 
@@ -1250,7 +1245,7 @@ describe('useSsoProviderEdit', () => {
     it('should return early from deleteScimToken if coreClient is null', async () => {
       (useCoreClient as Mock).mockReturnValue({ coreClient: null });
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await result.current.deleteScimToken('token_123');
 
@@ -1260,7 +1255,7 @@ describe('useSsoProviderEdit', () => {
     it('should return early from onDeleteConfirm if provider is null', async () => {
       mockGet.mockResolvedValue(null);
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await result.current.onDeleteConfirm();
 
@@ -1270,7 +1265,7 @@ describe('useSsoProviderEdit', () => {
     it('should return early from onRemoveConfirm if provider is null', async () => {
       mockGet.mockResolvedValue(null);
 
-      const { result } = renderHook(() => useSsoProviderEdit(mockIdpId));
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await result.current.onRemoveConfirm();
 

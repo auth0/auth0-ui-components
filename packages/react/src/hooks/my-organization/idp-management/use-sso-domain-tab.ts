@@ -1,6 +1,7 @@
 import type { CreateOrganizationDomainRequestContent } from '@auth0/universal-components-core';
 import { BusinessError, type Domain, type IdpId } from '@auth0/universal-components-core';
-import { useCallback, useState, useEffect } from 'react';
+import { useQuery, useQueryClient, useMutation, useQueries } from '@tanstack/react-query';
+import { useCallback, useState, useMemo, useEffect } from 'react';
 
 import { showToast } from '../../../components/ui/toast';
 import { useErrorHandler } from '../../../hooks/use-error-handler';
@@ -11,6 +12,15 @@ import type {
 import { useCoreClient } from '../../use-core-client';
 import { useTranslator } from '../../use-translator';
 
+const domainQueryKeys = {
+  all: ['sso-domains'] as const,
+  lists: () => [...domainQueryKeys.all, 'list'] as const,
+  list: (idpId: IdpId) => [...domainQueryKeys.lists(), idpId] as const,
+  idpAssociations: () => [...domainQueryKeys.all, 'idp-associations'] as const,
+  idpAssociation: (domainId: string, idpId: IdpId) =>
+    [...domainQueryKeys.idpAssociations(), domainId, idpId] as const,
+};
+
 export function useSsoDomainTab(
   idpId: IdpId,
   { customMessages = {}, domains, provider }: Partial<UseSsoDomainTabOptions> = {},
@@ -18,91 +28,70 @@ export function useSsoDomainTab(
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const { handleError } = useErrorHandler();
+  const queryClient = useQueryClient();
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [domainsList, setDomainsList] = useState<Domain[]>([]);
-  const [idpDomains, setIdpDomains] = useState<string[]>([]);
-  const [isCreating, setIsCreating] = useState(false);
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState<string | undefined>(undefined);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isUpdatingId, setIsUpdatingId] = useState<string | null>(null);
 
-  const fetchProviderfromDomain = useCallback(
-    async (domainId: string): Promise<string | undefined> => {
-      if (!coreClient) {
-        return undefined;
-      }
-
-      const response = await coreClient
-        .getMyOrganizationApiClient()
-        .organization.domains.identityProviders.get(domainId);
-
-      const isIdpEnabled = response.identity_providers?.some((idp) => idp.id === idpId);
-
-      if (isIdpEnabled) {
-        setIdpDomains((prevIdpDomains) =>
-          prevIdpDomains.includes(domainId) ? prevIdpDomains : [...prevIdpDomains, domainId],
-        );
-        return domainId;
-      }
-
-      return undefined;
+  // Fetch domains list using TanStack Query
+  const domainsQuery = useQuery({
+    queryKey: domainQueryKeys.list(idpId),
+    queryFn: async () => {
+      const response = await coreClient!.getMyOrganizationApiClient().organization.domains.list();
+      return response.organization_domains;
     },
-    [coreClient, idpId],
-  );
+    enabled: !!coreClient && !!idpId,
+  });
 
-  const getAllProviderDomains = useCallback(
-    async (fetchedDomains: Domain[]) => {
-      try {
-        setIsLoading(true);
+  const domainsList = domainsQuery.data ?? [];
+  const isLoading = domainsQuery.isLoading;
 
-        await Promise.all(
-          fetchedDomains.map(async (domain) => await fetchProviderfromDomain(domain.id)),
-        );
-      } catch (error) {
-        handleError(error, {
-          fallbackMessage: t('general_error'),
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [fetchProviderfromDomain, handleError, t],
-  );
-
-  const listDomains = useCallback(async (): Promise<void> => {
-    if (!coreClient) {
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      const response = await coreClient.getMyOrganizationApiClient().organization.domains.list();
-
-      setDomainsList(response.organization_domains);
-
-      await getAllProviderDomains(response.organization_domains);
-    } catch (error) {
-      handleError(error, {
+  // Handle errors from domains query
+  useEffect(() => {
+    if (domainsQuery.error) {
+      handleError(domainsQuery.error, {
         fallbackMessage: t('general_error'),
       });
-    } finally {
-      setIsLoading(false);
     }
-  }, [coreClient, getAllProviderDomains, handleError, t]);
+  }, [domainsQuery.error, handleError, t]);
 
-  const onCreateDomain = useCallback(
-    async (data: CreateOrganizationDomainRequestContent): Promise<Domain | null> => {
+  // Fetch IDP associations for each domain using useQueries
+  const idpAssociationQueries = useQueries({
+    queries: domainsList.map((domain) => ({
+      queryKey: domainQueryKeys.idpAssociation(domain.id, idpId),
+      queryFn: async () => {
+        const response = await coreClient!
+          .getMyOrganizationApiClient()
+          .organization.domains.identityProviders.get(domain.id);
+
+        const isIdpEnabled = response.identity_providers?.some((idp) => idp.id === idpId);
+        return { domainId: domain.id, isEnabled: isIdpEnabled ?? false };
+      },
+      enabled: !!coreClient && !!idpId,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    })),
+  });
+
+  // Derive idpDomains from query results
+  const idpDomains = useMemo(
+    () =>
+      idpAssociationQueries
+        .filter((query) => query.data?.isEnabled)
+        .map((query) => query.data!.domainId),
+    [idpAssociationQueries],
+  );
+
+  // Mutations
+  const createDomainMutation = useMutation({
+    mutationFn: async (data: CreateOrganizationDomainRequestContent) => {
       if (domains?.createAction?.onBefore) {
         const canProceed = domains.createAction.onBefore(data as Domain);
         if (!canProceed) {
-          setIsCreating(false);
           throw new BusinessError({ message: t('domain_create.on_before') });
         }
       }
@@ -113,72 +102,78 @@ export function useSsoDomainTab(
 
       domains?.createAction?.onAfter?.(result);
 
-      await listDomains();
-
       return result;
     },
-    [coreClient, domains, listDomains, t],
-  );
+    onSuccess: (newDomain) => {
+      queryClient.invalidateQueries({ queryKey: domainQueryKeys.list(idpId) });
+      // Also invalidate the IDP association for the new domain
+      queryClient.invalidateQueries({
+        queryKey: domainQueryKeys.idpAssociation(newDomain.id, idpId),
+      });
+    },
+  });
 
-  const onVerifyDomain = useCallback(
-    async (selectedDomain: Domain): Promise<boolean> => {
+  const verifyDomainMutation = useMutation({
+    mutationFn: async (domain: Domain) => {
       if (domains?.verifyAction?.onBefore) {
-        const canProceed = domains.verifyAction.onBefore(selectedDomain);
+        const canProceed = domains.verifyAction.onBefore(domain);
         if (!canProceed) {
-          setIsVerifying(false);
           throw new BusinessError({ message: t('domain_verify.on_before') });
         }
       }
 
       const updatedDomain = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.domains.verify.create(selectedDomain.id);
+        .organization.domains.verify.create(domain.id);
 
       if (domains?.verifyAction?.onAfter) {
-        await domains.verifyAction.onAfter(selectedDomain);
+        await domains.verifyAction.onAfter(domain);
       }
 
-      setIsVerifying(false);
-
-      if (updatedDomain.status === 'verified') {
-        setDomainsList((prevDomains) =>
-          prevDomains.map((prevDomain) =>
-            prevDomain.id === selectedDomain.id ? { ...prevDomain, ...updatedDomain } : prevDomain,
-          ),
-        );
-      }
-      return updatedDomain.status === 'verified';
+      return { updatedDomain, isVerified: updatedDomain.status === 'verified' };
     },
-    [domains, t, coreClient],
-  );
+    onSuccess: ({ updatedDomain, isVerified }, domain) => {
+      if (isVerified) {
+        queryClient.setQueryData<Domain[]>(domainQueryKeys.list(idpId), (oldDomains) => {
+          if (!oldDomains) return oldDomains;
+          return oldDomains.map((d) => (d.id === domain.id ? { ...d, ...updatedDomain } : d));
+        });
+      }
+    },
+  });
 
-  const onDeleteDomain = useCallback(
-    async (selectedDomain: Domain) => {
+  const deleteDomainMutation = useMutation({
+    mutationFn: async (domain: Domain) => {
       if (!coreClient) {
-        return;
+        return domain;
       }
 
       if (domains?.deleteAction?.onBefore) {
-        const canProceed = domains.deleteAction.onBefore(selectedDomain);
+        const canProceed = domains.deleteAction.onBefore(domain);
         if (!canProceed) {
-          setIsDeleting(false);
           throw new BusinessError({ message: t('domain_delete.on_before') });
         }
       }
 
-      await coreClient.getMyOrganizationApiClient().organization.domains.delete(selectedDomain.id);
+      await coreClient.getMyOrganizationApiClient().organization.domains.delete(domain.id);
 
       if (domains?.deleteAction?.onAfter) {
-        await domains.deleteAction.onAfter(selectedDomain);
+        await domains.deleteAction.onAfter(domain);
       }
 
-      await listDomains();
+      return domain;
     },
-    [domains, listDomains, t, coreClient],
-  );
+    onSuccess: (domain) => {
+      queryClient.invalidateQueries({ queryKey: domainQueryKeys.list(idpId) });
+      // Also invalidate the IDP association for the deleted domain
+      queryClient.invalidateQueries({
+        queryKey: domainQueryKeys.idpAssociation(domain.id, idpId),
+      });
+    },
+  });
 
-  const onAssociateToProvider = useCallback(
-    async (domain: Domain) => {
+  const associateToProviderMutation = useMutation({
+    mutationFn: async (domain: Domain) => {
       if (domains?.associateToProviderAction?.onBefore) {
         const canProceed = domains.associateToProviderAction.onBefore(domain, provider);
         if (!canProceed) {
@@ -192,26 +187,28 @@ export function useSsoDomainTab(
           domain: domain.domain,
         });
 
-      // Update IdP domains
-      setIdpDomains((prevIdpDomains) =>
-        prevIdpDomains.includes(domain.id) ? prevIdpDomains : [...prevIdpDomains, domain.id],
-      );
-
       if (domains?.associateToProviderAction?.onAfter) {
         await domains.associateToProviderAction.onAfter(domain, provider);
       }
-    },
-    [coreClient, domains, idpId, provider, t],
-  );
 
-  const onDeleteFromProvider = useCallback(
-    async (selectedDomain: Domain) => {
+      return domain;
+    },
+    onSuccess: (domain) => {
+      // Invalidate the IDP association query for this domain
+      queryClient.invalidateQueries({
+        queryKey: domainQueryKeys.idpAssociation(domain.id, idpId),
+      });
+    },
+  });
+
+  const deleteFromProviderMutation = useMutation({
+    mutationFn: async (domain: Domain) => {
       if (!provider) {
-        return;
+        return domain;
       }
 
       if (domains?.deleteFromProviderAction?.onBefore) {
-        const canProceed = domains.deleteFromProviderAction.onBefore(selectedDomain, provider);
+        const canProceed = domains.deleteFromProviderAction.onBefore(domain, provider);
         if (!canProceed) {
           throw new BusinessError({ message: t('domain_delete_provider.on_before') });
         }
@@ -219,28 +216,28 @@ export function useSsoDomainTab(
 
       await coreClient!
         .getMyOrganizationApiClient()
-        .organization.identityProviders.domains.delete(provider.id!, selectedDomain.domain);
-
-      // Update IdP domains
-      setIdpDomains((prevDomains) =>
-        prevDomains.filter((prevDomain) => prevDomain !== selectedDomain.id),
-      );
+        .organization.identityProviders.domains.delete(provider.id!, domain.domain);
 
       if (domains?.deleteFromProviderAction?.onAfter) {
-        await domains.deleteFromProviderAction.onAfter(selectedDomain);
+        await domains.deleteFromProviderAction.onAfter(domain);
       }
+
+      return domain;
     },
-    [coreClient, domains, provider, t],
-  );
+    onSuccess: (domain) => {
+      // Invalidate the IDP association query for this domain
+      queryClient.invalidateQueries({
+        queryKey: domainQueryKeys.idpAssociation(domain.id, idpId),
+      });
+    },
+  });
 
   // ===== Handlers =====
 
   const handleCreate = useCallback(
     async (domainUrl: string) => {
-      setIsCreating(true);
-
       try {
-        const newDomain = await onCreateDomain({ domain: domainUrl });
+        const newDomain = await createDomainMutation.mutateAsync({ domain: domainUrl });
 
         showToast({
           type: 'success',
@@ -256,11 +253,9 @@ export function useSsoDomainTab(
         handleError(error, {
           fallbackMessage: t('domain_create.error'),
         });
-      } finally {
-        setIsCreating(false);
       }
     },
-    [handleError, onCreateDomain, t],
+    [handleError, createDomainMutation, t],
   );
 
   const handleCloseVerifyModal = useCallback(() => {
@@ -270,10 +265,8 @@ export function useSsoDomainTab(
 
   const handleVerify = useCallback(
     async (domain: Domain) => {
-      setIsVerifying(true);
-
       try {
-        const isVerified = await onVerifyDomain(domain);
+        const { isVerified } = await verifyDomainMutation.mutateAsync(domain);
         if (isVerified) {
           setShowVerifyModal(false);
 
@@ -284,7 +277,7 @@ export function useSsoDomainTab(
             }),
           });
 
-          await onAssociateToProvider(domain);
+          await associateToProviderMutation.mutateAsync(domain);
         } else {
           setVerifyError(t('domain_verify.verification_failed', { domainName: domain.domain }));
         }
@@ -292,11 +285,9 @@ export function useSsoDomainTab(
         handleError(error, {
           fallbackMessage: t('domain_verify.verification_failed'),
         });
-      } finally {
-        setIsVerifying(false);
       }
     },
-    [onVerifyDomain, t, handleError, onAssociateToProvider],
+    [verifyDomainMutation, t, handleError, associateToProviderMutation],
   );
 
   const handleDeleteClick = useCallback((domain: Domain) => {
@@ -307,10 +298,8 @@ export function useSsoDomainTab(
 
   const handleDelete = useCallback(
     async (domain: Domain) => {
-      setIsDeleting(true);
-
       try {
-        await onDeleteDomain(domain);
+        await deleteDomainMutation.mutateAsync(domain);
 
         showToast({
           type: 'success',
@@ -325,11 +314,9 @@ export function useSsoDomainTab(
         handleError(error, {
           fallbackMessage: t('domain_delete.error'),
         });
-      } finally {
-        setIsDeleting(false);
       }
     },
-    [handleError, onDeleteDomain, t],
+    [handleError, deleteDomainMutation, t],
   );
 
   const handleVerifyActionColumn = useCallback(
@@ -338,7 +325,7 @@ export function useSsoDomainTab(
       setIsUpdatingId(domain.id);
 
       try {
-        const isVerified = await onVerifyDomain(domain);
+        const { isVerified } = await verifyDomainMutation.mutateAsync(domain);
         if (isVerified) {
           showToast({
             type: 'success',
@@ -347,7 +334,7 @@ export function useSsoDomainTab(
             }),
           });
 
-          await onAssociateToProvider(domain);
+          await associateToProviderMutation.mutateAsync(domain);
         } else {
           showToast({
             type: 'error',
@@ -365,7 +352,7 @@ export function useSsoDomainTab(
         setIsUpdatingId(null);
       }
     },
-    [onVerifyDomain, t, handleError, onAssociateToProvider],
+    [verifyDomainMutation, t, handleError, associateToProviderMutation],
   );
 
   const handleToggleSwitch = useCallback(
@@ -375,7 +362,7 @@ export function useSsoDomainTab(
 
       if (newCheckedValue) {
         try {
-          await onAssociateToProvider(domain);
+          await associateToProviderMutation.mutateAsync(domain);
 
           showToast({
             type: 'success',
@@ -394,7 +381,7 @@ export function useSsoDomainTab(
         }
       } else {
         try {
-          await onDeleteFromProvider(domain);
+          await deleteFromProviderMutation.mutateAsync(domain);
 
           showToast({
             type: 'success',
@@ -413,28 +400,19 @@ export function useSsoDomainTab(
         }
       }
     },
-    [onAssociateToProvider, t, provider, handleError, onDeleteFromProvider],
+    [associateToProviderMutation, t, provider, handleError, deleteFromProviderMutation],
   );
-
-  useEffect(() => {
-    if (!idpId) return;
-
-    setIsLoading(true);
-    Promise.allSettled([listDomains()]).finally(() => {
-      setIsLoading(false);
-    });
-  }, [idpId]);
 
   return {
     isLoading,
     domainsList,
-    isCreating,
+    isCreating: createDomainMutation.isPending,
     selectedDomain,
     showVerifyModal,
     showDeleteModal,
-    isVerifying,
+    isVerifying: verifyDomainMutation.isPending,
     verifyError,
-    isDeleting,
+    isDeleting: deleteDomainMutation.isPending,
     showCreateModal,
     handleCreate,
     handleCloseVerifyModal,
