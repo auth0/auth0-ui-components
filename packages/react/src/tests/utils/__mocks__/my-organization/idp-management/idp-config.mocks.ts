@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import type {
   IdpConfig,
   UseConfigIdpResult,
-} from '../../../../types/my-organization/config/config-idp-types';
+} from '@/types/my-organization/config/config-idp-types';
 
 type MockUseIdpConfig = UseConfigIdpResult;
 
