@@ -78,6 +78,7 @@ export const MiddleEllipsisText = React.memo(
     const [displayText, setDisplayText] = React.useState(text);
     const [isTruncated, setIsTruncated] = React.useState(false);
     const containerRef = React.useRef<HTMLSpanElement>(null);
+    const rafIdRef = React.useRef<number | null>(null);
 
     React.useImperativeHandle(ref, () => containerRef.current!);
 
@@ -99,24 +100,32 @@ export const MiddleEllipsisText = React.memo(
       setIsTruncated(truncated_flag);
     }, [text]);
 
-    // Update truncation on mount and text change
+    // Update truncation on mount/text change and observe resize
     React.useEffect(() => {
       updateTruncation();
-    }, [updateTruncation]);
 
-    // Observe container resize
-    React.useEffect(() => {
       const container = containerRef.current;
-      if (!container) return;
+      let resizeObserver: ResizeObserver | null = null;
 
-      const resizeObserver = new ResizeObserver(() => {
-        updateTruncation();
-      });
+      if (container) {
+        resizeObserver = new ResizeObserver(() => {
+          if (rafIdRef.current !== null) {
+            cancelAnimationFrame(rafIdRef.current);
+          }
+          rafIdRef.current = requestAnimationFrame(() => {
+            updateTruncation();
+          });
+        });
 
-      resizeObserver.observe(container);
+        resizeObserver.observe(container);
+      }
 
       return () => {
-        resizeObserver.disconnect();
+        if (rafIdRef.current !== null) {
+          cancelAnimationFrame(rafIdRef.current);
+          rafIdRef.current = null;
+        }
+        resizeObserver?.disconnect();
       };
     }, [updateTruncation]);
 
