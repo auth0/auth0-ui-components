@@ -95,15 +95,17 @@ export function useSsoProviderCreate({
         return;
       }
       // Handle discovery failure error for domain
-      const domainFromError = extractDomainFromDiscoveryError(error.body?.detail);
-      if (domainFromError) {
-        showToast({
-          type: 'error',
-          message: t('notifications.provider_create_discovery_failure', {
-            domain: domainFromError,
-          }),
-        });
-        return;
+      if (hasApiErrorBody(error)) {
+        const domainFromError = extractDomainFromDiscoveryError(error.body?.detail);
+        if (domainFromError) {
+          showToast({
+            type: 'error',
+            message: t('notifications.provider_create_discovery_failure', {
+              domain: domainFromError,
+            }),
+          });
+          return;
+        }
       }
 
       showToast({

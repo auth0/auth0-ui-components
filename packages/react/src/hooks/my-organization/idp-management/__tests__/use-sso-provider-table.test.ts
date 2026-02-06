@@ -2,7 +2,6 @@ import type { IdentityProvider, OrganizationPrivate } from '@auth0/universal-com
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { showToast } from '../../../../components/ui/toast';
 import { mockToast, createMockI18nService } from '../../../../internals';
 import { createMockCoreClient } from '../../../../internals/__mocks__/core/core-client.mocks';
 import { createTestQueryClientWrapper } from '../../../../internals/test-provider';
