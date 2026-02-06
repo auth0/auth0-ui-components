@@ -21,6 +21,13 @@ import { SsoProviderAttributeMappings } from './sso-provider-attribute-mappings'
 /**
  * SsoProviderDetails Component
  * Combines ProviderDetails and ProviderConfigureFields for editing SSO provider
+ * @param props
+ * @param props.provider
+ * @param props.readOnly
+ * @param props.idpConfig
+ * @param props.formActions
+ * @param props.customMessages
+ * @param props.styling
  */
 export function SsoProviderDetails({
   provider,

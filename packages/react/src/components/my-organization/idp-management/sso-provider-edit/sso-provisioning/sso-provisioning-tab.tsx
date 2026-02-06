@@ -22,6 +22,16 @@ import { SsoProviderAttributeSyncAlert } from '../sso-provider-attribute-sync-al
 import { SsoProvisioningDeleteModal } from './sso-provisioning-delete-modal';
 import { SsoProvisioningDetails } from './sso-provisioning-details';
 
+/**
+ *
+ * @param props
+ * @param props.provider
+ * @param props.styling
+ * @param props.customMessages
+ * @param props.hasProvisioningAttributeSyncWarning
+ * @param props.onAttributeSync
+ * @param props.isSyncingAttributes
+ */
 export function SsoProvisioningTab({
   provider,
   styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },

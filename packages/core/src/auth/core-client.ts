@@ -7,6 +7,11 @@ import { createI18nService } from '../i18n';
 import type { AuthDetails, CoreClientInterface } from './auth-types';
 import { createTokenManager } from './token-manager';
 
+/**
+ *
+ * @param authDetails
+ * @param i18nOptions
+ */
 export async function createCoreClient(
   authDetails: AuthDetails,
   i18nOptions?: I18nInitOptions,

@@ -13,6 +13,9 @@ interface UseCoreClientInitializationProps {
 
 /**
  * Custom hook to handle CoreClient initialization
+ * @param root0
+ * @param root0.authDetails
+ * @param root0.i18nOptions
  */
 export const useCoreClientInitialization = ({
   authDetails,

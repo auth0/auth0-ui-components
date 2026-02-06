@@ -89,6 +89,15 @@ const AttributeNameCell = ({
   );
 };
 
+/**
+ *
+ * @param props
+ * @param props.userAttributeMap
+ * @param props.strategy
+ * @param props.isProvisioning
+ * @param props.customMessages
+ * @param props.className
+ */
 export function SsoProviderAttributeMappings({
   userAttributeMap = [],
   strategy,

@@ -3,6 +3,11 @@ import { MyAccountClient } from '@auth0/myaccount-js';
 import type { AuthDetails } from '../../auth/auth-types';
 import type { createTokenManager } from '../../auth/token-manager';
 
+/**
+ *
+ * @param auth
+ * @param tokenManagerService
+ */
 export function initializeMyAccountClient(
   auth: AuthDetails,
   tokenManagerService: ReturnType<typeof createTokenManager>,

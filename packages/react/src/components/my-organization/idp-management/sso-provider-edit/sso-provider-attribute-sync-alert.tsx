@@ -15,6 +15,15 @@ import {
   DialogTitle,
 } from '../../../ui/dialog';
 
+/**
+ *
+ * @param props
+ * @param props.translatorKey
+ * @param props.className
+ * @param props.customMessages
+ * @param props.onSync
+ * @param props.isSyncing
+ */
 export function SsoProviderAttributeSyncAlert({
   translatorKey = 'idp_management.edit_sso_provider.tabs.sso.content.attribute_sync_alert',
   className,

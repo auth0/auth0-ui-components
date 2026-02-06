@@ -19,6 +19,22 @@ import { SsoProviderDetails } from './sso-provider-details';
 
 /**
  * SsoProviderTab Component
+ * @param props
+ * @param props.customMessages
+ * @param props.styling
+ * @param props.readOnly
+ * @param props.provider
+ * @param props.onDelete
+ * @param props.onRemove
+ * @param props.organization
+ * @param props.isDeleting
+ * @param props.isRemoving
+ * @param props.idpConfig
+ * @param props.shouldAllowDeletion
+ * @param props.formActions
+ * @param props.hasSsoAttributeSyncWarning
+ * @param props.onAttributeSync
+ * @param props.isSyncingAttributes
  */
 export function SsoProviderTab({
   customMessages = {},

@@ -2,6 +2,11 @@ import { MyOrganizationClient } from '@auth0/myorganization-js';
 import type { AuthDetails } from '@core/auth/auth-types';
 import type { createTokenManager } from '@core/auth/token-manager';
 
+/**
+ *
+ * @param auth
+ * @param tokenManagerService
+ */
 export function initializeMyOrganizationClient(
   auth: AuthDetails,
   tokenManagerService: ReturnType<typeof createTokenManager>,

@@ -6,12 +6,13 @@ A comprehensive library of reusable UI components and utilities for Auth0 integr
 
 For detailed information on how to use these components and get started with Auth0, please refer to the following resources:
 
-- **[Examples Folder](./examples/)**: Practical, hands-on sample applications demonstrating how to integrate and use these components in a real project.
 - **[Auth0 Quickstarts](https://auth0.com/docs/quickstarts)**: Official guides for creating and configuring your application on the Auth0 platform.
 - **[Auth0 APIs](https://auth0.com/docs/api)**: Comprehensive documentation for Auth0's APIs.
 - **[Component Documentation](https://auth0-ui-components.vercel.app/)**: Live Storybook showcasing all available components, their props, and usage examples.
+- **[Examples Folder](https://github.com/auth0/auth0-ui-components/tree/main/examples)**: Practical, hands-on sample applications demonstrating how to integrate and use these components in a real project.
+- **[Component Reference](#-component-reference)**: Explore public components available in @auth0/universal-components-react.
 
-## 📦 Packages Overview
+## Packages Overview
 
 This project uses a **monorepo architecture** designed for multi-framework support. It is organized into two main types of packages:
 
@@ -134,6 +135,17 @@ pnpm run dev
     ```
 
     _Note: The port may differ if other applications are running._
+
+## 📚 Component Reference
+
+Explore public components available in @auth0/universal-components-react.
+
+- [UserMfaManagement](https://auth0.github.io/auth0-ui-components/variables/react_src.UserMFAMgmt.html)
+- [DomainTable](https://auth0.github.io/auth0-ui-components/variables/react_src.DomainTable.html)
+- [SsoProviderCreate](https://auth0.github.io/auth0-ui-components/variables/react_src.SsoProviderCreate.html)
+- [SsoProviderEdit](https://auth0.github.io/auth0-ui-components/variables/react_src.SsoProviderEdit.html)
+- [SsoProviderTable](https://auth0.github.io/auth0-ui-components/variables/react_src.SsoProviderTable.html)
+- [OrganizationDetailsEdit](https://auth0.github.io/auth0-ui-components/variables/react_src.OrganizationDetailsEdit.html)
 
 ## 🤝 Contributing
 

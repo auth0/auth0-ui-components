@@ -30,6 +30,20 @@ import { SsoProviderAttributeMappings } from '../sso-provider-attribute-mappings
 
 import { ProvisioningManageToken } from './provisioning-manage-token';
 
+/**
+ *
+ * @param props
+ * @param props.provider
+ * @param props.provisioningConfig
+ * @param props.isScimTokensLoading
+ * @param props.isScimTokenCreating
+ * @param props.isScimTokenDeleting
+ * @param props.onListScimTokens
+ * @param props.onCreateScimToken
+ * @param props.onDeleteScimToken
+ * @param props.customMessages
+ * @param props.styling
+ */
 export function SsoProvisioningDetails({
   provider,
   provisioningConfig,
