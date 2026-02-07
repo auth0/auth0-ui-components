@@ -12,13 +12,6 @@ import { useCoreClient } from '../../../hooks/use-core-client';
 import { useTranslator } from '../../../hooks/use-translator';
 import type { UseSsoProviderCreateOptions } from '../../../types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
-/** Extracts domain from "discovery failure: <domain>" error detail */
-function extractDomainFromDiscoveryError(detail?: string): string | null {
-  if (!detail) return null;
-  const match = detail.match(/discovery failure:\s*(.+)/i);
-  return match?.[1]?.trim() ?? null;
-}
-
 export interface UseSsoProviderCreateReturn {
   createProvider: (data: CreateIdentityProviderRequestContentPrivate) => Promise<void>;
   isCreating: boolean;
@@ -70,39 +63,23 @@ export function useSsoProviderCreate({
 
         createAction?.onAfter?.(data, result);
       } catch (error) {
-        if (hasApiErrorBody(error)) {
-          // Handle duplicate provider error (409)
-          if (
-            error.body?.status === 409 &&
-            error.body?.type === 'https://auth0.com/api-errors#A0E-409-0001'
-          ) {
-            showToast({
-              type: 'error',
-              message: t('notifications.provider_create_duplicated_provider_error', {
-                providerName: data.name,
-              }),
-            });
-            return;
-          }
-
-          // Handle discovery failure error for domain
-          const domainFromError = extractDomainFromDiscoveryError(error.body?.detail);
-          if (domainFromError) {
-            showToast({
-              type: 'error',
-              message: t('notifications.provider_create_discovery_failure', {
-                domain: domainFromError,
-              }),
-            });
-            return;
-          }
+        if (
+          hasApiErrorBody(error) &&
+          error.body?.status === 409 &&
+          error.body?.type === 'https://auth0.com/api-errors#A0E-409-0001'
+        ) {
+          showToast({
+            type: 'error',
+            message: t('notifications.provider_create_duplicated_provider_error', {
+              providerName: data.name,
+            }),
+          });
+        } else {
+          showToast({
+            type: 'error',
+            message: t('notifications.general_error'),
+          });
         }
-
-        // Fallback to general error
-        showToast({
-          type: 'error',
-          message: t('notifications.general_error'),
-        });
       } finally {
         setIsCreating(false);
       }

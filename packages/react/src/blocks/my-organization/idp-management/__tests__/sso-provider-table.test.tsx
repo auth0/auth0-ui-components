@@ -4,11 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import * as useConfigModule from '../../../../hooks/my-organization/config/use-config';
-import * as useIdpConfigModule from '../../../../hooks/my-organization/config/use-idp-config';
 import * as useCoreClientModule from '../../../../hooks/use-core-client';
-import { createMockUseConfig } from '../../../../internals/__mocks__/my-organization/config/config.mocks';
 import { createMockIdentityProvider } from '../../../../internals/__mocks__/my-organization/domain-management/domain.mocks';
-import { createMockUseIdpConfig } from '../../../../internals/__mocks__/my-organization/idp-management/idp-config.mocks';
 import { renderWithProviders } from '../../../../internals/test-provider';
 import { mockCore, mockToast } from '../../../../internals/test-setup';
 import type { SsoProviderTableProps } from '../../../../types/my-organization/idp-management/sso-provider/sso-provider-table-types';
@@ -98,9 +95,14 @@ describe('SsoProviderTable', () => {
       coreClient: mockCoreClient,
     });
 
-    vi.spyOn(useConfigModule, 'useConfig').mockReturnValue(createMockUseConfig());
-
-    vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue(createMockUseIdpConfig());
+    vi.spyOn(useConfigModule, 'useConfig').mockReturnValue({
+      isLoadingConfig: false,
+      shouldAllowDeletion: true,
+      isConfigValid: true,
+      config: { connection_deletion_behavior: 'allow', allowed_strategies: [] },
+      fetchConfig: vi.fn(),
+      filteredStrategies: [],
+    });
   });
 
   afterEach(() => {

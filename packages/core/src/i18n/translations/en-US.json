@@ -92,10 +92,10 @@
     },
     "domain_delete": {
       "modal": {
-        "title": "Delete Domain",
+        "title": "Delete a Domain",
         "description": {
           "pending": "${domainName} is pending verification and may take up to 48 hours to process. Are you sure you want to delete this domain?",
-          "verified": "Deleting ${domainName} may disrupt login flows for users. Are you sure you want to delete this domain?"
+          "verified": "Deleting ${domainName} may disrupt login flows for users. Are you sure you want to delete this domain? This action cannot be undone."
         },
         "actions": {
           "cancel_button_text": "Cancel",
@@ -248,8 +248,7 @@
       "notifications": {
         "general_error": "There was an issue processing your request. Please try again or contact support if the issue persists.",
         "provider_create_success": "${providerName} has been created.",
-        "provider_create_duplicated_provider_error": "${providerName} provider already exists. Please choose a different name.",
-        "provider_create_discovery_failure": "${domain} not found. Check the domain and try again."
+        "provider_create_duplicated_provider_error": "${providerName} provider already exists. Please choose a different name."
       },
       "provider_select": {
         "title": "Select Your Identity Provider",
@@ -741,9 +740,9 @@
             },
             "domain_delete": {
               "modal": {
-                "title": "Delete Domain",
+                "title": "Delete a Domain",
                 "description": {
-                  "pending": "${domainName} is pending verification and may take up to 48 hours to process. Are you sure you want to delete this domain?",
+                  "pending": "${domainName} is pending verification and may take up to 48 hours to process. Are you sure you want to delete this domain? This action cannot be undone.",
                   "verified": "Deleting ${domainName} may disrupt login flows for users. Are you sure you want to delete this domain? This action cannot be undone."
                 },
                 "actions": {
@@ -813,7 +812,7 @@
       "remove_button_label": "Delete",
       "modal": {
         "title": "Remove ${providerName} from ${organizationName}",
-        "description": "This will revoke access to <bold>${providerName}</bold> for all users in this organization. Users will not be deleted but will no longer be able to sign in using this provider",
+        "description": "This will revoke access to ${providerName} for all users in this organization. Users will not be deleted but will no longer be able to sign in using this provider",
         "content": {
           "description": "Type in the name of the provider to confirm.",
           "field": {

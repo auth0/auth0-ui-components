@@ -57,14 +57,7 @@ export function SsoProviderRemoveFromOrganizationModal({
       content={
         <div className="space-y-6">
           <p className={cn('text-sm text-muted-foreground text-(length:--font-size-paragraph)')}>
-            <>
-              {t.trans('modal.description', {
-                components: {
-                  bold: (children: string) => <strong key="provider-name">{children}</strong>,
-                },
-                vars: { providerName: provider.name },
-              })}
-            </>
+            {t('modal.description', { providerName: provider.name })}
           </p>
 
           <SsoProviderDeleteModalContent

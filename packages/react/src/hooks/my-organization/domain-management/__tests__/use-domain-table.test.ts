@@ -3,7 +3,7 @@ import type {
   EnhancedTranslationFunction,
 } from '@auth0/universal-components-core';
 import { BusinessError } from '@auth0/universal-components-core';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import {
@@ -12,7 +12,6 @@ import {
   createMockIdentityProvider,
   createMockI18nService,
 } from '../../../../internals';
-import { createTestQueryClientWrapper } from '../../../../internals/test-provider';
 import type { UseDomainTableOptions } from '../../../../types/my-organization/domain-management/domain-table-types';
 import * as useCoreClientModule from '../../../use-core-client';
 import * as useTranslatorModule from '../../../use-translator';
@@ -49,14 +48,6 @@ const createMockOptions = (overrides?: Partial<UseDomainTableOptions>): UseDomai
   ...overrides,
 });
 
-const renderUseDomainTable = (options: UseDomainTableOptions) => {
-  const { wrapper, queryClient } = createTestQueryClientWrapper();
-  return {
-    queryClient,
-    ...renderHook(() => useDomainTable(options), { wrapper }),
-  };
-};
-
 // ===== Tests =====
 
 describe('useDomainTable', () => {
@@ -84,25 +75,20 @@ describe('useDomainTable', () => {
   });
 
   describe('Initial State', () => {
-    it('should initialize with correct default state', async () => {
-      const { result } = renderUseDomainTable(mockOptions);
+    it('should initialize with correct default state', () => {
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      // Initial state before query completes
       expect(result.current.domains).toEqual([]);
       expect(result.current.providers).toEqual([]);
+      expect(result.current.isFetching).toBe(false);
       expect(result.current.isCreating).toBe(false);
       expect(result.current.isDeleting).toBe(false);
       expect(result.current.isVerifying).toBe(false);
       expect(result.current.isLoadingProviders).toBe(false);
-
-      // Wait for initial query to complete
-      await waitFor(() => {
-        expect(result.current.isFetching).toBe(false);
-      });
     });
 
     it('should provide all expected functions', () => {
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
       expect(typeof result.current.fetchDomains).toBe('function');
       expect(typeof result.current.fetchProviders).toBe('function');
@@ -116,12 +102,10 @@ describe('useDomainTable', () => {
 
   describe('fetchDomains', () => {
     it('should fetch domains successfully', async () => {
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      await result.current.fetchDomains();
-
-      await waitFor(() => {
-        expect(result.current.isFetching).toBe(false);
+      await act(async () => {
+        await result.current.fetchDomains();
       });
 
       expect(
@@ -130,83 +114,32 @@ describe('useDomainTable', () => {
     });
 
     it('should handle fetchDomains error and reset loading state', async () => {
+      const { result } = renderHook(() => useDomainTable(mockOptions));
+
       const error = new Error('Network error');
       mockCoreClient.getMyOrganizationApiClient().organization.domains.list = vi
         .fn()
         .mockRejectedValue(error);
 
-      const { result } = renderUseDomainTable(mockOptions);
-
-      await result.current.fetchDomains();
-
-      await waitFor(() => {
-        expect(result.current.isFetching).toBe(false);
+      await act(async () => {
+        try {
+          await result.current.fetchDomains();
+        } catch (e) {
+          expect(e).toBe(error);
+        }
       });
 
       expect(result.current.isFetching).toBe(false);
     });
 
     it('should handle empty domains response', async () => {
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      await result.current.fetchDomains();
-
-      await waitFor(() => {
-        expect(result.current.isFetching).toBe(false);
+      await act(async () => {
+        await result.current.fetchDomains();
       });
 
       expect(result.current.domains).toEqual([]);
-    });
-
-    it('should invalidate and refetch when fetchDomains is called', async () => {
-      const { result } = renderUseDomainTable(mockOptions);
-
-      // Wait for initial fetch to complete
-      await waitFor(() => {
-        expect(result.current.isFetching).toBe(false);
-      });
-
-      const initialCallCount = vi.mocked(
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
-      ).mock.calls.length;
-
-      // Call fetchDomains - should always invalidate and trigger refetch
-      await result.current.fetchDomains();
-
-      // Should trigger a refetch
-      await waitFor(() => {
-        expect(
-          vi.mocked(mockCoreClient.getMyOrganizationApiClient().organization.domains.list).mock
-            .calls.length,
-        ).toBeGreaterThan(initialCallCount);
-      });
-    });
-
-    it('should refetch when data is invalidated', async () => {
-      const { result, queryClient } = renderUseDomainTable(mockOptions);
-
-      // Wait for initial fetch to complete
-      await waitFor(() => {
-        expect(result.current.isFetching).toBe(false);
-      });
-
-      const initialCallCount = vi.mocked(
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
-      ).mock.calls.length;
-
-      // Invalidate the query
-      await queryClient.invalidateQueries({ queryKey: ['domains', 'list'] });
-
-      // Call fetchDomains
-      await result.current.fetchDomains();
-
-      // Should call the API again due to invalidation
-      await waitFor(() => {
-        expect(
-          vi.mocked(mockCoreClient.getMyOrganizationApiClient().organization.domains.list).mock
-            .calls.length,
-        ).toBeGreaterThan(initialCallCount);
-      });
     });
   });
 
@@ -240,12 +173,10 @@ describe('useDomainTable', () => {
           identity_providers: [{ id: 'provider-1' }, { id: 'provider-3' }],
         });
 
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      await result.current.fetchProviders(mockDomain);
-
-      await waitFor(() => {
-        expect(result.current.isLoadingProviders).toBe(false);
+      await act(async () => {
+        await result.current.fetchProviders(mockDomain);
       });
 
       expect(
@@ -302,12 +233,10 @@ describe('useDomainTable', () => {
           identity_providers: [],
         });
 
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      await result.current.fetchProviders(mockDomain);
-
-      await waitFor(() => {
-        expect(result.current.isLoadingProviders).toBe(false);
+      await act(async () => {
+        await result.current.fetchProviders(mockDomain);
       });
 
       // All providers should have is_associated = false
@@ -342,12 +271,10 @@ describe('useDomainTable', () => {
           identity_providers: [{ id: 'provider-1' }, { id: 'provider-2' }],
         });
 
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      await result.current.fetchProviders(mockDomain);
-
-      await waitFor(() => {
-        expect(result.current.isLoadingProviders).toBe(false);
+      await act(async () => {
+        await result.current.fetchProviders(mockDomain);
       });
 
       // All providers should have is_associated = true
@@ -359,18 +286,22 @@ describe('useDomainTable', () => {
 
     it('should handle fetchProviders error and reset loading state', async () => {
       const mockDomain = createMockDomain();
+      const { result } = renderHook(() => useDomainTable(mockOptions));
+
       const error = new Error('Network error');
       mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
         .fn()
         .mockRejectedValue(error);
 
-      const { result } = renderUseDomainTable(mockOptions);
-
-      await expect(result.current.fetchProviders(mockDomain)).rejects.toThrow('Network error');
-
-      await waitFor(() => {
-        expect(result.current.isLoadingProviders).toBe(false);
+      await act(async () => {
+        try {
+          await result.current.fetchProviders(mockDomain);
+        } catch (e) {
+          expect(e).toBe(error);
+        }
       });
+
+      expect(result.current.isLoadingProviders).toBe(false);
     });
 
     it('should handle null/undefined responses gracefully', async () => {
@@ -388,100 +319,14 @@ describe('useDomainTable', () => {
           identity_providers: null,
         });
 
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      await result.current.fetchProviders(mockDomain);
-
-      await waitFor(() => {
-        expect(result.current.isLoadingProviders).toBe(false);
+      await act(async () => {
+        await result.current.fetchProviders(mockDomain);
       });
 
       // Should handle null gracefully and return empty array
       expect(result.current.providers).toEqual([]);
-    });
-
-    it('should use ensureQueryData to fetch providers', async () => {
-      const mockDomain = createMockDomain();
-      const provider1 = createMockIdentityProvider({
-        id: 'provider-1',
-        display_name: 'Provider 1',
-      });
-
-      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
-        .fn()
-        .mockResolvedValue({
-          identity_providers: [provider1],
-        });
-      mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get = vi
-        .fn()
-        .mockResolvedValue({
-          identity_providers: [{ id: 'provider-1' }],
-        });
-
-      const { result } = renderUseDomainTable(mockOptions);
-
-      await result.current.fetchProviders(mockDomain);
-
-      await waitFor(() => {
-        expect(result.current.isLoadingProviders).toBe(false);
-      });
-
-      expect(result.current.providers).toHaveLength(1);
-      const firstProvider = result.current.providers[0];
-      expect(firstProvider).toBeDefined();
-      expect(firstProvider!.is_associated).toBe(true);
-    });
-
-    it('should fetch providers from cache via ensureQueryData', async () => {
-      const mockDomain = createMockDomain();
-      const provider1 = createMockIdentityProvider({
-        id: 'provider-1',
-        display_name: 'Provider 1',
-      });
-
-      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
-        .fn()
-        .mockResolvedValue({
-          identity_providers: [provider1],
-        });
-      mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get = vi
-        .fn()
-        .mockResolvedValue({
-          identity_providers: [{ id: 'provider-1' }],
-        });
-
-      const { result } = renderUseDomainTable(mockOptions);
-
-      // First fetch
-      await result.current.fetchProviders(mockDomain);
-
-      await waitFor(() => {
-        expect(result.current.isLoadingProviders).toBe(false);
-      });
-
-      const initialApiCallCount = vi.mocked(
-        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list,
-      ).mock.calls.length;
-
-      // Second fetch - should use cached data since it's fresh
-      await result.current.fetchProviders(mockDomain);
-
-      await waitFor(() => {
-        expect(result.current.isLoadingProviders).toBe(false);
-      });
-
-      // Verify providers are loaded correctly
-      expect(result.current.providers).toHaveLength(1);
-      const cachedProvider = result.current.providers[0];
-      expect(cachedProvider).toBeDefined();
-      expect(cachedProvider!.is_associated).toBe(true);
-
-      // Should use cache if available and fresh (not make additional API calls)
-      const finalApiCallCount = vi.mocked(
-        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list,
-      ).mock.calls.length;
-
-      expect(finalApiCallCount).toBe(initialApiCallCount);
     });
   });
 
@@ -490,12 +335,10 @@ describe('useDomainTable', () => {
       const mockDomain = createMockDomain();
       const createData: CreateOrganizationDomainRequestContent = { domain: mockDomain.domain };
 
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      await result.current.onCreateDomain(createData);
-
-      await waitFor(() => {
-        expect(result.current.isCreating).toBe(false);
+      await act(async () => {
+        await result.current.onCreateDomain(createData);
       });
 
       expect(mockOptions.createAction!.onBefore).toHaveBeenCalledWith(createData);
@@ -513,9 +356,13 @@ describe('useDomainTable', () => {
         },
       });
 
-      const { result } = renderUseDomainTable(mockOptionsWithFalseBefore);
+      const { result } = renderHook(() => useDomainTable(mockOptionsWithFalseBefore));
 
-      await expect(result.current.onCreateDomain(createData)).rejects.toThrow(BusinessError);
+      await expect(
+        act(async () => {
+          await result.current.onCreateDomain(createData);
+        }),
+      ).rejects.toThrow(BusinessError);
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.domains.create,
@@ -529,13 +376,13 @@ describe('useDomainTable', () => {
         .fn()
         .mockRejectedValue(error);
 
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      await expect(result.current.onCreateDomain(createData)).rejects.toThrow('API error');
-
-      await waitFor(() => {
-        expect(result.current.isCreating).toBe(false);
-      });
+      await expect(
+        act(async () => {
+          await result.current.onCreateDomain(createData);
+        }),
+      ).rejects.toThrow('API error');
 
       expect(result.current.isCreating).toBe(false);
     });
@@ -547,12 +394,10 @@ describe('useDomainTable', () => {
         createAction: undefined,
       });
 
-      const { result } = renderUseDomainTable(mockOptionsWithoutCallbacks);
+      const { result } = renderHook(() => useDomainTable(mockOptionsWithoutCallbacks));
 
-      await result.current.onCreateDomain(createData);
-
-      await waitFor(() => {
-        expect(result.current.isCreating).toBe(false);
+      await act(async () => {
+        await result.current.onCreateDomain(createData);
       });
 
       expect(
@@ -564,12 +409,10 @@ describe('useDomainTable', () => {
   describe('onVerifyDomain', () => {
     it('should verify domain successfully and return true', async () => {
       const mockDomain = createMockDomain();
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      const isVerified = await result.current.onVerifyDomain(mockDomain);
-
-      await waitFor(() => {
-        expect(result.current.isVerifying).toBe(false);
+      const isVerified = await act(async () => {
+        return await result.current.onVerifyDomain(mockDomain);
       });
 
       expect(mockOptions.verifyAction!.onBefore).toHaveBeenCalledWith(mockDomain);
@@ -587,12 +430,10 @@ describe('useDomainTable', () => {
           status: 'pending',
         });
 
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      const isVerified = await result.current.onVerifyDomain(mockDomain);
-
-      await waitFor(() => {
-        expect(result.current.isVerifying).toBe(false);
+      const isVerified = await act(async () => {
+        return await result.current.onVerifyDomain(mockDomain);
       });
 
       expect(isVerified).toBe(false);
@@ -607,9 +448,13 @@ describe('useDomainTable', () => {
         },
       });
 
-      const { result } = renderUseDomainTable(mockOptionsWithFalseBefore);
+      const { result } = renderHook(() => useDomainTable(mockOptionsWithFalseBefore));
 
-      await expect(result.current.onVerifyDomain(mockDomain)).rejects.toThrow(BusinessError);
+      await expect(
+        act(async () => {
+          await result.current.onVerifyDomain(mockDomain);
+        }),
+      ).rejects.toThrow(BusinessError);
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.domains.verify.create,
@@ -622,12 +467,10 @@ describe('useDomainTable', () => {
         verifyAction: undefined,
       });
 
-      const { result } = renderUseDomainTable(mockOptionsWithoutCallbacks);
+      const { result } = renderHook(() => useDomainTable(mockOptionsWithoutCallbacks));
 
-      const isVerified = await result.current.onVerifyDomain(mockDomain);
-
-      await waitFor(() => {
-        expect(result.current.isVerifying).toBe(false);
+      const isVerified = await act(async () => {
+        return await result.current.onVerifyDomain(mockDomain);
       });
 
       expect(
@@ -640,12 +483,10 @@ describe('useDomainTable', () => {
   describe('onDeleteDomain', () => {
     it('should delete domain successfully with callbacks', async () => {
       const mockDomain = createMockDomain();
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      await result.current.onDeleteDomain(mockDomain);
-
-      await waitFor(() => {
-        expect(result.current.isDeleting).toBe(false);
+      await act(async () => {
+        await result.current.onDeleteDomain(mockDomain);
       });
 
       expect(mockOptions.deleteAction!.onBefore).toHaveBeenCalledWith(mockDomain);
@@ -664,9 +505,13 @@ describe('useDomainTable', () => {
         },
       });
 
-      const { result } = renderUseDomainTable(mockOptionsWithFalseBefore);
+      const { result } = renderHook(() => useDomainTable(mockOptionsWithFalseBefore));
 
-      await expect(result.current.onDeleteDomain(mockDomain)).rejects.toThrow(BusinessError);
+      await expect(
+        act(async () => {
+          await result.current.onDeleteDomain(mockDomain);
+        }),
+      ).rejects.toThrow(BusinessError);
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.domains.delete,
@@ -679,12 +524,10 @@ describe('useDomainTable', () => {
         deleteAction: undefined,
       });
 
-      const { result } = renderUseDomainTable(mockOptionsWithoutCallbacks);
+      const { result } = renderHook(() => useDomainTable(mockOptionsWithoutCallbacks));
 
-      await result.current.onDeleteDomain(mockDomain);
-
-      await waitFor(() => {
-        expect(result.current.isDeleting).toBe(false);
+      await act(async () => {
+        await result.current.onDeleteDomain(mockDomain);
       });
 
       expect(
@@ -698,12 +541,10 @@ describe('useDomainTable', () => {
       const mockDomain = createMockDomain();
       const mockProvider = createMockIdentityProvider();
 
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      await result.current.onAssociateToProvider(mockDomain, mockProvider);
-
-      await waitFor(() => {
-        expect(result.current.isCreating).toBe(false);
+      await act(async () => {
+        await result.current.onAssociateToProvider(mockDomain, mockProvider);
       });
 
       expect(mockOptions.associateToProviderAction!.onBefore).toHaveBeenCalledWith(
@@ -725,11 +566,13 @@ describe('useDomainTable', () => {
         },
       });
 
-      const { result } = renderUseDomainTable(mockOptionsWithFalseBefore);
+      const { result } = renderHook(() => useDomainTable(mockOptionsWithFalseBefore));
 
-      await expect(result.current.onAssociateToProvider(mockDomain, mockProvider)).rejects.toThrow(
-        BusinessError,
-      );
+      await expect(
+        act(async () => {
+          await result.current.onAssociateToProvider(mockDomain, mockProvider);
+        }),
+      ).rejects.toThrow(BusinessError);
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.create,
@@ -743,12 +586,10 @@ describe('useDomainTable', () => {
         associateToProviderAction: undefined,
       });
 
-      const { result } = renderUseDomainTable(mockOptionsWithoutCallbacks);
+      const { result } = renderHook(() => useDomainTable(mockOptionsWithoutCallbacks));
 
-      await result.current.onAssociateToProvider(mockDomain, mockProvider);
-
-      await waitFor(() => {
-        expect(result.current.isCreating).toBe(false);
+      await act(async () => {
+        await result.current.onAssociateToProvider(mockDomain, mockProvider);
       });
 
       expect(
@@ -762,12 +603,10 @@ describe('useDomainTable', () => {
       const mockDomain = createMockDomain();
       const mockProvider = createMockIdentityProvider();
 
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      await result.current.onDeleteFromProvider(mockDomain, mockProvider);
-
-      await waitFor(() => {
-        expect(result.current.isDeleting).toBe(false);
+      await act(async () => {
+        await result.current.onDeleteFromProvider(mockDomain, mockProvider);
       });
 
       expect(mockOptions.deleteFromProviderAction!.onBefore).toHaveBeenCalledWith(
@@ -789,11 +628,13 @@ describe('useDomainTable', () => {
         },
       });
 
-      const { result } = renderUseDomainTable(mockOptionsWithFalseBefore);
+      const { result } = renderHook(() => useDomainTable(mockOptionsWithFalseBefore));
 
-      await expect(result.current.onDeleteFromProvider(mockDomain, mockProvider)).rejects.toThrow(
-        BusinessError,
-      );
+      await expect(
+        act(async () => {
+          await result.current.onDeleteFromProvider(mockDomain, mockProvider);
+        }),
+      ).rejects.toThrow(BusinessError);
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.delete,
@@ -807,12 +648,10 @@ describe('useDomainTable', () => {
         deleteFromProviderAction: undefined,
       });
 
-      const { result } = renderUseDomainTable(mockOptionsWithoutCallbacks);
+      const { result } = renderHook(() => useDomainTable(mockOptionsWithoutCallbacks));
 
-      await result.current.onDeleteFromProvider(mockDomain, mockProvider);
-
-      await waitFor(() => {
-        expect(result.current.isDeleting).toBe(false);
+      await act(async () => {
+        await result.current.onDeleteFromProvider(mockDomain, mockProvider);
       });
 
       expect(
@@ -826,12 +665,10 @@ describe('useDomainTable', () => {
       const mockDomain = createMockDomain();
       const mockProvider = createMockIdentityProvider({ id: undefined });
 
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      await result.current.onAssociateToProvider(mockDomain, mockProvider);
-
-      await waitFor(() => {
-        expect(result.current.isCreating).toBe(false);
+      await act(async () => {
+        await result.current.onAssociateToProvider(mockDomain, mockProvider);
       });
 
       expect(
@@ -843,12 +680,10 @@ describe('useDomainTable', () => {
       const mockDomain = createMockDomain();
       const mockProvider = createMockIdentityProvider({ id: undefined });
 
-      const { result } = renderUseDomainTable(mockOptions);
+      const { result } = renderHook(() => useDomainTable(mockOptions));
 
-      await result.current.onDeleteFromProvider(mockDomain, mockProvider);
-
-      await waitFor(() => {
-        expect(result.current.isDeleting).toBe(false);
+      await act(async () => {
+        await result.current.onDeleteFromProvider(mockDomain, mockProvider);
       });
 
       expect(
@@ -858,12 +693,35 @@ describe('useDomainTable', () => {
 
     it('should call useTranslator with correct parameters', () => {
       const useTranslatorSpy = vi.spyOn(useTranslatorModule, 'useTranslator');
-      renderUseDomainTable(mockOptions);
+      renderHook(() => useDomainTable(mockOptions));
 
       expect(useTranslatorSpy).toHaveBeenCalledWith(
         'domain_management.domain_table.notifications',
         {},
       );
+    });
+  });
+
+  describe('Callback Dependencies', () => {
+    it('should update callbacks when options change', () => {
+      const options1 = createMockOptions();
+      const { result, rerender } = renderHook((props) => useDomainTable(props), {
+        initialProps: options1,
+      });
+
+      const initialFetchDomains = result.current.fetchDomains;
+
+      const options2 = createMockOptions({
+        createAction: {
+          onBefore: vi.fn().mockReturnValue(true),
+          onAfter: vi.fn(),
+        },
+      });
+
+      rerender(options2);
+
+      // Functions should maintain their identity when dependencies don't change for core operations
+      expect(result.current.fetchDomains).toBe(initialFetchDomains);
     });
   });
 });
