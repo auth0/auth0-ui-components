@@ -248,7 +248,8 @@
       "notifications": {
         "general_error": "リクエストの処理中に問題が発生しました。もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
         "provider_create_success": "${providerName} が作成されました。",
-        "provider_create_duplicated_provider_error": "${providerName} プロバイダーは既に存在します。別の名前を選択してください。"
+        "provider_create_duplicated_provider_error": "${providerName} プロバイダーは既に存在します。別の名前を選択してください。",
+        "provider_create_discovery_failure": "${domain} が見つかりませんでした。ドメインを確認してもう一度お試しください。"
       },
       "provider_select": {
         "title": "IDプロバイダーを選択",
@@ -742,7 +743,7 @@
               "modal": {
                 "title": "ドメインの削除",
                 "description": {
-                  "pending": "${domainName} は確認待ちであり、処理に最大48時間かかる場合があります。このドメインを削除してもよろしいですか？この操作は元に戻せません。",
+                  "pending": "${domainName} は確認待ちであり、処理に最大48時間かかる場合があります。このドメインを削除してもよろしいですか？",
                   "verified": "${domainName} を削除すると、ユーザーのログインフローに影響を与える可能性があります。このドメインを削除してもよろしいですか？この操作は元に戻せません。"
                 },
                 "actions": {
@@ -808,7 +809,7 @@
       "remove_button_label": "削除",
       "modal": {
         "title": "${organizationName}から${providerName}を削除",
-        "description": "この操作により、この組織のすべてのユーザーの${providerName}へのアクセスが取り消されます。ユーザーは削除されませんが、このプロバイダーを使用してサインインできなくなります",
+        "description": "この操作により、この組織のすべてのユーザーの<bold>${providerName}</bold>へのアクセスが取り消されます。ユーザーは削除されませんが、このプロバイダーを使用してサインインできなくなります",
 
         "content": {
           "description": "確認のためプロバイダー名を入力してください。",
