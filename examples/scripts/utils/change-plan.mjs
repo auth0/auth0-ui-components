@@ -16,15 +16,19 @@ export function createChangePlan() {
     },
     clientGrants: {
       myOrg: null,
+      myAccount: null,
     },
     connection: null,
     connectionProfile: null,
     userAttributeProfile: null,
     resourceServer: null,
+    myAccountResourceServer: null,
     roles: {
       admin: null,
       member: null,
     },
+    orgs: null,
+    orgMembers: null,
     tenantConfig: {
       settings: null,
       prompts: null,

@@ -2,6 +2,7 @@
 import {
   applyDashboardClientChanges,
   applyMyOrgClientGrantChanges,
+  applyMyAccountClientGrantChanges,
 } from "./utils/clients.mjs"
 import {
   applyConnectionProfileChanges,
@@ -15,7 +16,12 @@ import {
 import { writeEnvFile } from "./utils/env-writer.mjs"
 import { confirmWithUser, selectOptionFromList } from "./utils/helpers.mjs"
 import { applyUserAttributeProfileChanges } from "./utils/profiles.mjs"
-import { applyMyOrgResourceServerChanges, MYORG_API_SCOPES } from "./utils/resource-servers.mjs"
+import {
+  applyMyOrgResourceServerChanges,
+  applyMyAccountResourceServerChanges,
+  MYORG_API_SCOPES,
+  MYACCOUNT_API_SCOPES,
+} from "./utils/resource-servers.mjs"
 import {
   applyAdminRoleChanges,
 } from "./utils/roles.mjs"
@@ -109,10 +115,12 @@ async function main() {
   const hasChanges =
     plan.clients.dashboard.action !== "skip" ||
     plan.clientGrants.myOrg.action !== "skip" ||
+    plan.clientGrants.myAccount.action !== "skip" ||
     plan.connection.action !== "skip" ||
     plan.connectionProfile.action !== "skip" ||
     plan.userAttributeProfile.action !== "skip" ||
     plan.resourceServer.action !== "skip" ||
+    plan.myAccountResourceServer.action !== "skip" ||
     plan.roles.admin.action !== "skip" ||
     plan.orgs.action !== "skip" ||
     plan.orgMembers.action !== "skip" ||
@@ -167,10 +175,17 @@ async function main() {
   )
   console.log("")
 
-  // 7c. Resource Server (My Organization API)
+  // 7c. Resource Servers (My Organization API and My Account API)
   console.log("Configuring My Organization API...")
   await applyMyOrgResourceServerChanges(
     plan.resourceServer,
+    domain
+  )
+  console.log("")
+
+  console.log("Configuring My Account API...")
+  await applyMyAccountResourceServerChanges(
+    plan.myAccountResourceServer,
     domain
   )
   console.log("")
@@ -183,14 +198,20 @@ async function main() {
     userAttributeProfile.id,
     exampleType,
     domain,
-    MYORG_API_SCOPES
+    MYORG_API_SCOPES,
+    MYACCOUNT_API_SCOPES
   )
   console.log("")
 
-  // 7e. Grant Dashboard Client access to My Organization API
+  // 7e. Grant Dashboard Client access to My Organization API and My Account API
   console.log("Configuring Client Grants...")
   await applyMyOrgClientGrantChanges(
     plan.clientGrants.myOrg,
+    domain,
+    dashboardClient.client_id
+  )
+  await applyMyAccountClientGrantChanges(
+    plan.clientGrants.myAccount,
     domain,
     dashboardClient.client_id
   )
