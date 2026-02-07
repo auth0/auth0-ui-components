@@ -6,6 +6,7 @@ import { createChangePlan } from "./change-plan.mjs"
 import {
   checkDashboardClientChanges,
   checkMyOrgClientGrantChanges,
+  checkMyAccountClientGrantChanges,
 } from "./clients.mjs"
 import {
   checkConnectionProfileChanges,
@@ -14,7 +15,9 @@ import {
 import { checkUserAttributeProfileChanges } from "./profiles.mjs"
 import {
   checkMyOrgResourceServerChanges,
+  checkMyAccountResourceServerChanges,
   MYORG_API_SCOPES,
+  MYACCOUNT_API_SCOPES,
 } from "./resource-servers.mjs"
 import { checkAdminRoleChanges } from "./roles.mjs"
 import { checkOrgChanges } from "./orgs.mjs"
@@ -145,15 +148,20 @@ export async function buildChangePlan(resources, domain, exampleType) {
       userAttributeProfileId,
       exampleType,
       domain,
-      MYORG_API_SCOPES
+      MYORG_API_SCOPES,
+      MYACCOUNT_API_SCOPES
     )
 
     // Get client IDs (either existing or will be created)
     const dashboardClientId =
       plan.clients.dashboard.existing?.client_id || "TO_BE_CREATED"
 
-    // Resource Server
+    // Resource Servers
     plan.resourceServer = checkMyOrgResourceServerChanges(
+      resources.resourceServers,
+      domain
+    )
+    plan.myAccountResourceServer = checkMyAccountResourceServerChanges(
       resources.resourceServers,
       domain
     )
@@ -164,6 +172,14 @@ export async function buildChangePlan(resources, domain, exampleType) {
       resources.clientGrants,
       domain,
       MYORG_API_SCOPES
+    )
+
+    // My Account Client Grant (Dashboard to My Account API)
+    plan.clientGrants.myAccount = checkMyAccountClientGrantChanges(
+      dashboardClientId,
+      resources.clientGrants,
+      domain,
+      MYACCOUNT_API_SCOPES
     )
 
     // Connection
@@ -233,10 +249,12 @@ export function displayChangePlan(plan) {
   // Categorize all plan items
   categorize(plan.clients.dashboard)
   categorize(plan.clientGrants.myOrg)
+  categorize(plan.clientGrants.myAccount)
   categorize(plan.connection)
   categorize(plan.connectionProfile)
   categorize(plan.userAttributeProfile)
   categorize(plan.resourceServer)
+  categorize(plan.myAccountResourceServer)
   categorize(plan.roles.admin)
   categorize(plan.roles.member)
   categorize(plan.orgs)
@@ -399,9 +417,11 @@ export function displayChangePlan(plan) {
     showDetails(plan.clients.dashboard, "Dashboard Client")
     showDetails(plan.clientGrants.management, "Management API Client Grant")
     showDetails(plan.clientGrants.myOrg, "My Org API Client Grant")
+    showDetails(plan.clientGrants.myAccount, "My Account API Client Grant")
     showDetails(plan.connection, "Database Connection")
     showDetails(plan.connectionProfile, "Connection Profile")
     showDetails(plan.resourceServer, "My Organization API")
+    showDetails(plan.myAccountResourceServer, "My Account API")
     showDetails(plan.roles.admin, "Admin Role")
     showDetails(plan.roles.member, "Member Role")
     showDetails(plan.orgs, "Organization")
