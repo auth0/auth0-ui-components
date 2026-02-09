@@ -8,9 +8,8 @@ import {
 import { Trash2, Plus } from 'lucide-react';
 import * as React from 'react';
 
-import { ProvisioningCreateTokenModal } from './sso-provisioning-create-token/provisioning-create-token-modal';
-import { ProvisioningDeleteTokenModal } from './sso-provisioning-delete-token/provisioning-delete-token-modal';
-
+import { ProvisioningCreateTokenModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal';
+import { ProvisioningDeleteTokenModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal';
 import { Spinner } from '@/components/auth0/shared/spinner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

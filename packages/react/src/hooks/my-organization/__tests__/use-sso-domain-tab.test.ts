@@ -2,8 +2,7 @@ import { BusinessError } from '@auth0/universal-components-core';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { useSsoDomainTab } from '../use-sso-domain-tab';
-
+import { useSsoDomainTab } from '@/hooks/my-organization/use-sso-domain-tab';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
