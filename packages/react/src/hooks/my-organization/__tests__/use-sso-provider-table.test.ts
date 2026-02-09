@@ -2,6 +2,8 @@ import type { IdentityProvider, OrganizationPrivate } from '@auth0/universal-com
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { useSsoProviderTable } from '../use-sso-provider-table';
+
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import { mockToast, createMockI18nService } from '@/tests/utils';
@@ -11,9 +13,6 @@ import { setupMockUseCoreClient, setupMockUseCoreClientNull } from '@/tests/util
 // ===== Mock packages =====
 
 const { mockedShowToast } = mockToast();
-
-// eslint-disable-next-line import/order -- mock must be imported before the module it mocks
-import { useSsoProviderTable } from '../use-sso-provider-table';
 
 // ===== Mock Data =====
 

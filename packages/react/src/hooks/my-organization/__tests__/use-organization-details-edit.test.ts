@@ -1,6 +1,8 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
+import { useOrganizationDetailsEdit } from '../use-organization-details-edit';
+
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockOrganization,
@@ -12,9 +14,6 @@ import type { UseOrganizationDetailsEditOptions } from '@/types/my-organization/
 
 const { mockedShowToast } = mockToast();
 const { initMockCoreClient } = mockCore();
-
-// eslint-disable-next-line import/order -- must import after mocks are initialized
-import { useOrganizationDetailsEdit } from '../use-organization-details-edit';
 
 function createMockApiService(coreClient: ReturnType<typeof initMockCoreClient>) {
   const mockOrganization = createMockOrganization();
