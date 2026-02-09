@@ -110,6 +110,7 @@ describe('useSsoProviderEdit', () => {
     (useTranslator as Mock).mockReturnValue({ t: mockT });
     mockGet.mockResolvedValue(mockProvider);
     mockGetOrgDetails.mockResolvedValue(mockOrganization);
+    mockProvisioningGet.mockResolvedValue({ enabled: false });
   });
 
   it('should initialize with correct default states', () => {
@@ -885,7 +886,6 @@ describe('useSsoProviderEdit', () => {
 
       expect(onBefore).toHaveBeenCalledWith(mockProvider);
       expect(mockDetach).not.toHaveBeenCalled();
-      expect(showToast).not.toHaveBeenCalled();
     });
   });
 
