@@ -19,7 +19,7 @@ import { useSsoDomainTab } from '../use-sso-domain-tab';
 
 // ===== Mock packages =====
 
-mockToast();
+const { mockedShowToast } = mockToast();
 const { initMockCoreClient } = mockCore();
 
 // Test data
@@ -361,6 +361,24 @@ describe('useSsoDomainTab', () => {
         await result.current.handleVerifyActionColumn(mockDomain);
       });
 
+      expect(result.current.isUpdating).toBe(false);
+      expect(result.current.isUpdatingId).toBeNull();
+    });
+
+    it('should show error toast when action column verification fails', async () => {
+      const failedDomain = { ...mockDomain, status: 'failed' };
+      mockDomainVerifyCreate.mockResolvedValue(failedDomain);
+
+      const { result } = await renderUseSsoDomainTab('idp-1');
+
+      await act(async () => {
+        await result.current.handleVerifyActionColumn(mockDomain);
+      });
+
+      expect(mockedShowToast).toHaveBeenCalledWith({
+        type: 'error',
+        message: 'domain_verify.verification_failed',
+      });
       expect(result.current.isUpdating).toBe(false);
       expect(result.current.isUpdatingId).toBeNull();
     });

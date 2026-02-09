@@ -11,7 +11,7 @@ import {
 } from '../../../../internals/test-utilities';
 import * as useCoreClientModule from '../../../use-core-client';
 import * as useTranslatorModule from '../../../use-translator';
-import { useSsoProviderTable } from '../use-sso-provider-table';
+import { ssoProviderQueryKeys, useSsoProviderTable } from '../use-sso-provider-table';
 
 // ===== Mock packages =====
 
@@ -52,6 +52,11 @@ const mockOrganization: OrganizationPrivate = {
 const renderUseSsoProviderTable = (...args: Parameters<typeof useSsoProviderTable>) => {
   const { wrapper } = createTestQueryClientWrapper();
   return renderHook(() => useSsoProviderTable(...args), { wrapper });
+};
+
+const renderUseSsoProviderTableWithClient = (...args: Parameters<typeof useSsoProviderTable>) => {
+  const { wrapper, queryClient } = createTestQueryClientWrapper();
+  return { queryClient, ...renderHook(() => useSsoProviderTable(...args), { wrapper }) };
 };
 
 describe('useSsoProviderTable', () => {
@@ -160,6 +165,25 @@ describe('useSsoProviderTable', () => {
 
       expect(result.current.providers).toEqual([]);
     });
+
+    it('should skip invalidation when cached providers are fresh', async () => {
+      const mockList = vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders });
+
+      setupMockMyOrgClient({ list: mockList });
+
+      const { result, queryClient } = renderUseSsoProviderTableWithClient();
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      queryClient.setQueryData(ssoProviderQueryKeys.list(), mockIdentityProviders);
+
+      await result.current.fetchProviders();
+
+      expect(invalidateSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe('fetchOrganizationDetails', () => {
@@ -198,6 +222,29 @@ describe('useSsoProviderTable', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
+      expect(mockedShowToast).toHaveBeenCalledWith({
+        type: 'error',
+        message: 'general_error',
+      });
+    });
+
+    it('should return null and show toast when fetchOrganizationDetails fails', async () => {
+      const mockGet = vi.fn().mockRejectedValue(new Error('Not found'));
+
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: [] }),
+        organizationGet: mockGet,
+      });
+
+      const { result } = renderUseSsoProviderTable();
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      const organization = await result.current.fetchOrganizationDetails();
+
+      expect(organization).toBeNull();
       expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'error',
         message: 'general_error',
@@ -319,6 +366,20 @@ describe('useSsoProviderTable', () => {
       });
 
       await waitFor(() => result.current.onEnableProvider(providerWithoutId, true));
+    });
+
+    it('should return false if coreClient is not available', async () => {
+      setupMockUseCoreClientNull(useCoreClientModule);
+
+      const { result } = renderUseSsoProviderTable();
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      const resultValue = await result.current.onEnableProvider(mockIdentityProviders[0]!, true);
+
+      expect(resultValue).toBe(false);
     });
   });
 

@@ -227,6 +227,27 @@ describe('useSsoProviderCreate', () => {
         });
       });
     });
+
+    it('should fall back to general error when detail is missing', async () => {
+      const error = {
+        body: {
+          status: 400,
+        },
+      };
+
+      mockCreate.mockRejectedValue(error);
+
+      const { result } = renderUseSsoProviderCreate();
+
+      await expect(result.current.createProvider(baseOktaProviderData)).rejects.toBeDefined();
+
+      await waitFor(() => {
+        expect(showToast).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'An error occurred',
+        });
+      });
+    });
   });
 
   it('should handle general errors', async () => {

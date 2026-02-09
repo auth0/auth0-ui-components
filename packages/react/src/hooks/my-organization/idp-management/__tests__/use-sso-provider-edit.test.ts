@@ -299,6 +299,7 @@ describe('useSsoProviderEdit', () => {
 
     expect(onBefore).toHaveBeenCalledWith(mockProvider);
     expect(mockProvisioningCreate).not.toHaveBeenCalled();
+    expect(showToast).not.toHaveBeenCalled();
   });
 
   it('should delete provisioning successfully', async () => {
@@ -823,6 +824,7 @@ describe('useSsoProviderEdit', () => {
 
       expect(onBefore).toHaveBeenCalledWith(mockProvider);
       expect(mockUpdate).not.toHaveBeenCalled();
+      expect(showToast).not.toHaveBeenCalled();
     });
 
     it('should call onBefore callback for provisioning delete and abort when it returns false', async () => {
@@ -842,6 +844,7 @@ describe('useSsoProviderEdit', () => {
 
       expect(onBefore).toHaveBeenCalledWith(mockProvider);
       expect(mockProvisioningDelete).not.toHaveBeenCalled();
+      expect(showToast).not.toHaveBeenCalled();
     });
 
     it('should call onBefore callback for SCIM token delete and abort when it returns false', async () => {
@@ -861,6 +864,7 @@ describe('useSsoProviderEdit', () => {
 
       expect(onBefore).toHaveBeenCalledWith(mockProvider);
       expect(mockScimTokensDelete).not.toHaveBeenCalled();
+      expect(showToast).not.toHaveBeenCalled();
     });
 
     it('should call onBefore callback for remove from org and abort when it returns false', async () => {
@@ -881,6 +885,22 @@ describe('useSsoProviderEdit', () => {
 
       expect(onBefore).toHaveBeenCalledWith(mockProvider);
       expect(mockDetach).not.toHaveBeenCalled();
+      expect(showToast).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('organization query errors', () => {
+    it('should show toast when organization query fails on mount', async () => {
+      mockGetOrgDetails.mockRejectedValue(new Error('Organization fetch failed'));
+
+      renderUseSsoProviderEdit(mockIdpId);
+
+      await waitFor(() => {
+        expect(showToast).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'An error occurred',
+        });
+      });
     });
   });
 
