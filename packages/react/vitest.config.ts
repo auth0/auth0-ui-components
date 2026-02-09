@@ -46,6 +46,8 @@ export default defineConfig({
         '**/tsup.config.*',
         'src/components/ui/**/*',
         '**/src/types/**',
+        'src/components/auth0/shared/pagination.tsx',
+        'src/components/auth0/shared/data-pagination.tsx',
       ],
       include: ['src/**/*'],
       thresholds: {
