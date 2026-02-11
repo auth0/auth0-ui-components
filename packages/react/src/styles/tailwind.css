@@ -1,0 +1,6 @@
+/*
+ * This file configures a customer's Tailwind build.
+ * The @source directive tells Tailwind to scan our 
+ * library's compiled JS files in 'dist' for class names.
+ */
+@source "./**/*.js";
