@@ -166,7 +166,7 @@ describe('useSsoProviderTable', () => {
       expect(result.current.providers).toEqual([]);
     });
 
-    it('should skip invalidation when cached providers are fresh', async () => {
+    it('should invalidate providers query when refreshing', async () => {
       const mockList = vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders });
 
       setupMockMyOrgClient({ list: mockList });
@@ -182,7 +182,9 @@ describe('useSsoProviderTable', () => {
 
       await result.current.fetchProviders();
 
-      expect(invalidateSpy).not.toHaveBeenCalled();
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: ssoProviderQueryKeys.list(),
+      });
     });
   });
 

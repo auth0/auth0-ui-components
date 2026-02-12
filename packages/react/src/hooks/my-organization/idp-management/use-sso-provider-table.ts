@@ -257,7 +257,11 @@ export function useSsoProviderTable(
         return;
       }
 
-      await removeProviderMutation.mutateAsync(selectedIdp);
+      try {
+        await removeProviderMutation.mutateAsync(selectedIdp);
+      } catch {
+        // Errors are handled by mutation onError
+      }
     },
     [coreClient, removeProviderMutation],
   );
