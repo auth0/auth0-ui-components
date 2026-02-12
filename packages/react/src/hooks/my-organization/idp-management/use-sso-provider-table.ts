@@ -15,12 +15,6 @@ import type { UseSsoProviderTableReturn } from '../../../types/my-organization/i
 import { useCoreClient } from '../../use-core-client';
 import { useTranslator } from '../../use-translator';
 
-const CACHE_CONFIG = {
-  PROVIDERS_STALE_TIME: 5 * 60 * 1000,
-  PROVIDERS_GC_TIME: 10 * 60 * 1000,
-  ORGANIZATION_STALE_TIME: 10 * 60 * 1000,
-} as const;
-
 export const ssoProviderQueryKeys = {
   all: ['sso-providers'] as const,
   list: () => [...ssoProviderQueryKeys.all, 'list'] as const,
@@ -55,8 +49,6 @@ export function useSsoProviderTable(
         .organization.identityProviders.list();
       return (response?.identity_providers ?? []) as IdentityProvider[];
     },
-    staleTime: CACHE_CONFIG.PROVIDERS_STALE_TIME,
-    gcTime: CACHE_CONFIG.PROVIDERS_GC_TIME,
     enabled: !!coreClient,
   });
 
@@ -66,7 +58,6 @@ export function useSsoProviderTable(
       const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
       return OrganizationDetailsMappers.fromAPI(response);
     },
-    staleTime: CACHE_CONFIG.ORGANIZATION_STALE_TIME,
     enabled: !!coreClient,
   });
 
@@ -266,26 +257,12 @@ export function useSsoProviderTable(
         return;
       }
 
-      try {
-        await removeProviderMutation.mutateAsync(selectedIdp);
-      } catch {
-        // Errors are handled by mutation onError
-      }
+      await removeProviderMutation.mutateAsync(selectedIdp);
     },
     [coreClient, removeProviderMutation],
   );
 
   const fetchProviders = useCallback(async (): Promise<void> => {
-    const existingData = queryClient.getQueryData(ssoProviderQueryKeys.list());
-    const queryState = queryClient.getQueryState(ssoProviderQueryKeys.list());
-
-    if (existingData && queryState && !queryState.isInvalidated) {
-      const dataAge = Date.now() - (queryState.dataUpdatedAt || 0);
-      if (dataAge < CACHE_CONFIG.PROVIDERS_STALE_TIME) {
-        return;
-      }
-    }
-
     await queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
   }, [queryClient]);
 
@@ -301,7 +278,6 @@ export function useSsoProviderTable(
           const response = await coreClient.getMyOrganizationApiClient().organizationDetails.get();
           return OrganizationDetailsMappers.fromAPI(response);
         },
-        staleTime: CACHE_CONFIG.ORGANIZATION_STALE_TIME,
       });
       return data;
     } catch (error) {

@@ -171,7 +171,7 @@ export const PingFederateProviderForm = React.forwardRef<
               <FormControl>
                 <div className="space-y-3">
                   <FileUpload
-                    accept=".pem,.crt,.cer"
+                    accept=".pem"
                     onChange={handleFileUpload}
                     value={uploadedFiles}
                     maxFiles={1}
