@@ -75,7 +75,9 @@ export const ThemeProvider: React.FC<{
 
   return (
     <ThemeContext.Provider value={{ isDarkMode: mode === 'dark', variables, loader }}>
-      <div className="auth0">{children}</div>
+      <div className="auth0" data-theme={theme || 'default'}>
+        {children}
+      </div>
     </ThemeContext.Provider>
   );
 };
