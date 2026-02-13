@@ -175,7 +175,6 @@ function CopyButton({
 }) {
   const [copied, setCopied] = useState(false);
   const [copyTooltipOpen, setCopyTooltipOpen] = useState(false);
-  const [textTooltipOpen, setTextTooltipOpen] = useState(false);
   const stringValue = String(value);
 
   const handleCopy = async (e: React.MouseEvent) => {
@@ -198,17 +197,9 @@ function CopyButton({
 
   return (
     <InlineCode className="w-full flex items-center justify-between gap-2 pr-1">
-      <Tooltip open={textTooltipOpen} onOpenChange={setTextTooltipOpen}>
-        <TooltipTrigger asChild>
-          <span className="min-w-0 flex-1">
-            <MiddleEllipsisText text={stringValue} className="text-muted-foreground" />
-          </span>
-        </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-md break-all">
-          <p>{stringValue}</p>
-        </TooltipContent>
-      </Tooltip>
-
+      <span className="min-w-0 flex-1">
+        <MiddleEllipsisText text={stringValue} className="text-muted-foreground" />
+      </span>
       <Tooltip open={copyTooltipOpen} onOpenChange={setCopyTooltipOpen}>
         <TooltipTrigger asChild>
           <Button
