@@ -213,6 +213,7 @@ export function useSsoProviderTable(
         type: 'error',
         message: t('general_error'),
       });
+      return;
     },
   });
 
@@ -242,11 +243,7 @@ export function useSsoProviderTable(
         return;
       }
 
-      try {
-        await deleteProviderMutation.mutateAsync(selectedIdp);
-      } catch {
-        // Errors are handled by mutation onError
-      }
+      deleteProviderMutation.mutate(selectedIdp);
     },
     [coreClient, deleteProviderMutation],
   );
@@ -257,11 +254,7 @@ export function useSsoProviderTable(
         return;
       }
 
-      try {
-        await removeProviderMutation.mutateAsync(selectedIdp);
-      } catch {
-        // Errors are handled by mutation onError
-      }
+      removeProviderMutation.mutate(selectedIdp);
     },
     [coreClient, removeProviderMutation],
   );
