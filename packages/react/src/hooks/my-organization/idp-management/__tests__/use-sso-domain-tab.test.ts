@@ -11,6 +11,7 @@ import {
   setupAllCommonMocks,
   setupMockUseCoreClientNull,
 } from '../../../../internals';
+import { createTestQueryClientWrapper } from '../../../../internals/test-provider';
 import * as useCoreClientModule from '../../../use-core-client';
 import * as useErrorHandlerModule from '../../../use-error-handler';
 import * as useTranslatorModule from '../../../use-translator';
@@ -18,7 +19,7 @@ import { useSsoDomainTab } from '../use-sso-domain-tab';
 
 // ===== Mock packages =====
 
-mockToast();
+const { mockedShowToast } = mockToast();
 const { initMockCoreClient } = mockCore();
 
 // Test data
@@ -84,13 +85,23 @@ describe('useSsoDomainTab', () => {
     mockHandleError = setupMockHandleError;
   });
 
-  describe('initialization', () => {
-    it('should initialize with default state', () => {
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+  const renderUseSsoDomainTab = async (
+    idpId: string,
+    options?: Parameters<typeof useSsoDomainTab>[1],
+  ) => {
+    const { wrapper, queryClient } = createTestQueryClientWrapper();
+    const hook = renderHook(() => useSsoDomainTab(idpId, options), { wrapper });
+    await waitFor(() => expect(hook.result.current.isLoading).toBe(false));
+    return { queryClient, ...hook };
+  };
 
-      expect(result.current.isLoading).toBe(true);
-      expect(result.current.domainsList).toEqual([]);
-      expect(result.current.idpDomains).toEqual([]);
+  describe('initialization', () => {
+    it('should initialize with default state', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1');
+
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.domainsList).toEqual([mockDomain]);
+      expect(result.current.idpDomains).toContain(mockDomain.id);
       expect(result.current.isCreating).toBe(false);
       expect(result.current.selectedDomain).toBeNull();
       expect(result.current.showVerifyModal).toBe(false);
@@ -104,17 +115,16 @@ describe('useSsoDomainTab', () => {
     });
 
     it('should fetch domains on mount', async () => {
-      renderHook(() => useSsoDomainTab('idp-1'));
+      await renderUseSsoDomainTab('idp-1');
 
-      await waitFor(() => {
-        expect(
-          mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
-        ).toHaveBeenCalledOnce();
-      });
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
+      ).toHaveBeenCalledOnce();
     });
 
     it('should not fetch domains if idpId is not provided', () => {
-      renderHook(() => useSsoDomainTab(''));
+      const { wrapper } = createTestQueryClientWrapper();
+      renderHook(() => useSsoDomainTab(''), { wrapper });
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
@@ -124,12 +134,10 @@ describe('useSsoDomainTab', () => {
 
   describe('domain listing', () => {
     it('should fetch and set domains list successfully', async () => {
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
-      await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
-        expect(result.current.domainsList).toEqual([mockDomain]);
-      });
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.domainsList).toEqual([mockDomain]);
     });
 
     it('should handle domain listing error', async () => {
@@ -140,7 +148,8 @@ describe('useSsoDomainTab', () => {
         >
       ).mockRejectedValue(error);
 
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { wrapper } = createTestQueryClientWrapper();
+      const { result } = renderHook(() => useSsoDomainTab('idp-1'), { wrapper });
 
       await waitFor(() => {
         expect(mockHandleError).toHaveBeenCalledWith(error, {
@@ -155,11 +164,9 @@ describe('useSsoDomainTab', () => {
         identity_providers: [{ id: 'idp-1' }],
       });
 
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
-      await waitFor(() => {
-        expect(result.current.idpDomains).toContain(mockDomain.id);
-      });
+      expect(result.current.idpDomains).toContain(mockDomain.id);
     });
 
     it('should not add domain to idpDomains if provider not enabled', async () => {
@@ -167,11 +174,9 @@ describe('useSsoDomainTab', () => {
         identity_providers: [{ id: 'other-idp' }],
       });
 
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
-      await waitFor(() => {
-        expect(result.current.idpDomains).not.toContain(mockDomain.id);
-      });
+      expect(result.current.idpDomains).not.toContain(mockDomain.id);
     });
   });
 
@@ -184,16 +189,7 @@ describe('useSsoDomainTab', () => {
         >
       ).mockResolvedValue(mockDomain);
 
-      // Mock listDomains to return empty array to simplify the async chain
-      (
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
-          typeof vi.fn
-        >
-      ).mockResolvedValue({
-        organization_domains: [],
-      });
-
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
       await act(async () => {
         await result.current.handleCreate('newdomain.com');
@@ -217,7 +213,7 @@ describe('useSsoDomainTab', () => {
         >
       ).mockRejectedValue(error);
 
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
       await act(async () => {
         await result.current.handleCreate('newdomain.com');
@@ -240,13 +236,11 @@ describe('useSsoDomainTab', () => {
         >
       ).mockResolvedValue(mockDomain);
 
-      const { result } = renderHook(() =>
-        useSsoDomainTab('idp-1', {
-          domains: {
-            createAction: { onBefore, onAfter },
-          },
-        }),
-      );
+      const { result } = await renderUseSsoDomainTab('idp-1', {
+        domains: {
+          createAction: { onBefore, onAfter },
+        },
+      });
 
       await act(async () => {
         await result.current.handleCreate('newdomain.com');
@@ -271,13 +265,11 @@ describe('useSsoDomainTab', () => {
         >
       ).mockResolvedValue(mockDomain);
 
-      const { result } = renderHook(() =>
-        useSsoDomainTab('idp-1', {
-          domains: {
-            createAction: { onBefore },
-          },
-        }),
-      );
+      const { result } = await renderUseSsoDomainTab('idp-1', {
+        domains: {
+          createAction: { onBefore },
+        },
+      });
 
       await act(async () => {
         await result.current.handleCreate('newdomain.com');
@@ -295,7 +287,7 @@ describe('useSsoDomainTab', () => {
     it('should verify domain successfully', async () => {
       mockDomainVerifyCreate.mockResolvedValue(mockVerifiedDomain);
 
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
       await act(async () => {
         await result.current.handleVerify(mockDomain);
@@ -309,7 +301,7 @@ describe('useSsoDomainTab', () => {
       const failedDomain = { ...mockDomain, status: 'failed' };
       mockDomainVerifyCreate.mockResolvedValue(failedDomain);
 
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
       await act(async () => {
         await result.current.handleVerify(mockDomain);
@@ -325,7 +317,7 @@ describe('useSsoDomainTab', () => {
       const error = new Error('Verification failed');
       mockDomainVerifyCreate.mockRejectedValue(error);
 
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
       await act(async () => {
         await result.current.handleVerify(mockDomain);
@@ -344,13 +336,11 @@ describe('useSsoDomainTab', () => {
       const onAfter = vi.fn();
       mockDomainVerifyCreate.mockResolvedValue(mockVerifiedDomain);
 
-      const { result } = renderHook(() =>
-        useSsoDomainTab('idp-1', {
-          domains: {
-            verifyAction: { onBefore, onAfter },
-          },
-        }),
-      );
+      const { result } = await renderUseSsoDomainTab('idp-1', {
+        domains: {
+          verifyAction: { onBefore, onAfter },
+        },
+      });
 
       await act(async () => {
         await result.current.handleVerify(mockDomain);
@@ -365,7 +355,7 @@ describe('useSsoDomainTab', () => {
     it('should handle verification action column', async () => {
       mockDomainVerifyCreate.mockResolvedValue(mockVerifiedDomain);
 
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
       await act(async () => {
         await result.current.handleVerifyActionColumn(mockDomain);
@@ -375,8 +365,26 @@ describe('useSsoDomainTab', () => {
       expect(result.current.isUpdatingId).toBeNull();
     });
 
-    it('should close verify modal and clear error', () => {
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+    it('should show error toast when action column verification fails', async () => {
+      const failedDomain = { ...mockDomain, status: 'failed' };
+      mockDomainVerifyCreate.mockResolvedValue(failedDomain);
+
+      const { result } = await renderUseSsoDomainTab('idp-1');
+
+      await act(async () => {
+        await result.current.handleVerifyActionColumn(mockDomain);
+      });
+
+      expect(mockedShowToast).toHaveBeenCalledWith({
+        type: 'error',
+        message: 'domain_verify.verification_failed',
+      });
+      expect(result.current.isUpdating).toBe(false);
+      expect(result.current.isUpdatingId).toBeNull();
+    });
+
+    it('should close verify modal and clear error', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
       act(() => {
         result.current.handleCloseVerifyModal();
@@ -395,7 +403,7 @@ describe('useSsoDomainTab', () => {
         >
       ).mockResolvedValue({});
 
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
       await act(async () => {
         await result.current.handleDelete(mockDomain);
@@ -417,7 +425,7 @@ describe('useSsoDomainTab', () => {
         >
       ).mockRejectedValue(error);
 
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
       await act(async () => {
         await result.current.handleDelete(mockDomain);
@@ -431,8 +439,8 @@ describe('useSsoDomainTab', () => {
       });
     });
 
-    it('should handle delete click', () => {
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+    it('should handle delete click', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
       act(() => {
         result.current.handleDeleteClick(mockDomain);
@@ -452,13 +460,11 @@ describe('useSsoDomainTab', () => {
         >
       ).mockResolvedValue({});
 
-      const { result } = renderHook(() =>
-        useSsoDomainTab('idp-1', {
-          domains: {
-            deleteAction: { onBefore, onAfter },
-          },
-        }),
-      );
+      const { result } = await renderUseSsoDomainTab('idp-1', {
+        domains: {
+          deleteAction: { onBefore, onAfter },
+        },
+      });
 
       await act(async () => {
         await result.current.handleDelete(mockDomain);
@@ -475,11 +481,9 @@ describe('useSsoDomainTab', () => {
     it('should associate domain to provider successfully', async () => {
       mockIdentityProviderDomainsCreate.mockResolvedValue({});
 
-      const { result } = renderHook(() =>
-        useSsoDomainTab('idp-1', {
-          provider: mockProvider,
-        }),
-      );
+      const { result } = await renderUseSsoDomainTab('idp-1', {
+        provider: mockProvider,
+      });
 
       await act(async () => {
         await result.current.handleToggleSwitch(mockDomain, true);
@@ -495,11 +499,9 @@ describe('useSsoDomainTab', () => {
     it('should remove domain from provider successfully', async () => {
       mockIdentityProviderDomainsDelete.mockResolvedValue({});
 
-      const { result } = renderHook(() =>
-        useSsoDomainTab('idp-1', {
-          provider: mockProvider,
-        }),
-      );
+      const { result } = await renderUseSsoDomainTab('idp-1', {
+        provider: mockProvider,
+      });
 
       // First add domain to idpDomains
       act(() => {
@@ -520,11 +522,9 @@ describe('useSsoDomainTab', () => {
       const error = new Error('Association failed');
       mockIdentityProviderDomainsCreate.mockRejectedValue(error);
 
-      const { result } = renderHook(() =>
-        useSsoDomainTab('idp-1', {
-          provider: mockProvider,
-        }),
-      );
+      const { result } = await renderUseSsoDomainTab('idp-1', {
+        provider: mockProvider,
+      });
 
       await act(async () => {
         await result.current.handleToggleSwitch(mockDomain, true);
@@ -543,14 +543,12 @@ describe('useSsoDomainTab', () => {
       const onAfter = vi.fn();
       mockIdentityProviderDomainsCreate.mockResolvedValue({});
 
-      const { result } = renderHook(() =>
-        useSsoDomainTab('idp-1', {
-          provider: mockProvider,
-          domains: {
-            associateToProviderAction: { onBefore, onAfter },
-          },
-        }),
-      );
+      const { result } = await renderUseSsoDomainTab('idp-1', {
+        provider: mockProvider,
+        domains: {
+          associateToProviderAction: { onBefore, onAfter },
+        },
+      });
 
       await act(async () => {
         await result.current.handleToggleSwitch(mockDomain, true);
@@ -564,8 +562,8 @@ describe('useSsoDomainTab', () => {
   });
 
   describe('modal state management', () => {
-    it('should manage modal state correctly', () => {
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+    it('should manage modal state correctly', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
       // Test setShowCreateModal
       act(() => {
@@ -596,10 +594,10 @@ describe('useSsoDomainTab', () => {
       // Override the useCoreClient mock to return null coreClient
       setupMockUseCoreClientNull(useCoreClientModule);
 
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { wrapper } = createTestQueryClientWrapper();
+      const { result } = renderHook(() => useSsoDomainTab('idp-1'), { wrapper });
 
-      // When coreClient is null, loading starts but then the function returns early
-      // so isLoading may still be true initially but no API calls are made
+      // When coreClient is null, no API calls are made
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
           typeof vi.fn
@@ -609,7 +607,7 @@ describe('useSsoDomainTab', () => {
     });
 
     it('should handle missing provider when deleting from provider', async () => {
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
       await act(async () => {
         await result.current.handleToggleSwitch(mockDomain, false);
@@ -621,16 +619,14 @@ describe('useSsoDomainTab', () => {
   });
 
   describe('when configuring custom messages', () => {
-    it('should handle custom messages', () => {
+    it('should handle custom messages', async () => {
       const customMessages = {
         'domain_create.success': 'Custom success message',
       };
 
-      renderHook(() =>
-        useSsoDomainTab('idp-1', {
-          customMessages,
-        }),
-      );
+      await renderUseSsoDomainTab('idp-1', {
+        customMessages,
+      });
 
       expect(useTranslatorModule.useTranslator).toHaveBeenCalledWith(
         'idp_management.notifications',
@@ -643,12 +639,10 @@ describe('useSsoDomainTab', () => {
     it('should update domain status in list after verification', async () => {
       mockDomainVerifyCreate.mockResolvedValue(mockVerifiedDomain);
 
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
       // Wait for initial load
-      await waitFor(() => {
-        expect(result.current.domainsList).toEqual([mockDomain]);
-      });
+      expect(result.current.domainsList).toEqual([mockDomain]);
 
       await act(async () => {
         await result.current.handleVerify(mockDomain);
@@ -661,12 +655,10 @@ describe('useSsoDomainTab', () => {
     });
 
     it('should prevent duplicate domains in idpDomains', async () => {
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'));
+      const { result } = await renderUseSsoDomainTab('idp-1');
 
       // Wait for initial load which should add the domain
-      await waitFor(() => {
-        expect(result.current.idpDomains).toContain(mockDomain.id);
-      });
+      expect(result.current.idpDomains).toContain(mockDomain.id);
 
       // Try to add the same domain again
       mockIdentityProviderDomainsCreate.mockResolvedValue({});

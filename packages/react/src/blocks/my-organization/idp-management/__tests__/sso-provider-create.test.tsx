@@ -1,18 +1,21 @@
-import type {
-  ComponentAction,
-  IdentityProvider,
-  CreateIdentityProviderRequestContentPrivate,
+import {
+  AVAILABLE_STRATEGY_LIST,
+  type ComponentAction,
+  type IdentityProvider,
+  type CreateIdentityProviderRequestContentPrivate,
 } from '@auth0/universal-components-core';
+import type { QueryClient } from '@tanstack/react-query';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import * as useConfigModule from '../../../../hooks/my-organization/config/use-config';
+import { idpConfigQueryKeys } from '../../../../hooks/my-organization/config/use-idp-config';
 import * as useIdpConfigModule from '../../../../hooks/my-organization/config/use-idp-config';
 import * as useCoreClientModule from '../../../../hooks/use-core-client';
 import { createMockUseConfig } from '../../../../internals/__mocks__/my-organization/config/config.mocks';
 import { createMockUseIdpConfig } from '../../../../internals/__mocks__/my-organization/idp-management/idp-config.mocks';
-import { renderWithProviders } from '../../../../internals/test-provider';
+import { createTestQueryClient, renderWithProviders } from '../../../../internals/test-provider';
 import { mockCore, mockToast } from '../../../../internals/test-setup';
 import type { SsoProviderCreateProps } from '../../../../types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 import { SsoProviderCreate } from '../sso-provider-create';
@@ -65,14 +68,41 @@ const waitForComponentToLoad = async () => {
   });
 };
 
+const waitForStrategyButtons = async () => {
+  const wizardContent = screen.getByTestId('sso-provider-create-content');
+
+  await waitFor(() => {
+    const strategyButtons = wizardContent.querySelectorAll('button[class*="justify-start"]');
+    expect(strategyButtons.length).toBeGreaterThan(0);
+  });
+
+  return wizardContent.querySelectorAll('button[class*="justify-start"]');
+};
+
+const createMockIdpConfig = () => ({
+  organization: {
+    can_set_show_as_button: true,
+    can_set_assign_membership_on_login: true,
+  },
+  strategies: AVAILABLE_STRATEGY_LIST,
+});
+
 // ===== Tests =====
 
 describe('SsoProviderCreate', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;
+  let queryClient: QueryClient;
+
+  const renderCreate = (overrides?: Partial<SsoProviderCreateProps>) =>
+    renderWithProviders(<SsoProviderCreate {...createMockSsoProviderCreateProps(overrides)} />, {
+      queryClient,
+    });
 
   beforeEach(() => {
     vi.clearAllMocks();
     mockCoreClient = initMockCoreClient();
+    queryClient = createTestQueryClient();
+    queryClient.setQueryData(idpConfigQueryKeys.config(), createMockIdpConfig());
 
     vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
       coreClient: mockCoreClient,
@@ -107,9 +137,7 @@ describe('SsoProviderCreate', () => {
           },
         };
 
-        renderWithProviders(
-          <SsoProviderCreate {...createMockSsoProviderCreateProps({ schema: customSchema })} />,
-        );
+        renderCreate({ schema: customSchema });
 
         await waitForComponentToLoad();
 
@@ -118,10 +146,7 @@ describe('SsoProviderCreate', () => {
 
         // Select a strategy to test that custom schema is applied
         const wizardContent = screen.getByTestId('sso-provider-create-content');
-        const strategyButtons = wizardContent.querySelectorAll('button[class*="justify-start"]');
-
-        // Verify strategy buttons are available
-        expect(strategyButtons.length).toBeGreaterThan(0);
+        const strategyButtons = await waitForStrategyButtons();
         const firstStrategyButton = strategyButtons[0];
         expect(firstStrategyButton).toBeDefined();
 
@@ -154,9 +179,7 @@ describe('SsoProviderCreate', () => {
           },
         };
 
-        renderWithProviders(
-          <SsoProviderCreate {...createMockSsoProviderCreateProps({ customMessages })} />,
-        );
+        renderCreate({ customMessages });
 
         await waitForComponentToLoad();
 
@@ -176,14 +199,14 @@ describe('SsoProviderCreate', () => {
             },
           };
 
-          const { container } = renderWithProviders(
-            <SsoProviderCreate {...createMockSsoProviderCreateProps({ styling: customStyling })} />,
-          );
+          const { container } = renderCreate({ styling: customStyling });
 
           await waitForComponentToLoad();
 
-          const wizardElement = container.querySelector('.custom-wizard-class');
-          expect(wizardElement).toBeInTheDocument();
+          await waitFor(() => {
+            const wizardElement = container.querySelector('.custom-wizard-class');
+            expect(wizardElement).toBeInTheDocument();
+          });
         });
       });
     });
@@ -197,18 +220,12 @@ describe('SsoProviderCreate', () => {
           const mockCreateAction = createMockCreateAction();
           mockCreateAction.disabled = true;
 
-          renderWithProviders(
-            <SsoProviderCreate
-              {...createMockSsoProviderCreateProps({ createAction: mockCreateAction })}
-            />,
-          );
+          renderCreate({ createAction: mockCreateAction });
 
           await waitForComponentToLoad();
 
           // 1. Select a strategy to enable next
-          const wizardContent = screen.getByTestId('sso-provider-create-content');
-          const strategyCards = wizardContent.querySelectorAll('button');
-          expect(strategyCards.length).toBeGreaterThan(0);
+          const strategyCards = await waitForStrategyButtons();
           const firstStrategyButton = strategyCards[0];
           expect(firstStrategyButton).toBeDefined();
           await user.click(firstStrategyButton!);
@@ -253,18 +270,12 @@ describe('SsoProviderCreate', () => {
           const mockCreateAction = createMockCreateAction();
           mockCreateAction.disabled = false;
 
-          renderWithProviders(
-            <SsoProviderCreate
-              {...createMockSsoProviderCreateProps({ createAction: mockCreateAction })}
-            />,
-          );
+          renderCreate({ createAction: mockCreateAction });
 
           await waitForComponentToLoad();
 
           // 1. Select a strategy to enable next
-          const wizardContent = screen.getByTestId('sso-provider-create-content');
-          const strategyCards = wizardContent.querySelectorAll('button');
-          expect(strategyCards.length).toBeGreaterThan(0);
+          const strategyCards = await waitForStrategyButtons();
           const firstStrategyButton = strategyCards[0];
           expect(firstStrategyButton).toBeDefined();
           await user.click(firstStrategyButton!);
@@ -319,20 +330,12 @@ describe('SsoProviderCreate', () => {
             const mockCreateAction = createMockCreateAction();
             mockCreateAction.onBefore = vi.fn(() => true);
 
-            renderWithProviders(
-              <SsoProviderCreate
-                {...createMockSsoProviderCreateProps({
-                  createAction: mockCreateAction,
-                })}
-              />,
-            );
+            renderCreate({ createAction: mockCreateAction });
 
             await waitForComponentToLoad();
 
             // 1. Select a strategy to enable next
-            const wizardContent = screen.getByTestId('sso-provider-create-content');
-            const strategyCards = wizardContent.querySelectorAll('button');
-            expect(strategyCards.length).toBeGreaterThan(0);
+            const strategyCards = await waitForStrategyButtons();
             const firstStrategyButton = strategyCards[0];
             expect(firstStrategyButton).toBeDefined();
             await user.click(firstStrategyButton!);
@@ -385,20 +388,12 @@ describe('SsoProviderCreate', () => {
             const mockCreateAction = createMockCreateAction();
             mockCreateAction.onBefore = vi.fn(() => false);
 
-            renderWithProviders(
-              <SsoProviderCreate
-                {...createMockSsoProviderCreateProps({
-                  createAction: mockCreateAction,
-                })}
-              />,
-            );
+            renderCreate({ createAction: mockCreateAction });
 
             await waitForComponentToLoad();
 
             // 1. Select a strategy to enable next
-            const wizardContent = screen.getByTestId('sso-provider-create-content');
-            const strategyCards = wizardContent.querySelectorAll('button');
-            expect(strategyCards.length).toBeGreaterThan(0);
+            const strategyCards = await waitForStrategyButtons();
             const firstStrategyButton = strategyCards[0];
             expect(firstStrategyButton).toBeDefined();
             await user.click(firstStrategyButton!);
@@ -458,20 +453,12 @@ describe('SsoProviderCreate', () => {
           const mockCreateAction = createMockCreateAction();
           mockCreateAction.onAfter = vi.fn();
 
-          renderWithProviders(
-            <SsoProviderCreate
-              {...createMockSsoProviderCreateProps({
-                createAction: mockCreateAction,
-              })}
-            />,
-          );
+          renderCreate({ createAction: mockCreateAction });
 
           await waitForComponentToLoad();
 
           // 1. Select a strategy to enable next
-          const wizardContent = screen.getByTestId('sso-provider-create-content');
-          const strategyCards = wizardContent.querySelectorAll('button');
-          expect(strategyCards.length).toBeGreaterThan(0);
+          const strategyCards = await waitForStrategyButtons();
 
           const firstStrategyButton = strategyCards[0];
           expect(firstStrategyButton).toBeDefined();
@@ -530,11 +517,7 @@ describe('SsoProviderCreate', () => {
       it('should render back button', async () => {
         const mockBackButton = createMockBackButton();
 
-        renderWithProviders(
-          <SsoProviderCreate
-            {...createMockSsoProviderCreateProps({ backButton: mockBackButton })}
-          />,
-        );
+        renderCreate({ backButton: mockBackButton });
 
         await waitForComponentToLoad();
 
@@ -545,7 +528,7 @@ describe('SsoProviderCreate', () => {
 
     describe('when backButton is not provided', () => {
       it('should not render back button', async () => {
-        renderWithProviders(<SsoProviderCreate {...createMockSsoProviderCreateProps()} />);
+        renderCreate();
 
         await waitForComponentToLoad();
 
@@ -559,11 +542,7 @@ describe('SsoProviderCreate', () => {
         const user = userEvent.setup();
         const mockBackButton = createMockBackButton();
 
-        renderWithProviders(
-          <SsoProviderCreate
-            {...createMockSsoProviderCreateProps({ backButton: mockBackButton })}
-          />,
-        );
+        renderCreate({ backButton: mockBackButton });
 
         await waitForComponentToLoad();
 
@@ -582,17 +561,12 @@ describe('SsoProviderCreate', () => {
           const user = userEvent.setup();
           const onNext = vi.fn(() => true);
 
-          renderWithProviders(
-            <SsoProviderCreate {...createMockSsoProviderCreateProps({ onNext })} />,
-          );
+          renderCreate({ onNext });
 
           await waitForComponentToLoad();
 
           // Select a strategy to enable next
-          const wizardContent = screen.getByTestId('sso-provider-create-content');
-          const strategyCards = wizardContent.querySelectorAll('button');
-          expect(strategyCards.length).toBeGreaterThan(0);
-
+          const strategyCards = await waitForStrategyButtons();
           const firstStrategyButton = strategyCards[0];
           expect(firstStrategyButton).toBeDefined();
           await user.click(firstStrategyButton!);
@@ -608,16 +582,12 @@ describe('SsoProviderCreate', () => {
           const user = userEvent.setup();
           const onNext = vi.fn(() => false);
 
-          renderWithProviders(
-            <SsoProviderCreate {...createMockSsoProviderCreateProps({ onNext })} />,
-          );
+          renderCreate({ onNext });
 
           await waitForComponentToLoad();
 
           // Select a strategy
-          const wizardContent = screen.getByTestId('sso-provider-create-content');
-          const strategyCards = wizardContent.querySelectorAll('button');
-          expect(strategyCards.length).toBeGreaterThan(0);
+          const strategyCards = await waitForStrategyButtons();
           const firstStrategyButton = strategyCards[0];
           expect(firstStrategyButton).toBeDefined();
           await user.click(firstStrategyButton!);
@@ -636,17 +606,12 @@ describe('SsoProviderCreate', () => {
         const user = userEvent.setup();
         const onPrevious = vi.fn(() => true);
 
-        renderWithProviders(
-          <SsoProviderCreate {...createMockSsoProviderCreateProps({ onPrevious })} />,
-        );
+        renderCreate({ onPrevious });
 
         await waitForComponentToLoad();
 
         // Select a strategy
-        const wizardContent = screen.getByTestId('sso-provider-create-content');
-        const strategyCards = wizardContent.querySelectorAll('button');
-        expect(strategyCards.length).toBeGreaterThan(0);
-
+        const strategyCards = await waitForStrategyButtons();
         const firstStrategyButton = strategyCards[0];
         expect(firstStrategyButton).toBeDefined();
         await user.click(firstStrategyButton!);
@@ -673,21 +638,14 @@ describe('SsoProviderCreate', () => {
         const user = userEvent.setup();
         const mockCreateAction = createMockCreateAction();
 
-        renderWithProviders(
-          <SsoProviderCreate
-            {...createMockSsoProviderCreateProps({ createAction: mockCreateAction })}
-          />,
-        );
+        renderCreate({ createAction: mockCreateAction });
 
         await waitForComponentToLoad();
 
         // Step 1: Provider selection
         expect(screen.getByText(/steps.one/i)).toBeInTheDocument();
 
-        const wizardContent = screen.getByTestId('sso-provider-create-content');
-        const strategyCards = wizardContent.querySelectorAll('button');
-        expect(strategyCards.length).toBeGreaterThan(0);
-
+        const strategyCards = await waitForStrategyButtons();
         const firstStrategyButton = strategyCards[0];
         expect(firstStrategyButton).toBeDefined();
         await user.click(firstStrategyButton!);
