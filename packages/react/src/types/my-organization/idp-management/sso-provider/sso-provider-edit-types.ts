@@ -23,18 +23,17 @@ import type {
   SsoDomainsTabEditProps,
   SsoDomainTabClasses,
   SsoProviderEditDomainsTabSchema,
-} from '../sso-domain/sso-domain-tab-types';
-import type {
-  SsoProvisioningTabClasses,
-  SsoProvisioningTabEditProps,
-  SsoProvisioningTabSchemas,
-} from '../sso-provisioning/sso-provisioning-tab-types';
-
+} from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 import type {
   SsoProviderTabClasses,
   SsoProviderTabEditProps,
   SsoProviderTabSchemas,
-} from './sso-provider-tab-types';
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
+import type {
+  SsoProvisioningTabClasses,
+  SsoProvisioningTabEditProps,
+  SsoProvisioningTabSchemas,
+} from '@/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
 
 /* ============ Components ============ */
 

@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, type ReactNode } from 'react';
 
-import { useCoreClient } from '../hooks/use-core-client';
-import { ScopeManagerContext, type Audience } from '../hooks/use-scope-manager';
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { ScopeManagerContext, type Audience } from '@/hooks/shared/use-scope-manager';
 
 export const ScopeManagerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { coreClient } = useCoreClient();

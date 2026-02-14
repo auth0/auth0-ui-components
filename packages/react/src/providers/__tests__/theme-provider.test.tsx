@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 
-import { useTheme } from '../../hooks/use-theme';
-import { ThemeProvider } from '../theme-provider';
+import { useTheme } from '@/hooks/shared/use-theme';
+import { ThemeProvider } from '@/providers/theme-provider';
 
 describe('ThemeProvider', () => {
   it('renders children correctly', () => {

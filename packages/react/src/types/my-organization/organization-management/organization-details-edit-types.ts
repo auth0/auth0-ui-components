@@ -12,7 +12,13 @@ import type React from 'react';
 import type {
   OrganizationDetailsClasses,
   OrganizationDetailsFormActions,
-} from './organization-details-types';
+} from '@/types/my-organization/organization-management/organization-details-types';
+
+// Re-export imported types for convenience
+export type {
+  OrganizationDetailsClasses,
+  OrganizationDetailsFormActions,
+} from '@/types/my-organization/organization-management/organization-details-types';
 
 export type OrganizationEditClasses = OrganizationDetailsClasses;
 

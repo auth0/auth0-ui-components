@@ -2,10 +2,10 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { useEffect } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import * as useCoreClientModule from '../../hooks/use-core-client';
-import { useScopeManager } from '../../hooks/use-scope-manager';
-import { mockCore, setupMockUseCoreClient } from '../../internals';
-import { ScopeManagerProvider } from '../scope-manager-provider';
+import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import { useScopeManager } from '@/hooks/shared/use-scope-manager';
+import { ScopeManagerProvider } from '@/providers/scope-manager-provider';
+import { mockCore, setupMockUseCoreClient } from '@/tests/utils';
 
 const { initMockCoreClient } = mockCore();
 let mockCoreClient: ReturnType<typeof initMockCoreClient>;

@@ -3,7 +3,7 @@
 import { applyStyleOverrides, type StylingVariables } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import type { ThemeContextValue, ThemeInput } from '../types/theme-types';
+import type { ThemeContextValue, ThemeInput } from '@/types/theme-types';
 
 /**
  * Default empty customer overrides. (later may be UL branding)
