@@ -8,8 +8,7 @@ import {
   PaginationPrevious,
   PaginationNext,
   PaginationEllipsis,
-} from './pagination';
-
+} from '@/components/auth0/shared/pagination';
 import {
   Select,
   SelectContent,

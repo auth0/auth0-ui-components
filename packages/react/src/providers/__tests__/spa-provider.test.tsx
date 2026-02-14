@@ -2,9 +2,8 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { Auth0ComponentProvider } from '../spa-provider';
-
 import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
+import { Auth0ComponentProvider } from '@/providers/spa-provider';
 
 vi.mock('@auth0/auth0-react', () => ({
   useAuth0: vi.fn(),

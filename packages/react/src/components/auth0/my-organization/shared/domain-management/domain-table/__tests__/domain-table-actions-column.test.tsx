@@ -3,8 +3,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { DomainTableActionsColumn } from '../domain-table-actions-column';
-
+import { DomainTableActionsColumn } from '@/components/auth0/my-organization/shared/domain-management/domain-table/domain-table-actions-column';
 import { renderWithProviders } from '@/tests/utils';
 import {
   createMockDomain,

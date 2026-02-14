@@ -1,11 +1,9 @@
 import { getComponentStyles } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { SsoProviderAttributeSyncAlert } from '../sso-provider-attribute-sync-alert';
-
-import { SsoProvisioningDeleteModal } from './sso-provisioning-delete-modal';
-import { SsoProvisioningDetails } from './sso-provisioning-details';
-
+import { SsoProviderAttributeSyncAlert } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-sync-alert';
+import { SsoProvisioningDeleteModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-modal';
+import { SsoProvisioningDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details';
 import { Spinner } from '@/components/auth0/shared/spinner';
 import {
   Card,

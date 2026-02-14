@@ -3,12 +3,10 @@ import { getComponentStyles } from '@auth0/universal-components-core';
 import { Plus } from 'lucide-react';
 import React from 'react';
 
-import { DomainCreateModal } from '../../domain-management/domain-create/domain-create-modal';
-import { DomainDeleteModal } from '../../domain-management/domain-delete/domain-delete-modal';
-import { DomainVerifyModal } from '../../domain-management/domain-verify/domain-verify-modal';
-
-import { SsoDomainTabActionsColumn } from './sso-domain-tab-action-column';
-
+import { DomainCreateModal } from '@/components/auth0/my-organization/shared/domain-management/domain-create/domain-create-modal';
+import { DomainDeleteModal } from '@/components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal';
+import { DomainVerifyModal } from '@/components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal';
+import { SsoDomainTabActionsColumn } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab-action-column';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Header } from '@/components/auth0/shared/header';
 import { Badge } from '@/components/ui/badge';

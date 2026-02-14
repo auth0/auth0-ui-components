@@ -1,8 +1,7 @@
 import { screen } from '@testing-library/react';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
-import { MFAEmptyState } from '../empty-state';
-
+import { MFAEmptyState } from '@/components/auth0/my-account/shared/mfa/empty-state';
 import { renderWithProviders, createMockMFAEmptyStateProps } from '@/tests/utils';
 
 // ===== Test Suite =====

@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { Auth0ComponentProvider } from '../proxy-provider';
+import { Auth0ComponentProvider } from '@/providers/proxy-provider';
 
 vi.mock('@/hooks/shared/use-core-client-initialization', () => ({
   useCoreClientInitialization: vi.fn(() => ({

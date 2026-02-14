@@ -6,9 +6,8 @@ import type {
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 
-import { useSsoProviderEdit } from '../use-sso-provider-edit';
-
 import { showToast } from '@/components/auth0/shared/toast';
+import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 

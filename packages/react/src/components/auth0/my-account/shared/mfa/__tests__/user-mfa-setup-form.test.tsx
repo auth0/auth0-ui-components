@@ -10,8 +10,7 @@ import { screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
-import { UserMFASetupForm } from '../user-mfa-setup-form';
-
+import { UserMFASetupForm } from '@/components/auth0/my-account/shared/mfa/user-mfa-setup-form';
 import { renderWithProviders, createMockUserMFASetupFormProps } from '@/tests/utils';
 
 // ===== Test Suite =====

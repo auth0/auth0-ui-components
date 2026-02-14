@@ -2,8 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { DomainVerifyModal } from '../domain-verify-modal';
-
+import { DomainVerifyModal } from '@/components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal';
 import { mockToast, renderWithProviders } from '@/tests/utils';
 import { createMockDomain } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import type { DomainVerifyModalProps } from '@/types/my-organization/domain-management/domain-verify-types';

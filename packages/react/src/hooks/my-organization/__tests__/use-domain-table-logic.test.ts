@@ -1,8 +1,7 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-import { useDomainTableLogic } from '../use-domain-table-logic';
-
+import { useDomainTableLogic } from '@/hooks/my-organization/use-domain-table-logic';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import {

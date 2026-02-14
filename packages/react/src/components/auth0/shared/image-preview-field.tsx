@@ -1,9 +1,8 @@
 import { ImageIcon } from 'lucide-react';
 import * as React from 'react';
 
-import { TextField } from './text-field';
-import type { TextFieldProps } from './text-field';
-
+import { TextField } from '@/components/auth0/shared/text-field';
+import type { TextFieldProps } from '@/components/auth0/shared/text-field';
 import { cn } from '@/lib/utils';
 
 export interface ImagePreviewFieldProps extends Omit<TextFieldProps, 'onChange'> {

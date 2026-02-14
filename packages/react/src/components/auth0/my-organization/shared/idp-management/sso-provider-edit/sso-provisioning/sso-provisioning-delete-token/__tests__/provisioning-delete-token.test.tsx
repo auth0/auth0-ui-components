@@ -2,8 +2,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { ProvisioningDeleteTokenModal } from '../provisioning-delete-token-modal';
-import { ProvisioningDeleteTokenModalContent } from '../provisioning-delete-token-modal-content';
+import { ProvisioningDeleteTokenModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal';
+import { ProvisioningDeleteTokenModalContent } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal-content';
 
 vi.mock('@/hooks/shared/use-translator', () => ({
   useTranslator: () => ({

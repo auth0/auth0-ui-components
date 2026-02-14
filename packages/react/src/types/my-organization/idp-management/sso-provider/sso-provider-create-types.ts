@@ -20,7 +20,7 @@ import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
-import type { IdpConfig } from '../../config/config-idp-types';
+import type { IdpConfig } from '@/types/my-organization/config/config-idp-types';
 
 /**
  * Form display mode for provider configuration

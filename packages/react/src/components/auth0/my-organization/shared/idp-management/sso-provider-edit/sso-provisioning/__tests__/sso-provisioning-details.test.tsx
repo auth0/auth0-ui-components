@@ -2,8 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-import { SsoProvisioningDetails } from '../sso-provisioning-details';
-
+import { SsoProvisioningDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { mockCore, mockProps, renderWithProviders } from '@/tests/utils';
 

@@ -9,12 +9,11 @@ import {
 } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { ContactInputForm } from './contact-input-form';
-import { QRCodeEnrollmentForm } from './qr-code-enrollment-form';
-import { ShowRecoveryCode } from './show-recovery-code';
-
 import AppleLogo from '@/assets/icons/apple-logo';
 import GoogleLogo from '@/assets/icons/google-logo';
+import { ContactInputForm } from '@/components/auth0/my-account/shared/mfa/contact-input-form';
+import { QRCodeEnrollmentForm } from '@/components/auth0/my-account/shared/mfa/qr-code-enrollment-form';
+import { ShowRecoveryCode } from '@/components/auth0/my-account/shared/mfa/show-recovery-code';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';

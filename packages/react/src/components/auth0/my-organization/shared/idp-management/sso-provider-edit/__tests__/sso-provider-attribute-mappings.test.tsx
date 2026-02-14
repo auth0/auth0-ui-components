@@ -1,8 +1,7 @@
 import { screen } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-import { SsoProviderAttributeMappings } from '../sso-provider-attribute-mappings';
-
+import { SsoProviderAttributeMappings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-mappings';
 import { mockCore, renderWithProviders } from '@/tests/utils';
 import type { SsoProviderAttributeMappingsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 

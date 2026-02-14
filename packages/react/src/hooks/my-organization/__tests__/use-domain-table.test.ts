@@ -6,8 +6,7 @@ import { BusinessError } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-import { useDomainTable } from '../use-domain-table';
-
+import { useDomainTable } from '@/hooks/my-organization/use-domain-table';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import {

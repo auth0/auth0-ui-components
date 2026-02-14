@@ -2,8 +2,7 @@ import type { ActionButton as CoreActionButton } from '@auth0/universal-componen
 import type { LucideIcon } from 'lucide-react';
 import * as React from 'react';
 
-import { Toggle } from './toggle';
-
+import { Toggle } from '@/components/auth0/shared/toggle';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 

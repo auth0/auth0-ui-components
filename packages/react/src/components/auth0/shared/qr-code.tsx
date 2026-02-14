@@ -1,7 +1,6 @@
 import * as React from 'react';
 
-import { Spinner } from './spinner';
-
+import { Spinner } from '@/components/auth0/shared/spinner';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { cn } from '@/lib/utils';
 

@@ -5,7 +5,7 @@
 import type { CoreClientInterface } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import { createMockI18nService } from './__mocks__/core/i18n-service.mocks';
+import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
 
 // ===== Types =====
 

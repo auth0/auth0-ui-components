@@ -9,9 +9,8 @@ import type { SortingState, ColumnDef } from '@tanstack/react-table';
 import { Copy } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 
-import { InlineCode } from './inline-code';
-import { Spinner } from './spinner';
-
+import { InlineCode } from '@/components/auth0/shared/inline-code';
+import { Spinner } from '@/components/auth0/shared/spinner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';

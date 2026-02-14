@@ -1,15 +1,14 @@
 import type { CoreClientInterface, AuthDetails } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
+import { createMockAuth } from '@/tests/utils/__mocks__/core/auth.mocks';
+import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
 import {
   createMockAvailableFactors,
   createMockEmptyAuthenticationMethods,
-} from '../my-account/mfa/mfa.mocks';
-import { createMockIdentityProvider } from '../my-organization/domain-management/domain.mocks';
-import { createMockOrganization } from '../my-organization/organization-management/organization-details.mocks';
-
-import { createMockAuth } from './auth.mocks';
-import { createMockI18nService } from './i18n-service.mocks';
+} from '@/tests/utils/__mocks__/my-account/mfa/mfa.mocks';
+import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 
 const createMockMyAccountApiService = (): CoreClientInterface['myAccountApiClient'] => {
   return {

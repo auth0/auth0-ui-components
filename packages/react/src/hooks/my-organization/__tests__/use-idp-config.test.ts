@@ -2,8 +2,7 @@ import type { IdpStrategy } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { useIdpConfig } from '../use-idp-config';
-
+import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';

@@ -1,7 +1,7 @@
 import type { CoreClientInterface } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import { createMockCoreClient } from './__mocks__/core/core-client.mocks';
+import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
 
 const { mockedShowToast, mockedSetGlobalToastSettings, mockCoreClientRef, mockCreateCoreClientFn } =
   vi.hoisted(() => ({

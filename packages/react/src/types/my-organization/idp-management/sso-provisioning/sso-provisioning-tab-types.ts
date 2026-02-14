@@ -12,7 +12,7 @@ import type {
   CreateIdPProvisioningConfigResponseContent,
 } from '@auth0/universal-components-core';
 
-import type { ProvisioningManageTokenClasses } from './provisioning-manage-token-types';
+import type { ProvisioningManageTokenClasses } from '@/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
 
 export interface SsoProvisioningTabEditProps {
   createAction?: ComponentAction<IdentityProvider, CreateIdPProvisioningConfigResponseContent>;

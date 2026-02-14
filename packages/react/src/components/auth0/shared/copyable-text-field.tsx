@@ -1,8 +1,7 @@
 import { Copy } from 'lucide-react';
 import * as React from 'react';
 
-import { TextField, type TextFieldProps } from './text-field';
-
+import { TextField, type TextFieldProps } from '@/components/auth0/shared/text-field';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';

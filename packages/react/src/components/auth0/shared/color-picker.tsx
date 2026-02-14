@@ -16,8 +16,7 @@ import React, {
   type HTMLAttributes,
 } from 'react';
 
-import { TextField } from './text-field';
-
+import { TextField } from '@/components/auth0/shared/text-field';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {

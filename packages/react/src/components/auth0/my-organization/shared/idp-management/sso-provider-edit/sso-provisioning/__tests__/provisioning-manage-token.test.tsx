@@ -3,8 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { ProvisioningManageToken } from '../provisioning-manage-token';
-
+import { ProvisioningManageToken } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/provisioning-manage-token';
 import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
 
 // Mock hooks

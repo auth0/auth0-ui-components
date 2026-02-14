@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { ProvisioningCreateTokenModal } from '../provisioning-create-token-modal';
-import { ProvisioningCreateTokenModalContent } from '../provisioning-create-token-modal-content';
+import { ProvisioningCreateTokenModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal';
+import { ProvisioningCreateTokenModalContent } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal-content';
 
 vi.mock('@/hooks/shared/use-translator', () => ({
   useTranslator: () => ({

@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { useProviderFormMode } from '../use-provider-form-mode';
+import { useProviderFormMode } from '@/hooks/my-organization/use-provider-form-mode';
 
 describe('useProviderFormMode', () => {
   it('should return showCopyButtons as false when mode is "create"', () => {

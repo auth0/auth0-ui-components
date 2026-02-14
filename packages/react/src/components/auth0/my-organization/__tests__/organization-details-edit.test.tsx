@@ -3,8 +3,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { OrganizationDetailsEdit } from '../organization-details-edit';
-
+import { OrganizationDetailsEdit } from '@/components/auth0/my-organization/organization-details-edit';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';

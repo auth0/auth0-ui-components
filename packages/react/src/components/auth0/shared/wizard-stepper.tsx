@@ -1,6 +1,6 @@
 'use client';
 
-import { Stepper, Step, StepTitle, StepDescription } from './stepper';
+import { Stepper, Step, StepTitle, StepDescription } from '@/components/auth0/shared/stepper';
 
 export interface WizardStep {
   id?: string;

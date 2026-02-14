@@ -2,8 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { SsoProviderEdit } from '../sso-provider-edit';
-
+import { SsoProviderEdit } from '@/components/auth0/my-organization/sso-provider-edit';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockIdentityProvider,

@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { DataTable, type Column } from './data-table';
-import { Section } from './section';
-
+import { DataTable, type Column } from '@/components/auth0/shared/data-table';
+import { Section } from '@/components/auth0/shared/section';
 import {
   Accordion,
   AccordionContent,

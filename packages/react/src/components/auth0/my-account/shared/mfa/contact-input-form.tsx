@@ -11,8 +11,7 @@ import { MailIcon, SmartphoneIcon } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
-import { OTPVerificationForm } from './otp-verification-form';
-
+import { OTPVerificationForm } from '@/components/auth0/my-account/shared/mfa/otp-verification-form';
 import { Spinner } from '@/components/auth0/shared/spinner';
 import { TextField } from '@/components/auth0/shared/text-field';
 import { Button } from '@/components/ui/button';

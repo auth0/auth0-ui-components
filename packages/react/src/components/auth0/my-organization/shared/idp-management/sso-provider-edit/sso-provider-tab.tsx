@@ -1,12 +1,10 @@
 import { getComponentStyles } from '@auth0/universal-components-core';
 import React from 'react';
 
-import { SsoProviderDelete } from '../sso-provider-delete/provider-delete';
-import { SsoProviderRemoveFromOrganization } from '../sso-provider-remove/provider-remove';
-
-import { SsoProviderAttributeSyncAlert } from './sso-provider-attribute-sync-alert';
-import { SsoProviderDetails } from './sso-provider-details';
-
+import { SsoProviderDelete } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete';
+import { SsoProviderAttributeSyncAlert } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-sync-alert';
+import { SsoProviderDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-details';
+import { SsoProviderRemoveFromOrganization } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';

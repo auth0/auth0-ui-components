@@ -4,14 +4,12 @@ import React from 'react';
 import {
   ProviderConfigureFields,
   type ProviderConfigureFormHandle,
-} from '../sso-provider-create/provider-configure/provider-configure-fields';
+} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
 import {
   ProviderDetails,
   type ProviderDetailsFormHandle,
-} from '../sso-provider-create/provider-details';
-
-import { SsoProviderAttributeMappings } from './sso-provider-attribute-mappings';
-
+} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details';
+import { SsoProviderAttributeMappings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-mappings';
 import { FormActions } from '@/components/auth0/shared/form-actions';
 import { Separator } from '@/components/ui/separator';
 import { useTheme } from '@/hooks/shared/use-theme';

@@ -4,8 +4,7 @@ import * as React from 'react';
 import {
   ProviderConfigureFields,
   type ProviderConfigureFormHandle,
-} from './provider-configure-fields';
-
+} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
 import { Section } from '@/components/auth0/shared/section';
 import { Spinner } from '@/components/auth0/shared/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';

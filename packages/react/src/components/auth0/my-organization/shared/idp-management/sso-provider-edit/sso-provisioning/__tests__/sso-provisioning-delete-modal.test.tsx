@@ -2,8 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { SsoProvisioningDeleteModal } from '../sso-provisioning-delete-modal';
-
+import { SsoProvisioningDeleteModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-modal';
 import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
 
 describe('SsoProvisioningDeleteModal', () => {

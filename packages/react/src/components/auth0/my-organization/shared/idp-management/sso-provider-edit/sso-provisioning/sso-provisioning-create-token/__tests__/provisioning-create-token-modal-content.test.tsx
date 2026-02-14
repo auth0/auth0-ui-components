@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { ProvisioningCreateTokenModalContent } from '../provisioning-create-token-modal-content';
+import { ProvisioningCreateTokenModalContent } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal-content';
 
 vi.mock('@/hooks/shared/use-translator', () => ({
   useTranslator: () => ({

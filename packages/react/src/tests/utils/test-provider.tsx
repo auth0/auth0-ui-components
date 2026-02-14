@@ -4,11 +4,10 @@ import { render, type RenderResult } from '@testing-library/react';
 import React from 'react';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
 
-import { createMockCoreClient } from './__mocks__/core/core-client.mocks';
-
 import { Form } from '@/components/ui/form';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
 import { ScopeManagerProvider } from '@/providers/scope-manager-provider';
+import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
 
 // Create a new QueryClient for each test to avoid shared state
 export const createTestQueryClient = () =>

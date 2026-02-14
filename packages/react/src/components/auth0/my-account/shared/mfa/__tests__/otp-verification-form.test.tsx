@@ -2,8 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
-import { OTPVerificationForm } from '../otp-verification-form';
-
+import { OTPVerificationForm } from '@/components/auth0/my-account/shared/mfa/otp-verification-form';
 import { renderWithProviders, createMockOTPVerificationFormProps } from '@/tests/utils';
 
 // ===== Test Suite =====

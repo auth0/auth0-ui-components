@@ -2,8 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { SsoProviderDeleteModal } from '../provider-delete-modal';
-
+import { SsoProviderDeleteModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete-modal';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { createMockSsoProvider, mockCore, renderWithProviders } from '@/tests/utils';
 import type { SsoProviderDeleteModalProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-delete-types';

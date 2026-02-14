@@ -3,8 +3,7 @@
 import type { ClipboardEvent, KeyboardEvent } from 'react';
 import React, { useRef, useState } from 'react';
 
-import { TextField } from './text-field';
-
+import { TextField } from '@/components/auth0/shared/text-field';
 import { cn } from '@/lib/utils';
 
 export interface OTPFieldProps {

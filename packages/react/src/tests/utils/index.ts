@@ -4,11 +4,11 @@ export {
   renderWithFormProvider,
   createTestQueryClient,
   createTestQueryClientWrapper as createQueryClientWrapper,
-} from './test-provider';
-export type { TestProviderProps } from './test-provider';
+} from '@/tests/utils/test-provider';
+export type { TestProviderProps } from '@/tests/utils/test-provider';
 
 // Global test setup utilities
-export { mockToast, mockCore, mockCreateCoreClient } from './test-setup';
+export { mockToast, mockCore, mockCreateCoreClient } from '@/tests/utils/test-setup';
 
 // Test utilities - mock generators and setup functions
 export {
@@ -23,6 +23,6 @@ export {
   setupSSODomainMocks,
   setupToastMocks,
   setupTranslationMocks,
-} from './test-utilities';
+} from '@/tests/utils/test-utilities';
 
 export * from './__mocks__';

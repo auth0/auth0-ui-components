@@ -2,10 +2,9 @@
 
 import * as React from 'react';
 
-import { FormActions } from './form-actions';
-import { Spinner } from './spinner';
-import { WizardStepper } from './wizard-stepper';
-
+import { FormActions } from '@/components/auth0/shared/form-actions';
+import { Spinner } from '@/components/auth0/shared/spinner';
+import { WizardStepper } from '@/components/auth0/shared/wizard-stepper';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 

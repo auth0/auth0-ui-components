@@ -2,8 +2,7 @@ import { AVAILABLE_STRATEGY_LIST } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { useConfig } from '../use-config';
-
+import { useConfig } from '@/hooks/my-organization/use-config';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 import { mockCore } from '@/tests/utils/test-setup';

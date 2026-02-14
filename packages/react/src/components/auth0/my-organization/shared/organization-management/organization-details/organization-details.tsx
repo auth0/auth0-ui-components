@@ -11,9 +11,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
-import { BrandingDetails } from './branding-details';
-import { SettingsDetails } from './settings-details';
-
+import { BrandingDetails } from '@/components/auth0/my-organization/shared/organization-management/organization-details/branding-details';
+import { SettingsDetails } from '@/components/auth0/my-organization/shared/organization-management/organization-details/settings-details';
 import { FormActions } from '@/components/auth0/shared/form-actions';
 import { Spinner } from '@/components/auth0/shared/spinner';
 import { Card } from '@/components/ui/card';

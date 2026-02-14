@@ -2,8 +2,7 @@ import { screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
-import { DomainDeleteModal } from '../domain-delete-modal';
-
+import { DomainDeleteModal } from '@/components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal';
 import { renderWithProviders } from '@/tests/utils';
 import { createMockDomain } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import type { DomainDeleteModalProps } from '@/types/my-organization/domain-management/domain-delete-types';

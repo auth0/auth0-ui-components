@@ -2,8 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { DomainTable } from '../domain-table';
-
+import { DomainTable } from '@/components/auth0/my-organization/domain-table';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockDomain,

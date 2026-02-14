@@ -1,20 +1,34 @@
 import { STRATEGIES } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { AdfsProviderForm, type AdfsConfigureFormHandle } from './adfs-sso-configure-form';
+import {
+  AdfsProviderForm,
+  type AdfsConfigureFormHandle,
+} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form';
 import {
   GoogleAppsProviderForm,
   type GoogleAppsConfigureFormHandle,
-} from './google-apps-sso-configure-form';
-import { OidcProviderForm, type OidcConfigureFormHandle } from './oidc-sso-configure-form';
-import { OktaProviderForm, type OktaConfigureFormHandle } from './okta-sso-configure-form';
+} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form';
+import {
+  OidcProviderForm,
+  type OidcConfigureFormHandle,
+} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form';
+import {
+  OktaProviderForm,
+  type OktaConfigureFormHandle,
+} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/okta-sso-configure-form';
 import {
   PingFederateProviderForm,
   type PingFederateConfigureFormHandle,
-} from './ping-federate-sso-configure-form';
-import { SamlpProviderForm, type SamlpConfigureFormHandle } from './samlp-sso-configure-form';
-import { WaadProviderForm, type WaadConfigureFormHandle } from './waad-sso-configure-form';
-
+} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form';
+import {
+  SamlpProviderForm,
+  type SamlpConfigureFormHandle,
+} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form';
+import {
+  WaadProviderForm,
+  type WaadConfigureFormHandle,
+} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 

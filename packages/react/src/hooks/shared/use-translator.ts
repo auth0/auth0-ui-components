@@ -1,7 +1,7 @@
 import { type EnhancedTranslationFunction } from '@auth0/universal-components-core';
 import { useMemo, useCallback } from 'react';
 
-import { useCoreClient } from './use-core-client';
+import { useCoreClient } from '@/hooks/shared/use-core-client';
 
 /**
  * Custom hook for accessing the i18n service from CoreClient.

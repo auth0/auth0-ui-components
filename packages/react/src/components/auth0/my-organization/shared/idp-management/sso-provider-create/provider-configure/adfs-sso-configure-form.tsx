@@ -7,8 +7,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { CommonConfigureFields } from './common-configure-fields';
-
+import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
 import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import { FileUpload } from '@/components/auth0/shared/file-upload';
 import { TextField } from '@/components/auth0/shared/text-field';

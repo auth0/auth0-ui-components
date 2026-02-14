@@ -1,7 +1,6 @@
 import * as React from 'react';
 
-import { SsoProviderDeleteModal } from './provider-delete-modal';
-
+import { SsoProviderDeleteModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete-modal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useTranslator } from '@/hooks/shared/use-translator';

@@ -2,8 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { UserMFAMgmt } from '../user-mfa-management';
-
+import { UserMFAMgmt } from '@/components/auth0/my-account/user-mfa-management';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockAPIError,

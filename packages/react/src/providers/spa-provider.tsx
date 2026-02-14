@@ -4,15 +4,14 @@ import { useAuth0 } from '@auth0/auth0-react';
 import type { BasicAuth0ContextInterface } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { QueryProvider } from './query-provider';
-import { ScopeManagerProvider } from './scope-manager-provider';
-import { ThemeProvider } from './theme-provider';
-
 import { Toaster } from '@/components/auth0/shared/sonner';
 import { Spinner } from '@/components/auth0/shared/spinner';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
 import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
 import { useToastProvider } from '@/hooks/shared/use-toast-provider';
+import { QueryProvider } from '@/providers/query-provider';
+import { ScopeManagerProvider } from '@/providers/scope-manager-provider';
+import { ThemeProvider } from '@/providers/theme-provider';
 import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 
 export const Auth0ComponentProvider = ({

@@ -1,8 +1,7 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-import { useOrganizationDetailsEdit } from '../use-organization-details-edit';
-
+import { useOrganizationDetailsEdit } from '@/hooks/my-organization/use-organization-details-edit';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockOrganization,

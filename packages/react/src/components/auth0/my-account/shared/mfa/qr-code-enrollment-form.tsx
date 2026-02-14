@@ -5,8 +5,7 @@ import {
 } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { OTPVerificationForm } from './otp-verification-form';
-
+import { OTPVerificationForm } from '@/components/auth0/my-account/shared/mfa/otp-verification-form';
 import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import { QRCodeDisplayer } from '@/components/auth0/shared/qr-code';
 import { Spinner } from '@/components/auth0/shared/spinner';

@@ -1,8 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { ProvisioningDeleteTokenModalContent } from '../provisioning-delete-token-modal-content';
-
+import { ProvisioningDeleteTokenModalContent } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal-content';
 import type { ProvisioningDeleteTokenModalContentProps } from '@/types/my-organization/idp-management/sso-provisioning/provisioning-token-types';
 
 vi.mock('@/hooks/shared/use-translator', () => ({

@@ -2,7 +2,11 @@ import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 
-import { QueryProvider, resolveCacheConfig, DEFAULT_CACHE_CONFIG } from '../query-provider';
+import {
+  QueryProvider,
+  resolveCacheConfig,
+  DEFAULT_CACHE_CONFIG,
+} from '@/providers/query-provider';
 
 describe('resolveCacheConfig', () => {
   it('should return default config when no user config provided', () => {
