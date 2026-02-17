@@ -2,7 +2,6 @@ import {
   getComponentStyles,
   type IdentityProvider,
   STRATEGY_DISPLAY_NAMES,
-  MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES,
 } from '@auth0/universal-components-core';
 import { Plus } from 'lucide-react';
 import * as React from 'react';
@@ -11,8 +10,8 @@ import { SsoProviderDeleteModal } from '@/components/auth0/my-organization/share
 import { SsoProviderRemoveFromOrganizationModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove-modal';
 import { SsoProviderTableActionsColumn } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-table/sso-provider-table-action';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
+import { GateKeeper } from '@/components/auth0/shared/gatekeeper';
 import { Header } from '@/components/auth0/shared/header';
-import { withMyOrganizationService } from '@/hoc/with-services';
 import { useConfig } from '@/hooks/my-organization/use-config';
 import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import { useSsoProviderTable } from '@/hooks/my-organization/use-sso-provider-table';
@@ -49,22 +48,42 @@ function SsoProviderTableComponent({
     onDeleteConfirm,
     onRemoveConfirm,
     onEnableProvider,
-    organization,
+    getOrganizationName,
+    error: tableError,
+    retry: retryTable,
   } = useSsoProviderTable(
     deleteAction,
     deleteFromOrganizationAction,
     enableProviderAction,
     customMessages,
   );
-  const { isLoadingConfig, shouldAllowDeletion, isConfigValid } = useConfig();
-  const { isLoadingIdpConfig, isIdpConfigValid } = useIdpConfig();
+  const {
+    isLoadingConfig,
+    shouldAllowDeletion,
+    isConfigValid,
+    error: configError,
+    retry: retryConfig,
+  } = useConfig();
+  const {
+    isLoadingIdpConfig,
+    isIdpConfigValid,
+    error: idpConfigError,
+    retry: retryIdpConfig,
+  } = useIdpConfig();
 
   const shouldHideCreate = !isConfigValid || !isIdpConfigValid;
   const isViewLoading = isLoading || isLoadingConfig || isLoadingIdpConfig;
 
+  const error = tableError || configError || idpConfigError;
+
+  const retry = React.useCallback(async () => {
+    await Promise.all([retryTable(), retryConfig(), retryIdpConfig()]);
+  }, [retryTable, retryConfig, retryIdpConfig]);
+
   const [showDeleteModal, setShowDeleteModal] = React.useState(false);
   const [showRemoveModal, setShowRemoveModal] = React.useState(false);
   const [selectedIdp, setSelectedIdp] = React.useState<IdentityProvider | null>(null);
+  const [organizationName, setOrganizationName] = React.useState<string | undefined>();
 
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -101,7 +120,7 @@ function SsoProviderTableComponent({
   );
 
   const handleDeleteFromOrganization = React.useCallback(
-    (idp: IdentityProvider) => {
+    async (idp: IdentityProvider) => {
       setSelectedIdp(idp);
 
       if (deleteFromOrganizationAction?.onBefore) {
@@ -109,9 +128,11 @@ function SsoProviderTableComponent({
         if (!shouldProceed) return;
       }
 
+      const orgName = await getOrganizationName();
+      setOrganizationName(orgName);
       setShowRemoveModal(true);
     },
-    [deleteFromOrganizationAction],
+    [deleteFromOrganizationAction, getOrganizationName],
   );
 
   const handleToggleEnabled = React.useCallback(
@@ -200,63 +221,62 @@ function SsoProviderTableComponent({
   );
 
   return (
-    <div style={currentStyles.variables}>
-      <div className={currentStyles.classes?.['SsoProviderTable-header']}>
-        <Header
-          title={t('header.title')}
-          description={t('header.description')}
-          actions={[
-            {
-              type: 'button',
-              label: t('header.create_button_text'),
-              onClick: () => handleCreate(),
-              icon: Plus,
-              hidden: shouldHideCreate || isViewLoading,
-              disabled: createAction?.disabled || readOnly,
-            },
-          ]}
+    <GateKeeper error={error} onRetry={retry}>
+      <div style={currentStyles.variables}>
+        <div className={currentStyles.classes?.['SsoProviderTable-header']}>
+          <Header
+            title={t('header.title')}
+            description={t('header.description')}
+            actions={[
+              {
+                type: 'button',
+                label: t('header.create_button_text'),
+                onClick: () => handleCreate(),
+                icon: Plus,
+                hidden: shouldHideCreate || isViewLoading,
+                disabled: createAction?.disabled || readOnly,
+              },
+            ]}
+          />
+        </div>
+
+        <DataTable
+          loading={isViewLoading}
+          columns={columns}
+          data={providers}
+          emptyState={{ title: t('table.empty_message') }}
+          className={currentStyles.classes?.['SsoProviderTable-table']}
         />
+
+        {selectedIdp && (
+          <SsoProviderDeleteModal
+            className={currentStyles.classes?.['SsoProviderTable-deleteProviderModal']}
+            isOpen={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            provider={selectedIdp}
+            onDelete={handleDeleteConfirm}
+            isLoading={isDeleting}
+            customMessages={customMessages.delete_modal}
+          />
+        )}
+
+        {selectedIdp && (
+          <SsoProviderRemoveFromOrganizationModal
+            className={
+              currentStyles.classes?.['SsoProviderTable-deleteProviderFromOrganizationModal']
+            }
+            isOpen={showRemoveModal}
+            onClose={() => setShowRemoveModal(false)}
+            provider={selectedIdp}
+            organizationName={organizationName}
+            onRemove={handleRemoveConfirm}
+            isLoading={isRemoving}
+            customMessages={customMessages.remove_modal}
+          />
+        )}
       </div>
-
-      <DataTable
-        loading={isViewLoading}
-        columns={columns}
-        data={providers}
-        emptyState={{ title: t('table.empty_message') }}
-        className={currentStyles.classes?.['SsoProviderTable-table']}
-      />
-
-      {selectedIdp && (
-        <SsoProviderDeleteModal
-          className={currentStyles.classes?.['SsoProviderTable-deleteProviderModal']}
-          isOpen={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
-          provider={selectedIdp}
-          onDelete={handleDeleteConfirm}
-          isLoading={isDeleting}
-          customMessages={customMessages.delete_modal}
-        />
-      )}
-
-      {selectedIdp && (
-        <SsoProviderRemoveFromOrganizationModal
-          className={
-            currentStyles.classes?.['SsoProviderTable-deleteProviderFromOrganizationModal']
-          }
-          isOpen={showRemoveModal}
-          onClose={() => setShowRemoveModal(false)}
-          provider={selectedIdp}
-          organizationName={organization?.name}
-          onRemove={handleRemoveConfirm}
-          isLoading={isRemoving}
-          customMessages={customMessages.remove_modal}
-        />
-      )}
-    </div>
+    </GateKeeper>
   );
 }
 
-export const SsoProviderTable = withMyOrganizationService(
-  SsoProviderTableComponent,
-  MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES,
-);
+export const SsoProviderTable = SsoProviderTableComponent;

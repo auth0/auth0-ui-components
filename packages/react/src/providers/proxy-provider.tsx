@@ -7,9 +7,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
 import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
 import { useToastProvider } from '@/hooks/shared/use-toast-provider';
-import { MfaErrorHandlerProvider } from '@/providers/mfa-error-handler-provider';
 import { QueryProvider } from '@/providers/query-provider';
-import { ScopeManagerProvider } from '@/providers/scope-manager-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
 import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 
@@ -68,6 +66,25 @@ export const Auth0ComponentProvider = ({
     [coreClient],
   );
 
+  if (!coreClient) {
+    return (
+      <ThemeProvider
+        themeSettings={{
+          mode: themeSettings.mode,
+          variables: themeSettings.variables,
+          loader,
+          theme: themeSettings.theme,
+        }}
+      >
+        {loader || (
+          <div className="flex items-center justify-center min-h-[200px]">
+            <Spinner />
+          </div>
+        )}
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider
       themeSettings={{
@@ -93,11 +110,7 @@ export const Auth0ComponentProvider = ({
         }
       >
         <CoreClientContext.Provider value={coreClientValue}>
-          <QueryProvider cacheConfig={cacheConfig}>
-            <MfaErrorHandlerProvider>
-              <ScopeManagerProvider>{children}</ScopeManagerProvider>
-            </MfaErrorHandlerProvider>
-          </QueryProvider>
+          <QueryProvider cacheConfig={cacheConfig}>{children}</QueryProvider>
         </CoreClientContext.Provider>
       </React.Suspense>
     </ThemeProvider>

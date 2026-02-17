@@ -24,7 +24,30 @@ const createMockMyAccountApiService = (): CoreClientInterface['myAccountApiClien
     mfa: {
       fetchFactors: vi.fn().mockResolvedValue([]),
     },
+    withScopes: vi.fn().mockReturnThis(),
   } as unknown as CoreClientInterface['myAccountApiClient'];
+};
+
+const createMockStepUpApiService = (): CoreClientInterface['stepUpApiService'] => {
+  return {
+    getAuthenticators: vi.fn().mockResolvedValue([]),
+    enroll: vi.fn().mockResolvedValue({
+      authenticatorType: 'otp',
+      secret: 'mock-secret',
+      barcodeUri: 'otpauth://totp/mock',
+      id: 'authenticator_123',
+    }),
+    challenge: vi.fn().mockResolvedValue({
+      challengeType: 'oob',
+      oobCode: 'mock-oob-code',
+    }),
+    getEnrollmentFactors: vi.fn().mockResolvedValue([]),
+    verify: vi.fn().mockResolvedValue({
+      id_token: 'mock-id-token',
+      access_token: 'mock-access-token',
+      expires_in: 3600,
+    }),
+  } as unknown as CoreClientInterface['stepUpApiService'];
 };
 
 const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClient'] => {
@@ -44,6 +67,7 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
         update: vi.fn().mockResolvedValue({}),
         delete: vi.fn().mockResolvedValue(undefined),
         detach: vi.fn().mockResolvedValue(undefined),
+        updateAttributes: vi.fn().mockResolvedValue(undefined),
         domains: {
           create: vi.fn().mockResolvedValue(undefined),
           delete: vi.fn().mockResolvedValue(undefined),
@@ -52,6 +76,12 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
           get: vi.fn().mockRejectedValue({ status: 404 }),
           create: vi.fn().mockResolvedValue({}),
           delete: vi.fn().mockResolvedValue(undefined),
+          updateAttributes: vi.fn().mockResolvedValue(undefined),
+          scimTokens: {
+            list: vi.fn().mockResolvedValue([]),
+            create: vi.fn().mockResolvedValue({ id: 'token_123', token: 'secret_token' }),
+            delete: vi.fn().mockResolvedValue(undefined),
+          },
         },
       },
       domains: {
@@ -95,12 +125,14 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
         },
       },
     },
+    withScopes: vi.fn().mockReturnThis(),
   } as unknown as CoreClientInterface['myOrganizationApiClient'];
 };
 
 export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreClientInterface => {
   const mockMyAccountApiService = createMockMyAccountApiService();
   const mockMyOrgApiService = createMockMyOrgApiService();
+  const mockStepUpApiService = createMockStepUpApiService();
   const mockAuth = createMockAuth(authDetails);
 
   return {
@@ -108,19 +140,20 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
     i18nService: createMockI18nService(),
     myAccountApiClient: mockMyAccountApiService as CoreClientInterface['myAccountApiClient'],
     myOrganizationApiClient: mockMyOrgApiService as CoreClientInterface['myOrganizationApiClient'],
+    stepUpApiService: mockStepUpApiService as CoreClientInterface['stepUpApiService'],
     getMyAccountApiClient: vi.fn(
       () => mockMyAccountApiService,
     ) as CoreClientInterface['getMyAccountApiClient'],
     getMyOrganizationApiClient: vi.fn(
       () => mockMyOrgApiService,
     ) as CoreClientInterface['getMyOrganizationApiClient'],
+    getStepUpApiService: vi.fn(
+      () => mockStepUpApiService,
+    ) as CoreClientInterface['getStepUpApiService'],
     getToken: async () => {
       return 'mock-access-token';
     },
     isProxyMode: () => false,
-    ensureScopes() {
-      return Promise.resolve();
-    },
     getDomain: () => mockAuth.domain ?? mockAuth.contextInterface?.getConfiguration()?.domain,
   };
 };

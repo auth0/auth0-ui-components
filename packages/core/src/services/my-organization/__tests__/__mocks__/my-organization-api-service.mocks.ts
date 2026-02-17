@@ -1,4 +1,3 @@
-import type { MyOrganizationClient } from '@auth0/myorganization-js';
 import { vi } from 'vitest';
 
 import type { initializeMyOrganizationClient } from '../../my-organization-api-service';
@@ -102,8 +101,9 @@ export const mockMyOrganizationClientMethods = {
 export const createMockMyOrganizationClient = (): ReturnType<
   typeof initializeMyOrganizationClient
 > => {
-  return {
-    client: {} as MyOrganizationClient,
-    setLatestScopes: vi.fn(),
-  };
+  const client = {
+    withScopes: vi.fn().mockReturnThis(),
+  } as unknown as ReturnType<typeof initializeMyOrganizationClient>;
+
+  return client;
 };

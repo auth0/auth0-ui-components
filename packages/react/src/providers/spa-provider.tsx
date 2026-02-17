@@ -9,9 +9,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
 import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
 import { useToastProvider } from '@/hooks/shared/use-toast-provider';
-import { MfaErrorHandlerProvider } from '@/providers/mfa-error-handler-provider';
 import { QueryProvider } from '@/providers/query-provider';
-import { ScopeManagerProvider } from '@/providers/scope-manager-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
 import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 
@@ -38,9 +36,7 @@ export const Auth0ComponentProvider = ({
 
   const auth0ContextInterface = React.useMemo(() => {
     if (auth0ReactContext && 'isAuthenticated' in auth0ReactContext) {
-      // Cast via unknown because @auth0/auth0-react's Auth0ContextInterface
-      // doesn't include getConfiguration which our BasicAuth0ContextInterface requires
-      return auth0ReactContext as unknown as BasicAuth0ContextInterface;
+      return auth0ReactContext as BasicAuth0ContextInterface;
     }
 
     if (authDetails?.contextInterface) {
@@ -72,6 +68,25 @@ export const Auth0ComponentProvider = ({
     [coreClient],
   );
 
+  if (!coreClient) {
+    return (
+      <ThemeProvider
+        themeSettings={{
+          mode: themeSettings.mode,
+          variables: themeSettings.variables,
+          loader,
+          theme: themeSettings.theme,
+        }}
+      >
+        {loader || (
+          <div className="flex items-center justify-center min-h-[200px]">
+            <Spinner />
+          </div>
+        )}
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider
       themeSettings={{
@@ -81,12 +96,6 @@ export const Auth0ComponentProvider = ({
         theme: themeSettings.theme,
       }}
     >
-      {mergedToastSettings.provider === 'sonner' && (
-        <Toaster
-          position={mergedToastSettings.settings?.position || 'top-right'}
-          closeButton={mergedToastSettings.settings?.closeButton ?? true}
-        />
-      )}
       <React.Suspense
         fallback={
           loader || (
@@ -97,11 +106,13 @@ export const Auth0ComponentProvider = ({
         }
       >
         <CoreClientContext.Provider value={coreClientValue}>
-          <QueryProvider cacheConfig={cacheConfig}>
-            <MfaErrorHandlerProvider>
-              <ScopeManagerProvider>{children}</ScopeManagerProvider>
-            </MfaErrorHandlerProvider>
-          </QueryProvider>
+          {mergedToastSettings.provider === 'sonner' && (
+            <Toaster
+              position={mergedToastSettings.settings?.position || 'top-right'}
+              closeButton={mergedToastSettings.settings?.closeButton ?? true}
+            />
+          )}
+          <QueryProvider cacheConfig={cacheConfig}>{children}</QueryProvider>
         </CoreClientContext.Provider>
       </React.Suspense>
     </ThemeProvider>

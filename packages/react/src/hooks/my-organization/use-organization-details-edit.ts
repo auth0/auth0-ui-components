@@ -1,6 +1,7 @@
 import {
   OrganizationDetailsFactory,
   OrganizationDetailsMappers,
+  MY_ORGANIZATION_DETAILS_EDIT_SCOPES,
   type OrganizationPrivate,
 } from '@auth0/universal-components-core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -8,6 +9,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   OrganizationDetailsFormActions,
@@ -22,6 +24,9 @@ const organizationDetailsQueryKeys = {
 
 const EMPTY_ORGANIZATION = OrganizationDetailsFactory.create();
 
+/**
+ * Hook for fetching and updating organization details.
+ */
 export function useOrganizationDetailsEdit({
   saveAction,
   cancelAction,
@@ -31,11 +36,10 @@ export function useOrganizationDetailsEdit({
   const { t } = useTranslator('organization_management.organization_details_edit', customMessages);
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
-
-  const isInitializing = !coreClient;
+  const handleError = useErrorHandler();
 
   const getErrorMessage = useCallback(
-    (error: unknown): string =>
+    (error: unknown) =>
       error instanceof Error
         ? t('organization_changes_error_message', { message: error.message })
         : t('organization_changes_error_message_generic'),
@@ -45,28 +49,28 @@ export function useOrganizationDetailsEdit({
   const organizationQuery = useQuery({
     queryKey: organizationDetailsQueryKeys.details(),
     queryFn: async () => {
-      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_DETAILS_EDIT_SCOPES)
+        .organizationDetails.get();
       return OrganizationDetailsMappers.fromAPI(response);
     },
     enabled: !!coreClient,
+    retry: false,
   });
 
   useEffect(() => {
     if (organizationQuery.error) {
-      showToast({
-        type: 'error',
-        message: getErrorMessage(organizationQuery.error),
-      });
+      handleError(organizationQuery.error, { getErrorMessage });
     }
-  }, [organizationQuery.error, getErrorMessage]);
-
-  const organization = organizationQuery.data ?? EMPTY_ORGANIZATION;
+  }, [organizationQuery.error, handleError, getErrorMessage]);
 
   const updateMutation = useMutation({
     mutationFn: async (data: OrganizationPrivate) => {
       const updateData = OrganizationDetailsMappers.toAPI(data);
       const response = await coreClient!
         .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_DETAILS_EDIT_SCOPES)
         .organizationDetails.update(updateData);
 
       return OrganizationDetailsMappers.fromAPI(response);
@@ -83,26 +87,16 @@ export function useOrganizationDetailsEdit({
 
       saveAction?.onAfter?.(variables);
     },
-    onError: (error) => {
-      showToast({
-        type: 'error',
-        message: getErrorMessage(error),
-      });
-    },
+    onError: (error) => handleError(error, { getErrorMessage }),
   });
 
+  const organization = organizationQuery.data ?? EMPTY_ORGANIZATION;
   const hasData = !!organizationQuery.data;
-  const isActionDisabled = updateMutation.isPending || isInitializing;
-
-  const fetchOrgDetails = useCallback(async (): Promise<void> => {
-    await queryClient.invalidateQueries({ queryKey: organizationDetailsQueryKeys.details() });
-  }, [queryClient]);
+  const isActionDisabled = updateMutation.isPending;
 
   const updateOrgDetails = useCallback(
     async (data: OrganizationPrivate): Promise<boolean> => {
-      if (saveAction?.onBefore && !saveAction.onBefore(data)) {
-        return false;
-      }
+      if (saveAction?.onBefore && !saveAction.onBefore(data)) return false;
 
       try {
         await updateMutation.mutateAsync(data);
@@ -127,23 +121,34 @@ export function useOrganizationDetailsEdit({
       },
     }),
     [
-      updateOrgDetails,
-      readOnly,
+      updateMutation.isPending,
       cancelAction,
-      saveAction?.disabled,
+      readOnly,
       hasData,
       isActionDisabled,
       organization,
+      saveAction?.disabled,
+      updateOrgDetails,
     ],
   );
 
+  const retry = useCallback(async () => {
+    if (updateMutation.variables) {
+      await updateMutation.mutateAsync(updateMutation.variables);
+    } else {
+      updateMutation.reset();
+      await queryClient.invalidateQueries({ queryKey: organizationDetailsQueryKeys.details() });
+    }
+  }, [updateMutation, queryClient]);
+
   return {
     organization,
+    error: organizationQuery.error || updateMutation.error,
+    retry,
+    isLoading: organizationQuery.isLoading,
     isFetchLoading: organizationQuery.isFetching,
     isSaveLoading: updateMutation.isPending,
-    isInitializing,
     formActions,
-    fetchOrgDetails,
     updateOrgDetails,
   };
 }

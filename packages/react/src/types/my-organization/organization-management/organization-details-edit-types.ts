@@ -56,10 +56,11 @@ export interface UseOrganizationDetailsEditOptions {
 
 export interface UseOrganizationDetailsEditResult {
   organization: OrganizationPrivate;
+  error: unknown;
+  retry: () => Promise<void>;
+  isLoading: boolean;
   isFetchLoading: boolean;
   isSaveLoading: boolean;
-  isInitializing: boolean;
   formActions: OrganizationDetailsFormActions;
-  fetchOrgDetails: () => Promise<void>;
   updateOrgDetails: (data: OrganizationPrivate) => Promise<boolean>;
 }

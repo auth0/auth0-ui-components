@@ -8,11 +8,13 @@ import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 import { showToast } from '@/components/auth0/shared/toast';
 import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-create';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 
 vi.mock('@/hooks/shared/use-core-client');
 vi.mock('@/hooks/shared/use-translator');
+vi.mock('@/hooks/shared/use-error-handler');
 vi.mock('@/components/auth0/shared/toast');
 
 describe('useSsoProviderCreate', () => {
@@ -56,6 +58,16 @@ describe('useSsoProviderCreate', () => {
     vi.clearAllMocks();
     (useCoreClient as Mock).mockReturnValue({ coreClient: mockCoreClient });
     (useTranslator as Mock).mockReturnValue({ t: mockT });
+
+    // Mock handleError to show generic error toast
+    const mockHandleError = vi.fn(() => {
+      showToast({
+        type: 'error',
+        message: mockT('notifications.general_error'),
+      });
+      return null;
+    });
+    vi.spyOn(useErrorHandlerModule, 'useErrorHandler').mockReturnValue(mockHandleError);
   });
 
   const renderUseSsoProviderCreate = (...args: Parameters<typeof useSsoProviderCreate>) => {

@@ -1,10 +1,15 @@
 import type { CreateOrganizationDomainRequestContent } from '@auth0/universal-components-core';
-import { type Domain, type IdpId } from '@auth0/universal-components-core';
+import {
+  type Domain,
+  type IdpId,
+  MY_ORGANIZATION_DOMAIN_SCOPES,
+} from '@auth0/universal-components-core';
 import { useQuery, useQueryClient, useMutation, useQueries } from '@tanstack/react-query';
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo, useEffect } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseSsoDomainTabOptions,
@@ -27,6 +32,7 @@ export function useSsoDomainTab(
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const queryClient = useQueryClient();
+  const handleError = useErrorHandler();
 
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
@@ -40,11 +46,20 @@ export function useSsoDomainTab(
   const domainsQuery = useQuery({
     queryKey: domainQueryKeys.list(idpId),
     queryFn: async () => {
-      const response = await coreClient!.getMyOrganizationApiClient().organization.domains.list();
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
+        .organization.domains.list();
       return response.organization_domains;
     },
     enabled: !!coreClient && !!idpId,
   });
+
+  useEffect(() => {
+    if (domainsQuery.error) {
+      handleError(domainsQuery.error);
+    }
+  }, [domainsQuery.error, handleError]);
 
   const domainsList = domainsQuery.data ?? [];
   const isLoading = domainsQuery.isLoading;
@@ -56,13 +71,13 @@ export function useSsoDomainTab(
       queryFn: async () => {
         const response = await coreClient!
           .getMyOrganizationApiClient()
+          .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
           .organization.domains.identityProviders.get(domain.id);
 
         const isIdpEnabled = response.identity_providers?.some((idp) => idp.id === idpId);
         return { domainId: domain.id, isEnabled: isIdpEnabled ?? false };
       },
       enabled: !!coreClient && !!idpId,
-      staleTime: 5 * 60 * 1000, // 5 minutes
     })),
   });
 
@@ -87,6 +102,7 @@ export function useSsoDomainTab(
 
       const result: Domain = await coreClient!
         .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
         .organization.domains.create(data);
 
       domains?.createAction?.onAfter?.(result);
@@ -100,6 +116,7 @@ export function useSsoDomainTab(
         queryKey: domainQueryKeys.idpAssociation(newDomain.id, idpId),
       });
     },
+    onError: (error) => handleError(error),
   });
 
   const verifyDomainMutation = useMutation({
@@ -113,6 +130,7 @@ export function useSsoDomainTab(
 
       const updatedDomain = await coreClient!
         .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
         .organization.domains.verify.create(domain.id);
 
       if (domains?.verifyAction?.onAfter) {
@@ -129,6 +147,7 @@ export function useSsoDomainTab(
         });
       }
     },
+    onError: (error) => handleError(error),
   });
 
   const deleteDomainMutation = useMutation({
@@ -144,7 +163,10 @@ export function useSsoDomainTab(
         }
       }
 
-      await coreClient.getMyOrganizationApiClient().organization.domains.delete(domain.id);
+      await coreClient
+        .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
+        .organization.domains.delete(domain.id);
 
       if (domains?.deleteAction?.onAfter) {
         await domains.deleteAction.onAfter(domain);
@@ -159,6 +181,7 @@ export function useSsoDomainTab(
         queryKey: domainQueryKeys.idpAssociation(domain.id, idpId),
       });
     },
+    onError: (error) => handleError(error),
   });
 
   const associateToProviderMutation = useMutation({
@@ -172,6 +195,7 @@ export function useSsoDomainTab(
 
       await coreClient!
         .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
         .organization.identityProviders.domains.create(idpId, {
           domain: domain.domain,
         });
@@ -188,6 +212,7 @@ export function useSsoDomainTab(
         queryKey: domainQueryKeys.idpAssociation(domain.id, idpId),
       });
     },
+    onError: (error) => handleError(error),
   });
 
   const deleteFromProviderMutation = useMutation({
@@ -205,6 +230,7 @@ export function useSsoDomainTab(
 
       await coreClient!
         .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
         .organization.identityProviders.domains.delete(provider.id!, domain.domain);
 
       if (domains?.deleteFromProviderAction?.onAfter) {
@@ -219,6 +245,7 @@ export function useSsoDomainTab(
         queryKey: domainQueryKeys.idpAssociation(domain.id, idpId),
       });
     },
+    onError: (error) => handleError(error),
   });
 
   // ===== Handlers =====
@@ -366,28 +393,56 @@ export function useSsoDomainTab(
     associateToProviderMutation.error ||
     deleteFromProviderMutation.error;
 
-  // Refetch function to retry on error
-  const refetch = useCallback(() => {
-    createDomainMutation.reset();
-    verifyDomainMutation.reset();
-    deleteDomainMutation.reset();
-    associateToProviderMutation.reset();
-    deleteFromProviderMutation.reset();
-    queryClient.invalidateQueries({ queryKey: domainQueryKeys.list(idpId) });
-  }, [
-    createDomainMutation,
-    verifyDomainMutation,
-    deleteDomainMutation,
-    associateToProviderMutation,
-    deleteFromProviderMutation,
-    queryClient,
-    idpId,
-  ]);
+  // Retry function
+  const retry = async () => {
+    if (domainsQuery.error) {
+      await queryClient.invalidateQueries({ queryKey: domainQueryKeys.list(idpId) });
+      return;
+    }
+
+    const mutations = [
+      {
+        error: createDomainMutation.error,
+        retry: () =>
+          createDomainMutation.variables &&
+          createDomainMutation.mutateAsync(createDomainMutation.variables),
+      },
+      {
+        error: verifyDomainMutation.error,
+        retry: () =>
+          verifyDomainMutation.variables &&
+          verifyDomainMutation.mutateAsync(verifyDomainMutation.variables),
+      },
+      {
+        error: deleteDomainMutation.error,
+        retry: () =>
+          deleteDomainMutation.variables &&
+          deleteDomainMutation.mutateAsync(deleteDomainMutation.variables),
+      },
+      {
+        error: associateToProviderMutation.error,
+        retry: () =>
+          associateToProviderMutation.variables &&
+          associateToProviderMutation.mutateAsync(associateToProviderMutation.variables),
+      },
+      {
+        error: deleteFromProviderMutation.error,
+        retry: () =>
+          deleteFromProviderMutation.variables &&
+          deleteFromProviderMutation.mutateAsync(deleteFromProviderMutation.variables),
+      },
+    ];
+
+    const failedMutation = mutations.find((m) => m.error);
+    if (failedMutation) {
+      await failedMutation.retry();
+    }
+  };
 
   return {
     isLoading,
     error,
-    refetch,
+    retry,
     domainsList,
     isCreating: createDomainMutation.isPending,
     selectedDomain,

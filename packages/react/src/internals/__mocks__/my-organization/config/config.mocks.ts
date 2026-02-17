@@ -14,5 +14,7 @@ export const createMockUseConfig = (overrides?: Partial<MockUseConfig>): MockUse
   },
   fetchConfig: vi.fn(async () => undefined),
   filteredStrategies: [],
+  error: undefined,
+  retry: vi.fn(async () => undefined),
   ...overrides,
 });

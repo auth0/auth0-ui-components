@@ -1,11 +1,14 @@
 import {
   AVAILABLE_STRATEGY_LIST,
   hasApiErrorBody,
+  MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES,
   type IdpStrategy,
 } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import type { UseConfigResult } from '@/types/my-organization/config/config-types';
 
 const configQueryKeys = {
@@ -16,10 +19,15 @@ const configQueryKeys = {
 export function useConfig(): UseConfigResult {
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
+  const handleError = useErrorHandler();
 
   const configQuery = useQuery({
     queryKey: configQueryKeys.details(),
-    queryFn: () => coreClient!.getMyOrganizationApiClient().organization.configuration.get(),
+    queryFn: () =>
+      coreClient!
+        .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES)
+        .organization.configuration.get(),
     enabled: !!coreClient,
     retry: (failureCount, error) => {
       if (hasApiErrorBody(error) && error.body?.status === 404) {
@@ -28,6 +36,12 @@ export function useConfig(): UseConfigResult {
       return failureCount < 3;
     },
   });
+
+  useEffect(() => {
+    if (configQuery.error) {
+      handleError(configQuery.error);
+    }
+  }, [configQuery.error, handleError]);
 
   const config = configQuery.data;
   const allowedStrategies = config?.allowed_strategies;
@@ -42,6 +56,10 @@ export function useConfig(): UseConfigResult {
 
   const isConfigValid = !!allowedStrategies?.length;
 
+  const retry = async () => {
+    await queryClient.invalidateQueries({ queryKey: configQueryKeys.details() });
+  };
+
   return {
     config: config ?? null,
     isLoadingConfig: configQuery.isLoading,
@@ -49,5 +67,7 @@ export function useConfig(): UseConfigResult {
     filteredStrategies,
     shouldAllowDeletion,
     isConfigValid,
+    error: configQuery.error,
+    retry,
   };
 }

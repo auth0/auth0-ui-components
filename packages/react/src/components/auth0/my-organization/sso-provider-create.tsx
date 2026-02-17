@@ -3,7 +3,6 @@ import {
   type IdpStrategy,
   type ProviderDetailsFormValues,
   type ProviderConfigureFormValues,
-  MY_ORGANIZATION_SSO_PROVIDER_CREATE_SCOPES,
 } from '@auth0/universal-components-core';
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 
@@ -15,10 +14,10 @@ import {
   type ProviderDetailsFormHandle,
 } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details';
 import { ProviderSelect } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-select';
+import { GateKeeper } from '@/components/auth0/shared/gatekeeper';
 import { Header } from '@/components/auth0/shared/header';
 import { Wizard } from '@/components/auth0/shared/wizard';
 import type { StepProps } from '@/components/auth0/shared/wizard';
-import { withMyOrganizationService } from '@/hoc/with-services';
 import { useConfig } from '@/hooks/my-organization/use-config';
 import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-create';
@@ -49,12 +48,27 @@ export function SsoProviderCreateComponent({
   const [formData, setFormData] = useState<FormState>({});
   const { strategy, details, configure } = formData;
 
-  const { createProvider, isCreating } = useSsoProviderCreate({
+  const {
+    createProvider,
+    isCreating,
+    error: createError,
+    retry: retryCreate,
+  } = useSsoProviderCreate({
     createAction,
     customMessages,
   });
-  const { isLoadingConfig, filteredStrategies } = useConfig();
-  const { isLoadingIdpConfig, idpConfig } = useIdpConfig();
+  const {
+    isLoadingConfig,
+    filteredStrategies,
+    error: configError,
+    retry: retryConfig,
+  } = useConfig();
+  const {
+    isLoadingIdpConfig,
+    idpConfig,
+    error: idpConfigError,
+    retry: retryIdpConfig,
+  } = useIdpConfig();
 
   const detailsRef = useRef<ProviderDetailsFormHandle>(null);
   const configureRef = useRef<ProviderConfigureHandle>(null);
@@ -63,6 +77,18 @@ export function SsoProviderCreateComponent({
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
   );
+
+  const error = configError || idpConfigError || createError;
+
+  const retry = useCallback(async () => {
+    if (configError) {
+      await retryConfig();
+    } else if (idpConfigError) {
+      await retryIdpConfig();
+    } else if (createError) {
+      await retryCreate();
+    }
+  }, [configError, idpConfigError, createError, retryConfig, retryIdpConfig, retryCreate]);
 
   const createStepActions = useCallback(
     (
@@ -181,36 +207,35 @@ export function SsoProviderCreateComponent({
   );
 
   return (
-    <div style={currentStyles.variables} className="w-full">
-      <Header
-        title={t('header.title')}
-        backButton={
-          backButton && {
-            ...backButton,
-            text: t('header.back_button_text'),
+    <GateKeeper error={error} onRetry={retry}>
+      <div style={currentStyles.variables} className="w-full">
+        <Header
+          title={t('header.title')}
+          backButton={
+            backButton && {
+              ...backButton,
+              text: t('header.back_button_text'),
+            }
           }
-        }
-        className={currentStyles?.classes?.['SsoProviderCreate-header']}
-      />
-      <div className="sso-provider-create__content" data-testid="sso-provider-create-content">
-        <Wizard
-          isLoading={isCreating}
-          hideStepperNumbers
-          steps={wizardSteps}
-          onComplete={handleCreate}
-          formActionLabels={{
-            nextButtonLabel: t('nextButtonLabel'),
-            previousButtonLabel: t('previousButtonLabel'),
-            completeButtonLabel: t('completeButtonLabel'),
-          }}
-          className={currentStyles?.classes?.['SsoProviderCreate-wizard']}
+          className={currentStyles?.classes?.['SsoProviderCreate-header']}
         />
+        <div className="sso-provider-create__content" data-testid="sso-provider-create-content">
+          <Wizard
+            isLoading={isCreating}
+            hideStepperNumbers
+            steps={wizardSteps}
+            onComplete={handleCreate}
+            formActionLabels={{
+              nextButtonLabel: t('nextButtonLabel'),
+              previousButtonLabel: t('previousButtonLabel'),
+              completeButtonLabel: t('completeButtonLabel'),
+            }}
+            className={currentStyles?.classes?.['SsoProviderCreate-wizard']}
+          />
+        </div>
       </div>
-    </div>
+    </GateKeeper>
   );
 }
 
-export const SsoProviderCreate = withMyOrganizationService(
-  SsoProviderCreateComponent,
-  MY_ORGANIZATION_SSO_PROVIDER_CREATE_SCOPES,
-);
+export const SsoProviderCreate = SsoProviderCreateComponent;

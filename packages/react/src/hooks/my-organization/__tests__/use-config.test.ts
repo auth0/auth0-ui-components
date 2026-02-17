@@ -1,9 +1,13 @@
 import { AVAILABLE_STRATEGY_LIST } from '@auth0/universal-components-core';
+import { QueryClient } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useConfig } from '@/hooks/my-organization/use-config';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
+import * as useTranslatorModule from '@/hooks/shared/use-translator';
+import { setupAllCommonMocks } from '@/tests/utils';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 import { mockCore } from '@/tests/utils/test-setup';
 
@@ -22,10 +26,14 @@ describe('useConfig', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockCoreClient = initMockCoreClient();
-    vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
-      coreClient: mockCoreClient,
-    });
     mockGet = vi.mocked(mockCoreClient.getMyOrganizationApiClient().organization.configuration.get);
+
+    setupAllCommonMocks({
+      coreClient: mockCoreClient,
+      useCoreClientModule,
+      useTranslatorModule,
+      useErrorHandlerModule,
+    });
   });
 
   const renderUseConfig = async () => {
@@ -135,6 +143,46 @@ describe('useConfig', () => {
       expect(result.current.config).toBeNull();
       expect(result.current.isConfigValid).toBe(false);
     });
+
+    it('retries up to 3 times on non-404 errors', async () => {
+      const error = new Error('Network error');
+      mockGet.mockRejectedValue(error);
+
+      // Create a query client that allows retries with minimal delay
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: 3,
+            retryDelay: 1,
+            gcTime: 0,
+            staleTime: 0,
+          },
+        },
+      });
+
+      const { wrapper } = createTestQueryClientWrapper(queryClient);
+      renderHook(() => useConfig(), { wrapper });
+
+      await waitFor(
+        () => {
+          // Should retry 3 times (initial + 3 retries = 4 total calls)
+          expect(mockGet).toHaveBeenCalledTimes(4);
+        },
+        { timeout: 5000 },
+      );
+    });
+
+    it('does not retry on 404 errors', async () => {
+      mockGet.mockRejectedValue({ body: { status: 404 } });
+
+      const { wrapper } = createTestQueryClientWrapper();
+      renderHook(() => useConfig(), { wrapper });
+
+      await waitFor(() => {
+        // Should only call once, no retries for 404
+        expect(mockGet).toHaveBeenCalledTimes(1);
+      });
+    });
   });
 
   describe('fetchConfig', () => {
@@ -144,6 +192,18 @@ describe('useConfig', () => {
 
       mockGet.mockClear();
       result.current.fetchConfig();
+
+      await waitFor(() => expect(mockGet).toHaveBeenCalled());
+    });
+  });
+
+  describe('retry', () => {
+    it('triggers refetch', async () => {
+      mockGet.mockResolvedValue(createMockConfig());
+      const { result } = await renderUseConfig();
+
+      mockGet.mockClear();
+      await result.current.retry();
 
       await waitFor(() => expect(mockGet).toHaveBeenCalled());
     });

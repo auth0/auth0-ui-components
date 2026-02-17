@@ -2,6 +2,7 @@ import {
   OrganizationDetailsFactory,
   OrganizationDetailsMappers,
   SsoProviderMappers,
+  MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES,
   type IdentityProvider,
   type IdpId,
   type OrganizationPrivate,
@@ -11,10 +12,11 @@ import {
   getStatusCode,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseSsoProviderEditOptions,
@@ -35,6 +37,9 @@ export const ssoProviderEditQueryKeys = {
   scimTokens: (idpId: IdpId) => [...ssoProviderEditQueryKeys.all, 'scim-tokens', idpId] as const,
 };
 
+/**
+ * Hook for editing SSO identity provider configuration and provisioning.
+ */
 export function useSsoProviderEdit(
   idpId: IdpId,
   { sso, provisioning, customMessages = {} }: Partial<UseSsoProviderEditOptions> = {},
@@ -42,60 +47,44 @@ export function useSsoProviderEdit(
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const queryClient = useQueryClient();
-  const hasShownProviderError = useRef(false);
-  const hasShownProvisioningError = useRef(false);
-  const hasShownOrganizationError = useRef(false);
+  const handleError = useErrorHandler();
 
-  // ============================================
-  // QUERIES - All data managed by TanStack Query
-  // ============================================
-
-  /**
-   * Provider query - fetches the identity provider details.
-   * TanStack Query handles caching, loading states, and refetching.
-   */
   const providerQuery = useQuery({
     queryKey: ssoProviderEditQueryKeys.detail(idpId),
     queryFn: async (): Promise<IdentityProvider> => {
       const response = await coreClient!
         .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
         .organization.identityProviders.get(idpId);
       return response;
     },
     enabled: !!coreClient && !!idpId,
   });
 
-  /**
-   * Organization query - fetches organization details.
-   * Shared across the application, so it uses a common query key.
-   */
   const organizationQuery = useQuery({
     queryKey: ssoProviderEditQueryKeys.organization(),
     queryFn: async (): Promise<OrganizationPrivate> => {
-      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
+        .organizationDetails.get();
       return OrganizationDetailsMappers.fromAPI(response);
     },
     enabled: !!coreClient,
     initialData: OrganizationDetailsFactory.create(),
   });
 
-  /**
-   * Provisioning config query - fetches provisioning configuration.
-   * Returns null if provisioning is not configured (404).
-   */
   const provisioningQuery = useQuery({
     queryKey: ssoProviderEditQueryKeys.provisioning(idpId),
     queryFn: async (): Promise<GetIdPProvisioningConfigResponseContent | null> => {
       try {
         const result = await coreClient!
           .getMyOrganizationApiClient()
+          .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
           .organization.identityProviders.provisioning.get(idpId);
         return result;
       } catch (error) {
-        const status = getStatusCode(error);
-        if (status === 404) {
-          return null;
-        }
+        if (getStatusCode(error) === 404) return null;
         throw error;
       }
     },
@@ -103,387 +92,99 @@ export function useSsoProviderEdit(
   });
 
   useEffect(() => {
-    if (providerQuery.isError && !hasShownProviderError.current) {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-      hasShownProviderError.current = true;
-    }
-
-    if (!providerQuery.isError) {
-      hasShownProviderError.current = false;
-    }
-  }, [providerQuery.isError, t]);
+    if (providerQuery.error) handleError(providerQuery.error);
+  }, [providerQuery.error, handleError]);
 
   useEffect(() => {
-    if (organizationQuery.isError && !hasShownOrganizationError.current) {
-      const errorMessage =
-        organizationQuery.error instanceof Error
-          ? t('general_error', { message: organizationQuery.error.message })
-          : t('general_error');
-
-      showToast({
-        type: 'error',
-        message: errorMessage,
-      });
-      hasShownOrganizationError.current = true;
-    }
-
-    if (!organizationQuery.isError) {
-      hasShownOrganizationError.current = false;
-    }
-  }, [organizationQuery.error, organizationQuery.isError, t]);
+    if (organizationQuery.error) handleError(organizationQuery.error);
+  }, [organizationQuery.error, handleError]);
 
   useEffect(() => {
-    if (provisioningQuery.isError && !hasShownProvisioningError.current) {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-      hasShownProvisioningError.current = true;
-    }
+    if (provisioningQuery.error) handleError(provisioningQuery.error);
+  }, [provisioningQuery.error, handleError]);
 
-    if (!provisioningQuery.isError) {
-      hasShownProvisioningError.current = false;
-    }
-  }, [provisioningQuery.isError, t]);
-
-  // ============================================
-  // MUTATIONS - All actions that modify data
-  // ============================================
-
-  /**
-   * Update provider mutation - updates SSO provider configuration.
-   */
   const updateProviderMutation = useMutation({
     mutationFn: async (data: UpdateIdentityProviderRequestContent): Promise<IdentityProvider> => {
       const provider = providerQuery.data;
-      if (!provider) {
-        throw new Error('Provider not loaded');
+      if (!provider) throw new Error('Provider not loaded');
+
+      if (sso?.updateAction?.onBefore && !sso.updateAction.onBefore(provider)) {
+        throw new Error(ACTION_CANCELLED_ERROR);
       }
 
-      if (sso?.updateAction?.onBefore) {
-        const canProceed = sso.updateAction.onBefore(provider);
-        if (!canProceed) {
-          throw new Error(ACTION_CANCELLED_ERROR);
-        }
-      }
-
-      const apiRequestData: UpdateIdentityProviderRequestContent = SsoProviderMappers.updateToAPI({
+      const apiRequestData = SsoProviderMappers.updateToAPI({
         strategy: provider.strategy,
         ...data,
       });
 
       const result = await coreClient!
         .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
         .organization.identityProviders.update(idpId, apiRequestData);
 
       return result;
     },
-    onSuccess: async (result, _variables) => {
+    onSuccess: async (result) => {
       const provider = providerQuery.data;
-
       showToast({
         type: 'success',
         message: t('update_success', { providerName: provider?.display_name }),
       });
-
-      // Update cache with new data
       queryClient.setQueryData(ssoProviderEditQueryKeys.detail(idpId), result);
-
       if (sso?.updateAction?.onAfter && provider) {
         await sso.updateAction.onAfter(provider, result);
       }
     },
     onError: (error) => {
-      if (isActionCancelledError(error)) {
-        return;
-      }
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
+      if (!isActionCancelledError(error)) handleError(error);
     },
   });
 
-  /**
-   * Create provisioning mutation - enables provisioning for the provider.
-   */
-  const createProvisioningMutation = useMutation({
-    mutationFn: async (): Promise<GetIdPProvisioningConfigResponseContent> => {
-      const provider = providerQuery.data;
-      if (!provider) {
-        throw new Error('Provider not loaded');
-      }
-
-      if (provisioning?.createAction?.onBefore) {
-        const canProceed = provisioning.createAction.onBefore(provider);
-        if (!canProceed) {
-          throw new Error(ACTION_CANCELLED_ERROR);
-        }
-      }
-
-      const result = await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.identityProviders.provisioning.create(idpId);
-
-      return result;
-    },
-    onSuccess: async (result) => {
-      const provider = providerQuery.data;
-
-      showToast({
-        type: 'success',
-        message: t('update_success', { providerName: provider?.display_name }),
-      });
-
-      // Invalidate queries to refetch fresh data
-      await queryClient.invalidateQueries({
-        queryKey: ssoProviderEditQueryKeys.detail(idpId),
-      });
-      queryClient.setQueryData(ssoProviderEditQueryKeys.provisioning(idpId), result);
-
-      if (provisioning?.createAction?.onAfter && provider) {
-        await provisioning.createAction.onAfter(provider, result);
-      }
-    },
-    onError: (error) => {
-      if (isActionCancelledError(error)) {
-        return;
-      }
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-    },
-  });
-
-  /**
-   * Delete provisioning mutation - disables provisioning for the provider.
-   */
-  const deleteProvisioningMutation = useMutation({
-    mutationFn: async (): Promise<void> => {
-      const provider = providerQuery.data;
-      if (!provider) {
-        throw new Error('Provider not loaded');
-      }
-
-      if (provisioning?.deleteAction?.onBefore) {
-        const canProceed = provisioning.deleteAction.onBefore(provider);
-        if (!canProceed) {
-          throw new Error(ACTION_CANCELLED_ERROR);
-        }
-      }
-
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.identityProviders.provisioning.delete(idpId);
-    },
-    onSuccess: async () => {
-      const provider = providerQuery.data;
-
-      showToast({
-        type: 'success',
-        message: t('update_success', { providerName: provider?.display_name }),
-      });
-
-      // Update cache to reflect deleted provisioning
-      queryClient.setQueryData(ssoProviderEditQueryKeys.provisioning(idpId), null);
-      await queryClient.invalidateQueries({
-        queryKey: ssoProviderEditQueryKeys.detail(idpId),
-      });
-
-      if (provisioning?.deleteAction?.onAfter && provider) {
-        await provisioning.deleteAction.onAfter(provider);
-      }
-    },
-    onError: (error) => {
-      if (isActionCancelledError(error)) {
-        return;
-      }
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-    },
-  });
-
-  /**
-   * Create SCIM token mutation - generates a new SCIM token for provisioning.
-   */
-  const createScimTokenMutation = useMutation({
-    mutationFn: async (data: CreateIdpProvisioningScimTokenRequestContent) => {
-      const provider = providerQuery.data;
-      if (!provider) {
-        throw new Error('Provider not loaded');
-      }
-
-      if (provisioning?.createScimTokenAction?.onBefore) {
-        const canProceed = provisioning.createScimTokenAction.onBefore(provider);
-        if (!canProceed) {
-          throw new Error(ACTION_CANCELLED_ERROR);
-        }
-      }
-
-      const result = await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.identityProviders.provisioning.scimTokens.create(idpId, data);
-
-      return result;
-    },
-    onSuccess: async (result) => {
-      const provider = providerQuery.data;
-
-      showToast({
-        type: 'success',
-        message: t('scim_token_create_success'),
-      });
-
-      // Invalidate SCIM tokens list to refetch
-      await queryClient.invalidateQueries({
-        queryKey: ssoProviderEditQueryKeys.scimTokens(idpId),
-      });
-
-      if (provisioning?.createScimTokenAction?.onAfter && provider) {
-        await provisioning.createScimTokenAction.onAfter(provider, result);
-      }
-    },
-    onError: (error) => {
-      if (isActionCancelledError(error)) {
-        return;
-      }
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-    },
-  });
-
-  /**
-   * Delete SCIM token mutation - removes a SCIM token.
-   */
-  const deleteScimTokenMutation = useMutation({
-    mutationFn: async (idpScimTokenId: string): Promise<void> => {
-      const provider = providerQuery.data;
-      if (!provider) {
-        throw new Error('Provider not loaded');
-      }
-
-      if (provisioning?.deleteScimTokenAction?.onBefore) {
-        const canProceed = provisioning.deleteScimTokenAction.onBefore(provider);
-        if (!canProceed) {
-          throw new Error(ACTION_CANCELLED_ERROR);
-        }
-      }
-
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.identityProviders.provisioning.scimTokens.delete(idpId, idpScimTokenId);
-    },
-    onSuccess: async () => {
-      const provider = providerQuery.data;
-
-      showToast({
-        type: 'success',
-        message: t('scim_token_delete_sucess'),
-      });
-
-      // Invalidate SCIM tokens list to refetch
-      await queryClient.invalidateQueries({
-        queryKey: ssoProviderEditQueryKeys.scimTokens(idpId),
-      });
-
-      if (provisioning?.deleteScimTokenAction?.onAfter && provider) {
-        await provisioning.deleteScimTokenAction.onAfter(provider);
-      }
-    },
-    onError: (error) => {
-      if (isActionCancelledError(error)) {
-        return;
-      }
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-    },
-  });
-
-  /**
-   * Delete provider mutation - completely deletes the provider.
-   */
   const deleteProviderMutation = useMutation({
     mutationFn: async (): Promise<void> => {
       const provider = providerQuery.data;
-      if (!provider?.id) {
-        throw new Error('Provider not loaded or missing ID');
-      }
+      if (!provider?.id) throw new Error('Provider not loaded or missing ID');
 
       await coreClient!
         .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
         .organization.identityProviders.delete(provider.id);
     },
     onSuccess: async () => {
       const provider = providerQuery.data;
-
       showToast({
         type: 'success',
         message: t('delete_success', { providerName: provider?.display_name }),
       });
-
-      // Remove all related queries from cache
-      queryClient.removeQueries({
-        queryKey: ssoProviderEditQueryKeys.detail(idpId),
-      });
-      queryClient.removeQueries({
-        queryKey: ssoProviderEditQueryKeys.provisioning(idpId),
-      });
-      queryClient.removeQueries({
-        queryKey: ssoProviderEditQueryKeys.scimTokens(idpId),
-      });
-
+      queryClient.removeQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
+      queryClient.removeQueries({ queryKey: ssoProviderEditQueryKeys.provisioning(idpId) });
       if (sso?.deleteAction?.onAfter && provider) {
         await sso.deleteAction.onAfter(provider);
       }
     },
-    onError: () => {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-    },
+    onError: (error) => handleError(error),
   });
 
-  /**
-   * Detach provider mutation - removes provider from organization but doesn't delete it.
-   */
   const detachProviderMutation = useMutation({
     mutationFn: async (): Promise<void> => {
       const provider = providerQuery.data;
-      if (!provider?.id) {
-        throw new Error('Provider not loaded or missing ID');
-      }
+      if (!provider?.id) throw new Error('Provider not loaded or missing ID');
 
-      if (sso?.deleteFromOrganizationAction?.onBefore) {
-        const canProceed = sso.deleteFromOrganizationAction.onBefore(provider);
-        if (!canProceed) {
-          throw new Error(ACTION_CANCELLED_ERROR);
-        }
+      if (
+        sso?.deleteFromOrganizationAction?.onBefore &&
+        !sso.deleteFromOrganizationAction.onBefore(provider)
+      ) {
+        throw new Error(ACTION_CANCELLED_ERROR);
       }
-
-      // Ensure organization data is fresh before detaching
-      await queryClient.ensureQueryData({
-        queryKey: ssoProviderEditQueryKeys.organization(),
-      });
 
       await coreClient!
         .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
         .organization.identityProviders.detach(provider.id);
     },
     onSuccess: async () => {
       const provider = providerQuery.data;
       const organization = organizationQuery.data;
-
       showToast({
         type: 'success',
         message: t('remove_success', {
@@ -491,150 +192,139 @@ export function useSsoProviderEdit(
           organizationName: organization?.display_name,
         }),
       });
-
-      // Remove provider from cache
-      queryClient.removeQueries({
-        queryKey: ssoProviderEditQueryKeys.detail(idpId),
-      });
-
+      queryClient.removeQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
       if (sso?.deleteFromOrganizationAction?.onAfter && provider) {
         await sso.deleteFromOrganizationAction.onAfter(provider);
       }
     },
     onError: (error) => {
-      if (isActionCancelledError(error)) {
-        return;
-      }
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
+      if (!isActionCancelledError(error)) handleError(error);
     },
   });
 
-  // ============================================
-  // ACTION CALLBACKS - Wrapper functions for mutations
-  // ============================================
-
-  const fetchProvider = useCallback(async (): Promise<IdentityProvider | null> => {
-    if (!coreClient || !idpId) {
-      return null;
-    }
-
-    try {
-      const data = await queryClient.ensureQueryData({
-        queryKey: ssoProviderEditQueryKeys.detail(idpId),
-        queryFn: async () => {
-          const response = await coreClient
-            .getMyOrganizationApiClient()
-            .organization.identityProviders.get(idpId);
-          return response;
-        },
-      });
-      return data;
-    } catch (error) {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-      return null;
-    }
-  }, [coreClient, idpId, queryClient, t]);
-
-  const fetchOrganizationDetails = useCallback(async (): Promise<void> => {
-    if (!coreClient) {
-      return;
-    }
-
-    await queryClient.invalidateQueries({
-      queryKey: ssoProviderEditQueryKeys.organization(),
-    });
-  }, [coreClient, queryClient]);
-
-  const fetchProvisioning =
-    useCallback(async (): Promise<GetIdPProvisioningConfigResponseContent | null> => {
-      if (!coreClient || !idpId) {
-        return null;
-      }
-
-      try {
-        const data = await queryClient.fetchQuery({
-          queryKey: ssoProviderEditQueryKeys.provisioning(idpId),
-          queryFn: async () => {
-            try {
-              const result = await coreClient
-                .getMyOrganizationApiClient()
-                .organization.identityProviders.provisioning.get(idpId);
-              return result;
-            } catch (error) {
-              const status = getStatusCode(error);
-              if (status === 404) {
-                return null;
-              }
-              throw error;
-            }
-          },
-        });
-        return data;
-      } catch (error) {
-        const status = getStatusCode(error);
-        if (status !== 404) {
-          showToast({
-            type: 'error',
-            message: t('general_error'),
-          });
-        }
-        return null;
-      }
-    }, [coreClient, idpId, queryClient, t]);
-
-  const updateProvider = useCallback(
-    async (data: UpdateIdentityProviderRequestContent): Promise<void> => {
+  const createProvisioningMutation = useMutation({
+    mutationFn: async (): Promise<GetIdPProvisioningConfigResponseContent> => {
       const provider = providerQuery.data;
-      if (!coreClient || !idpId || !provider) {
-        return;
+      if (!provider) throw new Error('Provider not loaded');
+
+      if (provisioning?.createAction?.onBefore && !provisioning.createAction.onBefore(provider)) {
+        throw new Error(ACTION_CANCELLED_ERROR);
       }
 
-      try {
-        await updateProviderMutation.mutateAsync(data);
-      } catch (error) {
-        if (!isActionCancelledError(error)) {
-          throw error;
-        }
+      const result = await coreClient!
+        .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
+        .organization.identityProviders.provisioning.create(idpId);
+
+      return result;
+    },
+    onSuccess: async (result) => {
+      const provider = providerQuery.data;
+      showToast({
+        type: 'success',
+        message: t('update_success', { providerName: provider?.display_name }),
+      });
+      await queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
+      queryClient.setQueryData(ssoProviderEditQueryKeys.provisioning(idpId), result);
+      if (provisioning?.createAction?.onAfter && provider) {
+        await provisioning.createAction.onAfter(provider, result);
       }
     },
-    [coreClient, idpId, providerQuery.data, updateProviderMutation],
-  );
+    onError: (error) => {
+      if (!isActionCancelledError(error)) handleError(error);
+    },
+  });
 
-  const createProvisioning = useCallback(async (): Promise<void> => {
-    const provider = providerQuery.data;
-    if (!coreClient || !idpId || !provider) {
-      return;
-    }
+  const deleteProvisioningMutation = useMutation({
+    mutationFn: async (): Promise<void> => {
+      const provider = providerQuery.data;
+      if (!provider) throw new Error('Provider not loaded');
 
-    try {
-      await createProvisioningMutation.mutateAsync();
-    } catch (error) {
-      if (!isActionCancelledError(error)) {
-        throw error;
+      if (provisioning?.deleteAction?.onBefore && !provisioning.deleteAction.onBefore(provider)) {
+        throw new Error(ACTION_CANCELLED_ERROR);
       }
-    }
-  }, [coreClient, createProvisioningMutation, idpId, providerQuery.data]);
 
-  const deleteProvisioning = useCallback(async (): Promise<void> => {
-    const provider = providerQuery.data;
-    if (!coreClient || !idpId || !provider) {
-      return;
-    }
-
-    try {
-      await deleteProvisioningMutation.mutateAsync();
-    } catch (error) {
-      if (!isActionCancelledError(error)) {
-        throw error;
+      await coreClient!
+        .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
+        .organization.identityProviders.provisioning.delete(idpId);
+    },
+    onSuccess: async () => {
+      const provider = providerQuery.data;
+      showToast({
+        type: 'success',
+        message: t('update_success', { providerName: provider?.display_name }),
+      });
+      queryClient.setQueryData(ssoProviderEditQueryKeys.provisioning(idpId), null);
+      await queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
+      if (provisioning?.deleteAction?.onAfter && provider) {
+        await provisioning.deleteAction.onAfter(provider);
       }
-    }
-  }, [coreClient, deleteProvisioningMutation, idpId, providerQuery.data]);
+    },
+    onError: (error) => {
+      if (!isActionCancelledError(error)) handleError(error);
+    },
+  });
+
+  const createScimTokenMutation = useMutation({
+    mutationFn: async (data: CreateIdpProvisioningScimTokenRequestContent) => {
+      const provider = providerQuery.data;
+      if (!provider) throw new Error('Provider not loaded');
+
+      if (
+        provisioning?.createScimTokenAction?.onBefore &&
+        !provisioning.createScimTokenAction.onBefore(provider)
+      ) {
+        throw new Error(ACTION_CANCELLED_ERROR);
+      }
+
+      const result = await coreClient!
+        .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
+        .organization.identityProviders.provisioning.scimTokens.create(idpId, data);
+
+      return result;
+    },
+    onSuccess: async (result) => {
+      const provider = providerQuery.data;
+      showToast({ type: 'success', message: t('scim_token_create_success') });
+      if (provisioning?.createScimTokenAction?.onAfter && provider) {
+        await provisioning.createScimTokenAction.onAfter(provider, result);
+      }
+    },
+    onError: (error) => {
+      if (!isActionCancelledError(error)) handleError(error);
+    },
+  });
+
+  const deleteScimTokenMutation = useMutation({
+    mutationFn: async (idpScimTokenId: string): Promise<void> => {
+      const provider = providerQuery.data;
+      if (!provider) throw new Error('Provider not loaded');
+
+      if (
+        provisioning?.deleteScimTokenAction?.onBefore &&
+        !provisioning.deleteScimTokenAction.onBefore(provider)
+      ) {
+        throw new Error(ACTION_CANCELLED_ERROR);
+      }
+
+      await coreClient!
+        .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
+        .organization.identityProviders.provisioning.scimTokens.delete(idpId, idpScimTokenId);
+    },
+    onSuccess: async () => {
+      const provider = providerQuery.data;
+      showToast({ type: 'success', message: t('scim_token_delete_sucess') });
+      if (provisioning?.deleteScimTokenAction?.onAfter && provider) {
+        await provisioning.deleteScimTokenAction.onAfter(provider);
+      }
+    },
+    onError: (error) => {
+      if (!isActionCancelledError(error)) handleError(error);
+    },
+  });
 
   /**
    * List SCIM tokens mutation - fetches SCIM tokens for provisioning.
@@ -644,22 +334,113 @@ export function useSsoProviderEdit(
    */
   const listScimTokensMutation = useMutation({
     mutationFn: async () => {
-      if (!coreClient || !idpId) {
-        return null;
-      }
+      if (!coreClient || !idpId) return null;
 
       const result = await coreClient
         .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
         .organization.identityProviders.provisioning.scimTokens.list(idpId);
       return result;
     },
-    onError: () => {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-    },
+    onError: (error) => handleError(error),
   });
+
+  const syncSsoAttributesMutation = useMutation({
+    mutationFn: async () => {
+      await coreClient!
+        .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
+        .organization.identityProviders.updateAttributes(idpId, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
+      showToast({ type: 'success', message: t('sso_attributes_sync_success') });
+    },
+    onError: (error) => handleError(error),
+  });
+
+  const syncProvisioningAttributesMutation = useMutation({
+    mutationFn: async () => {
+      await coreClient!
+        .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
+        .organization.identityProviders.provisioning.updateAttributes(idpId, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.provisioning(idpId) });
+      showToast({ type: 'success', message: t('provisioning_attributes_sync_success') });
+    },
+    onError: (error) => handleError(error),
+  });
+
+  const updateProvider = useCallback(
+    async (data: UpdateIdentityProviderRequestContent) => {
+      if (!coreClient || !providerQuery.data) return;
+      try {
+        await updateProviderMutation.mutateAsync(data);
+      } catch (error) {
+        if (!isActionCancelledError(error)) throw error;
+      }
+    },
+    [coreClient, providerQuery.data, updateProviderMutation],
+  );
+
+  const onDeleteConfirm = useCallback(async () => {
+    if (!coreClient || !providerQuery.data?.id) return;
+    await deleteProviderMutation.mutateAsync();
+  }, [coreClient, deleteProviderMutation, providerQuery.data?.id]);
+
+  const onRemoveConfirm = useCallback(async () => {
+    if (!coreClient || !providerQuery.data?.id) return;
+    try {
+      await detachProviderMutation.mutateAsync();
+    } catch (error) {
+      if (!isActionCancelledError(error)) throw error;
+    }
+  }, [coreClient, detachProviderMutation, providerQuery.data?.id]);
+
+  const createProvisioning = useCallback(async () => {
+    if (!coreClient || !providerQuery.data) return;
+    try {
+      await createProvisioningMutation.mutateAsync();
+    } catch (error) {
+      if (!isActionCancelledError(error)) throw error;
+    }
+  }, [coreClient, createProvisioningMutation, providerQuery.data]);
+
+  const deleteProvisioning = useCallback(async () => {
+    if (!coreClient || !providerQuery.data) return;
+    try {
+      await deleteProvisioningMutation.mutateAsync();
+    } catch (error) {
+      if (!isActionCancelledError(error)) throw error;
+    }
+  }, [coreClient, deleteProvisioningMutation, providerQuery.data]);
+
+  const createScimToken = useCallback(
+    async (data: CreateIdpProvisioningScimTokenRequestContent) => {
+      if (!coreClient || !providerQuery.data) return undefined;
+      try {
+        return await createScimTokenMutation.mutateAsync(data);
+      } catch (error) {
+        if (!isActionCancelledError(error)) throw error;
+        return undefined;
+      }
+    },
+    [coreClient, createScimTokenMutation, providerQuery.data],
+  );
+
+  const deleteScimToken = useCallback(
+    async (idpScimTokenId: string) => {
+      if (!coreClient || !providerQuery.data) return;
+      try {
+        await deleteScimTokenMutation.mutateAsync(idpScimTokenId);
+      } catch (error) {
+        if (!isActionCancelledError(error)) throw error;
+      }
+    },
+    [coreClient, deleteScimTokenMutation, providerQuery.data],
+  );
 
   const listScimTokens = useCallback(async () => {
     try {
@@ -669,134 +450,52 @@ export function useSsoProviderEdit(
     }
   }, [listScimTokensMutation]);
 
-  const createScimToken = useCallback(
-    async (data: CreateIdpProvisioningScimTokenRequestContent) => {
-      const provider = providerQuery.data;
-      if (!coreClient || !idpId || !provider) {
-        return undefined;
-      }
-
-      try {
-        return await createScimTokenMutation.mutateAsync(data);
-      } catch (error) {
-        if (!isActionCancelledError(error)) {
-          throw error;
-        }
-        return undefined;
-      }
-    },
-    [coreClient, createScimTokenMutation, idpId, providerQuery.data],
-  );
-
-  const deleteScimToken = useCallback(
-    async (idpScimTokenId: string): Promise<void> => {
-      const provider = providerQuery.data;
-      if (!coreClient || !idpId || !provider) {
-        return;
-      }
-
-      try {
-        await deleteScimTokenMutation.mutateAsync(idpScimTokenId);
-      } catch (error) {
-        if (!isActionCancelledError(error)) {
-          throw error;
-        }
-      }
-    },
-    [coreClient, deleteScimTokenMutation, idpId, providerQuery.data],
-  );
-
-  const syncSsoAttributesMutation = useMutation({
-    mutationFn: async () => {
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.identityProviders.updateAttributes(idpId, {});
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ssoProviderEditQueryKeys.detail(idpId),
-      });
-      showToast({
-        type: 'success',
-        message: t('sso_attributes_sync_success'),
-      });
-    },
-    onError: () => {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-    },
-  });
-
-  const syncSsoAttributes = useCallback(async (): Promise<void> => {
-    if (!coreClient || !idpId) {
-      return;
-    }
-
+  const syncSsoAttributes = useCallback(async () => {
+    if (!coreClient) return;
     await syncSsoAttributesMutation.mutateAsync();
-  }, [coreClient, idpId, syncSsoAttributesMutation]);
+  }, [coreClient, syncSsoAttributesMutation]);
 
-  const syncProvisioningAttributesMutation = useMutation({
-    mutationFn: async () => {
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.identityProviders.provisioning.updateAttributes(idpId, {});
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ssoProviderEditQueryKeys.provisioning(idpId),
-      });
-      showToast({
-        type: 'success',
-        message: t('provisioning_attributes_sync_success'),
-      });
-    },
-    onError: () => {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-    },
-  });
-
-  const syncProvisioningAttributes = useCallback(async (): Promise<void> => {
-    if (!coreClient || !idpId) {
-      return;
-    }
-
+  const syncProvisioningAttributes = useCallback(async () => {
+    if (!coreClient) return;
     await syncProvisioningAttributesMutation.mutateAsync();
-  }, [coreClient, idpId, syncProvisioningAttributesMutation]);
+  }, [coreClient, syncProvisioningAttributesMutation]);
 
-  const onDeleteConfirm = useCallback(async (): Promise<void> => {
-    const provider = providerQuery.data;
-    if (!coreClient || !provider?.id) {
-      return;
-    }
+  const fetchProvider = useCallback(async () => {
+    const result = await queryClient.fetchQuery({
+      queryKey: ssoProviderEditQueryKeys.detail(idpId),
+      queryFn: async (): Promise<IdentityProvider> => {
+        const response = await coreClient!
+          .getMyOrganizationApiClient()
+          .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
+          .organization.identityProviders.get(idpId);
+        return response;
+      },
+    });
+    return result;
+  }, [queryClient, idpId, coreClient]);
 
+  const fetchProvisioning = useCallback(async () => {
     try {
-      await deleteProviderMutation.mutateAsync();
+      const result = await queryClient.fetchQuery({
+        queryKey: ssoProviderEditQueryKeys.provisioning(idpId),
+        queryFn: async (): Promise<GetIdPProvisioningConfigResponseContent | null> => {
+          try {
+            const response = await coreClient!
+              .getMyOrganizationApiClient()
+              .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
+              .organization.identityProviders.provisioning.get(idpId);
+            return response;
+          } catch (error) {
+            if (getStatusCode(error) === 404) return null;
+            throw error;
+          }
+        },
+      });
+      return result;
     } catch (error) {
-      if (!isActionCancelledError(error)) {
-        throw error;
-      }
+      return null;
     }
-  }, [coreClient, deleteProviderMutation, providerQuery.data]);
-
-  const onRemoveConfirm = useCallback(async (): Promise<void> => {
-    const provider = providerQuery.data;
-    if (!coreClient || !provider?.id) {
-      return;
-    }
-
-    try {
-      await detachProviderMutation.mutateAsync();
-    } catch (error) {
-      if (!isActionCancelledError(error)) {
-        throw error;
-      }
-    }
-  }, [coreClient, detachProviderMutation, providerQuery.data]);
+  }, [queryClient, idpId, coreClient]);
 
   const hasSsoAttributeSyncWarning = useMemo(() => {
     const provider = providerQuery.data;
@@ -805,18 +504,92 @@ export function useSsoProviderEdit(
   }, [providerQuery.data]);
 
   const hasProvisioningAttributeSyncWarning = useMemo(() => {
-    const provisioningConfig = provisioningQuery.data;
-    const attributes = provisioningConfig?.attributes ?? [];
+    const attributes = provisioningQuery.data?.attributes ?? [];
     return attributes.some((attr) => attr.is_extra || attr.is_missing);
   }, [provisioningQuery.data]);
 
+  const error =
+    providerQuery.error ||
+    organizationQuery.error ||
+    provisioningQuery.error ||
+    updateProviderMutation.error ||
+    deleteProviderMutation.error ||
+    detachProviderMutation.error ||
+    createProvisioningMutation.error ||
+    deleteProvisioningMutation.error ||
+    createScimTokenMutation.error ||
+    deleteScimTokenMutation.error ||
+    syncSsoAttributesMutation.error ||
+    syncProvisioningAttributesMutation.error;
+
+  const retry = async () => {
+    const queries = [
+      { error: providerQuery.error, key: ssoProviderEditQueryKeys.detail(idpId) },
+      { error: organizationQuery.error, key: ssoProviderEditQueryKeys.organization() },
+      { error: provisioningQuery.error, key: ssoProviderEditQueryKeys.provisioning(idpId) },
+    ];
+
+    const failedQuery = queries.find((q) => q.error);
+    if (failedQuery) {
+      await queryClient.invalidateQueries({ queryKey: failedQuery.key });
+      return;
+    }
+
+    const mutations = [
+      {
+        error: updateProviderMutation.error,
+        retry: () =>
+          updateProviderMutation.variables &&
+          updateProviderMutation.mutateAsync(updateProviderMutation.variables),
+      },
+      {
+        error: deleteProviderMutation.error,
+        retry: () => deleteProviderMutation.mutateAsync(),
+      },
+      {
+        error: detachProviderMutation.error,
+        retry: () => detachProviderMutation.mutateAsync(),
+      },
+      {
+        error: createProvisioningMutation.error,
+        retry: () => createProvisioningMutation.mutateAsync(),
+      },
+      {
+        error: deleteProvisioningMutation.error,
+        retry: () => deleteProvisioningMutation.mutateAsync(),
+      },
+      {
+        error: createScimTokenMutation.error,
+        retry: () =>
+          createScimTokenMutation.variables &&
+          createScimTokenMutation.mutateAsync(createScimTokenMutation.variables),
+      },
+      {
+        error: deleteScimTokenMutation.error,
+        retry: () =>
+          deleteScimTokenMutation.variables &&
+          deleteScimTokenMutation.mutateAsync(deleteScimTokenMutation.variables),
+      },
+      {
+        error: syncSsoAttributesMutation.error,
+        retry: () => syncSsoAttributesMutation.mutateAsync(),
+      },
+      {
+        error: syncProvisioningAttributesMutation.error,
+        retry: () => syncProvisioningAttributesMutation.mutateAsync(),
+      },
+    ];
+
+    const failedMutation = mutations.find((m) => m.error);
+    if (failedMutation) {
+      await failedMutation.retry();
+    }
+  };
+
   return {
-    // Data from TanStack Query - single source of truth
     provider: providerQuery.data ?? null,
     organization: organizationQuery.data ?? OrganizationDetailsFactory.create(),
     provisioningConfig: provisioningQuery.data ?? null,
-
-    // Loading states - all derived from TanStack Query
     isLoading: providerQuery.isLoading || organizationQuery.isLoading,
     isUpdating: updateProviderMutation.isPending,
     isDeleting: deleteProviderMutation.isPending,
@@ -829,16 +602,15 @@ export function useSsoProviderEdit(
     isScimTokenDeleting: deleteScimTokenMutation.isPending,
     isSsoAttributesSyncing: syncSsoAttributesMutation.isPending,
     isProvisioningAttributesSyncing: syncProvisioningAttributesMutation.isPending,
-
-    // Warning states
     hasSsoAttributeSyncWarning,
     hasProvisioningAttributeSyncWarning,
-
-    // Actions
+    error,
+    retry,
     fetchProvider,
-    fetchOrganizationDetails,
     fetchProvisioning,
     updateProvider,
+    onDeleteConfirm,
+    onRemoveConfirm,
     createProvisioning,
     deleteProvisioning,
     listScimTokens,
@@ -846,7 +618,5 @@ export function useSsoProviderEdit(
     deleteScimToken,
     syncSsoAttributes,
     syncProvisioningAttributes,
-    onDeleteConfirm,
-    onRemoveConfirm,
   };
 }

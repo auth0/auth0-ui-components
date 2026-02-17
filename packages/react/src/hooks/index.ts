@@ -3,7 +3,7 @@ export { useCoreClient, CoreClientContext } from './shared/use-core-client';
 export { useTranslator } from './shared/use-translator';
 export { useTheme } from './shared/use-theme';
 export { useCoreClientInitialization } from './shared/use-core-client-initialization';
-export { useScopeManager, type Audience } from '../providers/scope-manager-provider';
+export { useErrorHandler } from './shared/use-error-handler';
 
 // My Account hooks
 export { useContactEnrollment } from './my-account/use-contact-enrollment';
@@ -17,7 +17,6 @@ export { useConfig } from './my-organization/use-config';
 export { useIdpConfig } from './my-organization/use-idp-config';
 export { useOrganizationDetailsEdit } from './my-organization/use-organization-details-edit';
 export { useDomainTable } from './my-organization/use-domain-table';
-export { useDomainTableLogic } from './my-organization/use-domain-table-logic';
 export { useProviderFormMode } from './my-organization/use-provider-form-mode';
 export { useSsoDomainTab } from './my-organization/use-sso-domain-tab';
 export { useSsoProviderCreate } from './my-organization/use-sso-provider-create';

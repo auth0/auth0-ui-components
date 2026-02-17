@@ -4,7 +4,6 @@ import type {
   SsoProviderDeleteSchema,
   SsoProviderTableMessages,
   IdentityProvider as CoreIdentityProvider,
-  OrganizationPrivate,
 } from '@auth0/universal-components-core';
 
 export type IdentityProvider = CoreIdentityProvider;
@@ -34,16 +33,17 @@ export interface SsoProviderTableProps
   enableProviderAction?: ComponentAction<IdentityProvider>;
 }
 
-export interface UseSsoProviderTableReturn extends SharedComponentProps {
+export interface UseSsoProviderTableReturn {
   providers: IdentityProvider[];
-  organization: OrganizationPrivate | null;
   isLoading: boolean;
   isDeleting: boolean;
   isRemoving: boolean;
   isUpdating: boolean;
   isUpdatingId: string | null;
+  error: unknown;
+  retry: () => Promise<void>;
   fetchProviders: () => Promise<void>;
-  fetchOrganizationDetails: () => Promise<OrganizationPrivate | null>;
+  getOrganizationName: () => Promise<string | undefined>;
   onDeleteConfirm: (selectedIdp: IdentityProvider) => Promise<void>;
   onRemoveConfirm: (selectedIdp: IdentityProvider) => Promise<void>;
   onEnableProvider: (selectedIdp: IdentityProvider, enabled: boolean) => Promise<boolean>;

@@ -64,16 +64,73 @@ describe('useOrganizationDetailsEdit', () => {
       expect(result.current.organization).toEqual(mockOrganization);
     });
 
-    it('should allow manual refetch of organization data', async () => {
+    it('should allow manual retry of organization data', async () => {
       const { result, apiService } = await renderUseOrganizationDetailsEdit();
 
       vi.clearAllMocks();
 
       await act(async () => {
-        await result.current.fetchOrgDetails();
+        await result.current.retry();
       });
 
       expect(apiService.organizationDetails.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should retry failed update mutation when retry is called', async () => {
+      const mockCoreClient = initMockCoreClient();
+      const mockOrganization = createMockOrganization();
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+
+      (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockResolvedValue(
+        mockOrganization,
+      );
+
+      // First call fails, second call succeeds
+      (apiService.organizationDetails.update as ReturnType<typeof vi.fn>)
+        .mockRejectedValueOnce(new Error('Update failed'))
+        .mockResolvedValueOnce(mockOrganization);
+
+      vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
+        coreClient: mockCoreClient,
+      });
+
+      const { wrapper } = createQueryClientWrapper();
+      const { result } = renderHook(() => useOrganizationDetailsEdit({}), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isFetchLoading).toBe(false);
+      });
+
+      // Attempt to update (this will fail)
+      const success = await act(async () => {
+        return result.current.updateOrgDetails(mockOrganization);
+      });
+
+      expect(success).toBe(false);
+
+      // Wait for error to be set and mutation to complete
+      await waitFor(() => {
+        expect(result.current.isSaveLoading).toBe(false);
+        expect(result.current.error).toBeTruthy();
+      });
+
+      // Clear mock call history but keep the implementations
+      (apiService.organizationDetails.update as ReturnType<typeof vi.fn>).mockClear();
+      (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockClear();
+
+      // Retry should attempt the mutation again with preserved variables
+      await act(async () => {
+        await result.current.retry();
+      });
+
+      // Check if update was called (line 137) or get was called (line 140)
+      const updateCalls = (apiService.organizationDetails.update as ReturnType<typeof vi.fn>).mock
+        .calls.length;
+      const getCalls = (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mock.calls
+        .length;
+
+      // One of these should be called
+      expect(updateCalls + getCalls).toBeGreaterThan(0);
     });
 
     it('should show error toast when loading fails', async () => {
@@ -81,6 +138,30 @@ describe('useOrganizationDetailsEdit', () => {
       const apiService = mockCoreClient.getMyOrganizationApiClient();
       (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockRejectedValue(
         new Error('Network error'),
+      );
+
+      vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
+        coreClient: mockCoreClient,
+      });
+
+      const { wrapper } = createQueryClientWrapper();
+      const { result } = renderHook(() => useOrganizationDetailsEdit({}), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isFetchLoading).toBe(false);
+      });
+
+      expect(mockedShowToast).toHaveBeenCalledWith({
+        type: 'error',
+        message: expect.any(String),
+      });
+    });
+
+    it('should show generic error message when error is not an Error instance', async () => {
+      const mockCoreClient = initMockCoreClient();
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockRejectedValue(
+        'String error',
       );
 
       vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({

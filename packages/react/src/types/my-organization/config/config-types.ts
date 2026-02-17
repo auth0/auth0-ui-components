@@ -10,4 +10,6 @@ export interface UseConfigResult {
   filteredStrategies: IdpStrategy[];
   shouldAllowDeletion: boolean;
   isConfigValid: boolean;
+  error: unknown;
+  retry: () => Promise<void>;
 }

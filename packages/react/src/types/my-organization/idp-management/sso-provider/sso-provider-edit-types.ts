@@ -82,7 +82,7 @@ export interface UseSsoProviderEditOptions extends SharedComponentProps {
 
 export interface UseSsoProviderEditReturn {
   provider: IdentityProvider | null;
-  organization: OrganizationPrivate | null;
+  organization: OrganizationPrivate;
   provisioningConfig: GetIdPProvisioningConfigResponseContent | null;
   isLoading: boolean;
   isUpdating: boolean;
@@ -98,8 +98,9 @@ export interface UseSsoProviderEditReturn {
   isProvisioningAttributesSyncing: boolean;
   hasSsoAttributeSyncWarning: boolean;
   hasProvisioningAttributeSyncWarning: boolean;
+  error: unknown;
+  retry: () => Promise<void>;
   fetchProvider: () => Promise<IdentityProvider | null>;
-  fetchOrganizationDetails: () => Promise<void>;
   fetchProvisioning: () => Promise<GetIdPProvisioningConfigResponseContent | null>;
   updateProvider: (data: UpdateIdentityProviderRequestContentPrivate) => Promise<void>;
   createProvisioning: () => Promise<void>;

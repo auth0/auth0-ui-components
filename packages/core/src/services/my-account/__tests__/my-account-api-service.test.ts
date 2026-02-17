@@ -55,10 +55,9 @@ describe('initializeMyAccountClient', () => {
     describe('basic functionality', () => {
       it('should create MyAccountClient with proxy URL', () => {
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+        const client = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-        expect(result).toHaveProperty('client');
-        expect(result).toHaveProperty('setLatestScopes');
+        expect(client).toHaveProperty('withScopes');
         expect(mockMyAccountClient).toHaveBeenCalled();
       });
 
@@ -111,35 +110,35 @@ describe('initializeMyAccountClient', () => {
       });
     });
 
-    describe('setLatestScopes function', () => {
-      it('should provide setLatestScopes function', () => {
+    describe('withScopes function', () => {
+      it('should provide withScopes function', () => {
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+        const client = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-        expect(result.setLatestScopes).toBeDefined();
-        expect(typeof result.setLatestScopes).toBe('function');
+        expect(client.withScopes).toBeDefined();
+        expect(typeof client.withScopes).toBe('function');
       });
 
       it('should accept scope strings without throwing', () => {
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+        const client = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-        expect(() => result.setLatestScopes(mockScopes.mfa)).not.toThrow();
+        expect(() => client.withScopes(mockScopes.mfa)).not.toThrow();
       });
 
       it('should handle empty scope string', () => {
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+        const client = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-        expect(() => result.setLatestScopes('')).not.toThrow();
+        expect(() => client.withScopes('')).not.toThrow();
       });
 
       it('should handle complex scope strings', () => {
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+        const client = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
         const complexScopes = `${mockScopes.mfa} ${mockScopes.profile} ${mockScopes.email}`;
-        expect(() => result.setLatestScopes(complexScopes)).not.toThrow();
+        expect(() => client.withScopes(complexScopes)).not.toThrow();
       });
     });
 
@@ -163,8 +162,8 @@ describe('initializeMyAccountClient', () => {
         vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
-        result.setLatestScopes(mockScopes.mfa);
+        const client = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+        client.withScopes(mockScopes.mfa);
 
         const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
@@ -206,8 +205,8 @@ describe('initializeMyAccountClient', () => {
         vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
-        result.setLatestScopes('');
+        const client = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+        client.withScopes('');
 
         const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
@@ -247,14 +246,14 @@ describe('initializeMyAccountClient', () => {
         vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+        const client = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
         const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
-        result.setLatestScopes(mockScopes.mfa);
+        client.withScopes(mockScopes.mfa);
         await fetcher!(TEST_URL, {});
 
-        result.setLatestScopes(mockScopes.profile);
+        client.withScopes(mockScopes.profile);
         await fetcher!(TEST_URL, {});
 
         expect(mockFetch).toHaveBeenNthCalledWith(
@@ -327,10 +326,9 @@ describe('initializeMyAccountClient', () => {
     describe('basic functionality', () => {
       it('should create MyAccountClient with domain', () => {
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
+        const client = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        expect(result).toHaveProperty('client');
-        expect(result).toHaveProperty('setLatestScopes');
+        expect(client).toHaveProperty('withScopes');
         expect(mockMyAccountClient).toHaveBeenCalled();
       });
 
@@ -364,21 +362,21 @@ describe('initializeMyAccountClient', () => {
       });
     });
 
-    describe('setLatestScopes function', () => {
-      it('should provide setLatestScopes function in domain mode', () => {
+    describe('withScopes function', () => {
+      it('should provide withScopes function in domain mode', () => {
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
+        const client = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        expect(result.setLatestScopes).toBeDefined();
-        expect(typeof result.setLatestScopes).toBe('function');
+        expect(client.withScopes).toBeDefined();
+        expect(typeof client.withScopes).toBe('function');
       });
 
       it('should track scope changes in domain mode', () => {
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
+        const client = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
-        expect(() => result.setLatestScopes(mockScopes.mfa)).not.toThrow();
-        expect(() => result.setLatestScopes(mockScopes.profile)).not.toThrow();
+        expect(() => client.withScopes(mockScopes.mfa)).not.toThrow();
+        expect(() => client.withScopes(mockScopes.profile)).not.toThrow();
       });
     });
 
@@ -388,8 +386,8 @@ describe('initializeMyAccountClient', () => {
         vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
-        result.setLatestScopes(mockScopes.mfa);
+        const client = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
+        client.withScopes(mockScopes.mfa);
 
         const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
@@ -536,8 +534,8 @@ describe('initializeMyAccountClient', () => {
         vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
-        result.setLatestScopes(mockScopes.mfa);
+        const client = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
+        client.withScopes(mockScopes.mfa);
 
         const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
@@ -689,11 +687,11 @@ describe('initializeMyAccountClient', () => {
 
         // This will create a MyAccountClient with empty string domain after trim()
         // which is allowed by MyAccountClient, so it should not throw
-        const result = initializeMyAccountClient(authWithWhitespace, tokenManager);
+        const client = initializeMyAccountClient(authWithWhitespace, tokenManager);
 
         const config = getConfigFromMockCalls(mockMyAccountClient);
 
-        expect(result.client).toBeDefined();
+        expect(client).toBeDefined();
         expect(config.domain).toBe('');
       });
     });
@@ -703,61 +701,61 @@ describe('initializeMyAccountClient', () => {
         const tokenManager = createMockTokenManager();
         const authWithSpecialChars = { domain: 'my-domain.eu.auth0.com' };
 
-        const result = initializeMyAccountClient(authWithSpecialChars, tokenManager);
+        const client = initializeMyAccountClient(authWithSpecialChars, tokenManager);
 
-        expect(result.client).toBeDefined();
+        expect(client).toBeDefined();
       });
 
       it('should handle proxy URL with encoded characters', () => {
         const tokenManager = createMockTokenManager();
         const authWithEncoded = { authProxyUrl: 'https://example.com/path%20with%20spaces' };
 
-        const result = initializeMyAccountClient(authWithEncoded, tokenManager);
+        const client = initializeMyAccountClient(authWithEncoded, tokenManager);
 
-        expect(result.client).toBeDefined();
+        expect(client).toBeDefined();
       });
 
       it('should handle international domains', () => {
         const tokenManager = createMockTokenManager();
         const authWithIntl = { domain: 'münchen.auth0.com' };
 
-        const result = initializeMyAccountClient(authWithIntl, tokenManager);
+        const client = initializeMyAccountClient(authWithIntl, tokenManager);
 
-        expect(result.client).toBeDefined();
+        expect(client).toBeDefined();
       });
     });
 
     describe('multiple consecutive calls', () => {
       it('should handle multiple scope updates', () => {
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+        const client = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
         expect(() => {
-          result.setLatestScopes(mockScopes.mfa);
-          result.setLatestScopes(mockScopes.profile);
-          result.setLatestScopes(mockScopes.email);
-          result.setLatestScopes('');
+          client.withScopes(mockScopes.mfa);
+          client.withScopes(mockScopes.profile);
+          client.withScopes(mockScopes.email);
+          client.withScopes('');
         }).not.toThrow();
       });
 
       it('should create independent instances on each call', () => {
         const tokenManager = createMockTokenManager();
-        const result1 = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
-        const result2 = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+        const client1 = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+        const client2 = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-        expect(result1.client).not.toBe(result2.client);
-        expect(result1.setLatestScopes).not.toBe(result2.setLatestScopes);
+        expect(client1).not.toBe(client2);
+        expect(client1.withScopes).not.toBe(client2.withScopes);
       });
     });
 
     describe('concurrent operations', () => {
       it('should handle concurrent scope updates', () => {
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+        const client = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
         expect(() => {
-          result.setLatestScopes(mockScopes.mfa);
-          result.setLatestScopes(mockScopes.profile);
+          client.withScopes(mockScopes.mfa);
+          client.withScopes(mockScopes.profile);
         }).not.toThrow();
       });
 
@@ -766,8 +764,8 @@ describe('initializeMyAccountClient', () => {
         vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
-        result.setLatestScopes(mockScopes.mfa);
+        const client = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+        client.withScopes(mockScopes.mfa);
 
         const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
@@ -785,8 +783,8 @@ describe('initializeMyAccountClient', () => {
         vi.stubGlobal('fetch', mockFetch);
 
         const tokenManager = createMockTokenManager();
-        const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
-        result.setLatestScopes(mockScopes.mfa);
+        const client = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
+        client.withScopes(mockScopes.mfa);
 
         const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
@@ -803,37 +801,35 @@ describe('initializeMyAccountClient', () => {
   });
 
   describe('return value structure', () => {
-    it('should return object with client and setLatestScopes', () => {
+    it('should return client with withScopes method', () => {
       const tokenManager = createMockTokenManager();
-      const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+      const client = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-      expect(result).toHaveProperty('client');
-      expect(result).toHaveProperty('setLatestScopes');
-      expect(Object.keys(result)).toHaveLength(2);
+      expect(client).toHaveProperty('withScopes');
+      expect(typeof client.withScopes).toBe('function');
     });
 
     it('should have client as MyAccountClient instance', () => {
       const tokenManager = createMockTokenManager();
-      const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+      const client = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-      expect(result.client).toBeDefined();
+      expect(client).toBeDefined();
       expect(mockMyAccountClient).toHaveBeenCalled();
     });
 
-    it('should have setLatestScopes as a function', () => {
+    it('should have withScopes as a function', () => {
       const tokenManager = createMockTokenManager();
-      const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+      const client = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-      expect(typeof result.setLatestScopes).toBe('function');
+      expect(typeof client.withScopes).toBe('function');
     });
 
     it('should return new instances on each call', () => {
       const tokenManager = createMockTokenManager();
-      const result1 = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
-      const result2 = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+      const client1 = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+      const client2 = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
-      expect(result1).not.toBe(result2);
-      expect(result1.client).not.toBe(result2.client);
+      expect(client1).not.toBe(client2);
     });
   });
 
@@ -843,10 +839,10 @@ describe('initializeMyAccountClient', () => {
       vi.stubGlobal('fetch', mockFetch);
 
       const tokenManager = createMockTokenManager();
-      const result = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
+      const client = initializeMyAccountClient(mockAuthWithProxyUrl, tokenManager);
 
       // Set scopes
-      result.setLatestScopes(mockScopes.mfa);
+      client.withScopes(mockScopes.mfa);
 
       // Get the fetcher
       const config = getConfigFromMockCalls(mockMyAccountClient);
@@ -877,10 +873,10 @@ describe('initializeMyAccountClient', () => {
       vi.stubGlobal('fetch', mockFetch);
 
       const tokenManager = createMockTokenManager(mockTokens.standard);
-      const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
+      const client = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
       // Set scopes
-      result.setLatestScopes(mockScopes.mfa);
+      client.withScopes(mockScopes.mfa);
 
       // Get the fetcher
       const config = getConfigFromMockCalls(mockMyAccountClient);
@@ -907,17 +903,17 @@ describe('initializeMyAccountClient', () => {
       vi.stubGlobal('fetch', mockFetch);
 
       const tokenManager = createMockTokenManager(mockTokens.standard);
-      const result = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
+      const client = initializeMyAccountClient(mockAuthWithDomain, tokenManager);
 
       const config = getConfigFromMockCalls(mockMyAccountClient);
       const fetcher = config.fetcher;
 
       // Start with empty scope
-      result.setLatestScopes('');
+      client.withScopes('');
       await fetcher!(TEST_URL, {});
 
       // Change to populated scope
-      result.setLatestScopes(mockScopes.mfa);
+      client.withScopes(mockScopes.mfa);
       await fetcher!(TEST_URL, {});
 
       // Verify both calls
@@ -934,9 +930,9 @@ describe('initializeMyAccountClient', () => {
       const tokenManager = createMockTokenManager(mockTokens.standard);
       const auth = { contextInterface };
 
-      const result = initializeMyAccountClient(auth, tokenManager);
+      const client = initializeMyAccountClient(auth, tokenManager);
 
-      expect(result.client).toBeDefined();
+      expect(client).toBeDefined();
       expect(mockMyAccountClient).toHaveBeenCalledWith(
         expect.objectContaining({
           domain: 'context.auth0.com',
@@ -953,9 +949,9 @@ describe('initializeMyAccountClient', () => {
         contextInterface,
       };
 
-      const result = initializeMyAccountClient(auth, tokenManager);
+      const client = initializeMyAccountClient(auth, tokenManager);
 
-      expect(result.client).toBeDefined();
+      expect(client).toBeDefined();
       expect(mockMyAccountClient).toHaveBeenCalledWith(
         expect.objectContaining({
           domain: 'direct.auth0.com',
@@ -1008,7 +1004,7 @@ describe('initializeMyAccountClient', () => {
       const tokenManager = createMockTokenManager(mockTokens.standard);
       const auth = { contextInterface };
 
-      const result = initializeMyAccountClient(auth, tokenManager);
+      const client = initializeMyAccountClient(auth, tokenManager);
 
       const config = getConfigFromMockCalls(mockMyAccountClient);
       const fetcher = config.fetcher;
@@ -1028,7 +1024,7 @@ describe('initializeMyAccountClient', () => {
       expect(tokenManager.getToken).toHaveBeenCalled();
 
       // Verify the client was created
-      expect(result.client).toBeDefined();
+      expect(client).toBeDefined();
     });
   });
 });

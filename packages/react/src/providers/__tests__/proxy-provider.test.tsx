@@ -19,12 +19,6 @@ vi.mock('@/components/ui/spinner', () => ({
   Spinner: () => <div data-testid="spinner" />,
 }));
 
-vi.mock('../scope-manager-provider', () => ({
-  ScopeManagerProvider: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="scope-manager-provider">{children}</div>
-  ),
-}));
-
 vi.mock('../theme-provider', () => ({
   ThemeProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="theme-provider">{children}</div>
@@ -65,16 +59,6 @@ describe('Auth0ComponentProvider', () => {
     );
 
     expect(screen.getByTestId('toaster')).toBeInTheDocument();
-  });
-
-  it('should render ScopeManagerProvider', () => {
-    render(
-      <Auth0ComponentProvider authDetails={{ authProxyUrl: '/api/auth' }}>
-        <div>Test</div>
-      </Auth0ComponentProvider>,
-    );
-
-    expect(screen.getByTestId('scope-manager-provider')).toBeInTheDocument();
   });
 
   it('should apply default theme settings when not provided', () => {

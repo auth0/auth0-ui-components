@@ -68,7 +68,7 @@ export interface UseSsoDomainTabReturn {
   domainsList: Domain[];
   isLoading: boolean;
   error: unknown;
-  refetch: () => void;
+  retry: () => Promise<void>;
   showCreateModal: boolean;
   isCreating: boolean;
   selectedDomain: Domain | null;

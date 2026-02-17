@@ -9,8 +9,6 @@ import type {
   DomainConfigureMessages,
   DomainVerifyMessages,
   DomainTableMessages,
-  CreateOrganizationDomainRequestContent,
-  EnhancedTranslationFunction,
   IdentityProviderAssociatedWithDomain,
 } from '@auth0/universal-components-core';
 
@@ -80,55 +78,29 @@ export interface UseDomainTableOptions {
 export interface UseDomainTableResult extends SharedComponentProps {
   domains: Domain[];
   providers: IdentityProviderAssociatedWithDomain[];
+  error: unknown;
+  retry: () => Promise<void>;
   isFetching: boolean;
   isLoadingProviders: boolean;
   isCreating: boolean;
   isDeleting: boolean;
   isVerifying: boolean;
-  fetchProviders: (domain: Domain) => Promise<void>;
-  fetchDomains: () => Promise<void>;
-  onCreateDomain: (data: CreateOrganizationDomainRequestContent) => Promise<Domain | null>;
-  onVerifyDomain: (data: Domain) => Promise<boolean>;
-  onDeleteDomain: (domain: Domain) => Promise<void>;
-  onAssociateToProvider: (domain: Domain, provider: IdentityProvider) => Promise<void>;
-  onDeleteFromProvider: (domain: Domain, provider: IdentityProvider) => Promise<void>;
-}
-
-export interface UseDomainTableLogicOptions {
-  t: EnhancedTranslationFunction;
-  onCreateDomain: UseDomainTableResult['onCreateDomain'];
-  onVerifyDomain: UseDomainTableResult['onVerifyDomain'];
-  onDeleteDomain: UseDomainTableResult['onDeleteDomain'];
-  onAssociateToProvider: UseDomainTableResult['onAssociateToProvider'];
-  onDeleteFromProvider: UseDomainTableResult['onDeleteFromProvider'];
-  fetchProviders: UseDomainTableResult['fetchProviders'];
-  fetchDomains: UseDomainTableResult['fetchDomains'];
-}
-
-export interface UseDomainTableLogicResult {
-  // Error state
-  error: unknown;
-
-  // Modal state
   showCreateModal: boolean;
   showConfigureModal: boolean;
   showVerifyModal: boolean;
   showDeleteModal: boolean;
   verifyError: string | undefined;
   selectedDomain: Domain | null;
+  closeModal: () => void;
 
-  // State setters
-  setShowCreateModal: (show: boolean) => void;
-  setShowConfigureModal: (show: boolean) => void;
-  setShowVerifyModal: (show: boolean) => void;
-  setShowDeleteModal: (show: boolean) => void;
-
-  // Handlers
   handleCreate: (domainUrl: string) => Promise<void>;
   handleVerify: (domain: Domain) => Promise<void>;
-  handleDelete: (domain: Domain) => void;
-  handleToggleSwitch: (domain: Domain, provider: IdentityProvider, checked: boolean) => void;
-  handleCloseVerifyModal: () => void;
+  handleDelete: (domain: Domain) => Promise<void>;
+  handleToggleSwitch: (
+    domain: Domain,
+    provider: IdentityProvider,
+    checked: boolean,
+  ) => Promise<void>;
   handleCreateClick: () => void;
   handleConfigureClick: (domain: Domain) => void;
   handleVerifyClick: (domain: Domain) => Promise<void>;

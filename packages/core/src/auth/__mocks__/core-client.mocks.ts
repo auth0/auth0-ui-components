@@ -7,7 +7,6 @@ import type {
   BasicAuth0ContextInterface,
   CoreClientInterface,
   User,
-  Auth0ContextInterface,
   GetTokenSilentlyVerboseResponse,
   GetTokenSilentlyOptions,
 } from '../auth-types';
@@ -40,6 +39,29 @@ export const createMockVerboseTokenResponse = (
 });
 
 /**
+ * Creates a mock MFA API client
+ */
+const createMockMfaClient = () => ({
+  getAuthenticators: vi.fn().mockResolvedValue([]),
+  enroll: vi.fn().mockResolvedValue({
+    authenticatorType: 'otp',
+    secret: 'mock-secret',
+    barcodeUri: 'otpauth://totp/mock',
+    id: 'authenticator_123',
+  }),
+  challenge: vi.fn().mockResolvedValue({
+    challengeType: 'oob',
+    oobCode: 'mock-oob-code',
+  }),
+  getEnrollmentFactors: vi.fn().mockResolvedValue([]),
+  verify: vi.fn().mockResolvedValue({
+    id_token: 'mock-id-token',
+    access_token: 'mock-access-token',
+    expires_in: 3600,
+  }),
+});
+
+/**
  * Creates a mock BasicAuth0ContextInterface
  */
 export const createMockBasicAuth0Context = (
@@ -59,36 +81,7 @@ export const createMockBasicAuth0Context = (
     domain: TEST_DOMAIN,
     clientId: TEST_CLIENT_ID,
   }),
-  ...overrides,
-});
-
-/**
- * Creates a mock Auth0ContextInterface with full properties
- */
-export const createMockAuth0Context = (
-  overrides?: Partial<Auth0ContextInterface>,
-): Auth0ContextInterface => ({
-  isAuthenticated: true,
-  isLoading: false,
-  user: createMockUser(),
-  getAccessTokenSilently: vi.fn().mockImplementation(async (options?: GetTokenSilentlyOptions) => {
-    if (options?.detailedResponse) {
-      return createMockVerboseTokenResponse();
-    }
-    return 'mock-access-token';
-  }),
-  getAccessTokenWithPopup: vi.fn().mockResolvedValue('mock-access-token'),
-  loginWithRedirect: vi.fn().mockResolvedValue(undefined),
-  loginWithPopup: vi.fn().mockResolvedValue(undefined),
-  logout: vi.fn().mockResolvedValue(undefined),
-  getIdTokenClaims: vi.fn().mockResolvedValue({
-    sub: 'auth0|test-user-123',
-    aud: 'test-client-id',
-    iss: 'https://test-domain.auth0.com/',
-  }),
-  handleRedirectCallback: vi.fn().mockResolvedValue({
-    appState: {},
-  }),
+  mfa: createMockMfaClient(),
   ...overrides,
 });
 
@@ -115,7 +108,33 @@ export const createMockMyAccountApiClient = (): CoreClientInterface['myAccountAp
       delete: vi.fn().mockResolvedValue(undefined),
       verify: vi.fn().mockResolvedValue({ confirmed: true }),
     },
+    withScopes: vi.fn().mockReturnThis(),
   } as unknown as CoreClientInterface['myAccountApiClient'];
+};
+
+/**
+ * Creates a mock StepUpApiService
+ */
+export const createMockStepUpApiService = (): CoreClientInterface['stepUpApiService'] => {
+  return {
+    getAuthenticators: vi.fn().mockResolvedValue([]),
+    enroll: vi.fn().mockResolvedValue({
+      authenticatorType: 'otp',
+      secret: 'mock-secret',
+      barcodeUri: 'otpauth://totp/mock',
+      id: 'authenticator_123',
+    }),
+    challenge: vi.fn().mockResolvedValue({
+      challengeType: 'oob',
+      oobCode: 'mock-oob-code',
+    }),
+    getEnrollmentFactors: vi.fn().mockResolvedValue([]),
+    verify: vi.fn().mockResolvedValue({
+      id_token: 'mock-id-token',
+      access_token: 'mock-access-token',
+      expires_in: 3600,
+    }),
+  } as unknown as CoreClientInterface['stepUpApiService'];
 };
 
 /**
@@ -203,6 +222,7 @@ export const createMockMyOrganizationApiClient =
           },
         },
       },
+      withScopes: vi.fn().mockReturnThis(),
     } as unknown as CoreClientInterface['myOrganizationApiClient'];
   };
 
@@ -214,21 +234,25 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
   const mockI18nService = createMockI18nService();
   const mockMyAccountApiClient = createMockMyAccountApiClient();
   const mockMyOrganizationApiClient = createMockMyOrganizationApiClient();
+  const mockStepUpApiService = createMockStepUpApiService();
 
   return {
     auth: mockAuth,
     i18nService: mockI18nService,
     myAccountApiClient: mockMyAccountApiClient,
     myOrganizationApiClient: mockMyOrganizationApiClient,
+    stepUpApiService: mockStepUpApiService,
     getMyAccountApiClient: vi.fn(
       () => mockMyAccountApiClient,
     ) as CoreClientInterface['getMyAccountApiClient'],
     getMyOrganizationApiClient: vi.fn(
       () => mockMyOrganizationApiClient,
     ) as CoreClientInterface['getMyOrganizationApiClient'],
+    getStepUpApiService: vi.fn(
+      () => mockStepUpApiService,
+    ) as CoreClientInterface['getStepUpApiService'],
     getToken: vi.fn().mockResolvedValue('mock-access-token'),
     isProxyMode: vi.fn().mockReturnValue(false),
-    ensureScopes: vi.fn().mockResolvedValue(undefined),
     getDomain: vi.fn(
       () => mockAuth.domain ?? mockAuth.contextInterface?.getConfiguration()?.domain,
     ),

@@ -31,29 +31,24 @@ export const createMockTOTPAuthenticator = (): Authenticator =>
   createMockAuthenticator({
     id: 'auth_totp_123',
     type: 'totp',
-    enrolled: true,
   });
 
 export const createMockPhoneAuthenticator = (): Authenticator =>
   createMockAuthenticator({
     id: 'auth_phone_123',
     type: 'phone',
-    enrolled: true,
   });
 
 export const createMockPushNotificationAuthenticator = (): Authenticator =>
   createMockAuthenticator({
     id: 'auth_push_123',
     type: 'push-notification',
-    enrolled: true,
   });
 
 export const createMockEmailAuthenticator = (): Authenticator =>
   createMockAuthenticator({
     id: 'auth_email_123',
     type: 'email',
-    email: 'user@example.com',
-    enrolled: true,
   });
 
 export const createMockWebAuthnAuthenticator = (): Authenticator =>
@@ -61,7 +56,6 @@ export const createMockWebAuthnAuthenticator = (): Authenticator =>
     id: 'auth_webauthn_123',
     type: 'webauthn-roaming',
     name: 'YubiKey 5',
-    enrolled: true,
   });
 
 export const createMockAuthenticationMethodsResponse = (
@@ -82,8 +76,6 @@ export const createMockUnconfirmedAuthenticator = (): Authenticator =>
   createMockAuthenticator({
     id: 'auth_unconfirmed_123',
     type: 'email',
-    email: 'user@example.com',
-    enrolled: true,
     confirmed: false,
   });
 

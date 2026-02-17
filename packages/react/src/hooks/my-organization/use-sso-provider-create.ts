@@ -11,6 +11,7 @@ import { useCallback } from 'react';
 import { showToast } from '@/components/auth0/shared/toast';
 import { ssoProviderQueryKeys } from '@/hooks/my-organization/use-sso-provider-table';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { UseSsoProviderCreateOptions } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
@@ -24,11 +25,12 @@ function extractDomainFromDiscoveryError(detail?: string): string | null {
 export interface UseSsoProviderCreateReturn {
   createProvider: (data: CreateIdentityProviderRequestContentPrivate) => Promise<void>;
   isCreating: boolean;
+  error: unknown;
+  retry: () => Promise<void>;
 }
 
 /**
- * Custom hook for creating SSO providers.
- * Uses TanStack Query for mutation management and cache invalidation.
+ * Creates SSO providers with automatic error handling and cache management.
  */
 export function useSsoProviderCreate({
   createAction,
@@ -37,19 +39,12 @@ export function useSsoProviderCreate({
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
   const queryClient = useQueryClient();
-
-  // ============================================
-  // MUTATION
-  // ============================================
+  const handleError = useErrorHandler();
 
   const createProviderMutation = useMutation({
     mutationFn: async (
       data: CreateIdentityProviderRequestContentPrivate,
     ): Promise<IdentityProvider> => {
-      if (!coreClient) {
-        throw new Error('Core client not available');
-      }
-
       const { strategy, name, display_name, ...configOptions } = data;
 
       const formData = {
@@ -62,7 +57,7 @@ export function useSsoProviderCreate({
       const apiRequestData: CreateIdentityProviderRequestContent =
         SsoProviderMappers.createToAPI(formData);
 
-      const result: IdentityProvider = await coreClient
+      const result: IdentityProvider = await coreClient!
         .getMyOrganizationApiClient()
         .organization.identityProviders.create(apiRequestData);
 
@@ -80,6 +75,7 @@ export function useSsoProviderCreate({
       queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
     },
     onError: (error, data) => {
+      // Handle specific business errors with custom messages
       if (
         hasApiErrorBody(error) &&
         error.body?.status === 409 &&
@@ -93,6 +89,7 @@ export function useSsoProviderCreate({
         });
         return;
       }
+
       // Handle discovery failure error for domain
       if (hasApiErrorBody(error)) {
         const domainFromError = extractDomainFromDiscoveryError(error.body?.detail);
@@ -106,17 +103,9 @@ export function useSsoProviderCreate({
           return;
         }
       }
-
-      showToast({
-        type: 'error',
-        message: t('notifications.general_error'),
-      });
+      handleError(error);
     },
   });
-
-  // ============================================
-  // ACTION - Wrapper around mutation
-  // ============================================
 
   const createProvider = useCallback(
     async (data: CreateIdentityProviderRequestContentPrivate): Promise<void> => {
@@ -137,11 +126,21 @@ export function useSsoProviderCreate({
 
       await createProviderMutation.mutateAsync(data);
     },
-    [coreClient, createAction, createProviderMutation],
+    [coreClient, t, createAction, createProviderMutation],
   );
+
+  const retry = useCallback(async () => {
+    if (createProviderMutation.variables) {
+      await createProviderMutation.mutateAsync(createProviderMutation.variables);
+    } else {
+      createProviderMutation.reset();
+    }
+  }, [createProviderMutation]);
 
   return {
     createProvider,
     isCreating: createProviderMutation.isPending,
+    error: createProviderMutation.error,
+    retry,
   };
 }

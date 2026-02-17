@@ -3,7 +3,6 @@ import {
   FACTOR_TYPE_PUSH_NOTIFICATION,
   type MFAType,
   getComponentStyles,
-  USER_MFA_SCOPES,
 } from '@auth0/universal-components-core';
 import * as React from 'react';
 import { toast } from 'sonner';
@@ -18,7 +17,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { List, ListItem } from '@/components/ui/list';
 import { Spinner } from '@/components/ui/spinner';
-import { withMyAccountService } from '@/hoc/with-services';
 import { useMFA } from '@/hooks/my-account/use-mfa';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -36,7 +34,7 @@ import type { UserMFAMgmtProps } from '@/types/my-account/mfa/mfa-types';
  * - **ProxyMode (RWA)**: In this mode, the component interacts with a proxy service to manage MFA
  * - **SPA (Single Page Application)**: In this mode, the component communicates directly with the API to manage MFA factors.
  */
-function UserMFAMgmtComponent({
+export function UserMFAMgmt({
   customMessages = {},
   styling = {
     variables: {
@@ -417,5 +415,3 @@ function UserMFAMgmtComponent({
     </div>
   );
 }
-
-export const UserMFAMgmt = withMyAccountService(UserMFAMgmtComponent, USER_MFA_SCOPES);

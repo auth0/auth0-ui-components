@@ -1,4 +1,3 @@
-import { BusinessError } from '@auth0/universal-components-core';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -83,6 +82,9 @@ describe('useSsoDomainTab', () => {
     });
 
     mockHandleError = setupMockHandleError;
+
+    // Ensure useErrorHandler always returns the mock function
+    vi.spyOn(useErrorHandlerModule, 'useErrorHandler').mockReturnValue(mockHandleError);
   });
 
   const renderUseSsoDomainTab = async (
@@ -152,9 +154,7 @@ describe('useSsoDomainTab', () => {
       const { result } = renderHook(() => useSsoDomainTab('idp-1'), { wrapper });
 
       await waitFor(() => {
-        expect(mockHandleError).toHaveBeenCalledWith(error, {
-          fallbackMessage: 'general_error',
-        });
+        expect(mockHandleError).toHaveBeenCalledWith(error);
         expect(result.current.isLoading).toBe(false);
       });
     });
@@ -216,13 +216,15 @@ describe('useSsoDomainTab', () => {
       const { result } = await renderUseSsoDomainTab('idp-1');
 
       await act(async () => {
-        await result.current.handleCreate('newdomain.com');
+        try {
+          await result.current.handleCreate('newdomain.com');
+        } catch (e) {
+          // Expected to throw
+        }
       });
 
       await waitFor(() => {
-        expect(mockHandleError).toHaveBeenCalledWith(error, {
-          fallbackMessage: 'domain_create.error',
-        });
+        expect(mockHandleError).toHaveBeenCalledWith(error);
         expect(result.current.isCreating).toBe(false);
       });
     });
@@ -272,12 +274,16 @@ describe('useSsoDomainTab', () => {
       });
 
       await act(async () => {
-        await result.current.handleCreate('newdomain.com');
+        try {
+          await result.current.handleCreate('newdomain.com');
+        } catch (e) {
+          // Expected to throw
+        }
       });
 
       await waitFor(() => {
         expect(onBefore).toHaveBeenCalled();
-        expect(mockHandleError).toHaveBeenCalledWith(expect.any(BusinessError), expect.any(Object));
+        expect(mockHandleError).toHaveBeenCalledWith(expect.any(Error));
         expect(result.current.isCreating).toBe(false);
       });
     });
@@ -320,13 +326,15 @@ describe('useSsoDomainTab', () => {
       const { result } = await renderUseSsoDomainTab('idp-1');
 
       await act(async () => {
-        await result.current.handleVerify(mockDomain);
+        try {
+          await result.current.handleVerify(mockDomain);
+        } catch (e) {
+          // Expected to throw
+        }
       });
 
       await waitFor(() => {
-        expect(mockHandleError).toHaveBeenCalledWith(error, {
-          fallbackMessage: 'domain_verify.verification_failed',
-        });
+        expect(mockHandleError).toHaveBeenCalledWith(error);
         expect(result.current.isVerifying).toBe(false);
       });
     });
@@ -379,7 +387,7 @@ describe('useSsoDomainTab', () => {
         type: 'error',
         message: 'domain_verify.verification_failed',
       });
-      expect(result.current.isUpdating).toBe(false);
+      expect(result.current.isVerifying).toBe(false);
       expect(result.current.isUpdatingId).toBeNull();
     });
 
@@ -428,13 +436,15 @@ describe('useSsoDomainTab', () => {
       const { result } = await renderUseSsoDomainTab('idp-1');
 
       await act(async () => {
-        await result.current.handleDelete(mockDomain);
+        try {
+          await result.current.handleDelete(mockDomain);
+        } catch (e) {
+          // Expected to throw
+        }
       });
 
       await waitFor(() => {
-        expect(mockHandleError).toHaveBeenCalledWith(error, {
-          fallbackMessage: 'domain_delete.error',
-        });
+        expect(mockHandleError).toHaveBeenCalledWith(error);
         expect(result.current.isDeleting).toBe(false);
       });
     });
@@ -527,13 +537,15 @@ describe('useSsoDomainTab', () => {
       });
 
       await act(async () => {
-        await result.current.handleToggleSwitch(mockDomain, true);
+        try {
+          await result.current.handleToggleSwitch(mockDomain, true);
+        } catch (e) {
+          // Expected to throw
+        }
       });
 
       await waitFor(() => {
-        expect(mockHandleError).toHaveBeenCalledWith(error, {
-          fallbackMessage: 'general_error',
-        });
+        expect(mockHandleError).toHaveBeenCalledWith(error);
         expect(result.current.isUpdating).toBe(false);
       });
     });

@@ -55,11 +55,11 @@ export function createTokenManager(auth: AuthDetails) {
           const token = await auth.contextInterface.getAccessTokenWithPopup({
             authorizationParams: { audience, scope, prompt },
           });
-          if (!token) throw new Error('getAccessTokenWithPopup: Access token is not defined');
+          if (!token) throw error;
           return token;
         }
 
-        throw new Error('getAccessToken: failed', { cause: error });
+        throw error;
       }
     },
   };

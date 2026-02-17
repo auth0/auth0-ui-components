@@ -6,6 +6,12 @@
       "title": "We couldn't load this information",
       "description": "Please try again or contact support if the problem persists.",
       "retry": "Retry"
+    },
+    "error": {
+      "generic": "There was an issue processing your request. Please try again or contact support if the issue persists.",
+      "mfa": {
+        "title": "Verify its you"
+      }
     }
   },
   "domain_management": {

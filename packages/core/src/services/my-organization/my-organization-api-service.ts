@@ -2,18 +2,15 @@ import { MyOrganizationClient } from '@auth0/myorganization-js';
 import type { AuthDetails } from '@core/auth/auth-types';
 import type { createTokenManager } from '@core/auth/token-manager';
 
+export interface MyOrganizationClientWithScopes extends MyOrganizationClient {
+  withScopes: (scopes: string) => MyOrganizationClientWithScopes;
+}
+
 export function initializeMyOrganizationClient(
   auth: AuthDetails,
   tokenManagerService: ReturnType<typeof createTokenManager>,
-): {
-  client: MyOrganizationClient;
-  setLatestScopes: (scopes: string) => void;
-} {
+): MyOrganizationClientWithScopes {
   let latestScopes = '';
-
-  const setLatestScopes = (scopes: string) => {
-    latestScopes = scopes;
-  };
 
   if (auth.authProxyUrl) {
     const myOrganizationProxyPath = 'my-org';
@@ -28,15 +25,19 @@ export function initializeMyOrganizationClient(
         },
       });
     };
-    return {
-      client: new MyOrganizationClient({
-        domain: '',
-        baseUrl: myOrganizationProxyBaseUrl.trim(),
-        telemetry: false,
-        fetcher,
-      }),
-      setLatestScopes,
+    const client = new MyOrganizationClient({
+      domain: '',
+      baseUrl: myOrganizationProxyBaseUrl.trim(),
+      telemetry: false,
+      fetcher,
+    }) as MyOrganizationClientWithScopes;
+
+    client.withScopes = (scopes: string) => {
+      latestScopes = scopes;
+      return client;
     };
+
+    return client;
   }
 
   const domain = auth.domain ?? auth.contextInterface?.getConfiguration()?.domain;
@@ -57,13 +58,18 @@ export function initializeMyOrganizationClient(
         headers,
       });
     };
-    return {
-      client: new MyOrganizationClient({
-        domain: domain.trim(),
-        fetcher,
-      }),
-      setLatestScopes,
+
+    const client = new MyOrganizationClient({
+      domain: domain.trim(),
+      fetcher,
+    }) as MyOrganizationClientWithScopes;
+
+    client.withScopes = (scopes: string) => {
+      latestScopes = scopes;
+      return client;
     };
+
+    return client;
   }
   throw new Error('Missing domain or proxy URL for MyOrganizationClient');
 }

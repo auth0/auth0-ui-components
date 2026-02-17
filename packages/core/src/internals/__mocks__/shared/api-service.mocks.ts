@@ -20,6 +20,25 @@ export const createMockContextInterface = (): BasicAuth0ContextInterface => ({
   getAccessTokenWithPopup: vi.fn().mockResolvedValue('mock-access-token'),
   loginWithRedirect: vi.fn().mockResolvedValue(undefined),
   getConfiguration: vi.fn().mockReturnValue({ domain: TEST_DOMAIN, clientId: TEST_CLIENT_ID }),
+  mfa: {
+    getAuthenticators: vi.fn().mockResolvedValue([]),
+    enroll: vi.fn().mockResolvedValue({
+      authenticatorType: 'otp',
+      secret: 'mock-secret',
+      barcodeUri: 'otpauth://totp/mock',
+      id: 'authenticator_123',
+    }),
+    challenge: vi.fn().mockResolvedValue({
+      challengeType: 'oob',
+      oobCode: 'mock-oob-code',
+    }),
+    getEnrollmentFactors: vi.fn().mockResolvedValue([]),
+    verify: vi.fn().mockResolvedValue({
+      id_token: 'mock-id-token',
+      access_token: 'mock-access-token',
+      expires_in: 3600,
+    }),
+  },
 });
 
 // =============================================================================

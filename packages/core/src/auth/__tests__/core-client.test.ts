@@ -1,7 +1,7 @@
-import type { MyAccountClient } from '@auth0/myaccount-js';
-import type { MyOrganizationClient } from '@auth0/myorganization-js';
 import { initializeMyAccountClient } from '@core/services/my-account/my-account-api-service';
+import type { MyAccountClientWithScopes } from '@core/services/my-account/my-account-api-service';
 import { initializeMyOrganizationClient } from '@core/services/my-organization/my-organization-api-service';
+import type { MyOrganizationClientWithScopes } from '@core/services/my-organization/my-organization-api-service';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createI18nService } from '../../i18n';
@@ -138,168 +138,7 @@ describe('createCoreClient', () => {
     });
   });
 
-  describe('ensureScopes - proxy mode', () => {
-    it('sets org scopes without token fetch in proxy mode', async () => {
-      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.auth0.com' });
-      const client = await createCoreClient(authDetails);
-
-      await client.ensureScopes('read:org', 'my-org');
-
-      expect(mockMyOrganizationClient.setLatestScopes).toHaveBeenCalledWith('read:org');
-      expect(mockTokenManager.getToken).not.toHaveBeenCalled();
-    });
-
-    it('sets account scopes without token fetch in proxy mode', async () => {
-      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.auth0.com' });
-      const client = await createCoreClient(authDetails);
-
-      await client.ensureScopes('read:me', 'me');
-
-      expect(mockMyAccountClient.setLatestScopes).toHaveBeenCalledWith('read:me');
-      expect(mockTokenManager.getToken).not.toHaveBeenCalled();
-    });
-
-    it('does not set scopes for unknown audience in proxy mode', async () => {
-      const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.auth0.com' });
-      const client = await createCoreClient(authDetails);
-
-      await client.ensureScopes('read:something', 'unknown-audience');
-
-      expect(mockMyOrganizationClient.setLatestScopes).not.toHaveBeenCalled();
-      expect(mockMyAccountClient.setLatestScopes).not.toHaveBeenCalled();
-      expect(mockTokenManager.getToken).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('ensureScopes - non-proxy mode', () => {
-    it('throws when domain is missing in non-proxy mode', async () => {
-      const authDetails = createAuthDetails({ domain: '', contextInterface: undefined });
-      const client = await createCoreClient(authDetails);
-
-      await expect(client.ensureScopes('read:org', 'my-org')).rejects.toThrow(
-        'Authentication domain is missing, cannot initialize SPA service.',
-      );
-      expect(mockMyOrganizationClient.setLatestScopes).not.toHaveBeenCalled();
-      expect(mockTokenManager.getToken).not.toHaveBeenCalled();
-    });
-
-    it('uses domain from contextInterface.getConfiguration() when auth.domain is undefined', async () => {
-      const mockContext = {
-        ...createMockContextInterface(),
-        getConfiguration: vi
-          .fn()
-          .mockReturnValue({ domain: 'context.auth0.com', clientId: 'test-client-id' }),
-      };
-      const authDetails = createAuthDetails({ domain: undefined, contextInterface: mockContext });
-      const client = await createCoreClient(authDetails);
-
-      await client.ensureScopes('read:org', 'my-org');
-
-      expect(mockMyOrganizationClient.setLatestScopes).toHaveBeenCalledWith('read:org');
-      expect(mockTokenManager.getToken).toHaveBeenCalledWith('read:org', 'my-org', true);
-    });
-
-    it('prefers auth.domain over contextInterface.getConfiguration().domain', async () => {
-      const mockContext = {
-        ...createMockContextInterface(),
-        getConfiguration: vi
-          .fn()
-          .mockReturnValue({ domain: 'context.auth0.com', clientId: 'test-client-id' }),
-      };
-      const authDetails = createAuthDetails({
-        domain: 'explicit.auth0.com',
-        contextInterface: mockContext,
-      });
-      const client = await createCoreClient(authDetails);
-
-      await client.ensureScopes('read:org', 'my-org');
-
-      // Should not throw, meaning domain was found
-      expect(mockMyOrganizationClient.setLatestScopes).toHaveBeenCalledWith('read:org');
-      expect(mockTokenManager.getToken).toHaveBeenCalledWith('read:org', 'my-org', true);
-    });
-
-    it('throws when contextInterface.getConfiguration() returns undefined domain', async () => {
-      const mockContext = {
-        ...createMockContextInterface(),
-        getConfiguration: vi.fn().mockReturnValue({ clientId: 'test-client-id' }),
-      };
-      const authDetails = createAuthDetails({ domain: undefined, contextInterface: mockContext });
-      const client = await createCoreClient(authDetails);
-
-      await expect(client.ensureScopes('read:org', 'my-org')).rejects.toThrow(
-        'Authentication domain is missing, cannot initialize SPA service.',
-      );
-    });
-
-    it('throws when contextInterface.getConfiguration() returns undefined', async () => {
-      const mockContext = {
-        ...createMockContextInterface(),
-        getConfiguration: vi.fn().mockReturnValue(undefined),
-      };
-      const authDetails = createAuthDetails({ domain: undefined, contextInterface: mockContext });
-      const client = await createCoreClient(authDetails);
-
-      await expect(client.ensureScopes('read:org', 'my-org')).rejects.toThrow(
-        'Authentication domain is missing, cannot initialize SPA service.',
-      );
-    });
-
-    it('throws when contextInterface is undefined and domain is not provided', async () => {
-      const authDetails = createAuthDetails({ domain: undefined, contextInterface: undefined });
-      const client = await createCoreClient(authDetails);
-
-      await expect(client.ensureScopes('read:org', 'my-org')).rejects.toThrow(
-        'Authentication domain is missing, cannot initialize SPA service.',
-      );
-    });
-
-    it('sets org scopes and fetches token in non-proxy mode', async () => {
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
-
-      await client.ensureScopes('read:org', 'my-org');
-
-      expect(mockMyOrganizationClient.setLatestScopes).toHaveBeenCalledWith('read:org');
-      expect(mockTokenManager.getToken).toHaveBeenCalledWith('read:org', 'my-org', true);
-    });
-
-    it('sets account scopes and fetches token in non-proxy mode', async () => {
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
-
-      await client.ensureScopes('read:me', 'me');
-
-      expect(mockMyAccountClient.setLatestScopes).toHaveBeenCalledWith('read:me');
-      expect(mockTokenManager.getToken).toHaveBeenCalledWith('read:me', 'me', true);
-    });
-
-    it('throws when token retrieval returns undefined in non-proxy mode', async () => {
-      vi.mocked(mockTokenManager.getToken).mockResolvedValueOnce(undefined);
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
-
-      await expect(client.ensureScopes('read:me', 'me')).rejects.toThrow(
-        'Failed to retrieve token for audience: me',
-      );
-    });
-
-    it('does not set scopes for unknown audience in non-proxy mode', async () => {
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails);
-
-      await client.ensureScopes('read:something', 'unknown-audience');
-
-      expect(mockMyOrganizationClient.setLatestScopes).not.toHaveBeenCalled();
-      expect(mockMyAccountClient.setLatestScopes).not.toHaveBeenCalled();
-      // Token fetch still happens for unknown audiences in non-proxy mode
-      expect(mockTokenManager.getToken).toHaveBeenCalledWith(
-        'read:something',
-        'unknown-audience',
-        true,
-      );
-    });
-  });
+  // ensureScopes tests removed - functionality replaced with withScopes() per-call pattern
 
   describe('API client initialization', () => {
     it('initializes token manager with auth details', async () => {
@@ -332,35 +171,34 @@ describe('createCoreClient', () => {
       const authDetails = createAuthDetails();
       const client = await createCoreClient(authDetails);
 
-      expect(client.myAccountApiClient).toBe(mockMyAccountClient.client);
+      expect(client.myAccountApiClient).toBe(mockMyAccountClient);
     });
 
     it('exposes myOrganizationApiClient directly on the client', async () => {
       const authDetails = createAuthDetails();
       const client = await createCoreClient(authDetails);
 
-      expect(client.myOrganizationApiClient).toBe(mockMyOrganizationClient.client);
+      expect(client.myOrganizationApiClient).toBe(mockMyOrganizationClient);
     });
 
     it('returns myAccountApiClient when available via getter', async () => {
       const authDetails = createAuthDetails();
       const client = await createCoreClient(authDetails);
 
-      expect(client.getMyAccountApiClient()).toBe(mockMyAccountClient.client);
+      expect(client.getMyAccountApiClient()).toBe(mockMyAccountClient);
     });
 
     it('returns myOrganizationApiClient when available via getter', async () => {
       const authDetails = createAuthDetails();
       const client = await createCoreClient(authDetails);
 
-      expect(client.getMyOrganizationApiClient()).toBe(mockMyOrganizationClient.client);
+      expect(client.getMyOrganizationApiClient()).toBe(mockMyOrganizationClient);
     });
 
     it('throws when myAccountApiClient is not available', async () => {
-      initializeMyAccountClientMock.mockReturnValueOnce({
-        client: undefined as unknown as MyAccountClient,
-        setLatestScopes: vi.fn(),
-      });
+      initializeMyAccountClientMock.mockReturnValueOnce(
+        undefined as unknown as MyAccountClientWithScopes,
+      );
 
       const authDetails = createAuthDetails();
       const client = await createCoreClient(authDetails);
@@ -371,10 +209,9 @@ describe('createCoreClient', () => {
     });
 
     it('throws when myOrganizationApiClient is not available', async () => {
-      initializeMyOrganizationClientMock.mockReturnValueOnce({
-        client: undefined as unknown as MyOrganizationClient,
-        setLatestScopes: vi.fn(),
-      });
+      initializeMyOrganizationClientMock.mockReturnValueOnce(
+        undefined as unknown as MyOrganizationClientWithScopes,
+      );
       const authDetails = createAuthDetails();
       const client = await createCoreClient(authDetails);
 

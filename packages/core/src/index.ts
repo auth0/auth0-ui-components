@@ -6,6 +6,17 @@ export { createCoreClient } from './auth/core-client';
 
 export { AuthDetails, CoreClientInterface, BasicAuth0ContextInterface } from './auth/auth-types';
 
+export type {
+  Authenticator as StepUpAuthenticator,
+  AuthenticatorType,
+  EnrollmentFactor,
+  EnrollmentResponse,
+  EnrollParams,
+  ChallengeAuthenticatorParams,
+  ChallengeResponse,
+  VerifyParams,
+} from './auth/auth-types';
+
 export * from './schemas';
 
 export * from './theme';

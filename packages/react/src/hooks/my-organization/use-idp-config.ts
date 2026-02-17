@@ -1,7 +1,13 @@
-import { hasApiErrorBody, type IdpStrategy } from '@auth0/universal-components-core';
+import {
+  hasApiErrorBody,
+  MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES,
+  type IdpStrategy,
+} from '@auth0/universal-components-core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import type {
   IdpConfig,
   UseConfigIdpResult,
@@ -15,6 +21,7 @@ export const idpConfigQueryKeys = {
 export function useIdpConfig(): UseConfigIdpResult {
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
+  const handleError = useErrorHandler();
 
   const idpConfigQuery = useQuery({
     queryKey: idpConfigQueryKeys.config(),
@@ -22,6 +29,7 @@ export function useIdpConfig(): UseConfigIdpResult {
       try {
         const response = await coreClient!
           .getMyOrganizationApiClient()
+          .withScopes(MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES)
           .organization.configuration.identityProviders.get();
         return response as unknown as IdpConfig;
       } catch (error) {
@@ -38,6 +46,12 @@ export function useIdpConfig(): UseConfigIdpResult {
     },
   });
 
+  useEffect(() => {
+    if (idpConfigQuery.error) {
+      handleError(idpConfigQuery.error);
+    }
+  }, [idpConfigQuery.error, handleError]);
+
   const idpConfig = idpConfigQuery.data ?? null;
   const strategies = idpConfig?.strategies;
 
@@ -51,6 +65,10 @@ export function useIdpConfig(): UseConfigIdpResult {
     return strategies[strategy].provisioning_methods.includes('scim');
   };
 
+  const retry = async () => {
+    await queryClient.invalidateQueries({ queryKey: idpConfigQueryKeys.config() });
+  };
+
   return {
     idpConfig,
     isIdpConfigValid: !!strategies && Object.keys(strategies).length > 0,
@@ -58,5 +76,7 @@ export function useIdpConfig(): UseConfigIdpResult {
     fetchIdpConfig: () => queryClient.invalidateQueries({ queryKey: idpConfigQueryKeys.config() }),
     isProvisioningEnabled,
     isProvisioningMethodEnabled,
+    error: idpConfigQuery.error,
+    retry,
   };
 }
