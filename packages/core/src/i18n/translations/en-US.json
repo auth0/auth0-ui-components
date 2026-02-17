@@ -1,7 +1,12 @@
 {
   "common": {
     "copy": "Copy",
-    "copied": "Copied!"
+    "copied": "Copied!",
+    "fallback": {
+      "title": "We couldn't load this information",
+      "description": "Please try again or contact support if the problem persists.",
+      "retry": "Retry"
+    }
   },
   "domain_management": {
     "domain_table": {

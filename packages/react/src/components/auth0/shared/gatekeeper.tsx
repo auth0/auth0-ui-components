@@ -1,10 +1,12 @@
 import { isMfaRequiredError, getStatusCode } from '@auth0/universal-components-core';
-import React, { useEffect } from 'react';
+import { RefreshCcw } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
 import { useMfaErrorHandler } from '@/providers/mfa-error-handler-provider';
 
 interface GateKeeperProps {
@@ -22,19 +24,6 @@ interface GateKeeperProps {
  * - MFA errors → Opens global MFA modal
  * - 500 errors → Shows blocking alert with retry
  * - Other errors (400, 401, 403) → Shows toast notification, renders children
- *
- * @example
- * ```tsx
- * function OrgDetails() {
- *   const { data, isLoading, error, refetch } = useOrganization();
- *
- *   return (
- *     <GateKeeper isLoading={isLoading} error={error} onRetry={refetch}>
- *       {data && <OrgDetailsForm data={data} />}
- *     </GateKeeper>
- *   );
- * }
- * ```
  */
 export function GateKeeper({
   isLoading,
@@ -45,24 +34,31 @@ export function GateKeeper({
   errorFallback,
 }: GateKeeperProps) {
   const { handleMfaError } = useMfaErrorHandler();
+  const { t } = useTranslator('common');
+  const [isRetrying, setIsRetrying] = useState(false);
 
-  // Handle errors in useEffect for side effects (modal, toast)
+  const handleRetry = async () => {
+    setIsRetrying(true);
+    try {
+      await onRetry();
+    } finally {
+      setIsRetrying(false);
+    }
+  };
+
   useEffect(() => {
     if (!error) return;
 
-    // MFA error → delegate to global modal
     if (isMfaRequiredError(error)) {
       handleMfaError(error, onRetry);
       return;
     }
 
-    // Critical errors (500+) → blocking UI (handled in render below)
     const statusCode = getStatusCode(error);
     if (statusCode && statusCode >= 500) {
-      return; // Let render show blocking Alert
+      return;
     }
 
-    // Non-critical errors (400, 401, 403, network, etc.) → show toast
     const errorMessage = error instanceof Error ? error.message : 'An error occurred';
     showToast({
       type: 'error',
@@ -70,7 +66,6 @@ export function GateKeeper({
     });
   }, [error, handleMfaError, onRetry]);
 
-  // Loading state
   if (isLoading) {
     return (
       <>
@@ -83,7 +78,6 @@ export function GateKeeper({
     );
   }
 
-  // MFA required - show loading while global dialog handles it
   if (error && isMfaRequiredError(error)) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -92,30 +86,44 @@ export function GateKeeper({
     );
   }
 
-  // Critical errors (500+) - blocking alert with retry
   const statusCode = getStatusCode(error);
   if (error && statusCode && statusCode >= 500) {
     return (
       <>
         {errorFallback ? (
-          errorFallback(error, onRetry)
+          errorFallback(error, handleRetry)
         ) : (
-          <Alert variant="destructive">
-            <AlertDescription className="flex items-center justify-between gap-4">
-              <span className="flex-1">
-                {error instanceof Error ? error.message : 'A server error occurred'}
-              </span>
-              <Button variant="outline" size="sm" onClick={onRetry}>
-                Retry
-              </Button>
-            </AlertDescription>
-          </Alert>
+          <div
+            className={cn(
+              'flex flex-col items-center justify-center gap-4 py-8 w-full rounded-lg border border-border bg-card p-8 text-center',
+            )}
+          >
+            <div className="space-y-2">
+              <h3 className="text-base font-semibold text-foreground">
+                {error instanceof Error ? error.message : t('fallback.title')}
+              </h3>
+              <p className="text-sm font-normal text-muted-foreground">
+                {t('fallback.description')}
+              </p>
+            </div>
+            <Button
+              variant="primary"
+              size="default"
+              onClick={handleRetry}
+              disabled={isRetrying}
+              className="mt-4"
+            >
+              {isRetrying ? (
+                <Spinner size="sm" colorScheme="foreground" />
+              ) : (
+                <RefreshCcw className="size-4" />
+              )}
+              {t('fallback.retry')}
+            </Button>
+          </div>
         )}
       </>
     );
   }
-
-  // Non-critical errors - toast shown in useEffect, render children
-  // Success - render children
   return <>{children}</>;
 }
