@@ -30,6 +30,8 @@ export const createMockUseTranslator = (_customMessages?: object) => ({
   fallbackLanguage: 'en',
 });
 
+// Deprecated: useErrorHandler has been removed. Errors are now handled by GateKeeper component.
+// Tests should be updated to check for error state exposure instead of handleError calls.
 export const createMockUseErrorHandler = (handleError: ReturnType<typeof vi.fn>) => ({
   handleError,
 });

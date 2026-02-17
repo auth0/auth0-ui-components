@@ -1,11 +1,10 @@
 import type { CreateOrganizationDomainRequestContent } from '@auth0/universal-components-core';
-import { BusinessError, type Domain, type IdpId } from '@auth0/universal-components-core';
+import { type Domain, type IdpId } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient, useMutation, useQueries } from '@tanstack/react-query';
-import { useCallback, useState, useMemo, useEffect } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
-import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseSsoDomainTabOptions,
@@ -27,7 +26,6 @@ export function useSsoDomainTab(
 ): UseSsoDomainTabReturn {
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.notifications', customMessages);
-  const { handleError } = useErrorHandler();
   const queryClient = useQueryClient();
 
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
@@ -50,15 +48,6 @@ export function useSsoDomainTab(
 
   const domainsList = domainsQuery.data ?? [];
   const isLoading = domainsQuery.isLoading;
-
-  // Handle errors from domains query
-  useEffect(() => {
-    if (domainsQuery.error) {
-      handleError(domainsQuery.error, {
-        fallbackMessage: t('general_error'),
-      });
-    }
-  }, [domainsQuery.error, handleError, t]);
 
   // Fetch IDP associations for each domain using useQueries
   const idpAssociationQueries = useQueries({
@@ -92,7 +81,7 @@ export function useSsoDomainTab(
       if (domains?.createAction?.onBefore) {
         const canProceed = domains.createAction.onBefore(data as Domain);
         if (!canProceed) {
-          throw new BusinessError({ message: t('domain_create.on_before') });
+          throw new Error(t('domain_create.on_before'));
         }
       }
 
@@ -118,7 +107,7 @@ export function useSsoDomainTab(
       if (domains?.verifyAction?.onBefore) {
         const canProceed = domains.verifyAction.onBefore(domain);
         if (!canProceed) {
-          throw new BusinessError({ message: t('domain_verify.on_before') });
+          throw new Error(t('domain_verify.on_before'));
         }
       }
 
@@ -151,7 +140,7 @@ export function useSsoDomainTab(
       if (domains?.deleteAction?.onBefore) {
         const canProceed = domains.deleteAction.onBefore(domain);
         if (!canProceed) {
-          throw new BusinessError({ message: t('domain_delete.on_before') });
+          throw new Error(t('domain_delete.on_before'));
         }
       }
 
@@ -177,7 +166,7 @@ export function useSsoDomainTab(
       if (domains?.associateToProviderAction?.onBefore) {
         const canProceed = domains.associateToProviderAction.onBefore(domain, provider);
         if (!canProceed) {
-          throw new BusinessError({ message: t('domain_associate_provider.on_before') });
+          throw new Error(t('domain_associate_provider.on_before'));
         }
       }
 
@@ -210,7 +199,7 @@ export function useSsoDomainTab(
       if (domains?.deleteFromProviderAction?.onBefore) {
         const canProceed = domains.deleteFromProviderAction.onBefore(domain, provider);
         if (!canProceed) {
-          throw new BusinessError({ message: t('domain_delete_provider.on_before') });
+          throw new Error(t('domain_delete_provider.on_before'));
         }
       }
 
@@ -236,26 +225,20 @@ export function useSsoDomainTab(
 
   const handleCreate = useCallback(
     async (domainUrl: string) => {
-      try {
-        const newDomain = await createDomainMutation.mutateAsync({ domain: domainUrl });
+      const newDomain = await createDomainMutation.mutateAsync({ domain: domainUrl });
 
-        showToast({
-          type: 'success',
-          message: t('domain_create.success', {
-            domainName: newDomain?.domain,
-          }),
-        });
+      showToast({
+        type: 'success',
+        message: t('domain_create.success', {
+          domainName: newDomain?.domain,
+        }),
+      });
 
-        setSelectedDomain(newDomain);
-        setShowCreateModal(false);
-        setShowVerifyModal(true);
-      } catch (error) {
-        handleError(error, {
-          fallbackMessage: t('domain_create.error'),
-        });
-      }
+      setSelectedDomain(newDomain);
+      setShowCreateModal(false);
+      setShowVerifyModal(true);
     },
-    [handleError, createDomainMutation, t],
+    [createDomainMutation, t],
   );
 
   const handleCloseVerifyModal = useCallback(() => {
@@ -265,29 +248,23 @@ export function useSsoDomainTab(
 
   const handleVerify = useCallback(
     async (domain: Domain) => {
-      try {
-        const { isVerified } = await verifyDomainMutation.mutateAsync(domain);
-        if (isVerified) {
-          setShowVerifyModal(false);
+      const { isVerified } = await verifyDomainMutation.mutateAsync(domain);
+      if (isVerified) {
+        setShowVerifyModal(false);
 
-          showToast({
-            type: 'success',
-            message: t('domain_verify.success', {
-              domainName: domain.domain,
-            }),
-          });
-
-          await associateToProviderMutation.mutateAsync(domain);
-        } else {
-          setVerifyError(t('domain_verify.verification_failed', { domainName: domain.domain }));
-        }
-      } catch (error) {
-        handleError(error, {
-          fallbackMessage: t('domain_verify.verification_failed'),
+        showToast({
+          type: 'success',
+          message: t('domain_verify.success', {
+            domainName: domain.domain,
+          }),
         });
+
+        await associateToProviderMutation.mutateAsync(domain);
+      } else {
+        setVerifyError(t('domain_verify.verification_failed', { domainName: domain.domain }));
       }
     },
-    [verifyDomainMutation, t, handleError, associateToProviderMutation],
+    [verifyDomainMutation, t, associateToProviderMutation],
   );
 
   const handleDeleteClick = useCallback((domain: Domain) => {
@@ -298,25 +275,19 @@ export function useSsoDomainTab(
 
   const handleDelete = useCallback(
     async (domain: Domain) => {
-      try {
-        await deleteDomainMutation.mutateAsync(domain);
+      await deleteDomainMutation.mutateAsync(domain);
 
-        showToast({
-          type: 'success',
-          message: t('domain_delete.success', {
-            domainName: domain.domain,
-          }),
-        });
+      showToast({
+        type: 'success',
+        message: t('domain_delete.success', {
+          domainName: domain.domain,
+        }),
+      });
 
-        setShowDeleteModal(false);
-        setShowVerifyModal(false);
-      } catch (error) {
-        handleError(error, {
-          fallbackMessage: t('domain_delete.error'),
-        });
-      }
+      setShowDeleteModal(false);
+      setShowVerifyModal(false);
     },
-    [handleError, deleteDomainMutation, t],
+    [deleteDomainMutation, t],
   );
 
   const handleVerifyActionColumn = useCallback(
@@ -343,16 +314,12 @@ export function useSsoDomainTab(
             }),
           });
         }
-      } catch (error) {
-        handleError(error, {
-          fallbackMessage: t('domain_verify.verification_failed', { domainName: domain.domain }),
-        });
       } finally {
         setIsUpdating(false);
         setIsUpdatingId(null);
       }
     },
-    [verifyDomainMutation, t, handleError, associateToProviderMutation],
+    [verifyDomainMutation, t, associateToProviderMutation],
   );
 
   const handleToggleSwitch = useCallback(
@@ -360,8 +327,8 @@ export function useSsoDomainTab(
       setIsUpdating(true);
       setIsUpdatingId(domain.id);
 
-      if (newCheckedValue) {
-        try {
+      try {
+        if (newCheckedValue) {
           await associateToProviderMutation.mutateAsync(domain);
 
           showToast({
@@ -371,16 +338,7 @@ export function useSsoDomainTab(
               idp: provider?.name,
             }),
           });
-        } catch (error) {
-          handleError(error, {
-            fallbackMessage: t('general_error'),
-          });
-        } finally {
-          setIsUpdating(false);
-          setIsUpdatingId(null);
-        }
-      } else {
-        try {
+        } else {
           await deleteFromProviderMutation.mutateAsync(domain);
 
           showToast({
@@ -390,21 +348,46 @@ export function useSsoDomainTab(
               idp: provider?.name,
             }),
           });
-        } catch (error) {
-          handleError(error, {
-            fallbackMessage: t('general_error'),
-          });
-        } finally {
-          setIsUpdating(false);
-          setIsUpdatingId(null);
         }
+      } finally {
+        setIsUpdating(false);
+        setIsUpdatingId(null);
       }
     },
-    [associateToProviderMutation, t, provider, handleError, deleteFromProviderMutation],
+    [associateToProviderMutation, t, provider, deleteFromProviderMutation],
   );
+
+  // Combine errors from all queries and mutations
+  const error =
+    domainsQuery.error ||
+    createDomainMutation.error ||
+    verifyDomainMutation.error ||
+    deleteDomainMutation.error ||
+    associateToProviderMutation.error ||
+    deleteFromProviderMutation.error;
+
+  // Refetch function to retry on error
+  const refetch = useCallback(() => {
+    createDomainMutation.reset();
+    verifyDomainMutation.reset();
+    deleteDomainMutation.reset();
+    associateToProviderMutation.reset();
+    deleteFromProviderMutation.reset();
+    queryClient.invalidateQueries({ queryKey: domainQueryKeys.list(idpId) });
+  }, [
+    createDomainMutation,
+    verifyDomainMutation,
+    deleteDomainMutation,
+    associateToProviderMutation,
+    deleteFromProviderMutation,
+    queryClient,
+    idpId,
+  ]);
 
   return {
     isLoading,
+    error,
+    refetch,
     domainsList,
     isCreating: createDomainMutation.isPending,
     selectedDomain,

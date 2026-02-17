@@ -1,4 +1,8 @@
-import { isMfaRequiredError, getStatusCode } from '@auth0/universal-components-core';
+import {
+  isMfaRequiredError,
+  getStatusCode,
+  hasApiErrorBody,
+} from '@auth0/universal-components-core';
 import { RefreshCcw } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
@@ -16,6 +20,25 @@ interface GateKeeperProps {
   children: React.ReactNode;
   loadingFallback?: React.ReactNode;
   errorFallback?: (error: unknown, retry: () => void) => React.ReactNode;
+}
+
+/**
+ * Extracts error message from various error types
+ */
+function getErrorMessage(error: unknown, fallback: string = 'An error occurred'): string {
+  if (hasApiErrorBody(error) && error.body?.detail) {
+    return error.body.detail;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  return fallback;
 }
 
 /**
@@ -59,7 +82,7 @@ export function GateKeeper({
       return;
     }
 
-    const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+    const errorMessage = getErrorMessage(error);
     showToast({
       type: 'error',
       message: errorMessage,
@@ -100,7 +123,7 @@ export function GateKeeper({
           >
             <div className="space-y-2">
               <h3 className="text-base font-semibold text-foreground">
-                {error instanceof Error ? error.message : t('fallback.title')}
+                {getErrorMessage(error, t('fallback.title'))}
               </h3>
               <p className="text-sm font-normal text-muted-foreground">
                 {t('fallback.description')}

@@ -2,7 +2,6 @@ import { type Domain, type IdentityProvider } from '@auth0/universal-components-
 import { useCallback, useEffect, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
-import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import type {
   UseDomainTableLogicOptions,
   UseDomainTableLogicResult,
@@ -18,7 +17,7 @@ export function useDomainTableLogic({
   fetchProviders,
   fetchDomains,
 }: UseDomainTableLogicOptions): UseDomainTableLogicResult {
-  const { handleError } = useErrorHandler();
+  const [error, setError] = useState<unknown>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showConfigureModal, setShowConfigureModal] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
@@ -40,12 +39,10 @@ export function useDomainTableLogic({
         setShowCreateModal(false);
         setShowVerifyModal(true);
       } catch (error) {
-        handleError(error, {
-          fallbackMessage: t('domain_table.notifications.domain_create.error'),
-        });
+        setError(error);
       }
     },
-    [onCreateDomain, t, handleError],
+    [onCreateDomain, t],
   );
 
   const handleVerify = useCallback(
@@ -66,12 +63,10 @@ export function useDomainTableLogic({
           );
         }
       } catch (error) {
-        handleError(error, {
-          fallbackMessage: t('domain_table.notifications.domain_verify.error'),
-        });
+        setError(error);
       }
     },
-    [onVerifyDomain, t, handleError],
+    [onVerifyDomain, t],
   );
 
   const handleDelete = useCallback(
@@ -87,12 +82,10 @@ export function useDomainTableLogic({
         setShowDeleteModal(false);
         setShowVerifyModal(false);
       } catch (error) {
-        handleError(error, {
-          fallbackMessage: t('domain_table.notifications.domain_delete.error'),
-        });
+        setError(error);
       }
     },
-    [onDeleteDomain, t, handleError],
+    [onDeleteDomain, t],
   );
 
   const handleToggleSwitch = useCallback(
@@ -108,9 +101,7 @@ export function useDomainTableLogic({
             }),
           });
         } catch (error) {
-          handleError(error, {
-            fallbackMessage: t('domain_table.notifications.domain_associate_provider.error'),
-          });
+          setError(error);
         }
       } else {
         try {
@@ -123,13 +114,11 @@ export function useDomainTableLogic({
             }),
           });
         } catch (error) {
-          handleError(error, {
-            fallbackMessage: t('domain_table.notifications.domain_delete_provider.error'),
-          });
+          setError(error);
         }
       }
     },
-    [onAssociateToProvider, onDeleteFromProvider, t, handleError],
+    [onAssociateToProvider, onDeleteFromProvider, t],
   );
 
   const handleCloseVerifyModal = useCallback(() => {
@@ -151,13 +140,11 @@ export function useDomainTableLogic({
           await fetchProviders(domain);
           setShowConfigureModal(true);
         } catch (error) {
-          handleError(error, {
-            fallbackMessage: t('domain_table.notifications.fetch_providers_error'),
-          });
+          setError(error);
         }
       }
     },
-    [fetchProviders, t, handleError],
+    [fetchProviders, t],
   );
 
   const handleVerifyClick = useCallback(
@@ -182,12 +169,10 @@ export function useDomainTableLogic({
           });
         }
       } catch (error) {
-        handleError(error, {
-          fallbackMessage: t('domain_table.notifications.domain_verify.error'),
-        });
+        setError(error);
       }
     },
-    [onVerifyDomain, t, handleError],
+    [onVerifyDomain, t],
   );
 
   const handleDeleteClick = useCallback((domain: Domain) => {
@@ -201,13 +186,14 @@ export function useDomainTableLogic({
     try {
       fetchDomains();
     } catch (error) {
-      handleError(error, {
-        fallbackMessage: t('domain_table.notifications.fetch_domains_error'),
-      });
+      setError(error);
     }
-  }, []);
+  }, [fetchDomains]);
 
   return {
+    // Error state
+    error,
+
     // Modal state
     showCreateModal,
     showConfigureModal,

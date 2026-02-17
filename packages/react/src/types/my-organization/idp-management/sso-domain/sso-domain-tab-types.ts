@@ -67,6 +67,8 @@ export interface UseSsoDomainTabOptions extends SharedComponentProps {
 export interface UseSsoDomainTabReturn {
   domainsList: Domain[];
   isLoading: boolean;
+  error: unknown;
+  refetch: () => void;
   showCreateModal: boolean;
   isCreating: boolean;
   selectedDomain: Domain | null;

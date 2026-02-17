@@ -106,6 +106,9 @@ export interface UseDomainTableLogicOptions {
 }
 
 export interface UseDomainTableLogicResult {
+  // Error state
+  error: unknown;
+
   // Modal state
   showCreateModal: boolean;
   showConfigureModal: boolean;

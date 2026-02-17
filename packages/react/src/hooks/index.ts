@@ -4,7 +4,6 @@ export { useTranslator } from './shared/use-translator';
 export { useTheme } from './shared/use-theme';
 export { useCoreClientInitialization } from './shared/use-core-client-initialization';
 export { useScopeManager, type Audience } from '../providers/scope-manager-provider';
-export { useErrorHandler } from './shared/use-error-handler';
 
 // My Account hooks
 export { useContactEnrollment } from './my-account/use-contact-enrollment';
