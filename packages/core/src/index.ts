@@ -35,4 +35,6 @@ export * from './services/my-organization';
 
 export * from './services/my-account';
 
+export * from './services/step-up';
+
 export * from './assets/icons';

@@ -4,13 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 5173",
+    "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
-    "@auth0/nextjs-auth0": "^4.13.2",
+    "@auth0/nextjs-auth0": "^v4.15.0",
     "@auth0/universal-components-react": "workspace:*",
     "@tailwindcss/postcss": "^4.1.17",
     "execa": "^9.1.0",

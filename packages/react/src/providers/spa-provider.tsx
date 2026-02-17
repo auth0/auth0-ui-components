@@ -9,6 +9,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
 import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
 import { useToastProvider } from '@/hooks/shared/use-toast-provider';
+import { MfaErrorHandlerProvider } from '@/providers/mfa-error-handler-provider';
 import { QueryProvider } from '@/providers/query-provider';
 import { ScopeManagerProvider } from '@/providers/scope-manager-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
@@ -97,7 +98,9 @@ export const Auth0ComponentProvider = ({
       >
         <CoreClientContext.Provider value={coreClientValue}>
           <QueryProvider cacheConfig={cacheConfig}>
-            <ScopeManagerProvider>{children}</ScopeManagerProvider>
+            <MfaErrorHandlerProvider>
+              <ScopeManagerProvider>{children}</ScopeManagerProvider>
+            </MfaErrorHandlerProvider>
           </QueryProvider>
         </CoreClientContext.Provider>
       </React.Suspense>

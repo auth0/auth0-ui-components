@@ -1,3 +1,5 @@
+export { GateKeeper } from './shared/gatekeeper';
+
 export { UserMFAMgmt } from './auth0/my-account/user-mfa-management';
 
 export { SsoProviderEdit } from './auth0/my-organization/sso-provider-edit';

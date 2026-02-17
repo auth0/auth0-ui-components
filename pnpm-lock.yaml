@@ -164,8 +164,8 @@ importers:
   examples/next-rwa:
     dependencies:
       '@auth0/nextjs-auth0':
-        specifier: ^4.13.2
-        version: 4.13.2(next@16.0.10(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        specifier: ^v4.15.0
+        version: 4.15.0(next@16.0.10(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@auth0/universal-components-react':
         specifier: workspace:*
         version: link:../../packages/react
@@ -689,10 +689,10 @@ packages:
     resolution: {integrity: sha512-ul7BmJjJinfgu1xAK3LPR4tgcSxEW9BgjCHy5RHHbF2UBbioYTlbx7dVLn+b8m09UnPmtxTvPisoza/KhacG3Q==}
     engines: {node: '>=18.0.0'}
 
-  '@auth0/nextjs-auth0@4.13.2':
-    resolution: {integrity: sha512-yOEyB+xTRpEp63dNcA6F5rV0wDzjEFf054f2q6uq/joM/1nu6ziG1ALV3lKJdL/1o4Mn1aRADylRJ4PFRWBCVw==}
+  '@auth0/nextjs-auth0@4.15.0':
+    resolution: {integrity: sha512-W5rfOkZ3EvRi5rUnxNiZr/HqsrssdVX0WhRRfUov6kbDKNeAJcefhnka/5hgPd513L4FV7pJZ/Cc/Mij3q9Gqg==}
     peerDependencies:
-      next: ^14.2.25 || ~15.0.5 || ~15.1.9 || ~15.2.6 || ~15.3.6 || ~15.4.8 || ~15.5.7 || ^16.0.7
+      next: ^14.2.35 || ~15.0.7 || ~15.1.11 || ~15.2.8 || ~15.3.8 || ~15.4.10 || ~15.5.9 || ^16.0.10
       react: 19.2.1
       react-dom: 19.2.1
 
@@ -6892,7 +6892,7 @@ snapshots:
     dependencies:
       '@auth0/auth0-auth-js': 1.2.0
 
-  '@auth0/nextjs-auth0@4.13.2(next@16.0.10(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
+  '@auth0/nextjs-auth0@4.15.0(next@16.0.10(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
     dependencies:
       '@edge-runtime/cookies': 5.0.2
       '@panva/hkdf': 1.2.1
