@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -9,15 +9,11 @@ import {
   mockOnCreateProvisioning,
   mockOnDeleteProvisioning,
   mockOnListScimTokens,
+  renderWithProviders,
   mockOnCreateScimToken,
   mockOnDeleteScimToken,
   mockFetchProvisioning,
 } from '@/tests/utils';
-
-// Mock hooks
-const mockUseTranslator = vi.fn(() => ({
-  t: (key: string) => key,
-}));
 
 const createMockSsoProviderEditReturn = (overrides = {}) => ({
   provisioningConfig: null,
@@ -38,28 +34,17 @@ const createMockSsoProviderEditReturn = (overrides = {}) => ({
 
 const mockUseSsoProviderEdit = vi.fn(() => createMockSsoProviderEditReturn());
 
-vi.mock('@/hooks/shared/use-translator', () => ({
-  useTranslator: () => mockUseTranslator(),
-}));
-
-vi.mock('@/hooks/shared/use-theme', () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
-
 vi.mock('@/hooks/my-organization/use-sso-provider-edit', () => ({
   useSsoProviderEdit: () => mockUseSsoProviderEdit(),
 }));
 
 describe('SsoProvisioningTab', () => {
   const renderComponent = (props = {}) => {
-    return render(<SsoProvisioningTab {...SsoProvisioningProps} {...props} />);
+    return renderWithProviders(<SsoProvisioningTab {...SsoProvisioningProps} {...props} />);
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockOnCreateProvisioning.mockResolvedValue(undefined);
-    mockOnDeleteProvisioning.mockResolvedValue(undefined);
-    mockOnListScimTokens.mockResolvedValue({ scim_tokens: [] });
   });
 
   it('should render toggle switch', () => {

@@ -2,11 +2,15 @@ import type { IdentityProvider, OrganizationPrivate } from '@auth0/universal-com
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useSsoProviderTable } from '@/hooks/my-organization/use-sso-provider-table';
+import {
+  ssoProviderQueryKeys,
+  useSsoProviderTable,
+} from '@/hooks/my-organization/use-sso-provider-table';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import { mockToast, createMockI18nService } from '@/tests/utils';
 import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
+import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 import { setupMockUseCoreClient, setupMockUseCoreClientNull } from '@/tests/utils/test-utilities';
 
 // ===== Mock packages =====
@@ -45,7 +49,15 @@ const mockOrganization: OrganizationPrivate = {
   },
 };
 
-// ===== Tests =====
+const renderUseSsoProviderTable = (...args: Parameters<typeof useSsoProviderTable>) => {
+  const { wrapper } = createTestQueryClientWrapper();
+  return renderHook(() => useSsoProviderTable(...args), { wrapper });
+};
+
+const renderUseSsoProviderTableWithClient = (...args: Parameters<typeof useSsoProviderTable>) => {
+  const { wrapper, queryClient } = createTestQueryClientWrapper();
+  return { queryClient, ...renderHook(() => useSsoProviderTable(...args), { wrapper }) };
+};
 
 describe('useSsoProviderTable', () => {
   const mockCoreClient = createMockCoreClient();
@@ -111,7 +123,7 @@ describe('useSsoProviderTable', () => {
 
       setupMockMyOrgClient({ list: mockList });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -128,7 +140,7 @@ describe('useSsoProviderTable', () => {
 
       setupMockMyOrgClient({ list: mockList });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -141,17 +153,38 @@ describe('useSsoProviderTable', () => {
     });
 
     // Test: Ensures the hook doesn't attempt to fetch data when coreClient is unavailable
-    // Loading state should remain true and providers array should stay empty
+    // Loading state should remain false and providers array should stay empty
     it('should not fetch if coreClient is not available', async () => {
       setupMockUseCoreClientNull(useCoreClientModule);
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(true);
+        expect(result.current.isLoading).toBe(false);
       });
 
       expect(result.current.providers).toEqual([]);
+    });
+
+    it('should invalidate providers query when refreshing', async () => {
+      const mockList = vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders });
+
+      setupMockMyOrgClient({ list: mockList });
+
+      const { result, queryClient } = renderUseSsoProviderTableWithClient();
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      queryClient.setQueryData(ssoProviderQueryKeys.list(), mockIdentityProviders);
+
+      await result.current.fetchProviders();
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: ssoProviderQueryKeys.list(),
+      });
     });
   });
 
@@ -165,7 +198,7 @@ describe('useSsoProviderTable', () => {
         organizationGet: mockGet,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -185,12 +218,35 @@ describe('useSsoProviderTable', () => {
         organizationGet: mockGet,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
       });
 
+      expect(mockedShowToast).toHaveBeenCalledWith({
+        type: 'error',
+        message: 'general_error',
+      });
+    });
+
+    it('should return null and show toast when fetchOrganizationDetails fails', async () => {
+      const mockGet = vi.fn().mockRejectedValue(new Error('Not found'));
+
+      setupMockMyOrgClient({
+        list: vi.fn().mockResolvedValue({ identity_providers: [] }),
+        organizationGet: mockGet,
+      });
+
+      const { result } = renderUseSsoProviderTable();
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      const organization = await result.current.fetchOrganizationDetails();
+
+      expect(organization).toBeNull();
       expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'error',
         message: 'general_error',
@@ -210,7 +266,7 @@ describe('useSsoProviderTable', () => {
         update: mockUpdate,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -238,9 +294,7 @@ describe('useSsoProviderTable', () => {
         update: mockUpdate,
       });
 
-      const { result } = renderHook(() =>
-        useSsoProviderTable(undefined, undefined, { onBefore, onAfter }),
-      );
+      const { result } = renderUseSsoProviderTable(undefined, undefined, { onBefore, onAfter });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -263,7 +317,7 @@ describe('useSsoProviderTable', () => {
         update: mockUpdate,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable(undefined, undefined, { onBefore }));
+      const { result } = renderUseSsoProviderTable(undefined, undefined, { onBefore });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -284,7 +338,7 @@ describe('useSsoProviderTable', () => {
         update: mockUpdate,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -307,13 +361,27 @@ describe('useSsoProviderTable', () => {
         list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
       });
 
       await waitFor(() => result.current.onEnableProvider(providerWithoutId, true));
+    });
+
+    it('should return false if coreClient is not available', async () => {
+      setupMockUseCoreClientNull(useCoreClientModule);
+
+      const { result } = renderUseSsoProviderTable();
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      const resultValue = await result.current.onEnableProvider(mockIdentityProviders[0]!, true);
+
+      expect(resultValue).toBe(false);
     });
   });
 
@@ -331,7 +399,7 @@ describe('useSsoProviderTable', () => {
         delete: mockDelete,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -357,7 +425,7 @@ describe('useSsoProviderTable', () => {
         delete: mockDelete,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable({ onAfter }));
+      const { result } = renderUseSsoProviderTable({ onAfter });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -378,7 +446,7 @@ describe('useSsoProviderTable', () => {
         delete: mockDelete,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -403,7 +471,7 @@ describe('useSsoProviderTable', () => {
         delete: mockDelete,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -431,7 +499,7 @@ describe('useSsoProviderTable', () => {
         organizationGet: mockOrganizationGet,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -457,7 +525,7 @@ describe('useSsoProviderTable', () => {
         detach: mockDetach,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable(undefined, { onAfter }));
+      const { result } = renderUseSsoProviderTable(undefined, { onAfter });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -478,7 +546,7 @@ describe('useSsoProviderTable', () => {
         detach: mockDetach,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -503,7 +571,7 @@ describe('useSsoProviderTable', () => {
         detach: mockDetach,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -531,7 +599,7 @@ describe('useSsoProviderTable', () => {
         update: mockUpdate,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -560,7 +628,7 @@ describe('useSsoProviderTable', () => {
         delete: mockDelete,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -587,7 +655,7 @@ describe('useSsoProviderTable', () => {
         detach: mockDetach,
       });
 
-      const { result } = renderHook(() => useSsoProviderTable());
+      const { result } = renderUseSsoProviderTable();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -614,7 +682,7 @@ describe('useSsoProviderTable', () => {
         list: vi.fn().mockResolvedValue({ identity_providers: [] }),
       });
 
-      renderHook(() => useSsoProviderTable(undefined, undefined, undefined, customMessages));
+      renderUseSsoProviderTable(undefined, undefined, undefined, customMessages);
 
       await waitFor(() => {
         expect(useTranslatorModule.useTranslator).toHaveBeenCalledWith(
