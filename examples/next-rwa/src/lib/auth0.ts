@@ -25,6 +25,9 @@ export const auth0 = new Auth0Client({
   httpTimeout: 20000, // 20 seconds
   authorizationParameters: {
     scope: process.env.AUTH0_SCOPE || 'openid profile email offline_access',
+    ...(process.env.AUTH0_DOMAIN && {
+      audience: `${process.env.AUTH0_DOMAIN.replace(/\/$/, '')}/my-org/`,
+    }),
   },
   // Using SDK defaults: rolling: true, absoluteDuration: 3 days, inactivityDuration: 1 day
 });

@@ -9,7 +9,4 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['@auth0/universal-components-react'],
   },
-  server: {
-    port: 3000,
-  },
 });
