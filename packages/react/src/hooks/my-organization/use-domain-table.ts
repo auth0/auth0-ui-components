@@ -282,11 +282,7 @@ export function useDomainTable({
   const handleVerifyClick = useCallback(
     async (domain: Domain) => {
       setSelectedDomainId(domain.id);
-      try {
-        await verifyAndTransition(domain, 'configure');
-      } catch (error) {
-        // Error handled by mutation's onError callback
-      }
+      await verifyAndTransition(domain, 'configure');
     },
     [verifyAndTransition],
   );
