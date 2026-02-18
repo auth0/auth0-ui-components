@@ -194,7 +194,7 @@ export function useSsoProviderTable(
   );
 
   const fetchProviders = useCallback(async (): Promise<void> => {
-    await queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
+    await queryClient.getQueryData(ssoProviderQueryKeys.list());
   }, [queryClient]);
 
   const getOrganizationName = useCallback(async (): Promise<string | undefined> => {

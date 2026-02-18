@@ -204,15 +204,17 @@ describe('useIdpConfig', () => {
 
   describe('fetchIdpConfig', () => {
     it('triggers refetch', async () => {
-      mockGet.mockResolvedValue(createMockIdpConfig());
+      const mockConfig = createMockIdpConfig();
+      mockGet.mockResolvedValue(mockConfig);
       const { result } = renderUseIdpConfig();
 
       await waitFor(() => expect(result.current.isLoadingIdpConfig).toBe(false));
 
       mockGet.mockClear();
-      result.current.fetchIdpConfig();
+      const cachedData = await result.current.fetchIdpConfig();
 
-      await waitFor(() => expect(mockGet).toHaveBeenCalled());
+      expect(cachedData).toEqual(mockConfig);
+      expect(mockGet).not.toHaveBeenCalled();
     });
   });
 

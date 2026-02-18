@@ -450,16 +450,20 @@ import 'src/auth0-ui-components/styles/globals.css';`}
 import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
 import '@auth0/universal-components-react/styles';
 
+const authDetails = {
+  domain: import.meta.env.VITE_AUTH0_DOMAIN,
+};
+
 function App() {
   return (
     <Auth0Provider
-      domain={import.meta.env.VITE_AUTH0_DOMAIN}
+      domain={authDetails.domain}
       clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
       authorizationParams={{
         redirect_uri: window.location.origin
       }}
     >
-      <Auth0ComponentProvider>
+      <Auth0ComponentProvider authDetails={authDetails}>
         {/* Your app components */}
       </Auth0ComponentProvider>
     </Auth0Provider>
@@ -600,9 +604,9 @@ export default function OrganizationManagementPage() {
                 <td className="px-4 py-2 text-sm text-gray-500">
                   <code className="text-xs">AuthDetails</code>
                 </td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Yes</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  Authentication configuration including optional domain and authProxyUrl
+                  Authentication configuration including optional domain and optional authProxyUrl
                 </td>
               </tr>
               <tr>
@@ -641,6 +645,19 @@ export default function OrganizationManagementPage() {
                 <td className="px-4 py-2 text-sm text-gray-500">
                   Toast notification configuration including provider selection (sonner/custom),
                   positioning, duration, and custom toast methods
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                  cacheConfig
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  <code className="text-xs">QueryCacheConfig</code>
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  Controls TanStack Query caching (2 min stale / 5 min GC by default). Set{' '}
+                  <code className="text-xs">enabled: false</code> to force fresh data.
                 </td>
               </tr>
               <tr>
@@ -1242,6 +1259,132 @@ export default function OrganizationManagementPage() {
               </p>
             </div>
           </div>
+        </div>
+        {/* Cache Config */}
+        <div className="mt-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-3">cacheConfig</h3>
+          <p className="text-gray-600 mb-4">
+            Fine-tune TanStack Query caching for every Auth0 component. Defaults keep data fresh for
+            2 minutes, garbage-collect after 5 minutes, and skip window-focus refetches.
+          </p>
+
+          <div className="overflow-x-auto">
+            <table className="w-full border border-gray-200 rounded-lg">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                    Property
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
+                    Default
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Description
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    enabled
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    <code className="text-xs">boolean</code>
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">true</td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    Toggle caching altogether. When set to false, stale data is disabled and cached
+                    entries are cleared quickly.
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    staleTime
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    <code className="text-xs">number</code>
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">120000</td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    Milliseconds before data becomes stale (2 minutes by default). Increase for
+                    dashboards, decrease for critical workflows.
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    gcTime
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    <code className="text-xs">number</code>
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">300000</td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    Milliseconds before inactive queries are garbage-collected (5 minutes by
+                    default).
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    refetchOnWindowFocus
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    <code className="text-xs">boolean | "always"</code>
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">false</td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    Controls whether queries refetch when the browser regains focus. Use
+                    <span className="font-mono">"always"</span> for strict freshness.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="my-4 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-900 space-y-2">
+            <p>
+              <strong>Disable caching:</strong> Pass{' '}
+              <code className="text-xs">{`{ enabled: false }`}</code>. We automatically set{' '}
+              <code className="text-xs">staleTime</code> to 0 and shorten the garbage-collection
+              window to 5 seconds so every render fetches fresh data.
+            </p>
+            <p>
+              <strong>Pro tip:</strong> Keep caching enabled but shorten{' '}
+              <code className="text-xs">staleTime</code>
+              when integrating with admin panels that require near-real-time updates.
+            </p>
+          </div>
+
+          <TabbedCodeBlock
+            title="cacheConfig examples"
+            language="tsx"
+            tabs={[
+              {
+                label: 'Tune TTL',
+                code: `<Auth0ComponentProvider
+  authDetails={{ domain: 'your-tenant.auth0.com', authProxyUrl: '/api/auth' }}
+  cacheConfig={{
+    staleTime: 10 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  }}
+>
+  <App />
+</Auth0ComponentProvider>`,
+              },
+              {
+                label: 'Disable cache',
+                code: `<Auth0ComponentProvider
+  authDetails={{ domain: 'your-tenant.auth0.com', authProxyUrl: '/api/auth' }}
+  cacheConfig={{ enabled: false }}
+>
+  <SensitiveFlow />
+</Auth0ComponentProvider>`,
+              },
+            ]}
+          />
         </div>
       </section>
 

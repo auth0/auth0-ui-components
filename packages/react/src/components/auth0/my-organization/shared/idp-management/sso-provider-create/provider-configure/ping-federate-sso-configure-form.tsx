@@ -52,6 +52,8 @@ const DIGEST_ALGORITHMS = [
   { value: 'sha256', label: 'SHA256' },
 ] as const;
 
+const ALLOWED_CERT_EXTENSIONS = ['.pem', '.cer', '.crt'] as const;
+
 export interface PingFederateConfigureFormHandle {
   validate: () => Promise<boolean>;
   getData: () => PingFederateConfigureFormValues;
@@ -113,6 +115,11 @@ export const PingFederateProviderForm = React.forwardRef<
 
   const signRequestEnabled = form.watch('signSAMLRequest');
 
+  const isAllowedCertificateFile = React.useCallback((file: File) => {
+    const fileName = file.name.toLowerCase();
+    return ALLOWED_CERT_EXTENSIONS.some((extension) => fileName.endsWith(extension));
+  }, []);
+
   const handleFileUpload = async (files: File[]) => {
     setUploadedFiles(files);
 
@@ -120,10 +127,20 @@ export const PingFederateProviderForm = React.forwardRef<
     if (file) {
       try {
         const content = await file.text();
-        form.setValue('signingCert', content);
+        form.setValue('signingCert', content, { shouldDirty: true, shouldValidate: true });
+        form.clearErrors('signingCert');
       } catch (error) {
         console.error('Error reading file:', error);
       }
+    }
+  };
+
+  const handleInvalidFiles = (files: File[]) => {
+    if (files.some((file) => !isAllowedCertificateFile(file))) {
+      form.setError('signingCert', {
+        type: 'manual',
+        message: t('fields.ping-federate.sign_cert.error'),
+      });
     }
   };
 
@@ -170,8 +187,9 @@ export const PingFederateProviderForm = React.forwardRef<
               <FormControl>
                 <div className="space-y-3">
                   <FileUpload
-                    accept=".pem"
+                    accept={ALLOWED_CERT_EXTENSIONS.join(',')}
                     onChange={handleFileUpload}
+                    onInvalidFiles={handleInvalidFiles}
                     value={uploadedFiles}
                     maxFiles={1}
                     disabled={readOnly}

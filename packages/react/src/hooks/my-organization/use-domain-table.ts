@@ -19,6 +19,12 @@ import type {
 
 type ModalType = 'create' | 'configure' | 'verify' | 'delete';
 
+const ACTION_CANCELLED_ERROR = 'ACTION_CANCELLED';
+
+const isActionCancelledError = (error: unknown): boolean => {
+  return error instanceof Error && error.message === ACTION_CANCELLED_ERROR;
+};
+
 const domainQueryKeys = {
   all: ['domains'] as const,
   list: () => [...domainQueryKeys.all, 'list'] as const,
@@ -113,7 +119,7 @@ export function useDomainTable({
   const createDomainMutation = useMutation({
     mutationFn: async (data: CreateOrganizationDomainRequestContent) => {
       if (createAction?.onBefore && !createAction.onBefore(data as Domain)) {
-        throw new Error(t('domain_table.notifications.domain_create.on_before'));
+        throw new Error(ACTION_CANCELLED_ERROR);
       }
       return coreClient!
         .getMyOrganizationApiClient()
@@ -127,13 +133,15 @@ export function useDomainTable({
       setSelectedDomainId(newDomain.id);
       setActiveModal('verify');
     },
-    onError: (error) => handleError(error),
+    onError: (error) => {
+      if (!isActionCancelledError(error)) handleError(error);
+    },
   });
 
   const verifyDomainMutation = useMutation({
     mutationFn: async (domain: Domain) => {
       if (verifyAction?.onBefore && !verifyAction.onBefore(domain)) {
-        throw new Error(t('domain_table.notifications.domain_verify.on_before'));
+        throw new Error(ACTION_CANCELLED_ERROR);
       }
       const res = await coreClient!
         .getMyOrganizationApiClient()
@@ -147,13 +155,15 @@ export function useDomainTable({
         queryClient.invalidateQueries({ queryKey: domainQueryKeys.list() });
       }
     },
-    onError: (error) => handleError(error),
+    onError: (error) => {
+      if (!isActionCancelledError(error)) handleError(error);
+    },
   });
 
   const deleteDomainMutation = useMutation({
     mutationFn: async (domain: Domain) => {
       if (deleteAction?.onBefore && !deleteAction.onBefore(domain)) {
-        throw new Error(t('domain_table.notifications.domain_delete.on_before'));
+        throw new Error(ACTION_CANCELLED_ERROR);
       }
       await coreClient!
         .getMyOrganizationApiClient()
@@ -168,7 +178,9 @@ export function useDomainTable({
       setActiveModal(null);
       setSelectedDomainId(null);
     },
-    onError: (error) => handleError(error),
+    onError: (error) => {
+      if (!isActionCancelledError(error)) handleError(error);
+    },
   });
 
   const associateToProviderMutation = useMutation({
@@ -270,7 +282,11 @@ export function useDomainTable({
   const handleVerifyClick = useCallback(
     async (domain: Domain) => {
       setSelectedDomainId(domain.id);
-      await verifyAndTransition(domain, 'configure');
+      try {
+        await verifyAndTransition(domain, 'configure');
+      } catch (error) {
+        // Error handled by mutation's onError callback
+      }
     },
     [verifyAndTransition],
   );

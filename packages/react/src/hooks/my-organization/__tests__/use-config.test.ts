@@ -186,14 +186,16 @@ describe('useConfig', () => {
   });
 
   describe('fetchConfig', () => {
-    it('triggers refetch', async () => {
-      mockGet.mockResolvedValue(createMockConfig());
+    it('returns cached data without refetching', async () => {
+      const mockConfig = createMockConfig();
+      mockGet.mockResolvedValue(mockConfig);
       const { result } = await renderUseConfig();
 
       mockGet.mockClear();
-      result.current.fetchConfig();
+      const cachedData = await result.current.fetchConfig();
 
-      await waitFor(() => expect(mockGet).toHaveBeenCalled());
+      expect(cachedData).toEqual(mockConfig);
+      expect(mockGet).not.toHaveBeenCalled();
     });
   });
 
