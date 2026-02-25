@@ -996,5 +996,59 @@
         "install_guardian_description": "In order to continue, install the Auth0 Guardian app via the app store from your mobile device"
       }
     }
+  },
+  "member_management": {
+    "header": {
+      "title": "Members & Invitations",
+      "description": "Manage organization members and invitations."
+    },
+    "tabs": {
+      "members": "Members",
+      "invitations": "Invitations"
+    },
+    "member": {
+      "table": {
+        "columns": {
+          "name": "Name",
+          "email": "Email",
+          "roles": "Roles"
+        },
+        "empty_message": "No members found."
+      },
+      "remove": {
+        "title": "Remove Member",
+        "description": "Are you sure you want to remove ${name} from this organization?",
+        "confirm_button": "Remove",
+        "cancel_button": "Cancel"
+      }
+    },
+    "invitation": {
+      "table": {
+        "columns": {
+          "email": "Email",
+          "inviter": "Invited By",
+          "created_at": "Created",
+          "expires_at": "Expires"
+        },
+        "empty_message": "No pending invitations."
+      },
+      "create": {
+        "title": "Invite Member",
+        "email_label": "Email Address",
+        "email_placeholder": "Enter email address",
+        "submit_button": "Send Invitation",
+        "cancel_button": "Cancel"
+      },
+      "details": {
+        "title": "Invitation Details",
+        "close_button": "Close"
+      },
+      "revoke": {
+        "title": "Revoke Invitation",
+        "description": "Are you sure you want to revoke the invitation for ${email}?",
+        "confirm_button": "Revoke",
+        "cancel_button": "Cancel"
+      }
+    }
   }
 }

@@ -25,3 +25,4 @@ export * from './my-organization/idp-management/sso-provisioning/provisioning-to
 export * from './my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
 export * from './my-organization/organization-management/organization-details-edit-types';
 export * from './my-organization/organization-management/organization-details-types';
+export * from './my-organization/member-management';

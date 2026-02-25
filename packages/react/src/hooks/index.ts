@@ -29,3 +29,9 @@ export { useSsoDomainTab } from './my-organization/use-sso-domain-tab';
 export { useSsoProviderCreate } from './my-organization/use-sso-provider-create';
 export { useSsoProviderEdit } from './my-organization/use-sso-provider-edit';
 export { useSsoProviderTable } from './my-organization/use-sso-provider-table';
+
+// Member Management hooks
+export { useOrganizationMemberTable } from './my-organization/use-organization-member-table';
+export { useOrganizationMemberTableLogic } from './my-organization/use-organization-member-table-logic';
+export { useOrganizationInvitationTable } from './my-organization/use-organization-invitation-table';
+export { useOrganizationInvitationTableLogic } from './my-organization/use-organization-invitation-table-logic';

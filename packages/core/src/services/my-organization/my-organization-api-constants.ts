@@ -37,3 +37,10 @@ export const MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES =
  */
 export const MY_ORGANIZATION_DOMAIN_SCOPES =
   'read:my_org:domains delete:my_org:domains create:my_org:domains update:my_org:domains read:my_org:identity_providers create:my_org:identity_providers_domains delete:my_org:identity_providers_domains';
+
+/**
+ * Required OAuth scopes for organization member management operations.
+ * @internal
+ */
+export const MY_ORGANIZATION_MEMBER_MANAGEMENT_SCOPES =
+  'read:my_org:members delete:my_org:members read:my_org:invitations create:my_org:invitations delete:my_org:invitations';
