@@ -24,14 +24,10 @@ import {
 } from '@/components/ui/form';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { ProviderDetailsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
-
-export interface ProviderDetailsFormHandle {
-  validate: () => Promise<boolean>;
-  getData: () => ProviderDetailsFormValues;
-  isDirty: () => boolean;
-  reset: (data?: ProviderDetailsFormValues) => void;
-}
+import type {
+  ProviderDetailsFormHandle,
+  ProviderDetailsProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, ProviderDetailsProps>(
   function ProviderDetails(

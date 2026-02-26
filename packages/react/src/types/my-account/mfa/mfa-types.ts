@@ -284,3 +284,105 @@ export type UseMFAResult = {
     options: ConfirmEnrollmentOptions,
   ) => Promise<unknown>;
 };
+
+export interface UserMFAMgmtLogicProps {
+  error: string | null;
+  schema:
+    | Partial<{
+        email?: RegExp;
+        phone?: RegExp;
+      }>
+    | undefined;
+  isLoading: boolean;
+  isDeleting: boolean;
+  styling: UserMFAMgmtProps['styling'];
+  customMessages: UserMFAMgmtProps['customMessages'];
+  hideHeader: boolean;
+  showActiveOnly: boolean;
+  disableEnroll: boolean;
+  disableDelete: boolean;
+  readOnly: boolean;
+  factorConfig?: FactorConfig;
+  dialogOpen: boolean;
+  enrollFactor: MFAType | null;
+  isDeleteDialogOpen: boolean;
+  factorToDelete: { id: string; type: MFAType } | null;
+  factorsByType: Record<MFAType, Authenticator[]>;
+  visibleFactorTypes: MFAType[];
+  hasNoActiveFactors: boolean;
+  confirmEnrollment: UseMFAResult['confirmEnrollment'];
+}
+
+export interface UserMFAMgmtHandlerProps {
+  enrollMfa: UseMFAResult['enrollMfa'];
+  onEnrollFactor: (factor: MFAType) => void;
+  onDeleteFactor: (factorId: string, factorType: MFAType) => Promise<void>;
+  handleCloseDialog: () => void;
+  handleEnrollSuccess: () => void;
+  handleEnrollError: (error: Error, stage: typeof ENROLL | typeof CONFIRM) => void;
+  handleConfirmDelete: (factorId: string) => Promise<void>;
+  setIsDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export interface UserMFAMgmtViewProps {
+  logic: UserMFAMgmtLogicProps;
+  handlers: UserMFAMgmtHandlerProps;
+}
+
+/**
+ * Options for useMFALogic hook.
+ */
+export interface UseMFALogicOptions {
+  readOnly?: boolean;
+  disableDelete?: boolean;
+  customMessages?: UserMFAMgmtProps['customMessages'];
+  factorConfig?: FactorConfig;
+  fetchFactors: (onlyActive?: boolean) => Promise<unknown>;
+  enrollMfa?: (
+    factorType: MFAType,
+    options?: EnrollOptions,
+  ) => Promise<CreateAuthenticationMethodResponseContent>;
+  deleteMfa: (authenticatorId: string) => Promise<void>;
+  confirmEnrollment?: (
+    factorType: MFAType,
+    authSession: string,
+    authenticationMethodId: string,
+    options: ConfirmEnrollmentOptions,
+  ) => Promise<unknown>;
+  showActiveOnly?: boolean;
+  onFetch?: () => void;
+  onEnroll?: () => void;
+  onDelete?: () => void;
+  onErrorAction?: (error: Error, action: 'enroll' | 'delete' | 'confirm') => void;
+  onBeforeAction?: (
+    action: 'enroll' | 'delete' | 'confirm',
+    factorType: MFAType,
+  ) => boolean | Promise<boolean>;
+}
+
+/**
+ * Result returned by useMFALogic hook.
+ */
+export interface UseMFALogicResult {
+  factorsByType: Record<MFAType, Authenticator[]>;
+  loading: boolean;
+  error: string | null;
+  isDeletingFactor: boolean;
+  dialogOpen: boolean;
+  enrollFactor: MFAType | null;
+  isDeleteDialogOpen: boolean;
+  factorToDelete: { id: string; type: MFAType } | null;
+  visibleFactorTypes: MFAType[];
+  hasNoActiveFactors: boolean;
+
+  setIsDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setFactorToDelete: React.Dispatch<React.SetStateAction<{ id: string; type: MFAType } | null>>;
+
+  loadFactors: () => Promise<void>;
+  handleEnroll: (factor: MFAType) => void;
+  handleCloseDialog: () => void;
+  handleDeleteFactor: (factorId: string, factorType: MFAType) => Promise<void>;
+  handleConfirmDelete: (factorId: string) => Promise<void>;
+  handleEnrollSuccess: () => Promise<void>;
+  handleEnrollError: (error: Error, stage: typeof ENROLL | typeof CONFIRM) => void;
+}

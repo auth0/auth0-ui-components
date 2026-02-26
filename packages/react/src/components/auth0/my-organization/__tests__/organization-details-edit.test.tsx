@@ -3,9 +3,16 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { OrganizationDetailsEdit } from '@/components/auth0/my-organization/organization-details-edit';
+import {
+  OrganizationDetailsEdit,
+  OrganizationDetailsEditView,
+} from '@/components/auth0/my-organization/organization-details-edit';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
+import {
+  createMockOrganization,
+  createMockOrganizationDetailsEditHandler,
+  createMockOrganizationDetailsEditLogic,
+} from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type {
@@ -528,5 +535,64 @@ describe('OrganizationDetailsEdit', () => {
         expect(mockBackButton.onClick).toHaveBeenCalledTimes(1);
       });
     });
+  });
+});
+
+describe('OrganizationDetailsEditView', () => {
+  const logic = { ...createMockOrganizationDetailsEditLogic(), currentStyles: undefined };
+  const handlers = createMockOrganizationDetailsEditHandler();
+
+  it('renders the header and organization details form', () => {
+    renderWithProviders(<OrganizationDetailsEditView logic={logic} handlers={handlers} />);
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+    expect(screen.getByTestId('organization-details-card')).toBeInTheDocument();
+  });
+
+  it('renders custom card class if provided', () => {
+    renderWithProviders(
+      <OrganizationDetailsEditView
+        logic={{
+          ...logic,
+          styling: {
+            ...logic.styling,
+            classes: { ...logic.styling.classes, OrganizationDetails_Card: 'custom-card-class' },
+          },
+        }}
+        handlers={handlers}
+      />,
+    );
+    expect(document.querySelector('.custom-card-class')).toBeInTheDocument();
+  });
+
+  it('does not render header if hideHeader is true', () => {
+    renderWithProviders(
+      <OrganizationDetailsEditView logic={{ ...logic, hideHeader: true }} handlers={handlers} />,
+    );
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+  });
+
+  it('renders with customMessages', () => {
+    renderWithProviders(
+      <OrganizationDetailsEditView
+        logic={{
+          ...logic,
+          customMessages: {
+            header: { title: 'Custom Title', back_button_text: 'Back' },
+          },
+        }}
+        handlers={handlers}
+      />,
+    );
+    expect(screen.getByText(/custom title/i)).toBeInTheDocument();
+  });
+
+  it('renders loading state when isFetchLoading is true', () => {
+    renderWithProviders(
+      <OrganizationDetailsEditView
+        logic={{ ...logic, isFetchLoading: true }}
+        handlers={handlers}
+      />,
+    );
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 });

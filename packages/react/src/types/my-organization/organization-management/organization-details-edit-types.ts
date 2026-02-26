@@ -10,6 +10,7 @@ import type {
   BackButton,
   OrganizationPrivate,
   OrganizationDetailsEditMessages,
+  ComponentStyling,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
@@ -62,4 +63,24 @@ export interface UseOrganizationDetailsEditResult {
   formActions: OrganizationDetailsFormActions;
   fetchOrgDetails: () => Promise<void>;
   updateOrgDetails: (data: OrganizationPrivate) => Promise<boolean>;
+}
+
+export interface OrganizationDetailsEditLogicProps {
+  organization: OrganizationPrivate;
+  isFetchLoading: boolean;
+  schema: Partial<OrganizationDetailsEditSchemas> | undefined;
+  styling: ComponentStyling<OrganizationDetailsClasses>;
+  customMessages: OrganizationDetailsEditProps['customMessages'];
+  readOnly: OrganizationDetailsEditProps['readOnly'];
+  hideHeader: boolean;
+  backButton?: OrganizationEditBackButton;
+}
+
+export interface OrganizationDetailsEditHandlerProps {
+  formActions: OrganizationDetailsFormActions;
+}
+
+export interface OrganizationDetailsEditViewProps {
+  logic: OrganizationDetailsEditLogicProps;
+  handlers: OrganizationDetailsEditHandlerProps;
 }

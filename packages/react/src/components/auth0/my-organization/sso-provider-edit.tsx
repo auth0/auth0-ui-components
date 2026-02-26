@@ -1,25 +1,4 @@
-/**
- * SSO provider edit component with tabs.
- *
- * Tabbed interface for editing SSO provider settings, managing domains,
- * and configuring SCIM provisioning.
- *
- * @module sso-provider-edit
- *
- * @example
- * ```tsx
- * <SsoProviderEdit
- *   providerId="con_abc123"
- *   sso={{
- *     saveAction: { onAfter: (provider) => console.log('Saved:', provider) },
- *     deleteAction: { onAfter: () => navigate('/providers') },
- *   }}
- *   provisioning={{
- *     createAction: { onAfter: (config) => console.log('Created:', config) },
- *   }}
- * />
- * ```
- */
+/** @module sso-provider-edit */
 
 'use client';
 
@@ -27,7 +6,7 @@ import {
   getComponentStyles,
   MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES,
 } from '@auth0/universal-components-core';
-import React, { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 import { SsoDomainTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab';
 import { SsoProviderTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-tab';
@@ -36,16 +15,20 @@ import { Header } from '@/components/auth0/shared/header';
 import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { withMyOrganizationService } from '@/hoc/with-services';
-import { useConfig } from '@/hooks/my-organization/use-config';
-import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
+import { useSsoProviderEditLogic } from '@/hooks/my-organization/use-sso-provider-edit-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import type { SsoProviderEditProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
+import type {
+  SsoProviderEditHandlerProps,
+  SsoProviderEditLogicProps,
+  SsoProviderEditProps,
+  SsoProviderEditViewProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
 /**
- * Internal SSO provider edit component.
+ * Internal SSO provider edit container(logic) component.
  * @param props - Component props
  * @param props.providerId - ID of the SSO provider
  * @param props.backButton - Configuration for the back button
@@ -60,31 +43,100 @@ import type { SsoProviderEditProps } from '@/types/my-organization/idp-managemen
  * @internal
  * @returns JSX element
  */
-export function SsoProviderEditComponent({
-  providerId,
-  backButton,
-  sso,
-  provisioning,
-  domains,
-  hideHeader = false,
-  customMessages = {},
-  styling = {
-    variables: { common: {}, light: {}, dark: {} },
-    classes: {},
-  },
-  schema,
-  readOnly = false,
-}: SsoProviderEditProps) {
-  const { t } = useTranslator('idp_management.edit_sso_provider', customMessages);
-  const { isDarkMode } = useTheme();
-
+function SsoProviderEditContainer(props: SsoProviderEditProps) {
   const {
+    providerId,
+    backButton,
+    sso,
+    provisioning,
+    domains,
+    hideHeader = false,
+    customMessages = {},
+    styling = {
+      variables: { common: {}, light: {}, dark: {} },
+      classes: {},
+    },
+    schema,
+    readOnly = false,
+  } = props;
+
+  const ssoProviderEdit = useSsoProviderEdit(providerId, {
+    sso,
+    provisioning,
+    domains,
+    customMessages,
+  });
+
+  const ssoProviderEditLogic = useSsoProviderEditLogic(ssoProviderEdit);
+
+  const ssoProviderCreateLogicProps: Omit<SsoProviderEditLogicProps, 'handleToggleProvider'> = {
+    ...ssoProviderEdit,
+    shouldAllowDeletion: ssoProviderEditLogic.shouldAllowDeletion,
+    isLoadingConfig: ssoProviderEditLogic.isLoadingConfig,
+    idpConfig: ssoProviderEditLogic.idpConfig,
+    isLoadingIdpConfig: ssoProviderEditLogic.isLoadingIdpConfig,
+    showProvisioningTab: ssoProviderEditLogic.showProvisioningTab,
+    styling,
+    customMessages,
+    backButton,
+    schema,
+    readOnly,
+    providerId,
+    domains,
+    hideHeader,
+  };
+
+  const ssoProviderCreateHandlerProps: SsoProviderEditHandlerProps = {
+    handleToggleProvider: ssoProviderEditLogic.handleToggleProvider,
+    updateProvider: ssoProviderEdit.updateProvider,
+    listScimTokens: ssoProviderEdit.listScimTokens,
+    syncSsoAttributes: ssoProviderEdit.syncSsoAttributes,
+    onDeleteConfirm: ssoProviderEdit.onDeleteConfirm,
+    onRemoveConfirm: ssoProviderEdit.onRemoveConfirm,
+    createScimTokenAction: ssoProviderEdit.createScimToken,
+    deleteScimTokenAction: ssoProviderEdit.deleteScimToken,
+    createProvisioningAction: ssoProviderEdit.createProvisioning,
+    deleteProvisioningAction: ssoProviderEdit.deleteProvisioning,
+    syncProvisioningAttributes: ssoProviderEdit.syncProvisioningAttributes,
+  };
+
+  return (
+    <SsoProviderEditView
+      logic={ssoProviderCreateLogicProps}
+      handlers={ssoProviderCreateHandlerProps}
+    />
+  );
+}
+
+/**
+ * Internal SSO provider edition view component
+ * @param props - Component props
+ * @param props.logic - Component logic props
+ * @param props.handlers - Component handler props
+ * @internal
+ * @returns JSX element
+ */
+function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
+  const {
+    styling,
+    schema,
+    readOnly,
+    providerId,
+    domains,
+    hideHeader,
     provider,
     organization,
     isLoading,
     isUpdating,
     isDeleting,
     isRemoving,
+    idpConfig,
+    customMessages,
+    backButton,
+    shouldAllowDeletion,
+    isLoadingConfig,
+    isLoadingIdpConfig,
+    showProvisioningTab,
     isProvisioningUpdating,
     isProvisioningDeleting,
     isScimTokensLoading,
@@ -94,44 +146,29 @@ export function SsoProviderEditComponent({
     isProvisioningAttributesSyncing,
     hasSsoAttributeSyncWarning,
     hasProvisioningAttributeSyncWarning,
+  } = logic;
+
+  const {
     updateProvider,
-    createProvisioning: createProvisioningAction,
-    deleteProvisioning: deleteProvisioningAction,
     listScimTokens,
-    createScimToken: createScimTokenAction,
-    deleteScimToken: deleteScimTokenAction,
     syncSsoAttributes,
-    syncProvisioningAttributes,
     onDeleteConfirm,
     onRemoveConfirm,
-  } = useSsoProviderEdit(providerId, {
-    sso,
-    provisioning,
-    domains,
-    customMessages,
-  });
-  const { shouldAllowDeletion, isLoadingConfig } = useConfig();
-  const { idpConfig, isLoadingIdpConfig, isProvisioningEnabled, isProvisioningMethodEnabled } =
-    useIdpConfig();
+    handleToggleProvider,
+    createProvisioningAction,
+    deleteProvisioningAction,
+    createScimTokenAction,
+    deleteScimTokenAction,
+    syncProvisioningAttributes,
+  } = handlers;
 
-  const showProvisioningTab =
-    isProvisioningEnabled(provider?.strategy) && isProvisioningMethodEnabled(provider?.strategy);
-
+  const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('sso');
-
-  const currentStyles = React.useMemo(
+  const { t } = useTranslator('idp_management.edit_sso_provider', customMessages);
+  const currentStyles = useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
   );
-
-  const handleToggleProvider = async (enabled: boolean) => {
-    if (!provider?.strategy) return;
-
-    await updateProvider({
-      strategy: provider.strategy,
-      is_enabled: enabled,
-    });
-  };
 
   if (isLoading || isLoadingConfig || isLoadingIdpConfig) {
     return (
@@ -204,7 +241,7 @@ export function SsoProviderEditComponent({
             hasSsoAttributeSyncWarning={hasSsoAttributeSyncWarning}
             onAttributeSync={syncSsoAttributes}
             isSyncingAttributes={isSsoAttributesSyncing}
-            customMessages={customMessages.tabs?.sso?.content}
+            customMessages={customMessages?.tabs?.sso?.content}
             styling={styling}
             formActions={{
               isLoading: isUpdating,
@@ -234,7 +271,7 @@ export function SsoProviderEditComponent({
               onListScimTokens={listScimTokens}
               onCreateScimToken={createScimTokenAction}
               onDeleteScimToken={deleteScimTokenAction}
-              customMessages={customMessages.tabs?.provisioning?.content}
+              customMessages={customMessages?.tabs?.provisioning?.content}
               styling={styling}
             />
           </TabsContent>
@@ -242,7 +279,7 @@ export function SsoProviderEditComponent({
 
         <TabsContent value="domain">
           <SsoDomainTab
-            customMessages={customMessages.tabs?.domains?.content}
+            customMessages={customMessages?.tabs?.domains?.content}
             styling={styling}
             domains={domains}
             schema={schema?.domains}
@@ -293,7 +330,9 @@ export function SsoProviderEditComponent({
  * />
  * ```
  */
-export const SsoProviderEdit: React.ComponentType<SsoProviderEditProps> = withMyOrganizationService(
-  SsoProviderEditComponent,
+const SsoProviderEdit: React.ComponentType<SsoProviderEditProps> = withMyOrganizationService(
+  SsoProviderEditContainer,
   MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES,
 );
+
+export { SsoProviderEdit, SsoProviderEditView };

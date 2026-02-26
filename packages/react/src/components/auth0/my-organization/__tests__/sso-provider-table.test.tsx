@@ -5,9 +5,11 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import { SsoProviderTable } from '@/components/auth0/my-organization/sso-provider-table';
+import { SsoProviderTableView } from '@/components/auth0/my-organization/sso-provider-table';
 import * as useConfigModule from '@/hooks/my-organization/use-config';
 import * as useIdpConfigModule from '@/hooks/my-organization/use-idp-config';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import { createMockSsoProviderTableHandler, createMockSsoProviderTableLogic } from '@/tests/utils';
 import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
 import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
@@ -42,7 +44,7 @@ const createMockSsoProviderTableProps = (
     onAfter: vi.fn(),
   },
   deleteAction: undefined,
-  deleteFromOrganizationAction: undefined,
+  deleteFromOrganizationAction: {},
   enableProviderAction: undefined,
   ...overrides,
 });
@@ -374,6 +376,35 @@ describe('SsoProviderTable', () => {
           expect(deleteMenuItem).toHaveAttribute('aria-disabled', 'true');
         });
       });
+
+      describe('when is false', () => {
+        it('should enable delete button', async () => {
+          const user = userEvent.setup();
+          const mockDeleteAction = createMockDeleteAction();
+          mockDeleteAction.disabled = false;
+
+          renderTable({ deleteAction: mockDeleteAction });
+
+          await waitForComponentToLoad();
+          await screen.findByText(mockProvider.name!);
+
+          // Open the dropdown menu for the row
+          const actionButtons = screen.getAllByRole('button');
+          const rowActionButton = actionButtons.find(
+            (btn) =>
+              btn.querySelector('svg.lucide-more-horizontal') ||
+              btn.className.includes('rounded-xl'),
+          );
+          expect(rowActionButton).toBeDefined();
+          await user.click(rowActionButton!);
+
+          // Delete menu item should not be disabled
+          const deleteMenuItem = screen.getByRole('menuitem', {
+            name: /table.actions.delete_button_text/i,
+          });
+          expect(deleteMenuItem).not.toHaveAttribute('aria-disabled', 'true');
+        });
+      });
     });
 
     describe('deleteAction.onBefore', () => {
@@ -534,6 +565,37 @@ describe('SsoProviderTable', () => {
             name: /table.actions.remove_button_text/i,
           });
           expect(removeMenuItem).toHaveAttribute('aria-disabled', 'true');
+        });
+      });
+
+      describe('when is false', () => {
+        it('should enable remove from organization button', async () => {
+          const user = userEvent.setup();
+          const mockDeleteFromOrganizationAction = createMockDeleteFromOrganizationAction();
+          mockDeleteFromOrganizationAction.disabled = false;
+
+          renderTable({
+            deleteFromOrganizationAction: mockDeleteFromOrganizationAction,
+          });
+
+          await waitForComponentToLoad();
+          await screen.findByText(mockProvider.name!);
+
+          // Open the dropdown menu for the row
+          const actionButtons = screen.getAllByRole('button');
+          const rowActionButton = actionButtons.find(
+            (btn) =>
+              btn.querySelector('svg.lucide-more-horizontal') ||
+              btn.className.includes('rounded-xl'),
+          );
+          expect(rowActionButton).toBeDefined();
+          await user.click(rowActionButton!);
+
+          // Remove from organization menu item should not be disabled
+          const removeMenuItem = screen.getByRole('menuitem', {
+            name: /table.actions.remove_button_text/i,
+          });
+          expect(removeMenuItem).not.toHaveAttribute('aria-disabled', 'true');
         });
       });
     });
@@ -798,5 +860,71 @@ describe('SsoProviderTable', () => {
         expect(screen.getByText(/table.empty_message/i)).toBeInTheDocument();
       });
     });
+  });
+});
+
+describe('SsoProviderTableView', () => {
+  const logic = createMockSsoProviderTableLogic();
+  const handlers = createMockSsoProviderTableHandler();
+
+  it('renders the table and header', () => {
+    renderWithProviders(<SsoProviderTableView logic={logic} handlers={handlers} />);
+    expect(screen.getByRole('table')).toBeInTheDocument();
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+  });
+
+  it('renders empty state when data is empty', () => {
+    renderWithProviders(
+      <SsoProviderTableView logic={{ ...logic, data: [] }} handlers={handlers} />,
+    );
+    expect(screen.getByText(/empty/i)).toBeInTheDocument();
+  });
+
+  it('disables create button when readOnly is true', () => {
+    renderWithProviders(
+      <SsoProviderTableView logic={{ ...logic, readOnly: true }} handlers={handlers} />,
+    );
+    const createButton = screen.getByRole('button', { name: /create/i });
+    expect(createButton).toBeDisabled();
+  });
+
+  it('renders loading state when isLoading is true', () => {
+    renderWithProviders(
+      <SsoProviderTableView logic={{ ...logic, isLoading: true }} handlers={handlers} />,
+    );
+    expect(screen.getByRole('table')).toBeInTheDocument();
+    // Optionally check for a loading indicator if present in your DataTable
+  });
+
+  it('renders custom header class if provided', () => {
+    renderWithProviders(
+      <SsoProviderTableView
+        logic={{
+          ...logic,
+          styling: {
+            ...logic.styling,
+            classes: { ...logic?.styling?.classes, 'SsoProviderTable-header': 'custom-header' },
+          },
+        }}
+        handlers={handlers}
+      />,
+    );
+    expect(document.querySelector('.custom-header')).toBeInTheDocument();
+  });
+
+  it('renders custom table class if provided', () => {
+    renderWithProviders(
+      <SsoProviderTableView
+        logic={{
+          ...logic,
+          styling: {
+            ...logic.styling,
+            classes: { ...logic?.styling?.classes, 'SsoProviderTable-table': 'custom-table' },
+          },
+        }}
+        handlers={handlers}
+      />,
+    );
+    expect(document.querySelector('.custom-table')).toBeInTheDocument();
   });
 });

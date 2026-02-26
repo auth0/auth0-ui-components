@@ -15,6 +15,7 @@ import type { SortingState, ColumnDef } from '@tanstack/react-table';
 import { Copy } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 
+import { MiddleEllipsisText } from '@/components/auth0/shared/middle-ellipsis-text';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { InlineCode } from '@/components/ui/inline-code';
@@ -192,20 +193,21 @@ function CopyButton({
   labels?: CopyColumnLabels;
 }) {
   const [copied, setCopied] = useState(false);
-  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [copyTooltipOpen, setCopyTooltipOpen] = useState(false);
+  const stringValue = String(value);
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!value) return;
 
     try {
-      await navigator.clipboard.writeText(String(value));
+      await navigator.clipboard.writeText(stringValue);
       setCopied(true);
-      setTooltipOpen(true);
+      setCopyTooltipOpen(true);
 
       setTimeout(() => {
         setCopied(false);
-        setTooltipOpen(false);
+        setCopyTooltipOpen(false);
       }, 2000);
     } catch (error) {
       console.error('Failed to copy text:', error);
@@ -214,9 +216,10 @@ function CopyButton({
 
   return (
     <InlineCode className="w-full flex items-center justify-between gap-2 pr-1">
-      <span className="truncate text-muted-foreground">{String(value)}</span>
-
-      <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
+      <span className="min-w-0 flex-1">
+        <MiddleEllipsisText text={stringValue} className="text-muted-foreground" />
+      </span>
+      <Tooltip open={copyTooltipOpen} onOpenChange={setCopyTooltipOpen}>
         <TooltipTrigger asChild>
           <Button
             variant="ghost"

@@ -11,16 +11,14 @@ import {
   ProviderConfigureFields,
   type ProviderConfigureFormHandle,
 } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
-import {
-  ProviderDetails,
-  type ProviderDetailsFormHandle,
-} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details';
+import { ProviderDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details';
 import { SsoProviderAttributeMappings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-mappings';
 import { FormActions } from '@/components/auth0/shared/form-actions';
 import { Separator } from '@/components/ui/separator';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
+import type { ProviderDetailsFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 import type { SsoProviderDetailsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 
 /**

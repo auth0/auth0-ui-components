@@ -1,4 +1,10 @@
 import type { Authenticator, MFAType } from '@auth0/universal-components-core';
+import { vi } from 'vitest';
+
+import type {
+  UserMFAMgmtHandlerProps,
+  UserMFAMgmtLogicProps,
+} from '@/types/my-account/mfa/mfa-types';
 
 export const createMockAuthenticator = (overrides?: Partial<Authenticator>): Authenticator => ({
   id: 'auth_mock123',
@@ -115,3 +121,58 @@ export const createMockAPIError = (message: string, statusCode?: number) => {
   }
   return error;
 };
+
+export const createMockUserMFAMgmtLogic = (
+  logicOverrides: Partial<UserMFAMgmtLogicProps> = {},
+): UserMFAMgmtLogicProps => ({
+  isLoading: false,
+  isDeleting: false,
+  customMessages: {},
+  hideHeader: false,
+  showActiveOnly: false,
+  disableEnroll: false,
+  disableDelete: false,
+  readOnly: false,
+  factorConfig: {},
+  error: null,
+  schema: undefined,
+  dialogOpen: false,
+  enrollFactor: null,
+  isDeleteDialogOpen: false,
+  factorToDelete: null,
+  factorsByType: {
+    email: [
+      {
+        id: '2',
+        type: 'email',
+        enrolled: false,
+        created_at: null,
+      },
+    ],
+    phone: [],
+    'push-notification': [],
+    totp: [],
+    'webauthn-roaming': [],
+    'webauthn-platform': [],
+    'recovery-code': [],
+  },
+  visibleFactorTypes: ['email'],
+  hasNoActiveFactors: false,
+  confirmEnrollment: vi.fn(),
+  styling: undefined,
+  ...logicOverrides,
+});
+
+export const createMockUserMFAMgmtHandlers = (
+  handlerOverrides: Partial<UserMFAMgmtHandlerProps> = {},
+): UserMFAMgmtHandlerProps => ({
+  enrollMfa: vi.fn(),
+  onEnrollFactor: vi.fn(),
+  onDeleteFactor: vi.fn(),
+  handleCloseDialog: vi.fn(),
+  handleEnrollError: vi.fn(),
+  handleEnrollSuccess: vi.fn(),
+  handleConfirmDelete: vi.fn(),
+  setIsDeleteDialogOpen: vi.fn(),
+  ...handlerOverrides,
+});

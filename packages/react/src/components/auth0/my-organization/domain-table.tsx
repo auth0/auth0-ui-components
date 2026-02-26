@@ -1,20 +1,4 @@
-/**
- * Domain management table component.
- *
- * Displays organization domains with CRUD operations including create, verify, and delete.
- * Supports associating domains with identity providers.
- *
- * @module domain-table
- *
- * @example
- * ```tsx
- * <DomainTable
- *   createAction={{ onAfter: (domain) => console.log('Created:', domain) }}
- *   verifyAction={{ onAfter: (domain) => console.log('Verified:', domain) }}
- *   deleteAction={{ onAfter: (domain) => console.log('Deleted:', domain) }}
- * />
- * ```
- */
+/** @module domain-table */
 
 import {
   type Domain,
@@ -38,8 +22,10 @@ import { useDomainTableLogic } from '@/hooks/my-organization/use-domain-table-lo
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
-import type { DomainTableViewProps } from '@/types';
-import type { DomainTableProps } from '@/types/my-organization/domain-management/domain-table-types';
+import type {
+  DomainTableProps,
+  DomainTableViewProps,
+} from '@/types/my-organization/domain-management/domain-table-types';
 
 /**
  * DomainTableContainer Component.

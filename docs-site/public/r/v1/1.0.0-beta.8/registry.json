@@ -1,0 +1,2084 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "auth0-ui-components",
+  "homepage": "https://github.com/auth0/auth0-ui-components",
+  "items": [
+    {
+      "name": "my-account/user-mfa-management",
+      "type": "registry:block",
+      "title": "UserMFAMgmt Component",
+      "description": "A component responsible for managing Multi-Factor Authentication (MFA) factors for a user. This component handles fetching the MFA access token, fetching authenticators, enrolling, and deletion of MFA factors, and manages the MFA access token. It operates in both ProxyMode (RWA) and SPA modes for authentication.",
+      "dependencies": [
+        "@auth0/universal-components-core@1.0.0-beta.8",
+        "@auth0/auth0-react",
+        "@hookform/resolvers",
+        "@radix-ui/react-dialog",
+        "@radix-ui/react-label",
+        "@radix-ui/react-popover",
+        "@radix-ui/react-slot",
+        "@radix-ui/react-tooltip",
+        "@tanstack/react-query",
+        "class-variance-authority",
+        "clsx",
+        "lucide-react",
+        "qrcode",
+        "react-hook-form",
+        "sonner",
+        "tailwind-merge"
+      ],
+      "files": [
+        {
+          "path": "src/components/auth0/my-account/user-mfa-management.tsx",
+          "type": "registry:block",
+          "target": "components/auth0/my-account/user-mfa-management.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-account/shared/mfa/contact-input-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-account/shared/mfa/contact-input-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-account/shared/mfa/delete-factor-confirmation.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-account/shared/mfa/delete-factor-confirmation.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-account/shared/mfa/empty-state.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-account/shared/mfa/empty-state.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-account/shared/mfa/error-state.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-account/shared/mfa/error-state.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-account/shared/mfa/factors-list.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-account/shared/mfa/factors-list.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-account/shared/mfa/otp-verification-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-account/shared/mfa/otp-verification-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-account/shared/mfa/qr-code-enrollment-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-account/shared/mfa/qr-code-enrollment-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-account/shared/mfa/show-recovery-code.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-account/shared/mfa/show-recovery-code.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-account/shared/mfa/user-mfa-setup-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-account/shared/mfa/user-mfa-setup-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/copyable-text-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/copyable-text-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/sonner.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/sonner.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/toast.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/toast.tsx"
+        },
+        {
+          "path": "src/components/ui/badge.tsx",
+          "type": "registry:component",
+          "target": "components/ui/badge.tsx"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "type": "registry:component",
+          "target": "components/ui/button.tsx"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "type": "registry:component",
+          "target": "components/ui/card.tsx"
+        },
+        {
+          "path": "src/components/ui/dialog.tsx",
+          "type": "registry:component",
+          "target": "components/ui/dialog.tsx"
+        },
+        {
+          "path": "src/components/ui/form.tsx",
+          "type": "registry:component",
+          "target": "components/ui/form.tsx"
+        },
+        {
+          "path": "src/components/ui/label.tsx",
+          "type": "registry:component",
+          "target": "components/ui/label.tsx"
+        },
+        {
+          "path": "src/components/ui/list.tsx",
+          "type": "registry:component",
+          "target": "components/ui/list.tsx"
+        },
+        {
+          "path": "src/components/ui/otp-field.tsx",
+          "type": "registry:component",
+          "target": "components/ui/otp-field.tsx"
+        },
+        {
+          "path": "src/components/ui/popover.tsx",
+          "type": "registry:component",
+          "target": "components/ui/popover.tsx"
+        },
+        {
+          "path": "src/components/ui/qr-code.tsx",
+          "type": "registry:component",
+          "target": "components/ui/qr-code.tsx"
+        },
+        {
+          "path": "src/components/ui/separator.tsx",
+          "type": "registry:component",
+          "target": "components/ui/separator.tsx"
+        },
+        {
+          "path": "src/components/ui/spinner.tsx",
+          "type": "registry:component",
+          "target": "components/ui/spinner.tsx"
+        },
+        {
+          "path": "src/components/ui/text-field.tsx",
+          "type": "registry:component",
+          "target": "components/ui/text-field.tsx"
+        },
+        {
+          "path": "src/components/ui/tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/ui/tooltip.tsx"
+        },
+        {
+          "path": "src/hooks/my-account/use-contact-enrollment.ts",
+          "type": "registry:component",
+          "target": "hooks/my-account/use-contact-enrollment.ts"
+        },
+        {
+          "path": "src/hooks/my-account/use-mfa.ts",
+          "type": "registry:component",
+          "target": "hooks/my-account/use-mfa.ts"
+        },
+        {
+          "path": "src/hooks/my-account/use-otp-confirmation.ts",
+          "type": "registry:component",
+          "target": "hooks/my-account/use-otp-confirmation.ts"
+        },
+        {
+          "path": "src/hooks/my-account/use-otp-enrollment.ts",
+          "type": "registry:component",
+          "target": "hooks/my-account/use-otp-enrollment.ts"
+        },
+        {
+          "path": "src/hooks/my-account/use-recovery-code.ts",
+          "type": "registry:component",
+          "target": "hooks/my-account/use-recovery-code.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-core-client-initialization.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-core-client-initialization.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-core-client.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-core-client.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-scope-manager.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-scope-manager.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-theme.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-theme.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-toast-provider.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-toast-provider.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-translator.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-translator.ts"
+        },
+        {
+          "path": "src/providers/proxy-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/proxy-provider.tsx"
+        },
+        {
+          "path": "src/providers/query-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/query-provider.tsx"
+        },
+        {
+          "path": "src/providers/scope-manager-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/scope-manager-provider.tsx"
+        },
+        {
+          "path": "src/providers/spa-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/spa-provider.tsx"
+        },
+        {
+          "path": "src/providers/theme-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/theme-provider.tsx"
+        },
+        {
+          "path": "src/types/auth-types.ts",
+          "type": "registry:component",
+          "target": "types/auth-types.ts"
+        },
+        {
+          "path": "src/types/cache-types.ts",
+          "type": "registry:component",
+          "target": "types/cache-types.ts"
+        },
+        {
+          "path": "src/types/i18n-types.ts",
+          "type": "registry:component",
+          "target": "types/i18n-types.ts"
+        },
+        {
+          "path": "src/types/my-account/mfa/mfa-types.ts",
+          "type": "registry:component",
+          "target": "types/my-account/mfa/mfa-types.ts"
+        },
+        {
+          "path": "src/types/theme-types.ts",
+          "type": "registry:component",
+          "target": "types/theme-types.ts"
+        },
+        {
+          "path": "src/types/toast-types.ts",
+          "type": "registry:component",
+          "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/lib/constants/my-account/mfa/mfa-constants.ts",
+          "type": "registry:component",
+          "target": "lib/constants/my-account/mfa/mfa-constants.ts"
+        },
+        {
+          "path": "src/lib/utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils.ts"
+        },
+        {
+          "path": "src/assets/icons/apple-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/apple-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/google-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/google-logo.tsx"
+        },
+        {
+          "path": "src/hoc/with-services.tsx",
+          "type": "registry:component",
+          "target": "hoc/with-services.tsx"
+        },
+        {
+          "path": "src/styles/globals.css",
+          "type": "registry:component",
+          "target": "styles/globals.css"
+        }
+      ],
+      "meta": {
+        "coreVersion": "1.0.0-beta.8"
+      }
+    },
+    {
+      "name": "my-organization/domain-table",
+      "type": "registry:block",
+      "title": "DomainTable Component",
+      "description": "A block component for domain table.",
+      "dependencies": [
+        "@auth0/universal-components-core@1.0.0-beta.8",
+        "@auth0/auth0-react",
+        "@hookform/resolvers",
+        "@radix-ui/react-dialog",
+        "@radix-ui/react-dropdown-menu",
+        "@radix-ui/react-label",
+        "@radix-ui/react-slot",
+        "@radix-ui/react-switch",
+        "@radix-ui/react-tooltip",
+        "@tanstack/react-query",
+        "@tanstack/react-table",
+        "class-variance-authority",
+        "clsx",
+        "lucide-react",
+        "react-hook-form",
+        "sonner",
+        "tailwind-merge"
+      ],
+      "files": [
+        {
+          "path": "src/components/auth0/my-organization/domain-table.tsx",
+          "type": "registry:block",
+          "target": "components/auth0/my-organization/domain-table.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/domain-management/domain-configure/domain-configure-providers-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/domain-management/domain-configure/domain-configure-providers-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/domain-management/domain-create/domain-create-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/domain-management/domain-create/domain-create-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/domain-management/domain-table/domain-table-actions-column.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/domain-management/domain-table/domain-table-actions-column.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/copyable-text-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/copyable-text-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/data-table.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/data-table.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/form-actions.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/form-actions.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/header.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/header.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/sonner.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/sonner.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/toast.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/toast.tsx"
+        },
+        {
+          "path": "src/components/ui/alert.tsx",
+          "type": "registry:component",
+          "target": "components/ui/alert.tsx"
+        },
+        {
+          "path": "src/components/ui/badge.tsx",
+          "type": "registry:component",
+          "target": "components/ui/badge.tsx"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "type": "registry:component",
+          "target": "components/ui/button.tsx"
+        },
+        {
+          "path": "src/components/ui/dialog.tsx",
+          "type": "registry:component",
+          "target": "components/ui/dialog.tsx"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu.tsx",
+          "type": "registry:component",
+          "target": "components/ui/dropdown-menu.tsx"
+        },
+        {
+          "path": "src/components/ui/form.tsx",
+          "type": "registry:component",
+          "target": "components/ui/form.tsx"
+        },
+        {
+          "path": "src/components/ui/inline-code.tsx",
+          "type": "registry:component",
+          "target": "components/ui/inline-code.tsx"
+        },
+        {
+          "path": "src/components/ui/label.tsx",
+          "type": "registry:component",
+          "target": "components/ui/label.tsx"
+        },
+        {
+          "path": "src/components/ui/modal.tsx",
+          "type": "registry:component",
+          "target": "components/ui/modal.tsx"
+        },
+        {
+          "path": "src/components/ui/spinner.tsx",
+          "type": "registry:component",
+          "target": "components/ui/spinner.tsx"
+        },
+        {
+          "path": "src/components/ui/switch.tsx",
+          "type": "registry:component",
+          "target": "components/ui/switch.tsx"
+        },
+        {
+          "path": "src/components/ui/table.tsx",
+          "type": "registry:component",
+          "target": "components/ui/table.tsx"
+        },
+        {
+          "path": "src/components/ui/text-field.tsx",
+          "type": "registry:component",
+          "target": "components/ui/text-field.tsx"
+        },
+        {
+          "path": "src/components/ui/tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/ui/tooltip.tsx"
+        },
+        {
+          "path": "src/hooks/my-organization/use-domain-table-logic.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-domain-table-logic.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-domain-table.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-domain-table.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-core-client-initialization.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-core-client-initialization.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-core-client.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-core-client.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-error-handler.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-error-handler.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-scope-manager.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-scope-manager.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-theme.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-theme.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-toast-provider.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-toast-provider.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-translator.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-translator.ts"
+        },
+        {
+          "path": "src/providers/proxy-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/proxy-provider.tsx"
+        },
+        {
+          "path": "src/providers/query-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/query-provider.tsx"
+        },
+        {
+          "path": "src/providers/scope-manager-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/scope-manager-provider.tsx"
+        },
+        {
+          "path": "src/providers/spa-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/spa-provider.tsx"
+        },
+        {
+          "path": "src/providers/theme-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/theme-provider.tsx"
+        },
+        {
+          "path": "src/types/auth-types.ts",
+          "type": "registry:component",
+          "target": "types/auth-types.ts"
+        },
+        {
+          "path": "src/types/cache-types.ts",
+          "type": "registry:component",
+          "target": "types/cache-types.ts"
+        },
+        {
+          "path": "src/types/i18n-types.ts",
+          "type": "registry:component",
+          "target": "types/i18n-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/domain-management/domain-configure-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-configure-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/domain-management/domain-create-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-create-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/domain-management/domain-delete-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-delete-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/domain-management/domain-table-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-table-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/domain-management/domain-verify-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-verify-types.ts"
+        },
+        {
+          "path": "src/types/theme-types.ts",
+          "type": "registry:component",
+          "target": "types/theme-types.ts"
+        },
+        {
+          "path": "src/types/toast-types.ts",
+          "type": "registry:component",
+          "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/lib/utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
+        },
+        {
+          "path": "src/hoc/with-services.tsx",
+          "type": "registry:component",
+          "target": "hoc/with-services.tsx"
+        },
+        {
+          "path": "src/styles/globals.css",
+          "type": "registry:component",
+          "target": "styles/globals.css"
+        }
+      ],
+      "meta": {
+        "coreVersion": "1.0.0-beta.8"
+      }
+    },
+    {
+      "name": "my-organization/organization-details-edit",
+      "type": "registry:block",
+      "title": "OrganizationDetailsEdit Component",
+      "description": "A comprehensive organization editing component that combines organization details editing and deletion capabilities in a single interface. This component provides a complete editing experience with form validation, lifecycle hooks, and user feedback.",
+      "dependencies": [
+        "@auth0/universal-components-core@1.0.0-beta.8",
+        "@auth0/auth0-react",
+        "@hookform/resolvers",
+        "@radix-ui/react-label",
+        "@radix-ui/react-popover",
+        "@radix-ui/react-select",
+        "@radix-ui/react-slot",
+        "@radix-ui/react-switch",
+        "@radix-ui/react-tooltip",
+        "@tanstack/react-query",
+        "@uiw/color-convert",
+        "@uiw/react-color",
+        "class-variance-authority",
+        "clsx",
+        "lucide-react",
+        "react-hook-form",
+        "sonner",
+        "tailwind-merge"
+      ],
+      "files": [
+        {
+          "path": "src/components/auth0/my-organization/organization-details-edit.tsx",
+          "type": "registry:block",
+          "target": "components/auth0/my-organization/organization-details-edit.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/organization-management/organization-details/branding-details.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/organization-management/organization-details/branding-details.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/organization-management/organization-details/organization-details.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/organization-management/organization-details/organization-details.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/organization-management/organization-details/settings-details.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/organization-management/organization-details/settings-details.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/form-actions.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/form-actions.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/header.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/header.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/section.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/section.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/sonner.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/sonner.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/toast.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/toast.tsx"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "type": "registry:component",
+          "target": "components/ui/button.tsx"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "type": "registry:component",
+          "target": "components/ui/card.tsx"
+        },
+        {
+          "path": "src/components/ui/color-picker.tsx",
+          "type": "registry:component",
+          "target": "components/ui/color-picker.tsx"
+        },
+        {
+          "path": "src/components/ui/form.tsx",
+          "type": "registry:component",
+          "target": "components/ui/form.tsx"
+        },
+        {
+          "path": "src/components/ui/image-preview-field.tsx",
+          "type": "registry:component",
+          "target": "components/ui/image-preview-field.tsx"
+        },
+        {
+          "path": "src/components/ui/label.tsx",
+          "type": "registry:component",
+          "target": "components/ui/label.tsx"
+        },
+        {
+          "path": "src/components/ui/popover.tsx",
+          "type": "registry:component",
+          "target": "components/ui/popover.tsx"
+        },
+        {
+          "path": "src/components/ui/select.tsx",
+          "type": "registry:component",
+          "target": "components/ui/select.tsx"
+        },
+        {
+          "path": "src/components/ui/separator.tsx",
+          "type": "registry:component",
+          "target": "components/ui/separator.tsx"
+        },
+        {
+          "path": "src/components/ui/spinner.tsx",
+          "type": "registry:component",
+          "target": "components/ui/spinner.tsx"
+        },
+        {
+          "path": "src/components/ui/switch.tsx",
+          "type": "registry:component",
+          "target": "components/ui/switch.tsx"
+        },
+        {
+          "path": "src/components/ui/text-field.tsx",
+          "type": "registry:component",
+          "target": "components/ui/text-field.tsx"
+        },
+        {
+          "path": "src/components/ui/toggle.tsx",
+          "type": "registry:component",
+          "target": "components/ui/toggle.tsx"
+        },
+        {
+          "path": "src/components/ui/tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/ui/tooltip.tsx"
+        },
+        {
+          "path": "src/hooks/my-organization/use-organization-details-edit.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-organization-details-edit.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-core-client-initialization.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-core-client-initialization.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-core-client.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-core-client.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-scope-manager.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-scope-manager.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-theme.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-theme.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-toast-provider.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-toast-provider.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-translator.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-translator.ts"
+        },
+        {
+          "path": "src/providers/proxy-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/proxy-provider.tsx"
+        },
+        {
+          "path": "src/providers/query-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/query-provider.tsx"
+        },
+        {
+          "path": "src/providers/scope-manager-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/scope-manager-provider.tsx"
+        },
+        {
+          "path": "src/providers/spa-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/spa-provider.tsx"
+        },
+        {
+          "path": "src/providers/theme-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/theme-provider.tsx"
+        },
+        {
+          "path": "src/types/auth-types.ts",
+          "type": "registry:component",
+          "target": "types/auth-types.ts"
+        },
+        {
+          "path": "src/types/cache-types.ts",
+          "type": "registry:component",
+          "target": "types/cache-types.ts"
+        },
+        {
+          "path": "src/types/i18n-types.ts",
+          "type": "registry:component",
+          "target": "types/i18n-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/organization-management/organization-details-edit-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/organization-management/organization-details-edit-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/organization-management/organization-details-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/organization-management/organization-details-types.ts"
+        },
+        {
+          "path": "src/types/theme-types.ts",
+          "type": "registry:component",
+          "target": "types/theme-types.ts"
+        },
+        {
+          "path": "src/types/toast-types.ts",
+          "type": "registry:component",
+          "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/lib/utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils.ts"
+        },
+        {
+          "path": "src/hoc/with-services.tsx",
+          "type": "registry:component",
+          "target": "hoc/with-services.tsx"
+        },
+        {
+          "path": "src/styles/globals.css",
+          "type": "registry:component",
+          "target": "styles/globals.css"
+        }
+      ],
+      "meta": {
+        "coreVersion": "1.0.0-beta.8"
+      }
+    },
+    {
+      "name": "my-organization/sso-provider-create",
+      "type": "registry:block",
+      "title": "Sso Provider Create",
+      "description": "A block component for sso provider create.",
+      "dependencies": [
+        "@auth0/universal-components-core@1.0.0-beta.8",
+        "@auth0/auth0-react",
+        "@hookform/resolvers",
+        "@radix-ui/react-accordion",
+        "@radix-ui/react-checkbox",
+        "@radix-ui/react-label",
+        "@radix-ui/react-radio-group",
+        "@radix-ui/react-select",
+        "@radix-ui/react-slot",
+        "@radix-ui/react-switch",
+        "@radix-ui/react-tooltip",
+        "@tanstack/react-query",
+        "class-variance-authority",
+        "clsx",
+        "lucide-react",
+        "react-hook-form",
+        "sonner",
+        "tailwind-merge"
+      ],
+      "files": [
+        {
+          "path": "src/components/auth0/my-organization/sso-provider-create.tsx",
+          "type": "registry:block",
+          "target": "components/auth0/my-organization/sso-provider-create.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/okta-sso-configure-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/okta-sso-configure-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-select.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-select.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/copyable-text-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/copyable-text-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/form-actions.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/form-actions.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/header.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/header.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/section.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/section.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/sonner.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/sonner.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/toast.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/toast.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/wizard-stepper.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/wizard-stepper.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/wizard.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/wizard.tsx"
+        },
+        {
+          "path": "src/components/ui/accordion.tsx",
+          "type": "registry:component",
+          "target": "components/ui/accordion.tsx"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "type": "registry:component",
+          "target": "components/ui/button.tsx"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "type": "registry:component",
+          "target": "components/ui/card.tsx"
+        },
+        {
+          "path": "src/components/ui/checkbox.tsx",
+          "type": "registry:component",
+          "target": "components/ui/checkbox.tsx"
+        },
+        {
+          "path": "src/components/ui/file-upload.tsx",
+          "type": "registry:component",
+          "target": "components/ui/file-upload.tsx"
+        },
+        {
+          "path": "src/components/ui/form.tsx",
+          "type": "registry:component",
+          "target": "components/ui/form.tsx"
+        },
+        {
+          "path": "src/components/ui/label.tsx",
+          "type": "registry:component",
+          "target": "components/ui/label.tsx"
+        },
+        {
+          "path": "src/components/ui/link.tsx",
+          "type": "registry:component",
+          "target": "components/ui/link.tsx"
+        },
+        {
+          "path": "src/components/ui/radio-group.tsx",
+          "type": "registry:component",
+          "target": "components/ui/radio-group.tsx"
+        },
+        {
+          "path": "src/components/ui/select.tsx",
+          "type": "registry:component",
+          "target": "components/ui/select.tsx"
+        },
+        {
+          "path": "src/components/ui/separator.tsx",
+          "type": "registry:component",
+          "target": "components/ui/separator.tsx"
+        },
+        {
+          "path": "src/components/ui/spinner.tsx",
+          "type": "registry:component",
+          "target": "components/ui/spinner.tsx"
+        },
+        {
+          "path": "src/components/ui/stepper.tsx",
+          "type": "registry:component",
+          "target": "components/ui/stepper.tsx"
+        },
+        {
+          "path": "src/components/ui/switch.tsx",
+          "type": "registry:component",
+          "target": "components/ui/switch.tsx"
+        },
+        {
+          "path": "src/components/ui/text-field.tsx",
+          "type": "registry:component",
+          "target": "components/ui/text-field.tsx"
+        },
+        {
+          "path": "src/components/ui/toggle.tsx",
+          "type": "registry:component",
+          "target": "components/ui/toggle.tsx"
+        },
+        {
+          "path": "src/components/ui/tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/ui/tooltip.tsx"
+        },
+        {
+          "path": "src/hooks/my-organization/use-config.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-config.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-idp-config.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-idp-config.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-provider-form-mode.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-provider-form-mode.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-sso-provider-create.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-sso-provider-create.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-sso-provider-table.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-sso-provider-table.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-core-client-initialization.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-core-client-initialization.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-core-client.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-core-client.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-scope-manager.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-scope-manager.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-theme.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-theme.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-toast-provider.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-toast-provider.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-translator.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-translator.ts"
+        },
+        {
+          "path": "src/providers/proxy-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/proxy-provider.tsx"
+        },
+        {
+          "path": "src/providers/query-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/query-provider.tsx"
+        },
+        {
+          "path": "src/providers/scope-manager-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/scope-manager-provider.tsx"
+        },
+        {
+          "path": "src/providers/spa-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/spa-provider.tsx"
+        },
+        {
+          "path": "src/providers/theme-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/theme-provider.tsx"
+        },
+        {
+          "path": "src/types/auth-types.ts",
+          "type": "registry:component",
+          "target": "types/auth-types.ts"
+        },
+        {
+          "path": "src/types/cache-types.ts",
+          "type": "registry:component",
+          "target": "types/cache-types.ts"
+        },
+        {
+          "path": "src/types/i18n-types.ts",
+          "type": "registry:component",
+          "target": "types/i18n-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/config/config-idp-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/config/config-idp-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/config/config-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/config/config-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-table-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-table-types.ts"
+        },
+        {
+          "path": "src/types/theme-types.ts",
+          "type": "registry:component",
+          "target": "types/theme-types.ts"
+        },
+        {
+          "path": "src/types/toast-types.ts",
+          "type": "registry:component",
+          "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/lib/utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils.ts"
+        },
+        {
+          "path": "src/assets/icons/entraid-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/entraid-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/google-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/google-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/microsoft-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/microsoft-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/oidc-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/oidc-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/okta-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/okta-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/pingid-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/pingid-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/sampl-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/sampl-logo.tsx"
+        },
+        {
+          "path": "src/hoc/with-services.tsx",
+          "type": "registry:component",
+          "target": "hoc/with-services.tsx"
+        },
+        {
+          "path": "src/styles/globals.css",
+          "type": "registry:component",
+          "target": "styles/globals.css"
+        }
+      ],
+      "meta": {
+        "coreVersion": "1.0.0-beta.8"
+      }
+    },
+    {
+      "name": "my-organization/sso-provider-edit",
+      "type": "registry:block",
+      "title": "Sso Provider Edit",
+      "description": "A block component for sso provider edit.",
+      "dependencies": [
+        "@auth0/universal-components-core@1.0.0-beta.8",
+        "@auth0/auth0-react",
+        "@hookform/resolvers",
+        "@radix-ui/react-accordion",
+        "@radix-ui/react-checkbox",
+        "@radix-ui/react-dialog",
+        "@radix-ui/react-label",
+        "@radix-ui/react-radio-group",
+        "@radix-ui/react-select",
+        "@radix-ui/react-slot",
+        "@radix-ui/react-switch",
+        "@radix-ui/react-tabs",
+        "@radix-ui/react-tooltip",
+        "@tanstack/react-query",
+        "@tanstack/react-table",
+        "class-variance-authority",
+        "clsx",
+        "lucide-react",
+        "react-hook-form",
+        "sonner",
+        "tailwind-merge"
+      ],
+      "files": [
+        {
+          "path": "src/components/auth0/my-organization/sso-provider-edit.tsx",
+          "type": "registry:block",
+          "target": "components/auth0/my-organization/sso-provider-edit.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/domain-management/domain-create/domain-create-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/domain-management/domain-create/domain-create-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/okta-sso-configure-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/okta-sso-configure-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete-modal-content.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete-modal-content.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab-action-column.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab-action-column.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-mappings.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-mappings.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-sync-alert.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-sync-alert.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-details.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-details.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-tab.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-tab.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/provisioning-manage-token.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/provisioning-manage-token.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal-content.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal-content.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal-content.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal-content.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/copyable-text-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/copyable-text-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/data-table.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/data-table.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/form-actions.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/form-actions.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/header.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/header.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/mapping.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/mapping.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/section.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/section.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/sonner.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/sonner.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/toast.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/toast.tsx"
+        },
+        {
+          "path": "src/components/ui/accordion.tsx",
+          "type": "registry:component",
+          "target": "components/ui/accordion.tsx"
+        },
+        {
+          "path": "src/components/ui/alert.tsx",
+          "type": "registry:component",
+          "target": "components/ui/alert.tsx"
+        },
+        {
+          "path": "src/components/ui/badge.tsx",
+          "type": "registry:component",
+          "target": "components/ui/badge.tsx"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "type": "registry:component",
+          "target": "components/ui/button.tsx"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "type": "registry:component",
+          "target": "components/ui/card.tsx"
+        },
+        {
+          "path": "src/components/ui/checkbox.tsx",
+          "type": "registry:component",
+          "target": "components/ui/checkbox.tsx"
+        },
+        {
+          "path": "src/components/ui/dialog.tsx",
+          "type": "registry:component",
+          "target": "components/ui/dialog.tsx"
+        },
+        {
+          "path": "src/components/ui/file-upload.tsx",
+          "type": "registry:component",
+          "target": "components/ui/file-upload.tsx"
+        },
+        {
+          "path": "src/components/ui/form.tsx",
+          "type": "registry:component",
+          "target": "components/ui/form.tsx"
+        },
+        {
+          "path": "src/components/ui/inline-code.tsx",
+          "type": "registry:component",
+          "target": "components/ui/inline-code.tsx"
+        },
+        {
+          "path": "src/components/ui/label.tsx",
+          "type": "registry:component",
+          "target": "components/ui/label.tsx"
+        },
+        {
+          "path": "src/components/ui/link.tsx",
+          "type": "registry:component",
+          "target": "components/ui/link.tsx"
+        },
+        {
+          "path": "src/components/ui/modal.tsx",
+          "type": "registry:component",
+          "target": "components/ui/modal.tsx"
+        },
+        {
+          "path": "src/components/ui/radio-group.tsx",
+          "type": "registry:component",
+          "target": "components/ui/radio-group.tsx"
+        },
+        {
+          "path": "src/components/ui/select.tsx",
+          "type": "registry:component",
+          "target": "components/ui/select.tsx"
+        },
+        {
+          "path": "src/components/ui/separator.tsx",
+          "type": "registry:component",
+          "target": "components/ui/separator.tsx"
+        },
+        {
+          "path": "src/components/ui/spinner.tsx",
+          "type": "registry:component",
+          "target": "components/ui/spinner.tsx"
+        },
+        {
+          "path": "src/components/ui/switch.tsx",
+          "type": "registry:component",
+          "target": "components/ui/switch.tsx"
+        },
+        {
+          "path": "src/components/ui/table.tsx",
+          "type": "registry:component",
+          "target": "components/ui/table.tsx"
+        },
+        {
+          "path": "src/components/ui/tabs.tsx",
+          "type": "registry:component",
+          "target": "components/ui/tabs.tsx"
+        },
+        {
+          "path": "src/components/ui/text-field.tsx",
+          "type": "registry:component",
+          "target": "components/ui/text-field.tsx"
+        },
+        {
+          "path": "src/components/ui/toggle.tsx",
+          "type": "registry:component",
+          "target": "components/ui/toggle.tsx"
+        },
+        {
+          "path": "src/components/ui/tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/ui/tooltip.tsx"
+        },
+        {
+          "path": "src/hooks/my-organization/use-config.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-config.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-idp-config.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-idp-config.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-provider-form-mode.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-provider-form-mode.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-sso-domain-tab.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-sso-domain-tab.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-sso-provider-edit.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-sso-provider-edit.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-core-client-initialization.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-core-client-initialization.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-core-client.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-core-client.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-error-handler.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-error-handler.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-scope-manager.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-scope-manager.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-theme.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-theme.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-toast-provider.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-toast-provider.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-translator.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-translator.ts"
+        },
+        {
+          "path": "src/providers/proxy-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/proxy-provider.tsx"
+        },
+        {
+          "path": "src/providers/query-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/query-provider.tsx"
+        },
+        {
+          "path": "src/providers/scope-manager-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/scope-manager-provider.tsx"
+        },
+        {
+          "path": "src/providers/spa-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/spa-provider.tsx"
+        },
+        {
+          "path": "src/providers/theme-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/theme-provider.tsx"
+        },
+        {
+          "path": "src/types/auth-types.ts",
+          "type": "registry:component",
+          "target": "types/auth-types.ts"
+        },
+        {
+          "path": "src/types/cache-types.ts",
+          "type": "registry:component",
+          "target": "types/cache-types.ts"
+        },
+        {
+          "path": "src/types/i18n-types.ts",
+          "type": "registry:component",
+          "target": "types/i18n-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/config/config-idp-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/config/config-idp-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/config/config-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/config/config-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/domain-management/domain-create-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-create-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/domain-management/domain-delete-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-delete-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/domain-management/domain-table-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-table-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/domain-management/domain-verify-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-verify-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-domain/sso-domain-tab-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-domain/sso-domain-tab-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-edit-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-edit-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provisioning/provisioning-token-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provisioning/provisioning-token-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types.ts"
+        },
+        {
+          "path": "src/types/theme-types.ts",
+          "type": "registry:component",
+          "target": "types/theme-types.ts"
+        },
+        {
+          "path": "src/types/toast-types.ts",
+          "type": "registry:component",
+          "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/lib/utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
+        },
+        {
+          "path": "src/hoc/with-services.tsx",
+          "type": "registry:component",
+          "target": "hoc/with-services.tsx"
+        },
+        {
+          "path": "src/styles/globals.css",
+          "type": "registry:component",
+          "target": "styles/globals.css"
+        }
+      ],
+      "meta": {
+        "coreVersion": "1.0.0-beta.8"
+      }
+    },
+    {
+      "name": "my-organization/sso-provider-table",
+      "type": "registry:block",
+      "title": "SsoProviderTable Component",
+      "description": "A block component for sso provider table.",
+      "dependencies": [
+        "@auth0/universal-components-core@1.0.0-beta.8",
+        "@auth0/auth0-react",
+        "@radix-ui/react-dialog",
+        "@radix-ui/react-dropdown-menu",
+        "@radix-ui/react-slot",
+        "@radix-ui/react-switch",
+        "@radix-ui/react-tooltip",
+        "@tanstack/react-query",
+        "@tanstack/react-table",
+        "class-variance-authority",
+        "clsx",
+        "lucide-react",
+        "sonner",
+        "tailwind-merge"
+      ],
+      "files": [
+        {
+          "path": "src/components/auth0/my-organization/sso-provider-table.tsx",
+          "type": "registry:block",
+          "target": "components/auth0/my-organization/sso-provider-table.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete-modal-content.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete-modal-content.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-table/sso-provider-table-action.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-table/sso-provider-table-action.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/data-table.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/data-table.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/form-actions.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/form-actions.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/header.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/header.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/sonner.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/sonner.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/toast.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/toast.tsx"
+        },
+        {
+          "path": "src/components/ui/badge.tsx",
+          "type": "registry:component",
+          "target": "components/ui/badge.tsx"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "type": "registry:component",
+          "target": "components/ui/button.tsx"
+        },
+        {
+          "path": "src/components/ui/dialog.tsx",
+          "type": "registry:component",
+          "target": "components/ui/dialog.tsx"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu.tsx",
+          "type": "registry:component",
+          "target": "components/ui/dropdown-menu.tsx"
+        },
+        {
+          "path": "src/components/ui/inline-code.tsx",
+          "type": "registry:component",
+          "target": "components/ui/inline-code.tsx"
+        },
+        {
+          "path": "src/components/ui/label.tsx",
+          "type": "registry:component",
+          "target": "components/ui/label.tsx"
+        },
+        {
+          "path": "src/components/ui/modal.tsx",
+          "type": "registry:component",
+          "target": "components/ui/modal.tsx"
+        },
+        {
+          "path": "src/components/ui/spinner.tsx",
+          "type": "registry:component",
+          "target": "components/ui/spinner.tsx"
+        },
+        {
+          "path": "src/components/ui/switch.tsx",
+          "type": "registry:component",
+          "target": "components/ui/switch.tsx"
+        },
+        {
+          "path": "src/components/ui/table.tsx",
+          "type": "registry:component",
+          "target": "components/ui/table.tsx"
+        },
+        {
+          "path": "src/components/ui/text-field.tsx",
+          "type": "registry:component",
+          "target": "components/ui/text-field.tsx"
+        },
+        {
+          "path": "src/components/ui/tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/ui/tooltip.tsx"
+        },
+        {
+          "path": "src/hooks/my-organization/use-config.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-config.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-idp-config.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-idp-config.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-sso-provider-table.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-sso-provider-table.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-core-client-initialization.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-core-client-initialization.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-core-client.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-core-client.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-scope-manager.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-scope-manager.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-theme.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-theme.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-toast-provider.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-toast-provider.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-translator.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-translator.ts"
+        },
+        {
+          "path": "src/providers/proxy-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/proxy-provider.tsx"
+        },
+        {
+          "path": "src/providers/query-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/query-provider.tsx"
+        },
+        {
+          "path": "src/providers/scope-manager-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/scope-manager-provider.tsx"
+        },
+        {
+          "path": "src/providers/spa-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/spa-provider.tsx"
+        },
+        {
+          "path": "src/providers/theme-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/theme-provider.tsx"
+        },
+        {
+          "path": "src/types/auth-types.ts",
+          "type": "registry:component",
+          "target": "types/auth-types.ts"
+        },
+        {
+          "path": "src/types/cache-types.ts",
+          "type": "registry:component",
+          "target": "types/cache-types.ts"
+        },
+        {
+          "path": "src/types/i18n-types.ts",
+          "type": "registry:component",
+          "target": "types/i18n-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/config/config-idp-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/config/config-idp-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/config/config-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/config/config-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-table-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-table-types.ts"
+        },
+        {
+          "path": "src/types/theme-types.ts",
+          "type": "registry:component",
+          "target": "types/theme-types.ts"
+        },
+        {
+          "path": "src/types/toast-types.ts",
+          "type": "registry:component",
+          "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/lib/utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils.ts"
+        },
+        {
+          "path": "src/hoc/with-services.tsx",
+          "type": "registry:component",
+          "target": "hoc/with-services.tsx"
+        },
+        {
+          "path": "src/styles/globals.css",
+          "type": "registry:component",
+          "target": "styles/globals.css"
+        }
+      ],
+      "meta": {
+        "coreVersion": "1.0.0-beta.8"
+      }
+    }
+  ]
+}
