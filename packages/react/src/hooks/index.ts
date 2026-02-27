@@ -31,7 +31,5 @@ export { useSsoProviderEdit } from './my-organization/use-sso-provider-edit';
 export { useSsoProviderTable } from './my-organization/use-sso-provider-table';
 
 // Member Management hooks
-export { useOrganizationMemberTable } from './my-organization/use-organization-member-table';
-export { useOrganizationMemberTableLogic } from './my-organization/use-organization-member-table-logic';
-export { useOrganizationInvitationTable } from './my-organization/use-organization-invitation-table';
-export { useOrganizationInvitationTableLogic } from './my-organization/use-organization-invitation-table-logic';
+export { useOrganizationMemberManagement } from './my-organization/use-organization-member-management';
+export { useOrganizationMemberManagementLogic } from './my-organization/use-organization-member-management-logic';

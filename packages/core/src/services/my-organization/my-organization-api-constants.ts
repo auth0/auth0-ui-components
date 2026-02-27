@@ -43,4 +43,4 @@ export const MY_ORGANIZATION_DOMAIN_SCOPES =
  * @internal
  */
 export const MY_ORGANIZATION_MEMBER_MANAGEMENT_SCOPES =
-  'read:my_org:members delete:my_org:members read:my_org:invitations create:my_org:invitations delete:my_org:invitations';
+  'read:my_org:members delete:my_org:members read:my_org:member_invitations create:my_org:member_invitations delete:my_org:member_invitations';

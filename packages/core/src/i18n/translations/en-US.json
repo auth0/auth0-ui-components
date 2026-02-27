@@ -1019,35 +1019,90 @@
         "title": "Remove Member",
         "description": "Are you sure you want to remove ${name} from this organization?",
         "confirm_button": "Remove",
-        "cancel_button": "Cancel"
+        "cancel_button": "Cancel",
+        "success": "${name} has been removed from the organization."
+      },
+      "error": {
+        "fetch_failed": "Failed to load members. Please try again.",
+        "remove_failed": "Failed to remove member. Please try again."
       }
     },
     "invitation": {
       "table": {
         "columns": {
           "email": "Email",
+          "status": "Status",
           "inviter": "Invited By",
           "created_at": "Created",
-          "expires_at": "Expires"
+          "expires_at": "Expires",
+          "roles": "Roles"
         },
-        "empty_message": "No pending invitations."
+        "empty_message": "No pending invitations.",
+        "search_placeholder": "Search by email...",
+        "filter_by_role": "Filter by role",
+        "all_roles": "All roles",
+        "showing_results": "Showing ${start}-${end} of ${total}",
+        "status_pending": "Pending",
+        "status_expired": "Expired"
+      },
+      "actions": {
+        "view_details": "View Details",
+        "copy_url": "Copy Invitation URL",
+        "revoke_and_resend": "Revoke and Resend",
+        "revoke": "Revoke Invitation"
       },
       "create": {
         "title": "Invite Member",
+        "description": "Send invitations to new members to join your organization.",
         "email_label": "Email Address",
-        "email_placeholder": "Enter email address",
+        "email_placeholder": "Enter email address and press Enter",
+        "email_helper": "Press Enter, comma, or space to add multiple emails",
+        "roles_label": "Roles",
+        "roles_placeholder": "Select roles (optional)",
+        "provider_label": "Identity Provider",
+        "provider_placeholder": "Select provider (optional)",
         "submit_button": "Send Invitation",
-        "cancel_button": "Cancel"
+        "cancel_button": "Cancel",
+        "success": "Invitation sent to ${email}."
       },
       "details": {
         "title": "Invitation Details",
-        "close_button": "Close"
+        "email_label": "Email",
+        "status_label": "Status",
+        "roles_label": "Roles",
+        "provider_label": "Identity Provider",
+        "created_at_label": "Created",
+        "expires_at_label": "Expires",
+        "invited_by_label": "Invited By",
+        "invitation_url_label": "Invitation URL",
+        "copy_url_button": "Copy",
+        "close_button": "Close",
+        "revoke_button": "Revoke",
+        "resend_button": "Resend"
       },
       "revoke": {
         "title": "Revoke Invitation",
         "description": "Are you sure you want to revoke the invitation for ${email}?",
         "confirm_button": "Revoke",
+        "cancel_button": "Cancel",
+        "success": "Invitation for ${email} has been revoked."
+      },
+      "revoke_resend": {
+        "title": "Revoke and Resend Invitation",
+        "description": "This will revoke the existing invitation for ${email} and send a new one. The previous invitation link will no longer work.",
+        "confirm_button": "Revoke and Resend",
         "cancel_button": "Cancel"
+      },
+      "success": {
+        "url_copied": "Invitation URL copied to clipboard.",
+        "invitation_resent": "Invitation resent to ${email}."
+      },
+      "error": {
+        "fetch_failed": "Failed to load invitations. Please try again.",
+        "create_failed": "Failed to send invitation. Please try again.",
+        "revoke_failed": "Failed to revoke invitation. Please try again.",
+        "resend_failed": "Failed to resend invitation. Please try again.",
+        "revoke_resend_failed": "Failed to revoke and resend invitation. Please try again."
       }
     }
   }

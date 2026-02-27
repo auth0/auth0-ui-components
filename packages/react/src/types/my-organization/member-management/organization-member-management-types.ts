@@ -3,12 +3,15 @@
  * @module organization-member-management-types
  */
 
-import type { SharedComponentProps } from '@auth0/universal-components-core';
+import type { ComponentAction, SharedComponentProps } from '@auth0/universal-components-core';
 
 import type {
+  Invitation,
+  IdentityProviderOption,
   OrganizationInvitationTabProps,
   OrganizationInvitationTabClasses,
   OrganizationInvitationTabMessages,
+  RoleOption,
 } from './organization-invitation-table-types';
 import type {
   OrganizationMemberTabProps,
@@ -39,6 +42,17 @@ export interface OrganizationMemberManagementMessages {
   invitation?: OrganizationInvitationTabMessages;
 }
 
+/** Extended invitation props for member management. */
+export interface OrganizationMemberManagementInvitationProps
+  extends Omit<OrganizationInvitationTabProps, 'styling' | 'customMessages'> {
+  /** Action for resending an invitation */
+  resendAction?: ComponentAction<Invitation, Invitation>;
+  /** Available roles for filtering and creating invitations */
+  availableRoles?: RoleOption[];
+  /** Available identity providers for creating invitations */
+  availableProviders?: IdentityProviderOption[];
+}
+
 /** Props for OrganizationMemberManagement component. */
 export interface OrganizationMemberManagementProps
   extends SharedComponentProps<
@@ -48,10 +62,5 @@ export interface OrganizationMemberManagementProps
   hideHeader?: boolean;
   defaultTab?: 'member' | 'invitation';
   memberProps?: Omit<OrganizationMemberTabProps, 'styling' | 'customMessages'>;
-  invitationProps?: Omit<OrganizationInvitationTabProps, 'styling' | 'customMessages'>;
-}
-
-/** View props for OrganizationMemberManagement. */
-export interface OrganizationMemberManagementViewProps {
-  logic: OrganizationMemberManagementProps;
+  invitationProps?: OrganizationMemberManagementInvitationProps;
 }

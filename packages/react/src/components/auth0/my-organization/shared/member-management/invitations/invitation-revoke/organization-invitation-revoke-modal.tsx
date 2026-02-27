@@ -21,21 +21,23 @@ export interface OrganizationInvitationRevokeModalProps {
   invitation: Invitation | null;
   isOpen: boolean;
   isLoading?: boolean;
+  isRevokeAndResend?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   onClose: () => void;
-  onRevoke: (invitation: Invitation) => void;
+  onConfirm: (invitation: Invitation) => void;
   className?: string;
 }
 
 /**
- * Modal for confirming invitation revocation.
+ * Modal for confirming invitation revocation or revoke and resend.
  * @param root0 - The component props.
  * @param root0.invitation - The invitation to revoke.
  * @param root0.isOpen - Whether the modal is open.
- * @param root0.isLoading - Whether the form is loading.
+ * @param root0.isLoading - Whether the action is in progress.
+ * @param root0.isRevokeAndResend - Whether this is a revoke and resend action.
  * @param root0.customMessages - Custom translation messages.
  * @param root0.onClose - Callback when modal is closed.
- * @param root0.onRevoke - Callback when invitation is revoked.
+ * @param root0.onConfirm - Callback when action is confirmed.
  * @param root0.className - Optional CSS class name.
  * @returns The modal component.
  */
@@ -43,34 +45,41 @@ export function OrganizationInvitationRevokeModal({
   invitation,
   isOpen,
   isLoading = false,
+  isRevokeAndResend = false,
   customMessages = {},
   onClose,
-  onRevoke,
+  onConfirm,
   className,
 }: OrganizationInvitationRevokeModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
-  const handleRevoke = React.useCallback(() => {
+  const namespace = isRevokeAndResend ? 'invitation.revoke_resend' : 'invitation.revoke';
+
+  const handleConfirm = React.useCallback(() => {
     if (invitation) {
-      onRevoke(invitation);
+      onConfirm(invitation);
     }
-  }, [invitation, onRevoke]);
+  }, [invitation, onConfirm]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={className}>
         <DialogHeader>
-          <DialogTitle>{t('invitation.revoke.title')}</DialogTitle>
+          <DialogTitle>{t(`${namespace}.title`)}</DialogTitle>
           <DialogDescription>
-            {t('invitation.revoke.description', { email: invitation?.invitee.email ?? '' })}
+            {t(`${namespace}.description`, { email: invitation?.invitee.email ?? '' })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            {t('invitation.revoke.cancel_button')}
+            {t(`${namespace}.cancel_button`)}
           </Button>
-          <Button variant="destructive" onClick={handleRevoke} disabled={isLoading}>
-            {isLoading ? 'Revoking...' : t('invitation.revoke.confirm_button')}
+          <Button
+            variant={isRevokeAndResend ? 'primary' : 'destructive'}
+            onClick={handleConfirm}
+            disabled={isLoading}
+          >
+            {t(`${namespace}.confirm_button`)}
           </Button>
         </DialogFooter>
       </DialogContent>

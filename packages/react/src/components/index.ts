@@ -12,10 +12,7 @@ export {
 } from './auth0/my-organization/sso-provider-create';
 export { SsoProviderTable, SsoProviderTableView } from './auth0/my-organization/sso-provider-table';
 export { DomainTable, DomainTableView } from './auth0/my-organization/domain-table';
-export {
-  OrganizationMemberManagement,
-  OrganizationMemberManagementView,
-} from './auth0/my-organization/organization-member-management';
+export { OrganizationMemberManagement } from './auth0/my-organization/organization-member-management';
 export {
   OrganizationDetailsEdit,
   OrganizationDetailsEditView,
