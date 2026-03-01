@@ -1,5 +1,5 @@
 /**
- * Logic hook for organization member management - handles UI state and business logic.
+ * Member management UI logic hook.
  * @module use-organization-member-management-logic
  */
 
@@ -12,25 +12,19 @@ export type ActiveTab = 'members' | 'invitations';
 
 export interface UseOrganizationMemberManagementLogicOptions {
   api: UseOrganizationMemberManagementResult;
-  /** Default active tab */
   defaultTab?: ActiveTab;
-  /** Read-only mode */
   readOnly?: boolean;
 }
 
 export interface MemberManagementLogicState {
-  // Tab state
   activeTab: ActiveTab;
-  // Member modals
   showRemoveModal: boolean;
   selectedMember: Member | null;
-  // Invitation modals
   showCreateModal: boolean;
   showDetailsModal: boolean;
   showRevokeModal: boolean;
   showRevokeResendModal: boolean;
   selectedInvitation: Invitation | null;
-  // Loading states (from API)
   isLoading: boolean;
   isFetchingMembers: boolean;
   isFetchingInvitations: boolean;
@@ -38,7 +32,6 @@ export interface MemberManagementLogicState {
   isCreatingInvitation: boolean;
   isRevokingInvitation: boolean;
   isResendingInvitation: boolean;
-  // Data (from API)
   members: Member[];
   invitations: Invitation[];
   invitationPagination: UseOrganizationMemberManagementResult['invitationPagination'];
@@ -48,13 +41,10 @@ export interface MemberManagementLogicState {
 }
 
 export interface MemberManagementHandlers {
-  // Tab handlers
   setActiveTab: (tab: ActiveTab) => void;
-  // Member handlers
   handleRemoveClick: (member: Member) => void;
   handleRemoveConfirm: () => Promise<void>;
   handleRemoveCancel: () => void;
-  // Invitation handlers
   handleCreateClick: () => void;
   handleCreateSubmit: (data: CreateInvitationInput) => Promise<void>;
   handleCreateCancel: () => void;
@@ -67,16 +57,13 @@ export interface MemberManagementHandlers {
   handleRevokeResendConfirm: () => Promise<void>;
   handleRevokeResendCancel: () => void;
   handleCopyUrl: (invitation: Invitation) => Promise<void>;
-  // Pagination & filters
   handlePageChange: (page: number) => void;
   handlePageSizeChange: (pageSize: number) => void;
-  handleSearchChange: (query: string) => void;
   handleRoleFilterChange: (roleId: string | undefined) => void;
 }
 
 /**
  * Logic hook for organization member management.
- * Handles UI state and business logic for both members and invitations.
  * @param options - Hook configuration options.
  * @returns Logic state and handler functions.
  */
@@ -85,21 +72,28 @@ export function useOrganizationMemberManagementLogic(
 ): { logic: MemberManagementLogicState; handlers: MemberManagementHandlers } {
   const { api, defaultTab = 'members', readOnly = false } = options;
 
-  // Tab state
   const [activeTab, setActiveTab] = React.useState<ActiveTab>(defaultTab);
+  const fetchedTabsRef = React.useRef<Set<ActiveTab>>(new Set());
 
-  // Member modal state
+  React.useEffect(() => {
+    if (fetchedTabsRef.current.has(activeTab)) return;
+    fetchedTabsRef.current.add(activeTab);
+
+    if (activeTab === 'members') {
+      void api.fetchMembers();
+    } else {
+      void api.fetchInvitations();
+    }
+  }, [activeTab, api.fetchMembers, api.fetchInvitations]);
+
   const [showRemoveModal, setShowRemoveModal] = React.useState(false);
   const [selectedMember, setSelectedMember] = React.useState<Member | null>(null);
-
-  // Invitation modal state
   const [showCreateModal, setShowCreateModal] = React.useState(false);
   const [showDetailsModal, setShowDetailsModal] = React.useState(false);
   const [showRevokeModal, setShowRevokeModal] = React.useState(false);
   const [showRevokeResendModal, setShowRevokeResendModal] = React.useState(false);
   const [selectedInvitation, setSelectedInvitation] = React.useState<Invitation | null>(null);
 
-  // ========== MEMBER HANDLERS ==========
   const handleRemoveClick = React.useCallback(
     (member: Member) => {
       if (readOnly) return;
@@ -123,7 +117,6 @@ export function useOrganizationMemberManagementLogic(
     setSelectedMember(null);
   }, []);
 
-  // ========== INVITATION HANDLERS ==========
   const handleCreateClick = React.useCallback(() => {
     if (readOnly) return;
     setShowCreateModal(true);
@@ -209,25 +202,16 @@ export function useOrganizationMemberManagementLogic(
     }
   }, []);
 
-  // ========== PAGINATION & FILTER HANDLERS ==========
   const handlePageChange = React.useCallback(
     (page: number) => {
-      void api.fetchInvitations(page);
+      api.setInvitationPagination((prev) => ({ ...prev, currentPage: page }));
     },
     [api],
   );
 
   const handlePageSizeChange = React.useCallback(
     (pageSize: number) => {
-      api.setInvitationPagination((prev) => ({ ...prev, pageSize }));
-      void api.fetchInvitations(1);
-    },
-    [api],
-  );
-
-  const handleSearchChange = React.useCallback(
-    (query: string) => {
-      api.setInvitationFilters((prev) => ({ ...prev, searchQuery: query }));
+      api.setInvitationPagination((prev) => ({ ...prev, pageSize, currentPage: 1 }));
     },
     [api],
   );
@@ -235,11 +219,11 @@ export function useOrganizationMemberManagementLogic(
   const handleRoleFilterChange = React.useCallback(
     (roleId: string | undefined) => {
       api.setInvitationFilters((prev) => ({ ...prev, roleId }));
+      api.setInvitationPagination((prev) => ({ ...prev, currentPage: 1 }));
     },
     [api],
   );
 
-  // Build logic state
   const logic: MemberManagementLogicState = {
     activeTab,
     showRemoveModal,
@@ -264,7 +248,6 @@ export function useOrganizationMemberManagementLogic(
     availableProviders: api.availableProviders,
   };
 
-  // Build handlers
   const handlers: MemberManagementHandlers = {
     setActiveTab,
     handleRemoveClick,
@@ -284,7 +267,6 @@ export function useOrganizationMemberManagementLogic(
     handleCopyUrl,
     handlePageChange,
     handlePageSizeChange,
-    handleSearchChange,
     handleRoleFilterChange,
   };
 

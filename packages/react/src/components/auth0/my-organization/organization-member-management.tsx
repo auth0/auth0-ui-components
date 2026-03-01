@@ -44,9 +44,7 @@ export interface OrganizationMemberManagementViewProps {
 }
 
 /**
- * OrganizationMemberManagementView Component (View)
- *
- * Stateless view component that receives logic and handlers from props.
+ * View component for organization member management.
  * @param props - The component props.
  * @returns The component.
  */
@@ -77,7 +75,7 @@ export function OrganizationMemberManagementView({
                 ? [
                     {
                       type: 'button',
-                      label: t('invitation.create.submit_button'),
+                      label: t('invite_button'),
                       onClick: handlers.handleCreateClick,
                       icon: Plus,
                       disabled: logic.readOnly,
@@ -124,14 +122,12 @@ export function OrganizationMemberManagementView({
             onRevoke={logic.readOnly ? undefined : handlers.handleRevokeClick}
             onPageChange={handlers.handlePageChange}
             onPageSizeChange={handlers.handlePageSizeChange}
-            onSearchChange={handlers.handleSearchChange}
             onRoleFilterChange={handlers.handleRoleFilterChange}
             className={currentStyles.classes?.['OrganizationInvitationTab-table']}
           />
         </TabsContent>
       </Tabs>
 
-      {/* Member Remove Modal */}
       <OrganizationMemberRemoveModal
         member={logic.selectedMember}
         isOpen={logic.showRemoveModal}
@@ -142,7 +138,6 @@ export function OrganizationMemberManagementView({
         className={currentStyles.classes?.['OrganizationMemberTab-removeModal']}
       />
 
-      {/* Invitation Create Modal */}
       <OrganizationInvitationCreateModal
         isOpen={logic.showCreateModal}
         isLoading={logic.isCreatingInvitation}
@@ -154,7 +149,6 @@ export function OrganizationMemberManagementView({
         className={currentStyles.classes?.['OrganizationInvitationTab-createModal']}
       />
 
-      {/* Invitation Details Modal */}
       <OrganizationInvitationDetailsModal
         invitation={logic.selectedInvitation}
         isOpen={logic.showDetailsModal}
@@ -169,7 +163,6 @@ export function OrganizationMemberManagementView({
         className={currentStyles.classes?.['OrganizationInvitationTab-detailsModal']}
       />
 
-      {/* Invitation Revoke Modal */}
       <OrganizationInvitationRevokeModal
         invitation={logic.selectedInvitation}
         isOpen={logic.showRevokeModal}
@@ -180,7 +173,6 @@ export function OrganizationMemberManagementView({
         className={currentStyles.classes?.['OrganizationInvitationTab-revokeModal']}
       />
 
-      {/* Invitation Revoke and Resend Modal */}
       <OrganizationInvitationRevokeModal
         invitation={logic.selectedInvitation}
         isOpen={logic.showRevokeResendModal}
@@ -196,9 +188,7 @@ export function OrganizationMemberManagementView({
 }
 
 /**
- * OrganizationMemberManagement Container Component
- *
- * Manages state and passes logic/handlers to the view component.
+ * Container component for organization member management.
  * @param props - The component props.
  * @returns The component.
  */
@@ -212,14 +202,12 @@ function OrganizationMemberManagementContainer(props: OrganizationMemberManageme
     readOnly = false,
   } = props;
 
-  // API hook - handles all data fetching and mutations
   const api = useOrganizationMemberManagement({
     customMessages,
     availableRoles: invitationProps.availableRoles,
     availableProviders: invitationProps.availableProviders,
   });
 
-  // Logic hook - handles UI state and business logic
   const { logic, handlers } = useOrganizationMemberManagementLogic({
     api,
     defaultTab:
@@ -231,7 +219,6 @@ function OrganizationMemberManagementContainer(props: OrganizationMemberManageme
     readOnly,
   });
 
-  // Extend logic with component props
   const extendedLogic = {
     ...logic,
     styling,
@@ -243,10 +230,6 @@ function OrganizationMemberManagementContainer(props: OrganizationMemberManageme
   return <OrganizationMemberManagementView logic={extendedLogic} handlers={handlers} />;
 }
 
-/**
- * OrganizationMemberManagement — Public component
- * Wrapped with HOC for OAuth scope management.
- */
 export const OrganizationMemberManagement: React.ComponentType<OrganizationMemberManagementProps> =
   withMyOrganizationService(
     OrganizationMemberManagementContainer,

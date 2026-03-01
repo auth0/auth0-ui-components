@@ -8,10 +8,11 @@ import * as React from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
+import type { ComboboxOption } from '@/components/ui/combobox';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -32,6 +33,8 @@ import type {
   IdentityProviderOption,
   OrganizationInvitationTabMessages,
 } from '@/types';
+
+const MAX_EMAILS = 10;
 
 export interface OrganizationInvitationCreateModalProps {
   isOpen: boolean;
@@ -56,8 +59,7 @@ function isValidEmail(email: string): boolean {
 }
 
 /**
- * Modal for creating a new invitation.
- * Supports multiple email addresses, role selection, and provider selection.
+ * Modal for creating new invitations.
  * @param root0 - The component props.
  * @param root0.isOpen - Whether the modal is open.
  * @param root0.isLoading - Whether the form is loading.
@@ -89,6 +91,36 @@ export function OrganizationInvitationCreateModal({
   const [selectedProvider, setSelectedProvider] = React.useState<string | undefined>();
   const [emailError, setEmailError] = React.useState<string | undefined>();
 
+  const roleOptions: ComboboxOption[] = React.useMemo(
+    () => availableRoles.map((role) => ({ label: role.name, value: role.id })),
+    [availableRoles],
+  );
+
+  const addEmail = React.useCallback(
+    (raw: string) => {
+      const trimmed = raw.trim().replace(/,/g, '');
+      if (!trimmed) return;
+
+      if (!isValidEmail(trimmed)) {
+        setEmailError(t('invitation.create.email_invalid_error'));
+        return;
+      }
+      if (emails.includes(trimmed)) {
+        setEmailError(t('invitation.create.email_duplicate_error'));
+        return;
+      }
+      if (emails.length >= MAX_EMAILS) {
+        setEmailError(t('invitation.create.email_limit_error'));
+        return;
+      }
+
+      setEmails((prev) => [...prev, trimmed]);
+      setEmailInput('');
+      setEmailError(undefined);
+    },
+    [emails, t],
+  );
+
   const handleEmailInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setEmailInput(e.target.value);
     setEmailError(undefined);
@@ -98,43 +130,17 @@ export function OrganizationInvitationCreateModal({
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
         e.preventDefault();
-        const trimmedEmail = emailInput.trim().replace(/,/g, '');
-
-        if (trimmedEmail) {
-          if (!isValidEmail(trimmedEmail)) {
-            setEmailError('Please enter a valid email address');
-            return;
-          }
-
-          if (emails.includes(trimmedEmail)) {
-            setEmailError('This email has already been added');
-            return;
-          }
-
-          setEmails((prev) => [...prev, trimmedEmail]);
-          setEmailInput('');
-          setEmailError(undefined);
-        }
+        addEmail(emailInput);
+      }
+      if (e.key === 'Backspace' && !emailInput && emails.length > 0) {
+        setEmails((prev) => prev.slice(0, -1));
       }
     },
-    [emailInput, emails],
+    [emailInput, emails, addEmail],
   );
 
   const handleRemoveEmail = React.useCallback((emailToRemove: string) => {
-    setEmails((prev) => prev.filter((email) => email !== emailToRemove));
-  }, []);
-
-  const handleRoleChange = React.useCallback((value: string) => {
-    if (value === 'none') {
-      setSelectedRoles([]);
-    } else {
-      setSelectedRoles((prev) => {
-        if (prev.includes(value)) {
-          return prev.filter((r) => r !== value);
-        }
-        return [...prev, value];
-      });
-    }
+    setEmails((prev) => prev.filter((e) => e !== emailToRemove));
   }, []);
 
   const handleProviderChange = React.useCallback((value: string) => {
@@ -142,39 +148,35 @@ export function OrganizationInvitationCreateModal({
   }, []);
 
   const handleSubmit = React.useCallback(
-    async (e: React.FormEvent) => {
+    (e: React.FormEvent) => {
       e.preventDefault();
 
-      // Add any remaining input to emails
       const finalEmails = [...emails];
       if (emailInput.trim()) {
-        const trimmedEmail = emailInput.trim();
-        if (isValidEmail(trimmedEmail) && !emails.includes(trimmedEmail)) {
-          finalEmails.push(trimmedEmail);
+        const trimmed = emailInput.trim();
+        if (isValidEmail(trimmed) && !emails.includes(trimmed)) {
+          finalEmails.push(trimmed);
         }
       }
 
       if (finalEmails.length === 0) {
-        setEmailError('Please enter at least one email address');
+        setEmailError(t('invitation.create.email_required_error'));
         return;
       }
 
-      // Create invitations for each email
       for (const email of finalEmails) {
-        const invitationData: CreateInvitationInput = {
+        const data: CreateInvitationInput = {
           invitee: { email },
           roles: selectedRoles.length > 0 ? selectedRoles : undefined,
           identity_provider_id: selectedProvider,
         };
-
         if (inviterName) {
-          invitationData.inviter = { name: inviterName };
+          data.inviter = { name: inviterName };
         }
-
-        onCreate(invitationData);
+        onCreate(data);
       }
     },
-    [emails, emailInput, selectedRoles, selectedProvider, inviterName, onCreate],
+    [emails, emailInput, selectedRoles, selectedProvider, inviterName, onCreate, t],
   );
 
   const handleClose = React.useCallback(() => {
@@ -186,7 +188,8 @@ export function OrganizationInvitationCreateModal({
     onClose();
   }, [onClose]);
 
-  const canSubmit = emails.length > 0 || (emailInput.trim() && isValidEmail(emailInput.trim()));
+  const canSubmit =
+    emails.length > 0 || (emailInput.trim() !== '' && isValidEmail(emailInput.trim()));
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -194,109 +197,66 @@ export function OrganizationInvitationCreateModal({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>{t('invitation.create.title')}</DialogTitle>
-            <DialogDescription>{t('invitation.create.description')}</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            {/* Email Input */}
             <div className="space-y-2">
-              <Label htmlFor="email">{t('invitation.create.email_label')}</Label>
+              <Label htmlFor="email">
+                {t('invitation.create.email_label')}
+                <span className="text-destructive">*</span>
+              </Label>
               <TextField
                 id="email"
-                type="text"
-                placeholder={t('invitation.create.email_placeholder')}
                 value={emailInput}
                 onChange={handleEmailInputChange}
                 onKeyDown={handleEmailInputKeyDown}
-                disabled={isLoading}
+                placeholder={emails.length === 0 ? t('invitation.create.email_placeholder') : ''}
+                disabled={isLoading || emails.length >= MAX_EMAILS}
                 error={!!emailError}
                 helperText={emailError ?? t('invitation.create.email_helper')}
-              />
-
-              {/* Email Tags */}
-              {emails.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {emails.map((email) => (
-                    <Badge key={email} variant="secondary" className="flex items-center gap-1 pr-1">
-                      {email}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveEmail(email)}
-                        className="hover:bg-muted rounded p-0.5"
-                        disabled={isLoading}
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Roles Dropdown */}
-            {availableRoles.length > 0 && (
-              <div className="space-y-2">
-                <Label htmlFor="roles">{t('invitation.create.roles_label')}</Label>
-                <Select
-                  value={selectedRoles.length > 0 ? selectedRoles[0] : 'none'}
-                  onValueChange={handleRoleChange}
-                >
-                  <SelectTrigger id="roles">
-                    <SelectValue placeholder={t('invitation.create.roles_placeholder')}>
-                      {selectedRoles.length > 0
-                        ? availableRoles
-                            .filter((r) => selectedRoles.includes(r.id))
-                            .map((r) => r.name)
-                            .join(', ')
-                        : t('invitation.create.roles_placeholder')}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">{t('invitation.create.roles_placeholder')}</SelectItem>
-                    {availableRoles.map((role) => (
-                      <SelectItem key={role.id} value={role.id}>
-                        {role.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* Selected Role Tags */}
-                {selectedRoles.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {selectedRoles.map((roleId) => {
-                      const role = availableRoles.find((r) => r.id === roleId);
-                      return role ? (
-                        <Badge
-                          key={roleId}
-                          variant="outline"
-                          className="flex items-center gap-1 pr-1"
-                        >
-                          {role.name}
+                startAdornment={
+                  emails.length > 0 ? (
+                    <div className="flex flex-wrap gap-1 py-0.5">
+                      {emails.map((email) => (
+                        <Badge key={email} variant="secondary" size="sm" className="gap-1">
+                          {email}
                           <button
                             type="button"
-                            onClick={() =>
-                              setSelectedRoles((prev) => prev.filter((r) => r !== roleId))
-                            }
-                            className="hover:bg-muted rounded p-0.5"
+                            onClick={() => handleRemoveEmail(email)}
+                            className="hover:bg-muted rounded-full p-0.5"
                             disabled={isLoading}
+                            aria-label={`Remove ${email}`}
                           >
                             <X className="h-3 w-3" />
                           </button>
                         </Badge>
-                      ) : null;
-                    })}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  ) : undefined
+                }
+                className={emails.length > 0 ? 'h-auto min-h-10 flex-wrap py-0.5 pl-1.5' : ''}
+              />
+            </div>
+
+            {availableRoles.length > 0 && (
+              <div className="space-y-2">
+                <Label>{t('invitation.create.roles_label')}</Label>
+                <Combobox
+                  value={selectedRoles}
+                  onChange={(val) => setSelectedRoles(Array.isArray(val) ? val : [val])}
+                  options={roleOptions}
+                  multiple
+                  placeholder={t('invitation.create.roles_placeholder')}
+                  disabled={isLoading}
+                />
               </div>
             )}
 
-            {/* Provider Dropdown */}
             {availableProviders.length > 0 && (
               <div className="space-y-2">
-                <Label htmlFor="provider">{t('invitation.create.provider_label')}</Label>
+                <Label>{t('invitation.create.provider_label')}</Label>
                 <Select value={selectedProvider ?? 'none'} onValueChange={handleProviderChange}>
-                  <SelectTrigger id="provider">
+                  <SelectTrigger>
                     <SelectValue placeholder={t('invitation.create.provider_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
@@ -310,6 +270,9 @@ export function OrganizationInvitationCreateModal({
                     ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">
+                  {t('invitation.create.provider_helper')}
+                </p>
               </div>
             )}
           </div>
@@ -319,7 +282,7 @@ export function OrganizationInvitationCreateModal({
               {t('invitation.create.cancel_button')}
             </Button>
             <Button type="submit" disabled={isLoading || !canSubmit}>
-              {isLoading ? 'Creating...' : t('invitation.create.submit_button')}
+              {t('invitation.create.submit_button')}
             </Button>
           </DialogFooter>
         </form>

@@ -1,10 +1,11 @@
 /**
- * API hook for organization member management - handles both members and invitations API calls.
+ * Member management data and mutations hook.
  * @module use-organization-member-management
  */
 
 import { getStatusCode, type MemberInvitation } from '@auth0/universal-components-core';
-import * as React from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useCallback } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
@@ -23,11 +24,15 @@ import type {
 
 const DEFAULT_PAGE_SIZE = 10;
 
+export const memberManagementQueryKeys = {
+  all: ['member-management'] as const,
+  members: () => [...memberManagementQueryKeys.all, 'members'] as const,
+  invitations: () => [...memberManagementQueryKeys.all, 'invitations'] as const,
+};
+
 export interface UseOrganizationMemberManagementOptions {
   customMessages?: OrganizationMemberManagementMessages;
-  /** Available roles for invitations */
   availableRoles?: RoleOption[];
-  /** Available identity providers for invitations */
   availableProviders?: IdentityProviderOption[];
 }
 
@@ -91,8 +96,7 @@ function mapMemberInvitationToInvitation(memberInvitation: MemberInvitation): In
 }
 
 /**
- * API hook for organization member management.
- * Handles all API calls for both members and invitations.
+ * Hook for organization member management data and mutations.
  * @param options - Hook configuration options.
  * @returns Member management state and actions.
  */
@@ -104,232 +108,236 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   } = options;
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const queryClient = useQueryClient();
 
-  // ========== MEMBER STATE ==========
-  const [members, setMembers] = React.useState<Member[]>([]);
-  const [isFetchingMembers, setIsFetchingMembers] = React.useState(false);
-  const [isRemovingMember, setIsRemovingMember] = React.useState(false);
+  const [invitationPagination, setInvitationPagination] = useState<InvitationPaginationState>({
+    currentPage: 1,
+    pageSize: DEFAULT_PAGE_SIZE,
+    totalItems: 0,
+    totalPages: 0,
+  });
+  const [invitationFilters, setInvitationFilters] = useState<InvitationFilterState>({});
+  const [availableRoles] = useState<RoleOption[]>(providedRoles);
+  const [availableProviders] = useState<IdentityProviderOption[]>(providedProviders);
 
-  // ========== INVITATION STATE ==========
-  const [invitations, setInvitations] = React.useState<Invitation[]>([]);
-  const [isFetchingInvitations, setIsFetchingInvitations] = React.useState(false);
-  const [isCreatingInvitation, setIsCreatingInvitation] = React.useState(false);
-  const [isRevokingInvitation, setIsRevokingInvitation] = React.useState(false);
-  const [isResendingInvitation, setIsResendingInvitation] = React.useState(false);
-
-  const [invitationPagination, setInvitationPagination] = React.useState<InvitationPaginationState>(
-    {
-      currentPage: 1,
-      pageSize: DEFAULT_PAGE_SIZE,
-      totalItems: 0,
-      totalPages: 0,
+  const membersQuery = useQuery({
+    queryKey: memberManagementQueryKeys.members(),
+    queryFn: async () => {
+      const response = await coreClient!.getMyOrganizationApiClient().organization.members.list();
+      return (response.members ?? []).map(mapOrgMemberToMember);
     },
+    enabled: false,
+  });
+
+  const invitationsQuery = useQuery({
+    queryKey: memberManagementQueryKeys.invitations(),
+    queryFn: async () => {
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.invitations.list();
+
+      const allInvitations: Invitation[] = [];
+      for await (const invitation of response) {
+        allInvitations.push(mapMemberInvitationToInvitation(invitation));
+      }
+      return allInvitations;
+    },
+    enabled: false,
+  });
+
+  const allInvitations = invitationsQuery.data ?? [];
+
+  const filteredInvitations = (() => {
+    let result = allInvitations;
+    if (invitationFilters.searchQuery) {
+      const query = invitationFilters.searchQuery.toLowerCase();
+      result = result.filter((inv) => inv.invitee.email.toLowerCase().includes(query));
+    }
+    if (invitationFilters.roleId) {
+      result = result.filter((inv) => inv.roles?.includes(invitationFilters.roleId!));
+    }
+    return result;
+  })();
+
+  const totalItems = filteredInvitations.length;
+  const totalPages = Math.ceil(totalItems / invitationPagination.pageSize);
+  const startIndex = (invitationPagination.currentPage - 1) * invitationPagination.pageSize;
+  const paginatedInvitations = filteredInvitations.slice(
+    startIndex,
+    startIndex + invitationPagination.pageSize,
   );
 
-  const [invitationFilters, setInvitationFilters] = React.useState<InvitationFilterState>({});
-  const [availableRoles] = React.useState<RoleOption[]>(providedRoles);
-  const [availableProviders] = React.useState<IdentityProviderOption[]>(providedProviders);
-
-  // ========== MEMBER API CALLS ==========
-  const fetchMembers = React.useCallback(async () => {
+  const fetchMembers = useCallback(async () => {
     if (!coreClient) return;
-
-    setIsFetchingMembers(true);
     try {
-      const response = await coreClient.getMyOrganizationApiClient().organization.members.list();
-      const mappedMembers = (response.members ?? []).map(mapOrgMemberToMember);
-      setMembers(mappedMembers);
+      await membersQuery.refetch();
     } catch (error) {
       const status = getStatusCode(error);
       if (status !== 404) {
         showToast({ type: 'error', message: t('member.error.fetch_failed') });
       }
-      setMembers([]);
-    } finally {
-      setIsFetchingMembers(false);
     }
-  }, [coreClient, t]);
+  }, [coreClient, membersQuery, t]);
 
-  const removeMember = React.useCallback(
-    async (member: Member): Promise<boolean> => {
-      if (!coreClient) return false;
-
-      setIsRemovingMember(true);
-      try {
-        await coreClient
-          .getMyOrganizationApiClient()
-          .organization.members.delete(member.user_id, { delete_user: false });
-        setMembers((prev) => prev.filter((m) => m.user_id !== member.user_id));
-        showToast({
-          type: 'success',
-          message: t('member.remove.success', { name: member.name ?? member.email ?? '' }),
-        });
-        return true;
-      } catch (error) {
-        showToast({ type: 'error', message: t('member.error.remove_failed') });
-        return false;
-      } finally {
-        setIsRemovingMember(false);
-      }
-    },
-    [coreClient, t],
-  );
-
-  // ========== INVITATION API CALLS ==========
-  const fetchInvitations = React.useCallback(
-    async (page = 1, filters?: InvitationFilterState) => {
+  const fetchInvitations = useCallback(
+    async (page = 1) => {
       if (!coreClient) return;
-
-      setIsFetchingInvitations(true);
       try {
-        const response = await coreClient
-          .getMyOrganizationApiClient()
-          .organization.invitations.list();
-
-        // SDK returns an async iterable, collect all invitations
-        const allInvitations: Invitation[] = [];
-        for await (const invitation of response) {
-          allInvitations.push(mapMemberInvitationToInvitation(invitation));
-        }
-
-        // Apply filters
-        let filteredInvitations = allInvitations;
-        const currentFilters = filters ?? invitationFilters;
-        if (currentFilters.searchQuery) {
-          const query = currentFilters.searchQuery.toLowerCase();
-          filteredInvitations = filteredInvitations.filter((inv: Invitation) =>
-            inv.invitee.email.toLowerCase().includes(query),
-          );
-        }
-
-        const totalItems = filteredInvitations.length;
-        const totalPages = Math.ceil(totalItems / invitationPagination.pageSize);
-        const startIndex = (page - 1) * invitationPagination.pageSize;
-        const paginatedInvitations = filteredInvitations.slice(
-          startIndex,
-          startIndex + invitationPagination.pageSize,
-        );
-
-        setInvitations(paginatedInvitations);
-        setInvitationPagination((prev) => ({ ...prev, currentPage: page, totalItems, totalPages }));
+        await invitationsQuery.refetch();
+        setInvitationPagination((prev) => ({ ...prev, currentPage: page }));
       } catch (error) {
         const status = getStatusCode(error);
         if (status !== 404) {
           showToast({ type: 'error', message: t('invitation.error.fetch_failed') });
         }
-        setInvitations([]);
-      } finally {
-        setIsFetchingInvitations(false);
       }
     },
-    [coreClient, t, invitationFilters, invitationPagination.pageSize],
+    [coreClient, invitationsQuery, t],
   );
 
-  const createInvitation = React.useCallback(
+  const removeMemberMutation = useMutation({
+    mutationFn: async (member: Member) => {
+      await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.members.delete(member.user_id, { delete_user: false });
+      return member;
+    },
+    onSuccess: (member) => {
+      showToast({
+        type: 'success',
+        message: t('member.remove.success', { name: member.name ?? member.email ?? '' }),
+      });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.members() });
+    },
+    onError: () => {
+      showToast({ type: 'error', message: t('member.error.remove_failed') });
+    },
+  });
+
+  const createInvitationMutation = useMutation({
+    mutationFn: async (data: CreateInvitationInput) => {
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.invitations.create({
+          invitee: { email: data.invitee.email },
+          inviter: data.inviter,
+          roles: data.roles,
+          identity_provider_id: data.identity_provider_id,
+          ttl_sec: data.ttl_sec,
+        });
+      return mapMemberInvitationToInvitation(response);
+    },
+    onSuccess: () => {
+      showToast({ type: 'success', message: t('invitation.create.success') });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
+    },
+    onError: () => {
+      showToast({ type: 'error', message: t('invitation.error.create_failed') });
+    },
+  });
+
+  const revokeInvitationMutation = useMutation({
+    mutationFn: async (invitation: Invitation) => {
+      await coreClient!.getMyOrganizationApiClient().organization.invitations.delete(invitation.id);
+      return invitation;
+    },
+    onSuccess: () => {
+      showToast({ type: 'success', message: t('invitation.revoke.success') });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
+    },
+    onError: () => {
+      showToast({ type: 'error', message: t('invitation.error.revoke_failed') });
+    },
+  });
+
+  const resendInvitationMutation = useMutation({
+    mutationFn: async (invitation: Invitation) => {
+      await coreClient!.getMyOrganizationApiClient().organization.invitations.delete(invitation.id);
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.invitations.create({
+          invitee: { email: invitation.invitee.email },
+          roles: invitation.roles,
+          identity_provider_id: invitation.identity_provider_id,
+        });
+      return mapMemberInvitationToInvitation(response);
+    },
+    onSuccess: () => {
+      showToast({ type: 'success', message: t('invitation.success.invitation_resent') });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
+    },
+    onError: () => {
+      showToast({ type: 'error', message: t('invitation.error.resend_failed') });
+    },
+  });
+
+  const removeMember = useCallback(
+    async (member: Member): Promise<boolean> => {
+      if (!coreClient) return false;
+      try {
+        await removeMemberMutation.mutateAsync(member);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [coreClient, removeMemberMutation],
+  );
+
+  const createInvitation = useCallback(
     async (data: CreateInvitationInput): Promise<Invitation | null> => {
       if (!coreClient) return null;
-
-      setIsCreatingInvitation(true);
       try {
-        const response = await coreClient
-          .getMyOrganizationApiClient()
-          .organization.invitations.create({
-            invitee: { email: data.invitee.email },
-            inviter: data.inviter,
-            roles: data.roles,
-            identity_provider_id: data.identity_provider_id,
-            ttl_sec: data.ttl_sec,
-          });
-        const newInvitation = mapMemberInvitationToInvitation(response);
-        showToast({ type: 'success', message: t('invitation.create.success') });
-        void fetchInvitations();
-        return newInvitation;
-      } catch (error) {
-        showToast({ type: 'error', message: t('invitation.error.create_failed') });
+        return await createInvitationMutation.mutateAsync(data);
+      } catch {
         return null;
-      } finally {
-        setIsCreatingInvitation(false);
       }
     },
-    [coreClient, t, fetchInvitations],
+    [coreClient, createInvitationMutation],
   );
 
-  const revokeInvitation = React.useCallback(
+  const revokeInvitation = useCallback(
     async (invitation: Invitation): Promise<boolean> => {
       if (!coreClient) return false;
-
-      setIsRevokingInvitation(true);
       try {
-        await coreClient
-          .getMyOrganizationApiClient()
-          .organization.invitations.delete(invitation.id);
-        setInvitations((prev) => prev.filter((inv) => inv.id !== invitation.id));
-        showToast({ type: 'success', message: t('invitation.revoke.success') });
+        await revokeInvitationMutation.mutateAsync(invitation);
         return true;
-      } catch (error) {
-        showToast({ type: 'error', message: t('invitation.error.revoke_failed') });
+      } catch {
         return false;
-      } finally {
-        setIsRevokingInvitation(false);
       }
     },
-    [coreClient, t],
+    [coreClient, revokeInvitationMutation],
   );
 
-  const resendInvitation = React.useCallback(
+  const resendInvitation = useCallback(
     async (invitation: Invitation): Promise<Invitation | null> => {
       if (!coreClient) return null;
-
-      setIsResendingInvitation(true);
       try {
-        // Delete and recreate
-        await coreClient
-          .getMyOrganizationApiClient()
-          .organization.invitations.delete(invitation.id);
-        const response = await coreClient
-          .getMyOrganizationApiClient()
-          .organization.invitations.create({
-            invitee: { email: invitation.invitee.email },
-            roles: invitation.roles,
-            identity_provider_id: invitation.identity_provider_id,
-          });
-        const newInvitation = mapMemberInvitationToInvitation(response);
-        showToast({ type: 'success', message: t('invitation.resend.success') });
-        void fetchInvitations();
-        return newInvitation;
-      } catch (error) {
-        showToast({ type: 'error', message: t('invitation.error.resend_failed') });
+        return await resendInvitationMutation.mutateAsync(invitation);
+      } catch {
         return null;
-      } finally {
-        setIsResendingInvitation(false);
       }
     },
-    [coreClient, t, fetchInvitations],
+    [coreClient, resendInvitationMutation],
   );
 
-  // Fetch data on mount
-  React.useEffect(() => {
-    if (coreClient) {
-      void fetchMembers();
-      void fetchInvitations();
-    }
-  }, [coreClient, fetchMembers, fetchInvitations]);
-
   return {
-    // Member state & actions
-    members,
-    isFetchingMembers,
-    isRemovingMember,
+    members: membersQuery.data ?? [],
+    isFetchingMembers: membersQuery.isLoading || membersQuery.isFetching,
+    isRemovingMember: removeMemberMutation.isPending,
     fetchMembers,
     removeMember,
 
-    // Invitation state & actions
-    invitations,
-    isFetchingInvitations,
-    isCreatingInvitation,
-    isRevokingInvitation,
-    isResendingInvitation,
-    invitationPagination,
+    invitations: paginatedInvitations,
+    isFetchingInvitations: invitationsQuery.isLoading || invitationsQuery.isFetching,
+    isCreatingInvitation: createInvitationMutation.isPending,
+    isRevokingInvitation: revokeInvitationMutation.isPending,
+    isResendingInvitation: resendInvitationMutation.isPending,
+    invitationPagination: {
+      ...invitationPagination,
+      totalItems,
+      totalPages,
+    },
     invitationFilters,
     availableRoles,
     availableProviders,

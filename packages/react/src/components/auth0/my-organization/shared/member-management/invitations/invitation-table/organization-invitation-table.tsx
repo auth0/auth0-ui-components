@@ -50,7 +50,6 @@ function getInvitationStatus(invitation: Invitation): InvitationStatus {
  * @param props.onRevoke - Callback when revoking invitation.
  * @param props.onPageChange - Callback when page changes.
  * @param props.onPageSizeChange - Callback when page size changes.
- * @param props.onSearchChange - Callback when search query changes.
  * @param props.onRoleFilterChange - Callback when role filter changes.
  * @param props.className - Optional CSS class name.
  * @returns The invitation table component.
@@ -69,7 +68,6 @@ export function OrganizationInvitationTable({
   onRevoke,
   onPageChange,
   onPageSizeChange,
-  onSearchChange,
   onRoleFilterChange,
   className,
 }: OrganizationInvitationTableProps): React.JSX.Element {
@@ -90,25 +88,13 @@ export function OrganizationInvitationTable({
         render: (invitation) => {
           const status = getInvitationStatus(invitation);
           return (
-            <Badge variant={status === 'pending' ? 'default' : 'secondary'}>
+            <Badge variant={status === 'expired' ? 'warning' : 'success'} size="sm">
               {status === 'pending'
                 ? t('invitation.table.status_pending')
                 : t('invitation.table.status_expired')}
             </Badge>
           );
         },
-      },
-      {
-        type: 'text',
-        accessorKey: 'roles',
-        title: t('invitation.table.columns.roles'),
-        render: (invitation) => invitation.roles?.join(', ') ?? '-',
-      },
-      {
-        type: 'text',
-        accessorKey: 'inviter',
-        title: t('invitation.table.columns.inviter'),
-        render: (invitation) => invitation.inviter?.name ?? '-',
       },
       {
         type: 'date',
@@ -121,6 +107,12 @@ export function OrganizationInvitationTable({
         accessorKey: 'expires_at',
         title: t('invitation.table.columns.expires_at'),
         format: 'medium',
+      },
+      {
+        type: 'text',
+        accessorKey: 'inviter',
+        title: t('invitation.table.columns.inviter'),
+        render: (invitation) => invitation.inviter?.name ?? '-',
       },
       {
         type: 'actions',
@@ -147,7 +139,6 @@ export function OrganizationInvitationTable({
         filters={filters}
         availableRoles={availableRoles}
         customMessages={customMessages}
-        onSearchChange={onSearchChange}
         onRoleFilterChange={onRoleFilterChange}
       />
 

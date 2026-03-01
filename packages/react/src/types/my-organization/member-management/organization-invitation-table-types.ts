@@ -270,7 +270,6 @@ export interface OrganizationInvitationTableProps {
   onRevoke?: (invitation: Invitation) => void;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
-  onSearchChange?: (query: string) => void;
   onRoleFilterChange?: (roleId: string | undefined) => void;
   className?: string;
 }
@@ -281,6 +280,5 @@ export interface InvitationSearchFilterProps {
   availableRoles?: RoleOption[];
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   className?: string;
-  onSearchChange?: (query: string) => void;
   onRoleFilterChange?: (roleId: string | undefined) => void;
 }
