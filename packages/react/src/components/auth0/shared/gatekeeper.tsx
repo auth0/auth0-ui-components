@@ -104,11 +104,8 @@ export function GateKeeper({ isLoading = false, error, onRetry, children }: Gate
   } = useQuery<EnrollmentFactor[]>({
     queryKey: ['mfa-enrollment-factors', mfaToken],
     queryFn: async () => {
-      if (!coreClient || !mfaToken) {
-        throw new Error('CoreClient or MFA token not available');
-      }
-      const stepUpService = coreClient.getStepUpApiService();
-      return stepUpService.getEnrollmentFactors(mfaToken);
+      const stepUpService = coreClient!.getStepUpApiService();
+      return stepUpService.getEnrollmentFactors(mfaToken!);
     },
     enabled: Boolean(
       !isProxyMode &&
@@ -132,11 +129,8 @@ export function GateKeeper({ isLoading = false, error, onRetry, children }: Gate
   } = useQuery<StepUpAuthenticator[]>({
     queryKey: ['mfa-authenticators', mfaToken],
     queryFn: async () => {
-      if (!coreClient || !mfaToken) {
-        throw new Error('CoreClient or MFA token not available');
-      }
-      const stepUpService = coreClient.getStepUpApiService();
-      return stepUpService.getAuthenticators(mfaToken);
+      const stepUpService = coreClient!.getStepUpApiService();
+      return stepUpService.getAuthenticators(mfaToken!);
     },
     enabled: Boolean(
       error &&

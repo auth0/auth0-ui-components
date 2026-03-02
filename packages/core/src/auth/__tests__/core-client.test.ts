@@ -2,6 +2,8 @@ import { initializeMyAccountClient } from '@core/services/my-account/my-account-
 import type { MyAccountClientWithScopes } from '@core/services/my-account/my-account-api-service';
 import { initializeMyOrganizationClient } from '@core/services/my-organization/my-organization-api-service';
 import type { MyOrganizationClientWithScopes } from '@core/services/my-organization/my-organization-api-service';
+import { initializeStepUpApiService } from '@core/services/step-up';
+import type { StepUpApiService } from '@core/services/step-up';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createI18nService } from '../../i18n';
@@ -22,6 +24,7 @@ vi.mock('@core/i18n');
 vi.mock('@core/auth/spa-token-retriever');
 vi.mock('@core/services/my-organization/my-organization-api-service');
 vi.mock('@core/services/my-account/my-account-api-service');
+vi.mock('@core/services/step-up');
 
 describe('createCoreClient', () => {
   // Create mock instances using mock utilities
@@ -29,12 +32,20 @@ describe('createCoreClient', () => {
   const mockTokenManager = createMockSpaTokenRetriever();
   const mockMyOrganizationClient = createMockMyOrganizationClient();
   const mockMyAccountClient = createMockMyAccountClient();
+  const mockStepUpApiService = {
+    getAuthenticators: vi.fn(),
+    enroll: vi.fn(),
+    challenge: vi.fn(),
+    getEnrollmentFactors: vi.fn(),
+    verify: vi.fn(),
+  } as unknown as StepUpApiService;
 
   // Get the mocked functions
   const createI18nServiceMock = vi.mocked(createI18nService);
   const createSpaTokenRetrieverMock = vi.mocked(createSpaTokenRetriever);
   const initializeMyOrganizationClientMock = vi.mocked(initializeMyOrganizationClient);
   const initializeMyAccountClientMock = vi.mocked(initializeMyAccountClient);
+  const initializeStepUpApiServiceMock = vi.mocked(initializeStepUpApiService);
 
   const createAuthDetails = (overrides: Partial<AuthDetails> = {}): AuthDetails => {
     return {
@@ -53,6 +64,7 @@ describe('createCoreClient', () => {
     createSpaTokenRetrieverMock.mockReturnValue(mockTokenManager);
     initializeMyOrganizationClientMock.mockReturnValue(mockMyOrganizationClient);
     initializeMyAccountClientMock.mockReturnValue(mockMyAccountClient);
+    initializeStepUpApiServiceMock.mockReturnValue(mockStepUpApiService);
 
     // Reset token manager mock to return successful token
     vi.mocked(mockTokenManager.getToken).mockResolvedValue('mock-token');
@@ -245,6 +257,49 @@ describe('createCoreClient', () => {
     });
   });
 
+  describe('getDomain', () => {
+    it('returns domain from authDetails when provided', async () => {
+      const authDetails = createAuthDetails({ domain: 'custom.auth0.com' });
+      const client = await createCoreClient(authDetails);
+
+      expect(client.getDomain()).toBe('custom.auth0.com');
+    });
+
+    it('falls back to contextInterface domain when authDetails domain is undefined', async () => {
+      const authDetails = createAuthDetails({ domain: undefined });
+      const client = await createCoreClient(authDetails);
+
+      expect(client.getDomain()).toBe(TEST_DOMAIN);
+    });
+  });
+
+  describe('stepUpApiService access', () => {
+    it('returns stepUpApiService when available via getter', async () => {
+      const authDetails = createAuthDetails();
+      const client = await createCoreClient(authDetails);
+
+      expect(client.getStepUpApiService()).toBe(mockStepUpApiService);
+    });
+
+    it('throws when stepUpApiService is not available', async () => {
+      initializeStepUpApiServiceMock.mockReturnValueOnce(undefined as unknown as StepUpApiService);
+
+      const authDetails = createAuthDetails();
+      const client = await createCoreClient(authDetails);
+
+      expect(() => client.getStepUpApiService()).toThrow(
+        'stepUpApiService is not enabled. Please use it within Auth0ComponentProvider.',
+      );
+    });
+
+    it('exposes stepUpApiService directly on the client', async () => {
+      const authDetails = createAuthDetails();
+      const client = await createCoreClient(authDetails);
+
+      expect(client.stepUpApiService).toBe(mockStepUpApiService);
+    });
+  });
+
   // --- New tests for previewMode ---
   describe('previewMode', () => {
     it('returns a core client with previewMode and disables API clients', async () => {
@@ -287,11 +342,18 @@ describe('createCoreClient', () => {
       expect(() => client.getMyOrganizationApiClient()).toThrow('Function not implemented.');
     });
 
-    it('getDomain not defined in previewMode', async () => {
+    it('getDomain returns undefined in previewMode', async () => {
       const authDetails = { ...createAuthDetails(), previewMode: true };
       const client = await createCoreClient(authDetails);
 
-      expect(() => client.getDomain()).toBeUndefined;
+      expect(client.getDomain()).toBeUndefined();
+    });
+
+    it('getStepUpApiService returns undefined in previewMode', async () => {
+      const authDetails = { ...createAuthDetails(), previewMode: true };
+      const client = await createCoreClient(authDetails);
+
+      expect(client.getStepUpApiService()).toBeUndefined();
     });
   });
 });

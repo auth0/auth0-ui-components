@@ -539,6 +539,27 @@ describe('spa-token-retriever', () => {
           detailedResponse: true,
         });
       });
+
+      it('should return empty audience when URL construction fails', async () => {
+        const contextWithNullDomain = {
+          ...mockContextInterface,
+          getConfiguration: vi.fn().mockReturnValue({ domain: null, clientId: TEST_CLIENT_ID }),
+        };
+        const auth = createAuthConfig({
+          domain: '://invalid',
+          contextInterface: contextWithNullDomain,
+        });
+        const tokenManager = createSpaTokenRetriever(auth);
+        await tokenManager.getToken('read:users', 'management');
+
+        expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith(
+          expect.objectContaining({
+            authorizationParams: expect.objectContaining({
+              audience: '',
+            }),
+          }),
+        );
+      });
     });
   });
 });

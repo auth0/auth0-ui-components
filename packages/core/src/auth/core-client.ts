@@ -54,7 +54,7 @@ export async function createCoreClient(
       },
       stepUpApiService: undefined,
       getStepUpApiService: function () {
-        throw new Error('Function not implemented.');
+        return undefined as unknown as ReturnType<CoreClientInterface['getStepUpApiService']>;
       },
     };
 
