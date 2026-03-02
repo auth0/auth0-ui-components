@@ -174,4 +174,35 @@ describe('Auth0ComponentProvider (SPA)', () => {
     expect(mockUseCoreClientInitialization).toHaveBeenCalled();
     expect(screen.getByTestId('child-content')).toBeInTheDocument();
   });
+
+  describe('when coreClient is not yet initialized', () => {
+    beforeEach(() => {
+      mockUseCoreClientInitialization.mockReturnValue(null as never);
+    });
+
+    it('should render default spinner when no custom loader is provided', () => {
+      render(
+        <Auth0ComponentProvider authDetails={{}}>
+          <div data-testid="child-content">Test Content</div>
+        </Auth0ComponentProvider>,
+      );
+
+      expect(screen.queryByTestId('child-content')).not.toBeInTheDocument();
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
+    });
+
+    it('should render custom loader when provided', () => {
+      render(
+        <Auth0ComponentProvider
+          authDetails={{}}
+          loader={<div data-testid="custom-loader">Custom Loading...</div>}
+        >
+          <div data-testid="child-content">Test Content</div>
+        </Auth0ComponentProvider>,
+      );
+
+      expect(screen.queryByTestId('child-content')).not.toBeInTheDocument();
+      expect(screen.getByTestId('custom-loader')).toBeInTheDocument();
+    });
+  });
 });

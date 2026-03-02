@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
 import { Auth0ComponentProvider } from '@/providers/proxy-provider';
 
 vi.mock('@/hooks/shared/use-core-client-initialization', () => ({
@@ -10,6 +11,8 @@ vi.mock('@/hooks/shared/use-core-client-initialization', () => ({
     error: undefined,
   })),
 }));
+
+const mockUseCoreClientInitialization = vi.mocked(useCoreClientInitialization);
 
 vi.mock('@/components/auth0/shared/sonner', () => ({
   Toaster: () => <div data-testid="toaster" />,
@@ -103,5 +106,36 @@ describe('Auth0ComponentProvider', () => {
     );
 
     expect(screen.getByTestId('theme-provider')).toBeInTheDocument();
+  });
+
+  describe('when coreClient is not yet initialized', () => {
+    beforeEach(() => {
+      mockUseCoreClientInitialization.mockReturnValue(null as never);
+    });
+
+    it('should render default spinner when no custom loader is provided', () => {
+      render(
+        <Auth0ComponentProvider authDetails={{ authProxyUrl: '/api/auth' }}>
+          <div data-testid="child-content">Test Content</div>
+        </Auth0ComponentProvider>,
+      );
+
+      expect(screen.queryByTestId('child-content')).not.toBeInTheDocument();
+      expect(screen.getByTestId('spinner')).toBeInTheDocument();
+    });
+
+    it('should render custom loader when provided', () => {
+      render(
+        <Auth0ComponentProvider
+          authDetails={{ authProxyUrl: '/api/auth' }}
+          loader={<div data-testid="custom-loader">Custom Loading...</div>}
+        >
+          <div data-testid="child-content">Test Content</div>
+        </Auth0ComponentProvider>,
+      );
+
+      expect(screen.queryByTestId('child-content')).not.toBeInTheDocument();
+      expect(screen.getByTestId('custom-loader')).toBeInTheDocument();
+    });
   });
 });
