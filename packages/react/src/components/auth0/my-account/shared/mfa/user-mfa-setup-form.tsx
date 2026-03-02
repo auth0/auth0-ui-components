@@ -1,3 +1,9 @@
+/**
+ * MFA setup form with factor selection.
+ * @module user-mfa-setup-form
+ * @internal
+ */
+
 import {
   type MFAType,
   FACTOR_TYPE_EMAIL,
@@ -39,6 +45,21 @@ type EnrollmentPhase =
   | typeof SHOW_RECOVERY_CODE
   | null;
 
+/**
+ *
+ * @param props - Component props.
+ * @param props.open - Whether the component is open/visible
+ * @param props.onClose - Callback fired when the component should close
+ * @param props.factorType - The MFA factor type
+ * @param props.enrollMfa - Function to enroll a new MFA factor
+ * @param props.confirmEnrollment - Function to confirm MFA enrollment
+ * @param props.onSuccess - Callback fired on successful operation
+ * @param props.onError - Callback fired when an error occurs
+ * @param props.schema - Zod validation schema
+ * @param props.styling - Custom styling configuration with variables and classes
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @returns JSX element
+ */
 export function UserMFASetupForm({
   open,
   onClose,

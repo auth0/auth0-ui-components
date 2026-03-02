@@ -1,3 +1,9 @@
+/**
+ * Multi-step progress stepper component.
+ * @module stepper
+ * @internal
+ */
+
 'use client';
 
 import { Check } from 'lucide-react';

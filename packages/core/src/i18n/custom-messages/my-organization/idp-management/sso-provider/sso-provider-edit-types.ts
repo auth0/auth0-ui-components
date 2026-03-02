@@ -1,3 +1,8 @@
+/**
+ * Custom message type definitions for SSO provider edit component.
+ * @module sso-provider-edit-types
+ * @internal
+ */
 import type { SsoDomainTabMessages } from '../sso-domain/sso-domain-tab-types';
 import type { SsoProvisioningTabMessages } from '../sso-provisioning/sso-provisioning-tab-types';
 

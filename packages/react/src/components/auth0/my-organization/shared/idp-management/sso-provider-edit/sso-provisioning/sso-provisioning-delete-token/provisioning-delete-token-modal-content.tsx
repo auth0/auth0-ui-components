@@ -1,7 +1,21 @@
+/**
+ * SCIM token deletion modal content.
+ * @module provisioning-delete-token-modal-content
+ * @internal
+ */
+
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { ProvisioningDeleteTokenModalContentProps } from '@/types/my-organization/idp-management/sso-provisioning/provisioning-token-types';
 
+/**
+ *
+ * @param props - Component props.
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @param props.className - Optional CSS class name for styling
+ * @param props.tokenId - Token identifier
+ * @returns JSX element
+ */
 export function ProvisioningDeleteTokenModalContent({
   customMessages = {},
   className,

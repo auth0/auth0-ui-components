@@ -1,3 +1,9 @@
+/**
+ * SAML-P logo icon component.
+ * @module sampl-logo
+ * @internal
+ */
+
 import { SamlpLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 

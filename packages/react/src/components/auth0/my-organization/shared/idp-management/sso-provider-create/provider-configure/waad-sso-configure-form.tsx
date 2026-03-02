@@ -1,3 +1,9 @@
+/**
+ * Azure AD (WAAD) SSO provider configuration form.
+ * @module waad-sso-configure-form
+ * @internal
+ */
+
 import {
   createProviderConfigureSchema,
   type WaadConfigureFormValues,

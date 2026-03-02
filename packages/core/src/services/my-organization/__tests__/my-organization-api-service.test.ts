@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import type { AuthDetails } from '../../../auth/auth-types';
-import type { createTokenManager } from '../../../auth/token-manager';
+import type { createSpaTokenRetriever } from '../../../auth/spa-token-retriever';
 import {
   createMockFetch,
   getConfigFromMockCalls,
@@ -394,7 +394,7 @@ describe('initializeMyOrganizationClient', () => {
 
       it('should not add Authorization header when token is undefined', async () => {
         // Create a fresh mock that actually returns undefined
-        const tokenManagerUndefined: ReturnType<typeof createTokenManager> = {
+        const tokenManagerUndefined: ReturnType<typeof createSpaTokenRetriever> = {
           getToken: vi.fn(async () => undefined),
         };
         initializeMyOrganizationClient(mockAuthWithDomain, tokenManagerUndefined);

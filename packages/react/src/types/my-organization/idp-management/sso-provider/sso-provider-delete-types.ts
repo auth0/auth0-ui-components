@@ -1,3 +1,8 @@
+/**
+ * SSO provider delete types.
+ * @module sso-provider-delete-types
+ */
+
 import type {
   SharedComponentProps,
   SsoProvideDeleteMessages,
@@ -7,18 +12,24 @@ import type {
   SsoProvideRemoveMessages,
 } from '@auth0/universal-components-core';
 
+/** CSS classes for SsoProviderDelete. */
 export interface SsoProviderDeleteClasses {
   'ProviderDelete-root'?: string;
 }
+
+/** CSS classes for SsoProviderRemove. */
 export interface SsoProviderRemoveClasses {
   'ProviderRemove-root'?: string;
 }
+
+/** Props for SsoProviderDeleteModalContent. */
 export interface SsoProviderDeleteModalContentProps
   extends SharedComponentProps<SsoProviderDeleteModalContentMessages, SsoProviderDeleteClasses> {
   onChange: (value: string) => void;
   className?: string;
 }
 
+/** Props for SsoProviderDelete component. */
 export interface SsoProviderDeleteProps
   extends SharedComponentProps<
     SsoProvideDeleteMessages,
@@ -30,6 +41,7 @@ export interface SsoProviderDeleteProps
   isLoading?: boolean;
 }
 
+/** Props for SsoProviderDeleteModal. */
 export interface SsoProviderDeleteModalProps
   extends SharedComponentProps<
     SsoProvideDeleteMessages,
@@ -44,6 +56,7 @@ export interface SsoProviderDeleteModalProps
   isLoading?: boolean;
 }
 
+/** Props for SsoProviderRemoveFromOrganization. */
 export interface SsoProviderRemoveFromOrganizationProps
   extends SharedComponentProps<
     SsoProvideRemoveMessages,

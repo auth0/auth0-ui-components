@@ -1,3 +1,9 @@
+/**
+ * SCIM token deletion modal.
+ * @module provisioning-delete-token-modal
+ * @internal
+ */
+
 import React from 'react';
 
 import { ProvisioningDeleteTokenModalContent } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal-content';
@@ -5,6 +11,17 @@ import { Modal } from '@/components/ui/modal';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { ProvisioningDeleteTokenModalProps } from '@/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
 
+/**
+ *
+ * @param props - Component props.
+ * @param props.open - Whether the component is open/visible
+ * @param props.onOpenChange - Callback fired when open state changes
+ * @param props.tokenId - Token identifier
+ * @param props.onConfirm - Callback fired when the action is confirmed
+ * @param props.isLoading - Whether the component is in a loading state
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @returns JSX element
+ */
 export function ProvisioningDeleteTokenModal({
   open,
   onOpenChange,

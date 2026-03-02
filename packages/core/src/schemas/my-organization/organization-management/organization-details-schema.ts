@@ -1,10 +1,18 @@
+/**
+ * Organization details schema for form validation.
+ * @module organization-details-schema
+ * @internal
+ */
+
 import { createStringSchema, createLogoSchema } from '@core/schemas/common';
 import { z } from 'zod';
 
 import { type OrganizationDetailsSchemas } from './organization-details-schema-types';
 
 /**
- * Creates a schema for organization detail form validation
+ * Creates a schema for organization detail form validation.
+ * @internal
+ *
  * @param options - Configuration options for schema validation
  * @returns Zod schema for organization detail validation
  */

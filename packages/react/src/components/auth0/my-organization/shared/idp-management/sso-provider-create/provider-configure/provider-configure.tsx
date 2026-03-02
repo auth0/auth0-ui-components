@@ -1,3 +1,9 @@
+/**
+ * SSO provider configuration step container.
+ * @module provider-configure
+ * @internal
+ */
+
 import type { ProviderConfigureFormValues } from '@auth0/universal-components-core';
 import * as React from 'react';
 
@@ -8,12 +14,10 @@ import {
 import { Section } from '@/components/auth0/shared/section';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { ProviderConfigureProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
-
-export interface ProviderConfigureHandle {
-  validate: () => Promise<boolean>;
-  getData: () => ProviderConfigureFormValues;
-}
+import type {
+  ProviderConfigureHandle,
+  ProviderConfigureProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, ProviderConfigureProps>(
   function ProviderConfigure(

@@ -1,3 +1,9 @@
+/**
+ * List component with variants.
+ * @module list
+ * @internal
+ */
+
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';

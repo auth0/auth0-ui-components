@@ -1,7 +1,8 @@
 /**
- * Custom message types for Provisioning Manage Token component
+ * Custom message type definitions for provisioning manage token component.
+ * @module provisioning-manage-token-types
+ * @internal
  */
-
 export interface ProvisioningManageTokenMessages {
   title?: string;
   description?: string;

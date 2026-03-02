@@ -1,3 +1,9 @@
+/**
+ * Wizard stepper navigation component.
+ * @module wizard-stepper
+ * @internal
+ */
+
 'use client';
 
 import { Stepper, Step, StepTitle, StepDescription } from '@/components/ui/stepper';
@@ -16,6 +22,16 @@ interface WizardStepperProps {
   hideNumbers?: boolean;
 }
 
+/**
+ * Wizard stepper navigation component.
+ * @param props - Component props.
+ * @param props.steps - Array of wizard steps
+ * @param props.currentStep - Current active step index
+ * @param props.onStepClick - Callback fired when a step is clicked
+ * @param props.className - Optional CSS class name for styling
+ * @param props.hideNumbers - Whether to hide numbers
+ * @returns JSX element
+ */
 function WizardStepper({
   steps,
   currentStep = 0,

@@ -1,3 +1,8 @@
+/**
+ * SSO provider create types.
+ * @module sso-provider-create-types
+ */
+
 import type {
   SharedComponentProps,
   ProviderSelectMessages,
@@ -22,11 +27,22 @@ import type { UseFormReturn } from 'react-hook-form';
 
 import type { IdpConfig } from '@/types/my-organization/config/config-idp-types';
 
-/**
- * Form display mode for provider configuration
- */
+export interface ProviderConfigureHandle {
+  validate: () => Promise<boolean>;
+  getData: () => ProviderConfigureFormValues;
+}
+
+export interface ProviderDetailsFormHandle {
+  validate: () => Promise<boolean>;
+  getData: () => ProviderDetailsFormValues;
+  isDirty: () => boolean;
+  reset: (data?: ProviderDetailsFormValues) => void;
+}
+
+/** Form mode for provider configuration. */
 export type FormMode = 'create' | 'edit';
 
+/** CSS classes for SsoProviderCreate. */
 export interface SsoProviderCreateClasses {
   'SsoProviderCreate-header'?: string;
   'SsoProviderCreate-wizard'?: string;
@@ -35,6 +51,7 @@ export interface SsoProviderCreateClasses {
   'ProviderConfigure-root'?: string;
 }
 
+/** Props for ProviderSelect component. */
 export interface ProviderSelectProps
   extends SharedComponentProps<ProviderSelectMessages, SsoProviderCreateClasses> {
   isLoading: boolean;
@@ -45,6 +62,7 @@ export interface ProviderSelectProps
   className?: string;
 }
 
+/** Props for ProviderDetails component. */
 export interface ProviderDetailsProps
   extends SharedComponentProps<ProviderDetailsMessages, SsoProviderCreateClasses> {
   initialData?: Partial<ProviderDetailsFormValues>;
@@ -54,6 +72,7 @@ export interface ProviderDetailsProps
   onFormDirty?: (isDirty: boolean) => void;
 }
 
+/** Props for ProviderConfigure component. */
 export interface ProviderConfigureProps
   extends SharedComponentProps<ProviderConfigureMessages, SsoProviderCreateClasses> {
   className?: string;
@@ -89,7 +108,44 @@ export interface SsoProviderCreateProps
   onNext?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
 }
 
+export type FormState = {
+  strategy?: IdpStrategy;
+  details?: ProviderDetailsFormValues | null;
+  configure?: ProviderConfigureFormValues | null;
+};
+
 export interface UseSsoProviderCreateOptions {
   createAction?: SsoProviderCreateProps['createAction'];
   customMessages?: SsoProviderCreateProps['customMessages'];
+  onNext?: SsoProviderCreateProps['onNext'];
+  onPrevious?: SsoProviderCreateProps['onPrevious'];
 }
+
+export interface UseSsoProviderCreateReturn {
+  createProvider: (data: CreateIdentityProviderRequestContentPrivate) => Promise<void>;
+  isCreating: boolean;
+  error: unknown;
+  retry: () => Promise<void>;
+  formData: FormState;
+  setFormData: React.Dispatch<React.SetStateAction<FormState>>;
+  detailsRef: React.RefObject<ProviderDetailsFormHandle | null>;
+  configureRef: React.RefObject<ProviderConfigureHandle | null>;
+  handleCreate: () => Promise<void>;
+  isLoadingConfig: boolean;
+  filteredStrategies: IdpStrategy[];
+  isLoadingIdpConfig: boolean;
+  idpConfig?: IdpConfig | null;
+  createStepActions: (
+    stepId: 'provider_details' | 'provider_configure',
+    ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,
+  ) => {
+    onNextAction: () => Promise<boolean>;
+    onPreviousAction: () => Promise<boolean>;
+  };
+}
+
+export type SsoProviderCreateViewProps = Omit<UseSsoProviderCreateReturn, 'error' | 'retry'> &
+  Pick<
+    SsoProviderCreateProps,
+    'styling' | 'customMessages' | 'backButton' | 'onNext' | 'onPrevious'
+  >;

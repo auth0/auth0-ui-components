@@ -1,3 +1,17 @@
+/**
+ * @auth0/universal-components-core
+ *
+ * Core package for Auth0 Universal Components providing:
+ * - Authentication utilities and token management
+ * - Internationalization (i18n) services
+ * - Theme utilities and styling
+ * - API client initialization
+ * - Validation schemas
+ *
+ * @packageDocumentation
+ * @internal
+ */
+
 export * from './i18n';
 
 export * from './api';

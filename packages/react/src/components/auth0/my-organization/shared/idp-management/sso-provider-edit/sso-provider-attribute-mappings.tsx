@@ -1,3 +1,9 @@
+/**
+ * SSO provider attribute mappings display.
+ * @module sso-provider-attribute-mappings
+ * @internal
+ */
+
 import {
   STRATEGY_DISPLAY_NAMES,
   type IdpBaseUserAttributeItem,
@@ -89,6 +95,18 @@ const AttributeNameCell = ({
   );
 };
 
+/**
+ * Displays SSO provider attribute mappings configuration.
+ *
+ * @param props - Component props.
+ * @param props.userAttributeMap - User attribute mapping configuration.
+ * @param props.strategy - SSO strategy type.
+ * @param props.isProvisioning - Whether provisioning is enabled.
+ * @param props.customMessages - Custom i18n message overrides.
+ * @param props.className - Additional CSS class names.
+ * @returns Attribute mappings component.
+ * @internal
+ */
 export function SsoProviderAttributeMappings({
   userAttributeMap = [],
   strategy,

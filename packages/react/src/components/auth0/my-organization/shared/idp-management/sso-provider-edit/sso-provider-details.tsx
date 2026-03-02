@@ -1,3 +1,9 @@
+/**
+ * SSO provider details form section.
+ * @module sso-provider-details
+ * @internal
+ */
+
 import { getComponentStyles } from '@auth0/universal-components-core';
 import React from 'react';
 
@@ -5,21 +11,29 @@ import {
   ProviderConfigureFields,
   type ProviderConfigureFormHandle,
 } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
-import {
-  ProviderDetails,
-  type ProviderDetailsFormHandle,
-} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details';
+import { ProviderDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details';
 import { SsoProviderAttributeMappings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-mappings';
 import { FormActions } from '@/components/auth0/shared/form-actions';
 import { Separator } from '@/components/ui/separator';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
+import type { ProviderDetailsFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 import type { SsoProviderDetailsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 
 /**
- * SsoProviderDetails Component
- * Combines ProviderDetails and ProviderConfigureFields for editing SSO provider
+ * SSO provider details editing form.
+ * Combines provider details and configuration fields for editing SSO provider.
+ *
+ * @param props - Component props.
+ * @param props.provider - The SSO provider being edited.
+ * @param props.readOnly - Render in read-only mode.
+ * @param props.idpConfig - Identity provider configuration.
+ * @param props.formActions - Form action handlers.
+ * @param props.customMessages - Custom i18n message overrides.
+ * @param props.styling - CSS variables and class overrides.
+ * @returns SSO provider details component.
+ * @internal
  */
 export function SsoProviderDetails({
   provider,

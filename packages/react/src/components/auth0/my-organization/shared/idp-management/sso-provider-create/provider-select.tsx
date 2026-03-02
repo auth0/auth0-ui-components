@@ -1,3 +1,9 @@
+/**
+ * SSO provider type selection step.
+ * @module provider-select
+ * @internal
+ */
+
 import type { IdpStrategy } from '@auth0/universal-components-core';
 import { STRATEGY_DISPLAY_NAMES, STRATEGIES } from '@auth0/universal-components-core';
 import React from 'react';
@@ -25,6 +31,16 @@ const STRATEGY_ICONS: Record<IdpStrategy, React.FC<{ className?: string }>> = {
   [STRATEGIES.OIDC]: OidcLogo,
 };
 
+/**
+ * Provider selection component for SSO setup.
+ * @param props - Component props.
+ * @param props.isLoading - Whether the component is in a loading state
+ * @param props.strategyList - List of available strategies
+ * @param props.onClickStrategy - Callback fired when a strategy is selected
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @param props.className - Optional CSS class name for styling
+ * @returns JSX element
+ */
 function ProviderSelect({
   isLoading,
   strategyList,

@@ -6,9 +6,9 @@ import type {
   BasicAuth0ContextInterface,
   GetTokenSilentlyVerboseResponse,
 } from '../auth-types';
-import { createTokenManager } from '../token-manager';
+import { createSpaTokenRetriever } from '../spa-token-retriever';
 
-describe('token-manager', () => {
+describe('spa-token-retriever', () => {
   const mockMfaClient = {
     getAuthenticators: vi.fn().mockResolvedValue([]),
     enroll: vi.fn().mockResolvedValue({
@@ -62,10 +62,10 @@ describe('token-manager', () => {
     vi.clearAllMocks();
   });
 
-  describe('createTokenManager', () => {
-    it('should create a token manager with getToken method', () => {
+  describe('createSpaTokenRetriever', () => {
+    it('should create a SPA token retriever with getToken method', () => {
       const auth = createAuthConfig();
-      const tokenManager = createTokenManager(auth);
+      const tokenManager = createSpaTokenRetriever(auth);
       expect(tokenManager).toBeDefined();
       expect(tokenManager.getToken).toBeDefined();
       expect(typeof tokenManager.getToken).toBe('function');
@@ -75,16 +75,16 @@ describe('token-manager', () => {
   describe('getToken', () => {
     describe('validation errors', () => {
       it('should throw error when auth is not initialized', () => {
-        expect(() => createTokenManager(null as unknown as AuthDetails)).toThrow(
-          'TokenManager: auth is not initialized.',
+        expect(() => createSpaTokenRetriever(null as unknown as AuthDetails)).toThrow(
+          'SpaTokenRetriever: auth is not initialized.',
         );
       });
 
       it('should throw error when contextInterface is not initialized', async () => {
         const authWithoutContext = createAuthConfig({ contextInterface: undefined });
-        const tokenManager = createTokenManager(authWithoutContext);
+        const tokenManager = createSpaTokenRetriever(authWithoutContext);
         await expect(tokenManager.getToken('read:users', 'management')).rejects.toThrow(
-          'TokenManager: contextInterface is not initialized.',
+          'SpaTokenRetriever: contextInterface is not initialized.',
         );
       });
 
@@ -97,9 +97,9 @@ describe('token-manager', () => {
           domain: undefined,
           contextInterface: contextWithoutDomain,
         });
-        const tokenManager = createTokenManager(authWithoutDomain);
+        const tokenManager = createSpaTokenRetriever(authWithoutDomain);
         await expect(tokenManager.getToken('read:users', 'management')).rejects.toThrow(
-          'TokenManager: Auth0 domain is not configured',
+          'SpaTokenRetriever: Auth0 domain is not configured',
         );
       });
     });
@@ -107,7 +107,7 @@ describe('token-manager', () => {
     describe('proxy mode', () => {
       it('should return undefined when in proxy mode', async () => {
         const proxyAuth = createAuthConfig({ authProxyUrl: 'https://proxy.example.com' });
-        const tokenManager = createTokenManager(proxyAuth);
+        const tokenManager = createSpaTokenRetriever(proxyAuth);
         const token = await tokenManager.getToken('read:users', 'management');
         expect(token).toBeUndefined();
         expect(mockContextInterface.getAccessTokenSilently).not.toHaveBeenCalled();
@@ -118,7 +118,7 @@ describe('token-manager', () => {
           authProxyUrl: 'https://proxy.example.com',
           contextInterface: undefined,
         });
-        const tokenManager = createTokenManager(proxyAuth);
+        const tokenManager = createSpaTokenRetriever(proxyAuth);
         const token = await tokenManager.getToken('read:users', 'management');
         expect(token).toBeUndefined();
       });
@@ -127,7 +127,7 @@ describe('token-manager', () => {
     describe('successful token retrieval', () => {
       it('should fetch token with correct audience and scope', async () => {
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
         const token = await tokenManager.getToken('read:users', 'management');
 
         expect(token).toBe(mockToken);
@@ -142,7 +142,7 @@ describe('token-manager', () => {
 
       it('should build audience URL correctly for MFA', async () => {
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
         await tokenManager.getToken('read:me:authentication_methods', 'mfa');
 
         expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
@@ -156,7 +156,7 @@ describe('token-manager', () => {
 
       it('should handle domain with https protocol', async () => {
         const authWithHttps = createAuthConfig({ domain: `https://${TEST_DOMAIN}` });
-        const tokenManager = createTokenManager(authWithHttps);
+        const tokenManager = createSpaTokenRetriever(authWithHttps);
         await tokenManager.getToken('read:users', 'management');
 
         expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
@@ -172,7 +172,7 @@ describe('token-manager', () => {
     describe('cache management', () => {
       it('should not use cacheMode option when ignoreCache is false', async () => {
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
         await tokenManager.getToken('read:users', 'management', false);
 
         expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
@@ -186,7 +186,7 @@ describe('token-manager', () => {
 
       it('should use cacheMode off when ignoreCache is true', async () => {
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
         await tokenManager.getToken('read:users', 'management', true);
 
         expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
@@ -211,7 +211,7 @@ describe('token-manager', () => {
         );
 
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
 
         // Start multiple concurrent requests for the same token
         const promise1 = tokenManager.getToken('read:users', 'management');
@@ -251,7 +251,7 @@ describe('token-manager', () => {
           });
 
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
 
         const [token1, token2] = await Promise.all([
           tokenManager.getToken('read:users', 'management'),
@@ -280,7 +280,7 @@ describe('token-manager', () => {
           });
 
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
 
         const [token1, token2] = await Promise.all([
           tokenManager.getToken('read:users', 'management'),
@@ -310,7 +310,7 @@ describe('token-manager', () => {
           });
 
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
 
         // Start first request
         const promise1 = tokenManager.getToken('read:users', 'management');
@@ -334,7 +334,7 @@ describe('token-manager', () => {
 
       it('should clean up pending request after completion', async () => {
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
 
         // First request
         await tokenManager.getToken('read:users', 'management');
@@ -351,7 +351,7 @@ describe('token-manager', () => {
         );
 
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
 
         // First request fails
         await expect(tokenManager.getToken('read:users', 'management')).rejects.toThrow(
@@ -381,7 +381,7 @@ describe('token-manager', () => {
         vi.mocked(mockContextInterface.getAccessTokenWithPopup).mockResolvedValue(mockToken);
 
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
         const token = await tokenManager.getToken('read:users', 'management');
 
         expect(token).toBe(mockToken);
@@ -402,7 +402,7 @@ describe('token-manager', () => {
         vi.mocked(mockContextInterface.getAccessTokenWithPopup).mockResolvedValue(mockToken);
 
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
         const token = await tokenManager.getToken('read:users', 'management');
 
         expect(token).toBe(mockToken);
@@ -420,7 +420,7 @@ describe('token-manager', () => {
         vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue(mfaError);
 
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
 
         await expect(tokenManager.getToken('read:users', 'management')).rejects.toEqual(mfaError);
         expect(mockContextInterface.getAccessTokenWithPopup).not.toHaveBeenCalled();
@@ -432,7 +432,7 @@ describe('token-manager', () => {
         vi.mocked(mockContextInterface.getAccessTokenWithPopup).mockResolvedValue(undefined);
 
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
         await expect(tokenManager.getToken('read:users', 'management')).rejects.toEqual(popupError);
       });
 
@@ -441,7 +441,7 @@ describe('token-manager', () => {
         vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue(originalError);
 
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
         await expect(tokenManager.getToken('read:users', 'management')).rejects.toThrow(
           'Network timeout',
         );
@@ -452,7 +452,7 @@ describe('token-manager', () => {
         vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue(originalError);
 
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
         try {
           await tokenManager.getToken('read:users', 'management');
           expect.fail('Should have thrown an error');
@@ -470,7 +470,7 @@ describe('token-manager', () => {
         vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue(errorObj);
 
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
         await expect(tokenManager.getToken('read:users', 'management')).rejects.toEqual(errorObj);
         expect(mockContextInterface.getAccessTokenWithPopup).not.toHaveBeenCalled();
       });
@@ -479,7 +479,7 @@ describe('token-manager', () => {
         vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue(null);
 
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
         await expect(tokenManager.getToken('read:users', 'management')).rejects.toBe(null);
       });
 
@@ -489,7 +489,7 @@ describe('token-manager', () => {
         );
 
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
         await expect(tokenManager.getToken('read:users', 'management')).rejects.toBe(
           'String error message',
         );
@@ -499,7 +499,7 @@ describe('token-manager', () => {
     describe('edge cases', () => {
       it('should handle empty scope', async () => {
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
         await tokenManager.getToken('', 'management');
 
         expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
@@ -513,7 +513,7 @@ describe('token-manager', () => {
 
       it('should handle empty audiencePath', async () => {
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
         await tokenManager.getToken('read:users', '');
 
         expect(mockContextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
@@ -527,7 +527,7 @@ describe('token-manager', () => {
 
       it('should handle special characters in scope', async () => {
         const auth = createAuthConfig();
-        const tokenManager = createTokenManager(auth);
+        const tokenManager = createSpaTokenRetriever(auth);
         const scope = 'read:users write:users update:users:self';
         await tokenManager.getToken(scope, 'management');
 

@@ -1,3 +1,9 @@
+/**
+ * Internationalization service for translation management.
+ * @module i18n-service
+ * @internal
+ */
+
 import type {
   LangTranslations,
   TranslationFunction,
@@ -11,6 +17,7 @@ import type {
 /**
  * Pure utility functions for internationalization (i18n) functionality.
  * These functions handle translation loading, variable substitution, and namespace-based translation.
+ * @internal
  */
 export const I18nUtils = {
   /**

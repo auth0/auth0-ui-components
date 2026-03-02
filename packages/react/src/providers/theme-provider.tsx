@@ -1,3 +1,9 @@
+/**
+ * Theme provider for styling configuration.
+ * @module theme-provider
+ * @internal
+ */
+
 'use client';
 
 import { applyStyleOverrides, type StylingVariables } from '@auth0/universal-components-core';
@@ -5,15 +11,13 @@ import * as React from 'react';
 
 import type { ThemeContextValue, ThemeInput } from '@/types/theme-types';
 
-/**
- * Default empty customer overrides. (later may be UL branding)
- */
+/** Default empty style overrides. */
 const defaultStyleOverrides: StylingVariables = { common: {}, light: {}, dark: {} };
 
 /**
- * ThemeContext
- *
- * Provides access to customer overrides and a merged theme object for convenience.
+ * Theme context for accessing theme settings.
+ * @internal
+ * @returns The context provider component
  */
 export const ThemeContext = React.createContext<ThemeContextValue>({
   isDarkMode: false,
@@ -22,38 +26,12 @@ export const ThemeContext = React.createContext<ThemeContextValue>({
 });
 
 /**
- * ThemeProvider
- *
- * Provides theme configuration via React Context to all components in the tree.
- * It merges optional styling overrides (CSS variables).
- *
- * @param themeSettings - Optional styling overrides
- * @param children - The components that will have access to the theme
- *
- * @example
- * ```tsx
- * <ThemeProvider
- *   themeSettings={{
- *     theme: "default" | "minimal" | "rounded";
- *     mode: 'dark',
- *     variables: {
- *       common: {
- *         "--font-size-heading": "1.5rem",
- *         "--font-size-title": "1.25rem",
- *       },
- *       light: {
- *         "--color-primary": "blue",
- *       },
- *       dark: {
- *         "--color-primary": "red",
- *       },
- *     },
- *     loader: <CustomSpinner />
- *   }}
- * >
- *   <App />
- * </ThemeProvider>
- * ```
+ * Provides theme configuration to the component tree.
+ * @param props - Component props.
+ * @param props.themeSettings - Theme settings with mode, variables, and loader.
+ * @param props.children - Child components.
+ * @returns Theme provider.
+ * @internal
  */
 export const ThemeProvider: React.FC<{
   themeSettings?: ThemeInput;

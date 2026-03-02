@@ -1,3 +1,8 @@
+/**
+ * SSO provider edit hook.
+ * @module use-sso-provider-edit
+ */
+
 import {
   OrganizationDetailsFactory,
   OrganizationDetailsMappers,
@@ -7,6 +12,7 @@ import {
   type IdpId,
   type OrganizationPrivate,
   type UpdateIdentityProviderRequestContent,
+  type UpdateIdentityProviderRequestContentPrivate,
   type CreateIdpProvisioningScimTokenRequestContent,
   type GetIdPProvisioningConfigResponseContent,
   getStatusCode,
@@ -15,6 +21,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useConfig } from '@/hooks/my-organization/use-config';
+import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -38,7 +46,13 @@ export const ssoProviderEditQueryKeys = {
 };
 
 /**
- * Hook for editing SSO identity provider configuration and provisioning.
+ * Hook for editing SSO provider settings and provisioning.
+ * @param idpId - Identity provider ID.
+ * @param options - Hook options.
+ * @param options.sso - SSO action callbacks.
+ * @param options.provisioning - Provisioning action callbacks.
+ * @param options.customMessages - Custom translation messages.
+ * @returns Hook state and methods
  */
 export function useSsoProviderEdit(
   idpId: IdpId,
@@ -48,7 +62,25 @@ export function useSsoProviderEdit(
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const queryClient = useQueryClient();
   const handleError = useErrorHandler();
+  const {
+    shouldAllowDeletion,
+    isLoadingConfig,
+    error: configError,
+    retry: configRetry,
+  } = useConfig();
+  const {
+    idpConfig,
+    isLoadingIdpConfig,
+    isProvisioningEnabled,
+    isProvisioningMethodEnabled,
+    error: idpConfigError,
+    retry: idpConfigRetry,
+  } = useIdpConfig();
 
+  /**
+   * Provider query - fetches the identity provider details.
+   * TanStack Query handles caching, loading states, and refetching.
+   */
   const providerQuery = useQuery({
     queryKey: ssoProviderEditQueryKeys.detail(idpId),
     queryFn: async (): Promise<IdentityProvider> => {
@@ -374,10 +406,12 @@ export function useSsoProviderEdit(
   });
 
   const updateProvider = useCallback(
-    async (data: UpdateIdentityProviderRequestContent) => {
+    async (data: UpdateIdentityProviderRequestContentPrivate) => {
       if (!coreClient || !providerQuery.data) return;
       try {
-        await updateProviderMutation.mutateAsync(data);
+        await updateProviderMutation.mutateAsync(
+          data as unknown as UpdateIdentityProviderRequestContent,
+        );
       } catch (error) {
         if (!isActionCancelledError(error)) throw error;
       }
@@ -508,10 +542,27 @@ export function useSsoProviderEdit(
     return attributes.some((attr) => attr.is_extra || attr.is_missing);
   }, [provisioningQuery.data]);
 
+  const showProvisioningTab =
+    isProvisioningEnabled(providerQuery.data?.strategy) &&
+    isProvisioningMethodEnabled(providerQuery.data?.strategy);
+
+  const handleToggleProvider = useCallback(
+    async (enabled: boolean) => {
+      if (!providerQuery.data?.strategy) return;
+      await updateProvider({
+        strategy: providerQuery.data.strategy,
+        is_enabled: enabled,
+      });
+    },
+    [providerQuery.data?.strategy, updateProvider],
+  );
+
   const error =
     providerQuery.error ||
     organizationQuery.error ||
     provisioningQuery.error ||
+    configError ||
+    idpConfigError ||
     updateProviderMutation.error ||
     deleteProviderMutation.error ||
     detachProviderMutation.error ||
@@ -523,6 +574,15 @@ export function useSsoProviderEdit(
     syncProvisioningAttributesMutation.error;
 
   const retry = async () => {
+    if (configError) {
+      await configRetry();
+      return;
+    }
+    if (idpConfigError) {
+      await idpConfigRetry();
+      return;
+    }
+
     const queries = [
       { error: providerQuery.error, key: ssoProviderEditQueryKeys.detail(idpId) },
       { error: organizationQuery.error, key: ssoProviderEditQueryKeys.organization() },
@@ -604,11 +664,17 @@ export function useSsoProviderEdit(
     isProvisioningAttributesSyncing: syncProvisioningAttributesMutation.isPending,
     hasSsoAttributeSyncWarning,
     hasProvisioningAttributeSyncWarning,
+    shouldAllowDeletion,
+    isLoadingConfig,
+    idpConfig,
+    isLoadingIdpConfig,
+    showProvisioningTab,
     error,
     retry,
     fetchProvider,
     fetchProvisioning,
     updateProvider,
+    handleToggleProvider,
     onDeleteConfirm,
     onRemoveConfirm,
     createProvisioning,

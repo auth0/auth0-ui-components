@@ -1,3 +1,9 @@
+/**
+ * Attribute mapping display component.
+ * @module mapping
+ * @internal
+ */
+
 import React from 'react';
 
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
@@ -27,6 +33,17 @@ export interface MappingProps<Item> {
   expanded?: boolean;
 }
 
+/**
+ *
+ * @param props - Component props.
+ * @param props.title - Section title.
+ * @param props.description - Section description.
+ * @param props.card - Card configuration.
+ * @param props.content - Main content.
+ * @param props.className - Additional CSS classes.
+ * @param props.expanded - Whether accordion is expanded.
+ * @returns JSX element
+ */
 export function Mapping<Item>({
   title,
   description,

@@ -1,3 +1,9 @@
+/**
+ * SSO provisioning tab component.
+ * @module sso-provisioning-tab
+ * @internal
+ */
+
 import { getComponentStyles } from '@auth0/universal-components-core';
 import * as React from 'react';
 
@@ -21,6 +27,19 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { SsoProvisioningTabProps } from '@/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
 
+/**
+ * SSO provisioning tab content for managing provisioning configuration.
+ *
+ * @param props - Component props.
+ * @param props.provider - The SSO provider being configured.
+ * @param props.styling - CSS variables and class overrides.
+ * @param props.customMessages - Custom i18n message overrides.
+ * @param props.hasProvisioningAttributeSyncWarning - Whether to show attribute sync warning.
+ * @param props.onAttributeSync - Callback for attribute sync.
+ * @param props.isSyncingAttributes - Whether attribute sync is in progress.
+ * @returns SSO provisioning tab content.
+ * @internal
+ */
 export function SsoProvisioningTab({
   provider,
   styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },

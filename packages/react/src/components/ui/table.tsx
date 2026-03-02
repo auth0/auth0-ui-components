@@ -1,3 +1,9 @@
+/**
+ * Table component with sorting support.
+ * @module table
+ * @internal
+ */
+
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import React from 'react';
 

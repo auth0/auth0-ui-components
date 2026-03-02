@@ -1,21 +1,30 @@
+/**
+ * SSO provider table data and actions hook.
+ * @module use-sso-provider-table
+ */
+
 import {
   OrganizationDetailsMappers,
   SsoProviderMappers,
   MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES,
   type UpdateIdentityProviderRequestContent,
-  type ComponentAction,
   type IdentityProvider,
   type OrganizationPrivate,
   BusinessError,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useConfig } from '@/hooks/my-organization/use-config';
+import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { UseSsoProviderTableReturn } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
+import type {
+  UseSsoProviderTableOptions,
+  UseSsoProviderTableReturn,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
 export const ssoProviderQueryKeys = {
   all: ['sso-providers'] as const,
@@ -24,18 +33,49 @@ export const ssoProviderQueryKeys = {
 };
 
 /**
- * Hook for fetching and managing SSO identity providers.
+ * Hook for SSO provider table data, CRUD operations, and UI logic.
+ * @param options - Hook options.
+ * @param options.readOnly - Whether the table is in read-only mode.
+ * @param options.createAction - Action config for create.
+ * @param options.editAction - Action config for edit.
+ * @param options.deleteAction - Delete action handler.
+ * @param options.deleteFromOrganizationAction - Remove from org handler.
+ * @param options.enableProviderAction - Enable/disable handler.
+ * @param options.customMessages - Translation overrides.
+ * @returns Provider data, mutations, UI state, and actions.
  */
-export function useSsoProviderTable(
-  deleteAction?: ComponentAction<IdentityProvider, void>,
-  removeFromOrg?: ComponentAction<IdentityProvider, void>,
-  enableAction?: ComponentAction<IdentityProvider>,
+export function useSsoProviderTable({
+  readOnly = false,
+  createAction,
+  editAction,
+  deleteAction,
+  deleteFromOrganizationAction,
+  enableProviderAction,
   customMessages = {},
-): UseSsoProviderTableReturn {
+}: UseSsoProviderTableOptions): UseSsoProviderTableReturn {
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
   const handleError = useErrorHandler();
+  const {
+    isLoadingConfig,
+    shouldAllowDeletion,
+    isConfigValid,
+    error: configError,
+    retry: retryConfig,
+  } = useConfig();
+  const {
+    isLoadingIdpConfig,
+    isIdpConfigValid,
+    error: idpConfigError,
+    retry: retryIdpConfig,
+  } = useIdpConfig();
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [selectedIdp, setSelectedIdp] = useState<IdentityProvider | null>(null);
+
+  const shouldHideCreate = !isConfigValid || !isIdpConfigValid;
 
   const providersQuery = useQuery({
     queryKey: ssoProviderQueryKeys.list(),
@@ -64,8 +104,8 @@ export function useSsoProviderTable(
       selectedIdp: IdentityProvider;
       enabled: boolean;
     }): Promise<IdentityProvider> => {
-      if (enableAction?.onBefore) {
-        const shouldProceed = enableAction.onBefore(selectedIdp);
+      if (enableProviderAction?.onBefore) {
+        const shouldProceed = enableProviderAction.onBefore(selectedIdp);
         if (!shouldProceed) {
           throw new BusinessError({ message: t('general_error') });
         }
@@ -84,8 +124,8 @@ export function useSsoProviderTable(
       return updatedProvider as IdentityProvider;
     },
     onSuccess: async (updatedProvider, { selectedIdp }) => {
-      if (enableAction?.onAfter) {
-        await enableAction.onAfter(selectedIdp);
+      if (enableProviderAction?.onAfter) {
+        await enableProviderAction.onAfter(selectedIdp);
       }
 
       showToast({
@@ -134,8 +174,8 @@ export function useSsoProviderTable(
         .organization.identityProviders.detach(selectedIdp.id!);
     },
     onSuccess: async (_, selectedIdp) => {
-      if (removeFromOrg?.onAfter) {
-        await removeFromOrg.onAfter(selectedIdp);
+      if (deleteFromOrganizationAction?.onAfter) {
+        await deleteFromOrganizationAction.onAfter(selectedIdp);
       }
 
       const organizationData = queryClient.getQueryData<OrganizationPrivate>(
@@ -216,13 +256,94 @@ export function useSsoProviderTable(
     }
   }, [coreClient, queryClient, handleError]);
 
+  const isViewLoading = providersQuery.isLoading || isLoadingConfig || isLoadingIdpConfig;
+
+  const handleCreate = useCallback(() => {
+    if (createAction?.onAfter) {
+      createAction.onAfter();
+    }
+  }, [createAction]);
+
+  const handleEdit = useCallback(
+    (idp: IdentityProvider) => {
+      if (editAction?.onAfter) {
+        editAction.onAfter(idp);
+      }
+    },
+    [editAction],
+  );
+
+  const handleDelete = useCallback(
+    (idp: IdentityProvider) => {
+      setSelectedIdp(idp);
+
+      if (deleteAction?.onBefore) {
+        const shouldProceed = deleteAction.onBefore(idp);
+        if (!shouldProceed) return;
+      }
+
+      setShowDeleteModal(true);
+    },
+    [deleteAction],
+  );
+
+  const handleDeleteFromOrganization = useCallback(
+    (idp: IdentityProvider) => {
+      setSelectedIdp(idp);
+
+      if (deleteFromOrganizationAction?.onBefore) {
+        const shouldProceed = deleteFromOrganizationAction.onBefore(idp);
+        if (!shouldProceed) return;
+      }
+
+      setShowRemoveModal(true);
+    },
+    [deleteFromOrganizationAction],
+  );
+
+  const handleToggleEnabled = useCallback(
+    async (idp: IdentityProvider, enabled: boolean) => {
+      if (readOnly || !onEnableProvider) return;
+      await onEnableProvider(idp, enabled);
+    },
+    [readOnly, onEnableProvider],
+  );
+
+  const handleDeleteConfirm = useCallback(
+    async (provider: IdentityProvider) => {
+      await onDeleteConfirm(provider);
+      setShowDeleteModal(false);
+      setSelectedIdp(null);
+    },
+    [onDeleteConfirm],
+  );
+
+  const handleRemoveConfirm = useCallback(
+    async (provider: IdentityProvider) => {
+      await onRemoveConfirm(provider);
+      setShowRemoveModal(false);
+      setSelectedIdp(null);
+    },
+    [onRemoveConfirm],
+  );
+
   const error =
     providersQuery.error ||
+    configError ||
+    idpConfigError ||
     enableProviderMutation.error ||
     deleteProviderMutation.error ||
     removeProviderMutation.error;
 
   const retry = async () => {
+    if (configError) {
+      await retryConfig();
+      return;
+    }
+    if (idpConfigError) {
+      await retryIdpConfig();
+      return;
+    }
     if (providersQuery.error) {
       await queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
       return;
@@ -258,12 +379,18 @@ export function useSsoProviderTable(
   return {
     providers: providersQuery.data ?? [],
     isLoading: providersQuery.isLoading,
+    isViewLoading,
     isDeleting: deleteProviderMutation.isPending,
     isRemoving: removeProviderMutation.isPending,
     isUpdating: enableProviderMutation.isPending,
     isUpdatingId: enableProviderMutation.isPending
       ? (enableProviderMutation.variables?.selectedIdp?.id ?? null)
       : null,
+    shouldAllowDeletion,
+    shouldHideCreate,
+    showDeleteModal,
+    showRemoveModal,
+    selectedIdp,
     error,
     retry,
     fetchProviders,
@@ -271,5 +398,15 @@ export function useSsoProviderTable(
     onDeleteConfirm,
     onRemoveConfirm,
     onEnableProvider,
+    setShowDeleteModal,
+    setShowRemoveModal,
+    setSelectedIdp,
+    handleCreate,
+    handleEdit,
+    handleDelete,
+    handleDeleteFromOrganization,
+    handleToggleEnabled,
+    handleDeleteConfirm,
+    handleRemoveConfirm,
   };
 }

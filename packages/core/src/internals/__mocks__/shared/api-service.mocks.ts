@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 
 import type { AuthDetails, BasicAuth0ContextInterface } from '../../../auth/auth-types';
-import type { createTokenManager } from '../../../auth/token-manager';
+import type { createSpaTokenRetriever } from '../../../auth/spa-token-retriever';
 
 // =============================================================================
 // Test Constants
@@ -87,13 +87,13 @@ export const mockAuthWithProxyUrlWhitespace: AuthDetails = {
 
 export const createMockTokenManager = (
   tokenValue: string | undefined = 'mock-access-token',
-): ReturnType<typeof createTokenManager> => ({
+): ReturnType<typeof createSpaTokenRetriever> => ({
   getToken: vi.fn(async () => tokenValue),
 });
 
 export const createMockTokenManagerWithScopes = (
   tokenValue: string | undefined = 'mock-access-token',
-): ReturnType<typeof createTokenManager> & {
+): ReturnType<typeof createSpaTokenRetriever> & {
   lastScope?: string;
   lastAudiencePath?: string;
 } => {
@@ -111,7 +111,7 @@ export const createMockTokenManagerWithScopes = (
 
 export const createMockTokenManagerWithError = (
   error: Error = new Error('Token retrieval failed'),
-): ReturnType<typeof createTokenManager> => ({
+): ReturnType<typeof createSpaTokenRetriever> => ({
   getToken: async () => {
     throw error;
   },

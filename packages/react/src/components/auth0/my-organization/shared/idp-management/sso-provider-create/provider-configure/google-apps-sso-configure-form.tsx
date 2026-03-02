@@ -1,3 +1,9 @@
+/**
+ * Google Apps SSO provider configuration form.
+ * @module google-apps-sso-configure-form
+ * @internal
+ */
+
 import {
   createProviderConfigureSchema,
   type GoogleAppsConfigureFormValues,

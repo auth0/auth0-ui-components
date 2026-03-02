@@ -1,7 +1,14 @@
+/**
+ * API Error utilities for handling and normalizing API errors.
+ * @module api-error
+ * @internal
+ */
+
 import type { ApiError } from './api-types';
 
 /**
  * Type guard to determine if a given value is an ApiError.
+ * @internal
  *
  * @param error - The unknown value to test.
  * @returns `true` if the value conforms to the ApiError shape; otherwise, `false`.
@@ -17,7 +24,11 @@ export function isApiError(error: unknown): error is ApiError {
 }
 
 /**
- * Type guard to check if an error has a structured API error body
+ * Type guard to check if an error has a structured API error body.
+ * @internal
+ *
+ * @param error - The unknown value to test
+ * @returns `true` if the error has a body property with optional detail, title, status, or type fields, `false` otherwise
  */
 export function hasApiErrorBody(
   error: unknown,
@@ -33,15 +44,16 @@ export function hasApiErrorBody(
 
 /**
  * Normalizes an unknown error into a standard JavaScript Error instance.
+ * @internal
  *
  * This function tries to extract meaningful information from API errors,
  * strings, or other unknown error shapes. You can provide a custom resolver
  * function to map API error codes to user-friendly messages.
  *
  * @param error - The unknown error object or value to normalize.
- * @param options - Optional settings including:
- *   - resolver: A function that maps error codes to user-friendly messages.
- *   - fallbackMessage: A default message used when the error cannot be mapped.
+ * @param options - Optional settings for error normalization.
+ * @param options.resolver - A function that maps error codes to user-friendly messages.
+ * @param options.fallbackMessage - A default message used when the error cannot be mapped.
  * @returns A standard Error object with an appropriate message.
  */
 export function normalizeError(
@@ -66,6 +78,19 @@ export function normalizeError(
   return new Error(options?.fallbackMessage ?? 'An unknown error occurred');
 }
 
+/**
+ * Extracts the HTTP status code from an unknown error object.
+ * @internal
+ *
+ * This function checks multiple common locations where status codes may be stored:
+ * - `error.status`
+ * - `error.statusCode`
+ * - `error.response.status`
+ * - `error.body.status`
+ *
+ * @param error - The unknown error to extract the status code from
+ * @returns The HTTP status code if found, otherwise `undefined`
+ */
 export function getStatusCode(error: unknown): number | undefined {
   return typeof error === 'object' && error !== null
     ? [

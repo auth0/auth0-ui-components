@@ -1,3 +1,9 @@
+/**
+ * Entra ID logo icon component.
+ * @module entraid-logo
+ * @internal
+ */
+
 import { EntraIdLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 

@@ -1,3 +1,9 @@
+/**
+ * Google logo icon component.
+ * @module google-logo
+ * @internal
+ */
+
 import { GoogleLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 

@@ -1,5 +1,11 @@
+/**
+ * Domain delete modal types.
+ * @module domain-delete-types
+ */
+
 import type { Domain, DomainDeleteMessages } from '@auth0/universal-components-core';
 
+/** Props for DomainDeleteModal. */
 export interface DomainDeleteModalProps {
   translatorKey?: string;
   className?: string;

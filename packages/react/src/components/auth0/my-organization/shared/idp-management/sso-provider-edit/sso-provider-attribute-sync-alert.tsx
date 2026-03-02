@@ -1,3 +1,9 @@
+/**
+ * SSO provider attribute sync confirmation alert.
+ * @module sso-provider-attribute-sync-alert
+ * @internal
+ */
+
 import { AlertTriangle } from 'lucide-react';
 import * as React from 'react';
 
@@ -15,6 +21,18 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { SsoProviderAttributeSyncAlertProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
+/**
+ * Alert component for SSO provider attribute sync.
+ *
+ * @param props - Component props.
+ * @param props.translatorKey - i18n translation key namespace.
+ * @param props.className - Additional CSS class names.
+ * @param props.customMessages - Custom i18n message overrides.
+ * @param props.onSync - Callback when sync is triggered.
+ * @param props.isSyncing - Whether sync is in progress.
+ * @returns Attribute sync alert component.
+ * @internal
+ */
 export function SsoProviderAttributeSyncAlert({
   translatorKey = 'idp_management.edit_sso_provider.tabs.sso.content.attribute_sync_alert',
   className,

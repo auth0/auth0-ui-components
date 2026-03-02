@@ -1,3 +1,9 @@
+/**
+ * Text field with image preview.
+ * @module image-preview-field
+ * @internal
+ */
+
 import { ImageIcon } from 'lucide-react';
 import * as React from 'react';
 

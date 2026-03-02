@@ -1,3 +1,9 @@
+/**
+ * OIDC logo icon component.
+ * @module oidc-logo
+ * @internal
+ */
+
 import { OidcLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 

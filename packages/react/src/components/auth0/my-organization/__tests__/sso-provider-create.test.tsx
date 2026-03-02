@@ -9,10 +9,14 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { SsoProviderCreate } from '@/components/auth0/my-organization/sso-provider-create';
+import {
+  SsoProviderCreate,
+  SsoProviderCreateView,
+} from '@/components/auth0/my-organization/sso-provider-create';
 import * as useConfigModule from '@/hooks/my-organization/use-config';
 import * as useIdpConfigModule from '@/hooks/my-organization/use-idp-config';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import { createMockSsoProviderCreateViewProps } from '@/tests/utils';
 import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
 import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import { createTestQueryClient, renderWithProviders } from '@/tests/utils/test-provider';
@@ -689,5 +693,66 @@ describe('SsoProviderCreate', () => {
         });
       });
     });
+  });
+});
+
+describe('SsoProviderCreateView', () => {
+  const mockProps = createMockSsoProviderCreateViewProps();
+
+  it('renders the wizard and header', () => {
+    renderWithProviders(<SsoProviderCreateView {...mockProps} />);
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+    expect(screen.getByTestId('sso-provider-create-content')).toBeInTheDocument();
+  });
+
+  it('renders custom header class if provided', () => {
+    renderWithProviders(
+      <SsoProviderCreateView
+        {...mockProps}
+        styling={{
+          ...mockProps.styling,
+          classes: {
+            ...mockProps?.styling?.classes,
+            'SsoProviderCreate-header': 'custom-header',
+          },
+          variables: mockProps?.styling?.variables ?? {},
+        }}
+      />,
+    );
+    expect(document.querySelector('.custom-header')).toBeInTheDocument();
+  });
+
+  it('renders custom wizard class if provided', () => {
+    renderWithProviders(
+      <SsoProviderCreateView
+        {...mockProps}
+        styling={{
+          ...mockProps.styling,
+          classes: {
+            ...mockProps?.styling?.classes,
+            'SsoProviderCreate-wizard': 'custom-wizard',
+          },
+          variables: mockProps?.styling?.variables ?? {},
+        }}
+      />,
+    );
+    expect(document.querySelector('.custom-wizard')).toBeInTheDocument();
+  });
+
+  it('does not render header if backButton is undefined', () => {
+    renderWithProviders(<SsoProviderCreateView {...mockProps} backButton={undefined} />);
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+  });
+
+  it('renders with customMessages', () => {
+    renderWithProviders(
+      <SsoProviderCreateView
+        {...mockProps}
+        customMessages={{
+          header: { title: 'Custom Title', back_button_text: 'Back' },
+        }}
+      />,
+    );
+    expect(screen.getByText(/custom title/i)).toBeInTheDocument();
   });
 });

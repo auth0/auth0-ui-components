@@ -1,3 +1,8 @@
+/**
+ * SSO provisioning type definitions for SCIM token management.
+ * @module sso-provisioning-types
+ * @internal
+ */
 import type { MyOrganization } from '@auth0/myorganization-js';
 
 export type GetIdPProvisioningConfigResponseContent =

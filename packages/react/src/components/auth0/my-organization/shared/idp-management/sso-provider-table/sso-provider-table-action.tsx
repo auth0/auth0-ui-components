@@ -1,3 +1,9 @@
+/**
+ * SSO provider table row actions column.
+ * @module sso-provider-table-action
+ * @internal
+ */
+
 import { MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import * as React from 'react';
 
@@ -17,6 +23,19 @@ import type { SsoProviderTableActionsColumnProps } from '@/types/my-organization
 /**
  * SsoProviderTableActionsColumn Component
  * Handles the actions column for SSO Provider table with enable/disable toggle and dropdown menu
+ * @param props - Component props.
+ * @param props.provider - SSO provider object
+ * @param props.shouldAllowDeletion - Whether deletion should be allowed
+ * @param props.readOnly - Whether the component is in read-only mode
+ * @param props.isUpdating - Whether an update operation is in progress
+ * @param props.isUpdatingId - ID of the item currently being updated
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @param props.edit - Edit mode configuration
+ * @param props.onToggleEnabled - Callback fired when enabled state is toggled
+ * @param props.onEdit - Callback fired when edit action is triggered
+ * @param props.onDelete - Callback fired when delete action is triggered
+ * @param props.onRemoveFromOrganization - Callback fired when removing from organization
+ * @returns JSX element
  */
 export function SsoProviderTableActionsColumn({
   provider,

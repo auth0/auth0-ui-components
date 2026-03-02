@@ -1,3 +1,8 @@
+/**
+ * Organization details services.
+ * @module org-details-services
+ * @internal
+ */
 export * from './organization-details-types';
 export * from './organization-details-factory';
 export * from './organization-details-mappers';

@@ -1,3 +1,13 @@
+/**
+ * Authentication utility functions for domain and URL handling.
+ * @module auth-utils
+ * @internal
+ */
+
+/**
+ * Utility object containing authentication helper functions.
+ * @internal
+ */
 export const AuthUtils = {
   /**
    * Converts a domain string to a properly formatted URL with HTTPS protocol and trailing slash.

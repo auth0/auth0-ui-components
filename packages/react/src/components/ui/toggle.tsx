@@ -1,3 +1,9 @@
+/**
+ * Toggle button component.
+ * @module toggle
+ * @internal
+ */
+
 import { cva } from 'class-variance-authority';
 import * as React from 'react';
 

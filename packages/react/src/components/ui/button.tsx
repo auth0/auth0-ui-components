@@ -1,3 +1,9 @@
+/**
+ * Button component with variants.
+ * @module button
+ * @internal
+ */
+
 'use client';
 
 import { Slot } from '@radix-ui/react-slot';

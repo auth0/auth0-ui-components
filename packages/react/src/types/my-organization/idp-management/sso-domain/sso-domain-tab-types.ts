@@ -1,3 +1,8 @@
+/**
+ * SSO domain tab types.
+ * @module sso-domain-tab-types
+ */
+
 import type {
   ComponentAction,
   Domain,
@@ -7,8 +12,7 @@ import type {
   SsoDomainTabMessages,
 } from '@auth0/universal-components-core';
 
-/* ============ Components ============ */
-
+/** SSO domains tab edit action props. */
 export interface SsoDomainsTabEditProps {
   createAction?: ComponentAction<Domain>;
   verifyAction?: ComponentAction<Domain>;
@@ -17,6 +21,7 @@ export interface SsoDomainsTabEditProps {
   deleteFromProviderAction?: ComponentAction<Domain, IdentityProvider | null>;
 }
 
+/** CSS classes for SsoDomainsTab. */
 export interface SsoDomainTabClasses {
   'SsoDomainsTab-header'?: string;
   'SsoDomainsTab-table'?: string;
@@ -25,10 +30,12 @@ export interface SsoDomainTabClasses {
   'SsoDomainsTab-deleteModal'?: string;
 }
 
+/** SSO provider edit domains tab schema. */
 export interface SsoProviderEditDomainsTabSchema {
   create: DomainCreateSchemas;
 }
 
+/** Props for SsoDomainsTab component. */
 export interface SsoDomainsTabProps
   extends SharedComponentProps<
     SsoDomainTabMessages,
@@ -39,8 +46,6 @@ export interface SsoDomainsTabProps
   idpId: string;
   provider: IdentityProvider | null;
 }
-
-/* ============ Subcomponents ============ */
 
 export interface SsoDomainTabActionColumn
   extends SharedComponentProps<
@@ -56,8 +61,6 @@ export interface SsoDomainTabActionColumn
   isUpdatingId: string | null;
   onToggle: (domain: Domain, newCheckedValue: boolean) => Promise<void>;
 }
-
-/* ============ Hooks ============ */
 
 export interface UseSsoDomainTabOptions extends SharedComponentProps {
   domains: SsoDomainsTabEditProps;

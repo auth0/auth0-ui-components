@@ -1,5 +1,15 @@
+/**
+ * Common schema utilities.
+ * @module common-schemas
+ * @internal
+ */
+
 import { z } from 'zod';
 
+/**
+ * Options for string field validation.
+ * @internal
+ */
 export interface StringValidationOptions {
   required?: boolean;
   regex?: RegExp;
@@ -8,23 +18,39 @@ export interface StringValidationOptions {
   errorMessage?: string;
 }
 
+/**
+ * Options for logo URL validation.
+ * @internal
+ */
 export interface LogoValidationOptions {
   required?: boolean;
   regex?: RegExp;
   errorMessage?: string;
 }
 
+/**
+ * Options for domain validation.
+ * @internal
+ */
 export interface DomainValidationOptions {
   required?: boolean;
   regex?: RegExp;
   errorMessage?: string;
 }
 
+/**
+ * Options for boolean field validation.
+ * @internal
+ */
 export interface BooleanFieldOptions {
   required?: boolean;
   errorMessage?: string;
 }
 
+/**
+ * Generic field validation options.
+ * @internal
+ */
 export interface FieldOptions {
   required?: boolean;
   regex?: RegExp;
@@ -33,6 +59,13 @@ export interface FieldOptions {
   maxLength?: number;
 }
 
+/**
+ * Creates a Zod string schema with configurable validation options.
+ * @internal
+ *
+ * @param options - Validation options for the string schema
+ * @returns Configured Zod string schema
+ */
 export const createStringSchema = (options: StringValidationOptions = {}) => {
   const { required = true, regex, minLength, maxLength, errorMessage } = options;
 

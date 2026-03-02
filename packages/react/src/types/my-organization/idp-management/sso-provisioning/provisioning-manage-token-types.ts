@@ -1,3 +1,8 @@
+/**
+ * Provisioning manage token types.
+ * @module provisioning-manage-token-types
+ */
+
 import type {
   SharedComponentProps,
   ProvisioningManageTokenMessages,
@@ -8,6 +13,7 @@ import type {
   ProvisioningCreateTokenModalMessages,
 } from '@auth0/universal-components-core';
 
+/** CSS classes for ProvisioningManageToken. */
 export interface ProvisioningManageTokenClasses {
   'ProvisioningManageToken-root'?: string;
   'ProvisioningManageToken-header'?: string;
@@ -15,6 +21,7 @@ export interface ProvisioningManageTokenClasses {
   'ProvisioningManageToken-emptyState'?: string;
 }
 
+/** Props for ProvisioningManageToken component. */
 export interface ProvisioningManageTokenProps
   extends SharedComponentProps<ProvisioningManageTokenMessages, ProvisioningManageTokenClasses> {
   isScimTokensLoading: boolean;
@@ -27,6 +34,7 @@ export interface ProvisioningManageTokenProps
   onDeleteScimToken: (idpScimTokenId: string) => Promise<void>;
 }
 
+/** Props for ProvisioningDeleteTokenModal. */
 export interface ProvisioningDeleteTokenModalProps
   extends SharedComponentProps<ProvisioningDeleteTokenModalMessages> {
   open: boolean;
@@ -35,6 +43,8 @@ export interface ProvisioningDeleteTokenModalProps
   tokenId: string | null;
   onConfirm: () => void;
 }
+
+/** Props for ProvisioningCreateTokenModal. */
 export interface ProvisioningCreateTokenModalProps
   extends SharedComponentProps<ProvisioningCreateTokenModalMessages> {
   open: boolean;

@@ -2,11 +2,15 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { SsoProviderEdit } from '@/components/auth0/my-organization/sso-provider-edit';
+import {
+  SsoProviderEdit,
+  SsoProviderEditView,
+} from '@/components/auth0/my-organization/sso-provider-edit';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockIdentityProvider,
   createMockIdentityProviderWithoutProvisioning,
+  createMockSsoProviderEditViewProps,
 } from '@/tests/utils/__mocks__';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
@@ -706,5 +710,79 @@ describe('SsoProviderEdit', () => {
         });
       });
     });
+  });
+});
+
+describe('SsoProviderEditView', () => {
+  const mockProps = createMockSsoProviderEditViewProps();
+
+  it('renders the header and tabs', () => {
+    renderWithProviders(<SsoProviderEditView {...mockProps} />);
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+    expect(screen.getByText(/tabs.sso.name/i)).toBeInTheDocument();
+    expect(screen.getByText(/tabs.provisioning.name/i)).toBeInTheDocument();
+    expect(screen.getByText(/tabs.domains.name/i)).toBeInTheDocument();
+  });
+
+  it('renders the switch in header', () => {
+    renderWithProviders(<SsoProviderEditView {...mockProps} />);
+    expect(screen.getByRole('switch')).toBeInTheDocument();
+  });
+
+  it('renders custom header class if provided', () => {
+    renderWithProviders(
+      <SsoProviderEditView
+        {...mockProps}
+        styling={{
+          ...mockProps.styling,
+          classes: { ...mockProps?.styling?.classes, 'SsoProviderEdit-header': 'custom-header' },
+        }}
+      />,
+    );
+    expect(document.querySelector('.custom-header')).toBeInTheDocument();
+  });
+
+  it('renders custom tabs class if provided', () => {
+    renderWithProviders(
+      <SsoProviderEditView
+        {...mockProps}
+        styling={{
+          ...mockProps.styling,
+          classes: { ...mockProps?.styling?.classes, 'SsoProviderEdit-tabs': 'custom-tabs' },
+        }}
+      />,
+    );
+    expect(document.querySelector('.custom-tabs')).toBeInTheDocument();
+  });
+
+  it('does not render header if hideHeader is true', () => {
+    renderWithProviders(<SsoProviderEditView {...mockProps} hideHeader={true} />);
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+  });
+
+  it('renders with customMessages', () => {
+    renderWithProviders(
+      <SsoProviderEditView
+        {...mockProps}
+        customMessages={{
+          header: { back_button_text: 'Back' },
+        }}
+      />,
+    );
+  });
+
+  it('renders tabs and switches between them', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<SsoProviderEditView {...mockProps} />);
+    // SSO tab is present
+    expect(screen.getByText(/tabs.sso.name/i)).toBeInTheDocument();
+    // Switch to domains tab
+    const domainTab = screen.getByText(/tabs.domains.name/i);
+    await user.click(domainTab);
+    expect(domainTab).toBeInTheDocument();
+    // Switch to provisioning tab
+    const provisioningTab = screen.getByText(/tabs.provisioning.name/i);
+    await user.click(provisioningTab);
+    expect(provisioningTab).toBeInTheDocument();
   });
 });

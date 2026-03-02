@@ -1,3 +1,9 @@
+/**
+ * MFA data mappers for transforming API responses.
+ * @module mfa-mappers
+ * @internal
+ */
+
 import type {
   MFAType,
   Authenticator,
@@ -9,6 +15,10 @@ import type {
 } from './mfa-types';
 import { transformMyAccountFactors, buildEnrollParams } from './mfa-utils';
 
+/**
+ * MFA data mappers for API transformations.
+ * @internal
+ */
 export const MFAMappers = {
   fromAPI(
     availableFactorsResponse: ListFactorsResponseContent,

@@ -1,3 +1,9 @@
+/**
+ * Domain verification modal.
+ * @module domain-verify-modal
+ * @internal
+ */
+
 import { MessageSquare } from 'lucide-react';
 import React from 'react';
 
@@ -12,6 +18,21 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { DomainVerifyModalProps } from '@/types/my-organization/domain-management/domain-verify-types';
 
+/**
+ *
+ * @param props - Component props.
+ * @param props.translatorKey - Translation namespace key
+ * @param props.className - Optional CSS class name for styling
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @param props.isOpen - Whether the modal/dialog is open
+ * @param props.isLoading - Whether the component is in a loading state
+ * @param props.domain - Domain object or domain name
+ * @param props.error - Error message or error object to display
+ * @param props.onClose - Callback fired when the component should close
+ * @param props.onVerify - Callback fired when verify action is triggered
+ * @param props.onDelete - Callback fired when delete action is triggered
+ * @returns JSX element
+ */
 export function DomainVerifyModal({
   translatorKey = 'domain_management.domain_verify.modal',
   className,

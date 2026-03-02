@@ -1,3 +1,8 @@
+/**
+ * Custom message type definitions for SSO provider table component.
+ * @module sso-provider-table-types
+ * @internal
+ */
 import type {
   SsoProvideDeleteMessages,
   SsoProviderDeleteModalContentMessages,

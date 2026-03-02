@@ -1,3 +1,8 @@
+/**
+ * Domain table data and mutations hook.
+ * @module use-domain-table
+ */
+
 import {
   type Domain,
   type IdentityProvider,
@@ -42,6 +47,16 @@ const mapProviders = (
 
 /**
  * Hook for managing organization domain verification and provider associations.
+/**
+ * Hook for domain table data fetching and CRUD operations.
+ * @param props - Component props.
+ * @param props.createAction - Configuration for the create action
+ * @param props.deleteAction - Configuration for the delete action
+ * @param props.verifyAction - Configuration for the verify action
+ * @param props.associateToProviderAction - Configuration for associating to a provider
+ * @param props.deleteFromProviderAction - Configuration for deleting from a provider
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @returns Hook state and methods
  */
 export function useDomainTable({
   createAction,

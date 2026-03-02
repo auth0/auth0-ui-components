@@ -1,3 +1,9 @@
+/**
+ * QR code display component.
+ * @module qr-code
+ * @internal
+ */
+
 import * as React from 'react';
 
 import { Spinner } from '@/components/ui/spinner';

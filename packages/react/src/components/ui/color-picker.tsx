@@ -1,3 +1,9 @@
+/**
+ * Color picker component with HSV controls.
+ * @module color-picker
+ * @internal
+ */
+
 'use client';
 
 import { hexToHsva, hsvaToHex, hsvaToRgba } from '@uiw/color-convert';

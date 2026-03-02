@@ -12,27 +12,27 @@ import {
 } from '../../internals/__mocks__/shared/api-service.mocks';
 import { createMockMyAccountClient } from '../../services/my-account/__tests__/__mocks__/my-account-api-service.mocks';
 import { createMockMyOrganizationClient } from '../../services/my-organization/__tests__/__mocks__/my-organization-api-service.mocks';
-import { createMockTokenManager } from '../__mocks__/token-manager.mocks';
+import { createMockSpaTokenRetriever } from '../__mocks__/spa-token-retriever.mocks';
 import type { AuthDetails } from '../auth-types';
 import { createCoreClient } from '../core-client';
-import { createTokenManager } from '../token-manager';
+import { createSpaTokenRetriever } from '../spa-token-retriever';
 
 // Mock the modules
 vi.mock('@core/i18n');
-vi.mock('@core/auth/token-manager');
+vi.mock('@core/auth/spa-token-retriever');
 vi.mock('@core/services/my-organization/my-organization-api-service');
 vi.mock('@core/services/my-account/my-account-api-service');
 
 describe('createCoreClient', () => {
   // Create mock instances using mock utilities
   const mockI18nService = createMockI18nService();
-  const mockTokenManager = createMockTokenManager();
+  const mockTokenManager = createMockSpaTokenRetriever();
   const mockMyOrganizationClient = createMockMyOrganizationClient();
   const mockMyAccountClient = createMockMyAccountClient();
 
   // Get the mocked functions
   const createI18nServiceMock = vi.mocked(createI18nService);
-  const createTokenManagerMock = vi.mocked(createTokenManager);
+  const createSpaTokenRetrieverMock = vi.mocked(createSpaTokenRetriever);
   const initializeMyOrganizationClientMock = vi.mocked(initializeMyOrganizationClient);
   const initializeMyAccountClientMock = vi.mocked(initializeMyAccountClient);
 
@@ -50,7 +50,7 @@ describe('createCoreClient', () => {
 
     // Setup default mock implementations
     createI18nServiceMock.mockResolvedValue(mockI18nService);
-    createTokenManagerMock.mockReturnValue(mockTokenManager);
+    createSpaTokenRetrieverMock.mockReturnValue(mockTokenManager);
     initializeMyOrganizationClientMock.mockReturnValue(mockMyOrganizationClient);
     initializeMyAccountClientMock.mockReturnValue(mockMyAccountClient);
 
@@ -145,7 +145,7 @@ describe('createCoreClient', () => {
       const authDetails = createAuthDetails();
       await createCoreClient(authDetails);
 
-      expect(createTokenManagerMock).toHaveBeenCalledWith(authDetails);
+      expect(createSpaTokenRetrieverMock).toHaveBeenCalledWith(authDetails);
     });
 
     it('initializes MyOrg client with auth and token manager', async () => {
@@ -242,6 +242,56 @@ describe('createCoreClient', () => {
       const client = await createCoreClient(authDetails);
 
       expect(client.auth.contextInterface).toBe(customContext);
+    });
+  });
+
+  // --- New tests for previewMode ---
+  describe('previewMode', () => {
+    it('returns a core client with previewMode and disables API clients', async () => {
+      const authDetails = { ...createAuthDetails(), previewMode: true };
+      const client = await createCoreClient(authDetails);
+
+      expect(client.auth).toEqual({});
+      expect(client.myAccountApiClient).toBeUndefined();
+      expect(client.myOrganizationApiClient).toBeUndefined();
+      expect(typeof client.getToken).toBe('function');
+      expect(typeof client.isProxyMode).toBe('function');
+    });
+
+    it('getToken returns undefined in previewMode', async () => {
+      const authDetails = { ...createAuthDetails(), previewMode: true };
+      const client = await createCoreClient(authDetails);
+
+      const token = await client.getToken('scope', 'aud');
+      expect(token).toBeUndefined();
+    });
+
+    it('isProxyMode returns false in previewMode', async () => {
+      const authDetails = { ...createAuthDetails(), previewMode: true };
+      const client = await createCoreClient(authDetails);
+
+      expect(client.isProxyMode()).toBe(false);
+    });
+
+    it('getMyAccountApiClient throws in previewMode', async () => {
+      const authDetails = { ...createAuthDetails(), previewMode: true };
+      const client = await createCoreClient(authDetails);
+
+      expect(() => client.getMyAccountApiClient()).toThrow('Function not implemented.');
+    });
+
+    it('getMyOrganizationApiClient throws in previewMode', async () => {
+      const authDetails = { ...createAuthDetails(), previewMode: true };
+      const client = await createCoreClient(authDetails);
+
+      expect(() => client.getMyOrganizationApiClient()).toThrow('Function not implemented.');
+    });
+
+    it('getDomain not defined in previewMode', async () => {
+      const authDetails = { ...createAuthDetails(), previewMode: true };
+      const client = await createCoreClient(authDetails);
+
+      expect(() => client.getDomain()).toBeUndefined;
     });
   });
 });

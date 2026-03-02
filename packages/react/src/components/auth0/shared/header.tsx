@@ -1,3 +1,9 @@
+/**
+ * Section header with actions.
+ * @module header
+ * @internal
+ */
+
 import type { ActionButton as CoreActionButton } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import { ArrowLeft } from 'lucide-react';

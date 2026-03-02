@@ -1,3 +1,9 @@
+/**
+ * SSO provider remove from organization section.
+ * @module provider-remove
+ * @internal
+ */
+
 import * as React from 'react';
 
 import { SsoProviderRemoveFromOrganizationModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove-modal';
@@ -7,6 +13,17 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { SsoProviderRemoveFromOrganizationProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-delete-types';
 
+/**
+ *
+ * @param props - Component props.
+ * @param props.provider - SSO provider object
+ * @param props.organizationName - Name of the organization
+ * @param props.onRemove - Callback fired when remove action is triggered
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @param props.isLoading - Whether the component is in a loading state
+ * @param props.readOnly - Whether the component is in read-only mode
+ * @returns JSX element
+ */
 export function SsoProviderRemoveFromOrganization({
   provider,
   organizationName,

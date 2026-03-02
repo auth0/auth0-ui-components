@@ -1,3 +1,8 @@
+/**
+ * Custom message type definitions for SSO provider delete component.
+ * @module sso-provider-delete-types
+ * @internal
+ */
 export interface SsoProviderDeleteModalContentMessages {
   description?: string;
   field: {

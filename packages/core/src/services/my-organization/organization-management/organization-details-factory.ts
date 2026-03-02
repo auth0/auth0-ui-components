@@ -1,3 +1,8 @@
+/**
+ * Organization details factory for creating default instances.
+ * @module organization-details-factory
+ * @internal
+ */
 import { DEFAULT_COLORS } from './organization-details-constants';
 import type { OrganizationPrivate } from './organization-details-types';
 

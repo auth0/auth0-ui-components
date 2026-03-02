@@ -1,3 +1,9 @@
+/**
+ * Visual separator component.
+ * @module separator
+ * @internal
+ */
+
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';

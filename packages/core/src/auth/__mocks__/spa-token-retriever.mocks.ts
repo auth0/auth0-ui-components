@@ -1,19 +1,19 @@
 import { vi } from 'vitest';
 
-import type { createTokenManager } from '../token-manager';
+import type { createSpaTokenRetriever } from '../spa-token-retriever';
 
 /**
- * Creates a mock token manager service
+ * Creates a mock SPA token retriever service
  */
-export const createMockTokenManager = (
+export const createMockSpaTokenRetriever = (
   tokenValue: string | undefined = 'mock-access-token',
-): ReturnType<typeof createTokenManager> => ({
+): ReturnType<typeof createSpaTokenRetriever> => ({
   getToken: vi.fn(async () => tokenValue),
 });
 
-export const createMockTokenManagerWithScopes = (
+export const createMockSpaTokenRetrieverWithScopes = (
   tokenValue: string | undefined = 'mock-access-token',
-): ReturnType<typeof createTokenManager> & {
+): ReturnType<typeof createSpaTokenRetriever> & {
   lastScope?: string;
   lastAudiencePath?: string;
 } => {
@@ -29,9 +29,9 @@ export const createMockTokenManagerWithScopes = (
   return mockManager;
 };
 
-export const createMockTokenManagerWithError = (
+export const createMockSpaTokenRetrieverWithError = (
   error: Error = new Error('Token retrieval failed'),
-): ReturnType<typeof createTokenManager> => ({
+): ReturnType<typeof createSpaTokenRetriever> => ({
   getToken: async () => {
     throw error;
   },

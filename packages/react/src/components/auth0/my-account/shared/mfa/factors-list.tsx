@@ -1,3 +1,9 @@
+/**
+ * MFA enrolled factors list display.
+ * @module factors-list
+ * @internal
+ */
+
 import { FACTOR_TYPE_PHONE, FACTOR_TYPE_EMAIL } from '@auth0/universal-components-core';
 import { getComponentStyles } from '@auth0/universal-components-core';
 import { MoreVertical, Trash2, Mail, Smartphone } from 'lucide-react';
@@ -16,6 +22,20 @@ const FACTOR_ICONS = {
   [FACTOR_TYPE_EMAIL]: Mail,
 } as const;
 
+/**
+ *
+ * @param props - Component props.
+ * @param props.factors - Array of MFA factors
+ * @param props.factorType - The MFA factor type
+ * @param props.readOnly - Whether the component is in read-only mode
+ * @param props.isEnabledFactor - Whether the factor is enabled
+ * @param props.onDeleteFactor - Callback to delete a factor
+ * @param props.isDeletingFactor - Whether a factor deletion is in progress
+ * @param props.disableDelete - Whether delete action is disabled
+ * @param props.styling - Custom styling configuration with variables and classes
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @returns JSX element
+ */
 export function FactorsList({
   factors,
   factorType,

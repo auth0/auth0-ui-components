@@ -1,14 +1,15 @@
+/**
+ * Toast notification types.
+ * @module toast-types
+ */
+
 import type { ReactNode } from 'react';
 import type { ExternalToast } from 'sonner';
 
-/**
- * Toast notification types
- */
+/** Toast notification type. */
 export type ToastType = 'success' | 'info' | 'warning' | 'error';
 
-/**
- * Toast position options for Sonner provider
- */
+/** Toast position options. */
 export type ToastPosition =
   | 'top-left'
   | 'top-right'
@@ -17,16 +18,12 @@ export type ToastPosition =
   | 'top-center'
   | 'bottom-center';
 
-/**
- * Custom toast method signature
- */
+/** Custom toast method signature. */
 export interface CustomToastMethod {
   (message: string): void;
 }
 
-/**
- * Custom toast methods interface for overriding default toast behavior
- */
+/** Custom toast methods for overriding default behavior. */
 export interface CustomToastMethods {
   success?: CustomToastMethod;
   error?: CustomToastMethod;
@@ -35,9 +32,7 @@ export interface CustomToastMethods {
   dismiss?: (toastId?: string) => void;
 }
 
-/**
- * Sonner-specific toast settings
- */
+/** Sonner toast settings. */
 export interface SonnerSettings {
   position?: ToastPosition;
   maxToasts?: number;
@@ -46,16 +41,12 @@ export interface SonnerSettings {
   closeButton?: boolean;
 }
 
-/**
- * Toast provider configuration with type safety
- */
+/** Toast provider configuration. */
 export type ToastSettings =
   | { provider?: 'sonner'; settings?: SonnerSettings }
   | { provider: 'custom'; methods: CustomToastMethods };
 
-/**
- * Toast options for showToast function
- */
+/** Toast options for showToast. */
 export interface ToastOptions {
   type: ToastType;
   message: string;
@@ -64,13 +55,11 @@ export interface ToastOptions {
   data?: ExternalToast;
 }
 
-/**
- * Default toast settings used across the application
- */
+/** Default toast settings. */
 export const DEFAULT_TOAST_SETTINGS: ToastSettings = {
   provider: 'sonner',
   settings: {
     position: 'top-right',
-    closeButton: true, // Enable close button by default for better UX
+    closeButton: true,
   },
 } as const;

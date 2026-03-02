@@ -1,3 +1,9 @@
+/**
+ * MFA contact input form for email/SMS enrollment.
+ * @module contact-input-form
+ * @internal
+ */
+
 import {
   FACTOR_TYPE_EMAIL,
   createEmailContactSchema,
@@ -39,6 +45,20 @@ const PHASES = {
 
 type Phase = (typeof PHASES)[keyof typeof PHASES];
 
+/**
+ *
+ * @param props - Component props.
+ * @param props.factorType - The MFA factor type
+ * @param props.enrollMfa - Function to enroll a new MFA factor
+ * @param props.onError - Callback fired when an error occurs
+ * @param props.confirmEnrollment - Function to confirm MFA enrollment
+ * @param props.onSuccess - Callback fired on successful operation
+ * @param props.onClose - Callback fired when the component should close
+ * @param props.schema - Zod validation schema
+ * @param props.styling - Custom styling configuration with variables and classes
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @returns JSX element
+ */
 export function ContactInputForm({
   factorType,
   enrollMfa,

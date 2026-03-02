@@ -18,6 +18,10 @@ export const idpConfigQueryKeys = {
   config: () => [...idpConfigQueryKeys.all, 'config'] as const,
 };
 
+/**
+ * Hook for fetching IDP configuration and provisioning settings.
+ * @returns IDP config and provisioning utilities.
+ */
 export function useIdpConfig(): UseConfigIdpResult {
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();

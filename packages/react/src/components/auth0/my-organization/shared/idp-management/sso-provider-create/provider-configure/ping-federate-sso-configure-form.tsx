@@ -1,3 +1,9 @@
+/**
+ * PingFederate SSO provider configuration form.
+ * @module ping-federate-sso-configure-form
+ * @internal
+ */
+
 import {
   createProviderConfigureSchema,
   type PingFederateConfigureFormValues,

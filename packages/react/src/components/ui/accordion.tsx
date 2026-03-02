@@ -1,3 +1,9 @@
+/**
+ * Accordion component using Radix primitives.
+ * @module accordion
+ * @internal
+ */
+
 'use client';
 
 import * as AccordionPrimitive from '@radix-ui/react-accordion';

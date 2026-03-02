@@ -1,3 +1,9 @@
+/**
+ * IDP schemas.
+ * @module idp-schemas
+ * @internal
+ */
+
 export * from './sso-provider/sso-provider-create-schema';
 export * from './sso-provider/sso-provider-delete-schema';
 export * from './sso-provisioning/sso-provisioning-edit-schema';

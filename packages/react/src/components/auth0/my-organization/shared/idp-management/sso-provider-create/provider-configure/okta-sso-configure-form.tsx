@@ -1,3 +1,9 @@
+/**
+ * Okta SSO provider configuration form.
+ * @module okta-sso-configure-form
+ * @internal
+ */
+
 import {
   createProviderConfigureSchema,
   type OktaConfigureFormValues,

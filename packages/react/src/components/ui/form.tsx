@@ -1,3 +1,9 @@
+/**
+ * Form components with react-hook-form integration.
+ * @module form
+ * @internal
+ */
+
 'use client';
 
 import type * as LabelPrimitive from '@radix-ui/react-label';

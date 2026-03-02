@@ -3,9 +3,15 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { OrganizationDetailsEdit } from '@/components/auth0/my-organization/organization-details-edit';
+import {
+  OrganizationDetailsEdit,
+  OrganizationDetailsEditView,
+} from '@/components/auth0/my-organization/organization-details-edit';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
+import {
+  createMockOrganization,
+  createMockOrganizationDetailsEditViewProps,
+} from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type {
@@ -528,5 +534,50 @@ describe('OrganizationDetailsEdit', () => {
         expect(mockBackButton.onClick).toHaveBeenCalledTimes(1);
       });
     });
+  });
+});
+
+describe('OrganizationDetailsEditView', () => {
+  const mockProps = createMockOrganizationDetailsEditViewProps();
+
+  it('renders the header and organization details form', () => {
+    renderWithProviders(<OrganizationDetailsEditView {...mockProps} />);
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+    expect(screen.getByTestId('organization-details-card')).toBeInTheDocument();
+  });
+
+  it('renders custom card class if provided', () => {
+    renderWithProviders(
+      <OrganizationDetailsEditView
+        {...mockProps}
+        styling={{
+          ...mockProps.styling,
+          classes: { ...mockProps.styling?.classes, OrganizationDetails_Card: 'custom-card-class' },
+        }}
+      />,
+    );
+    expect(document.querySelector('.custom-card-class')).toBeInTheDocument();
+  });
+
+  it('does not render header if hideHeader is true', () => {
+    renderWithProviders(<OrganizationDetailsEditView {...mockProps} hideHeader={true} />);
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+  });
+
+  it('renders with customMessages', () => {
+    renderWithProviders(
+      <OrganizationDetailsEditView
+        {...mockProps}
+        customMessages={{
+          header: { title: 'Custom Title', back_button_text: 'Back' },
+        }}
+      />,
+    );
+    expect(screen.getByText(/custom title/i)).toBeInTheDocument();
+  });
+
+  it('renders loading state when isFetchLoading is true', () => {
+    renderWithProviders(<OrganizationDetailsEditView {...mockProps} isFetchLoading={true} />);
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 });

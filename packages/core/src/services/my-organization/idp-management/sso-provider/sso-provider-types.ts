@@ -1,3 +1,8 @@
+/**
+ * SSO provider type definitions for identity provider management.
+ * @module sso-provider-types
+ * @internal
+ */
 import type { MyOrganization } from '@auth0/myorganization-js';
 import type {
   ProviderDetailsFormValues,

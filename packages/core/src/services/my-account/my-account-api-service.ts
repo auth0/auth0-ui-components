@@ -1,15 +1,27 @@
+/**
+ * My Account API service initialization.
+ * @module my-account-api-service
+ * @internal
+ */
+
 import { MyAccountClient } from '@auth0/myaccount-js';
 
 import type { AuthDetails } from '../../auth/auth-types';
-import type { createTokenManager } from '../../auth/token-manager';
+import type { createSpaTokenRetriever } from '../../auth/spa-token-retriever';
 
 export interface MyAccountClientWithScopes extends MyAccountClient {
   withScopes: (scopes: string) => MyAccountClientWithScopes;
 }
 
+/**
+ * Initializes the My Account API client.
+ * @param auth - Authentication configuration details.
+ * @param tokenManagerService - Token retriever for obtaining access tokens.
+ * @returns Initialized My Account client with scope management.
+ */
 export function initializeMyAccountClient(
   auth: AuthDetails,
-  tokenManagerService: ReturnType<typeof createTokenManager>,
+  tokenManagerService: ReturnType<typeof createSpaTokenRetriever>,
 ): MyAccountClientWithScopes {
   let latestScopes = '';
 

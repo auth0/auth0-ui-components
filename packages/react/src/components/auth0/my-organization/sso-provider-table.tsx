@@ -1,3 +1,5 @@
+/** @module sso-provider-table */
+
 import {
   getComponentStyles,
   type IdentityProvider,
@@ -12,22 +14,31 @@ import { SsoProviderTableActionsColumn } from '@/components/auth0/my-organizatio
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { GateKeeper } from '@/components/auth0/shared/gatekeeper';
 import { Header } from '@/components/auth0/shared/header';
-import { useConfig } from '@/hooks/my-organization/use-config';
-import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import { useSsoProviderTable } from '@/hooks/my-organization/use-sso-provider-table';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { SsoProviderTableProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
+import type {
+  SsoProviderTableProps,
+  SsoProviderTableViewProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
 /**
- * SsoProviderTable Component
+ * Internal SSO provider table container component.
+ * @param props - Component props
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @param props.styling - Custom styling configuration with variables and classes
+ * @param props.readOnly - Whether the component is in read-only mode
+ * @param props.createAction - Configuration for the create action
+ * @param props.editAction - Configuration for the edit action
+ * @param props.deleteAction - Configuration for the delete action
+ * @param props.deleteFromOrganizationAction - Configuration for removing from organization
+ * @param props.enableProviderAction - Configuration for enabling a provider
+ * @returns JSX element
+ * @internal
  */
-function SsoProviderTableComponent({
+export function SsoProviderTable({
   customMessages = {},
-  styling = {
-    variables: { common: {}, light: {}, dark: {} },
-    classes: {},
-  },
+  styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
   readOnly = false,
   createAction,
   editAction,
@@ -35,131 +46,80 @@ function SsoProviderTableComponent({
   deleteFromOrganizationAction,
   enableProviderAction,
 }: SsoProviderTableProps) {
-  const { isDarkMode } = useTheme();
-  const { t } = useTranslator('idp_management.sso_provider_table', customMessages);
-
-  const {
-    providers,
-    isLoading,
-    isDeleting,
-    isRemoving,
-    isUpdating,
-    isUpdatingId,
-    onDeleteConfirm,
-    onRemoveConfirm,
-    onEnableProvider,
-    getOrganizationName,
-    error: tableError,
-    retry: retryTable,
-  } = useSsoProviderTable(
+  const hook = useSsoProviderTable({
+    readOnly,
+    createAction,
+    editAction,
     deleteAction,
     deleteFromOrganizationAction,
     enableProviderAction,
     customMessages,
+  });
+
+  return (
+    <GateKeeper error={hook.error} onRetry={hook.retry}>
+      <SsoProviderTableView
+        {...hook}
+        styling={styling}
+        customMessages={customMessages}
+        readOnly={readOnly}
+        createAction={createAction}
+        editAction={editAction}
+      />
+    </GateKeeper>
   );
-  const {
-    isLoadingConfig,
-    shouldAllowDeletion,
-    isConfigValid,
-    error: configError,
-    retry: retryConfig,
-  } = useConfig();
-  const {
-    isLoadingIdpConfig,
-    isIdpConfigValid,
-    error: idpConfigError,
-    retry: retryIdpConfig,
-  } = useIdpConfig();
+}
 
-  const shouldHideCreate = !isConfigValid || !isIdpConfigValid;
-  const isViewLoading = isLoading || isLoadingConfig || isLoadingIdpConfig;
-
-  const error = tableError || configError || idpConfigError;
-
-  const retry = React.useCallback(async () => {
-    await Promise.all([retryTable(), retryConfig(), retryIdpConfig()]);
-  }, [retryTable, retryConfig, retryIdpConfig]);
-
-  const [showDeleteModal, setShowDeleteModal] = React.useState(false);
-  const [showRemoveModal, setShowRemoveModal] = React.useState(false);
-  const [selectedIdp, setSelectedIdp] = React.useState<IdentityProvider | null>(null);
-  const [organizationName, setOrganizationName] = React.useState<string | undefined>();
-
+/**
+ * Internal SSO provider table view component.
+ * @param props - Flat view props
+ * @internal
+ * @returns JSX element
+ */
+function SsoProviderTableView({
+  styling,
+  customMessages,
+  readOnly,
+  providers,
+  shouldHideCreate,
+  isViewLoading,
+  createAction,
+  editAction,
+  selectedIdp,
+  showDeleteModal,
+  showRemoveModal,
+  shouldAllowDeletion,
+  isUpdating,
+  isUpdatingId,
+  isDeleting,
+  isRemoving,
+  getOrganizationName,
+  handleCreate,
+  handleEdit,
+  handleDelete,
+  handleDeleteFromOrganization,
+  handleToggleEnabled,
+  handleDeleteConfirm,
+  handleRemoveConfirm,
+  setShowDeleteModal,
+  setShowRemoveModal,
+}: SsoProviderTableViewProps) {
+  const { isDarkMode } = useTheme();
+  const { t } = useTranslator('idp_management.sso_provider_table', customMessages);
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
   );
 
-  const handleCreate = React.useCallback(() => {
-    if (createAction?.onAfter) {
-      createAction.onAfter();
-    }
-  }, [createAction]);
+  const [organizationName, setOrganizationName] = React.useState<string | undefined>();
 
-  const handleEdit = React.useCallback(
-    (idp: IdentityProvider) => {
-      if (editAction?.onAfter) {
-        editAction.onAfter(idp);
-      }
-    },
-    [editAction],
-  );
-
-  const handleDelete = React.useCallback(
-    (idp: IdentityProvider) => {
-      setSelectedIdp(idp);
-
-      if (deleteAction?.onBefore) {
-        const shouldProceed = deleteAction.onBefore(idp);
-        if (!shouldProceed) return;
-      }
-
-      setShowDeleteModal(true);
-    },
-    [deleteAction],
-  );
-
-  const handleDeleteFromOrganization = React.useCallback(
+  const handleDeleteFromOrganizationWithOrgName = React.useCallback(
     async (idp: IdentityProvider) => {
-      setSelectedIdp(idp);
-
-      if (deleteFromOrganizationAction?.onBefore) {
-        const shouldProceed = deleteFromOrganizationAction.onBefore(idp);
-        if (!shouldProceed) return;
-      }
-
       const orgName = await getOrganizationName();
       setOrganizationName(orgName);
-      setShowRemoveModal(true);
+      handleDeleteFromOrganization(idp);
     },
-    [deleteFromOrganizationAction, getOrganizationName],
-  );
-
-  const handleToggleEnabled = React.useCallback(
-    async (idp: IdentityProvider, enabled: boolean) => {
-      if (readOnly || !onEnableProvider) return;
-
-      await onEnableProvider(idp, enabled);
-    },
-    [readOnly, onEnableProvider],
-  );
-
-  const handleDeleteConfirm = React.useCallback(
-    async (provider: IdentityProvider) => {
-      await onDeleteConfirm(provider);
-      setShowDeleteModal(false);
-      setSelectedIdp(null);
-    },
-    [onDeleteConfirm, selectedIdp],
-  );
-
-  const handleRemoveConfirm = React.useCallback(
-    async (provider: IdentityProvider) => {
-      await onRemoveConfirm(provider);
-      setShowRemoveModal(false);
-      setSelectedIdp(null);
-    },
-    [onRemoveConfirm],
+    [getOrganizationName, handleDeleteFromOrganization],
   );
 
   const columns: Column<IdentityProvider>[] = React.useMemo(
@@ -203,7 +163,7 @@ function SsoProviderTableComponent({
             onToggleEnabled={handleToggleEnabled}
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onRemoveFromOrganization={handleDeleteFromOrganization}
+            onRemoveFromOrganization={handleDeleteFromOrganizationWithOrgName}
           />
         ),
       },
@@ -215,68 +175,97 @@ function SsoProviderTableComponent({
       isUpdating,
       handleEdit,
       handleDelete,
-      handleDeleteFromOrganization,
+      handleDeleteFromOrganizationWithOrgName,
       handleToggleEnabled,
     ],
   );
 
   return (
-    <GateKeeper error={error} onRetry={retry}>
-      <div style={currentStyles.variables}>
-        <div className={currentStyles.classes?.['SsoProviderTable-header']}>
-          <Header
-            title={t('header.title')}
-            description={t('header.description')}
-            actions={[
-              {
-                type: 'button',
-                label: t('header.create_button_text'),
-                onClick: () => handleCreate(),
-                icon: Plus,
-                hidden: shouldHideCreate || isViewLoading,
-                disabled: createAction?.disabled || readOnly,
-              },
-            ]}
-          />
-        </div>
-
-        <DataTable
-          loading={isViewLoading}
-          columns={columns}
-          data={providers}
-          emptyState={{ title: t('table.empty_message') }}
-          className={currentStyles.classes?.['SsoProviderTable-table']}
+    <div style={currentStyles.variables}>
+      <div className={currentStyles.classes?.['SsoProviderTable-header']}>
+        <Header
+          title={t('header.title')}
+          description={t('header.description')}
+          actions={[
+            {
+              type: 'button',
+              label: t('header.create_button_text'),
+              onClick: () => handleCreate(),
+              icon: Plus,
+              hidden: shouldHideCreate || isViewLoading,
+              disabled: createAction?.disabled || readOnly,
+            },
+          ]}
         />
-
-        {selectedIdp && (
-          <SsoProviderDeleteModal
-            className={currentStyles.classes?.['SsoProviderTable-deleteProviderModal']}
-            isOpen={showDeleteModal}
-            onClose={() => setShowDeleteModal(false)}
-            provider={selectedIdp}
-            onDelete={handleDeleteConfirm}
-            isLoading={isDeleting}
-            customMessages={customMessages.delete_modal}
-          />
-        )}
-
-        {selectedIdp && (
-          <SsoProviderRemoveFromOrganizationModal
-            className={
-              currentStyles.classes?.['SsoProviderTable-deleteProviderFromOrganizationModal']
-            }
-            isOpen={showRemoveModal}
-            onClose={() => setShowRemoveModal(false)}
-            provider={selectedIdp}
-            organizationName={organizationName}
-            onRemove={handleRemoveConfirm}
-            isLoading={isRemoving}
-            customMessages={customMessages.remove_modal}
-          />
-        )}
       </div>
-    </GateKeeper>
+
+      <DataTable
+        loading={isViewLoading}
+        columns={columns}
+        data={providers}
+        emptyState={{ title: t('table.empty_message') }}
+        className={currentStyles.classes?.['SsoProviderTable-table']}
+      />
+
+      {selectedIdp && (
+        <SsoProviderDeleteModal
+          className={currentStyles.classes?.['SsoProviderTable-deleteProviderModal']}
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          provider={selectedIdp}
+          onDelete={handleDeleteConfirm}
+          isLoading={isDeleting}
+          customMessages={customMessages?.delete_modal}
+        />
+      )}
+
+      {selectedIdp && (
+        <SsoProviderRemoveFromOrganizationModal
+          className={
+            currentStyles.classes?.['SsoProviderTable-deleteProviderFromOrganizationModal']
+          }
+          isOpen={showRemoveModal}
+          onClose={() => setShowRemoveModal(false)}
+          provider={selectedIdp}
+          organizationName={organizationName}
+          onRemove={handleRemoveConfirm}
+          isLoading={isRemoving}
+          customMessages={customMessages?.remove_modal}
+        />
+      )}
+    </div>
   );
 }
 
-export const SsoProviderTable = SsoProviderTableComponent;
+/**
+ * SSO identity providers table.
+ *
+ * Displays a table of SSO identity providers with actions for creating, editing,
+ * enabling/disabling, deleting, and removing providers from the organization.
+ *
+ * @param props - {@link SsoProviderTableProps}
+ * @param props.customMessages - Custom i18n message overrides
+ * @param props.styling - CSS variables and class overrides
+ * @param props.readOnly - Render in read-only mode
+ * @param props.createAction - Lifecycle hooks for provider creation
+ * @param props.editAction - Lifecycle hooks for provider editing
+ * @param props.deleteAction - Lifecycle hooks for provider deletion
+ * @param props.deleteFromOrganizationAction - Lifecycle hooks for removing provider from organization
+ * @param props.enableProviderAction - Lifecycle hooks for enabling/disabling provider
+ * @returns SSO provider table component
+ *
+ * @see {@link SsoProviderTableProps} for full props documentation
+ *
+ * @example
+ * ```tsx
+ * <SsoProviderTable
+ *   createAction={{ onAfter: () => navigate('/providers/new') }}
+ *   editAction={{ onAfter: (provider) => navigate(`/providers/${provider.id}`) }}
+ *   deleteAction={{
+ *     onBefore: (provider) => confirm(`Delete ${provider.name}?`),
+ *     onAfter: (provider) => console.log('Deleted:', provider),
+ *   }}
+ * />
+ * ```
+ */
+export { SsoProviderTableView };

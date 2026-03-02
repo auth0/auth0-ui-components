@@ -1,3 +1,9 @@
+/**
+ * SSO provider edit tab component.
+ * @module sso-provider-tab
+ * @internal
+ */
+
 import { getComponentStyles } from '@auth0/universal-components-core';
 import React from 'react';
 
@@ -11,7 +17,26 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import type { SsoProviderTabProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 
 /**
- * SsoProviderTab Component
+ * SSO provider tab content for editing provider configuration.
+ *
+ * @param props - Component props.
+ * @param props.customMessages - Custom i18n message overrides.
+ * @param props.styling - CSS variables and class overrides.
+ * @param props.readOnly - Render in read-only mode.
+ * @param props.provider - The SSO provider being edited.
+ * @param props.onDelete - Callback when provider is deleted.
+ * @param props.onRemove - Callback when provider is removed from organization.
+ * @param props.organization - Current organization context.
+ * @param props.isDeleting - Whether deletion is in progress.
+ * @param props.isRemoving - Whether removal is in progress.
+ * @param props.idpConfig - Identity provider configuration.
+ * @param props.shouldAllowDeletion - Whether deletion is allowed.
+ * @param props.formActions - Form action handlers.
+ * @param props.hasSsoAttributeSyncWarning - Whether to show attribute sync warning.
+ * @param props.onAttributeSync - Callback for attribute sync.
+ * @param props.isSyncingAttributes - Whether attribute sync is in progress.
+ * @returns SSO provider tab content.
+ * @internal
  */
 export function SsoProviderTab({
   customMessages = {},

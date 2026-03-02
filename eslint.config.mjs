@@ -4,6 +4,7 @@ import tsParser from '@typescript-eslint/parser';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import importPlugin from 'eslint-plugin-import';
+import jsdocPlugin from 'eslint-plugin-jsdoc';
 import globals from 'globals';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
@@ -24,6 +25,9 @@ export default [
       '**/.turbo/**',
       '**/.next/**',
       '**/*.d.ts',
+      '**/docs-api/**',
+      '**/examples/**',
+      '**/docs-site/**',
     ],
   },
 
@@ -53,6 +57,7 @@ export default [
       'react': reactPlugin,
       'react-hooks': reactHooksPlugin,
       'import': importPlugin,
+      'jsdoc': jsdocPlugin,
     },
     rules: {
       // Disable base rules that TypeScript handles
@@ -98,12 +103,64 @@ export default [
       'import/named': 'off',
       'import/namespace': 'off',
       'import/default': 'off',
-      'import/no-named-as-default-member': 'off',
+      'import/no-named-as-default-member': 'off',  
+      'jsdoc/check-param-names': ['error', { 
+        checkDestructured: false,  
+        checkRestProperty: false, 
+      }],
+      'jsdoc/check-tag-names': ['error', { 
+        definedTags: ['packageDocumentation', 'defaultValue', 'internal', 'see', 'category']
+      }],
+      'jsdoc/valid-types': 'error',
+      
+      'jsdoc/require-param': ['error', { 
+        checkDestructured: false, 
+        checkDestructuredRoots: true, 
+      }],
+      'jsdoc/require-param-description': 'error',
+      'jsdoc/require-returns': ['error', { 
+        checkGetters: false,
+      }],
+      'jsdoc/require-returns-description': 'error',
+      'jsdoc/require-jsdoc': ['error', {
+        require: {
+          FunctionDeclaration: true,
+          MethodDefinition: false,
+          ClassDeclaration: true,
+          ArrowFunctionExpression: false,
+          FunctionExpression: false,
+        },
+        publicOnly: false, 
+      }],
     },
     settings: {
       react: {
         version: 'detect',
       },
+      jsdoc: {
+        mode: 'typescript',
+      },
+    },
+  },
+
+  // Relaxed JSDoc rules for test, mock, asset, and UI atom component files
+  {
+    files: [
+      '**/__mocks__/**', 
+      '**/__tests__/**', 
+      '**/*.test.{ts,tsx}', 
+      '**/*.spec.{ts,tsx}',
+      '**/assets/**',
+      '**/internals/**',
+      '**/components/ui/**',  // shadcn/atom components - thin wrappers, not public API
+    ],
+    rules: {
+      'jsdoc/require-param': 'off',
+      'jsdoc/check-param-names': 'off',
+      'jsdoc/require-returns': 'off',
+      'jsdoc/require-jsdoc': 'off',
+      'jsdoc/require-param-description': 'off',
+      'jsdoc/require-returns-description': 'off',
     },
   },
 

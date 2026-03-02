@@ -1,3 +1,9 @@
+/**
+ * PingID logo icon component.
+ * @module pingid-logo
+ * @internal
+ */
+
 import { PingIdLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 

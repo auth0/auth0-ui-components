@@ -1,2 +1,2 @@
 export * from './core-client.mocks';
-export * from './token-manager.mocks';
+export * from './spa-token-retriever.mocks';

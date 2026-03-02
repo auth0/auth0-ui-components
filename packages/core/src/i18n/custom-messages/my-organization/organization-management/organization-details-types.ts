@@ -1,5 +1,7 @@
 /**
- * Messages that can be used to override default messages.
+ * Custom message type definitions for organization details component.
+ * @module organization-details-types
+ * @internal
  */
 export interface OrganizationDetailsMessages {
   sections?: {

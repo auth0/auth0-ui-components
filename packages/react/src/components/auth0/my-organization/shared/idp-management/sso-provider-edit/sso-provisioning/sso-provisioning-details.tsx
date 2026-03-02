@@ -1,3 +1,9 @@
+/**
+ * SSO provisioning details form.
+ * @module sso-provisioning-details
+ * @internal
+ */
+
 'use client';
 
 import {
@@ -29,6 +35,23 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { SsoProvisioningDetailsProps } from '@/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
 
+/**
+ * SSO provisioning details for SCIM token management.
+ *
+ * @param props - Component props.
+ * @param props.provider - The SSO provider being configured.
+ * @param props.provisioningConfig - Provisioning configuration settings.
+ * @param props.isScimTokensLoading - Whether SCIM tokens are loading.
+ * @param props.isScimTokenCreating - Whether a SCIM token is being created.
+ * @param props.isScimTokenDeleting - Whether a SCIM token is being deleted.
+ * @param props.onListScimTokens - Callback to list SCIM tokens.
+ * @param props.onCreateScimToken - Callback to create a SCIM token.
+ * @param props.onDeleteScimToken - Callback to delete a SCIM token.
+ * @param props.customMessages - Custom i18n message overrides.
+ * @param props.styling - CSS variables and class overrides.
+ * @returns SSO provisioning details component.
+ * @internal
+ */
 export function SsoProvisioningDetails({
   provider,
   provisioningConfig,

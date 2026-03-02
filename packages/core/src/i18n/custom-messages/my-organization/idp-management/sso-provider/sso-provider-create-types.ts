@@ -1,5 +1,7 @@
 /**
- * Interface for SSO Provider Select messages that can be used in the UI.
+ * Custom message type definitions for SSO provider create component.
+ * @module sso-provider-create-types
+ * @internal
  */
 export interface ProviderSelectMessages {
   title?: string;

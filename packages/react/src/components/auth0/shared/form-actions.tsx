@@ -1,3 +1,9 @@
+/**
+ * Form action buttons component.
+ * @module form-actions
+ * @internal
+ */
+
 import type { ActionButton } from '@auth0/universal-components-core';
 import * as React from 'react';
 

@@ -23,9 +23,16 @@ describe('useSsoProviderTable', () => {
   const mockProvider2 = createMockIdentityProvider({ id: 'idp-2', name: 'Provider 2' });
   const mockIdentityProviders = [mockProvider1, mockProvider2];
 
-  const renderUseSsoProviderTable = (...args: Parameters<typeof useSsoProviderTable>) => {
+  const defaultOptions: Parameters<typeof useSsoProviderTable>[0] = {
+    createAction: { onBefore: vi.fn(() => true), onAfter: vi.fn() },
+    editAction: { onBefore: vi.fn(() => true), onAfter: vi.fn() },
+  };
+
+  const renderUseSsoProviderTable = (
+    overrides: Partial<Parameters<typeof useSsoProviderTable>[0]> = {},
+  ) => {
     const { wrapper } = createTestQueryClientWrapper();
-    return renderHook(() => useSsoProviderTable(...args), { wrapper });
+    return renderHook(() => useSsoProviderTable({ ...defaultOptions, ...overrides }), { wrapper });
   };
 
   beforeEach(() => {
@@ -299,7 +306,7 @@ describe('useSsoProviderTable', () => {
     const onBefore = vi.fn().mockReturnValue(true);
     const onAfter = vi.fn();
 
-    const { result } = renderUseSsoProviderTable(undefined, undefined, { onBefore, onAfter });
+    const { result } = renderUseSsoProviderTable({ enableProviderAction: { onBefore, onAfter } });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -316,7 +323,7 @@ describe('useSsoProviderTable', () => {
   it('should call deleteAction onAfter callback', async () => {
     const onAfter = vi.fn();
 
-    const { result } = renderUseSsoProviderTable({ onAfter });
+    const { result } = renderUseSsoProviderTable({ deleteAction: { onAfter } });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -332,7 +339,7 @@ describe('useSsoProviderTable', () => {
   it('should call removeFromOrganization onAfter callback', async () => {
     const onAfter = vi.fn();
 
-    const { result } = renderUseSsoProviderTable(undefined, { onAfter });
+    const { result } = renderUseSsoProviderTable({ deleteFromOrganizationAction: { onAfter } });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 

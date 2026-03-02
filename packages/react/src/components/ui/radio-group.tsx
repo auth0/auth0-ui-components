@@ -1,3 +1,9 @@
+/**
+ * Radio group using Radix primitives.
+ * @module radio-group
+ * @internal
+ */
+
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import * as React from 'react';
 

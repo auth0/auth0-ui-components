@@ -3,8 +3,6 @@ import path from 'path';
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const SPECIAL_FILES = ['index.json', 'registry.json', 'versions.json'];
-
 interface VersionInfo {
   current: string;
   latest: string;
@@ -19,18 +17,15 @@ function getVersionPath(version: string, versionInfo: VersionInfo): string {
   if (versionData) {
     return `v${versionData.major}/${version}`;
   }
-  // Fallback: assume v1
   return `v1/${version}`;
 }
 
 function getBasePath(): string {
-  // Vercel builds to docs-site/dist, which becomes the outputDirectory
-  // In production, cwd is /var/task and files are at /var/task/dist/r
   const paths = [
-    path.join(process.cwd(), 'dist', 'r'), // Vercel production (cwd is /var/task)
-    path.join(process.cwd(), 'r'), // Alternative
-    path.join(process.cwd(), 'docs-site', 'dist', 'r'), // Local after build
-    path.join(process.cwd(), 'docs-site', 'public', 'r'), // Local dev
+    path.join(process.cwd(), 'dist', 'r'),
+    path.join(process.cwd(), 'r'),
+    path.join(process.cwd(), 'docs-site', 'dist', 'r'),
+    path.join(process.cwd(), 'docs-site', 'public', 'r'),
   ];
 
   for (const p of paths) {
@@ -39,7 +34,7 @@ function getBasePath(): string {
     }
   }
 
-  return paths[0]!; // Fallback
+  return paths[0]!;
 }
 
 function getVersionInfo(basePath: string): VersionInfo {
@@ -51,7 +46,6 @@ function getVersionInfo(basePath: string): VersionInfo {
   } catch (error) {
     console.error('Failed to read versions.json:', error);
   }
-  // Fallback
   return {
     current: '1.0.0-beta.6',
     latest: '1.0.0-beta.6',
@@ -61,8 +55,14 @@ function getVersionInfo(basePath: string): VersionInfo {
   };
 }
 
+function sendJson(res: VercelResponse, content: string): void {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.send(content);
+}
+
 export default function handler(req: VercelRequest, res: VercelResponse) {
-  // Extract file path from query parameter (from rewrite /r/:path* -> /api/r?file=:path*)
   const { file } = req.query;
   const fileName = Array.isArray(file) ? file.join('/') : file || '';
 
@@ -70,67 +70,79 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Bad Request', message: 'File path required' });
   }
 
+  const normalizedFileName = path.normalize(fileName).replace(/^(\.\.([\\/]|$))+/, '');
+  if (normalizedFileName !== fileName || normalizedFileName.includes('..')) {
+    return res.status(400).json({ error: 'Invalid file path' });
+  }
+
   const basePath = getBasePath();
   const versionInfo = getVersionInfo(basePath);
 
-  if (SPECIAL_FILES.includes(fileName)) {
-    const filePath = path.join(basePath, fileName);
-    if (fs.existsSync(filePath)) {
-      const content = fs.readFileSync(filePath, 'utf-8');
-      res.setHeader('Content-Type', 'application/json');
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Cache-Control', 'public, max-age=3600');
-      return res.send(content);
+  const rootFilePath = path.join(basePath, normalizedFileName);
+  if (fs.existsSync(rootFilePath)) {
+    try {
+      sendJson(res, fs.readFileSync(rootFilePath, 'utf-8'));
+    } catch (error) {
+      console.error(`Failed to read registry file ${rootFilePath}:`, error);
+      res
+        .status(500)
+        .json({ error: 'Internal Server Error', message: 'Failed to read registry file' });
     }
-  }
-
-  const normalizedFileName = path.normalize(fileName).replace(/^(\.\.([\\/]|$))+/, '');
-
-  if (normalizedFileName !== fileName || normalizedFileName.includes('..')) {
-    return res.status(400).json({ error: 'Invalid file path' });
+    return;
   }
 
   const versionParam = req.query.version as string | undefined;
   let versionPath: string;
 
   if (!versionParam) {
-    // Default to current version
     versionPath = getVersionPath(versionInfo.current, versionInfo);
   } else if (versionParam === 'latest') {
-    // Use latest version
     versionPath = getVersionPath(versionInfo.latest, versionInfo);
   } else if (versionParam.startsWith('v') && versionParam.includes('/')) {
-    // Full version path provided (e.g., 'v1/1.0.0-beta.5')
     versionPath = versionParam;
   } else if (versionParam.startsWith('v') && !versionParam.includes('/')) {
-    // Major version only (e.g., 'v1') - get latest for that major
     const majorVersion = versionInfo.majorVersions?.[versionParam]?.latest;
     versionPath = majorVersion
       ? getVersionPath(majorVersion, versionInfo)
       : getVersionPath(versionInfo.current, versionInfo);
   } else {
-    // Just version number (e.g., '1.0.0-beta.5')
     versionPath = getVersionPath(versionParam, versionInfo);
   }
 
-  const baseDir = path.resolve(basePath, versionPath);
-  const versionedPath = path.resolve(baseDir, normalizedFileName);
+  const normalizedVersionPath = path.normalize(versionPath);
+  if (
+    normalizedVersionPath !== versionPath ||
+    normalizedVersionPath.includes('..') ||
+    path.isAbsolute(normalizedVersionPath)
+  ) {
+    return res.status(400).json({ error: 'Invalid version' });
+  }
 
+  const baseDir = path.resolve(basePath, versionPath);
+  if (!baseDir.startsWith(basePath + path.sep) && baseDir !== basePath) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+
+  const versionedPath = path.resolve(baseDir, normalizedFileName);
   if (!versionedPath.startsWith(baseDir + path.sep) && versionedPath !== baseDir) {
     return res.status(403).json({ error: 'Access denied' });
   }
 
   if (fs.existsSync(versionedPath)) {
-    const content = fs.readFileSync(versionedPath, 'utf-8');
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Cache-Control', 'public, max-age=3600');
-    return res.send(content);
+    try {
+      sendJson(res, fs.readFileSync(versionedPath, 'utf-8'));
+    } catch (error) {
+      console.error(`Failed to read registry file ${versionedPath}:`, error);
+      res
+        .status(500)
+        .json({ error: 'Internal Server Error', message: 'Failed to read registry file' });
+    }
+    return;
   }
 
   return res.status(404).json({
     error: 'Not Found',
-    message: `Component "${fileName}" does not exist in version "${versionPath}"`,
+    message: `Component "${normalizedFileName}" does not exist in version "${versionPath}"`,
     hint: 'Check available versions or component name',
   });
 }

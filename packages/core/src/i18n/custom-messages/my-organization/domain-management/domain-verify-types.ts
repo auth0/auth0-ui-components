@@ -1,3 +1,9 @@
+/**
+ * Custom message type definitions.
+ * @module domain-verify-types
+ * @internal
+ */
+
 export interface DomainVerifyMessages {
   modal?: {
     title?: string;

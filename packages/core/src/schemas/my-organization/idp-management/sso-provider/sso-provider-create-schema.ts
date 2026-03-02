@@ -1,3 +1,9 @@
+/**
+ * SSO provider creation schema for form validation.
+ * @module sso-provider-create-schema
+ * @internal
+ */
+
 import {
   createBooleanSchema,
   createFieldSchema,
@@ -16,6 +22,7 @@ import type {
   SsoProviderSchema,
 } from './sso-provider-create-schema-types';
 
+/** @internal */
 interface OktaOptions {
   domain?: FieldOptions;
   client_id?: FieldOptions;
@@ -355,6 +362,11 @@ const STRATEGY_BUILDERS = {
  * Creates a schema for Step 1: Provider Selection
  */
 
+/**
+ * Creates a schema for Step 1: Provider Selection
+ * @param options - Configuration options
+ * @returns Zod schema for provider selection
+ */
 export const createProviderSelectionSchema = (options: ProviderSelectionSchema = {}) => {
   const { strategy = {} } = options;
   return z.object({
@@ -367,6 +379,8 @@ export const createProviderSelectionSchema = (options: ProviderSelectionSchema =
 
 /**
  * Creates a schema for Step 2: Provider Details
+ * @param options - Configuration options
+ * @returns Zod schema for provider details
  */
 export const createProviderDetailsSchema = (options: ProviderDetailsSchema = {}) => {
   const { name = {}, displayName = {} } = options;
@@ -405,6 +419,9 @@ type StrategySchemaMap = {
 
 /**
  * Creates a dynamic schema for Step 3: Provider Configuration based on strategy
+ * @param strategy - Authentication strategy
+ * @param options - Configuration options
+ * @returns Zod schema for provider configuration
  */
 export function createProviderConfigureSchema<T extends IdpStrategy>(
   strategy: T,
@@ -421,10 +438,9 @@ export function createProviderConfigureSchema<T extends IdpStrategy>(
 }
 
 /**
- * Creates a complete schema for SSO provider form validation
- */
-/**
  * Creates a complete schema for SSO provider form validation that combines all three steps
+ * @param options - Configuration options
+ * @returns Combined Zod schema for SSO provider
  */
 export const createSsoProviderSchema = (options: SsoProviderSchema = {}) => {
   const selectionSchema = createProviderSelectionSchema(options);

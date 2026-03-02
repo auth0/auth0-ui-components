@@ -1,3 +1,8 @@
+/**
+ * SPA provider using @auth0/auth0-react.
+ * @module spa-provider
+ */
+
 'use client';
 
 import { useAuth0 } from '@auth0/auth0-react';
@@ -13,6 +18,11 @@ import { QueryProvider } from '@/providers/query-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
 import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 
+/**
+ * Auth0 provider for SPAs. Wraps components with required contexts.
+ * @param props - Provider configuration including i18n, authDetails, themeSettings, toastSettings, cacheConfig, loader, and children.
+ * @returns Provider component tree
+ */
 export const Auth0ComponentProvider = ({
   i18n,
   authDetails,

@@ -1,4 +1,10 @@
 /**
+ * Custom message type definitions.
+ * @module mfa-types
+ * @internal
+ */
+
+/**
  * Interface for MFA messages that can be used in the UI.
  */
 export interface MFAMessages {

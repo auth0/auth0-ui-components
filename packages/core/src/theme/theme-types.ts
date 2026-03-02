@@ -1,3 +1,13 @@
+/**
+ * Theme type definitions for styling and CSS variables.
+ * @module theme-types
+ * @internal
+ */
+
+/**
+ * CSS variables for component styling organized by theme mode.
+ * @internal
+ */
 export interface StylingVariables {
   common?: {
     // Font sizes
@@ -157,6 +167,10 @@ export interface StylingVariables {
   };
 }
 
+/**
+ * Merged styles structure with computed CSS variables and optional classes.
+ * @internal
+ */
 export type MergedStyles = {
   variables: {
     [K in

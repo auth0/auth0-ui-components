@@ -1,14 +1,26 @@
+/**
+ * My Organization API service initialization.
+ * @module my-organization-api-service
+ * @internal
+ */
+
 import { MyOrganizationClient } from '@auth0/myorganization-js';
 import type { AuthDetails } from '@core/auth/auth-types';
-import type { createTokenManager } from '@core/auth/token-manager';
+import type { createSpaTokenRetriever } from '@core/auth/spa-token-retriever';
 
 export interface MyOrganizationClientWithScopes extends MyOrganizationClient {
   withScopes: (scopes: string) => MyOrganizationClientWithScopes;
 }
 
+/**
+ * Initializes the My Organization API client.
+ * @param auth - Authentication configuration details.
+ * @param tokenManagerService - Token retriever for obtaining access tokens.
+ * @returns Initialized My Organization client with scope management.
+ */
 export function initializeMyOrganizationClient(
   auth: AuthDetails,
-  tokenManagerService: ReturnType<typeof createTokenManager>,
+  tokenManagerService: ReturnType<typeof createSpaTokenRetriever>,
 ): MyOrganizationClientWithScopes {
   let latestScopes = '';
 

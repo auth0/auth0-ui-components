@@ -1,3 +1,9 @@
+/**
+ * Apple logo icon component.
+ * @module apple-logo
+ * @internal
+ */
+
 import { AppleLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 

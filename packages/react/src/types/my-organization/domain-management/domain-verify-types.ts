@@ -1,5 +1,11 @@
+/**
+ * Domain verification modal types.
+ * @module domain-verify-types
+ */
+
 import type { DomainVerifyMessages, Domain } from '@auth0/universal-components-core';
 
+/** Props for DomainVerifyModal. */
 export interface DomainVerifyModalProps {
   translatorKey?: string;
   isOpen: boolean;

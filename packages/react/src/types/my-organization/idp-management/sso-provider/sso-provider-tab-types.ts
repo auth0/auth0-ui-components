@@ -1,3 +1,8 @@
+/**
+ * SSO provider tab types.
+ * @module sso-provider-tab-types
+ */
+
 import type {
   SharedComponentProps,
   IdentityProvider,
@@ -17,14 +22,14 @@ import type {
   SsoProviderRemoveClasses,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-delete-types';
 
-/* ============ Components ============ */
-
+/** SSO provider tab edit action props. */
 export interface SsoProviderTabEditProps {
   updateAction?: ComponentAction<IdentityProvider, IdentityProvider>;
   deleteAction: ComponentAction<IdentityProvider, void>;
   deleteFromOrganizationAction: ComponentAction<IdentityProvider, void>;
 }
 
+/** CSS classes for SsoProviderTab. */
 export interface SsoProviderTabClasses
   extends SsoProviderDetailsClasses,
     SsoProviderDeleteClasses,
@@ -32,6 +37,7 @@ export interface SsoProviderTabClasses
   'SsoProviderAttributeSyncAlert-root'?: string;
 }
 
+/** Form actions for SSO provider details. */
 export interface SsoProviderDetailsFormActions extends Omit<FormActionsProps, 'nextAction'> {
   nextAction?: {
     disabled: boolean;
@@ -39,8 +45,10 @@ export interface SsoProviderDetailsFormActions extends Omit<FormActionsProps, 'n
   };
 }
 
+/** SSO provider tab schemas. */
 export interface SsoProviderTabSchemas extends SsoProviderDetailsSchema {}
 
+/** Props for SsoProviderTab component. */
 export interface SsoProviderTabProps
   extends SharedComponentProps<
     SsoProviderTabMessages,
@@ -60,8 +68,6 @@ export interface SsoProviderTabProps
   onAttributeSync?: () => void | Promise<void>;
   isSyncingAttributes?: boolean;
 }
-
-/* ============ Subcomponents ============ */
 
 export interface ProviderDetailsClasses
   extends Omit<
@@ -90,5 +96,3 @@ export interface SsoProviderDetailsProps
   readOnly?: boolean;
   formActions?: SsoProviderDetailsFormActions;
 }
-
-/* ============ Hooks ============ */

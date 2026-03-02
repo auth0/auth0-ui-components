@@ -1,5 +1,7 @@
 /**
- * Messages that can be used in the UI.
+ * Custom message type definitions for organization delete component.
+ * @module organization-delete-types
+ * @internal
  */
 export interface OrganizationDeleteMessages {
   title?: string;

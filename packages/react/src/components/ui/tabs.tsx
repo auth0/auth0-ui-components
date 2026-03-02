@@ -1,3 +1,9 @@
+/**
+ * Tabs component using Radix primitives.
+ * @module tabs
+ * @internal
+ */
+
 'use client';
 
 import * as TabsPrimitive from '@radix-ui/react-tabs';

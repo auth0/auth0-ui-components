@@ -1,3 +1,8 @@
+/**
+ * Public type exports.
+ * @module types
+ */
+
 // My Account types
 export * from './my-account/mfa/mfa-types';
 

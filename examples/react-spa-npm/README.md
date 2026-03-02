@@ -163,9 +163,9 @@ If you encounter any issues:
 
 ## License
 
-Copyright 2025 Okta, Inc.
+Copyright 2026 Okta, Inc.
 
-Distributed under the MIT License found [here](https://github.com/auth0/auth0-ui-components/blob/main/LICENSE).
+Distributed under the [Apache License 2.0](https://github.com/auth0/auth0-ui-components/blob/main/LICENSE).
 
 **Authors**  
 Okta Inc.

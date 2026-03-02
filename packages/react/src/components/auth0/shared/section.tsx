@@ -1,3 +1,9 @@
+/**
+ * Section layout with title and actions.
+ * @module section
+ * @internal
+ */
+
 import type { ActionButton as CoreActionButton } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import * as React from 'react';
@@ -80,6 +86,16 @@ const ToggleAction: React.FC<ToggleActionProps> = ({
   </Toggle>
 );
 
+/**
+ *
+ * @param props - Component props.
+ * @param props.title - The title text
+ * @param props.description - The description text
+ * @param props.children - Child elements to render
+ * @param props.actions - Action buttons or elements
+ * @param props.className - Optional CSS class name for styling
+ * @returns JSX element
+ */
 export function Section({
   title,
   description,

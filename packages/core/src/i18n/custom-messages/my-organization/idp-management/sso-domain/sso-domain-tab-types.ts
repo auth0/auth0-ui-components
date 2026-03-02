@@ -1,3 +1,8 @@
+/**
+ * Custom message type definitions for SSO domain tab component.
+ * @module sso-domain-tab-types
+ * @internal
+ */
 export interface DomainTabCreateMessages {
   modal: {
     title?: string;

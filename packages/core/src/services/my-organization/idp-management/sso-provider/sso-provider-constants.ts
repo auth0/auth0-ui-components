@@ -1,3 +1,8 @@
+/**
+ * SSO provider constants including strategies and display names.
+ * @module sso-provider-constants
+ * @internal
+ */
 import type { IdpStrategy } from './sso-provider-types';
 
 export const STRATEGIES = {

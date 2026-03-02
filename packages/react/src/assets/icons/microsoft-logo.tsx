@@ -1,3 +1,9 @@
+/**
+ * Microsoft logo icon component.
+ * @module microsoft-logo
+ * @internal
+ */
+
 import { MicrosoftLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 

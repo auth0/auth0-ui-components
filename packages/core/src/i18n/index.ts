@@ -1,3 +1,9 @@
+/**
+ * i18n services.
+ * @module i18n
+ * @internal
+ */
+
 export { createI18nService, I18nUtils } from './i18n-service';
 export type {
   LangTranslations,

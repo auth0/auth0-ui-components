@@ -1,3 +1,9 @@
+/**
+ * MFA empty state display.
+ * @module empty-state
+ * @internal
+ */
+
 import { cn } from '@/lib/utils';
 
 interface MFAEmptyStateProps {
@@ -5,6 +11,13 @@ interface MFAEmptyStateProps {
   className?: string;
 }
 
+/**
+ *
+ * @param props - Component props.
+ * @param props.message - The message to display
+ * @param props.className - Optional CSS class name for styling
+ * @returns JSX element
+ */
 export function MFAEmptyState({ message, className }: MFAEmptyStateProps) {
   return (
     <p

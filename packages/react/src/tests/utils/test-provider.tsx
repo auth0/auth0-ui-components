@@ -41,6 +41,12 @@ export interface TestProviderProps {
 
 /**
  * Test provider that wraps components with the necessary context for testing
+ * @param props - Provider props.
+ * @param props.children - Child components.
+ * @param props.coreClient - Core client instance.
+ * @param props.authDetails - Auth details.
+ * @param props.queryClient - Query client instance.
+ * @returns JSX element
  */
 export const TestProvider: React.FC<TestProviderProps> = ({
   children,
@@ -70,6 +76,12 @@ export const TestProvider: React.FC<TestProviderProps> = ({
 
 /**
  * Utility function to render components with TestProvider
+ * @param component - React component to render
+ * @param options - Configuration options
+ * @param options.coreClient - Core client instance
+ * @param options.authDetails - Authentication details configuration
+ * @param options.queryClient - React Query client instance
+ * @returns JSX element
  */
 export const renderWithProviders = (
   component: React.ReactElement,
@@ -92,6 +104,9 @@ export const renderWithProviders = (
 
 /**
  * Utility function to render components with Form provider
+ * @param component - React component to render
+ * @param form - React Hook Form instance
+ * @returns JSX element
  */
 export function renderWithFormProvider<T extends FieldValues>(
   component: React.ReactElement,

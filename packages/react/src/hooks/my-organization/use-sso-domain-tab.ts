@@ -1,3 +1,8 @@
+/**
+ * SSO domain tab data and actions hook.
+ * @module use-sso-domain-tab
+ */
+
 import type { CreateOrganizationDomainRequestContent } from '@auth0/universal-components-core';
 import {
   type Domain,
@@ -25,6 +30,15 @@ const domainQueryKeys = {
     [...domainQueryKeys.idpAssociations(), domainId, idpId] as const,
 };
 
+/**
+ * Hook for SSO domain tab domain operations and state.
+ * @param idpId - Identity provider ID.
+ * @param options - Hook options.
+ * @param options.customMessages - Custom translation messages.
+ * @param options.domains - Initial domains data.
+ * @param options.provider - SSO provider data.
+ * @returns Hook state and methods
+ */
 export function useSsoDomainTab(
   idpId: IdpId,
   { customMessages = {}, domains, provider }: Partial<UseSsoDomainTabOptions> = {},
@@ -247,8 +261,6 @@ export function useSsoDomainTab(
     },
     onError: (error) => handleError(error),
   });
-
-  // ===== Handlers =====
 
   const handleCreate = useCallback(
     async (domainUrl: string) => {

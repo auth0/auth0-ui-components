@@ -1,3 +1,9 @@
+/**
+ * One-time password input field.
+ * @module otp-field
+ * @internal
+ */
+
 'use client';
 
 import type { ClipboardEvent, KeyboardEvent } from 'react';

@@ -1,3 +1,8 @@
+/**
+ * SSO provider edit types.
+ * @module sso-provider-edit-types
+ */
+
 import type {
   SharedComponentProps,
   BackButton,
@@ -19,6 +24,7 @@ import type {
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 
+import type { IdpConfig } from '@/types/my-organization/config/config-idp-types';
 import type {
   SsoDomainsTabEditProps,
   SsoDomainTabClasses,
@@ -35,13 +41,13 @@ import type {
   SsoProvisioningTabSchemas,
 } from '@/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
 
-/* ============ Components ============ */
-
+/** Back button for SSO provider edit. */
 export interface SsoProviderEditBackButton extends Omit<BackButton, 'onClick'> {
   icon?: LucideIcon;
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
+/** CSS classes for SsoProviderEdit. */
 export interface SsoProviderEditClasses
   extends SsoProviderTabClasses,
     SsoProvisioningTabClasses,
@@ -50,12 +56,14 @@ export interface SsoProviderEditClasses
   'SsoProviderEdit-tabs'?: string;
 }
 
+/** SSO provider edit schemas. */
 export interface SsoProviderEditSchema {
   provider: SsoProviderTabSchemas;
   provisioning: SsoProvisioningTabSchemas;
   domains?: SsoProviderEditDomainsTabSchema;
 }
 
+/** Props for SsoProviderEdit component. */
 export interface SsoProviderEditProps
   extends SharedComponentProps<
     SsoProviderEditMessages,
@@ -70,10 +78,7 @@ export interface SsoProviderEditProps
   backButton?: SsoProviderEditBackButton;
 }
 
-/* ============ Subcomponents ============ */
-
-/* ============ Hooks ============ */
-
+/** useSsoProviderEdit options. */
 export interface UseSsoProviderEditOptions extends SharedComponentProps {
   sso?: SsoProviderTabEditProps;
   provisioning?: SsoProvisioningTabEditProps;
@@ -98,11 +103,17 @@ export interface UseSsoProviderEditReturn {
   isProvisioningAttributesSyncing: boolean;
   hasSsoAttributeSyncWarning: boolean;
   hasProvisioningAttributeSyncWarning: boolean;
+  shouldAllowDeletion: boolean;
+  isLoadingConfig: boolean;
+  idpConfig: IdpConfig | null;
+  isLoadingIdpConfig: boolean;
+  showProvisioningTab: boolean;
   error: unknown;
   retry: () => Promise<void>;
   fetchProvider: () => Promise<IdentityProvider | null>;
   fetchProvisioning: () => Promise<GetIdPProvisioningConfigResponseContent | null>;
   updateProvider: (data: UpdateIdentityProviderRequestContentPrivate) => Promise<void>;
+  handleToggleProvider: (enabled: boolean) => Promise<void>;
   createProvisioning: () => Promise<void>;
   deleteProvisioning: () => Promise<void>;
   listScimTokens: () => Promise<ListIdpProvisioningScimTokensResponseContent | null>;
@@ -131,3 +142,17 @@ export interface SsoProviderAttributeSyncAlertProps {
   isSyncing?: boolean;
   customMessages?: Partial<AttributeSyncAlertMessages>;
 }
+
+/** Props for the SsoProviderEditView component. */
+export type SsoProviderEditViewProps = Omit<UseSsoProviderEditReturn, 'error' | 'retry'> &
+  Pick<
+    SsoProviderEditProps,
+    | 'styling'
+    | 'customMessages'
+    | 'backButton'
+    | 'schema'
+    | 'readOnly'
+    | 'providerId'
+    | 'domains'
+    | 'hideHeader'
+  >;

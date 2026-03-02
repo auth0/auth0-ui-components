@@ -1,3 +1,9 @@
+/**
+ * SAML-P SSO provider configuration form.
+ * @module samlp-sso-configure-form
+ * @internal
+ */
+
 import {
   createProviderConfigureSchema,
   type SamlpConfigureFormValues,

@@ -1,3 +1,8 @@
+/**
+ * Domain management type definitions.
+ * @module domain-types
+ * @internal
+ */
 import type { MyOrganization } from '@auth0/myorganization-js';
 import type { InternalDomainCreateFormValues } from '@core/schemas';
 

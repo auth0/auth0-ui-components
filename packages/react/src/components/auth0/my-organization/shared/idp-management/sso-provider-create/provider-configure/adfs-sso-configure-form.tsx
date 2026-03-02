@@ -1,3 +1,9 @@
+/**
+ * ADFS SSO provider configuration form.
+ * @module adfs-sso-configure-form
+ * @internal
+ */
+
 import {
   createProviderConfigureSchema,
   type AdfsConfigureFormValues,

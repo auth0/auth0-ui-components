@@ -1,42 +1,42 @@
 {
-  "name": "auth0-ui-components",
-  "homepage": "https://github.com/auth0/auth0-ui-components",
+  "name": "auth0-universal-components",
+  "homepage": "https://github.com/auth0/universal-components-web",
   "items": [
     {
-      "name": "my-account/user-mfa-management",
+      "name": "user-mfa-management",
       "type": "registry:block",
-      "title": "User MFA Management",
-      "description": "A block for managing Multi-Factor Authentication (MFA) factors, including enrollment and deletion."
+      "title": "Internal MFA management UI used by `UserMFAMgmt`.",
+      "description": "Handles loading factors, enroll/delete flows, and UI state."
     },
     {
-      "name": "my-organization/organization-details-edit",
+      "name": "domain-table",
       "type": "registry:block",
-      "title": "Organization Management",
-      "description": "A block for managing organization details, including editing organization settings and branding, with delete functionality."
+      "title": "DomainTableContainer Component.",
+      "description": "A block component for domain table container."
     },
     {
-      "name": "my-organization/domain-table",
+      "name": "organization-details-edit",
       "type": "registry:block",
-      "title": "Domain Management Table",
-      "description": "A block for managing organization domains, including creating, verifying, configuring identity providers, and deleting domains."
+      "title": "Internal organization details edit component.",
+      "description": "A block component for organization details edit."
     },
     {
-      "name": "my-organization/sso-provider-table",
+      "name": "sso-provider-create",
       "type": "registry:block",
-      "title": "SSO Provider Table",
-      "description": "A block for managing SSO identity providers in a table format, including create, edit, delete, enable/disable, and remove from organization capabilities."
+      "title": "Internal SSO provider creation component.",
+      "description": "A block component for sso provider create."
     },
     {
-      "name": "my-organization/sso-provider-create",
+      "name": "sso-provider-edit",
       "type": "registry:block",
-      "title": "SSO Provider Creation Wizard",
-      "description": "A multi-step wizard for creating SSO identity providers with support for multiple strategies including SAMLP, OIDC, ADFS, Okta, Google Workspace, Azure AD, and PingFederate."
+      "title": "Internal SSO provider edit component.",
+      "description": "A block component for sso provider edit."
     },
     {
-      "name": "my-organization/sso-provider-edit",
+      "name": "sso-provider-table",
       "type": "registry:block",
-      "title": "SSO Provider Edit",
-      "description": "A comprehensive block for editing SSO identity providers with tabs for provider configuration, SCIM provisioning settings, and domain management. Includes token management, field mappings, and domain verification capabilities."
+      "title": "Internal SSO provider table component.",
+      "description": "A block component for sso provider table."
     }
   ]
 }

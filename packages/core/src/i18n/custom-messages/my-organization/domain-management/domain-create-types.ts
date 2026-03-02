@@ -1,3 +1,9 @@
+/**
+ * Custom message type definitions.
+ * @module domain-create-types
+ * @internal
+ */
+
 export interface DomainCreateMessages {
   modal?: {
     title?: string;

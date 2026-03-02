@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { DomainTable } from '@/components/auth0/my-organization/domain-table';
+import { DomainTable, DomainTableView } from '@/components/auth0/my-organization/domain-table';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockDomain,
@@ -13,6 +13,7 @@ import {
   createMockCreateAction,
   createMockVerifyAction,
   createMockDeleteAction,
+  createMockDomainTableViewProps,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
@@ -181,9 +182,7 @@ describe('DomainTable', () => {
           const mockCreateAction = createMockCreateAction();
           mockCreateAction.disabled = true;
 
-          renderWithProviders(
-            <DomainTable {...createMockDomainTableProps({ createAction: mockCreateAction })} />,
-          );
+          renderWithProviders(<DomainTable {...createMockDomainTableProps({ readOnly: true })} />);
 
           await waitForComponentToLoad();
 
@@ -677,5 +676,25 @@ describe('DomainTable', () => {
         });
       });
     });
+  });
+});
+
+describe('DomainTableView', () => {
+  const mockProps = createMockDomainTableViewProps();
+
+  it('renders the table and header', () => {
+    renderWithProviders(<DomainTableView {...mockProps} />);
+    expect(screen.getByRole('table')).toBeInTheDocument();
+    expect(screen.getByText(/header.title/i)).toBeInTheDocument();
+  });
+
+  it('does not render header if hideHeader is true', () => {
+    renderWithProviders(<DomainTableView {...mockProps} hideHeader={true} />);
+    expect(screen.queryByText(/header.title/i)).not.toBeInTheDocument();
+  });
+
+  it('disables create button if readOnly is true', () => {
+    renderWithProviders(<DomainTableView {...mockProps} readOnly={true} />);
+    expect(screen.getByRole('button', { name: /create/i })).toBeDisabled();
   });
 });

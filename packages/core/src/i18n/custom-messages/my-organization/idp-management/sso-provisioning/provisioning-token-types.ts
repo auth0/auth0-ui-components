@@ -1,7 +1,8 @@
 /**
- * Custom message types for Provisioning Token Modal Content components
+ * Custom message type definitions for provisioning token component.
+ * @module provisioning-token-types
+ * @internal
  */
-
 export interface ProvisioningCreateTokenModalContentMessages {
   description?: string;
   field?: {

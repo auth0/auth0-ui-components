@@ -1,3 +1,8 @@
+/**
+ * Custom message type definitions for organization details edit component.
+ * @module organization-details-edit-types
+ * @internal
+ */
 import type { OrganizationDetailsMessages } from './organization-details-types';
 
 export interface OrganizationDetailsEditMessages {

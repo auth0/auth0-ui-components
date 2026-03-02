@@ -1,5 +1,12 @@
 /**
- * Schema configuration for Step 1: Provider Selection
+ * SSO provider creation schema type definitions.
+ * @module sso-provider-create-schema-types
+ * @internal
+ */
+
+/**
+ * Schema configuration for Step 1: Provider Selection.
+ * @internal
  */
 export interface ProviderSelectionSchema {
   strategy?: {
@@ -9,7 +16,8 @@ export interface ProviderSelectionSchema {
 }
 
 /**
- * Schema configuration for Step 2: Provider Details
+ * Schema configuration for Step 2: Provider Details.
+ * @internal
  */
 export interface ProviderDetailsSchema {
   name?: {

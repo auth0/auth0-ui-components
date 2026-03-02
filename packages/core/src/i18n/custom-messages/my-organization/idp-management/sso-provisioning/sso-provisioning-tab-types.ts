@@ -1,3 +1,8 @@
+/**
+ * Custom message type definitions for SSO provisioning tab component.
+ * @module sso-provisioning-tab-types
+ * @internal
+ */
 import type {
   SsoProviderNotificationMessages,
   SsoProviderAttributeMappingsMessages,

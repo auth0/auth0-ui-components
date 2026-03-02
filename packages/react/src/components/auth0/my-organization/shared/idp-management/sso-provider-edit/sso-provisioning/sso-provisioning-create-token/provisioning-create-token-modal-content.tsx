@@ -1,9 +1,24 @@
+/**
+ * SCIM token creation modal content.
+ * @module provisioning-create-token-modal-content
+ * @internal
+ */
+
 import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import { Label } from '@/components/ui/label';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { ProvisioningCreateTokenModalContentProps } from '@/types/my-organization/idp-management/sso-provisioning/provisioning-token-types';
 
+/**
+ *
+ * @param props - Component props.
+ * @param props.token - Token string
+ * @param props.tokenId - Token identifier
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @param props.className - Optional CSS class name for styling
+ * @returns JSX element
+ */
 export function ProvisioningCreateTokenModalContent({
   token,
   tokenId,

@@ -1,18 +1,21 @@
+/**
+ * Provisioning token modal content types.
+ * @module provisioning-token-types
+ */
+
 import type {
   SharedComponentProps,
   ProvisioningCreateTokenModalContentMessages,
   ProvisioningDeleteTokenModalContentMessages,
 } from '@auth0/universal-components-core';
 
+/** CSS classes for provisioning token components. */
 export interface ProvisioningTokenClasses {
   'ProvisioningToken-root'?: string;
   'ProvisioningCreateTokenModal-root'?: string;
 }
 
-/**
- * Props for the ProvisioningCreateTokenModalContent component
- * This component displays a disabled input with a copy button to show a token
- */
+/** Props for ProvisioningCreateTokenModalContent. */
 export interface ProvisioningCreateTokenModalContentProps
   extends SharedComponentProps<
     ProvisioningCreateTokenModalContentMessages,
@@ -23,10 +26,7 @@ export interface ProvisioningCreateTokenModalContentProps
   className?: string;
 }
 
-/**
- * Props for the ProvisioningDeleteTokenModalContent component
- * This component displays informational text about deleting a token
- */
+/** Props for ProvisioningDeleteTokenModalContent. */
 export interface ProvisioningDeleteTokenModalContentProps
   extends SharedComponentProps<
     ProvisioningDeleteTokenModalContentMessages,

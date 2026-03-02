@@ -1,3 +1,9 @@
+/**
+ * Contact (email/phone) MFA enrollment hook.
+ * @module use-contact-enrollment
+ * @internal
+ */
+
 import {
   FACTOR_TYPE_EMAIL,
   FACTOR_TYPE_PHONE,
@@ -23,6 +29,15 @@ type UseContactEnrollmentProps = {
   onError: (error: Error, stage: typeof ENROLL) => void;
 };
 
+/**
+ * Hook for email/phone MFA enrollment flow.
+ * @param props - Component props.
+ * @param props.factorType - The MFA factor type
+ * @param props.enrollMfa - Function to enroll a new MFA factor
+ * @param props.onError - Callback fired when an error occurs
+ * @internal
+ * @returns Hook state and methods
+ */
 export function useContactEnrollment({
   factorType,
   enrollMfa,

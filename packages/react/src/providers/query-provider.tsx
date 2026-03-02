@@ -1,9 +1,16 @@
+/**
+ * TanStack Query provider wrapper.
+ * @module query-provider
+ * @internal
+ */
+
 import {
   QueryClient,
   QueryClientProvider as TanStackQueryClientProvider,
 } from '@tanstack/react-query';
 import { useState, type ReactElement, type ReactNode } from 'react';
 
+/** Query cache configuration. */
 export interface QueryCacheConfig {
   enabled?: boolean;
   staleTime?: number;
@@ -31,7 +38,12 @@ const MUTATION_RETRY_CONFIG = {
 
 const DISABLED_CACHE_GC_TIME = 5 * 1000;
 
-/** Merges user config with defaults. */
+/**
+ * Merges user config with defaults.
+ * @param userConfig - User-provided cache config.
+ * @returns The resolved cache configuration
+ * @internal
+ */
 export function resolveCacheConfig(userConfig?: QueryCacheConfig): Required<QueryCacheConfig> {
   const merged: Required<QueryCacheConfig> = {
     ...DEFAULT_CACHE_CONFIG,
@@ -49,6 +61,12 @@ export function resolveCacheConfig(userConfig?: QueryCacheConfig): Required<Quer
   return merged;
 }
 
+/**
+ * Creates a QueryClient with config.
+ * @param cacheConfig - Cache configuration.
+ * @returns The configured QueryClient instance
+ * @internal
+ */
 function createQueryClient(cacheConfig: Required<QueryCacheConfig>): QueryClient {
   return new QueryClient({
     defaultOptions: {
@@ -71,13 +89,21 @@ function createQueryClient(cacheConfig: Required<QueryCacheConfig>): QueryClient
   });
 }
 
+/** Props for QueryProvider. */
 export interface QueryProviderProps {
   children: ReactNode;
   /** Cache config, only read on mount. */
   cacheConfig?: QueryCacheConfig;
 }
 
-/** Internal TanStack Query provider wrapper. */
+/**
+ * Internal TanStack Query provider wrapper.
+ * @param props - Component props.
+ * @param props.children - Child components.
+ * @param props.cacheConfig - Cache configuration.
+ * @returns The context provider component
+ * @internal
+ */
 export function QueryProvider({ children, cacheConfig }: QueryProviderProps): ReactElement {
   const [queryClient] = useState(() => createQueryClient(resolveCacheConfig(cacheConfig)));
 

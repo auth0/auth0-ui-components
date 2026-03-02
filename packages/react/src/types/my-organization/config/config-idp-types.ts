@@ -1,12 +1,19 @@
+/**
+ * IDP configuration types.
+ * @module config-idp-types
+ */
+
 import type { IdpStrategy, ProvisioningMethod } from '@auth0/universal-components-core';
 
 export type ProvisioningFeatures = 'provisioning' | 'logout';
 
+/** IDP strategy configuration. */
 export interface IdpStrategyConfig {
   provisioning_methods: ProvisioningMethod[];
   enabled_features: ProvisioningFeatures[];
 }
 
+/** IDP configuration response. */
 export interface IdpConfig {
   organization: {
     can_set_show_as_button: boolean;
@@ -15,6 +22,7 @@ export interface IdpConfig {
   strategies: Record<IdpStrategy, IdpStrategyConfig>;
 }
 
+/** useIdpConfig hook result. */
 export interface UseConfigIdpResult {
   idpConfig: IdpConfig | null;
   isLoadingIdpConfig: boolean;

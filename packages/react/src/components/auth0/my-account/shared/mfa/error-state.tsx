@@ -1,3 +1,9 @@
+/**
+ * MFA error state display.
+ * @module error-state
+ * @internal
+ */
+
 import { cn } from '@/lib/utils';
 
 interface ErrorStateProps {
@@ -6,6 +12,16 @@ interface ErrorStateProps {
   className?: string;
 }
 
+/**
+ * Displays an error state for MFA operations.
+ *
+ * @param props - Component props.
+ * @param props.title - Error title text.
+ * @param props.description - Error description text.
+ * @param props.className - Additional CSS class names.
+ * @returns Error state component.
+ * @internal
+ */
 export function MFAErrorState({ title, description, className }: ErrorStateProps) {
   return (
     <div

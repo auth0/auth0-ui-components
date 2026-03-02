@@ -1,3 +1,9 @@
+/**
+ * Custom message type definitions.
+ * @module domain-delete-types
+ * @internal
+ */
+
 export interface DomainDeleteMessages {
   modal?: {
     title?: string;

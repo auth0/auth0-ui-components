@@ -1,3 +1,9 @@
+/**
+ * Custom message type definitions.
+ * @module domain-configure-types
+ * @internal
+ */
+
 export interface DomainConfigureMessages {
   modal?: {
     title?: string;

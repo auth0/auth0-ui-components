@@ -2,17 +2,23 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { UserMFAMgmt } from '@/components/auth0/my-account/user-mfa-management';
+import { UserMFAMgmt, UserMFAMgmtView } from '@/components/auth0/my-account/user-mfa-management';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockAPIError,
   createMockAuthenticator,
   createMockAuthenticationMethodsResponse,
   createMockOTPEnrollmentResponse,
+  createMockUserMFAMgmtLogic,
+  createMockUserMFAMgmtHandlers,
 } from '@/tests/utils/__mocks__';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
-import type { UserMFAMgmtProps } from '@/types/my-account/mfa/mfa-types';
+import type {
+  UserMFAMgmtProps,
+  UserMFAMgmtLogicProps,
+  UserMFAMgmtHandlerProps,
+} from '@/types/my-account/mfa/mfa-types';
 
 // ===== Mock packages =====
 
@@ -670,5 +676,59 @@ describe('UserMFAMgmt', () => {
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       });
     });
+  });
+});
+
+describe('UserMFAMgmtView', () => {
+  function setupView(
+    logicOverrides: Partial<UserMFAMgmtLogicProps> = {},
+    handlerOverrides: Partial<UserMFAMgmtHandlerProps> = {},
+  ) {
+    const logic = createMockUserMFAMgmtLogic(logicOverrides);
+    const handlers = createMockUserMFAMgmtHandlers(handlerOverrides);
+
+    renderWithProviders(<UserMFAMgmtView logic={logic} handlers={handlers} />);
+    return { logic, handlers };
+  }
+
+  it('renders loading state', () => {
+    setupView({ isLoading: true });
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+  });
+
+  it('renders error state', () => {
+    setupView({ error: 'Some error' });
+    expect(screen.getByText(/component_error_title/i)).toBeInTheDocument();
+    expect(screen.getByText(/component_error_description/i)).toBeInTheDocument();
+  });
+
+  it('renders empty state if showActiveOnly and hasNoActiveFactors', () => {
+    setupView({ showActiveOnly: true, hasNoActiveFactors: true });
+    expect(screen.getByText(/no_active_mfa/i)).toBeInTheDocument();
+  });
+
+  it('renders factors and enroll button', () => {
+    setupView();
+    expect(screen.getByText(/email.title/i)).toBeInTheDocument();
+    expect(screen.getByText(/email.description/i)).toBeInTheDocument();
+
+    const enrollBtn = screen.getAllByRole('button', { name: /button-text/i })[0];
+    expect(enrollBtn).toBeInTheDocument();
+  });
+
+  it('disables enroll button if disableEnroll is true', () => {
+    setupView({ disableEnroll: true });
+    const enrollBtn = screen.getAllByRole('button', { name: /button-text/i })[0];
+    expect(enrollBtn).toBeDisabled();
+  });
+
+  it('renders UserMFASetupForm when enrollFactor is set', () => {
+    setupView({ enrollFactor: 'email', dialogOpen: true });
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('renders DeleteFactorConfirmation when isDeleteDialogOpen is true', () => {
+    setupView({ isDeleteDialogOpen: true, factorToDelete: { id: '1', type: 'email' } });
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 });

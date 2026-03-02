@@ -1,3 +1,9 @@
+/**
+ * Recovery code generation hook.
+ * @module use-recovery-code
+ * @internal
+ */
+
 import {
   type CreateAuthenticationMethodResponseContent,
   normalizeError,
@@ -18,6 +24,16 @@ type UseRecoveryCodeGenerationProps = {
   onClose: () => void;
 };
 
+/**
+ * Hook for MFA recovery code generation.
+ * @param props - Component props.
+ * @param props.factorType - The MFA factor type
+ * @param props.enrollMfa - Function to enroll a new MFA factor
+ * @param props.onError - Callback fired when an error occurs
+ * @param props.onClose - Callback fired when the component should close
+ * @internal
+ * @returns Hook state and methods
+ */
 export function useRecoveryCodeGeneration({
   factorType,
   enrollMfa,

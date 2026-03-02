@@ -1,3 +1,8 @@
+/**
+ * SSO provisioning tab types.
+ * @module sso-provisioning-tab-types
+ */
+
 import type {
   SharedComponentProps,
   SsoProvisioningTabMessages,
@@ -14,6 +19,7 @@ import type {
 
 import type { ProvisioningManageTokenClasses } from '@/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
 
+/** SSO provisioning tab edit action props. */
 export interface SsoProvisioningTabEditProps {
   createAction?: ComponentAction<IdentityProvider, CreateIdPProvisioningConfigResponseContent>;
   deleteAction?: ComponentAction<IdentityProvider, void>;
@@ -23,6 +29,8 @@ export interface SsoProvisioningTabEditProps {
   >;
   deleteScimTokenAction?: ComponentAction<IdentityProvider, void>;
 }
+
+/** CSS classes for SsoProvisioningTab. */
 export interface SsoProvisioningTabClasses {
   'SsoProvisioningTab-root'?: string;
   'SsoProvisioningDetails-root'?: string;
@@ -31,6 +39,7 @@ export interface SsoProvisioningTabClasses {
   'SsoProviderAttributeSyncAlert-root'?: string;
 }
 
+/** Props for SsoProvisioningTab component. */
 export interface SsoProvisioningTabProps
   extends SharedComponentProps<SsoProvisioningTabMessages, SsoProvisioningTabClasses> {
   provider: IdentityProvider;

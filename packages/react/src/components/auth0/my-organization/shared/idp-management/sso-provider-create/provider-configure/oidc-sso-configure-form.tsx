@@ -1,3 +1,9 @@
+/**
+ * OIDC SSO provider configuration form.
+ * @module oidc-sso-configure-form
+ * @internal
+ */
+
 import {
   createProviderConfigureSchema,
   type OidcConfigureFormValues,

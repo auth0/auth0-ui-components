@@ -1,3 +1,9 @@
+/**
+ * Custom message type definitions.
+ * @module domain-table-types
+ * @internal
+ */
+
 export interface DomainTableMessages {
   header?: {
     title?: string;

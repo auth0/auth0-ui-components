@@ -1,3 +1,9 @@
+/**
+ * Okta logo icon component.
+ * @module okta-logo
+ * @internal
+ */
+
 import { OktaLogoSvg } from '@auth0/universal-components-core';
 import React from 'react';
 

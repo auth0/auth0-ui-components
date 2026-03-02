@@ -1,3 +1,9 @@
+/**
+ * Tooltip using Radix primitives.
+ * @module tooltip
+ * @internal
+ */
+
 'use client';
 
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';

@@ -1,3 +1,9 @@
+/**
+ * Popover component using Radix primitives.
+ * @module popover
+ * @internal
+ */
+
 'use client';
 
 import * as PopoverPrimitive from '@radix-ui/react-popover';

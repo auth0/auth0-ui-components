@@ -1,3 +1,9 @@
+/**
+ * MFA enrollment flow constants.
+ * @module mfa-constants
+ * @internal
+ */
+
 export const ENTER_OTP = 'enterOtp';
 export const ENTER_QR = 'showQr';
 export const ENTER_CONTACT = 'enterContact';

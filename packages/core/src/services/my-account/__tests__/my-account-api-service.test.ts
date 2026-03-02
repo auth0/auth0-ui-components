@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import type { createTokenManager } from '../../../auth/token-manager';
+import type { createSpaTokenRetriever } from '../../../auth/spa-token-retriever';
 import {
   createMockFetch,
   getConfigFromMockCalls,
@@ -450,7 +450,7 @@ describe('initializeMyAccountClient', () => {
         const mockFetch = createMockFetch();
         vi.stubGlobal('fetch', mockFetch);
 
-        const tokenManager: ReturnType<typeof createTokenManager> = {
+        const tokenManager: ReturnType<typeof createSpaTokenRetriever> = {
           getToken: vi.fn(async () => undefined),
         };
         initializeMyAccountClient(mockAuthWithDomain, tokenManager);

@@ -1,3 +1,9 @@
+/**
+ * Data table pagination component.
+ * @module data-pagination
+ * @internal
+ */
+
 import { useMemo, useRef, useEffect } from 'react';
 
 import {
@@ -116,6 +122,23 @@ const generatePageNumbers = (
   return pages;
 };
 
+/**
+ *
+ * @param props - Component props.
+ * @param props.type - The type of the item
+ * @param props.paginationState - Current pagination state
+ * @param props.pageSizeOptions - Available page size options
+ * @param props.showPageSizeSelector - Whether to show page size selector
+ * @param props.showPageInfo - Whether to show page info
+ * @param props.className - Optional CSS class name for styling
+ * @param props.labels - Label text configuration
+ * @param props.locale - Locale identifier
+ * @param props.onPageChange - Callback fired when page changes
+ * @param props.onPageSizeChange - Callback fired when page size changes
+ * @param props.onNextPage - Callback fired when navigating to next page
+ * @param props.onPreviousPage - Callback fired when navigating to previous page
+ * @returns JSX element
+ */
 export function DataPagination({
   type,
   paginationState,

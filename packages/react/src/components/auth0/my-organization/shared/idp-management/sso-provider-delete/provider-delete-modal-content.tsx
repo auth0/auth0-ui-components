@@ -1,3 +1,9 @@
+/**
+ * SSO provider deletion modal content.
+ * @module provider-delete-modal-content
+ * @internal
+ */
+
 import React from 'react';
 
 import { Label } from '@/components/ui/label';
@@ -6,6 +12,14 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { SsoProviderDeleteModalContentProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-delete-types';
 
+/**
+ *
+ * @param props - Component props.
+ * @param props.onChange - Callback fired when the value changes
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @param props.className - Optional CSS class name for styling
+ * @returns JSX element
+ */
 export function SsoProviderDeleteModalContent({
   onChange,
   customMessages = {},

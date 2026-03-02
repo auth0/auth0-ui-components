@@ -1,3 +1,9 @@
+/**
+ * Sonner toast provider wrapper.
+ * @module sonner
+ * @internal
+ */
+
 'use client';
 
 import type { ToasterProps } from 'sonner';

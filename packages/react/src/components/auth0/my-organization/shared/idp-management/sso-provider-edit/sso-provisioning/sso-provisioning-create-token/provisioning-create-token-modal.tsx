@@ -1,3 +1,9 @@
+/**
+ * SCIM token creation modal.
+ * @module provisioning-create-token-modal
+ * @internal
+ */
+
 import { Copy } from 'lucide-react';
 import * as React from 'react';
 
@@ -6,6 +12,16 @@ import { Modal } from '@/components/ui/modal';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { ProvisioningCreateTokenModalProps } from '@/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
 
+/**
+ *
+ * @param props - Component props.
+ * @param props.open - Whether the component is open/visible
+ * @param props.onOpenChange - Callback fired when open state changes
+ * @param props.createdToken - Newly created token data
+ * @param props.isLoading - Whether the component is in a loading state
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @returns JSX element
+ */
 export function ProvisioningCreateTokenModal({
   open,
   onOpenChange,

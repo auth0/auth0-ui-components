@@ -1,3 +1,9 @@
+/**
+ * Domain configure providers modal.
+ * @module domain-configure-providers-modal
+ * @internal
+ */
+
 import type { IdentityProviderAssociatedWithDomain } from '@auth0/universal-components-core';
 import React from 'react';
 
@@ -10,6 +16,22 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { DomainConfigureProvidersModalProps } from '@/types/my-organization/domain-management/domain-configure-types';
 
+/**
+ * Modal for configuring domain providers.
+ * @param props - Component props.
+ * @param props.className - Optional CSS class name for styling
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @param props.domain - Domain object or domain name
+ * @param props.providers - Array of SSO providers
+ * @param props.isOpen - Whether the modal/dialog is open
+ * @param props.isLoading - Whether the component is in a loading state
+ * @param props.isLoadingSwitch - The is loading switch
+ * @param props.onClose - Callback fired when the component should close
+ * @param props.onToggleSwitch - Callback fired when switch is toggled
+ * @param props.onOpenProvider - Callback fired when opening a provider
+ * @param props.onCreateProvider - Callback fired when creating a new provider
+ * @returns JSX element
+ */
 export function DomainConfigureProvidersModal({
   className,
   customMessages,

@@ -1,7 +1,14 @@
+/**
+ * Theme utility functions for applying styles and CSS variables.
+ * @module theme-utils
+ * @internal
+ */
+
 import type { StylingVariables, MergedStyles } from './theme-types';
 
 /**
  * Returns the merged CSS variables for the current theme.
+ * @internal
  *
  * @param styling - An object containing variables for common, light, and dark themes.
  * @param isDarkMode - A boolean indicating if dark mode is active.
@@ -21,10 +28,13 @@ export const getCoreStyles = (
 
 /**
  * Returns component styles supporting both flat and nested variable formats.
+ * @internal
  *
- * @param styling - Object containing either direct styling variables or nested under 'variables'
- * @param isDarkMode - Boolean indicating if dark mode is active
- * @returns Merged styles with variables and classNames
+ * @param styling - Object containing styling configuration.
+ * @param styling.variables - Optional styling variables for common, light, and dark themes.
+ * @param styling.classes - Optional custom CSS class mappings.
+ * @param isDarkMode - Boolean indicating if dark mode is active.
+ * @returns Merged styles with variables and classNames.
  */
 export const getComponentStyles = (
   styling: { variables?: StylingVariables; classes?: Record<string, string | undefined> } = {},
@@ -40,7 +50,8 @@ export const getComponentStyles = (
 };
 
 /**
- * Apply theme styling to document and set CSS variables
+ * Apply theme styling to document and set CSS variables.
+ * @internal
  *
  * @param styling - Theme variables to apply
  * @param mode - Theme mode (dark/light)

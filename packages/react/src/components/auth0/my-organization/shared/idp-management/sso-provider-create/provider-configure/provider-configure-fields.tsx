@@ -1,3 +1,9 @@
+/**
+ * Provider-specific configuration field router.
+ * @module provider-configure-fields
+ * @internal
+ */
+
 import { STRATEGIES } from '@auth0/universal-components-core';
 import * as React from 'react';
 

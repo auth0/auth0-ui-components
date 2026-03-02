@@ -1,3 +1,9 @@
+/**
+ * OTP verification input form.
+ * @module otp-verification-form
+ * @internal
+ */
+
 import {
   type MFAType,
   FACTOR_TYPE_EMAIL,
@@ -41,9 +47,9 @@ type OtpForm = {
  * - Shows the first 3 and last 3 characters
  * - Masks the middle characters with asterisks
  *
- * @param {string} contact - The contact information to mask (email or phone number)
- * @param {MFAType} factorType - The type of MFA factor to determine masking strategy
- * @returns {string} The masked contact information
+ * @param contact - The contact information to mask (email or phone number).
+ * @param factorType - The type of MFA factor to determine masking strategy.
+ * @returns The masked contact information.
  *
  * @example
  * // Email masking
@@ -67,6 +73,22 @@ const maskContact = (contact: string, factorType: MFAType): string => {
     : contact;
 };
 
+/**
+ * OTP verification form for MFA enrollment confirmation.
+ * @param props - Component props.
+ * @param props.factorType - The MFA factor type
+ * @param props.confirmEnrollment - Function to confirm MFA enrollment
+ * @param props.onError - Callback fired when an error occurs
+ * @param props.onSuccess - Callback fired on successful operation
+ * @param props.onClose - Callback fired when the component should close
+ * @param props.contact - Contact information (email/phone)
+ * @param props.authSession - Authentication session data
+ * @param props.authenticationMethodId - ID of the authentication method
+ * @param props.onBack - Callback fired when back navigation is triggered
+ * @param props.styling - Custom styling configuration with variables and classes
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @returns JSX element
+ */
 export function OTPVerificationForm({
   factorType,
   confirmEnrollment,

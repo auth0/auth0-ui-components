@@ -3,10 +3,21 @@ import { AuthUtils } from './auth-utils';
 
 const FALLBACK_ERRORS = new Set(['consent_required', 'login_required']);
 
+/**
+ * Checks if an error has an error property.
+ * @param error - The error to check.
+ * @returns True if the error has an error property.
+ */
 function hasErrorProperty(error: unknown): error is { error: string } {
   return typeof error === 'object' && error !== null && 'error' in error;
 }
 
+/**
+ * Builds the audience URL from a domain and audience path.
+ * @param domain - The Auth0 tenant domain.
+ * @param audiencePath - The API audience path segment.
+ * @returns The constructed audience URL string.
+ */
 function buildAudience(domain: string, audiencePath: string): string {
   try {
     const url = new URL(AuthUtils.toURL(domain) || '');
@@ -18,14 +29,20 @@ function buildAudience(domain: string, audiencePath: string): string {
 }
 
 /**
- * Creates a token manager for retrieving access tokens.
+ * Creates a SPA token retriever for retrieving access tokens.
+ * @param auth - Authentication configuration details.
+ * @returns Token retriever with a getToken method.
  */
-export function createTokenManager(auth: AuthDetails) {
-  if (!auth) throw new Error('TokenManager: auth is not initialized.');
+export function createSpaTokenRetriever(auth: AuthDetails) {
+  if (!auth) throw new Error('SpaTokenRetriever: auth is not initialized.');
 
   return {
     /**
      * Retrieves an access token for the specified scope and audience.
+     * @param scope - The OAuth scope to request.
+     * @param audiencePath - The API audience path segment.
+     * @param ignoreCache - Whether to bypass the token cache.
+     * @returns The access token, or undefined if using proxy mode.
      */
     async getToken(
       scope: string,
@@ -34,11 +51,11 @@ export function createTokenManager(auth: AuthDetails) {
     ): Promise<string | undefined> {
       if (auth.authProxyUrl) return undefined;
       if (!auth.contextInterface) {
-        throw new Error('TokenManager: contextInterface is not initialized.');
+        throw new Error('SpaTokenRetriever: contextInterface is not initialized.');
       }
 
       const domain = auth.domain ?? auth.contextInterface.getConfiguration()?.domain;
-      if (!domain) throw new Error('TokenManager: Auth0 domain is not configured');
+      if (!domain) throw new Error('SpaTokenRetriever: Auth0 domain is not configured');
 
       const audience = buildAudience(domain, audiencePath);
 

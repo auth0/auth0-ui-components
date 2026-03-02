@@ -1,5 +1,12 @@
 /**
+ * API type definitions for standardized error handling.
+ * @module api-types
+ * @internal
+ */
+
+/**
  * Represents a standardized API error shape.
+ * @internal
  */
 export interface ApiError {
   readonly name: 'ApiError';

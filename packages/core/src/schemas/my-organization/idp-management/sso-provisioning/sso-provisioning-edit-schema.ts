@@ -1,3 +1,9 @@
+/**
+ * SSO provisioning edit schema for form validation.
+ * @module sso-provisioning-edit-schema
+ * @internal
+ */
+
 import { createFieldSchema, COMMON_FIELD_CONFIGS } from '@core/schemas/common';
 import { z } from 'zod';
 
@@ -7,7 +13,10 @@ import type {
 } from './sso-provisioning-edit-schema-types';
 
 /**
- * Creates a schema for Provisioning Details form validation
+ * Creates a schema for Provisioning Details form validation.
+ * @param options - Configuration options
+ * @returns Zod schema for provisioning details
+ * @internal
  */
 export const createProvisioningDetailsSchema = (options: ProvisioningDetailsSchema = {}) => {
   const { userIdAttribute = {}, scimEndpointUrl = {} } = options;
@@ -34,6 +43,8 @@ export const createProvisioningDetailsSchema = (options: ProvisioningDetailsSche
 
 /**
  * Creates a complete schema for SSO provisioning form validation
+ * @param options - Configuration options
+ * @returns Zod schema for SSO provisioning
  */
 export const createSsoProvisioningSchema = (options: SsoProvisioningSchema = {}) => {
   return createProvisioningDetailsSchema(options);

@@ -1,3 +1,8 @@
+/**
+ * Organization details data mappers for API transformations.
+ * @module organization-details-mappers
+ * @internal
+ */
 import { DEFAULT_COLORS } from './organization-details-constants';
 import type { OrganizationPrivate } from './organization-details-types';
 import type {

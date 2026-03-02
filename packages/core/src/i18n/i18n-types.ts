@@ -1,6 +1,13 @@
 /**
+ * Type definitions for the internationalization system.
+ * @module i18n-types
+ * @internal
+ */
+
+/**
  * Represents a component placeholder that will be replaced by the consuming framework.
  * In React apps, this would be ReactElement. In other frameworks, it could be different.
+ * @internal
  */
 export type TransComponent = unknown;
 
@@ -8,6 +15,7 @@ export type TransComponent = unknown;
  * Function type for creating components from translation content.
  * Takes the translated text content and returns a component representation.
  * The actual implementation depends on the consuming framework.
+ * @internal
  *
  * @param children - The translated text content to wrap in the component
  * @returns A component representation (framework-specific)
@@ -29,6 +37,7 @@ export type TransComponentFunction = (children: string) => TransComponent;
  * Mapping of component keys to component representations or component functions.
  * Used in translation strings with component placeholders like <link>text</link>.
  * Framework-agnostic - the actual component type depends on the implementation.
+ * @internal
  *
  * @example
  * ```typescript
@@ -43,6 +52,7 @@ export type TranslationElements = Record<string, TransComponent | TransComponent
 
 /**
  * Basic translation function that returns a translated string.
+ * @internal
  *
  * @param key - The translation key (without namespace prefix)
  * @param vars - Optional variables for string interpolation
@@ -59,6 +69,7 @@ export type TranslationFunction = (
  * Enhanced translation function with Trans component support.
  * Extends the basic translation function with a `trans` method for safe component rendering.
  * Framework-agnostic - works with any UI framework.
+ * @internal
  */
 export type EnhancedTranslationFunction = TranslationFunction & {
   /**
@@ -97,6 +108,7 @@ export type EnhancedTranslationFunction = TranslationFunction & {
 
 /**
  * Factory function type for creating translation functions.
+ * @internal
  *
  * @param namespace - The namespace for translations
  * @param overrides - Optional override translations
@@ -110,11 +122,13 @@ export type TFactory = (
 /**
  * Language-specific translation data structure.
  * Nested object containing all translations for a specific language.
+ * @internal
  */
 export type LangTranslations = Record<string, unknown>;
 
 /**
  * Configuration options for initializing the i18n service.
+ * @internal
  */
 export interface I18nInitOptions {
   /** The current/preferred language code (e.g., 'en-US', 'es-ES') */
@@ -126,6 +140,7 @@ export interface I18nInitOptions {
 /**
  * Main interface for the i18n service providing translation management capabilities.
  * Framework-agnostic core functionality.
+ * @internal
  */
 export interface I18nServiceInterface {
   /** Current active language code */

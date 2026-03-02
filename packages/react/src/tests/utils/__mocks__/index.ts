@@ -10,6 +10,8 @@ export * from './my-organization/idp-management/idp-config.mocks';
 export * from './my-organization/idp-management/sso-domain.mocks';
 export * from './my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details.mocks';
 export * from './my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.mocks';
+export * from './my-organization/idp-management/sso-provider-edit/sso-provider-edit.mocks';
+export * from './my-organization/idp-management/sso-provider-table/sso-provider-table-mocks';
 
 export * from './my-account/mfa/delete-factor-confirmation.mocks';
 export * from './my-account/mfa/empty-state.mocks';

@@ -1,3 +1,8 @@
+/**
+ * Organization details type definitions.
+ * @module organization-details-types
+ * @internal
+ */
 import type { MyOrganization } from '@auth0/myorganization-js';
 import type { InternalOrganizationDetailsFormValues as FormValues } from '@core/schemas';
 

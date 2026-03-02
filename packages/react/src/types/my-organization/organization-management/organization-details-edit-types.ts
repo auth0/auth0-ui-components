@@ -1,3 +1,8 @@
+/**
+ * Organization details edit types.
+ * @module organization-details-edit-types
+ */
+
 import type {
   BlockComponentSharedProps,
   OrganizationDetailsSchemas,
@@ -14,12 +19,7 @@ import type {
   OrganizationDetailsFormActions,
 } from '@/types/my-organization/organization-management/organization-details-types';
 
-// Re-export imported types for convenience
-export type {
-  OrganizationDetailsClasses,
-  OrganizationDetailsFormActions,
-} from '@/types/my-organization/organization-management/organization-details-types';
-
+/** Type alias for organization edit CSS class overrides. */
 export type OrganizationEditClasses = OrganizationDetailsClasses;
 
 /**
@@ -64,3 +64,12 @@ export interface UseOrganizationDetailsEditResult {
   formActions: OrganizationDetailsFormActions;
   updateOrgDetails: (data: OrganizationPrivate) => Promise<boolean>;
 }
+
+export type OrganizationDetailsEditViewProps = Omit<
+  UseOrganizationDetailsEditResult,
+  'error' | 'retry'
+> &
+  Pick<
+    OrganizationDetailsEditProps,
+    'schema' | 'customMessages' | 'styling' | 'readOnly' | 'hideHeader' | 'backButton'
+  >;

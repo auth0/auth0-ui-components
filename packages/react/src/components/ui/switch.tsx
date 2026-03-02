@@ -1,3 +1,9 @@
+/**
+ * Toggle switch using Radix primitives.
+ * @module switch
+ * @internal
+ */
+
 'use client';
 
 import * as SwitchPrimitive from '@radix-ui/react-switch';

@@ -1,3 +1,8 @@
+/**
+ * Public hooks exports.
+ * @module hooks
+ */
+
 // Shared hooks
 export { useCoreClient, CoreClientContext } from './shared/use-core-client';
 export { useTranslator } from './shared/use-translator';

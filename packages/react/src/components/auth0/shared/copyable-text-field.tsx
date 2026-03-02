@@ -1,3 +1,9 @@
+/**
+ * Text field with copy-to-clipboard button.
+ * @module copyable-text-field
+ * @internal
+ */
+
 import { Copy } from 'lucide-react';
 import * as React from 'react';
 

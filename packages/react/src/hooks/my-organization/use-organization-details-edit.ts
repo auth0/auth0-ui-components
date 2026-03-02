@@ -1,3 +1,8 @@
+/**
+ * Organization details edit hook.
+ * @module use-organization-details-edit
+ */
+
 import {
   OrganizationDetailsFactory,
   OrganizationDetailsMappers,
@@ -12,10 +17,10 @@ import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
-  OrganizationDetailsFormActions,
   UseOrganizationDetailsEditOptions,
   UseOrganizationDetailsEditResult,
 } from '@/types/my-organization/organization-management/organization-details-edit-types';
+import type { OrganizationDetailsFormActions } from '@/types/my-organization/organization-management/organization-details-types';
 
 const organizationDetailsQueryKeys = {
   all: ['organization-details'] as const,
@@ -26,6 +31,12 @@ const EMPTY_ORGANIZATION = OrganizationDetailsFactory.create();
 
 /**
  * Hook for fetching and updating organization details.
+ * @param props - Component props.
+ * @param props.saveAction - Configuration for the save action
+ * @param props.cancelAction - Configuration for the cancel action
+ * @param props.readOnly - Whether the component is in read-only mode
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @returns Hook state and methods
  */
 export function useOrganizationDetailsEdit({
   saveAction,

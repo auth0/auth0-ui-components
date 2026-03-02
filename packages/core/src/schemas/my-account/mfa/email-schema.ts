@@ -1,7 +1,15 @@
+/**
+ * Email MFA schema for email validation.
+ * @module email-schema
+ * @internal
+ */
+
 import { z } from 'zod';
 
 /**
- * Creates a schema for email-based MFA contact validation with custom error message and optional custom regex
+ * Creates a schema for email-based MFA contact validation with custom error message and optional custom regex.
+ * @internal
+ *
  * @param errorMessage - Custom error message for invalid email
  * @param customRegex - Optional custom regex for email validation
  * @returns Zod schema for email validation
@@ -16,7 +24,8 @@ export const createEmailContactSchema = (errorMessage?: string, customRegex?: Re
   });
 
 /**
- * Default schema for email-based MFA contact validation
+ * Default schema for email-based MFA contact validation.
+ * @internal
  */
 export const EmailContactSchema = createEmailContactSchema();
 

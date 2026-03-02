@@ -1,3 +1,8 @@
+/**
+ * MFA operations hook.
+ * @module use-mfa
+ */
+
 import type {
   MFAType,
   EnrollOptions,
@@ -9,6 +14,10 @@ import { useCallback } from 'react';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import type { UseMFAResult } from '@/types/my-account/mfa/mfa-types';
 
+/**
+ * Hook for MFA factor operations (fetch, enroll, delete, confirm).
+ * @returns MFA operation functions.
+ */
 export function useMFA(): UseMFAResult {
   const { coreClient } = useCoreClient();
 

@@ -1,3 +1,9 @@
+/**
+ * Organization details form component.
+ * @module organization-details
+ * @internal
+ */
+
 import type {
   OrganizationDetailsFormValues,
   OrganizationPrivate,
@@ -30,6 +36,15 @@ import type { OrganizationDetailsProps } from '@/types/my-organization/organizat
  * This component renders form fields for organization configuration in a structured layout with sections.
  * All data, validation, and business logic are handled via props passed from parent components.
  *
+ * @param props - Component props.
+ * @param props.organization - Organization object
+ * @param props.isLoading - Whether the component is in a loading state
+ * @param props.schema - Zod validation schema
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @param props.styling - Custom styling configuration with variables and classes
+ * @param props.readOnly - Whether the component is in read-only mode
+ * @param props.formActions - Form action buttons configuration
+ * @returns JSX element
  */
 export function OrganizationDetails({
   organization,

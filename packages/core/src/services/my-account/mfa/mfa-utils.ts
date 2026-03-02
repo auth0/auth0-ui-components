@@ -1,3 +1,9 @@
+/**
+ * MFA utility functions for enrollment and factor management.
+ * @module mfa-utils
+ * @internal
+ */
+
 import {
   FACTOR_TYPE_EMAIL,
   FACTOR_TYPE_PHONE,
@@ -17,6 +23,14 @@ import type {
   EnrolledFactor,
 } from './mfa-types';
 
+/**
+ * Builds enrollment parameters for a given MFA factor type.
+ * @internal
+ *
+ * @param factorType - The type of MFA factor to enroll
+ * @param options - Optional enrollment options (email, phone_number)
+ * @returns Request content for creating authentication method
+ */
 export function buildEnrollParams(
   factorType: MFAType,
   options: EnrollOptions = {},
@@ -53,6 +67,12 @@ export function buildEnrollParams(
   }
 }
 
+/**
+ * Gets the display name for an enrolled MFA factor.
+ * @param type - The type of the item
+ * @param enrolledFactor - The enrolled factor data
+ * @returns The display name for the factor
+ */
 function getFactorDisplayName(type: MFAType, enrolledFactor: EnrolledFactor): string {
   switch (type) {
     case FACTOR_TYPE_PHONE:
@@ -80,6 +100,15 @@ function getFactorDisplayName(type: MFAType, enrolledFactor: EnrolledFactor): st
   }
 }
 
+/**
+ * Creates an authenticator object from factor data.
+ * @param type - The type of the item
+ * @param id - Unique identifier
+ * @param enrolled - Whether the factor is enrolled
+ * @param created_at - Creation timestamp
+ * @param enrolledFactor - The enrolled factor data
+ * @returns Authenticator object
+ */
 function createAuthenticator(
   type: MFAType,
   id: string,
@@ -96,6 +125,13 @@ function createAuthenticator(
   };
 }
 
+/**
+ * Transforms MFA factors response into grouped authenticators.
+ * @param availableFactorsResponse - Response containing available factors
+ * @param enrolledFactors - Array of enrolled factors
+ * @param onlyActive - Whether to include only active factors
+ * @returns Authenticators grouped by MFA type
+ */
 export function transformMyAccountFactors(
   availableFactorsResponse: ListFactorsResponseContent,
   enrolledFactors: ListAuthenticationMethodsResponseContent,
