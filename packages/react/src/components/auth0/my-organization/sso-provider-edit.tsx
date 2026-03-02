@@ -41,23 +41,18 @@ import type {
  * @param props.readOnly - Render in read-only mode
  * @returns SSO provider edit component
  */
-export function SsoProviderEdit(props: SsoProviderEditProps): React.JSX.Element {
-  const {
-    providerId,
-    backButton,
-    sso,
-    provisioning,
-    domains,
-    hideHeader = false,
-    customMessages = {},
-    styling = {
-      variables: { common: {}, light: {}, dark: {} },
-      classes: {},
-    },
-    schema,
-    readOnly = false,
-  } = props;
-
+export function SsoProviderEdit({
+  providerId,
+  backButton,
+  sso,
+  provisioning,
+  domains,
+  hideHeader = false,
+  customMessages = {},
+  styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
+  schema,
+  readOnly = false,
+}: SsoProviderEditProps): React.JSX.Element {
   const { error, retry, ...hookResult } = useSsoProviderEdit(providerId, {
     sso,
     provisioning,

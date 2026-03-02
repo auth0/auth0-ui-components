@@ -143,16 +143,50 @@ export interface SsoProviderAttributeSyncAlertProps {
   customMessages?: Partial<AttributeSyncAlertMessages>;
 }
 
-/** Props for the SsoProviderEditView component. */
-export type SsoProviderEditViewProps = Omit<UseSsoProviderEditReturn, 'error' | 'retry'> &
-  Pick<
-    SsoProviderEditProps,
-    | 'styling'
-    | 'customMessages'
-    | 'backButton'
-    | 'schema'
-    | 'readOnly'
-    | 'providerId'
-    | 'domains'
-    | 'hideHeader'
-  >;
+export interface SsoProviderEditViewProps {
+  provider: IdentityProvider | null;
+  organization: OrganizationPrivate;
+  provisioningConfig: GetIdPProvisioningConfigResponseContent | null;
+  isLoading: boolean;
+  isUpdating: boolean;
+  isDeleting: boolean;
+  isRemoving: boolean;
+  isProvisioningUpdating: boolean;
+  isProvisioningDeleting: boolean;
+  isProvisioningLoading: boolean;
+  isScimTokensLoading: boolean;
+  isScimTokenCreating: boolean;
+  isScimTokenDeleting: boolean;
+  isSsoAttributesSyncing: boolean;
+  isProvisioningAttributesSyncing: boolean;
+  hasSsoAttributeSyncWarning: boolean;
+  hasProvisioningAttributeSyncWarning: boolean;
+  shouldAllowDeletion: boolean;
+  isLoadingConfig: boolean;
+  idpConfig: IdpConfig | null;
+  isLoadingIdpConfig: boolean;
+  showProvisioningTab: boolean;
+  fetchProvider: () => Promise<IdentityProvider | null>;
+  fetchProvisioning: () => Promise<GetIdPProvisioningConfigResponseContent | null>;
+  updateProvider: (data: UpdateIdentityProviderRequestContentPrivate) => Promise<void>;
+  handleToggleProvider: (enabled: boolean) => Promise<void>;
+  createProvisioning: () => Promise<void>;
+  deleteProvisioning: () => Promise<void>;
+  listScimTokens: () => Promise<ListIdpProvisioningScimTokensResponseContent | null>;
+  createScimToken: (
+    data: CreateIdpProvisioningScimTokenRequestContent,
+  ) => Promise<CreateIdpProvisioningScimTokenResponseContent | undefined>;
+  deleteScimToken: (idpScimTokenId: string) => Promise<void>;
+  syncSsoAttributes: () => Promise<void>;
+  syncProvisioningAttributes: () => Promise<void>;
+  onDeleteConfirm: () => Promise<void>;
+  onRemoveConfirm: () => Promise<void>;
+  styling: SsoProviderEditProps['styling'];
+  customMessages: SsoProviderEditProps['customMessages'];
+  backButton?: SsoProviderEditProps['backButton'];
+  schema?: SsoProviderEditProps['schema'];
+  readOnly: SsoProviderEditProps['readOnly'];
+  providerId: SsoProviderEditProps['providerId'];
+  domains?: SsoProviderEditProps['domains'];
+  hideHeader?: SsoProviderEditProps['hideHeader'];
+}

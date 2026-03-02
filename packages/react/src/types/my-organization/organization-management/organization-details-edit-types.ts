@@ -65,11 +65,17 @@ export interface UseOrganizationDetailsEditResult {
   updateOrgDetails: (data: OrganizationPrivate) => Promise<boolean>;
 }
 
-export type OrganizationDetailsEditViewProps = Omit<
-  UseOrganizationDetailsEditResult,
-  'error' | 'retry'
-> &
-  Pick<
-    OrganizationDetailsEditProps,
-    'schema' | 'customMessages' | 'styling' | 'readOnly' | 'hideHeader' | 'backButton'
-  >;
+export interface OrganizationDetailsEditViewProps {
+  organization: OrganizationPrivate;
+  isLoading: boolean;
+  isFetchLoading: boolean;
+  isSaveLoading: boolean;
+  formActions: OrganizationDetailsFormActions;
+  updateOrgDetails: (data: OrganizationPrivate) => Promise<boolean>;
+  schema?: OrganizationDetailsEditProps['schema'];
+  customMessages: OrganizationDetailsEditProps['customMessages'];
+  styling: OrganizationDetailsEditProps['styling'];
+  readOnly: OrganizationDetailsEditProps['readOnly'];
+  hideHeader: boolean;
+  backButton?: OrganizationDetailsEditProps['backButton'];
+}

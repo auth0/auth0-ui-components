@@ -285,7 +285,7 @@ export type UseMFAResult = {
   ) => Promise<unknown>;
 };
 
-export interface UserMFAMgmtLogicProps {
+export interface UserMFAMgmtViewProps {
   error: string | null;
   schema:
     | Partial<{
@@ -311,9 +311,6 @@ export interface UserMFAMgmtLogicProps {
   visibleFactorTypes: MFAType[];
   hasNoActiveFactors: boolean;
   confirmEnrollment: UseMFAResult['confirmEnrollment'];
-}
-
-export interface UserMFAMgmtHandlerProps {
   enrollMfa: UseMFAResult['enrollMfa'];
   onEnrollFactor: (factor: MFAType) => void;
   onDeleteFactor: (factorId: string, factorType: MFAType) => Promise<void>;
@@ -321,12 +318,7 @@ export interface UserMFAMgmtHandlerProps {
   handleEnrollSuccess: () => void;
   handleEnrollError: (error: Error, stage: typeof ENROLL | typeof CONFIRM) => void;
   handleConfirmDelete: (factorId: string) => Promise<void>;
-  setIsDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-export interface UserMFAMgmtViewProps {
-  logic: UserMFAMgmtLogicProps;
-  handlers: UserMFAMgmtHandlerProps;
+  setIsDeleteDialogOpen: (open: boolean) => void;
 }
 
 /**
@@ -375,8 +367,8 @@ export interface UseMFALogicResult {
   visibleFactorTypes: MFAType[];
   hasNoActiveFactors: boolean;
 
-  setIsDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setFactorToDelete: React.Dispatch<React.SetStateAction<{ id: string; type: MFAType } | null>>;
+  setIsDeleteDialogOpen: (open: boolean) => void;
+  setFactorToDelete: (factor: { id: string; type: MFAType } | null) => void;
 
   loadFactors: () => Promise<void>;
   handleEnroll: (factor: MFAType) => void;

@@ -144,8 +144,28 @@ export interface UseSsoProviderCreateReturn {
   };
 }
 
-export type SsoProviderCreateViewProps = Omit<UseSsoProviderCreateReturn, 'error' | 'retry'> &
-  Pick<
-    SsoProviderCreateProps,
-    'styling' | 'customMessages' | 'backButton' | 'onNext' | 'onPrevious'
-  >;
+export interface SsoProviderCreateViewProps {
+  createProvider: (data: CreateIdentityProviderRequestContentPrivate) => Promise<void>;
+  isCreating: boolean;
+  formData: FormState;
+  setFormData: React.Dispatch<React.SetStateAction<FormState>>;
+  detailsRef: React.RefObject<ProviderDetailsFormHandle | null>;
+  configureRef: React.RefObject<ProviderConfigureHandle | null>;
+  handleCreate: () => Promise<void>;
+  isLoadingConfig: boolean;
+  filteredStrategies: IdpStrategy[];
+  isLoadingIdpConfig: boolean;
+  idpConfig?: IdpConfig | null;
+  createStepActions: (
+    stepId: 'provider_details' | 'provider_configure',
+    ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,
+  ) => {
+    onNextAction: () => Promise<boolean>;
+    onPreviousAction: () => Promise<boolean>;
+  };
+  styling: SsoProviderCreateProps['styling'];
+  customMessages: SsoProviderCreateProps['customMessages'];
+  backButton?: SsoProviderCreateProps['backButton'];
+  onNext?: SsoProviderCreateProps['onNext'];
+  onPrevious?: SsoProviderCreateProps['onPrevious'];
+}

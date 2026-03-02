@@ -1,7 +1,7 @@
 /** @module sso-provider-create */
 
 import { getComponentStyles } from '@auth0/universal-components-core';
-import { useMemo } from 'react';
+import * as React from 'react';
 
 import ProviderConfigure from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure';
 import { ProviderDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details';
@@ -54,13 +54,10 @@ export function SsoProviderCreate({
   createAction,
   backButton,
   customMessages = {},
-  styling = {
-    variables: { common: {}, light: {}, dark: {} },
-    classes: {},
-  },
+  styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
   onNext,
   onPrevious,
-}: SsoProviderCreateProps) {
+}: SsoProviderCreateProps): React.JSX.Element {
   const { error, retry, ...hook } = useSsoProviderCreate({
     createAction,
     customMessages,
@@ -111,12 +108,12 @@ export function SsoProviderCreateView({
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
 
-  const currentStyles = useMemo(
+  const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
   );
 
-  const wizardSteps = useMemo(
+  const wizardSteps = React.useMemo(
     () => [
       {
         id: 'provider_select',

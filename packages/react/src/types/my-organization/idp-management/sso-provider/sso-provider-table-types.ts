@@ -72,9 +72,9 @@ export interface UseSsoProviderTableReturn {
   onDeleteConfirm: (selectedIdp: IdentityProvider) => Promise<void>;
   onRemoveConfirm: (selectedIdp: IdentityProvider) => Promise<void>;
   onEnableProvider: (selectedIdp: IdentityProvider, enabled: boolean) => Promise<boolean>;
-  setShowDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
-  setShowRemoveModal: React.Dispatch<React.SetStateAction<boolean>>;
-  setSelectedIdp: React.Dispatch<React.SetStateAction<IdentityProvider | null>>;
+  setShowDeleteModal: (open: boolean) => void;
+  setShowRemoveModal: (open: boolean) => void;
+  setSelectedIdp: (idp: IdentityProvider | null) => void;
   handleCreate: () => void;
   handleEdit: (idp: IdentityProvider) => void;
   handleDelete: (idp: IdentityProvider) => void;
@@ -105,10 +105,40 @@ export interface SsoProviderTableActionsColumnProps
 }
 
 /** Props for the SsoProviderTableView component. */
-export type SsoProviderTableViewProps = UseSsoProviderTableReturn &
-  Pick<
-    SsoProviderTableProps,
-    'styling' | 'customMessages' | 'readOnly' | 'createAction' | 'editAction'
-  > & {
-    hideHeader?: boolean;
-  };
+export interface SsoProviderTableViewProps {
+  providers: IdentityProvider[];
+  isLoading: boolean;
+  isViewLoading: boolean;
+  isDeleting: boolean;
+  isRemoving: boolean;
+  isUpdating: boolean;
+  isUpdatingId: string | null;
+  shouldAllowDeletion: boolean;
+  shouldHideCreate: boolean;
+  showDeleteModal: boolean;
+  showRemoveModal: boolean;
+  selectedIdp: IdentityProvider | null;
+  error: unknown;
+  retry: () => Promise<void>;
+  fetchProviders: () => Promise<void>;
+  getOrganizationName: () => Promise<string | undefined>;
+  onDeleteConfirm: (selectedIdp: IdentityProvider) => Promise<void>;
+  onRemoveConfirm: (selectedIdp: IdentityProvider) => Promise<void>;
+  onEnableProvider: (selectedIdp: IdentityProvider, enabled: boolean) => Promise<boolean>;
+  setShowDeleteModal: (open: boolean) => void;
+  setShowRemoveModal: (open: boolean) => void;
+  setSelectedIdp: (idp: IdentityProvider | null) => void;
+  handleCreate: () => void;
+  handleEdit: (idp: IdentityProvider) => void;
+  handleDelete: (idp: IdentityProvider) => void;
+  handleDeleteFromOrganization: (idp: IdentityProvider) => void;
+  handleToggleEnabled: (idp: IdentityProvider, enabled: boolean) => Promise<void>;
+  handleDeleteConfirm: (provider: IdentityProvider) => Promise<void>;
+  handleRemoveConfirm: (provider: IdentityProvider) => Promise<void>;
+  styling: SsoProviderTableProps['styling'];
+  customMessages: SsoProviderTableProps['customMessages'];
+  readOnly: SsoProviderTableProps['readOnly'];
+  createAction: SsoProviderTableProps['createAction'];
+  editAction: SsoProviderTableProps['editAction'];
+  hideHeader?: boolean;
+}

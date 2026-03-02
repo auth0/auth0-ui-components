@@ -50,10 +50,7 @@ import type {
 export function OrganizationDetailsEdit({
   schema,
   customMessages = {},
-  styling = {
-    variables: { common: {}, light: {}, dark: {} },
-    classes: {},
-  },
+  styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
   readOnly = false,
   saveAction,
   cancelAction,
@@ -68,7 +65,7 @@ export function OrganizationDetailsEdit({
   });
 
   return (
-    <GateKeeper isLoading={hook.isLoading} error={error} onRetry={retry}>
+    <GateKeeper error={error} onRetry={retry} isLoading={hook.isLoading}>
       <OrganizationDetailsEditView
         {...hook}
         schema={schema}

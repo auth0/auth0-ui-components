@@ -57,10 +57,7 @@ import type {
 export function DomainTable({
   customMessages = {},
   schema,
-  styling = {
-    variables: { common: {}, light: {}, dark: {} },
-    classes: {},
-  },
+  styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
   hideHeader = false,
   readOnly = false,
   createAction,
@@ -70,7 +67,7 @@ export function DomainTable({
   deleteFromProviderAction,
   onOpenProvider,
   onCreateProvider,
-}: DomainTableProps) {
+}: DomainTableProps): React.JSX.Element {
   const { error, retry, ...hook } = useDomainTable({
     createAction,
     verifyAction,

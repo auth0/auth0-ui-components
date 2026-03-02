@@ -45,7 +45,7 @@ export function SsoProviderTable({
   deleteAction,
   deleteFromOrganizationAction,
   enableProviderAction,
-}: SsoProviderTableProps) {
+}: SsoProviderTableProps): React.JSX.Element {
   const hook = useSsoProviderTable({
     readOnly,
     createAction,
@@ -76,7 +76,7 @@ export function SsoProviderTable({
  * @internal
  * @returns JSX element
  */
-function SsoProviderTableView({
+export function SsoProviderTableView({
   styling,
   customMessages,
   readOnly,
@@ -268,4 +268,3 @@ function SsoProviderTableView({
  * />
  * ```
  */
-export { SsoProviderTableView };

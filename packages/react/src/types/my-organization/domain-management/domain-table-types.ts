@@ -54,19 +54,42 @@ export interface DomainTableProps
   onCreateProvider?: () => void;
 }
 
-// DomainTableView component props
-export type DomainTableViewProps = Omit<UseDomainTableResult, 'error' | 'retry'> &
-  Pick<
-    DomainTableProps,
-    | 'schema'
-    | 'customMessages'
-    | 'styling'
-    | 'readOnly'
-    | 'hideHeader'
-    | 'createAction'
-    | 'onOpenProvider'
-    | 'onCreateProvider'
-  >;
+export interface DomainTableViewProps extends SharedComponentProps {
+  domains: Domain[];
+  providers: IdentityProviderAssociatedWithDomain[];
+  isFetching: boolean;
+  isLoadingProviders: boolean;
+  isCreating: boolean;
+  isDeleting: boolean;
+  isVerifying: boolean;
+  showCreateModal: boolean;
+  showConfigureModal: boolean;
+  showVerifyModal: boolean;
+  showDeleteModal: boolean;
+  verifyError: string | undefined;
+  selectedDomain: Domain | null;
+  closeModal: () => void;
+  handleCreate: (domainUrl: string) => Promise<void>;
+  handleVerify: (domain: Domain) => Promise<void>;
+  handleDelete: (domain: Domain) => Promise<void>;
+  handleToggleSwitch: (
+    domain: Domain,
+    provider: IdentityProvider,
+    checked: boolean,
+  ) => Promise<void>;
+  handleCreateClick: () => void;
+  handleConfigureClick: (domain: Domain) => void;
+  handleVerifyClick: (domain: Domain) => Promise<void>;
+  handleDeleteClick: (domain: Domain) => void;
+  schema?: DomainTableProps['schema'];
+  customMessages: DomainTableProps['customMessages'];
+  styling: DomainTableProps['styling'];
+  readOnly: DomainTableProps['readOnly'];
+  hideHeader?: DomainTableProps['hideHeader'];
+  createAction?: DomainTableProps['createAction'];
+  onOpenProvider?: DomainTableProps['onOpenProvider'];
+  onCreateProvider?: DomainTableProps['onCreateProvider'];
+}
 
 /** Props for DomainTable actions column. */
 export interface DomainTableActionsColumnProps {
