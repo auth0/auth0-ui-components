@@ -576,8 +576,8 @@ describe('OrganizationDetailsEditView', () => {
     expect(screen.getByText(/custom title/i)).toBeInTheDocument();
   });
 
-  it('renders loading state when isFetchLoading is true', () => {
+  it('renders content when isFetchLoading is true (GateKeeper handles loading)', () => {
     renderWithProviders(<OrganizationDetailsEditView {...mockProps} isFetchLoading={true} />);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByText('header.title')).toBeInTheDocument();
   });
 });

@@ -20,7 +20,10 @@ import type {
 export type StepUpApiService = MfaApiClient;
 
 /**
- * Initializes a Step-Up API service instance based on auth configuration
+ * Initializes a Step-Up API service instance based on auth configuration.
+ *
+ * @param auth - Auth details containing proxy URL or context interface.
+ * @returns Step-Up API service instance.
  */
 export function initializeStepUpApiService(auth: AuthDetails): StepUpApiService {
   if (auth.authProxyUrl) {
@@ -35,7 +38,10 @@ export function initializeStepUpApiService(auth: AuthDetails): StepUpApiService 
 }
 
 /**
- * Creates an MFA client for proxy mode
+ * Creates an MFA client for proxy mode.
+ *
+ * @param authProxyUrl - Base URL for the auth proxy.
+ * @returns Proxy-based MFA client.
  */
 function createProxyMfaClient(authProxyUrl: string): Omit<MfaApiClient, 'getEnrollmentFactors'> {
   const baseUrl = authProxyUrl.replace(/\/$/, '');

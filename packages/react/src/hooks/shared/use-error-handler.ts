@@ -44,6 +44,8 @@ const extractErrorMessage = (error: unknown, fallback: string): string => {
  * Hook for consistent error handling across the app.
  * Skips MFA/500+ errors (GateKeeper handles), shows toast for others.
  *
+ * @returns Error handler function.
+ *
  * @example
  * const handleError = useErrorHandler();
  *

@@ -24,7 +24,15 @@ interface GateKeeperProps {
 }
 
 /**
- * Renders error fallback UI with retry button
+ * Renders error fallback UI with retry button.
+ *
+ * @param props - Component props.
+ * @param props.title - Error title.
+ * @param props.description - Error description.
+ * @param props.retryText - Retry button label.
+ * @param props.onRetry - Retry handler.
+ * @param props.isRetrying - Whether a retry is in progress.
+ * @returns Error fallback element.
  */
 function ErrorFallback({
   title,
@@ -64,6 +72,13 @@ function ErrorFallback({
  * Handles:
  * - MFA errors → Shows MFA Step up dialog, then retries on completion
  * - 500+ errors → Shows blocking fallback UI with retry
+ *
+ * @param props - Component props.
+ * @param props.isLoading - Whether content is loading.
+ * @param props.error - Error object, if any.
+ * @param props.onRetry - Retry handler.
+ * @param props.children - Child elements to render on success.
+ * @returns GateKeeper element.
  */
 export function GateKeeper({ isLoading = false, error, onRetry, children }: GateKeeperProps) {
   const { t } = useTranslator('common');

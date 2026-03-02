@@ -65,7 +65,7 @@ export function OrganizationDetailsEdit({
   });
 
   return (
-    <GateKeeper error={error} onRetry={retry} isLoading={hook.isLoading}>
+    <GateKeeper error={error} onRetry={retry} isLoading={hook.isFetchLoading}>
       <OrganizationDetailsEditView
         {...hook}
         schema={schema}

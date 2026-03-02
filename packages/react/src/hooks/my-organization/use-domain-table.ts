@@ -242,14 +242,18 @@ export function useDomainTable({
 
   const verifyAndTransition = useCallback(
     async (domain: Domain, nextModal: ModalType | null) => {
-      const isVerified = await verifyDomainMutation.mutateAsync(domain);
-      if (isVerified) {
-        setActiveModal(nextModal);
-        notifySuccess('domain_verify', { domainName: domain.domain });
-      } else {
-        setVerifyError(
-          t('domain_verify.modal.errors.verification_failed', { domainName: domain.domain }),
-        );
+      try {
+        const isVerified = await verifyDomainMutation.mutateAsync(domain);
+        if (isVerified) {
+          setActiveModal(nextModal);
+          notifySuccess('domain_verify', { domainName: domain.domain });
+        } else {
+          setVerifyError(
+            t('domain_verify.modal.errors.verification_failed', { domainName: domain.domain }),
+          );
+        }
+      } catch (error) {
+        if (!isActionCancelledError(error)) throw error;
       }
     },
     [verifyDomainMutation, t],
@@ -257,7 +261,11 @@ export function useDomainTable({
 
   const handleCreate = useCallback(
     async (domainUrl: string) => {
-      await createDomainMutation.mutateAsync({ domain: domainUrl });
+      try {
+        await createDomainMutation.mutateAsync({ domain: domainUrl });
+      } catch (error) {
+        if (!isActionCancelledError(error)) throw error;
+      }
     },
     [createDomainMutation],
   );
@@ -269,7 +277,11 @@ export function useDomainTable({
 
   const handleDelete = useCallback(
     async (domain: Domain) => {
-      await deleteDomainMutation.mutateAsync(domain);
+      try {
+        await deleteDomainMutation.mutateAsync(domain);
+      } catch (error) {
+        if (!isActionCancelledError(error)) throw error;
+      }
     },
     [deleteDomainMutation],
   );
