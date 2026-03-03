@@ -317,7 +317,7 @@ export function StepUpEnrollmentSetupForm({
             </Card>
           </a>
         </div>
-        <div className="flex flex-col gap-4 w-full mt-6 mb-6">
+        <div className="flex flex-col gap-4 w-full mt-6">
           <Separator />
           <div className="flex flex-row justify-center gap-3">
             <Button variant="ghost" size="sm" onClick={() => setPhase('PICK')}>

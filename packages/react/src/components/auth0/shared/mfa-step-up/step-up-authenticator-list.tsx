@@ -96,7 +96,7 @@ export function StepUpAuthenticatorList({
                       aria-label={`${t('error.mfa.verify_button')} ${displayName}`}
                     >
                       {isCurrentlyChallenging ? (
-                        <Spinner size="sm" />
+                        <Spinner size="sm" colorScheme="foreground" />
                       ) : (
                         t('error.mfa.verify_button')
                       )}

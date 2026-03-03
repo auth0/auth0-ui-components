@@ -23,20 +23,10 @@ export interface UseStepUpChallengeResult {
   clearError: () => void;
 }
 
-/**
- * Frozen mfa_token + challenge response pair.
- * Verify always uses the token that was active when the challenge was issued,
- * even if the parent re-renders with a fresh mfa_token before the user enters their code.
- */
-interface FrozenChallenge {
-  mfaToken: string;
-  response: ChallengeResponse;
-}
-
 interface StepUpState {
   step: StepUpChallengeState;
   selectedAuthenticator: StepUpAuthenticator | null;
-  frozenChallenge: FrozenChallenge | null;
+  challengeResponse: ChallengeResponse | null;
   isChallenging: boolean;
   isVerifying: boolean;
   error: string | null;
@@ -45,7 +35,7 @@ interface StepUpState {
 const INITIAL_STATE: StepUpState = {
   step: 'LIST',
   selectedAuthenticator: null,
-  frozenChallenge: null,
+  challengeResponse: null,
   isChallenging: false,
   isVerifying: false,
   error: null,
@@ -67,7 +57,24 @@ export function useStepUpChallenge({
   const handleSelectAuthenticator = useCallback(
     async (auth: StepUpAuthenticator) => {
       if (!stepUpService) return;
-      setChallengeState((prev) => ({ ...prev, isChallenging: true, error: null }));
+
+      // Recovery codes skip the challenge step — go straight to verify
+      if (auth.authenticatorType === 'recovery-code') {
+        setChallengeState((prev) => ({
+          ...prev,
+          step: 'VERIFY',
+          selectedAuthenticator: auth,
+          challengeResponse: null,
+        }));
+        return;
+      }
+
+      setChallengeState((prev) => ({
+        ...prev,
+        isChallenging: true,
+        selectedAuthenticator: auth,
+        error: null,
+      }));
       try {
         const challengeType = auth.authenticatorType === 'otp' ? 'otp' : 'oob';
         const response = await stepUpService.challenge({
@@ -79,7 +86,7 @@ export function useStepUpChallenge({
           ...prev,
           step: 'VERIFY',
           selectedAuthenticator: auth,
-          frozenChallenge: { mfaToken, response },
+          challengeResponse: response,
           isChallenging: false,
         }));
       } catch (err) {
@@ -95,14 +102,20 @@ export function useStepUpChallenge({
 
   const handleVerify = useCallback(
     async (code: string) => {
-      if (!challengeState.frozenChallenge || !stepUpService) return;
-      const { mfaToken: frozenToken, response: challengeResponse } = challengeState.frozenChallenge;
+      if (!stepUpService || !challengeState.selectedAuthenticator) return;
+      const { selectedAuthenticator, challengeResponse } = challengeState;
+
+      // Recovery codes verify directly; OTP/OOB require a prior challenge response
+      if (selectedAuthenticator.authenticatorType !== 'recovery-code' && !challengeResponse) return;
+
       setChallengeState((prev) => ({ ...prev, isVerifying: true, error: null }));
       try {
         const params =
-          challengeResponse.challengeType === 'otp'
-            ? { mfaToken: frozenToken, otp: code }
-            : { mfaToken: frozenToken, oobCode: challengeResponse.oobCode, bindingCode: code };
+          selectedAuthenticator.authenticatorType === 'recovery-code'
+            ? { mfaToken, recoveryCode: code }
+            : challengeResponse!.challengeType === 'otp'
+              ? { mfaToken, otp: code }
+              : { mfaToken, oobCode: challengeResponse!.oobCode, bindingCode: code };
         await stepUpService.verify(params);
         await onSuccess();
       } catch (err) {
@@ -113,7 +126,13 @@ export function useStepUpChallenge({
         }));
       }
     },
-    [challengeState.frozenChallenge, stepUpService, onSuccess],
+    [
+      challengeState.selectedAuthenticator,
+      challengeState.challengeResponse,
+      mfaToken,
+      stepUpService,
+      onSuccess,
+    ],
   );
 
   const handleBack = useCallback(() => setChallengeState(INITIAL_STATE), []);
@@ -122,7 +141,7 @@ export function useStepUpChallenge({
   return {
     state: challengeState.step,
     selectedAuthenticator: challengeState.selectedAuthenticator,
-    challengeResponse: challengeState.frozenChallenge?.response ?? null,
+    challengeResponse: challengeState.challengeResponse,
     isChallenging: challengeState.isChallenging,
     isVerifying: challengeState.isVerifying,
     error: challengeState.error,

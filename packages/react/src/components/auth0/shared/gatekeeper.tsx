@@ -219,10 +219,11 @@ function MfaStepUpDialog({
       );
     }
 
-    if (fetchState === 'AUTHENTICATORS' && challengeState === 'VERIFY' && challengeResponse) {
+    if (fetchState === 'AUTHENTICATORS' && challengeState === 'VERIFY') {
       return (
         <StepUpChallengeForm
           challengeResponse={challengeResponse}
+          authenticatorType={selectedAuthenticator?.authenticatorType ?? null}
           onVerify={handleVerify}
           onBack={handleChallengeBack}
           isVerifying={isVerifying}

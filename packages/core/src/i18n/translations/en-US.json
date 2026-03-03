@@ -27,7 +27,9 @@
         "enroll_error": "Failed to set up the authentication method. Please try again.",
         "otp_instruction": "Please enter the one-time code shown in your authenticator app.",
         "oob_instruction": "Please enter the one-time code sent to your device.",
+        "recovery_code_instruction": "Enter the recovery code you were provided during your initial enrollment.",
         "enter_code_label": "One-time passcode",
+        "recovery_code_label": "Recovery code",
         "registered_on": "Registered on ${date}",
         "enroll_title": "Set up a second factor",
         "authenticator_type": {

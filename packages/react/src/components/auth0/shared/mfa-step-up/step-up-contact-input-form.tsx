@@ -201,7 +201,7 @@ export function StepUpContactInputForm({
                       </FormItem>
                     )}
                   />
-                  <div className="flex flex-row justify-end gap-3 mt-6 mb-6">
+                  <div className="flex flex-row justify-end gap-3 mt-6">
                     <Button
                       variant="outline"
                       size="sm"
