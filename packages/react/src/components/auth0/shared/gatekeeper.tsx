@@ -9,10 +9,14 @@ import { useQuery } from '@tanstack/react-query';
 import { RefreshCcw } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 
+import { StepUpAuthenticatorList } from '@/components/auth0/shared/mfa-step-up/step-up-authenticator-list';
+import { StepUpChallengeForm } from '@/components/auth0/shared/mfa-step-up/step-up-challenge-form';
+import { StepUpEnrollmentSetupForm } from '@/components/auth0/shared/mfa-step-up/step-up-enrollment-setup-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
+import { useStepUpChallenge } from '@/hooks/auth0/shared/use-step-up-challenge';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 
@@ -88,15 +92,15 @@ export function GateKeeper({ isLoading = false, error, onRetry, children }: Gate
 
   const mfaToken = useMemo(() => {
     if (error && isMfaRequiredError(error)) {
-      const err = error as MfaRequiredError & { body?: { mfa_token?: string } };
-      return err.mfa_token ?? err.body?.mfa_token ?? null;
+      const err = error as MfaRequiredError & { body?: { error?: string; mfa_token?: string } };
+      const token = err.mfa_token ?? err.body?.mfa_token ?? null;
+      return token;
     }
     return null;
   }, [error]);
 
   const isProxyMode = coreClient?.isProxyMode() ?? false;
 
-  // Step 1: Check if user needs to enroll MFA factors (SPA mode only)
   const {
     data: enrollmentFactors,
     isLoading: isFetchingEnrollmentFactors,
@@ -118,10 +122,8 @@ export function GateKeeper({ isLoading = false, error, onRetry, children }: Gate
     retry: false,
   });
 
-  // Determine if user needs enrollment or has authenticators
   const needsEnrollment = enrollmentFactors && enrollmentFactors.length > 0;
 
-  // Step 2: Fetch authenticators
   const {
     data: authenticators,
     isLoading: isFetchingAuthenticators,
@@ -143,6 +145,34 @@ export function GateKeeper({ isLoading = false, error, onRetry, children }: Gate
     retry: false,
   });
 
+  const stepUpService = coreClient?.getStepUpApiService();
+
+  const handleChallengeSuccess = React.useCallback(async () => {
+    setIsRetrying(true);
+    try {
+      await onRetry();
+      setIsMfaDialogOpen(false);
+    } finally {
+      setIsRetrying(false);
+    }
+  }, [onRetry]);
+
+  const {
+    state: challengeState,
+    selectedAuthenticator,
+    challengeResponse,
+    isChallenging,
+    isVerifying,
+    error: challengeError,
+    handleSelectAuthenticator,
+    handleVerify,
+    handleBack: handleChallengeBack,
+  } = useStepUpChallenge({
+    mfaToken: mfaToken ?? '',
+    stepUpService: stepUpService!,
+    onSuccess: handleChallengeSuccess,
+  });
+
   const handleRetry = async () => {
     setIsRetrying(true);
     try {
@@ -161,92 +191,108 @@ export function GateKeeper({ isLoading = false, error, onRetry, children }: Gate
     );
   }
 
-  const LoadingState = () => (
-    <div className="flex items-center justify-center p-8">
-      <Spinner />
-    </div>
-  );
-
-  const ErrorState = () => (
-    <div className="text-center text-destructive py-4">{t('error.mfa.fetch_failed')}</div>
-  );
-
-  const EmptyState = () => (
-    <div className="text-center text-muted-foreground py-4">{t('error.mfa.no_authenticators')}</div>
-  );
-
-  const AuthenticatorList = ({ items }: { items: StepUpAuthenticator[] }) => (
-    <div className="space-y-2 py-4">
-      {items.map((auth) => (
-        <div key={auth.id} className="border rounded p-3">
-          <div className="font-medium">{auth.name || auth.authenticatorType}</div>
-          <div className="text-sm text-muted-foreground">
-            Type: {auth.authenticatorType} | Active: {auth.active ? 'Yes' : 'No'}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
-  const EnrollmentList = ({ factors }: { factors: EnrollmentFactor[] }) => (
-    <div className="space-y-2 py-4">
-      <div className="text-sm text-muted-foreground text-center mb-4">
-        {t('error.mfa.enrollment_required')}
-      </div>
-      {factors.map((factor) => (
-        <div key={factor.type} className="border rounded p-3">
-          <div className="font-medium">{factor.type}</div>
-          <div className="text-sm text-muted-foreground">{t('error.mfa.factor_available')}</div>
-        </div>
-      ))}
-    </div>
-  );
-
-  // Determine current MFA state
-  const getMfaState = () => {
-    // SPA mode: Check enrollment factors first
-    if (!isProxyMode) {
-      if (isFetchingEnrollmentFactors) return 'LOADING';
-      if (fetchEnrollmentFactorsError) return 'ERROR';
-      if (needsEnrollment) return 'ENROLLMENT';
-    }
-
-    // Both modes: Check authenticators
-    if (isFetchingAuthenticators) return 'LOADING';
-    if (fetchAuthenticatorsError) return 'ERROR';
-    if (authenticators?.length) return 'AUTHENTICATORS';
-
-    return 'EMPTY';
-  };
-
-  const stateComponentMap: Record<string, React.ReactNode> = {
-    LOADING: <LoadingState />,
-    ERROR: <ErrorState />,
-    EMPTY: <EmptyState />,
-    AUTHENTICATORS: authenticators ? <AuthenticatorList items={authenticators} /> : <EmptyState />,
-    ENROLLMENT: enrollmentFactors ? <EnrollmentList factors={enrollmentFactors} /> : <EmptyState />,
-  };
-
-  const renderMfaDialogContent = () => {
-    const state = getMfaState();
-    return stateComponentMap[state] || <EmptyState />;
-  };
-
-  // Handle MFA errors - show dialog first, then fallback if closed
   if (error && isMfaRequiredError(error) && isMfaDialogOpen) {
+    const getMfaFetchState = ():
+      | 'LOADING'
+      | 'ERROR'
+      | 'ENROLLMENT'
+      | 'AUTHENTICATORS'
+      | 'EMPTY' => {
+      if (!isProxyMode) {
+        if (isFetchingEnrollmentFactors) return 'LOADING';
+        if (fetchEnrollmentFactorsError) return 'ERROR';
+        if (needsEnrollment) return 'ENROLLMENT';
+      }
+      if (isFetchingAuthenticators) return 'LOADING';
+      if (fetchAuthenticatorsError) return 'ERROR';
+      if (authenticators?.length) return 'AUTHENTICATORS';
+      return 'EMPTY';
+    };
+
+    const fetchState = getMfaFetchState();
+
+    const dialogTitle = (() => {
+      if (fetchState === 'ENROLLMENT') return t('error.mfa.enroll_title');
+      if (challengeState === 'VERIFY') return t('error.mfa.title');
+      return t('error.mfa.title');
+    })();
+
+    const renderDialogContent = () => {
+      if (fetchState === 'LOADING') {
+        return (
+          <div className="flex items-center justify-center p-8">
+            <Spinner />
+          </div>
+        );
+      }
+
+      if (fetchState === 'ERROR') {
+        return (
+          <div className="text-center text-destructive py-4" role="alert">
+            {t('error.mfa.fetch_failed')}
+          </div>
+        );
+      }
+
+      if (fetchState === 'EMPTY') {
+        return (
+          <div className="text-center text-muted-foreground py-4">
+            {t('error.mfa.no_authenticators')}
+          </div>
+        );
+      }
+
+      if (fetchState === 'ENROLLMENT' && enrollmentFactors) {
+        return (
+          <StepUpEnrollmentSetupForm
+            mfaToken={mfaToken!}
+            enrollmentFactors={enrollmentFactors}
+            stepUpService={stepUpService!}
+            onSuccess={handleChallengeSuccess}
+            onClose={() => setIsMfaDialogOpen(false)}
+          />
+        );
+      }
+
+      if (fetchState === 'AUTHENTICATORS' && challengeState === 'VERIFY' && challengeResponse) {
+        return (
+          <StepUpChallengeForm
+            challengeResponse={challengeResponse}
+            onVerify={handleVerify}
+            onBack={handleChallengeBack}
+            isVerifying={isVerifying}
+            error={challengeError}
+          />
+        );
+      }
+
+      if (fetchState === 'AUTHENTICATORS' && authenticators) {
+        return (
+          <StepUpAuthenticatorList
+            authenticators={authenticators}
+            onSelectAuthenticator={handleSelectAuthenticator}
+            onCancel={() => setIsMfaDialogOpen(false)}
+            isChallenging={isChallenging}
+            challengingAuthenticatorId={selectedAuthenticator?.id ?? null}
+          />
+        );
+      }
+
+      return null;
+    };
+
     return (
       <Dialog open={true} onOpenChange={setIsMfaDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t('error.mfa.title')}</DialogTitle>
+            <DialogTitle>{dialogTitle}</DialogTitle>
           </DialogHeader>
-          {renderMfaDialogContent()}
+          {renderDialogContent()}
         </DialogContent>
       </Dialog>
     );
   }
 
-  // Handle 500+ errors or MFA errors (when dialog is closed)
   const statusCode = getStatusCode(error);
   const shouldShowErrorFallback =
     error && ((statusCode && statusCode >= 500) || isMfaRequiredError(error));

@@ -10,7 +10,35 @@
     "error": {
       "generic": "There was an issue processing your request. Please try again or contact support if the issue persists.",
       "mfa": {
-        "title": "Verify its you"
+        "title": "Verify your account",
+        "subtitle": "You must provide a second factor from one of the options below to perform this action.",
+        "verify_button": "Verify",
+        "verifying": "Verifying...",
+        "back": "Back",
+        "cancel": "Cancel",
+        "continue": "Continue",
+        "enroll_button": "Set up",
+        "fetch_failed": "There was an issue loading your authentication methods. Please try again.",
+        "no_authenticators": "No authentication methods found. Please contact support.",
+        "enrollment_required": "You need to set up a second factor to continue.",
+        "factor_available": "Available for setup",
+        "challenge_error": "Failed to start the verification. Please try again.",
+        "verify_error": "Verification failed. Please check your code and try again.",
+        "enroll_error": "Failed to set up the authentication method. Please try again.",
+        "otp_instruction": "Please enter the one-time code shown in your authenticator app.",
+        "oob_instruction": "Please enter the one-time code sent to your device.",
+        "enter_code_label": "One-time passcode",
+        "registered_on": "Registered on ${date}",
+        "enroll_title": "Set up a second factor",
+        "authenticator_type": {
+          "otp": "Authenticator",
+          "oob": "Push Notification with Guardian App",
+          "recovery-code": "Recovery Codes",
+          "email": "Email OTP",
+          "sms": "SMS",
+          "push": "Push Notification with Guardian App",
+          "voice": "Voice"
+        }
       }
     }
   },
