@@ -4,6 +4,7 @@ import { Auth0ComponentProvider } from '@auth0/universal-components-react/rwa';
 import React from 'react';
 
 import { clientConfig } from '../config/features';
+import { useIsDarkMode } from '../hooks/use-is-dark-mode';
 
 import { I18nProvider } from './i18n-provider';
 
@@ -12,6 +13,8 @@ interface ClientProviderProps {
 }
 
 export function ClientProvider({ children }: ClientProviderProps) {
+  const isDarkMode = useIsDarkMode();
+
   return (
     <I18nProvider>
       <Auth0ComponentProvider
@@ -20,7 +23,7 @@ export function ClientProvider({ children }: ClientProviderProps) {
           domain: clientConfig.auth0Domain,
         }}
         themeSettings={{
-          mode: 'light',
+          mode: isDarkMode ? 'dark' : 'light',
           theme: 'default',
         }}
       >
