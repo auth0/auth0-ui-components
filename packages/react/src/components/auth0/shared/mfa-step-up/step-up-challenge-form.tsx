@@ -35,6 +35,8 @@ type OtpForm = {
  * rather than confirmEnrollment() on the MFA management service.
  *
  * Handles both OTP (TOTP) and OOB (email/SMS/push) challenge types.
+ * @param root0 - Component props.
+ * @returns Challenge form element.
  */
 export function StepUpChallengeForm({
   challengeResponse,

@@ -66,6 +66,8 @@ interface StepUpContactInputFormProps {
  * Receives `enrollMfa` and `confirmEnrollment` adapters from the parent
  * (`StepUpEnrollmentSetupForm`) that call the step-up API service methods
  * (`enroll()` and `verify()`) instead of the My Account API.
+ * @param root0 - Component props.
+ * @returns Contact input form element.
  */
 export function StepUpContactInputForm({
   factorType,

@@ -17,6 +17,9 @@ interface StepUpAuthenticatorListProps {
 /**
  * Derives a human-readable display name for an authenticator.
  * Uses `name` field first; falls back to the type-based translation key.
+ * @param auth - The authenticator to derive a display name for.
+ * @param t - Translation function.
+ * @returns Human-readable display name string.
  */
 function getAuthenticatorDisplayName(
   auth: StepUpAuthenticator,
@@ -30,6 +33,8 @@ function getAuthenticatorDisplayName(
 
 /**
  * Formats an ISO date string to a locale-friendly display date.
+ * @param isoDate - ISO date string to format.
+ * @returns Locale-friendly display date, or undefined if the input is absent or invalid.
  */
 function formatDate(isoDate: string | undefined): string | undefined {
   if (!isoDate) return undefined;
@@ -49,6 +54,8 @@ function formatDate(isoDate: string | undefined): string | undefined {
  *
  * Displays the list of enrolled authenticators for the step-up challenge flow.
  * The user picks one authenticator to verify with by clicking the "Verify" button.
+ * @param root0 - Component props.
+ * @returns Authenticator list element.
  */
 export function StepUpAuthenticatorList({
   authenticators,

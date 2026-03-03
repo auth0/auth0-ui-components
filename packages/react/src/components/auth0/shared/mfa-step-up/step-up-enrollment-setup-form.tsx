@@ -39,6 +39,8 @@ type EnrollmentFormPhase =
 
 /**
  * Maps EnrollmentFactor.type (from step-up API) → MFAType (My Account API / UI components).
+ * @param type - EnrollmentFactor type string from the step-up API.
+ * @returns Corresponding MFAType, or null if the type is not recognised.
  */
 function mapEnrollmentFactorTypeToMFAType(type: string): MFAType | null {
   const map: Record<string, MFAType> = {
@@ -53,6 +55,8 @@ function mapEnrollmentFactorTypeToMFAType(type: string): MFAType | null {
 
 /**
  * Maps MFAType (My Account / UI) → step-up API factorType (used in enroll() params).
+ * @param mfaType - My Account MFA type.
+ * @returns Corresponding step-up API factor type string.
  */
 function mapMFATypeToStepUpFactorType(
   mfaType: MFAType,
@@ -86,6 +90,8 @@ interface StepUpEnrollmentSetupFormProps {
  *   the My Account API interface expected by sub-forms into step-up
  *   service calls (stepUpService.enroll() / stepUpService.verify())
  * - Passes selected MFAType → StepUpContactInputForm or StepUpQRCodeEnrollmentForm
+ * @param root0 - Component props.
+ * @returns Enrollment setup form element.
  */
 export function StepUpEnrollmentSetupForm({
   mfaToken,
@@ -104,7 +110,7 @@ export function StepUpEnrollmentSetupForm({
   // This ref stores the oobCode between the enroll and verify calls.
   const oobCodeRef = React.useRef<string | null>(null);
 
-  /**
+  /*
    * enrollMfa adapter
    * Translates (MFAType, options) → stepUpService.enroll()
    * Returns a normalized object that matches what sub-component hooks expect:
@@ -157,7 +163,7 @@ export function StepUpEnrollmentSetupForm({
     [mfaToken, stepUpService],
   );
 
-  /**
+  /*
    * confirmEnrollment adapter
    * Translates (factorType, authSession, authId, { userOtpCode }) → stepUpService.verify()
    *

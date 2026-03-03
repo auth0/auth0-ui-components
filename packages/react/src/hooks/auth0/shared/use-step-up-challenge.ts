@@ -39,6 +39,8 @@ interface FrozenChallenge {
 
 /**
  * Manages the List → Challenge → Verify state machine for MFA step-up authentication.
+ * @param root0 - Hook options.
+ * @returns Step-up challenge state and action handlers.
  */
 export function useStepUpChallenge({
   mfaToken,
