@@ -203,10 +203,8 @@ export function StepUpContactInputForm({
                   />
                   <div className="flex flex-row justify-end gap-3 mt-6 mb-6">
                     <Button
-                      type="button"
-                      className="text-sm"
                       variant="outline"
-                      size="default"
+                      size="sm"
                       onClick={handleCancel}
                       aria-label={t('cancel')}
                     >
@@ -214,8 +212,8 @@ export function StepUpContactInputForm({
                     </Button>
                     <Button
                       type="submit"
-                      size="default"
-                      className="text-sm"
+                      size="sm"
+                      variant="primary"
                       disabled={!form.formState.isValid || loading}
                       aria-label={t('submit')}
                     >

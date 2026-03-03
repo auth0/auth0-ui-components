@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { OTPField } from '@/components/ui/otp-field';
+import { Separator } from '@/components/ui/separator';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 
@@ -112,28 +113,29 @@ export function StepUpChallengeForm({
             </p>
           )}
 
-          <div className="flex flex-row justify-end gap-3 mt-6 mb-6">
-            <Button
-              type="button"
-              className="text-sm"
-              variant="outline"
-              size="default"
-              onClick={onBack}
-              disabled={isVerifying}
-              aria-label={t('error.mfa.back')}
-            >
-              {t('error.mfa.back')}
-            </Button>
+          <div className="flex flex-col gap-4 mt-6 mb-6">
+            <Separator />
+            <div className="flex flex-row justify-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onBack}
+                disabled={isVerifying}
+                aria-label={t('error.mfa.back')}
+              >
+                {t('error.mfa.back')}
+              </Button>
 
-            <Button
-              type="submit"
-              className="text-sm"
-              size="default"
-              disabled={userOtp?.length !== 6 || isVerifying}
-              aria-label={buttonText}
-            >
-              {buttonText}
-            </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                size="sm"
+                disabled={userOtp?.length !== 6 || isVerifying}
+                aria-label={buttonText}
+              >
+                {buttonText}
+              </Button>
+            </div>
           </div>
         </form>
       </Form>

@@ -18,6 +18,7 @@ import { StepUpQRCodeEnrollmentForm } from '@/components/auth0/shared/mfa-step-u
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { List, ListItem } from '@/components/ui/list';
+import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { useRecoveryCodeGeneration } from '@/hooks/my-account/use-recovery-code';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -269,7 +270,9 @@ export function StepUpEnrollmentSetupForm({
         })}
       </List>
 
-      <div className="flex justify-end mt-6">
+      <Separator className="mt-6" />
+
+      <div className="flex justify-center mt-4">
         <Button
           type="button"
           variant="outline"
@@ -314,24 +317,16 @@ export function StepUpEnrollmentSetupForm({
             </Card>
           </a>
         </div>
-        <div className="flex flex-row justify-end gap-3 w-full mt-6 mb-6">
-          <Button
-            type="button"
-            className="text-sm"
-            variant="outline"
-            size="default"
-            onClick={() => setPhase('PICK')}
-          >
-            {t('error.mfa.back')}
-          </Button>
-          <Button
-            type="button"
-            className="text-sm"
-            size="default"
-            onClick={() => setPhase(ENTER_QR)}
-          >
-            {t('error.mfa.continue')}
-          </Button>
+        <div className="flex flex-col gap-4 w-full mt-6 mb-6">
+          <Separator />
+          <div className="flex flex-row justify-center gap-3">
+            <Button variant="ghost" size="sm" onClick={() => setPhase('PICK')}>
+              {t('error.mfa.back')}
+            </Button>
+            <Button size="sm" onClick={() => setPhase(ENTER_QR)}>
+              {t('error.mfa.continue')}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
