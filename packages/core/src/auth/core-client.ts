@@ -50,7 +50,7 @@ export async function createCoreClient(
         throw new Error('Function not implemented.');
       },
       getDomain: function (): string | undefined {
-        throw new Error('Function not implemented.');
+        return undefined;
       },
     };
 

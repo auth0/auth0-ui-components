@@ -451,11 +451,11 @@ describe('createCoreClient', () => {
       expect(() => client.getMyOrganizationApiClient()).toThrow('Function not implemented.');
     });
 
-    it('getDomain throws in previewMode', async () => {
+    it('getDomain not defined in previewMode', async () => {
       const authDetails = { ...createAuthDetails(), previewMode: true };
       const client = await createCoreClient(authDetails);
 
-      expect(() => client.getDomain()).toThrow('Function not implemented.');
+      expect(() => client.getDomain()).toBeUndefined;
     });
   });
 });
