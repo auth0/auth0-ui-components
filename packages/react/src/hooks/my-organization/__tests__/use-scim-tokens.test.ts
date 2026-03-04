@@ -316,11 +316,7 @@ describe('useScimTokens', () => {
 
       const { result } = renderUseScimTokens(mockIdpId, mockProvider);
 
-      try {
-        await result.current.listScimTokens();
-      } catch {
-        // Expected to throw
-      }
+      await expect(result.current.listScimTokens()).rejects.toThrow('List error');
 
       await waitFor(() => {
         expect(result.current.scimTokensError).toEqual(error);
@@ -336,11 +332,7 @@ describe('useScimTokens', () => {
 
       const { result } = renderUseScimTokens(mockIdpId, mockProvider);
 
-      try {
-        await result.current.createScimToken({});
-      } catch {
-        // Expected to throw
-      }
+      await expect(result.current.createScimToken({})).rejects.toThrow('Create error');
 
       await waitFor(() => {
         expect(result.current.scimTokensError).toEqual(error);
@@ -356,11 +348,7 @@ describe('useScimTokens', () => {
 
       const { result } = renderUseScimTokens(mockIdpId, mockProvider);
 
-      try {
-        await result.current.deleteScimToken('token_123');
-      } catch {
-        // Expected to throw
-      }
+      await expect(result.current.deleteScimToken('token_123')).rejects.toThrow('Delete error');
 
       await waitFor(() => {
         expect(result.current.scimTokensError).toEqual(error);

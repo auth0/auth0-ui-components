@@ -363,11 +363,7 @@ describe('useSsoProvisioning', () => {
 
       await waitFor(() => expect(result.current.isProvisioningLoading).toBe(false));
 
-      try {
-        await result.current.syncProvisioningAttributes();
-      } catch {
-        // Expected to throw
-      }
+      await expect(result.current.syncProvisioningAttributes()).rejects.toThrow('Sync failed');
 
       await waitFor(() => {
         expect(mockHandleError).toHaveBeenCalledWith(error);
@@ -493,11 +489,7 @@ describe('useSsoProvisioning', () => {
 
       await waitFor(() => expect(result.current.isProvisioningLoading).toBe(false));
 
-      try {
-        await result.current.createProvisioning();
-      } catch {
-        // Expected to throw
-      }
+      await expect(result.current.createProvisioning()).rejects.toThrow('Create error');
 
       await waitFor(() => {
         expect(result.current.provisioningError).toEqual(error);
@@ -515,11 +507,7 @@ describe('useSsoProvisioning', () => {
 
       await waitFor(() => expect(result.current.isProvisioningLoading).toBe(false));
 
-      try {
-        await result.current.deleteProvisioning();
-      } catch {
-        // Expected to throw
-      }
+      await expect(result.current.deleteProvisioning()).rejects.toThrow('Delete error');
 
       await waitFor(() => {
         expect(result.current.provisioningError).toEqual(error);
@@ -537,11 +525,7 @@ describe('useSsoProvisioning', () => {
 
       await waitFor(() => expect(result.current.isProvisioningLoading).toBe(false));
 
-      try {
-        await result.current.syncProvisioningAttributes();
-      } catch {
-        // Expected to throw
-      }
+      await expect(result.current.syncProvisioningAttributes()).rejects.toThrow('Sync error');
 
       await waitFor(() => {
         expect(result.current.provisioningError).toEqual(error);
