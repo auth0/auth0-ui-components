@@ -12,11 +12,14 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { OTPField } from '@/components/ui/otp-field';
+import { Separator } from '@/components/ui/separator';
+import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 
 interface StepUpChallengeFormProps {
-  challengeResponse: ChallengeResponse;
+  challengeResponse: ChallengeResponse | null;
+  authenticatorType: string | null;
   onVerify: (code: string) => Promise<void>;
   onBack: () => void;
   isVerifying: boolean;
@@ -28,18 +31,14 @@ type OtpForm = {
 };
 
 /**
- * StepUpChallengeForm
- *
- * Displayed during the VERIFY phase of the step-up challenge flow.
- * A copy of OTPVerificationForm adapted to call verify() on the step-up service
- * rather than confirmEnrollment() on the MFA management service.
- *
- * Handles both OTP (TOTP) and OOB (email/SMS/push) challenge types.
- * @param root0 - Component props.
+ * Challenge form displayed during the VERIFY phase of the step-up flow.
+ * Handles OTP (TOTP), OOB (email/SMS/push), and recovery-code challenge types.
+ * @param props - Component props.
  * @returns Challenge form element.
  */
 export function StepUpChallengeForm({
   challengeResponse,
+  authenticatorType,
   onVerify,
   onBack,
   isVerifying,
@@ -49,20 +48,28 @@ export function StepUpChallengeForm({
   const form = useForm<OtpForm>({ mode: 'onChange' });
   const userOtp = form.watch('userOtp');
   const otpInputRef = React.useRef<HTMLInputElement>(null);
+  const recoveryCodeInputRef = React.useRef<HTMLInputElement>(null);
+  const isRecoveryCode = authenticatorType === 'recovery-code';
 
   React.useEffect(() => {
-    otpInputRef.current?.focus();
-  }, []);
+    if (isRecoveryCode) {
+      recoveryCodeInputRef.current?.focus();
+    } else {
+      otpInputRef.current?.focus();
+    }
+  }, [isRecoveryCode]);
 
   const handleSubmit = async (data: OtpForm) => {
     await onVerify(data.userOtp);
-    // Always reset so the user gets a blank field to re-enter on failure.
-    // On success the dialog closes, so the reset is a no-op.
     form.reset();
   };
 
-  const isOtp = challengeResponse.challengeType === 'otp';
-  const instruction = isOtp ? t('error.mfa.otp_instruction') : t('error.mfa.oob_instruction');
+  const isOtp = challengeResponse?.challengeType === 'otp';
+  const instruction = isRecoveryCode
+    ? t('error.mfa.recovery_code_instruction')
+    : isOtp
+      ? t('error.mfa.otp_instruction')
+      : t('error.mfa.oob_instruction');
 
   const buttonText = isVerifying ? t('error.mfa.verifying') : t('error.mfa.verify_button');
 
@@ -88,18 +95,32 @@ export function StepUpChallengeForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium" htmlFor="step-up-otp-input">
-                  {t('error.mfa.enter_code_label')}
+                  {isRecoveryCode
+                    ? t('error.mfa.recovery_code_label')
+                    : t('error.mfa.enter_code_label')}
                 </FormLabel>
                 <FormControl>
-                  <OTPField
-                    id="step-up-otp-input"
-                    length={6}
-                    separator={{ character: '-', afterEvery: 3 }}
-                    onChange={field.onChange}
-                    inputRef={otpInputRef}
-                    aria-invalid={!!form.formState.errors.userOtp || !!error}
-                    value={field.value || ''}
-                  />
+                  {isRecoveryCode ? (
+                    <TextField
+                      id="step-up-recovery-code-input"
+                      ref={recoveryCodeInputRef}
+                      placeholder="ABCDEFGHIJKLMNOPQRSTUVWX"
+                      onChange={(e) => field.onChange(e.target.value)}
+                      value={field.value || ''}
+                      aria-invalid={!!form.formState.errors.userOtp || !!error}
+                      autoComplete="off"
+                    />
+                  ) : (
+                    <OTPField
+                      id="step-up-otp-input"
+                      length={6}
+                      separator={{ character: '-', afterEvery: 3 }}
+                      onChange={field.onChange}
+                      inputRef={otpInputRef}
+                      aria-invalid={!!form.formState.errors.userOtp || !!error}
+                      value={field.value || ''}
+                    />
+                  )}
                 </FormControl>
                 <FormMessage className="text-sm text-left" id="step-up-otp-error" role="alert" />
               </FormItem>
@@ -107,33 +128,40 @@ export function StepUpChallengeForm({
           />
 
           {error && (
-            <p className="text-sm text-destructive text-left" role="alert" aria-live="polite">
+            <p
+              className="text-sm text-destructive-foreground text-left"
+              role="alert"
+              aria-live="polite"
+            >
               {t('error.mfa.verify_error')}
             </p>
           )}
 
-          <div className="flex flex-row justify-end gap-3 mt-6 mb-6">
-            <Button
-              type="button"
-              className="text-sm"
-              variant="outline"
-              size="default"
-              onClick={onBack}
-              disabled={isVerifying}
-              aria-label={t('error.mfa.back')}
-            >
-              {t('error.mfa.back')}
-            </Button>
+          <div className="flex flex-col gap-4 mt-6">
+            <Separator />
+            <div className="flex flex-row justify-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onBack}
+                disabled={isVerifying}
+                aria-label={t('error.mfa.back')}
+              >
+                {t('error.mfa.back')}
+              </Button>
 
-            <Button
-              type="submit"
-              className="text-sm"
-              size="default"
-              disabled={userOtp?.length !== 6 || isVerifying}
-              aria-label={buttonText}
-            >
-              {buttonText}
-            </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                size="sm"
+                disabled={
+                  !userOtp?.trim() || (!isRecoveryCode && userOtp.length !== 6) || isVerifying
+                }
+                aria-label={buttonText}
+              >
+                {buttonText}
+              </Button>
+            </div>
           </div>
         </form>
       </Form>

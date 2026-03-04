@@ -44,13 +44,12 @@ interface StepUpQRCodeEnrollmentFormProps {
 }
 
 /**
- * StepUpQRCodeEnrollmentForm
+ * QR code enrollment form for the step-up MFA flow.
  *
- * Copy of QRCodeEnrollmentForm for the step-up enrollment flow.
  * Receives `enrollMfa` and `confirmEnrollment` adapters from the parent
  * (`StepUpEnrollmentSetupForm`) that call the step-up API service methods
  * (`enroll()` and `verify()`) instead of the My Account API.
- * @param root0 - Component props.
+ * @param props - Component props.
  * @returns QR code enrollment form element.
  */
 export function StepUpQRCodeEnrollmentForm({
@@ -145,21 +144,13 @@ export function StepUpQRCodeEnrollmentForm({
 
             <div className="mt-3" />
 
-            <div className="flex flex-row justify-end gap-3 mt-6 mb-6">
-              <Button
-                type="button"
-                className="text-sm"
-                variant="outline"
-                size="default"
-                onClick={onClose}
-                aria-label={t('cancel')}
-              >
+            <div className="flex flex-row justify-end gap-3 mt-6">
+              <Button variant="ghost" size="sm" onClick={onClose} aria-label={t('cancel')}>
                 {t('cancel')}
               </Button>
               <Button
-                type="button"
-                className="text-sm"
-                size="default"
+                variant="primary"
+                size="sm"
                 onClick={handleContinue}
                 aria-label={t('continue')}
               >

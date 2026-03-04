@@ -60,13 +60,12 @@ interface StepUpContactInputFormProps {
 }
 
 /**
- * StepUpContactInputForm
+ * Contact input form for the step-up MFA enrollment flow.
  *
- * Copy of ContactInputForm for the step-up enrollment flow.
  * Receives `enrollMfa` and `confirmEnrollment` adapters from the parent
  * (`StepUpEnrollmentSetupForm`) that call the step-up API service methods
  * (`enroll()` and `verify()`) instead of the My Account API.
- * @param root0 - Component props.
+ * @param props - Component props.
  * @returns Contact input form element.
  */
 export function StepUpContactInputForm({
@@ -201,12 +200,10 @@ export function StepUpContactInputForm({
                       </FormItem>
                     )}
                   />
-                  <div className="flex flex-row justify-end gap-3 mt-6 mb-6">
+                  <div className="flex flex-row justify-end gap-3 mt-6">
                     <Button
-                      type="button"
-                      className="text-sm"
                       variant="outline"
-                      size="default"
+                      size="sm"
                       onClick={handleCancel}
                       aria-label={t('cancel')}
                     >
@@ -214,8 +211,8 @@ export function StepUpContactInputForm({
                     </Button>
                     <Button
                       type="submit"
-                      size="default"
-                      className="text-sm"
+                      size="sm"
+                      variant="primary"
                       disabled={!form.formState.isValid || loading}
                       aria-label={t('submit')}
                     >

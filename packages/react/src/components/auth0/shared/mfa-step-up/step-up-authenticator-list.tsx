@@ -1,10 +1,11 @@
 import type { StepUpAuthenticator } from '@auth0/universal-components-core';
 
 import { Button } from '@/components/ui/button';
+import { Card, CardAction, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { List, ListItem } from '@/components/ui/list';
+import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { cn } from '@/lib/utils';
 
 interface StepUpAuthenticatorListProps {
   authenticators: StepUpAuthenticator[];
@@ -14,21 +15,26 @@ interface StepUpAuthenticatorListProps {
   challengingAuthenticatorId: string | null;
 }
 
+/** Maps API authenticator `type` values to translation keys. */
+const typeToTranslationKey: Record<string, string> = {
+  'push-notification': 'push',
+  phone: 'sms',
+  totp: 'otp',
+};
+
 /**
- * Derives a human-readable display name for an authenticator.
- * Uses `name` field first; falls back to the type-based translation key.
- * @param auth - The authenticator to derive a display name for.
+ * Returns the translated display name for an authenticator.
+ * @param auth - The authenticator.
  * @param t - Translation function.
- * @returns Human-readable display name string.
+ * @returns Display name string.
  */
 function getAuthenticatorDisplayName(
   auth: StepUpAuthenticator,
   t: (key: string) => string,
 ): string {
-  if (auth.name) return auth.name;
-
-  const typeKey = `error.mfa.authenticator_type.${auth.authenticatorType}`;
-  return t(typeKey);
+  const rawKey = auth.type ?? auth.authenticatorType;
+  const key = typeToTranslationKey[rawKey] ?? rawKey;
+  return t(`error.mfa.authenticator_type.${key}`);
 }
 
 /**
@@ -50,11 +56,15 @@ function formatDate(isoDate: string | undefined): string | undefined {
 }
 
 /**
- * StepUpAuthenticatorList
+ * Displays enrolled authenticators as a list of cards for the step-up challenge flow.
+ * Each card shows the authenticator name and registration date, with a Verify action on the right.
  *
- * Displays the list of enrolled authenticators for the step-up challenge flow.
- * The user picks one authenticator to verify with by clicking the "Verify" button.
- * @param root0 - Component props.
+ * @param props - Component props.
+ * @param props.authenticators - List of enrolled authenticators.
+ * @param props.onSelectAuthenticator - Callback when the user picks an authenticator to verify.
+ * @param props.onCancel - Callback when the user cancels.
+ * @param props.isChallenging - Whether a challenge is in progress.
+ * @param props.challengingAuthenticatorId - ID of the authenticator currently being challenged.
  * @returns Authenticator list element.
  */
 export function StepUpAuthenticatorList({
@@ -68,61 +78,50 @@ export function StepUpAuthenticatorList({
 
   return (
     <div className="w-full">
-      <p
-        className="text-sm text-muted-foreground text-left mb-4"
-        id="step-up-authenticator-list-description"
-      >
-        {t('error.mfa.subtitle')}
-      </p>
-
-      <List
-        className="flex flex-col gap-0 w-full"
-        aria-labelledby="step-up-authenticator-list-description"
-      >
+      <List className="flex flex-col gap-3">
         {authenticators.map((auth) => {
           const displayName = getAuthenticatorDisplayName(auth, t);
           const formattedDate = formatDate(auth.createdAt);
           const isCurrentlyChallenging = challengingAuthenticatorId === auth.id;
 
           return (
-            <ListItem
-              key={auth.id}
-              className="flex items-center justify-between py-4 border-b last:border-b-0"
-              aria-label={displayName}
-            >
-              <div className="flex flex-col gap-0.5">
-                <span className={cn('text-sm font-medium text-card-foreground')}>
-                  {displayName}
-                </span>
-                {formattedDate && (
-                  <span className="text-xs text-muted-foreground">
-                    {t('error.mfa.registered_on').replace('${date}', formattedDate)}
-                  </span>
-                )}
-              </div>
-
-              <Button
-                type="button"
-                size="default"
-                variant="outline"
-                className="text-sm shrink-0 ml-4"
-                onClick={() => onSelectAuthenticator(auth)}
-                disabled={isChallenging}
-                aria-label={`${t('error.mfa.verify_button')} ${displayName}`}
-              >
-                {isCurrentlyChallenging ? <Spinner size="sm" /> : t('error.mfa.verify_button')}
-              </Button>
+            <ListItem key={auth.id} aria-label={displayName}>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base font-semibold">{displayName}</CardTitle>
+                  {formattedDate && (
+                    <CardDescription className="text-xs">
+                      {t('error.mfa.registered_on').replace('${date}', formattedDate)}
+                    </CardDescription>
+                  )}
+                  <CardAction>
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      onClick={() => onSelectAuthenticator(auth)}
+                      disabled={isChallenging}
+                      aria-label={`${t('error.mfa.verify_button')} ${displayName}`}
+                    >
+                      {isCurrentlyChallenging ? (
+                        <Spinner size="sm" colorScheme="foreground" />
+                      ) : (
+                        t('error.mfa.verify_button')
+                      )}
+                    </Button>
+                  </CardAction>
+                </CardHeader>
+              </Card>
             </ListItem>
           );
         })}
       </List>
 
-      <div className="flex justify-end mt-6">
+      <Separator className="mt-6" />
+
+      <div className="flex justify-center mt-4">
         <Button
-          type="button"
-          variant="outline"
-          size="default"
-          className="text-sm"
+          variant="ghost"
+          size="sm"
           onClick={onCancel}
           disabled={isChallenging}
           aria-label={t('error.mfa.cancel')}

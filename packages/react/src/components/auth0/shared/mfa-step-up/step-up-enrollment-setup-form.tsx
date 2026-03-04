@@ -16,12 +16,12 @@ import GoogleLogo from '@/assets/icons/google-logo';
 import { StepUpContactInputForm } from '@/components/auth0/shared/mfa-step-up/step-up-contact-input-form';
 import { StepUpQRCodeEnrollmentForm } from '@/components/auth0/shared/mfa-step-up/step-up-qr-code-enrollment-form';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card';
 import { List, ListItem } from '@/components/ui/list';
+import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { useRecoveryCodeGeneration } from '@/hooks/my-account/use-recovery-code';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { ENROLL, CONFIRM } from '@/lib/constants/my-account/mfa/mfa-constants';
 import {
   ENTER_QR,
   ENTER_CONTACT,
@@ -45,8 +45,10 @@ type EnrollmentFormPhase =
 function mapEnrollmentFactorTypeToMFAType(type: string): MFAType | null {
   const map: Record<string, MFAType> = {
     otp: FACTOR_TYPE_TOTP,
-    push: FACTOR_TYPE_PUSH_NOTIFICATION,
+    totp: FACTOR_TYPE_TOTP,
+    'push-notification': FACTOR_TYPE_PUSH_NOTIFICATION,
     sms: FACTOR_TYPE_PHONE,
+    phone: FACTOR_TYPE_PHONE,
     email: FACTOR_TYPE_EMAIL,
     'recovery-code': FACTOR_TYPE_RECOVERY_CODE,
   };
@@ -70,6 +72,16 @@ function mapMFATypeToStepUpFactorType(
   return map[mfaType] ?? 'otp';
 }
 
+/** No-op: sub-forms handle their own error display. */
+const handleEnrollError = () => {};
+
+/** Maps API type values to translation keys. */
+const typeToTranslationKey: Record<string, string> = {
+  'push-notification': 'push',
+  phone: 'sms',
+  totp: 'otp',
+};
+
 interface StepUpEnrollmentSetupFormProps {
   mfaToken: string;
   enrollmentFactors: EnrollmentFactor[];
@@ -79,18 +91,8 @@ interface StepUpEnrollmentSetupFormProps {
 }
 
 /**
- * StepUpEnrollmentSetupForm
- *
- * Copy + adapted version of UserMFASetupForm for the step-up enrollment flow.
- *
- * Key differences:
- * - No Dialog wrapper (rendered inside GateKeeper's dialog)
- * - Adds a PICK phase: shows the list of available enrollment factors first
- * - Builds `enrollMfa` and `confirmEnrollment` adapters that translate
- *   the My Account API interface expected by sub-forms into step-up
- *   service calls (stepUpService.enroll() / stepUpService.verify())
- * - Passes selected MFAType → StepUpContactInputForm or StepUpQRCodeEnrollmentForm
- * @param root0 - Component props.
+ * Enrollment setup form for the step-up MFA flow.
+ * @param props - Component props.
  * @returns Enrollment setup form element.
  */
 export function StepUpEnrollmentSetupForm({
@@ -106,19 +108,7 @@ export function StepUpEnrollmentSetupForm({
   const [phase, setPhase] = React.useState<EnrollmentFormPhase>('PICK');
   const [selectedFactor, setSelectedFactor] = React.useState<MFAType | null>(null);
 
-  // We repurpose `auth_session` to carry the oobCode back from enroll → to verify.
-  // This ref stores the oobCode between the enroll and verify calls.
-  const oobCodeRef = React.useRef<string | null>(null);
-
-  /*
-   * enrollMfa adapter
-   * Translates (MFAType, options) → stepUpService.enroll()
-   * Returns a normalized object that matches what sub-component hooks expect:
-   *   auth_session  → carries oobCode (for OOB verify call)
-   *   barcode_uri   → barcodeUri from step-up enroll response
-   *   id            → authenticator id
-   *   manual_input_code → secret for TOTP manual entry
-   */
+  /** Adapts step-up `enroll()` to the `CreateAuthenticationMethodResponseContent` shape expected by the shared enrollment sub-forms. */
   const enrollMfa = React.useCallback(
     async (
       factorType: MFAType,
@@ -145,17 +135,13 @@ export function StepUpEnrollmentSetupForm({
 
       const response = await stepUpService.enroll(params);
 
-      // For OOB factors the oobCode must reach verify(); store it in auth_session.
       const oobCode = 'oobCode' in response ? (response.oobCode ?? '') : '';
-      oobCodeRef.current = oobCode || null;
-
       const barcodeUri = 'barcodeUri' in response ? (response.barcodeUri ?? '') : '';
       const secret = 'secret' in response ? (response.secret ?? '') : '';
 
-      // Return shape compatible with CreateAuthenticationMethodResponseContent
       return {
         id: response.id ?? '',
-        auth_session: oobCode, // repurposed: carries oobCode for OOB verify
+        auth_session: oobCode,
         barcode_uri: barcodeUri,
         manual_input_code: secret,
       } as unknown as CreateAuthenticationMethodResponseContent;
@@ -163,13 +149,12 @@ export function StepUpEnrollmentSetupForm({
     [mfaToken, stepUpService],
   );
 
-  /*
-   * confirmEnrollment adapter
-   * Translates (factorType, authSession, authId, { userOtpCode }) → stepUpService.verify()
+  /**
+   * Adapts the shared sub-form `confirmEnrollment` signature to step-up `verify()`.
    *
-   * For OTP/TOTP:  verify({ mfaToken, otp: userOtpCode })
-   * For OOB:       verify({ mfaToken, oobCode: authSession, bindingCode: userOtpCode })
-   *   (authSession carries the oobCode from the enroll response via enrollMfa adapter above)
+   * - OTP/TOTP: `verify({ mfaToken, otp })`
+   * - OOB (email/SMS/push): `verify({ mfaToken, oobCode, bindingCode })`
+   *   where `authSession` carries the `oobCode` from the `enrollMfa` adapter.
    */
   const confirmEnrollment = React.useCallback(
     async (
@@ -195,15 +180,6 @@ export function StepUpEnrollmentSetupForm({
     [mfaToken, stepUpService],
   );
 
-  const handleEnrollError = React.useCallback(
-    (_error: Error, _stage: typeof ENROLL | typeof CONFIRM) => {
-      // Errors are displayed inside the sub-forms; no top-level toast needed here
-    },
-    [],
-  );
-
-  // Fake dummy hook call: useRecoveryCodeGeneration is only invoked if SHOW_RECOVERY_CODE is needed.
-  // Keep the hook call unconditional (rules of hooks) but we skip RECOVERY_CODE in step-up for now.
   const { fetchRecoveryCode, loading: recoveryLoading } = useRecoveryCodeGeneration({
     factorType: selectedFactor ?? FACTOR_TYPE_RECOVERY_CODE,
     enrollMfa,
@@ -240,41 +216,43 @@ export function StepUpEnrollmentSetupForm({
         {t('error.mfa.enrollment_required')}
       </p>
 
-      <List className="flex flex-col gap-0 w-full">
+      <List className="flex flex-col gap-3 w-full">
         {enrollmentFactors.map((factor) => {
           const mfaType = mapEnrollmentFactorTypeToMFAType(factor.type);
-          const displayKey = `error.mfa.authenticator_type.${factor.type}`;
-          const displayName = t(displayKey);
+          const translationKey = typeToTranslationKey[factor.type] ?? factor.type;
+          const displayName = t(`error.mfa.authenticator_type.${translationKey}`);
 
           return (
-            <ListItem
-              key={factor.type}
-              className="flex items-center justify-between py-4 border-b last:border-b-0"
-              aria-label={displayName}
-            >
-              <span className="text-sm font-medium text-card-foreground">{displayName}</span>
-              <Button
-                type="button"
-                size="default"
-                variant="outline"
-                className="text-sm shrink-0 ml-4"
-                onClick={() => handlePickFactor(factor)}
-                disabled={!mfaType}
-                aria-label={`${t('error.mfa.enroll_button')} ${displayName}`}
-              >
-                {t('error.mfa.enroll_button')}
-              </Button>
+            <ListItem key={factor.type} aria-label={displayName}>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base font-semibold">{displayName}</CardTitle>
+                  <CardAction>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="primary"
+                      onClick={() => handlePickFactor(factor)}
+                      disabled={!mfaType}
+                      aria-label={`${t('error.mfa.enroll_button')} ${displayName}`}
+                    >
+                      {t('error.mfa.enroll_button')}
+                    </Button>
+                  </CardAction>
+                </CardHeader>
+              </Card>
             </ListItem>
           );
         })}
       </List>
 
-      <div className="flex justify-end mt-6">
+      <Separator className="mt-6" />
+
+      <div className="flex justify-center mt-4">
         <Button
           type="button"
-          variant="outline"
-          size="default"
-          className="text-sm"
+          variant="ghost"
+          size="sm"
           onClick={onClose}
           aria-label={t('error.mfa.cancel')}
         >
@@ -314,24 +292,16 @@ export function StepUpEnrollmentSetupForm({
             </Card>
           </a>
         </div>
-        <div className="flex flex-row justify-end gap-3 w-full mt-6 mb-6">
-          <Button
-            type="button"
-            className="text-sm"
-            variant="outline"
-            size="default"
-            onClick={() => setPhase('PICK')}
-          >
-            {t('error.mfa.back')}
-          </Button>
-          <Button
-            type="button"
-            className="text-sm"
-            size="default"
-            onClick={() => setPhase(ENTER_QR)}
-          >
-            {t('error.mfa.continue')}
-          </Button>
+        <div className="flex flex-col gap-4 w-full mt-6">
+          <Separator />
+          <div className="flex flex-row justify-center gap-3">
+            <Button variant="ghost" size="sm" onClick={() => setPhase('PICK')}>
+              {t('error.mfa.back')}
+            </Button>
+            <Button size="sm" onClick={() => setPhase(ENTER_QR)}>
+              {t('error.mfa.continue')}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

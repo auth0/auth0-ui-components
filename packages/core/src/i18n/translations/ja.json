@@ -27,7 +27,9 @@
         "enroll_error": "認証方法の設定に失敗しました。再度お試しください。",
         "otp_instruction": "認証アプリに表示されているワンタイムコードを入力してください。",
         "oob_instruction": "デバイスに送信されたワンタイムコードを入力してください。",
+        "recovery_code_instruction": "初回登録時に提供されたリカバリーコードを入力してください。",
         "enter_code_label": "ワンタイムパスコード",
+        "recovery_code_label": "リカバリーコード",
         "registered_on": "${date}に登録",
         "enroll_title": "第2要素を設定",
         "authenticator_type": {
