@@ -31,14 +31,9 @@ type OtpForm = {
 };
 
 /**
- * StepUpChallengeForm
- *
- * Displayed during the VERIFY phase of the step-up challenge flow.
- * A copy of OTPVerificationForm adapted to call verify() on the step-up service
- * rather than confirmEnrollment() on the MFA management service.
- *
- * Handles both OTP (TOTP) and OOB (email/SMS/push) challenge types.
- * @param root0 - Component props.
+ * Challenge form displayed during the VERIFY phase of the step-up flow.
+ * Handles OTP (TOTP), OOB (email/SMS/push), and recovery-code challenge types.
+ * @param props - Component props.
  * @returns Challenge form element.
  */
 export function StepUpChallengeForm({
@@ -66,8 +61,6 @@ export function StepUpChallengeForm({
 
   const handleSubmit = async (data: OtpForm) => {
     await onVerify(data.userOtp);
-    // Always reset so the user gets a blank field to re-enter on failure.
-    // On success the dialog closes, so the reset is a no-op.
     form.reset();
   };
 

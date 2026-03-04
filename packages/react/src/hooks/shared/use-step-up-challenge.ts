@@ -43,7 +43,7 @@ const INITIAL_STATE: StepUpState = {
 
 /**
  * Manages the List → Challenge → Verify state machine for MFA step-up authentication.
- * @param root0 - Hook options.
+ * @param options - Hook options.
  * @returns Step-up challenge state and action handlers.
  */
 export function useStepUpChallenge({

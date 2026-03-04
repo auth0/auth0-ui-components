@@ -15,6 +15,13 @@ interface StepUpAuthenticatorListProps {
   challengingAuthenticatorId: string | null;
 }
 
+/** Maps API authenticator `type` values to translation keys. */
+const typeToTranslationKey: Record<string, string> = {
+  'push-notification': 'push',
+  phone: 'sms',
+  totp: 'otp',
+};
+
 /**
  * Returns the translated display name for an authenticator.
  * @param auth - The authenticator.
@@ -25,9 +32,9 @@ function getAuthenticatorDisplayName(
   auth: StepUpAuthenticator,
   t: (key: string) => string,
 ): string {
-  const key = auth.type ?? auth.authenticatorType;
-  const typeKey = `error.mfa.authenticator_type.${key}`;
-  return t(typeKey);
+  const rawKey = auth.type ?? auth.authenticatorType;
+  const key = typeToTranslationKey[rawKey] ?? rawKey;
+  return t(`error.mfa.authenticator_type.${key}`);
 }
 
 /**

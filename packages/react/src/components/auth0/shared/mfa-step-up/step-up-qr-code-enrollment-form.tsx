@@ -44,13 +44,12 @@ interface StepUpQRCodeEnrollmentFormProps {
 }
 
 /**
- * StepUpQRCodeEnrollmentForm
+ * QR code enrollment form for the step-up MFA flow.
  *
- * Copy of QRCodeEnrollmentForm for the step-up enrollment flow.
  * Receives `enrollMfa` and `confirmEnrollment` adapters from the parent
  * (`StepUpEnrollmentSetupForm`) that call the step-up API service methods
  * (`enroll()` and `verify()`) instead of the My Account API.
- * @param root0 - Component props.
+ * @param props - Component props.
  * @returns QR code enrollment form element.
  */
 export function StepUpQRCodeEnrollmentForm({

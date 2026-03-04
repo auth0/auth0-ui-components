@@ -22,7 +22,6 @@ import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { useRecoveryCodeGeneration } from '@/hooks/my-account/use-recovery-code';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { ENROLL, CONFIRM } from '@/lib/constants/my-account/mfa/mfa-constants';
 import {
   ENTER_QR,
   ENTER_CONTACT,
@@ -71,6 +70,9 @@ function mapMFATypeToStepUpFactorType(
   return map[mfaType] ?? 'otp';
 }
 
+/** No-op: sub-forms handle their own error display. */
+const handleEnrollError = () => {};
+
 interface StepUpEnrollmentSetupFormProps {
   mfaToken: string;
   enrollmentFactors: EnrollmentFactor[];
@@ -80,18 +82,8 @@ interface StepUpEnrollmentSetupFormProps {
 }
 
 /**
- * StepUpEnrollmentSetupForm
- *
- * Copy + adapted version of UserMFASetupForm for the step-up enrollment flow.
- *
- * Key differences:
- * - No Dialog wrapper (rendered inside GateKeeper's dialog)
- * - Adds a PICK phase: shows the list of available enrollment factors first
- * - Builds `enrollMfa` and `confirmEnrollment` adapters that translate
- *   the My Account API interface expected by sub-forms into step-up
- *   service calls (stepUpService.enroll() / stepUpService.verify())
- * - Passes selected MFAType → StepUpContactInputForm or StepUpQRCodeEnrollmentForm
- * @param root0 - Component props.
+ * Enrollment setup form for the step-up MFA flow.
+ * @param props - Component props.
  * @returns Enrollment setup form element.
  */
 export function StepUpEnrollmentSetupForm({
@@ -107,19 +99,7 @@ export function StepUpEnrollmentSetupForm({
   const [phase, setPhase] = React.useState<EnrollmentFormPhase>('PICK');
   const [selectedFactor, setSelectedFactor] = React.useState<MFAType | null>(null);
 
-  // We repurpose `auth_session` to carry the oobCode back from enroll → to verify.
-  // This ref stores the oobCode between the enroll and verify calls.
-  const oobCodeRef = React.useRef<string | null>(null);
-
-  /*
-   * enrollMfa adapter
-   * Translates (MFAType, options) → stepUpService.enroll()
-   * Returns a normalized object that matches what sub-component hooks expect:
-   *   auth_session  → carries oobCode (for OOB verify call)
-   *   barcode_uri   → barcodeUri from step-up enroll response
-   *   id            → authenticator id
-   *   manual_input_code → secret for TOTP manual entry
-   */
+  /** Adapts step-up `enroll()` to the `CreateAuthenticationMethodResponseContent` shape expected by the shared enrollment sub-forms. */
   const enrollMfa = React.useCallback(
     async (
       factorType: MFAType,
@@ -146,17 +126,13 @@ export function StepUpEnrollmentSetupForm({
 
       const response = await stepUpService.enroll(params);
 
-      // For OOB factors the oobCode must reach verify(); store it in auth_session.
       const oobCode = 'oobCode' in response ? (response.oobCode ?? '') : '';
-      oobCodeRef.current = oobCode || null;
-
       const barcodeUri = 'barcodeUri' in response ? (response.barcodeUri ?? '') : '';
       const secret = 'secret' in response ? (response.secret ?? '') : '';
 
-      // Return shape compatible with CreateAuthenticationMethodResponseContent
       return {
         id: response.id ?? '',
-        auth_session: oobCode, // repurposed: carries oobCode for OOB verify
+        auth_session: oobCode,
         barcode_uri: barcodeUri,
         manual_input_code: secret,
       } as unknown as CreateAuthenticationMethodResponseContent;
@@ -164,13 +140,12 @@ export function StepUpEnrollmentSetupForm({
     [mfaToken, stepUpService],
   );
 
-  /*
-   * confirmEnrollment adapter
-   * Translates (factorType, authSession, authId, { userOtpCode }) → stepUpService.verify()
+  /**
+   * Adapts the shared sub-form `confirmEnrollment` signature to step-up `verify()`.
    *
-   * For OTP/TOTP:  verify({ mfaToken, otp: userOtpCode })
-   * For OOB:       verify({ mfaToken, oobCode: authSession, bindingCode: userOtpCode })
-   *   (authSession carries the oobCode from the enroll response via enrollMfa adapter above)
+   * - OTP/TOTP: `verify({ mfaToken, otp })`
+   * - OOB (email/SMS/push): `verify({ mfaToken, oobCode, bindingCode })`
+   *   where `authSession` carries the `oobCode` from the `enrollMfa` adapter.
    */
   const confirmEnrollment = React.useCallback(
     async (
@@ -196,15 +171,6 @@ export function StepUpEnrollmentSetupForm({
     [mfaToken, stepUpService],
   );
 
-  const handleEnrollError = React.useCallback(
-    (_error: Error, _stage: typeof ENROLL | typeof CONFIRM) => {
-      // Errors are displayed inside the sub-forms; no top-level toast needed here
-    },
-    [],
-  );
-
-  // Fake dummy hook call: useRecoveryCodeGeneration is only invoked if SHOW_RECOVERY_CODE is needed.
-  // Keep the hook call unconditional (rules of hooks) but we skip RECOVERY_CODE in step-up for now.
   const { fetchRecoveryCode, loading: recoveryLoading } = useRecoveryCodeGeneration({
     factorType: selectedFactor ?? FACTOR_TYPE_RECOVERY_CODE,
     enrollMfa,
