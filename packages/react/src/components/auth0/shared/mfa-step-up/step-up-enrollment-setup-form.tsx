@@ -16,7 +16,7 @@ import GoogleLogo from '@/assets/icons/google-logo';
 import { StepUpContactInputForm } from '@/components/auth0/shared/mfa-step-up/step-up-contact-input-form';
 import { StepUpQRCodeEnrollmentForm } from '@/components/auth0/shared/mfa-step-up/step-up-qr-code-enrollment-form';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card';
 import { List, ListItem } from '@/components/ui/list';
 import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
@@ -45,8 +45,10 @@ type EnrollmentFormPhase =
 function mapEnrollmentFactorTypeToMFAType(type: string): MFAType | null {
   const map: Record<string, MFAType> = {
     otp: FACTOR_TYPE_TOTP,
-    push: FACTOR_TYPE_PUSH_NOTIFICATION,
+    totp: FACTOR_TYPE_TOTP,
+    'push-notification': FACTOR_TYPE_PUSH_NOTIFICATION,
     sms: FACTOR_TYPE_PHONE,
+    phone: FACTOR_TYPE_PHONE,
     email: FACTOR_TYPE_EMAIL,
     'recovery-code': FACTOR_TYPE_RECOVERY_CODE,
   };
@@ -72,6 +74,13 @@ function mapMFATypeToStepUpFactorType(
 
 /** No-op: sub-forms handle their own error display. */
 const handleEnrollError = () => {};
+
+/** Maps API type values to translation keys. */
+const typeToTranslationKey: Record<string, string> = {
+  'push-notification': 'push',
+  phone: 'sms',
+  totp: 'otp',
+};
 
 interface StepUpEnrollmentSetupFormProps {
   mfaToken: string;
@@ -207,30 +216,31 @@ export function StepUpEnrollmentSetupForm({
         {t('error.mfa.enrollment_required')}
       </p>
 
-      <List className="flex flex-col gap-0 w-full">
+      <List className="flex flex-col gap-3 w-full">
         {enrollmentFactors.map((factor) => {
           const mfaType = mapEnrollmentFactorTypeToMFAType(factor.type);
-          const displayKey = `error.mfa.authenticator_type.${factor.type}`;
-          const displayName = t(displayKey);
+          const translationKey = typeToTranslationKey[factor.type] ?? factor.type;
+          const displayName = t(`error.mfa.authenticator_type.${translationKey}`);
 
           return (
-            <ListItem
-              key={factor.type}
-              className="flex items-center justify-between py-4 border-b last:border-b-0"
-              aria-label={displayName}
-            >
-              <span className="text-sm font-medium text-card-foreground">{displayName}</span>
-              <Button
-                type="button"
-                size="default"
-                variant="outline"
-                className="text-sm shrink-0 ml-4"
-                onClick={() => handlePickFactor(factor)}
-                disabled={!mfaType}
-                aria-label={`${t('error.mfa.enroll_button')} ${displayName}`}
-              >
-                {t('error.mfa.enroll_button')}
-              </Button>
+            <ListItem key={factor.type} aria-label={displayName}>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base font-semibold">{displayName}</CardTitle>
+                  <CardAction>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="primary"
+                      onClick={() => handlePickFactor(factor)}
+                      disabled={!mfaType}
+                      aria-label={`${t('error.mfa.enroll_button')} ${displayName}`}
+                    >
+                      {t('error.mfa.enroll_button')}
+                    </Button>
+                  </CardAction>
+                </CardHeader>
+              </Card>
             </ListItem>
           );
         })}
@@ -241,9 +251,8 @@ export function StepUpEnrollmentSetupForm({
       <div className="flex justify-center mt-4">
         <Button
           type="button"
-          variant="outline"
-          size="default"
-          className="text-sm"
+          variant="ghost"
+          size="sm"
           onClick={onClose}
           aria-label={t('error.mfa.cancel')}
         >
