@@ -370,6 +370,54 @@ describe('useDomainTable', () => {
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.delete,
       ).toHaveBeenCalledWith(mockProvider.id, mockDomain.domain);
     });
+
+    it('should abort associate when onBefore returns false', async () => {
+      const mockDomain = createMockDomain();
+      const mockProvider = createMockIdentityProvider();
+
+      const options = createMockOptions({
+        associateToProviderAction: {
+          onBefore: vi.fn().mockReturnValue(false),
+          onAfter: vi.fn(),
+        },
+      });
+
+      const { result } = renderUseDomainTable(options);
+
+      await waitFor(() => expect(result.current.isFetching).toBe(false));
+
+      await expect(
+        result.current.handleToggleSwitch(mockDomain, mockProvider, true),
+      ).rejects.toThrow();
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.create,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should abort delete from provider when onBefore returns false', async () => {
+      const mockDomain = createMockDomain();
+      const mockProvider = createMockIdentityProvider();
+
+      const options = createMockOptions({
+        deleteFromProviderAction: {
+          onBefore: vi.fn().mockReturnValue(false),
+          onAfter: vi.fn(),
+        },
+      });
+
+      const { result } = renderUseDomainTable(options);
+
+      await waitFor(() => expect(result.current.isFetching).toBe(false));
+
+      await expect(
+        result.current.handleToggleSwitch(mockDomain, mockProvider, false),
+      ).rejects.toThrow();
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.delete,
+      ).not.toHaveBeenCalled();
+    });
   });
 
   describe('Error Handling', () => {
@@ -426,6 +474,248 @@ describe('useDomainTable', () => {
       await waitFor(() => {
         expect(result.current.error).toBeNull();
       });
+    });
+
+    it('should retry failed create mutation', async () => {
+      const error = new Error('Create failed');
+      const mockDomain = createMockDomain();
+
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.create = vi
+        .fn()
+        .mockRejectedValueOnce(error)
+        .mockResolvedValue(mockDomain);
+
+      const { result } = renderUseDomainTable(mockOptions);
+
+      await waitFor(() => expect(result.current.isFetching).toBe(false));
+
+      await expect(result.current.handleCreate(mockDomain.domain)).rejects.toThrow('Create failed');
+
+      await waitFor(() => {
+        expect(result.current.error).toBe(error);
+      });
+
+      await act(async () => {
+        await result.current.retry();
+      });
+
+      await waitFor(() => {
+        expect(result.current.error).toBeNull();
+      });
+    });
+
+    it('should retry failed verify mutation', async () => {
+      const error = new Error('Verify failed');
+      const mockDomain = createMockDomain();
+
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.verify.create = vi
+        .fn()
+        .mockRejectedValueOnce(error)
+        .mockResolvedValue({ status: 'verified' });
+
+      const { result } = renderUseDomainTable(mockOptions);
+
+      await waitFor(() => expect(result.current.isFetching).toBe(false));
+
+      await expect(result.current.handleVerify(mockDomain)).rejects.toThrow('Verify failed');
+
+      await waitFor(() => {
+        expect(result.current.error).toBe(error);
+      });
+
+      await act(async () => {
+        await result.current.retry();
+      });
+
+      await waitFor(() => {
+        expect(result.current.error).toBeNull();
+      });
+    });
+
+    it('should retry failed delete mutation', async () => {
+      const error = new Error('Delete failed');
+      const mockDomain = createMockDomain();
+
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.delete = vi
+        .fn()
+        .mockRejectedValueOnce(error)
+        .mockResolvedValue(undefined);
+
+      const { result } = renderUseDomainTable(mockOptions);
+
+      await waitFor(() => expect(result.current.isFetching).toBe(false));
+
+      await expect(result.current.handleDelete(mockDomain)).rejects.toThrow('Delete failed');
+
+      await waitFor(() => {
+        expect(result.current.error).toBe(error);
+      });
+
+      await act(async () => {
+        await result.current.retry();
+      });
+
+      await waitFor(() => {
+        expect(result.current.error).toBeNull();
+      });
+    });
+
+    it('should retry failed associate to provider mutation', async () => {
+      const error = new Error('Associate failed');
+      const mockDomain = createMockDomain();
+      const mockProvider = createMockIdentityProvider();
+
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.create = vi
+        .fn()
+        .mockRejectedValueOnce(error)
+        .mockResolvedValue(undefined);
+
+      const { result } = renderUseDomainTable(mockOptions);
+
+      await waitFor(() => expect(result.current.isFetching).toBe(false));
+
+      await expect(
+        result.current.handleToggleSwitch(mockDomain, mockProvider, true),
+      ).rejects.toThrow('Associate failed');
+
+      await waitFor(() => {
+        expect(result.current.error).toBe(error);
+      });
+
+      await act(async () => {
+        await result.current.retry();
+      });
+
+      await waitFor(() => {
+        expect(result.current.error).toBeNull();
+      });
+    });
+
+    it('should retry failed delete from provider mutation', async () => {
+      const error = new Error('Disassociate failed');
+      const mockDomain = createMockDomain();
+      const mockProvider = createMockIdentityProvider();
+
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.delete = vi
+        .fn()
+        .mockRejectedValueOnce(error)
+        .mockResolvedValue(undefined);
+
+      const { result } = renderUseDomainTable(mockOptions);
+
+      await waitFor(() => expect(result.current.isFetching).toBe(false));
+
+      await expect(
+        result.current.handleToggleSwitch(mockDomain, mockProvider, false),
+      ).rejects.toThrow('Disassociate failed');
+
+      await waitFor(() => {
+        expect(result.current.error).toBe(error);
+      });
+
+      await act(async () => {
+        await result.current.retry();
+      });
+
+      await waitFor(() => {
+        expect(result.current.error).toBeNull();
+      });
+    });
+
+    it('should retry providers query error', async () => {
+      const error = new Error('Providers fetch failed');
+      const mockDomain = createMockDomain({ status: 'verified', id: 'domain-1' });
+
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.list = vi
+        .fn()
+        .mockResolvedValue({ organization_domains: [mockDomain] });
+
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
+        .fn()
+        .mockRejectedValueOnce(error)
+        .mockResolvedValue({ identity_providers: [] });
+
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get = vi
+        .fn()
+        .mockResolvedValue({ identity_providers: [] });
+
+      const { result } = renderUseDomainTable(mockOptions);
+
+      await waitFor(() => expect(result.current.isFetching).toBe(false));
+
+      act(() => {
+        result.current.handleConfigureClick(mockDomain);
+      });
+
+      await waitFor(() => {
+        expect(result.current.error).toBe(error);
+      });
+
+      await act(async () => {
+        await result.current.retry();
+      });
+
+      await waitFor(() => {
+        expect(result.current.error).toBeNull();
+      });
+    });
+  });
+
+  describe('handleVerifyClick', () => {
+    it('should verify and transition to configure modal on success', async () => {
+      const mockDomain = createMockDomain({ id: 'domain-1' });
+
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.list = vi
+        .fn()
+        .mockResolvedValue({ organization_domains: [mockDomain] });
+
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
+        .fn()
+        .mockResolvedValue({ identity_providers: [] });
+
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get = vi
+        .fn()
+        .mockResolvedValue({ identity_providers: [] });
+
+      const { result } = renderUseDomainTable(mockOptions);
+
+      await waitFor(() => expect(result.current.isFetching).toBe(false));
+
+      await act(async () => {
+        await result.current.handleVerifyClick(mockDomain);
+      });
+
+      await waitFor(() => {
+        expect(result.current.isVerifying).toBe(false);
+      });
+
+      expect(result.current.showConfigureModal).toBe(true);
+    });
+
+    it('should set verifyError when verification fails during handleVerifyClick', async () => {
+      const mockDomain = createMockDomain({ id: 'domain-1' });
+
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.list = vi
+        .fn()
+        .mockResolvedValue({ organization_domains: [mockDomain] });
+
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.verify.create = vi
+        .fn()
+        .mockResolvedValue({ status: 'pending' });
+
+      const { result } = renderUseDomainTable(mockOptions);
+
+      await waitFor(() => expect(result.current.isFetching).toBe(false));
+
+      await act(async () => {
+        await result.current.handleVerifyClick(mockDomain);
+      });
+
+      await waitFor(() => {
+        expect(result.current.verifyError).toBeDefined();
+      });
+
+      expect(result.current.showConfigureModal).toBe(false);
     });
   });
 });

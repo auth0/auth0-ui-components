@@ -893,7 +893,7 @@ interface ComponentAction<T, U = undefined> {
                     <li>
                       <code>tabs.provisioning.content.notifications.*</code> – Notification messages
                       (delete_success, remove_success, update_success, general_error,
-                      provisioning_disabled_success, scim_token_delete_sucess)
+                      provisioning_disabled_success, scim_token_delete_success)
                     </li>
                   </ul>
                 </div>

@@ -6,11 +6,15 @@ import type {
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
+import * as useConfigModule from '@/hooks/my-organization/use-config';
+import * as useIdpConfigModule from '@/hooks/my-organization/use-idp-config';
 import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import { mockCore, setupAllCommonMocks } from '@/tests/utils';
+import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
+import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 
 const { initMockCoreClient } = mockCore();
@@ -207,11 +211,9 @@ describe('useSsoProviderEdit', () => {
 
     await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
 
-    try {
-      await result.current.updateProvider({ strategy: 'samlp', is_enabled: true });
-    } catch (e) {
-      // Expected to throw
-    }
+    await expect(
+      result.current.updateProvider({ strategy: 'samlp', is_enabled: true }),
+    ).rejects.toThrow('Update failed');
 
     await waitFor(() => {
       expect(mockHandleError).toHaveBeenCalledWith(error);
@@ -338,9 +340,8 @@ describe('useSsoProviderEdit', () => {
 
     await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
 
-    const tokens = await result.current.listScimTokens();
+    await expect(result.current.listScimTokens()).rejects.toThrow('List failed');
 
-    expect(tokens).toBeNull();
     await waitFor(() => {
       expect(mockHandleError).toHaveBeenCalledWith(error);
     });
@@ -423,11 +424,7 @@ describe('useSsoProviderEdit', () => {
     await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
 
     await act(async () => {
-      try {
-        await result.current.updateProvider({ strategy: 'samlp', is_enabled: true });
-      } catch (e) {
-        // Expected to throw
-      }
+      await result.current.updateProvider({ strategy: 'samlp', is_enabled: true });
     });
 
     await waitFor(() => {
@@ -489,5 +486,400 @@ describe('useSsoProviderEdit', () => {
       expect(result.current.error).toBeNull();
       expect(result.current.provider).toEqual(mockProvider);
     });
+  });
+
+  it('should fetch provider imperatively', async () => {
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
+
+    const provider = await result.current.fetchProvider();
+
+    expect(provider).toEqual(mockProvider);
+    expect(
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.get,
+    ).toHaveBeenCalledWith(mockIdpId);
+  });
+
+  it('should compute hasSsoAttributeSyncWarning as false when no attributes', async () => {
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
+
+    expect(result.current.hasSsoAttributeSyncWarning).toBe(false);
+  });
+
+  it('should compute hasSsoAttributeSyncWarning as true when attributes have warnings', async () => {
+    const providerWithAttributes: IdentityProvider = {
+      ...mockProvider,
+      attributes: [
+        { id: 'attr_1', is_extra: true, is_missing: false },
+        { id: 'attr_2', is_extra: false, is_missing: false },
+      ],
+    } as unknown as IdentityProvider;
+
+    (
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.get as ReturnType<
+        typeof vi.fn
+      >
+    ).mockResolvedValue(providerWithAttributes);
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => {
+      expect(result.current.hasSsoAttributeSyncWarning).toBe(true);
+    });
+  });
+
+  it('should toggle provider enabled state', async () => {
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
+
+    await result.current.handleToggleProvider(false);
+
+    await waitFor(() => {
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.update,
+      ).toHaveBeenCalledWith(mockIdpId, expect.objectContaining({ is_enabled: false }));
+    });
+  });
+
+  it('should not toggle provider if strategy is missing', async () => {
+    const providerNoStrategy = {
+      ...mockProvider,
+      strategy: undefined,
+    } as unknown as IdentityProvider;
+    (
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.get as ReturnType<
+        typeof vi.fn
+      >
+    ).mockResolvedValue(providerNoStrategy);
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => expect(result.current.provider).toEqual(providerNoStrategy));
+
+    await result.current.handleToggleProvider(true);
+
+    expect(
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.update,
+    ).not.toHaveBeenCalled();
+  });
+
+  it('should show provisioning tab when provisioning is enabled', async () => {
+    vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue(
+      createMockUseIdpConfig({
+        isProvisioningEnabled: vi.fn(() => true),
+        isProvisioningMethodEnabled: vi.fn(() => true),
+      }),
+    );
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
+
+    expect(result.current.showProvisioningTab).toBe(true);
+  });
+
+  it('should hide provisioning tab when provisioning is not enabled', async () => {
+    vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue(
+      createMockUseIdpConfig({
+        isProvisioningEnabled: vi.fn(() => false),
+        isProvisioningMethodEnabled: vi.fn(() => false),
+      }),
+    );
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
+
+    expect(result.current.showProvisioningTab).toBe(false);
+  });
+
+  it('should retry configError by calling configRetry', async () => {
+    const mockConfigRetry = vi.fn(async () => undefined);
+    const configError = new Error('Config error');
+    vi.spyOn(useConfigModule, 'useConfig').mockReturnValue(
+      createMockUseConfig({
+        error: configError,
+        retry: mockConfigRetry,
+      }),
+    );
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => expect(result.current.error).toBe(configError));
+
+    await result.current.retry();
+
+    expect(mockConfigRetry).toHaveBeenCalled();
+  });
+
+  it('should retry idpConfigError by calling idpConfigRetry', async () => {
+    const mockIdpConfigRetry = vi.fn(async () => undefined);
+    const idpConfigError = new Error('IDP config error');
+    vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue(
+      createMockUseIdpConfig({
+        error: idpConfigError,
+        retry: mockIdpConfigRetry,
+      }),
+    );
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => expect(result.current.error).toBe(idpConfigError));
+
+    await result.current.retry();
+
+    expect(mockIdpConfigRetry).toHaveBeenCalled();
+  });
+
+  it('should retry failed update mutation', async () => {
+    const error = new Error('Update failed');
+    (
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+        .update as ReturnType<typeof vi.fn>
+    ).mockRejectedValueOnce(error);
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
+
+    await expect(
+      result.current.updateProvider({ strategy: 'samlp', is_enabled: true }),
+    ).rejects.toThrow('Update failed');
+
+    await waitFor(() => {
+      expect(result.current.error).toBe(error);
+    });
+
+    // Reset the mock to succeed on retry
+    (
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+        .update as ReturnType<typeof vi.fn>
+    ).mockResolvedValue(mockProvider);
+
+    await result.current.retry();
+
+    await waitFor(() => {
+      expect(result.current.error).toBeNull();
+    });
+  });
+
+  it('should retry failed delete mutation', async () => {
+    const error = new Error('Delete failed');
+    (
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+        .delete as ReturnType<typeof vi.fn>
+    ).mockRejectedValueOnce(error);
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
+
+    await expect(result.current.onDeleteConfirm()).rejects.toThrow('Delete failed');
+
+    await waitFor(() => {
+      expect(result.current.error).toBe(error);
+    });
+
+    (
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+        .delete as ReturnType<typeof vi.fn>
+    ).mockResolvedValue(undefined);
+
+    await result.current.retry();
+
+    await waitFor(() => {
+      expect(result.current.error).toBeNull();
+    });
+  });
+
+  it('should retry failed detach mutation', async () => {
+    const error = new Error('Detach failed');
+    (
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+        .detach as ReturnType<typeof vi.fn>
+    ).mockRejectedValueOnce(error);
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
+
+    await expect(result.current.onRemoveConfirm()).rejects.toThrow('Detach failed');
+
+    await waitFor(() => {
+      expect(result.current.error).toBe(error);
+    });
+
+    (
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+        .detach as ReturnType<typeof vi.fn>
+    ).mockResolvedValue(undefined);
+
+    await result.current.retry();
+
+    await waitFor(() => {
+      expect(result.current.error).toBeNull();
+    });
+  });
+
+  it('should retry failed sync SSO attributes mutation', async () => {
+    const error = new Error('Sync failed');
+    (
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+        .updateAttributes as ReturnType<typeof vi.fn>
+    ).mockRejectedValueOnce(error);
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
+
+    await expect(result.current.syncSsoAttributes()).rejects.toThrow('Sync failed');
+
+    await waitFor(() => {
+      expect(result.current.error).toBe(error);
+    });
+
+    (
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+        .updateAttributes as ReturnType<typeof vi.fn>
+    ).mockResolvedValue(undefined);
+
+    await result.current.retry();
+
+    await waitFor(() => {
+      expect(result.current.error).toBeNull();
+    });
+  });
+
+  it('should call onAfter callback after successful delete', async () => {
+    const onAfter = vi.fn();
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId, {
+      sso: {
+        updateAction: {},
+        deleteAction: { onAfter },
+        deleteFromOrganizationAction: {},
+      },
+    });
+
+    await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
+
+    await result.current.onDeleteConfirm();
+
+    await waitFor(() => {
+      expect(onAfter).toHaveBeenCalledWith(mockProvider);
+    });
+  });
+
+  it('should call onBefore and abort detach when it returns false', async () => {
+    const onBefore = vi.fn().mockReturnValue(false);
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId, {
+      sso: {
+        updateAction: {},
+        deleteAction: {},
+        deleteFromOrganizationAction: { onBefore },
+      },
+    });
+
+    await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
+
+    await result.current.onRemoveConfirm();
+
+    expect(onBefore).toHaveBeenCalled();
+    expect(
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.detach,
+    ).not.toHaveBeenCalled();
+  });
+
+  it('should call onAfter callback after successful detach', async () => {
+    const onAfter = vi.fn();
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId, {
+      sso: {
+        updateAction: {},
+        deleteAction: {},
+        deleteFromOrganizationAction: { onAfter },
+      },
+    });
+
+    await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
+
+    await result.current.onRemoveConfirm();
+
+    await waitFor(() => {
+      expect(onAfter).toHaveBeenCalledWith(mockProvider);
+    });
+  });
+
+  it('should handle organization query error', async () => {
+    const error = new Error('Org fetch failed');
+    (
+      mockCoreClient.getMyOrganizationApiClient().organizationDetails.get as ReturnType<
+        typeof vi.fn
+      >
+    ).mockRejectedValue(error);
+
+    renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => {
+      expect(mockHandleError).toHaveBeenCalledWith(error);
+    });
+  });
+
+  it('should compute hasSsoAttributeSyncWarning as false when attributes key exists but is null', async () => {
+    const providerWithNullAttributes = {
+      ...mockProvider,
+      attributes: null,
+    } as unknown as IdentityProvider;
+
+    (
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.get as ReturnType<
+        typeof vi.fn
+      >
+    ).mockResolvedValue(providerWithNullAttributes);
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => expect(result.current.provider).toEqual(providerWithNullAttributes));
+
+    expect(result.current.hasSsoAttributeSyncWarning).toBe(false);
+  });
+
+  it('should compute hasSsoAttributeSyncWarning as true when attributes have is_missing flag', async () => {
+    const providerWithMissingAttributes: IdentityProvider = {
+      ...mockProvider,
+      attributes: [{ id: 'attr_1', is_extra: false, is_missing: true }],
+    } as unknown as IdentityProvider;
+
+    (
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.get as ReturnType<
+        typeof vi.fn
+      >
+    ).mockResolvedValue(providerWithMissingAttributes);
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => {
+      expect(result.current.hasSsoAttributeSyncWarning).toBe(true);
+    });
+  });
+
+  it('should return default organization when organization query has no data', async () => {
+    (
+      mockCoreClient.getMyOrganizationApiClient().organizationDetails.get as ReturnType<
+        typeof vi.fn
+      >
+    ).mockResolvedValue(undefined);
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
+
+    expect(result.current.organization).toBeDefined();
+    expect(result.current.organization.id).toBeDefined();
   });
 });

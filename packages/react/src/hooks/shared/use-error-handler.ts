@@ -61,8 +61,8 @@ export function useErrorHandler() {
   const { t } = useTranslator('common');
 
   return useCallback(
-    (error: unknown, options: ErrorHandlerCallOptions = {}): string | null => {
-      if (!shouldHandleError(error)) return null;
+    (error: unknown, options: ErrorHandlerCallOptions = {}): void => {
+      if (!shouldHandleError(error)) return;
 
       const { getErrorMessage, showToast: shouldShowToast = true } = options;
 
@@ -75,8 +75,6 @@ export function useErrorHandler() {
           message: errorMessage,
         });
       }
-
-      return errorMessage;
     },
     [t],
   );

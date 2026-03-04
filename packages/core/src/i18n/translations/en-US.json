@@ -893,7 +893,7 @@
         "success": "${domain} disabled for ${idp}"
       },
       "provisioning_disabled_success": "Provisioning has been disabled.",
-      "scim_token_delete_sucess": "Token has been deleted.",
+      "scim_token_delete_success": "Token has been deleted.",
       "scim_token_create_success": "Token generated successfully",
       "sso_attributes_sync_success": "The provider mappings have been updated.",
       "provisioning_attributes_sync_success": "The provisioning mappings have been updated."
