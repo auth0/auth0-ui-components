@@ -216,11 +216,7 @@ describe('useSsoDomainTab', () => {
       const { result } = await renderUseSsoDomainTab('idp-1');
 
       await act(async () => {
-        try {
-          await result.current.handleCreate('newdomain.com');
-        } catch (e) {
-          // Expected to throw
-        }
+        await expect(result.current.handleCreate('newdomain.com')).rejects.toThrow();
       });
 
       await waitFor(() => {
@@ -274,11 +270,7 @@ describe('useSsoDomainTab', () => {
       });
 
       await act(async () => {
-        try {
-          await result.current.handleCreate('newdomain.com');
-        } catch (e) {
-          // Expected to throw
-        }
+        await expect(result.current.handleCreate('newdomain.com')).rejects.toThrow();
       });
 
       await waitFor(() => {
@@ -326,11 +318,7 @@ describe('useSsoDomainTab', () => {
       const { result } = await renderUseSsoDomainTab('idp-1');
 
       await act(async () => {
-        try {
-          await result.current.handleVerify(mockDomain);
-        } catch (e) {
-          // Expected to throw
-        }
+        await expect(result.current.handleVerify(mockDomain)).rejects.toThrow();
       });
 
       await waitFor(() => {
@@ -436,11 +424,7 @@ describe('useSsoDomainTab', () => {
       const { result } = await renderUseSsoDomainTab('idp-1');
 
       await act(async () => {
-        try {
-          await result.current.handleDelete(mockDomain);
-        } catch (e) {
-          // Expected to throw
-        }
+        await expect(result.current.handleDelete(mockDomain)).rejects.toThrow();
       });
 
       await waitFor(() => {
@@ -537,11 +521,7 @@ describe('useSsoDomainTab', () => {
       });
 
       await act(async () => {
-        try {
-          await result.current.handleToggleSwitch(mockDomain, true);
-        } catch (e) {
-          // Expected to throw
-        }
+        await expect(result.current.handleToggleSwitch(mockDomain, true)).rejects.toThrow();
       });
 
       await waitFor(() => {
@@ -569,6 +549,49 @@ describe('useSsoDomainTab', () => {
       await waitFor(() => {
         expect(onBefore).toHaveBeenCalledWith(mockDomain, mockProvider);
         expect(onAfter).toHaveBeenCalledWith(mockDomain, mockProvider);
+      });
+    });
+
+    it('should call deleteFromProvider callbacks when toggling off', async () => {
+      const onBefore = vi.fn().mockReturnValue(true);
+      const onAfter = vi.fn();
+      mockIdentityProviderDomainsDelete.mockResolvedValue({});
+
+      const { result } = await renderUseSsoDomainTab('idp-1', {
+        provider: mockProvider,
+        domains: {
+          deleteFromProviderAction: { onBefore, onAfter },
+        },
+      });
+
+      await act(async () => {
+        await result.current.handleToggleSwitch(mockDomain, false);
+      });
+
+      await waitFor(() => {
+        expect(onBefore).toHaveBeenCalledWith(mockDomain, mockProvider);
+        expect(onAfter).toHaveBeenCalledWith(mockDomain);
+      });
+    });
+
+    it('should abort deleteFromProvider when onBefore returns false', async () => {
+      const onBefore = vi.fn().mockReturnValue(false);
+      mockIdentityProviderDomainsDelete.mockResolvedValue({});
+
+      const { result } = await renderUseSsoDomainTab('idp-1', {
+        provider: mockProvider,
+        domains: {
+          deleteFromProviderAction: { onBefore },
+        },
+      });
+
+      await act(async () => {
+        await expect(result.current.handleToggleSwitch(mockDomain, false)).rejects.toThrow();
+      });
+
+      await waitFor(() => {
+        expect(onBefore).toHaveBeenCalledWith(mockDomain, mockProvider);
+        expect(mockIdentityProviderDomainsDelete).not.toHaveBeenCalled();
       });
     });
   });
@@ -682,6 +705,180 @@ describe('useSsoDomainTab', () => {
       // Should not have duplicates
       const domainCount = result.current.idpDomains.filter((id) => id === mockDomain.id).length;
       expect(domainCount).toBe(1);
+    });
+  });
+
+  describe('retry', () => {
+    it('should retry domainsQuery when it has an error', async () => {
+      const error = new Error('Domains fetch failed');
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
+          typeof vi.fn
+        >
+      ).mockRejectedValueOnce(error);
+
+      const { wrapper } = createTestQueryClientWrapper();
+      const { result } = renderHook(() => useSsoDomainTab('idp-1'), { wrapper });
+
+      await waitFor(() => {
+        expect(mockHandleError).toHaveBeenCalledWith(error);
+      });
+
+      // Fix the mock for retry
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue({ organization_domains: [mockDomain] });
+
+      await act(async () => {
+        await result.current.retry();
+      });
+
+      await waitFor(() => {
+        expect(result.current.domainsList).toEqual([mockDomain]);
+      });
+    });
+
+    it('should retry createDomainMutation when it has an error', async () => {
+      const error = new Error('Create failed');
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.create as ReturnType<
+          typeof vi.fn
+        >
+      ).mockRejectedValueOnce(error);
+
+      const { result } = await renderUseSsoDomainTab('idp-1');
+
+      // Trigger a failed create
+      await act(async () => {
+        await expect(result.current.handleCreate('newdomain.com')).rejects.toThrow();
+      });
+
+      await waitFor(() => expect(mockHandleError).toHaveBeenCalledWith(error));
+
+      // Fix the mock and retry
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.create as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue(mockDomain);
+
+      await act(async () => {
+        await result.current.retry();
+      });
+
+      await waitFor(() => {
+        expect(
+          mockCoreClient.getMyOrganizationApiClient().organization.domains.create,
+        ).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    it('should retry verifyDomainMutation when it has an error', async () => {
+      const error = new Error('Verify failed');
+      mockDomainVerifyCreate.mockRejectedValueOnce(error);
+
+      const { result } = await renderUseSsoDomainTab('idp-1');
+
+      await act(async () => {
+        await expect(result.current.handleVerify(mockDomain)).rejects.toThrow();
+      });
+
+      await waitFor(() => expect(mockHandleError).toHaveBeenCalledWith(error));
+
+      mockDomainVerifyCreate.mockResolvedValue(mockVerifiedDomain);
+
+      await act(async () => {
+        await result.current.retry();
+      });
+
+      await waitFor(() => {
+        expect(mockDomainVerifyCreate).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    it('should retry deleteDomainMutation when it has an error', async () => {
+      const error = new Error('Delete failed');
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.delete as ReturnType<
+          typeof vi.fn
+        >
+      ).mockRejectedValueOnce(error);
+
+      const { result } = await renderUseSsoDomainTab('idp-1');
+
+      await act(async () => {
+        await expect(result.current.handleDelete(mockDomain)).rejects.toThrow();
+      });
+
+      await waitFor(() => expect(mockHandleError).toHaveBeenCalledWith(error));
+
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.delete as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue({});
+
+      await act(async () => {
+        await result.current.retry();
+      });
+
+      await waitFor(() => {
+        expect(
+          mockCoreClient.getMyOrganizationApiClient().organization.domains.delete,
+        ).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    it('should retry associateToProviderMutation when it has an error', async () => {
+      const error = new Error('Associate failed');
+      mockIdentityProviderDomainsCreate.mockRejectedValueOnce(error);
+
+      const { result } = await renderUseSsoDomainTab('idp-1', {
+        provider: mockProvider,
+      });
+
+      await act(async () => {
+        await expect(result.current.handleToggleSwitch(mockDomain, true)).rejects.toThrow();
+      });
+
+      await waitFor(() => expect(mockHandleError).toHaveBeenCalledWith(error));
+
+      mockIdentityProviderDomainsCreate.mockResolvedValue({});
+
+      await act(async () => {
+        await result.current.retry();
+      });
+
+      await waitFor(() => {
+        expect(mockIdentityProviderDomainsCreate).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    it('should retry deleteFromProviderMutation when it has an error', async () => {
+      const error = new Error('Delete from provider failed');
+      mockIdentityProviderDomainsDelete.mockRejectedValueOnce(error);
+
+      const { result } = await renderUseSsoDomainTab('idp-1', {
+        provider: mockProvider,
+      });
+
+      await act(async () => {
+        await expect(result.current.handleToggleSwitch(mockDomain, false)).rejects.toThrow();
+      });
+
+      await waitFor(() => expect(mockHandleError).toHaveBeenCalledWith(error));
+
+      mockIdentityProviderDomainsDelete.mockResolvedValue({});
+
+      await act(async () => {
+        await result.current.retry();
+      });
+
+      await waitFor(() => {
+        expect(mockIdentityProviderDomainsDelete).toHaveBeenCalledTimes(2);
+      });
     });
   });
 });
