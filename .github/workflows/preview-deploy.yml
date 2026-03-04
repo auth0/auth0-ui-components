@@ -3,6 +3,8 @@ name: Preview Deployment
 on:
   pull_request:
     types: [opened, synchronize]
+    paths:
+      - 'docs-site/**'
   workflow_dispatch:
     inputs:
       branch:
@@ -17,12 +19,17 @@ concurrency:
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
   VITE_AUTH0_DOMAIN: ${{ secrets.VITE_AUTH0_DOMAIN }}
   VITE_AUTH0_CLIENT_ID: ${{ secrets.VITE_AUTH0_CLIENT_ID }}
 
 jobs:
   deploy-preview:
     runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.fork == false)
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
         with:
@@ -52,14 +59,12 @@ jobs:
         run: pnpm docs:api
 
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+        run: npm install --global vercel@39.3.0
 
       - name: Deploy to Vercel
         id: vercel-deploy
         run: |
           echo "Deploying docs-site to Vercel..."
-          echo "Project ID: $VERCEL_PROJECT_ID"
-          echo "Org ID: $VERCEL_ORG_ID"
 
           # Create a completely isolated deployment directory
           mkdir -p /tmp/static-deploy
@@ -74,8 +79,7 @@ jobs:
           echo '{"buildCommand":"","installCommand":"","rewrites":[{"source":"/r/:path*","destination":"/api/r?file=:path*"},{"source":"/(.*)","destination":"/index.html"}]}' > /tmp/static-deploy/vercel.json
 
           vercel --version
-          DEPLOYMENT_URL=$(vercel deploy /tmp/static-deploy --token=${{ secrets.VERCEL_TOKEN }} --yes --scope=$VERCEL_ORG_ID)
-          echo "Deployment URL: $DEPLOYMENT_URL"
+          DEPLOYMENT_URL=$(vercel deploy /tmp/static-deploy --token=$VERCEL_TOKEN --yes --scope=$VERCEL_ORG_ID)
           echo "preview-url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
 
       - name: Comment PR

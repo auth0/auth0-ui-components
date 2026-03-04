@@ -10,6 +10,8 @@ on:
 
 jobs:
   claude-review:
+    # Temporarily disabled
+    if: false
     permissions:
       contents: write
       issues: write

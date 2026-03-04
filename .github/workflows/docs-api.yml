@@ -10,11 +10,6 @@ on:
         type: string
         default: "main"
 
-  # Trigger on push to main for testing
-  push:
-    branches:
-      - 'main'
-
   # Automatically trigger after successful npm publish
   workflow_run:
     workflows: ["Publish to Public NPM"]
@@ -35,8 +30,8 @@ jobs:
   generate-docs:
     name: Generate API Docs
     runs-on: ubuntu-latest
-    # Only run if manually triggered, push event, OR if publish workflow succeeded
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
+    # Only run if manually triggered OR if publish workflow succeeded
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Determine target branch
@@ -44,8 +39,6 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             BRANCH="${{ inputs.target_branch }}"
-          elif [ "${{ github.event_name }}" == "push" ]; then
-            BRANCH="${{ github.ref_name }}"
           else
             BRANCH="main"
           fi
