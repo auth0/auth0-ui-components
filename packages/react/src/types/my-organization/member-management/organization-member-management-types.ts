@@ -6,18 +6,82 @@
 import type { ComponentAction, SharedComponentProps } from '@auth0/universal-components-core';
 
 import type {
+  CreateInvitationInput,
   Invitation,
   IdentityProviderOption,
+  InvitationFilterState,
+  InvitationPaginationState,
   OrganizationInvitationTabProps,
   OrganizationInvitationTabClasses,
   OrganizationInvitationTabMessages,
   RoleOption,
 } from './organization-invitation-table-types';
 import type {
+  Member,
   OrganizationMemberTabProps,
   OrganizationMemberTabClasses,
   OrganizationMemberTabMessages,
 } from './organization-member-table-types';
+
+export type ActiveTab = 'members' | 'invitations';
+
+export interface UseOrganizationMemberManagementOptions {
+  customMessages?: OrganizationMemberManagementMessages;
+  availableRoles?: RoleOption[];
+  availableProviders?: IdentityProviderOption[];
+  defaultTab?: ActiveTab;
+  readOnly?: boolean;
+}
+
+export interface MemberManagementState {
+  activeTab: ActiveTab;
+  isLoading: boolean;
+  availableRoles: RoleOption[];
+  availableProviders: IdentityProviderOption[];
+
+  invitations: Invitation[];
+  isFetchingInvitations: boolean;
+  isCreatingInvitation: boolean;
+  isRevokingInvitation: boolean;
+  isResendingInvitation: boolean;
+  invitationPagination: InvitationPaginationState;
+  invitationFilters: InvitationFilterState;
+  showCreateModal: boolean;
+  showDetailsModal: boolean;
+  showRevokeModal: boolean;
+  showRevokeResendModal: boolean;
+  selectedInvitation: Invitation | null;
+
+  members: Member[];
+  isFetchingMembers: boolean;
+  isRemovingMember: boolean;
+  showRemoveModal: boolean;
+  selectedMember: Member | null;
+}
+
+export interface MemberManagementHandlers {
+  setActiveTab: (tab: ActiveTab) => void;
+
+  handleCreateClick: () => void;
+  handleCreateSubmit: (data: CreateInvitationInput) => Promise<void>;
+  handleCreateCancel: () => void;
+  handleDetailsClick: (invitation: Invitation) => void;
+  handleDetailsClose: () => void;
+  handleRevokeClick: (invitation: Invitation) => void;
+  handleRevokeConfirm: () => Promise<void>;
+  handleRevokeCancel: () => void;
+  handleRevokeResendClick: (invitation: Invitation) => void;
+  handleRevokeResendConfirm: () => Promise<void>;
+  handleRevokeResendCancel: () => void;
+  handleCopyUrl: (invitation: Invitation) => Promise<void>;
+  handlePageChange: (page: number) => void;
+  handlePageSizeChange: (pageSize: number) => void;
+  handleRoleFilterChange: (roleId: string | undefined) => void;
+
+  handleRemoveClick: (member: Member) => void;
+  handleRemoveConfirm: () => Promise<void>;
+  handleRemoveCancel: () => void;
+}
 
 /** CSS classes for OrganizationMemberManagement. */
 export interface OrganizationMemberManagementClasses

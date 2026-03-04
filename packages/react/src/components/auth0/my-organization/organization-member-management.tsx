@@ -17,14 +17,13 @@ import { Header } from '@/components/auth0/shared/header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { withMyOrganizationService } from '@/hoc/with-services';
 import { useOrganizationMemberManagement } from '@/hooks/my-organization/use-organization-member-management';
-import {
-  useOrganizationMemberManagementLogic,
-  type MemberManagementLogicState,
-  type MemberManagementHandlers,
-} from '@/hooks/my-organization/use-organization-member-management-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { OrganizationMemberManagementProps } from '@/types';
+import type {
+  MemberManagementState,
+  MemberManagementHandlers,
+  OrganizationMemberManagementProps,
+} from '@/types';
 
 // TODO: Import from @auth0/universal-components-core after building core package
 const MY_ORGANIZATION_MEMBER_MANAGEMENT_SCOPES =
@@ -34,7 +33,7 @@ const MY_ORGANIZATION_MEMBER_MANAGEMENT_SCOPES =
  * Props for the OrganizationMemberManagementView component.
  */
 export interface OrganizationMemberManagementViewProps {
-  logic: MemberManagementLogicState & {
+  state: MemberManagementState & {
     styling: OrganizationMemberManagementProps['styling'];
     customMessages: OrganizationMemberManagementProps['customMessages'];
     hideHeader: boolean;
@@ -49,15 +48,15 @@ export interface OrganizationMemberManagementViewProps {
  * @returns The component.
  */
 export function OrganizationMemberManagementView({
-  logic,
+  state,
   handlers,
 }: OrganizationMemberManagementViewProps) {
   const { isDarkMode } = useTheme();
-  const { t } = useTranslator('member_management', logic.customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', state.customMessages as Record<string, unknown>);
 
   const currentStyles = React.useMemo(
-    () => getComponentStyles(logic.styling, isDarkMode),
-    [logic.styling, isDarkMode],
+    () => getComponentStyles(state.styling, isDarkMode),
+    [state.styling, isDarkMode],
   );
 
   return (
@@ -65,20 +64,20 @@ export function OrganizationMemberManagementView({
       style={currentStyles.variables}
       className={currentStyles.classes?.['OrganizationMemberManagement-root']}
     >
-      {!logic.hideHeader && (
+      {!state.hideHeader && (
         <div className={currentStyles.classes?.['OrganizationMemberManagement-header']}>
           <Header
             title={t('header.title')}
             description={t('header.description')}
             actions={
-              !logic.readOnly
+              !state.readOnly
                 ? [
                     {
                       type: 'button',
                       label: t('invite_button'),
                       onClick: handlers.handleCreateClick,
                       icon: Plus,
-                      disabled: logic.readOnly,
+                      disabled: state.readOnly,
                     },
                   ]
                 : []
@@ -88,7 +87,7 @@ export function OrganizationMemberManagementView({
       )}
 
       <Tabs
-        value={logic.activeTab}
+        value={state.activeTab}
         onValueChange={(value) => handlers.setActiveTab(value as 'members' | 'invitations')}
         className={currentStyles.classes?.['OrganizationMemberManagement-tabs']}
       >
@@ -99,27 +98,27 @@ export function OrganizationMemberManagementView({
 
         <TabsContent value="members">
           <OrganizationMemberTable
-            members={logic.members}
-            loading={logic.isFetchingMembers}
-            customMessages={logic.customMessages?.member}
-            onRemove={logic.readOnly ? undefined : handlers.handleRemoveClick}
+            members={state.members}
+            loading={state.isFetchingMembers}
+            customMessages={state.customMessages?.member}
+            onRemove={state.readOnly ? undefined : handlers.handleRemoveClick}
             className={currentStyles.classes?.['OrganizationMemberTab-table']}
           />
         </TabsContent>
 
         <TabsContent value="invitations">
           <OrganizationInvitationTable
-            invitations={logic.invitations}
-            loading={logic.isFetchingInvitations}
-            customMessages={logic.customMessages?.invitation}
-            pagination={logic.invitationPagination}
-            filters={logic.invitationFilters}
-            availableRoles={logic.availableRoles}
-            readOnly={logic.readOnly}
+            invitations={state.invitations}
+            loading={state.isFetchingInvitations}
+            customMessages={state.customMessages?.invitation}
+            pagination={state.invitationPagination}
+            filters={state.invitationFilters}
+            availableRoles={state.availableRoles}
+            readOnly={state.readOnly}
             onView={handlers.handleDetailsClick}
             onCopyUrl={handlers.handleCopyUrl}
-            onRevokeAndResend={logic.readOnly ? undefined : handlers.handleRevokeResendClick}
-            onRevoke={logic.readOnly ? undefined : handlers.handleRevokeClick}
+            onRevokeAndResend={state.readOnly ? undefined : handlers.handleRevokeResendClick}
+            onRevoke={state.readOnly ? undefined : handlers.handleRevokeClick}
             onPageChange={handlers.handlePageChange}
             onPageSizeChange={handlers.handlePageSizeChange}
             onRoleFilterChange={handlers.handleRoleFilterChange}
@@ -129,33 +128,33 @@ export function OrganizationMemberManagementView({
       </Tabs>
 
       <OrganizationMemberRemoveModal
-        member={logic.selectedMember}
-        isOpen={logic.showRemoveModal}
-        isLoading={logic.isRemovingMember}
-        customMessages={logic.customMessages?.member}
+        member={state.selectedMember}
+        isOpen={state.showRemoveModal}
+        isLoading={state.isRemovingMember}
+        customMessages={state.customMessages?.member}
         onClose={handlers.handleRemoveCancel}
         onRemove={handlers.handleRemoveConfirm}
         className={currentStyles.classes?.['OrganizationMemberTab-removeModal']}
       />
 
       <OrganizationInvitationCreateModal
-        isOpen={logic.showCreateModal}
-        isLoading={logic.isCreatingInvitation}
-        customMessages={logic.customMessages?.invitation}
-        availableRoles={logic.availableRoles}
-        availableProviders={logic.availableProviders}
+        isOpen={state.showCreateModal}
+        isLoading={state.isCreatingInvitation}
+        customMessages={state.customMessages?.invitation}
+        availableRoles={state.availableRoles}
+        availableProviders={state.availableProviders}
         onClose={handlers.handleCreateCancel}
         onCreate={handlers.handleCreateSubmit}
         className={currentStyles.classes?.['OrganizationInvitationTab-createModal']}
       />
 
       <OrganizationInvitationDetailsModal
-        invitation={logic.selectedInvitation}
-        isOpen={logic.showDetailsModal}
-        customMessages={logic.customMessages?.invitation}
-        availableRoles={logic.availableRoles}
-        availableProviders={logic.availableProviders}
-        readOnly={logic.readOnly}
+        invitation={state.selectedInvitation}
+        isOpen={state.showDetailsModal}
+        customMessages={state.customMessages?.invitation}
+        availableRoles={state.availableRoles}
+        availableProviders={state.availableProviders}
+        readOnly={state.readOnly}
         onClose={handlers.handleDetailsClose}
         onCopyUrl={handlers.handleCopyUrl}
         onRevoke={handlers.handleRevokeClick}
@@ -164,21 +163,21 @@ export function OrganizationMemberManagementView({
       />
 
       <OrganizationInvitationRevokeModal
-        invitation={logic.selectedInvitation}
-        isOpen={logic.showRevokeModal}
-        isLoading={logic.isRevokingInvitation}
-        customMessages={logic.customMessages?.invitation}
+        invitation={state.selectedInvitation}
+        isOpen={state.showRevokeModal}
+        isLoading={state.isRevokingInvitation}
+        customMessages={state.customMessages?.invitation}
         onClose={handlers.handleRevokeCancel}
         onConfirm={handlers.handleRevokeConfirm}
         className={currentStyles.classes?.['OrganizationInvitationTab-revokeModal']}
       />
 
       <OrganizationInvitationRevokeModal
-        invitation={logic.selectedInvitation}
-        isOpen={logic.showRevokeResendModal}
-        isLoading={logic.isRevokingInvitation || logic.isResendingInvitation}
+        invitation={state.selectedInvitation}
+        isOpen={state.showRevokeResendModal}
+        isLoading={state.isRevokingInvitation || state.isResendingInvitation}
         isRevokeAndResend
-        customMessages={logic.customMessages?.invitation}
+        customMessages={state.customMessages?.invitation}
         onClose={handlers.handleRevokeResendCancel}
         onConfirm={handlers.handleRevokeResendConfirm}
         className={currentStyles.classes?.['OrganizationInvitationTab-revokeResendModal']}
@@ -202,14 +201,10 @@ function OrganizationMemberManagementContainer(props: OrganizationMemberManageme
     readOnly = false,
   } = props;
 
-  const api = useOrganizationMemberManagement({
+  const { state, handlers } = useOrganizationMemberManagement({
     customMessages,
     availableRoles: invitationProps.availableRoles,
     availableProviders: invitationProps.availableProviders,
-  });
-
-  const { logic, handlers } = useOrganizationMemberManagementLogic({
-    api,
     defaultTab:
       defaultTab === 'member'
         ? 'members'
@@ -219,15 +214,15 @@ function OrganizationMemberManagementContainer(props: OrganizationMemberManageme
     readOnly,
   });
 
-  const extendedLogic = {
-    ...logic,
+  const extendedState = {
+    ...state,
     styling,
     customMessages,
     hideHeader,
     readOnly,
   };
 
-  return <OrganizationMemberManagementView logic={extendedLogic} handlers={handlers} />;
+  return <OrganizationMemberManagementView state={extendedState} handlers={handlers} />;
 }
 
 export const OrganizationMemberManagement: React.ComponentType<OrganizationMemberManagementProps> =

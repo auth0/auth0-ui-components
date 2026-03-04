@@ -3,11 +3,7 @@
  * @module organization-invitation-table-types
  */
 
-import type {
-  SharedComponentProps,
-  ComponentAction,
-  EnhancedTranslationFunction,
-} from '@auth0/universal-components-core';
+import type { SharedComponentProps, ComponentAction } from '@auth0/universal-components-core';
 
 /** Invitation status. */
 export type InvitationStatus = 'pending' | 'expired';
@@ -166,82 +162,6 @@ export interface OrganizationInvitationTabProps
   > {
   createAction?: ComponentAction<CreateInvitationInput, Invitation>;
   revokeAction?: ComponentAction<Invitation>;
-}
-
-/** Hook options for useOrganizationInvitationTable. */
-export interface UseOrganizationInvitationTableOptions {
-  createAction?: OrganizationInvitationTabProps['createAction'];
-  revokeAction?: OrganizationInvitationTabProps['revokeAction'];
-  resendAction?: ComponentAction<Invitation, Invitation>;
-  customMessages?: OrganizationInvitationTabProps['customMessages'];
-  /** Available roles for filtering and creating invitations */
-  availableRoles?: RoleOption[];
-  /** Available identity providers for creating invitations */
-  availableProviders?: IdentityProviderOption[];
-  /** Default page size */
-  pageSize?: number;
-}
-
-/** Hook result for useOrganizationInvitationTable. */
-export interface UseOrganizationInvitationTableResult {
-  invitations: Invitation[];
-  isFetching: boolean;
-  isCreating: boolean;
-  isRevoking: boolean;
-  isResending: boolean;
-  /** Pagination state */
-  pagination: InvitationPaginationState;
-  /** Filter state */
-  filters: InvitationFilterState;
-  /** Available roles for filtering */
-  availableRoles: RoleOption[];
-  /** Available identity providers */
-  availableProviders: IdentityProviderOption[];
-  fetchInvitations: (page?: number) => Promise<void>;
-  onCreateInvitation: (data: CreateInvitationInput) => Promise<Invitation | null>;
-  onRevokeInvitation: (invitation: Invitation) => Promise<void>;
-  onResendInvitation: (invitation: Invitation) => Promise<Invitation | null>;
-  onRevokeAndResendInvitation: (invitation: Invitation) => Promise<Invitation | null>;
-  /** Update filters */
-  setFilters: (filters: InvitationFilterState) => void;
-  /** Change page */
-  setPage: (page: number) => void;
-  /** Change page size */
-  setPageSize: (size: number) => void;
-  /** Copy invitation URL */
-  copyInvitationUrl: (invitation: Invitation) => Promise<void>;
-}
-
-/** Hook options for useOrganizationInvitationTableLogic. */
-export interface UseOrganizationInvitationTableLogicOptions {
-  t: EnhancedTranslationFunction;
-  onCreateInvitation: UseOrganizationInvitationTableResult['onCreateInvitation'];
-  onRevokeInvitation: UseOrganizationInvitationTableResult['onRevokeInvitation'];
-  onResendInvitation?: UseOrganizationInvitationTableResult['onResendInvitation'];
-  onRevokeAndResendInvitation?: UseOrganizationInvitationTableResult['onRevokeAndResendInvitation'];
-  fetchInvitations: UseOrganizationInvitationTableResult['fetchInvitations'];
-  copyInvitationUrl?: UseOrganizationInvitationTableResult['copyInvitationUrl'];
-}
-
-/** Hook result for useOrganizationInvitationTableLogic. */
-export interface UseOrganizationInvitationTableLogicResult {
-  showCreateModal: boolean;
-  showDetailsModal: boolean;
-  showRevokeModal: boolean;
-  showRevokeResendModal: boolean;
-  selectedInvitation: Invitation | null;
-  setShowCreateModal: (show: boolean) => void;
-  setShowDetailsModal: (show: boolean) => void;
-  setShowRevokeModal: (show: boolean) => void;
-  setShowRevokeResendModal: (show: boolean) => void;
-  handleCreateClick: () => void;
-  handleCreate: (data: CreateInvitationInput) => Promise<void>;
-  handleDetailsClick: (invitation: Invitation) => void;
-  handleRevokeClick: (invitation: Invitation) => void;
-  handleRevoke: (invitation: Invitation) => Promise<void>;
-  handleRevokeResendClick: (invitation: Invitation) => void;
-  handleRevokeResend: (invitation: Invitation) => Promise<void>;
-  handleCopyUrl: (invitation: Invitation) => Promise<void>;
 }
 
 /** Props for OrganizationInvitationTableActionsColumn component. */
