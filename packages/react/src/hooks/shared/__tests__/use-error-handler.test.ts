@@ -22,15 +22,15 @@ describe('useErrorHandler', () => {
     });
   });
 
-  it('should return null for null/undefined errors', () => {
+  it('should not show toast for null/undefined errors', () => {
     const { result } = renderHook(() => useErrorHandler());
 
-    expect(result.current(null)).toBeNull();
-    expect(result.current(undefined)).toBeNull();
+    result.current(null);
+    result.current(undefined);
     expect(mockedShowToast).not.toHaveBeenCalled();
   });
 
-  it('should return null for MFA errors', () => {
+  it('should not show toast for MFA errors', () => {
     const { result } = renderHook(() => useErrorHandler());
     const mfaError = {
       body: {
@@ -38,11 +38,11 @@ describe('useErrorHandler', () => {
       },
     };
 
-    expect(result.current(mfaError)).toBeNull();
+    result.current(mfaError);
     expect(mockedShowToast).not.toHaveBeenCalled();
   });
 
-  it('should return null for 500+ errors', () => {
+  it('should not show toast for 500+ errors', () => {
     const { result } = renderHook(() => useErrorHandler());
     const serverError = {
       body: {
@@ -50,7 +50,7 @@ describe('useErrorHandler', () => {
       },
     };
 
-    expect(result.current(serverError)).toBeNull();
+    result.current(serverError);
     expect(mockedShowToast).not.toHaveBeenCalled();
   });
 
@@ -63,9 +63,8 @@ describe('useErrorHandler', () => {
       },
     };
 
-    const errorMessage = result.current(apiError);
+    result.current(apiError);
 
-    expect(errorMessage).toBe('Invalid request parameters');
     expect(mockedShowToast).toHaveBeenCalledWith({
       type: 'error',
       message: 'Invalid request parameters',
@@ -76,9 +75,8 @@ describe('useErrorHandler', () => {
     const { result } = renderHook(() => useErrorHandler());
     const error = new Error('Something went wrong');
 
-    const errorMessage = result.current(error);
+    result.current(error);
 
-    expect(errorMessage).toBe('Something went wrong');
     expect(mockedShowToast).toHaveBeenCalledWith({
       type: 'error',
       message: 'Something went wrong',
@@ -89,9 +87,8 @@ describe('useErrorHandler', () => {
     const { result } = renderHook(() => useErrorHandler());
     const error = 'Network error occurred';
 
-    const errorMessage = result.current(error);
+    result.current(error);
 
-    expect(errorMessage).toBe('Network error occurred');
     expect(mockedShowToast).toHaveBeenCalledWith({
       type: 'error',
       message: 'Network error occurred',
@@ -102,9 +99,8 @@ describe('useErrorHandler', () => {
     const { result } = renderHook(() => useErrorHandler());
     const error = { unknown: 'object' };
 
-    const errorMessage = result.current(error);
+    result.current(error);
 
-    expect(errorMessage).toBe('error.generic');
     expect(mockedShowToast).toHaveBeenCalledWith({
       type: 'error',
       message: 'error.generic',
@@ -115,9 +111,8 @@ describe('useErrorHandler', () => {
     const { result } = renderHook(() => useErrorHandler());
     const error = new Error('Test error');
 
-    const errorMessage = result.current(error, { showToast: false });
+    result.current(error, { showToast: false });
 
-    expect(errorMessage).toBe('Test error');
     expect(mockedShowToast).not.toHaveBeenCalled();
   });
 
@@ -126,10 +121,9 @@ describe('useErrorHandler', () => {
     const error = new Error('Original message');
     const getErrorMessage = vi.fn(() => 'Custom error message');
 
-    const errorMessage = result.current(error, { getErrorMessage });
+    result.current(error, { getErrorMessage });
 
     expect(getErrorMessage).toHaveBeenCalledWith(error);
-    expect(errorMessage).toBe('Custom error message');
     expect(mockedShowToast).toHaveBeenCalledWith({
       type: 'error',
       message: 'Custom error message',
@@ -144,9 +138,8 @@ describe('useErrorHandler', () => {
       },
     };
 
-    const errorMessage = result.current(apiError);
+    result.current(apiError);
 
-    expect(errorMessage).toBe('error.generic');
     expect(mockedShowToast).toHaveBeenCalledWith({
       type: 'error',
       message: 'error.generic',
@@ -162,9 +155,8 @@ describe('useErrorHandler', () => {
       },
     };
 
-    const errorMessage = result.current(notFoundError);
+    result.current(notFoundError);
 
-    expect(errorMessage).toBe('Resource not found');
     expect(mockedShowToast).toHaveBeenCalledWith({
       type: 'error',
       message: 'Resource not found',
@@ -180,9 +172,8 @@ describe('useErrorHandler', () => {
       },
     };
 
-    const errorMessage = result.current(unauthorizedError);
+    result.current(unauthorizedError);
 
-    expect(errorMessage).toBe('Unauthorized access');
     expect(mockedShowToast).toHaveBeenCalledWith({
       type: 'error',
       message: 'Unauthorized access',

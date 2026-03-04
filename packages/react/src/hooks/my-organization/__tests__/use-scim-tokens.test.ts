@@ -225,7 +225,7 @@ describe('useScimTokens', () => {
         expect(result.current.isScimTokenDeleting).toBe(false);
         expect(mockedShowToast).toHaveBeenCalledWith({
           type: 'success',
-          message: 'scim_token_delete_sucess',
+          message: 'scim_token_delete_success',
         });
       });
     });

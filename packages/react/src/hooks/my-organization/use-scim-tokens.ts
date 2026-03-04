@@ -118,7 +118,7 @@ export function useScimTokens(
         .organization.identityProviders.provisioning.scimTokens.delete(idpId, idpScimTokenId);
     },
     onSuccess: async () => {
-      showToast({ type: 'success', message: t('scim_token_delete_sucess') });
+      showToast({ type: 'success', message: t('scim_token_delete_success') });
       if (provisioning?.deleteScimTokenAction?.onAfter && provider) {
         await provisioning.deleteScimTokenAction.onAfter(provider);
       }
