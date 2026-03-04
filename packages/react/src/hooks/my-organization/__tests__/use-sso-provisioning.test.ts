@@ -181,30 +181,6 @@ describe('useSsoProvisioning', () => {
       });
     });
 
-    it('should return early when provider is null', async () => {
-      const { result } = renderUseSsoProvisioning(mockIdpId, null);
-
-      await result.current.createProvisioning();
-
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.provisioning
-          .create,
-      ).not.toHaveBeenCalled();
-    });
-
-    it('should return early when coreClient is not available', async () => {
-      vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({ coreClient: null });
-
-      const { result } = renderUseSsoProvisioning(mockIdpId, mockProvider);
-
-      await result.current.createProvisioning();
-
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.provisioning
-          .create,
-      ).not.toHaveBeenCalled();
-    });
-
     it('should call onBefore callback and abort when it returns false', async () => {
       const onBefore = vi.fn().mockReturnValue(false);
 
@@ -282,30 +258,6 @@ describe('useSsoProvisioning', () => {
           message: 'update_success',
         });
       });
-    });
-
-    it('should return early when provider is null', async () => {
-      const { result } = renderUseSsoProvisioning(mockIdpId, null);
-
-      await result.current.deleteProvisioning();
-
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.provisioning
-          .delete,
-      ).not.toHaveBeenCalled();
-    });
-
-    it('should return early when coreClient is not available', async () => {
-      vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({ coreClient: null });
-
-      const { result } = renderUseSsoProvisioning(mockIdpId, mockProvider);
-
-      await result.current.deleteProvisioning();
-
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.provisioning
-          .delete,
-      ).not.toHaveBeenCalled();
     });
 
     it('should call onBefore callback and abort when it returns false', async () => {
@@ -439,7 +391,7 @@ describe('useSsoProvisioning', () => {
       expect(config).toEqual(mockProvisioningConfig);
     });
 
-    it('should return null on fetch error', async () => {
+    it('should propagate non-404 fetch error', async () => {
       const error = new Error('Fetch failed');
       (
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.provisioning
@@ -450,9 +402,7 @@ describe('useSsoProvisioning', () => {
 
       await waitFor(() => expect(result.current.isProvisioningLoading).toBe(false));
 
-      const config = await result.current.fetchProvisioning();
-
-      expect(config).toBeNull();
+      await expect(result.current.fetchProvisioning()).rejects.toThrow('Fetch failed');
     });
 
     it('should handle 404 and return null', async () => {

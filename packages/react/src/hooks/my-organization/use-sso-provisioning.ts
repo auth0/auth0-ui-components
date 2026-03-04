@@ -159,45 +159,39 @@ export function useSsoProvisioning(
   });
 
   const fetchProvisioning = useCallback(async () => {
-    try {
-      const result = await queryClient.fetchQuery({
-        queryKey: ssoProviderEditQueryKeys.provisioning(idpId),
-        queryFn: async (): Promise<GetIdPProvisioningConfigResponseContent | null> => {
-          try {
-            const response = await coreClient!
-              .getMyOrganizationApiClient()
-              .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
-              .organization.identityProviders.provisioning.get(idpId);
-            return response;
-          } catch (error) {
-            if (getStatusCode(error) === 404) return null;
-            throw error;
-          }
-        },
-      });
-      return result;
-    } catch {
-      return null;
-    }
+    const result = await queryClient.fetchQuery({
+      queryKey: ssoProviderEditQueryKeys.provisioning(idpId),
+      queryFn: async (): Promise<GetIdPProvisioningConfigResponseContent | null> => {
+        try {
+          const response = await coreClient!
+            .getMyOrganizationApiClient()
+            .withScopes(MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES)
+            .organization.identityProviders.provisioning.get(idpId);
+          return response;
+        } catch (error) {
+          if (getStatusCode(error) === 404) return null;
+          throw error;
+        }
+      },
+    });
+    return result;
   }, [queryClient, idpId, coreClient]);
 
   const createProvisioning = useCallback(async () => {
-    if (!coreClient || !provider) return;
     try {
       await createProvisioningMutation.mutateAsync();
     } catch (error) {
       if (!isActionCancelledError(error)) throw error;
     }
-  }, [coreClient, createProvisioningMutation, provider]);
+  }, [createProvisioningMutation]);
 
   const deleteProvisioning = useCallback(async () => {
-    if (!coreClient || !provider) return;
     try {
       await deleteProvisioningMutation.mutateAsync();
     } catch (error) {
       if (!isActionCancelledError(error)) throw error;
     }
-  }, [coreClient, deleteProvisioningMutation, provider]);
+  }, [deleteProvisioningMutation]);
 
   const syncProvisioningAttributes = useCallback(async () => {
     if (!coreClient) return;

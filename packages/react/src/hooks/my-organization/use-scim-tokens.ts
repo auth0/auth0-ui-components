@@ -35,7 +35,7 @@ export interface UseScimTokensReturn {
   listScimTokens: () => Promise<ListIdpProvisioningScimTokensResponseContent | null>;
   createScimToken: (
     data: CreateIdpProvisioningScimTokenRequestContent,
-  ) => Promise<CreateIdpProvisioningScimTokenResponseContent | undefined>;
+  ) => Promise<CreateIdpProvisioningScimTokenResponseContent>;
   deleteScimToken: (idpScimTokenId: string) => Promise<void>;
   isScimTokensLoading: boolean;
   isScimTokenCreating: boolean;
@@ -129,24 +129,14 @@ export function useScimTokens(
   });
 
   const listScimTokens = useCallback(async () => {
-    try {
-      return await listScimTokensMutation.mutateAsync();
-    } catch {
-      return null;
-    }
+    return await listScimTokensMutation.mutateAsync();
   }, [listScimTokensMutation]);
 
   const createScimToken = useCallback(
     async (data: CreateIdpProvisioningScimTokenRequestContent) => {
-      if (!coreClient || !provider) return undefined;
-      try {
-        return await createScimTokenMutation.mutateAsync(data);
-      } catch (error) {
-        if (!isActionCancelledError(error)) throw error;
-        return undefined;
-      }
+      return await createScimTokenMutation.mutateAsync(data);
     },
-    [coreClient, createScimTokenMutation, provider],
+    [createScimTokenMutation],
   );
 
   const deleteScimToken = useCallback(

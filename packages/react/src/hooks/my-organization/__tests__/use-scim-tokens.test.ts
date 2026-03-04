@@ -104,7 +104,7 @@ describe('useScimTokens', () => {
       });
     });
 
-    it('should return null on list error', async () => {
+    it('should propagate list error', async () => {
       const error = new Error('List failed');
       (
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.provisioning
@@ -113,9 +113,8 @@ describe('useScimTokens', () => {
 
       const { result } = renderUseScimTokens(mockIdpId, mockProvider);
 
-      const tokens = await result.current.listScimTokens();
+      await expect(result.current.listScimTokens()).rejects.toThrow('List failed');
 
-      expect(tokens).toBeNull();
       await waitFor(() => {
         expect(mockHandleError).toHaveBeenCalledWith(error);
       });
@@ -155,28 +154,6 @@ describe('useScimTokens', () => {
       });
     });
 
-    it('should return undefined when provider is null', async () => {
-      const { result } = renderUseScimTokens(mockIdpId, null);
-
-      const token = await result.current.createScimToken({});
-
-      expect(token).toBeUndefined();
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.provisioning
-          .scimTokens.create,
-      ).not.toHaveBeenCalled();
-    });
-
-    it('should return undefined when coreClient is not available', async () => {
-      vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({ coreClient: null });
-
-      const { result } = renderUseScimTokens(mockIdpId, mockProvider);
-
-      const token = await result.current.createScimToken({});
-
-      expect(token).toBeUndefined();
-    });
-
     it('should call onBefore callback and abort when it returns false', async () => {
       const onBefore = vi.fn().mockReturnValue(false);
 
@@ -186,9 +163,8 @@ describe('useScimTokens', () => {
         },
       });
 
-      const token = await result.current.createScimToken({});
+      await expect(result.current.createScimToken({})).rejects.toThrow('ACTION_CANCELLED');
 
-      expect(token).toBeUndefined();
       expect(onBefore).toHaveBeenCalledWith(mockProvider);
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.provisioning
@@ -340,7 +316,11 @@ describe('useScimTokens', () => {
 
       const { result } = renderUseScimTokens(mockIdpId, mockProvider);
 
-      await result.current.listScimTokens();
+      try {
+        await result.current.listScimTokens();
+      } catch {
+        // Expected to throw
+      }
 
       await waitFor(() => {
         expect(result.current.scimTokensError).toEqual(error);
