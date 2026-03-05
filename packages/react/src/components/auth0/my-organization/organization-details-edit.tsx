@@ -117,7 +117,7 @@ function OrganizationDetailsEditView({ logic, handlers }: OrganizationDetailsEdi
   }
 
   return (
-    <div style={currentStyles.variables} className="w-full">
+    <div className="w-full" style={currentStyles.variables}>
       {!hideHeader && (
         <div className="mb-8">
           <Header

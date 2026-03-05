@@ -31,7 +31,7 @@
 :root {
   * {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--border)) transparent;
+    scrollbar-color: hsl(var(--auth0-border)) transparent;
   }
 
   ::-webkit-scrollbar {
@@ -39,7 +39,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--border));
+    background: hsl(var(--auth0-border));
     border-radius: 6px;
   }
 
@@ -51,7 +51,9 @@
 @theme inline {
   /**
    * STANDARD SHADCN VARIABLES (with auth0 fallbacks)
-   * Map shadcn standard variable names defined by the user to auth0 ones
+   * Map namespaced --auth0-* variable names to internal auth0 color tokens.
+   * Consumers override via --auth0-background, --auth0-primary, etc.
+   * The --auth0-* prefix prevents collision with host app CSS variables.
    */
   --color-background: var(--background, var(--color-neutral-min));
   --color-foreground: var(--foreground, var(--color-neutral-12));

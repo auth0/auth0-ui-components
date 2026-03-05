@@ -69,13 +69,15 @@ const createMockBackButton = () => ({
 // ===== Local utils =====
 
 const waitForComponentToLoad = async () => {
+  await screen.findByTestId('sso-provider-create-content');
+
   return await waitFor(() => {
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
   });
 };
 
 const waitForStrategyButtons = async () => {
-  const wizardContent = screen.getByTestId('sso-provider-create-content');
+  const wizardContent = await screen.findByTestId('sso-provider-create-content');
 
   await waitFor(() => {
     const strategyButtons = wizardContent.querySelectorAll('button[class*="justify-start"]');

@@ -9,7 +9,7 @@ export const Sidebar: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="fixed top-0 left-0 z-40 h-full w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 shadow-lg pt-20">
+    <div className="fixed top-0 left-0 z-40 h-full w-64 bg-gray-900 border-r border-gray-200 dark:border-gray-700 shadow-lg pt-20">
       <div className="p-4 space-y-6">
         {/* My Account Section */}
         {config.features.enableMyAccount && (

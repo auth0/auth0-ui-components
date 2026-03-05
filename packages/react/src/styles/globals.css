@@ -1,2 +1,2 @@
-@import 'tailwindcss';
+@import 'tailwindcss' important;
 @import '@auth0/universal-components-core/styles/globals.css';
