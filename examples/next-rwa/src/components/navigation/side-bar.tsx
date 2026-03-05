@@ -13,7 +13,7 @@ export const Sidebar: React.FC = () => {
   const { t } = useTranslation();
   return (
     user && (
-      <div className="w-64 flex-shrink-0 bg-background shadow-lg pt-4 h-full">
+      <div className="w-64 flex-shrink-0 bg-white dark:bg-black shadow-lg pt-4 h-full">
         <div className="p-4 space-y-6">
           {/* My Account Section */}
           {featuresConfig.enableMyAccount && (

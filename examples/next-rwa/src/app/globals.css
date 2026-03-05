@@ -1,5 +1,6 @@
 /* Import Tailwind CSS v4 */
 @import 'tailwindcss';
+@custom-variant dark (&:is(.dark, .dark *));
 
 @import '@auth0/universal-components-react/styles';
 

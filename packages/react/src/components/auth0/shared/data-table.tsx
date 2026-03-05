@@ -535,7 +535,7 @@ export function DataTable<Item>({
                   return (
                     <TableCell
                       key={cell.id}
-                      className="text-left"
+                      className="text-left text-primary"
                       style={{
                         width: meta.column.width,
                         minWidth: meta.column.width,
