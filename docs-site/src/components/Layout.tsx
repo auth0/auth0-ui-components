@@ -8,6 +8,7 @@ import {
   Zap,
   Github,
   BookOpenText,
+  Palette,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -67,6 +68,12 @@ export default function Layout({ children }: LayoutProps) {
       icon: BookOpen,
       color: 'text-purple-500',
       href: '/',
+    },
+    {
+      title: 'Styling',
+      icon: Palette,
+      color: 'text-violet-500',
+      href: '/styling',
     },
     {
       title: 'My Account',

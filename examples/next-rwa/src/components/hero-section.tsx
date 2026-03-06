@@ -7,7 +7,7 @@ export function HeroSection() {
   const { t } = useTranslation();
 
   return (
-    <div className="bg-white dark:bg-gray-900">
+    <div className="dark:bg-gray-900">
       <div className="relative isolate px-6 lg:px-8 flex items-center">
         <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
           <div className="text-center">

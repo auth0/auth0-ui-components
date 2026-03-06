@@ -50,12 +50,19 @@ jobs:
       - name: Send Slack notification
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_CI_WORKFLOW_WEBHOOK }}
+          CI_RESULT: ${{ needs.ci.result }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_BRANCH: ${{ github.head_ref || github.ref_name }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          COMMIT_SHA: ${{ github.sha }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
           echo "Preparing Slack notification..."
 
           # Determine overall status
-          CI_RESULT="${{ needs.ci.result }}"
-
           if [[ "$CI_RESULT" == "success" ]]; then
             STATUS="✅ SUCCESS: CI/CD Pipeline passed"
             MESSAGE="All checks passed successfully"
@@ -80,16 +87,16 @@ jobs:
               -d "{
                 \"status\": \"$STATUS\",
                 \"message\": \"$MESSAGE\",
-                \"repository\": \"${{ github.repository }}\",
-                \"branch\": \"${{ github.head_ref || github.ref_name }}\",
+                \"repository\": \"${GITHUB_REPOSITORY}\",
+                \"branch\": \"${GITHUB_BRANCH}\",
                 \"ci_result\": \"$CI_RESULT\",
-                \"actor\": \"${{ github.actor }}\",
-                \"workflow\": \"${{ github.workflow }}\",
-                \"commit_message\": \"${{ github.event.head_commit.message }}\",
-                \"commit_sha\": \"${{ github.sha }}\",
-                \"action_url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+                \"actor\": \"${GITHUB_ACTOR}\",
+                \"workflow\": \"${GITHUB_WORKFLOW}\",
+                \"commit_message\": \"${COMMIT_MESSAGE}\",
+                \"commit_sha\": \"${COMMIT_SHA}\",
+                \"action_url\": \"${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}\"
               }")
-            
+
             if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
               echo "Slack notification sent successfully (HTTP $HTTP_CODE)"
             else

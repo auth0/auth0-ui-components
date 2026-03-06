@@ -9,6 +9,7 @@
 import { applyStyleOverrides, type StylingVariables } from '@auth0/universal-components-core';
 import * as React from 'react';
 
+import { PortalContext } from '@/providers/portal-context';
 import type { ThemeContextValue, ThemeInput } from '@/types/theme-types';
 
 /** Default empty style overrides. */
@@ -42,18 +43,25 @@ export const ThemeProvider: React.FC<{
       variables: themeSettings?.variables ?? defaultStyleOverrides,
       loader: themeSettings?.loader ?? null,
       mode: themeSettings?.mode,
-      theme: themeSettings?.theme,
+      theme: themeSettings?.theme ?? 'default',
     }),
     [themeSettings],
   );
+
+  const [portalContainer, setPortalContainer] = React.useState<HTMLElement | null>(null);
 
   React.useEffect(() => {
     applyStyleOverrides(variables, mode, theme);
   }, [variables, mode, theme]);
 
   return (
-    <ThemeContext.Provider value={{ isDarkMode: mode === 'dark', variables, loader }}>
-      {children}
+    <ThemeContext.Provider value={{ isDarkMode: mode === 'dark', theme, variables, loader }}>
+      <PortalContext.Provider value={portalContainer}>
+        <div className="auth0-universal" data-theme={theme}>
+          {children}
+        </div>
+        <div className="auth0-universal" data-theme={theme} ref={setPortalContainer} />
+      </PortalContext.Provider>
     </ThemeContext.Provider>
   );
 };

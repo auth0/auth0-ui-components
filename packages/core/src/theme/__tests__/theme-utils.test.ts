@@ -14,8 +14,8 @@ describe('theme-utils', () => {
         it('should merge common and light styles', () => {
           const styling: StylingVariables = {
             common: { '--font-size-heading': '24px' },
-            light: { '--primary': '#007bff' },
-            dark: { '--primary': '#4dabf7' },
+            light: { '--auth0-primary': '#007bff' },
+            dark: { '--auth0-primary': '#4dabf7' },
           };
 
           const result = getCoreStyles(styling, false);
@@ -23,7 +23,7 @@ describe('theme-utils', () => {
           expect(result).toEqual({
             variables: {
               '--font-size-heading': '24px',
-              '--primary': '#007bff',
+              '--auth0-primary': '#007bff',
             },
           });
         });
@@ -33,8 +33,8 @@ describe('theme-utils', () => {
         it('should merge common and dark styles', () => {
           const styling: StylingVariables = {
             common: { '--font-size-heading': '24px' },
-            light: { '--primary': '#007bff' },
-            dark: { '--primary': '#4dabf7' },
+            light: { '--auth0-primary': '#007bff' },
+            dark: { '--auth0-primary': '#4dabf7' },
           };
 
           const result = getCoreStyles(styling, true);
@@ -42,7 +42,7 @@ describe('theme-utils', () => {
           expect(result).toEqual({
             variables: {
               '--font-size-heading': '24px',
-              '--primary': '#4dabf7',
+              '--auth0-primary': '#4dabf7',
             },
           });
         });
@@ -77,15 +77,15 @@ describe('theme-utils', () => {
       it('should let dark mode override light mode variables with same key', () => {
         const styling: StylingVariables = {
           common: { '--font-size-heading': '24px' },
-          light: { '--foreground': '#000', '--background': '#fff' },
-          dark: { '--foreground': '#fff', '--background': '#000' },
+          light: { '--auth0-foreground': '#000', '--auth0-background': '#fff' },
+          dark: { '--auth0-foreground': '#fff', '--auth0-background': '#000' },
         };
 
         const lightResult = getCoreStyles(styling, false);
         const darkResult = getCoreStyles(styling, true);
 
-        expect(lightResult.variables).toHaveProperty('--foreground', '#000');
-        expect(darkResult.variables).toHaveProperty('--foreground', '#fff');
+        expect(lightResult.variables).toHaveProperty('--auth0-foreground', '#000');
+        expect(darkResult.variables).toHaveProperty('--auth0-foreground', '#fff');
       });
     });
   });
@@ -96,8 +96,8 @@ describe('theme-utils', () => {
         const styling = {
           variables: {
             common: { '--font-size-heading': '24px' },
-            light: { '--primary': '#007bff' },
-            dark: { '--primary': '#4dabf7' },
+            light: { '--auth0-primary': '#007bff' },
+            dark: { '--auth0-primary': '#4dabf7' },
           },
           classes: { container: 'custom-container' },
         };
@@ -106,7 +106,7 @@ describe('theme-utils', () => {
 
         expect(result.variables).toEqual({
           '--font-size-heading': '24px',
-          '--primary': '#007bff',
+          '--auth0-primary': '#007bff',
         });
         expect(result.classes).toEqual({ container: 'custom-container' });
       });
@@ -160,8 +160,8 @@ describe('theme-utils', () => {
       const styling = {
         variables: {
           common: { '--font-size-heading': '24px' },
-          light: { '--background': '#ffffff' },
-          dark: { '--background': '#000000' },
+          light: { '--auth0-background': '#ffffff' },
+          dark: { '--auth0-background': '#000000' },
         },
       };
 
@@ -169,7 +169,7 @@ describe('theme-utils', () => {
         it('should apply light mode variables', () => {
           const result = getComponentStyles(styling, false);
 
-          expect(result.variables).toHaveProperty('--background', '#ffffff');
+          expect(result.variables).toHaveProperty('--auth0-background', '#ffffff');
           expect(result.variables).toHaveProperty('--font-size-heading', '24px');
         });
       });
@@ -178,7 +178,7 @@ describe('theme-utils', () => {
         it('should apply dark mode variables', () => {
           const result = getComponentStyles(styling, true);
 
-          expect(result.variables).toHaveProperty('--background', '#000000');
+          expect(result.variables).toHaveProperty('--auth0-background', '#000000');
           expect(result.variables).toHaveProperty('--font-size-heading', '24px');
         });
       });
@@ -193,6 +193,7 @@ describe('theme-utils', () => {
       Object.defineProperty(globalThis, 'document', {
         value: {
           documentElement: mockHtml,
+          querySelectorAll: () => [],
         },
         writable: true,
         configurable: true,
@@ -204,8 +205,8 @@ describe('theme-utils', () => {
         it('should set light variables, default theme, and remove dark class', () => {
           const styling: StylingVariables = {
             common: { '--font-size-heading': '24px' },
-            light: { '--background': '#ffffff' },
-            dark: { '--background': '#000000' },
+            light: { '--auth0-background': '#ffffff' },
+            dark: { '--auth0-background': '#000000' },
           };
 
           applyStyleOverrides(styling);
@@ -214,7 +215,7 @@ describe('theme-utils', () => {
           expect(mockHtml.classList.remove).toHaveBeenCalledWith('dark');
           expect(mockHtml.classList.add).not.toHaveBeenCalledWith('dark');
           expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--font-size-heading', '24px');
-          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--background', '#ffffff');
+          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--auth0-background', '#ffffff');
         });
       });
     });
@@ -224,8 +225,8 @@ describe('theme-utils', () => {
         it('should apply dark variables and add dark class', () => {
           const styling: StylingVariables = {
             common: { '--font-size-heading': '24px' },
-            light: { '--background': '#ffffff' },
-            dark: { '--background': '#000000' },
+            light: { '--auth0-background': '#ffffff' },
+            dark: { '--auth0-background': '#000000' },
           };
 
           applyStyleOverrides(styling, 'dark');
@@ -234,7 +235,7 @@ describe('theme-utils', () => {
           expect(mockHtml.classList.add).toHaveBeenCalledWith('dark');
           expect(mockHtml.classList.remove).not.toHaveBeenCalledWith('dark');
           expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--font-size-heading', '24px');
-          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--background', '#000000');
+          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--auth0-background', '#000000');
         });
       });
     });
@@ -287,8 +288,8 @@ describe('theme-utils', () => {
 
     describe('when switching between light and dark modes', () => {
       const styling: StylingVariables = {
-        light: { '--foreground': '#000000' },
-        dark: { '--foreground': '#ffffff' },
+        light: { '--auth0-foreground': '#000000' },
+        dark: { '--auth0-foreground': '#ffffff' },
       };
 
       describe('in light mode', () => {
@@ -296,7 +297,7 @@ describe('theme-utils', () => {
           applyStyleOverrides(styling, 'light');
 
           expect(mockHtml.classList.remove).toHaveBeenCalledWith('dark');
-          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--foreground', '#000000');
+          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--auth0-foreground', '#000000');
         });
       });
 
@@ -305,7 +306,7 @@ describe('theme-utils', () => {
           applyStyleOverrides(styling, 'dark');
 
           expect(mockHtml.classList.add).toHaveBeenCalledWith('dark');
-          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--foreground', '#ffffff');
+          expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--auth0-foreground', '#ffffff');
         });
       });
     });
@@ -314,7 +315,7 @@ describe('theme-utils', () => {
       it('should apply both theme variant and mode variables correctly', () => {
         const styling: StylingVariables = {
           common: { '--radius-md': '4px' },
-          dark: { '--background': '#1a1a1a' },
+          dark: { '--auth0-background': '#1a1a1a' },
         };
 
         applyStyleOverrides(styling, 'dark', 'rounded');
@@ -322,7 +323,57 @@ describe('theme-utils', () => {
         expect(mockHtml.dataset.theme).toBe('rounded');
         expect(mockHtml.classList.add).toHaveBeenCalledWith('dark');
         expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--radius-md', '4px');
-        expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--background', '#1a1a1a');
+        expect(mockHtml.style.setProperty).toHaveBeenCalledWith('--auth0-background', '#1a1a1a');
+      });
+    });
+
+    describe('when .auth0-universal scoped elements exist', () => {
+      let scopedEl1: MockHtmlElement;
+      let scopedEl2: MockHtmlElement;
+
+      beforeEach(() => {
+        scopedEl1 = createMockHtmlElement();
+        scopedEl2 = createMockHtmlElement();
+        Object.defineProperty(globalThis, 'document', {
+          value: {
+            documentElement: mockHtml,
+            querySelectorAll: () => [scopedEl1, scopedEl2],
+          },
+          writable: true,
+          configurable: true,
+        });
+      });
+
+      it('should apply overrides to scoped elements instead of html', () => {
+        const styling: StylingVariables = {
+          common: { '--font-size-heading': '24px' },
+          light: { '--auth0-background': '#ffffff' },
+        };
+
+        applyStyleOverrides(styling);
+
+        // Scoped elements get the overrides
+        expect(scopedEl1.dataset.theme).toBe('default');
+        expect(scopedEl1.style.setProperty).toHaveBeenCalledWith('--auth0-background', '#ffffff');
+        expect(scopedEl1.style.setProperty).toHaveBeenCalledWith('--font-size-heading', '24px');
+        expect(scopedEl2.dataset.theme).toBe('default');
+        expect(scopedEl2.style.setProperty).toHaveBeenCalledWith('--auth0-background', '#ffffff');
+
+        // html should NOT receive overrides
+        expect(mockHtml.style.setProperty).not.toHaveBeenCalled();
+        expect(mockHtml.dataset.theme).toBeUndefined();
+      });
+
+      it('should apply dark mode class to scoped elements', () => {
+        const styling: StylingVariables = {
+          dark: { '--auth0-foreground': '#ffffff' },
+        };
+
+        applyStyleOverrides(styling, 'dark');
+
+        expect(scopedEl1.classList.add).toHaveBeenCalledWith('dark');
+        expect(scopedEl2.classList.add).toHaveBeenCalledWith('dark');
+        expect(mockHtml.classList.add).not.toHaveBeenCalledWith('dark');
       });
     });
   });

@@ -191,7 +191,7 @@ function UserMFAMgmtView({ logic, handlers }: UserMFAMgmtViewProps) {
     setIsDeleteDialogOpen,
   } = handlers;
 
-  const { loader, isDarkMode } = useTheme();
+  const { loader, isDarkMode, theme } = useTheme();
   const { t } = useTranslator('mfa', customMessages);
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -199,7 +199,7 @@ function UserMFAMgmtView({ logic, handlers }: UserMFAMgmtViewProps) {
   );
 
   return (
-    <div style={currentStyles.variables}>
+    <div data-theme={theme || 'default'} style={currentStyles.variables}>
       {isLoading ? (
         <div className="flex items-center justify-center py-16">{loader || <Spinner />}</div>
       ) : (

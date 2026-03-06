@@ -216,7 +216,7 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
   );
 
   return (
-    <div style={currentStyles?.variables} className="w-full">
+    <div style={currentStyles.variables} className="w-full">
       <Header
         title={t('header.title')}
         backButton={
