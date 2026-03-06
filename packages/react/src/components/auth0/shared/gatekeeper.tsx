@@ -212,7 +212,6 @@ function MfaStepUpDialog({
         <StepUpEnrollmentSetupForm
           mfaToken={mfaToken!}
           enrollmentFactors={enrollmentFactors}
-          stepUpService={stepUpService!}
           onSuccess={onSuccess}
           onClose={onClose}
         />

@@ -1,6 +1,7 @@
 import {
   type MFAType,
   type EnrollmentFactor,
+  type EnrollParams,
   type CreateAuthenticationMethodResponseContent,
   FACTOR_TYPE_EMAIL,
   FACTOR_TYPE_PHONE,
@@ -8,7 +9,6 @@ import {
   FACTOR_TYPE_PUSH_NOTIFICATION,
   FACTOR_TYPE_RECOVERY_CODE,
 } from '@auth0/universal-components-core';
-import type { StepUpApiService } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import AppleLogo from '@/assets/icons/apple-logo';
@@ -21,6 +21,7 @@ import { List, ListItem } from '@/components/ui/list';
 import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { useRecoveryCodeGeneration } from '@/hooks/my-account/use-recovery-code';
+import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import {
   ENTER_QR,
@@ -85,7 +86,6 @@ const typeToTranslationKey: Record<string, string> = {
 interface StepUpEnrollmentSetupFormProps {
   mfaToken: string;
   enrollmentFactors: EnrollmentFactor[];
-  stepUpService: StepUpApiService;
   onSuccess: () => void;
   onClose: () => void;
 }
@@ -98,10 +98,12 @@ interface StepUpEnrollmentSetupFormProps {
 export function StepUpEnrollmentSetupForm({
   mfaToken,
   enrollmentFactors,
-  stepUpService,
   onSuccess,
   onClose,
 }: StepUpEnrollmentSetupFormProps) {
+  const { coreClient } = useCoreClient();
+  const stepUpService = coreClient!.getStepUpApiService()!;
+
   const { t } = useTranslator('common');
   const tMfa = useTranslator('mfa').t;
 
@@ -116,8 +118,7 @@ export function StepUpEnrollmentSetupForm({
     ): Promise<CreateAuthenticationMethodResponseContent> => {
       const stepUpFactorType = mapMFATypeToStepUpFactorType(factorType);
 
-      type AnyParams = Parameters<typeof stepUpService.enroll>[0];
-      let params: AnyParams;
+      let params: EnrollParams;
 
       if (stepUpFactorType === 'sms' || stepUpFactorType === 'voice') {
         params = {

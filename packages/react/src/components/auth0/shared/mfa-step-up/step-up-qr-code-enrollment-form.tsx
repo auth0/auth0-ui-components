@@ -83,7 +83,7 @@ export function StepUpQRCodeEnrollmentForm({
     if (!otpData?.barcodeUri) {
       fetchOtpEnrollment();
     }
-  }, [otpData?.barcodeUri, fetchOtpEnrollment]);
+  }, [otpData?.barcodeUri]);
 
   const handleContinue = React.useCallback(async () => {
     if (factorType === FACTOR_TYPE_PUSH_NOTIFICATION) {
