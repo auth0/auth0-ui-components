@@ -49,7 +49,7 @@ jobs:
           echo "Using branch: ${BRANCH:-main}"
 
       - name: Checkout repository
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
         with:
           ref: ${{ steps.branch.outputs.branch }}
           fetch-depth: 0
