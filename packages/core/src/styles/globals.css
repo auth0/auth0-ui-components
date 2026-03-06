@@ -63,7 +63,7 @@
   --color-foreground: var(--auth0-foreground, var(--color-neutral-12));
   --color-card: var(--auth0-card, var(--color-neutral-min));
   --color-card-foreground: var(--auth0-card-foreground, var(--color-neutral-max));
-  --color-primary: var(--auth0-primary, var(--color-carbon-9));
+  --color-primary: var(--auth0-primary, var(--color-carbon-12));
   --color-primary-foreground: var(--auth0-primary-foreground, var(--color-neutral-min));
   --color-secondary: var(--auth0-secondary, var(--color-neutral-3));
   --color-secondary-foreground: var(--auth0-secondary-foreground, var(--color-neutral-1));

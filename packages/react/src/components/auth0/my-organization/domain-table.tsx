@@ -21,9 +21,8 @@ import { useDomainTable } from '@/hooks/my-organization/use-domain-table';
 import { useDomainTableLogic } from '@/hooks/my-organization/use-domain-table-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-// import { Auth0Scope } from '@/providers/auth0-scope';
-import { cn } from '@/lib/utils';
 import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { Auth0Scope } from '@/providers/auth0-scope';
 import type {
   DomainTableProps,
   DomainTableViewProps,
@@ -184,83 +183,81 @@ function DomainTableView({
   );
 
   return (
-    <div
-      className={cn('auth0-universal', isDarkMode && 'dark')}
-      data-theme={theme}
-      style={currentStyles.variables}
-    >
-      {!hideHeader && (
-        <div className={currentStyles.classes?.['DomainTable-header']}>
-          <Header
-            title={t('domain_table.header.title')}
-            description={t('domain_table.header.description')}
-            actions={[
-              {
-                type: 'button',
-                label: t('domain_table.header.create_button_text'),
-                onClick: () => handleCreateClick(),
-                icon: Plus,
-                disabled: createAction?.disabled || readOnly || isFetching,
-              },
-            ]}
-          />
-        </div>
-      )}
+    <Auth0Scope>
+      <div data-theme={theme} style={currentStyles.variables}>
+        {!hideHeader && (
+          <div className={currentStyles.classes?.['DomainTable-header']}>
+            <Header
+              title={t('domain_table.header.title')}
+              description={t('domain_table.header.description')}
+              actions={[
+                {
+                  type: 'button',
+                  label: t('domain_table.header.create_button_text'),
+                  onClick: () => handleCreateClick(),
+                  icon: Plus,
+                  disabled: createAction?.disabled || readOnly || isFetching,
+                },
+              ]}
+            />
+          </div>
+        )}
 
-      <DataTable
-        columns={columns}
-        data={domains}
-        loading={isFetching}
-        emptyState={{ title: t('domain_table.table.empty_message') }}
-        className={currentStyles.classes?.['DomainTable-table']}
-      />
+        <DataTable
+          columns={columns}
+          data={domains}
+          loading={isFetching}
+          emptyState={{ title: t('domain_table.table.empty_message') }}
+          className={currentStyles.classes?.['DomainTable-table']}
+        />
 
-      <DomainCreateModal
-        className={currentStyles.classes?.['DomainTable-createModal']}
-        isOpen={showCreateModal}
-        isLoading={isCreating}
-        schema={schema?.create}
-        onClose={() => setShowCreateModal(false)}
-        onCreate={handleCreate}
-        customMessages={customMessages?.create}
-      />
+        <DomainCreateModal
+          className={currentStyles.classes?.['DomainTable-createModal']}
+          isOpen={showCreateModal}
+          isLoading={isCreating}
+          schema={schema?.create}
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreate}
+          customMessages={customMessages?.create}
+        />
 
-      <DomainConfigureProvidersModal
-        className={currentStyles.classes?.['DomainTable-configureModal']}
-        domain={selectedDomain}
-        providers={providers}
-        isOpen={showConfigureModal}
-        isLoading={isLoadingProviders}
-        isLoadingSwitch={false}
-        onClose={() => setShowConfigureModal(false)}
-        onToggleSwitch={handleToggleSwitch}
-        onOpenProvider={onOpenProvider}
-        onCreateProvider={onCreateProvider}
-        customMessages={customMessages?.configure}
-      />
+        <DomainConfigureProvidersModal
+          className={currentStyles.classes?.['DomainTable-configureModal']}
+          domain={selectedDomain}
+          providers={providers}
+          isOpen={showConfigureModal}
+          isLoading={isLoadingProviders}
+          isLoadingSwitch={false}
+          onClose={() => setShowConfigureModal(false)}
+          onToggleSwitch={handleToggleSwitch}
+          onOpenProvider={onOpenProvider}
+          onCreateProvider={onCreateProvider}
+          customMessages={customMessages?.configure}
+        />
 
-      <DomainVerifyModal
-        className={currentStyles.classes?.['DomainTable-verifyModal']}
-        isOpen={showVerifyModal}
-        isLoading={isVerifying}
-        domain={selectedDomain}
-        error={verifyError}
-        onClose={handleCloseVerifyModal}
-        onVerify={handleVerify}
-        onDelete={handleDeleteClick}
-        customMessages={customMessages?.verify}
-      />
+        <DomainVerifyModal
+          className={currentStyles.classes?.['DomainTable-verifyModal']}
+          isOpen={showVerifyModal}
+          isLoading={isVerifying}
+          domain={selectedDomain}
+          error={verifyError}
+          onClose={handleCloseVerifyModal}
+          onVerify={handleVerify}
+          onDelete={handleDeleteClick}
+          customMessages={customMessages?.verify}
+        />
 
-      <DomainDeleteModal
-        className={currentStyles.classes?.['DomainTable-deleteModal']}
-        domain={selectedDomain}
-        isOpen={showDeleteModal}
-        isLoading={isDeleting}
-        onClose={() => setShowDeleteModal(false)}
-        onDelete={handleDelete}
-        customMessages={customMessages?.delete}
-      />
-    </div>
+        <DomainDeleteModal
+          className={currentStyles.classes?.['DomainTable-deleteModal']}
+          domain={selectedDomain}
+          isOpen={showDeleteModal}
+          isLoading={isDeleting}
+          onClose={() => setShowDeleteModal(false)}
+          onDelete={handleDelete}
+          customMessages={customMessages?.delete}
+        />
+      </div>
+    </Auth0Scope>
   );
 }
 
