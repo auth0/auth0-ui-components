@@ -19,6 +19,7 @@ import { useSsoProviderTable } from '@/hooks/my-organization/use-sso-provider-ta
 import { useSsoProviderTableLogic } from '@/hooks/my-organization/use-sso-provider-table-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { Auth0Scope } from '@/providers/auth0-scope';
 import type {
   SsoProviderTableProps,
   SsoProviderTableLogicProps,
@@ -234,59 +235,61 @@ function SsoProviderTableView({ logic, handlers }: SsoProviderTableViewProps) {
   );
 
   return (
-    <div style={currentStyles.variables}>
-      <div className={currentStyles.classes?.['SsoProviderTable-header']}>
-        <Header
-          title={t('header.title')}
-          description={t('header.description')}
-          actions={[
-            {
-              type: 'button',
-              label: t('header.create_button_text'),
-              onClick: () => handleCreate(),
-              icon: Plus,
-              hidden: shouldHideCreate || isViewLoading,
-              disabled: createAction?.disabled || readOnly,
-            },
-          ]}
+    <Auth0Scope>
+      <div style={currentStyles.variables}>
+        <div className={currentStyles.classes?.['SsoProviderTable-header']}>
+          <Header
+            title={t('header.title')}
+            description={t('header.description')}
+            actions={[
+              {
+                type: 'button',
+                label: t('header.create_button_text'),
+                onClick: () => handleCreate(),
+                icon: Plus,
+                hidden: shouldHideCreate || isViewLoading,
+                disabled: createAction?.disabled || readOnly,
+              },
+            ]}
+          />
+        </div>
+
+        <DataTable
+          loading={isViewLoading}
+          columns={columns}
+          data={data}
+          emptyState={{ title: t('table.empty_message') }}
+          className={currentStyles.classes?.['SsoProviderTable-table']}
         />
+
+        {selectedIdp && (
+          <SsoProviderDeleteModal
+            className={currentStyles.classes?.['SsoProviderTable-deleteProviderModal']}
+            isOpen={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            provider={selectedIdp}
+            onDelete={handleDeleteConfirm}
+            isLoading={isDeleting}
+            customMessages={customMessages?.delete_modal}
+          />
+        )}
+
+        {selectedIdp && (
+          <SsoProviderRemoveFromOrganizationModal
+            className={
+              currentStyles.classes?.['SsoProviderTable-deleteProviderFromOrganizationModal']
+            }
+            isOpen={showRemoveModal}
+            onClose={() => setShowRemoveModal(false)}
+            provider={selectedIdp}
+            organizationName={organization?.name}
+            onRemove={handleRemoveConfirm}
+            isLoading={isRemoving}
+            customMessages={customMessages?.remove_modal}
+          />
+        )}
       </div>
-
-      <DataTable
-        loading={isViewLoading}
-        columns={columns}
-        data={data}
-        emptyState={{ title: t('table.empty_message') }}
-        className={currentStyles.classes?.['SsoProviderTable-table']}
-      />
-
-      {selectedIdp && (
-        <SsoProviderDeleteModal
-          className={currentStyles.classes?.['SsoProviderTable-deleteProviderModal']}
-          isOpen={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
-          provider={selectedIdp}
-          onDelete={handleDeleteConfirm}
-          isLoading={isDeleting}
-          customMessages={customMessages?.delete_modal}
-        />
-      )}
-
-      {selectedIdp && (
-        <SsoProviderRemoveFromOrganizationModal
-          className={
-            currentStyles.classes?.['SsoProviderTable-deleteProviderFromOrganizationModal']
-          }
-          isOpen={showRemoveModal}
-          onClose={() => setShowRemoveModal(false)}
-          provider={selectedIdp}
-          organizationName={organization?.name}
-          onRemove={handleRemoveConfirm}
-          isLoading={isRemoving}
-          customMessages={customMessages?.remove_modal}
-        />
-      )}
-    </div>
+    </Auth0Scope>
   );
 }
 

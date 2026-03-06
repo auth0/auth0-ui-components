@@ -17,6 +17,7 @@ import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-c
 import { useSsoProviderCreateLogic } from '@/hooks/my-organization/use-sso-provider-create-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { Auth0Scope } from '@/providers/auth0-scope';
 import type {
   FormState,
   SsoProviderCreateHandlerProps,
@@ -216,32 +217,34 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
   );
 
   return (
-    <div style={currentStyles.variables} className="w-full">
-      <Header
-        title={t('header.title')}
-        backButton={
-          backButton && {
-            ...backButton,
-            text: t('header.back_button_text'),
+    <Auth0Scope>
+      <div style={currentStyles.variables} className="w-full">
+        <Header
+          title={t('header.title')}
+          backButton={
+            backButton && {
+              ...backButton,
+              text: t('header.back_button_text'),
+            }
           }
-        }
-        className={currentStyles?.classes?.['SsoProviderCreate-header']}
-      />
-      <div className="sso-provider-create__content" data-testid="sso-provider-create-content">
-        <Wizard
-          isLoading={isCreating}
-          hideStepperNumbers
-          steps={wizardSteps}
-          onComplete={handleCreate}
-          formActionLabels={{
-            nextButtonLabel: t('nextButtonLabel'),
-            previousButtonLabel: t('previousButtonLabel'),
-            completeButtonLabel: t('completeButtonLabel'),
-          }}
-          className={currentStyles?.classes?.['SsoProviderCreate-wizard']}
+          className={currentStyles?.classes?.['SsoProviderCreate-header']}
         />
+        <div className="sso-provider-create__content" data-testid="sso-provider-create-content">
+          <Wizard
+            isLoading={isCreating}
+            hideStepperNumbers
+            steps={wizardSteps}
+            onComplete={handleCreate}
+            formActionLabels={{
+              nextButtonLabel: t('nextButtonLabel'),
+              previousButtonLabel: t('previousButtonLabel'),
+              completeButtonLabel: t('completeButtonLabel'),
+            }}
+            className={currentStyles?.classes?.['SsoProviderCreate-wizard']}
+          />
+        </div>
       </div>
-    </div>
+    </Auth0Scope>
   );
 }
 

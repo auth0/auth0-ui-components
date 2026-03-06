@@ -21,6 +21,8 @@ import { useDomainTable } from '@/hooks/my-organization/use-domain-table';
 import { useDomainTableLogic } from '@/hooks/my-organization/use-domain-table-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+// import { Auth0Scope } from '@/providers/auth0-scope';
+import { cn } from '@/lib/utils';
 import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import type {
   DomainTableProps,
@@ -94,7 +96,7 @@ function DomainTableView({
   logic,
   handlers,
 }: DomainTableViewProps & { handlers: ReturnType<typeof useDomainTableLogic> }) {
-  const { isDarkMode } = useTheme();
+  const { isDarkMode, theme } = useTheme();
   const { t } = useTranslator('domain_management', logic.customMessages);
 
   const {
@@ -182,7 +184,11 @@ function DomainTableView({
   );
 
   return (
-    <div style={currentStyles.variables}>
+    <div
+      className={cn('auth0-universal', isDarkMode && 'dark')}
+      data-theme={theme}
+      style={currentStyles.variables}
+    >
       {!hideHeader && (
         <div className={currentStyles.classes?.['DomainTable-header']}>
           <Header

@@ -13,6 +13,7 @@ import { withMyOrganizationService } from '@/hoc/with-services';
 import { useOrganizationDetailsEdit } from '@/hooks/my-organization/use-organization-details-edit';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { Auth0Scope } from '@/providers/auth0-scope';
 import type {
   OrganizationDetailsEditProps,
   OrganizationDetailsEditLogicProps,
@@ -107,44 +108,48 @@ function OrganizationDetailsEditView({ logic, handlers }: OrganizationDetailsEdi
 
   if (isFetchLoading) {
     return (
-      <div
-        style={currentStyles.variables}
-        className="flex items-center justify-center min-h-96 w-full"
-      >
-        <Spinner />
-      </div>
+      <Auth0Scope>
+        <div
+          style={currentStyles.variables}
+          className="flex items-center justify-center min-h-96 w-full"
+        >
+          <Spinner />
+        </div>
+      </Auth0Scope>
     );
   }
 
   return (
-    <div className="w-full" style={currentStyles.variables}>
-      {!hideHeader && (
-        <div className="mb-8">
-          <Header
-            title={t('header.title', {
-              organizationName: organization.display_name || organization.name || '',
-            })}
-            backButton={
-              backButton && {
-                ...backButton,
-                text: t('header.back_button_text'),
+    <Auth0Scope>
+      <div className="w-full" style={currentStyles.variables}>
+        {!hideHeader && (
+          <div className="mb-8">
+            <Header
+              title={t('header.title', {
+                organizationName: organization.display_name || organization.name || '',
+              })}
+              backButton={
+                backButton && {
+                  ...backButton,
+                  text: t('header.back_button_text'),
+                }
               }
-            }
+            />
+          </div>
+        )}
+
+        <div className="mb-8">
+          <OrganizationDetails
+            organization={organization}
+            schema={schema?.details}
+            customMessages={customMessages?.details}
+            styling={styling}
+            readOnly={readOnly}
+            formActions={formActions}
           />
         </div>
-      )}
-
-      <div className="mb-8">
-        <OrganizationDetails
-          organization={organization}
-          schema={schema?.details}
-          customMessages={customMessages?.details}
-          styling={styling}
-          readOnly={readOnly}
-          formActions={formActions}
-        />
       </div>
-    </div>
+    </Auth0Scope>
   );
 }
 
