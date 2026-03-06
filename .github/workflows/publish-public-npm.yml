@@ -357,7 +357,7 @@ jobs:
         if: |
           github.event.inputs.dry_run != 'true' && 
           steps.publish-core.outputs.published == 'true'
-        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
         with:
           tag_name: core@${{ env.CORE_VER }}
           name: "@auth0/universal-components-core@${{ env.CORE_VER }}"
@@ -380,7 +380,7 @@ jobs:
         if: |
           github.event.inputs.dry_run != 'true' && 
           steps.publish-react.outputs.published == 'true'
-        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
         with:
           tag_name: react@${{ env.REACT_VER }}
           name: "@auth0/universal-components-react@${{ env.REACT_VER }}"
