@@ -88,7 +88,7 @@ export function OrganizationInvitationTable({
         render: (invitation) => {
           const status = getInvitationStatus(invitation);
           return (
-            <Badge variant={status === 'expired' ? 'warning' : 'success'} size="sm">
+            <Badge variant={status === 'expired' ? 'destructive' : 'warning'} size="sm">
               {status === 'pending'
                 ? t('invitation.table.status_pending')
                 : t('invitation.table.status_expired')}

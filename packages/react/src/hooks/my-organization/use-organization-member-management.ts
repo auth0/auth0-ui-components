@@ -131,8 +131,6 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   const [invitationFilters, setInvitationFilters] = React.useState<InvitationFilterState>({});
   const [showCreateModal, setShowCreateModal] = React.useState(false);
   const [showDetailsModal, setShowDetailsModal] = React.useState(false);
-  const [showRevokeModal, setShowRevokeModal] = React.useState(false);
-  const [showRevokeResendModal, setShowRevokeResendModal] = React.useState(false);
   const [selectedInvitation, setSelectedInvitation] = React.useState<Invitation | null>(null);
 
   const invitationsQuery = useQuery({
@@ -314,13 +312,20 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
     setSelectedInvitation(null);
   }, []);
 
+  const [showRevokeModal, setShowRevokeModal] = React.useState(false);
+  const [showRevokeResendModal, setShowRevokeResendModal] = React.useState(false);
+
   const handleRevokeClick = React.useCallback(
     (invitation: Invitation) => {
       if (readOnly) return;
+      // Close the details modal if it's open (action triggered from details dialog)
+      if (showDetailsModal) {
+        setShowDetailsModal(false);
+      }
       setSelectedInvitation(invitation);
       setShowRevokeModal(true);
     },
-    [readOnly],
+    [readOnly, showDetailsModal],
   );
 
   const handleRevokeConfirm = React.useCallback(async () => {
@@ -334,16 +339,19 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
 
   const handleRevokeCancel = React.useCallback(() => {
     setShowRevokeModal(false);
-    setSelectedInvitation(null);
   }, []);
 
   const handleRevokeResendClick = React.useCallback(
     (invitation: Invitation) => {
       if (readOnly) return;
+      // Close the details modal if it's open (action triggered from details dialog)
+      if (showDetailsModal) {
+        setShowDetailsModal(false);
+      }
       setSelectedInvitation(invitation);
       setShowRevokeResendModal(true);
     },
-    [readOnly],
+    [readOnly, showDetailsModal],
   );
 
   const handleRevokeResendConfirm = React.useCallback(async () => {
@@ -357,7 +365,6 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
 
   const handleRevokeResendCancel = React.useCallback(() => {
     setShowRevokeResendModal(false);
-    setSelectedInvitation(null);
   }, []);
 
   const handleCopyUrl = React.useCallback(

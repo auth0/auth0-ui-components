@@ -151,14 +151,16 @@ export function OrganizationMemberManagementView({
       <OrganizationInvitationDetailsModal
         invitation={state.selectedInvitation}
         isOpen={state.showDetailsModal}
+        isRevoking={state.isRevokingInvitation}
+        isResending={state.isResendingInvitation}
         customMessages={state.customMessages?.invitation}
         availableRoles={state.availableRoles}
         availableProviders={state.availableProviders}
         readOnly={state.readOnly}
         onClose={handlers.handleDetailsClose}
         onCopyUrl={handlers.handleCopyUrl}
-        onRevoke={handlers.handleRevokeClick}
-        onResend={handlers.handleRevokeResendClick}
+        onRevoke={(invitation) => invitation && handlers.handleRevokeClick(invitation)}
+        onResend={(invitation) => invitation && handlers.handleRevokeResendClick(invitation)}
         className={currentStyles.classes?.['OrganizationInvitationTab-detailsModal']}
       />
 
@@ -168,18 +170,18 @@ export function OrganizationMemberManagementView({
         isLoading={state.isRevokingInvitation}
         customMessages={state.customMessages?.invitation}
         onClose={handlers.handleRevokeCancel}
-        onConfirm={handlers.handleRevokeConfirm}
+        onConfirm={() => handlers.handleRevokeConfirm()}
         className={currentStyles.classes?.['OrganizationInvitationTab-revokeModal']}
       />
 
       <OrganizationInvitationRevokeModal
         invitation={state.selectedInvitation}
         isOpen={state.showRevokeResendModal}
-        isLoading={state.isRevokingInvitation || state.isResendingInvitation}
+        isLoading={state.isResendingInvitation}
         isRevokeAndResend
         customMessages={state.customMessages?.invitation}
         onClose={handlers.handleRevokeResendCancel}
-        onConfirm={handlers.handleRevokeResendConfirm}
+        onConfirm={() => handlers.handleRevokeResendConfirm()}
         className={currentStyles.classes?.['OrganizationInvitationTab-revokeResendModal']}
       />
     </div>

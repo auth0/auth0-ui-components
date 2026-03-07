@@ -1083,20 +1083,20 @@
         "invitation_url_label": "Invitation URL",
         "copy_url_button": "Copy",
         "close_button": "Close",
-        "revoke_button": "Revoke",
-        "resend_button": "Resend"
+        "revoke_button": "Revoke Invitation",
+        "resend_button": "Revoke and Resend"
       },
       "revoke": {
         "title": "Revoke Invitation",
-        "description": "Are you sure you want to revoke the invitation for ${email}?",
+        "description": "Are you sure you want to revoke the invitation to ${email}?",
         "confirm_button": "Revoke",
         "cancel_button": "Cancel",
         "success": "Invitation for ${email} has been revoked."
       },
       "revoke_resend": {
         "title": "Revoke and Resend Invitation",
-        "description": "This will revoke the existing invitation for ${email} and send a new one. The previous invitation link will no longer work.",
-        "confirm_button": "Revoke and Resend",
+        "description": "Are you sure you want to revoke the current invitation and send a new one to ${email}?",
+        "confirm_button": "Proceed",
         "cancel_button": "Cancel"
       },
       "success": {

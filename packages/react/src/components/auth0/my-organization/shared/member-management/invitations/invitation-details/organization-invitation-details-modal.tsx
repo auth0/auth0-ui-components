@@ -3,9 +3,10 @@
  * @module organization-invitation-details-modal
  */
 
-import { Copy, Check } from 'lucide-react';
+import { Link } from 'lucide-react';
 import * as React from 'react';
 
+import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,6 +17,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   Invitation,
@@ -28,14 +30,16 @@ import type {
 export interface OrganizationInvitationDetailsModalProps {
   invitation: Invitation | null;
   isOpen: boolean;
+  isRevoking?: boolean;
+  isResending?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   availableRoles?: RoleOption[];
   availableProviders?: IdentityProviderOption[];
   readOnly?: boolean;
   onClose: () => void;
   onCopyUrl?: (invitation: Invitation) => void;
-  onRevoke?: (invitation: Invitation) => void;
-  onResend?: (invitation: Invitation) => void;
+  onRevoke?: (invitation?: Invitation) => void;
+  onResend?: (invitation?: Invitation) => void;
   className?: string;
 }
 
@@ -60,10 +64,21 @@ function getInvitationStatus(invitation: Invitation): InvitationStatus {
 }
 
 /**
- * Modal for viewing invitation details.
+ * Returns the badge variant for a given invitation status.
+ * @param status - The invitation status.
+ * @returns The badge variant string.
+ */
+function getStatusBadgeVariant(status: InvitationStatus): 'warning' | 'destructive' {
+  return status === 'pending' ? 'warning' : 'destructive';
+}
+
+/**
+ * Modal for viewing invitation details with revoke and resend actions.
  * @param root0 - The component props.
  * @param root0.invitation - The invitation to display.
  * @param root0.isOpen - Whether the modal is open.
+ * @param root0.isRevoking - Whether a revoke action is in progress.
+ * @param root0.isResending - Whether a resend action is in progress.
  * @param root0.customMessages - Custom translation messages.
  * @param root0.availableRoles - Available roles for display.
  * @param root0.availableProviders - Available providers for display.
@@ -71,13 +86,15 @@ function getInvitationStatus(invitation: Invitation): InvitationStatus {
  * @param root0.onClose - Callback when modal is closed.
  * @param root0.onCopyUrl - Callback when copy URL is clicked.
  * @param root0.onRevoke - Callback when revoke is clicked.
- * @param root0.onResend - Callback when resend is clicked.
+ * @param root0.onResend - Callback when revoke and resend is clicked.
  * @param root0.className - Optional CSS class name.
  * @returns The modal component.
  */
 export function OrganizationInvitationDetailsModal({
   invitation,
   isOpen,
+  isRevoking = false,
+  isResending = false,
   customMessages = {},
   availableRoles = [],
   availableProviders = [],
@@ -89,12 +106,11 @@ export function OrganizationInvitationDetailsModal({
   className,
 }: OrganizationInvitationDetailsModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
-  const [urlCopied, setUrlCopied] = React.useState(false);
 
   const status = invitation ? getInvitationStatus(invitation) : 'pending';
   const isPending = status === 'pending';
+  const isActionInProgress = isRevoking || isResending;
 
-  // Get role and provider names
   const roleNames = React.useMemo(() => {
     if (!invitation?.roles || invitation.roles.length === 0) return [];
     return invitation.roles
@@ -114,8 +130,6 @@ export function OrganizationInvitationDetailsModal({
   const handleCopyUrl = React.useCallback(() => {
     if (invitation) {
       onCopyUrl?.(invitation);
-      setUrlCopied(true);
-      setTimeout(() => setUrlCopied(false), 2000);
     }
   }, [invitation, onCopyUrl]);
 
@@ -135,126 +149,116 @@ export function OrganizationInvitationDetailsModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={className}>
         <DialogHeader>
-          <DialogTitle>{t('invitation.details.title')}</DialogTitle>
+          <div className="flex items-center gap-2">
+            <DialogTitle>{t('invitation.details.title')}</DialogTitle>
+            <Badge variant={getStatusBadgeVariant(status)} size="sm">
+              {isPending
+                ? t('invitation.table.status_pending')
+                : t('invitation.table.status_expired')}
+            </Badge>
+          </div>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           {/* Email */}
-          <div>
+          <div className="space-y-2">
             <Label className="text-sm font-medium text-muted-foreground">
               {t('invitation.details.email_label')}
             </Label>
-            <p className="text-sm mt-1">{invitation?.invitee.email ?? '-'}</p>
+            <TextField value={invitation?.invitee.email ?? '-'} readOnly />
           </div>
 
-          {/* Status */}
-          <div>
+          {/* Created At */}
+          <div className="space-y-2">
             <Label className="text-sm font-medium text-muted-foreground">
-              {t('invitation.details.status_label')}
+              {t('invitation.details.created_at_label')}
             </Label>
-            <div className="mt-1">
-              <Badge variant={isPending ? 'warning' : 'destructive'} size="sm">
-                {isPending
-                  ? t('invitation.table.status_pending')
-                  : t('invitation.table.status_expired')}
-              </Badge>
-            </div>
+            <TextField
+              value={
+                invitation?.created_at ? new Date(invitation.created_at).toLocaleString() : '-'
+              }
+              readOnly
+            />
+          </div>
+
+          {/* Expires At */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-muted-foreground">
+              {t('invitation.details.expires_at_label')}
+            </Label>
+            <TextField
+              value={
+                invitation?.expires_at ? new Date(invitation.expires_at).toLocaleString() : '-'
+              }
+              readOnly
+            />
           </div>
 
           {/* Roles */}
-          {roleNames.length > 0 && (
-            <div>
-              <Label className="text-sm font-medium text-muted-foreground">
-                {t('invitation.details.roles_label')}
-              </Label>
-              <div className="flex flex-wrap gap-1 mt-1">
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-muted-foreground">
+              {t('invitation.details.roles_label')}
+            </Label>
+            {roleNames.length > 0 ? (
+              <div className="flex flex-wrap gap-1">
                 {roleNames.map((name, index) => (
                   <Badge key={index} variant="outline" size="sm">
                     {name}
                   </Badge>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* Provider */}
-          {providerName && (
-            <div>
-              <Label className="text-sm font-medium text-muted-foreground">
-                {t('invitation.details.provider_label')}
-              </Label>
-              <p className="text-sm mt-1">{providerName}</p>
-            </div>
-          )}
-
-          {/* Created At */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground">
-              {t('invitation.details.created_at_label')}
-            </Label>
-            <p className="text-sm mt-1">
-              {invitation?.created_at ? new Date(invitation.created_at).toLocaleString() : '-'}
-            </p>
-          </div>
-
-          {/* Expires At */}
-          {invitation?.expires_at && (
-            <div>
-              <Label className="text-sm font-medium text-muted-foreground">
-                {t('invitation.details.expires_at_label')}
-              </Label>
-              <p className="text-sm mt-1">{new Date(invitation.expires_at).toLocaleString()}</p>
-            </div>
-          )}
-
-          {/* Invited By */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground">
-              {t('invitation.details.invited_by_label')}
-            </Label>
-            <p className="text-sm mt-1">{invitation?.inviter.name ?? '-'}</p>
+            ) : (
+              <TextField value="-" readOnly />
+            )}
           </div>
 
           {/* Invitation URL */}
           {invitation?.invitation_url && (
-            <div>
+            <div className="space-y-2">
               <Label className="text-sm font-medium text-muted-foreground">
                 {t('invitation.details.invitation_url_label')}
               </Label>
-              <div className="flex items-center gap-2 mt-1">
-                <code className="flex-1 text-xs bg-muted px-2 py-1 rounded overflow-hidden text-ellipsis whitespace-nowrap">
-                  {invitation.invitation_url}
-                </code>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopyUrl}
-                  className="shrink-0"
-                >
-                  {urlCopied ? (
-                    <Check className="h-4 w-4 text-success" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                  <span className="ml-1">{t('invitation.details.copy_url_button')}</span>
-                </Button>
-              </div>
+              <CopyableTextField
+                value={invitation.invitation_url}
+                readOnly
+                onCopy={handleCopyUrl}
+                startAdornment={<Link className="h-4 w-4 text-muted-foreground" />}
+              />
+            </div>
+          )}
+
+          {/* Revoke / Resend Actions (inline, below invitation URL) */}
+          {!readOnly && isPending && (
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" onClick={handleResend} disabled={isActionInProgress}>
+                {t('invitation.details.resend_button')}
+              </Button>
+              <Button variant="destructive" onClick={handleRevoke} disabled={isActionInProgress}>
+                {t('invitation.details.revoke_button')}
+              </Button>
+            </div>
+          )}
+
+          {/* Invited By */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-muted-foreground">
+              {t('invitation.details.invited_by_label')}
+            </Label>
+            <TextField value={invitation?.inviter.name ?? '-'} readOnly />
+          </div>
+
+          {/* Identity Provider */}
+          {providerName && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-muted-foreground">
+                {t('invitation.details.provider_label')}
+              </Label>
+              <TextField value={providerName} readOnly />
             </div>
           )}
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
-          {!readOnly && isPending && (
-            <>
-              <Button variant="destructive" onClick={handleRevoke}>
-                {t('invitation.details.revoke_button')}
-              </Button>
-              <Button variant="outline" onClick={handleResend}>
-                {t('invitation.details.resend_button')}
-              </Button>
-            </>
-          )}
+        <DialogFooter>
           <Button onClick={onClose}>{t('invitation.details.close_button')}</Button>
         </DialogFooter>
       </DialogContent>

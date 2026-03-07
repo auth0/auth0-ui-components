@@ -66,19 +66,15 @@ export function OrganizationInvitationRevokeModal({
       <DialogContent className={className}>
         <DialogHeader>
           <DialogTitle>{t(`${namespace}.title`)}</DialogTitle>
-          <DialogDescription>
-            {t(`${namespace}.description`, { email: invitation?.invitee.email ?? '' })}
-          </DialogDescription>
         </DialogHeader>
+        <DialogDescription className="py-2">
+          {t(`${namespace}.description`, { email: invitation?.invitee.email ?? '' })}
+        </DialogDescription>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
             {t(`${namespace}.cancel_button`)}
           </Button>
-          <Button
-            variant={isRevokeAndResend ? 'primary' : 'destructive'}
-            onClick={handleConfirm}
-            disabled={isLoading}
-          >
+          <Button variant="destructive" onClick={handleConfirm} disabled={isLoading}>
             {t(`${namespace}.confirm_button`)}
           </Button>
         </DialogFooter>
