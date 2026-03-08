@@ -11,6 +11,7 @@ import type {
   IdentityProviderOption,
   InvitationFilterState,
   InvitationPaginationState,
+  InvitationSortConfig,
   OrganizationInvitationTabProps,
   OrganizationInvitationTabClasses,
   OrganizationInvitationTabMessages,
@@ -46,6 +47,7 @@ export interface MemberManagementState {
   isResendingInvitation: boolean;
   invitationPagination: InvitationPaginationState;
   invitationFilters: InvitationFilterState;
+  invitationSortConfig: InvitationSortConfig;
   showCreateModal: boolean;
   showDetailsModal: boolean;
   showRevokeModal: boolean;
@@ -77,6 +79,7 @@ export interface MemberManagementHandlers {
   handleNextPage: () => void;
   handlePreviousPage: () => void;
   handlePageSizeChange: (pageSize: number) => void;
+  handleSortChange: (sortConfig: InvitationSortConfig) => void;
   handleRoleFilterChange: (roleId: string | undefined) => void;
 
   handleRemoveClick: (member: Member) => void;

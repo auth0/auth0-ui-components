@@ -64,6 +64,7 @@ export interface RegularPaginationState {
 
 export interface CheckpointPaginationState {
   pageSize: number;
+  currentPage?: number;
   totalItems?: number;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
@@ -194,6 +195,32 @@ export function DataPagination({
               {labels.of}{' '}
               <span className="font-medium text-foreground">
                 {formatNumber(regularState.totalItems, locale)}
+              </span>
+              {labels.results && <> {labels.results}</>}
+            </>
+          ) : checkpointState?.totalItems !== undefined &&
+            checkpointState?.currentPage !== undefined ? (
+            <>
+              {labels.showing}{' '}
+              <span className="font-medium text-foreground">
+                {formatNumber(
+                  checkpointState.totalItems === 0
+                    ? 0
+                    : (checkpointState.currentPage - 1) * checkpointState.pageSize + 1,
+                  locale,
+                )}
+                -
+                {formatNumber(
+                  Math.min(
+                    checkpointState.currentPage * checkpointState.pageSize,
+                    checkpointState.totalItems,
+                  ),
+                  locale,
+                )}
+              </span>{' '}
+              {labels.of}{' '}
+              <span className="font-medium text-foreground">
+                {formatNumber(checkpointState.totalItems, locale)}
               </span>
               {labels.results && <> {labels.results}</>}
             </>

@@ -16,6 +16,7 @@ import type {
   Invitation,
   CreateInvitationInput,
   InvitationStatus,
+  InvitationSortConfig,
   InvitationFilterState,
   RoleOption,
   IdentityProviderOption,
@@ -92,6 +93,18 @@ function mapOrgMemberToMember(orgMember: {
 }
 
 /**
+ * Maps invitation table column accessor keys to the API's sort_by field names.
+ * API sortable fields: email, status, created-at, expires-at, invited-by
+ */
+const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
+  invitee: 'email',
+  status: 'status',
+  created_at: 'created-at',
+  expires_at: 'expires-at',
+  inviter: 'invited-by',
+};
+
+/**
  * Hook for organization member management.
  * @param options - Hook configuration options.
  * @returns State and handler functions.
@@ -122,7 +135,12 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   const [invitationPageSize, setInvitationPageSize] = React.useState(DEFAULT_PAGE_SIZE);
   const [currentFromToken, setCurrentFromToken] = React.useState<string | undefined>(undefined);
   const [previousTokens, setPreviousTokens] = React.useState<Array<string | undefined>>([]);
+  const [invitationCurrentPage, setInvitationCurrentPage] = React.useState(1);
   const [invitationFilters, setInvitationFilters] = React.useState<InvitationFilterState>({});
+  const [invitationSortConfig, setInvitationSortConfig] = React.useState<InvitationSortConfig>({
+    key: null,
+    direction: 'asc',
+  });
   const [showCreateModal, setShowCreateModal] = React.useState(false);
   const [showDetailsModal, setShowDetailsModal] = React.useState(false);
   const [selectedInvitation, setSelectedInvitation] = React.useState<Invitation | null>(null);
@@ -133,19 +151,30 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
       invitationPageSize,
       currentFromToken,
       invitationFilters,
+      invitationSortConfig,
     ],
     queryFn: async () => {
+      const apiSortField = invitationSortConfig.key
+        ? INVITATION_SORT_FIELD_MAP[invitationSortConfig.key]
+        : undefined;
+      const sortBy = apiSortField
+        ? `${apiSortField}:${invitationSortConfig.direction === 'asc' ? '1' : '-1'}`
+        : undefined;
+
       const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list({
         take: invitationPageSize,
         from: currentFromToken,
+        sort_by: sortBy,
       });
 
       const invitations: Invitation[] = page.data.map(mapMemberInvitationToInvitation);
       const next = page.response.next ?? null;
+      const total = (page.response as Record<string, unknown>).total as number | undefined;
 
       return {
         invitations,
         next,
+        total,
       };
     },
     enabled: !!coreClient && activeTab === 'invitations',
@@ -153,6 +182,7 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
 
   const currentInvitations = invitationsQuery.data?.invitations ?? [];
   const nextToken = invitationsQuery.data?.next ?? null;
+  const invitationsTotalItems = invitationsQuery.data?.total;
 
   const createInvitationMutation = useMutation({
     mutationFn: async (data: CreateInvitationInput) => {
@@ -367,6 +397,7 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
     if (nextToken) {
       setPreviousTokens((prev) => [...prev, currentFromToken]);
       setCurrentFromToken(nextToken);
+      setInvitationCurrentPage((prev) => prev + 1);
     }
   }, [nextToken, currentFromToken]);
 
@@ -377,18 +408,28 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
       setCurrentFromToken(previousToken);
       return newStack;
     });
+    setInvitationCurrentPage((prev) => Math.max(1, prev - 1));
   }, []);
 
   const handlePageSizeChange = React.useCallback((pageSize: number) => {
     setInvitationPageSize(pageSize);
     setCurrentFromToken(undefined);
     setPreviousTokens([]);
+    setInvitationCurrentPage(1);
   }, []);
 
   const handleRoleFilterChange = React.useCallback((roleId: string | undefined) => {
     setInvitationFilters((prev) => ({ ...prev, roleId }));
     setCurrentFromToken(undefined);
     setPreviousTokens([]);
+    setInvitationCurrentPage(1);
+  }, []);
+
+  const handleSortChange = React.useCallback((sortConfig: InvitationSortConfig) => {
+    setInvitationSortConfig(sortConfig);
+    setCurrentFromToken(undefined);
+    setPreviousTokens([]);
+    setInvitationCurrentPage(1);
   }, []);
 
   /* ---- Members ---- */
@@ -477,10 +518,13 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
     isResendingInvitation: resendInvitationMutation.isPending,
     invitationPagination: {
       pageSize: invitationPageSize,
+      currentPage: invitationCurrentPage,
+      totalItems: invitationsTotalItems,
       hasNextPage: !!nextToken,
       hasPreviousPage: previousTokens.length > 0,
     },
     invitationFilters,
+    invitationSortConfig,
     showCreateModal,
     showDetailsModal,
     showRevokeModal,
@@ -512,6 +556,7 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
     handleNextPage,
     handlePreviousPage,
     handlePageSizeChange,
+    handleSortChange,
     handleRoleFilterChange,
 
     handleRemoveClick,

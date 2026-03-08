@@ -63,6 +63,8 @@ export function OrganizationInvitationTable({
   filters,
   availableRoles,
   readOnly = false,
+  sortConfig,
+  onSortChange,
   onView,
   onCopyUrl,
   onRevokeAndResend,
@@ -81,12 +83,14 @@ export function OrganizationInvitationTable({
         type: 'text',
         accessorKey: 'invitee',
         title: t('invitation.table.columns.email'),
+        enableSorting: true,
         render: (invitation) => <div className="font-medium">{invitation.invitee.email}</div>,
       },
       {
         type: 'text',
         accessorKey: 'status',
         title: t('invitation.table.columns.status'),
+        enableSorting: true,
         render: (invitation) => {
           const status = getInvitationStatus(invitation);
           return (
@@ -102,23 +106,27 @@ export function OrganizationInvitationTable({
         type: 'date',
         accessorKey: 'created_at',
         title: t('invitation.table.columns.created_at'),
+        enableSorting: true,
         format: 'medium',
       },
       {
         type: 'date',
         accessorKey: 'expires_at',
         title: t('invitation.table.columns.expires_at'),
+        enableSorting: true,
         format: 'medium',
       },
       {
         type: 'text',
         accessorKey: 'inviter',
         title: t('invitation.table.columns.inviter'),
+        enableSorting: true,
         render: (invitation) => invitation.inviter?.name ?? '-',
       },
       {
         type: 'actions',
         title: '',
+        enableSorting: false,
         render: (invitation) => (
           <OrganizationInvitationTableActionsColumn
             invitation={invitation}
@@ -153,6 +161,8 @@ export function OrganizationInvitationTable({
           data={invitations}
           loading={loading}
           emptyState={{ title: t('invitation.table.empty_message') }}
+          sortConfig={sortConfig}
+          onSortChange={onSortChange}
         />
       </div>
 
@@ -161,11 +171,14 @@ export function OrganizationInvitationTable({
           type="checkpoint"
           paginationState={{
             pageSize: pagination.pageSize,
+            currentPage: pagination.currentPage,
+            totalItems: pagination.totalItems,
             hasNextPage: pagination.hasNextPage,
             hasPreviousPage: pagination.hasPreviousPage,
           }}
           pageSizeOptions={[10, 25, 50]}
           showPageSizeSelector
+          showPageInfo
           onNextPage={onNextPage}
           onPreviousPage={onPreviousPage}
           onPageSizeChange={onPageSizeChange}

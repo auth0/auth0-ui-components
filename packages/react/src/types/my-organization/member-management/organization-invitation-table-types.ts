@@ -59,8 +59,16 @@ export interface CreateInvitationInput {
 /** Pagination state for invitation table (checkpoint-based). */
 export interface InvitationPaginationState {
   pageSize: number;
+  currentPage: number;
+  totalItems?: number;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
+}
+
+/** Sort configuration for invitation table. */
+export interface InvitationSortConfig {
+  key: string | null;
+  direction: 'asc' | 'desc';
 }
 
 /** Filter state for invitation table. */
@@ -181,6 +189,7 @@ export interface OrganizationInvitationTableProps {
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   pagination: InvitationPaginationState;
   filters?: InvitationFilterState;
+  sortConfig?: InvitationSortConfig;
   availableRoles?: RoleOption[];
   readOnly?: boolean;
   onView?: (invitation: Invitation) => void;
@@ -190,6 +199,7 @@ export interface OrganizationInvitationTableProps {
   onNextPage?: () => void;
   onPreviousPage?: () => void;
   onPageSizeChange?: (pageSize: number) => void;
+  onSortChange?: (sortConfig: InvitationSortConfig) => void;
   onRoleFilterChange?: (roleId: string | undefined) => void;
   className?: string;
 }

@@ -110,6 +110,11 @@ export interface EmptyStateProps {
   action?: ActionButton;
 }
 
+export interface DataTableSortConfig {
+  key: string | null;
+  direction: 'asc' | 'desc';
+}
+
 export interface DataTableProps<Item> {
   data: Item[];
   columns: Column<Item>[];
@@ -119,6 +124,10 @@ export interface DataTableProps<Item> {
   onRowClick?: (rowData: Item) => void;
   className?: string;
   headerAlign?: AlignmentType;
+  /** When provided, sorting is delegated to the parent (server-side). */
+  onSortChange?: (sortConfig: DataTableSortConfig) => void;
+  /** Controlled sort state. Used with onSortChange for server-side sorting. */
+  sortConfig?: DataTableSortConfig;
 }
 
 const ALIGNMENT_CLASSES = {
@@ -387,13 +396,43 @@ export function DataTable<Item>({
   onRowClick,
   className,
   headerAlign = 'left',
+  onSortChange,
+  sortConfig,
 }: DataTableProps<Item>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const isServerSideSort = !!onSortChange;
+
+  const [internalSorting, setInternalSorting] = useState<SortingState>([]);
+
+  // Convert controlled sortConfig to TanStack SortingState for header display
+  const sorting: SortingState = useMemo(() => {
+    if (isServerSideSort && sortConfig?.key) {
+      return [{ id: sortConfig.key, desc: sortConfig.direction === 'desc' }];
+    }
+    return internalSorting;
+  }, [isServerSideSort, sortConfig, internalSorting]);
+
+  const handleSortingChange = React.useCallback(
+    (updater: SortingState | ((old: SortingState) => SortingState)) => {
+      const newSorting = typeof updater === 'function' ? updater(sorting) : updater;
+
+      if (isServerSideSort) {
+        const sort = newSorting[0];
+        if (sort) {
+          onSortChange({ key: sort.id, direction: sort.desc ? 'desc' : 'asc' });
+        } else {
+          onSortChange({ key: null, direction: 'asc' });
+        }
+      } else {
+        setInternalSorting(newSorting);
+      }
+    },
+    [isServerSideSort, onSortChange, sorting],
+  );
 
   const tableColumns = useMemo<ColumnDef<Item>[]>(() => {
     return columns.map((column, index) => {
       return {
-        id: `column-${index}`,
+        id: column.accessorKey ? String(column.accessorKey) : `column-${index}`,
         accessorKey: column.accessorKey as string,
         header: column.title,
         size: column.width
@@ -454,9 +493,10 @@ export function DataTable<Item>({
     state: {
       sorting,
     },
-    onSortingChange: setSorting,
+    onSortingChange: handleSortingChange,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    getSortedRowModel: isServerSideSort ? undefined : getSortedRowModel(),
+    manualSorting: isServerSideSort,
     manualPagination: true,
   });
 

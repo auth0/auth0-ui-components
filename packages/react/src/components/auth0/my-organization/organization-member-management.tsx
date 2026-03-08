@@ -115,6 +115,8 @@ export function OrganizationMemberManagementView({
             filters={state.invitationFilters}
             availableRoles={state.availableRoles}
             readOnly={state.readOnly}
+            sortConfig={state.invitationSortConfig}
+            onSortChange={handlers.handleSortChange}
             onView={handlers.handleDetailsClick}
             onCopyUrl={handlers.handleCopyUrl}
             onRevokeAndResend={state.readOnly ? undefined : handlers.handleRevokeResendClick}
