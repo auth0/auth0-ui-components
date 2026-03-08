@@ -56,12 +56,11 @@ export interface CreateInvitationInput {
   ttl_sec?: number;
 }
 
-/** Pagination state for invitation table. */
+/** Pagination state for invitation table (checkpoint-based). */
 export interface InvitationPaginationState {
-  currentPage: number;
   pageSize: number;
-  totalItems: number;
-  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
 }
 
 /** Filter state for invitation table. */
@@ -188,7 +187,8 @@ export interface OrganizationInvitationTableProps {
   onCopyUrl?: (invitation: Invitation) => void;
   onRevokeAndResend?: (invitation: Invitation) => void;
   onRevoke?: (invitation: Invitation) => void;
-  onPageChange?: (page: number) => void;
+  onNextPage?: () => void;
+  onPreviousPage?: () => void;
   onPageSizeChange?: (pageSize: number) => void;
   onRoleFilterChange?: (roleId: string | undefined) => void;
   className?: string;

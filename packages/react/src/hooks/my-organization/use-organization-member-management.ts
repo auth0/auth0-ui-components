@@ -16,7 +16,6 @@ import type {
   Invitation,
   CreateInvitationInput,
   InvitationStatus,
-  InvitationPaginationState,
   InvitationFilterState,
   RoleOption,
   IdentityProviderOption,
@@ -120,56 +119,40 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
 
   /* ---- Invitations ---- */
 
-  const [invitationPagination, setInvitationPagination] = React.useState<InvitationPaginationState>(
-    {
-      currentPage: 1,
-      pageSize: DEFAULT_PAGE_SIZE,
-      totalItems: 0,
-      totalPages: 0,
-    },
-  );
+  const [invitationPageSize, setInvitationPageSize] = React.useState(DEFAULT_PAGE_SIZE);
+  const [currentFromToken, setCurrentFromToken] = React.useState<string | undefined>(undefined);
+  const [previousTokens, setPreviousTokens] = React.useState<Array<string | undefined>>([]);
   const [invitationFilters, setInvitationFilters] = React.useState<InvitationFilterState>({});
   const [showCreateModal, setShowCreateModal] = React.useState(false);
   const [showDetailsModal, setShowDetailsModal] = React.useState(false);
   const [selectedInvitation, setSelectedInvitation] = React.useState<Invitation | null>(null);
 
   const invitationsQuery = useQuery({
-    queryKey: memberManagementQueryKeys.invitations(),
+    queryKey: [
+      ...memberManagementQueryKeys.invitations(),
+      invitationPageSize,
+      currentFromToken,
+      invitationFilters,
+    ],
     queryFn: async () => {
-      const response = await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.invitations.list();
+      const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list({
+        take: invitationPageSize,
+        from: currentFromToken,
+      });
 
-      const allInvitations: Invitation[] = [];
-      for await (const invitation of response) {
-        allInvitations.push(mapMemberInvitationToInvitation(invitation));
-      }
-      return allInvitations;
+      const invitations: Invitation[] = page.data.map(mapMemberInvitationToInvitation);
+      const next = page.response.next ?? null;
+
+      return {
+        invitations,
+        next,
+      };
     },
     enabled: !!coreClient && activeTab === 'invitations',
   });
 
-  const allInvitations = invitationsQuery.data ?? [];
-
-  const filteredInvitations = React.useMemo(() => {
-    let result = allInvitations;
-    if (invitationFilters.searchQuery) {
-      const query = invitationFilters.searchQuery.toLowerCase();
-      result = result.filter((inv) => inv.invitee.email.toLowerCase().includes(query));
-    }
-    if (invitationFilters.roleId) {
-      result = result.filter((inv) => inv.roles?.includes(invitationFilters.roleId!));
-    }
-    return result;
-  }, [allInvitations, invitationFilters]);
-
-  const totalItems = filteredInvitations.length;
-  const totalPages = Math.ceil(totalItems / invitationPagination.pageSize);
-  const startIndex = (invitationPagination.currentPage - 1) * invitationPagination.pageSize;
-  const paginatedInvitations = filteredInvitations.slice(
-    startIndex,
-    startIndex + invitationPagination.pageSize,
-  );
+  const currentInvitations = invitationsQuery.data?.invitations ?? [];
+  const nextToken = invitationsQuery.data?.next ?? null;
 
   const createInvitationMutation = useMutation({
     mutationFn: async (data: CreateInvitationInput) => {
@@ -380,17 +363,32 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
     [t],
   );
 
-  const handlePageChange = React.useCallback((page: number) => {
-    setInvitationPagination((prev) => ({ ...prev, currentPage: page }));
+  const handleNextPage = React.useCallback(() => {
+    if (nextToken) {
+      setPreviousTokens((prev) => [...prev, currentFromToken]);
+      setCurrentFromToken(nextToken);
+    }
+  }, [nextToken, currentFromToken]);
+
+  const handlePreviousPage = React.useCallback(() => {
+    setPreviousTokens((prev) => {
+      const newStack = [...prev];
+      const previousToken = newStack.pop();
+      setCurrentFromToken(previousToken);
+      return newStack;
+    });
   }, []);
 
   const handlePageSizeChange = React.useCallback((pageSize: number) => {
-    setInvitationPagination((prev) => ({ ...prev, pageSize, currentPage: 1 }));
+    setInvitationPageSize(pageSize);
+    setCurrentFromToken(undefined);
+    setPreviousTokens([]);
   }, []);
 
   const handleRoleFilterChange = React.useCallback((roleId: string | undefined) => {
     setInvitationFilters((prev) => ({ ...prev, roleId }));
-    setInvitationPagination((prev) => ({ ...prev, currentPage: 1 }));
+    setCurrentFromToken(undefined);
+    setPreviousTokens([]);
   }, []);
 
   /* ---- Members ---- */
@@ -472,15 +470,15 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
     availableRoles,
     availableProviders,
 
-    invitations: paginatedInvitations,
+    invitations: currentInvitations,
     isFetchingInvitations: invitationsQuery.isLoading || invitationsQuery.isFetching,
     isCreatingInvitation: createInvitationMutation.isPending,
     isRevokingInvitation: revokeInvitationMutation.isPending,
     isResendingInvitation: resendInvitationMutation.isPending,
     invitationPagination: {
-      ...invitationPagination,
-      totalItems,
-      totalPages,
+      pageSize: invitationPageSize,
+      hasNextPage: !!nextToken,
+      hasPreviousPage: previousTokens.length > 0,
     },
     invitationFilters,
     showCreateModal,
@@ -511,7 +509,8 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
     handleRevokeResendConfirm,
     handleRevokeResendCancel,
     handleCopyUrl,
-    handlePageChange,
+    handleNextPage,
+    handlePreviousPage,
     handlePageSizeChange,
     handleRoleFilterChange,
 

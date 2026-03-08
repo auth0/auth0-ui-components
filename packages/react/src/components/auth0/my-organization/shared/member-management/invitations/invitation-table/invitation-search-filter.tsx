@@ -74,12 +74,10 @@ export function InvitationSearchFilter({
         </SelectContent>
       </Select>
 
-      {hasActiveFilter && (
-        <Button variant="outline" size="sm" onClick={handleReset} className="gap-1">
-          {t('invitation.table.reset_filter')}
-          <X className="h-3.5 w-3.5" />
-        </Button>
-      )}
+      <Button variant="outline" onClick={handleReset} disabled={!hasActiveFilter} className="gap-1">
+        {t('invitation.table.reset_filter')}
+        <X className="h-4 w-4" />
+      </Button>
     </div>
   );
 }

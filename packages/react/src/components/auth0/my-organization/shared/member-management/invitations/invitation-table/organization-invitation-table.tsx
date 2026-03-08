@@ -13,6 +13,7 @@ import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Badge } from '@/components/ui/badge';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
 import type { Invitation, InvitationStatus, OrganizationInvitationTableProps } from '@/types';
 
 /**
@@ -66,7 +67,8 @@ export function OrganizationInvitationTable({
   onCopyUrl,
   onRevokeAndResend,
   onRevoke,
-  onPageChange,
+  onNextPage,
+  onPreviousPage,
   onPageSizeChange,
   onRoleFilterChange,
   className,
@@ -134,7 +136,10 @@ export function OrganizationInvitationTable({
   );
 
   return (
-    <div className={className}>
+    <div
+      className={cn('flex flex-col', className)}
+      style={{ minHeight: 'calc(100vh - 19.125rem)' }}
+    >
       <InvitationSearchFilter
         filters={filters}
         availableRoles={availableRoles}
@@ -142,26 +147,27 @@ export function OrganizationInvitationTable({
         onRoleFilterChange={onRoleFilterChange}
       />
 
-      <DataTable
-        columns={columns}
-        data={invitations}
-        loading={loading}
-        emptyState={{ title: t('invitation.table.empty_message') }}
-      />
+      <div className="flex-1">
+        <DataTable
+          columns={columns}
+          data={invitations}
+          loading={loading}
+          emptyState={{ title: t('invitation.table.empty_message') }}
+        />
+      </div>
 
       <div className="mt-4">
         <DataPagination
-          type="regular"
+          type="checkpoint"
           paginationState={{
-            currentPage: pagination.currentPage,
-            totalPages: pagination.totalPages,
             pageSize: pagination.pageSize,
-            totalItems: pagination.totalItems,
+            hasNextPage: pagination.hasNextPage,
+            hasPreviousPage: pagination.hasPreviousPage,
           }}
           pageSizeOptions={[10, 25, 50]}
           showPageSizeSelector
-          showPageInfo
-          onPageChange={onPageChange}
+          onNextPage={onNextPage}
+          onPreviousPage={onPreviousPage}
           onPageSizeChange={onPageSizeChange}
         />
       </div>

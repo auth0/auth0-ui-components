@@ -10,10 +10,8 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationLink,
   PaginationPrevious,
   PaginationNext,
-  PaginationEllipsis,
 } from '@/components/auth0/shared/pagination';
 import {
   Select,
@@ -44,12 +42,12 @@ export const defaultLabels: DataPaginationLabels = {
   showing: 'Showing',
   to: 'to',
   of: 'of',
-  results: 'results',
+  results: '',
   totalResults: 'total results',
-  show: 'Show',
+  show: '',
   perPage: 'per page',
-  previous: 'Previous',
-  next: 'Next',
+  previous: '',
+  next: '',
   goToPage: 'Go to page {page}',
   goToPrevious: 'Go to previous page',
   goToNext: 'Go to next page',
@@ -94,32 +92,6 @@ const formatNumber = (num: number | undefined | null, locale?: string): string =
   const resolvedLocale =
     locale ?? (typeof navigator !== 'undefined' ? navigator.language : 'en-US');
   return num.toLocaleString(resolvedLocale);
-};
-
-const interpolate = (str: string, values: Record<string, string | number>): string =>
-  str.replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
-
-const generatePageNumbers = (
-  currentPage: number,
-  totalPages: number,
-  maxVisible: number = 5,
-): (number | 'ellipsis')[] => {
-  if (totalPages <= maxVisible) return Array.from({ length: totalPages }, (_, i) => i + 1);
-
-  const pages: (number | 'ellipsis')[] = [1];
-  const range = Math.floor((maxVisible - 3) / 2);
-  let start = Math.max(2, currentPage - range);
-  let end = Math.min(totalPages - 1, currentPage + range);
-
-  if (currentPage <= range + 2) end = maxVisible - 2;
-  if (currentPage >= totalPages - range - 1) start = totalPages - (maxVisible - 2);
-
-  if (start > 2) pages.push('ellipsis');
-  for (let i = start; i <= end; i++) pages.push(i);
-  if (end < totalPages - 1) pages.push('ellipsis');
-  pages.push(totalPages);
-
-  return pages;
 };
 
 /**
@@ -170,18 +142,6 @@ export function DataPagination({
     return Array.from(uniqueOptions).sort((a, b) => a - b);
   }, [shouldShowPageSizeSelector, pageSizeOptions, currentPageSize]);
 
-  const pageNumbers = useMemo(
-    () =>
-      isRegular && regularState
-        ? generatePageNumbers(
-            regularState.currentPage,
-            regularState.totalPages,
-            regularState.maxVisiblePages,
-          )
-        : [],
-    [isRegular, regularState],
-  );
-
   useEffect(() => {
     if (ariaLiveRegionRef.current) {
       if (isRegular && regularState) {
@@ -196,7 +156,6 @@ export function DataPagination({
     return null;
   }
 
-  const shouldShowPageNumbers = isRegular;
   const safeCurrentPageSize = currentPageSize as number;
 
   return (
@@ -223,9 +182,7 @@ export function DataPagination({
                     : (regularState.currentPage - 1) * regularState.pageSize + 1,
                   locale,
                 )}
-              </span>{' '}
-              {labels.to}{' '}
-              <span className="font-medium text-foreground">
+                -
                 {formatNumber(
                   Math.min(
                     regularState.currentPage * regularState.pageSize,
@@ -237,8 +194,8 @@ export function DataPagination({
               {labels.of}{' '}
               <span className="font-medium text-foreground">
                 {formatNumber(regularState.totalItems, locale)}
-              </span>{' '}
-              {labels.results}
+              </span>
+              {labels.results && <> {labels.results}</>}
             </>
           ) : checkpointState?.totalItems !== undefined ? (
             <>
@@ -254,7 +211,7 @@ export function DataPagination({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         {shouldShowPageSizeSelector && allPageSizeOptions.length > 0 && (
           <div className="flex items-center justify-center gap-2 whitespace-nowrap sm:justify-start">
-            <span className="text-sm text-foreground">{labels.show}</span>
+            {labels.show && <span className="text-sm text-foreground">{labels.show}</span>}
             <Select
               value={safeCurrentPageSize.toString()}
               onValueChange={(value) => onPageSizeChange?.(Number(value))}
@@ -290,28 +247,6 @@ export function DataPagination({
                     aria-disabled={regularState.currentPage <= 1}
                   />
                 </PaginationItem>
-
-                {shouldShowPageNumbers &&
-                  pageNumbers.map((page, idx) => (
-                    <PaginationItem key={`page-${idx}`}>
-                      {page === 'ellipsis' ? (
-                        <PaginationEllipsis>
-                          <span className="sr-only">{labels.morePages}</span>
-                        </PaginationEllipsis>
-                      ) : (
-                        <PaginationLink
-                          onClick={() => onPageChange?.(page)}
-                          isActive={regularState.currentPage === page}
-                          aria-label={interpolate(labels.goToPage, {
-                            page: formatNumber(page, locale),
-                          })}
-                          aria-current={regularState.currentPage === page ? 'page' : undefined}
-                        >
-                          {formatNumber(page, locale)}
-                        </PaginationLink>
-                      )}
-                    </PaginationItem>
-                  ))}
 
                 <PaginationItem>
                   <PaginationNext

@@ -119,7 +119,8 @@ export function OrganizationMemberManagementView({
             onCopyUrl={handlers.handleCopyUrl}
             onRevokeAndResend={state.readOnly ? undefined : handlers.handleRevokeResendClick}
             onRevoke={state.readOnly ? undefined : handlers.handleRevokeClick}
-            onPageChange={handlers.handlePageChange}
+            onNextPage={handlers.handleNextPage}
+            onPreviousPage={handlers.handlePreviousPage}
             onPageSizeChange={handlers.handlePageSizeChange}
             onRoleFilterChange={handlers.handleRoleFilterChange}
             className={currentStyles.classes?.['OrganizationInvitationTab-table']}

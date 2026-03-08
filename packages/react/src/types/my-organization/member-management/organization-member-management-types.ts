@@ -74,7 +74,8 @@ export interface MemberManagementHandlers {
   handleRevokeResendConfirm: () => Promise<void>;
   handleRevokeResendCancel: () => void;
   handleCopyUrl: (invitation: Invitation) => Promise<void>;
-  handlePageChange: (page: number) => void;
+  handleNextPage: () => void;
+  handlePreviousPage: () => void;
   handlePageSizeChange: (pageSize: number) => void;
   handleRoleFilterChange: (roleId: string | undefined) => void;
 
