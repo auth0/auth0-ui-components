@@ -18,13 +18,11 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import {
+  ACTION_CANCELLED_ERROR,
+  isActionCancelledError,
+} from '@/lib/utils/my-organization/action-cancelled';
 import type { SsoProvisioningTabEditProps } from '@/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
-
-const ACTION_CANCELLED_ERROR = 'ACTION_CANCELLED';
-
-const isActionCancelledError = (error: unknown): boolean => {
-  return error instanceof Error && error.message === ACTION_CANCELLED_ERROR;
-};
 
 export interface UseScimTokensOptions {
   provisioning?: SsoProvisioningTabEditProps;

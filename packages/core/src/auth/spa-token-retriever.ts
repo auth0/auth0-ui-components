@@ -38,7 +38,6 @@ export function createSpaTokenRetriever(auth: AuthDetails) {
       audiencePath: string,
       ignoreCache = false,
     ): Promise<string | undefined> {
-      if (auth.authProxyUrl) return undefined;
       if (!auth.contextInterface) {
         throw new Error('SpaTokenRetriever: contextInterface is not initialized.');
       }

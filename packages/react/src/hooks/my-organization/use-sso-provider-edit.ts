@@ -25,16 +25,14 @@ import { useSsoProvisioning } from '@/hooks/my-organization/use-sso-provisioning
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import {
+  ACTION_CANCELLED_ERROR,
+  isActionCancelledError,
+} from '@/lib/utils/my-organization/action-cancelled';
 import type {
   UseSsoProviderEditOptions,
   UseSsoProviderEditReturn,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
-
-const ACTION_CANCELLED_ERROR = 'ACTION_CANCELLED';
-
-const isActionCancelledError = (error: unknown): boolean => {
-  return error instanceof Error && error.message === ACTION_CANCELLED_ERROR;
-};
 
 export const ssoProviderEditQueryKeys = {
   all: ['sso-providers'] as const,

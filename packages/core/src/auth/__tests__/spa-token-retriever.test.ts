@@ -105,22 +105,15 @@ describe('spa-token-retriever', () => {
     });
 
     describe('proxy mode', () => {
-      it('should return undefined when in proxy mode', async () => {
-        const proxyAuth = createAuthConfig({ authProxyUrl: 'https://proxy.example.com' });
-        const tokenManager = createSpaTokenRetriever(proxyAuth);
-        const token = await tokenManager.getToken('read:users', 'management');
-        expect(token).toBeUndefined();
-        expect(mockContextInterface.getAccessTokenSilently).not.toHaveBeenCalled();
-      });
-
-      it('should not validate contextInterface when in proxy mode', async () => {
+      it('should throw when contextInterface is not initialized in proxy mode', async () => {
         const proxyAuth = createAuthConfig({
           authProxyUrl: 'https://proxy.example.com',
           contextInterface: undefined,
         });
         const tokenManager = createSpaTokenRetriever(proxyAuth);
-        const token = await tokenManager.getToken('read:users', 'management');
-        expect(token).toBeUndefined();
+        await expect(tokenManager.getToken('read:users', 'management')).rejects.toThrow(
+          'SpaTokenRetriever: contextInterface is not initialized.',
+        );
       });
     });
 
