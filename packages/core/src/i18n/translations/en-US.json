@@ -1022,6 +1022,8 @@
       "enroll_sms_description": "Enter your phone number to receive a verification code",
       "show_auth0_guardian_title": "Scan this QR code with your Auth0 Guardian App to register this Authentication method or copy the url.",
       "recovery_code_description": "Copy this recovery code and keep it somewhere safe. You'll need it if you ever need to log in without your device.",
+      "recovery_code_title": "Generated recovery codes",
+      "recovery_code_acknowledged": "I have safely recorded this code",
       "show_otp": {
         "title": "Scan this QR code with your Authenticator App to register this Authentication method or copy the code.",
         "save_recovery": "Save these recovery codes!",

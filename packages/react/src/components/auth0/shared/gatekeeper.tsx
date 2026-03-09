@@ -3,7 +3,11 @@ import type {
   StepUpAuthenticator,
   EnrollmentFactor,
 } from '@auth0/universal-components-core';
-import { getStatusCode, isMfaRequiredError } from '@auth0/universal-components-core';
+import {
+  FACTOR_TYPE_RECOVERY_CODE,
+  getStatusCode,
+  isMfaRequiredError,
+} from '@auth0/universal-components-core';
 import { useQuery } from '@tanstack/react-query';
 import { RefreshCcw } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
@@ -123,6 +127,7 @@ function MfaStepUpDialog({
   } = useQuery<EnrollmentFactor[]>({
     queryKey: ['mfa-enrollment-factors', mfaToken],
     queryFn: () => stepUpService!.getEnrollmentFactors(mfaToken!),
+    select: (factors) => factors.filter((f) => f.type !== FACTOR_TYPE_RECOVERY_CODE),
     enabled: Boolean(!isProxyMode && mfaToken && stepUpService),
     retry: false,
   });
@@ -136,6 +141,7 @@ function MfaStepUpDialog({
   } = useQuery<StepUpAuthenticator[]>({
     queryKey: ['mfa-authenticators', mfaToken],
     queryFn: () => stepUpService!.getAuthenticators(mfaToken!),
+    select: (items) => items.filter((a) => a.active),
     enabled: Boolean(
       mfaToken &&
         stepUpService &&

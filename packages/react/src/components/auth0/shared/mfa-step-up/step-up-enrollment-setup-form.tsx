@@ -19,15 +19,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card';
 import { List, ListItem } from '@/components/ui/list';
 import { Separator } from '@/components/ui/separator';
-import { Spinner } from '@/components/ui/spinner';
-import { useRecoveryCodeGeneration } from '@/hooks/my-account/use-recovery-code';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import {
   ENTER_QR,
   ENTER_CONTACT,
   QR_PHASE_INSTALLATION,
-  SHOW_RECOVERY_CODE,
 } from '@/lib/constants/my-account/mfa/mfa-constants';
 import { cn } from '@/lib/utils';
 
@@ -35,8 +32,7 @@ type EnrollmentFormPhase =
   | 'PICK'
   | typeof ENTER_CONTACT
   | typeof ENTER_QR
-  | typeof QR_PHASE_INSTALLATION
-  | typeof SHOW_RECOVERY_CODE;
+  | typeof QR_PHASE_INSTALLATION;
 
 /**
  * Maps EnrollmentFactor.type (from step-up API) → MFAType (My Account API / UI components).
@@ -140,11 +136,14 @@ export function StepUpEnrollmentSetupForm({
       const barcodeUri = 'barcodeUri' in response ? (response.barcodeUri ?? '') : '';
       const secret = 'secret' in response ? (response.secret ?? '') : '';
 
+      const recoveryCodes = 'recoveryCodes' in response ? (response.recoveryCodes ?? []) : [];
+
       return {
         id: response.id ?? '',
         auth_session: oobCode,
         barcode_uri: barcodeUri,
         manual_input_code: secret,
+        recovery_codes: recoveryCodes,
       } as unknown as CreateAuthenticationMethodResponseContent;
     },
     [mfaToken, stepUpService],
@@ -181,19 +180,6 @@ export function StepUpEnrollmentSetupForm({
     [mfaToken, stepUpService],
   );
 
-  const { fetchRecoveryCode, loading: recoveryLoading } = useRecoveryCodeGeneration({
-    factorType: selectedFactor ?? FACTOR_TYPE_RECOVERY_CODE,
-    enrollMfa,
-    onError: handleEnrollError,
-    onClose,
-  });
-
-  React.useEffect(() => {
-    if (phase === SHOW_RECOVERY_CODE) {
-      fetchRecoveryCode();
-    }
-  }, [phase]);
-
   const handlePickFactor = (enrollmentFactor: EnrollmentFactor) => {
     const mfaType = mapEnrollmentFactorTypeToMFAType(enrollmentFactor.type);
     if (!mfaType) return;
@@ -205,7 +191,6 @@ export function StepUpEnrollmentSetupForm({
       [FACTOR_TYPE_PHONE]: ENTER_CONTACT,
       [FACTOR_TYPE_PUSH_NOTIFICATION]: QR_PHASE_INSTALLATION,
       [FACTOR_TYPE_TOTP]: ENTER_QR,
-      [FACTOR_TYPE_RECOVERY_CODE]: SHOW_RECOVERY_CODE,
     };
 
     setPhase(phaseMap[mfaType] ?? ENTER_CONTACT);
@@ -306,17 +291,6 @@ export function StepUpEnrollmentSetupForm({
     </div>
   );
 
-  const renderRecoveryCodePhase = () => {
-    if (recoveryLoading) {
-      return (
-        <div className="flex items-center justify-center p-8">
-          <Spinner />
-        </div>
-      );
-    }
-    return null;
-  };
-
   if (!selectedFactor || phase === 'PICK') {
     return renderPickPhase();
   }
@@ -348,9 +322,6 @@ export function StepUpEnrollmentSetupForm({
           onClose={onClose}
         />
       );
-
-    case SHOW_RECOVERY_CODE:
-      return renderRecoveryCodePhase();
 
     default:
       return null;

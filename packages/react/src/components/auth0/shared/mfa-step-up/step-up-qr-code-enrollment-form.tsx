@@ -10,6 +10,8 @@ import * as React from 'react';
 import { OTPVerificationForm } from '@/components/auth0/my-account/shared/mfa/otp-verification-form';
 import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { QRCodeDisplayer } from '@/components/ui/qr-code';
 import { Spinner } from '@/components/ui/spinner';
 import { useOtpEnrollment } from '@/hooks/my-account/use-otp-enrollment';
@@ -19,9 +21,12 @@ import { QR_PHASE_ENTER_OTP, QR_PHASE_SCAN } from '@/lib/constants/my-account/mf
 import type { ENROLL, CONFIRM } from '@/lib/constants/my-account/mfa/mfa-constants';
 import { cn } from '@/lib/utils';
 
+const QR_PHASE_RECOVERY_CODE = 'RECOVERY_CODE' as const;
+
 const PHASES = {
   SCAN: QR_PHASE_SCAN,
   ENTER_OTP: QR_PHASE_ENTER_OTP,
+  RECOVERY_CODE: QR_PHASE_RECOVERY_CODE,
 } as const;
 
 type Phase = (typeof PHASES)[keyof typeof PHASES];
@@ -72,6 +77,8 @@ export function StepUpQRCodeEnrollmentForm({
     [isDarkMode],
   );
 
+  const [recoveryAcknowledged, setRecoveryAcknowledged] = React.useState(false);
+
   const { fetchOtpEnrollment, otpData, resetOtpData, loading } = useOtpEnrollment({
     factorType,
     enrollMfa,
@@ -85,6 +92,25 @@ export function StepUpQRCodeEnrollmentForm({
     }
   }, [otpData?.barcodeUri]);
 
+  const hasRecoveryCodes = otpData.recoveryCodes && otpData.recoveryCodes.length > 0;
+
+  const handlePostConfirm = React.useCallback(() => {
+    if (hasRecoveryCodes) {
+      setPhase(QR_PHASE_RECOVERY_CODE);
+    } else {
+      onSuccess();
+      resetOtpData();
+      onClose();
+    }
+  }, [hasRecoveryCodes, onSuccess, resetOtpData, onClose]);
+
+  const handleRecoveryContinue = React.useCallback(() => {
+    onSuccess();
+    resetOtpData();
+    onClose();
+  }, [onSuccess, resetOtpData, onClose]);
+
+  /** QR scan Continue: Push → confirm directly, TOTP → go to OTP entry. */
   const handleContinue = React.useCallback(async () => {
     if (factorType === FACTOR_TYPE_PUSH_NOTIFICATION) {
       try {
@@ -94,16 +120,14 @@ export function StepUpQRCodeEnrollmentForm({
           otpData.authenticationMethodId,
           {},
         );
-        onSuccess();
-        resetOtpData();
-        onClose();
+        handlePostConfirm();
       } catch (error) {
         onError(error instanceof Error ? error : new Error('Unknown error'), 'confirm');
       }
     } else {
       setPhase(QR_PHASE_ENTER_OTP);
     }
-  }, [factorType, otpData, confirmEnrollment, onSuccess, onError, resetOtpData, onClose]);
+  }, [factorType, otpData, confirmEnrollment, handlePostConfirm, onError]);
 
   const handleBack = React.useCallback(() => {
     setPhase(QR_PHASE_SCAN);
@@ -163,18 +187,65 @@ export function StepUpQRCodeEnrollmentForm({
     </div>
   );
 
+  const renderRecoveryCodeScreen = () => (
+    <div style={currentStyles.variables} className="w-full max-w-sm mx-auto text-center">
+      <div className="space-y-6">
+        <div>
+          <p className={cn('font-normal block text-sm text-center mb-4 text-primary')}>
+            {t('enrollment_form.recovery_code_description')}
+          </p>
+          <CopyableTextField value={otpData.recoveryCodes?.join(', ') ?? ''} />
+        </div>
+
+        <div className="flex items-center gap-2 justify-start">
+          <Checkbox
+            id="recovery-acknowledged"
+            checked={recoveryAcknowledged}
+            onCheckedChange={(checked) => setRecoveryAcknowledged(checked === true)}
+          />
+          <Label htmlFor="recovery-acknowledged" className="text-sm cursor-pointer">
+            {t('enrollment_form.recovery_code_acknowledged')}
+          </Label>
+        </div>
+
+        <div className="flex flex-row justify-center gap-3 mt-6">
+          <Button
+            variant="primary"
+            size="sm"
+            disabled={!recoveryAcknowledged}
+            onClick={handleRecoveryContinue}
+            aria-label={t('continue')}
+          >
+            {t('continue')}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderOtpScreen = () => (
     <OTPVerificationForm
       factorType={factorType}
       confirmEnrollment={confirmEnrollment}
       onError={onError}
-      onSuccess={onSuccess}
+      onSuccess={handlePostConfirm}
       onClose={onClose}
       authSession={otpData.authSession}
       authenticationMethodId={otpData.authenticationMethodId}
       onBack={handleBack}
+      buttonSize="sm"
+      buttonAlignment="justify-center"
     />
   );
 
-  return phase === QR_PHASE_SCAN ? renderQrScreen() : renderOtpScreen();
+  switch (phase) {
+    case QR_PHASE_SCAN:
+      return renderQrScreen();
+    case QR_PHASE_RECOVERY_CODE:
+      return renderRecoveryCodeScreen();
+    case QR_PHASE_ENTER_OTP:
+      return renderOtpScreen();
+    default:
+      return null;
+  }
 }

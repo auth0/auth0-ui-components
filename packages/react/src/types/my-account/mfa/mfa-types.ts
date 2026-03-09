@@ -177,6 +177,8 @@ export interface OTPVerificationFormProps
   contact?: string;
   recoveryCode?: string;
   onBack?: () => void;
+  buttonSize?: 'default' | 'sm' | 'lg' | 'icon';
+  buttonAlignment?: 'justify-start' | 'justify-center' | 'justify-end';
 }
 
 export interface QRCodeEnrollmentFormProps
