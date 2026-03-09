@@ -17,18 +17,16 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import {
+  ACTION_CANCELLED_ERROR,
+  isActionCancelledError,
+} from '@/lib/utils/my-organization/action-cancelled';
 import type {
   UseDomainTableOptions,
   UseDomainTableResult,
 } from '@/types/my-organization/domain-management/domain-table-types';
 
 type ModalType = 'create' | 'configure' | 'verify' | 'delete';
-
-const ACTION_CANCELLED_ERROR = 'ACTION_CANCELLED';
-
-const isActionCancelledError = (error: unknown): boolean => {
-  return error instanceof Error && error.message === ACTION_CANCELLED_ERROR;
-};
 
 const domainQueryKeys = {
   all: ['domains'] as const,

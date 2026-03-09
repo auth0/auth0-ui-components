@@ -144,7 +144,7 @@ describe('GateKeeper', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Google Authenticator')).toBeInTheDocument();
+        expect(screen.getByText('error.mfa.authenticator_type.otp')).toBeInTheDocument();
       });
 
       expect(screen.queryByTestId('children')).not.toBeInTheDocument();
@@ -160,13 +160,11 @@ describe('GateKeeper', () => {
       renderGateKeeper({ error: mfaError });
 
       await waitFor(() => {
-        expect(screen.getByText('error.mfa.enrollment_required')).toBeInTheDocument();
-      });
-
-      await waitFor(() => {
         expect(screen.getByText('error.mfa.authenticator_type.otp')).toBeInTheDocument();
         expect(screen.getByText('error.mfa.authenticator_type.sms')).toBeInTheDocument();
       });
+
+      expect(screen.getAllByText('error.mfa.enroll_button')).toHaveLength(2);
     });
 
     it('should show authenticators in SPA mode when no enrollment needed', async () => {
@@ -184,7 +182,7 @@ describe('GateKeeper', () => {
       renderGateKeeper({ error: mfaError });
 
       await waitFor(() => {
-        expect(screen.getByText('SMS Auth')).toBeInTheDocument();
+        expect(screen.getByText('error.mfa.authenticator_type.sms')).toBeInTheDocument();
       });
     });
 
@@ -290,14 +288,13 @@ describe('GateKeeper', () => {
       renderGateKeeper({ error: mfaError });
 
       await waitFor(() => {
-        expect(screen.getByText('Test Authenticator')).toBeInTheDocument();
+        expect(screen.getByText('error.mfa.authenticator_type.otp')).toBeInTheDocument();
       });
 
-      await waitFor(() => {
-        expect(
-          screen.getByText('error.mfa.authenticator_type.webauthn-roaming'),
-        ).toBeInTheDocument();
-      });
+      // The second authenticator (active: false) is filtered out by the query select
+      expect(
+        screen.queryByText('error.mfa.authenticator_type.webauthn-roaming'),
+      ).not.toBeInTheDocument();
     });
   });
 

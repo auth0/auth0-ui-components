@@ -78,7 +78,10 @@ export async function createCoreClient(
     myOrganizationApiClient,
     stepUpApiService,
 
-    getToken: (scope, aud, ignoreCache) => tokenManagerService.getToken(scope, aud, ignoreCache),
+    getToken: (scope, aud, ignoreCache) =>
+      authDetails.authProxyUrl
+        ? Promise.resolve(undefined)
+        : tokenManagerService.getToken(scope, aud, ignoreCache),
     isProxyMode: () => !!authDetails.authProxyUrl,
 
     getDomain: () => authDetails.domain ?? authDetails.contextInterface?.getConfiguration()?.domain,

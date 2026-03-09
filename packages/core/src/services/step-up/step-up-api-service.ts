@@ -1,3 +1,4 @@
+import { createProxyHttpClient } from '../../api/proxy-http-client';
 import type {
   AuthDetails,
   Authenticator,
@@ -44,25 +45,11 @@ export function initializeStepUpApiService(auth: AuthDetails): StepUpApiService 
  * @returns Proxy-based MFA client.
  */
 function createProxyMfaClient(authProxyUrl: string): Omit<MfaApiClient, 'getEnrollmentFactors'> {
-  const baseUrl = authProxyUrl.replace(/\/$/, '');
-
-  const handleResponse = async <T>(response: Response): Promise<T> => {
-    if (!response.ok) {
-      const errorBody = await response.json().catch(() => ({}));
-      throw Object.assign(new Error(errorBody.error_description || `HTTP ${response.status}`), {
-        status: response.status,
-        body: errorBody,
-        ...errorBody,
-      });
-    }
-    return response.json();
-  };
+  const { get, post } = createProxyHttpClient(authProxyUrl);
 
   return {
-    getAuthenticators: async (mfaToken: string) => {
-      const response = await fetch(`${baseUrl}/auth/mfa/authenticators?mfa_token=${mfaToken}`);
-      return handleResponse<Authenticator[]>(response);
-    },
+    getAuthenticators: async (mfaToken: string) =>
+      get<Authenticator[]>('/auth/mfa/authenticators', { mfa_token: mfaToken }),
 
     enroll: async (params: EnrollParams) => {
       const body: Record<string, unknown> = {
@@ -76,34 +63,16 @@ function createProxyMfaClient(authProxyUrl: string): Omit<MfaApiClient, 'getEnro
         body.email = params.email;
       }
 
-      const response = await fetch(`${baseUrl}/auth/mfa/enroll`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      return handleResponse<EnrollmentResponse>(response);
+      return post<EnrollmentResponse>('/auth/mfa/enroll', body);
     },
 
-    challenge: async (params: ChallengeAuthenticatorParams) => {
-      const response = await fetch(`${baseUrl}/auth/mfa/challenge`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mfaToken: params.mfaToken,
-          challengeType: params.challengeType,
-          authenticatorId: params.authenticatorId,
-        }),
-      });
-      return handleResponse<ChallengeResponse>(response);
-    },
+    challenge: async (params: ChallengeAuthenticatorParams) =>
+      post<ChallengeResponse>('/auth/mfa/challenge', {
+        mfaToken: params.mfaToken,
+        challengeType: params.challengeType,
+        authenticatorId: params.authenticatorId,
+      }),
 
-    verify: async (params: VerifyParams) => {
-      const response = await fetch(`${baseUrl}/auth/mfa/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(params),
-      });
-      return handleResponse<TokenEndpointResponse>(response);
-    },
+    verify: async (params: VerifyParams) => post<TokenEndpointResponse>('/auth/mfa/verify', params),
   };
 }
