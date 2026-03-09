@@ -12,14 +12,12 @@ import type {
   InvitationFilterState,
   InvitationPaginationState,
   InvitationSortConfig,
-  OrganizationInvitationTabProps,
   OrganizationInvitationTabClasses,
   OrganizationInvitationTabMessages,
   RoleOption,
 } from './organization-invitation-table-types';
 import type {
   Member,
-  OrganizationMemberTabProps,
   OrganizationMemberTabClasses,
   OrganizationMemberTabMessages,
 } from './organization-member-table-types';
@@ -28,10 +26,16 @@ export type ActiveTab = 'members' | 'invitations';
 
 export interface UseOrganizationMemberManagementOptions {
   customMessages?: OrganizationMemberManagementMessages;
-  availableRoles?: RoleOption[];
-  availableProviders?: IdentityProviderOption[];
   defaultTab?: ActiveTab;
   readOnly?: boolean;
+  /** Action hooks for invitation creation (onBefore/onAfter) */
+  createInvitationAction?: ComponentAction<CreateInvitationInput, Invitation>;
+  /** Action hooks for invitation revocation (onBefore/onAfter) */
+  revokeInvitationAction?: ComponentAction<Invitation>;
+  /** Action hooks for invitation revoke-and-resend (onBefore/onAfter) */
+  resendInvitationAction?: ComponentAction<Invitation, Invitation>;
+  /** Action hooks for member removal (onBefore/onAfter) */
+  removeMemberAction?: ComponentAction<Member>;
 }
 
 export interface MemberManagementState {
@@ -110,17 +114,6 @@ export interface OrganizationMemberManagementMessages {
   invitation?: OrganizationInvitationTabMessages;
 }
 
-/** Extended invitation props for member management. */
-export interface OrganizationMemberManagementInvitationProps
-  extends Omit<OrganizationInvitationTabProps, 'styling' | 'customMessages'> {
-  /** Action for resending an invitation */
-  resendAction?: ComponentAction<Invitation, Invitation>;
-  /** Available roles for filtering and creating invitations */
-  availableRoles?: RoleOption[];
-  /** Available identity providers for creating invitations */
-  availableProviders?: IdentityProviderOption[];
-}
-
 /** Props for OrganizationMemberManagement component. */
 export interface OrganizationMemberManagementProps
   extends SharedComponentProps<
@@ -129,6 +122,12 @@ export interface OrganizationMemberManagementProps
   > {
   hideHeader?: boolean;
   defaultTab?: 'member' | 'invitation';
-  memberProps?: Omit<OrganizationMemberTabProps, 'styling' | 'customMessages'>;
-  invitationProps?: OrganizationMemberManagementInvitationProps;
+  /** Action hooks for invitation creation (onBefore/onAfter) */
+  createInvitationAction?: ComponentAction<CreateInvitationInput, Invitation>;
+  /** Action hooks for invitation revocation (onBefore/onAfter) */
+  revokeInvitationAction?: ComponentAction<Invitation>;
+  /** Action hooks for invitation revoke-and-resend (onBefore/onAfter) */
+  resendInvitationAction?: ComponentAction<Invitation, Invitation>;
+  /** Action hooks for member removal (onBefore/onAfter) */
+  removeMemberAction?: ComponentAction<Member>;
 }

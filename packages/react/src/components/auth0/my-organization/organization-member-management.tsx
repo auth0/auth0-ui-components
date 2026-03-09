@@ -200,16 +200,17 @@ function OrganizationMemberManagementContainer(props: OrganizationMemberManageme
   const {
     hideHeader = false,
     defaultTab = 'members',
-    invitationProps = {},
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     readOnly = false,
+    createInvitationAction,
+    revokeInvitationAction,
+    resendInvitationAction,
+    removeMemberAction,
   } = props;
 
   const { state, handlers } = useOrganizationMemberManagement({
     customMessages,
-    availableRoles: invitationProps.availableRoles,
-    availableProviders: invitationProps.availableProviders,
     defaultTab:
       defaultTab === 'member'
         ? 'members'
@@ -217,6 +218,10 @@ function OrganizationMemberManagementContainer(props: OrganizationMemberManageme
           ? 'invitations'
           : defaultTab,
     readOnly,
+    createInvitationAction,
+    revokeInvitationAction,
+    resendInvitationAction,
+    removeMemberAction,
   });
 
   const extendedState = {

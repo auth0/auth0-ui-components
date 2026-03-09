@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
 import { TextField } from '@/components/ui/text-field';
 import { cn } from '@/lib/utils';
+import { usePortalContainer } from '@/providers/portal-context';
 
 export interface ComboboxOption {
   label: string;
@@ -44,6 +45,7 @@ export function Combobox({
   const inputRef = React.useRef<HTMLInputElement>(null);
   const chipRefs = React.useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const portalContainer = usePortalContainer();
 
   const selectedValues = React.useMemo(() => {
     if (multiple) {
@@ -398,9 +400,9 @@ export function Combobox({
           </PopoverPrimitive.Trigger>
         </div>
 
-        <PopoverPrimitive.Portal>
+        <PopoverPrimitive.Portal container={portalContainer}>
           <PopoverPrimitive.Content
-            className="bg-popover text-popover-foreground shadow-bevel-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 min-w-[var(--radix-popover-trigger-width)] overflow-hidden rounded-3xl ring-0 duration-300 ease-in-out outline-none focus:outline-none"
+            className="bg-popover text-popover-foreground shadow-bevel-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 z-50 min-w-[var(--radix-popover-trigger-width)] overflow-hidden rounded-3xl ring-0 duration-300 ease-in-out outline-none focus:outline-none"
             align="start"
             sideOffset={8}
           >

@@ -115,10 +115,12 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
 } {
   const {
     customMessages = {},
-    availableRoles: providedRoles = [],
-    availableProviders: providedProviders = [],
     defaultTab = 'members',
     readOnly = false,
+    createInvitationAction,
+    revokeInvitationAction,
+    resendInvitationAction,
+    removeMemberAction,
   } = options;
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
@@ -127,8 +129,58 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   /* ---- Common ---- */
 
   const [activeTab, setActiveTab] = React.useState<ActiveTab>(defaultTab);
-  const [availableRoles] = React.useState<RoleOption[]>(providedRoles);
-  const [availableProviders] = React.useState<IdentityProviderOption[]>(providedProviders);
+
+  /* ---- Available Roles (from config API) ---- */
+
+  const rolesQuery = useQuery({
+    queryKey: [...memberManagementQueryKeys.all, 'roles'],
+    queryFn: async () => {
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.configuration.get();
+      const roles =
+        (response as { allowed_roles?: Array<{ id: string; name: string; description?: string }> })
+          ?.allowed_roles ?? [];
+      return roles.map((r) => ({
+        id: r.id,
+        name: r.name,
+        ...(r.description ? { description: r.description } : {}),
+      }));
+    },
+    enabled: !!coreClient,
+  });
+
+  const availableRoles: RoleOption[] = rolesQuery.data ?? [];
+
+  /* ---- Available Identity Providers (from API) ---- */
+
+  const providersQuery = useQuery({
+    queryKey: [...memberManagementQueryKeys.all, 'identity-providers'],
+    queryFn: async () => {
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.identityProviders.list();
+      const providers =
+        (
+          response as {
+            identity_providers?: Array<{
+              id: string;
+              name: string;
+              display_name?: string;
+              strategy?: string;
+            }>;
+          }
+        )?.identity_providers ?? [];
+      return providers.map((p) => ({
+        id: p.id,
+        name: p.display_name ?? p.name,
+        type: p.strategy,
+      }));
+    },
+    enabled: !!coreClient,
+  });
+
+  const availableProviders: IdentityProviderOption[] = providersQuery.data ?? [];
 
   /* ---- Invitations ---- */
 
@@ -186,6 +238,9 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
 
   const createInvitationMutation = useMutation({
     mutationFn: async (data: CreateInvitationInput) => {
+      if (createInvitationAction?.onBefore && !createInvitationAction.onBefore(data)) {
+        throw new Error('Create action cancelled by onBefore');
+      }
       const response = await coreClient!
         .getMyOrganizationApiClient()
         .organization.invitations.create({
@@ -197,7 +252,8 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
         });
       return mapMemberInvitationToInvitation(response);
     },
-    onSuccess: () => {
+    onSuccess: (result, data) => {
+      createInvitationAction?.onAfter?.(data, result);
       showToast({ type: 'success', message: t('invitation.create.success') });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
     },
@@ -208,10 +264,14 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
 
   const revokeInvitationMutation = useMutation({
     mutationFn: async (invitation: Invitation) => {
+      if (revokeInvitationAction?.onBefore && !revokeInvitationAction.onBefore(invitation)) {
+        throw new Error('Revoke action cancelled by onBefore');
+      }
       await coreClient!.getMyOrganizationApiClient().organization.invitations.delete(invitation.id);
       return invitation;
     },
-    onSuccess: () => {
+    onSuccess: (invitation) => {
+      revokeInvitationAction?.onAfter?.(invitation);
       showToast({ type: 'success', message: t('invitation.revoke.success') });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
     },
@@ -222,6 +282,9 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
 
   const resendInvitationMutation = useMutation({
     mutationFn: async (invitation: Invitation) => {
+      if (resendInvitationAction?.onBefore && !resendInvitationAction.onBefore(invitation)) {
+        throw new Error('Resend action cancelled by onBefore');
+      }
       const freshInvitation = await coreClient!
         .getMyOrganizationApiClient()
         .organization.invitations.get(invitation.id);
@@ -238,7 +301,8 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
         });
       return mapMemberInvitationToInvitation(response);
     },
-    onSuccess: () => {
+    onSuccess: (result, invitation) => {
+      resendInvitationAction?.onAfter?.(invitation, result);
       showToast({ type: 'success', message: t('invitation.success.invitation_resent') });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
     },
@@ -448,12 +512,16 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
 
   const removeMemberMutation = useMutation({
     mutationFn: async (member: Member) => {
+      if (removeMemberAction?.onBefore && !removeMemberAction.onBefore(member)) {
+        throw new Error('Remove action cancelled by onBefore');
+      }
       await coreClient!
         .getMyOrganizationApiClient()
         .organization.members.delete(member.user_id, { delete_user: false });
       return member;
     },
     onSuccess: (member) => {
+      removeMemberAction?.onAfter?.(member);
       showToast({
         type: 'success',
         message: t('member.remove.success', { name: member.name ?? member.email ?? '' }),
