@@ -1,4 +1,3 @@
-import './App.css';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
 import React from 'react';
@@ -39,7 +38,7 @@ function AppContent() {
   const { isAuthenticated } = useAuth0();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <Navbar />
       {isAuthenticated && <Sidebar />}
       <main className={`pt-16 ${isAuthenticated ? 'ml-64' : ''}`}>

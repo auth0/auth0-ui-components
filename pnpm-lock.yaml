@@ -239,6 +239,15 @@ importers:
       '@auth0/universal-components-react':
         specifier: workspace:*
         version: link:../../packages/react
+      '@radix-ui/react-slot':
+        specifier: ^1.2.3
+        version: 1.2.4(@types/react@19.2.7)(react@19.2.1)
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       i18next:
         specifier: ^25.2.1
         version: 25.6.3(typescript@5.8.3)
@@ -260,6 +269,9 @@ importers:
       react-router-dom:
         specifier: 7.6.2
         version: 7.6.2(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      tailwind-merge:
+        specifier: ^3.5.0
+        version: 3.5.0
       tailwindcss:
         specifier: ^4.1.10
         version: 4.1.17
