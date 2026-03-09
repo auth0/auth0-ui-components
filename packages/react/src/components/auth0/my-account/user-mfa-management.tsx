@@ -192,7 +192,7 @@ function UserMFAMgmtView({ logic, handlers }: UserMFAMgmtViewProps) {
     setIsDeleteDialogOpen,
   } = handlers;
 
-  const { loader, isDarkMode, theme = 'default' } = useTheme();
+  const { loader, isDarkMode } = useTheme();
   const { t } = useTranslator('mfa', customMessages);
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
