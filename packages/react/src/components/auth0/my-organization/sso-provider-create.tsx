@@ -10,6 +10,7 @@ import ProviderConfigure from '@/components/auth0/my-organization/shared/idp-man
 import { ProviderDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details';
 import { ProviderSelect } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-select';
 import { Header } from '@/components/auth0/shared/header';
+import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Wizard } from '@/components/auth0/shared/wizard';
 import type { StepProps } from '@/components/auth0/shared/wizard';
 import { withMyOrganizationService } from '@/hoc/with-services';
@@ -17,7 +18,6 @@ import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-c
 import { useSsoProviderCreateLogic } from '@/hooks/my-organization/use-sso-provider-create-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { Auth0Scope } from '@/providers/auth0-scope';
 import type {
   FormState,
   SsoProviderCreateHandlerProps,
@@ -217,8 +217,8 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
   );
 
   return (
-    <Auth0Scope>
-      <div style={currentStyles.variables} className="w-full">
+    <StyledScope style={currentStyles.variables}>
+      <div className="w-full">
         <Header
           title={t('header.title')}
           backButton={
@@ -244,7 +244,7 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
           />
         </div>
       </div>
-    </Auth0Scope>
+    </StyledScope>
   );
 }
 

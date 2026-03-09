@@ -8,12 +8,12 @@ import * as React from 'react';
 
 import { OrganizationDetails } from '@/components/auth0/my-organization/shared/organization-management/organization-details/organization-details';
 import { Header } from '@/components/auth0/shared/header';
+import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Spinner } from '@/components/ui/spinner';
 import { withMyOrganizationService } from '@/hoc/with-services';
 import { useOrganizationDetailsEdit } from '@/hooks/my-organization/use-organization-details-edit';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { Auth0Scope } from '@/providers/auth0-scope';
 import type {
   OrganizationDetailsEditProps,
   OrganizationDetailsEditLogicProps,
@@ -108,20 +108,17 @@ function OrganizationDetailsEditView({ logic, handlers }: OrganizationDetailsEdi
 
   if (isFetchLoading) {
     return (
-      <Auth0Scope>
-        <div
-          style={currentStyles.variables}
-          className="flex items-center justify-center min-h-96 w-full"
-        >
+      <StyledScope style={currentStyles.variables}>
+        <div className="flex items-center justify-center min-h-96 w-full">
           <Spinner />
         </div>
-      </Auth0Scope>
+      </StyledScope>
     );
   }
 
   return (
-    <Auth0Scope>
-      <div className="w-full" style={currentStyles.variables}>
+    <StyledScope style={currentStyles.variables}>
+      <div className="w-full">
         {!hideHeader && (
           <div className="mb-8">
             <Header
@@ -149,7 +146,7 @@ function OrganizationDetailsEditView({ logic, handlers }: OrganizationDetailsEdi
           />
         </div>
       </div>
-    </Auth0Scope>
+    </StyledScope>
   );
 }
 

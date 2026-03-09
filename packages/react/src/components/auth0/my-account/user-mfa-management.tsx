@@ -8,6 +8,7 @@ import { MFAEmptyState } from '@/components/auth0/my-account/shared/mfa/empty-st
 import { MFAErrorState } from '@/components/auth0/my-account/shared/mfa/error-state';
 import { FactorsList } from '@/components/auth0/my-account/shared/mfa/factors-list';
 import { UserMFASetupForm } from '@/components/auth0/my-account/shared/mfa/user-mfa-setup-form';
+import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
@@ -19,7 +20,6 @@ import { useMFALogic } from '@/hooks/my-account/use-mfa-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import { Auth0Scope } from '@/providers/auth0-scope';
 import type {
   UserMFAMgmtProps,
   UserMFAMgmtLogicProps,
@@ -200,8 +200,8 @@ function UserMFAMgmtView({ logic, handlers }: UserMFAMgmtViewProps) {
   );
 
   return (
-    <Auth0Scope>
-      <div data-theme={theme} style={currentStyles.variables}>
+    <StyledScope style={currentStyles.variables}>
+      <div>
         {isLoading ? (
           <div className="flex items-center justify-center py-16">{loader || <Spinner />}</div>
         ) : (
@@ -357,7 +357,7 @@ function UserMFAMgmtView({ logic, handlers }: UserMFAMgmtViewProps) {
           customMessages={customMessages}
         />
       </div>
-    </Auth0Scope>
+    </StyledScope>
   );
 }
 

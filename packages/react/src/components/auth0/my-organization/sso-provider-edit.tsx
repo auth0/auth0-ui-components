@@ -12,6 +12,7 @@ import { SsoDomainTab } from '@/components/auth0/my-organization/shared/idp-mana
 import { SsoProviderTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-tab';
 import { SsoProvisioningTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab';
 import { Header } from '@/components/auth0/shared/header';
+import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { withMyOrganizationService } from '@/hoc/with-services';
@@ -20,7 +21,6 @@ import { useSsoProviderEditLogic } from '@/hooks/my-organization/use-sso-provide
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import { Auth0Scope } from '@/providers/auth0-scope';
 import type {
   SsoProviderEditHandlerProps,
   SsoProviderEditLogicProps,
@@ -180,8 +180,8 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
   }
 
   return (
-    <Auth0Scope>
-      <div style={currentStyles.variables} className="w-full">
+    <StyledScope style={currentStyles.variables}>
+      <div className="w-full">
         {!hideHeader && (
           <Header
             title={provider?.display_name || provider?.name || ''}
@@ -292,7 +292,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
           </TabsContent>
         </Tabs>
       </div>
-    </Auth0Scope>
+    </StyledScope>
   );
 }
 

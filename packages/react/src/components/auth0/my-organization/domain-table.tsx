@@ -15,6 +15,7 @@ import { DomainTableActionsColumn } from '@/components/auth0/my-organization/sha
 import { DomainVerifyModal } from '@/components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Header } from '@/components/auth0/shared/header';
+import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
 import { withMyOrganizationService } from '@/hoc/with-services';
 import { useDomainTable } from '@/hooks/my-organization/use-domain-table';
@@ -22,7 +23,6 @@ import { useDomainTableLogic } from '@/hooks/my-organization/use-domain-table-lo
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
-import { Auth0Scope } from '@/providers/auth0-scope';
 import type {
   DomainTableProps,
   DomainTableViewProps,
@@ -95,7 +95,7 @@ function DomainTableView({
   logic,
   handlers,
 }: DomainTableViewProps & { handlers: ReturnType<typeof useDomainTableLogic> }) {
-  const { isDarkMode, theme } = useTheme();
+  const { isDarkMode } = useTheme();
   const { t } = useTranslator('domain_management', logic.customMessages);
 
   const {
@@ -183,8 +183,8 @@ function DomainTableView({
   );
 
   return (
-    <Auth0Scope>
-      <div data-theme={theme} style={currentStyles.variables}>
+    <StyledScope style={currentStyles.variables}>
+      <div>
         {!hideHeader && (
           <div className={currentStyles.classes?.['DomainTable-header']}>
             <Header
@@ -257,7 +257,7 @@ function DomainTableView({
           customMessages={customMessages?.delete}
         />
       </div>
-    </Auth0Scope>
+    </StyledScope>
   );
 }
 

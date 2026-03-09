@@ -14,12 +14,12 @@ import { SsoProviderRemoveFromOrganizationModal } from '@/components/auth0/my-or
 import { SsoProviderTableActionsColumn } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-table/sso-provider-table-action';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Header } from '@/components/auth0/shared/header';
+import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { withMyOrganizationService } from '@/hoc/with-services';
 import { useSsoProviderTable } from '@/hooks/my-organization/use-sso-provider-table';
 import { useSsoProviderTableLogic } from '@/hooks/my-organization/use-sso-provider-table-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { Auth0Scope } from '@/providers/auth0-scope';
 import type {
   SsoProviderTableProps,
   SsoProviderTableLogicProps,
@@ -235,8 +235,8 @@ function SsoProviderTableView({ logic, handlers }: SsoProviderTableViewProps) {
   );
 
   return (
-    <Auth0Scope>
-      <div style={currentStyles.variables}>
+    <StyledScope style={currentStyles.variables}>
+      <div>
         <div className={currentStyles.classes?.['SsoProviderTable-header']}>
           <Header
             title={t('header.title')}
@@ -289,7 +289,7 @@ function SsoProviderTableView({ logic, handlers }: SsoProviderTableViewProps) {
           />
         )}
       </div>
-    </Auth0Scope>
+    </StyledScope>
   );
 }
 
