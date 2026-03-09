@@ -213,9 +213,7 @@ export function StepUpEnrollmentSetupForm({
 
   const renderPickPhase = () => (
     <div className="w-full">
-      <p className="text-sm text-muted-foreground text-left mb-4">
-        {t('error.mfa.enrollment_required')}
-      </p>
+      <p className="text-sm text-muted-foreground text-left mb-4">{t('error.mfa.subtitle')}</p>
 
       <List className="flex flex-col gap-3 w-full">
         {enrollmentFactors.map((factor) => {

@@ -20,7 +20,6 @@
         "enroll_button": "設定",
         "fetch_failed": "認証方法の読み込み中に問題が発生しました。再度お試しください。",
         "no_authenticators": "認証方法が見つかりません。サポートにお問い合わせください。",
-        "enrollment_required": "続けるには第2要素を設定する必要があります。",
         "factor_available": "設定可能",
         "challenge_error": "確認の開始に失敗しました。再度お試しください。",
         "verify_error": "確認に失敗しました。コードを確認して再度お試しください。",
@@ -31,7 +30,6 @@
         "enter_code_label": "ワンタイムパスコード",
         "recovery_code_label": "リカバリーコード",
         "registered_on": "${date}に登録",
-        "enroll_title": "第2要素を設定",
         "authenticator_type": {
           "otp": "認証アプリ",
           "oob": "Auth0 Guardianプッシュ通知",

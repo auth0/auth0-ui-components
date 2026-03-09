@@ -179,9 +179,6 @@ function MfaStepUpDialog({
     authenticators,
   ]);
 
-  const dialogTitle =
-    fetchState === 'ENROLLMENT' ? t('error.mfa.enroll_title') : t('error.mfa.title');
-
   const renderContent = () => {
     if (fetchState === 'LOADING') {
       return (
@@ -252,7 +249,7 @@ function MfaStepUpDialog({
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{dialogTitle}</DialogTitle>
+          <DialogTitle>{t('error.mfa.title')}</DialogTitle>
           {isListScreen && <DialogDescription>{t('error.mfa.subtitle')}</DialogDescription>}
         </DialogHeader>
         <Separator />

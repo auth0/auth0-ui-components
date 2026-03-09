@@ -20,7 +20,6 @@
         "enroll_button": "Set up",
         "fetch_failed": "There was an issue loading your authentication methods. Please try again.",
         "no_authenticators": "No authentication methods found. Please contact support.",
-        "enrollment_required": "You need to set up a second factor to continue.",
         "factor_available": "Available for setup",
         "challenge_error": "Failed to start the verification. Please try again.",
         "verify_error": "Verification failed. Please check your code and try again.",
@@ -31,7 +30,6 @@
         "enter_code_label": "One-time passcode",
         "recovery_code_label": "Recovery code",
         "registered_on": "Registered on ${date}",
-        "enroll_title": "Set up a second factor",
         "authenticator_type": {
           "otp": "Authenticator",
           "oob": "Push Notification with Guardian App",
