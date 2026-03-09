@@ -12,7 +12,10 @@
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.13.2",
     "@auth0/universal-components-react": "workspace:*",
+    "@radix-ui/react-slot": "^1.2.3",
     "@tailwindcss/postcss": "^4.1.17",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "execa": "^9.1.0",
     "i18next": "^25.2.1",
     "lucide-react": "^0.511.0",
@@ -23,6 +26,7 @@
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.57.0",
     "react-i18next": "^15.5.3",
+    "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.1.17"
   },
   "devDependencies": {

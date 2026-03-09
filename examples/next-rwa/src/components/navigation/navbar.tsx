@@ -2,12 +2,14 @@
 
 import { useUser } from '@auth0/nextjs-auth0';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useIsDarkMode } from '@/hooks/use-is-dark-mode';
 
 import { ProfileDropdown } from './profile-dropdown';
+import { Button } from '../ui/button';
 
 const LOGO_ON_LIGHT =
   'https://cdn.auth0.com/quantum-assets/dist/2.0.2/logos/auth0/auth0-lockup-en-onlight.svg';
@@ -16,6 +18,7 @@ const LOGO_ON_DARK =
 
 export function Navbar() {
   const { user, isLoading } = useUser();
+  const router = useRouter();
   const { t } = useTranslation();
   const isDarkMode = useIsDarkMode();
 
@@ -38,12 +41,9 @@ export function Navbar() {
               (user ? (
                 <ProfileDropdown />
               ) : (
-                <a
-                  className="px-4 py-2 text-sm font-medium leading-5 text-center text-white capitalize bg-slate-900 rounded-lg hover:bg-slate-700 lg:mx-0 lg:w-auto focus:outline-none"
-                  href="/auth/login"
-                >
+                <Button className="cursor-pointer" onClick={() => router.push('/auth/login')}>
                   {t('nav-bar.sign-in-button')}
-                </a>
+                </Button>
               ))}
           </div>
         </div>
