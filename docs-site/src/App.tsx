@@ -10,6 +10,7 @@ import OrganizationDetailsEditDocs from './pages/OrganizationDetailsEditDocs';
 import SsoProviderCreateDocs from './pages/SsoProviderCreateDocs';
 import SsoProviderEditDocs from './pages/SsoProviderEditDocs';
 import SsoProviderTableDocs from './pages/SsoProviderTableDocs';
+import Styling from './pages/Styling';
 import UserMFAMgmtDocs from './pages/UserMFAMgmtDocs';
 
 function AppContent() {
@@ -18,6 +19,7 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<GettingStarted />} />
         <Route path="/getting-started" element={<GettingStarted />} />
+        <Route path="/styling" element={<Styling />} />
         <Route path="/my-account" element={<MyAccountIntroduction />} />
         <Route path="/my-account/user-mfa-management" element={<UserMFAMgmtDocs />} />
         <Route path="/my-organization" element={<MyOrganizationIntroduction />} />

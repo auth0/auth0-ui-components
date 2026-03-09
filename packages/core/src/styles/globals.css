@@ -31,7 +31,7 @@
 :root {
   * {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--border)) transparent;
+    scrollbar-color: hsl(var(--auth0-border)) transparent;
   }
 
   ::-webkit-scrollbar {
@@ -39,7 +39,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--border));
+    background: hsl(var(--auth0-border));
     border-radius: 6px;
   }
 
@@ -51,27 +51,29 @@
 @theme inline {
   /**
    * STANDARD SHADCN VARIABLES (with auth0 fallbacks)
-   * Map shadcn standard variable names defined by the user to auth0 ones
+   * Map namespaced --auth0-* variable names to internal auth0 color tokens.
+   * Consumers override via --auth0-background, --auth0-primary, etc.
+   * The --auth0-* prefix prevents collision with host app CSS variables.
    */
-  --color-background: var(--background, var(--color-neutral-min));
-  --color-foreground: var(--foreground, var(--color-neutral-12));
-  --color-card: var(--card, var(--color-neutral-min));
-  --color-card-foreground: var(--card-foreground, var(--color-neutral-max));
-  --color-primary: var(--primary, var(--color-carbon-9));
-  --color-primary-foreground: var(--primary-foreground, var(--color-neutral-min));
-  --color-secondary: var(--secondary, var(--color-neutral-3));
-  --color-secondary-foreground: var(--secondary-foreground, var(--color-neutral-1));
-  --color-accent: var(--accent, var(--color-neutral-2));
-  --color-accent-foreground: var(--accent-foreground, var(--color-neutral-12));
-  --color-muted: var(--muted, var(--color-neutral-2));
-  --color-muted-foreground: var(--muted-foreground, var(--color-neutral-11));
-  --color-destructive: var(--destructive, var(--color-red-3));
-  --color-destructive-foreground: var(--destructive-foreground, var(--color-red-9));
-  --color-popover: var(--popover, var(--color-neutral-1));
-  --color-popover-foreground: var(--popover-foreground, var(--color-neutral-12));
-  --color-input: var(--input, var(--color-neutral-1));
-  --color-border: var(--border, var(--color-neutral-6));
-  --color-ring: var(--ring, hsla(var(--color-neutral-7), 0.2));
+  --color-background: var(--auth0-background, var(--color-neutral-min));
+  --color-foreground: var(--auth0-foreground, var(--color-neutral-12));
+  --color-card: var(--auth0-card, var(--color-neutral-min));
+  --color-card-foreground: var(--auth0-card-foreground, var(--color-neutral-max));
+  --color-primary: var(--auth0-primary, var(--color-carbon-9));
+  --color-primary-foreground: var(--auth0-primary-foreground, var(--color-neutral-min));
+  --color-secondary: var(--auth0-secondary, var(--color-neutral-3));
+  --color-secondary-foreground: var(--auth0-secondary-foreground, var(--color-neutral-1));
+  --color-accent: var(--auth0-accent, var(--color-neutral-2));
+  --color-accent-foreground: var(--auth0-accent-foreground, var(--color-neutral-12));
+  --color-muted: var(--auth0-muted, var(--color-neutral-2));
+  --color-muted-foreground: var(--auth0-muted-foreground, var(--color-neutral-11));
+  --color-destructive: var(--auth0-destructive, var(--color-red-3));
+  --color-destructive-foreground: var(--auth0-destructive-foreground, var(--color-red-9));
+  --color-popover: var(--auth0-popover, var(--color-neutral-1));
+  --color-popover-foreground: var(--auth0-popover-foreground, var(--color-neutral-12));
+  --color-input: var(--auth0-input, var(--color-neutral-1));
+  --color-border: var(--auth0-border, var(--color-neutral-6));
+  --color-ring: var(--auth0-ring, hsla(var(--color-neutral-7), 0.2));
 
   /**
    * CUSTOM AUTH0 VARIABLES (no shadcn equivalents)

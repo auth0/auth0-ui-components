@@ -51,6 +51,7 @@ export const getComponentStyles = (
 
 /**
  * Apply theme styling to document and set CSS variables.
+ * Targets `.auth0-universal` scoped elements when present, falls back to `<html>`.
  * @internal
  *
  * @param styling - Theme variables to apply
@@ -63,23 +64,27 @@ export function applyStyleOverrides(
   theme: 'default' | 'minimal' | 'rounded' = 'default',
 ): void {
   const isDarkMode = mode === 'dark';
-  const html = document.documentElement;
-  html.dataset.theme = theme;
-
-  // Handle dark mode using class
-  if (isDarkMode) {
-    html.classList.add('dark');
-  } else {
-    html.classList.remove('dark');
-  }
-
-  // Apply CSS variable overrides (if any)
   const { variables } = getCoreStyles(styling, isDarkMode);
 
-  // Apply only string values directly
-  for (const [key, value] of Object.entries(variables)) {
-    if (typeof value === 'string') {
-      html.style.setProperty(key, value as string);
+  // Find all scoped containers; fall back to <html> for unscoped consumers
+  const scopedElements = document.querySelectorAll<HTMLElement>('.auth0-universal');
+  const targets: HTMLElement[] =
+    scopedElements.length > 0 ? Array.from(scopedElements) : [document.documentElement];
+
+  for (const el of targets) {
+    el.dataset.theme = theme;
+
+    if (isDarkMode) {
+      el.classList.add('dark');
+    } else {
+      el.classList.remove('dark');
+    }
+
+    // Apply CSS variable overrides (if any) — only string values
+    for (const [key, value] of Object.entries(variables)) {
+      if (typeof value === 'string') {
+        el.style.setProperty(key, value as string);
+      }
     }
   }
 }

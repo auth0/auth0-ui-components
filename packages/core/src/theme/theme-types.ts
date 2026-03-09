@@ -36,26 +36,26 @@ export interface StylingVariables {
     '--radius-9xl'?: string;
   };
   light?: {
-    // Shadcn-compatible source variables (override these!)
-    '--background'?: string;
-    '--foreground'?: string;
-    '--card'?: string;
-    '--card-foreground'?: string;
-    '--primary'?: string;
-    '--primary-foreground'?: string;
-    '--secondary'?: string;
-    '--secondary-foreground'?: string;
-    '--accent'?: string;
-    '--accent-foreground'?: string;
-    '--muted'?: string;
-    '--muted-foreground'?: string;
-    '--destructive'?: string;
-    '--destructive-foreground'?: string;
-    '--popover'?: string;
-    '--popover-foreground'?: string;
-    '--input'?: string;
-    '--border'?: string;
-    '--ring'?: string;
+    // Namespaced bridge variables (override these!)
+    '--auth0-background'?: string;
+    '--auth0-foreground'?: string;
+    '--auth0-card'?: string;
+    '--auth0-card-foreground'?: string;
+    '--auth0-primary'?: string;
+    '--auth0-primary-foreground'?: string;
+    '--auth0-secondary'?: string;
+    '--auth0-secondary-foreground'?: string;
+    '--auth0-accent'?: string;
+    '--auth0-accent-foreground'?: string;
+    '--auth0-muted'?: string;
+    '--auth0-muted-foreground'?: string;
+    '--auth0-destructive'?: string;
+    '--auth0-destructive-foreground'?: string;
+    '--auth0-popover'?: string;
+    '--auth0-popover-foreground'?: string;
+    '--auth0-input'?: string;
+    '--auth0-border'?: string;
+    '--auth0-ring'?: string;
 
     // Custom Auth0 variables
     '--color-page'?: string;
@@ -101,26 +101,26 @@ export interface StylingVariables {
     '--shadow-switch-thumb-dark'?: string;
   };
   dark?: {
-    // Shadcn-compatible source variables
-    '--background'?: string;
-    '--foreground'?: string;
-    '--card'?: string;
-    '--card-foreground'?: string;
-    '--primary'?: string;
-    '--primary-foreground'?: string;
-    '--secondary'?: string;
-    '--secondary-foreground'?: string;
-    '--accent'?: string;
-    '--accent-foreground'?: string;
-    '--muted'?: string;
-    '--muted-foreground'?: string;
-    '--destructive'?: string;
-    '--destructive-foreground'?: string;
-    '--popover'?: string;
-    '--popover-foreground'?: string;
-    '--input'?: string;
-    '--border'?: string;
-    '--ring'?: string;
+    // Namespaced bridge variables
+    '--auth0-background'?: string;
+    '--auth0-foreground'?: string;
+    '--auth0-card'?: string;
+    '--auth0-card-foreground'?: string;
+    '--auth0-primary'?: string;
+    '--auth0-primary-foreground'?: string;
+    '--auth0-secondary'?: string;
+    '--auth0-secondary-foreground'?: string;
+    '--auth0-accent'?: string;
+    '--auth0-accent-foreground'?: string;
+    '--auth0-muted'?: string;
+    '--auth0-muted-foreground'?: string;
+    '--auth0-destructive'?: string;
+    '--auth0-destructive-foreground'?: string;
+    '--auth0-popover'?: string;
+    '--auth0-popover-foreground'?: string;
+    '--auth0-input'?: string;
+    '--auth0-border'?: string;
+    '--auth0-ring'?: string;
 
     // Custom Auth0 variables
     '--color-page'?: string;
