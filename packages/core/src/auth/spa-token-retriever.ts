@@ -1,17 +1,6 @@
 import type { AuthDetails } from './auth-types';
 import { AuthUtils } from './auth-utils';
 
-const FALLBACK_ERRORS = new Set(['consent_required', 'login_required']);
-
-/**
- * Checks if an error has an error property.
- * @param error - The error to check.
- * @returns True if the error has an error property.
- */
-function hasErrorProperty(error: unknown): error is { error: string } {
-  return typeof error === 'object' && error !== null && 'error' in error;
-}
-
 /**
  * Builds the audience URL from a domain and audience path.
  * @param domain - The Auth0 tenant domain.
@@ -59,25 +48,12 @@ export function createSpaTokenRetriever(auth: AuthDetails) {
 
       const audience = buildAudience(domain, audiencePath);
 
-      try {
-        const tokenResponse = await auth.contextInterface.getAccessTokenSilently({
-          authorizationParams: { audience, scope },
-          detailedResponse: true,
-          ...(ignoreCache && { cacheMode: 'off' }),
-        });
-        return tokenResponse.access_token;
-      } catch (error) {
-        if (hasErrorProperty(error) && FALLBACK_ERRORS.has(error.error)) {
-          const prompt = error.error === 'login_required' ? 'login' : 'consent';
-          const token = await auth.contextInterface.getAccessTokenWithPopup({
-            authorizationParams: { audience, scope, prompt },
-          });
-          if (!token) throw error;
-          return token;
-        }
-
-        throw error;
-      }
+      const tokenResponse = await auth.contextInterface.getAccessTokenSilently({
+        authorizationParams: { audience, scope },
+        detailedResponse: true,
+        ...(ignoreCache && { cacheMode: 'off' }),
+      });
+      return tokenResponse.access_token;
     },
   };
 }

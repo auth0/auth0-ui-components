@@ -47,6 +47,7 @@ export function useOtpEnrollment({
     barcodeUri: string;
     authenticationMethodId: string;
     manualInputCode?: string;
+    recoveryCodes?: string[];
   }>({
     authSession: '',
     barcodeUri: '',
@@ -58,11 +59,17 @@ export function useOtpEnrollment({
     setLoading(true);
     try {
       const response = await enrollMfa(factorType, {});
+      const recoveryCodes =
+        'recovery_codes' in response
+          ? (response as unknown as { recovery_codes?: string[] }).recovery_codes
+          : undefined;
+
       setOtpData({
         authSession: 'auth_session' in response ? response.auth_session : '',
         barcodeUri: 'barcode_uri' in response ? response.barcode_uri : '',
         authenticationMethodId: 'id' in response ? response.id : '',
         manualInputCode: 'manual_input_code' in response ? response.manual_input_code : '',
+        recoveryCodes,
       });
     } catch (error) {
       const normalizedError = normalizeError(error, {

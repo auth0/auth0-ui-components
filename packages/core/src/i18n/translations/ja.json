@@ -1,7 +1,46 @@
 {
   "common": {
     "copy": "コピー",
-    "copied": "コピーしました"
+    "copied": "コピーしました",
+    "fallback": {
+      "title": "情報を読み込めませんでした",
+      "description": "再度お試しいただくか、問題が解決しない場合はサポートまでお問い合わせください。",
+      "retry": "再試行"
+    },
+    "error": {
+      "generic": "リクエストの処理中に問題が発生しました。再度お試しいただくか、問題が解決しない場合はサポートまでお問い合わせください。",
+      "mfa": {
+        "title": "アカウントを確認してください",
+        "subtitle": "このアクションを実行するには、以下のいずれかの方法で第2要素を提供する必要があります。",
+        "verify_button": "確認",
+        "verifying": "確認中...",
+        "back": "戻る",
+        "cancel": "キャンセル",
+        "continue": "続ける",
+        "enroll_button": "設定",
+        "fetch_failed": "認証方法の読み込み中に問題が発生しました。再度お試しください。",
+        "no_authenticators": "認証方法が見つかりません。サポートにお問い合わせください。",
+        "factor_available": "設定可能",
+        "challenge_error": "確認の開始に失敗しました。再度お試しください。",
+        "verify_error": "確認に失敗しました。コードを確認して再度お試しください。",
+        "enroll_error": "認証方法の設定に失敗しました。再度お試しください。",
+        "otp_instruction": "認証アプリに表示されているワンタイムコードを入力してください。",
+        "oob_instruction": "デバイスに送信されたワンタイムコードを入力してください。",
+        "recovery_code_instruction": "初回登録時に提供されたリカバリーコードを入力してください。",
+        "enter_code_label": "ワンタイムパスコード",
+        "recovery_code_label": "リカバリーコード",
+        "registered_on": "${date}に登録",
+        "authenticator_type": {
+          "otp": "認証アプリ",
+          "oob": "Auth0 Guardianプッシュ通知",
+          "recovery-code": "リカバリーコード",
+          "email": "メールOTP",
+          "sms": "SMS",
+          "push": "Auth0 Guardianプッシュ通知",
+          "voice": "音声通話"
+        }
+      }
+    }
   },
   "domain_management": {
     "domain_table": {
@@ -985,6 +1024,8 @@
       "enroll_sms_description": "認証コードを受信するためにあなたの電話番号を入力してください",
       "show_auth0_guardian_title": "このQRコードをAuth0 Guardianアプリでスキャンするか、URLをコピーして、この認証方法を登録してください",
       "recovery_code_description": "このリカバリーコードをコピーして、安全な場所に保管してください。デバイスなしでログインする必要がある場合に使用します。",
+      "recovery_code_title": "リカバリーコードの生成",
+      "recovery_code_acknowledged": "このコードを安全に記録しました",
       "show_otp": {
         "title": "この QR コードを Authenticator アプリでスキャンして、この認証方法を登録するか、コードをコピーしてください。",
         "save_recovery": "これらのリカバリーコードを保存してください！",

@@ -1,8 +1,10 @@
+import type { ChallengeType } from '../../auth/auth-types';
+
 export interface MfaRequirements {
   /** Required enrollment types (user needs to enroll new authenticator) */
   enroll?: Array<{ type: string }>;
   /** Available challenge types (existing authenticators) */
-  challenge?: Array<{ type: string }>;
+  challenge?: Array<{ type: ChallengeType }>;
 }
 
 export interface MfaRequiredError extends Error {

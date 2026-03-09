@@ -99,6 +99,8 @@ export function OTPVerificationForm({
   authSession,
   authenticationMethodId,
   onBack,
+  buttonSize = 'default',
+  buttonAlignment = 'justify-end',
   styling = {
     variables: { common: {}, light: {}, dark: {} },
     classes: {},
@@ -194,12 +196,12 @@ export function OTPVerificationForm({
             )}
           />
 
-          <div className="flex flex-row justify-end gap-3 mt-6 mb-6">
+          <div className={cn('flex flex-row gap-3 mt-6 mb-6', buttonAlignment)}>
             <Button
               type="button"
               className="text-sm"
-              variant="outline"
-              size="default"
+              variant="ghost"
+              size={buttonSize}
               onClick={onBack}
               aria-label={t('back')}
             >
@@ -209,7 +211,7 @@ export function OTPVerificationForm({
             <Button
               type="submit"
               className="text-sm"
-              size="default"
+              size={buttonSize}
               disabled={userOtp?.length !== 6 || loading}
               aria-label={buttonText}
             >

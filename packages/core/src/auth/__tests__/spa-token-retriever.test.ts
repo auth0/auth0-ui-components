@@ -373,46 +373,28 @@ describe('spa-token-retriever', () => {
     });
 
     describe('error handling with fallback', () => {
-      it('should use popup with consent prompt for consent_required error', async () => {
-        const mockToken = 'popup-token';
-        vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue({
-          error: 'consent_required',
-        });
-        vi.mocked(mockContextInterface.getAccessTokenWithPopup).mockResolvedValue(mockToken);
+      it('should throw error for consent_required error (handled by interactiveErrorHandler)', async () => {
+        const consentError = { error: 'consent_required' };
+        vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue(consentError);
 
         const auth = createAuthConfig();
         const tokenManager = createSpaTokenRetriever(auth);
-        const token = await tokenManager.getToken('read:users', 'management');
 
-        expect(token).toBe(mockToken);
-        expect(mockContextInterface.getAccessTokenWithPopup).toHaveBeenCalledWith({
-          authorizationParams: {
-            audience: `https://${TEST_DOMAIN}/management/`,
-            scope: 'read:users',
-            prompt: 'consent',
-          },
-        });
+        await expect(tokenManager.getToken('read:users', 'management')).rejects.toEqual(
+          consentError,
+        );
+        expect(mockContextInterface.getAccessTokenWithPopup).not.toHaveBeenCalled();
       });
 
-      it('should use popup with login prompt for login_required error', async () => {
-        const mockToken = 'popup-token';
-        vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue({
-          error: 'login_required',
-        });
-        vi.mocked(mockContextInterface.getAccessTokenWithPopup).mockResolvedValue(mockToken);
+      it('should throw error for login_required error (handled by interactiveErrorHandler)', async () => {
+        const loginError = { error: 'login_required' };
+        vi.mocked(mockContextInterface.getAccessTokenSilently).mockRejectedValue(loginError);
 
         const auth = createAuthConfig();
         const tokenManager = createSpaTokenRetriever(auth);
-        const token = await tokenManager.getToken('read:users', 'management');
 
-        expect(token).toBe(mockToken);
-        expect(mockContextInterface.getAccessTokenWithPopup).toHaveBeenCalledWith({
-          authorizationParams: {
-            audience: `https://${TEST_DOMAIN}/management/`,
-            scope: 'read:users',
-            prompt: 'login',
-          },
-        });
+        await expect(tokenManager.getToken('read:users', 'management')).rejects.toEqual(loginError);
+        expect(mockContextInterface.getAccessTokenWithPopup).not.toHaveBeenCalled();
       });
 
       it('should throw error for mfa_required error (not in fallback list)', async () => {

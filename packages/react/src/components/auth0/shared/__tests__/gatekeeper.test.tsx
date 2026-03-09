@@ -164,8 +164,8 @@ describe('GateKeeper', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('otp')).toBeInTheDocument();
-        expect(screen.getByText('sms')).toBeInTheDocument();
+        expect(screen.getByText('error.mfa.authenticator_type.otp')).toBeInTheDocument();
+        expect(screen.getByText('error.mfa.authenticator_type.sms')).toBeInTheDocument();
       });
     });
 
@@ -291,13 +291,12 @@ describe('GateKeeper', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Test Authenticator')).toBeInTheDocument();
-        expect(screen.getByText(/Type: otp/)).toBeInTheDocument();
-        expect(screen.getByText(/Active: Yes/)).toBeInTheDocument();
       });
 
       await waitFor(() => {
-        expect(screen.getByText('webauthn-roaming')).toBeInTheDocument();
-        expect(screen.getByText(/Active: No/)).toBeInTheDocument();
+        expect(
+          screen.getByText('error.mfa.authenticator_type.webauthn-roaming'),
+        ).toBeInTheDocument();
       });
     });
   });
