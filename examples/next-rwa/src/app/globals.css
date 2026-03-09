@@ -4,12 +4,6 @@
 @import '../styles/dark.css';
 @import '@auth0/universal-components-react/styles';
 
-/* @theme {
-  --color-background: var(--background);
-  --color-accent: var(--color-accent);
-  --color-accent-foreground: var(--color-accent-foreground);
-} */
-
 @theme inline {
   --color-page: var(--color-page);
   --color-background: var(--color-background);
@@ -121,20 +115,4 @@ body {
   min-width: 320px;
   min-height: 100vh;
   height: 100%;
-}
-
-:root {
-  --background: hsl(240 5% 96%);
-  --color-background: oklch(100% 0 0);
-  --color-accent: oklch(64.01% 0 0);
-  --color-accent-foreground: oklch(23.93% 0 0);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: hsl(240 6% 10%);
-    --color-background: oklch(0% 0 0);
-    --color-accent: oklch(53.82% 0 0);
-    --color-accent-foreground: oklch(94.91% 0 0);
-  }
 }

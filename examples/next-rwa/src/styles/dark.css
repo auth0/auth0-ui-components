@@ -1,7 +1,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --color-page: oklch(21.34% 0 0);
-    --color-background: oklch(0% 0 0);
+    --color-background: oklch(0.2103 0.0059 285.89);
     --color-foreground: oklch(94.91% 0 0);
     --color-card: oklch(0% 0 0);
     --color-card-foreground: oklch(100% 0 0);
