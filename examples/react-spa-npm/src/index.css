@@ -131,7 +131,7 @@
   :root {
     --color-background: oklch(0.2103 0.0059 285.89);
     --color-foreground: oklch(0.985 0 0);
-    --color-card: oklch(0.205 0 0);
+    --color-card: oklch(0 0 0);
     --color-card-foreground: oklch(0.985 0 0);
     --color-popover: oklch(0.269 0 0);
     --color-popover-foreground: oklch(0.985 0 0);

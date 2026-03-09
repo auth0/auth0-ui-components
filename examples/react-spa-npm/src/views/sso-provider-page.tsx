@@ -34,7 +34,7 @@ const SsoProviderPage = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 pt-8 space-y-6">
       <SsoProviderTable createAction={createAction} editAction={editAction} />
     </div>
   );

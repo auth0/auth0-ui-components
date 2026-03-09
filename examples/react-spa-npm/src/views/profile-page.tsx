@@ -22,11 +22,11 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 pt-20">
+    <div className="min-h-screen bg-background pt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {/* Profile Header */}
-          <div className="bg-gray-800 shadow rounded-lg p-6">
+          <div className="shadow bg-card rounded-lg p-6">
             <div className="flex items-start space-x-4">
               {user.picture ? (
                 <img
@@ -35,7 +35,7 @@ export function ProfilePage() {
                   alt={user.name || 'Profile'}
                 />
               ) : (
-                <div className="h-16 w-16 rounded-full bg-gray-300 flex items-center justify-center">
+                <div className="h-16 w-16 rounded-full flex items-center justify-center">
                   <User className="h-8 w-8 text-gray-600" />
                 </div>
               )}

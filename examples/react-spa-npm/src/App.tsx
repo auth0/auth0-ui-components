@@ -14,6 +14,7 @@ import ProfilePage from './views/profile-page';
 import SsoProviderCreatePage from './views/sso-provider-create-page';
 import SsoProviderEditPage from './views/sso-provider-edit-page';
 import SsoProviderPage from './views/sso-provider-page';
+import { useIsDarkMode } from './hooks/use-is-dark-mode';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -108,13 +109,14 @@ function AppContent() {
 
 function App() {
   const { i18n } = useTranslation();
+  const isDarkMode = useIsDarkMode();
 
   return (
     <Auth0ComponentProvider
       i18n={{ currentLanguage: i18n.language }}
       themeSettings={{
         theme: 'default',
-        mode: 'light',
+        mode: isDarkMode ? 'dark' : 'light',
       }}
     >
       <AppContent />
