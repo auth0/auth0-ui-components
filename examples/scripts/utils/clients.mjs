@@ -6,7 +6,21 @@ import { ChangeAction, createChangeItem } from "./change-plan.mjs"
 
 // Constants
 export const APP_BASE_URL = "http://localhost:5173"
-export const DASHBOARD_CLIENT_NAME = "Universal Components Demo"
+
+/**
+ * Get the dashboard client name based on example type
+ * Each example type gets its own dedicated client
+ * @param {string} exampleType - The example type (next-rwa, react-spa-shadcn, react-spa-npm)
+ * @returns {string} The client name
+ */
+export function getDashboardClientName(exampleType) {
+  const exampleNames = {
+    'next-rwa': 'Universal Components Demo (Next.js)',
+    'react-spa-shadcn': 'Universal Components Demo (React SPA - shadcn)',
+    'react-spa-npm': 'Universal Components Demo (React SPA - npm)',
+  }
+  return exampleNames[exampleType] || 'Universal Components Demo'
+}
 
 // ============================================================================
 // CHECK FUNCTIONS - Determine what changes are needed
@@ -14,6 +28,7 @@ export const DASHBOARD_CLIENT_NAME = "Universal Components Demo"
 
 /**
  * Check if Dashboard Client needs changes
+ * @param {object} featureConfig - Feature configuration { enableMyOrg, enableMyAccount }
  */
 export async function checkDashboardClientChanges(
   existingClients,
@@ -21,10 +36,13 @@ export async function checkDashboardClientChanges(
   userAttributeProfileId,
   exampleType,
   domain,
-  myOrgApiScopes
+  myOrgApiScopes,
+  myAccountApiScopes,
+  featureConfig = { enableMyOrg: true, enableMyAccount: true }
 ) {
+  const clientName = getDashboardClientName(exampleType)
   const existingClient = existingClients.find(
-    (c) => c.name === DASHBOARD_CLIENT_NAME
+    (c) => c.name === clientName
   )
 
   const desiredCallbacks = (exampleType === 'next-rwa') ? [`${APP_BASE_URL}/auth/callback`] : [APP_BASE_URL]
@@ -32,12 +50,13 @@ export async function checkDashboardClientChanges(
   const desiredAllowedWebOrigins = (exampleType === 'next-rwa') ? [] : [APP_BASE_URL]
 
   if (!existingClient) {
-    const appType = (exampleType === 'next-rwa') ? 'Regular Web Application' : 'Single Page Application';
     return createChangeItem(ChangeAction.CREATE, {
       resource: "Dashboard Client",
-      name: `${DASHBOARD_CLIENT_NAME} - ${appType}`,
+      name: clientName,
       connectionProfileId,
       userAttributeProfileId,
+      featureConfig,
+      exampleType,
     })
   }
 
@@ -64,10 +83,9 @@ export async function checkDashboardClientChanges(
     requiredAppType: (exampleType === 'next-rwa' ? "regular_web" : "spa")
   }
 
-  // Check if my_org config needs update
-  // If profiles are TO_BE_CREATED, we'll need to update after creating them
-  // Otherwise, check if current config matches desired IDs
-  const myOrgConfigNeedsUpdate =
+  // Check if my_org config needs update (only if MyOrg is enabled)
+  // Keep my_organization_configuration on client even if MyOrg disabled (harmless, future-proofs)
+  const myOrgConfigNeedsUpdate = featureConfig.enableMyOrg && (
     connectionProfileId === "TO_BE_CREATED" ||
     userAttributeProfileId === "TO_BE_CREATED" ||
     !clientToCheck.my_organization_configuration ||
@@ -75,18 +93,42 @@ export async function checkDashboardClientChanges(
       connectionProfileId ||
     clientToCheck.my_organization_configuration.user_attribute_profile_id !==
       userAttributeProfileId
+  )
 
-  const organizationSettingsNeedUpdate =
+  // Organization settings only needed if MyOrg is enabled
+  const organizationSettingsNeedUpdate = featureConfig.enableMyOrg && (
     clientToCheck.organization_require_behavior !== "post_login_prompt" ||
     clientToCheck.organization_usage !== "require"
+  )
 
-  const refreshTokenPoliciesNeedUpdate = 
-    !clientToCheck.refresh_token?.policies?.some(
+  // Check refresh token policies based on enabled features
+  let refreshTokenPoliciesNeedUpdate = false
+
+  // Check if My Org API policy exists with correct scopes (only if enabled)
+  if (featureConfig.enableMyOrg && myOrgApiScopes.length > 0) {
+    const hasMyOrgPolicy = clientToCheck.refresh_token?.policies?.some(
       policy => (
         policy.audience === `https://${domain}/my-org/` &&
-        policy.scope.slice().sort().toString() === myOrgApiScopes.slice().sort().toString()
+        policy.scope?.slice().sort().toString() === myOrgApiScopes.slice().sort().toString()
       )
     )
+    if (!hasMyOrgPolicy) {
+      refreshTokenPoliciesNeedUpdate = true
+    }
+  }
+
+  // Check if My Account API policy exists with correct scopes (only if enabled)
+  if (featureConfig.enableMyAccount && myAccountApiScopes.length > 0) {
+    const hasMyAccountPolicy = clientToCheck.refresh_token?.policies?.some(
+      policy => (
+        policy.audience === `https://${domain}/me/` &&
+        policy.scope?.slice().sort().toString() === myAccountApiScopes.slice().sort().toString()
+      )
+    )
+    if (!hasMyAccountPolicy) {
+      refreshTokenPoliciesNeedUpdate = true
+    }
+  }
 
   const refreshTokenRotationNeedsUpdate =
     clientToCheck.refresh_token?.rotation_type !== "rotating"
@@ -118,10 +160,9 @@ export async function checkDashboardClientChanges(
     if (refreshTokenNeedsUpdate)
       changes.push("Update refresh token settings")
 
-    const appType = (clientToCheck.app_type === 'regular_web') ? 'Regular Web Application' : 'Single Page Application';
     return createChangeItem(ChangeAction.UPDATE, {
-      resource: "Universal Components Demo Client",
-      name: `${DASHBOARD_CLIENT_NAME} - ${appType}`,
+      resource: "Dashboard Client",
+      name: clientName,
       existing: clientToCheck,
       updates: {
         missingCallbacks,
@@ -134,14 +175,15 @@ export async function checkDashboardClientChanges(
         userAttributeProfileId,
         refreshTokenNeedsUpdate
       },
+      featureConfig,
+      exampleType,
       summary: `\n     - ${changes.join("\n     - ")}`,
     })
   }
 
-  const appType = (clientToCheck.app_type === 'regular_web') ? 'Regular Web Application' : 'Single Page Application';
   return createChangeItem(ChangeAction.SKIP, {
-    resource: "Universal Components Demo Client",
-    name: `${DASHBOARD_CLIENT_NAME} - ${appType}`,
+    resource: "Dashboard Client",
+    name: clientName,
     existing: clientToCheck,
   })
 }
@@ -191,12 +233,86 @@ export function checkMyOrgClientGrantChanges(
   })
 }
 
+/**
+ * Check if My Account API Client Grant needs changes
+ */
+export function checkMyAccountClientGrantChanges(
+  clientId,
+  existingGrants,
+  domain,
+  myAccountApiScopes
+) {
+  const existingGrant = existingGrants.find(
+    (g) =>
+      g.client_id === clientId && g.audience === `https://${domain}/me/`
+  )
+
+  if (!existingGrant) {
+    return createChangeItem(ChangeAction.CREATE, {
+      resource: "My Account API Client Grant",
+      clientId,
+      scopes: myAccountApiScopes,
+    })
+  }
+
+  // Check if we need to add any missing scopes
+  const existingScopes = existingGrant.scope || []
+  const missingScopes = myAccountApiScopes.filter(
+    (scope) => !existingScopes.includes(scope)
+  )
+
+  if (missingScopes.length > 0) {
+    return createChangeItem(ChangeAction.UPDATE, {
+      resource: "My Account API Client Grant",
+      existing: existingGrant,
+      updates: {
+        missingScopes,
+      },
+      summary: `Add ${missingScopes.length} scope(s)`,
+    })
+  }
+
+  return createChangeItem(ChangeAction.SKIP, {
+    resource: "My Account API Client Grant",
+    existing: existingGrant,
+  })
+}
+
 // ============================================================================
 // APPLY FUNCTIONS - Execute changes based on cached plan
 // ============================================================================
 
 /**
+ * Build refresh token policies based on feature configuration
+ * @param {string} domain - The tenant domain
+ * @param {object} featureConfig - Feature configuration { enableMyOrg, enableMyAccount }
+ * @param {string[]} myOrgApiScopes - My Org API scopes
+ * @param {string[]} myAccountApiScopes - My Account API scopes
+ * @returns {object[]} Array of refresh token policies
+ */
+function buildRefreshTokenPolicies(domain, featureConfig, myOrgApiScopes, myAccountApiScopes) {
+  const policies = []
+
+  if (featureConfig.enableMyOrg && myOrgApiScopes.length > 0) {
+    policies.push({
+      audience: `https://${domain}/my-org/`,
+      scope: myOrgApiScopes
+    })
+  }
+
+  if (featureConfig.enableMyAccount && myAccountApiScopes.length > 0) {
+    policies.push({
+      audience: `https://${domain}/me/`,
+      scope: myAccountApiScopes
+    })
+  }
+
+  return policies
+}
+
+/**
  * Apply Dashboard Client changes
+ * @param {object} featureConfig - Feature configuration { enableMyOrg, enableMyAccount }
  */
 export async function applyDashboardClientChanges(
   changePlan,
@@ -204,77 +320,96 @@ export async function applyDashboardClientChanges(
   userAttributeProfileId,
   exampleType,
   domain,
-  myOrgApiScopes
+  myOrgApiScopes,
+  myAccountApiScopes,
+  featureConfig = { enableMyOrg: true, enableMyAccount: true }
 ) {
+  const clientName = getDashboardClientName(exampleType)
+
   if (changePlan.action === ChangeAction.SKIP) {
     const spinner = ora({
-      text: `${DASHBOARD_CLIENT_NAME} client is up to date`,
+      text: `${clientName} client is up to date`,
     }).start()
     spinner.succeed()
     return changePlan.existing
   }
 
+  // Use featureConfig from changePlan if available (for consistency)
+  const effectiveFeatureConfig = changePlan.featureConfig || featureConfig
+
   if (changePlan.action === ChangeAction.CREATE) {
     const spinner = ora({
-      text: `Creating ${DASHBOARD_CLIENT_NAME} client`,
+      text: `Creating ${clientName} client`,
     }).start()
 
     try {
       const desiredCallbacks = (exampleType === 'next-rwa') ? [`${APP_BASE_URL}/auth/callback`] : [APP_BASE_URL]
       const desiredLogoutUrls = [APP_BASE_URL]
-      const desiredAppType = (exampleType === 'next-rwa') ? "regular_web" : "spa" 
+      const desiredAppType = (exampleType === 'next-rwa') ? "regular_web" : "spa"
       const desiredTokenEndpointAuthMethod = (exampleType === 'next-rwa') ? "client_secret_post" : "none"
       const desiredAllowedWebOrigins = desiredAppType === 'spa' ? [APP_BASE_URL] : []
+
+      // Build refresh token policies based on enabled features
+      const refreshTokenPolicies = buildRefreshTokenPolicies(
+        domain,
+        effectiveFeatureConfig,
+        myOrgApiScopes,
+        myAccountApiScopes
+      )
+
+      // Build client data conditionally based on features
+      const clientData = {
+        name: clientName,
+        description: "The client to facilitate login to the dashboard in the context of an organization.",
+        callbacks: desiredCallbacks,
+        allowed_logout_urls: desiredLogoutUrls,
+        web_origins: desiredAllowedWebOrigins,
+        app_type: desiredAppType,
+        oidc_conformant: true,
+        is_first_party: true,
+        grant_types: ["authorization_code", "refresh_token"],
+        token_endpoint_auth_method: desiredTokenEndpointAuthMethod,
+        jwt_configuration: {
+          alg: "RS256",
+          lifetime_in_seconds: 36000,
+          secret_encoded: false,
+        },
+        refresh_token: {
+          expiration_type: "expiring",
+          rotation_type: "rotating",
+          token_lifetime: 31557600,
+          idle_token_lifetime: 2592000,
+          leeway: 0,
+          infinite_token_lifetime: false,
+          infinite_idle_token_lifetime: false,
+          policies: refreshTokenPolicies
+        }
+      }
+
+      // Add organization settings only if MyOrg is enabled
+      if (effectiveFeatureConfig.enableMyOrg) {
+        clientData.organization_require_behavior = "post_login_prompt"
+        clientData.organization_usage = "require"
+        clientData.my_organization_configuration = {
+          connection_profile_id: connectionProfileId,
+          user_attribute_profile_id: userAttributeProfileId,
+          connection_deletion_behavior: "allow_if_empty",
+          allowed_strategies: [
+            "pingfederate",
+            "adfs",
+            "waad",
+            "google-apps",
+            "okta",
+            "oidc",
+            "samlp",
+          ],
+        }
+      }
 
       // prettier-ignore
       const createClientArgs = [
         "api", "post", "clients",
-        "--data", JSON.stringify({
-          name: DASHBOARD_CLIENT_NAME,
-          description: "The client to facilitate login to the dashboard in the context of an organization.",
-          callbacks: desiredCallbacks,
-          allowed_logout_urls: desiredLogoutUrls,
-          web_origins: desiredAllowedWebOrigins,
-          app_type: desiredAppType,
-          oidc_conformant: true,
-          is_first_party: true,
-          grant_types: ["authorization_code", "refresh_token"],
-          token_endpoint_auth_method: desiredTokenEndpointAuthMethod,
-          organization_require_behavior: "post_login_prompt",
-          organization_usage: "require",
-          jwt_configuration: {
-            alg: "RS256",
-            lifetime_in_seconds: 36000,
-            secret_encoded: false,
-          },
-          my_organization_configuration: {
-            connection_profile_id: connectionProfileId,
-            user_attribute_profile_id: userAttributeProfileId,
-            connection_deletion_behavior: "allow_if_empty",
-            allowed_strategies: [
-              "pingfederate",
-              "adfs",
-              "waad",
-              "google-apps",
-              "okta",
-              "oidc",
-              "samlp",
-            ],
-          },
-          refresh_token: {
-            expiration_type: "expiring",
-            rotation_type: "rotating",
-            token_lifetime: 31557600,
-            idle_token_lifetime: 2592000,
-            leeway: 0,
-            infinite_token_lifetime: false,
-            infinite_idle_token_lifetime: false,
-            policies: [{
-              audience: `https://${domain}/my-org/`,
-              scope: myOrgApiScopes
-            }] 
-          }
-        }),
+        "--data", JSON.stringify(clientData),
       ];
 
       const { stdout } = await $`auth0 ${createClientArgs}`
@@ -285,18 +420,20 @@ export async function applyDashboardClientChanges(
         await $`auth0 api get clients/${client.client_id}?fields=client_id,name,client_secret,app_type,callbacks,allowed_logout_urls,my_organization_configuration,organization_require_behavior,organization_usage,refresh_token`
       const fullClient = JSON.parse(fullClientStdout)
 
-      spinner.succeed(`Created ${DASHBOARD_CLIENT_NAME} client`)
+      spinner.succeed(`Created ${clientName} client`)
       return fullClient
     } catch (e) {
-      spinner.fail(`Failed to create the ${DASHBOARD_CLIENT_NAME} client`)
-      spinner.fail(`Ensure your tenant supports My Organization feature.`)
+      spinner.fail(`Failed to create the ${clientName} client`)
+      if (effectiveFeatureConfig.enableMyOrg) {
+        spinner.fail(`Ensure your tenant supports My Organization feature.`)
+      }
       throw e
     }
   }
 
   if (changePlan.action === ChangeAction.UPDATE) {
     const spinner = ora({
-      text: `Updating ${DASHBOARD_CLIENT_NAME} client configuration`,
+      text: `Updating ${clientName} client configuration`,
     }).start()
 
     try {
@@ -352,22 +489,50 @@ export async function applyDashboardClientChanges(
       }
 
       if (updates.refreshTokenNeedsUpdate) {
-        const desiredPolicy = {
-          audience: `https://${domain}/my-org/`,
-          scope: myOrgApiScopes,
+        const existingPolicies = existing.refresh_token?.policies || []
+        let newPolicies = [...existingPolicies]
+
+        // Handle My Org policy (only if enabled)
+        if (effectiveFeatureConfig.enableMyOrg && myOrgApiScopes.length > 0) {
+          const desiredMyOrgPolicy = {
+            audience: `https://${domain}/my-org/`,
+            scope: myOrgApiScopes,
+          }
+
+          const hasMyOrgPolicy = existingPolicies.some(
+            (policy) =>
+              policy.audience === desiredMyOrgPolicy.audience &&
+              policy.scope?.slice().sort().toString() ===
+                myOrgApiScopes.slice().sort().toString()
+          )
+
+          if (!hasMyOrgPolicy) {
+            // Remove any existing My Org policy with wrong scopes
+            newPolicies = newPolicies.filter(p => p.audience !== desiredMyOrgPolicy.audience)
+            newPolicies.push(desiredMyOrgPolicy)
+          }
         }
 
-        const existingPolicies = existing.refresh_token?.policies || []
-        const hasPolicy = existingPolicies.some(
-          (policy) =>
-            policy.audience === desiredPolicy.audience &&
-            policy.scope?.slice().sort().toString() ===
-              myOrgApiScopes.slice().sort().toString()
-        )
+        // Handle My Account policy (only if enabled)
+        if (effectiveFeatureConfig.enableMyAccount && myAccountApiScopes.length > 0) {
+          const desiredMyAccountPolicy = {
+            audience: `https://${domain}/me/`,
+            scope: myAccountApiScopes,
+          }
 
-        const newPolicies = hasPolicy
-          ? existingPolicies
-          : [...existingPolicies, desiredPolicy]
+          const hasMyAccountPolicy = existingPolicies.some(
+            (policy) =>
+              policy.audience === desiredMyAccountPolicy.audience &&
+              policy.scope?.slice().sort().toString() ===
+                myAccountApiScopes.slice().sort().toString()
+          )
+
+          if (!hasMyAccountPolicy) {
+            // Remove any existing My Account policy with wrong scopes
+            newPolicies = newPolicies.filter(p => p.audience !== desiredMyAccountPolicy.audience)
+            newPolicies.push(desiredMyAccountPolicy)
+          }
+        }
 
         updateData.refresh_token = {
           ...(existing.refresh_token || {}),
@@ -377,7 +542,7 @@ export async function applyDashboardClientChanges(
       }
 
       await auth0ApiCall("patch", `clients/${existing.client_id}`, updateData)
-      spinner.succeed(`Updated ${DASHBOARD_CLIENT_NAME} client`)
+      spinner.succeed(`Updated ${clientName} client`)
 
       // Fetch updated client with client_secret to return
       const { stdout } =
@@ -385,7 +550,7 @@ export async function applyDashboardClientChanges(
       const updated = JSON.parse(stdout)
       return updated
     } catch (e) {
-      spinner.fail(`Failed to update ${DASHBOARD_CLIENT_NAME} client`)
+      spinner.fail(`Failed to update ${clientName} client`)
       throw e
     }
   }
@@ -409,7 +574,7 @@ export async function applyMyOrgClientGrantChanges(
 
   if (changePlan.action === ChangeAction.CREATE) {
     const spinner = ora({
-      text: `Creating ${DASHBOARD_CLIENT_NAME} client grants for My Org API`,
+      text: `Creating client grant for My Org API`,
     }).start()
 
     try {
@@ -427,9 +592,7 @@ export async function applyMyOrgClientGrantChanges(
       await $`auth0 ${createClientGrantArgs}`
       spinner.succeed(`Created My Org API Client Grant`)
     } catch (e) {
-      spinner.fail(
-        `Failed to create the ${DASHBOARD_CLIENT_NAME} client grants for My Organization API`
-      )
+      spinner.fail(`Failed to create client grant for My Organization API`)
       throw e
     }
   }
@@ -453,6 +616,71 @@ export async function applyMyOrgClientGrantChanges(
       return existing
     } catch (e) {
       spinner.fail(`Failed to update My Org API Client Grant`)
+      throw e
+    }
+  }
+}
+
+/**
+ * Apply My Account API Client Grant changes
+ */
+export async function applyMyAccountClientGrantChanges(
+  changePlan,
+  domain,
+  clientId
+) {
+  if (changePlan.action === ChangeAction.SKIP) {
+    const spinner = ora({
+      text: `My Account API Client Grant is up to date`,
+    }).start()
+    spinner.succeed()
+    return changePlan.existing
+  }
+
+  if (changePlan.action === ChangeAction.CREATE) {
+    const spinner = ora({
+      text: `Creating client grant for My Account API`,
+    }).start()
+
+    try {
+      // prettier-ignore
+      const createClientGrantArgs = [
+        "api", "post", "client-grants",
+        "--data", JSON.stringify({
+          client_id: clientId,
+          audience: `https://${domain}/me/`,
+          scope: changePlan.scopes,
+          subject_type: "user"
+        }),
+      ];
+
+      await $`auth0 ${createClientGrantArgs}`
+      spinner.succeed(`Created My Account API Client Grant`)
+    } catch (e) {
+      spinner.fail(`Failed to create client grant for My Account API`)
+      throw e
+    }
+  }
+
+  if (changePlan.action === ChangeAction.UPDATE) {
+    const spinner = ora({
+      text: `Adding missing scopes to My Account API Client Grant`,
+    }).start()
+
+    try {
+      const { existing, updates } = changePlan
+      const existingScopes = existing.scope || []
+      const updatedScopes = [...existingScopes, ...updates.missingScopes]
+
+      await auth0ApiCall("patch", `client-grants/${existing.id}`, {
+        scope: updatedScopes,
+      })
+      spinner.succeed(
+        `Updated My Account API Client Grant with ${updates.missingScopes.length} new scope(s)`
+      )
+      return existing
+    } catch (e) {
+      spinner.fail(`Failed to update My Account API Client Grant`)
       throw e
     }
   }

@@ -2,6 +2,7 @@
 import {
   applyDashboardClientChanges,
   applyMyOrgClientGrantChanges,
+  applyMyAccountClientGrantChanges,
 } from "./utils/clients.mjs"
 import {
   applyConnectionProfileChanges,
@@ -13,9 +14,17 @@ import {
   displayChangePlan,
 } from "./utils/discovery.mjs"
 import { writeEnvFile } from "./utils/env-writer.mjs"
+import {
+  selectFeaturesInteractively,
+  getFeatureDescription,
+} from "./utils/feature-config.mjs"
 import { confirmWithUser, selectOptionFromList } from "./utils/helpers.mjs"
 import { applyUserAttributeProfileChanges } from "./utils/profiles.mjs"
-import { applyMyOrgResourceServerChanges, MYORG_API_SCOPES } from "./utils/resource-servers.mjs"
+import {
+  applyMyOrgResourceServerChanges,
+  applyMyAccountResourceServerChanges,
+  MYORG_API_SCOPES,
+} from "./utils/resource-servers.mjs"
 import {
   applyAdminRoleChanges,
 } from "./utils/roles.mjs"
@@ -28,7 +37,9 @@ import {
 import {
   checkAuth0CLI,
   checkNodeVersion,
+  validateAuth0Session,
   validateTenant,
+  validateRequiredScopes,
 } from "./utils/validation.mjs"
 
 // ============================================================================
@@ -61,16 +72,23 @@ async function main() {
   }
 
   const tenantName = args[0] // Required: tenant domain to verify against CLI
-  
-  // Step 1: Validation
+
+  // Step 1: Pre-flight Checks
   console.log("📋 Step 1: Pre-flight Checks")
   checkNodeVersion()
   await checkAuth0CLI()
+  await validateAuth0Session()
   const domain = await validateTenant(tenantName)
   console.log("")
 
-  // Step 2: Select example type
-  console.log("💻 Step 2: Example Type")
+  // Step 2: Feature Selection
+  console.log("🎯 Step 2: Feature Selection")
+  let featureConfig = await selectFeaturesInteractively()
+  console.log(`   Selected: ${getFeatureDescription(featureConfig)}`)
+  console.log("")
+
+  // Step 3: Select example type
+  console.log("💻 Step 3: Example Type")
   const options = [{
       name: 'Next.js',
       value: 'next-rwa',
@@ -91,33 +109,26 @@ async function main() {
   )
   console.log("")
 
-
-  // Step 3: Discovery
-  console.log("🔍 Step 3: Resource Discovery")
+  // Step 4: Discovery
+  console.log("🔍 Step 4: Resource Discovery")
   const resources = await discoverExistingResources(domain)
   console.log("")
 
-  // Step 4: Build Change Plan
-  console.log("📝 Step 4: Analyzing Changes")
-  const plan = await buildChangePlan(resources, domain, exampleType)
+  // Step 4b: Validate required scopes (with graceful degradation)
+  console.log("🔐 Step 4b: Validating API Scopes")
+  featureConfig = await validateRequiredScopes(resources, domain, featureConfig)
   console.log("")
 
-  // Step 5: Display Plan
+  // Step 5: Build Change Plan
+  console.log("📝 Step 5: Analyzing Changes")
+  const plan = await buildChangePlan(resources, domain, exampleType, featureConfig)
+  console.log("")
+
+  // Step 6: Display Plan
   displayChangePlan(plan)
 
-  // Check if there are any changes to apply
-  const hasChanges =
-    plan.clients.dashboard.action !== "skip" ||
-    plan.clientGrants.myOrg.action !== "skip" ||
-    plan.connection.action !== "skip" ||
-    plan.connectionProfile.action !== "skip" ||
-    plan.userAttributeProfile.action !== "skip" ||
-    plan.resourceServer.action !== "skip" ||
-    plan.roles.admin.action !== "skip" ||
-    plan.orgs.action !== "skip" ||
-    plan.orgMembers.action !== "skip" ||
-    plan.tenantConfig.settings.action !== "skip" ||
-    plan.tenantConfig.prompts.action !== "skip" 
+  // Check if there are any changes to apply (only check enabled features)
+  const hasChanges = checkForChanges(plan)
 
   if (!hasChanges) {
     console.log(
@@ -130,15 +141,16 @@ async function main() {
         domain,
         plan.clients.dashboard.existing?.client_id,
         plan.clients.dashboard.existing?.client_secret,
-        exampleType
+        exampleType,
+        featureConfig
       )
       console.log("\n✅ .env.local file generated!\n")
     }
-  
+
     process.exit(0)
   }
 
-  // Step 6: User Confirmation
+  // Step 7: User Confirmation
   const confirmed = await confirmWithUser(
     "Do you want to proceed with these changes? "
   )
@@ -148,16 +160,16 @@ async function main() {
   }
   console.log("")
 
-  // Step 7: Apply Changes
-  console.log("⚙️  Step 6: Applying Changes\n")
+  // Step 8: Apply Changes
+  console.log("⚙️  Step 7: Applying Changes\n")
 
-  // 7a. Tenant Configuration
+  // 8a. Tenant Configuration
   console.log("Configuring Tenant...")
   await applyTenantSettingsChanges(plan.tenantConfig.settings)
   await applyPromptSettingsChanges(plan.tenantConfig.prompts)
   console.log("")
 
-  // 7b. Profiles (needed for Dashboard Client)
+  // 8b. Profiles (needed for Dashboard Client)
   console.log("Configuring Profiles...")
   const connectionProfile = await applyConnectionProfileChanges(
     plan.connectionProfile
@@ -167,15 +179,26 @@ async function main() {
   )
   console.log("")
 
-  // 7c. Resource Server (My Organization API)
-  console.log("Configuring My Organization API...")
-  await applyMyOrgResourceServerChanges(
-    plan.resourceServer,
-    domain
-  )
-  console.log("")
+  // 8c. Resource Servers (conditionally based on enabled features)
+  if (featureConfig.enableMyOrg) {
+    console.log("Configuring My Organization API...")
+    await applyMyOrgResourceServerChanges(
+      plan.resourceServer,
+      domain
+    )
+    console.log("")
+  }
 
-  // 7d. Dashboard Client
+  if (featureConfig.enableMyAccount) {
+    console.log("Configuring My Account API...")
+    await applyMyAccountResourceServerChanges(
+      plan.myAccountResourceServer,
+      domain
+    )
+    console.log("")
+  }
+
+  // 8d. Dashboard Client
   console.log("Configuring Dashboard Client...")
   const dashboardClient = await applyDashboardClientChanges(
     plan.clients.dashboard,
@@ -183,20 +206,31 @@ async function main() {
     userAttributeProfile.id,
     exampleType,
     domain,
-    MYORG_API_SCOPES
+    featureConfig.enableMyOrg ? MYORG_API_SCOPES : [],
+    plan.myAccountApiScopes,
+    featureConfig
   )
   console.log("")
 
-  // 7e. Grant Dashboard Client access to My Organization API
+  // 8e. Grant Dashboard Client access to APIs (conditionally based on enabled features)
   console.log("Configuring Client Grants...")
-  await applyMyOrgClientGrantChanges(
-    plan.clientGrants.myOrg,
-    domain,
-    dashboardClient.client_id
-  )
+  if (featureConfig.enableMyOrg) {
+    await applyMyOrgClientGrantChanges(
+      plan.clientGrants.myOrg,
+      domain,
+      dashboardClient.client_id
+    )
+  }
+  if (featureConfig.enableMyAccount) {
+    await applyMyAccountClientGrantChanges(
+      plan.clientGrants.myAccount,
+      domain,
+      dashboardClient.client_id
+    )
+  }
   console.log("")
 
-  // 7f. Database Connection
+  // 8f. Database Connection
   console.log("Configuring Database Connection...")
   const connection = await applyDatabaseConnectionChanges(
     plan.connection,
@@ -204,29 +238,36 @@ async function main() {
   )
   console.log("")
 
-  // 7g. Roles
-  console.log("Configuring Roles...")
-  const adminRole = await applyAdminRoleChanges(plan.roles.admin)
-  console.log("")
+  // 8g-8i. Organization resources (only if MyOrg is enabled)
+  let adminRole = null
+  let org = null
 
-  // 7h. Orgs
-  console.log("Creating Organization...")
-  const org = await applyOrgsChanges(plan.orgs, connection.id)
-  console.log("")
+  if (featureConfig.enableMyOrg) {
+    // 8g. Roles
+    console.log("Configuring Roles...")
+    adminRole = await applyAdminRoleChanges(plan.roles.admin)
+    console.log("")
 
-  // 7i. Org Members
-  console.log("Adding Organization Members...")
-  // eslint-disable-next-line no-unused-vars
-  const orgMember = await applyOrgMemberChanges(plan.orgMembers, org.id, connection.id,adminRole.id)
-  console.log("")
-  
-  // Step 8: Generate .env.local
+    // 8h. Orgs
+    console.log("Creating Organization...")
+    org = await applyOrgsChanges(plan.orgs, connection.id)
+    console.log("")
+
+    // 8i. Org Members
+    console.log("Adding Organization Members...")
+    // eslint-disable-next-line no-unused-vars
+    const orgMember = await applyOrgMemberChanges(plan.orgMembers, org.id, connection.id, adminRole.id)
+    console.log("")
+  }
+
+  // Step 9: Generate .env.local
   console.log("📝 Step 8: Generating .env.local file\n")
   await writeEnvFile(
     domain,
     dashboardClient.client_id,
     dashboardClient.client_secret,
-    exampleType
+    exampleType,
+    featureConfig
   )
 
   // Done!
@@ -236,6 +277,43 @@ async function main() {
   console.log("  2. Review the generated .env.local file")
   console.log("  3. Run 'pnpm run dev' to start the development server")
   console.log("  4. Navigate to http://localhost:5173\n")
+}
+
+/**
+ * Check if there are any changes to apply based on enabled features
+ * @param {object} plan - The change plan
+ * @returns {boolean} True if there are changes to apply
+ */
+function checkForChanges(plan) {
+  const { features } = plan
+
+  // Always check core resources
+  let hasChanges =
+    plan.clients.dashboard.action !== "skip" ||
+    plan.connection.action !== "skip" ||
+    plan.connectionProfile.action !== "skip" ||
+    plan.userAttributeProfile.action !== "skip" ||
+    plan.tenantConfig.settings.action !== "skip" ||
+    plan.tenantConfig.prompts.action !== "skip"
+
+  // Check MyOrg resources only if enabled
+  if (features.enableMyOrg) {
+    hasChanges = hasChanges ||
+      plan.clientGrants.myOrg.action !== "skip" ||
+      plan.resourceServer.action !== "skip" ||
+      plan.roles.admin.action !== "skip" ||
+      plan.orgs.action !== "skip" ||
+      plan.orgMembers.action !== "skip"
+  }
+
+  // Check MyAccount resources only if enabled
+  if (features.enableMyAccount) {
+    hasChanges = hasChanges ||
+      plan.clientGrants.myAccount.action !== "skip" ||
+      plan.myAccountResourceServer.action !== "skip"
+  }
+
+  return hasChanges
 }
 
 // Run the main function
