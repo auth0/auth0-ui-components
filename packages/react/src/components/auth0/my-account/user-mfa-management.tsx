@@ -9,6 +9,7 @@ import { MFAErrorState } from '@/components/auth0/my-account/shared/mfa/error-st
 import { FactorsList } from '@/components/auth0/my-account/shared/mfa/factors-list';
 import { UserMFASetupForm } from '@/components/auth0/my-account/shared/mfa/user-mfa-setup-form';
 import { GateKeeper } from '@/components/auth0/shared/gatekeeper';
+import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
@@ -188,7 +189,7 @@ export function UserMFAMgmtView({
   handleConfirmDelete,
   setIsDeleteDialogOpen,
 }: UserMFAMgmtViewProps): React.JSX.Element {
-  const { loader, isDarkMode, theme } = useTheme();
+  const { loader, isDarkMode } = useTheme();
   const { t } = useTranslator('mfa', customMessages);
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -196,7 +197,7 @@ export function UserMFAMgmtView({
   );
 
   return (
-    <div data-theme={theme || 'default'} style={currentStyles.variables}>
+    <StyledScope style={currentStyles.variables}>
       {isLoading ? (
         <div className="flex items-center justify-center py-16">{loader || <Spinner />}</div>
       ) : (
@@ -348,6 +349,6 @@ export function UserMFAMgmtView({
         styling={styling}
         customMessages={customMessages}
       />
-    </div>
+    </StyledScope>
   );
 }

@@ -14,6 +14,7 @@ import { SsoProviderTableActionsColumn } from '@/components/auth0/my-organizatio
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { GateKeeper } from '@/components/auth0/shared/gatekeeper';
 import { Header } from '@/components/auth0/shared/header';
+import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { useSsoProviderTable } from '@/hooks/my-organization/use-sso-provider-table';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -181,7 +182,7 @@ export function SsoProviderTableView({
   );
 
   return (
-    <div style={currentStyles.variables}>
+    <StyledScope style={currentStyles.variables}>
       <div className={currentStyles.classes?.['SsoProviderTable-header']}>
         <Header
           title={t('header.title')}
@@ -233,7 +234,7 @@ export function SsoProviderTableView({
           customMessages={customMessages?.remove_modal}
         />
       )}
-    </div>
+    </StyledScope>
   );
 }
 

@@ -10,6 +10,7 @@ import { SsoProviderTab } from '@/components/auth0/my-organization/shared/idp-ma
 import { SsoProvisioningTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab';
 import { GateKeeper } from '@/components/auth0/shared/gatekeeper';
 import { Header } from '@/components/auth0/shared/header';
+import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -136,116 +137,118 @@ export function SsoProviderEditView({
   );
 
   return (
-    <div style={currentStyles.variables} className="w-full">
-      {!hideHeader && (
-        <Header
-          title={provider?.display_name || provider?.name || ''}
-          backButton={
-            backButton && {
-              ...backButton,
-              text: t('header.back_button_text'),
+    <StyledScope style={currentStyles.variables}>
+      <div style={currentStyles.variables} className="w-full">
+        {!hideHeader && (
+          <Header
+            title={provider?.display_name || provider?.name || ''}
+            backButton={
+              backButton && {
+                ...backButton,
+                text: t('header.back_button_text'),
+              }
             }
-          }
-          isLoading={isUpdating}
-          actions={[
-            {
-              type: 'switch',
-              checked: provider?.is_enabled ?? false,
-              onCheckedChange: handleToggleProvider,
-              disabled: isUpdating,
-              tooltip: {
-                content: provider?.is_enabled
-                  ? t('header.disable_provider_tooltip_text')
-                  : t('header.enable_provider_tooltip_text'),
+            isLoading={isUpdating}
+            actions={[
+              {
+                type: 'switch',
+                checked: provider?.is_enabled ?? false,
+                onCheckedChange: handleToggleProvider,
+                disabled: isUpdating,
+                tooltip: {
+                  content: provider?.is_enabled
+                    ? t('header.disable_provider_tooltip_text')
+                    : t('header.enable_provider_tooltip_text'),
+                },
               },
-            },
-          ]}
-          className={currentStyles?.classes?.['SsoProviderEdit-header']}
-        />
-      )}
-
-      <Tabs
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className={cn('space-y-10', currentStyles?.classes?.['SsoProviderEdit-tabs'])}
-      >
-        <TabsList
-          className={cn('grid w-full', showProvisioningTab ? 'grid-cols-3' : 'grid-cols-2')}
-        >
-          <TabsTrigger value="sso" className="text-sm">
-            {t('tabs.sso.name')}
-          </TabsTrigger>
-          {showProvisioningTab && (
-            <TabsTrigger value="provisioning" className="text-sm">
-              {t('tabs.provisioning.name')}
-            </TabsTrigger>
-          )}
-          <TabsTrigger value="domain" className="text-sm">
-            {t('tabs.domains.name')}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="sso">
-          <SsoProviderTab
-            provider={provider}
-            organization={organization}
-            onDelete={onDeleteConfirm}
-            onRemove={onRemoveConfirm}
-            isDeleting={isDeleting}
-            isRemoving={isRemoving}
-            idpConfig={idpConfig}
-            shouldAllowDeletion={shouldAllowDeletion}
-            hasSsoAttributeSyncWarning={hasSsoAttributeSyncWarning}
-            onAttributeSync={syncSsoAttributes}
-            isSyncingAttributes={isSsoAttributesSyncing}
-            customMessages={customMessages?.tabs?.sso?.content}
-            styling={styling}
-            formActions={{
-              isLoading: isUpdating,
-              nextAction: {
-                disabled: isUpdating || !provider || isLoading,
-                onClick: updateProvider,
-              },
-            }}
-            readOnly={readOnly}
+            ]}
+            className={currentStyles?.classes?.['SsoProviderEdit-header']}
           />
-        </TabsContent>
-
-        {showProvisioningTab && (
-          <TabsContent value="provisioning">
-            <SsoProvisioningTab
-              provider={provider!}
-              isProvisioningUpdating={isProvisioningUpdating}
-              isProvisioningDeleting={isProvisioningDeleting}
-              isScimTokensLoading={isScimTokensLoading}
-              isScimTokenCreating={isScimTokenCreating}
-              isScimTokenDeleting={isScimTokenDeleting}
-              hasProvisioningAttributeSyncWarning={hasProvisioningAttributeSyncWarning}
-              onAttributeSync={syncProvisioningAttributes}
-              isSyncingAttributes={isProvisioningAttributesSyncing}
-              onCreateProvisioning={createProvisioning}
-              onDeleteProvisioning={deleteProvisioning}
-              onListScimTokens={listScimTokens}
-              onCreateScimToken={createScimToken}
-              onDeleteScimToken={deleteScimToken}
-              customMessages={customMessages?.tabs?.provisioning?.content}
-              styling={styling}
-            />
-          </TabsContent>
         )}
 
-        <TabsContent value="domain">
-          <SsoDomainTab
-            customMessages={customMessages?.tabs?.domains?.content}
-            styling={styling}
-            domains={domains}
-            schema={schema?.domains}
-            idpId={providerId}
-            provider={provider}
-            readOnly={readOnly}
-          />
-        </TabsContent>
-      </Tabs>
-    </div>
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className={cn('space-y-10', currentStyles?.classes?.['SsoProviderEdit-tabs'])}
+        >
+          <TabsList
+            className={cn('grid w-full', showProvisioningTab ? 'grid-cols-3' : 'grid-cols-2')}
+          >
+            <TabsTrigger value="sso" className="text-sm">
+              {t('tabs.sso.name')}
+            </TabsTrigger>
+            {showProvisioningTab && (
+              <TabsTrigger value="provisioning" className="text-sm">
+                {t('tabs.provisioning.name')}
+              </TabsTrigger>
+            )}
+            <TabsTrigger value="domain" className="text-sm">
+              {t('tabs.domains.name')}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="sso">
+            <SsoProviderTab
+              provider={provider}
+              organization={organization}
+              onDelete={onDeleteConfirm}
+              onRemove={onRemoveConfirm}
+              isDeleting={isDeleting}
+              isRemoving={isRemoving}
+              idpConfig={idpConfig}
+              shouldAllowDeletion={shouldAllowDeletion}
+              hasSsoAttributeSyncWarning={hasSsoAttributeSyncWarning}
+              onAttributeSync={syncSsoAttributes}
+              isSyncingAttributes={isSsoAttributesSyncing}
+              customMessages={customMessages?.tabs?.sso?.content}
+              styling={styling}
+              formActions={{
+                isLoading: isUpdating,
+                nextAction: {
+                  disabled: isUpdating || !provider || isLoading,
+                  onClick: updateProvider,
+                },
+              }}
+              readOnly={readOnly}
+            />
+          </TabsContent>
+
+          {showProvisioningTab && (
+            <TabsContent value="provisioning">
+              <SsoProvisioningTab
+                provider={provider!}
+                isProvisioningUpdating={isProvisioningUpdating}
+                isProvisioningDeleting={isProvisioningDeleting}
+                isScimTokensLoading={isScimTokensLoading}
+                isScimTokenCreating={isScimTokenCreating}
+                isScimTokenDeleting={isScimTokenDeleting}
+                hasProvisioningAttributeSyncWarning={hasProvisioningAttributeSyncWarning}
+                onAttributeSync={syncProvisioningAttributes}
+                isSyncingAttributes={isProvisioningAttributesSyncing}
+                onCreateProvisioning={createProvisioning}
+                onDeleteProvisioning={deleteProvisioning}
+                onListScimTokens={listScimTokens}
+                onCreateScimToken={createScimToken}
+                onDeleteScimToken={deleteScimToken}
+                customMessages={customMessages?.tabs?.provisioning?.content}
+                styling={styling}
+              />
+            </TabsContent>
+          )}
+
+          <TabsContent value="domain">
+            <SsoDomainTab
+              customMessages={customMessages?.tabs?.domains?.content}
+              styling={styling}
+              domains={domains}
+              schema={schema?.domains}
+              idpId={providerId}
+              provider={provider}
+              readOnly={readOnly}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </StyledScope>
   );
 }

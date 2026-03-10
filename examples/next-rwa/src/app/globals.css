@@ -1,7 +1,10 @@
 /* Import Tailwind CSS v4 */
 @import 'tailwindcss';
-
 @import '@auth0/universal-components-react/styles';
+
+@theme {
+  --color-background: var(--background);
+}
 
 /* Minimal Next.js specific fixes - keep only essential z-index fixes */
 [data-radix-portal],

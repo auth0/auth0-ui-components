@@ -32,7 +32,7 @@ export async function checkOrgMembers(
     })
   }
   
-  const { stdout } = await $`auth0 orgs members list ${existingOrg.id} --json`
+  const { stdout } = await $`auth0 orgs members list ${existingOrg.id} --json --no-input`
   const members = JSON.parse(stdout) || []
   
   if (!members || members.length === 0) {
@@ -81,7 +81,7 @@ export async function applyOrgMemberChanges(changePlan, org, connection, role) {
       spinner.stop();
       // Check if a user with this email already exists on the demo connection
       // Use search-by-email to find users with this email (across connections)
-      const { stdout: usersStdout } = await $`auth0 users search-by-email ${changePlan.email} --json`
+      const { stdout: usersStdout } = await $`auth0 users search-by-email ${changePlan.email} --json --no-input`
       const users = JSON.parse(usersStdout) || []
       const existingUser = users.find(
         (u) =>

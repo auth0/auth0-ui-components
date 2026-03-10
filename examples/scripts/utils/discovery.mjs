@@ -2,10 +2,14 @@ import { $ } from "execa"
 import ora from "ora"
 
 import { auth0ApiCall } from "./auth0-api.mjs"
-import { createChangePlan } from "./change-plan.mjs"
+
+// Timeout for CLI commands (30 seconds)
+const CLI_TIMEOUT = 30000
+import { createChangePlan, ChangeAction, createChangeItem } from "./change-plan.mjs"
 import {
   checkDashboardClientChanges,
   checkMyOrgClientGrantChanges,
+  checkMyAccountClientGrantChanges,
 } from "./clients.mjs"
 import {
   checkConnectionProfileChanges,
@@ -14,7 +18,9 @@ import {
 import { checkUserAttributeProfileChanges } from "./profiles.mjs"
 import {
   checkMyOrgResourceServerChanges,
+  checkMyAccountResourceServerChanges,
   MYORG_API_SCOPES,
+  getAvailableMyAccountScopes,
 } from "./resource-servers.mjs"
 import { checkAdminRoleChanges } from "./roles.mjs"
 import { checkOrgChanges } from "./orgs.mjs"
@@ -48,23 +54,23 @@ export async function discoverExistingResources() {
     }
 
     // Get clients
-    const { stdout: clientsStdout } = await $`auth0 apps list --json`
+    const { stdout: clientsStdout } = await $({ timeout: CLI_TIMEOUT })`auth0 apps list --json --no-input`
     resources.clients = JSON.parse(clientsStdout) || []
 
     // Get roles
-    const { stdout: rolesStdout } = await $`auth0 roles list --json`
+    const { stdout: rolesStdout } = await $({ timeout: CLI_TIMEOUT })`auth0 roles list --json --no-input`
     resources.roles = JSON.parse(rolesStdout) || []
 
     // Get connections
-    const { stdout: connectionsStdout } = await $`auth0 api get connections`
+    const { stdout: connectionsStdout } = await $({ timeout: CLI_TIMEOUT })`auth0 api get connections --no-input`
     resources.connections = JSON.parse(connectionsStdout) || []
 
     // Get resource servers
-    const { stdout: rsStdout } = await $`auth0 apis list --json`
+    const { stdout: rsStdout } = await $({ timeout: CLI_TIMEOUT })`auth0 apis list --json --no-input`
     resources.resourceServers = JSON.parse(rsStdout) || []
 
     // Get client grants
-    const { stdout: grantsStdout } = await $`auth0 api get client-grants`
+    const { stdout: grantsStdout } = await $({ timeout: CLI_TIMEOUT })`auth0 api get client-grants --no-input`
     resources.clientGrants = JSON.parse(grantsStdout) || []
 
     // Get connection profiles (using generic API)
@@ -80,13 +86,13 @@ export async function discoverExistingResources() {
       userAttributeProfiles?.user_attribute_profiles || []
 
     // Get Orgs
-    const { stdout: orgsStdout } = await $`auth0 orgs list --json`
+    const { stdout: orgsStdout } = await $({ timeout: CLI_TIMEOUT })`auth0 orgs list --json --no-input`
     resources.orgs = JSON.parse(orgsStdout) || []
 
     // Get Org Members (if Demo Org exists)
     const demoOrg = resources.orgs.find((o) => o.name === DEMO_ORG_NAME)
     if (demoOrg) {
-      const { stdout: membersStdout } = await $`auth0 orgs members list ${demoOrg.id} --json`
+      const { stdout: membersStdout } = await $({ timeout: CLI_TIMEOUT })`auth0 orgs members list ${demoOrg.id} --json --no-input`
       resources.orgMembers = JSON.parse(membersStdout) || []
     } else {
       resources.orgMembers = []
@@ -107,6 +113,14 @@ export async function discoverExistingResources() {
     spinner.succeed("Resource discovery complete")
     return resources
   } catch (e) {
+    // Handle timeout errors with a helpful message
+    if (e.timedOut) {
+      spinner.fail("Resource discovery timed out")
+      console.error("\n❌ The Auth0 CLI is not responding.")
+      console.error("   This usually means your session has expired.")
+      console.error("   Please run 'auth0 login' and try again.\n")
+      process.exit(1)
+    }
     spinner.fail("Failed to discover existing resources")
     console.error(e)
     process.exit(1)
@@ -115,16 +129,27 @@ export async function discoverExistingResources() {
 
 /**
  * Check all resources and build comprehensive change plan
+ * @param {object} resources - Discovered resources from the tenant
+ * @param {string} domain - The tenant domain
+ * @param {string} exampleType - The example type (next-rwa, react-spa-shadcn, react-spa-npm)
+ * @param {object} featureConfig - Feature configuration { enableMyOrg, enableMyAccount }
  */
-export async function buildChangePlan(resources, domain, exampleType) {
+export async function buildChangePlan(resources, domain, exampleType, featureConfig) {
   const spinner = ora({
     text: `Analyzing required changes`,
   }).start()
 
   try {
-    const plan = createChangePlan()
+    const plan = createChangePlan(featureConfig)
 
-    // Profiles (needed first for Dashboard Client)
+    // Get available My Account API scopes from the tenant (only if MyAccount enabled)
+    const myAccountApiScopes = featureConfig.enableMyAccount
+      ? getAvailableMyAccountScopes(resources.resourceServers, domain)
+      : []
+    // Store scopes in plan for later use during apply phase
+    plan.myAccountApiScopes = myAccountApiScopes
+
+    // Profiles (needed first for Dashboard Client) - always check, needed for client setup
     plan.connectionProfile = checkConnectionProfileChanges(
       resources.connectionProfiles
     )
@@ -138,60 +163,127 @@ export async function buildChangePlan(resources, domain, exampleType) {
     const userAttributeProfileId =
       plan.userAttributeProfile.existing?.id || "TO_BE_CREATED"
 
-    // Clients (both fetch full details including secrets)
+    // Clients (with feature config for conditional refresh token policies)
     plan.clients.dashboard = await checkDashboardClientChanges(
       resources.clients,
       connectionProfileId,
       userAttributeProfileId,
       exampleType,
       domain,
-      MYORG_API_SCOPES
+      featureConfig.enableMyOrg ? MYORG_API_SCOPES : [],
+      myAccountApiScopes,
+      featureConfig
     )
 
     // Get client IDs (either existing or will be created)
     const dashboardClientId =
       plan.clients.dashboard.existing?.client_id || "TO_BE_CREATED"
 
-    // Resource Server
-    plan.resourceServer = checkMyOrgResourceServerChanges(
-      resources.resourceServers,
-      domain
-    )
+    // Resource Servers - conditionally check based on feature config
+    if (featureConfig.enableMyOrg) {
+      plan.resourceServer = checkMyOrgResourceServerChanges(
+        resources.resourceServers,
+        domain
+      )
+    } else {
+      plan.resourceServer = createChangeItem(ChangeAction.SKIP, {
+        resource: "My Organization API",
+        reason: "Organization Management feature disabled",
+      })
+    }
 
-    // My Org Client Grant (Dashboard to My Org API)
-    plan.clientGrants.myOrg = checkMyOrgClientGrantChanges(
-      dashboardClientId,
-      resources.clientGrants,
-      domain,
-      MYORG_API_SCOPES
-    )
+    if (featureConfig.enableMyAccount) {
+      plan.myAccountResourceServer = checkMyAccountResourceServerChanges(
+        resources.resourceServers,
+        domain
+      )
+    } else {
+      plan.myAccountResourceServer = createChangeItem(ChangeAction.SKIP, {
+        resource: "My Account API",
+        reason: "User Self-Service feature disabled",
+      })
+    }
 
-    // Connection
+    // My Org Client Grant (Dashboard to My Org API) - only if MyOrg enabled
+    if (featureConfig.enableMyOrg) {
+      plan.clientGrants.myOrg = checkMyOrgClientGrantChanges(
+        dashboardClientId,
+        resources.clientGrants,
+        domain,
+        MYORG_API_SCOPES
+      )
+    } else {
+      plan.clientGrants.myOrg = createChangeItem(ChangeAction.SKIP, {
+        resource: "My Org API Client Grant",
+        reason: "Organization Management feature disabled",
+      })
+    }
+
+    // My Account Client Grant (Dashboard to My Account API) - only if MyAccount enabled
+    if (featureConfig.enableMyAccount) {
+      plan.clientGrants.myAccount = checkMyAccountClientGrantChanges(
+        dashboardClientId,
+        resources.clientGrants,
+        domain,
+        myAccountApiScopes
+      )
+    } else {
+      plan.clientGrants.myAccount = createChangeItem(ChangeAction.SKIP, {
+        resource: "My Account API Client Grant",
+        reason: "User Self-Service feature disabled",
+      })
+    }
+
+    // Connection - always needed for user authentication
     plan.connection = checkDatabaseConnectionChanges(
       resources.connections,
       dashboardClientId,
     )
 
-    // Roles (admin role check makes API call to get current permissions)
-    plan.roles.admin = await checkAdminRoleChanges(
-      resources.roles,
-      domain,
-      MYORG_API_SCOPES
-    )
+    // Roles (admin role is MyOrg-specific) - only if MyOrg enabled
+    if (featureConfig.enableMyOrg) {
+      plan.roles.admin = await checkAdminRoleChanges(
+        resources.roles,
+        domain,
+        MYORG_API_SCOPES
+      )
+    } else {
+      plan.roles.admin = createChangeItem(ChangeAction.SKIP, {
+        resource: "Admin Role",
+        name: "admin",
+        reason: "Organization Management feature disabled",
+      })
+    }
 
-    // Orgs 
-    plan.orgs = await checkOrgChanges(
-      resources.orgs,
-      resources.connections,
-    )
+    // Orgs - only if MyOrg enabled
+    if (featureConfig.enableMyOrg) {
+      plan.orgs = await checkOrgChanges(
+        resources.orgs,
+        resources.connections,
+      )
+    } else {
+      plan.orgs = createChangeItem(ChangeAction.SKIP, {
+        resource: "Org",
+        name: "Demo Org",
+        reason: "Organization Management feature disabled",
+      })
+    }
 
-    // Org Members
-    spinner.stop('Analyzing required changes for Org Members');
-    plan.orgMembers = await checkOrgMembers(
-      resources.orgs,
-      resources.orgMembers,
-    )
-    spinner.start();
+    // Org Members - only if MyOrg enabled
+    if (featureConfig.enableMyOrg) {
+      spinner.stop('Analyzing required changes for Org Members');
+      plan.orgMembers = await checkOrgMembers(
+        resources.orgs,
+        resources.orgMembers,
+      )
+      spinner.start();
+    } else {
+      plan.orgMembers = createChangeItem(ChangeAction.SKIP, {
+        resource: "Org Member",
+        name: "Demo Org",
+        reason: "Organization Management feature disabled",
+      })
+    }
 
     // Tenant Configuration (these make API calls to check current state)
     plan.tenantConfig.settings = await checkTenantSettingsChanges()
@@ -213,6 +305,7 @@ export function displayChangePlan(plan) {
   const creates = []
   const updates = []
   const skips = []
+  const featureSkips = []
 
   // Helper to categorize changes
   function categorize(item) {
@@ -226,17 +319,24 @@ export function displayChangePlan(plan) {
       const summaryStr = item.summary ? `: ${item.summary}` : ""
       updates.push(`${item.resource}${nameStr}${summaryStr}`)
     } else if (item.action === "skip") {
-      skips.push(`${item.resource}${item.name ? ` (${item.name})` : ""}`)
+      // Distinguish between feature-disabled skips and already-configured skips
+      if (item.reason) {
+        featureSkips.push(`${item.resource}${item.name ? ` (${item.name})` : ""}: ${item.reason}`)
+      } else {
+        skips.push(`${item.resource}${item.name ? ` (${item.name})` : ""}`)
+      }
     }
   }
 
   // Categorize all plan items
   categorize(plan.clients.dashboard)
   categorize(plan.clientGrants.myOrg)
+  categorize(plan.clientGrants.myAccount)
   categorize(plan.connection)
   categorize(plan.connectionProfile)
   categorize(plan.userAttributeProfile)
   categorize(plan.resourceServer)
+  categorize(plan.myAccountResourceServer)
   categorize(plan.roles.admin)
   categorize(plan.roles.member)
   categorize(plan.orgs)
@@ -244,9 +344,21 @@ export function displayChangePlan(plan) {
   categorize(plan.tenantConfig.settings)
   categorize(plan.tenantConfig.prompts)
 
+  // Display feature configuration
   console.log("\n" + "=".repeat(80))
   console.log("BOOTSTRAP PLAN")
   console.log("=".repeat(80))
+
+  // Show enabled features
+  if (plan.features) {
+    console.log("\n🎯 Features to configure:")
+    if (plan.features.enableMyOrg) {
+      console.log("   • Organization Management (My Organization API)")
+    }
+    if (plan.features.enableMyAccount) {
+      console.log("   • User Self-Service (My Account API)")
+    }
+  }
 
   // Check if there are no changes needed
   if (creates.length === 0 && updates.length === 0) {
@@ -271,6 +383,11 @@ export function displayChangePlan(plan) {
   if (skips.length > 0) {
     console.log("\n✓ Resources already up to date:")
     skips.forEach((item) => console.log(`   • ${item}`))
+  }
+
+  if (featureSkips.length > 0) {
+    console.log("\n⏭️  Resources skipped (feature not selected):")
+    featureSkips.forEach((item) => console.log(`   • ${item}`))
   }
 
   console.log("\n" + "=".repeat(80))
@@ -399,9 +516,11 @@ export function displayChangePlan(plan) {
     showDetails(plan.clients.dashboard, "Dashboard Client")
     showDetails(plan.clientGrants.management, "Management API Client Grant")
     showDetails(plan.clientGrants.myOrg, "My Org API Client Grant")
+    showDetails(plan.clientGrants.myAccount, "My Account API Client Grant")
     showDetails(plan.connection, "Database Connection")
     showDetails(plan.connectionProfile, "Connection Profile")
     showDetails(plan.resourceServer, "My Organization API")
+    showDetails(plan.myAccountResourceServer, "My Account API")
     showDetails(plan.roles.admin, "Admin Role")
     showDetails(plan.roles.member, "Member Role")
     showDetails(plan.orgs, "Organization")

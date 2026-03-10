@@ -12,6 +12,7 @@ import { DomainVerifyModal } from '@/components/auth0/my-organization/shared/dom
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { GateKeeper } from '@/components/auth0/shared/gatekeeper';
 import { Header } from '@/components/auth0/shared/header';
+import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
 import { useDomainTable } from '@/hooks/my-organization/use-domain-table';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -181,7 +182,7 @@ export function DomainTableView({
   );
 
   return (
-    <div style={currentStyles.variables}>
+    <StyledScope style={currentStyles.variables}>
       {!hideHeader && (
         <div className={currentStyles.classes?.['DomainTable-header']}>
           <Header
@@ -253,6 +254,6 @@ export function DomainTableView({
         onDelete={handleDelete}
         customMessages={customMessages?.delete}
       />
-    </div>
+    </StyledScope>
   );
 }

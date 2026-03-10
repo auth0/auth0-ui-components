@@ -8,6 +8,7 @@ import { ProviderDetails } from '@/components/auth0/my-organization/shared/idp-m
 import { ProviderSelect } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-select';
 import { GateKeeper } from '@/components/auth0/shared/gatekeeper';
 import { Header } from '@/components/auth0/shared/header';
+import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Wizard } from '@/components/auth0/shared/wizard';
 import type { StepProps } from '@/components/auth0/shared/wizard';
 import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-create';
@@ -186,31 +187,33 @@ export function SsoProviderCreateView({
   );
 
   return (
-    <div style={currentStyles.variables} className="w-full">
-      <Header
-        title={t('header.title')}
-        backButton={
-          backButton && {
-            ...backButton,
-            text: t('header.back_button_text'),
+    <StyledScope style={currentStyles.variables}>
+      <div className="w-full">
+        <Header
+          title={t('header.title')}
+          backButton={
+            backButton && {
+              ...backButton,
+              text: t('header.back_button_text'),
+            }
           }
-        }
-        className={currentStyles?.classes?.['SsoProviderCreate-header']}
-      />
-      <div className="sso-provider-create__content" data-testid="sso-provider-create-content">
-        <Wizard
-          isLoading={isCreating}
-          hideStepperNumbers
-          steps={wizardSteps}
-          onComplete={handleCreate}
-          formActionLabels={{
-            nextButtonLabel: t('nextButtonLabel'),
-            previousButtonLabel: t('previousButtonLabel'),
-            completeButtonLabel: t('completeButtonLabel'),
-          }}
-          className={currentStyles?.classes?.['SsoProviderCreate-wizard']}
+          className={currentStyles?.classes?.['SsoProviderCreate-header']}
         />
+        <div className="sso-provider-create__content" data-testid="sso-provider-create-content">
+          <Wizard
+            isLoading={isCreating}
+            hideStepperNumbers
+            steps={wizardSteps}
+            onComplete={handleCreate}
+            formActionLabels={{
+              nextButtonLabel: t('nextButtonLabel'),
+              previousButtonLabel: t('previousButtonLabel'),
+              completeButtonLabel: t('completeButtonLabel'),
+            }}
+            className={currentStyles?.classes?.['SsoProviderCreate-wizard']}
+          />
+        </div>
       </div>
-    </div>
+    </StyledScope>
   );
 }
