@@ -12,7 +12,6 @@ import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   ActiveTab,
-  Member,
   Invitation,
   CreateInvitationInput,
   InvitationStatus,
@@ -29,7 +28,6 @@ const DEFAULT_PAGE_SIZE = 10;
 
 export const memberManagementQueryKeys = {
   all: ['member-management'] as const,
-  members: () => [...memberManagementQueryKeys.all, 'members'] as const,
   invitations: () => [...memberManagementQueryKeys.all, 'invitations'] as const,
 };
 
@@ -72,27 +70,6 @@ function mapMemberInvitationToInvitation(memberInvitation: MemberInvitation): In
 }
 
 /**
- * Maps SDK OrgMember to UI Member type.
- * @param orgMember - The SDK organization member object.
- * @returns The mapped Member object.
- */
-function mapOrgMemberToMember(orgMember: {
-  user_id?: string;
-  email?: string;
-  name?: string;
-  picture?: string;
-  roles?: Array<{ id?: string; name?: string }>;
-}): Member {
-  return {
-    user_id: orgMember.user_id ?? '',
-    email: orgMember.email,
-    name: orgMember.name,
-    picture: orgMember.picture,
-    roles: orgMember.roles?.map((role) => role.name ?? role.id ?? '') ?? [],
-  };
-}
-
-/**
  * Maps invitation table column accessor keys to the API's sort_by field names.
  * API sortable fields: email, status, created-at, expires-at, invited-by
  */
@@ -120,7 +97,6 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
     createInvitationAction,
     revokeInvitationAction,
     resendInvitationAction,
-    removeMemberAction,
   } = options;
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
@@ -496,86 +472,9 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
     setInvitationCurrentPage(1);
   }, []);
 
-  /* ---- Members ---- */
-
-  const [showRemoveModal, setShowRemoveModal] = React.useState(false);
-  const [selectedMember, setSelectedMember] = React.useState<Member | null>(null);
-
-  const membersQuery = useQuery({
-    queryKey: memberManagementQueryKeys.members(),
-    queryFn: async () => {
-      const response = await coreClient!.getMyOrganizationApiClient().organization.members.list();
-      return (response.members ?? []).map(mapOrgMemberToMember);
-    },
-    enabled: !!coreClient && activeTab === 'members',
-  });
-
-  const removeMemberMutation = useMutation({
-    mutationFn: async (member: Member) => {
-      if (removeMemberAction?.onBefore && !removeMemberAction.onBefore(member)) {
-        throw new Error('Remove action cancelled by onBefore');
-      }
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.members.delete(member.user_id, { delete_user: false });
-      return member;
-    },
-    onSuccess: (member) => {
-      removeMemberAction?.onAfter?.(member);
-      showToast({
-        type: 'success',
-        message: t('member.remove.success', { name: member.name ?? member.email ?? '' }),
-      });
-      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.members() });
-    },
-    onError: () => {
-      showToast({ type: 'error', message: t('member.error.remove_failed') });
-    },
-  });
-
-  const removeMember = React.useCallback(
-    async (member: Member): Promise<boolean> => {
-      if (!coreClient) return false;
-      try {
-        await removeMemberMutation.mutateAsync(member);
-        return true;
-      } catch {
-        return false;
-      }
-    },
-    [coreClient, removeMemberMutation],
-  );
-
-  const handleRemoveClick = React.useCallback(
-    (member: Member) => {
-      if (readOnly) return;
-      setSelectedMember(member);
-      setShowRemoveModal(true);
-    },
-    [readOnly],
-  );
-
-  const handleRemoveConfirm = React.useCallback(async () => {
-    if (!selectedMember) return;
-    const success = await removeMember(selectedMember);
-    if (success) {
-      setShowRemoveModal(false);
-      setSelectedMember(null);
-    }
-  }, [selectedMember, removeMember]);
-
-  const handleRemoveCancel = React.useCallback(() => {
-    setShowRemoveModal(false);
-    setSelectedMember(null);
-  }, []);
-
   const state: MemberManagementState = {
     activeTab,
-    isLoading:
-      membersQuery.isLoading ||
-      membersQuery.isFetching ||
-      invitationsQuery.isLoading ||
-      invitationsQuery.isFetching,
+    isLoading: invitationsQuery.isLoading || invitationsQuery.isFetching,
     availableRoles,
     availableProviders,
 
@@ -598,12 +497,6 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
     showRevokeModal,
     showRevokeResendModal,
     selectedInvitation,
-
-    members: membersQuery.data ?? [],
-    isFetchingMembers: membersQuery.isLoading || membersQuery.isFetching,
-    isRemovingMember: removeMemberMutation.isPending,
-    showRemoveModal,
-    selectedMember,
   };
 
   const handlers: MemberManagementHandlers = {
@@ -626,10 +519,6 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
     handlePageSizeChange,
     handleSortChange,
     handleRoleFilterChange,
-
-    handleRemoveClick,
-    handleRemoveConfirm,
-    handleRemoveCancel,
   };
 
   return { state, handlers };

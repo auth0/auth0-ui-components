@@ -74,20 +74,20 @@ function getStatusBadgeVariant(status: InvitationStatus): 'warning' | 'destructi
 
 /**
  * Modal for viewing invitation details with revoke and resend actions.
- * @param root0 - The component props.
- * @param root0.invitation - The invitation to display.
- * @param root0.isOpen - Whether the modal is open.
- * @param root0.isRevoking - Whether a revoke action is in progress.
- * @param root0.isResending - Whether a resend action is in progress.
- * @param root0.customMessages - Custom translation messages.
- * @param root0.availableRoles - Available roles for display.
- * @param root0.availableProviders - Available providers for display.
- * @param root0.readOnly - Whether in read-only mode.
- * @param root0.onClose - Callback when modal is closed.
- * @param root0.onCopyUrl - Callback when copy URL is clicked.
- * @param root0.onRevoke - Callback when revoke is clicked.
- * @param root0.onResend - Callback when revoke and resend is clicked.
- * @param root0.className - Optional CSS class name.
+ * @param props - The component props.
+ * @param props.invitation - The invitation to display.
+ * @param props.isOpen - Whether the modal is open.
+ * @param props.isRevoking - Whether a revoke action is in progress.
+ * @param props.isResending - Whether a resend action is in progress.
+ * @param props.customMessages - Custom translation messages.
+ * @param props.availableRoles - Available roles for display.
+ * @param props.availableProviders - Available providers for display.
+ * @param props.readOnly - Whether in read-only mode.
+ * @param props.onClose - Callback when modal is closed.
+ * @param props.onCopyUrl - Callback when copy URL is clicked.
+ * @param props.onRevoke - Callback when revoke is clicked.
+ * @param props.onResend - Callback when revoke and resend is clicked.
+ * @param props.className - Optional CSS class name.
  * @returns The modal component.
  */
 export function OrganizationInvitationDetailsModal({

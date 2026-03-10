@@ -11,8 +11,6 @@ import { OrganizationInvitationCreateModal } from '@/components/auth0/my-organiz
 import { OrganizationInvitationDetailsModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal';
 import { OrganizationInvitationRevokeModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-revoke-modal';
 import { OrganizationInvitationTable } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-table/organization-invitation-table';
-import { OrganizationMemberRemoveModal } from '@/components/auth0/my-organization/shared/member-management/members/member-remove/organization-member-remove-modal';
-import { OrganizationMemberTable } from '@/components/auth0/my-organization/shared/member-management/members/member-table/organization-member-table';
 import { Header } from '@/components/auth0/shared/header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { withMyOrganizationService } from '@/hoc/with-services';
@@ -97,13 +95,8 @@ export function OrganizationMemberManagementView({
         </TabsList>
 
         <TabsContent value="members">
-          <OrganizationMemberTable
-            members={state.members}
-            loading={state.isFetchingMembers}
-            customMessages={state.customMessages?.member}
-            onRemove={state.readOnly ? undefined : handlers.handleRemoveClick}
-            className={currentStyles.classes?.['OrganizationMemberTab-table']}
-          />
+          {/* <OrganizationMemberTable
+          /> */}
         </TabsContent>
 
         <TabsContent value="invitations">
@@ -129,16 +122,6 @@ export function OrganizationMemberManagementView({
           />
         </TabsContent>
       </Tabs>
-
-      <OrganizationMemberRemoveModal
-        member={state.selectedMember}
-        isOpen={state.showRemoveModal}
-        isLoading={state.isRemovingMember}
-        customMessages={state.customMessages?.member}
-        onClose={handlers.handleRemoveCancel}
-        onRemove={handlers.handleRemoveConfirm}
-        className={currentStyles.classes?.['OrganizationMemberTab-removeModal']}
-      />
 
       <OrganizationInvitationCreateModal
         isOpen={state.showCreateModal}
@@ -206,7 +189,6 @@ function OrganizationMemberManagementContainer(props: OrganizationMemberManageme
     createInvitationAction,
     revokeInvitationAction,
     resendInvitationAction,
-    removeMemberAction,
   } = props;
 
   const { state, handlers } = useOrganizationMemberManagement({
@@ -221,7 +203,6 @@ function OrganizationMemberManagementContainer(props: OrganizationMemberManageme
     createInvitationAction,
     revokeInvitationAction,
     resendInvitationAction,
-    removeMemberAction,
   });
 
   const extendedState = {

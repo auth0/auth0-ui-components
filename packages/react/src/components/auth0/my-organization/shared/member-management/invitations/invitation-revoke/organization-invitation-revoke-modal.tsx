@@ -30,15 +30,15 @@ export interface OrganizationInvitationRevokeModalProps {
 
 /**
  * Modal for confirming invitation revocation or revoke and resend.
- * @param root0 - The component props.
- * @param root0.invitation - The invitation to revoke.
- * @param root0.isOpen - Whether the modal is open.
- * @param root0.isLoading - Whether the action is in progress.
- * @param root0.isRevokeAndResend - Whether this is a revoke and resend action.
- * @param root0.customMessages - Custom translation messages.
- * @param root0.onClose - Callback when modal is closed.
- * @param root0.onConfirm - Callback when action is confirmed.
- * @param root0.className - Optional CSS class name.
+ * @param props - The component props.
+ * @param props.invitation - The invitation to revoke.
+ * @param props.isOpen - Whether the modal is open.
+ * @param props.isLoading - Whether the action is in progress.
+ * @param props.isRevokeAndResend - Whether this is a revoke and resend action.
+ * @param props.customMessages - Custom translation messages.
+ * @param props.onClose - Callback when modal is closed.
+ * @param props.onConfirm - Callback when action is confirmed.
+ * @param props.className - Optional CSS class name.
  * @returns The modal component.
  */
 export function OrganizationInvitationRevokeModal({

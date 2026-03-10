@@ -3,16 +3,18 @@
  * @module organization-invitation-create-modal
  */
 
-import { X } from 'lucide-react';
+import {
+  createInvitationCreateSchema,
+  type InvitationCreateSchemas,
+} from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
-import type { ComboboxOption } from '@/components/ui/combobox';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -25,16 +27,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { TextField } from '@/components/ui/text-field';
+import { TextFieldGroup } from '@/components/ui/text-field-group';
+import type { ChipItem } from '@/components/ui/text-field-group';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
 import type {
   CreateInvitationInput,
   RoleOption,
   IdentityProviderOption,
   OrganizationInvitationTabMessages,
 } from '@/types';
-
-const MAX_EMAILS = 10;
 
 export interface OrganizationInvitationCreateModalProps {
   isOpen: boolean;
@@ -43,33 +45,28 @@ export interface OrganizationInvitationCreateModalProps {
   availableRoles?: RoleOption[];
   availableProviders?: IdentityProviderOption[];
   inviterName?: string;
+  schema?: InvitationCreateSchemas;
   onClose: () => void;
   onCreate: (data: CreateInvitationInput) => void;
   className?: string;
 }
 
 /**
- * Validates an email address.
- * @param email - The email to validate.
- * @returns Whether the email is valid.
- */
-function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
-/**
- * Modal for creating new invitations.
- * @param root0 - The component props.
- * @param root0.isOpen - Whether the modal is open.
- * @param root0.isLoading - Whether the form is loading.
- * @param root0.customMessages - Custom translation messages.
- * @param root0.availableRoles - Available roles for selection.
- * @param root0.availableProviders - Available identity providers.
- * @param root0.inviterName - Name of the person sending the invitation.
- * @param root0.onClose - Callback when modal is closed.
- * @param root0.onCreate - Callback when invitation is created.
- * @param root0.className - Optional CSS class name.
+ * Modal for creating a new invitation.
+ * Supports multiple email addresses, role selection, and provider selection.
+ * Validation rules can be overridden via the `schema` prop.
+ *
+ * @param props - The component props.
+ * @param props.isOpen - Whether the modal is open.
+ * @param props.isLoading - Whether the form is loading.
+ * @param props.customMessages - Custom translation messages.
+ * @param props.availableRoles - Available roles for selection.
+ * @param props.availableProviders - Available identity providers.
+ * @param props.inviterName - Name of the person sending the invitation.
+ * @param props.schema - Schema overrides for validation (email regex, maxEmails, error messages).
+ * @param props.onClose - Callback when modal is closed.
+ * @param props.onCreate - Callback when invitation is created.
+ * @param props.className - Optional CSS class name.
  * @returns The modal component.
  */
 export function OrganizationInvitationCreateModal({
@@ -79,83 +76,81 @@ export function OrganizationInvitationCreateModal({
   availableRoles = [],
   availableProviders = [],
   inviterName,
+  schema,
   onClose,
   onCreate,
   className,
 }: OrganizationInvitationCreateModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
+  const validationConfig = React.useMemo(
+    () => createInvitationCreateSchema(schema, t('invitation.create.email_invalid_error')),
+    [schema, t],
+  );
+
   const [emailInput, setEmailInput] = React.useState('');
-  const [emails, setEmails] = React.useState<string[]>([]);
+  const [emailChips, setEmailChips] = React.useState<ChipItem[]>([]);
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
   const [selectedProvider, setSelectedProvider] = React.useState<string | undefined>();
   const [emailError, setEmailError] = React.useState<string | undefined>();
-
-  const roleOptions: ComboboxOption[] = React.useMemo(
-    () => availableRoles.map((role) => ({ label: role.name, value: role.id })),
-    [availableRoles],
-  );
-
-  const addEmail = React.useCallback(
-    (raw: string) => {
-      const trimmed = raw.trim().replace(/,/g, '');
-      if (!trimmed) return;
-
-      if (!isValidEmail(trimmed)) {
-        setEmailError(t('invitation.create.email_invalid_error'));
-        return;
-      }
-      if (emails.includes(trimmed)) {
-        setEmailError(t('invitation.create.email_duplicate_error'));
-        return;
-      }
-      if (emails.length >= MAX_EMAILS) {
-        setEmailError(t('invitation.create.email_limit_error'));
-        return;
-      }
-
-      setEmails((prev) => [...prev, trimmed]);
-      setEmailInput('');
-      setEmailError(undefined);
-    },
-    [emails, t],
-  );
 
   const handleEmailInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setEmailInput(e.target.value);
     setEmailError(undefined);
   }, []);
 
-  const handleEmailInputKeyDown = React.useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
-        e.preventDefault();
-        addEmail(emailInput);
+  const handleEmailChipAdd = React.useCallback(
+    (value: string) => {
+      const trimmedEmail = value.trim().replace(/,/g, '');
+
+      if (!trimmedEmail) return;
+
+      if (emailChips.length >= validationConfig.maxEmails) {
+        setEmailError(t('invitation.create.email_limit_error'));
+        return;
       }
-      if (e.key === 'Backspace' && !emailInput && emails.length > 0) {
-        setEmails((prev) => prev.slice(0, -1));
+
+      const result = validationConfig.emailSchema.safeParse(trimmedEmail);
+      if (!result.success) {
+        setEmailError(result.error.errors[0]?.message ?? validationConfig.emailErrorMessage);
+        return;
       }
+
+      if (emailChips.some((chip) => chip.value === trimmedEmail)) {
+        setEmailError(t('invitation.create.email_duplicate_error'));
+        return;
+      }
+
+      setEmailChips((prev) => [...prev, { label: trimmedEmail, value: trimmedEmail }]);
+      setEmailInput('');
+      setEmailError(undefined);
     },
-    [emailInput, emails, addEmail],
+    [emailChips, validationConfig, t],
   );
 
-  const handleRemoveEmail = React.useCallback((emailToRemove: string) => {
-    setEmails((prev) => prev.filter((e) => e !== emailToRemove));
+  const handleEmailChipRemove = React.useCallback((value: string) => {
+    setEmailChips((prev) => prev.filter((chip) => chip.value !== value));
+  }, []);
+
+  const handleRoleChange = React.useCallback((value: string | string[]) => {
+    setSelectedRoles(Array.isArray(value) ? value : value ? [value] : []);
   }, []);
 
   const handleProviderChange = React.useCallback((value: string) => {
-    setSelectedProvider(value === 'none' ? undefined : value);
+    setSelectedProvider(value || undefined);
   }, []);
 
   const handleSubmit = React.useCallback(
-    (e: React.FormEvent) => {
+    async (e: React.FormEvent) => {
       e.preventDefault();
 
-      const finalEmails = [...emails];
+      // Add any remaining input to emails
+      const finalEmails = emailChips.map((chip) => chip.value);
       if (emailInput.trim()) {
-        const trimmed = emailInput.trim();
-        if (isValidEmail(trimmed) && !emails.includes(trimmed)) {
-          finalEmails.push(trimmed);
+        const trimmedEmail = emailInput.trim();
+        const result = validationConfig.emailSchema.safeParse(trimmedEmail);
+        if (result.success && !finalEmails.includes(trimmedEmail)) {
+          finalEmails.push(trimmedEmail);
         }
       }
 
@@ -164,24 +159,36 @@ export function OrganizationInvitationCreateModal({
         return;
       }
 
+      // Create invitations for each email
       for (const email of finalEmails) {
-        const data: CreateInvitationInput = {
+        const invitationData: CreateInvitationInput = {
           invitee: { email },
           roles: selectedRoles.length > 0 ? selectedRoles : undefined,
           identity_provider_id: selectedProvider,
         };
+
         if (inviterName) {
-          data.inviter = { name: inviterName };
+          invitationData.inviter = { name: inviterName };
         }
-        onCreate(data);
+
+        onCreate(invitationData);
       }
     },
-    [emails, emailInput, selectedRoles, selectedProvider, inviterName, onCreate, t],
+    [
+      emailChips,
+      emailInput,
+      validationConfig,
+      selectedRoles,
+      selectedProvider,
+      inviterName,
+      onCreate,
+      t,
+    ],
   );
 
   const handleClose = React.useCallback(() => {
     setEmailInput('');
-    setEmails([]);
+    setEmailChips([]);
     setSelectedRoles([]);
     setSelectedProvider(undefined);
     setEmailError(undefined);
@@ -189,7 +196,13 @@ export function OrganizationInvitationCreateModal({
   }, [onClose]);
 
   const canSubmit =
-    emails.length > 0 || (emailInput.trim() !== '' && isValidEmail(emailInput.trim()));
+    emailChips.length > 0 ||
+    (emailInput.trim() && validationConfig.emailSchema.safeParse(emailInput.trim()).success);
+
+  const roleOptions = React.useMemo(
+    () => availableRoles.map((role) => ({ label: role.name, value: role.id })),
+    [availableRoles],
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -197,72 +210,56 @@ export function OrganizationInvitationCreateModal({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>{t('invitation.create.title')}</DialogTitle>
+            <DialogDescription>{t('invitation.create.description')}</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
+            {/* Email Input */}
             <div className="space-y-2">
-              <Label htmlFor="email">
-                {t('invitation.create.email_label')}
-                <span className="text-destructive">*</span>
-              </Label>
-              <TextField
+              <Label htmlFor="email">{t('invitation.create.email_label')}</Label>
+              <TextFieldGroup
                 id="email"
+                placeholder={t('invitation.create.email_placeholder')}
                 value={emailInput}
                 onChange={handleEmailInputChange}
-                onKeyDown={handleEmailInputKeyDown}
-                placeholder={emails.length === 0 ? t('invitation.create.email_placeholder') : ''}
-                disabled={isLoading || emails.length >= MAX_EMAILS}
-                error={!!emailError}
-                helperText={emailError ?? t('invitation.create.email_helper')}
-                startAdornment={
-                  emails.length > 0 ? (
-                    <div className="flex flex-wrap gap-1 py-0.5">
-                      {emails.map((email) => (
-                        <Badge key={email} variant="secondary" size="sm" className="gap-1">
-                          {email}
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveEmail(email)}
-                            className="hover:bg-muted rounded-full p-0.5"
-                            disabled={isLoading}
-                            aria-label={`Remove ${email}`}
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                  ) : undefined
-                }
-                className={emails.length > 0 ? 'h-auto min-h-10 flex-wrap py-0.5 pl-1.5' : ''}
+                disabled={isLoading}
+                variant={emailError ? 'error' : 'default'}
+                chips={emailChips}
+                onChipAdd={handleEmailChipAdd}
+                onChipRemove={handleEmailChipRemove}
+                summarizeChips={false}
               />
+              <p
+                className={cn('text-xs', emailError ? 'text-destructive' : 'text-muted-foreground')}
+              >
+                {emailError ?? t('invitation.create.email_helper')}
+              </p>
             </div>
 
+            {/* Roles Combobox */}
             {availableRoles.length > 0 && (
               <div className="space-y-2">
-                <Label>{t('invitation.create.roles_label')}</Label>
+                <Label htmlFor="roles">{t('invitation.create.roles_label')}</Label>
                 <Combobox
                   value={selectedRoles}
-                  onChange={(val) => setSelectedRoles(Array.isArray(val) ? val : [val])}
+                  onChange={handleRoleChange}
                   options={roleOptions}
-                  multiple
                   placeholder={t('invitation.create.roles_placeholder')}
                   disabled={isLoading}
+                  multiple
                 />
               </div>
             )}
 
+            {/* Provider Dropdown */}
             {availableProviders.length > 0 && (
               <div className="space-y-2">
-                <Label>{t('invitation.create.provider_label')}</Label>
-                <Select value={selectedProvider ?? 'none'} onValueChange={handleProviderChange}>
-                  <SelectTrigger>
+                <Label htmlFor="provider">{t('invitation.create.provider_label')}</Label>
+                <Select value={selectedProvider ?? ''} onValueChange={handleProviderChange}>
+                  <SelectTrigger id="provider">
                     <SelectValue placeholder={t('invitation.create.provider_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">
-                      {t('invitation.create.provider_placeholder')}
-                    </SelectItem>
                     {availableProviders.map((provider) => (
                       <SelectItem key={provider.id} value={provider.id}>
                         {provider.name}
@@ -270,9 +267,6 @@ export function OrganizationInvitationCreateModal({
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground">
-                  {t('invitation.create.provider_helper')}
-                </p>
               </div>
             )}
           </div>
@@ -282,7 +276,7 @@ export function OrganizationInvitationCreateModal({
               {t('invitation.create.cancel_button')}
             </Button>
             <Button type="submit" disabled={isLoading || !canSubmit}>
-              {t('invitation.create.submit_button')}
+              {isLoading ? 'Creating...' : t('invitation.create.submit_button')}
             </Button>
           </DialogFooter>
         </form>

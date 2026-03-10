@@ -16,11 +16,6 @@ import type {
   OrganizationInvitationTabMessages,
   RoleOption,
 } from './organization-invitation-table-types';
-import type {
-  Member,
-  OrganizationMemberTabClasses,
-  OrganizationMemberTabMessages,
-} from './organization-member-table-types';
 
 export type ActiveTab = 'members' | 'invitations';
 
@@ -34,8 +29,6 @@ export interface UseOrganizationMemberManagementOptions {
   revokeInvitationAction?: ComponentAction<Invitation>;
   /** Action hooks for invitation revoke-and-resend (onBefore/onAfter) */
   resendInvitationAction?: ComponentAction<Invitation, Invitation>;
-  /** Action hooks for member removal (onBefore/onAfter) */
-  removeMemberAction?: ComponentAction<Member>;
 }
 
 export interface MemberManagementState {
@@ -57,12 +50,6 @@ export interface MemberManagementState {
   showRevokeModal: boolean;
   showRevokeResendModal: boolean;
   selectedInvitation: Invitation | null;
-
-  members: Member[];
-  isFetchingMembers: boolean;
-  isRemovingMember: boolean;
-  showRemoveModal: boolean;
-  selectedMember: Member | null;
 }
 
 export interface MemberManagementHandlers {
@@ -85,16 +72,10 @@ export interface MemberManagementHandlers {
   handlePageSizeChange: (pageSize: number) => void;
   handleSortChange: (sortConfig: InvitationSortConfig) => void;
   handleRoleFilterChange: (roleId: string | undefined) => void;
-
-  handleRemoveClick: (member: Member) => void;
-  handleRemoveConfirm: () => Promise<void>;
-  handleRemoveCancel: () => void;
 }
 
 /** CSS classes for OrganizationMemberManagement. */
-export interface OrganizationMemberManagementClasses
-  extends OrganizationMemberTabClasses,
-    OrganizationInvitationTabClasses {
+export interface OrganizationMemberManagementClasses extends OrganizationInvitationTabClasses {
   'OrganizationMemberManagement-root'?: string;
   'OrganizationMemberManagement-header'?: string;
   'OrganizationMemberManagement-tabs'?: string;
@@ -110,7 +91,6 @@ export interface OrganizationMemberManagementMessages {
     members?: string;
     invitations?: string;
   };
-  member?: OrganizationMemberTabMessages;
   invitation?: OrganizationInvitationTabMessages;
 }
 
@@ -128,6 +108,4 @@ export interface OrganizationMemberManagementProps
   revokeInvitationAction?: ComponentAction<Invitation>;
   /** Action hooks for invitation revoke-and-resend (onBefore/onAfter) */
   resendInvitationAction?: ComponentAction<Invitation, Invitation>;
-  /** Action hooks for member removal (onBefore/onAfter) */
-  removeMemberAction?: ComponentAction<Member>;
 }
