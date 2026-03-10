@@ -57,11 +57,11 @@ describe('step-up-api-service', () => {
         vi.restoreAllMocks();
       });
 
-      it('should return proxy MFA client when authProxyUrl is provided', () => {
-        const auth: AuthDetails = {
-          authProxyUrl: 'https://proxy.example.com',
-        };
+      const auth: AuthDetails = {
+        authProxyUrl: 'https://proxy.example.com',
+      };
 
+      it('should return proxy MFA client when authProxyUrl is provided', () => {
         const result = initializeStepUpApiService(auth);
 
         expect(result).toBeDefined();
@@ -91,10 +91,6 @@ describe('step-up-api-service', () => {
 
       describe('getAuthenticators', () => {
         it('should fetch authenticators with mfa_token', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           const mockAuthenticators = [
             { id: 'auth_1', type: 'otp' },
             { id: 'auth_2', type: 'oob' },
@@ -115,10 +111,6 @@ describe('step-up-api-service', () => {
         });
 
         it('should throw error when response is not ok', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           const errorBody = {
             error: 'invalid_token',
             error_description: 'Invalid MFA token',
@@ -138,10 +130,6 @@ describe('step-up-api-service', () => {
         });
 
         it('should handle error when json parsing fails', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           fetchSpy.mockResolvedValue({
             ok: false,
             status: 500,
@@ -156,10 +144,6 @@ describe('step-up-api-service', () => {
 
       describe('enroll', () => {
         it('should enroll OTP authenticator', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           const mockResponse = {
             authenticatorType: 'otp',
             secret: 'secret_123',
@@ -189,10 +173,6 @@ describe('step-up-api-service', () => {
         });
 
         it('should enroll SMS authenticator with phone number', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           const mockResponse = {
             authenticatorType: 'sms',
             id: 'auth_123',
@@ -223,10 +203,6 @@ describe('step-up-api-service', () => {
         });
 
         it('should enroll voice authenticator with phone number', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           const mockResponse = {
             authenticatorType: 'voice',
             id: 'auth_123',
@@ -257,10 +233,6 @@ describe('step-up-api-service', () => {
         });
 
         it('should enroll email authenticator with email', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           const mockResponse = {
             authenticatorType: 'email',
             id: 'auth_123',
@@ -291,10 +263,6 @@ describe('step-up-api-service', () => {
         });
 
         it('should enroll email authenticator without email field', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           const mockResponse = {
             authenticatorType: 'email',
             id: 'auth_123',
@@ -323,10 +291,6 @@ describe('step-up-api-service', () => {
         });
 
         it('should throw error when enrollment fails', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           const errorBody = {
             error: 'enrollment_failed',
             error_description: 'Failed to enroll authenticator',
@@ -351,10 +315,6 @@ describe('step-up-api-service', () => {
 
       describe('challenge', () => {
         it('should challenge authenticator', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           const mockResponse = {
             challengeType: 'oob',
             oobCode: 'oob_code_123',
@@ -385,10 +345,6 @@ describe('step-up-api-service', () => {
         });
 
         it('should throw error when challenge fails', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           const errorBody = {
             error: 'challenge_failed',
             error_description: 'Failed to challenge authenticator',
@@ -414,10 +370,6 @@ describe('step-up-api-service', () => {
 
       describe('verify', () => {
         it('should verify OTP code', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           const mockResponse = {
             access_token: 'access_token_123',
             id_token: 'id_token_123',
@@ -447,10 +399,6 @@ describe('step-up-api-service', () => {
         });
 
         it('should verify OOB code', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           const mockResponse = {
             access_token: 'access_token_123',
             id_token: 'id_token_123',
@@ -482,10 +430,6 @@ describe('step-up-api-service', () => {
         });
 
         it('should verify recovery code', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           const mockResponse = {
             access_token: 'access_token_123',
             id_token: 'id_token_123',
@@ -515,10 +459,6 @@ describe('step-up-api-service', () => {
         });
 
         it('should throw error when verification fails', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           const errorBody = {
             error: 'invalid_code',
             error_description: 'Invalid OTP code',
@@ -541,10 +481,6 @@ describe('step-up-api-service', () => {
         });
 
         it('should handle error with error properties spread', async () => {
-          const auth: AuthDetails = {
-            authProxyUrl: 'https://proxy.example.com',
-          };
-
           const errorBody = {
             error: 'invalid_code',
             error_description: 'Invalid code',
