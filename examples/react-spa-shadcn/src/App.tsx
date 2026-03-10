@@ -55,9 +55,6 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => {
   const { i18n } = useTranslation();
-  const defaultAuthDetails = {
-    domain: config.auth0.domain,
-  };
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipPrimitive.Provider>
@@ -74,7 +71,7 @@ const App = () => {
             useMrrt={true}
           >
             <Auth0ComponentProvider
-              authDetails={defaultAuthDetails}
+              domain={config.auth0.domain}
               i18n={{ currentLanguage: i18n.language }}
             >
               <AppLayout>

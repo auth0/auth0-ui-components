@@ -4,6 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
+import { config } from './config/env';
 import { Navbar } from './components/nav-bar';
 import { Sidebar } from './components/side-bar';
 import DomainManagementPage from './views/domain-management-page';
@@ -113,6 +114,7 @@ function App() {
 
   return (
     <Auth0ComponentProvider
+      domain={config.auth0.domain}
       i18n={{ currentLanguage: i18n.language }}
       themeSettings={{
         theme: 'default',

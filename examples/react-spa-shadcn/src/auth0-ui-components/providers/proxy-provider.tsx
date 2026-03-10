@@ -13,16 +13,8 @@ export const ProxyProvider = ({
   authDetails,
   children,
 }: InternalProviderProps & { children: React.ReactNode }) => {
-  const memoizedAuthDetails = React.useMemo(
-    () => ({
-      ...authDetails,
-      contextInterface: undefined,
-    }),
-    [authDetails],
-  );
-
   const coreClient = useCoreClientInitialization({
-    authDetails: memoizedAuthDetails,
+    authDetails,
     i18nOptions: i18n,
   });
 

@@ -1,5 +1,6 @@
 'use client';
 
+import type { AuthDetails } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Toaster } from '../components/ui/sonner';
@@ -63,21 +64,33 @@ const SpaProvider = React.lazy(() => import('./spa-provider'));
  * </Auth0ComponentProvider>
  * ```
  */
-export const Auth0ComponentProvider = ({
-  i18n,
-  authDetails,
-  themeSettings = {
-    theme: 'default',
-    mode: 'light',
-    variables: {
-      common: {},
-      light: {},
-      dark: {},
+export const Auth0ComponentProvider = (
+  props: Auth0ComponentProviderProps & { children: React.ReactNode },
+) => {
+  const {
+    i18n,
+    themeSettings = {
+      theme: 'default',
+      mode: 'light',
+      variables: {
+        common: {},
+        light: {},
+        dark: {},
+      },
     },
-  },
-  loader,
-  children,
-}: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
+    loader,
+    children,
+  } = props;
+
+  const proxyAuthDetails = React.useMemo<AuthDetails | null>(
+    () =>
+      props.mode === 'proxy'
+        ? { domain: props.domain, authProxyUrl: props.proxyConfig.baseUrl }
+        : null,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [props.mode, props.domain, props.mode === 'proxy' ? props.proxyConfig.baseUrl : null],
+  );
+
   return (
     <>
       <Toaster position="top-right" />
@@ -98,14 +111,12 @@ export const Auth0ComponentProvider = ({
             )
           }
         >
-          {authDetails?.authProxyUrl ? (
-            <ProxyProvider i18n={i18n} authDetails={authDetails}>
+          {proxyAuthDetails ? (
+            <ProxyProvider i18n={i18n} authDetails={proxyAuthDetails}>
               {children}
             </ProxyProvider>
           ) : (
-            <SpaProvider i18n={i18n} authDetails={authDetails}>
-              {children}
-            </SpaProvider>
+            <SpaProvider {...props}>{children}</SpaProvider>
           )}
         </React.Suspense>
       </ThemeProvider>

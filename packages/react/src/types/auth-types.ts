@@ -12,12 +12,20 @@ import type { ThemeSettings } from '@/types/theme-types';
 import type { ToastSettings } from '@/types/toast-types';
 
 /** Props for Auth0ComponentProvider. */
-export interface Auth0ComponentProviderProps {
+export type Auth0ComponentProviderProps = (
+  | {
+      mode?: 'direct';
+      domain: string;
+      authContext?: AuthDetails['contextInterface'];
+      previewMode?: boolean;
+      proxyConfig?: never;
+    }
+  | { mode: 'proxy'; domain: string; proxyConfig: { baseUrl: string }; previewMode?: boolean }
+) & {
   i18n?: I18nOptions;
   themeSettings?: ThemeSettings;
-  authDetails?: AuthDetails;
   loader?: React.ReactNode;
   toastSettings?: ToastSettings;
   /** TanStack Query cache config. Use `{ enabled: false }` to disable. */
   cacheConfig?: QueryCacheConfig;
-}
+};

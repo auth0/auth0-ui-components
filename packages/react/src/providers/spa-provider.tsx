@@ -6,7 +6,7 @@
 'use client';
 
 import { useAuth0 } from '@auth0/auth0-react';
-import type { BasicAuth0ContextInterface } from '@auth0/universal-components-core';
+import type { AuthDetails } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Toaster } from '@/components/auth0/shared/sonner';
@@ -21,52 +21,57 @@ import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 
 /**
  * Auth0 provider for SPAs. Wraps components with required contexts.
- * @param props - Provider configuration including i18n, authDetails, themeSettings, toastSettings, cacheConfig, loader, and children.
+ * @param props - Provider configuration including domain, mode, authContext, i18n, themeSettings, toastSettings, cacheConfig, loader, and children.
  * @returns Provider component tree
  */
-export const Auth0ComponentProvider = ({
-  i18n,
-  authDetails,
-  themeSettings = {
-    theme: 'default',
-    mode: 'light',
-    variables: {
-      common: {},
-      light: {},
-      dark: {},
+export const Auth0ComponentProvider = (
+  props: Auth0ComponentProviderProps & { children: React.ReactNode },
+) => {
+  const {
+    i18n,
+    domain,
+    previewMode,
+    themeSettings = {
+      theme: 'default',
+      mode: 'light',
+      variables: {
+        common: {},
+        light: {},
+        dark: {},
+      },
     },
-  },
-  toastSettings,
-  cacheConfig,
-  loader,
-  children,
-}: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
+    toastSettings,
+    cacheConfig,
+    loader,
+    children,
+  } = props;
+  const authContext = props.mode !== 'proxy' ? props.authContext : undefined;
   const mergedToastSettings = useToastProvider(toastSettings);
 
   const auth0ReactContext = useAuth0();
 
-  const auth0ContextInterface = React.useMemo(() => {
+  const resolvedAuthContext = React.useMemo(() => {
+    if (authContext) {
+      return authContext;
+    }
     if (auth0ReactContext && 'isAuthenticated' in auth0ReactContext) {
       // Cast via unknown because @auth0/auth0-react's Auth0ContextInterface
       // doesn't include getConfiguration which our BasicAuth0ContextInterface requires
-      return auth0ReactContext as unknown as BasicAuth0ContextInterface;
-    }
-
-    if (authDetails?.contextInterface) {
-      return authDetails.contextInterface;
+      return auth0ReactContext as unknown as AuthDetails['contextInterface'];
     }
 
     throw new Error(
-      'Auth0ContextInterface is not available. Make sure you wrap your app with Auth0Provider from @auth0/auth0-react, or pass a contextInterface via authDetails.',
+      'Auth0ContextInterface is not available. Make sure you wrap your app with Auth0Provider from @auth0/auth0-react, or pass authContext.',
     );
-  }, [auth0ReactContext, authDetails?.contextInterface]);
+  }, [auth0ReactContext, authContext]);
 
-  const memoizedAuthDetails = React.useMemo(
+  const memoizedAuthDetails = React.useMemo<AuthDetails>(
     () => ({
-      ...(authDetails || {}),
-      contextInterface: auth0ContextInterface,
+      domain,
+      contextInterface: resolvedAuthContext,
+      previewMode,
     }),
-    [authDetails, auth0ContextInterface],
+    [domain, resolvedAuthContext, previewMode],
   );
 
   const coreClient = useCoreClientInitialization({

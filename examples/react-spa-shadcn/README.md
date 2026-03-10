@@ -163,10 +163,6 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const { i18n } = useTranslation();
-  const defaultAuthDetails = {
-    clientId: config.auth0.clientId,
-    domain: config.auth0.domain,
-  };
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -178,7 +174,7 @@ const App = () => {
           >
             {/* Wrapping routes with Auth0ComponentProvider*/}
             <Auth0ComponentProvider
-              authDetails={defaultAuthDetails}
+              domain={config.auth0.domain}
               i18n={{ currentLanguage: i18n.language }}
             >
               <Routes>

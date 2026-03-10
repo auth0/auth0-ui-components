@@ -39,7 +39,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   it('should render children when initialized', () => {
     render(
-      <Auth0ComponentProvider authDetails={{}}>
+      <Auth0ComponentProvider domain="test.auth0.com">
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );
@@ -50,7 +50,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   it('should use auth0 context from useAuth0 hook', () => {
     render(
-      <Auth0ComponentProvider authDetails={{}}>
+      <Auth0ComponentProvider domain="test.auth0.com">
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );
@@ -65,8 +65,8 @@ describe('Auth0ComponentProvider (SPA)', () => {
     );
   });
 
-  it('should use contextInterface from authDetails when provided', () => {
-    const customContextInterface = {
+  it('should use authContext prop when provided', () => {
+    const customAuthContext = {
       isAuthenticated: true,
       isLoading: false,
       user: { sub: 'custom-user' },
@@ -76,7 +76,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
     mockUseAuth0.mockReturnValue({} as ReturnType<typeof useAuth0>);
 
     render(
-      <Auth0ComponentProvider authDetails={{ contextInterface: customContextInterface as never }}>
+      <Auth0ComponentProvider domain="test.auth0.com" authContext={customAuthContext as never}>
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );
@@ -84,7 +84,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
     expect(mockUseCoreClientInitialization).toHaveBeenCalledWith(
       expect.objectContaining({
         authDetails: expect.objectContaining({
-          contextInterface: customContextInterface,
+          contextInterface: customAuthContext,
         }),
       }),
     );
@@ -95,18 +95,18 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
     expect(() => {
       render(
-        <Auth0ComponentProvider authDetails={{}}>
+        <Auth0ComponentProvider domain="test.auth0.com">
           <div>Test</div>
         </Auth0ComponentProvider>,
       );
     }).toThrow(
-      'Auth0ContextInterface is not available. Make sure you wrap your app with Auth0Provider from @auth0/auth0-react, or pass a contextInterface via authDetails.',
+      'Auth0ContextInterface is not available. Make sure you wrap your app with Auth0Provider from @auth0/auth0-react, or pass authContext.',
     );
   });
 
   it('should apply default theme settings', () => {
     render(
-      <Auth0ComponentProvider authDetails={{}}>
+      <Auth0ComponentProvider domain="test.auth0.com">
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );
@@ -117,7 +117,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
   it('should apply custom theme settings', () => {
     render(
       <Auth0ComponentProvider
-        authDetails={{}}
+        domain="test.auth0.com"
         themeSettings={{
           mode: 'dark',
           theme: 'rounded',
@@ -138,7 +138,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
   it('should render custom loader in suspense fallback', () => {
     render(
       <Auth0ComponentProvider
-        authDetails={{}}
+        domain="test.auth0.com"
         loader={<div data-testid="custom-loader">Loading...</div>}
       >
         <div data-testid="child-content">Test Content</div>
@@ -152,7 +152,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
     const i18nOptions = { currentLanguage: 'es' };
 
     render(
-      <Auth0ComponentProvider authDetails={{}} i18n={i18nOptions}>
+      <Auth0ComponentProvider domain="test.auth0.com" i18n={i18nOptions}>
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );
@@ -166,7 +166,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   it('should provide coreClient through context', () => {
     render(
-      <Auth0ComponentProvider authDetails={{}}>
+      <Auth0ComponentProvider domain="test.auth0.com">
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );
