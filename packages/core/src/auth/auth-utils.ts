@@ -61,6 +61,7 @@ export const AuthUtils = {
       return {
         mode: 'proxy',
         proxyUrl: auth.authProxyUrl.replace(/\/$/, ''),
+        ...(auth.domain && { domain: auth.domain.trim() }),
       };
     }
 

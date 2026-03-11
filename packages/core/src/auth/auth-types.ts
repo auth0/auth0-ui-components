@@ -146,6 +146,7 @@ export interface BasicAuth0ContextInterface<TUser = User> {
 export type ProxyAuthConfig = {
   mode: 'proxy';
   proxyUrl: string;
+  domain?: string;
 };
 
 /**

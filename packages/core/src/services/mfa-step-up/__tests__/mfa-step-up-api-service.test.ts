@@ -7,17 +7,12 @@ import {
 } from '../../../internals/__mocks__/shared/api-service.mocks';
 import { initializeMfaStepUpClient } from '../mfa-step-up-api-service';
 
+import { stubFetch } from './__mocks__/mfa-step-up-api-service.mocks';
+
 const PROXY_URL = 'https://proxy.example.com';
 const MFA_TOKEN = 'test-mfa-token';
 
 const PROXY_AUTH: ProxyAuthConfig = { mode: 'proxy', proxyUrl: PROXY_URL };
-
-const createFetchMock = (ok = true, body: unknown = {}) =>
-  vi.fn().mockResolvedValue({
-    ok,
-    status: ok ? 200 : 400,
-    json: vi.fn().mockResolvedValue(body),
-  });
 
 describe('initializeMfaStepUpClient', () => {
   afterEach(() => {
@@ -46,8 +41,7 @@ describe('initializeMfaStepUpClient', () => {
 
   describe('proxy client - getAuthenticators', () => {
     it('makes GET request to /auth/mfa/authenticators with mfa_token query param', async () => {
-      const mockFetch = createFetchMock(true, []);
-      vi.stubGlobal('fetch', mockFetch);
+      const mockFetch = stubFetch(true, []);
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       await client.getAuthenticators(MFA_TOKEN);
@@ -59,8 +53,7 @@ describe('initializeMfaStepUpClient', () => {
 
     it('returns parsed JSON response', async () => {
       const authenticators = [{ id: 'auth_1', authenticatorType: 'otp', active: true }];
-      const mockFetch = createFetchMock(true, authenticators);
-      vi.stubGlobal('fetch', mockFetch);
+      stubFetch(true, authenticators);
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       const result = await client.getAuthenticators(MFA_TOKEN);
@@ -70,8 +63,7 @@ describe('initializeMfaStepUpClient', () => {
 
     it('throws parsed error body on non-ok response', async () => {
       const errorBody = { error: 'mfa_required', error_description: 'MFA required' };
-      const mockFetch = createFetchMock(false, errorBody);
-      vi.stubGlobal('fetch', mockFetch);
+      stubFetch(false, errorBody);
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
 
@@ -79,12 +71,14 @@ describe('initializeMfaStepUpClient', () => {
     });
 
     it('throws { status } when error response JSON parse fails', async () => {
-      const mockFetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 503,
-        json: vi.fn().mockRejectedValue(new Error('Invalid JSON')),
-      });
-      vi.stubGlobal('fetch', mockFetch);
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: false,
+          status: 503,
+          json: vi.fn().mockRejectedValue(new Error('Invalid JSON')),
+        }),
+      );
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
 
@@ -94,8 +88,7 @@ describe('initializeMfaStepUpClient', () => {
 
   describe('proxy client - enroll', () => {
     it('makes POST request to /auth/mfa/enroll', async () => {
-      const mockFetch = createFetchMock(true, { authenticatorType: 'otp', secret: 'abc' });
-      vi.stubGlobal('fetch', mockFetch);
+      const mockFetch = stubFetch(true, { authenticatorType: 'otp', secret: 'abc' });
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       await client.enroll({ mfaToken: MFA_TOKEN, factorType: 'otp' });
@@ -107,8 +100,7 @@ describe('initializeMfaStepUpClient', () => {
     });
 
     it('sends Content-Type: application/json header', async () => {
-      const mockFetch = createFetchMock(true, {});
-      vi.stubGlobal('fetch', mockFetch);
+      const mockFetch = stubFetch();
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       await client.enroll({ mfaToken: MFA_TOKEN, factorType: 'otp' });
@@ -122,8 +114,7 @@ describe('initializeMfaStepUpClient', () => {
     });
 
     it('sends correct body for OTP enrollment', async () => {
-      const mockFetch = createFetchMock(true, {});
-      vi.stubGlobal('fetch', mockFetch);
+      const mockFetch = stubFetch();
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       await client.enroll({ mfaToken: MFA_TOKEN, factorType: 'otp' });
@@ -136,8 +127,7 @@ describe('initializeMfaStepUpClient', () => {
     });
 
     it('sends phoneNumber in body for SMS enrollment', async () => {
-      const mockFetch = createFetchMock(true, {});
-      vi.stubGlobal('fetch', mockFetch);
+      const mockFetch = stubFetch();
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       await client.enroll({ mfaToken: MFA_TOKEN, factorType: 'sms', phoneNumber: '+15551234567' });
@@ -151,8 +141,7 @@ describe('initializeMfaStepUpClient', () => {
     });
 
     it('includes email in body for email enrollment when provided', async () => {
-      const mockFetch = createFetchMock(true, {});
-      vi.stubGlobal('fetch', mockFetch);
+      const mockFetch = stubFetch();
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       await client.enroll({ mfaToken: MFA_TOKEN, factorType: 'email', email: 'user@example.com' });
@@ -166,8 +155,7 @@ describe('initializeMfaStepUpClient', () => {
     });
 
     it('omits email from body for email enrollment when not provided', async () => {
-      const mockFetch = createFetchMock(true, {});
-      vi.stubGlobal('fetch', mockFetch);
+      const mockFetch = stubFetch();
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       await client.enroll({ mfaToken: MFA_TOKEN, factorType: 'email' });
@@ -187,8 +175,7 @@ describe('initializeMfaStepUpClient', () => {
         secret: 'TOTP_SECRET',
         barcodeUri: 'otpauth://...',
       };
-      const mockFetch = createFetchMock(true, enrollResponse);
-      vi.stubGlobal('fetch', mockFetch);
+      stubFetch(true, enrollResponse);
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       const result = await client.enroll({ mfaToken: MFA_TOKEN, factorType: 'otp' });
@@ -198,8 +185,7 @@ describe('initializeMfaStepUpClient', () => {
 
     it('throws parsed error body on non-ok response', async () => {
       const errorBody = { error: 'invalid_grant', error_description: 'Invalid MFA token' };
-      const mockFetch = createFetchMock(false, errorBody);
-      vi.stubGlobal('fetch', mockFetch);
+      stubFetch(false, errorBody);
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
 
@@ -211,8 +197,7 @@ describe('initializeMfaStepUpClient', () => {
 
   describe('proxy client - challenge', () => {
     it('makes POST request to /auth/mfa/challenge', async () => {
-      const mockFetch = createFetchMock(true, { challengeType: 'otp' });
-      vi.stubGlobal('fetch', mockFetch);
+      const mockFetch = stubFetch(true, { challengeType: 'otp' });
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       await client.challenge({ mfaToken: MFA_TOKEN, challengeType: 'otp' });
@@ -224,8 +209,7 @@ describe('initializeMfaStepUpClient', () => {
     });
 
     it('sends correct body with mfaToken and challengeType', async () => {
-      const mockFetch = createFetchMock(true, {});
-      vi.stubGlobal('fetch', mockFetch);
+      const mockFetch = stubFetch();
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       await client.challenge({ mfaToken: MFA_TOKEN, challengeType: 'oob' });
@@ -239,8 +223,7 @@ describe('initializeMfaStepUpClient', () => {
     });
 
     it('includes authenticatorId in body when provided', async () => {
-      const mockFetch = createFetchMock(true, {});
-      vi.stubGlobal('fetch', mockFetch);
+      const mockFetch = stubFetch();
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       await client.challenge({
@@ -259,8 +242,7 @@ describe('initializeMfaStepUpClient', () => {
 
     it('returns parsed JSON response', async () => {
       const challengeResponse = { challengeType: 'oob', oobCode: 'oob_abc123' };
-      const mockFetch = createFetchMock(true, challengeResponse);
-      vi.stubGlobal('fetch', mockFetch);
+      stubFetch(true, challengeResponse);
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       const result = await client.challenge({ mfaToken: MFA_TOKEN, challengeType: 'oob' });
@@ -270,8 +252,7 @@ describe('initializeMfaStepUpClient', () => {
 
     it('throws parsed error body on non-ok response', async () => {
       const errorBody = { error: 'invalid_grant', error_description: 'Bad challenge request' };
-      const mockFetch = createFetchMock(false, errorBody);
-      vi.stubGlobal('fetch', mockFetch);
+      stubFetch(false, errorBody);
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
 
@@ -283,8 +264,7 @@ describe('initializeMfaStepUpClient', () => {
 
   describe('proxy client - verify', () => {
     it('makes POST request to /auth/mfa/verify', async () => {
-      const mockFetch = createFetchMock(true, { access_token: 'new-token' });
-      vi.stubGlobal('fetch', mockFetch);
+      const mockFetch = stubFetch(true, { access_token: 'new-token' });
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       await client.verify({ mfaToken: MFA_TOKEN, otp: '123456' });
@@ -296,8 +276,7 @@ describe('initializeMfaStepUpClient', () => {
     });
 
     it('sends the full params as request body', async () => {
-      const mockFetch = createFetchMock(true, {});
-      vi.stubGlobal('fetch', mockFetch);
+      const mockFetch = stubFetch();
 
       const verifyParams = { mfaToken: MFA_TOKEN, otp: '654321' };
       const client = initializeMfaStepUpClient(PROXY_AUTH);
@@ -313,8 +292,7 @@ describe('initializeMfaStepUpClient', () => {
         token_type: 'Bearer',
         expires_in: 86400,
       };
-      const mockFetch = createFetchMock(true, tokenResponse);
-      vi.stubGlobal('fetch', mockFetch);
+      stubFetch(true, tokenResponse);
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       const result = await client.verify({ mfaToken: MFA_TOKEN, otp: '123456' });
@@ -324,8 +302,7 @@ describe('initializeMfaStepUpClient', () => {
 
     it('throws parsed error body on non-ok response', async () => {
       const errorBody = { error: 'invalid_grant', error_description: 'Invalid OTP' };
-      const mockFetch = createFetchMock(false, errorBody);
-      vi.stubGlobal('fetch', mockFetch);
+      stubFetch(false, errorBody);
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
 
@@ -335,12 +312,14 @@ describe('initializeMfaStepUpClient', () => {
     });
 
     it('throws { status } when error response JSON parse fails', async () => {
-      const mockFetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
-        json: vi.fn().mockRejectedValue(new Error('Invalid JSON')),
-      });
-      vi.stubGlobal('fetch', mockFetch);
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: false,
+          status: 500,
+          json: vi.fn().mockRejectedValue(new Error('Invalid JSON')),
+        }),
+      );
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
 

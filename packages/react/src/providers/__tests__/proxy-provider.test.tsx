@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
 import { Auth0ComponentProvider } from '@/providers/proxy-provider';
 
 vi.mock('@/hooks/shared/use-core-client-initialization', () => ({
@@ -10,6 +11,8 @@ vi.mock('@/hooks/shared/use-core-client-initialization', () => ({
     error: undefined,
   })),
 }));
+
+const mockUseCoreClientInitialization = vi.mocked(useCoreClientInitialization);
 
 vi.mock('@/components/auth0/shared/sonner', () => ({
   Toaster: () => <div data-testid="toaster" />,
@@ -103,5 +106,18 @@ describe('Auth0ComponentProvider', () => {
     );
 
     expect(screen.getByTestId('theme-provider')).toBeInTheDocument();
+  });
+
+  it('should render fallback when coreClient is not initialized', () => {
+    mockUseCoreClientInitialization.mockReturnValueOnce(null as never);
+
+    render(
+      <Auth0ComponentProvider authDetails={{ authProxyUrl: '/api/auth' }}>
+        <div data-testid="child-content">Test Content</div>
+      </Auth0ComponentProvider>,
+    );
+
+    expect(screen.getByTestId('spinner')).toBeInTheDocument();
+    expect(screen.queryByTestId('child-content')).not.toBeInTheDocument();
   });
 });

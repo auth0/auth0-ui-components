@@ -113,6 +113,31 @@ describe('AuthUtils', () => {
         });
         expect(config.mode).toBe('proxy');
       });
+
+      it('includes domain in proxy config when domain is also provided', () => {
+        const config = AuthUtils.resolveAuthConfig({
+          authProxyUrl: 'https://proxy.example.com',
+          domain: 'test.auth0.com',
+        });
+        expect(config).toEqual({
+          mode: 'proxy',
+          proxyUrl: 'https://proxy.example.com',
+          domain: 'test.auth0.com',
+        });
+      });
+
+      it('trims whitespace from domain in proxy config', () => {
+        const config = AuthUtils.resolveAuthConfig({
+          authProxyUrl: 'https://proxy.example.com',
+          domain: '  test.auth0.com  ',
+        });
+        expect(config).toMatchObject({ mode: 'proxy', domain: 'test.auth0.com' });
+      });
+
+      it('omits domain from proxy config when domain is not provided', () => {
+        const config = AuthUtils.resolveAuthConfig({ authProxyUrl: 'https://proxy.example.com' });
+        expect(config).not.toHaveProperty('domain');
+      });
     });
 
     describe('SPA mode', () => {

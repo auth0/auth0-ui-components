@@ -70,7 +70,7 @@ export async function createCoreClient(
 
     isProxyMode: () => authConfig.mode === 'proxy',
 
-    getDomain: () => (authConfig.mode === 'spa' ? authConfig.domain : undefined),
+    getDomain: () => authConfig.domain,
 
     getMyAccountApiClient: () => {
       if (!myAccountApiClient)

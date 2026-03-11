@@ -16,6 +16,7 @@ import type {
 } from '@/types/my-organization/organization-management/organization-details-edit-types';
 
 /**
+ * Organization details edit component.
  * @param props - Component props
  * @param props.schema - Zod validation schema
  * @param props.customMessages - Custom translation messages to override defaults

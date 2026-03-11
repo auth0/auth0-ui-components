@@ -213,6 +213,35 @@ describe('createCoreClient', () => {
     });
   });
 
+  describe('getDomain', () => {
+    it('returns domain in SPA mode', async () => {
+      const authDetails = createAuthDetails({ domain: TEST_DOMAIN });
+      const client = await createCoreClient(authDetails);
+
+      expect(client.getDomain()).toBe(TEST_DOMAIN);
+    });
+
+    it('returns domain in proxy mode when domain is provided', async () => {
+      const authDetails = createAuthDetails({
+        authProxyUrl: 'https://proxy.auth0.com',
+        domain: TEST_DOMAIN,
+      });
+      const client = await createCoreClient(authDetails);
+
+      expect(client.getDomain()).toBe(TEST_DOMAIN);
+    });
+
+    it('returns undefined in proxy mode when no domain is provided', async () => {
+      const authDetails = createAuthDetails({
+        authProxyUrl: 'https://proxy.auth0.com',
+        domain: undefined,
+      });
+      const client = await createCoreClient(authDetails);
+
+      expect(client.getDomain()).toBeUndefined();
+    });
+  });
+
   describe('previewMode', () => {
     it('returns a core client with previewMode and disables API clients', async () => {
       const authDetails = { ...createAuthDetails(), previewMode: true };
