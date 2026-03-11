@@ -43,7 +43,7 @@ export function useDomainTable({
 }: UseDomainTableOptions): UseDomainTableResult {
   const { t } = useTranslator('domain_management', customMessages);
   const { coreClient } = useCoreClient();
-  const { handleError } = useErrorHandler();
+  const handleError = useErrorHandler();
   const queryClient = useQueryClient();
 
   const [selectedDomainId, setSelectedDomainId] = useState<string | null>(null);

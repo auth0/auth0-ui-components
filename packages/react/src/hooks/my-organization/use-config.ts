@@ -10,8 +10,10 @@ import {
   MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES,
 } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import type { UseConfigResult } from '@/types/my-organization/config/config-types';
 
 const configQueryKeys = {
@@ -26,6 +28,7 @@ const configQueryKeys = {
 export function useConfig(): UseConfigResult {
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
+  const handleError = useErrorHandler();
 
   const configQuery = useQuery({
     queryKey: configQueryKeys.details(),
@@ -42,6 +45,12 @@ export function useConfig(): UseConfigResult {
       return failureCount < 3;
     },
   });
+
+  useEffect(() => {
+    if (configQuery.error) {
+      handleError(configQuery.error);
+    }
+  }, [configQuery.error, handleError]);
 
   const config = configQuery.data;
   const allowedStrategies = config?.allowed_strategies;

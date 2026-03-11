@@ -1,7 +1,10 @@
 {
   "common": {
     "copy": "コピー",
-    "copied": "コピーしました"
+    "copied": "コピーしました",
+    "error": {
+      "generic": "リクエストの処理中に問題が発生しました。もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。"
+    }
   },
   "domain_management": {
     "domain_table": {
@@ -197,7 +200,6 @@
         "title": "${organizationName}"
       },
       "save_organization_changes_message": "${organizationName}の変更が保存されました。",
-      "organization_changes_error_message": "リクエストの処理中に問題が発生しました。${message}.",
       "organization_changes_error_message_generic": "リクエストの処理中に問題が発生しました。再度お試しいただくか、問題が解決しない場合はサポートまでお問い合わせください。"
     }
   },

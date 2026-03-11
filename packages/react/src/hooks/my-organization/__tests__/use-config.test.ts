@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useConfig } from '@/hooks/my-organization/use-config';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 import { mockCore } from '@/tests/utils/test-setup';
 
@@ -25,6 +26,7 @@ describe('useConfig', () => {
     vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
       coreClient: mockCoreClient,
     });
+    vi.spyOn(useErrorHandlerModule, 'useErrorHandler').mockReturnValue(vi.fn());
     mockGet = vi.mocked(mockCoreClient.getMyOrganizationApiClient().organization.configuration.get);
   });
 

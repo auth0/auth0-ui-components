@@ -46,7 +46,7 @@ export function useSsoDomainTab(
 ): UseSsoDomainTabReturn {
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.notifications', customMessages);
-  const { handleError } = useErrorHandler();
+  const handleError = useErrorHandler();
   const queryClient = useQueryClient();
 
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);

@@ -19,6 +19,7 @@ import { useConfig } from '@/hooks/my-organization/use-config';
 import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import { ssoProviderQueryKeys } from '@/hooks/my-organization/use-sso-provider-table';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   FormState,
@@ -53,6 +54,7 @@ export function useSsoProviderCreate({
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
   const queryClient = useQueryClient();
+  const handleError = useErrorHandler();
 
   const [formData, setFormData] = useState<FormState>({});
   const { strategy, details, configure } = formData;
@@ -120,17 +122,14 @@ export function useSsoProviderCreate({
           return;
         }
       }
-      showToast({
-        type: 'error',
-        message: t('notifications.general_error'),
-      });
+      handleError(error);
     },
   });
 
   const createProvider = useCallback(
     async (data: CreateIdentityProviderRequestContentPrivate): Promise<void> => {
       if (!coreClient) {
-        showToast({ type: 'error', message: t('notifications.general_error') });
+        handleError(new Error('Core client not available'));
         return;
       }
       if (createAction?.onBefore) {
@@ -139,7 +138,7 @@ export function useSsoProviderCreate({
       }
       await createProviderMutation.mutateAsync(data);
     },
-    [coreClient, createAction, createProviderMutation, t],
+    [coreClient, createAction, createProviderMutation, handleError],
   );
 
   const createStepActions = useCallback(

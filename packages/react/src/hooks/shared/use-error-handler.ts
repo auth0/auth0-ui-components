@@ -3,48 +3,52 @@
  * @module use-error-handler
  */
 
-import { hasApiErrorBody, isBusinessError } from '@auth0/universal-components-core';
+import { isNotifiableError, resolveErrorMessage } from '@auth0/universal-components-core';
 import { useCallback } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useTranslator } from '@/hooks/shared/use-translator';
 
-interface ErrorHandlerOptions {
+interface ErrorHandlerCallOptions {
   fallbackMessage?: string;
-  showToastNotification?: boolean;
+  showToast?: boolean;
 }
 
 /**
- * Hook for handling errors with optional toast notifications.
+ * Hook for consistent error handling across the app.
+ * Skips MFA/500+ errors (GateKeeper handles), shows toast for others.
+ *
  * @returns Error handler function.
+ *
+ * @example
+ * const handleError = useErrorHandler();
+ *
+ * // With custom message
+ * onError: (error) => handleError(error, {
+ *   fallbackMessage: t('my_error')
+ * });
+ *
+ * // With defaults
+ * onError: handleError;
  */
-export const useErrorHandler = () => {
-  const handleError = useCallback((error: unknown, options: ErrorHandlerOptions = {}) => {
-    const { fallbackMessage = 'An error occurred', showToastNotification = true } = options;
+export function useErrorHandler() {
+  const { t } = useTranslator('common');
 
-    // Extract error message from various error types
-    let errorMessage: string;
+  return useCallback(
+    (error: unknown, options: ErrorHandlerCallOptions = {}): void => {
+      if (!isNotifiableError(error)) return;
 
-    if (isBusinessError(error)) {
-      errorMessage = error.message;
-    } else if (hasApiErrorBody(error) && error.body?.detail) {
-      errorMessage = error.body.detail;
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-    } else if (typeof error === 'string') {
-      errorMessage = error;
-    } else {
-      errorMessage = fallbackMessage;
-    }
+      const { fallbackMessage, showToast: shouldShowToast = true } = options;
 
-    if (showToastNotification) {
-      showToast({
-        type: 'error',
-        message: errorMessage,
-      });
-    }
+      const errorMessage = resolveErrorMessage(error, fallbackMessage ?? t('error.generic'));
 
-    return errorMessage;
-  }, []);
-
-  return { handleError };
-};
+      if (shouldShowToast) {
+        showToast({
+          type: 'error',
+          message: errorMessage,
+        });
+      }
+    },
+    [t],
+  );
+}

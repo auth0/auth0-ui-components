@@ -13,12 +13,13 @@ import {
   MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useConfig } from '@/hooks/my-organization/use-config';
 import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseSsoProviderTableOptions,
@@ -48,8 +49,7 @@ export function useSsoProviderTable({
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
-  const hasShownProvidersError = useRef(false);
-  const hasShownOrganizationError = useRef(false);
+  const handleError = useErrorHandler();
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
@@ -84,24 +84,16 @@ export function useSsoProviderTable({
   });
 
   useEffect(() => {
-    if (providersQuery.isError && !hasShownProvidersError.current) {
-      showToast({ type: 'error', message: t('general_error') });
-      hasShownProvidersError.current = true;
+    if (providersQuery.error) {
+      handleError(providersQuery.error);
     }
-    if (!providersQuery.isError) {
-      hasShownProvidersError.current = false;
-    }
-  }, [providersQuery.isError, t]);
+  }, [providersQuery.error, handleError]);
 
   useEffect(() => {
-    if (organizationQuery.isError && !hasShownOrganizationError.current) {
-      showToast({ type: 'error', message: t('general_error') });
-      hasShownOrganizationError.current = true;
+    if (organizationQuery.error) {
+      handleError(organizationQuery.error);
     }
-    if (!organizationQuery.isError) {
-      hasShownOrganizationError.current = false;
-    }
-  }, [organizationQuery.isError, t]);
+  }, [organizationQuery.error, handleError]);
 
   const isLoading = providersQuery.isLoading || organizationQuery.isLoading;
   const isViewLoading = isLoading || isLoadingConfig || isLoadingIdpConfig;
@@ -154,9 +146,7 @@ export function useSsoProviderTable({
         );
       });
     },
-    onError: () => {
-      showToast({ type: 'error', message: t('general_error') });
-    },
+    onError: (error) => handleError(error),
   });
 
   const deleteProviderMutation = useMutation({
@@ -182,9 +172,7 @@ export function useSsoProviderTable({
 
       queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
     },
-    onError: () => {
-      showToast({ type: 'error', message: t('general_error') });
-    },
+    onError: (error) => handleError(error),
   });
 
   const removeProviderMutation = useMutation({
@@ -217,9 +205,7 @@ export function useSsoProviderTable({
 
       queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
     },
-    onError: () => {
-      showToast({ type: 'error', message: t('general_error') });
-    },
+    onError: (error) => handleError(error),
   });
 
   const onEnableProvider = useCallback(
@@ -269,11 +255,11 @@ export function useSsoProviderTable({
         },
       });
       return data;
-    } catch {
-      showToast({ type: 'error', message: t('general_error') });
+    } catch (error) {
+      handleError(error);
       return null;
     }
-  }, [coreClient, queryClient, t]);
+  }, [coreClient, queryClient, handleError]);
 
   const handleCreate = useCallback(() => {
     createAction?.onAfter?.();

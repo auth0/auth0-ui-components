@@ -14,6 +14,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseOrganizationDetailsEditOptions,
@@ -46,16 +47,9 @@ export function useOrganizationDetailsEdit({
   const { t } = useTranslator('organization_management.organization_details_edit', customMessages);
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
+  const handleError = useErrorHandler();
 
   const isInitializing = !coreClient;
-
-  const getErrorMessage = useCallback(
-    (error: unknown): string =>
-      error instanceof Error
-        ? t('organization_changes_error_message', { message: error.message })
-        : t('organization_changes_error_message_generic'),
-    [t],
-  );
 
   const organizationQuery = useQuery({
     queryKey: organizationDetailsQueryKeys.details(),
@@ -71,12 +65,11 @@ export function useOrganizationDetailsEdit({
 
   useEffect(() => {
     if (organizationQuery.error) {
-      showToast({
-        type: 'error',
-        message: getErrorMessage(organizationQuery.error),
+      handleError(organizationQuery.error, {
+        fallbackMessage: t('organization_changes_error_message_generic'),
       });
     }
-  }, [organizationQuery.error, getErrorMessage]);
+  }, [organizationQuery.error, handleError, t]);
 
   const organization = organizationQuery.data ?? EMPTY_ORGANIZATION;
 
@@ -102,12 +95,8 @@ export function useOrganizationDetailsEdit({
 
       saveAction?.onAfter?.(variables);
     },
-    onError: (error) => {
-      showToast({
-        type: 'error',
-        message: getErrorMessage(error),
-      });
-    },
+    onError: (error) =>
+      handleError(error, { fallbackMessage: t('organization_changes_error_message_generic') }),
   });
 
   const hasData = !!organizationQuery.data;

@@ -9,8 +9,10 @@ import {
   MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES,
 } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import type {
   IdpConfig,
   UseConfigIdpResult,
@@ -28,6 +30,7 @@ export const idpConfigQueryKeys = {
 export function useIdpConfig(): UseConfigIdpResult {
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
+  const handleError = useErrorHandler();
 
   const idpConfigQuery = useQuery({
     queryKey: idpConfigQueryKeys.config(),
@@ -51,6 +54,12 @@ export function useIdpConfig(): UseConfigIdpResult {
       return failureCount < 3;
     },
   });
+
+  useEffect(() => {
+    if (idpConfigQuery.error) {
+      handleError(idpConfigQuery.error);
+    }
+  }, [idpConfigQuery.error, handleError]);
 
   const idpConfig = idpConfigQuery.data ?? null;
   const strategies = idpConfig?.strategies;

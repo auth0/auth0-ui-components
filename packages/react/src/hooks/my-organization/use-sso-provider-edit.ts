@@ -14,13 +14,14 @@ import {
   MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useConfig } from '@/hooks/my-organization/use-config';
 import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import { useSsoProvisioning } from '@/hooks/my-organization/use-sso-provisioning';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import {
   ACTION_CANCELLED_ERROR,
@@ -53,8 +54,7 @@ export function useSsoProviderEdit(
   const { shouldAllowDeletion, isLoadingConfig } = useConfig();
   const { idpConfig, isLoadingIdpConfig, isProvisioningEnabled, isProvisioningMethodEnabled } =
     useIdpConfig();
-  const hasShownProviderError = useRef(false);
-  const hasShownOrganizationError = useRef(false);
+  const handleError = useErrorHandler();
 
   /**
    * Provider query - fetches the identity provider details.
@@ -88,28 +88,16 @@ export function useSsoProviderEdit(
   });
 
   useEffect(() => {
-    if (providerQuery.isError && !hasShownProviderError.current) {
-      showToast({ type: 'error', message: t('general_error') });
-      hasShownProviderError.current = true;
+    if (providerQuery.error) {
+      handleError(providerQuery.error);
     }
-    if (!providerQuery.isError) {
-      hasShownProviderError.current = false;
-    }
-  }, [providerQuery.isError, t]);
+  }, [providerQuery.error, handleError]);
 
   useEffect(() => {
-    if (organizationQuery.isError && !hasShownOrganizationError.current) {
-      const errorMessage =
-        organizationQuery.error instanceof Error
-          ? t('general_error', { message: organizationQuery.error.message })
-          : t('general_error');
-      showToast({ type: 'error', message: errorMessage });
-      hasShownOrganizationError.current = true;
+    if (organizationQuery.error) {
+      handleError(organizationQuery.error);
     }
-    if (!organizationQuery.isError) {
-      hasShownOrganizationError.current = false;
-    }
-  }, [organizationQuery.error, organizationQuery.isError, t]);
+  }, [organizationQuery.error, handleError]);
 
   /**
    * Update provider mutation - updates SSO provider configuration.
@@ -156,7 +144,7 @@ export function useSsoProviderEdit(
     },
     onError: (error) => {
       if (isActionCancelledError(error)) return;
-      showToast({ type: 'error', message: t('general_error') });
+      handleError(error);
     },
   });
 
@@ -191,9 +179,7 @@ export function useSsoProviderEdit(
         await sso.deleteAction.onAfter(provider);
       }
     },
-    onError: () => {
-      showToast({ type: 'error', message: t('general_error') });
-    },
+    onError: (error) => handleError(error),
   });
 
   /**
@@ -240,7 +226,7 @@ export function useSsoProviderEdit(
     },
     onError: (error) => {
       if (isActionCancelledError(error)) return;
-      showToast({ type: 'error', message: t('general_error') });
+      handleError(error);
     },
   });
 
@@ -255,9 +241,7 @@ export function useSsoProviderEdit(
       queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
       showToast({ type: 'success', message: t('sso_attributes_sync_success') });
     },
-    onError: () => {
-      showToast({ type: 'error', message: t('general_error') });
-    },
+    onError: (error) => handleError(error),
   });
 
   const fetchProvider = useCallback(async (): Promise<IdentityProvider | null> => {
@@ -275,11 +259,11 @@ export function useSsoProviderEdit(
         },
       });
       return data;
-    } catch {
-      showToast({ type: 'error', message: t('general_error') });
+    } catch (error) {
+      handleError(error);
       return null;
     }
-  }, [coreClient, idpId, queryClient, t]);
+  }, [coreClient, idpId, queryClient, handleError]);
 
   const fetchOrganizationDetails = useCallback(async (): Promise<void> => {
     if (!coreClient) return;

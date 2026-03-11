@@ -60,9 +60,7 @@ describe('useDomainTable', () => {
       currentLanguage: 'en',
       fallbackLanguage: 'en',
     });
-    vi.spyOn(useErrorHandlerModule, 'useErrorHandler').mockReturnValue({
-      handleError: mockHandleError,
-    });
+    vi.spyOn(useErrorHandlerModule, 'useErrorHandler').mockReturnValue(mockHandleError);
   });
 
   describe('Initial State', () => {

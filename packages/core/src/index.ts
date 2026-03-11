@@ -49,4 +49,7 @@ export * from './services/my-organization';
 
 export * from './services/my-account';
 
+export { isMfaRequiredError } from './services/mfa-step-up/mfa-step-up-api-utils';
+export type { MfaRequiredError } from './services/mfa-step-up/mfa-step-up-api-types';
+
 export * from './assets/icons';

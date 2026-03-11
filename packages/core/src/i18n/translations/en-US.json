@@ -1,7 +1,10 @@
 {
   "common": {
     "copy": "Copy",
-    "copied": "Copied!"
+    "copied": "Copied!",
+    "error": {
+      "generic": "There was an issue processing your request. Please try again or contact support if the issue persists."
+    }
   },
   "domain_management": {
     "domain_table": {
@@ -197,7 +200,6 @@
         "title": "${organizationName}"
       },
       "save_organization_changes_message": "The changes have been saved for ${organizationName}.",
-      "organization_changes_error_message": "There was an issue processing your request. ${message}.",
       "organization_changes_error_message_generic": "There was an issue processing your request. Please try again or contact support if the issue persists."
     }
   },

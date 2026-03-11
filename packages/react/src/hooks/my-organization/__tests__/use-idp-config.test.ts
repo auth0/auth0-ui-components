@@ -8,6 +8,7 @@ import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.m
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 
 vi.mock('@/hooks/shared/use-core-client');
+vi.mock('@/hooks/shared/use-error-handler', () => ({ useErrorHandler: vi.fn(() => vi.fn()) }));
 
 const createMockIdpConfig = (overrides = {}) => ({
   strategies: {
