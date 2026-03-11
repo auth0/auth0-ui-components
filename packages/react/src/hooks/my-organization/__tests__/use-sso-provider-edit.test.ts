@@ -15,6 +15,17 @@ import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 vi.mock('@/hooks/shared/use-core-client');
 vi.mock('@/hooks/shared/use-translator');
 vi.mock('@/components/auth0/shared/toast');
+vi.mock('@/hooks/my-organization/use-config', () => ({
+  useConfig: () => ({ shouldAllowDeletion: true, isLoadingConfig: false }),
+}));
+vi.mock('@/hooks/my-organization/use-idp-config', () => ({
+  useIdpConfig: () => ({
+    idpConfig: {},
+    isLoadingIdpConfig: false,
+    isProvisioningEnabled: vi.fn(() => true),
+    isProvisioningMethodEnabled: vi.fn(() => true),
+  }),
+}));
 
 describe('useSsoProviderEdit', () => {
   const mockIdpId = 'idp_123';
@@ -1296,6 +1307,63 @@ describe('useSsoProviderEdit', () => {
       await result.current.onRemoveConfirm();
 
       expect(mockDetach).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('handleToggleProvider', () => {
+    it('should call updateProvider with is_enabled when provider has a strategy', async () => {
+      mockUpdate.mockResolvedValue({ ...mockProvider, is_enabled: false });
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await waitFor(() => {
+        expect(result.current.provider).toEqual(mockProvider);
+      });
+
+      await result.current.handleToggleProvider(false);
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        mockIdpId,
+        expect.objectContaining({ is_enabled: false }),
+      );
+    });
+
+    it('should not call updateProvider if provider strategy is missing', async () => {
+      mockGet.mockResolvedValue({ ...mockProvider, strategy: undefined });
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await waitFor(() => {
+        expect(result.current.provider).toBeDefined();
+      });
+
+      await result.current.handleToggleProvider(true);
+
+      expect(mockUpdate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('logic state', () => {
+    it('should return shouldAllowDeletion and isLoadingConfig from useConfig', () => {
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+      expect(result.current.shouldAllowDeletion).toBe(true);
+      expect(result.current.isLoadingConfig).toBe(false);
+    });
+
+    it('should return idpConfig and isLoadingIdpConfig from useIdpConfig', () => {
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+      expect(result.current.idpConfig).toEqual({});
+      expect(result.current.isLoadingIdpConfig).toBe(false);
+    });
+
+    it('should return showProvisioningTab based on provider strategy', async () => {
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await waitFor(() => {
+        expect(result.current.provider).toEqual(mockProvider);
+      });
+
+      expect(result.current.showProvisioningTab).toBe(true);
     });
   });
 });

@@ -1,13 +1,10 @@
 import { mockProvider } from './sso-provisioning/sso-provisioning-tab.mocks';
 
-import type {
-  SsoProviderEditHandlerProps,
-  SsoProviderEditLogicProps,
-} from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
+import type { SsoProviderEditViewProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
-export function createMockSsoProviderEditLogic(
-  overrides: Partial<SsoProviderEditLogicProps> = {},
-): SsoProviderEditLogicProps {
+export function createMockSsoProviderEditView(
+  overrides: Partial<SsoProviderEditViewProps> = {},
+): SsoProviderEditViewProps {
   return {
     styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     schema: undefined,
@@ -74,6 +71,7 @@ export function createMockSsoProviderEditLogic(
     showProvisioningTab: true,
     isProvisioningUpdating: false,
     isProvisioningDeleting: false,
+    isProvisioningLoading: false,
     isScimTokensLoading: false,
     isScimTokenCreating: false,
     isScimTokenDeleting: false,
@@ -81,25 +79,23 @@ export function createMockSsoProviderEditLogic(
     isProvisioningAttributesSyncing: false,
     hasSsoAttributeSyncWarning: false,
     hasProvisioningAttributeSyncWarning: false,
-    ...overrides,
-  };
-}
-
-export function createMockSsoProviderEditHandler(
-  overrides: Partial<SsoProviderEditHandlerProps> = {},
-): SsoProviderEditHandlerProps {
-  return {
+    provisioningConfig: null,
+    sso: undefined,
+    provisioning: undefined,
     updateProvider: () => Promise.resolve(),
     listScimTokens: () => Promise.resolve(null),
     syncSsoAttributes: () => Promise.resolve(),
     onDeleteConfirm: () => Promise.resolve(),
     onRemoveConfirm: () => Promise.resolve(),
     handleToggleProvider: () => Promise.resolve(),
-    createProvisioningAction: () => Promise.resolve(),
-    deleteProvisioningAction: () => Promise.resolve(),
-    createScimTokenAction: (_data) => Promise.resolve(undefined),
-    deleteScimTokenAction: () => Promise.resolve(),
+    createProvisioning: () => Promise.resolve(),
+    deleteProvisioning: () => Promise.resolve(),
+    createScimToken: (_data) => Promise.resolve(undefined),
+    deleteScimToken: () => Promise.resolve(),
     syncProvisioningAttributes: () => Promise.resolve(),
+    fetchProvider: () => Promise.resolve(null),
+    fetchOrganizationDetails: () => Promise.resolve(),
+    fetchProvisioning: () => Promise.resolve(null),
     ...overrides,
   };
 }

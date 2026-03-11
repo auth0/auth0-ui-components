@@ -10,8 +10,7 @@ import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockIdentityProvider,
   createMockIdentityProviderWithoutProvisioning,
-  createMockSsoProviderEditHandler,
-  createMockSsoProviderEditLogic,
+  createMockSsoProviderEditView,
 } from '@/tests/utils/__mocks__';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
@@ -715,11 +714,10 @@ describe('SsoProviderEdit', () => {
 });
 
 describe('SsoProviderEditView', () => {
-  const logic = createMockSsoProviderEditLogic();
-  const handlers = createMockSsoProviderEditHandler();
+  const viewProps = createMockSsoProviderEditView();
 
   it('renders the header and tabs', () => {
-    renderWithProviders(<SsoProviderEditView logic={logic} handlers={handlers} />);
+    renderWithProviders(<SsoProviderEditView {...viewProps} />);
     expect(screen.getByRole('banner')).toBeInTheDocument();
     expect(screen.getByText(/tabs.sso.name/i)).toBeInTheDocument();
     expect(screen.getByText(/tabs.provisioning.name/i)).toBeInTheDocument();
@@ -727,21 +725,18 @@ describe('SsoProviderEditView', () => {
   });
 
   it('renders the switch in header', () => {
-    renderWithProviders(<SsoProviderEditView logic={logic} handlers={handlers} />);
+    renderWithProviders(<SsoProviderEditView {...viewProps} />);
     expect(screen.getByRole('switch')).toBeInTheDocument();
   });
 
   it('renders custom header class if provided', () => {
     renderWithProviders(
       <SsoProviderEditView
-        logic={{
-          ...logic,
-          styling: {
-            ...logic.styling,
-            classes: { ...logic?.styling?.classes, 'SsoProviderEdit-header': 'custom-header' },
-          },
+        {...viewProps}
+        styling={{
+          ...viewProps.styling,
+          classes: { ...viewProps.styling?.classes, 'SsoProviderEdit-header': 'custom-header' },
         }}
-        handlers={handlers}
       />,
     );
     expect(document.querySelector('.custom-header')).toBeInTheDocument();
@@ -750,43 +745,33 @@ describe('SsoProviderEditView', () => {
   it('renders custom tabs class if provided', () => {
     renderWithProviders(
       <SsoProviderEditView
-        logic={{
-          ...logic,
-          styling: {
-            ...logic.styling,
-            classes: { ...logic?.styling?.classes, 'SsoProviderEdit-tabs': 'custom-tabs' },
-          },
+        {...viewProps}
+        styling={{
+          ...viewProps.styling,
+          classes: { ...viewProps.styling?.classes, 'SsoProviderEdit-tabs': 'custom-tabs' },
         }}
-        handlers={handlers}
       />,
     );
     expect(document.querySelector('.custom-tabs')).toBeInTheDocument();
   });
 
   it('does not render header if hideHeader is true', () => {
-    renderWithProviders(
-      <SsoProviderEditView logic={{ ...logic, hideHeader: true }} handlers={handlers} />,
-    );
+    renderWithProviders(<SsoProviderEditView {...viewProps} hideHeader={true} />);
     expect(screen.queryByRole('banner')).not.toBeInTheDocument();
   });
 
   it('renders with customMessages', () => {
     renderWithProviders(
       <SsoProviderEditView
-        logic={{
-          ...logic,
-          customMessages: {
-            header: { back_button_text: 'Back' },
-          },
-        }}
-        handlers={handlers}
+        {...viewProps}
+        customMessages={{ header: { back_button_text: 'Back' } }}
       />,
     );
   });
 
   it('renders tabs and switches between them', async () => {
     const user = userEvent.setup();
-    renderWithProviders(<SsoProviderEditView logic={logic} handlers={handlers} />);
+    renderWithProviders(<SsoProviderEditView {...viewProps} />);
     // SSO tab is present
     expect(screen.getByText(/tabs.sso.name/i)).toBeInTheDocument();
     // Switch to domains tab

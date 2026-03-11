@@ -103,6 +103,11 @@ export interface UseSsoProviderEditReturn {
   isProvisioningAttributesSyncing: boolean;
   hasSsoAttributeSyncWarning: boolean;
   hasProvisioningAttributeSyncWarning: boolean;
+  shouldAllowDeletion: boolean;
+  isLoadingConfig: boolean;
+  idpConfig: IdpConfig | null;
+  isLoadingIdpConfig: boolean;
+  showProvisioningTab: boolean;
   fetchProvider: () => Promise<IdentityProvider | null>;
   fetchOrganizationDetails: () => Promise<void>;
   fetchProvisioning: () => Promise<GetIdPProvisioningConfigResponseContent | null>;
@@ -118,6 +123,7 @@ export interface UseSsoProviderEditReturn {
   syncProvisioningAttributes: () => Promise<void>;
   onDeleteConfirm: () => Promise<void>;
   onRemoveConfirm: () => Promise<void>;
+  handleToggleProvider: (enabled: boolean) => Promise<void>;
 }
 
 export interface SsoProviderAttributeMappingsProps
@@ -136,54 +142,4 @@ export interface SsoProviderAttributeSyncAlertProps {
   customMessages?: Partial<AttributeSyncAlertMessages>;
 }
 
-export type SsoProviderEditViewProps = {
-  logic: SsoProviderEditLogicProps;
-  handlers: SsoProviderEditHandlerProps;
-};
-
-export interface SsoProviderEditLogicProps
-  extends SsoProviderEditProps,
-    Omit<UseSsoProviderEditLogicResult, 'handleToggleProvider'>,
-    Pick<
-      UseSsoProviderEditReturn,
-      | 'provider'
-      | 'organization'
-      | 'isLoading'
-      | 'isUpdating'
-      | 'isDeleting'
-      | 'isRemoving'
-      | 'isProvisioningUpdating'
-      | 'isProvisioningDeleting'
-      | 'isScimTokensLoading'
-      | 'isScimTokenCreating'
-      | 'isScimTokenDeleting'
-      | 'isSsoAttributesSyncing'
-      | 'isProvisioningAttributesSyncing'
-      | 'hasSsoAttributeSyncWarning'
-      | 'hasProvisioningAttributeSyncWarning'
-    > {}
-
-export interface SsoProviderEditHandlerProps {
-  updateProvider: (data: UpdateIdentityProviderRequestContentPrivate) => Promise<void>;
-  createProvisioningAction: () => Promise<void>;
-  deleteProvisioningAction: () => Promise<void>;
-  listScimTokens: () => Promise<ListIdpProvisioningScimTokensResponseContent | null>;
-  createScimTokenAction: (
-    data: CreateIdpProvisioningScimTokenRequestContent,
-  ) => Promise<CreateIdpProvisioningScimTokenResponseContent | undefined>;
-  deleteScimTokenAction: (idpScimTokenId: string) => Promise<void>;
-  syncSsoAttributes: () => Promise<void>;
-  syncProvisioningAttributes: () => Promise<void>;
-  onDeleteConfirm: () => Promise<void>;
-  onRemoveConfirm: () => Promise<void>;
-  handleToggleProvider: (enabled: boolean) => Promise<void>;
-}
-
-export interface UseSsoProviderEditLogicResult {
-  shouldAllowDeletion: boolean;
-  isLoadingConfig: boolean;
-  idpConfig: IdpConfig | null;
-  isLoadingIdpConfig: boolean;
-  showProvisioningTab: boolean;
-  handleToggleProvider: (enabled: boolean) => Promise<void>;
-}
+export interface SsoProviderEditViewProps extends UseSsoProviderEditReturn, SsoProviderEditProps {}
