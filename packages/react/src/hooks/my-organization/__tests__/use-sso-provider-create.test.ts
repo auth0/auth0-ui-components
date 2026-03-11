@@ -105,9 +105,7 @@ describe('useSsoProviderCreate', () => {
 
     const { result } = renderUseSsoProviderCreate();
 
-    await act(async () => {
-      await setupFormAndCreate(result, mockProviderData);
-    });
+    await setupFormAndCreate(result, mockProviderData);
 
     await waitFor(() => {
       expect(mockCreate).toHaveBeenCalledTimes(1);
@@ -291,9 +289,7 @@ describe('useSsoProviderCreate', () => {
 
     const { result } = renderUseSsoProviderCreate({ createAction: { onBefore } });
 
-    await act(async () => {
-      await setupFormAndCreate(result, mockProviderData);
-    });
+    await setupFormAndCreate(result, mockProviderData);
 
     await waitFor(() => {
       expect(onBefore).toHaveBeenCalled();
@@ -337,9 +333,7 @@ describe('useSsoProviderCreate', () => {
 
     const { result } = renderUseSsoProviderCreate({ createAction: { onAfter } });
 
-    await act(async () => {
-      await setupFormAndCreate(result, mockProviderData);
-    });
+    await setupFormAndCreate(result, mockProviderData);
 
     await waitFor(() => {
       expect(onAfter).toHaveBeenCalledWith(
