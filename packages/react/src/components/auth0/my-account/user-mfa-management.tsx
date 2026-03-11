@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils';
 import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/mfa/mfa-types';
 
 /**
- * User MFA management container(logic) component
+ * User MFA management component.
  * Handles loading factors, enroll/delete flows, and UI state.
  *
  * @param props - Component props.
@@ -110,18 +110,20 @@ function UserMFAMgmtContainer(props: UserMFAMgmtProps) {
 
   return (
     <UserMFAMgmtView
-      isLoading={loading}
-      isDeleting={isDeletingFactor}
+      // base props
       styling={styling}
       customMessages={customMessages}
+      schema={schema}
       hideHeader={hideHeader}
       showActiveOnly={showActiveOnly}
       disableEnroll={disableEnroll}
       disableDelete={disableDelete}
       readOnly={readOnly}
       factorConfig={factorConfig}
+      // state
+      isLoading={loading}
+      isDeleting={isDeletingFactor}
       error={error}
-      schema={schema}
       dialogOpen={dialogOpen}
       enrollFactor={enrollFactor}
       isDeleteDialogOpen={isDeleteDialogOpen}
@@ -129,6 +131,7 @@ function UserMFAMgmtContainer(props: UserMFAMgmtProps) {
       factorsByType={factorsByType}
       visibleFactorTypes={visibleFactorTypes}
       hasNoActiveFactors={hasNoActiveFactors}
+      // actions
       confirmEnrollment={confirmEnrollment}
       enrollMfa={enrollMfa}
       onEnrollFactor={handleEnroll}
