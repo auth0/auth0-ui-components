@@ -285,7 +285,7 @@ export type UseMFAResult = {
   ) => Promise<unknown>;
 };
 
-export interface UserMFAMgmtLogicProps {
+export interface UserMFAMgmtViewProps {
   error: string | null;
   schema:
     | Partial<{
@@ -311,9 +311,6 @@ export interface UserMFAMgmtLogicProps {
   visibleFactorTypes: MFAType[];
   hasNoActiveFactors: boolean;
   confirmEnrollment: UseMFAResult['confirmEnrollment'];
-}
-
-export interface UserMFAMgmtHandlerProps {
   enrollMfa: UseMFAResult['enrollMfa'];
   onEnrollFactor: (factor: MFAType) => void;
   onDeleteFactor: (factorId: string, factorType: MFAType) => Promise<void>;
@@ -322,11 +319,6 @@ export interface UserMFAMgmtHandlerProps {
   handleEnrollError: (error: Error, stage: typeof ENROLL | typeof CONFIRM) => void;
   handleConfirmDelete: (factorId: string) => Promise<void>;
   setIsDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-export interface UserMFAMgmtViewProps {
-  logic: UserMFAMgmtLogicProps;
-  handlers: UserMFAMgmtHandlerProps;
 }
 
 /**

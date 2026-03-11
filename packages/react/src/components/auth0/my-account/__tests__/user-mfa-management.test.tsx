@@ -9,16 +9,11 @@ import {
   createMockAuthenticator,
   createMockAuthenticationMethodsResponse,
   createMockOTPEnrollmentResponse,
-  createMockUserMFAMgmtLogic,
-  createMockUserMFAMgmtHandlers,
+  createMockUserMFAMgmtViewProps,
 } from '@/tests/utils/__mocks__';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
-import type {
-  UserMFAMgmtProps,
-  UserMFAMgmtLogicProps,
-  UserMFAMgmtHandlerProps,
-} from '@/types/my-account/mfa/mfa-types';
+import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/mfa/mfa-types';
 
 // ===== Mock packages =====
 
@@ -680,15 +675,10 @@ describe('UserMFAMgmt', () => {
 });
 
 describe('UserMFAMgmtView', () => {
-  function setupView(
-    logicOverrides: Partial<UserMFAMgmtLogicProps> = {},
-    handlerOverrides: Partial<UserMFAMgmtHandlerProps> = {},
-  ) {
-    const logic = createMockUserMFAMgmtLogic(logicOverrides);
-    const handlers = createMockUserMFAMgmtHandlers(handlerOverrides);
-
-    renderWithProviders(<UserMFAMgmtView logic={logic} handlers={handlers} />);
-    return { logic, handlers };
+  function setupView(overrides: Partial<UserMFAMgmtViewProps> = {}) {
+    const props = createMockUserMFAMgmtViewProps(overrides);
+    renderWithProviders(<UserMFAMgmtView {...props} />);
+    return props;
   }
 
   it('renders loading state', () => {

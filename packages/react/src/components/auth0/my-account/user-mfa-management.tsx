@@ -19,12 +19,7 @@ import { useMFALogic } from '@/hooks/my-account/use-mfa-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import type {
-  UserMFAMgmtProps,
-  UserMFAMgmtLogicProps,
-  UserMFAMgmtHandlerProps,
-  UserMFAMgmtViewProps,
-} from '@/types/my-account/mfa/mfa-types';
+import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/mfa/mfa-types';
 
 /**
  * User MFA management container(logic) component
@@ -113,84 +108,76 @@ function UserMFAMgmtContainer(props: UserMFAMgmtProps) {
     loadFactors();
   }, []);
 
-  const logic: UserMFAMgmtLogicProps = {
-    isLoading: loading,
-    isDeleting: isDeletingFactor,
-    styling,
-    customMessages,
-    hideHeader,
-    showActiveOnly,
-    disableEnroll,
-    disableDelete,
-    readOnly,
-    factorConfig,
-    error,
-    schema,
-    dialogOpen,
-    enrollFactor,
-    isDeleteDialogOpen,
-    factorToDelete,
-    factorsByType,
-    visibleFactorTypes,
-    hasNoActiveFactors,
-    confirmEnrollment,
-  };
-
-  const handlers: UserMFAMgmtHandlerProps = {
-    enrollMfa,
-    onEnrollFactor: handleEnroll,
-    onDeleteFactor: handleDeleteFactor,
-    handleCloseDialog,
-    handleEnrollError,
-    handleEnrollSuccess,
-    handleConfirmDelete,
-    setIsDeleteDialogOpen,
-  };
-
-  return <UserMFAMgmtView logic={logic} handlers={handlers} />;
+  return (
+    <UserMFAMgmtView
+      isLoading={loading}
+      isDeleting={isDeletingFactor}
+      styling={styling}
+      customMessages={customMessages}
+      hideHeader={hideHeader}
+      showActiveOnly={showActiveOnly}
+      disableEnroll={disableEnroll}
+      disableDelete={disableDelete}
+      readOnly={readOnly}
+      factorConfig={factorConfig}
+      error={error}
+      schema={schema}
+      dialogOpen={dialogOpen}
+      enrollFactor={enrollFactor}
+      isDeleteDialogOpen={isDeleteDialogOpen}
+      factorToDelete={factorToDelete}
+      factorsByType={factorsByType}
+      visibleFactorTypes={visibleFactorTypes}
+      hasNoActiveFactors={hasNoActiveFactors}
+      confirmEnrollment={confirmEnrollment}
+      enrollMfa={enrollMfa}
+      onEnrollFactor={handleEnroll}
+      onDeleteFactor={handleDeleteFactor}
+      handleCloseDialog={handleCloseDialog}
+      handleEnrollError={handleEnrollError}
+      handleEnrollSuccess={handleEnrollSuccess}
+      handleConfirmDelete={handleConfirmDelete}
+      setIsDeleteDialogOpen={setIsDeleteDialogOpen}
+    />
+  );
 }
 
 /**
  * UserMFAMgmtView — Presentational component.
- * @param props - View props with logic and handlers
+ * @param props - View props
  * @returns User Management View element
  * @internal
  */
-function UserMFAMgmtView({ logic, handlers }: UserMFAMgmtViewProps) {
-  const {
-    isLoading,
-    isDeleting,
-    styling,
-    customMessages,
-    hideHeader,
-    showActiveOnly,
-    disableEnroll,
-    disableDelete,
-    readOnly,
-    factorConfig,
-    schema,
-    error,
-    dialogOpen,
-    enrollFactor,
-    isDeleteDialogOpen,
-    factorToDelete,
-    factorsByType,
-    visibleFactorTypes,
-    hasNoActiveFactors,
-    confirmEnrollment,
-  } = logic;
-
-  const {
-    enrollMfa,
-    onEnrollFactor,
-    onDeleteFactor,
-    handleCloseDialog,
-    handleEnrollSuccess,
-    handleEnrollError,
-    handleConfirmDelete,
-    setIsDeleteDialogOpen,
-  } = handlers;
-
+function UserMFAMgmtView({
+  isLoading,
+  isDeleting,
+  styling,
+  customMessages,
+  hideHeader,
+  showActiveOnly,
+  disableEnroll,
+  disableDelete,
+  readOnly,
+  factorConfig,
+  schema,
+  error,
+  dialogOpen,
+  enrollFactor,
+  isDeleteDialogOpen,
+  factorToDelete,
+  factorsByType,
+  visibleFactorTypes,
+  hasNoActiveFactors,
+  confirmEnrollment,
+  enrollMfa,
+  onEnrollFactor,
+  onDeleteFactor,
+  handleCloseDialog,
+  handleEnrollSuccess,
+  handleEnrollError,
+  handleConfirmDelete,
+  setIsDeleteDialogOpen,
+}: UserMFAMgmtViewProps) {
   const { loader, isDarkMode } = useTheme();
   const { t } = useTranslator('mfa', customMessages);
   const currentStyles = React.useMemo(

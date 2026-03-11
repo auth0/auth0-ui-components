@@ -1,10 +1,7 @@
 import type { Authenticator, MFAType } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import type {
-  UserMFAMgmtHandlerProps,
-  UserMFAMgmtLogicProps,
-} from '@/types/my-account/mfa/mfa-types';
+import type { UserMFAMgmtViewProps } from '@/types/my-account/mfa/mfa-types';
 
 export const createMockAuthenticator = (overrides?: Partial<Authenticator>): Authenticator => ({
   id: 'auth_mock123',
@@ -122,9 +119,9 @@ export const createMockAPIError = (message: string, statusCode?: number) => {
   return error;
 };
 
-export const createMockUserMFAMgmtLogic = (
-  logicOverrides: Partial<UserMFAMgmtLogicProps> = {},
-): UserMFAMgmtLogicProps => ({
+export const createMockUserMFAMgmtViewProps = (
+  overrides: Partial<UserMFAMgmtViewProps> = {},
+): UserMFAMgmtViewProps => ({
   isLoading: false,
   isDeleting: false,
   customMessages: {},
@@ -141,14 +138,7 @@ export const createMockUserMFAMgmtLogic = (
   isDeleteDialogOpen: false,
   factorToDelete: null,
   factorsByType: {
-    email: [
-      {
-        id: '2',
-        type: 'email',
-        enrolled: false,
-        created_at: null,
-      },
-    ],
+    email: [{ id: '2', type: 'email', enrolled: false, created_at: null }],
     phone: [],
     'push-notification': [],
     totp: [],
@@ -160,12 +150,6 @@ export const createMockUserMFAMgmtLogic = (
   hasNoActiveFactors: false,
   confirmEnrollment: vi.fn(),
   styling: undefined,
-  ...logicOverrides,
-});
-
-export const createMockUserMFAMgmtHandlers = (
-  handlerOverrides: Partial<UserMFAMgmtHandlerProps> = {},
-): UserMFAMgmtHandlerProps => ({
   enrollMfa: vi.fn(),
   onEnrollFactor: vi.fn(),
   onDeleteFactor: vi.fn(),
@@ -174,5 +158,5 @@ export const createMockUserMFAMgmtHandlers = (
   handleEnrollSuccess: vi.fn(),
   handleConfirmDelete: vi.fn(),
   setIsDeleteDialogOpen: vi.fn(),
-  ...handlerOverrides,
+  ...overrides,
 });
