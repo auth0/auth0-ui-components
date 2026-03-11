@@ -1,8 +1,9 @@
 import type {
   CreateIdentityProviderRequestContentPrivate,
+  IdpStrategy,
   IdentityProvider,
 } from '@auth0/universal-components-core';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 
 import { showToast } from '@/components/auth0/shared/toast';
@@ -11,6 +12,12 @@ import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 
+vi.mock('@/hooks/my-organization/use-config', () => ({
+  useConfig: () => ({ isLoadingConfig: false, filteredStrategies: [] as IdpStrategy[] }),
+}));
+vi.mock('@/hooks/my-organization/use-idp-config', () => ({
+  useIdpConfig: () => ({ isLoadingIdpConfig: false, idpConfig: null }),
+}));
 vi.mock('@/hooks/shared/use-core-client');
 vi.mock('@/hooks/shared/use-translator');
 vi.mock('@/components/auth0/shared/toast');
@@ -27,18 +34,13 @@ describe('useSsoProviderCreate', () => {
   };
 
   const mockT = vi.fn((key: string, params?: Record<string, string>) => {
-    if (key === 'notifications.provider_create_success') {
+    if (key === 'notifications.provider_create_success')
       return `Provider ${params?.providerName} created successfully`;
-    }
-    if (key === 'notifications.provider_create_duplicated_provider_error') {
+    if (key === 'notifications.provider_create_duplicated_provider_error')
       return `Provider ${params?.providerName} already exists`;
-    }
-    if (key === 'notifications.provider_create_discovery_failure') {
+    if (key === 'notifications.provider_create_discovery_failure')
       return `${params?.domain} not found. Check the domain and try again.`;
-    }
-    if (key === 'notifications.general_error') {
-      return 'An error occurred';
-    }
+    if (key === 'notifications.general_error') return 'An error occurred';
     return key;
   });
 
@@ -65,12 +67,31 @@ describe('useSsoProviderCreate', () => {
     return renderHook(() => useSsoProviderCreate(...args), { wrapper });
   };
 
+  // Set up formData + configureRef then call handleCreate
+  const setupFormAndCreate = (
+    result: ReturnType<typeof renderUseSsoProviderCreate>['result'],
+    data: CreateIdentityProviderRequestContentPrivate,
+  ) => {
+    const { strategy, name, display_name, ...restData } = data;
+    act(() => {
+      result.current.setFormData({ strategy, details: { name, display_name } });
+    });
+    result.current.configureRef.current = {
+      validate: vi.fn().mockResolvedValue(true),
+      getData: vi.fn().mockReturnValue(restData),
+    };
+    return result.current.handleCreate();
+  };
+
+  // ===== Initialization =====
+
   it('should initialize with isCreating as false', () => {
     const { result } = renderUseSsoProviderCreate();
-
     expect(result.current.isCreating).toBe(false);
-    expect(typeof result.current.createProvider).toBe('function');
+    expect(typeof result.current.handleCreate).toBe('function');
   });
+
+  // ===== Successful creation =====
 
   it('should create a provider successfully', async () => {
     const mockProviderData: CreateIdentityProviderRequestContentPrivate = {
@@ -84,7 +105,9 @@ describe('useSsoProviderCreate', () => {
 
     const { result } = renderUseSsoProviderCreate();
 
-    await expect(result.current.createProvider(mockProviderData)).resolves.toBeUndefined();
+    await act(async () => {
+      await setupFormAndCreate(result, mockProviderData);
+    });
 
     await waitFor(() => {
       expect(mockCreate).toHaveBeenCalledTimes(1);
@@ -110,18 +133,22 @@ describe('useSsoProviderCreate', () => {
 
     const { result } = renderUseSsoProviderCreate();
 
-    const createPromise = result.current.createProvider(mockProviderData);
+    const createPromise = setupFormAndCreate(result, mockProviderData);
 
     await waitFor(() => {
       expect(result.current.isCreating).toBe(true);
     });
 
-    await createPromise;
+    await act(async () => {
+      await createPromise;
+    });
 
     await waitFor(() => {
       expect(result.current.isCreating).toBe(false);
     });
   });
+
+  // ===== Error handling =====
 
   it('should handle duplicate provider error (409)', async () => {
     const mockProviderData: CreateIdentityProviderRequestContentPrivate = {
@@ -131,18 +158,13 @@ describe('useSsoProviderCreate', () => {
       signingCert: 'cert123',
     };
 
-    const error = {
-      body: {
-        status: 409,
-        type: 'https://auth0.com/api-errors#A0E-409-0001',
-      },
-    };
-
-    mockCreate.mockRejectedValue(error);
+    mockCreate.mockRejectedValue({
+      body: { status: 409, type: 'https://auth0.com/api-errors#A0E-409-0001' },
+    });
 
     const { result } = renderUseSsoProviderCreate();
 
-    await expect(result.current.createProvider(mockProviderData)).rejects.toBeDefined();
+    await expect(setupFormAndCreate(result, mockProviderData)).rejects.toBeDefined();
 
     await waitFor(() => {
       expect(showToast).toHaveBeenCalledWith({
@@ -164,18 +186,13 @@ describe('useSsoProviderCreate', () => {
     };
 
     it('should handle discovery failure error with domain from error detail', async () => {
-      const error = {
-        body: {
-          status: 400,
-          detail: 'discovery failure: invalid-domain.okta.com',
-        },
-      };
-
-      mockCreate.mockRejectedValue(error);
+      mockCreate.mockRejectedValue({
+        body: { status: 400, detail: 'discovery failure: invalid-domain.okta.com' },
+      });
 
       const { result } = renderUseSsoProviderCreate();
 
-      await expect(result.current.createProvider(baseOktaProviderData)).rejects.toBeDefined();
+      await expect(setupFormAndCreate(result, baseOktaProviderData)).rejects.toBeDefined();
 
       await waitFor(() => {
         expect(showToast).toHaveBeenCalledWith({
@@ -187,18 +204,13 @@ describe('useSsoProviderCreate', () => {
     });
 
     it('should handle discovery failure error with uppercase detail', async () => {
-      const error = {
-        body: {
-          status: 400,
-          detail: 'Discovery Failure: test.okta.com',
-        },
-      };
-
-      mockCreate.mockRejectedValue(error);
+      mockCreate.mockRejectedValue({
+        body: { status: 400, detail: 'Discovery Failure: test.okta.com' },
+      });
 
       const { result } = renderUseSsoProviderCreate();
 
-      await expect(result.current.createProvider(baseOktaProviderData)).rejects.toBeDefined();
+      await expect(setupFormAndCreate(result, baseOktaProviderData)).rejects.toBeDefined();
 
       await waitFor(() => {
         expect(showToast).toHaveBeenCalledWith({
@@ -209,18 +221,13 @@ describe('useSsoProviderCreate', () => {
     });
 
     it('should fall back to general error when detail does not contain discovery failure', async () => {
-      const error = {
-        body: {
-          status: 400,
-          detail: 'Some other error message',
-        },
-      };
-
-      mockCreate.mockRejectedValue(error);
+      mockCreate.mockRejectedValue({
+        body: { status: 400, detail: 'Some other error message' },
+      });
 
       const { result } = renderUseSsoProviderCreate();
 
-      await expect(result.current.createProvider(baseOktaProviderData)).rejects.toBeDefined();
+      await expect(setupFormAndCreate(result, baseOktaProviderData)).rejects.toBeDefined();
 
       await waitFor(() => {
         expect(showToast).toHaveBeenCalledWith({
@@ -231,17 +238,11 @@ describe('useSsoProviderCreate', () => {
     });
 
     it('should fall back to general error when detail is missing', async () => {
-      const error = {
-        body: {
-          status: 400,
-        },
-      };
-
-      mockCreate.mockRejectedValue(error);
+      mockCreate.mockRejectedValue({ body: { status: 400 } });
 
       const { result } = renderUseSsoProviderCreate();
 
-      await expect(result.current.createProvider(baseOktaProviderData)).rejects.toBeDefined();
+      await expect(setupFormAndCreate(result, baseOktaProviderData)).rejects.toBeDefined();
 
       await waitFor(() => {
         expect(showToast).toHaveBeenCalledWith({
@@ -264,7 +265,7 @@ describe('useSsoProviderCreate', () => {
 
     const { result } = renderUseSsoProviderCreate();
 
-    await expect(result.current.createProvider(mockProviderData)).rejects.toBeDefined();
+    await expect(setupFormAndCreate(result, mockProviderData)).rejects.toBeDefined();
 
     await waitFor(() => {
       expect(showToast).toHaveBeenCalledWith({
@@ -274,6 +275,8 @@ describe('useSsoProviderCreate', () => {
       expect(result.current.isCreating).toBe(false);
     });
   });
+
+  // ===== createAction callbacks =====
 
   it('should call onBefore callback and proceed when it returns true', async () => {
     const mockProviderData: CreateIdentityProviderRequestContentPrivate = {
@@ -286,14 +289,14 @@ describe('useSsoProviderCreate', () => {
     const onBefore = vi.fn().mockReturnValue(true);
     mockCreate.mockResolvedValue(mockIdentityProvider);
 
-    const { result } = renderUseSsoProviderCreate({
-      createAction: { onBefore },
+    const { result } = renderUseSsoProviderCreate({ createAction: { onBefore } });
+
+    await act(async () => {
+      await setupFormAndCreate(result, mockProviderData);
     });
 
-    await expect(result.current.createProvider(mockProviderData)).resolves.toBeUndefined();
-
     await waitFor(() => {
-      expect(onBefore).toHaveBeenCalledWith(mockProviderData);
+      expect(onBefore).toHaveBeenCalled();
       expect(mockCreate).toHaveBeenCalled();
     });
   });
@@ -308,13 +311,13 @@ describe('useSsoProviderCreate', () => {
 
     const onBefore = vi.fn().mockReturnValue(false);
 
-    const { result } = renderUseSsoProviderCreate({
-      createAction: { onBefore },
+    const { result } = renderUseSsoProviderCreate({ createAction: { onBefore } });
+
+    await act(async () => {
+      await setupFormAndCreate(result, mockProviderData);
     });
 
-    await expect(result.current.createProvider(mockProviderData)).resolves.toBeUndefined();
-
-    expect(onBefore).toHaveBeenCalledWith(mockProviderData);
+    expect(onBefore).toHaveBeenCalled();
     expect(mockCreate).not.toHaveBeenCalled();
     await waitFor(() => {
       expect(showToast).not.toHaveBeenCalled();
@@ -332,14 +335,17 @@ describe('useSsoProviderCreate', () => {
     const onAfter = vi.fn();
     mockCreate.mockResolvedValue(mockIdentityProvider);
 
-    const { result } = renderUseSsoProviderCreate({
-      createAction: { onAfter },
+    const { result } = renderUseSsoProviderCreate({ createAction: { onAfter } });
+
+    await act(async () => {
+      await setupFormAndCreate(result, mockProviderData);
     });
 
-    await expect(result.current.createProvider(mockProviderData)).resolves.toBeUndefined();
-
     await waitFor(() => {
-      expect(onAfter).toHaveBeenCalledWith(mockProviderData, mockIdentityProvider);
+      expect(onAfter).toHaveBeenCalledWith(
+        expect.objectContaining({ strategy: 'samlp' }),
+        mockIdentityProvider,
+      );
     });
   });
 
@@ -354,11 +360,9 @@ describe('useSsoProviderCreate', () => {
     const onAfter = vi.fn();
     mockCreate.mockRejectedValue(new Error('Creation failed'));
 
-    const { result } = renderUseSsoProviderCreate({
-      createAction: { onAfter },
-    });
+    const { result } = renderUseSsoProviderCreate({ createAction: { onAfter } });
 
-    await expect(result.current.createProvider(mockProviderData)).rejects.toBeDefined();
+    await expect(setupFormAndCreate(result, mockProviderData)).rejects.toBeDefined();
 
     await waitFor(() => {
       expect(onAfter).not.toHaveBeenCalled();
@@ -377,7 +381,9 @@ describe('useSsoProviderCreate', () => {
 
     const { result } = renderUseSsoProviderCreate();
 
-    await expect(result.current.createProvider(mockProviderData)).resolves.toBeUndefined();
+    await act(async () => {
+      await setupFormAndCreate(result, mockProviderData);
+    });
 
     expect(mockCreate).not.toHaveBeenCalled();
     await waitFor(() => {
@@ -385,6 +391,79 @@ describe('useSsoProviderCreate', () => {
         type: 'error',
         message: 'An error occurred',
       });
+    });
+  });
+
+  // ===== Form logic =====
+
+  describe('form logic', () => {
+    it('should initialize formData and refs', () => {
+      const { result } = renderUseSsoProviderCreate();
+      expect(result.current.formData).toEqual({});
+      expect(result.current.detailsRef.current).toBeNull();
+      expect(result.current.configureRef.current).toBeNull();
+    });
+
+    it('should update formData via setFormData', () => {
+      const { result } = renderUseSsoProviderCreate();
+      act(() => {
+        result.current.setFormData({
+          strategy: 'samlp',
+          details: { name: 'test', display_name: 'test provider' },
+        });
+      });
+      expect(result.current.formData.strategy).toBe('samlp');
+      expect(result.current.formData.details).toEqual({
+        name: 'test',
+        display_name: 'test provider',
+      });
+    });
+
+    it('createStepActions calls onNext and onPrevious handlers', async () => {
+      const mockOnNext = vi.fn();
+      const mockOnPrevious = vi.fn();
+      const { result } = renderUseSsoProviderCreate({
+        onNext: mockOnNext,
+        onPrevious: mockOnPrevious,
+      });
+      const ref = {
+        current: {
+          validate: vi.fn().mockResolvedValue(true),
+          getData: vi.fn().mockReturnValue({ name: 'test' }),
+        },
+      };
+      const actions = result.current.createStepActions('provider_details', ref);
+      await act(async () => {
+        await actions.onNextAction();
+        await actions.onPreviousAction();
+      });
+      expect(ref.current.validate).toHaveBeenCalled();
+      expect(ref.current.getData).toHaveBeenCalled();
+      expect(mockOnNext).toHaveBeenCalledWith(
+        'provider_details',
+        expect.objectContaining({ details: { name: 'test' } }),
+      );
+      expect(mockOnPrevious).toHaveBeenCalledWith(
+        'provider_details',
+        expect.objectContaining({ details: { name: 'test' } }),
+      );
+    });
+
+    it('createStepActions returns false if validation fails', async () => {
+      const { result } = renderUseSsoProviderCreate();
+      const ref = {
+        current: {
+          validate: vi.fn().mockResolvedValue(false),
+          getData: vi.fn(),
+        },
+      };
+      const actions = result.current.createStepActions('provider_details', ref);
+      let nextResult: boolean | undefined;
+      await act(async () => {
+        nextResult = await actions.onNextAction();
+      });
+      expect(nextResult).toBe(false);
+      expect(ref.current.validate).toHaveBeenCalled();
     });
   });
 });

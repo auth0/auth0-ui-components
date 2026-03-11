@@ -11,30 +11,20 @@ import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Wizard } from '@/components/auth0/shared/wizard';
 import type { StepProps } from '@/components/auth0/shared/wizard';
 import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-create';
-import { useSsoProviderCreateLogic } from '@/hooks/my-organization/use-sso-provider-create-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   FormState,
-  SsoProviderCreateHandlerProps,
-  SsoProviderCreateLogicProps,
   SsoProviderCreateProps,
   SsoProviderCreateViewProps,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 /**
- * Internal SSO provider creation container(logic) component.
  * @param props - Component props
- * @param props.createAction - Configuration for the create action
- * @param props.backButton - Configuration for the back button
- * @param props.customMessages - Custom translation messages to override defaults
- * @param props.styling - Custom styling configuration with variables and classes
- * @param props.onNext - Callback for next action
- * @param props.onPrevious - Callback for previous action
- * @internal
  * @returns JSX element
+ * @internal
  */
-function SsoProviderCreateContainer(props: SsoProviderCreateProps) {
+function SsoProviderCreate(props: SsoProviderCreateProps) {
   const {
     createAction,
     backButton,
@@ -47,93 +37,45 @@ function SsoProviderCreateContainer(props: SsoProviderCreateProps) {
     onPrevious,
   } = props;
 
-  const { createProvider, isCreating } = useSsoProviderCreate({ createAction, customMessages });
-  const {
-    formData,
-    detailsRef,
-    configureRef,
-    setFormData,
-    handleCreate,
-    createStepActions,
-    isLoadingConfig,
-    filteredStrategies,
-    isLoadingIdpConfig,
-    idpConfig,
-  } = useSsoProviderCreateLogic({
-    onNext,
-    onPrevious,
-    createProvider,
-  });
-
-  const { strategy, details, configure } = formData;
-
-  const ssoProviderCreateLogicProps: SsoProviderCreateLogicProps = {
-    formData,
-    strategy,
-    details,
-    configure,
-    isCreating,
-    isLoadingConfig,
-    filteredStrategies,
-    isLoadingIdpConfig,
-    idpConfig,
-    styling,
-    customMessages,
-    backButton,
-  };
-
-  const ssoProviderCreateHandlerProps: SsoProviderCreateHandlerProps = {
-    onNext,
-    onPrevious,
-    setFormData,
-    detailsRef,
-    configureRef,
-    handleCreate,
-    createStepActions,
-  };
+  const hook = useSsoProviderCreate({ createAction, customMessages, onNext, onPrevious });
 
   return (
     <SsoProviderCreateView
-      logic={ssoProviderCreateLogicProps}
-      handlers={ssoProviderCreateHandlerProps}
+      {...hook}
+      styling={styling}
+      customMessages={customMessages}
+      backButton={backButton}
+      onNext={onNext}
+      onPrevious={onPrevious}
     />
   );
 }
 
 /**
- * Internal SSO provider creation view component
- * @param props - Component props
- * @param props.logic - Component logic props
- * @param props.handlers - Component handler props
- * @internal
+ * @param props - View props
  * @returns JSX element
+ * @internal
  */
-function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) {
-  const {
-    styling,
-    customMessages,
-    backButton,
-    isCreating,
-    strategy,
-    details,
-    configure,
-    isLoadingConfig,
-    filteredStrategies,
-    isLoadingIdpConfig,
-    idpConfig,
-  }: SsoProviderCreateLogicProps = logic;
-
+function SsoProviderCreateView({
+  styling,
+  customMessages,
+  backButton,
+  onNext,
+  isCreating,
+  formData,
+  setFormData,
+  detailsRef,
+  configureRef,
+  handleCreate,
+  createStepActions,
+  isLoadingConfig,
+  filteredStrategies,
+  isLoadingIdpConfig,
+  idpConfig,
+}: SsoProviderCreateViewProps) {
+  const { strategy, details, configure } = formData;
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
-  const {
-    detailsRef,
-    configureRef,
-    onNext,
-    onPrevious,
-    setFormData,
-    handleCreate,
-    createStepActions,
-  }: SsoProviderCreateHandlerProps = handlers;
 
   const currentStyles = useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -204,7 +146,6 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
       details,
       configure,
       onNext,
-      onPrevious,
       customMessages,
       currentStyles,
       styling,
@@ -275,6 +216,4 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
  * />
  * ```
  */
-const SsoProviderCreate = SsoProviderCreateContainer;
-
 export { SsoProviderCreate, SsoProviderCreateView };

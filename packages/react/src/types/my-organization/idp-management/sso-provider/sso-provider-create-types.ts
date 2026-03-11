@@ -20,6 +20,7 @@ import type {
   ComponentAction,
   BackButton,
   CreateIdentityProviderRequestContentPrivate,
+  ComponentStyling,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
@@ -111,24 +112,17 @@ export interface SsoProviderCreateProps
 export interface UseSsoProviderCreateOptions {
   createAction?: SsoProviderCreateProps['createAction'];
   customMessages?: SsoProviderCreateProps['customMessages'];
-}
-
-export interface UseSsoProviderCreateLogicOptions {
   onNext?: SsoProviderCreateProps['onNext'];
   onPrevious?: SsoProviderCreateProps['onPrevious'];
-  createProvider: (data: CreateIdentityProviderRequestContentPrivate) => Promise<void>;
 }
 
-export interface UseSsoProviderCreateLogicResult {
+export interface UseSsoProviderCreateResult {
+  isCreating: boolean;
   formData: FormState;
   setFormData: React.Dispatch<React.SetStateAction<FormState>>;
   detailsRef: React.RefObject<ProviderDetailsFormHandle | null>;
   configureRef: React.RefObject<ProviderConfigureHandle | null>;
   handleCreate: () => Promise<void>;
-  isLoadingConfig: boolean;
-  filteredStrategies: IdpStrategy[];
-  isLoadingIdpConfig: boolean;
-  idpConfig?: IdpConfig | null;
   createStepActions: (
     stepId: 'provider_details' | 'provider_configure',
     ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,
@@ -136,6 +130,10 @@ export interface UseSsoProviderCreateLogicResult {
     onNextAction: () => Promise<boolean>;
     onPreviousAction: () => Promise<boolean>;
   };
+  isLoadingConfig: boolean;
+  filteredStrategies: IdpStrategy[];
+  isLoadingIdpConfig: boolean;
+  idpConfig?: IdpConfig | null;
 }
 
 export type FormState = {
@@ -144,38 +142,10 @@ export type FormState = {
   configure?: ProviderConfigureFormValues | null;
 };
 
-export type SsoProviderCreateViewProps = {
-  logic: SsoProviderCreateLogicProps;
-  handlers: SsoProviderCreateHandlerProps;
-};
-
-export interface SsoProviderCreateLogicProps {
-  formData: FormState;
-  strategy?: IdpStrategy;
-  details?: ProviderDetailsFormValues | null;
-  configure?: ProviderConfigureFormValues | null;
-  isCreating: boolean;
-  isLoadingConfig: boolean;
-  filteredStrategies: IdpStrategy[];
-  isLoadingIdpConfig: boolean;
-  idpConfig?: IdpConfig | null;
-  styling?: SsoProviderCreateProps['styling'];
-  customMessages?: SsoProviderCreateProps['customMessages'];
-  backButton?: SsoProviderCreateProps['backButton'];
-}
-
-export interface SsoProviderCreateHandlerProps {
-  onNext: ((stepId: string, values: Partial<SsoProviderFormValues>) => boolean) | undefined;
-  onPrevious: ((stepId: string, values: Partial<SsoProviderFormValues>) => boolean) | undefined;
-  setFormData: React.Dispatch<React.SetStateAction<FormState>>;
-  detailsRef: React.RefObject<ProviderDetailsFormHandle | null>;
-  configureRef: React.RefObject<ProviderConfigureHandle | null>;
-  handleCreate: () => Promise<void>;
-  createStepActions: (
-    stepId: 'provider_details' | 'provider_configure',
-    ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,
-  ) => {
-    onNextAction: () => Promise<boolean>;
-    onPreviousAction: () => Promise<boolean>;
-  };
+export interface SsoProviderCreateViewProps extends UseSsoProviderCreateResult {
+  styling: ComponentStyling<SsoProviderCreateClasses>;
+  customMessages: SsoProviderCreateProps['customMessages'];
+  backButton: SsoProviderCreateProps['backButton'];
+  onNext: SsoProviderCreateProps['onNext'];
+  onPrevious: SsoProviderCreateProps['onPrevious'];
 }
