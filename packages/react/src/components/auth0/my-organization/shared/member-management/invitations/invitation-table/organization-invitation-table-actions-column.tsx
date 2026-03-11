@@ -106,8 +106,7 @@ export function OrganizationInvitationTableActionsColumn({
               </DropdownMenuItem>
             )}
 
-            {/* Revoke and Resend - only for pending invitations */}
-            {isPending && !readOnly && (
+            {!readOnly && (
               <DropdownMenuItem onClick={handleRevokeAndResend}>
                 <RefreshCcw className="mr-2 h-4 w-4" />
                 {t('invitation.actions.revoke_and_resend')}

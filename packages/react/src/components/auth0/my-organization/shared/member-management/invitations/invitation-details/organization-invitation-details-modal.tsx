@@ -228,7 +228,7 @@ export function OrganizationInvitationDetailsModal({
           )}
 
           {/* Revoke / Resend Actions (inline, below invitation URL) */}
-          {!readOnly && isPending && (
+          {!readOnly && (
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" onClick={handleResend} disabled={isActionInProgress}>
                 {t('invitation.details.resend_button')}
