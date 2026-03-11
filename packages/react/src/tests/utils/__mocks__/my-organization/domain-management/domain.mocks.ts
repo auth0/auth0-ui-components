@@ -8,8 +8,7 @@ import { vi } from 'vitest';
 
 import type {
   DomainTableProps,
-  UseDomainTableLogicOptions,
-  UseDomainTableResult,
+  DomainTableViewProps,
 } from '@/types/my-organization/domain-management/domain-table-types';
 
 export const createMockDomain = (overrides?: Partial<Domain>): Domain => ({
@@ -119,9 +118,9 @@ export const createMockDeleteAction = (): ComponentAction<Domain> => ({
   onAfter: vi.fn(),
 });
 
-export const createMockLogic = (
-  overrides: Partial<UseDomainTableResult & DomainTableProps> = {},
-) => ({
+export const createMockDomainTableView = (
+  overrides?: Partial<DomainTableViewProps>,
+): DomainTableViewProps => ({
   domains: [createMockDomain(), createMockVerifiedDomain()],
   providers: [],
   isCreating: false,
@@ -137,17 +136,6 @@ export const createMockLogic = (
   createAction: undefined,
   onOpenProvider: undefined,
   onCreateProvider: undefined,
-  fetchProviders: vi.fn(),
-  fetchDomains: vi.fn(),
-  onCreateDomain: vi.fn(),
-  onVerifyDomain: vi.fn(),
-  onDeleteDomain: vi.fn(),
-  onAssociateToProvider: vi.fn(),
-  onDeleteFromProvider: vi.fn(),
-  ...overrides,
-});
-
-export const createMockApi = (overrides: Partial<UseDomainTableLogicOptions> = {}) => ({
   showCreateModal: false,
   showConfigureModal: false,
   showVerifyModal: false,

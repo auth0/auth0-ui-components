@@ -1,5 +1,5 @@
 /**
- * Domain table data and mutations hook.
+ * Domain table hook.
  * @module use-domain-table
  */
 
@@ -12,9 +12,11 @@ import {
   MY_ORGANIZATION_DOMAIN_SCOPES,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
+import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseDomainTableOptions,
@@ -28,15 +30,8 @@ const domainQueryKeys = {
 };
 
 /**
- * Hook for domain table data fetching and CRUD operations.
- * @param props - Component props.
- * @param props.createAction - Configuration for the create action
- * @param props.deleteAction - Configuration for the delete action
- * @param props.verifyAction - Configuration for the verify action
- * @param props.associateToProviderAction - Configuration for associating to a provider
- * @param props.deleteFromProviderAction - Configuration for deleting from a provider
- * @param props.customMessages - Custom translation messages to override defaults
- * @returns Hook state and methods
+ * @param props - Hook options.
+ * @returns Domain table state and handlers.
  */
 export function useDomainTable({
   createAction,
@@ -46,31 +41,43 @@ export function useDomainTable({
   deleteFromProviderAction,
   customMessages,
 }: UseDomainTableOptions): UseDomainTableResult {
-  const { t } = useTranslator('domain_management.domain_table.notifications', customMessages);
+  const { t } = useTranslator('domain_management', customMessages);
   const { coreClient } = useCoreClient();
+  const { handleError } = useErrorHandler();
   const queryClient = useQueryClient();
 
   const [selectedDomainId, setSelectedDomainId] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showConfigureModal, setShowConfigureModal] = useState(false);
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [verifyError, setVerifyError] = useState<string | undefined>(undefined);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
 
-  const fetchProvidersForDomain = async (domainId: string) => {
-    const api = coreClient!.getMyOrganizationApiClient().withScopes(MY_ORGANIZATION_DOMAIN_SCOPES);
+  const fetchProvidersForDomain = useCallback(
+    async (domainId: string) => {
+      const api = coreClient!
+        .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES);
 
-    const [allProvidersResponse, associatedProvidersResponse] = await Promise.all([
-      api.organization.identityProviders.list(),
-      api.organization.domains.identityProviders.get(domainId),
-    ]);
+      const [allProvidersResponse, associatedProvidersResponse] = await Promise.all([
+        api.organization.identityProviders.list(),
+        api.organization.domains.identityProviders.get(domainId),
+      ]);
 
-    const allProviders = allProvidersResponse?.identity_providers ?? [];
-    const associatedProviders = associatedProvidersResponse?.identity_providers ?? [];
-    const associatedIds = new Set(associatedProviders.map((p) => p.id).filter(Boolean));
+      const allProviders = allProvidersResponse?.identity_providers ?? [];
+      const associatedProviders = associatedProvidersResponse?.identity_providers ?? [];
+      const associatedIds = new Set(associatedProviders.map((p) => p.id).filter(Boolean));
 
-    return allProviders.map(
-      (provider): IdentityProviderAssociatedWithDomain => ({
-        ...provider,
-        is_associated: provider.id ? associatedIds.has(provider.id) : false,
-      }),
-    );
-  };
+      return allProviders.map(
+        (provider): IdentityProviderAssociatedWithDomain => ({
+          ...provider,
+          is_associated: provider.id ? associatedIds.has(provider.id) : false,
+        }),
+      );
+    },
+    [coreClient],
+  );
 
   const domainsQuery = useQuery({
     queryKey: domainQueryKeys.list(),
@@ -93,7 +100,9 @@ export function useDomainTable({
   const createDomainMutation = useMutation({
     mutationFn: async (data: CreateOrganizationDomainRequestContent): Promise<Domain> => {
       if (createAction?.onBefore && !createAction.onBefore(data as Domain)) {
-        throw new BusinessError({ message: t('domain_create.on_before') });
+        throw new BusinessError({
+          message: t('domain_table.notifications.domain_create.on_before'),
+        });
       }
       return coreClient!
         .getMyOrganizationApiClient()
@@ -109,7 +118,9 @@ export function useDomainTable({
   const verifyDomainMutation = useMutation({
     mutationFn: async (domain: Domain): Promise<boolean> => {
       if (verifyAction?.onBefore && !verifyAction.onBefore(domain)) {
-        throw new BusinessError({ message: t('domain_verify.on_before') });
+        throw new BusinessError({
+          message: t('domain_table.notifications.domain_verify.on_before'),
+        });
       }
       const response = await coreClient!
         .getMyOrganizationApiClient()
@@ -126,7 +137,9 @@ export function useDomainTable({
   const deleteDomainMutation = useMutation({
     mutationFn: async (domain: Domain): Promise<void> => {
       if (deleteAction?.onBefore && !deleteAction.onBefore(domain)) {
-        throw new BusinessError({ message: t('domain_delete.on_before') });
+        throw new BusinessError({
+          message: t('domain_table.notifications.domain_delete.on_before'),
+        });
       }
       await coreClient!
         .getMyOrganizationApiClient()
@@ -146,7 +159,9 @@ export function useDomainTable({
         associateToProviderAction?.onBefore &&
         !associateToProviderAction.onBefore(domain, provider)
       ) {
-        throw new BusinessError({ message: t('domain_associate_provider.on_before') });
+        throw new BusinessError({
+          message: t('domain_table.notifications.domain_associate_provider.on_before'),
+        });
       }
       await coreClient!
         .getMyOrganizationApiClient()
@@ -165,7 +180,9 @@ export function useDomainTable({
         deleteFromProviderAction?.onBefore &&
         !deleteFromProviderAction.onBefore(domain, provider)
       ) {
-        throw new BusinessError({ message: t('domain_delete_provider.on_before') });
+        throw new BusinessError({
+          message: t('domain_table.notifications.domain_delete_provider.on_before'),
+        });
       }
       await coreClient!
         .getMyOrganizationApiClient()
@@ -178,6 +195,180 @@ export function useDomainTable({
     },
   });
 
+  const handleCreate = useCallback(
+    async (domainUrl: string) => {
+      try {
+        const newDomain = await createDomainMutation.mutateAsync({ domain: domainUrl });
+        showToast({
+          type: 'success',
+          message: t('domain_table.notifications.domain_create.success', {
+            domainName: newDomain?.domain,
+          }),
+        });
+        setSelectedDomain(newDomain);
+        setShowCreateModal(false);
+        setShowVerifyModal(true);
+      } catch (error) {
+        handleError(error, {
+          fallbackMessage: t('domain_table.notifications.domain_create.error'),
+        });
+      }
+    },
+    [createDomainMutation, t, handleError],
+  );
+
+  const handleVerify = useCallback(
+    async (domain: Domain) => {
+      try {
+        const isVerified = await verifyDomainMutation.mutateAsync(domain);
+        if (isVerified) {
+          setShowVerifyModal(false);
+          showToast({
+            type: 'success',
+            message: t('domain_table.notifications.domain_verify.success', {
+              domainName: domain.domain,
+            }),
+          });
+        } else {
+          setVerifyError(
+            t('domain_verify.modal.errors.verification_failed', { domainName: domain.domain }),
+          );
+        }
+      } catch (error) {
+        handleError(error, {
+          fallbackMessage: t('domain_table.notifications.domain_verify.error'),
+        });
+      }
+    },
+    [verifyDomainMutation, t, handleError],
+  );
+
+  const handleDelete = useCallback(
+    async (domain: Domain) => {
+      try {
+        await deleteDomainMutation.mutateAsync(domain);
+        showToast({
+          type: 'success',
+          message: t('domain_table.notifications.domain_delete.success', {
+            domainName: domain.domain,
+          }),
+        });
+        setShowDeleteModal(false);
+        setShowVerifyModal(false);
+      } catch (error) {
+        handleError(error, {
+          fallbackMessage: t('domain_table.notifications.domain_delete.error'),
+        });
+      }
+    },
+    [deleteDomainMutation, t, handleError],
+  );
+
+  const handleToggleSwitch = useCallback(
+    async (domain: Domain, provider: IdentityProvider, newCheckedValue: boolean) => {
+      if (newCheckedValue) {
+        try {
+          await associateToProviderMutation.mutateAsync({ domain, provider });
+          showToast({
+            type: 'success',
+            message: t('domain_table.notifications.domain_associate_provider.success', {
+              domain: domain.domain,
+              idp: provider.name,
+            }),
+          });
+        } catch (error) {
+          handleError(error, {
+            fallbackMessage: t('domain_table.notifications.domain_associate_provider.error'),
+          });
+        }
+      } else {
+        try {
+          await deleteFromProviderMutation.mutateAsync({ domain, provider });
+          showToast({
+            type: 'success',
+            message: t('domain_table.notifications.domain_delete_provider.success', {
+              domain: domain.domain,
+              idp: provider.name,
+            }),
+          });
+        } catch (error) {
+          handleError(error, {
+            fallbackMessage: t('domain_table.notifications.domain_delete_provider.error'),
+          });
+        }
+      }
+    },
+    [associateToProviderMutation, deleteFromProviderMutation, t, handleError],
+  );
+
+  const handleCloseVerifyModal = useCallback(() => {
+    setShowVerifyModal(false);
+    setVerifyError(undefined);
+  }, []);
+
+  const handleCreateClick = useCallback(() => {
+    setShowCreateModal(true);
+  }, []);
+
+  const handleConfigureClick = useCallback(
+    async (domain: Domain) => {
+      setSelectedDomain(domain);
+      if (domain.status !== 'verified') {
+        setShowVerifyModal(true);
+      } else {
+        try {
+          setSelectedDomainId(domain.id);
+          await queryClient.ensureQueryData({
+            queryKey: domainQueryKeys.providers(domain.id),
+            queryFn: () => fetchProvidersForDomain(domain.id),
+          });
+          setShowConfigureModal(true);
+        } catch (error) {
+          handleError(error, {
+            fallbackMessage: t('domain_table.notifications.fetch_providers_error'),
+          });
+        }
+      }
+    },
+    [fetchProvidersForDomain, queryClient, t, handleError],
+  );
+
+  const handleVerifyClick = useCallback(
+    async (domain: Domain) => {
+      setSelectedDomain(domain);
+      try {
+        const isVerified = await verifyDomainMutation.mutateAsync(domain);
+        if (isVerified) {
+          setShowConfigureModal(true);
+          showToast({
+            type: 'success',
+            message: t('domain_table.notifications.domain_verify.success', {
+              domainName: domain.domain,
+            }),
+          });
+        } else {
+          showToast({
+            type: 'error',
+            message: t('domain_table.notifications.domain_verify.verification_failed', {
+              domainName: domain.domain,
+            }),
+          });
+        }
+      } catch (error) {
+        handleError(error, {
+          fallbackMessage: t('domain_table.notifications.domain_verify.error'),
+        });
+      }
+    },
+    [verifyDomainMutation, t, handleError],
+  );
+
+  const handleDeleteClick = useCallback((domain: Domain) => {
+    setSelectedDomain(domain);
+    setShowVerifyModal(false);
+    setShowDeleteModal(true);
+  }, []);
+
   return {
     domains: domainsQuery.data ?? [],
     providers: providersQuery.data ?? [],
@@ -186,22 +377,24 @@ export function useDomainTable({
     isDeleting: deleteDomainMutation.isPending,
     isVerifying: verifyDomainMutation.isPending,
     isLoadingProviders: providersQuery.isLoading,
-    fetchProviders: async (domain: Domain) => {
-      setSelectedDomainId(domain.id);
-      await queryClient.ensureQueryData({
-        queryKey: domainQueryKeys.providers(domain.id),
-        queryFn: () => fetchProvidersForDomain(domain.id),
-      });
-    },
-    fetchDomains: async () => {
-      await queryClient.getQueryData(domainQueryKeys.list());
-    },
-    onCreateDomain: (data) => createDomainMutation.mutateAsync(data),
-    onVerifyDomain: (domain) => verifyDomainMutation.mutateAsync(domain),
-    onDeleteDomain: (domain) => deleteDomainMutation.mutateAsync(domain),
-    onAssociateToProvider: (domain, provider) =>
-      associateToProviderMutation.mutateAsync({ domain, provider }),
-    onDeleteFromProvider: (domain, provider) =>
-      deleteFromProviderMutation.mutateAsync({ domain, provider }),
+    showCreateModal,
+    showConfigureModal,
+    showVerifyModal,
+    showDeleteModal,
+    verifyError,
+    selectedDomain,
+    setShowCreateModal,
+    setShowConfigureModal,
+    setShowVerifyModal,
+    setShowDeleteModal,
+    handleCreate,
+    handleVerify,
+    handleDelete,
+    handleToggleSwitch,
+    handleCloseVerifyModal,
+    handleCreateClick,
+    handleConfigureClick,
+    handleVerifyClick,
+    handleDeleteClick,
   };
 }

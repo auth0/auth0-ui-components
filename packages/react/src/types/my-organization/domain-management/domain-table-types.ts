@@ -9,13 +9,12 @@ import type {
   DomainCreateMessages,
   DomainCreateSchemas,
   ComponentAction,
+  ComponentStyling,
   Domain,
   DomainDeleteMessages,
   DomainConfigureMessages,
   DomainVerifyMessages,
   DomainTableMessages,
-  CreateOrganizationDomainRequestContent,
-  EnhancedTranslationFunction,
   IdentityProviderAssociatedWithDomain,
 } from '@auth0/universal-components-core';
 
@@ -56,12 +55,6 @@ export interface DomainTableProps
   onCreateProvider?: () => void;
 }
 
-// DomainTableView component props
-export interface DomainTableViewProps {
-  logic: UseDomainTableResult & DomainTableProps;
-  handlers: UseDomainTableLogicResult;
-}
-
 /** Props for DomainTable actions column. */
 export interface DomainTableActionsColumnProps {
   customMessages?: Partial<DomainTableMainMessages>;
@@ -82,7 +75,7 @@ export interface UseDomainTableOptions {
   customMessages?: DomainTableProps['customMessages'];
 }
 
-export interface UseDomainTableResult extends SharedComponentProps {
+export interface UseDomainTableResult {
   domains: Domain[];
   providers: IdentityProviderAssociatedWithDomain[];
   isFetching: boolean;
@@ -90,49 +83,38 @@ export interface UseDomainTableResult extends SharedComponentProps {
   isCreating: boolean;
   isDeleting: boolean;
   isVerifying: boolean;
-  fetchProviders: (domain: Domain) => Promise<void>;
-  fetchDomains: () => Promise<void>;
-  onCreateDomain: (data: CreateOrganizationDomainRequestContent) => Promise<Domain | null>;
-  onVerifyDomain: (data: Domain) => Promise<boolean>;
-  onDeleteDomain: (domain: Domain) => Promise<void>;
-  onAssociateToProvider: (domain: Domain, provider: IdentityProvider) => Promise<void>;
-  onDeleteFromProvider: (domain: Domain, provider: IdentityProvider) => Promise<void>;
-}
-
-export interface UseDomainTableLogicOptions {
-  t: EnhancedTranslationFunction;
-  onCreateDomain: UseDomainTableResult['onCreateDomain'];
-  onVerifyDomain: UseDomainTableResult['onVerifyDomain'];
-  onDeleteDomain: UseDomainTableResult['onDeleteDomain'];
-  onAssociateToProvider: UseDomainTableResult['onAssociateToProvider'];
-  onDeleteFromProvider: UseDomainTableResult['onDeleteFromProvider'];
-  fetchProviders: UseDomainTableResult['fetchProviders'];
-  fetchDomains: UseDomainTableResult['fetchDomains'];
-}
-
-export interface UseDomainTableLogicResult {
-  // Modal state
   showCreateModal: boolean;
   showConfigureModal: boolean;
   showVerifyModal: boolean;
   showDeleteModal: boolean;
   verifyError: string | undefined;
   selectedDomain: Domain | null;
-
-  // State setters
   setShowCreateModal: (show: boolean) => void;
   setShowConfigureModal: (show: boolean) => void;
   setShowVerifyModal: (show: boolean) => void;
   setShowDeleteModal: (show: boolean) => void;
-
-  // Handlers
   handleCreate: (domainUrl: string) => Promise<void>;
   handleVerify: (domain: Domain) => Promise<void>;
-  handleDelete: (domain: Domain) => void;
-  handleToggleSwitch: (domain: Domain, provider: IdentityProvider, checked: boolean) => void;
+  handleDelete: (domain: Domain) => Promise<void>;
+  handleToggleSwitch: (
+    domain: Domain,
+    provider: IdentityProvider,
+    checked: boolean,
+  ) => Promise<void>;
   handleCloseVerifyModal: () => void;
   handleCreateClick: () => void;
-  handleConfigureClick: (domain: Domain) => void;
+  handleConfigureClick: (domain: Domain) => Promise<void>;
   handleVerifyClick: (domain: Domain) => Promise<void>;
   handleDeleteClick: (domain: Domain) => void;
+}
+
+export interface DomainTableViewProps extends UseDomainTableResult {
+  schema: DomainTableProps['schema'];
+  styling: ComponentStyling<DomainTableClasses>;
+  hideHeader: boolean;
+  readOnly: boolean;
+  customMessages: DomainTableProps['customMessages'];
+  createAction: DomainTableProps['createAction'];
+  onOpenProvider: DomainTableProps['onOpenProvider'];
+  onCreateProvider: DomainTableProps['onCreateProvider'];
 }

@@ -14,7 +14,6 @@ import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
 import { useDomainTable } from '@/hooks/my-organization/use-domain-table';
-import { useDomainTableLogic } from '@/hooks/my-organization/use-domain-table-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
@@ -24,12 +23,11 @@ import type {
 } from '@/types/my-organization/domain-management/domain-table-types';
 
 /**
- * DomainTableContainer Component.
  * @param props - Component props
  * @returns Domain table container element
  * @internal
  */
-function DomainTableContainer(props: DomainTableProps) {
+function DomainTable(props: DomainTableProps) {
   const {
     schema,
     hideHeader = false,
@@ -45,9 +43,7 @@ function DomainTableContainer(props: DomainTableProps) {
     onCreateProvider,
   } = props;
 
-  const { t } = useTranslator('domain_management', customMessages);
-
-  const domainTableState = useDomainTable({
+  const hook = useDomainTable({
     createAction,
     verifyAction,
     deleteAction,
@@ -56,81 +52,63 @@ function DomainTableContainer(props: DomainTableProps) {
     customMessages,
   });
 
-  const domainTableHandlers = useDomainTableLogic({
-    t,
-    onCreateDomain: domainTableState.onCreateDomain,
-    onVerifyDomain: domainTableState.onVerifyDomain,
-    onDeleteDomain: domainTableState.onDeleteDomain,
-    onAssociateToProvider: domainTableState.onAssociateToProvider,
-    onDeleteFromProvider: domainTableState.onDeleteFromProvider,
-    fetchProviders: domainTableState.fetchProviders,
-    fetchDomains: domainTableState.fetchDomains,
-  });
-
-  const domainTableLogic = {
-    ...domainTableState,
-    schema,
-    styling,
-    hideHeader,
-    readOnly,
-    onOpenProvider,
-    onCreateProvider,
-  };
-
-  return <DomainTableView logic={domainTableLogic} handlers={domainTableHandlers} />;
+  return (
+    <DomainTableView
+      {...hook}
+      schema={schema}
+      styling={styling}
+      hideHeader={hideHeader}
+      readOnly={readOnly}
+      customMessages={customMessages}
+      createAction={createAction}
+      onOpenProvider={onOpenProvider}
+      onCreateProvider={onCreateProvider}
+    />
+  );
 }
 
 /**
- * DomainTableView — Presentational component.
- * @param props - View props with logic and handlers
+ * @param props - View props
  * @returns Domain table view element
  * @internal
  */
 function DomainTableView({
-  logic,
-  handlers,
-}: DomainTableViewProps & { handlers: ReturnType<typeof useDomainTableLogic> }) {
+  domains,
+  providers,
+  isCreating,
+  isVerifying,
+  isFetching,
+  isLoadingProviders,
+  isDeleting,
+  schema,
+  styling,
+  hideHeader,
+  readOnly,
+  customMessages,
+  createAction,
+  onOpenProvider,
+  onCreateProvider,
+  showCreateModal,
+  showConfigureModal,
+  showVerifyModal,
+  showDeleteModal,
+  verifyError,
+  selectedDomain,
+  setShowCreateModal,
+  setShowConfigureModal,
+  setShowDeleteModal,
+  handleCreate,
+  handleVerify,
+  handleDelete,
+  handleToggleSwitch,
+  handleCloseVerifyModal,
+  handleCreateClick,
+  handleConfigureClick,
+  handleVerifyClick,
+  handleDeleteClick,
+}: DomainTableViewProps) {
   const { isDarkMode } = useTheme();
-  const { t } = useTranslator('domain_management', logic.customMessages);
-
-  const {
-    domains,
-    providers,
-    isCreating,
-    isVerifying,
-    isFetching,
-    isLoadingProviders,
-    isDeleting,
-    schema,
-    styling,
-    hideHeader,
-    readOnly = false,
-    customMessages,
-    createAction,
-    onOpenProvider,
-    onCreateProvider,
-  } = logic;
-
-  const {
-    showCreateModal,
-    showConfigureModal,
-    showVerifyModal,
-    showDeleteModal,
-    verifyError,
-    selectedDomain,
-    setShowCreateModal,
-    setShowConfigureModal,
-    setShowDeleteModal,
-    handleCreate,
-    handleVerify,
-    handleDelete,
-    handleToggleSwitch,
-    handleCloseVerifyModal,
-    handleCreateClick,
-    handleConfigureClick,
-    handleVerifyClick,
-    handleDeleteClick,
-  } = handlers;
+  const { t } = useTranslator('domain_management', customMessages);
 
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -165,7 +143,7 @@ function DomainTableView({
           <DomainTableActionsColumn
             domain={domain}
             readOnly={readOnly}
-            customMessages={logic.customMessages}
+            customMessages={customMessages}
             onView={handleConfigureClick}
             onConfigure={handleConfigureClick}
             onVerify={handleVerifyClick}
@@ -286,6 +264,4 @@ function DomainTableView({
  * />
  * ```
  */
-const DomainTable = DomainTableContainer;
-
 export { DomainTable, DomainTableView };
