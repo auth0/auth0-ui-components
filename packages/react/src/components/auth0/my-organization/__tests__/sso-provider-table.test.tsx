@@ -9,7 +9,7 @@ import { SsoProviderTableView } from '@/components/auth0/my-organization/sso-pro
 import * as useConfigModule from '@/hooks/my-organization/use-config';
 import * as useIdpConfigModule from '@/hooks/my-organization/use-idp-config';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import { createMockSsoProviderTableHandler, createMockSsoProviderTableLogic } from '@/tests/utils';
+import { createMockSsoProviderTableView } from '@/tests/utils';
 import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
 import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
@@ -864,49 +864,38 @@ describe('SsoProviderTable', () => {
 });
 
 describe('SsoProviderTableView', () => {
-  const logic = createMockSsoProviderTableLogic();
-  const handlers = createMockSsoProviderTableHandler();
+  const viewProps = createMockSsoProviderTableView();
 
   it('renders the table and header', () => {
-    renderWithProviders(<SsoProviderTableView logic={logic} handlers={handlers} />);
+    renderWithProviders(<SsoProviderTableView {...viewProps} />);
     expect(screen.getByRole('table')).toBeInTheDocument();
     expect(screen.getByRole('banner')).toBeInTheDocument();
   });
 
   it('renders empty state when data is empty', () => {
-    renderWithProviders(
-      <SsoProviderTableView logic={{ ...logic, data: [] }} handlers={handlers} />,
-    );
+    renderWithProviders(<SsoProviderTableView {...viewProps} providers={[]} />);
     expect(screen.getByText(/empty/i)).toBeInTheDocument();
   });
 
   it('disables create button when readOnly is true', () => {
-    renderWithProviders(
-      <SsoProviderTableView logic={{ ...logic, readOnly: true }} handlers={handlers} />,
-    );
+    renderWithProviders(<SsoProviderTableView {...viewProps} readOnly={true} />);
     const createButton = screen.getByRole('button', { name: /create/i });
     expect(createButton).toBeDisabled();
   });
 
-  it('renders loading state when isLoading is true', () => {
-    renderWithProviders(
-      <SsoProviderTableView logic={{ ...logic, isLoading: true }} handlers={handlers} />,
-    );
-    expect(screen.getByRole('table')).toBeInTheDocument();
-    // Optionally check for a loading indicator if present in your DataTable
+  it('renders loading state when isViewLoading is true', () => {
+    renderWithProviders(<SsoProviderTableView {...viewProps} isViewLoading={true} />);
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
   it('renders custom header class if provided', () => {
     renderWithProviders(
       <SsoProviderTableView
-        logic={{
-          ...logic,
-          styling: {
-            ...logic.styling,
-            classes: { ...logic?.styling?.classes, 'SsoProviderTable-header': 'custom-header' },
-          },
+        {...viewProps}
+        styling={{
+          ...viewProps.styling,
+          classes: { ...viewProps.styling?.classes, 'SsoProviderTable-header': 'custom-header' },
         }}
-        handlers={handlers}
       />,
     );
     expect(document.querySelector('.custom-header')).toBeInTheDocument();
@@ -915,14 +904,11 @@ describe('SsoProviderTableView', () => {
   it('renders custom table class if provided', () => {
     renderWithProviders(
       <SsoProviderTableView
-        logic={{
-          ...logic,
-          styling: {
-            ...logic.styling,
-            classes: { ...logic?.styling?.classes, 'SsoProviderTable-table': 'custom-table' },
-          },
+        {...viewProps}
+        styling={{
+          ...viewProps.styling,
+          classes: { ...viewProps.styling?.classes, 'SsoProviderTable-table': 'custom-table' },
         }}
-        handlers={handlers}
       />,
     );
     expect(document.querySelector('.custom-table')).toBeInTheDocument();

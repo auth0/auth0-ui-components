@@ -1,49 +1,29 @@
 import { vi } from 'vitest';
 
-import type {
-  SsoProviderTableHandlerProps,
-  SsoProviderTableLogicProps,
-} from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
+import type { SsoProviderTableViewProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
-export function createMockSsoProviderTableLogic(
-  overrides: Partial<SsoProviderTableLogicProps> = {},
-): SsoProviderTableLogicProps {
+export function createMockSsoProviderTableView(
+  overrides: Partial<SsoProviderTableViewProps> = {},
+): SsoProviderTableViewProps {
   return {
-    data: [],
-    isLoading: false,
-    styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
-    customMessages: {},
-    hideHeader: false,
-    readOnly: false,
-    shouldHideCreate: false,
-    isViewLoading: false,
-    selectedIdp: null,
-    shouldAllowDeletion: false,
-    showDeleteModal: false,
-    showRemoveModal: false,
+    providers: [],
     organization: null,
-    isUpdating: false,
-    isUpdatingId: '',
+    isLoading: false,
     isDeleting: false,
     isRemoving: false,
-    createAction: {
-      disabled: false,
-      onAfter: vi.fn(),
-      onBefore: vi.fn(),
-    },
-    editAction: {
-      disabled: false,
-      onAfter: vi.fn(),
-      onBefore: vi.fn(),
-    },
-    ...overrides,
-  };
-}
-
-export function createMockSsoProviderTableHandler(
-  overrides: Partial<SsoProviderTableHandlerProps> = {},
-): SsoProviderTableHandlerProps {
-  return {
+    isUpdating: false,
+    isUpdatingId: null,
+    isViewLoading: false,
+    shouldAllowDeletion: false,
+    shouldHideCreate: false,
+    showDeleteModal: false,
+    showRemoveModal: false,
+    selectedIdp: null,
+    fetchProviders: vi.fn(),
+    fetchOrganizationDetails: vi.fn(),
+    setShowDeleteModal: vi.fn(),
+    setShowRemoveModal: vi.fn(),
+    setSelectedIdp: vi.fn(),
     handleCreate: vi.fn(),
     handleEdit: vi.fn(),
     handleDelete: vi.fn(),
@@ -51,9 +31,11 @@ export function createMockSsoProviderTableHandler(
     handleToggleEnabled: vi.fn(),
     handleDeleteConfirm: vi.fn(),
     handleRemoveConfirm: vi.fn(),
-    setShowDeleteModal: vi.fn(),
-    setShowRemoveModal: vi.fn(),
-    setSelectedIdp: vi.fn(),
+    styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
+    customMessages: {},
+    readOnly: false,
+    createAction: { disabled: false, onAfter: vi.fn() },
+    editAction: { disabled: false, onAfter: vi.fn() },
     ...overrides,
   };
 }
