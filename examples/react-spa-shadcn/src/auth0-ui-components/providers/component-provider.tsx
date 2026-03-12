@@ -87,7 +87,6 @@ export const Auth0ComponentProvider = (
       props.mode === 'proxy'
         ? { domain: props.domain, authProxyUrl: props.proxyConfig.baseUrl }
         : null,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [props.mode, props.domain, props.mode === 'proxy' ? props.proxyConfig.baseUrl : null],
   );
 

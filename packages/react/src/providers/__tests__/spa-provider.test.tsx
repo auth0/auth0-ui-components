@@ -39,7 +39,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   it('should render children when initialized', () => {
     render(
-      <Auth0ComponentProvider domain="test.auth0.com">
+      <Auth0ComponentProvider>
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );
@@ -50,7 +50,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   it('should use auth0 context from useAuth0 hook', () => {
     render(
-      <Auth0ComponentProvider domain="test.auth0.com">
+      <Auth0ComponentProvider>
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );
@@ -76,7 +76,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
     mockUseAuth0.mockReturnValue({} as ReturnType<typeof useAuth0>);
 
     render(
-      <Auth0ComponentProvider domain="test.auth0.com" authContext={customAuthContext as never}>
+      <Auth0ComponentProvider authContext={customAuthContext as never}>
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );
@@ -95,7 +95,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
     expect(() => {
       render(
-        <Auth0ComponentProvider domain="test.auth0.com">
+        <Auth0ComponentProvider>
           <div>Test</div>
         </Auth0ComponentProvider>,
       );
@@ -106,7 +106,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   it('should apply default theme settings', () => {
     render(
-      <Auth0ComponentProvider domain="test.auth0.com">
+      <Auth0ComponentProvider>
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );
@@ -117,7 +117,6 @@ describe('Auth0ComponentProvider (SPA)', () => {
   it('should apply custom theme settings', () => {
     render(
       <Auth0ComponentProvider
-        domain="test.auth0.com"
         themeSettings={{
           mode: 'dark',
           theme: 'rounded',
@@ -137,10 +136,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   it('should render custom loader in suspense fallback', () => {
     render(
-      <Auth0ComponentProvider
-        domain="test.auth0.com"
-        loader={<div data-testid="custom-loader">Loading...</div>}
-      >
+      <Auth0ComponentProvider loader={<div data-testid="custom-loader">Loading...</div>}>
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );
@@ -152,7 +148,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
     const i18nOptions = { currentLanguage: 'es' };
 
     render(
-      <Auth0ComponentProvider domain="test.auth0.com" i18n={i18nOptions}>
+      <Auth0ComponentProvider i18n={i18nOptions}>
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );
@@ -166,7 +162,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   it('should provide coreClient through context', () => {
     render(
-      <Auth0ComponentProvider domain="test.auth0.com">
+      <Auth0ComponentProvider>
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );

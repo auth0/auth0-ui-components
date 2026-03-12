@@ -15,13 +15,13 @@ import type { ToastSettings } from '@/types/toast-types';
 export type Auth0ComponentProviderProps = (
   | {
       mode?: 'direct';
-      domain: string;
       authContext?: AuthDetails['contextInterface'];
-      previewMode?: boolean;
       proxyConfig?: never;
     }
-  | { mode: 'proxy'; domain: string; proxyConfig: { baseUrl: string }; previewMode?: boolean }
+  | { mode: 'proxy'; proxyConfig: { baseUrl: string } }
 ) & {
+  domain?: string;
+  previewMode?: boolean;
   i18n?: I18nOptions;
   themeSettings?: ThemeSettings;
   loader?: React.ReactNode;

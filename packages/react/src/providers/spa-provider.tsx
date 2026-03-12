@@ -43,9 +43,10 @@ export const Auth0ComponentProvider = (
     toastSettings,
     cacheConfig,
     loader,
+    mode,
     children,
   } = props;
-  const authContext = props.mode !== 'proxy' ? props.authContext : undefined;
+  const authContext = mode !== 'proxy' ? props.authContext : undefined;
   const mergedToastSettings = useToastProvider(toastSettings);
 
   const auth0ReactContext = useAuth0();
