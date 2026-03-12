@@ -4,7 +4,6 @@ import {
   getComponentStyles,
   type IdentityProvider,
   STRATEGY_DISPLAY_NAMES,
-  MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES,
 } from '@auth0/universal-components-core';
 import { Plus } from 'lucide-react';
 import * as React from 'react';
@@ -15,7 +14,6 @@ import { SsoProviderTableActionsColumn } from '@/components/auth0/my-organizatio
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
-import { withMyOrganizationService } from '@/hoc/with-services';
 import { useSsoProviderTable } from '@/hooks/my-organization/use-sso-provider-table';
 import { useSsoProviderTableLogic } from '@/hooks/my-organization/use-sso-provider-table-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -324,9 +322,6 @@ function SsoProviderTableView({ logic, handlers }: SsoProviderTableViewProps) {
  * />
  * ```
  */
-const SsoProviderTable: React.ComponentType<SsoProviderTableProps> = withMyOrganizationService(
-  SsoProviderTableContainer,
-  MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES,
-);
+const SsoProviderTable = SsoProviderTableContainer;
 
 export { SsoProviderTable, SsoProviderTableView };

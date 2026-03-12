@@ -64,8 +64,8 @@ export function SsoDomainTabActionsColumn({
           </TooltipTrigger>
           <TooltipContent>
             {providerHasDomain
-              ? t('content.table.actions.disable_domain_tooltip')
-              : t('content.table.actions.enable_domain_tooltip')}
+              ? t('table.actions.disable_domain_tooltip')
+              : t('table.actions.enable_domain_tooltip')}
           </TooltipContent>
         </Tooltip>
       ) : (

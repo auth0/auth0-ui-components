@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
 import { Auth0ComponentProvider } from '@/providers/proxy-provider';
 
 vi.mock('@/hooks/shared/use-core-client-initialization', () => ({
@@ -11,18 +12,14 @@ vi.mock('@/hooks/shared/use-core-client-initialization', () => ({
   })),
 }));
 
+const mockUseCoreClientInitialization = vi.mocked(useCoreClientInitialization);
+
 vi.mock('@/components/auth0/shared/sonner', () => ({
   Toaster: () => <div data-testid="toaster" />,
 }));
 
 vi.mock('@/components/ui/spinner', () => ({
   Spinner: () => <div data-testid="spinner" />,
-}));
-
-vi.mock('../scope-manager-provider', () => ({
-  ScopeManagerProvider: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="scope-manager-provider">{children}</div>
-  ),
 }));
 
 vi.mock('../theme-provider', () => ({
@@ -67,16 +64,6 @@ describe('Auth0ComponentProvider', () => {
     expect(screen.getByTestId('toaster')).toBeInTheDocument();
   });
 
-  it('should render ScopeManagerProvider', () => {
-    render(
-      <Auth0ComponentProvider authDetails={{ authProxyUrl: '/api/auth' }}>
-        <div>Test</div>
-      </Auth0ComponentProvider>,
-    );
-
-    expect(screen.getByTestId('scope-manager-provider')).toBeInTheDocument();
-  });
-
   it('should apply default theme settings when not provided', () => {
     render(
       <Auth0ComponentProvider authDetails={{ authProxyUrl: '/api/auth' }}>
@@ -119,5 +106,18 @@ describe('Auth0ComponentProvider', () => {
     );
 
     expect(screen.getByTestId('theme-provider')).toBeInTheDocument();
+  });
+
+  it('should render fallback when coreClient is not initialized', () => {
+    mockUseCoreClientInitialization.mockReturnValueOnce(null as never);
+
+    render(
+      <Auth0ComponentProvider authDetails={{ authProxyUrl: '/api/auth' }}>
+        <div data-testid="child-content">Test Content</div>
+      </Auth0ComponentProvider>,
+    );
+
+    expect(screen.getByTestId('spinner')).toBeInTheDocument();
+    expect(screen.queryByTestId('child-content')).not.toBeInTheDocument();
   });
 });

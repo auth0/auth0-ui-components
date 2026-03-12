@@ -4,6 +4,7 @@
  * @internal
  */
 
+import { initializeMfaStepUpClient } from '@core/services/mfa-step-up/mfa-step-up-api-service';
 import { initializeMyAccountClient } from '@core/services/my-account/my-account-api-service';
 import { initializeMyOrganizationClient } from '@core/services/my-organization/my-organization-api-service';
 
@@ -11,7 +12,7 @@ import type { I18nInitOptions } from '../i18n';
 import { createI18nService } from '../i18n';
 
 import type { AuthDetails, CoreClientInterface } from './auth-types';
-import { createTokenManager } from './token-manager';
+import { AuthUtils } from './auth-utils';
 
 /**
  * Creates and initializes the core client with all necessary services.
@@ -31,16 +32,12 @@ export async function createCoreClient(
 
   // Skip API clients for docs sites
   if (authDetails.previewMode) {
-    const baseCoreClient: CoreClientInterface = {
+    return {
       auth: {},
       i18nService,
-      async getToken() {
-        return undefined;
-      },
       isProxyMode() {
         return false;
       },
-      ensureScopes: async () => {},
       myAccountApiClient: undefined,
       myOrganizationApiClient: undefined,
       getMyAccountApiClient: function () {
@@ -49,23 +46,21 @@ export async function createCoreClient(
       getMyOrganizationApiClient: function () {
         throw new Error('Function not implemented.');
       },
+      getMFAStepUpApiClient: function () {
+        throw new Error('Function not implemented.');
+      },
       getDomain: function (): string | undefined {
         return undefined;
       },
     };
-
-    return {
-      ...baseCoreClient,
-    };
   }
 
-  const tokenManagerService = createTokenManager(authDetails);
+  const authConfig = AuthUtils.resolveAuthConfig(authDetails);
 
-  const { client: myOrganizationApiClient, setLatestScopes: setOrgScopes } =
-    initializeMyOrganizationClient(authDetails, tokenManagerService);
+  const myOrganizationApiClient = initializeMyOrganizationClient(authConfig);
+  const myAccountApiClient = initializeMyAccountClient(authConfig);
 
-  const { client: myAccountApiClient, setLatestScopes: setAccountScopes } =
-    initializeMyAccountClient(authDetails, tokenManagerService);
+  const mfaApiClient = initializeMfaStepUpClient(authConfig);
 
   return {
     auth: authDetails,
@@ -73,35 +68,9 @@ export async function createCoreClient(
     myAccountApiClient,
     myOrganizationApiClient,
 
-    getToken: (scope, aud, ignoreCache) => tokenManagerService.getToken(scope, aud, ignoreCache),
-    isProxyMode: () => !!authDetails.authProxyUrl,
+    isProxyMode: () => authConfig.mode === 'proxy',
 
-    getDomain: () => authDetails.domain ?? authDetails.contextInterface?.getConfiguration()?.domain,
-
-    ensureScopes: async (requiredScopes: string, audiencePath: string) => {
-      const isProxyMode = !!authDetails.authProxyUrl;
-
-      if (!isProxyMode) {
-        const domain =
-          authDetails.domain ?? authDetails.contextInterface?.getConfiguration()?.domain;
-
-        if (!domain) {
-          throw new Error('Authentication domain is missing, cannot initialize SPA service.');
-        }
-      }
-
-      if (audiencePath === 'my-org') setOrgScopes(requiredScopes);
-      if (audiencePath === 'me') setAccountScopes(requiredScopes);
-
-      if (isProxyMode) {
-        return;
-      }
-
-      const token = await tokenManagerService.getToken(requiredScopes, audiencePath, true);
-      if (!token) {
-        throw new Error(`Failed to retrieve token for audience: ${audiencePath}`);
-      }
-    },
+    getDomain: () => authConfig.domain,
 
     getMyAccountApiClient: () => {
       if (!myAccountApiClient)
@@ -118,5 +87,7 @@ export async function createCoreClient(
         );
       return myOrganizationApiClient;
     },
+
+    getMFAStepUpApiClient: () => mfaApiClient,
   };
 }

@@ -174,4 +174,16 @@ describe('Auth0ComponentProvider (SPA)', () => {
     expect(mockUseCoreClientInitialization).toHaveBeenCalled();
     expect(screen.getByTestId('child-content')).toBeInTheDocument();
   });
+
+  it('should render fallback when coreClient is not initialized', () => {
+    mockUseCoreClientInitialization.mockReturnValueOnce(null as never);
+
+    render(
+      <Auth0ComponentProvider authDetails={{}}>
+        <div data-testid="child-content">Test Content</div>
+      </Auth0ComponentProvider>,
+    );
+
+    expect(screen.queryByTestId('child-content')).not.toBeInTheDocument();
+  });
 });

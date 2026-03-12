@@ -1,10 +1,6 @@
 /** @module domain-table */
 
-import {
-  type Domain,
-  getComponentStyles,
-  MY_ORGANIZATION_DOMAIN_SCOPES,
-} from '@auth0/universal-components-core';
+import { type Domain, getComponentStyles } from '@auth0/universal-components-core';
 import { Plus } from 'lucide-react';
 import * as React from 'react';
 
@@ -17,7 +13,6 @@ import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
-import { withMyOrganizationService } from '@/hoc/with-services';
 import { useDomainTable } from '@/hooks/my-organization/use-domain-table';
 import { useDomainTableLogic } from '@/hooks/my-organization/use-domain-table-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -293,9 +288,6 @@ function DomainTableView({
  * />
  * ```
  */
-const DomainTable: React.ComponentType<DomainTableProps> = withMyOrganizationService(
-  DomainTableContainer,
-  MY_ORGANIZATION_DOMAIN_SCOPES,
-);
+const DomainTable = DomainTableContainer;
 
 export { DomainTable, DomainTableView };

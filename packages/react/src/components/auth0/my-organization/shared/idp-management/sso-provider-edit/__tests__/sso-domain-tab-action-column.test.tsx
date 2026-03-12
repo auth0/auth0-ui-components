@@ -205,7 +205,7 @@ describe('SsoDomainTabActionsColumn', () => {
 
       await waitFor(() => {
         const tooltip = screen.getByRole('tooltip', { hidden: true });
-        expect(tooltip).toHaveTextContent('content.table.actions.disable_domain_tooltip');
+        expect(tooltip).toHaveTextContent('table.actions.disable_domain_tooltip');
       });
     });
 
@@ -221,7 +221,7 @@ describe('SsoDomainTabActionsColumn', () => {
 
       await waitFor(() => {
         const tooltip = screen.getByRole('tooltip', { hidden: true });
-        expect(tooltip).toHaveTextContent('content.table.actions.enable_domain_tooltip');
+        expect(tooltip).toHaveTextContent('table.actions.enable_domain_tooltip');
       });
     });
 
@@ -238,7 +238,7 @@ describe('SsoDomainTabActionsColumn', () => {
 
       await waitFor(() => {
         const tooltip = screen.getByRole('tooltip', { hidden: true });
-        expect(tooltip).toHaveTextContent('content.table.actions.disable_domain_tooltip');
+        expect(tooltip).toHaveTextContent('table.actions.disable_domain_tooltip');
       });
 
       unmount();
@@ -254,7 +254,7 @@ describe('SsoDomainTabActionsColumn', () => {
 
       await waitFor(() => {
         const tooltip = screen.getByRole('tooltip', { hidden: true });
-        expect(tooltip).toHaveTextContent('content.table.actions.enable_domain_tooltip');
+        expect(tooltip).toHaveTextContent('table.actions.enable_domain_tooltip');
       });
     });
 
@@ -267,7 +267,7 @@ describe('SsoDomainTabActionsColumn', () => {
 
       await waitFor(() => {
         const tooltip = screen.getByRole('tooltip', { hidden: true });
-        expect(tooltip).toHaveTextContent('content.table.actions.disable_domain_tooltip');
+        expect(tooltip).toHaveTextContent('table.actions.disable_domain_tooltip');
       });
     });
 
@@ -293,7 +293,7 @@ describe('SsoDomainTabActionsColumn', () => {
 
       await waitFor(() => {
         const tooltip = screen.getByRole('tooltip', { hidden: true });
-        expect(tooltip).toHaveTextContent('content.table.actions.disable_domain_tooltip');
+        expect(tooltip).toHaveTextContent('table.actions.disable_domain_tooltip');
       });
     });
   });
@@ -384,13 +384,9 @@ describe('SsoDomainTabActionsColumn', () => {
           columns: {
             verify: 'Custom Verify',
           },
-        },
-        content: {
-          table: {
-            actions: {
-              enable_domain_tooltip: 'Custom Enable',
-              disable_domain_tooltip: 'Custom Disable',
-            },
+          actions: {
+            enable_domain_tooltip: 'Custom Enable',
+            disable_domain_tooltip: 'Custom Disable',
           },
         },
       };

@@ -29,6 +29,12 @@ export const createMockAuth = (overrides?: Partial<AuthDetails>): AuthDetails =>
       domain: 'test-domain.auth0.com',
       clientId: 'test-client-id',
     }),
+    mfa: {
+      getAuthenticators: vi.fn().mockResolvedValue([]),
+      enroll: vi.fn().mockResolvedValue({}),
+      challenge: vi.fn().mockResolvedValue({}),
+      verify: vi.fn().mockResolvedValue({}),
+    },
   },
   ...overrides,
 });

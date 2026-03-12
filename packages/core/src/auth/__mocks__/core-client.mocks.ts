@@ -59,6 +59,12 @@ export const createMockBasicAuth0Context = (
     domain: TEST_DOMAIN,
     clientId: TEST_CLIENT_ID,
   }),
+  mfa: {
+    getAuthenticators: vi.fn().mockResolvedValue([]),
+    enroll: vi.fn().mockResolvedValue({}),
+    challenge: vi.fn().mockResolvedValue({}),
+    verify: vi.fn().mockResolvedValue({}),
+  },
   ...overrides,
 });
 
@@ -209,11 +215,22 @@ export const createMockMyOrganizationApiClient =
 /**
  * Creates a mock CoreClientInterface
  */
+export const createMockMfaApiClient = (): ReturnType<
+  CoreClientInterface['getMFAStepUpApiClient']
+> =>
+  ({
+    getAuthenticators: vi.fn().mockResolvedValue([]),
+    enroll: vi.fn().mockResolvedValue({}),
+    challenge: vi.fn().mockResolvedValue({}),
+    verify: vi.fn().mockResolvedValue({}),
+  }) as ReturnType<CoreClientInterface['getMFAStepUpApiClient']>;
+
 export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreClientInterface => {
   const mockAuth = createMockAuthDetails(authDetails);
   const mockI18nService = createMockI18nService();
   const mockMyAccountApiClient = createMockMyAccountApiClient();
   const mockMyOrganizationApiClient = createMockMyOrganizationApiClient();
+  const mockMfaApiClient = createMockMfaApiClient();
 
   return {
     auth: mockAuth,
@@ -226,9 +243,10 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
     getMyOrganizationApiClient: vi.fn(
       () => mockMyOrganizationApiClient,
     ) as CoreClientInterface['getMyOrganizationApiClient'],
-    getToken: vi.fn().mockResolvedValue('mock-access-token'),
+    getMFAStepUpApiClient: vi.fn(
+      () => mockMfaApiClient,
+    ) as CoreClientInterface['getMFAStepUpApiClient'],
     isProxyMode: vi.fn().mockReturnValue(false),
-    ensureScopes: vi.fn().mockResolvedValue(undefined),
     getDomain: vi.fn(
       () => mockAuth.domain ?? mockAuth.contextInterface?.getConfiguration()?.domain,
     ),

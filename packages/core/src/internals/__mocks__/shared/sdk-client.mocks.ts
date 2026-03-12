@@ -18,15 +18,16 @@ export const createMockFetch = (): ReturnType<typeof vi.fn> =>
 // Client Mock Helpers
 // =============================================================================
 
-export const getConfigFromMockCalls = (mockClient: Mock): MockClientConfig => {
+export const getConfigFromMockCalls = (mockClient: Mock, callIndex = 0): MockClientConfig => {
   const calls = mockClient.mock.calls;
-  return calls[0]![0] as MockClientConfig;
+  return calls[callIndex]![0] as MockClientConfig;
 };
 
 export const getFetcherFromMockCalls = (
   mockClient: Mock,
+  callIndex = 0,
 ): ((url: string, init?: RequestInit) => Promise<Response>) | undefined => {
-  const config = getConfigFromMockCalls(mockClient);
+  const config = getConfigFromMockCalls(mockClient, callIndex);
   return config.fetcher;
 };
 

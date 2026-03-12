@@ -42,14 +42,16 @@ describe('useSsoProviderCreate', () => {
     return key;
   });
 
-  const mockCoreClient = {
-    getMyOrganizationApiClient: () => ({
-      organization: {
-        identityProviders: {
-          create: mockCreate,
-        },
+  const mockOrgClient = {
+    withScopes: (_scopes: string) => mockOrgClient,
+    organization: {
+      identityProviders: {
+        create: mockCreate,
       },
-    }),
+    },
+  };
+  const mockCoreClient = {
+    getMyOrganizationApiClient: () => mockOrgClient,
   };
 
   beforeEach(() => {

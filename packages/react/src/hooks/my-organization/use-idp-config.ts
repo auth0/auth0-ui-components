@@ -3,7 +3,11 @@
  * @module use-idp-config
  */
 
-import { hasApiErrorBody, type IdpStrategy } from '@auth0/universal-components-core';
+import {
+  hasApiErrorBody,
+  type IdpStrategy,
+  MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES,
+} from '@auth0/universal-components-core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
@@ -31,6 +35,7 @@ export function useIdpConfig(): UseConfigIdpResult {
       try {
         const response = await coreClient!
           .getMyOrganizationApiClient()
+          .withScopes(MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES)
           .organization.configuration.identityProviders.get();
         return response as unknown as IdpConfig;
       } catch (error) {

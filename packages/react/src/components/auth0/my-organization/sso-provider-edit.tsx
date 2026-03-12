@@ -2,10 +2,7 @@
 
 'use client';
 
-import {
-  getComponentStyles,
-  MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES,
-} from '@auth0/universal-components-core';
+import { getComponentStyles } from '@auth0/universal-components-core';
 import { useState, useMemo } from 'react';
 
 import { SsoDomainTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab';
@@ -15,7 +12,6 @@ import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { withMyOrganizationService } from '@/hoc/with-services';
 import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useSsoProviderEditLogic } from '@/hooks/my-organization/use-sso-provider-edit-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -333,9 +329,6 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
  * />
  * ```
  */
-const SsoProviderEdit: React.ComponentType<SsoProviderEditProps> = withMyOrganizationService(
-  SsoProviderEditContainer,
-  MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES,
-);
+const SsoProviderEdit = SsoProviderEditContainer;
 
 export { SsoProviderEdit, SsoProviderEditView };
