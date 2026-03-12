@@ -144,10 +144,7 @@ export function OrganizationInvitationTable({
   );
 
   return (
-    <div
-      className={cn('flex flex-col', className)}
-      style={{ minHeight: 'calc(100vh - 19.125rem)' }}
-    >
+    <div className={cn('flex flex-col', className)}>
       <InvitationSearchFilter
         filters={filters}
         availableRoles={availableRoles}
@@ -155,16 +152,14 @@ export function OrganizationInvitationTable({
         onRoleFilterChange={onRoleFilterChange}
       />
 
-      <div className="flex-1">
-        <DataTable
-          columns={columns}
-          data={invitations}
-          loading={loading}
-          emptyState={{ title: t('invitation.table.empty_message') }}
-          sortConfig={sortConfig}
-          onSortChange={onSortChange}
-        />
-      </div>
+      <DataTable
+        columns={columns}
+        data={invitations}
+        loading={loading}
+        emptyState={{ title: t('invitation.table.empty_message') }}
+        sortConfig={sortConfig}
+        onSortChange={onSortChange}
+      />
 
       <div className="mt-4">
         <DataPagination
