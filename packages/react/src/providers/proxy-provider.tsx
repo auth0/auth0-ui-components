@@ -74,6 +74,7 @@ export const Auth0ComponentProvider = ({
         <Toaster
           position={mergedToastSettings.settings?.position || 'top-right'}
           closeButton={mergedToastSettings.settings?.closeButton ?? true}
+          className="auth0-universal"
         />
       )}
       <React.Suspense

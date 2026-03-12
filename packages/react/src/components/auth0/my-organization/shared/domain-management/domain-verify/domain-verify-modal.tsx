@@ -105,7 +105,11 @@ export function DomainVerifyModal({
               </span>
               <Badge variant="warning">{t('verification_status.pending')}</Badge>
             </div>
-            <p className={cn('text-sm text-muted-foreground text-(length:--font-size-paragraph')}>
+            <p
+              className={cn(
+                'text-sm text-foreground text-muted-foreground text-(length:--font-size-paragraph',
+              )}
+            >
               {t('verification_status.description')}
             </p>
           </div>

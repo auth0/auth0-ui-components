@@ -20,7 +20,7 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-50">
-        <nav className="bg-black border-gray-700 border-b border-gray-200 px-4 py-3 shadow-sm">
+        <nav className="bg-white dark:bg-black px-4 py-3 shadow-sm">
           <div className="mx-auto flex justify-between items-center px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-4">
               <Link to="/" className="-m-1.5 p-1.5">
