@@ -79,20 +79,6 @@
   --shadow-switch-hover: var(--shadow-switch-resting);
   --shadow-switch-focus: var(--shadow-switch-focus);
   --shadow-switch-thumb: var(--shadow-switch-thumb);
-
-  --radius-xs: var(--radius-xs);
-  --radius-sm: var(--radius-sm);
-  --radius-md: var(--radius-md);
-  --radius-lg: var(--radius-lg);
-  --radius-xl: var(--radius-xl);
-  --radius-2xl: var(--radius-2xl);
-  --radius-3xl: var(--radius-3xl);
-  --radius-4xl: var(--radius-4xl);
-  --radius-5xl: var(--radius-5xl);
-  --radius-6xl: var(--radius-6xl);
-  --radius-7xl: var(--radius-7xl);
-  --radius-8xl: var(--radius-8xl);
-  --radius-9xl: var(--radius-9xl);
 }
 
 /* Minimal Next.js specific fixes - keep only essential z-index fixes */
