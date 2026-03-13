@@ -3,10 +3,10 @@
  * @module use-sso-provider-create
  */
 
+import type { MyOrganization } from '@auth0/myorganization-js';
 import {
   hasApiErrorBody,
   SsoProviderMappers,
-  type CreateIdentityProviderRequestContent,
   type CreateIdentityProviderRequestContentPrivate,
   type IdentityProvider,
   MY_ORGANIZATION_SSO_PROVIDER_CREATE_SCOPES,
@@ -70,7 +70,7 @@ export function useSsoProviderCreate({
         options: configOptions,
       };
 
-      const apiRequestData: CreateIdentityProviderRequestContent =
+      const apiRequestData: MyOrganization.CreateIdentityProviderRequestContent =
         SsoProviderMappers.createToAPI(formData);
 
       const result: IdentityProvider = await coreClient

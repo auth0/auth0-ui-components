@@ -89,6 +89,8 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@auth0/auth0-react": "^2.15.0",
+    "@auth0/myaccount-js": "^1.0.0-beta.0",
+    "@auth0/myorganization-js": "^1.0.0-beta.3",
     "@tailwindcss/cli": "^4.1.17",
     "@tailwindcss/postcss": "^4.1.10",
     "@testing-library/jest-dom": "^6.6.3",

@@ -3,13 +3,8 @@
  * @module use-sso-domain-tab
  */
 
-import type { CreateOrganizationDomainRequestContent } from '@auth0/universal-components-core';
-import {
-  BusinessError,
-  type Domain,
-  type IdpId,
-  MY_ORGANIZATION_DOMAIN_SCOPES,
-} from '@auth0/universal-components-core';
+import type { MyOrganization } from '@auth0/myorganization-js';
+import { BusinessError, MY_ORGANIZATION_DOMAIN_SCOPES } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient, useMutation, useQueries } from '@tanstack/react-query';
 import { useCallback, useState, useMemo, useEffect } from 'react';
 
@@ -25,9 +20,9 @@ import type {
 const domainQueryKeys = {
   all: ['sso-domains'] as const,
   lists: () => [...domainQueryKeys.all, 'list'] as const,
-  list: (idpId: IdpId) => [...domainQueryKeys.lists(), idpId] as const,
+  list: (idpId: MyOrganization.IdpId) => [...domainQueryKeys.lists(), idpId] as const,
   idpAssociations: () => [...domainQueryKeys.all, 'idp-associations'] as const,
-  idpAssociation: (domainId: string, idpId: IdpId) =>
+  idpAssociation: (domainId: string, idpId: MyOrganization.IdpId) =>
     [...domainQueryKeys.idpAssociations(), domainId, idpId] as const,
 };
 
@@ -41,7 +36,7 @@ const domainQueryKeys = {
  * @returns Hook state and methods
  */
 export function useSsoDomainTab(
-  idpId: IdpId,
+  idpId: MyOrganization.IdpId,
   { customMessages = {}, domains, provider }: Partial<UseSsoDomainTabOptions> = {},
 ): UseSsoDomainTabReturn {
   const { coreClient } = useCoreClient();
@@ -49,7 +44,7 @@ export function useSsoDomainTab(
   const handleError = useErrorHandler();
   const queryClient = useQueryClient();
 
-  const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
+  const [selectedDomain, setSelectedDomain] = useState<MyOrganization.OrgDomain | null>(null);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [verifyError, setVerifyError] = useState<string | undefined>(undefined);
@@ -111,15 +106,15 @@ export function useSsoDomainTab(
 
   // Mutations
   const createDomainMutation = useMutation({
-    mutationFn: async (data: CreateOrganizationDomainRequestContent) => {
+    mutationFn: async (data: MyOrganization.CreateOrganizationDomainRequestContent) => {
       if (domains?.createAction?.onBefore) {
-        const canProceed = domains.createAction.onBefore(data as Domain);
+        const canProceed = domains.createAction.onBefore(data as MyOrganization.OrgDomain);
         if (!canProceed) {
           throw new BusinessError({ message: t('domain_create.on_before') });
         }
       }
 
-      const result: Domain = await coreClient!
+      const result: MyOrganization.OrgDomain = await coreClient!
         .getMyOrganizationApiClient()
         .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
         .organization.domains.create(data);
@@ -138,7 +133,7 @@ export function useSsoDomainTab(
   });
 
   const verifyDomainMutation = useMutation({
-    mutationFn: async (domain: Domain) => {
+    mutationFn: async (domain: MyOrganization.OrgDomain) => {
       if (domains?.verifyAction?.onBefore) {
         const canProceed = domains.verifyAction.onBefore(domain);
         if (!canProceed) {
@@ -159,16 +154,19 @@ export function useSsoDomainTab(
     },
     onSuccess: ({ updatedDomain, isVerified }, domain) => {
       if (isVerified) {
-        queryClient.setQueryData<Domain[]>(domainQueryKeys.list(idpId), (oldDomains) => {
-          if (!oldDomains) return oldDomains;
-          return oldDomains.map((d) => (d.id === domain.id ? { ...d, ...updatedDomain } : d));
-        });
+        queryClient.setQueryData<MyOrganization.OrgDomain[]>(
+          domainQueryKeys.list(idpId),
+          (oldDomains) => {
+            if (!oldDomains) return oldDomains;
+            return oldDomains.map((d) => (d.id === domain.id ? { ...d, ...updatedDomain } : d));
+          },
+        );
       }
     },
   });
 
   const deleteDomainMutation = useMutation({
-    mutationFn: async (domain: Domain) => {
+    mutationFn: async (domain: MyOrganization.OrgDomain) => {
       if (!coreClient) {
         return domain;
       }
@@ -201,7 +199,7 @@ export function useSsoDomainTab(
   });
 
   const associateToProviderMutation = useMutation({
-    mutationFn: async (domain: Domain) => {
+    mutationFn: async (domain: MyOrganization.OrgDomain) => {
       if (domains?.associateToProviderAction?.onBefore) {
         const canProceed = domains.associateToProviderAction.onBefore(domain, provider);
         if (!canProceed) {
@@ -231,7 +229,7 @@ export function useSsoDomainTab(
   });
 
   const deleteFromProviderMutation = useMutation({
-    mutationFn: async (domain: Domain) => {
+    mutationFn: async (domain: MyOrganization.OrgDomain) => {
       if (!provider) {
         return domain;
       }
@@ -292,7 +290,7 @@ export function useSsoDomainTab(
   }, []);
 
   const handleVerify = useCallback(
-    async (domain: Domain) => {
+    async (domain: MyOrganization.OrgDomain) => {
       try {
         const { isVerified } = await verifyDomainMutation.mutateAsync(domain);
         if (isVerified) {
@@ -318,14 +316,14 @@ export function useSsoDomainTab(
     [verifyDomainMutation, t, handleError, associateToProviderMutation],
   );
 
-  const handleDeleteClick = useCallback((domain: Domain) => {
+  const handleDeleteClick = useCallback((domain: MyOrganization.OrgDomain) => {
     setSelectedDomain(domain);
     setShowVerifyModal(false);
     setShowDeleteModal(true);
   }, []);
 
   const handleDelete = useCallback(
-    async (domain: Domain) => {
+    async (domain: MyOrganization.OrgDomain) => {
       try {
         await deleteDomainMutation.mutateAsync(domain);
 
@@ -348,7 +346,7 @@ export function useSsoDomainTab(
   );
 
   const handleVerifyActionColumn = useCallback(
-    async (domain: Domain) => {
+    async (domain: MyOrganization.OrgDomain) => {
       setIsUpdating(true);
       setIsUpdatingId(domain.id);
 
@@ -384,7 +382,7 @@ export function useSsoDomainTab(
   );
 
   const handleToggleSwitch = useCallback(
-    async (domain: Domain, newCheckedValue: boolean) => {
+    async (domain: MyOrganization.OrgDomain, newCheckedValue: boolean) => {
       setIsUpdating(true);
       setIsUpdatingId(domain.id);
 

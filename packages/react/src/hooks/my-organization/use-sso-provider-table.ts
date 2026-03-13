@@ -3,10 +3,10 @@
  * @module use-sso-provider-table
  */
 
+import type { MyOrganization } from '@auth0/myorganization-js';
 import {
   OrganizationDetailsMappers,
   SsoProviderMappers,
-  type UpdateIdentityProviderRequestContent,
   type ComponentAction,
   type IdentityProvider,
   type OrganizationPrivate,
@@ -114,10 +114,11 @@ export function useSsoProviderTable(
         }
       }
 
-      const apiRequestData: UpdateIdentityProviderRequestContent = SsoProviderMappers.updateToAPI({
-        strategy: selectedIdp.strategy,
-        is_enabled: enabled,
-      });
+      const apiRequestData: MyOrganization.UpdateIdentityProviderRequestContent =
+        SsoProviderMappers.updateToAPI({
+          strategy: selectedIdp.strategy,
+          is_enabled: enabled,
+        });
 
       const updatedProvider = await coreClient!
         .getMyOrganizationApiClient()

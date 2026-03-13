@@ -3,8 +3,8 @@
  * @module mfa-types
  */
 
+import type { MyAccount } from '@auth0/myaccount-js';
 import type {
-  CreateAuthenticationMethodResponseContent,
   Authenticator,
   MFAType,
   EnrollOptions,
@@ -134,7 +134,7 @@ export interface ContactInputFormProps
   enrollMfa: (
     factorType: MFAType,
     options: Record<string, string>,
-  ) => Promise<CreateAuthenticationMethodResponseContent>;
+  ) => Promise<MyAccount.CreateAuthenticationMethodResponseContent>;
   confirmEnrollment: (
     factorType: MFAType,
     authSession: string,
@@ -185,7 +185,7 @@ export interface QRCodeEnrollmentFormProps
   enrollMfa: (
     factorType: MFAType,
     options: Record<string, string>,
-  ) => Promise<CreateAuthenticationMethodResponseContent>;
+  ) => Promise<MyAccount.CreateAuthenticationMethodResponseContent>;
   confirmEnrollment: (
     factorType: MFAType,
     authSession: string,
@@ -205,7 +205,7 @@ export interface UserMFASetupFormProps
   enrollMfa: (
     factorType: MFAType,
     options: Record<string, string>,
-  ) => Promise<CreateAuthenticationMethodResponseContent>;
+  ) => Promise<MyAccount.CreateAuthenticationMethodResponseContent>;
   confirmEnrollment: (
     factorType: MFAType,
     authSession: string,
@@ -268,7 +268,7 @@ export type UseMFAResult = {
   enrollMfa: (
     factorType: MFAType,
     options?: EnrollOptions,
-  ) => Promise<CreateAuthenticationMethodResponseContent>;
+  ) => Promise<MyAccount.CreateAuthenticationMethodResponseContent>;
 
   /**
    * Delete an enrolled MFA authenticator by its ID.
@@ -341,7 +341,7 @@ export interface UseMFALogicOptions {
   enrollMfa?: (
     factorType: MFAType,
     options?: EnrollOptions,
-  ) => Promise<CreateAuthenticationMethodResponseContent>;
+  ) => Promise<MyAccount.CreateAuthenticationMethodResponseContent>;
   deleteMfa: (authenticatorId: string) => Promise<void>;
   confirmEnrollment?: (
     factorType: MFAType,

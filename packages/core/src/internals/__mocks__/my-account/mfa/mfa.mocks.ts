@@ -1,3 +1,5 @@
+import type { MyAccount } from '@auth0/myaccount-js';
+
 import {
   FACTOR_TYPE_EMAIL,
   FACTOR_TYPE_PHONE,
@@ -10,8 +12,6 @@ import {
 import type {
   Authenticator,
   EnrolledFactor,
-  ListAuthenticationMethodsResponseContent,
-  ListFactorsResponseContent,
   MFAType,
 } from '../../../../services/my-account/mfa/mfa-types';
 
@@ -141,8 +141,8 @@ export const createMockPushNotificationAuthMethod = (
  * Creates a mock list of enrolled authentication methods
  */
 export const createMockEnrolledFactors = (
-  methods?: ListAuthenticationMethodsResponseContent['authentication_methods'],
-): ListAuthenticationMethodsResponseContent => ({
+  methods?: MyAccount.ListAuthenticationMethodsResponseContent['authentication_methods'],
+): MyAccount.ListAuthenticationMethodsResponseContent => ({
   authentication_methods: methods || [
     createMockTotpAuthMethod(),
     createMockEmailAuthMethod(),
@@ -155,8 +155,8 @@ export const createMockEnrolledFactors = (
  */
 export const createMockAvailableFactor = (
   type: MFAType,
-  overrides?: Partial<ListFactorsResponseContent['factors'][number]>,
-): ListFactorsResponseContent['factors'][number] => ({
+  overrides?: Partial<MyAccount.ListFactorsResponseContent['factors'][number]>,
+): MyAccount.ListFactorsResponseContent['factors'][number] => ({
   type,
   ...overrides,
 });
@@ -165,8 +165,8 @@ export const createMockAvailableFactor = (
  * Creates a mock list of available factors
  */
 export const createMockAvailableFactors = (
-  factors?: ListFactorsResponseContent['factors'],
-): ListFactorsResponseContent => ({
+  factors?: MyAccount.ListFactorsResponseContent['factors'],
+): MyAccount.ListFactorsResponseContent => ({
   factors: factors || [
     createMockAvailableFactor(FACTOR_TYPE_EMAIL as MFAType),
     createMockAvailableFactor(FACTOR_TYPE_PHONE as MFAType),
@@ -193,13 +193,14 @@ export const createMockAuthenticator = (overrides?: Partial<Authenticator>): Aut
 /**
  * Creates an empty enrolled factors response
  */
-export const createEmptyEnrolledFactors = (): ListAuthenticationMethodsResponseContent => ({
-  authentication_methods: [],
-});
+export const createEmptyEnrolledFactors =
+  (): MyAccount.ListAuthenticationMethodsResponseContent => ({
+    authentication_methods: [],
+  });
 
 /**
  * Creates an empty available factors response
  */
-export const createEmptyAvailableFactors = (): ListFactorsResponseContent => ({
+export const createEmptyAvailableFactors = (): MyAccount.ListFactorsResponseContent => ({
   factors: [],
 });

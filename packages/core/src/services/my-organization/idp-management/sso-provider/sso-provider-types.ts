@@ -10,33 +10,16 @@ import type {
   ProviderSelectionFormValues,
 } from '@core/schemas';
 
-export type ListIdentityProvidersResponseContent =
-  MyOrganization.ListIdentityProvidersResponseContent;
 export type IdentityProvider = MyOrganization.IdpKnownResponse;
-export type DetachIdpProviderResponseContent = MyOrganization.DetachIdpProviderResponseContent;
-export type CreateIdentityProviderRequestContent =
-  MyOrganization.CreateIdentityProviderRequestContent;
-export type CreateIdentityProviderResponseContent =
-  MyOrganization.CreateIdentityProviderResponseContent;
-export type GetIdentityProviderResponseContent = MyOrganization.GetIdentityProviderResponseContent;
-export type IdpId = MyOrganization.IdpId;
-export type UpdateIdentityProviderRequestContent =
-  MyOrganization.UpdateIdentityProviderRequestContent;
-export type UpdateIdentityProviderResponseContent =
-  MyOrganization.UpdateIdentityProviderResponseContent;
 
 export type CreateIdentityProviderRequestContentPrivate = ProviderSelectionFormValues &
   ProviderDetailsFormValues &
   ProviderConfigureFormValues;
-export type IdpUpdateBase = MyOrganization.IdpUpdateBase;
 
 export type UpdateIdentityProviderRequestContentPrivate = ProviderSelectionFormValues &
-  Partial<IdpUpdateBase> &
+  Partial<MyOrganization.IdpUpdateBase> &
   Partial<ProviderDetailsFormValues> &
   Partial<ProviderConfigureFormValues>;
-
-export type CreateIdpDomainRequestContent = MyOrganization.CreateIdpDomainRequestContent;
-export type CreateIdpDomainResponseContent = MyOrganization.CreateIdpDomainResponseContent;
 
 export type IdpStrategy =
   | 'adfs'

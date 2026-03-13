@@ -29,8 +29,6 @@ export {
   MFAType,
   EnrollOptions,
   ConfirmEnrollmentOptions,
-  CreateAuthenticationMethodRequestContent,
-  CreateAuthenticationMethodResponseContent,
 } from './services/my-account/mfa/mfa-types';
 
 export {

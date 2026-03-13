@@ -1,3 +1,5 @@
+import type { MyAccount } from '@auth0/myaccount-js';
+
 import {
   createMockAvailableFactors,
   createMockEnrolledFactors,
@@ -9,48 +11,43 @@ import {
   createMockWebAuthnPlatformAuthMethod,
   createMockPushNotificationAuthMethod,
 } from '../../../../../internals/__mocks__/my-account/mfa/mfa.mocks';
-import type {
-  ConfirmEnrollmentOptions,
-  EnrollOptions,
-  ListAuthenticationMethodsResponseContent,
-  ListFactorsResponseContent,
-  VerifyAuthenticationMethodRequestContent,
-} from '../../mfa-types';
+import type { ConfirmEnrollmentOptions, EnrollOptions } from '../../mfa-types';
 
 /**
  * Mock data for testing MFA mappers
  */
 
 // Available Factors Mocks
-export const mockAvailableFactorsResponse: ListFactorsResponseContent =
+export const mockAvailableFactorsResponse: MyAccount.ListFactorsResponseContent =
   createMockAvailableFactors();
 
-export const mockEmptyAvailableFactorsResponse: ListFactorsResponseContent = {
+export const mockEmptyAvailableFactorsResponse: MyAccount.ListFactorsResponseContent = {
   factors: [],
 };
 
 // Enrolled Factors Mocks
-export const mockEnrolledFactorsResponse: ListAuthenticationMethodsResponseContent =
+export const mockEnrolledFactorsResponse: MyAccount.ListAuthenticationMethodsResponseContent =
   createMockEnrolledFactors([
     createMockTotpAuthMethod('Google Authenticator'),
     createMockEmailAuthMethod('user@example.com'),
     createMockPhoneAuthMethod('+1234567890'),
   ]);
 
-export const mockEmptyEnrolledFactorsResponse: ListAuthenticationMethodsResponseContent = {
-  authentication_methods: [],
-};
+export const mockEmptyEnrolledFactorsResponse: MyAccount.ListAuthenticationMethodsResponseContent =
+  {
+    authentication_methods: [],
+  };
 
-export const mockSingleTotpEnrolledResponse: ListAuthenticationMethodsResponseContent =
+export const mockSingleTotpEnrolledResponse: MyAccount.ListAuthenticationMethodsResponseContent =
   createMockEnrolledFactors([createMockTotpAuthMethod('Authy')]);
 
-export const mockMixedConfirmationStatusResponse: ListAuthenticationMethodsResponseContent =
+export const mockMixedConfirmationStatusResponse: MyAccount.ListAuthenticationMethodsResponseContent =
   createMockEnrolledFactors([
     createMockTotpAuthMethod('Confirmed App', { confirmed: true }),
     createMockEmailAuthMethod('unconfirmed@example.com', { confirmed: false }),
   ]);
 
-export const mockAllFactorTypesEnrolledResponse: ListAuthenticationMethodsResponseContent =
+export const mockAllFactorTypesEnrolledResponse: MyAccount.ListAuthenticationMethodsResponseContent =
   createMockEnrolledFactors([
     createMockTotpAuthMethod('TOTP App'),
     createMockEmailAuthMethod('test@example.com'),
@@ -111,11 +108,11 @@ export const mockAuthSessionLong =
   'auth_session_very_long_token_abc123def456ghi789jkl012mno345pqr678stu901vwx234yz';
 
 // Expected Verification Request Content Mocks
-export const mockBaseVerifyRequest: VerifyAuthenticationMethodRequestContent = {
+export const mockBaseVerifyRequest: MyAccount.VerifyAuthenticationMethodRequestContent = {
   auth_session: mockAuthSession,
 };
 
-export const mockVerifyRequestWithOtp: VerifyAuthenticationMethodRequestContent = {
+export const mockVerifyRequestWithOtp: MyAccount.VerifyAuthenticationMethodRequestContent = {
   auth_session: mockAuthSession,
   otp_code: '123456',
 };
@@ -124,8 +121,8 @@ export const mockVerifyRequestWithOtp: VerifyAuthenticationMethodRequestContent 
  * Helper function to create custom enrolled factors response
  */
 export function createCustomEnrolledFactorsResponse(
-  methods: ListAuthenticationMethodsResponseContent['authentication_methods'],
-): ListAuthenticationMethodsResponseContent {
+  methods: MyAccount.ListAuthenticationMethodsResponseContent['authentication_methods'],
+): MyAccount.ListAuthenticationMethodsResponseContent {
   return createMockEnrolledFactors(methods);
 }
 
@@ -133,7 +130,7 @@ export function createCustomEnrolledFactorsResponse(
  * Helper function to create custom available factors response
  */
 export function createCustomAvailableFactorsResponse(
-  factors: ListFactorsResponseContent['factors'],
-): ListFactorsResponseContent {
+  factors: MyAccount.ListFactorsResponseContent['factors'],
+): MyAccount.ListFactorsResponseContent {
   return { factors };
 }

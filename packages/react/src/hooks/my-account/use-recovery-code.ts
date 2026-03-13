@@ -4,11 +4,8 @@
  * @internal
  */
 
-import {
-  type CreateAuthenticationMethodResponseContent,
-  normalizeError,
-  type MFAType,
-} from '@auth0/universal-components-core';
+import type { MyAccount } from '@auth0/myaccount-js';
+import { normalizeError, type MFAType } from '@auth0/universal-components-core';
 import { useState, useCallback } from 'react';
 
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -19,7 +16,7 @@ type UseRecoveryCodeGenerationProps = {
   enrollMfa: (
     factorType: MFAType,
     options: Record<string, string>,
-  ) => Promise<CreateAuthenticationMethodResponseContent>;
+  ) => Promise<MyAccount.CreateAuthenticationMethodResponseContent>;
   onError: (error: Error, stage: typeof ENROLL) => void;
   onClose: () => void;
 };

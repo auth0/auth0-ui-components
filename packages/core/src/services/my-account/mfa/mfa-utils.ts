@@ -4,6 +4,8 @@
  * @internal
  */
 
+import type { MyAccount } from '@auth0/myaccount-js';
+
 import {
   FACTOR_TYPE_EMAIL,
   FACTOR_TYPE_PHONE,
@@ -13,15 +15,7 @@ import {
   FACTOR_TYPE_WEBAUTHN_PLATFORM,
   FACTOR_TYPE_WEBAUTHN_ROAMING,
 } from './mfa-constants';
-import type {
-  MFAType,
-  EnrollOptions,
-  Authenticator,
-  ListFactorsResponseContent,
-  ListAuthenticationMethodsResponseContent,
-  CreateAuthenticationMethodRequestContent,
-  EnrolledFactor,
-} from './mfa-types';
+import type { MFAType, EnrollOptions, Authenticator, EnrolledFactor } from './mfa-types';
 
 /**
  * Builds enrollment parameters for a given MFA factor type.
@@ -34,7 +28,7 @@ import type {
 export function buildEnrollParams(
   factorType: MFAType,
   options: EnrollOptions = {},
-): CreateAuthenticationMethodRequestContent {
+): MyAccount.CreateAuthenticationMethodRequestContent {
   switch (factorType) {
     case FACTOR_TYPE_EMAIL:
       if (!options.email) {
@@ -133,8 +127,8 @@ function createAuthenticator(
  * @returns Authenticators grouped by MFA type
  */
 export function transformMyAccountFactors(
-  availableFactorsResponse: ListFactorsResponseContent,
-  enrolledFactors: ListAuthenticationMethodsResponseContent,
+  availableFactorsResponse: MyAccount.ListFactorsResponseContent,
+  enrolledFactors: MyAccount.ListAuthenticationMethodsResponseContent,
   onlyActive: boolean,
 ): Partial<Record<MFAType, Authenticator[]>> {
   const result: Partial<Record<MFAType, Authenticator[]>> = {};

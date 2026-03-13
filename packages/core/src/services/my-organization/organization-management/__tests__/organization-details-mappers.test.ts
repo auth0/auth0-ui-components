@@ -1,11 +1,11 @@
+import type { MyOrganization } from '@auth0/myorganization-js';
 import { describe, it, expect } from 'vitest';
 
 import { DEFAULT_COLORS } from '../organization-details-constants';
 import { OrganizationDetailsMappers } from '../organization-details-mappers';
-import type {
-  GetOrganizationDetailsResponseContent,
-  OrganizationPrivate,
-} from '../organization-details-types';
+import type { OrganizationPrivate } from '../organization-details-types';
+
+type GetOrganizationDetailsResponseContent = MyOrganization.GetOrganizationDetailsResponseContent;
 
 describe('OrganizationDetailsMappers', () => {
   describe('fromAPI', () => {

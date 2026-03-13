@@ -3,12 +3,12 @@
  * @module sso-provider-edit-types
  */
 
+import type { MyOrganization } from '@auth0/myorganization-js';
 import type {
   SharedComponentProps,
   BackButton,
   SsoProviderEditMessages,
   IdentityProvider,
-  IdpId,
   OrganizationPrivate,
   UpdateIdentityProviderRequestContentPrivate,
   CreateIdpProvisioningScimTokenResponseContent,
@@ -71,7 +71,7 @@ export interface SsoProviderEditProps
     SsoProviderEditSchema
   > {
   hideHeader?: boolean;
-  providerId: IdpId;
+  providerId: MyOrganization.IdpId;
   sso?: SsoProviderTabEditProps;
   provisioning?: SsoProvisioningTabEditProps;
   domains?: SsoDomainsTabEditProps;

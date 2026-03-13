@@ -1,3 +1,4 @@
+import type { MyAccount } from '@auth0/myaccount-js';
 import { describe, it, expect } from 'vitest';
 
 import {
@@ -19,13 +20,7 @@ import {
   FACTOR_TYPE_PUSH_NOTIFICATION,
 } from '../mfa-constants';
 import { MFAMappers } from '../mfa-mappers';
-import type {
-  MFAType,
-  Authenticator,
-  EnrollOptions,
-  ConfirmEnrollmentOptions,
-  VerifyAuthenticationMethodRequestContent,
-} from '../mfa-types';
+import type { MFAType, Authenticator, EnrollOptions, ConfirmEnrollmentOptions } from '../mfa-types';
 
 import {
   mockAvailableFactorsResponse,
@@ -781,8 +776,8 @@ describe('MFAMappers', () => {
     });
 
     describe('return type structure', () => {
-      it('should return VerifyAuthenticationMethodRequestContent with correct structure', () => {
-        const result: VerifyAuthenticationMethodRequestContent =
+      it('should return MyAccount.VerifyAuthenticationMethodRequestContent with correct structure', () => {
+        const result: MyAccount.VerifyAuthenticationMethodRequestContent =
           MFAMappers.buildConfirmEnrollmentParams(
             FACTOR_TYPE_TOTP as MFAType,
             mockAuthSession,

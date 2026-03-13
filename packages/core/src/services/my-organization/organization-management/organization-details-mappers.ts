@@ -3,15 +3,15 @@
  * @module organization-details-mappers
  * @internal
  */
+import type { MyOrganization } from '@auth0/myorganization-js';
+
 import { DEFAULT_COLORS } from './organization-details-constants';
 import type { OrganizationPrivate } from './organization-details-types';
-import type {
-  GetOrganizationDetailsResponseContent,
-  UpdateOrganizationDetailsRequestContent,
-} from './organization-details-types';
 
 export const OrganizationDetailsMappers = {
-  fromAPI(organizationData: GetOrganizationDetailsResponseContent): OrganizationPrivate {
+  fromAPI(
+    organizationData: MyOrganization.GetOrganizationDetailsResponseContent,
+  ): OrganizationPrivate {
     return {
       id: organizationData.id || '',
       name: organizationData.name || '',
@@ -26,13 +26,13 @@ export const OrganizationDetailsMappers = {
       },
     };
   },
-  toAPI(formValues: OrganizationPrivate): UpdateOrganizationDetailsRequestContent {
+  toAPI(formValues: OrganizationPrivate): MyOrganization.UpdateOrganizationDetailsRequestContent {
     const updateLogo =
       formValues.branding.logo_url !== undefined &&
       formValues.branding.logo_url !== '' &&
       formValues.branding.logo_url.trim() !== '';
 
-    const payload: UpdateOrganizationDetailsRequestContent = {
+    const payload: MyOrganization.UpdateOrganizationDetailsRequestContent = {
       name: formValues.name,
       display_name: formValues.display_name,
       branding: {

@@ -3,14 +3,13 @@
  * @module use-sso-provider-edit
  */
 
+import type { MyOrganization } from '@auth0/myorganization-js';
 import {
   OrganizationDetailsFactory,
   OrganizationDetailsMappers,
   SsoProviderMappers,
   type IdentityProvider,
-  type IdpId,
   type OrganizationPrivate,
-  type UpdateIdentityProviderRequestContent,
   type CreateIdpProvisioningScimTokenRequestContent,
   type GetIdPProvisioningConfigResponseContent,
   getStatusCode,
@@ -36,10 +35,13 @@ const isActionCancelledError = (error: unknown): boolean => {
 
 export const ssoProviderEditQueryKeys = {
   all: ['sso-providers'] as const,
-  detail: (idpId: IdpId) => [...ssoProviderEditQueryKeys.all, 'detail', idpId] as const,
+  detail: (idpId: MyOrganization.IdpId) =>
+    [...ssoProviderEditQueryKeys.all, 'detail', idpId] as const,
   organization: () => ['organization', 'details'] as const,
-  provisioning: (idpId: IdpId) => [...ssoProviderEditQueryKeys.all, 'provisioning', idpId] as const,
-  scimTokens: (idpId: IdpId) => [...ssoProviderEditQueryKeys.all, 'scim-tokens', idpId] as const,
+  provisioning: (idpId: MyOrganization.IdpId) =>
+    [...ssoProviderEditQueryKeys.all, 'provisioning', idpId] as const,
+  scimTokens: (idpId: MyOrganization.IdpId) =>
+    [...ssoProviderEditQueryKeys.all, 'scim-tokens', idpId] as const,
 };
 
 /**
@@ -52,7 +54,7 @@ export const ssoProviderEditQueryKeys = {
  * @returns Hook state and methods
  */
 export function useSsoProviderEdit(
-  idpId: IdpId,
+  idpId: MyOrganization.IdpId,
   { sso, provisioning, customMessages = {} }: Partial<UseSsoProviderEditOptions> = {},
 ): UseSsoProviderEditReturn {
   const { coreClient } = useCoreClient();
@@ -157,7 +159,9 @@ export function useSsoProviderEdit(
    * Update provider mutation - updates SSO provider configuration.
    */
   const updateProviderMutation = useMutation({
-    mutationFn: async (data: UpdateIdentityProviderRequestContent): Promise<IdentityProvider> => {
+    mutationFn: async (
+      data: MyOrganization.UpdateIdentityProviderRequestContent,
+    ): Promise<IdentityProvider> => {
       const provider = providerQuery.data;
       if (!provider) {
         throw new Error('Provider not loaded');
@@ -170,10 +174,11 @@ export function useSsoProviderEdit(
         }
       }
 
-      const apiRequestData: UpdateIdentityProviderRequestContent = SsoProviderMappers.updateToAPI({
-        strategy: provider.strategy,
-        ...data,
-      });
+      const apiRequestData: MyOrganization.UpdateIdentityProviderRequestContent =
+        SsoProviderMappers.updateToAPI({
+          strategy: provider.strategy,
+          ...data,
+        });
 
       const result = await coreClient!
         .getMyOrganizationApiClient()
@@ -565,7 +570,7 @@ export function useSsoProviderEdit(
     }, [coreClient, idpId, queryClient, t, handleError]);
 
   const updateProvider = useCallback(
-    async (data: UpdateIdentityProviderRequestContent): Promise<void> => {
+    async (data: MyOrganization.UpdateIdentityProviderRequestContent): Promise<void> => {
       const provider = providerQuery.data;
       if (!coreClient || !idpId || !provider) {
         return;

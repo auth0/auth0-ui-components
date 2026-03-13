@@ -4,12 +4,12 @@
  * @internal
  */
 
+import type { MyAccount } from '@auth0/myaccount-js';
 import {
   FACTOR_TYPE_EMAIL,
   FACTOR_TYPE_PHONE,
   normalizeError,
   type MFAType,
-  type CreateAuthenticationMethodResponseContent,
 } from '@auth0/universal-components-core';
 import { useState, useCallback } from 'react';
 
@@ -25,7 +25,7 @@ type UseContactEnrollmentProps = {
   enrollMfa: (
     factor: MFAType,
     options: Record<string, string>,
-  ) => Promise<CreateAuthenticationMethodResponseContent>;
+  ) => Promise<MyAccount.CreateAuthenticationMethodResponseContent>;
   onError: (error: Error, stage: typeof ENROLL) => void;
 };
 

@@ -3,6 +3,7 @@
  * @module sso-provider-mappers
  * @internal
  */
+import type { MyOrganization } from '@auth0/myorganization-js';
 import type {
   ProviderDetailsFormValues,
   ProviderSelectionFormValues,
@@ -11,10 +12,6 @@ import type {
 
 import { STRATEGIES } from './sso-provider-constants';
 import type { IdpStrategy } from './sso-provider-types';
-import type {
-  CreateIdentityProviderRequestContent,
-  UpdateIdentityProviderRequestContent,
-} from './sso-provider-types';
 
 type CombinedProviderFormValues = ProviderSelectionFormValues &
   ProviderDetailsFormValues & {
@@ -92,7 +89,9 @@ export const SsoProviderMappers = {
    * @param data - The data object to process
    * @returns API request payload for provider creation
    */
-  createToAPI(data: CombinedProviderFormValues): CreateIdentityProviderRequestContent {
+  createToAPI(
+    data: CombinedProviderFormValues,
+  ): MyOrganization.CreateIdentityProviderRequestContent {
     const { strategy, name, display_name, options } = data;
 
     if (!name || name.trim() === '') {
@@ -104,7 +103,7 @@ export const SsoProviderMappers = {
       name: name.trim(),
       display_name,
       options: getValidOptionsForStrategy(strategy, options),
-    } as CreateIdentityProviderRequestContent;
+    } as MyOrganization.CreateIdentityProviderRequestContent;
   },
 
   /**
@@ -113,7 +112,7 @@ export const SsoProviderMappers = {
    * @param data - The data object to process
    * @returns API request payload for provider update
    */
-  updateToAPI(data: UpdateProviderFormValues): UpdateIdentityProviderRequestContent {
+  updateToAPI(data: UpdateProviderFormValues): MyOrganization.UpdateIdentityProviderRequestContent {
     const {
       strategy,
       display_name,
@@ -123,7 +122,7 @@ export const SsoProviderMappers = {
       ...configOptions
     } = data;
 
-    const updateRequest: UpdateIdentityProviderRequestContent = {};
+    const updateRequest: MyOrganization.UpdateIdentityProviderRequestContent = {};
 
     // Only include defined values for core fields
     if (display_name !== undefined) {
