@@ -86,6 +86,7 @@ describe('useSsoProviderEdit', () => {
     strategy: 'samlp',
     display_name: 'Test Provider',
     options: {},
+    attributes: [],
   };
 
   const mockOrganization: OrganizationPrivate = {

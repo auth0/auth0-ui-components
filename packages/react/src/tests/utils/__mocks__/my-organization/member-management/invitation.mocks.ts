@@ -1,0 +1,108 @@
+import { vi } from 'vitest';
+
+import type { OrganizationInvitationDetailsModalProps } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal';
+import type { OrganizationInvitationRevokeModalProps } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-revoke-modal';
+import type { OrganizationInvitationCreateModalProps } from '@/components/auth0/my-organization/shared/member-management/shared/invitation-create/organization-invitation-create-modal';
+import type {
+  Invitation,
+  RoleOption,
+  IdentityProviderOption,
+  OrganizationInvitationTableActionsColumnProps,
+  InvitationSearchFilterProps,
+} from '@/types/my-organization/member-management/organization-invitation-table-types';
+
+export const createMockInvitation = (overrides?: Partial<Invitation>): Invitation => ({
+  id: 'inv_abc123xyz456',
+  invitee: { email: 'test@example.com' },
+  inviter: { name: 'Admin User' },
+  roles: ['role_admin'],
+  created_at: '2024-01-01T00:00:00.000Z',
+  expires_at: '2025-12-31T23:59:59.000Z',
+  status: 'pending',
+  invitation_url: 'https://example.auth0.com/invitation?ticket=abc123',
+  identity_provider_id: undefined,
+  ...overrides,
+});
+
+export const createMockPendingInvitation = (overrides?: Partial<Invitation>): Invitation =>
+  createMockInvitation({
+    status: 'pending',
+    invitation_url: 'https://example.auth0.com/invitation?ticket=pending123',
+    ...overrides,
+  });
+
+export const createMockExpiredInvitation = (overrides?: Partial<Invitation>): Invitation =>
+  createMockInvitation({
+    status: 'expired',
+    expires_at: '2020-01-01T00:00:00.000Z',
+    invitation_url: undefined,
+    ...overrides,
+  });
+
+export const createMockRoles = (): RoleOption[] => [
+  { id: 'role_admin', name: 'Admin', description: 'Administrator role' },
+  { id: 'role_member', name: 'Member', description: 'Member role' },
+  { id: 'role_viewer', name: 'Viewer', description: 'Viewer role' },
+];
+
+export const createMockProviders = (): IdentityProviderOption[] => [
+  { id: 'con_provider1', name: 'Google', type: 'social' },
+  { id: 'con_provider2', name: 'Okta', type: 'enterprise' },
+];
+
+export const createMockCreateModalProps = (
+  overrides: Partial<OrganizationInvitationCreateModalProps> = {},
+): OrganizationInvitationCreateModalProps => ({
+  isOpen: true,
+  isLoading: false,
+  onClose: vi.fn(),
+  onCreate: vi.fn(),
+  ...overrides,
+});
+
+export const createMockActionsColumnProps = (
+  overrides: Partial<OrganizationInvitationTableActionsColumnProps> = {},
+): OrganizationInvitationTableActionsColumnProps => ({
+  invitation: createMockPendingInvitation(),
+  readOnly: false,
+  onViewDetails: vi.fn(),
+  onCopyUrl: vi.fn(),
+  onRevokeAndResend: vi.fn(),
+  onRevoke: vi.fn(),
+  ...overrides,
+});
+
+export const createMockDetailsModalProps = (
+  overrides: Partial<OrganizationInvitationDetailsModalProps> = {},
+): OrganizationInvitationDetailsModalProps => ({
+  invitation: createMockPendingInvitation(),
+  isOpen: true,
+  isRevoking: false,
+  isResending: false,
+  onClose: vi.fn(),
+  onCopyUrl: vi.fn(),
+  onRevoke: vi.fn(),
+  onResend: vi.fn(),
+  ...overrides,
+});
+
+export const createMockRevokeModalProps = (
+  overrides: Partial<OrganizationInvitationRevokeModalProps> = {},
+): OrganizationInvitationRevokeModalProps => ({
+  invitation: createMockPendingInvitation(),
+  isOpen: true,
+  isLoading: false,
+  isRevokeAndResend: false,
+  onClose: vi.fn(),
+  onConfirm: vi.fn(),
+  ...overrides,
+});
+
+export const createMockSearchFilterProps = (
+  overrides: Partial<InvitationSearchFilterProps> = {},
+): InvitationSearchFilterProps => ({
+  filters: {},
+  availableRoles: createMockRoles(),
+  onRoleFilterChange: vi.fn(),
+  ...overrides,
+});
