@@ -102,11 +102,7 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
   const queryClient = useQueryClient();
 
-  /* ---- Common ---- */
-
   const [activeTab, setActiveTab] = React.useState<ActiveTab>(defaultTab);
-
-  /* ---- Available Roles (from config API) ---- */
 
   const rolesQuery = useQuery({
     queryKey: [...memberManagementQueryKeys.all, 'roles'],
@@ -127,8 +123,6 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   });
 
   const availableRoles: RoleOption[] = rolesQuery.data ?? [];
-
-  /* ---- Available Identity Providers (from API) ---- */
 
   const providersQuery = useQuery({
     queryKey: [...memberManagementQueryKeys.all, 'identity-providers'],
@@ -158,8 +152,6 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
 
   const availableProviders: IdentityProviderOption[] = providersQuery.data ?? [];
 
-  /* ---- Invitations ---- */
-
   const [invitationPageSize, setInvitationPageSize] = React.useState(DEFAULT_PAGE_SIZE);
   const [currentFromToken, setCurrentFromToken] = React.useState<string | undefined>(undefined);
   const [previousTokens, setPreviousTokens] = React.useState<Array<string | undefined>>([]);
@@ -172,6 +164,7 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   const [showCreateModal, setShowCreateModal] = React.useState(false);
   const [showDetailsModal, setShowDetailsModal] = React.useState(false);
   const [selectedInvitation, setSelectedInvitation] = React.useState<Invitation | null>(null);
+  const detailsRequestIdRef = React.useRef(0);
 
   const invitationsQuery = useQuery({
     queryKey: [
@@ -284,45 +277,9 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
     },
     onError: () => {
       showToast({ type: 'error', message: t('invitation.error.resend_failed') });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
     },
   });
-
-  const createInvitation = React.useCallback(
-    async (data: CreateInvitationInput): Promise<Invitation | null> => {
-      if (!coreClient) return null;
-      try {
-        return await createInvitationMutation.mutateAsync(data);
-      } catch {
-        return null;
-      }
-    },
-    [coreClient, createInvitationMutation],
-  );
-
-  const revokeInvitation = React.useCallback(
-    async (invitation: Invitation): Promise<boolean> => {
-      if (!coreClient) return false;
-      try {
-        await revokeInvitationMutation.mutateAsync(invitation);
-        return true;
-      } catch {
-        return false;
-      }
-    },
-    [coreClient, revokeInvitationMutation],
-  );
-
-  const resendInvitation = React.useCallback(
-    async (invitation: Invitation): Promise<Invitation | null> => {
-      if (!coreClient) return null;
-      try {
-        return await resendInvitationMutation.mutateAsync(invitation);
-      } catch {
-        return null;
-      }
-    },
-    [coreClient, resendInvitationMutation],
-  );
 
   const handleCreateClick = React.useCallback(() => {
     if (readOnly) return;
@@ -330,13 +287,13 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   }, [readOnly]);
 
   const handleCreateSubmit = React.useCallback(
-    async (data: CreateInvitationInput) => {
-      const result = await createInvitation(data);
-      if (result) {
-        setShowCreateModal(false);
-      }
+    (data: CreateInvitationInput) => {
+      if (!coreClient) return;
+      createInvitationMutation.mutate(data, {
+        onSuccess: () => setShowCreateModal(false),
+      });
     },
-    [createInvitation],
+    [coreClient],
   );
 
   const handleCreateCancel = React.useCallback(() => {
@@ -348,13 +305,18 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
       setSelectedInvitation(invitation);
       setShowDetailsModal(true);
       if (!coreClient) return;
+      const requestId = ++detailsRequestIdRef.current;
       try {
         const response = await coreClient
           .getMyOrganizationApiClient()
           .organization.invitations.get(invitation.id);
-        setSelectedInvitation(mapMemberInvitationToInvitation(response));
+        if (detailsRequestIdRef.current === requestId) {
+          setSelectedInvitation(mapMemberInvitationToInvitation(response));
+        }
       } catch {
-        showToast({ type: 'error', message: t('invitation.error.fetch_failed') });
+        if (detailsRequestIdRef.current === requestId) {
+          showToast({ type: 'error', message: t('invitation.error.fetch_failed') });
+        }
       }
     },
     [coreClient, t],
@@ -371,7 +333,6 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   const handleRevokeClick = React.useCallback(
     (invitation: Invitation) => {
       if (readOnly) return;
-      // Close the details modal if it's open (action triggered from details dialog)
       if (showDetailsModal) {
         setShowDetailsModal(false);
       }
@@ -381,14 +342,15 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
     [readOnly, showDetailsModal],
   );
 
-  const handleRevokeConfirm = React.useCallback(async () => {
-    if (!selectedInvitation) return;
-    const success = await revokeInvitation(selectedInvitation);
-    if (success) {
-      setShowRevokeModal(false);
-      setSelectedInvitation(null);
-    }
-  }, [selectedInvitation, revokeInvitation]);
+  const handleRevokeConfirm = React.useCallback(() => {
+    if (!selectedInvitation || !coreClient) return;
+    revokeInvitationMutation.mutate(selectedInvitation, {
+      onSuccess: () => {
+        setShowRevokeModal(false);
+        setSelectedInvitation(null);
+      },
+    });
+  }, [selectedInvitation, coreClient]);
 
   const handleRevokeCancel = React.useCallback(() => {
     setShowRevokeModal(false);
@@ -397,7 +359,6 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   const handleRevokeResendClick = React.useCallback(
     (invitation: Invitation) => {
       if (readOnly) return;
-      // Close the details modal if it's open (action triggered from details dialog)
       if (showDetailsModal) {
         setShowDetailsModal(false);
       }
@@ -407,14 +368,15 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
     [readOnly, showDetailsModal],
   );
 
-  const handleRevokeResendConfirm = React.useCallback(async () => {
-    if (!selectedInvitation) return;
-    const result = await resendInvitation(selectedInvitation);
-    if (result) {
-      setShowRevokeResendModal(false);
-      setSelectedInvitation(null);
-    }
-  }, [selectedInvitation, resendInvitation]);
+  const handleRevokeResendConfirm = React.useCallback(() => {
+    if (!selectedInvitation || !coreClient) return;
+    resendInvitationMutation.mutate(selectedInvitation, {
+      onSuccess: () => {
+        setShowRevokeResendModal(false);
+        setSelectedInvitation(null);
+      },
+    });
+  }, [selectedInvitation, coreClient]);
 
   const handleRevokeResendCancel = React.useCallback(() => {
     setShowRevokeResendModal(false);
@@ -425,9 +387,9 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
       if (!invitation.invitation_url) return;
       try {
         await navigator.clipboard.writeText(invitation.invitation_url);
-        showToast({ type: 'success', message: t('invitation.copy_url.success') });
+        showToast({ type: 'success', message: t('invitation.success.url_copied') });
       } catch {
-        showToast({ type: 'error', message: t('invitation.copy_url.failed') });
+        showToast({ type: 'error', message: t('invitation.error.copy_url_failed') });
       }
     },
     [t],
@@ -442,14 +404,11 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   }, [nextToken, currentFromToken]);
 
   const handlePreviousPage = React.useCallback(() => {
-    setPreviousTokens((prev) => {
-      const newStack = [...prev];
-      const previousToken = newStack.pop();
-      setCurrentFromToken(previousToken);
-      return newStack;
-    });
+    const previousToken = previousTokens[previousTokens.length - 1];
+    setPreviousTokens((prev) => prev.slice(0, -1));
+    setCurrentFromToken(previousToken);
     setInvitationCurrentPage((prev) => Math.max(1, prev - 1));
-  }, []);
+  }, [previousTokens]);
 
   const handlePageSizeChange = React.useCallback((pageSize: number) => {
     setInvitationPageSize(pageSize);

@@ -1048,6 +1048,7 @@
         "status_expired": "Expired"
       },
       "actions": {
+        "menu_label": "Actions",
         "view_details": "View Details",
         "copy_url": "Copy Invitation URL",
         "revoke_and_resend": "Revoke and Resend",
@@ -1055,6 +1056,7 @@
       },
       "create": {
         "title": "Invite Member",
+        "description": "Send an invitation to join this organization.",
         "email_label": "Email Address",
         "email_placeholder": "Enter email address and press Enter",
         "email_helper": "Add up to 10 members in a comma-separated list.",
@@ -1068,6 +1070,7 @@
         "provider_placeholder": "Select provider (optional)",
         "provider_helper": "If none is selected, the member can log in with any provider.",
         "submit_button": "Send Invite",
+        "creating": "Creating...",
         "cancel_button": "Cancel",
         "success": "Invitation sent to ${email}."
       },
@@ -1108,7 +1111,8 @@
         "create_failed": "Failed to send invitation. Please try again.",
         "revoke_failed": "Failed to revoke invitation. Please try again.",
         "resend_failed": "Failed to resend invitation. Please try again.",
-        "revoke_resend_failed": "Failed to revoke and resend invitation. Please try again."
+        "revoke_resend_failed": "Failed to revoke and resend invitation. Please try again.",
+        "copy_url_failed": "Failed to copy invitation URL. Please try again."
       }
     }
   }

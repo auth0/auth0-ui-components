@@ -13,7 +13,6 @@ import { OrganizationInvitationTable } from '@/components/auth0/my-organization/
 import { OrganizationInvitationCreateModal } from '@/components/auth0/my-organization/shared/member-management/shared/invitation-create/organization-invitation-create-modal';
 import { Header } from '@/components/auth0/shared/header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { withMyOrganizationService } from '@/hoc/with-services';
 import { useOrganizationMemberManagement } from '@/hooks/my-organization/use-organization-member-management';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -22,10 +21,6 @@ import type {
   MemberManagementHandlers,
   OrganizationMemberManagementProps,
 } from '@/types';
-
-// TODO: Import from @auth0/universal-components-core after building core package
-const MY_ORGANIZATION_MEMBER_MANAGEMENT_SCOPES =
-  'read:my_org:members delete:my_org:members read:my_org:member_invitations create:my_org:member_invitations delete:my_org:member_invitations';
 
 /**
  * Props for the OrganizationMemberManagementView component.
@@ -86,7 +81,7 @@ export function OrganizationMemberManagementView({
 
       <Tabs
         value={state.activeTab}
-        onValueChange={(value) => handlers.setActiveTab(value as 'members' | 'invitations')}
+        onValueChange={(value: string) => handlers.setActiveTab(value as 'members' | 'invitations')}
         className={currentStyles.classes?.['OrganizationMemberManagement-tabs']}
       >
         <TabsList>
@@ -179,7 +174,7 @@ export function OrganizationMemberManagementView({
  * @param props - The component props.
  * @returns The component.
  */
-function OrganizationMemberManagementContainer(props: OrganizationMemberManagementProps) {
+export function OrganizationMemberManagement(props: OrganizationMemberManagementProps) {
   const {
     hideHeader = false,
     defaultTab = 'members',
@@ -193,12 +188,7 @@ function OrganizationMemberManagementContainer(props: OrganizationMemberManageme
 
   const { state, handlers } = useOrganizationMemberManagement({
     customMessages,
-    defaultTab:
-      defaultTab === 'member'
-        ? 'members'
-        : defaultTab === 'invitation'
-          ? 'invitations'
-          : defaultTab,
+    defaultTab,
     readOnly,
     createInvitationAction,
     revokeInvitationAction,
@@ -215,9 +205,3 @@ function OrganizationMemberManagementContainer(props: OrganizationMemberManageme
 
   return <OrganizationMemberManagementView state={extendedState} handlers={handlers} />;
 }
-
-export const OrganizationMemberManagement: React.ComponentType<OrganizationMemberManagementProps> =
-  withMyOrganizationService(
-    OrganizationMemberManagementContainer,
-    MY_ORGANIZATION_MEMBER_MANAGEMENT_SCOPES,
-  );

@@ -19,6 +19,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { getInvitationStatus } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
   Invitation,
   InvitationStatus,
@@ -41,26 +42,6 @@ export interface OrganizationInvitationDetailsModalProps {
   onRevoke?: (invitation?: Invitation) => void;
   onResend?: (invitation?: Invitation) => void;
   className?: string;
-}
-
-/**
- * Determines the status of an invitation.
- * @param invitation - The invitation to check.
- * @returns The invitation status.
- */
-function getInvitationStatus(invitation: Invitation): InvitationStatus {
-  if (invitation.status) {
-    return invitation.status;
-  }
-
-  if (invitation.expires_at) {
-    const expiresAt = new Date(invitation.expires_at);
-    if (expiresAt < new Date()) {
-      return 'expired';
-    }
-  }
-
-  return 'pending';
 }
 
 /**

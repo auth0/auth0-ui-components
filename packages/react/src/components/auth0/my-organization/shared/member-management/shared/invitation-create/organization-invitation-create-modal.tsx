@@ -195,9 +195,13 @@ export function OrganizationInvitationCreateModal({
     onClose();
   }, [onClose]);
 
-  const canSubmit =
-    emailChips.length > 0 ||
-    (emailInput.trim() && validationConfig.emailSchema.safeParse(emailInput.trim()).success);
+  const canSubmit = React.useMemo(
+    () =>
+      emailChips.length > 0 ||
+      (emailInput.trim() !== '' &&
+        validationConfig.emailSchema.safeParse(emailInput.trim()).success),
+    [emailChips.length, emailInput, validationConfig],
+  );
 
   const roleOptions = React.useMemo(
     () => availableRoles.map((role) => ({ label: role.name, value: role.id })),
@@ -276,7 +280,7 @@ export function OrganizationInvitationCreateModal({
               {t('invitation.create.cancel_button')}
             </Button>
             <Button type="submit" disabled={isLoading || !canSubmit}>
-              {isLoading ? 'Creating...' : t('invitation.create.submit_button')}
+              {isLoading ? t('invitation.create.creating') : t('invitation.create.submit_button')}
             </Button>
           </DialogFooter>
         </form>

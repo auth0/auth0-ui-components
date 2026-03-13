@@ -150,7 +150,7 @@ describe('OrganizationInvitationCreateModal', () => {
         <OrganizationInvitationCreateModal {...createMockCreateModalProps({ isLoading: true })} />,
       );
 
-      expect(screen.getByText('Creating...')).toBeInTheDocument();
+      expect(screen.getByText('invitation.create.creating')).toBeInTheDocument();
     });
   });
 

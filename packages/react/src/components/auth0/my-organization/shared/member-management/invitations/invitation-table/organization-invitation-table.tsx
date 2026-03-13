@@ -14,25 +14,8 @@ import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Badge } from '@/components/ui/badge';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import type { Invitation, InvitationStatus, OrganizationInvitationTableProps } from '@/types';
-
-/**
- * Determines the status of an invitation.
- * @param invitation - The invitation to check.
- * @returns The invitation status.
- */
-function getInvitationStatus(invitation: Invitation): InvitationStatus {
-  if (invitation.status) {
-    return invitation.status;
-  }
-  if (invitation.expires_at) {
-    const expiresAt = new Date(invitation.expires_at);
-    if (expiresAt < new Date()) {
-      return 'expired';
-    }
-  }
-  return 'pending';
-}
+import { getInvitationStatus } from '@/lib/utils/my-organization/member-management/member-management-utils';
+import type { Invitation, OrganizationInvitationTableProps } from '@/types';
 
 /**
  * Organization invitation table component.

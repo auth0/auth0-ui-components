@@ -105,11 +105,13 @@ export interface OrganizationInvitationTabMessages {
     search_placeholder?: string;
     filter_by_role?: string;
     all_roles?: string;
+    reset_filter?: string;
     showing_results?: string;
     status_pending?: string;
     status_expired?: string;
   };
   actions?: {
+    menu_label?: string;
     view_details?: string;
     copy_url?: string;
     revoke_and_resend?: string;
@@ -121,11 +123,16 @@ export interface OrganizationInvitationTabMessages {
     email_label?: string;
     email_placeholder?: string;
     email_helper?: string;
+    email_limit_error?: string;
+    email_invalid_error?: string;
+    email_duplicate_error?: string;
+    email_required_error?: string;
     roles_label?: string;
     roles_placeholder?: string;
     provider_label?: string;
     provider_placeholder?: string;
     submit_button?: string;
+    creating?: string;
     cancel_button?: string;
   };
   details?: {
@@ -158,6 +165,14 @@ export interface OrganizationInvitationTabMessages {
   success?: {
     url_copied?: string;
     invitation_resent?: string;
+  };
+  error?: {
+    fetch_failed?: string;
+    create_failed?: string;
+    revoke_failed?: string;
+    resend_failed?: string;
+    revoke_resend_failed?: string;
+    copy_url_failed?: string;
   };
 }
 

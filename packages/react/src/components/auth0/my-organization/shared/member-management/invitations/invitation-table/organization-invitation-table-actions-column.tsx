@@ -16,31 +16,8 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type {
-  Invitation,
-  InvitationStatus,
-  OrganizationInvitationTableActionsColumnProps,
-} from '@/types';
-
-/**
- * Determines the status of an invitation.
- * @param invitation - The invitation to check.
- * @returns The invitation status.
- */
-function getInvitationStatus(invitation: Invitation): InvitationStatus {
-  if (invitation.status) {
-    return invitation.status;
-  }
-
-  if (invitation.expires_at) {
-    const expiresAt = new Date(invitation.expires_at);
-    if (expiresAt < new Date()) {
-      return 'expired';
-    }
-  }
-
-  return 'pending';
-}
+import { getInvitationStatus } from '@/lib/utils/my-organization/member-management/member-management-utils';
+import type { OrganizationInvitationTableActionsColumnProps } from '@/types';
 
 /**
  * OrganizationInvitationTableActionsColumn Component
@@ -87,8 +64,12 @@ export function OrganizationInvitationTableActionsColumn({
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
       <DropdownMenu>
-        <DropdownMenuTrigger className="h-8 w-8 p-0 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <DropdownMenuTrigger
+          aria-label={t('invitation.actions.menu_label')}
+          className="h-8 w-8 p-0 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
           <MoreHorizontal className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+          <span className="sr-only">{t('invitation.actions.menu_label')}</span>
         </DropdownMenuTrigger>
         <DropdownMenuPortal>
           <DropdownMenuContent align="end">

@@ -56,15 +56,15 @@ export interface MemberManagementHandlers {
   setActiveTab: (tab: ActiveTab) => void;
 
   handleCreateClick: () => void;
-  handleCreateSubmit: (data: CreateInvitationInput) => Promise<void>;
+  handleCreateSubmit: (data: CreateInvitationInput) => void;
   handleCreateCancel: () => void;
   handleDetailsClick: (invitation: Invitation) => void;
   handleDetailsClose: () => void;
   handleRevokeClick: (invitation: Invitation) => void;
-  handleRevokeConfirm: () => Promise<void>;
+  handleRevokeConfirm: () => void;
   handleRevokeCancel: () => void;
   handleRevokeResendClick: (invitation: Invitation) => void;
-  handleRevokeResendConfirm: () => Promise<void>;
+  handleRevokeResendConfirm: () => void;
   handleRevokeResendCancel: () => void;
   handleCopyUrl: (invitation: Invitation) => Promise<void>;
   handleNextPage: () => void;
@@ -101,7 +101,7 @@ export interface OrganizationMemberManagementProps
     OrganizationMemberManagementClasses
   > {
   hideHeader?: boolean;
-  defaultTab?: 'member' | 'invitation';
+  defaultTab?: ActiveTab;
   /** Action hooks for invitation creation (onBefore/onAfter) */
   createInvitationAction?: ComponentAction<CreateInvitationInput, Invitation>;
   /** Action hooks for invitation revocation (onBefore/onAfter) */
