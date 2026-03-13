@@ -5,80 +5,46 @@
  */
 
 import { MyAccountClient } from '@auth0/myaccount-js';
+import { buildBaseHeaders, buildServiceConfig } from '@core/api/api-utils';
 
-import type { AuthDetails } from '../../auth/auth-types';
-import type { createTokenManager } from '../../auth/token-manager';
+import type { ClientAuthConfig } from '../../auth/auth-types';
+
+export type MyAccountApiClient = {
+  withScopes(scopes: string): MyAccountApiClient;
+  readonly factors: MyAccountClient['factors'];
+  readonly authenticationMethods: MyAccountClient['authenticationMethods'];
+};
 
 /**
  * Initializes the My Account API client for MFA and user profile operations.
  * @internal
  *
- * @param auth - Authentication configuration details
- * @param tokenManagerService - Token manager for handling access tokens
- * @returns Object containing the client and scope setter function
+ * @param config - Auth configuration — either proxy or domain mode
+ * @returns My Account API client with withScopes chaining
  */
-export function initializeMyAccountClient(
-  auth: AuthDetails,
-  tokenManagerService: ReturnType<typeof createTokenManager>,
-): {
-  client: MyAccountClient;
-  setLatestScopes: (scopes: string) => void;
-} {
-  let latestScopes = '';
+export function initializeMyAccountClient(config: ClientAuthConfig): MyAccountApiClient {
+  const { sdkConfig, authHeaders } = buildServiceConfig(config, 'me');
 
-  const setLatestScopes = (scopes: string) => {
-    latestScopes = scopes;
+  const createInstance = (scopes = ''): MyAccountApiClient => {
+    const rawClient = new MyAccountClient({
+      ...sdkConfig,
+      fetcher: async (url: string, init?: RequestInit) => {
+        const headers = buildBaseHeaders(init);
+        await authHeaders(headers, scopes);
+        return fetch(url, { ...init, headers });
+      },
+    });
+
+    return {
+      withScopes: (newScopes: string): MyAccountApiClient => createInstance(newScopes),
+      get factors() {
+        return rawClient.factors;
+      },
+      get authenticationMethods() {
+        return rawClient.authenticationMethods;
+      },
+    };
   };
 
-  if (auth.authProxyUrl) {
-    const myAccountProxyPath = 'me';
-    const myAccountBaseUrl = `${auth.authProxyUrl.replace(/\/$/, '')}/${myAccountProxyPath}`;
-    const fetcher = async (url: string, init?: RequestInit) => {
-      return fetch(url, {
-        ...init,
-        headers: {
-          ...init?.headers,
-          ...(init?.body && { 'Content-Type': 'application/json' }),
-          ...(latestScopes && { 'auth0-scope': latestScopes }),
-        },
-      });
-    };
-    return {
-      client: new MyAccountClient({
-        domain: '',
-        baseUrl: myAccountBaseUrl.trim(),
-        telemetry: false,
-        fetcher,
-      }),
-      setLatestScopes,
-    };
-  }
-
-  const domain = auth.domain ?? auth.contextInterface?.getConfiguration()?.domain;
-  if (domain) {
-    const fetcher = async (url: string, init?: RequestInit) => {
-      const token = await tokenManagerService.getToken(latestScopes, 'me');
-
-      const headers = new Headers(init?.headers);
-      if (init?.body && !headers.has('Content-Type')) {
-        headers.set('Content-Type', 'application/json');
-      }
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
-
-      return fetch(url, {
-        ...init,
-        headers,
-      });
-    };
-    return {
-      client: new MyAccountClient({
-        domain: domain.trim(),
-        fetcher,
-      }),
-      setLatestScopes,
-    };
-  }
-  throw new Error('Missing domain or proxy URL for MyAccountClient');
+  return createInstance();
 }

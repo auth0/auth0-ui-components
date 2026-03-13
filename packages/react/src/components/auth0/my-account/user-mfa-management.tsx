@@ -1,6 +1,6 @@
 /** @module user-mfa-management */
 
-import { getComponentStyles, USER_MFA_SCOPES } from '@auth0/universal-components-core';
+import { getComponentStyles } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { DeleteFactorConfirmation } from '@/components/auth0/my-account/shared/mfa/delete-factor-confirmation';
@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { List, ListItem } from '@/components/ui/list';
 import { Spinner } from '@/components/ui/spinner';
-import { withMyAccountService } from '@/hoc/with-services';
 import { useMFA } from '@/hooks/my-account/use-mfa';
 import { useMFALogic } from '@/hooks/my-account/use-mfa-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -399,9 +398,6 @@ function UserMFAMgmtView({ logic, handlers }: UserMFAMgmtViewProps) {
  * />
  * ```
  */
-const UserMFAMgmt: React.ComponentType<UserMFAMgmtProps> = withMyAccountService(
-  UserMFAMgmtContainer,
-  USER_MFA_SCOPES,
-);
+const UserMFAMgmt = UserMFAMgmtContainer;
 
 export { UserMFAMgmt, UserMFAMgmtView };

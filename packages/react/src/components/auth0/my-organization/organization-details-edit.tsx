@@ -1,28 +1,22 @@
 /** @module organization-details-edit */
 
-import {
-  getComponentStyles,
-  MY_ORGANIZATION_DETAILS_EDIT_SCOPES,
-} from '@auth0/universal-components-core';
+import { getComponentStyles } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { OrganizationDetails } from '@/components/auth0/my-organization/shared/organization-management/organization-details/organization-details';
 import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Spinner } from '@/components/ui/spinner';
-import { withMyOrganizationService } from '@/hoc/with-services';
 import { useOrganizationDetailsEdit } from '@/hooks/my-organization/use-organization-details-edit';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   OrganizationDetailsEditProps,
-  OrganizationDetailsEditLogicProps,
-  OrganizationDetailsEditHandlerProps,
   OrganizationDetailsEditViewProps,
 } from '@/types/my-organization/organization-management/organization-details-edit-types';
 
 /**
- * Internal organization details edit container component.
+ * Organization details edit component.
  * @param props - Component props
  * @param props.schema - Zod validation schema
  * @param props.customMessages - Custom translation messages to override defaults
@@ -35,7 +29,7 @@ import type {
  * @returns JSX element
  * @internal
  */
-function OrganizationDetailsEditContainer(props: OrganizationDetailsEditProps): React.JSX.Element {
+function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX.Element {
   const {
     schema,
     customMessages = {},
@@ -57,47 +51,37 @@ function OrganizationDetailsEditContainer(props: OrganizationDetailsEditProps): 
     customMessages,
   });
 
-  const orgDetailsEditLogicProps: OrganizationDetailsEditLogicProps = {
-    organization,
-    isFetchLoading,
-    schema,
-    styling,
-    customMessages,
-    readOnly,
-    hideHeader,
-    backButton,
-  };
-
-  const orgDetailsEditHandlerProps: OrganizationDetailsEditHandlerProps = {
-    formActions,
-  };
-
   return (
     <OrganizationDetailsEditView
-      logic={orgDetailsEditLogicProps}
-      handlers={orgDetailsEditHandlerProps}
+      organization={organization}
+      isFetchLoading={isFetchLoading}
+      schema={schema}
+      styling={styling}
+      customMessages={customMessages}
+      readOnly={readOnly}
+      hideHeader={hideHeader}
+      backButton={backButton}
+      formActions={formActions}
     />
   );
 }
 
 /**
- * OrganizationDetailsEditView — Presentational component.
- * @param props - View props with logic and handlers
- * @returns Organization Details Edit view element
  * @internal
+ * @param props - View props
+ * @returns Organization Details Edit view element
  */
-function OrganizationDetailsEditView({ logic, handlers }: OrganizationDetailsEditViewProps) {
-  const {
-    organization,
-    isFetchLoading,
-    schema,
-    styling,
-    customMessages,
-    readOnly,
-    hideHeader,
-    backButton,
-  } = logic;
-  const { formActions } = handlers;
+function OrganizationDetailsEditView({
+  organization,
+  isFetchLoading,
+  schema,
+  styling,
+  customMessages,
+  readOnly,
+  hideHeader,
+  backButton,
+  formActions,
+}: OrganizationDetailsEditViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('organization_management.organization_details_edit', customMessages);
 
@@ -183,7 +167,4 @@ function OrganizationDetailsEditView({ logic, handlers }: OrganizationDetailsEdi
  * />
  * ```
  */
-const OrganizationDetailsEdit: React.ComponentType<OrganizationDetailsEditProps> =
-  withMyOrganizationService(OrganizationDetailsEditContainer, MY_ORGANIZATION_DETAILS_EDIT_SCOPES);
-
 export { OrganizationDetailsEdit, OrganizationDetailsEditView };

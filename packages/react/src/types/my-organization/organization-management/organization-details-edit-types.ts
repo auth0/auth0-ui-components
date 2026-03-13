@@ -65,7 +65,7 @@ export interface UseOrganizationDetailsEditResult {
   updateOrgDetails: (data: OrganizationPrivate) => Promise<boolean>;
 }
 
-export interface OrganizationDetailsEditLogicProps {
+export interface OrganizationDetailsEditViewProps {
   organization: OrganizationPrivate;
   isFetchLoading: boolean;
   schema: Partial<OrganizationDetailsEditSchemas> | undefined;
@@ -74,13 +74,5 @@ export interface OrganizationDetailsEditLogicProps {
   readOnly: OrganizationDetailsEditProps['readOnly'];
   hideHeader: boolean;
   backButton?: OrganizationEditBackButton;
-}
-
-export interface OrganizationDetailsEditHandlerProps {
   formActions: OrganizationDetailsFormActions;
-}
-
-export interface OrganizationDetailsEditViewProps {
-  logic: OrganizationDetailsEditLogicProps;
-  handlers: OrganizationDetailsEditHandlerProps;
 }

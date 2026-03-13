@@ -18,19 +18,16 @@ interface UseCoreClientInitializationProps {
 }
 
 /**
- * Initializes CoreClient with auth and i18n config.
- * @param props - Hook props.
- * @param props.authDetails - Auth0 authentication details.
- * @param props.i18nOptions - i18n configuration options.
- * @returns The initialized CoreClient instance
  * @internal
+ * @param props - Initialization props.
+ * @returns The initialized CoreClient instance, or null while initializing.
  */
 export const useCoreClientInitialization = ({
   authDetails,
   i18nOptions,
-}: UseCoreClientInitializationProps) => {
-  const [coreClient, setCoreClient] = React.useState<CoreClientInterface | null>(null);
+}: UseCoreClientInitializationProps): CoreClientInterface | null => {
   const { authProxyUrl } = authDetails;
+  const [coreClient, setCoreClient] = React.useState<CoreClientInterface | null>(null);
 
   React.useEffect(() => {
     const initializeCoreClient = async () => {

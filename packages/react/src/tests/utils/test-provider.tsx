@@ -6,7 +6,6 @@ import type { FieldValues, UseFormReturn } from 'react-hook-form';
 
 import { Form } from '@/components/ui/form';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
-import { ScopeManagerProvider } from '@/providers/scope-manager-provider';
 import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
 
 // Create a new QueryClient for each test to avoid shared state
@@ -70,9 +69,7 @@ export const TestProvider: React.FC<TestProviderProps> = ({
 
   return (
     <QueryClientProvider client={testQueryClient}>
-      <CoreClientContext.Provider value={contextValue}>
-        <ScopeManagerProvider>{children}</ScopeManagerProvider>
-      </CoreClientContext.Provider>
+      <CoreClientContext.Provider value={contextValue}>{children}</CoreClientContext.Provider>
     </QueryClientProvider>
   );
 };

@@ -14,7 +14,6 @@ import { CoreClientContext } from '@/hooks/shared/use-core-client';
 import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
 import { useToastProvider } from '@/hooks/shared/use-toast-provider';
 import { QueryProvider } from '@/providers/query-provider';
-import { ScopeManagerProvider } from '@/providers/scope-manager-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
 import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 
@@ -65,6 +64,12 @@ export const Auth0ComponentProvider = ({
     [coreClient],
   );
 
+  const fallback = loader || (
+    <div className="flex items-center justify-center min-h-[200px]">
+      <Spinner />
+    </div>
+  );
+
   return (
     <ThemeProvider
       themeSettings={{
@@ -78,23 +83,16 @@ export const Auth0ComponentProvider = ({
         <Toaster
           position={mergedToastSettings.settings?.position || 'top-right'}
           closeButton={mergedToastSettings.settings?.closeButton ?? true}
+          className="auth0-universal"
         />
       )}
-      <React.Suspense
-        fallback={
-          loader || (
-            <div className="flex items-center justify-center min-h-[200px]">
-              <Spinner />
-            </div>
-          )
-        }
-      >
+      {coreClient ? (
         <CoreClientContext.Provider value={coreClientValue}>
-          <QueryProvider cacheConfig={cacheConfig}>
-            <ScopeManagerProvider>{children}</ScopeManagerProvider>
-          </QueryProvider>
+          <QueryProvider cacheConfig={cacheConfig}>{children}</QueryProvider>
         </CoreClientContext.Provider>
-      </React.Suspense>
+      ) : (
+        fallback
+      )}
     </ThemeProvider>
   );
 };

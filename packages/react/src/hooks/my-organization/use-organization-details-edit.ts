@@ -7,6 +7,7 @@ import {
   OrganizationDetailsFactory,
   OrganizationDetailsMappers,
   type OrganizationPrivate,
+  MY_ORGANIZATION_DETAILS_EDIT_SCOPES,
 } from '@auth0/universal-components-core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -59,7 +60,10 @@ export function useOrganizationDetailsEdit({
   const organizationQuery = useQuery({
     queryKey: organizationDetailsQueryKeys.details(),
     queryFn: async () => {
-      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_DETAILS_EDIT_SCOPES)
+        .organizationDetails.get();
       return OrganizationDetailsMappers.fromAPI(response);
     },
     enabled: !!coreClient,
@@ -81,6 +85,7 @@ export function useOrganizationDetailsEdit({
       const updateData = OrganizationDetailsMappers.toAPI(data);
       const response = await coreClient!
         .getMyOrganizationApiClient()
+        .withScopes(MY_ORGANIZATION_DETAILS_EDIT_SCOPES)
         .organizationDetails.update(updateData);
 
       return OrganizationDetailsMappers.fromAPI(response);

@@ -1,13 +1,10 @@
 'use client';
 
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from './ui/button';
-import { useRouter } from 'next/navigation';
 
 export function HeroSection() {
   const { t } = useTranslation();
-  const router = useRouter();
 
   return (
     <div>
@@ -22,8 +19,14 @@ export function HeroSection() {
             </p>
 
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <Button className="cursor-pointer" onClick={() => router.push('/auth/login')}>
-                {t('hero-section.get-started-button')}
+              <Button className="cursor-pointer">
+                <a
+                  href="https://auth0-ui-components.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t('hero-section.get-started-button')}
+                </a>
               </Button>
               <a
                 href="https://auth0.com/docs"

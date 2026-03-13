@@ -54,16 +54,18 @@ export function SsoDomainTabActionsColumn({
       {domain.status === 'verified' ? (
         <Tooltip>
           <TooltipTrigger asChild>
-            <Switch
-              checked={providerHasDomain}
-              onCheckedChange={(checked) => onToggle(domain, checked)}
-              disabled={readOnly || isUpdating}
-            />
+            <span>
+              <Switch
+                checked={providerHasDomain}
+                onCheckedChange={(checked) => onToggle(domain, checked)}
+                disabled={readOnly || isUpdating}
+              />
+            </span>
           </TooltipTrigger>
           <TooltipContent>
             {providerHasDomain
-              ? t('content.table.actions.disable_domain_tooltip')
-              : t('content.table.actions.enable_domain_tooltip')}
+              ? t('table.actions.disable_domain_tooltip')
+              : t('table.actions.enable_domain_tooltip')}
           </TooltipContent>
         </Tooltip>
       ) : (

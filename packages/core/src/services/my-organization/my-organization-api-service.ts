@@ -5,79 +5,45 @@
  */
 
 import { MyOrganizationClient } from '@auth0/myorganization-js';
-import type { AuthDetails } from '@core/auth/auth-types';
-import type { createTokenManager } from '@core/auth/token-manager';
+import { buildBaseHeaders, buildServiceConfig } from '@core/api/api-utils';
+import type { ClientAuthConfig } from '@core/auth/auth-types';
+
+export type MyOrganizationApiClient = {
+  withScopes(scopes: string): MyOrganizationApiClient;
+  readonly organization: MyOrganizationClient['organization'];
+  readonly organizationDetails: MyOrganizationClient['organizationDetails'];
+};
 
 /**
  * Initializes the My Organization API client for organization, SSO, and domain operations.
  * @internal
  *
- * @param auth - Authentication configuration details
- * @param tokenManagerService - Token manager for handling access tokens
- * @returns Object containing the client and scope setter function
+ * @param config - Auth configuration — either proxy or domain mode
+ * @returns My Organization API client with withScopes chaining
  */
-export function initializeMyOrganizationClient(
-  auth: AuthDetails,
-  tokenManagerService: ReturnType<typeof createTokenManager>,
-): {
-  client: MyOrganizationClient;
-  setLatestScopes: (scopes: string) => void;
-} {
-  let latestScopes = '';
+export function initializeMyOrganizationClient(config: ClientAuthConfig): MyOrganizationApiClient {
+  const { sdkConfig, authHeaders } = buildServiceConfig(config, 'my-org');
 
-  const setLatestScopes = (scopes: string) => {
-    latestScopes = scopes;
+  const createInstance = (scopes = ''): MyOrganizationApiClient => {
+    const rawClient = new MyOrganizationClient({
+      ...sdkConfig,
+      fetcher: async (url: string, init?: RequestInit) => {
+        const headers = buildBaseHeaders(init);
+        await authHeaders(headers, scopes);
+        return fetch(url, { ...init, headers });
+      },
+    });
+
+    return {
+      withScopes: (newScopes: string): MyOrganizationApiClient => createInstance(newScopes),
+      get organization() {
+        return rawClient.organization;
+      },
+      get organizationDetails() {
+        return rawClient.organizationDetails;
+      },
+    };
   };
 
-  if (auth.authProxyUrl) {
-    const myOrganizationProxyPath = 'my-org';
-    const myOrganizationProxyBaseUrl = `${auth.authProxyUrl.replace(/\/$/, '')}/${myOrganizationProxyPath}`;
-    const fetcher = async (url: string, init?: RequestInit) => {
-      return fetch(url, {
-        ...init,
-        headers: {
-          ...init?.headers,
-          ...(init?.body && { 'Content-Type': 'application/json' }),
-          ...(latestScopes && { 'auth0-scope': latestScopes }),
-        },
-      });
-    };
-    return {
-      client: new MyOrganizationClient({
-        domain: '',
-        baseUrl: myOrganizationProxyBaseUrl.trim(),
-        telemetry: false,
-        fetcher,
-      }),
-      setLatestScopes,
-    };
-  }
-
-  const domain = auth.domain ?? auth.contextInterface?.getConfiguration()?.domain;
-  if (domain) {
-    const fetcher = async (url: string, init?: RequestInit) => {
-      const token = await tokenManagerService.getToken(latestScopes, 'my-org');
-
-      const headers = new Headers(init?.headers);
-      if (init?.body && !headers.has('Content-Type')) {
-        headers.set('Content-Type', 'application/json');
-      }
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
-
-      return fetch(url, {
-        ...init,
-        headers,
-      });
-    };
-    return {
-      client: new MyOrganizationClient({
-        domain: domain.trim(),
-        fetcher,
-      }),
-      setLatestScopes,
-    };
-  }
-  throw new Error('Missing domain or proxy URL for MyOrganizationClient');
+  return createInstance();
 }

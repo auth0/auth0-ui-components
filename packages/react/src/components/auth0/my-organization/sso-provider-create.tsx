@@ -1,10 +1,7 @@
 /** @module sso-provider-create */
 
-import {
-  getComponentStyles,
-  MY_ORGANIZATION_SSO_PROVIDER_CREATE_SCOPES,
-} from '@auth0/universal-components-core';
-import React, { useMemo } from 'react';
+import { getComponentStyles } from '@auth0/universal-components-core';
+import { useMemo } from 'react';
 
 import ProviderConfigure from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure';
 import { ProviderDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details';
@@ -13,7 +10,6 @@ import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Wizard } from '@/components/auth0/shared/wizard';
 import type { StepProps } from '@/components/auth0/shared/wizard';
-import { withMyOrganizationService } from '@/hoc/with-services';
 import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-create';
 import { useSsoProviderCreateLogic } from '@/hooks/my-organization/use-sso-provider-create-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -279,9 +275,6 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
  * />
  * ```
  */
-const SsoProviderCreate: React.ComponentType<SsoProviderCreateProps> = withMyOrganizationService(
-  SsoProviderCreateContainer,
-  MY_ORGANIZATION_SSO_PROVIDER_CREATE_SCOPES,
-);
+const SsoProviderCreate = SsoProviderCreateContainer;
 
 export { SsoProviderCreate, SsoProviderCreateView };

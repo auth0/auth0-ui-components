@@ -1,9 +1,6 @@
 import type { Organization } from '@auth0/universal-components-core';
 
-import type {
-  OrganizationDetailsEditLogicProps,
-  OrganizationDetailsEditHandlerProps,
-} from '@/types/my-organization/organization-management/organization-details-edit-types';
+import type { OrganizationDetailsEditViewProps } from '@/types/my-organization/organization-management/organization-details-edit-types';
 
 export const createMockOrganization = (): Organization => ({
   id: 'organization_abc123xyz456',
@@ -18,9 +15,9 @@ export const createMockOrganization = (): Organization => ({
   },
 });
 
-export function createMockOrganizationDetailsEditLogic(
-  overrides: Partial<OrganizationDetailsEditLogicProps> = {},
-): OrganizationDetailsEditLogicProps {
+export function createMockOrganizationDetailsEditView(
+  overrides: Partial<OrganizationDetailsEditViewProps> = {},
+): OrganizationDetailsEditViewProps {
   return {
     organization: { ...createMockOrganization() },
     isFetchLoading: false,
@@ -30,14 +27,6 @@ export function createMockOrganizationDetailsEditLogic(
     readOnly: false,
     hideHeader: false,
     backButton: undefined,
-    ...overrides,
-  };
-}
-
-export function createMockOrganizationDetailsEditHandler(
-  overrides: Partial<OrganizationDetailsEditHandlerProps> = {},
-): OrganizationDetailsEditHandlerProps {
-  return {
     formActions: {
       isLoading: false,
       nextAction: {

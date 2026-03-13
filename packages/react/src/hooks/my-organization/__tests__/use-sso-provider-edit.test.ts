@@ -52,30 +52,32 @@ describe('useSsoProviderEdit', () => {
     return key;
   });
 
-  const mockCoreClient = {
-    getMyOrganizationApiClient: () => ({
-      organization: {
-        identityProviders: {
-          get: mockGet,
-          update: mockUpdate,
-          delete: mockDelete,
-          detach: mockDetach,
-          provisioning: {
-            get: mockProvisioningGet,
-            create: mockProvisioningCreate,
-            delete: mockProvisioningDelete,
-            scimTokens: {
-              list: mockScimTokensList,
-              create: mockScimTokensCreate,
-              delete: mockScimTokensDelete,
-            },
+  const mockOrgClient = {
+    withScopes: (_scopes: string) => mockOrgClient,
+    organization: {
+      identityProviders: {
+        get: mockGet,
+        update: mockUpdate,
+        delete: mockDelete,
+        detach: mockDetach,
+        provisioning: {
+          get: mockProvisioningGet,
+          create: mockProvisioningCreate,
+          delete: mockProvisioningDelete,
+          scimTokens: {
+            list: mockScimTokensList,
+            create: mockScimTokensCreate,
+            delete: mockScimTokensDelete,
           },
         },
       },
-      organizationDetails: {
-        get: mockGetOrgDetails,
-      },
-    }),
+    },
+    organizationDetails: {
+      get: mockGetOrgDetails,
+    },
+  };
+  const mockCoreClient = {
+    getMyOrganizationApiClient: () => mockOrgClient,
   };
 
   const mockProvider: IdentityProvider = {
@@ -492,7 +494,8 @@ describe('useSsoProviderEdit', () => {
     const mockUpdateAttributes = vi.fn();
 
     beforeEach(() => {
-      mockCoreClient.getMyOrganizationApiClient = () => ({
+      const ssoOrgClient = {
+        withScopes: (_scopes: string) => ssoOrgClient,
         organization: {
           identityProviders: {
             get: mockGet,
@@ -516,7 +519,8 @@ describe('useSsoProviderEdit', () => {
         organizationDetails: {
           get: mockGetOrgDetails,
         },
-      });
+      };
+      mockCoreClient.getMyOrganizationApiClient = () => ssoOrgClient;
     });
 
     const renderUseSsoProviderEdit = (...args: Parameters<typeof useSsoProviderEdit>) => {
@@ -579,7 +583,8 @@ describe('useSsoProviderEdit', () => {
     const mockProvisioningUpdateAttributes = vi.fn();
 
     beforeEach(() => {
-      mockCoreClient.getMyOrganizationApiClient = () => ({
+      const provisioningOrgClient = {
+        withScopes: (_scopes: string) => provisioningOrgClient,
         organization: {
           identityProviders: {
             get: mockGet,
@@ -603,7 +608,8 @@ describe('useSsoProviderEdit', () => {
         organizationDetails: {
           get: mockGetOrgDetails,
         },
-      });
+      };
+      mockCoreClient.getMyOrganizationApiClient = () => provisioningOrgClient;
     });
 
     it('should sync provisioning attributes successfully', async () => {

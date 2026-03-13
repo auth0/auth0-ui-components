@@ -22,6 +22,7 @@
     "next": "16.1.5",
     "ora": "^8.0.1",
     "postcss": "^8.5.5",
+    "radix-ui": "^1.4.3",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.57.0",

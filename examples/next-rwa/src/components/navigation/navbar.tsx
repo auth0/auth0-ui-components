@@ -5,9 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { useIsDarkMode } from '@/hooks/use-is-dark-mode';
-
+import { useDarkMode } from '@/hooks/use-dark-mode';
 import { ProfileDropdown } from './profile-dropdown';
 import { Button } from '../ui/button';
 
@@ -20,7 +18,7 @@ export function Navbar() {
   const { user, isLoading } = useUser();
   const router = useRouter();
   const { t } = useTranslation();
-  const isDarkMode = useIsDarkMode();
+  const isDarkMode = useDarkMode();
 
   return (
     <header className="w-full h-16 z-50">

@@ -88,13 +88,15 @@ export function DomainConfigureProvidersModal({
             )}
             <Tooltip>
               <TooltipTrigger asChild>
-                <Switch
-                  checked={provider.is_associated ?? false}
-                  onCheckedChange={(checked) => handleToggleSwitch(provider, checked)}
-                  disabled={isLoadingSwitch}
-                />
+                <span>
+                  <Switch
+                    checked={provider.is_associated ?? false}
+                    onCheckedChange={(checked) => handleToggleSwitch(provider, checked)}
+                    disabled={isLoadingSwitch}
+                  />
+                </span>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="z-[1000]">
                 {provider.is_associated
                   ? t('table.actions.disable_provider_tooltip')
                   : t('table.actions.enable_provider_tooltip')}
