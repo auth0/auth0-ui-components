@@ -13,9 +13,6 @@
   --color-primary: var(--color-primary);
   --color-primary-foreground: var(--color-primary-foreground);
 
-  --color-secondary: var(--color-secondary);
-  --color-secondary-foreground: var(--color-secondary-foreground);
-
   --color-accent: var(--color-accent);
   --color-accent-foreground: var(--color-accent-foreground);
 
@@ -25,72 +22,6 @@
   --color-border: var(--color-border);
 
   --color-ring: oklch(from var(--color-ring) l c h / 50%);
-
-  --color-info: var(--color-info);
-  --color-info-foreground: var(--color-info-foreground);
-  --color-success: var(--color-success);
-  --color-success-foreground: var(--color-success-foreground);
-  --color-warning: var(--color-warning);
-  --color-warning-foreground: var(--color-warning-foreground);
-
-  --color-destructive: var(--color-destructive);
-  --color-destructive-foreground: var(--color-destructive-foreground);
-  --color-destructive-border: var(--color-destructive-border);
-
-  --color-popover: var(--color-popover);
-  --color-popover-foreground: var(--color-popover-foreground);
-
-  --color-input: var(--color-input);
-  --color-input-foreground: var(--color-input-foreground);
-  --color-input-muted: var(--color-input-muted);
-
-  --shadow-bevel-xs: var(--shadow-bevel-xs);
-  --shadow-bevel-sm: var(--shadow-bevel-sm);
-  --shadow-bevel-md: var(--shadow-bevel-md);
-  --shadow-bevel-lg: var(--shadow-bevel-md);
-  --shadow-bevel-xl: var(--shadow-bevel-xl);
-  --shadow-bevel-2xl: var(--shadow-bevel-2xl);
-
-  --shadow-button-resting: var(--shadow-button-resting);
-  --shadow-button-hover: var(--shadow-button-hover);
-  --shadow-button-focus: var(--shadow-button-hover);
-
-  --shadow-button-destructive-resting: var(--shadow-button-destructive-resting);
-  --shadow-button-destructive-hover: var(--shadow-button-destructive-hover);
-  --shadow-button-destructive-focus: var(--shadow-button-destructive-focus);
-
-  --shadow-button-outlined-resting: var(--shadow-button-outlined-resting);
-  --shadow-button-outlined-hover: var(--shadow-button-outlined-resting);
-  --shadow-button-outlined-focus: var(--shadow-button-outlined-resting);
-
-  --shadow-input-resting: var(--shadow-input-resting);
-  --shadow-input-hover: var(--shadow-input-hover);
-  --shadow-input-focus: var(--shadow-input-focus);
-  --shadow-input-destructive-resting: var(--shadow-input-destructive-resting);
-  --shadow-input-destructive-hover: var(--shadow-input-destructive-hover);
-  --shadow-input-destructive-focus: var(--shadow-input-destructive-focus);
-
-  --shadow-checkbox-resting: var(--shadow-checkbox-resting);
-  --shadow-checkbox-hover: var(--shadow-checkbox-hover);
-
-  --shadow-switch-resting: var(--shadow-switch-resting);
-  --shadow-switch-hover: var(--shadow-switch-resting);
-  --shadow-switch-focus: var(--shadow-switch-focus);
-  --shadow-switch-thumb: var(--shadow-switch-thumb);
-
-  --radius-xs: var(--radius-xs);
-  --radius-sm: var(--radius-sm);
-  --radius-md: var(--radius-md);
-  --radius-lg: var(--radius-lg);
-  --radius-xl: var(--radius-xl);
-  --radius-2xl: var(--radius-2xl);
-  --radius-3xl: var(--radius-3xl);
-  --radius-4xl: var(--radius-4xl);
-  --radius-5xl: var(--radius-5xl);
-  --radius-6xl: var(--radius-6xl);
-  --radius-7xl: var(--radius-7xl);
-  --radius-8xl: var(--radius-8xl);
-  --radius-9xl: var(--radius-9xl);
 }
 
 :root {
@@ -99,32 +30,14 @@
   --color-foreground: oklch(0.145 0 0);
   --color-card: oklch(1 0 0);
   --color-card-foreground: oklch(0.145 0 0);
-  --color-popover: oklch(1 0 0);
-  --color-popover-foreground: oklch(0.145 0 0);
   --color-primary: oklch(0.205 0 0);
   --color-primary-foreground: oklch(0.985 0 0);
-  --color-secondary: oklch(0.97 0 0);
-  --color-secondary-foreground: oklch(0.205 0 0);
   --color-muted: oklch(0.97 0 0);
   --color-muted-foreground: oklch(0.556 0 0);
   --color-accent: oklch(0.97 0 0);
   --color-accent-foreground: oklch(0.205 0 0);
   --color-border: oklch(0.922 0 0);
-  --color-input: oklch(0.922 0 0);
   --color-ring: oklch(0.708 0 0);
-  --color-chart-1: oklch(0.646 0.222 41.116);
-  --color-chart-2: oklch(0.6 0.118 184.704);
-  --color-chart-3: oklch(0.398 0.07 227.392);
-  --color-chart-4: oklch(0.828 0.189 84.429);
-  --color-chart-5: oklch(0.769 0.188 70.08);
-  --color-sidebar: oklch(0.985 0 0);
-  --color-sidebar-foreground: oklch(0.145 0 0);
-  --color-sidebar-primary: oklch(0.205 0 0);
-  --color-sidebar-primary-foreground: oklch(0.985 0 0);
-  --color-sidebar-accent: oklch(0.97 0 0);
-  --color-sidebar-accent-foreground: oklch(0.205 0 0);
-  --color-sidebar-border: oklch(0.922 0 0);
-  --color-sidebar-ring: oklch(0.708 0 0);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -133,32 +46,13 @@
     --color-foreground: oklch(0.985 0 0);
     --color-card: oklch(0 0 0);
     --color-card-foreground: oklch(0.985 0 0);
-    --color-popover: oklch(0.269 0 0);
-    --color-popover-foreground: oklch(0.985 0 0);
     --color-primary: oklch(0.922 0 0);
     --color-primary-foreground: oklch(0.205 0 0);
-    --color-secondary: oklch(0.269 0 0);
-    --color-secondary-foreground: oklch(0.985 0 0);
     --color-muted: oklch(0.269 0 0);
     --color-muted-foreground: oklch(0.708 0 0);
     --color-accent: oklch(0.371 0 0);
     --color-accent-foreground: oklch(0.985 0 0);
-    --color-destructive: oklch(0.704 0.191 22.216);
     --color-border: oklch(1 0 0 / 10%);
-    --color-input: oklch(1 0 0 / 15%);
     --color-ring: oklch(0.556 0 0);
-    --color-chart-1: oklch(0.488 0.243 264.376);
-    --color-chart-2: oklch(0.696 0.17 162.48);
-    --color-chart-3: oklch(0.769 0.188 70.08);
-    --color-chart-4: oklch(0.627 0.265 303.9);
-    --color-chart-5: oklch(0.645 0.246 16.439);
-    --color-sidebar: oklch(0.205 0 0);
-    --color-sidebar-foreground: oklch(0.985 0 0);
-    --color-sidebar-primary: oklch(0.488 0.243 264.376);
-    --color-sidebar-primary-foreground: oklch(0.985 0 0);
-    --color-sidebar-accent: oklch(0.269 0 0);
-    --color-sidebar-accent-foreground: oklch(0.985 0 0);
-    --color-sidebar-border: oklch(1 0 0 / 10%);
-    --color-sidebar-ring: oklch(0.439 0 0);
   }
 }

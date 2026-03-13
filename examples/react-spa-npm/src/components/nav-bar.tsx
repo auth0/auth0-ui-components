@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import { ProfileDropdown } from './profile-dropdown';
-import { useIsDarkMode } from '../hooks/use-is-dark-mode';
+import { useDarkMode } from '../hooks/use-dark-mode';
 import { Button } from './ui/button';
 
 const LOGO_ON_LIGHT =
@@ -15,12 +15,12 @@ const LOGO_ON_DARK =
 export const Navbar: React.FC = () => {
   const { isAuthenticated, loginWithRedirect } = useAuth0();
   const { t } = useTranslation();
-  const isDarkMode = useIsDarkMode();
+  const isDarkMode = useDarkMode();
 
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-50">
-        <nav className="bg-black border-gray-700 border-b border-gray-200 px-4 py-3 shadow-sm">
+        <nav className="bg-white dark:bg-black px-4 py-3 shadow-sm">
           <div className="mx-auto flex justify-between items-center px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-4">
               <Link to="/" className="-m-1.5 p-1.5">

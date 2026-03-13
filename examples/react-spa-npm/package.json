@@ -17,6 +17,7 @@
     "clsx": "^2.1.1",
     "i18next": "^25.2.1",
     "lucide-react": "^0.511.0",
+    "radix-ui": "^1.4.3",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.57.0",

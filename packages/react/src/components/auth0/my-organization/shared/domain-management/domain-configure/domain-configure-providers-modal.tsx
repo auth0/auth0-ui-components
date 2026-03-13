@@ -61,7 +61,9 @@ export function DomainConfigureProvidersModal({
         accessorKey: 'display_name',
         title: t('table.columns.name'),
         width: '25%',
-        render: (provider) => <div className="font-medium">{provider.display_name}</div>,
+        render: (provider) => (
+          <div className="font-medium text-muted-foreground">{provider.display_name}</div>
+        ),
       },
       {
         type: 'text',

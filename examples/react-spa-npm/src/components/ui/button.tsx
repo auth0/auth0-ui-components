@@ -1,6 +1,11 @@
+'use client';
+
 import { cva, type VariantProps } from 'class-variance-authority';
+import { Slot as SlotPrimitive } from 'radix-ui';
 import * as React from 'react';
 import { cn } from '../../libs/utils';
+
+const Slot = SlotPrimitive.Slot;
 
 const buttonVariants = cva(
   "focus-visible:ring-ring aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive theme-default:active:scale-[0.99] relative box-border inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden text-sm font-medium whitespace-nowrap transition-all duration-150 ease-in-out outline-none focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -44,13 +49,9 @@ function Button({
   as,
   ...props
 }: React.ComponentProps<'button'> & ButtonProps) {
-  if (as) {
-    return <React.Fragment>{props.children}</React.Fragment>;
-  }
+  const Comp = as ? Slot : 'button';
 
-  return (
-    <button className={cn('button', buttonVariants({ variant, size }), className)} {...props} />
-  );
+  return <Comp className={cn(buttonVariants({ variant, size }), className)} {...props} />;
 }
 
 export { Button, buttonVariants };

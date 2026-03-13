@@ -16,13 +16,15 @@ export const HeroSection: React.FC = () => {
               {t('hero-section.description')}
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <a
-                href="https://auth0-ui-components.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button>{t('hero-section.get-started-button')}</Button>
-              </a>
+              <Button>
+                <a
+                  href="https://auth0-ui-components.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t('hero-section.get-started-button')}
+                </a>
+              </Button>
               <a
                 href="https://auth0.com/docs"
                 target="_blank"
