@@ -6,9 +6,9 @@
 
 import * as React from 'react';
 
-import { InvitationSearchFilter } from './invitation-search-filter';
 import { OrganizationInvitationTableActionsColumn } from './organization-invitation-table-actions-column';
 
+import { InvitationSearchFilter } from '@/components/auth0/my-organization/shared/member-management/shared/search-filter/search-filter';
 import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Badge } from '@/components/ui/badge';

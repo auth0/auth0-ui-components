@@ -1,6 +1,6 @@
 /**
  * Search and filter component for invitations.
- * @module invitation-search-filter
+ * @module search-filter
  * @internal
  */
 

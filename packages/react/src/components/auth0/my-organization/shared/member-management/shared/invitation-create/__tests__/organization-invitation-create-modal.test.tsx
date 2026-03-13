@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
-import { OrganizationInvitationCreateModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-create/organization-invitation-create-modal';
+import { OrganizationInvitationCreateModal } from '@/components/auth0/my-organization/shared/member-management/shared/invitation-create/organization-invitation-create-modal';
 import { renderWithProviders } from '@/tests/utils';
 import {
   createMockCreateModalProps,

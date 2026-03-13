@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
-import { InvitationSearchFilter } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-table/invitation-search-filter';
+import { InvitationSearchFilter } from '@/components/auth0/my-organization/shared/member-management/shared/search-filter/search-filter';
 import { renderWithProviders } from '@/tests/utils';
 import { createMockSearchFilterProps } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 

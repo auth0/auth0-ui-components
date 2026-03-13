@@ -1,8 +1,8 @@
 import { vi } from 'vitest';
 
-import type { OrganizationInvitationCreateModalProps } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-create/organization-invitation-create-modal';
 import type { OrganizationInvitationDetailsModalProps } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal';
 import type { OrganizationInvitationRevokeModalProps } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-revoke-modal';
+import type { OrganizationInvitationCreateModalProps } from '@/components/auth0/my-organization/shared/member-management/shared/invitation-create/organization-invitation-create-modal';
 import type {
   Invitation,
   RoleOption,
