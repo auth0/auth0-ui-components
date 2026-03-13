@@ -27,7 +27,7 @@
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.57.0",
     "react-i18next": "^15.5.3",
-    "tailwind-merge": "^3.5.0",
+    "tailwind-merge": "^2.6.1",
     "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
