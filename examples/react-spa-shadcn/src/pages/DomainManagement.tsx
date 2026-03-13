@@ -18,7 +18,7 @@ const DomainManagement = () => {
         </a>{' '}
         on how to add Domain Management component.
       </p>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">{/* <DomainTable /> */}</div>
+      <div className="bg-background rounded-lg shadow p-6">{/* <DomainTable /> */}</div>
     </div>
   );
 };

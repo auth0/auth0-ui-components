@@ -16,6 +16,7 @@ import Index from './pages/Index';
 import MFAManagement from './pages/MFAManagement';
 import OrganizationManagement from './pages/OrganizationManagement';
 import Profile from './pages/Profile';
+import { useDarkMode } from './hooks/use-dark-mode';
 
 import { Auth0ComponentProvider } from '@/auth0-ui-components/providers/spa-provider';
 
@@ -45,7 +46,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth0();
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
       {isAuthenticated && <Sidebar />}
       <div className={isAuthenticated ? 'ml-64' : ''}>{children}</div>
@@ -55,6 +56,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => {
   const { i18n } = useTranslation();
+  const isDarkMode = useDarkMode();
   const defaultAuthDetails = {
     domain: config.auth0.domain,
   };
@@ -75,6 +77,9 @@ const App = () => {
           >
             <Auth0ComponentProvider
               authDetails={defaultAuthDetails}
+              themeSettings={{
+                mode: isDarkMode ? 'dark' : 'light',
+              }}
               i18n={{ currentLanguage: i18n.language }}
             >
               <AppLayout>
