@@ -10,8 +10,7 @@ import {
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockOrganization,
-  createMockOrganizationDetailsEditHandler,
-  createMockOrganizationDetailsEditLogic,
+  createMockOrganizationDetailsEditView,
 } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
@@ -539,11 +538,10 @@ describe('OrganizationDetailsEdit', () => {
 });
 
 describe('OrganizationDetailsEditView', () => {
-  const logic = { ...createMockOrganizationDetailsEditLogic(), currentStyles: undefined };
-  const handlers = createMockOrganizationDetailsEditHandler();
+  const viewProps = createMockOrganizationDetailsEditView();
 
   it('renders the header and organization details form', () => {
-    renderWithProviders(<OrganizationDetailsEditView logic={logic} handlers={handlers} />);
+    renderWithProviders(<OrganizationDetailsEditView {...viewProps} />);
     expect(screen.getByRole('banner')).toBeInTheDocument();
     expect(screen.getByTestId('organization-details-card')).toBeInTheDocument();
   });
@@ -551,48 +549,33 @@ describe('OrganizationDetailsEditView', () => {
   it('renders custom card class if provided', () => {
     renderWithProviders(
       <OrganizationDetailsEditView
-        logic={{
-          ...logic,
-          styling: {
-            ...logic.styling,
-            classes: { ...logic.styling.classes, OrganizationDetails_Card: 'custom-card-class' },
-          },
+        {...viewProps}
+        styling={{
+          ...viewProps.styling,
+          classes: { ...viewProps.styling.classes, OrganizationDetails_Card: 'custom-card-class' },
         }}
-        handlers={handlers}
       />,
     );
     expect(document.querySelector('.custom-card-class')).toBeInTheDocument();
   });
 
   it('does not render header if hideHeader is true', () => {
-    renderWithProviders(
-      <OrganizationDetailsEditView logic={{ ...logic, hideHeader: true }} handlers={handlers} />,
-    );
+    renderWithProviders(<OrganizationDetailsEditView {...viewProps} hideHeader={true} />);
     expect(screen.queryByRole('banner')).not.toBeInTheDocument();
   });
 
   it('renders with customMessages', () => {
     renderWithProviders(
       <OrganizationDetailsEditView
-        logic={{
-          ...logic,
-          customMessages: {
-            header: { title: 'Custom Title', back_button_text: 'Back' },
-          },
-        }}
-        handlers={handlers}
+        {...viewProps}
+        customMessages={{ header: { title: 'Custom Title', back_button_text: 'Back' } }}
       />,
     );
     expect(screen.getByText(/custom title/i)).toBeInTheDocument();
   });
 
   it('renders loading state when isFetchLoading is true', () => {
-    renderWithProviders(
-      <OrganizationDetailsEditView
-        logic={{ ...logic, isFetchLoading: true }}
-        handlers={handlers}
-      />,
-    );
+    renderWithProviders(<OrganizationDetailsEditView {...viewProps} isFetchLoading={true} />);
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 });

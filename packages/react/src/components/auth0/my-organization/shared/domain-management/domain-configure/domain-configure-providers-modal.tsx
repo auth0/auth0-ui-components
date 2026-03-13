@@ -61,7 +61,9 @@ export function DomainConfigureProvidersModal({
         accessorKey: 'display_name',
         title: t('table.columns.name'),
         width: '25%',
-        render: (provider) => <div className="font-medium">{provider.display_name}</div>,
+        render: (provider) => (
+          <div className="font-medium text-muted-foreground">{provider.display_name}</div>
+        ),
       },
       {
         type: 'text',
@@ -88,13 +90,15 @@ export function DomainConfigureProvidersModal({
             )}
             <Tooltip>
               <TooltipTrigger asChild>
-                <Switch
-                  checked={provider.is_associated ?? false}
-                  onCheckedChange={(checked) => handleToggleSwitch(provider, checked)}
-                  disabled={isLoadingSwitch}
-                />
+                <span>
+                  <Switch
+                    checked={provider.is_associated ?? false}
+                    onCheckedChange={(checked) => handleToggleSwitch(provider, checked)}
+                    disabled={isLoadingSwitch}
+                  />
+                </span>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="z-[1000]">
                 {provider.is_associated
                   ? t('table.actions.disable_provider_tooltip')
                   : t('table.actions.enable_provider_tooltip')}

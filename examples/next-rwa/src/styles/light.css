@@ -1,0 +1,15 @@
+:root {
+  --color-page: oklch(98.21% 0 0);
+  --color-background: oklch(100% 0 0);
+  --color-foreground: oklch(23.93% 0 0);
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(0% 0 0);
+  --color-primary: oklch(26.1% 0.0079 84.59);
+  --color-primary-foreground: oklch(100% 0 0);
+  --color-muted: oklch(95.51% 0 0);
+  --color-muted-foreground: oklch(60.66% 0 0);
+  --color-accent: oklch(64.01% 0 0);
+  --color-accent-foreground: oklch(23.93% 0 0);
+  --color-border: oklch(88.53% 0 0);
+  --color-ring: oklch(85.14% 0 0 / 50%);
+}

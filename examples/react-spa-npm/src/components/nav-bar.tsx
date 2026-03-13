@@ -4,21 +4,29 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import { ProfileDropdown } from './profile-dropdown';
+import { useDarkMode } from '../hooks/use-dark-mode';
+import { Button } from './ui/button';
+
+const LOGO_ON_LIGHT =
+  'https://cdn.auth0.com/quantum-assets/dist/2.0.2/logos/auth0/auth0-lockup-en-onlight.svg';
+const LOGO_ON_DARK =
+  'https://cdn.auth0.com/quantum-assets/dist/2.0.2/logos/auth0/auth0-lockup-en-ondark.svg';
 
 export const Navbar: React.FC = () => {
   const { isAuthenticated, loginWithRedirect } = useAuth0();
   const { t } = useTranslation();
+  const isDarkMode = useDarkMode();
 
   return (
     <>
-      <header className="absolute inset-x-0 top-0 z-50">
-        <nav className="bg-gray-900 border-gray-700 border-b border-gray-200 px-4 py-3 shadow-sm">
+      <header className="fixed inset-x-0 top-0 z-50">
+        <nav className="bg-white dark:bg-black px-4 py-3 shadow-sm">
           <div className="mx-auto flex justify-between items-center px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-4">
               <Link to="/" className="-m-1.5 p-1.5">
                 <img
                   className="h-8 w-auto"
-                  src="https://cdn.auth0.com/quantum-assets/dist/2.0.2/logos/auth0/auth0-lockup-en-onlight.svg"
+                  src={isDarkMode ? LOGO_ON_DARK : LOGO_ON_LIGHT}
                   alt="auth0 logo"
                 />
               </Link>
@@ -28,12 +36,7 @@ export const Navbar: React.FC = () => {
               {isAuthenticated ? (
                 <ProfileDropdown />
               ) : (
-                <button
-                  className="px-4 py-2 text-sm font-medium leading-5 text-center text-white capitalize bg-slate-900 rounded-lg hover:bg-slate-700 lg:mx-0 lg:w-auto focus:outline-none"
-                  onClick={() => loginWithRedirect()}
-                >
-                  {t('nav-bar.sign-in-button')}
-                </button>
+                <Button onClick={() => loginWithRedirect()}>{t('nav-bar.sign-in-button')}</Button>
               )}
             </div>
           </div>

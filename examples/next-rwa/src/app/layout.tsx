@@ -19,10 +19,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full">
-      <body className={`${inter.className} h-full`}>
+      <body className={`${inter.className} h-full overflow-hidden bg-background`}>
         <Auth0Provider>
           <ClientProvider>
-            <div className="flex flex-col h-screen">
+            <div className="flex flex-col h-screen bg-background">
               <Navbar />
               <div className="flex flex-1 overflow-hidden min-h-0">
                 <Sidebar />

@@ -1,10 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Button } from './ui/button';
 
 export const HeroSection: React.FC = () => {
   const { t } = useTranslation();
   return (
-    <div className="bg-gray-900">
+    <div className="bg-background">
       <div className="relative isolate px-6 pt-14 lg:px-8">
         <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
           <div className="text-center">
@@ -15,19 +16,20 @@ export const HeroSection: React.FC = () => {
               {t('hero-section.description')}
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <a
-                href="https://auth0-ui-components.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-5 py-2 mt-6 text-sm font-medium leading-5 text-center text-white capitalize bg-slate-900 rounded-lg hover:bg-slate-700 lg:mx-0 lg:w-auto focus:outline-none"
-              >
-                {t('hero-section.get-started-button')}
-              </a>
+              <Button>
+                <a
+                  href="https://auth0-ui-components.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t('hero-section.get-started-button')}
+                </a>
+              </Button>
               <a
                 href="https://auth0.com/docs"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-5 py-2 mt-6 text-sm font-semibold leading-6 text-gray-900 dark:text-white"
+                className="px-5 py-2 text-sm font-semibold leading-6 text-gray-900 dark:text-white"
               >
                 {t('hero-section.learn-more-button')}
                 <span aria-hidden="true">→</span>

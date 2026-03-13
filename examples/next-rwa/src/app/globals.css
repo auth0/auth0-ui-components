@@ -1,7 +1,29 @@
 /* Import Tailwind CSS v4 */
 @import 'tailwindcss';
-
+@import '../styles/light.css';
+@import '../styles/dark.css';
 @import '@auth0/universal-components-react/styles';
+
+@theme {
+  --color-page: var(--color-page);
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+
+  --color-card: var(--color-card);
+  --color-card-foreground: var(--color-card-foreground);
+
+  --color-primary: var(--color-primary);
+  --color-primary-foreground: var(--color-primary-foreground);
+
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+
+  --color-border: var(--color-border);
+  --color-ring: oklch(from var(--color-ring) l c h / 50%);
+}
 
 /* Minimal Next.js specific fixes - keep only essential z-index fixes */
 [data-radix-portal],
@@ -23,5 +45,4 @@ body {
   min-width: 320px;
   min-height: 100vh;
   height: 100%;
-  background-color: white;
 }

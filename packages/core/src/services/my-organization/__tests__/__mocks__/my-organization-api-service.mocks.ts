@@ -1,11 +1,17 @@
-import type { MyOrganizationClient } from '@auth0/myorganization-js';
 import { vi } from 'vitest';
 
-import type { initializeMyOrganizationClient } from '../../my-organization-api-service';
+import type { MyOrganizationApiClient } from '../../my-organization-api-service';
 
 // Re-export shared API service mocks
 export {
-  // Auth Details Mocks
+  createMockContextInterface,
+  // ClientAuthConfig Mocks
+  mockProxyConfig,
+  mockProxyConfigTrailingSlash,
+  mockProxyConfigWhitespace,
+  mockSpaConfigWhitespaceDomain,
+  createMockSpaConfig,
+  // AuthDetails Mocks (for core-client tests)
   mockAuthWithDomain,
   mockAuthWithProxyUrl,
   mockAuthWithProxyUrlTrailingSlash,
@@ -15,10 +21,6 @@ export {
   mockAuthWithEmptyProxyUrl,
   mockAuthWithDomainWhitespace,
   mockAuthWithProxyUrlWhitespace,
-  // Token Manager Mocks
-  createMockTokenManager,
-  createMockTokenManagerWithScopes,
-  createMockTokenManagerWithError,
   // Token Test Data
   mockTokens,
   // Headers Helpers
@@ -81,10 +83,10 @@ export const mockRequestInits = {
   },
 };
 
-// Error Messages (MyOrganization-specific)
+// Error Messages (MyOrganization-specific — thrown by createCoreClient, not the service directly)
 export const expectedErrors = {
-  missingDomainOrProxy: 'Missing domain or proxy URL for MyOrganizationClient',
-  tokenManagerError: 'Token retrieval failed',
+  missingContextInterface: 'Missing context interface',
+  missingDomain: 'Missing domain',
 };
 
 // MyOrganizationClient Mock Methods
@@ -99,11 +101,12 @@ export const mockMyOrganizationClientMethods = {
 /**
  * Creates a mock MyOrganization API client
  */
-export const createMockMyOrganizationClient = (): ReturnType<
-  typeof initializeMyOrganizationClient
-> => {
-  return {
-    client: {} as MyOrganizationClient,
-    setLatestScopes: vi.fn(),
+export const createMockMyOrganizationClient = (): MyOrganizationApiClient => {
+  const mock = {
+    withScopes: vi.fn(),
+    organization: {} as MyOrganizationApiClient['organization'],
+    organizationDetails: {} as MyOrganizationApiClient['organizationDetails'],
   };
+  mock.withScopes.mockReturnValue(mock);
+  return mock as unknown as MyOrganizationApiClient;
 };

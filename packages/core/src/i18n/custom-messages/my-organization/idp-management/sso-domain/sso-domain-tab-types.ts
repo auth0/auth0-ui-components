@@ -70,6 +70,10 @@ export interface SsoDomainTabMessages {
       status?: string;
       verify?: string;
     };
+    actions?: {
+      enable_domain_tooltip?: string;
+      disable_domain_tooltip?: string;
+    };
     domain_statuses?: {
       pending?: string;
       verified?: string;

@@ -28,6 +28,32 @@ export const MYORG_API_SCOPES = [
 "read:my_org:configuration",
 ]
 
+// My Account API Scopes - desired scopes for MFA management
+// Not all tenants may have these scopes available on their My Account API
+export const MYACCOUNT_API_SCOPES_DESIRED = [
+  "create:me:authentication_methods",
+  "read:me:authentication_methods",
+  "delete:me:authentication_methods",
+  "update:me:authentication_methods",
+  "read:me:factors",
+]
+
+/**
+ * Get available My Account API scopes from the resource server
+ * Returns only the scopes that actually exist on the tenant
+ */
+export function getAvailableMyAccountScopes(existingResourceServers, domain) {
+  const myAccountApi = existingResourceServers.find(
+    (rs) => rs.identifier === `https://${domain}/me/`
+  )
+
+  if (!myAccountApi || !myAccountApi.scopes) {
+    return []
+  }
+
+  return myAccountApi.scopes.map((s) => s.value)
+}
+
 // ============================================================================
 // CHECK FUNCTIONS - Determine what changes are needed
 // ============================================================================
@@ -67,6 +93,45 @@ export function checkMyOrgResourceServerChanges(
 
   return createChangeItem(ChangeAction.SKIP, {
     resource: "My Organization API",
+    existing: existingRS,
+  })
+}
+
+/**
+ * Check if My Account Resource Server needs changes
+ */
+export function checkMyAccountResourceServerChanges(
+  existingResourceServers,
+  domain
+) {
+  const existingRS = existingResourceServers.find(
+    (rs) => rs.identifier === `https://${domain}/me/`
+  )
+
+  if (!existingRS) {
+    return createChangeItem(ChangeAction.CREATE, {
+      resource: "My Account API",
+      identifier: `https://${domain}/me/`,
+    })
+  }
+
+  // Check if skip_consent_for_verifiable_first_party_clients needs updating
+  const needsUpdate =
+    existingRS.skip_consent_for_verifiable_first_party_clients !== true
+
+  if (needsUpdate) {
+    return createChangeItem(ChangeAction.UPDATE, {
+      resource: "My Account API",
+      existing: existingRS,
+      updates: {
+        skip_consent_for_verifiable_first_party_clients: true,
+      },
+      summary: "Set skip_consent_for_verifiable_first_party_clients to true",
+    })
+  }
+
+  return createChangeItem(ChangeAction.SKIP, {
+    resource: "My Account API",
     existing: existingRS,
   })
 }
@@ -136,6 +201,72 @@ export async function applyMyOrgResourceServerChanges(changePlan, domain) {
       return updated || existing
     } catch (e) {
       spinner.fail(`Failed to update My Organization API configuration`)
+      throw e
+    }
+  }
+}
+
+/**
+ * Apply My Account Resource Server changes
+ */
+export async function applyMyAccountResourceServerChanges(changePlan, domain) {
+  if (changePlan.action === ChangeAction.SKIP) {
+    const spinner = ora({
+      text: `My Account API is up to date`,
+    }).start()
+    spinner.succeed()
+    return changePlan.existing
+  }
+
+  if (changePlan.action === ChangeAction.CREATE) {
+    const spinner = ora({
+      text: `Enabling My Account API`,
+    }).start()
+
+    try {
+      // prettier-ignore
+      const createMyAccountResourceServerArgs = [
+        "api", "post", "resource-servers",
+        "--data", JSON.stringify({
+          identifier: `https://${domain}/me/`,
+          name: "Auth0 My Account API",
+          skip_consent_for_verifiable_first_party_clients: true,
+          token_dialect: "rfc9068_profile",
+        }),
+      ];
+
+      const { stdout } = await $`auth0 ${createMyAccountResourceServerArgs}`
+      const { error, rs } = JSON.parse(stdout)
+      if (error) {
+        throw new Error("Failed to enable My Account API")
+      }
+      spinner.succeed("Enabled My Account API")
+      return rs
+    } catch (e) {
+      spinner.fail(`Failed to enable My Account API on Tenant. Please ensure your tenant supports My Account feature.`)
+      throw e
+    }
+  }
+
+  if (changePlan.action === ChangeAction.UPDATE) {
+    const spinner = ora({
+      text: `Updating My Account API configuration`,
+    }).start()
+
+    try {
+      const { existing, updates } = changePlan
+
+      await auth0ApiCall("patch", `resource-servers/${existing.id}`, updates)
+      spinner.succeed(`Updated My Account API configuration`)
+
+      // Fetch updated resource server
+      const updated = await auth0ApiCall(
+        "get",
+        `resource-servers/${existing.id}`
+      )
+      return updated || existing
+    } catch (e) {
+      spinner.fail(`Failed to update My Account API configuration`)
       throw e
     }
   }

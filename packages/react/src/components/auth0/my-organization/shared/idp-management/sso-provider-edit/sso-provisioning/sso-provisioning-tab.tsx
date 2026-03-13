@@ -134,11 +134,13 @@ export function SsoProvisioningTab({
                 ) : (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Switch
-                        checked={isProvisioningEnabled}
-                        onCheckedChange={handleProvisioningToggle}
-                        disabled={enableProvisioningToggle}
-                      />
+                      <span>
+                        <Switch
+                          checked={isProvisioningEnabled}
+                          onCheckedChange={handleProvisioningToggle}
+                          disabled={enableProvisioningToggle}
+                        />
+                      </span>
                     </TooltipTrigger>
                     <TooltipContent>
                       {!provider.is_enabled

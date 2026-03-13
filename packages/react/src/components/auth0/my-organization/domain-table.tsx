@@ -1,10 +1,6 @@
 /** @module domain-table */
 
-import {
-  type Domain,
-  getComponentStyles,
-  MY_ORGANIZATION_DOMAIN_SCOPES,
-} from '@auth0/universal-components-core';
+import { type Domain, getComponentStyles } from '@auth0/universal-components-core';
 import { Plus } from 'lucide-react';
 import * as React from 'react';
 
@@ -15,8 +11,8 @@ import { DomainTableActionsColumn } from '@/components/auth0/my-organization/sha
 import { DomainVerifyModal } from '@/components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Header } from '@/components/auth0/shared/header';
+import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
-import { withMyOrganizationService } from '@/hoc/with-services';
 import { useDomainTable } from '@/hooks/my-organization/use-domain-table';
 import { useDomainTableLogic } from '@/hooks/my-organization/use-domain-table-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -148,7 +144,7 @@ function DomainTableView({
         accessorKey: 'domain',
         title: t('domain_table.table.columns.domain'),
         width: '35%',
-        render: (domain) => <div className="font-medium">{domain.domain}</div>,
+        render: (domain) => <div className="font-medium text-primary">{domain.domain}</div>,
       },
       {
         type: 'text',
@@ -182,7 +178,7 @@ function DomainTableView({
   );
 
   return (
-    <div style={currentStyles.variables}>
+    <StyledScope style={currentStyles.variables}>
       {!hideHeader && (
         <div className={currentStyles.classes?.['DomainTable-header']}>
           <Header
@@ -254,7 +250,7 @@ function DomainTableView({
         onDelete={handleDelete}
         customMessages={customMessages?.delete}
       />
-    </div>
+    </StyledScope>
   );
 }
 
@@ -290,9 +286,6 @@ function DomainTableView({
  * />
  * ```
  */
-const DomainTable: React.ComponentType<DomainTableProps> = withMyOrganizationService(
-  DomainTableContainer,
-  MY_ORGANIZATION_DOMAIN_SCOPES,
-);
+const DomainTable = DomainTableContainer;
 
 export { DomainTable, DomainTableView };

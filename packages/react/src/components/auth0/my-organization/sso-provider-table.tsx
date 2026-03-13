@@ -4,7 +4,6 @@ import {
   getComponentStyles,
   type IdentityProvider,
   STRATEGY_DISPLAY_NAMES,
-  MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES,
 } from '@auth0/universal-components-core';
 import { Plus } from 'lucide-react';
 import * as React from 'react';
@@ -14,7 +13,7 @@ import { SsoProviderRemoveFromOrganizationModal } from '@/components/auth0/my-or
 import { SsoProviderTableActionsColumn } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-table/sso-provider-table-action';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Header } from '@/components/auth0/shared/header';
-import { withMyOrganizationService } from '@/hoc/with-services';
+import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { useSsoProviderTable } from '@/hooks/my-organization/use-sso-provider-table';
 import { useSsoProviderTableLogic } from '@/hooks/my-organization/use-sso-provider-table-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -234,7 +233,7 @@ function SsoProviderTableView({ logic, handlers }: SsoProviderTableViewProps) {
   );
 
   return (
-    <div style={currentStyles.variables}>
+    <StyledScope style={currentStyles.variables}>
       <div className={currentStyles.classes?.['SsoProviderTable-header']}>
         <Header
           title={t('header.title')}
@@ -286,7 +285,7 @@ function SsoProviderTableView({ logic, handlers }: SsoProviderTableViewProps) {
           customMessages={customMessages?.remove_modal}
         />
       )}
-    </div>
+    </StyledScope>
   );
 }
 
@@ -321,9 +320,6 @@ function SsoProviderTableView({ logic, handlers }: SsoProviderTableViewProps) {
  * />
  * ```
  */
-const SsoProviderTable: React.ComponentType<SsoProviderTableProps> = withMyOrganizationService(
-  SsoProviderTableContainer,
-  MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES,
-);
+const SsoProviderTable = SsoProviderTableContainer;
 
 export { SsoProviderTable, SsoProviderTableView };

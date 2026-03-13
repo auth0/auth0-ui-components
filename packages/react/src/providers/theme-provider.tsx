@@ -57,9 +57,7 @@ export const ThemeProvider: React.FC<{
   return (
     <ThemeContext.Provider value={{ isDarkMode: mode === 'dark', theme, variables, loader }}>
       <PortalContext.Provider value={portalContainer}>
-        <div className="auth0-universal" data-theme={theme}>
-          {children}
-        </div>
+        {children}
         <div className="auth0-universal" data-theme={theme} ref={setPortalContainer} />
       </PortalContext.Provider>
     </ThemeContext.Provider>

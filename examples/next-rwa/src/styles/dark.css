@@ -1,0 +1,17 @@
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-page: oklch(21.34% 0 0);
+    --color-background: oklch(0.2103 0.0059 285.89);
+    --color-foreground: oklch(94.91% 0 0);
+    --color-card: oklch(0% 0 0);
+    --color-card-foreground: oklch(100% 0 0);
+    --color-primary: oklch(94.65% 0.0058 84.57);
+    --color-primary-foreground: oklch(0% 0 0);
+    --color-muted: oklch(25.2% 0 0);
+    --color-muted-foreground: oklch(58.29% 0 0);
+    --color-accent: oklch(53.82% 0 0);
+    --color-accent-foreground: oklch(94.91% 0 0);
+    --color-border: oklch(34.85% 0 0);
+    --color-ring: oklch(40.17% 0 0 / 50%);
+  }
+}

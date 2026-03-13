@@ -2,19 +2,16 @@
 
 'use client';
 
-import {
-  getComponentStyles,
-  MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES,
-} from '@auth0/universal-components-core';
+import { getComponentStyles } from '@auth0/universal-components-core';
 import { useState, useMemo } from 'react';
 
 import { SsoDomainTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab';
 import { SsoProviderTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-tab';
 import { SsoProvisioningTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab';
 import { Header } from '@/components/auth0/shared/header';
+import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { withMyOrganizationService } from '@/hoc/with-services';
 import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useSsoProviderEditLogic } from '@/hooks/my-organization/use-sso-provider-edit-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -179,117 +176,119 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
   }
 
   return (
-    <div style={currentStyles.variables} className="w-full">
-      {!hideHeader && (
-        <Header
-          title={provider?.display_name || provider?.name || ''}
-          backButton={
-            backButton && {
-              ...backButton,
-              text: t('header.back_button_text'),
+    <StyledScope style={currentStyles.variables}>
+      <div className="w-full">
+        {!hideHeader && (
+          <Header
+            title={provider?.display_name || provider?.name || ''}
+            backButton={
+              backButton && {
+                ...backButton,
+                text: t('header.back_button_text'),
+              }
             }
-          }
-          isLoading={isUpdating}
-          actions={[
-            {
-              type: 'switch',
-              checked: provider?.is_enabled ?? false,
-              onCheckedChange: handleToggleProvider,
-              disabled: isUpdating,
-              tooltip: {
-                content: provider?.is_enabled
-                  ? t('header.disable_provider_tooltip_text')
-                  : t('header.enable_provider_tooltip_text'),
+            isLoading={isUpdating}
+            actions={[
+              {
+                type: 'switch',
+                checked: provider?.is_enabled ?? false,
+                onCheckedChange: handleToggleProvider,
+                disabled: isUpdating,
+                tooltip: {
+                  content: provider?.is_enabled
+                    ? t('header.disable_provider_tooltip_text')
+                    : t('header.enable_provider_tooltip_text'),
+                },
               },
-            },
-          ]}
-          className={currentStyles?.classes?.['SsoProviderEdit-header']}
-        />
-      )}
-
-      <Tabs
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className={cn('space-y-10', currentStyles?.classes?.['SsoProviderEdit-tabs'])}
-      >
-        <TabsList
-          className={cn('grid w-full', showProvisioningTab ? 'grid-cols-3' : 'grid-cols-2')}
-        >
-          <TabsTrigger value="sso" className="text-sm">
-            {t('tabs.sso.name')}
-          </TabsTrigger>
-          {showProvisioningTab && (
-            <TabsTrigger value="provisioning" className="text-sm">
-              {t('tabs.provisioning.name')}
-            </TabsTrigger>
-          )}
-          <TabsTrigger value="domain" className="text-sm">
-            {t('tabs.domains.name')}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="sso">
-          <SsoProviderTab
-            provider={provider}
-            organization={organization}
-            onDelete={onDeleteConfirm}
-            onRemove={onRemoveConfirm}
-            isDeleting={isDeleting}
-            isRemoving={isRemoving}
-            idpConfig={idpConfig}
-            shouldAllowDeletion={shouldAllowDeletion}
-            hasSsoAttributeSyncWarning={hasSsoAttributeSyncWarning}
-            onAttributeSync={syncSsoAttributes}
-            isSyncingAttributes={isSsoAttributesSyncing}
-            customMessages={customMessages?.tabs?.sso?.content}
-            styling={styling}
-            formActions={{
-              isLoading: isUpdating,
-              nextAction: {
-                disabled: isUpdating || !provider || isLoading,
-                onClick: updateProvider,
-              },
-            }}
-            readOnly={readOnly}
+            ]}
+            className={currentStyles?.classes?.['SsoProviderEdit-header']}
           />
-        </TabsContent>
-
-        {showProvisioningTab && (
-          <TabsContent value="provisioning">
-            <SsoProvisioningTab
-              provider={provider!}
-              isProvisioningUpdating={isProvisioningUpdating}
-              isProvisioningDeleting={isProvisioningDeleting}
-              isScimTokensLoading={isScimTokensLoading}
-              isScimTokenCreating={isScimTokenCreating}
-              isScimTokenDeleting={isScimTokenDeleting}
-              hasProvisioningAttributeSyncWarning={hasProvisioningAttributeSyncWarning}
-              onAttributeSync={syncProvisioningAttributes}
-              isSyncingAttributes={isProvisioningAttributesSyncing}
-              onCreateProvisioning={createProvisioningAction}
-              onDeleteProvisioning={deleteProvisioningAction}
-              onListScimTokens={listScimTokens}
-              onCreateScimToken={createScimTokenAction}
-              onDeleteScimToken={deleteScimTokenAction}
-              customMessages={customMessages?.tabs?.provisioning?.content}
-              styling={styling}
-            />
-          </TabsContent>
         )}
 
-        <TabsContent value="domain">
-          <SsoDomainTab
-            customMessages={customMessages?.tabs?.domains?.content}
-            styling={styling}
-            domains={domains}
-            schema={schema?.domains}
-            idpId={providerId}
-            provider={provider}
-            readOnly={readOnly}
-          />
-        </TabsContent>
-      </Tabs>
-    </div>
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className={cn('space-y-10', currentStyles?.classes?.['SsoProviderEdit-tabs'])}
+        >
+          <TabsList
+            className={cn('grid w-full', showProvisioningTab ? 'grid-cols-3' : 'grid-cols-2')}
+          >
+            <TabsTrigger value="sso" className="text-sm">
+              {t('tabs.sso.name')}
+            </TabsTrigger>
+            {showProvisioningTab && (
+              <TabsTrigger value="provisioning" className="text-sm">
+                {t('tabs.provisioning.name')}
+              </TabsTrigger>
+            )}
+            <TabsTrigger value="domain" className="text-sm">
+              {t('tabs.domains.name')}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="sso">
+            <SsoProviderTab
+              provider={provider}
+              organization={organization}
+              onDelete={onDeleteConfirm}
+              onRemove={onRemoveConfirm}
+              isDeleting={isDeleting}
+              isRemoving={isRemoving}
+              idpConfig={idpConfig}
+              shouldAllowDeletion={shouldAllowDeletion}
+              hasSsoAttributeSyncWarning={hasSsoAttributeSyncWarning}
+              onAttributeSync={syncSsoAttributes}
+              isSyncingAttributes={isSsoAttributesSyncing}
+              customMessages={customMessages?.tabs?.sso?.content}
+              styling={styling}
+              formActions={{
+                isLoading: isUpdating,
+                nextAction: {
+                  disabled: isUpdating || !provider || isLoading,
+                  onClick: updateProvider,
+                },
+              }}
+              readOnly={readOnly}
+            />
+          </TabsContent>
+
+          {showProvisioningTab && (
+            <TabsContent value="provisioning">
+              <SsoProvisioningTab
+                provider={provider!}
+                isProvisioningUpdating={isProvisioningUpdating}
+                isProvisioningDeleting={isProvisioningDeleting}
+                isScimTokensLoading={isScimTokensLoading}
+                isScimTokenCreating={isScimTokenCreating}
+                isScimTokenDeleting={isScimTokenDeleting}
+                hasProvisioningAttributeSyncWarning={hasProvisioningAttributeSyncWarning}
+                onAttributeSync={syncProvisioningAttributes}
+                isSyncingAttributes={isProvisioningAttributesSyncing}
+                onCreateProvisioning={createProvisioningAction}
+                onDeleteProvisioning={deleteProvisioningAction}
+                onListScimTokens={listScimTokens}
+                onCreateScimToken={createScimTokenAction}
+                onDeleteScimToken={deleteScimTokenAction}
+                customMessages={customMessages?.tabs?.provisioning?.content}
+                styling={styling}
+              />
+            </TabsContent>
+          )}
+
+          <TabsContent value="domain">
+            <SsoDomainTab
+              customMessages={customMessages?.tabs?.domains?.content}
+              styling={styling}
+              domains={domains}
+              schema={schema?.domains}
+              idpId={providerId}
+              provider={provider}
+              readOnly={readOnly}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </StyledScope>
   );
 }
 
@@ -330,9 +329,6 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
  * />
  * ```
  */
-const SsoProviderEdit: React.ComponentType<SsoProviderEditProps> = withMyOrganizationService(
-  SsoProviderEditContainer,
-  MY_ORGANIZATION_SSO_PROVIDER_EDIT_SCOPES,
-);
+const SsoProviderEdit = SsoProviderEditContainer;
 
 export { SsoProviderEdit, SsoProviderEditView };

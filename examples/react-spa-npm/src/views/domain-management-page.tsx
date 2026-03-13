@@ -2,7 +2,7 @@
 
 const DomainManagementPage = () => {
   return (
-    <div className="space-y-6">
+    <div className="p-6 pt-8 space-y-6">
       <p>
         Follow{' '}
         <a

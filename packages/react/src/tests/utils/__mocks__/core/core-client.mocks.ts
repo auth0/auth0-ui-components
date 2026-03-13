@@ -11,7 +11,8 @@ import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organizat
 import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 
 const createMockMyAccountApiService = (): CoreClientInterface['myAccountApiClient'] => {
-  return {
+  const service = {
+    withScopes: vi.fn(),
     factors: {
       list: vi.fn().mockResolvedValue(createMockAvailableFactors()),
     },
@@ -24,14 +25,17 @@ const createMockMyAccountApiService = (): CoreClientInterface['myAccountApiClien
     mfa: {
       fetchFactors: vi.fn().mockResolvedValue([]),
     },
-  } as unknown as CoreClientInterface['myAccountApiClient'];
+  } as unknown as NonNullable<CoreClientInterface['myAccountApiClient']>;
+  service.withScopes = vi.fn(() => service) as typeof service.withScopes;
+  return service;
 };
 
 const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClient'] => {
   const mockOrganization = createMockOrganization();
   const mockProvider = createMockIdentityProvider();
 
-  return {
+  const service = {
+    withScopes: vi.fn(),
     organizationDetails: {
       get: vi.fn().mockResolvedValue(mockOrganization),
       update: vi.fn().mockResolvedValue(mockOrganization),
@@ -95,7 +99,9 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
         },
       },
     },
-  } as unknown as CoreClientInterface['myOrganizationApiClient'];
+  } as unknown as NonNullable<CoreClientInterface['myOrganizationApiClient']>;
+  service.withScopes = vi.fn(() => service) as typeof service.withScopes;
+  return service;
 };
 
 export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreClientInterface => {
@@ -114,13 +120,13 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
     getMyOrganizationApiClient: vi.fn(
       () => mockMyOrgApiService,
     ) as CoreClientInterface['getMyOrganizationApiClient'],
-    getToken: async () => {
-      return 'mock-access-token';
-    },
+    getMFAStepUpApiClient: vi.fn().mockReturnValue({
+      getAuthenticators: vi.fn().mockResolvedValue([]),
+      enroll: vi.fn().mockResolvedValue({}),
+      challenge: vi.fn().mockResolvedValue({}),
+      verify: vi.fn().mockResolvedValue({}),
+    }) as CoreClientInterface['getMFAStepUpApiClient'],
     isProxyMode: () => false,
-    ensureScopes() {
-      return Promise.resolve();
-    },
     getDomain: () => mockAuth.domain ?? mockAuth.contextInterface?.getConfiguration()?.domain,
   };
 };
