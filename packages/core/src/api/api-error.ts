@@ -4,6 +4,13 @@
  * @internal
  */
 
+/**
+ * Known Auth0 API error type codes returned in `error.body.type`.
+ */
+export const ERROR_CODES = {
+  INSUFFICIENT_SCOPE: 'A0E-403-0002',
+};
+
 import type { ApiError } from './api-types';
 
 /**
