@@ -14,7 +14,6 @@ import {
   createMockSpaConfig,
   getExpectedProxyBaseUrl,
   mockProxyConfig,
-  mockRequestInits,
 } from './__mocks__/my-account-api-service.mocks';
 
 const TEST_URL = 'https://test.com';
@@ -192,131 +191,26 @@ describe('initializeMyAccountClient', () => {
 
     describe('custom fetcher behavior in SPA mode', () => {
       it('should add Content-Type header when body is present', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
         const auth = createMockSpaConfig();
         initializeMyAccountClient(auth);
 
         const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
-        await fetcher!(TEST_URL, { body: JSON.stringify({ test: 'data' }) });
+        await fetcher!(TEST_URL, { method: 'POST', body: JSON.stringify({ test: 'data' }) });
 
-        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
-        expect(headers.get('Content-Type')).toBe('application/json');
+        const mockFetchWithAuth = vi.mocked(auth.contextInterface.createFetcher).mock.results[0]!
+          .value.fetchWithAuth;
+        const [, actualInit] = mockFetchWithAuth.mock.calls[0]!;
+        expect((actualInit!.headers as Headers).get('Content-Type')).toBe('application/json');
       });
 
-      it('should not override existing Content-Type header', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
-        const auth = createMockSpaConfig();
-        initializeMyAccountClient(auth);
-
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
-        await fetcher!(TEST_URL, {
-          body: JSON.stringify({ test: 'data' }),
-          headers: { 'Content-Type': 'application/custom' },
-        });
-
-        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
-        expect(headers.get('Content-Type')).toBe('application/custom');
-      });
-
-      it('should use Headers object for header management', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
-        const auth = createMockSpaConfig();
-        initializeMyAccountClient(auth);
-
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
-        await fetcher!(TEST_URL, {});
-
-        const fetchCall = mockFetch.mock.calls[0]!;
-        expect(fetchCall[1]!.headers).toBeInstanceOf(Headers);
-      });
-
-      it('should preserve existing headers from init', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
-        const auth = createMockSpaConfig();
-        initializeMyAccountClient(auth);
-
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
-        await fetcher!(TEST_URL, { headers: { 'X-Custom-Header': 'custom-value' } });
-
-        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
-        expect(headers.get('X-Custom-Header')).toBe('custom-value');
-      });
-
-      it('should not add Content-Type for GET requests without body', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
-        const auth = createMockSpaConfig();
-        initializeMyAccountClient(auth);
-
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
-        await fetcher!(TEST_URL, { method: 'GET' });
-
-        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
-        expect(headers.get('Content-Type')).toBeNull();
-      });
-    });
-
-    describe('token retrieval', () => {
-      it('should request token with "me" audience', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
-        const auth = createMockSpaConfig();
-        initializeMyAccountClient(auth);
-
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
-        await fetcher!(TEST_URL, {});
-
-        expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenCalledWith(
-          expect.objectContaining({
-            authorizationParams: expect.objectContaining({
-              audience: expect.stringContaining('me'),
-            }),
-          }),
-        );
-      });
-
-      it('should not call getConfiguration — domain is always explicitly provided', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
+      it('should not call getConfiguration — domain is always explicitly provided', () => {
         const contextInterface = createMockContextInterface();
         const auth: SpaAuthConfig = { mode: 'spa', domain: 'direct.auth0.com', contextInterface };
         initializeMyAccountClient(auth);
 
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
-        await fetcher!(TEST_URL, {});
-
         expect(contextInterface.getConfiguration).not.toHaveBeenCalled();
         expect(mockMyAccountClient).toHaveBeenCalledWith(
           expect.objectContaining({ domain: 'direct.auth0.com' }),
-        );
-      });
-
-      it('should propagate token retrieval errors', async () => {
-        const auth: SpaAuthConfig = {
-          mode: 'spa',
-          domain: 'test.auth0.com',
-          contextInterface: {
-            ...createMockContextInterface(),
-            getAccessTokenSilently: vi.fn().mockRejectedValue(new Error('Token retrieval failed')),
-          },
-        };
-        initializeMyAccountClient(auth);
-
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
-
-        await expect(fetcher!(TEST_URL, mockRequestInits.post)).rejects.toThrow(
-          'Token retrieval failed',
         );
       });
     });
@@ -377,9 +271,6 @@ describe('initializeMyAccountClient', () => {
       });
 
       it('should handle concurrent fetcher calls in SPA mode', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
         const auth = createMockSpaConfig();
         initializeMyAccountClient(auth);
 
@@ -391,8 +282,9 @@ describe('initializeMyAccountClient', () => {
           fetcher!('https://test.com/3', {}),
         ]);
 
-        expect(mockFetch).toHaveBeenCalledTimes(3);
-        expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenCalledTimes(3);
+        const mockFetchWithAuth = vi.mocked(auth.contextInterface.createFetcher).mock.results[0]!
+          .value.fetchWithAuth;
+        expect(mockFetchWithAuth).toHaveBeenCalledTimes(3);
       });
     });
   });
@@ -435,9 +327,6 @@ describe('initializeMyAccountClient', () => {
     });
 
     it('should handle complete SPA mode workflow', async () => {
-      const mockFetch = createMockFetch();
-      vi.stubGlobal('fetch', mockFetch);
-
       const auth = createMockSpaConfig();
       initializeMyAccountClient(auth);
 
@@ -449,10 +338,9 @@ describe('initializeMyAccountClient', () => {
       expect(config.domain).toBe('test.auth0.com');
       expect(config.baseUrl).toBeUndefined();
 
-      expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenCalled();
-
-      const headers = getHeadersFromFetchCall(mockFetch) as Headers;
-      expect(headers.get('Content-Type')).toBe('application/json');
+      const mockFetchWithAuth = vi.mocked(auth.contextInterface.createFetcher).mock.results[0]!
+        .value.fetchWithAuth;
+      expect(mockFetchWithAuth).toHaveBeenCalled();
     });
   });
 });

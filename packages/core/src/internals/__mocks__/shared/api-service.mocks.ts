@@ -19,20 +19,9 @@ export const TEST_CLIENT_ID = 'test-client-id';
 // =============================================================================
 
 export const makeCreateFetcherMock = () =>
-  vi.fn().mockImplementation((fetcherConfig?: { getAccessToken?: Function }) => ({
-    fetchWithAuth: vi
-      .fn()
-      .mockImplementation(
-        async (
-          url: string,
-          init?: RequestInit,
-          authParams?: { scope?: string[]; audience?: string },
-        ) => {
-          await fetcherConfig?.getAccessToken?.(authParams);
-          return fetch(url, init);
-        },
-      ),
-  }));
+  vi.fn().mockReturnValue({
+    fetchWithAuth: vi.fn().mockResolvedValue(new Response()),
+  });
 
 export const createMockContextInterface = (): BasicAuth0ContextInterface => ({
   isAuthenticated: true,

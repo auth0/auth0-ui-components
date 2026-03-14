@@ -136,12 +136,7 @@ export interface BasicAuth0ContextInterface<TUser = User> {
   getAccessTokenWithPopup: (options?: unknown) => Promise<string | undefined>;
   loginWithRedirect: (options?: unknown) => Promise<void>;
   getConfiguration: () => Readonly<ClientConfiguration>;
-  createFetcher(config?: {
-    getAccessToken?: (authParams?: {
-      scope?: string[];
-      audience?: string;
-    }) => Promise<string | GetTokenSilentlyVerboseResponse>;
-  }): {
+  createFetcher(): {
     fetchWithAuth(
       info: RequestInfo | URL,
       init?: RequestInit,

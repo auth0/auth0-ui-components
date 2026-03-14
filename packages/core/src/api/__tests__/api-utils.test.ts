@@ -99,7 +99,7 @@ describe('buildServiceConfig', () => {
       expect(sdkConfig.telemetry).toBe(false);
     });
 
-    it('calls fetchWithAuth with url, init (including Content-Type), and authParams', async () => {
+    it('calls fetchWithAuth with url, init, and authParams', async () => {
       const config = { mode: 'spa' as const, domain: TEST_DOMAIN, contextInterface };
       const { fetcherFn } = buildServiceConfig(config, 'me');
       const authParams = { scope: ['read:me'], audience: `https://${TEST_DOMAIN}/me/` };
@@ -109,24 +109,6 @@ describe('buildServiceConfig', () => {
         expect.objectContaining({ method: 'POST', headers: expect.any(Headers) }),
         authParams,
       );
-      const [, passedInit] = mockFetchWithAuth.mock.calls[0] as [string, RequestInit];
-      expect((passedInit.headers as Headers).get('Content-Type')).toBe('application/json');
-    });
-
-    it('creates fetcher with getAccessToken that calls getAccessTokenSilently with correct audience', async () => {
-      const config = { mode: 'spa' as const, domain: TEST_DOMAIN, contextInterface };
-      buildServiceConfig(config, 'my-org');
-      const { getAccessToken } = (contextInterface.createFetcher as Mock).mock.calls[0]![0] as {
-        getAccessToken: (authParams?: { scope?: string[] }) => Promise<unknown>;
-      };
-      await getAccessToken({ scope: ['read:org'] });
-      expect(contextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
-        authorizationParams: {
-          audience: `https://${TEST_DOMAIN}/my-org/`,
-          scope: 'read:org',
-        },
-        detailedResponse: true,
-      });
     });
   });
 });

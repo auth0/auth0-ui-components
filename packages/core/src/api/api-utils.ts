@@ -5,7 +5,6 @@
  */
 
 import type { ClientAuthConfig } from '../auth/auth-types';
-import { AuthUtils } from '../auth/auth-utils';
 
 import type { ServiceFetcher } from './api-types';
 
@@ -50,14 +49,7 @@ export function buildServiceConfig(
     };
   }
 
-  const audience = AuthUtils.buildAudience(config.domain, path);
-  const sdkFetcher = config.contextInterface.createFetcher({
-    getAccessToken: (authParams) =>
-      config.contextInterface.getAccessTokenSilently({
-        authorizationParams: { audience, scope: authParams?.scope?.join(' ') },
-        detailedResponse: true,
-      }),
-  });
+  const sdkFetcher = config.contextInterface.createFetcher();
 
   return {
     sdkConfig: { domain: config.domain, telemetry: false },
