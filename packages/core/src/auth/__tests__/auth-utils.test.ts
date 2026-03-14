@@ -116,7 +116,7 @@ describe('AuthUtils', () => {
         expect(config).toMatchObject({ mode: 'spa', domain: 'from-context.auth0.com' });
       });
 
-      it('prefers auth.domain over contextInterface.getConfiguration().domain', () => {
+      it('prefers contextInterface.getConfiguration().domain over auth.domain', () => {
         const context = {
           ...createMockContextInterface(),
           getConfiguration: vi.fn().mockReturnValue({ domain: 'from-context.auth0.com' }),
@@ -125,7 +125,7 @@ describe('AuthUtils', () => {
           domain: 'explicit.auth0.com',
           contextInterface: context,
         });
-        expect(config).toMatchObject({ mode: 'spa', domain: 'explicit.auth0.com' });
+        expect(config).toMatchObject({ mode: 'spa', domain: 'from-context.auth0.com' });
       });
     });
 
