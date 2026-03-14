@@ -37,44 +37,6 @@ describe('AuthUtils', () => {
     });
   });
 
-  describe('getToken', () => {
-    it('returns access_token from getAccessTokenSilently', async () => {
-      const context = createMockContextInterface();
-      const token = await AuthUtils.getToken(context, 'test.auth0.com', 'me', 'read:me');
-      expect(token).toBe('mock-access-token');
-    });
-
-    it('builds the audience URL and passes it with scope', async () => {
-      const context = createMockContextInterface();
-      await AuthUtils.getToken(context, 'test.auth0.com', 'me', 'read:me');
-
-      expect(context.getAccessTokenSilently).toHaveBeenCalledWith(
-        expect.objectContaining({
-          authorizationParams: { audience: 'https://test.auth0.com/me/', scope: 'read:me' },
-          detailedResponse: true,
-        }),
-      );
-    });
-
-    it('passes cacheMode when provided', async () => {
-      const context = createMockContextInterface();
-      await AuthUtils.getToken(context, 'test.auth0.com', 'me', 'read:me', 'off');
-
-      expect(context.getAccessTokenSilently).toHaveBeenCalledWith(
-        expect.objectContaining({ cacheMode: 'off' }),
-      );
-    });
-
-    it('omits cacheMode when not provided', async () => {
-      const context = createMockContextInterface();
-      await AuthUtils.getToken(context, 'test.auth0.com', 'me', 'read:me');
-
-      expect(context.getAccessTokenSilently).toHaveBeenCalledWith(
-        expect.not.objectContaining({ cacheMode: expect.anything() }),
-      );
-    });
-  });
-
   describe('resolveAuthConfig', () => {
     describe('proxy mode', () => {
       it('returns proxy config when authProxyUrl is set', () => {

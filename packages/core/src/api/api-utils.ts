@@ -58,7 +58,7 @@ export function buildServiceConfig(
   const sdkFetcher = config.contextInterface.createFetcher({
     getAccessToken: (authParams) =>
       config.contextInterface.getAccessTokenSilently({
-        authorizationParams: { audience, scope: authParams?.scope?.join(' ') ?? '' },
+        authorizationParams: { audience, scope: authParams?.scope?.join(' ') },
         detailedResponse: true,
       }),
   });

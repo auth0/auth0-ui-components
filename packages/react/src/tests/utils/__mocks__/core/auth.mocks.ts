@@ -29,6 +29,9 @@ export const createMockAuth = (overrides?: Partial<AuthDetails>): AuthDetails =>
       domain: 'test-domain.auth0.com',
       clientId: 'test-client-id',
     }),
+    createFetcher: vi.fn().mockReturnValue({
+      fetchWithAuth: vi.fn().mockResolvedValue(new Response()),
+    }),
     mfa: {
       getAuthenticators: vi.fn().mockResolvedValue([]),
       enroll: vi.fn().mockResolvedValue({}),
