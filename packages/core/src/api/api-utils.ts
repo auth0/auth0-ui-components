@@ -47,7 +47,7 @@ export function buildServiceConfig(
       sdkConfig: { domain: '', baseUrl: `${config.proxyUrl}/${path}`, telemetry: false },
       fetcherFn: async (url, init, authParams) => {
         const headers = buildBaseHeaders(init);
-        const scopes = authParams?.scope?.join(' ') ?? '';
+        const scopes = authParams?.scope?.join(' ');
         if (scopes) headers.set('auth0-scope', scopes);
         return fetch(url, { ...init, headers });
       },
