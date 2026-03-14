@@ -17,6 +17,7 @@ import type { ClientAuthConfig } from '../../auth/auth-types';
  * @returns My Account API client
  */
 export function initializeMyAccountClient(config: ClientAuthConfig): MyAccountClient {
-  const { sdkConfig, fetcherFn } = buildServiceConfig(config, 'me');
+  const MY_ACCOUNT_PATH = 'me';
+  const { sdkConfig, fetcherFn } = buildServiceConfig(config, MY_ACCOUNT_PATH);
   return new MyAccountClient({ ...sdkConfig, fetcher: fetcherFn });
 }

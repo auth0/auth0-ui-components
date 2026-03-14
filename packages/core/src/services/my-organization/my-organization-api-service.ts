@@ -16,6 +16,7 @@ import type { ClientAuthConfig } from '@core/auth/auth-types';
  * @returns My Organization API client
  */
 export function initializeMyOrganizationClient(config: ClientAuthConfig): MyOrganizationClient {
-  const { sdkConfig, fetcherFn } = buildServiceConfig(config, 'my-org');
+  const MY_ORGANIZATION_PATH = 'my-org';
+  const { sdkConfig, fetcherFn } = buildServiceConfig(config, MY_ORGANIZATION_PATH);
   return new MyOrganizationClient({ ...sdkConfig, fetcher: fetcherFn });
 }
