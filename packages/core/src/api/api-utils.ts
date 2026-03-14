@@ -7,6 +7,8 @@
 import type { ClientAuthConfig } from '../auth/auth-types';
 import { AuthUtils } from '../auth/auth-utils';
 
+import type { ServiceFetcher } from './api-types';
+
 /**
  * Builds a Headers object from an existing RequestInit, adding Content-Type
  * for requests with a body unless the caller already set one.
@@ -21,12 +23,6 @@ export function buildBaseHeaders(init?: RequestInit): Headers {
   }
   return headers;
 }
-
-export type ServiceFetcher = (
-  url: string,
-  init?: RequestInit,
-  authParams?: { scope?: string[]; audience?: string },
-) => Promise<Response>;
 
 /**
  * Builds the SDK client config and fetcher for a service.

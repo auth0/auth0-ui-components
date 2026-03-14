@@ -17,3 +17,13 @@ export interface ApiError {
     [key: string]: unknown;
   };
 }
+
+/**
+ * Fetcher function passed to SDK clients to handle auth and header injection per request.
+ * @internal
+ */
+export type ServiceFetcher = (
+  url: string,
+  init?: RequestInit,
+  authParams?: { scope?: string[]; audience?: string },
+) => Promise<Response>;
