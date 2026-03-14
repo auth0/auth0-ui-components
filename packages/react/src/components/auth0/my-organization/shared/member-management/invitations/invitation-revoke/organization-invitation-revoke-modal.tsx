@@ -15,7 +15,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { Invitation, OrganizationInvitationTabMessages } from '@/types';
+import type {
+  Invitation,
+  OrganizationInvitationTabMessages,
+} from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 export interface OrganizationInvitationRevokeModalProps {
   invitation: Invitation | null;

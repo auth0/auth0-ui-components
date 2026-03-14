@@ -15,7 +15,10 @@ import { Badge } from '@/components/ui/badge';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import { getInvitationStatus } from '@/lib/utils/my-organization/member-management/member-management-utils';
-import type { Invitation, OrganizationInvitationTableProps } from '@/types';
+import type {
+  Invitation,
+  OrganizationInvitationTableProps,
+} from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
  * Organization invitation table component.

@@ -11,7 +11,6 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
-  ActiveTab,
   Invitation,
   CreateInvitationInput,
   InvitationStatus,
@@ -19,10 +18,13 @@ import type {
   InvitationFilterState,
   RoleOption,
   IdentityProviderOption,
+} from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type {
+  ActiveTab,
   MemberManagementState,
   MemberManagementHandlers,
   UseOrganizationMemberManagementOptions,
-} from '@/types';
+} from '@/types/my-organization/member-management/organization-member-management-types';
 
 const DEFAULT_PAGE_SIZE = 10;
 

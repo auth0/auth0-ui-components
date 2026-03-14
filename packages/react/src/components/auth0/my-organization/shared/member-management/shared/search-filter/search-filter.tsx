@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { InvitationSearchFilterProps } from '@/types';
+import type { InvitationSearchFilterProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
  * Filter bar for invitation table.

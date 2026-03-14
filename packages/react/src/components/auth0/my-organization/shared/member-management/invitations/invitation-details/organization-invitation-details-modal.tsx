@@ -26,7 +26,7 @@ import type {
   RoleOption,
   IdentityProviderOption,
   OrganizationInvitationTabMessages,
-} from '@/types';
+} from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 export interface OrganizationInvitationDetailsModalProps {
   invitation: Invitation | null;

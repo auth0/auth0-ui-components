@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { getInvitationStatus } from '@/lib/utils/my-organization/member-management/member-management-utils';
-import type { OrganizationInvitationTableActionsColumnProps } from '@/types';
+import type { OrganizationInvitationTableActionsColumnProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
  * OrganizationInvitationTableActionsColumn Component

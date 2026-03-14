@@ -4,7 +4,10 @@
  * @internal
  */
 
-import type { Invitation, InvitationStatus } from '@/types';
+import type {
+  Invitation,
+  InvitationStatus,
+} from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
  * Determines the status of an invitation.

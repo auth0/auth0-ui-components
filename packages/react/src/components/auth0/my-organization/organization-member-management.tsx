@@ -20,7 +20,7 @@ import type {
   MemberManagementState,
   MemberManagementHandlers,
   OrganizationMemberManagementProps,
-} from '@/types';
+} from '@/types/my-organization/member-management/organization-member-management-types';
 
 /**
  * Props for the OrganizationMemberManagementView component.

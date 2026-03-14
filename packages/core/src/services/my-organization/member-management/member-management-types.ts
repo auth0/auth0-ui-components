@@ -5,10 +5,6 @@
  */
 import type { MyOrganization } from '@auth0/myorganization-js';
 
-// ============================================================================
-// Member Types
-// ============================================================================
-
 /**
  * Organization member ID type.
  */
@@ -70,10 +66,6 @@ export type AssignOrganizationMemberRoleRequestContent =
  */
 export type AssignOrganizationMemberRoleResponseContent =
   MyOrganization.AssignOrganizationMemberRoleResponseContent;
-
-// ============================================================================
-// Invitation Types
-// ============================================================================
 
 /**
  * Invitation ID type.
