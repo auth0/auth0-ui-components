@@ -21,11 +21,17 @@ describe('initializeMfaStepUpClient', () => {
 
   describe('mode selection', () => {
     it('returns contextInterface.mfa in SPA mode', () => {
-      const contextInterface = createMockContextInterface();
+      const mfa = {
+        getAuthenticators: vi.fn(),
+        enroll: vi.fn(),
+        challenge: vi.fn(),
+        verify: vi.fn(),
+      };
+      const contextInterface = { ...createMockContextInterface(), mfa };
       const auth: SpaAuthConfig = { mode: 'spa', domain: TEST_DOMAIN, contextInterface };
       const client = initializeMfaStepUpClient(auth);
 
-      expect(client).toBe(contextInterface.mfa);
+      expect(client).toBe(mfa);
     });
 
     it('returns a proxy client in proxy mode', () => {

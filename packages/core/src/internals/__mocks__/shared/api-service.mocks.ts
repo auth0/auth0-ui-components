@@ -23,23 +23,17 @@ export const makeCreateFetcherMock = () =>
     fetchWithAuth: vi.fn().mockResolvedValue(new Response()),
   });
 
+export const mockMfa = {
+  getAuthenticators: vi.fn().mockResolvedValue([]),
+  enroll: vi.fn().mockResolvedValue({}),
+  challenge: vi.fn().mockResolvedValue({}),
+  verify: vi.fn().mockResolvedValue({}),
+};
+
 export const createMockContextInterface = (): BasicAuth0ContextInterface => ({
-  isAuthenticated: true,
-  getAccessTokenSilently: vi.fn().mockResolvedValue({
-    access_token: 'mock-access-token',
-    id_token: '',
-    expires_in: 3600,
-  }),
-  getAccessTokenWithPopup: vi.fn().mockResolvedValue('mock-access-token'),
-  loginWithRedirect: vi.fn().mockResolvedValue(undefined),
   getConfiguration: vi.fn().mockReturnValue({ domain: TEST_DOMAIN, clientId: TEST_CLIENT_ID }),
   createFetcher: makeCreateFetcherMock(),
-  mfa: {
-    getAuthenticators: vi.fn().mockResolvedValue([]),
-    enroll: vi.fn().mockResolvedValue({}),
-    challenge: vi.fn().mockResolvedValue({}),
-    verify: vi.fn().mockResolvedValue({}),
-  },
+  mfa: mockMfa,
 });
 
 // =============================================================================
@@ -107,38 +101,14 @@ export const mockSpaConfigWhitespaceDomain: SpaAuthConfig = {
   contextInterface: createMockContextInterface(),
 };
 
-// =============================================================================
-// Token Test Data
-// =============================================================================
-
-export const mockTokens = {
-  standard: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.mock.token',
-  long: 'a'.repeat(1000),
-  withSpecialChars: 'token+with/special=chars',
-  empty: '',
-};
-
-export function createMockSpaConfig(token = mockTokens.standard): SpaAuthConfig {
+export function createMockSpaConfig(): SpaAuthConfig {
   return {
     mode: 'spa',
     domain: TEST_DOMAIN,
     contextInterface: {
-      isAuthenticated: true,
-      getAccessTokenSilently: vi.fn().mockResolvedValue({
-        access_token: token,
-        id_token: '',
-        expires_in: 3600,
-      }),
-      getAccessTokenWithPopup: vi.fn(),
-      loginWithRedirect: vi.fn(),
       getConfiguration: vi.fn().mockReturnValue({ domain: TEST_DOMAIN, clientId: TEST_CLIENT_ID }),
       createFetcher: makeCreateFetcherMock(),
-      mfa: {
-        getAuthenticators: vi.fn().mockResolvedValue([]),
-        enroll: vi.fn().mockResolvedValue({}),
-        challenge: vi.fn().mockResolvedValue({}),
-        verify: vi.fn().mockResolvedValue({}),
-      },
+      mfa: mockMfa,
     },
   };
 }

@@ -49,7 +49,7 @@ export function buildServiceConfig(
     };
   }
 
-  const sdkFetcher = config.contextInterface.createFetcher();
+  const sdkFetcher = config.contextInterface.createFetcher({ dpopNonceId: path });
 
   return {
     sdkConfig: { domain: config.domain, telemetry: false },

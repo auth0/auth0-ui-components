@@ -19,11 +19,11 @@ const mockUseCoreClientInitialization = vi.mocked(useCoreClientInitialization);
 describe('Auth0ComponentProvider (SPA)', () => {
   const mockAuth0Context = {
     isAuthenticated: true,
-    isLoading: false,
-    user: { sub: 'user123' },
-    getAccessTokenSilently: vi.fn(),
-    loginWithRedirect: vi.fn(),
-    logout: vi.fn(),
+    getConfiguration: vi
+      .fn()
+      .mockReturnValue({ domain: 'test.auth0.com', clientId: 'test-client-id' }),
+    createFetcher: vi.fn().mockReturnValue({ fetchWithAuth: vi.fn() }),
+    mfa: { getAuthenticators: vi.fn(), enroll: vi.fn(), challenge: vi.fn(), verify: vi.fn() },
   };
 
   const mockCoreClient = {
@@ -67,16 +67,17 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
   it('should use contextInterface from authDetails when provided', () => {
     const customContextInterface = {
-      isAuthenticated: true,
-      isLoading: false,
-      user: { sub: 'custom-user' },
-      getAccessTokenSilently: vi.fn(),
+      getConfiguration: vi
+        .fn()
+        .mockReturnValue({ domain: 'custom.auth0.com', clientId: 'custom-id' }),
+      createFetcher: vi.fn().mockReturnValue({ fetchWithAuth: vi.fn() }),
+      mfa: { getAuthenticators: vi.fn(), enroll: vi.fn(), challenge: vi.fn(), verify: vi.fn() },
     };
 
     mockUseAuth0.mockReturnValue({} as ReturnType<typeof useAuth0>);
 
     render(
-      <Auth0ComponentProvider authDetails={{ contextInterface: customContextInterface as never }}>
+      <Auth0ComponentProvider authDetails={{ contextInterface: customContextInterface }}>
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );
