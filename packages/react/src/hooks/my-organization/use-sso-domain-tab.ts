@@ -4,12 +4,7 @@
  */
 
 import type { CreateOrganizationDomainRequestContent } from '@auth0/universal-components-core';
-import {
-  BusinessError,
-  type Domain,
-  type IdpId,
-  MY_ORGANIZATION_DOMAIN_SCOPES,
-} from '@auth0/universal-components-core';
+import { BusinessError, type Domain, type IdpId } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient, useMutation, useQueries } from '@tanstack/react-query';
 import { useCallback, useState, useMemo, useEffect } from 'react';
 
@@ -63,7 +58,7 @@ export function useSsoDomainTab(
     queryFn: async () => {
       const response = await coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
+
         .organization.domains.list();
       return response.organization_domains;
     },
@@ -89,7 +84,7 @@ export function useSsoDomainTab(
       queryFn: async () => {
         const response = await coreClient!
           .getMyOrganizationApiClient()
-          .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
+
           .organization.domains.identityProviders.get(domain.id);
 
         const isIdpEnabled = response.identity_providers?.some((idp) => idp.id === idpId);
@@ -121,7 +116,7 @@ export function useSsoDomainTab(
 
       const result: Domain = await coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
+
         .organization.domains.create(data);
 
       domains?.createAction?.onAfter?.(result);
@@ -148,7 +143,7 @@ export function useSsoDomainTab(
 
       const updatedDomain = await coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
+
         .organization.domains.verify.create(domain.id);
 
       if (domains?.verifyAction?.onAfter) {
@@ -182,7 +177,7 @@ export function useSsoDomainTab(
 
       await coreClient
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
+
         .organization.domains.delete(domain.id);
 
       if (domains?.deleteAction?.onAfter) {
@@ -211,7 +206,7 @@ export function useSsoDomainTab(
 
       await coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
+
         .organization.identityProviders.domains.create(idpId, {
           domain: domain.domain,
         });
@@ -245,7 +240,7 @@ export function useSsoDomainTab(
 
       await coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
+
         .organization.identityProviders.domains.delete(provider.id!, domain.domain);
 
       if (domains?.deleteFromProviderAction?.onAfter) {

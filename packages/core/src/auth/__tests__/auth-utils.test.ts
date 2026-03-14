@@ -1,25 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { createMockContextInterface } from '../../internals/__mocks__/shared/api-service.mocks';
 import { AuthUtils } from '../auth-utils';
-
-const createMockContext = (overrides: object = {}) => ({
-  isAuthenticated: true,
-  getAccessTokenSilently: vi.fn().mockResolvedValue({
-    access_token: 'mock-token',
-    id_token: '',
-    expires_in: 3600,
-  }),
-  getAccessTokenWithPopup: vi.fn(),
-  loginWithRedirect: vi.fn(),
-  getConfiguration: vi.fn().mockReturnValue({ domain: 'test.auth0.com', clientId: 'test-client' }),
-  mfa: {
-    getAuthenticators: vi.fn().mockResolvedValue([]),
-    enroll: vi.fn().mockResolvedValue({}),
-    challenge: vi.fn().mockResolvedValue({}),
-    verify: vi.fn().mockResolvedValue({}),
-  },
-  ...overrides,
-});
 
 describe('AuthUtils', () => {
   describe('toURL', () => {
@@ -57,13 +39,13 @@ describe('AuthUtils', () => {
 
   describe('getToken', () => {
     it('returns access_token from getAccessTokenSilently', async () => {
-      const context = createMockContext();
+      const context = createMockContextInterface();
       const token = await AuthUtils.getToken(context, 'test.auth0.com', 'me', 'read:me');
-      expect(token).toBe('mock-token');
+      expect(token).toBe('mock-access-token');
     });
 
     it('builds the audience URL and passes it with scope', async () => {
-      const context = createMockContext();
+      const context = createMockContextInterface();
       await AuthUtils.getToken(context, 'test.auth0.com', 'me', 'read:me');
 
       expect(context.getAccessTokenSilently).toHaveBeenCalledWith(
@@ -75,7 +57,7 @@ describe('AuthUtils', () => {
     });
 
     it('passes cacheMode when provided', async () => {
-      const context = createMockContext();
+      const context = createMockContextInterface();
       await AuthUtils.getToken(context, 'test.auth0.com', 'me', 'read:me', 'off');
 
       expect(context.getAccessTokenSilently).toHaveBeenCalledWith(
@@ -84,7 +66,7 @@ describe('AuthUtils', () => {
     });
 
     it('omits cacheMode when not provided', async () => {
-      const context = createMockContext();
+      const context = createMockContextInterface();
       await AuthUtils.getToken(context, 'test.auth0.com', 'me', 'read:me');
 
       expect(context.getAccessTokenSilently).toHaveBeenCalledWith(
@@ -109,7 +91,7 @@ describe('AuthUtils', () => {
         const config = AuthUtils.resolveAuthConfig({
           authProxyUrl: 'https://proxy.example.com',
           domain: 'test.auth0.com',
-          contextInterface: createMockContext(),
+          contextInterface: createMockContextInterface(),
         });
         expect(config.mode).toBe('proxy');
       });
@@ -142,7 +124,7 @@ describe('AuthUtils', () => {
 
     describe('SPA mode', () => {
       it('returns SPA config with domain and contextInterface', () => {
-        const context = createMockContext();
+        const context = createMockContextInterface();
         const config = AuthUtils.resolveAuthConfig({
           domain: 'test.auth0.com',
           contextInterface: context,
@@ -155,7 +137,7 @@ describe('AuthUtils', () => {
       });
 
       it('trims whitespace from domain', () => {
-        const context = createMockContext();
+        const context = createMockContextInterface();
         const config = AuthUtils.resolveAuthConfig({
           domain: '  test.auth0.com  ',
           contextInterface: context,
@@ -164,17 +146,19 @@ describe('AuthUtils', () => {
       });
 
       it('falls back to domain from contextInterface.getConfiguration()', () => {
-        const context = createMockContext({
+        const context = {
+          ...createMockContextInterface(),
           getConfiguration: vi.fn().mockReturnValue({ domain: 'from-context.auth0.com' }),
-        });
+        };
         const config = AuthUtils.resolveAuthConfig({ contextInterface: context });
         expect(config).toMatchObject({ mode: 'spa', domain: 'from-context.auth0.com' });
       });
 
       it('prefers auth.domain over contextInterface.getConfiguration().domain', () => {
-        const context = createMockContext({
+        const context = {
+          ...createMockContextInterface(),
           getConfiguration: vi.fn().mockReturnValue({ domain: 'from-context.auth0.com' }),
-        });
+        };
         const config = AuthUtils.resolveAuthConfig({
           domain: 'explicit.auth0.com',
           contextInterface: context,
@@ -197,9 +181,10 @@ describe('AuthUtils', () => {
       });
 
       it('throws when contextInterface exists but domain cannot be resolved', () => {
-        const context = createMockContext({
+        const context = {
+          ...createMockContextInterface(),
           getConfiguration: vi.fn().mockReturnValue(undefined),
-        });
+        };
         expect(() => AuthUtils.resolveAuthConfig({ contextInterface: context })).toThrow(
           'Initialization failed: Auth0 domain is not configured. Provide a domain to Auth0ComponentProvider.',
         );

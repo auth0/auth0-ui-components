@@ -46,7 +46,6 @@ describe('useSsoProviderCreate', () => {
   });
 
   const mockOrgClient = {
-    withScopes: (_scopes: string) => mockOrgClient,
     organization: {
       identityProviders: {
         create: mockCreate,

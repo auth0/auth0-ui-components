@@ -56,7 +56,6 @@ describe('useSsoProviderEdit', () => {
   });
 
   const mockOrgClient = {
-    withScopes: (_scopes: string) => mockOrgClient,
     organization: {
       identityProviders: {
         get: mockGet,
@@ -499,7 +498,6 @@ describe('useSsoProviderEdit', () => {
 
     beforeEach(() => {
       const ssoOrgClient = {
-        withScopes: (_scopes: string) => ssoOrgClient,
         organization: {
           identityProviders: {
             get: mockGet,
@@ -587,7 +585,6 @@ describe('useSsoProviderEdit', () => {
 
     beforeEach(() => {
       const provisioningOrgClient = {
-        withScopes: (_scopes: string) => provisioningOrgClient,
         organization: {
           identityProviders: {
             get: mockGet,

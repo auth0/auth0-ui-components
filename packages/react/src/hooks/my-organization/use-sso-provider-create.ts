@@ -9,7 +9,6 @@ import {
   type CreateIdentityProviderRequestContent,
   type CreateIdentityProviderRequestContentPrivate,
   type IdentityProvider,
-  MY_ORGANIZATION_SSO_PROVIDER_CREATE_SCOPES,
 } from '@auth0/universal-components-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
@@ -75,7 +74,6 @@ export function useSsoProviderCreate({
 
       const result: IdentityProvider = await coreClient
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_CREATE_SCOPES)
         .organization.identityProviders.create(apiRequestData);
 
       return result;

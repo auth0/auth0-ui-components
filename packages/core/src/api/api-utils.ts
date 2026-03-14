@@ -22,36 +22,52 @@ export function buildBaseHeaders(init?: RequestInit): Headers {
   return headers;
 }
 
+export type ServiceFetcher = (
+  url: string,
+  init?: RequestInit,
+  authParams?: { scope?: string[]; audience?: string },
+) => Promise<Response>;
+
 /**
- * Builds the SDK client config and auth header function for a service, resolved once at init time.
- * Proxy mode routes via baseUrl and injects an `auth0-scope` header.
- * SPA mode uses the domain directly and fetches a Bearer token.
+ * Builds the SDK client config and fetcher for a service.
  *
- * @param config - Auth configuration.
- * @param path - Service path used as proxy URL suffix and audience (e.g. 'me', 'my-org').
- * @returns SDK client config (without fetcher) and auth header function.
+ * @param config - Resolved auth configuration (proxy or SPA).
+ * @param path - Service path — used as the proxy URL suffix and audience path (e.g. `'me'`, `'my-org'`).
+ * @returns SDK client config and a fetcher function ready to be passed to the SDK constructor.
  */
 export function buildServiceConfig(
   config: ClientAuthConfig,
   path: string,
 ): {
   sdkConfig: { domain: string; baseUrl?: string; telemetry: false };
-  authHeaders: (headers: Headers, scopes: string) => Promise<void>;
+  fetcherFn: ServiceFetcher;
 } {
   if (config.mode === 'proxy') {
     return {
       sdkConfig: { domain: '', baseUrl: `${config.proxyUrl}/${path}`, telemetry: false },
-      authHeaders: async (headers, scopes) => {
+      fetcherFn: async (url, init, authParams) => {
+        const headers = buildBaseHeaders(init);
+        const scopes = authParams?.scope?.join(' ') ?? '';
         if (scopes) headers.set('auth0-scope', scopes);
+        return fetch(url, { ...init, headers });
       },
     };
   }
 
+  const audience = AuthUtils.buildAudience(config.domain, path);
+  const sdkFetcher = config.contextInterface.createFetcher({
+    getAccessToken: (authParams) =>
+      config.contextInterface.getAccessTokenSilently({
+        authorizationParams: { audience, scope: authParams?.scope?.join(' ') ?? '' },
+        detailedResponse: true,
+      }),
+  });
+
   return {
     sdkConfig: { domain: config.domain, telemetry: false },
-    authHeaders: async (headers, scopes) => {
-      const token = await AuthUtils.getToken(config.contextInterface, config.domain, path, scopes);
-      headers.set('Authorization', `Bearer ${token}`);
+    fetcherFn: (url, init, authParams) => {
+      const headers = buildBaseHeaders(init);
+      return sdkFetcher.fetchWithAuth(url, { ...init, headers }, authParams);
     },
   };
 }

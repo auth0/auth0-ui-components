@@ -5,45 +5,17 @@
  */
 
 import { MyOrganizationClient } from '@auth0/myorganization-js';
-import { buildBaseHeaders, buildServiceConfig } from '@core/api/api-utils';
+import { buildServiceConfig } from '@core/api/api-utils';
 import type { ClientAuthConfig } from '@core/auth/auth-types';
-
-export type MyOrganizationApiClient = {
-  withScopes(scopes: string): MyOrganizationApiClient;
-  readonly organization: MyOrganizationClient['organization'];
-  readonly organizationDetails: MyOrganizationClient['organizationDetails'];
-};
 
 /**
  * Initializes the My Organization API client for organization, SSO, and domain operations.
  * @internal
  *
  * @param config - Auth configuration — either proxy or domain mode
- * @returns My Organization API client with withScopes chaining
+ * @returns My Organization API client
  */
-export function initializeMyOrganizationClient(config: ClientAuthConfig): MyOrganizationApiClient {
-  const { sdkConfig, authHeaders } = buildServiceConfig(config, 'my-org');
-
-  const createInstance = (scopes = ''): MyOrganizationApiClient => {
-    const rawClient = new MyOrganizationClient({
-      ...sdkConfig,
-      fetcher: async (url: string, init?: RequestInit) => {
-        const headers = buildBaseHeaders(init);
-        await authHeaders(headers, scopes);
-        return fetch(url, { ...init, headers });
-      },
-    });
-
-    return {
-      withScopes: (newScopes: string): MyOrganizationApiClient => createInstance(newScopes),
-      get organization() {
-        return rawClient.organization;
-      },
-      get organizationDetails() {
-        return rawClient.organizationDetails;
-      },
-    };
-  };
-
-  return createInstance();
+export function initializeMyOrganizationClient(config: ClientAuthConfig): MyOrganizationClient {
+  const { sdkConfig, fetcherFn } = buildServiceConfig(config, 'my-org');
+  return new MyOrganizationClient({ ...sdkConfig, fetcher: fetcherFn });
 }

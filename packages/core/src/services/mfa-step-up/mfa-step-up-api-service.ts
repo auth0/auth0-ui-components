@@ -26,14 +26,14 @@ export function initializeMfaStepUpClient(auth: ClientAuthConfig): MfaApiClient 
  */
 function createProxyMfaClient(authProxyUrl: string): MfaApiClient {
   const get = async <T>(path: string, query?: Record<string, string>): Promise<T> => {
-    const qs = query ? `?${new URLSearchParams(query)}` : '';
-    const res = await fetch(`${authProxyUrl}${path}${qs}`);
+    const qs = new URLSearchParams(query).toString();
+    const res = await fetch(qs ? `${authProxyUrl}/${path}?${qs}` : `${authProxyUrl}/${path}`);
     if (!res.ok) throw await res.json().catch(() => ({ status: res.status }));
     return res.json();
   };
 
   const post = async <T>(path: string, body: unknown): Promise<T> => {
-    const res = await fetch(`${authProxyUrl}${path}`, {
+    const res = await fetch(`${authProxyUrl}/${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -44,10 +44,10 @@ function createProxyMfaClient(authProxyUrl: string): MfaApiClient {
 
   return {
     getAuthenticators: (mfaToken: string) =>
-      get<MfaAuthenticator[]>('/auth/mfa/authenticators', { mfa_token: mfaToken }),
+      get<MfaAuthenticator[]>('auth/mfa/authenticators', { mfa_token: mfaToken }),
 
     enroll: (params: EnrollParams) =>
-      post<EnrollmentResponse>('/auth/mfa/enroll', {
+      post<EnrollmentResponse>('auth/mfa/enroll', {
         mfaToken: params.mfaToken,
         authenticatorTypes: [params.factorType],
         ...('phoneNumber' in params && { phoneNumber: params.phoneNumber }),
@@ -55,12 +55,12 @@ function createProxyMfaClient(authProxyUrl: string): MfaApiClient {
       }),
 
     challenge: (params: ChallengeMfaAuthenticatorParams) =>
-      post<ChallengeResponse>('/auth/mfa/challenge', {
+      post<ChallengeResponse>('auth/mfa/challenge', {
         mfaToken: params.mfaToken,
         challengeType: params.challengeType,
         authenticatorId: params.authenticatorId,
       }),
 
-    verify: (params: VerifyParams) => post<TokenEndpointResponse>('/auth/mfa/verify', params),
+    verify: (params: VerifyParams) => post<TokenEndpointResponse>('auth/mfa/verify', params),
   };
 }

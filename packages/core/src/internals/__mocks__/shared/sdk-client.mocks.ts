@@ -8,7 +8,11 @@ export interface MockClientConfig {
   baseUrl?: string;
   domain?: string;
   telemetry?: boolean;
-  fetcher?: (url: string, init?: RequestInit) => Promise<Response>;
+  fetcher?: (
+    url: string,
+    init?: RequestInit,
+    authParams?: { scope?: string[]; audience?: string },
+  ) => Promise<Response>;
 }
 
 export const createMockFetch = (): ReturnType<typeof vi.fn> =>
@@ -26,7 +30,7 @@ export const getConfigFromMockCalls = (mockClient: Mock, callIndex = 0): MockCli
 export const getFetcherFromMockCalls = (
   mockClient: Mock,
   callIndex = 0,
-): ((url: string, init?: RequestInit) => Promise<Response>) | undefined => {
+): MockClientConfig['fetcher'] => {
   const config = getConfigFromMockCalls(mockClient, callIndex);
   return config.fetcher;
 };

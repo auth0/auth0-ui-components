@@ -1,7 +1,11 @@
 import { vi } from 'vitest';
 
 import { createMockI18nService } from '../../i18n/__mocks__/i18n-service.mocks';
-import { TEST_CLIENT_ID, TEST_DOMAIN } from '../../internals/__mocks__/shared/api-service.mocks';
+import {
+  makeCreateFetcherMock,
+  TEST_CLIENT_ID,
+  TEST_DOMAIN,
+} from '../../internals/__mocks__/shared/api-service.mocks';
 import type {
   AuthDetails,
   BasicAuth0ContextInterface,
@@ -44,29 +48,33 @@ export const createMockVerboseTokenResponse = (
  */
 export const createMockBasicAuth0Context = (
   overrides?: Partial<BasicAuth0ContextInterface>,
-): BasicAuth0ContextInterface => ({
-  isAuthenticated: true,
-  user: createMockUser(),
-  getAccessTokenSilently: vi.fn().mockImplementation(async (options?: GetTokenSilentlyOptions) => {
-    if (options?.detailedResponse) {
-      return createMockVerboseTokenResponse();
-    }
-    return 'mock-access-token';
-  }),
-  getAccessTokenWithPopup: vi.fn().mockResolvedValue('mock-access-token'),
-  loginWithRedirect: vi.fn().mockResolvedValue(undefined),
-  getConfiguration: vi.fn().mockReturnValue({
-    domain: TEST_DOMAIN,
-    clientId: TEST_CLIENT_ID,
-  }),
-  mfa: {
-    getAuthenticators: vi.fn().mockResolvedValue([]),
-    enroll: vi.fn().mockResolvedValue({}),
-    challenge: vi.fn().mockResolvedValue({}),
-    verify: vi.fn().mockResolvedValue({}),
-  },
-  ...overrides,
-});
+): BasicAuth0ContextInterface =>
+  ({
+    isAuthenticated: true,
+    user: createMockUser(),
+    getAccessTokenSilently: vi
+      .fn()
+      .mockImplementation(async (options?: GetTokenSilentlyOptions) => {
+        if (options?.detailedResponse) {
+          return createMockVerboseTokenResponse();
+        }
+        return 'mock-access-token';
+      }),
+    getAccessTokenWithPopup: vi.fn().mockResolvedValue('mock-access-token'),
+    loginWithRedirect: vi.fn().mockResolvedValue(undefined),
+    getConfiguration: vi.fn().mockReturnValue({
+      domain: TEST_DOMAIN,
+      clientId: TEST_CLIENT_ID,
+    }),
+    createFetcher: makeCreateFetcherMock(),
+    mfa: {
+      getAuthenticators: vi.fn().mockResolvedValue([]),
+      enroll: vi.fn().mockResolvedValue({}),
+      challenge: vi.fn().mockResolvedValue({}),
+      verify: vi.fn().mockResolvedValue({}),
+    },
+    ...overrides,
+  }) as BasicAuth0ContextInterface;
 
 /**
  * Creates a mock Auth0ContextInterface with full properties

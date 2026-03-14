@@ -1,3 +1,5 @@
+import type { MyAccountClient } from '@auth0/myaccount-js';
+import type { MyOrganizationClient } from '@auth0/myorganization-js';
 import { initializeMfaStepUpClient } from '@core/services/mfa-step-up/mfa-step-up-api-service';
 import { initializeMyAccountClient } from '@core/services/my-account/my-account-api-service';
 import { initializeMyOrganizationClient } from '@core/services/my-organization/my-organization-api-service';
@@ -9,10 +11,7 @@ import {
   createMockContextInterface,
   TEST_DOMAIN,
 } from '../../internals/__mocks__/shared/api-service.mocks';
-import { createMockMyAccountClient } from '../../services/my-account/__tests__/__mocks__/my-account-api-service.mocks';
-import type { MyAccountApiClient } from '../../services/my-account/my-account-api-service';
 import { createMockMyOrganizationClient } from '../../services/my-organization/__tests__/__mocks__/my-organization-api-service.mocks';
-import type { MyOrganizationApiClient } from '../../services/my-organization/my-organization-api-service';
 import type { AuthDetails } from '../auth-types';
 import { createCoreClient } from '../core-client';
 
@@ -26,7 +25,7 @@ describe('createCoreClient', () => {
   // Create mock instances using mock utilities
   const mockI18nService = createMockI18nService();
   const mockMyOrganizationClient = createMockMyOrganizationClient();
-  const mockMyAccountClient = createMockMyAccountClient();
+  const mockMyAccountClient = {} as unknown as MyAccountClient;
   const mockMfaApiClient = {
     getAuthenticators: vi.fn().mockResolvedValue([]),
     enroll: vi.fn().mockResolvedValue({}),
@@ -159,7 +158,7 @@ describe('createCoreClient', () => {
     });
 
     it('throws when myAccountApiClient is not available', async () => {
-      initializeMyAccountClientMock.mockReturnValueOnce(null as unknown as MyAccountApiClient);
+      initializeMyAccountClientMock.mockReturnValueOnce(null as unknown as MyAccountClient);
 
       const authDetails = createAuthDetails();
       const client = await createCoreClient(authDetails);
@@ -171,7 +170,7 @@ describe('createCoreClient', () => {
 
     it('throws when myOrganizationApiClient is not available', async () => {
       initializeMyOrganizationClientMock.mockReturnValueOnce(
-        null as unknown as MyOrganizationApiClient,
+        null as unknown as MyOrganizationClient,
       );
       const authDetails = createAuthDetails();
       const client = await createCoreClient(authDetails);

@@ -4,12 +4,12 @@
  * @internal
  */
 
+import type { MyAccountClient } from '@auth0/myaccount-js';
+import type { MyOrganizationClient } from '@auth0/myorganization-js';
 import type { ArbitraryObject } from '@core/types';
 
 import type { I18nServiceInterface } from '../i18n';
 import type { MfaApiClient } from '../services/mfa-step-up/mfa-step-up-api-types';
-import type { MyAccountApiClient } from '../services/my-account/my-account-api-service';
-import type { MyOrganizationApiClient } from '../services/my-organization/my-organization-api-service';
 
 /**
  * Response structure from the token endpoint.
@@ -136,6 +136,18 @@ export interface BasicAuth0ContextInterface<TUser = User> {
   getAccessTokenWithPopup: (options?: unknown) => Promise<string | undefined>;
   loginWithRedirect: (options?: unknown) => Promise<void>;
   getConfiguration: () => Readonly<ClientConfiguration>;
+  createFetcher(config?: {
+    getAccessToken?: (authParams?: {
+      scope?: string[];
+      audience?: string;
+    }) => Promise<string | GetTokenSilentlyVerboseResponse>;
+  }): {
+    fetchWithAuth(
+      info: RequestInfo | URL,
+      init?: RequestInit,
+      authParams?: { scope?: string[]; audience?: string },
+    ): Promise<Response>;
+  };
   mfa: MfaApiClient;
 }
 
@@ -192,9 +204,9 @@ export interface BaseCoreClientInterface {
  * @internal
  */
 export interface CoreClientInterface extends BaseCoreClientInterface {
-  myAccountApiClient: MyAccountApiClient | undefined;
-  myOrganizationApiClient: MyOrganizationApiClient | undefined;
-  getMyAccountApiClient: () => MyAccountApiClient;
-  getMyOrganizationApiClient: () => MyOrganizationApiClient;
+  myAccountApiClient: MyAccountClient | undefined;
+  myOrganizationApiClient: MyOrganizationClient | undefined;
+  getMyAccountApiClient: () => MyAccountClient;
+  getMyOrganizationApiClient: () => MyOrganizationClient;
   getMFAStepUpApiClient: () => MfaApiClient;
 }

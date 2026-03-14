@@ -15,8 +15,6 @@ import {
   getExpectedProxyBaseUrl,
   mockProxyConfig,
   mockRequestInits,
-  mockScopes,
-  mockTokens,
 } from './__mocks__/my-account-api-service.mocks';
 
 const TEST_URL = 'https://test.com';
@@ -25,6 +23,7 @@ const TEST_URL = 'https://test.com';
 const mockMyAccountClient = vi.hoisted(() =>
   vi.fn().mockImplementation((config) => ({
     config,
+    factors: {},
     authenticationMethods: {
       list: vi.fn(),
     },
@@ -38,6 +37,11 @@ vi.mock('@auth0/myaccount-js', () => ({
 describe('initializeMyAccountClient', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockMyAccountClient.mockImplementation((config) => ({
+      config,
+      factors: {},
+      authenticationMethods: { list: vi.fn() },
+    }));
   });
 
   afterEach(() => {
@@ -87,35 +91,6 @@ describe('initializeMyAccountClient', () => {
       });
     });
 
-    describe('withScopes function', () => {
-      it('should provide withScopes function', () => {
-        const service = initializeMyAccountClient(mockProxyConfig);
-
-        expect(typeof service.withScopes).toBe('function');
-      });
-
-      it('should return a new instance when called', () => {
-        const service = initializeMyAccountClient(mockProxyConfig);
-        const scoped = service.withScopes(mockScopes.mfa);
-
-        expect(scoped).not.toBe(service);
-        expect(mockMyAccountClient).toHaveBeenCalledTimes(2);
-      });
-
-      it('should handle empty scope string', () => {
-        const service = initializeMyAccountClient(mockProxyConfig);
-
-        expect(() => service.withScopes('')).not.toThrow();
-      });
-
-      it('should handle complex scope strings', () => {
-        const service = initializeMyAccountClient(mockProxyConfig);
-        const complexScopes = `${mockScopes.mfa} ${mockScopes.profile} ${mockScopes.email}`;
-
-        expect(() => service.withScopes(complexScopes)).not.toThrow();
-      });
-    });
-
     describe('custom fetcher behavior in proxy mode', () => {
       it('should create fetcher that calls fetch', async () => {
         const mockFetch = createMockFetch();
@@ -127,21 +102,6 @@ describe('initializeMyAccountClient', () => {
         await fetcher!(TEST_URL, {});
 
         expect(mockFetch).toHaveBeenCalled();
-      });
-
-      it('should add scope header when scopes are set via withScopes', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
-        const service = initializeMyAccountClient(mockProxyConfig); // call[0]
-        service.withScopes(mockScopes.mfa); // call[1]
-
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient, 1);
-        await fetcher!(TEST_URL, {});
-
-        expect(mockFetch).toHaveBeenCalled();
-        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
-        expect(headers.get('auth0-scope')).toBe(mockScopes.mfa);
       });
 
       it('should add Content-Type header when body is present', async () => {
@@ -156,19 +116,6 @@ describe('initializeMyAccountClient', () => {
         expect(mockFetch).toHaveBeenCalled();
         const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('Content-Type')).toBe('application/json');
-      });
-
-      it('should not add scope header when no withScopes called', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
-        initializeMyAccountClient(mockProxyConfig);
-
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
-        await fetcher!(TEST_URL, {});
-
-        const headers = getHeadersFromFetchCall(mockFetch) as Record<string, string>;
-        expect(headers['auth0-scope']).toBeUndefined();
       });
 
       it('should preserve existing headers', async () => {
@@ -187,27 +134,6 @@ describe('initializeMyAccountClient', () => {
         expect(mockFetch).toHaveBeenCalled();
         const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('X-Custom-Header')).toBe('custom-value');
-      });
-
-      it('should use different scopes with different withScopes calls', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
-        const service = initializeMyAccountClient(mockProxyConfig); // call[0]
-
-        service.withScopes(mockScopes.mfa); // call[1]
-        const fetcher1 = getFetcherFromMockCalls(mockMyAccountClient, 1);
-        await fetcher1!(TEST_URL, {});
-
-        service.withScopes(mockScopes.profile); // call[2]
-        const fetcher2 = getFetcherFromMockCalls(mockMyAccountClient, 2);
-        await fetcher2!(TEST_URL, {});
-
-        expect(mockFetch).toHaveBeenCalledTimes(2);
-        const headers1 = getHeadersFromFetchCall(mockFetch, 0) as Headers;
-        expect(headers1.get('auth0-scope')).toBe(mockScopes.mfa);
-        const headers2 = getHeadersFromFetchCall(mockFetch, 1) as Headers;
-        expect(headers2.get('auth0-scope')).toBe(mockScopes.profile);
       });
     });
 
@@ -262,63 +188,9 @@ describe('initializeMyAccountClient', () => {
         expect(config.fetcher).toBeDefined();
         expect(typeof config.fetcher).toBe('function');
       });
-
-      it('should provide withScopes function', () => {
-        const service = initializeMyAccountClient(createMockSpaConfig());
-
-        expect(typeof service.withScopes).toBe('function');
-      });
-    });
-
-    describe('withScopes function in SPA mode', () => {
-      it('should return a new instance when called', () => {
-        const service = initializeMyAccountClient(createMockSpaConfig());
-        const scoped = service.withScopes(mockScopes.mfa);
-
-        expect(scoped).not.toBe(service);
-      });
-
-      it('should handle multiple scope updates independently', () => {
-        const service = initializeMyAccountClient(createMockSpaConfig());
-
-        expect(() => service.withScopes(mockScopes.mfa)).not.toThrow();
-        expect(() => service.withScopes(mockScopes.profile)).not.toThrow();
-      });
     });
 
     describe('custom fetcher behavior in SPA mode', () => {
-      it('should call getAccessTokenSilently with scopes and audience', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
-        const auth = createMockSpaConfig();
-        const service = initializeMyAccountClient(auth); // call[0]
-        service.withScopes(mockScopes.mfa); // call[1]
-
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient, 1);
-        await fetcher!(TEST_URL, {});
-
-        expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenCalledWith(
-          expect.objectContaining({
-            authorizationParams: expect.objectContaining({ scope: mockScopes.mfa }),
-          }),
-        );
-      });
-
-      it('should add Authorization header with Bearer token', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
-        const auth = createMockSpaConfig();
-        initializeMyAccountClient(auth);
-
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
-        await fetcher!(TEST_URL, {});
-
-        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
-        expect(headers.get('Authorization')).toBe(`Bearer ${mockTokens.standard}`);
-      });
-
       it('should add Content-Type header when body is present', async () => {
         const mockFetch = createMockFetch();
         vi.stubGlobal('fetch', mockFetch);
@@ -394,24 +266,6 @@ describe('initializeMyAccountClient', () => {
     });
 
     describe('token retrieval', () => {
-      it('should request token with latest scopes', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
-        const auth = createMockSpaConfig();
-        const service = initializeMyAccountClient(auth); // call[0]
-        service.withScopes(mockScopes.mfa); // call[1]
-
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient, 1);
-        await fetcher!(TEST_URL, {});
-
-        expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenCalledWith(
-          expect.objectContaining({
-            authorizationParams: expect.objectContaining({ scope: mockScopes.mfa }),
-          }),
-        );
-      });
-
       it('should request token with "me" audience', async () => {
         const mockFetch = createMockFetch();
         vi.stubGlobal('fetch', mockFetch);
@@ -429,34 +283,6 @@ describe('initializeMyAccountClient', () => {
             }),
           }),
         );
-      });
-
-      it('should handle very long tokens', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
-        const auth = createMockSpaConfig('a'.repeat(2000));
-        initializeMyAccountClient(auth);
-
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
-        await fetcher!(TEST_URL, {});
-
-        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
-        expect(headers.get('Authorization')).toBe(`Bearer ${'a'.repeat(2000)}`);
-      });
-
-      it('should handle tokens with special characters', async () => {
-        const mockFetch = createMockFetch();
-        vi.stubGlobal('fetch', mockFetch);
-
-        const auth = createMockSpaConfig(mockTokens.withSpecialChars);
-        initializeMyAccountClient(auth);
-
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
-        await fetcher!(TEST_URL, {});
-
-        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
-        expect(headers.get('Authorization')).toBe(`Bearer ${mockTokens.withSpecialChars}`);
       });
 
       it('should not call getConfiguration — domain is always explicitly provided', async () => {
@@ -507,7 +333,7 @@ describe('initializeMyAccountClient', () => {
 
         const result = initializeMyAccountClient(auth);
 
-        expect(typeof result.withScopes).toBe('function');
+        expect(result).toHaveProperty('factors');
       });
 
       it('should handle proxy URL with encoded characters', () => {
@@ -516,7 +342,7 @@ describe('initializeMyAccountClient', () => {
           proxyUrl: 'https://example.com/path%20with%20spaces',
         });
 
-        expect(typeof result.withScopes).toBe('function');
+        expect(result).toHaveProperty('factors');
       });
 
       it('should handle international domains', () => {
@@ -528,48 +354,18 @@ describe('initializeMyAccountClient', () => {
 
         const result = initializeMyAccountClient(auth);
 
-        expect(typeof result.withScopes).toBe('function');
-      });
-    });
-
-    describe('multiple consecutive calls', () => {
-      it('should handle multiple scope updates', () => {
-        const service = initializeMyAccountClient(mockProxyConfig);
-
-        expect(() => {
-          service.withScopes(mockScopes.mfa);
-          service.withScopes(mockScopes.profile);
-          service.withScopes(mockScopes.email);
-          service.withScopes('');
-        }).not.toThrow();
-      });
-
-      it('should create independent instances on each top-level call', () => {
-        const service1 = initializeMyAccountClient(mockProxyConfig);
-        const service2 = initializeMyAccountClient(mockProxyConfig);
-
-        expect(service1).not.toBe(service2);
+        expect(result).toHaveProperty('factors');
       });
     });
 
     describe('concurrent operations', () => {
-      it('should handle concurrent withScopes calls', () => {
-        const service = initializeMyAccountClient(mockProxyConfig);
-
-        expect(() => {
-          service.withScopes(mockScopes.mfa);
-          service.withScopes(mockScopes.profile);
-        }).not.toThrow();
-      });
-
       it('should handle concurrent fetcher calls in proxy mode', async () => {
         const mockFetch = createMockFetch();
         vi.stubGlobal('fetch', mockFetch);
 
-        const service = initializeMyAccountClient(mockProxyConfig); // call[0]
-        service.withScopes(mockScopes.mfa); // call[1]
+        initializeMyAccountClient(mockProxyConfig);
 
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient, 1);
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
         await Promise.all([
           fetcher!('https://test.com/1', {}),
@@ -585,10 +381,9 @@ describe('initializeMyAccountClient', () => {
         vi.stubGlobal('fetch', mockFetch);
 
         const auth = createMockSpaConfig();
-        const service = initializeMyAccountClient(auth); // call[0]
-        service.withScopes(mockScopes.mfa); // call[1]
+        initializeMyAccountClient(auth);
 
-        const fetcher = getFetcherFromMockCalls(mockMyAccountClient, 1);
+        const fetcher = getFetcherFromMockCalls(mockMyAccountClient);
 
         await Promise.all([
           fetcher!('https://test.com/1', {}),
@@ -603,25 +398,11 @@ describe('initializeMyAccountClient', () => {
   });
 
   describe('return value structure', () => {
-    it('should return object with withScopes, factors, and authenticationMethods', () => {
+    it('should return object with factors and authenticationMethods', () => {
       const result = initializeMyAccountClient(mockProxyConfig);
 
-      expect(result).toHaveProperty('withScopes');
       expect(result).toHaveProperty('factors');
       expect(result).toHaveProperty('authenticationMethods');
-    });
-
-    it('should have withScopes as a function', () => {
-      const result = initializeMyAccountClient(mockProxyConfig);
-
-      expect(typeof result.withScopes).toBe('function');
-    });
-
-    it('should return a new instance from withScopes', () => {
-      const result = initializeMyAccountClient(mockProxyConfig);
-      const scoped = result.withScopes(mockScopes.mfa);
-
-      expect(scoped).not.toBe(result);
     });
 
     it('should return new top-level instances on each call', () => {
@@ -637,10 +418,9 @@ describe('initializeMyAccountClient', () => {
       const mockFetch = createMockFetch();
       vi.stubGlobal('fetch', mockFetch);
 
-      const service = initializeMyAccountClient(mockProxyConfig); // call[0]
-      service.withScopes(mockScopes.mfa); // call[1]
+      initializeMyAccountClient(mockProxyConfig);
 
-      const config = getConfigFromMockCalls(mockMyAccountClient, 1);
+      const config = getConfigFromMockCalls(mockMyAccountClient);
       const fetcher = config.fetcher;
 
       await fetcher!(TEST_URL, { body: JSON.stringify({ test: 'data' }) });
@@ -651,7 +431,6 @@ describe('initializeMyAccountClient', () => {
 
       expect(mockFetch).toHaveBeenCalled();
       const headers = getHeadersFromFetchCall(mockFetch) as Headers;
-      expect(headers.get('auth0-scope')).toBe(mockScopes.mfa);
       expect(headers.get('Content-Type')).toBe('application/json');
     });
 
@@ -660,10 +439,9 @@ describe('initializeMyAccountClient', () => {
       vi.stubGlobal('fetch', mockFetch);
 
       const auth = createMockSpaConfig();
-      const service = initializeMyAccountClient(auth); // call[0]
-      service.withScopes(mockScopes.mfa); // call[1]
+      initializeMyAccountClient(auth);
 
-      const config = getConfigFromMockCalls(mockMyAccountClient, 1);
+      const config = getConfigFromMockCalls(mockMyAccountClient);
       const fetcher = config.fetcher;
 
       await fetcher!(TEST_URL, { body: JSON.stringify({ test: 'data' }) });
@@ -671,46 +449,10 @@ describe('initializeMyAccountClient', () => {
       expect(config.domain).toBe('test.auth0.com');
       expect(config.baseUrl).toBeUndefined();
 
-      expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenCalledWith(
-        expect.objectContaining({
-          authorizationParams: expect.objectContaining({ scope: mockScopes.mfa }),
-        }),
-      );
+      expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenCalled();
 
       const headers = getHeadersFromFetchCall(mockFetch) as Headers;
-      expect(headers.get('Authorization')).toBe(`Bearer ${mockTokens.standard}`);
       expect(headers.get('Content-Type')).toBe('application/json');
-    });
-
-    it('should handle switching from empty scope to populated scope', async () => {
-      const mockFetch = createMockFetch();
-      vi.stubGlobal('fetch', mockFetch);
-
-      const auth = createMockSpaConfig();
-      const service = initializeMyAccountClient(auth); // call[0]
-
-      // Use initial (empty scope) fetcher
-      const fetcher0 = getConfigFromMockCalls(mockMyAccountClient, 0).fetcher;
-      await fetcher0!(TEST_URL, {});
-
-      // Use scoped fetcher
-      service.withScopes(mockScopes.mfa); // call[1]
-      const fetcher1 = getConfigFromMockCalls(mockMyAccountClient, 1).fetcher;
-      await fetcher1!(TEST_URL, {});
-
-      expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenCalledTimes(2);
-      expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenNthCalledWith(
-        1,
-        expect.objectContaining({
-          authorizationParams: expect.objectContaining({ scope: '' }),
-        }),
-      );
-      expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenNthCalledWith(
-        2,
-        expect.objectContaining({
-          authorizationParams: expect.objectContaining({ scope: mockScopes.mfa }),
-        }),
-      );
     });
   });
 });

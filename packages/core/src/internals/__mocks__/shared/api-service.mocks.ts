@@ -18,6 +18,22 @@ export const TEST_CLIENT_ID = 'test-client-id';
 // Mock Context Interface Helpers
 // =============================================================================
 
+export const makeCreateFetcherMock = () =>
+  vi.fn().mockImplementation((fetcherConfig?: { getAccessToken?: Function }) => ({
+    fetchWithAuth: vi
+      .fn()
+      .mockImplementation(
+        async (
+          url: string,
+          init?: RequestInit,
+          authParams?: { scope?: string[]; audience?: string },
+        ) => {
+          await fetcherConfig?.getAccessToken?.(authParams);
+          return fetch(url, init);
+        },
+      ),
+  }));
+
 export const createMockContextInterface = (): BasicAuth0ContextInterface => ({
   isAuthenticated: true,
   getAccessTokenSilently: vi.fn().mockResolvedValue({
@@ -28,6 +44,7 @@ export const createMockContextInterface = (): BasicAuth0ContextInterface => ({
   getAccessTokenWithPopup: vi.fn().mockResolvedValue('mock-access-token'),
   loginWithRedirect: vi.fn().mockResolvedValue(undefined),
   getConfiguration: vi.fn().mockReturnValue({ domain: TEST_DOMAIN, clientId: TEST_CLIENT_ID }),
+  createFetcher: makeCreateFetcherMock(),
   mfa: {
     getAuthenticators: vi.fn().mockResolvedValue([]),
     enroll: vi.fn().mockResolvedValue({}),
@@ -126,6 +143,7 @@ export function createMockSpaConfig(token = mockTokens.standard): SpaAuthConfig 
       getAccessTokenWithPopup: vi.fn(),
       loginWithRedirect: vi.fn(),
       getConfiguration: vi.fn().mockReturnValue({ domain: TEST_DOMAIN, clientId: TEST_CLIENT_ID }),
+      createFetcher: makeCreateFetcherMock(),
       mfa: {
         getAuthenticators: vi.fn().mockResolvedValue([]),
         enroll: vi.fn().mockResolvedValue({}),
@@ -178,17 +196,9 @@ export const expectedProxyHeaders = {
 };
 
 export const expectedDomainHeaders = {
-  withToken: (token: string) => ({
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  }),
   withoutToken: {
     'Content-Type': 'application/json',
   },
-  withCustomContentType: (token: string, contentType: string) => ({
-    'Content-Type': contentType,
-    Authorization: `Bearer ${token}`,
-  }),
 };
 
 // =============================================================================

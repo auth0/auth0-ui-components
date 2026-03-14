@@ -1,37 +1,10 @@
-import { vi } from 'vitest';
-
-import type { MyOrganizationApiClient } from '../../my-organization-api-service';
+import type { MyOrganizationClient } from '@auth0/myorganization-js';
 
 // Re-export shared API service mocks
 export {
   createMockContextInterface,
-  // ClientAuthConfig Mocks
   mockProxyConfig,
-  mockProxyConfigTrailingSlash,
-  mockProxyConfigWhitespace,
-  mockSpaConfigWhitespaceDomain,
   createMockSpaConfig,
-  // AuthDetails Mocks (for core-client tests)
-  mockAuthWithDomain,
-  mockAuthWithProxyUrl,
-  mockAuthWithProxyUrlTrailingSlash,
-  mockAuthWithBothDomainAndProxy,
-  mockAuthWithNeither,
-  mockAuthWithEmptyDomain,
-  mockAuthWithEmptyProxyUrl,
-  mockAuthWithDomainWhitespace,
-  mockAuthWithProxyUrlWhitespace,
-  // Token Test Data
-  mockTokens,
-  // Headers Helpers
-  extractHeaders,
-  expectedProxyHeaders,
-  expectedDomainHeaders,
-  // Helper Functions
-  createMockAuthDetails,
-  checkHeaders,
-  getExpectedDomainUrl,
-  getExpectedProxyBaseUrl as getExpectedProxyBaseUrlWithPath,
 } from '../../../../internals/__mocks__/shared/api-service.mocks';
 
 // =============================================================================
@@ -42,16 +15,6 @@ export {
 export const getExpectedProxyBaseUrl = (proxyUrl: string): string => {
   const cleanUrl = proxyUrl.replace(/\/$/, '');
   return `${cleanUrl}/my-org`;
-};
-
-// Scope Test Data (MyOrganization-specific)
-export const mockScopes = {
-  empty: '',
-  organizationRead: 'read:organization',
-  organizationWrite: 'write:organization',
-  members: 'read:organization_members',
-  complex: 'read:organization write:organization read:organization_members',
-  withSpaces: '  read:organization  write:organization  ',
 };
 
 // Request Init Test Data (MyOrganization-specific)
@@ -101,12 +64,8 @@ export const mockMyOrganizationClientMethods = {
 /**
  * Creates a mock MyOrganization API client
  */
-export const createMockMyOrganizationClient = (): MyOrganizationApiClient => {
-  const mock = {
-    withScopes: vi.fn(),
-    organization: {} as MyOrganizationApiClient['organization'],
-    organizationDetails: {} as MyOrganizationApiClient['organizationDetails'],
-  };
-  mock.withScopes.mockReturnValue(mock);
-  return mock as unknown as MyOrganizationApiClient;
-};
+export const createMockMyOrganizationClient = () =>
+  ({
+    organization: {} as MyOrganizationClient['organization'],
+    organizationDetails: {} as MyOrganizationClient['organizationDetails'],
+  }) as unknown as MyOrganizationClient;

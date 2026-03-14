@@ -1,6 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 
-import { AuthUtils } from '../../auth/auth-utils';
 import {
   TEST_DOMAIN,
   createMockContextInterface,
@@ -51,6 +50,17 @@ describe('buildBaseHeaders', () => {
 
 describe('buildServiceConfig', () => {
   describe('proxy mode', () => {
+    const mockFetch = vi.fn();
+
+    beforeEach(() => {
+      mockFetch.mockResolvedValue(new Response());
+      vi.stubGlobal('fetch', mockFetch);
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
     it('returns sdkConfig with empty domain and correct baseUrl', () => {
       const { sdkConfig } = buildServiceConfig(mockProxyConfig, 'my-org');
       expect(sdkConfig.domain).toBe('');
@@ -59,42 +69,64 @@ describe('buildServiceConfig', () => {
     });
 
     it.each([
-      { scopes: 'read:org', expected: 'read:org' },
-      { scopes: '', expected: null },
-    ])('sets auth0-scope to $expected when scopes is "$scopes"', async ({ scopes, expected }) => {
-      const { authHeaders } = buildServiceConfig(mockProxyConfig, 'my-org');
-      const headers = new Headers();
-      await authHeaders(headers, scopes);
-      expect(headers.get('auth0-scope')).toBe(expected);
+      { scope: ['read:org'], expected: 'read:org' },
+      { scope: [], expected: null },
+    ])('sets auth0-scope to $expected when scope is $scope', async ({ scope, expected }) => {
+      const { fetcherFn } = buildServiceConfig(mockProxyConfig, 'my-org');
+      await fetcherFn('https://example.com', undefined, { scope });
+      const [, fetchInit] = mockFetch.mock.calls[0] as [string, RequestInit];
+      expect((fetchInit.headers as Headers).get('auth0-scope')).toBe(expected);
     });
   });
 
   describe('spa mode', () => {
-    const contextInterface = createMockContextInterface();
-    const config = { mode: 'spa' as const, domain: TEST_DOMAIN, contextInterface };
+    let contextInterface: ReturnType<typeof createMockContextInterface>;
+    let mockFetchWithAuth: Mock;
 
     beforeEach(() => {
-      vi.spyOn(AuthUtils, 'getToken').mockResolvedValue('mock-access-token');
+      contextInterface = createMockContextInterface();
+      mockFetchWithAuth = vi.fn().mockResolvedValue(new Response());
+      (contextInterface.createFetcher as Mock).mockReturnValue({
+        fetchWithAuth: mockFetchWithAuth,
+      });
     });
 
     it('returns sdkConfig with domain and no baseUrl', () => {
+      const config = { mode: 'spa' as const, domain: TEST_DOMAIN, contextInterface };
       const { sdkConfig } = buildServiceConfig(config, 'me');
       expect(sdkConfig.domain).toBe(TEST_DOMAIN);
       expect(sdkConfig.baseUrl).toBeUndefined();
       expect(sdkConfig.telemetry).toBe(false);
     });
 
-    it('calls AuthUtils.getToken with correct arguments and sets Authorization Bearer header', async () => {
-      const { authHeaders } = buildServiceConfig(config, 'my-org');
-      const headers = new Headers();
-      await authHeaders(headers, 'read:org write:org');
-      expect(AuthUtils.getToken).toHaveBeenCalledWith(
-        contextInterface,
-        TEST_DOMAIN,
-        'my-org',
-        'read:org write:org',
+    it('calls fetchWithAuth with url, init (including Content-Type), and authParams', async () => {
+      const config = { mode: 'spa' as const, domain: TEST_DOMAIN, contextInterface };
+      const { fetcherFn } = buildServiceConfig(config, 'me');
+      const authParams = { scope: ['read:me'], audience: `https://${TEST_DOMAIN}/me/` };
+      await fetcherFn('https://example.com/path', { method: 'POST', body: '{}' }, authParams);
+      expect(mockFetchWithAuth).toHaveBeenCalledWith(
+        'https://example.com/path',
+        expect.objectContaining({ method: 'POST', headers: expect.any(Headers) }),
+        authParams,
       );
-      expect(headers.get('Authorization')).toBe('Bearer mock-access-token');
+      const [, passedInit] = mockFetchWithAuth.mock.calls[0] as [string, RequestInit];
+      expect((passedInit.headers as Headers).get('Content-Type')).toBe('application/json');
+    });
+
+    it('creates fetcher with getAccessToken that calls getAccessTokenSilently with correct audience', async () => {
+      const config = { mode: 'spa' as const, domain: TEST_DOMAIN, contextInterface };
+      buildServiceConfig(config, 'my-org');
+      const { getAccessToken } = (contextInterface.createFetcher as Mock).mock.calls[0]![0] as {
+        getAccessToken: (authParams?: { scope?: string[] }) => Promise<unknown>;
+      };
+      await getAccessToken({ scope: ['read:org'] });
+      expect(contextInterface.getAccessTokenSilently).toHaveBeenCalledWith({
+        authorizationParams: {
+          audience: `https://${TEST_DOMAIN}/my-org/`,
+          scope: 'read:org',
+        },
+        detailedResponse: true,
+      });
     });
   });
 });

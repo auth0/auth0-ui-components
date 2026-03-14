@@ -14,14 +14,17 @@ import {
   createMockSpaConfig,
   mockProxyConfig,
   mockRequestInits,
-  mockScopes,
-  mockTokens,
 } from './__mocks__/my-organization-api-service.mocks';
 
 const TEST_URL = 'https://api.example.com/test';
 
 // Hoist mock to avoid vi.mock hoisting issues
-const mockMyOrganizationClient = vi.hoisted(() => vi.fn());
+const mockMyOrganizationClient = vi.hoisted(() =>
+  vi.fn().mockImplementation(() => ({
+    organization: {},
+    organizationDetails: {},
+  })),
+);
 
 vi.mock('@auth0/myorganization-js', () => ({
   MyOrganizationClient: mockMyOrganizationClient,
@@ -32,6 +35,10 @@ describe('initializeMyOrganizationClient', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockMyOrganizationClient.mockImplementation(() => ({
+      organization: {},
+      organizationDetails: {},
+    }));
     mockFetch = createMockFetch();
     mockFetch.mockResolvedValue({ ok: true, json: async () => ({}) });
     vi.stubGlobal('fetch', mockFetch);
@@ -80,34 +87,6 @@ describe('initializeMyOrganizationClient', () => {
       });
     });
 
-    describe('withScopes function', () => {
-      it('should provide withScopes function', () => {
-        const service = initializeMyOrganizationClient(mockProxyConfig);
-
-        expect(typeof service.withScopes).toBe('function');
-      });
-
-      it('should return a new instance when called', () => {
-        const service = initializeMyOrganizationClient(mockProxyConfig);
-        const scoped = service.withScopes(mockScopes.organizationRead);
-
-        expect(scoped).not.toBe(service);
-        expect(mockMyOrganizationClient).toHaveBeenCalledTimes(2);
-      });
-
-      it('should handle empty scope string', () => {
-        const service = initializeMyOrganizationClient(mockProxyConfig);
-
-        expect(() => service.withScopes(mockScopes.empty)).not.toThrow();
-      });
-
-      it('should handle complex scope strings', () => {
-        const service = initializeMyOrganizationClient(mockProxyConfig);
-
-        expect(() => service.withScopes(mockScopes.complex)).not.toThrow();
-      });
-    });
-
     describe('custom fetcher behavior in proxy mode', () => {
       it('should create fetcher that calls fetch', async () => {
         initializeMyOrganizationClient(mockProxyConfig);
@@ -116,17 +95,6 @@ describe('initializeMyOrganizationClient', () => {
         await fetcher!(TEST_URL, mockRequestInits.get);
 
         expect(mockFetch).toHaveBeenCalledTimes(1);
-      });
-
-      it('should add scope header when scopes are set via withScopes', async () => {
-        const service = initializeMyOrganizationClient(mockProxyConfig); // call[0]
-        service.withScopes(mockScopes.organizationRead); // call[1]
-
-        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient, 1);
-        await fetcher!(TEST_URL, mockRequestInits.post);
-
-        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
-        expect(headers.get('auth0-scope')).toBe(mockScopes.organizationRead);
       });
 
       it('should add Content-Type header when body is present', async () => {
@@ -139,43 +107,14 @@ describe('initializeMyOrganizationClient', () => {
         expect(headers.get('Content-Type')).toBe('application/json');
       });
 
-      it('should not add scope header when no withScopes called', async () => {
+      it('should preserve existing headers', async () => {
         initializeMyOrganizationClient(mockProxyConfig);
 
         const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
-        await fetcher!(TEST_URL, mockRequestInits.post);
-
-        const headers = getHeadersFromFetchCall(mockFetch) as Record<string, string>;
-        expect(headers['auth0-scope']).toBeUndefined();
-      });
-
-      it('should preserve existing headers', async () => {
-        const service = initializeMyOrganizationClient(mockProxyConfig); // call[0]
-        service.withScopes(mockScopes.organizationRead); // call[1]
-
-        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient, 1);
         await fetcher!(TEST_URL, mockRequestInits.postWithHeaders);
 
         const headers = getHeadersFromFetchCall(mockFetch) as Headers;
         expect(headers.get('X-Custom-Header')).toBe('custom-value');
-        expect(headers.get('auth0-scope')).toBe(mockScopes.organizationRead);
-      });
-
-      it('should use different scopes with different withScopes calls', async () => {
-        const service = initializeMyOrganizationClient(mockProxyConfig); // call[0]
-        service.withScopes(mockScopes.organizationRead); // call[1]
-        const fetcher1 = mockMyOrganizationClient.mock.calls[1]![0].fetcher;
-        await fetcher1!(TEST_URL, mockRequestInits.post);
-
-        service.withScopes(mockScopes.complex); // call[2]
-        const fetcher2 = mockMyOrganizationClient.mock.calls[2]![0].fetcher;
-        await fetcher2!(TEST_URL, mockRequestInits.post);
-
-        const firstHeaders = getHeadersFromFetchCall(mockFetch, 0) as Headers;
-        expect(firstHeaders.get('auth0-scope')).toBe(mockScopes.organizationRead);
-
-        const secondHeaders = getHeadersFromFetchCall(mockFetch, 1) as Headers;
-        expect(secondHeaders.get('auth0-scope')).toBe(mockScopes.complex);
       });
 
       it('should not add Content-Type header for GET requests without body', async () => {
@@ -264,45 +203,9 @@ describe('initializeMyOrganizationClient', () => {
         expect(config.fetcher).toBeDefined();
         expect(typeof config.fetcher).toBe('function');
       });
-
-      it('should provide withScopes function', () => {
-        const service = initializeMyOrganizationClient(createMockSpaConfig());
-
-        expect(typeof service.withScopes).toBe('function');
-      });
     });
 
     describe('custom fetcher behavior in SPA mode', () => {
-      it('should call getAccessTokenSilently with correct parameters', async () => {
-        const auth = createMockSpaConfig();
-        const service = initializeMyOrganizationClient(auth); // call[0]
-        service.withScopes(mockScopes.organizationRead); // call[1]
-
-        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient, 1);
-        await fetcher!(TEST_URL, mockRequestInits.post);
-
-        expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenCalledTimes(1);
-        expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenCalledWith(
-          expect.objectContaining({
-            authorizationParams: expect.objectContaining({
-              scope: mockScopes.organizationRead,
-              audience: expect.stringContaining('my-org'),
-            }),
-          }),
-        );
-      });
-
-      it('should add Authorization header with token', async () => {
-        const auth = createMockSpaConfig();
-        initializeMyOrganizationClient(auth);
-
-        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
-        await fetcher!(TEST_URL, mockRequestInits.post);
-
-        const headers = getHeadersFromFetchCall(mockFetch) as Headers;
-        expect(headers.get('Authorization')).toBe(`Bearer ${mockTokens.standard}`);
-      });
-
       it('should add Content-Type header when body is present', async () => {
         const auth = createMockSpaConfig();
         initializeMyOrganizationClient(auth);
@@ -325,32 +228,6 @@ describe('initializeMyOrganizationClient', () => {
         expect(headers.get('Content-Type')).toBe('application/x-www-form-urlencoded');
       });
 
-      it('should use different scopes with different withScopes calls', async () => {
-        const auth = createMockSpaConfig();
-        const service = initializeMyOrganizationClient(auth); // call[0]
-
-        service.withScopes(mockScopes.organizationRead); // call[1]
-        const fetcher1 = mockMyOrganizationClient.mock.calls[1]![0].fetcher;
-        await fetcher1!(TEST_URL, mockRequestInits.post);
-
-        service.withScopes(mockScopes.complex); // call[2]
-        const fetcher2 = mockMyOrganizationClient.mock.calls[2]![0].fetcher;
-        await fetcher2!(TEST_URL, mockRequestInits.post);
-
-        expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenNthCalledWith(
-          1,
-          expect.objectContaining({
-            authorizationParams: expect.objectContaining({ scope: mockScopes.organizationRead }),
-          }),
-        );
-        expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenNthCalledWith(
-          2,
-          expect.objectContaining({
-            authorizationParams: expect.objectContaining({ scope: mockScopes.complex }),
-          }),
-        );
-      });
-
       it('should use Headers object for headers', async () => {
         const auth = createMockSpaConfig();
         initializeMyOrganizationClient(auth);
@@ -371,20 +248,6 @@ describe('initializeMyOrganizationClient', () => {
 
         expect(mockFetch).toHaveBeenCalledTimes(1);
         expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenCalledTimes(1);
-      });
-
-      it('should pass empty scope string when no withScopes called', async () => {
-        const auth = createMockSpaConfig();
-        initializeMyOrganizationClient(auth);
-
-        const fetcher = getFetcherFromMockCalls(mockMyOrganizationClient);
-        await fetcher!(TEST_URL, mockRequestInits.post);
-
-        expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenCalledWith(
-          expect.objectContaining({
-            authorizationParams: expect.objectContaining({ scope: '' }),
-          }),
-        );
       });
 
       it('should not add Content-Type for GET requests without body', async () => {
@@ -421,53 +284,6 @@ describe('initializeMyOrganizationClient', () => {
   });
 
   describe('edge cases', () => {
-    it('should handle very long scope strings', async () => {
-      const service = initializeMyOrganizationClient(mockProxyConfig); // call[0]
-      const longScope = 'read:organization '.repeat(100).trim();
-      service.withScopes(longScope); // call[1]
-
-      const fetcher = mockMyOrganizationClient.mock.calls[1]![0].fetcher;
-      await fetcher!(TEST_URL, mockRequestInits.post);
-
-      expect((mockFetch.mock.calls[0]![1]!.headers as Headers).get('auth0-scope')).toBe(longScope);
-    });
-
-    it('should handle very long tokens', async () => {
-      const auth = createMockSpaConfig(mockTokens.long);
-      initializeMyOrganizationClient(auth);
-
-      const fetcher = mockMyOrganizationClient.mock.calls[0]![0].fetcher;
-      await fetcher!(TEST_URL, mockRequestInits.post);
-
-      const headers = mockFetch.mock.calls[0]![1]!.headers;
-      expect(headers.get('Authorization')).toBe(`Bearer ${mockTokens.long}`);
-    });
-
-    it('should handle tokens with special characters', async () => {
-      const auth = createMockSpaConfig(mockTokens.withSpecialChars);
-      initializeMyOrganizationClient(auth);
-
-      const fetcher = mockMyOrganizationClient.mock.calls[0]![0].fetcher;
-      await fetcher!(TEST_URL, mockRequestInits.post);
-
-      const headers = mockFetch.mock.calls[0]![1]!.headers;
-      expect(headers.get('Authorization')).toBe(`Bearer ${mockTokens.withSpecialChars}`);
-    });
-
-    it('should handle multiple withScopes calls with independent scopes', async () => {
-      const service = initializeMyOrganizationClient(mockProxyConfig); // call[0]
-
-      for (let i = 0; i < 5; i++) {
-        service.withScopes(`scope${i}`); // call[i+1]
-        const fetcher = mockMyOrganizationClient.mock.calls[i + 1]![0].fetcher;
-        await fetcher!(TEST_URL, mockRequestInits.post);
-
-        expect((mockFetch.mock.calls[i]![1]!.headers as Headers).get('auth0-scope')).toBe(
-          `scope${i}`,
-        );
-      }
-    });
-
     it('should handle Headers object in init.headers', async () => {
       const auth = createMockSpaConfig();
       initializeMyOrganizationClient(auth);
@@ -485,7 +301,6 @@ describe('initializeMyOrganizationClient', () => {
 
       const headers = mockFetch.mock.calls[0]![1]!.headers as Headers;
       expect(headers.get('X-Custom')).toBe('value');
-      expect(headers.get('Authorization')).toBe(`Bearer ${mockTokens.standard}`);
     });
 
     it('should handle array-based headers in init.headers for proxy mode', async () => {
@@ -503,18 +318,6 @@ describe('initializeMyOrganizationClient', () => {
       expect(headers.get('X-Custom')).toBe('value');
     });
 
-    it('should handle scope strings with leading/trailing whitespace', async () => {
-      const service = initializeMyOrganizationClient(mockProxyConfig); // call[0]
-      service.withScopes(mockScopes.withSpaces); // call[1]
-
-      const fetcher = mockMyOrganizationClient.mock.calls[1]![0].fetcher;
-      await fetcher!(TEST_URL, mockRequestInits.post);
-
-      const headers = mockFetch.mock.calls[0]![1]!.headers as Headers;
-      // Headers API trims leading/trailing whitespace per HTTP spec
-      expect(headers.get('auth0-scope')).toBe(mockScopes.withSpaces.trim());
-    });
-
     it('should handle PATCH requests with body', async () => {
       const auth = createMockSpaConfig();
       initializeMyOrganizationClient(auth);
@@ -524,7 +327,6 @@ describe('initializeMyOrganizationClient', () => {
 
       const headers = mockFetch.mock.calls[0]![1]!.headers;
       expect(headers.get('Content-Type')).toBe('application/json');
-      expect(headers.get('Authorization')).toBe(`Bearer ${mockTokens.standard}`);
     });
 
     it('should handle undefined body', async () => {
@@ -547,38 +349,24 @@ describe('initializeMyOrganizationClient', () => {
   });
 
   describe('return value structure', () => {
-    it('should return object with withScopes, organization, and organizationDetails', () => {
+    it('should return object with organization and organizationDetails', () => {
       const result = initializeMyOrganizationClient(mockProxyConfig);
 
-      expect(result).toHaveProperty('withScopes');
       expect(result).toHaveProperty('organization');
       expect(result).toHaveProperty('organizationDetails');
     });
 
-    it('should have withScopes as a function', () => {
-      const result = initializeMyOrganizationClient(mockProxyConfig);
+    it('should return new top-level instances on each call', () => {
+      const result1 = initializeMyOrganizationClient(mockProxyConfig);
+      const result2 = initializeMyOrganizationClient(mockProxyConfig);
 
-      expect(typeof result.withScopes).toBe('function');
-    });
-
-    it('should return a new instance from withScopes', () => {
-      const result = initializeMyOrganizationClient(mockProxyConfig);
-      const scoped = result.withScopes(mockScopes.organizationRead);
-
-      expect(scoped).not.toBe(result);
-    });
-
-    it('should create new MyOrganizationClient on withScopes', () => {
-      const result = initializeMyOrganizationClient(mockProxyConfig);
-      result.withScopes(mockScopes.organizationRead);
-
+      expect(result1).not.toBe(result2);
       expect(mockMyOrganizationClient).toHaveBeenCalledTimes(2);
     });
 
     it('should have consistent return structure for proxy mode', () => {
       const result = initializeMyOrganizationClient(mockProxyConfig);
 
-      expect(typeof result.withScopes).toBe('function');
       expect(result).toHaveProperty('organization');
       expect(result).toHaveProperty('organizationDetails');
     });
@@ -586,7 +374,6 @@ describe('initializeMyOrganizationClient', () => {
     it('should have consistent return structure for SPA mode', () => {
       const result = initializeMyOrganizationClient(createMockSpaConfig());
 
-      expect(typeof result.withScopes).toBe('function');
       expect(result).toHaveProperty('organization');
       expect(result).toHaveProperty('organizationDetails');
     });
@@ -594,31 +381,25 @@ describe('initializeMyOrganizationClient', () => {
 
   describe('integration scenarios', () => {
     it('should handle complete proxy mode workflow', async () => {
-      const service = initializeMyOrganizationClient(mockProxyConfig); // call[0]
-      service.withScopes(mockScopes.organizationRead); // call[1]
+      initializeMyOrganizationClient(mockProxyConfig);
 
-      const fetcher = mockMyOrganizationClient.mock.calls[1]![0].fetcher;
+      const fetcher = mockMyOrganizationClient.mock.calls[0]![0].fetcher;
       await fetcher!(TEST_URL, mockRequestInits.post);
 
       expect(mockFetch).toHaveBeenCalled();
-      expect((mockFetch.mock.calls[0]![1]!.headers as Headers).get('auth0-scope')).toBe(
-        mockScopes.organizationRead,
+      expect((mockFetch.mock.calls[0]![1]!.headers as Headers).get('Content-Type')).toBe(
+        'application/json',
       );
     });
 
     it('should handle complete SPA mode workflow', async () => {
       const auth = createMockSpaConfig();
-      const service = initializeMyOrganizationClient(auth); // call[0]
-      service.withScopes(mockScopes.complex); // call[1]
+      initializeMyOrganizationClient(auth);
 
-      const fetcher = mockMyOrganizationClient.mock.calls[1]![0].fetcher;
+      const fetcher = mockMyOrganizationClient.mock.calls[0]![0].fetcher;
       await fetcher!(TEST_URL, mockRequestInits.post);
 
-      expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenCalledWith(
-        expect.objectContaining({
-          authorizationParams: expect.objectContaining({ scope: mockScopes.complex }),
-        }),
-      );
+      expect(auth.contextInterface.getAccessTokenSilently).toHaveBeenCalled();
       expect(mockFetch).toHaveBeenCalled();
     });
 
@@ -626,8 +407,8 @@ describe('initializeMyOrganizationClient', () => {
       const proxyService = initializeMyOrganizationClient(mockProxyConfig);
       const spaService = initializeMyOrganizationClient(createMockSpaConfig());
 
-      expect(typeof proxyService.withScopes).toBe('function');
-      expect(typeof spaService.withScopes).toBe('function');
+      expect(proxyService).toHaveProperty('organization');
+      expect(spaService).toHaveProperty('organization');
       expect(mockMyOrganizationClient).toHaveBeenCalledTimes(2);
     });
   });

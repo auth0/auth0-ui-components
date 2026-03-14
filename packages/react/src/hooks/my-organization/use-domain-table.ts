@@ -9,7 +9,6 @@ import {
   type CreateOrganizationDomainRequestContent,
   type IdentityProviderAssociatedWithDomain,
   BusinessError,
-  MY_ORGANIZATION_DOMAIN_SCOPES,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -53,7 +52,7 @@ export function useDomainTable({
   const [selectedDomainId, setSelectedDomainId] = useState<string | null>(null);
 
   const fetchProvidersForDomain = async (domainId: string) => {
-    const api = coreClient!.getMyOrganizationApiClient().withScopes(MY_ORGANIZATION_DOMAIN_SCOPES);
+    const api = coreClient!.getMyOrganizationApiClient();
 
     const [allProvidersResponse, associatedProvidersResponse] = await Promise.all([
       api.organization.identityProviders.list(),
@@ -77,7 +76,7 @@ export function useDomainTable({
     queryFn: async () => {
       const response = await coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
+
         .organization.domains.list();
       return response?.organization_domains ?? [];
     },
@@ -97,7 +96,7 @@ export function useDomainTable({
       }
       return coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
+
         .organization.domains.create(data);
     },
     onSuccess: (result) => {
@@ -113,7 +112,7 @@ export function useDomainTable({
       }
       const response = await coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
+
         .organization.domains.verify.create(domain.id);
       return response.status === 'verified';
     },
@@ -130,7 +129,7 @@ export function useDomainTable({
       }
       await coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
+
         .organization.domains.delete(domain.id);
     },
     onSuccess: (_, domain) => {
@@ -150,7 +149,7 @@ export function useDomainTable({
       }
       await coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
+
         .organization.identityProviders.domains.create(provider.id!, { domain: domain.domain });
     },
     onSuccess: (_, { domain, provider }) => {
@@ -169,7 +168,7 @@ export function useDomainTable({
       }
       await coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_DOMAIN_SCOPES)
+
         .organization.identityProviders.domains.delete(provider.id!, domain.domain);
     },
     onSuccess: (_, { domain, provider }) => {

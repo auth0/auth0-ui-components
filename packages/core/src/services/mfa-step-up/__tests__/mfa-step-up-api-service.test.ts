@@ -286,20 +286,6 @@ describe('initializeMfaStepUpClient', () => {
       expect(JSON.parse(init.body)).toEqual(verifyParams);
     });
 
-    it('returns parsed token response', async () => {
-      const tokenResponse = {
-        access_token: 'new-access-token',
-        token_type: 'Bearer',
-        expires_in: 86400,
-      };
-      stubFetch(true, tokenResponse);
-
-      const client = initializeMfaStepUpClient(PROXY_AUTH);
-      const result = await client.verify({ mfaToken: MFA_TOKEN, otp: '123456' });
-
-      expect(result).toEqual(tokenResponse);
-    });
-
     it('throws parsed error body on non-ok response', async () => {
       const errorBody = { error: 'invalid_grant', error_description: 'Invalid OTP' };
       stubFetch(false, errorBody);

@@ -12,7 +12,6 @@ import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/
 
 const createMockMyAccountApiService = (): CoreClientInterface['myAccountApiClient'] => {
   const service = {
-    withScopes: vi.fn(),
     factors: {
       list: vi.fn().mockResolvedValue(createMockAvailableFactors()),
     },
@@ -22,11 +21,7 @@ const createMockMyAccountApiService = (): CoreClientInterface['myAccountApiClien
       delete: vi.fn().mockResolvedValue(undefined),
       verify: vi.fn().mockResolvedValue({}),
     },
-    mfa: {
-      fetchFactors: vi.fn().mockResolvedValue([]),
-    },
   } as unknown as NonNullable<CoreClientInterface['myAccountApiClient']>;
-  service.withScopes = vi.fn(() => service) as typeof service.withScopes;
   return service;
 };
 
@@ -35,7 +30,6 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
   const mockProvider = createMockIdentityProvider();
 
   const service = {
-    withScopes: vi.fn(),
     organizationDetails: {
       get: vi.fn().mockResolvedValue(mockOrganization),
       update: vi.fn().mockResolvedValue(mockOrganization),
@@ -100,7 +94,6 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
       },
     },
   } as unknown as NonNullable<CoreClientInterface['myOrganizationApiClient']>;
-  service.withScopes = vi.fn(() => service) as typeof service.withScopes;
   return service;
 };
 

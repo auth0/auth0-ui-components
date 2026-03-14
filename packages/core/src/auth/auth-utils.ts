@@ -60,7 +60,7 @@ export const AuthUtils = {
     if (auth.authProxyUrl) {
       return {
         mode: 'proxy',
-        proxyUrl: auth.authProxyUrl.replace(/\/$/, ''),
+        proxyUrl: auth.authProxyUrl.trim().split(/[?#]/)[0]!.replace(/\/$/, ''),
         ...(auth.domain && { domain: auth.domain.trim() }),
       };
     }
@@ -73,7 +73,7 @@ export const AuthUtils = {
       );
     }
 
-    const domain = auth.domain ?? contextInterface.getConfiguration()?.domain;
+    const domain = contextInterface.getConfiguration()?.domain ?? auth.domain;
 
     if (!domain) {
       throw new Error(
