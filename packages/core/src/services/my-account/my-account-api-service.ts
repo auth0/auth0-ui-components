@@ -11,10 +11,9 @@ import type { ClientAuthConfig } from '../../auth/auth-types';
 
 /**
  * Initializes the My Account API client for MFA and user profile operations.
- * @internal
  *
  * @param config - Auth configuration — either proxy or domain mode
- * @returns My Account API client
+ * @returns Initialized MyAccountClient
  */
 export function initializeMyAccountClient(config: ClientAuthConfig): MyAccountClient {
   const MY_ACCOUNT_PATH = 'me';

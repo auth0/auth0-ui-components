@@ -10,10 +10,9 @@ import type { ClientAuthConfig } from '@core/auth/auth-types';
 
 /**
  * Initializes the My Organization API client for organization, SSO, and domain operations.
- * @internal
  *
  * @param config - Auth configuration — either proxy or domain mode
- * @returns My Organization API client
+ * @returns Initialized MyOrganizationClient
  */
 export function initializeMyOrganizationClient(config: ClientAuthConfig): MyOrganizationClient {
   const MY_ORGANIZATION_PATH = 'my-org';
