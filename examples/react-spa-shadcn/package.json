@@ -76,7 +76,7 @@
     "@types/react": "^19.1.7",
     "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react-swc": "^3.5.0",
-    "tailwindcss": "^4.1.10",
+    "tailwindcss": "^4.2.1",
     "vite": "^6.3.5"
   }
 }
