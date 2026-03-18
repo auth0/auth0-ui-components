@@ -27,6 +27,7 @@ describe('useSsoProviderCreate', () => {
     strategy: 'samlp',
     display_name: 'Test Provider',
     options: {},
+    attributes: [],
   };
 
   const mockT = vi.fn((key: string, params?: Record<string, string>) => {
