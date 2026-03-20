@@ -1,4 +1,4 @@
-![Auth0 React Web Universal Components SDK for JavaScript/TypeScript](https://cdn.auth0.com/website/sdks/banners/web-ui-components-react.png)
+![Auth0 React Web Universal Components SDK for JavaScript/TypeScript](https://cdn.auth0.com/website/universalcomponentsreact/universal-components-react.png)
 
 React component library for Auth0 integrations. Built with TypeScript, Radix UI, and Tailwind CSS.
 

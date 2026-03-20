@@ -49,7 +49,26 @@ export * from './services/my-organization';
 
 export * from './services/my-account';
 
-export { isMfaRequiredError } from './services/mfa-step-up/mfa-step-up-api-utils';
-export type { MfaRequiredError } from './services/mfa-step-up/mfa-step-up-api-types';
+export {
+  isMfaRequiredError,
+  normalizeMfaRequiredError,
+  normalizeFactorType,
+} from './services/mfa-step-up/mfa-step-up-api-utils';
+export {
+  FACTOR_TYPE_OTP,
+  FACTOR_TYPE_SMS,
+  FACTOR_TYPE_PUSH,
+  FACTOR_TYPE_VOICE,
+} from './services/mfa-step-up/mfa-step-up-api-constants';
+export type {
+  MfaRequiredError,
+  MfaAuthenticator,
+  MfaFactorType,
+  EnrollmentFactor,
+  EnrollParams,
+  EnrollmentResponse,
+  ChallengeResponse,
+  VerifyParams,
+} from './services/mfa-step-up/mfa-step-up-api-types';
 
 export * from './assets/icons';

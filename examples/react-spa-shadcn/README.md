@@ -147,6 +147,14 @@ NODE_TLS_REJECT_UNAUTHORIZED=0 npx shadcn@latest add https://ui.auth0.com/r/my-o
 
 Update your main App component (`src/App.tsx`) to include the Auth0 Component provider:
 
+> **Note:** The `useTranslation` import from `react-i18next` is commented out in `src/App.tsx` by default. If you want to pass the current language to the `Auth0ComponentProvider`, uncomment the following line in `src/App.tsx`:
+>
+> ```tsx
+> // import { useTranslation } from 'react-i18next';
+> ```
+>
+> Also uncomment `const { i18n } = useTranslation();` inside the `App` component, and update the `Auth0ComponentProvider` prop to `i18n={{ currentLanguage: i18n.language }}`.
+
 ```tsx
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -157,7 +165,7 @@ import { Auth0Provider } from '@auth0/auth0-react';
 import { useTranslation } from 'react-i18next';
 import { config } from './config/env';
 // ========== Importing Component Provider (choose the right folder path) ==========
-import { Auth0ComponentProvider } from '@/providers/spa-provider';
+import { Auth0ComponentProvider } from '@/components/auth0/providers/spa-provider';
 
 const queryClient = new QueryClient();
 

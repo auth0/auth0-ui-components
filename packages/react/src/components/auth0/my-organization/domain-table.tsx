@@ -149,7 +149,9 @@ function DomainTableView({
         accessorKey: 'domain',
         title: t('domain_table.table.columns.domain'),
         width: '35%',
-        render: (domain) => <div className="font-medium text-primary">{domain.domain}</div>,
+        render: (domain) => (
+          <div className="font-medium text-primary truncate">{domain.domain}</div>
+        ),
       },
       {
         type: 'text',

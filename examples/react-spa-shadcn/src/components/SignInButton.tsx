@@ -2,6 +2,8 @@ import { useAuth0 } from '@auth0/auth0-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { Button } from './ui/button';
+
 export const SignInButton: React.FC = () => {
   const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
   const { t } = useTranslation();
@@ -22,12 +24,5 @@ export const SignInButton: React.FC = () => {
     return null; // Don't show sign-in button if already authenticated
   }
 
-  return (
-    <button
-      onClick={handleSignIn}
-      className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-800"
-    >
-      {t('auth.sign-in', 'Sign In')}
-    </button>
-  );
+  return <Button onClick={handleSignIn}>{t('auth.sign-in', 'Sign In')}</Button>;
 };

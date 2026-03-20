@@ -20,7 +20,56 @@
     },
     "mfa": {
       "title": "アカウントを確認してください",
-      "subtitle": "この操作を実行するには、以下のオプションのいずれかから第二認証要素を入力してください。"
+      "subtitle": "この操作を実行するには、以下のオプションのいずれかから第二認証要素を入力してください。",
+      "authenticator_type": {
+        "otp": "認証アプリ",
+        "recovery-code": "リカバリーコード",
+        "email": "メールOTP",
+        "sms": "SMS",
+        "push": "Guardian アプリによるプッシュ通知",
+        "voice": "音声通話"
+      },
+      "no_authenticators": "利用可能な認証方法がありません。",
+      "verify_button": "確認",
+      "enroll_button": "設定",
+      "cancel": "キャンセル",
+      "back": "戻る",
+      "continue": "続ける",
+      "challenge": {
+        "otp_description": "認証アプリに表示されているワンタイムコードを入力してください。",
+        "phone_title": "電話番号を確認してください",
+        "code_sent_description": "${name} に送信したワンタイムコードを入力してください。",
+        "email_title": "メールアドレスを確認してください",
+        "push_title": "プッシュ通知を送信しました",
+        "push_description": "Guardianアプリで本人確認してください",
+        "push_waiting": "確認を待っています...",
+        "recovery_code_description": "保存済みのリカバリーコードを入力してください。",
+        "resend_prompt": "コードが届きませんでしたか？",
+        "resend": "再送信",
+        "verifying": "確認中..."
+      },
+      "enroll": {
+        "install_title": "認証アプリの設定",
+        "install_description": "続行するには、モバイルデバイスのアプリストアからAuth0 Guardianアプリをインストールしてください。",
+        "app_store": "App Store",
+        "google_play": "Google Play",
+        "phone_label": "電話番号（あなたの）",
+        "phone_description": "この番号に確認コードをお送りします。",
+        "phone_title": "SMSワンタイムパスワードを受け取る電話番号を入力してください。",
+        "email_label": "メールアドレス（あなたの）",
+        "email_description": "このメールアドレスに確認コードをお送りします。",
+        "email_title": "メールワンタイムパスワード用のメールアドレスを入力してください",
+        "enrolling": "設定中...",
+        "scan_description": "このQRコードを認証アプリでスキャンしてください。",
+        "scan_helper": "認証アプリでこのコードをスキャンしてセットアップを完了してください。スキャンできない場合は、以下のコードを手動で入力してください。",
+        "push_scan_description": "このQRコードをGuardianアプリでスキャンしてください。",
+        "qr_alt": "登録QRコード",
+        "recovery_title": "リカバリーコードを生成する",
+        "recovery_description": "これらのリカバリーコードをコピーして、安全な場所に保管してください。認証方法にアクセスできなくなった場合に必要になります。",
+        "recovery_confirmed": "これらのコードを安全に記録しました",
+        "invalid_email": "有効なメールアドレスを入力してください。",
+        "invalid_phone_number": "有効な電話番号を入力してください。"
+      }
     }
   },
   "domain_management": {

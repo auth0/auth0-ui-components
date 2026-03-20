@@ -63,7 +63,7 @@ export function DomainVerifyModal({
     <Modal
       open={isOpen}
       onOpenChange={(open) => !open && onClose()}
-      className="p-10"
+      className="p-10 break-all"
       title={t('title', { domainName: domain?.domain })}
       content={
         <div className={cn('space-y-4', className)}>

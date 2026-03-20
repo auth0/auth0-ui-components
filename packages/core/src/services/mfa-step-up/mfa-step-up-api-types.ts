@@ -13,7 +13,7 @@ export interface MfaAuthenticator {
   name?: string;
   createdAt?: string;
   lastAuth?: string;
-  type?: string;
+  type?: ChallengeType;
 }
 
 export type ChallengeType =
@@ -27,11 +27,6 @@ export type ChallengeType =
 export type OobChannel = 'sms' | 'voice' | 'auth0' | 'email';
 
 export type MfaFactorType = 'otp' | 'sms' | 'email' | 'push' | 'voice';
-
-export interface FactorMapping {
-  authenticatorTypes: ['otp'] | ['oob'];
-  oobChannels?: OobChannel[];
-}
 
 export interface EnrollBaseParams {
   mfaToken: string;

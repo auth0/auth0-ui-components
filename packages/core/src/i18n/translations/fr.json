@@ -1,0 +1,1020 @@
+{
+  "common": {
+    "copy": "Copier",
+    "copied": "Copié!",
+    "error": {
+      "generic": "Un problème est survenu lors du traitement de votre demande. Veuillez réessayer ou contacter le support si le problème persiste.",
+      "bad_request": "La demande est invalide. Veuillez vérifier votre saisie et réessayer.",
+      "missing_token": "Votre session a expiré. Veuillez vous reconnecter.",
+      "insufficient_scope": "Vous n'avez pas les autorisations de portée requises pour effectuer cette action.",
+      "forbidden": "Vous n'avez pas les autorisations pour effectuer cette action.",
+      "not_found": "La ressource demandée n'a pas été trouvée.",
+      "rate_limit": "Trop de demandes. Veuillez patienter un instant et réessayer."
+    }
+  },
+  "gate_keeper": {
+    "fallback": {
+      "title": "Nous n'avons pas pu charger cette information",
+      "description": "Veuillez réessayer ou contacter le support si le problème persiste.",
+      "retry": "Réessayer"
+    },
+    "mfa": {
+      "title": "Vérifiez votre compte",
+      "subtitle": "Vous devez fournir un second facteur parmi les options ci-dessous pour effectuer cette action."
+    }
+  },
+  "domain_management": {
+    "domain_table": {
+      "header": {
+        "title": "Domaines",
+        "description": "Ajoutez un domaine pour renforcer la sécurité et simplifier la connexion en dirigeant les utilisateurs vers votre fournisseur d'identité en fonction de leur domaine de courriel.",
+        "create_button_text": "Ajouter un domaine"
+      },
+      "table": {
+        "empty_message": "Vous n'avez aucun domaine.",
+        "columns": {
+          "domain": "Nom de domaine",
+          "status": "Statut"
+        },
+        "actions": {
+          "configure_button_text": "Configurer",
+          "view_button_text": "Voir",
+          "verify_button_text": "Vérifier",
+          "delete_button_text": "Supprimer"
+        }
+      },
+      "notifications": {
+        "general_error": "Un problème est survenu lors du traitement de votre demande. Veuillez réessayer ou contacter le support si le problème persiste.",
+        "fetch_providers_error": "Un problème est survenu lors de la récupération des fournisseurs. Veuillez réessayer ou contacter le support si le problème persiste.",
+        "fetch_domains_error": "Un problème est survenu lors de la récupération des domaines. Veuillez réessayer ou contacter le support si le problème persiste.",
+        "domain_create": {
+          "success": "${domainName} a été créé.",
+          "error": "Un problème est survenu lors de la création du domaine.",
+          "on_before": "Le domaine n'est pas valide."
+        },
+        "domain_verify": {
+          "success": "${domainName} a été vérifié.",
+          "error": "Un problème est survenu lors de la vérification du domaine.",
+          "on_before": "La validation de la vérification du domaine n'est pas correcte.",
+          "verification_failed": "${domainName} n'a pas pu être vérifié. Veuillez patienter et réessayer ou vérifier auprès de votre fournisseur DNS."
+        },
+        "domain_delete": {
+          "success": "${domainName} a été supprimé.",
+          "error": "Un problème est survenu lors de la suppression du domaine."
+        },
+        "domain_associate_provider": {
+          "success": "${domainName} activé pour le fournisseur ${idp}.",
+          "error": "Un problème est survenu lors de l'association du domaine au fournisseur.",
+          "on_before": "La validation de l'association du domaine au fournisseur n'est pas correcte."
+        },
+        "domain_delete_provider": {
+          "success": "${domainName} désactivé pour le fournisseur ${idp}.",
+          "error": "Un problème est survenu lors de la suppression du domaine du fournisseur.",
+          "on_before": "La validation de la suppression du domaine du fournisseur n'est pas correcte."
+        }
+      }
+    },
+    "domain_create": {
+      "modal": {
+        "title": "Ajouter un domaine",
+        "field": {
+          "label": "URL du domaine",
+          "placeholder": "nom-de-domaine.com",
+          "error": "Veuillez entrer un domaine valide"
+        },
+        "actions": {
+          "cancel_button_text": "Annuler",
+          "create_button_text": "Ajouter un domaine"
+        }
+      }
+    },
+    "domain_configure_providers": {
+      "modal": {
+        "title": "Configurer ${domain}",
+        "description": "Dirigez les utilisateurs avec un domaine de courriel ${domain} vers votre fournisseur d'identité pour l'authentification pour les fournisseurs sélectionnés.",
+        "table": {
+          "empty_message": "Vous n'avez aucun fournisseur.",
+          "columns": {
+            "name": "Nom",
+            "provider": "Fournisseur d'identité"
+          },
+          "actions": {
+            "add_provider_button_text": "Ajouter un fournisseur",
+            "view_provider_button_text": "Voir",
+            "enable_provider_tooltip": "Basculer pour activer le domaine pour ce fournisseur",
+            "disable_provider_tooltip": "Basculer pour désactiver le domaine pour ce fournisseur"
+          }
+        },
+        "actions": {
+          "close_button_text": "Fermer"
+        }
+      }
+    },
+    "domain_delete": {
+      "modal": {
+        "title": "Supprimer le domaine",
+        "description": {
+          "pending": "${domainName} est en attente de vérification et peut prendre jusqu'à 48 heures pour être traité. Êtes-vous sûr de vouloir supprimer ce domaine ?",
+          "verified": "La suppression de ${domainName} peut perturber les flux de connexion des utilisateurs. Êtes-vous sûr de vouloir supprimer ce domaine ?"
+        },
+        "actions": {
+          "cancel_button_text": "Annuler",
+          "delete_button_text": "Supprimer"
+        }
+      }
+    },
+    "domain_verify": {
+      "modal": {
+        "title": "Ajouter des enregistrements DNS pour ${domainName}",
+        "txt_record_name": {
+          "label": "Nom de l'enregistrement TXT"
+        },
+        "txt_record_content": {
+          "label": "Contenu de l'enregistrement TXT"
+        },
+        "verification_status": {
+          "label": "Statut de vérification :",
+          "pending": "En attente",
+          "description": "Votre domaine est en attente de vérification. Cliquez sur 'Vérifier' pour actualiser le statut, ou revenez plus tard. Les modifications DNS peuvent prendre jusqu'à 48 heures, mais sont généralement traitées plus rapidement."
+        },
+        "actions": {
+          "verify_button_text": "Vérifier",
+          "delete_button_text": "Supprimer",
+          "done_button_text": "Terminé"
+        },
+        "errors": {
+          "verification_failed": "${domainName} n'a pas pu être vérifié. Veuillez patienter et réessayer ou vérifier auprès de votre fournisseur DNS."
+        }
+      }
+    },
+    "shared": {
+      "domain_statuses": {
+        "pending": "En attente",
+        "verified": "Vérifié",
+        "failed": "Échoué"
+      }
+    }
+  },
+  "organization_management": {
+    "organization_details": {
+      "sections": {
+        "settings": {
+          "title": "Paramètres",
+          "fields": {
+            "name": {
+              "label": "Nom",
+              "placeholder": "Entrez le nom de l'organisation",
+              "helper_text": "Un identifiant lisible par l'humain pour l'organisation, utilisé par les utilisateurs finaux pour les diriger vers leur organisation dans votre application.",
+              "error": "Veuillez entrer un nom d'organisation valide"
+            },
+            "display_name": {
+              "label": "Nom affiché",
+              "placeholder": "Entrez le nom affiché",
+              "helper_text": "Le nom affiché aux utilisateurs finaux de cette organisation.",
+              "error": "Veuillez entrer un nom affiché valide"
+            }
+          }
+        },
+        "branding": {
+          "title": "Image de marque",
+          "fields": {
+            "logo": {
+              "label": "Logo de l'organisation",
+              "helper_text": "Le logo qui sera affiché aux utilisateurs finaux pour cette organisation lors de toute interaction avec eux.",
+              "error": "Veuillez entrer une URL HTTPS valide pour le logo"
+            },
+            "primary_color": {
+              "label": "Couleur principale",
+              "helper_text": "La couleur principale pour les boutons affichés aux utilisateurs finaux de cette organisation dans les flux d'authentification de votre application.",
+              "error": "Veuillez entrer un format de couleur valide"
+            },
+            "page_background_color": {
+              "label": "Couleur de fond de la page",
+              "helper_text": "La couleur de fond de la page affichée aux utilisateurs finaux de cette organisation dans les flux d'authentification de votre application.",
+              "error": "Veuillez entrer un format de couleur valide"
+            }
+          }
+        }
+      },
+      "unsaved_changes_text": "Modifications non enregistrées",
+      "submit_button_label": "Enregistrer",
+      "cancel_button_label": "Annuler"
+    },
+    "organization_delete": {
+      "title": "Supprimer ${organizationName}",
+      "description": "Une fois confirmé, cette opération ne peut pas être annulée.",
+      "delete_button_label": "Supprimer",
+      "modal_title": "Supprimer ${organizationName}",
+      "modal_description": "Êtes-vous sûr de vouloir supprimer ${organizationName} ? Les utilisateurs seront conservés mais l'appartenance à cette organisation sera supprimée. Une fois confirmé, cette action ne peut pas être annulée.",
+      "organization_name_field_placeholder": "Saisissez le nom de l'organisation",
+      "organization_name_field_label": "Nom de l'organisation",
+      "organization_name_field_error": "Veuillez saisir \"${organizationName}\" pour confirmer la suppression",
+      "cancel_button_label": "Annuler"
+    },
+    "organization_details_edit": {
+      "header": {
+        "back_button_text": "Retour aux organisations",
+        "title": "${organizationName}"
+      },
+      "save_organization_changes_message": "Les modifications ont été enregistrées pour ${organizationName}.",
+      "organization_changes_error_message": "Un problème est survenu lors du traitement de votre demande. ${message}.",
+      "organization_changes_error_message_generic": "Un problème est survenu lors du traitement de votre demande. Veuillez réessayer ou contacter le support si le problème persiste."
+    }
+  },
+  "idp_management": {
+    "sso_provider_table": {
+      "header": {
+        "title": "Connexion unique",
+        "description": "Configurez et gérez l'accès SSO pour votre organisation.",
+        "create_button_text": "Ajouter un fournisseur"
+      },
+      "table": {
+        "empty_message": "Vous n'avez aucun fournisseur.",
+        "columns": {
+          "name": "Nom",
+          "identity_provider": "Fournisseur d'identité",
+          "display_name": "Nom affiché"
+        },
+        "actions": {
+          "edit_button_text": "Modifier",
+          "delete_button_text": "Supprimer",
+          "remove_button_text": "Retirer de l'organisation",
+          "enabled_tooltip": "Basculer pour désactiver le provisioning",
+          "disabled_tooltip": "Basculer pour activer le provisioning"
+        }
+      },
+      "create_consent_modal": {
+        "title": "Avant de créer le fournisseur, veuillez noter :",
+        "description": "La création de ce fournisseur activera l'accès SSO à ${organizationName}. Pour prioriser la sécurité, attribuez l'accès et testez le fournisseur dès qu'il est actif.",
+        "actions": {
+          "cancel_button_text": "Annuler",
+          "process_button_text": "Procéder"
+        }
+      }
+    },
+    "create_sso_provider": {
+      "steps": {
+        "one": "Fournisseur d'identité",
+        "two": "Détails du fournisseur",
+        "three": "Configurer le fournisseur"
+      },
+      "header": {
+        "title": "Ajouter un fournisseur",
+        "back_button_text": "Retour à la connexion unique"
+      },
+      "nextButtonLabel": "Suivant",
+      "previousButtonLabel": "Retour",
+      "completeButtonLabel": "Créer le fournisseur",
+      "notifications": {
+        "general_error": "Un problème est survenu lors du traitement de votre demande. Veuillez réessayer ou contacter le support si le problème persiste.",
+        "provider_create_success": "${providerName} a été créé.",
+        "provider_create_duplicated_provider_error": "Le fournisseur ${providerName} existe déjà. Veuillez choisir un autre nom.",
+        "provider_create_discovery_failure": "${domain} introuvable. Vérifiez le domaine et réessayez."
+      },
+      "provider_select": {
+        "title": "Sélectionnez votre fournisseur d'identité",
+        "description": "Choisissez le fournisseur d'identité que vous souhaitez intégrer à Auth0 pour accéder aux instructions de configuration étape par étape."
+      },
+      "provider_details": {
+        "title": "Détails du fournisseur",
+        "description": "Fournissez un nom reconnaissable et un identifiant permanent pour vous aider à gérer et référencer ce fournisseur plus tard.",
+        "fields": {
+          "name": {
+            "label": "Nom",
+            "placeholder": "Entrez un identifiant",
+            "helper_text": "Un identifiant lisible par l'humain pour le fournisseur. Cela ne peut pas être modifié.",
+            "error": "Veuillez entrer un nom d'organisation valide"
+          },
+          "display_name": {
+            "label": "Nom affiché",
+            "placeholder": "Entrez le nom affiché",
+            "helper_text": "Le nom affiché aux utilisateurs finaux de ce fournisseur.",
+            "error": "Veuillez entrer un nom affiché valide"
+          }
+        }
+      },
+      "provider_configure": {
+        "title": "Configurer le fournisseur",
+        "description": "Établissez une connexion entre votre fournisseur d'identité et Auth0.",
+        "fields": {
+          "common": {
+            "show_as_button": {
+              "label": "Afficher comme bouton",
+              "helper_text": "Affichez cette connexion comme un bouton sur la page de connexion"
+            },
+            "assign_membership_on_login": {
+              "label": "Attribuer l'appartenance lors de la connexion",
+              "helper_text": "Accordez automatiquement l'appartenance à l'organisation aux utilisateurs qui se connectent via cette connexion"
+            }
+          },
+          "okta": {
+            "domain": {
+              "label": "Domaine Okta",
+              "placeholder": "nom-de-domaine.okta.com",
+              "helper_text": "<link>Où trouver le domaine Okta ?</link>",
+              "error": "Veuillez entrer un domaine Okta valide"
+            },
+            "client_id": {
+              "label": "ID client",
+              "placeholder": "Entrez votre ID client",
+              "helper_text": "Identifiant unique pour l'intégration de l'application ou du service client. <link>Où trouver l'ID client ?</link>",
+              "error": "Veuillez entrer un ID client valide"
+            },
+            "client_secret": {
+              "label": "Secret client",
+              "placeholder": "Entrez votre secret client",
+              "helper_text": "Jeton confidentiel utilisé pour l'authentification du client. <link>Où trouver le secret client ?</link>",
+              "error": "Veuillez entrer un secret client valide"
+            },
+            "callback_url": {
+              "label": "URL de rappel",
+              "placeholder": "https://staff0.local.dev.auth0.com/login/callback",
+              "helper_text": "Vous devrez peut-être configurer le tenant Okta avec cette URL de rappel.",
+              "error": "Veuillez entrer une URL valide"
+            }
+          },
+          "google-apps": {
+            "domain": {
+              "label": "Domaine Google Workspace",
+              "placeholder": "votre-domaine-google-workspace.com",
+              "error": "Veuillez entrer un domaine Google Workspace valide"
+            },
+            "client_id": {
+              "label": "ID client",
+              "placeholder": "Entrez votre ID client",
+              "helper_text": "Identifiant unique pour l'intégration de l'application ou du service client.",
+              "error": "Veuillez entrer un ID client valide"
+            },
+            "client_secret": {
+              "label": "Secret client",
+              "placeholder": "Entrez votre secret client",
+              "helper_text": "Jeton confidentiel utilisé pour l'authentification du client.",
+              "error": "Veuillez entrer un secret client valide"
+            },
+            "callback_url": {
+              "label": "URL de rappel",
+              "placeholder": "https://staff0.local.dev.auth0.com/login/callback",
+              "helper_text": "Vous devrez peut-être configurer le tenant Google Workspace avec cette URL de rappel.",
+              "error": "Veuillez entrer une URL valide"
+            }
+          },
+          "waad": {
+            "tenant_domain": {
+              "label": "Domaine Microsoft Entra ID",
+              "placeholder": "votre-domaine-entra-id.com",
+              "error": "Veuillez entrer un domaine Microsoft Entra ID valide"
+            },
+            "client_id": {
+              "label": "ID client",
+              "placeholder": "Entrez votre ID client",
+              "helper_text": "Identifiant unique pour l'intégration de l'application ou du service client.",
+              "error": "Veuillez entrer un ID client valide"
+            },
+            "client_secret": {
+              "label": "Secret client",
+              "placeholder": "Entrez votre secret client",
+              "helper_text": "Jeton confidentiel utilisé pour l'authentification du client.",
+              "error": "Veuillez entrer un secret client valide"
+            },
+            "callback_url": {
+              "label": "URL de rappel",
+              "placeholder": "https://staff0.local.dev.auth0.com/login/callback",
+              "helper_text": "Vous devrez peut-être configurer le tenant Entra ID avec cette URL de rappel.",
+              "error": "Veuillez entrer une URL valide"
+            }
+          },
+          "oidc": {
+            "discovery_url": {
+              "label": "Point de terminaison de configuration OpenID Provider",
+              "placeholder": "https://example.com/.well-known/openid-configuration",
+              "helper_text": "Entrez l'URL du document de découverte du fournisseur OpenID Connect avec lequel vous souhaitez vous connecter.",
+              "error": "Veuillez entrer une URL de découverte valide"
+            },
+            "type": {
+              "label": "Canal de communication",
+              "helper_text": "Sélectionnez si les échanges d'authentification se font via une communication serveur à serveur (Back Channel) ou via le navigateur en utilisant le flux implicite avec Form Post (Front Channel).",
+              "options": {
+                "back_channel": {
+                  "label": "Back Channel"
+                },
+                "front_channel": {
+                  "label": "Front Channel"
+                }
+              }
+            },
+            "client_id": {
+              "label": "ID client",
+              "placeholder": "Entrez votre ID client",
+              "helper_text": "Identifiant unique pour l'intégration de l'application ou du service client.",
+              "error": "Veuillez entrer un ID client valide"
+            },
+            "client_secret": {
+              "label": "Secret client",
+              "placeholder": "Entrez votre secret client",
+              "helper_text": "Jeton confidentiel utilisé pour l'authentification du client.",
+              "error": "Veuillez entrer un secret client valide"
+            }
+          },
+          "samlp": {
+            "meta_data_source": {
+              "label": "Source des métadonnées",
+              "options": {
+                "meta_data_url": {
+                  "label": "URL des métadonnées"
+                },
+                "meta_data_file": {
+                  "label": "Fichier de métadonnées"
+                }
+              }
+            },
+            "meta_data_url": {
+              "label": "URL des métadonnées",
+              "placeholder": "https://example.com/samlp/metadata.xml",
+              "helper_text": "Emplacement pour récupérer les informations de connexion SAML SSO pour l'intégration.",
+              "error": "Veuillez entrer une URL de métadonnées valide"
+            },
+            "single_sign_on_login_url": {
+              "label": "URL de connexion SSO",
+              "placeholder": "https://example.com/idp/saml/",
+              "helper_text": "Point de terminaison pour initier une authentification sécurisée dans les connexions SAML SSO.",
+              "error": "Veuillez entrer une URL de connexion SSO valide"
+            },
+            "cert": {
+              "label": "Certificat de signature",
+              "placeholder": "Télécharger le certificat de signature",
+              "helper_text": "Clé publique SAML X.509 encodée en format PEM ou CER.",
+              "error": "Veuillez télécharger un certificat de signature valide"
+            },
+            "advanced_settings": {
+              "title": "Paramètres avancés",
+              "sign_request": {
+                "label": "Signer la demande",
+                "helper_text_metadata_file": "Lorsque activé, la demande d'authentification SAML sera signée. Téléchargez le <link>certificat</link> et fournissez-le au SAMLP qui recevra l'assertion signée pour valider la signature. Cela doit être activé d'abord dans le SAMLP. Une fois activé, partagez l'URL des métadonnées pour l'intégration.",
+                "helper_text_metadata_url": "Lorsque activé, la demande d'authentification SAML sera signée. Téléchargez le <link>certificat</link> et fournissez-le au SAMLP qui recevra l'assertion signée pour valider la signature."
+              },
+              "request_protocol_binding": {
+                "label": "Protocole de liaison de la demande",
+                "placeholder": "HTTP-Post",
+                "helper_text": "Le protocole SAML à utiliser pour les demandes d'authentification.",
+                "error": "Veuillez sélectionner un protocole de liaison"
+              },
+              "sign_request_algorithm": {
+                "label": "Algorithme de signature de la demande",
+                "placeholder": "RSA-SHA256",
+                "helper_text": "L'algorithme utilisé pour signer les demandes d'authentification SAML.",
+                "error": "Veuillez sélectionner un algorithme de signature"
+              },
+              "sign_request_algorithm_digest": {
+                "label": "Algorithme de digest de la demande",
+                "placeholder": "SHA256",
+                "helper_text": "L'algorithme de digest utilisé pour la signature des demandes SAML.",
+                "error": "Veuillez sélectionner un algorithme de digest"
+              }
+            },
+            "icon_url": {
+              "label": "URL de l'icône",
+              "placeholder": "Entrez l'URL de l'icône",
+              "helper_text": "URL pour l'icône du fournisseur affichée aux utilisateurs.",
+              "error": "Veuillez entrer une URL valide"
+            }
+          },
+          "adfs": {
+            "meta_data_source": {
+              "label": "Source des métadonnées ADFS",
+              "options": {
+                "meta_data_url": {
+                  "label": "URL ADFS"
+                },
+                "meta_data_file": {
+                  "label": "Fichier de métadonnées"
+                }
+              }
+            },
+            "meta_data_url": {
+              "label": "URL des métadonnées",
+              "placeholder": "https://example.com/FederationMetadata/2007-06/FederationMetadata.xml",
+              "helper_text": "Emplacement pour récupérer les informations de connexion WS-Fed SSO pour l'intégration.",
+              "error": "Veuillez entrer une URL de métadonnées valide"
+            },
+            "meta_data_location_url": {
+              "label": "URL de localisation des métadonnées",
+              "placeholder": "https://HOSTNAME/FederationMetadata/2007-06/FederationMetadata.xml",
+              "helper_text": "Emplacement pour récupérer les informations de connexion WS-Fed SSO pour l'intégration.",
+              "error": "Veuillez entrer une URL de localisation des métadonnées valide"
+            },
+            "federation_metadata_file": {
+              "label": "Fichier de métadonnées de fédération",
+              "placeholder": "Télécharger le fichier de métadonnées de fédération",
+              "helper_text": "Identifiant numérique utilisé pour l'authentification sécurisée de l'identité.",
+              "error": "Veuillez télécharger un fichier de métadonnées de fédération valide"
+            },
+            "upload_button_label": "Télécharger"
+          },
+          "ping-federate": {
+            "ping_federate_baseurl": {
+              "label": "URL de connexion SSO",
+              "placeholder": "https://example.com/idp/SSO.saml2",
+              "helper_text": "Point de terminaison pour initier une authentification sécurisée dans les connexions PingFederate SSO.",
+              "error": "Veuillez entrer une URL de connexion SSO valide"
+            },
+            "sign_cert": {
+              "label": "Certificat de signature",
+              "placeholder": "Télécharger le certificat de signature",
+              "helper_text": "Identifiant numérique utilisé pour l'authentification sécurisée de l'identité.",
+              "error": "Veuillez télécharger un certificat de signature valide"
+            },
+            "advanced_settings": {
+              "title": "Paramètres avancés",
+              "sign_request": {
+                "label": "Signer la demande",
+                "helper_text": "Lorsque activé, la demande d'authentification SAML sera signée. Téléchargez le <link>certificat</link> et fournissez-le au SAMLP qui recevra l'assertion signée pour valider la signature. Cela doit être activé d'abord dans le SAMLP. Une fois activé, partagez l'URL des métadonnées pour l'intégration.",
+                "error": "Veuillez sélectionner une option"
+              },
+              "sign_request_algorithm": {
+                "label": "Algorithme de signature de la demande",
+                "placeholder": "RSA-SHA256",
+                "helper_text": "L'algorithme utilisé pour signer les demandes d'authentification SAML à PingFederate.",
+                "error": "Veuillez sélectionner un algorithme de signature"
+              },
+              "sign_request_algorithm_digest": {
+                "label": "Algorithme de digest de la demande",
+                "placeholder": "SHA256",
+                "helper_text": "L'algorithme de digest utilisé pour la signature des demandes PingFederate.",
+                "error": "Veuillez sélectionner un algorithme de digest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "edit_sso_provider": {
+      "header": {
+        "back_button_text": "Retour à la connexion unique",
+        "enable_provider_tooltip_text": "Basculer pour activer le fournisseur.",
+        "disable_provider_tooltip_text": "Basculer pour désactiver le fournisseur."
+      },
+      "mappings": {
+        "title": "Mappage",
+        "description": "Assurez-vous que les bons attributs utilisateur sont transmis du fournisseur d'identité au fournisseur de service.",
+        "description_provider_tab": "Établissez une connexion entre votre fournisseur d'identité et Auth0.",
+        "external_namespace": {
+          "label": "Espace de noms externe"
+        },
+        "required": {
+          "title": "Attributs obligatoires",
+          "description": "Assurez-vous qu'un attribut ${strategy} valide est mappé aux attributs suivants.",
+          "table": {
+            "columns": {
+              "attribute_name_label": "Nom de l'attribut",
+              "external_field_label": "Champ externe"
+            },
+            "tags": {
+              "updated": {
+                "label": "Mis à jour",
+                "tooltip": "Cet attribut a été mis à jour. Mettez à jour la configuration de votre fournisseur d'identité."
+              },
+              "removed": {
+                "label": "Supprimé",
+                "tooltip": "Cet attribut a été supprimé. Retirez-le de la configuration de votre fournisseur d'identité."
+              },
+              "new": {
+                "label": "Nouveau",
+                "tooltip": "Cet attribut a été ajouté. Ajoutez-le à la configuration de votre fournisseur d'identité."
+              }
+            }
+          }
+        },
+        "optional": {
+          "title": "Attributs optionnels",
+          "description": "Le mappage de ces attributs améliorera le profil utilisateur mais n'est pas obligatoire.",
+          "table": {
+            "columns": {
+              "attribute_name_label": "Nom de l'attribut",
+              "external_field_label": "Champ externe"
+            },
+            "tags": {
+              "updated": {
+                "label": "Mis à jour",
+                "tooltip": "Cet attribut a été mis à jour. Mettez à jour la configuration de votre fournisseur d'identité."
+              },
+              "removed": {
+                "label": "Supprimé",
+                "tooltip": "Cet attribut a été supprimé. Retirez-le de la configuration de votre fournisseur d'identité."
+              },
+              "new": {
+                "label": "Nouveau",
+                "tooltip": "Cet attribut a été ajouté. Ajoutez-le à la configuration de votre fournisseur d'identité."
+              }
+            }
+          }
+        }
+      },
+      "tabs": {
+        "sso": {
+          "name": "Connexion unique",
+          "content": {
+            "title": "Connexion unique",
+            "description": "Gérez et configurez la connexion unique.",
+            "attribute_sync_alert": {
+              "title": "Les mappages pour la connexion unique ont été mis à jour.",
+              "description": "Veuillez vérifier les attributs et mettre à jour la configuration de votre fournisseur d'identité pour éviter les problèmes de connexion. Une fois terminé, synchronisez les mappages mis à jour.",
+              "sync_button_label": "Synchroniser",
+              "sync_modal": {
+                "title": "Synchroniser les mappages mis à jour",
+                "description": "La synchronisation mettra à jour la configuration de votre fournisseur avec les derniers mappages. Cette action ne peut pas être annulée.",
+                "actions": {
+                  "cancel_button_label": "Annuler",
+                  "proceed_button_label": "Procéder"
+                }
+              }
+            }
+          }
+        },
+        "provisioning": {
+          "name": "Provisionnement",
+          "content": {
+            "header": {
+              "title": "Provisionnement",
+              "description": "Configurez le provisionnement pour permettre la synchronisation du profil utilisateur avec votre organisation.",
+              "guided_setup_button_label": "Configuration guidée",
+              "provider_disabled_tooltip": "Activez le fournisseur pour créer le provisionnement",
+              "enable_provisioning_tooltip": "Basculer pour activer le provisionnement",
+              "disable_provisioning_tooltip": "Basculer pour désactiver le provisionnement"
+            },
+            "attribute_sync_alert": {
+              "title": "Les mappages pour le provisionnement ont été mis à jour.",
+              "description": "Veuillez vérifier les attributs et mettre à jour la configuration de votre fournisseur d'identité pour éviter les problèmes de connexion. Une fois terminé, synchronisez les mappages mis à jour. Vous devrez générer de nouveaux jetons et les ajouter à votre fournisseur d'identité.",
+              "sync_button_label": "Synchroniser",
+              "sync_modal": {
+                "title": "Synchroniser les mappages mis à jour",
+                "description": "La synchronisation mettra à jour votre configuration de provisionnement avec les derniers mappages et supprimera vos jetons existants. Vous devrez générer de nouveaux jetons et les ajouter à votre fournisseur d'identité. Cette action ne peut pas être annulée.",
+                "actions": {
+                  "cancel_button_label": "Annuler",
+                  "proceed_button_label": "Procéder"
+                }
+              }
+            },
+            "delete": {
+              "modal": {
+                "title": "Désactiver le provisionnement",
+                "content": {
+                  "description": "Êtes-vous sûr de vouloir désactiver le provisionnement ? Cela supprimera définitivement la configuration de provisionnement et révoquera l'accès pour tous les clients utilisant le provisionnement avec ce fournisseur."
+                },
+                "actions": {
+                  "cancel_button_label": "Annuler",
+                  "delete_button_label": "Procéder"
+                }
+              }
+            },
+            "details": {
+              "manage_tokens": {
+                "title": "Jetons Bearer",
+                "description": "Générez un jeton bearer à fournir à votre fournisseur d'identité. Vous pouvez créer jusqu'à deux jetons.",
+                "generate_button_label": "Générer un jeton",
+                "max_tokens_tooltip": "Maximum de 2 jetons autorisés",
+                "empty_state": {
+                  "title": "Aucun jeton créé pour l'instant",
+                  "description": "Générez un jeton bearer pour authentifier les requêtes SCIM de votre fournisseur d'identité."
+                },
+                "table": {
+                  "token_id_label": "ID du jeton",
+                  "created_label": "Créé",
+                  "expires_label": "Expire",
+                  "actions_label": "Actions"
+                },
+                "token_item": {
+                  "token_prefix": "Jeton",
+                  "never_expire": "Ce jeton n'expirera jamais.",
+                  "last_used": "Dernière utilisation : Jamais",
+                  "status_active": "Actif",
+                  "status_expired": "Expiré",
+                  "delete_button_label": "Supprimer"
+                },
+                "create_modal": {
+                  "title": "Informations sur le jeton Bearer",
+                  "copy_and_close_button_label": "Copier et fermer",
+                  "content": {
+                    "description": "Copiez le jeton bearer à fournir à votre fournisseur d'identité. Il ne sera plus affiché après la fermeture de cette boîte de dialogue.",
+                    "field": {
+                      "label": "Jeton"
+                    }
+                  }
+                },
+                "delete_modal": {
+                  "title": "Supprimer le jeton ${tokenId}",
+                  "cancel_button_label": "Annuler",
+                  "delete_button_label": "Supprimer le jeton",
+                  "content": {
+                    "confirmation": "Êtes-vous sûr de vouloir supprimer le jeton ${tokenId} ? Cette action ne peut pas être annulée.",
+                    "description": "Pour éviter une interruption de service, envisagez de créer un second jeton et de le fournir à votre client de provisionnement avant de supprimer celui-ci."
+                  }
+                }
+              },
+              "fields": {
+                "user_id_attribute": {
+                  "label": "Attribut ID utilisateur",
+                  "helper_text": "L'attribut qui identifie de façon unique un utilisateur."
+                },
+                "scim_endpoint_url": {
+                  "label": "URL du point de terminaison SCIM"
+                }
+              }
+            }
+          }
+        },
+        "domains": {
+          "name": "Domaines",
+          "content": {
+            "title": "Domaines",
+            "description": "Renforcez la sécurité et simplifiez la connexion en dirigeant les utilisateurs vers votre fournisseur d'identité selon leur domaine de courriel.",
+            "create_button_text": "Ajouter un domaine",
+            "table": {
+              "empty_message": "Vous n'avez aucun domaine",
+              "columns": {
+                "name": "Nom de domaine",
+                "status": "Statut",
+                "verify": "Vérifier"
+              },
+              "actions": {
+                "enable_domain_tooltip": "Basculer pour activer ce domaine",
+                "disable_domain_tooltip": "Basculer pour désactiver ce domaine"
+              },
+              "domain_statuses": {
+                "pending": "En attente",
+                "verified": "Vérifié",
+                "failed": "Échoué"
+              }
+            },
+            "domain_create": {
+              "modal": {
+                "title": "Ajouter un domaine",
+                "field": {
+                  "label": "URL du domaine",
+                  "placeholder": "nom-de-domaine.com",
+                  "error": "Veuillez entrer un domaine valide"
+                },
+                "actions": {
+                  "cancel_button_text": "Annuler",
+                  "create_button_text": "Ajouter un domaine"
+                }
+              }
+            },
+            "domain_delete": {
+              "modal": {
+                "title": "Supprimer le domaine",
+                "description": {
+                  "pending": "${domainName} est en attente de vérification et peut prendre jusqu'à 48 heures pour être traité. Êtes-vous sûr de vouloir supprimer ce domaine ?",
+                  "verified": "La suppression de ${domainName} peut perturber les flux de connexion des utilisateurs. Êtes-vous sûr de vouloir supprimer ce domaine ? Cette action ne peut pas être annulée."
+                },
+                "actions": {
+                  "cancel_button_text": "Annuler",
+                  "delete_button_text": "Supprimer"
+                }
+              }
+            },
+            "domain_verify": {
+              "modal": {
+                "title": "Ajouter des enregistrements DNS pour ${domainName}",
+                "txt_record_name": {
+                  "label": "Nom de l'enregistrement TXT"
+                },
+                "txt_record_content": {
+                  "label": "Contenu de l'enregistrement TXT"
+                },
+                "verification_status": {
+                  "label": "Statut de vérification :",
+                  "pending": "En attente",
+                  "description": "Votre domaine est en attente de vérification. Cliquez sur 'Vérifier' pour actualiser le statut, ou revenez plus tard. Les modifications DNS peuvent prendre jusqu'à 48 heures, mais sont généralement traitées plus rapidement."
+                },
+                "actions": {
+                  "verify_button_text": "Vérifier",
+                  "delete_button_text": "Supprimer",
+                  "done_button_text": "Terminé"
+                },
+                "errors": {
+                  "verification_failed": "${domainName} n'a pas pu être vérifié. Veuillez patienter et réessayer ou vérifier auprès de votre fournisseur DNS."
+                }
+              }
+            }
+          }
+        }
+      },
+      "provider_details": {
+        "save_button_label": "Enregistrer"
+      }
+    },
+    "sso_provider_details": {
+      "unsaved_changes_text": "Modifications non enregistrées",
+      "submit_button_label": "Enregistrer"
+    },
+    "delete_sso_provider": {
+      "title": "Supprimer ce fournisseur",
+      "description": "Une fois confirmé, cette opération ne peut pas être annulée.",
+      "delete_button_label": "Supprimer",
+      "modal": {
+        "title": "Supprimer ${providerName}",
+        "description": "Les utilisateurs qui se connectent via ce fournisseur perdront l'accès. L'action ne peut pas être annulée. Êtes-vous sûr de vouloir supprimer ce fournisseur ?",
+        "content": {
+          "description": "Tapez le nom du fournisseur pour confirmer.",
+          "field": {
+            "label": "Nom du fournisseur",
+            "placeholder": "Tapez le nom du fournisseur"
+          }
+        },
+        "actions": {
+          "cancel_button_label": "Annuler",
+          "delete_button_label": "Supprimer"
+        }
+      }
+    },
+    "remove_sso_provider": {
+      "title": "Retirer ce fournisseur de l'organisation",
+      "description": "Une fois confirmé, cette opération ne peut pas être annulée.",
+      "remove_button_label": "Supprimer",
+      "modal": {
+        "title": "Retirer ${providerName} de ${organizationName}",
+        "description": "Cela révoquera l'accès à <bold>${providerName}</bold> pour tous les utilisateurs de cette organisation. Les utilisateurs ne seront pas supprimés mais ne pourront plus se connecter avec ce fournisseur.",
+        "content": {
+          "description": "Tapez le nom du fournisseur pour confirmer.",
+          "field": {
+            "label": "Nom du fournisseur",
+            "placeholder": "Tapez le nom du fournisseur"
+          }
+        },
+        "actions": {
+          "cancel_button_text": "Annuler",
+          "remove_button_text": "Procéder"
+        }
+      }
+    },
+    "notifications": {
+      "delete_success": "${providerName} a été supprimé.",
+      "remove_success": "${providerName} a été retiré de ${organizationName}",
+      "update_success": "Les modifications apportées à ${providerName} ont été enregistrées.",
+      "general_error": "Un problème est survenu lors du traitement de votre demande. Veuillez réessayer ou contacter le soutien si le problème persiste.",
+      "domain_create": {
+        "success": "${domainName} a été créé.",
+        "error": "Un problème est survenu lors de la création du domaine.",
+        "on_before": "Le domaine n'est pas valide."
+      },
+      "domain_verify": {
+        "success": "${domainName} a été vérifié.",
+        "error": "Un problème est survenu lors de la vérification du domaine.",
+        "on_before": "La validation de la vérification du domaine n'est pas correcte.",
+        "verification_failed": "${domainName} n'a pas pu être vérifié. Veuillez patienter et réessayer ou vérifier auprès de votre fournisseur DNS."
+      },
+      "domain_delete": {
+        "success": "${domainName} a été supprimé.",
+        "error": "Un problème est survenu lors de la suppression du domaine."
+      },
+      "domain_associate_provider": {
+        "success": "${domain} activé pour ${idp}"
+      },
+      "domain_delete_provider": {
+        "success": "${domain} désactivé pour ${idp}"
+      },
+      "provisioning_disabled_success": "Le provisionnement a été désactivé.",
+      "scim_token_delete_sucess": "Le jeton a été supprimé.",
+      "scim_token_create_success": "Jeton généré avec succès",
+      "sso_attributes_sync_success": "Les mappages du fournisseur ont été mis à jour.",
+      "provisioning_attributes_sync_success": "Les mappages de provisionnement ont été mis à jour."
+    }
+  },
+  "mfa": {
+    "title": "Méthodes d'authentification à facteurs multiples",
+    "description": "Protection supplémentaire pour votre compte et votre identité",
+    "no_active_mfa": "Aucun facteur MFA actif inscrit.",
+    "component_error_title": "Erreur lors du chargement du composant MFA",
+    "component_error_description": "Nous rencontrons des difficultés pour charger vos méthodes d'authentification à facteurs multiples.\nVeuillez actualiser la page et réessayer",
+    "loading": "Chargement...",
+    "delete": "Supprimer",
+    "enroll": "Inscrire",
+    "submit": "Soumettre",
+    "update": "Mettre à jour",
+    "remove": "Retirer",
+    "enrolling": "Inscription...",
+    "enrolled": "Inscrit",
+    "enabled": "ACTIVÉ",
+    "enrollment": "Inscription",
+    "confirmation": "Confirmation",
+    "remove_factor": "Inscription supprimée avec succès.",
+    "enroll_factor": "Inscrit avec succès.",
+    "enroll_totp_mfa": "Inscrire OTP MFA",
+    "delete_factor": "Supprimer l'authentificateur ${factorName}",
+    "delete_mfa_title": "Retirer l'authentificateur existant",
+    "delete_mfa_phone_consent": "Êtes-vous sûr de vouloir retirer ce numéro de téléphone pour SMS ?",
+    "delete_mfa_email_consent": "Êtes-vous sûr de vouloir retirer cet e-mail ?",
+    "delete_mfa_totp_consent": "Êtes-vous sûr de vouloir retirer cet authentificateur ?",
+    "delete_mfa_push-notification_consent": "Êtes-vous sûr de vouloir retirer cette notification push ?",
+    "delete_mfa_recovery-code_consent": "Êtes-vous sûr de vouloir retirer ce code de récupération ?",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "next": "Suivant",
+    "back": "Retour",
+    "yes-remove": "Oui, retirer",
+    "ok": "Ok",
+    "app-store": "App Store",
+    "google-play": "Google Play",
+    "confirm": "Confirmer",
+    "continue": "Continuer",
+    "deleting": "Suppression...",
+    "errors": {
+      "factors_loading_error": "Erreur lors du chargement des facteurs MFA !",
+      "unknown_error": "Erreur inconnue survenue",
+      "delete_factor": "Échec de la suppression de l'authentificateur",
+      "failed": "échec : ${message}",
+      "phone_number_required": "Le numéro de téléphone est requis pour l'inscription SMS.",
+      "email_required": "L'e-mail est requis pour l'inscription par e-mail.",
+      "invalid_email": "Adresse e-mail invalide",
+      "invalid_phone_number": "Numéro de téléphone invalide",
+      "unsupported_mfa_type": "Type MFA non pris en charge : ${factorName}",
+      "push-notification": {
+        "too_many_entities": "Vous avez atteint la limite d'entités du type notification push pour cet utilisateur.",
+        "unsupported_challenge_type": "Auth0 Verifier est désactivé pour votre tenant. Vous pouvez l'activer depuis le tableau de bord en activant \"Notifications push\" dans la section Guardian MFA.",
+        "invalid_request": "Paramètre requis manquant",
+        "authorization_pending": "Autorisation en attente : veuillez répéter la demande dans quelques secondes."
+      },
+      "totp": {
+        "invalid_request": "Paramètre requis manquant",
+        "too_many_entities": "Vous avez atteint la limite d'entités du type totp pour cet utilisateur.",
+        "unsupported_challenge_type": "OTP Verifier est désactivé pour votre tenant. Vous pouvez l'activer depuis le tableau de bord en activant \"Notifications push\" dans la section Guardian MFA (les notifications push incluent OTP).",
+        "invalid_grant": "Code OTP invalide"
+      },
+      "phone": {
+        "unsupported_challenge_type": "SMS Verifier est désactivé pour votre tenant. Vous pouvez l'activer depuis le tableau de bord en activant \"SMS\" dans la section Guardian MFA.",
+        "bad_gateway": "Le numéro de téléphone est invalide.",
+        "too_many_entities": "Vous avez atteint la limite d'entités du type sms pour cet utilisateur."
+      },
+      "email": {
+        "expired_token": "Le code de vérification est expiré",
+        "invalid_grant": "Code invalide",
+        "access_denied": "Impossible de trouver l'authentificateur demandé",
+        "too_many_entities": "Vous avez atteint la limite d'entités du type e-mail pour cet utilisateur."
+      }
+    },
+    "phone": {
+      "title": "Message téléphonique",
+      "description": "Aucun numéro de téléphone n'a été ajouté.",
+      "button-text": "Ajouter un téléphone pour SMS"
+    },
+    "push-notification": {
+      "title": "Notification push via Auth0 Guardian",
+      "description": "Aucune authentification push n'a été ajoutée.",
+      "button-text": "Ajouter une authentification push"
+    },
+    "totp": {
+      "title": "Mot de passe à usage unique",
+      "description": "Aucun authentificateur n'a été ajouté.",
+      "button-text": "Ajouter une application d'authentification"
+    },
+    "email": {
+      "title": "E-mail",
+      "description": "Aucun e-mail n'a été ajouté.",
+      "button-text": "Ajouter un e-mail"
+    },
+    "duo": {
+      "title": "Duo Security",
+      "description": "Utilisez votre compte DUO pour l'authentification à facteurs multiples."
+    },
+    "webauthn-roaming": {
+      "title": "WebAuthn avec clés de sécurité FIDO",
+      "description": "Utilisez des clés de sécurité compatibles WebAuthn (par exemple, FIDO2) comme second facteur.",
+      "button-text": "Ajouter WebAuthn avec clés de sécurité FIDO"
+    },
+    "webauthn-platform": {
+      "title": "WebAuthn avec biométrie de l'appareil FIDO",
+      "description": "Utilisez la biométrie de l'appareil compatible WebAuthn comme second facteur.",
+      "button-text": "Ajouter WebAuthn avec biométrie de l'appareil FIDO"
+    },
+    "recovery-code": {
+      "title": "Code de récupération",
+      "description": "Utilisez un code de récupération unique pour retrouver l'accès à votre compte.",
+      "button-text": "Ajouter un code de récupération"
+    },
+    "enrollment_form": {
+      "email_address": "Adresse e-mail",
+      "phone_number": "Numéro de téléphone",
+      "send_code": "Envoyer le code",
+      "sending": "Envoi...",
+      "enroll_title": "Vérifiez que c'est vous",
+      "enroll_email_placeholder": "Entrez l'adresse e-mail",
+      "enroll_email_description": "Entrez votre e-mail pour recevoir un code de vérification",
+      "enroll_sms_placeholder": "Entrez le numéro de téléphone",
+      "enroll_sms_description": "Entrez votre numéro de téléphone pour recevoir un code de vérification",
+      "show_auth0_guardian_title": "Scannez ce code QR avec votre application Auth0 Guardian pour enregistrer cette méthode d'authentification ou copiez l'URL.",
+      "recovery_code_description": "Copiez ce code de récupération et gardez-le en sécurité. Vous en aurez besoin si vous devez vous connecter sans votre appareil.",
+      "show_otp": {
+        "title": "Scannez ce code QR avec votre application d'authentification pour enregistrer cette méthode d'authentification ou copiez le code.",
+        "save_recovery": "Sauvegardez ces codes de récupération !",
+        "enter_code": "Entrez le code de votre application d'authentification",
+        "one_time_passcode": "Code à usage unique",
+        "verify_code": "Vérifier le code",
+        "copy_as_code": "Copier comme code",
+        "verifying": "Vérification...",
+        "enter_verify_code": "Entrez le code à 6 chiffres que nous avons envoyé à ${verifier}",
+        "enter_opt_code": "Entrez le code de votre authentificateur",
+        "install_guardian_description": "Pour continuer, installez l'application Auth0 Guardian via l'app store depuis votre appareil mobile"
+      }
+    }
+  }
+}

@@ -11,9 +11,11 @@
     "prefix": ""
   },
   "aliases": {
-    "components": "src/components",
-    "utils": "src/lib/utils",
-    "ui": "src/components/ui"
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "hooks": "@/hooks",
+    "lib": "@/lib"
   },
   "iconLibrary": "lucide"
 }

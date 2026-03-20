@@ -18,7 +18,7 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@/auth0-ui-components/*": ["./src/auth0-ui-components/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src/**/*", "vite.config.ts"],

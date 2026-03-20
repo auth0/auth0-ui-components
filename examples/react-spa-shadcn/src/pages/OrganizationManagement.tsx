@@ -18,9 +18,7 @@ const OrganizationManagement = () => {
         </a>{' '}
         on how to add the Organization Details component.
       </p>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        {/* <OrganizationDetailsEdit /> */}
-      </div>
+      <div className="bg-background rounded-lg shadow p-6">{/* <OrganizationDetailsEdit /> */}</div>
     </div>
   );
 };

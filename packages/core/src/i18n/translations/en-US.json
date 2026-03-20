@@ -20,7 +20,56 @@
     },
     "mfa": {
       "title": "Verify your account",
-      "subtitle": "You must provide a second factor from one of the options below to perform this action."
+      "subtitle": "You must provide a second factor from one of the options below to perform this action.",
+      "authenticator_type": {
+        "otp": "Authenticator",
+        "recovery-code": "Recovery Codes",
+        "email": "Email OTP",
+        "sms": "SMS",
+        "push": "Push Notification with Guardian App",
+        "voice": "Voice"
+      },
+      "no_authenticators": "No authentication methods available.",
+      "verify_button": "Verify",
+      "enroll_button": "Set up",
+      "cancel": "Cancel",
+      "back": "Back",
+      "continue": "Continue",
+      "challenge": {
+        "otp_description": "Please enter the one-time code shown in your authenticator app.",
+        "phone_title": "Verify your phone number",
+        "code_sent_description": "Please enter the one-time code we just sent to ${name}.",
+        "email_title": "Verify your email address",
+        "push_title": "We just sent you a push notification",
+        "push_description": "Verify it's you on your Guardian App",
+        "push_waiting": "Waiting for verification...",
+        "recovery_code_description": "Enter your saved recovery codes.",
+        "resend_prompt": "Didn't receive the code?",
+        "resend": "Resend",
+        "verifying": "Verifying..."
+      },
+      "enroll": {
+        "install_title": "Setup Authenticator",
+        "install_description": "In order to continue, install the Auth0 Guardian app via the app store from your mobile device.",
+        "app_store": "App Store",
+        "google_play": "Google Play",
+        "phone_label": "Your phone number",
+        "phone_description": "We will send a verification code to this number.",
+        "phone_title": "Enter your phone number for SMS OTP",
+        "email_label": "Your Email Address",
+        "email_description": "We will send a verification code to this email address.",
+        "email_title": "Enter your email address for email OTP",
+        "enrolling": "Setting up...",
+        "scan_description": "Scan this QR code with your authenticator app.",
+        "scan_helper": "Complete the setup by scanning this code with your Authenticator App. If you can't scan the code, manually enter the code below.",
+        "push_scan_description": "Scan this QR code with the Guardian app",
+        "qr_alt": "Enrollment QR code",
+        "recovery_title": "Generate recovery codes",
+        "recovery_description": "Copy these recovery codes and store them somewhere safe. You will need them if you ever lose access to your authentication method.",
+        "recovery_confirmed": "I have safely recorded these codes",
+        "invalid_email": "Please enter a valid email address.",
+        "invalid_phone_number": "Please enter a valid phone number."
+      }
     }
   },
   "domain_management": {
