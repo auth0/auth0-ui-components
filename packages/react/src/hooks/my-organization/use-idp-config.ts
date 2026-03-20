@@ -3,7 +3,12 @@
  * @module use-idp-config
  */
 
-import { hasApiErrorBody, type IdpStrategy } from '@auth0/universal-components-core';
+import {
+  hasApiErrorBody,
+  type GetIdpConfigurationResponseContent,
+  type IdpConfigStrategyBase,
+  type IdpStrategy,
+} from '@auth0/universal-components-core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
@@ -18,6 +23,16 @@ export const idpConfigQueryKeys = {
 };
 
 /**
+ * Maps an IdpStrategy value to the corresponding key in the SDK's strategy override object.
+ * @param strategy - The identity provider strategy to map.
+ * @returns The corresponding key in the SDK's IdentityProvidersConfigStrategyOverride.
+ */
+const strategyToConfigKey = (strategy: IdpStrategy): keyof NonNullable<IdpConfig['strategies']> => {
+  if (strategy === 'google-apps') return 'googleapps';
+  return strategy as keyof NonNullable<IdpConfig['strategies']>;
+};
+
+/**
  * Hook for fetching IDP configuration and provisioning settings.
  * @returns IDP config and provisioning utilities.
  */
@@ -25,14 +40,14 @@ export function useIdpConfig(): UseConfigIdpResult {
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
 
-  const idpConfigQuery = useQuery({
+  const idpConfigQuery = useQuery<GetIdpConfigurationResponseContent | null>({
     queryKey: idpConfigQueryKeys.config(),
     queryFn: async () => {
       try {
         const response = await coreClient!
           .getMyOrganizationApiClient()
           .organization.configuration.identityProviders.get();
-        return response as unknown as IdpConfig;
+        return response;
       } catch (error) {
         if (hasApiErrorBody(error) && error.body?.status === 404) {
           return null;
@@ -50,15 +65,17 @@ export function useIdpConfig(): UseConfigIdpResult {
   const idpConfig = idpConfigQuery.data ?? null;
   const strategies = idpConfig?.strategies;
 
-  const isProvisioningEnabled = (strategy: IdpStrategy | undefined): boolean => {
-    if (!strategy || !strategies?.[strategy]) return false;
-    return strategies[strategy].enabled_features.includes('provisioning');
+  const getStrategyFor = (strategy: IdpStrategy | undefined): IdpConfigStrategyBase | undefined => {
+    if (!strategy || !strategies) return undefined;
+    const key = strategyToConfigKey(strategy);
+    return strategies[key];
   };
 
-  const isProvisioningMethodEnabled = (strategy: IdpStrategy | undefined): boolean => {
-    if (!strategy || !strategies?.[strategy]) return false;
-    return strategies[strategy].provisioning_methods.includes('scim');
-  };
+  const isProvisioningEnabled = (strategy: IdpStrategy | undefined): boolean =>
+    getStrategyFor(strategy)?.enabled_features.includes('provisioning') ?? false;
+
+  const isProvisioningMethodEnabled = (strategy: IdpStrategy | undefined): boolean =>
+    getStrategyFor(strategy)?.provisioning_methods.includes('scim') ?? false;
 
   return {
     idpConfig,

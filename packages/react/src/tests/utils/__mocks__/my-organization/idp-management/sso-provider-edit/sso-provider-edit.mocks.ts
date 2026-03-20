@@ -44,7 +44,7 @@ export function createMockSsoProviderEditLogic(
           provisioning_methods: [],
           enabled_features: [],
         },
-        'google-apps': {
+        googleapps: {
           provisioning_methods: [],
           enabled_features: [],
         },

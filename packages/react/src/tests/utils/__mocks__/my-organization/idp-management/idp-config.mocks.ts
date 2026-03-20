@@ -13,7 +13,7 @@ export const createMockUseIdpConfig = (
   idpConfig: {
     strategies: {
       okta: { enabled_features: [], provisioning_methods: [] },
-      'google-apps': { enabled_features: [], provisioning_methods: [] },
+      googleapps: { enabled_features: [], provisioning_methods: [] },
       adfs: { enabled_features: [], provisioning_methods: [] },
       oidc: { enabled_features: [], provisioning_methods: [] },
       pingfederate: { enabled_features: [], provisioning_methods: [] },
