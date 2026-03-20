@@ -23,13 +23,17 @@ export const idpConfigQueryKeys = {
 };
 
 /**
- * Maps an IdpStrategy value to the corresponding key in the SDK's strategy override object.
- * @param strategy - The identity provider strategy to map.
- * @returns The corresponding key in the SDK's IdentityProvidersConfigStrategyOverride.
+ * Mapping from IdpStrategy values to the SDK's strategy config keys.
+ * The SDK uses 'googleapps' (no hyphen) while IdpStrategy uses 'google-apps'.
  */
-const strategyToConfigKey = (strategy: IdpStrategy): keyof NonNullable<IdpConfig['strategies']> => {
-  if (strategy === 'google-apps') return 'googleapps';
-  return strategy as keyof NonNullable<IdpConfig['strategies']>;
+const STRATEGY_TO_CONFIG_KEY: Record<IdpStrategy, keyof NonNullable<IdpConfig['strategies']>> = {
+  adfs: 'adfs',
+  'google-apps': 'googleapps',
+  oidc: 'oidc',
+  okta: 'okta',
+  pingfederate: 'pingfederate',
+  samlp: 'samlp',
+  waad: 'waad',
 };
 
 /**
@@ -67,7 +71,7 @@ export function useIdpConfig(): UseConfigIdpResult {
 
   const getStrategyFor = (strategy: IdpStrategy | undefined): IdpConfigStrategyBase | undefined => {
     if (!strategy || !strategies) return undefined;
-    const key = strategyToConfigKey(strategy);
+    const key = STRATEGY_TO_CONFIG_KEY[strategy];
     return strategies[key];
   };
 
