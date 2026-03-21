@@ -1,9 +1,7 @@
+import type { IdpConfig } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import type {
-  IdpConfig,
-  UseConfigIdpResult,
-} from '@/types/my-organization/config/config-idp-types';
+import type { UseConfigIdpResult } from '@/types/my-organization/config/config-idp-types';
 
 type MockUseIdpConfig = UseConfigIdpResult;
 

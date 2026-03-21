@@ -5,17 +5,14 @@
 
 import {
   hasApiErrorBody,
-  type GetIdpConfigurationResponseContent,
+  type IdpConfig,
   type IdpConfigStrategyBase,
   type IdpStrategy,
 } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
-import type {
-  IdpConfig,
-  UseConfigIdpResult,
-} from '@/types/my-organization/config/config-idp-types';
+import type { UseConfigIdpResult } from '@/types/my-organization/config/config-idp-types';
 
 export const idpConfigQueryKeys = {
   all: ['idp-config'] as const,
@@ -24,7 +21,6 @@ export const idpConfigQueryKeys = {
 
 /**
  * Mapping from IdpStrategy values to the SDK's strategy config keys.
- * The SDK uses 'googleapps' (no hyphen) while IdpStrategy uses 'google-apps'.
  */
 const STRATEGY_TO_CONFIG_KEY: Record<IdpStrategy, keyof NonNullable<IdpConfig['strategies']>> = {
   adfs: 'adfs',
@@ -44,7 +40,7 @@ export function useIdpConfig(): UseConfigIdpResult {
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
 
-  const idpConfigQuery = useQuery<GetIdpConfigurationResponseContent | null>({
+  const idpConfigQuery = useQuery<IdpConfig | null>({
     queryKey: idpConfigQueryKeys.config(),
     queryFn: async () => {
       try {
