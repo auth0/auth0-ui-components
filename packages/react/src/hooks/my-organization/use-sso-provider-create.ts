@@ -9,7 +9,6 @@ import {
   type CreateIdentityProviderRequestContent,
   type CreateIdentityProviderRequestContentPrivate,
   type IdentityProvider,
-  MY_ORGANIZATION_SSO_PROVIDER_CREATE_SCOPES,
 } from '@auth0/universal-components-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
@@ -17,6 +16,7 @@ import { useCallback } from 'react';
 import { showToast } from '@/components/auth0/shared/toast';
 import { ssoProviderQueryKeys } from '@/hooks/my-organization/use-sso-provider-table';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { UseSsoProviderCreateOptions } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
@@ -51,7 +51,7 @@ export function useSsoProviderCreate({
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
   const queryClient = useQueryClient();
-
+  const handleError = useErrorHandler();
   const createProviderMutation = useMutation({
     mutationFn: async (
       data: CreateIdentityProviderRequestContentPrivate,
@@ -74,7 +74,6 @@ export function useSsoProviderCreate({
 
       const result: IdentityProvider = await coreClient
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_CREATE_SCOPES)
         .organization.identityProviders.create(apiRequestData);
 
       return result;
@@ -118,10 +117,7 @@ export function useSsoProviderCreate({
         }
       }
 
-      showToast({
-        type: 'error',
-        message: t('notifications.general_error'),
-      });
+      handleError(error, { fallbackMessage: t('notifications.general_error') });
     },
   });
 

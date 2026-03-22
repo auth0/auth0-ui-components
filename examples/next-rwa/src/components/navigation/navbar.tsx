@@ -39,7 +39,7 @@ export function Navbar() {
               (user ? (
                 <ProfileDropdown />
               ) : (
-                <Button className="cursor-pointer" onClick={() => router.push('/auth/login')}>
+                <Button onClick={() => router.push('/auth/login')}>
                   {t('nav-bar.sign-in-button')}
                 </Button>
               ))}

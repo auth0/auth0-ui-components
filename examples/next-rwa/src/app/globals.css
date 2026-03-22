@@ -4,6 +4,8 @@
 @import '../styles/dark.css';
 @import '@auth0/universal-components-react/styles';
 
+@custom-variant theme-default (&:where([data-theme="default"], [data-theme="default"] *));
+
 @theme {
   --color-page: var(--color-page);
   --color-background: var(--color-background);

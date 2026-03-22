@@ -28,7 +28,7 @@ export const Sidebar: React.FC = () => {
                 <li>
                   <Link
                     href="/mfa"
-                    className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-accent/60 rounded-md dark:text-gray-300 dark:hover:text-white transition-colors cursor-default"
                   >
                     <Shield className="h-4 w-4 flex-shrink-0" />
                     <span className="truncate">{t('sidebar.mfa')}</span>
@@ -50,7 +50,7 @@ export const Sidebar: React.FC = () => {
               <li>
                 <Link
                   href="/organization-management"
-                  className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-accent/60 rounded-md dark:text-gray-300 dark:hover:text-white transition-colors cursor-default"
                 >
                   <Settings className="h-4 w-4 flex-shrink-0" />
                   <span className="truncate">{t('sidebar.organization-settings')}</span>
@@ -59,7 +59,7 @@ export const Sidebar: React.FC = () => {
               <li>
                 <Link
                   href="/domain-management"
-                  className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-accent/60 rounded-md dark:text-gray-300 dark:hover:text-white transition-colors cursor-default"
                 >
                   <Settings className="h-4 w-4 flex-shrink-0" />
                   <span className="truncate">{t('sidebar.domains')}</span>
@@ -68,7 +68,7 @@ export const Sidebar: React.FC = () => {
               <li>
                 <Link
                   href="/idp-management"
-                  className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-accent/60 rounded-md dark:text-gray-300 dark:hover:text-white transition-colors cursor-default"
                 >
                   <Settings className="h-4 w-4 flex-shrink-0" />
                   <span className="truncate">{t('sidebar.identity-providers')}</span>

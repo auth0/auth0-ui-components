@@ -475,20 +475,18 @@ resolve: {
 import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
 import '@auth0/universal-components-react/styles';
 
-const authDetails = {
-  domain: import.meta.env.VITE_AUTH0_DOMAIN,
-};
+const domain = import.meta.env.VITE_AUTH0_DOMAIN;
 
 function App() {
   return (
     <Auth0Provider
-      domain={authDetails.domain}
+      domain={domain}
       clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
       authorizationParams={{
         redirect_uri: window.location.origin
       }}
     >
-      <Auth0ComponentProvider authDetails={authDetails}>
+      <Auth0ComponentProvider>
         {/* Your app components */}
       </Auth0ComponentProvider>
     </Auth0Provider>
@@ -543,10 +541,7 @@ function OrganizationManagementPage() {
 import { Auth0ComponentProvider } from '@auth0/universal-components-react/rwa';
 import '@auth0/universal-components-react/styles';
 
-const authDetails = {
-  authProxyUrl: '/',
-  domain: process.env.NEXT_PUBLIC_AUTH0_DOMAIN,
-};
+const domain = process.env.NEXT_PUBLIC_AUTH0_DOMAIN;
 
 export default function RootLayout({
   children,
@@ -556,7 +551,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Auth0ComponentProvider authDetails={authDetails}>
+        <Auth0ComponentProvider
+          mode="proxy"
+          domain={domain}
+          proxyConfig={{ baseUrl: '/' }}
+        >
           {children}
         </Auth0ComponentProvider>
       </body>
@@ -698,14 +697,50 @@ export default function OrganizationManagementPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               <tr>
                 <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  authDetails
+                  domain
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  <code className="text-xs">AuthDetails</code>
+                  <code className="text-xs">string</code>
                 </td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Yes</td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  Authentication configuration including optional domain and optional authProxyUrl
+                  Auth0 tenant domain (required if mode is 'proxy')
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                  mode
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  <code className="text-xs">'direct' | 'proxy'</code>
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  Authentication mode. Defaults to 'direct'
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                  proxyConfig
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  <code className="text-xs">{`{ baseUrl: string }`}</code>
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  Proxy configuration. Required if mode is 'proxy'
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                  authContext
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  <code className="text-xs">ContextInterface</code>
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  Custom React context for authentication. Use for custom SDKs
                 </td>
               </tr>
               <tr>
@@ -775,9 +810,9 @@ export default function OrganizationManagementPage() {
           </table>
         </div>
 
-        {/* AuthDetails Object */}
+        {/* proxyConfig Settings */}
         <div className="mt-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-3">authDetails</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-3">proxyConfig</h3>
           <div className="overflow-x-auto">
             <table className="w-full border border-gray-200 rounded-lg">
               <thead className="bg-gray-50">
@@ -799,41 +834,15 @@ export default function OrganizationManagementPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 <tr>
                   <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                    domain
+                    baseUrl
                   </td>
                   <td className="px-4 py-2 text-sm text-gray-500">
                     <code className="text-xs">string</code>
                   </td>
-                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Yes</td>
                   <td className="px-4 py-2 text-sm text-gray-500">
-                    Your Auth0 domain (e.g., "your-tenant.auth0.com")
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                    authProxyUrl
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-500">
-                    <code className="text-xs">string</code>
-                  </td>
-                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Conditional</td>
-                  <td className="px-4 py-2 text-sm text-gray-500">
-                    URL to your authentication proxy server for server-side authentication. Required
-                    for RWA/Next.js mode (enables Proxy Mode).
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                    contextInterface
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-500">
-                    <code className="text-xs">BasicAuth0ContextInterface</code>
-                  </td>
-                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
-                  <td className="px-4 py-2 text-sm text-gray-500">
-                    Custom authentication context interface for frameworks other than
-                    @auth0/auth0-react. Provides authentication functions (getAccessTokenSilently,
-                    loginWithRedirect, etc.) when not using the Auth0 React SDK
+                    URL to your authentication proxy server for server-side authentication (e.g.,
+                    "/api/auth"). Required for RWA/Next.js mode.
                   </td>
                 </tr>
               </tbody>
@@ -1463,7 +1472,9 @@ export default function OrganizationManagementPage() {
               {
                 label: 'Tune TTL',
                 code: `<Auth0ComponentProvider
-  authDetails={{ domain: 'your-tenant.auth0.com', authProxyUrl: '/api/auth' }}
+  mode="proxy"
+  domain="your-tenant.auth0.com"
+  proxyConfig={{ baseUrl: '/api/auth' }}
   cacheConfig={{
     staleTime: 10 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
@@ -1476,7 +1487,9 @@ export default function OrganizationManagementPage() {
               {
                 label: 'Disable cache',
                 code: `<Auth0ComponentProvider
-  authDetails={{ domain: 'your-tenant.auth0.com', authProxyUrl: '/api/auth' }}
+  mode="proxy"
+  domain="your-tenant.auth0.com"
+  proxyConfig={{ baseUrl: '/api/auth' }}
   cacheConfig={{ enabled: false }}
 >
   <SensitiveFlow />

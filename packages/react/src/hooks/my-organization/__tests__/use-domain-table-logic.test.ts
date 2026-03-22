@@ -52,9 +52,7 @@ describe('useDomainTableLogic', () => {
       coreClient: mockCoreClient,
     });
 
-    vi.spyOn(useErrorHandlerModule, 'useErrorHandler').mockReturnValue({
-      handleError: mockHandleError,
-    });
+    vi.spyOn(useErrorHandlerModule, 'useErrorHandler').mockReturnValue(mockHandleError);
   });
 
   describe('Initial State', () => {

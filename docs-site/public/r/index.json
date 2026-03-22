@@ -5,7 +5,7 @@
     {
       "name": "user-mfa-management",
       "type": "registry:block",
-      "title": "Internal MFA management UI used by `UserMFAMgmt`.",
+      "title": "User MFA management container(logic) component",
       "description": "Handles loading factors, enroll/delete flows, and UI state."
     },
     {
@@ -17,26 +17,26 @@
     {
       "name": "organization-details-edit",
       "type": "registry:block",
-      "title": "Internal organization details edit component.",
+      "title": "Organization details edit component.",
       "description": "A block component for organization details edit."
     },
     {
       "name": "sso-provider-create",
       "type": "registry:block",
-      "title": "Internal SSO provider creation component.",
-      "description": "A block component for sso provider create."
+      "title": "Internal SSO provider creation container(logic) component.",
+      "description": "A block component for sso provider create container."
     },
     {
       "name": "sso-provider-edit",
       "type": "registry:block",
-      "title": "Internal SSO provider edit component.",
-      "description": "A block component for sso provider edit."
+      "title": "Internal SSO provider edit container(logic) component.",
+      "description": "A block component for sso provider edit container."
     },
     {
       "name": "sso-provider-table",
       "type": "registry:block",
-      "title": "Internal SSO provider table component.",
-      "description": "A block component for sso provider table."
+      "title": "Internal SSO provider table container(logic) component.",
+      "description": "A block component for sso provider table container."
     }
   ]
 }

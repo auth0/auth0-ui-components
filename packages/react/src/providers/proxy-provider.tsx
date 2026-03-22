@@ -5,6 +5,7 @@
 
 'use client';
 
+import type { AuthDetails } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Toaster } from '@/components/auth0/shared/sonner';
@@ -18,12 +19,14 @@ import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 
 /**
  * Auth0 provider for RWAs using backend proxy auth.
- * @param props - Provider configuration including i18n, authDetails, themeSettings, toastSettings, cacheConfig, loader, and children.
+ * @param props - Provider configuration including domain, proxyConfig, i18n, themeSettings, toastSettings, cacheConfig, loader, and children.
  * @returns Provider component tree
  */
 export const Auth0ComponentProvider = ({
   i18n,
-  authDetails,
+  domain,
+  proxyConfig,
+  previewMode,
   themeSettings = {
     theme: 'default',
     mode: 'light',
@@ -37,15 +40,17 @@ export const Auth0ComponentProvider = ({
   cacheConfig,
   loader,
   children,
-}: Auth0ComponentProviderProps & { children: React.ReactNode }) => {
+}: Extract<Auth0ComponentProviderProps, { mode: 'proxy' }> & { children: React.ReactNode }) => {
   const mergedToastSettings = useToastProvider(toastSettings);
+  const baseUrl = proxyConfig.baseUrl;
 
-  const memoizedAuthDetails = React.useMemo(
+  const memoizedAuthDetails = React.useMemo<AuthDetails>(
     () => ({
-      ...authDetails,
-      contextInterface: undefined,
+      domain,
+      authProxyUrl: baseUrl,
+      previewMode,
     }),
-    [authDetails],
+    [domain, baseUrl, previewMode],
   );
 
   const coreClient = useCoreClientInitialization({

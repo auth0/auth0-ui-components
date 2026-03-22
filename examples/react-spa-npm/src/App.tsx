@@ -39,7 +39,7 @@ function AppContent() {
   const { isAuthenticated } = useAuth0();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" data-theme="default">
       <Navbar />
       {isAuthenticated && <Sidebar />}
       <main className={`pt-16 ${isAuthenticated ? 'ml-64' : ''}`}>

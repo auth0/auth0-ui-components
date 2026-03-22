@@ -1,100 +1,236 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { AuthUtils } from '../../auth/auth-utils';
+import type { SpaAuthConfig } from '../../auth/auth-types';
 import {
-  TEST_DOMAIN,
   createMockContextInterface,
-  mockProxyConfig,
+  TEST_DOMAIN,
 } from '../../internals/__mocks__/shared/api-service.mocks';
-import { buildBaseHeaders, buildServiceConfig } from '../api-utils';
+import { AUTH0_SCOPE_HEADER, createProxyFetcher, createSpaFetcher } from '../api-utils';
+import { ContentType, HeaderName } from '../http-constants';
 
-describe('buildBaseHeaders', () => {
-  it('returns empty Headers when called with no arguments', () => {
-    const headers = buildBaseHeaders();
-    expect(headers.has('Content-Type')).toBe(false);
-  });
+import { stubFetch } from './__mocks__/api-utils.mocks';
 
-  it('does not set Content-Type when init has no body', () => {
-    const headers = buildBaseHeaders({ method: 'GET' });
-    expect(headers.has('Content-Type')).toBe(false);
-  });
-
-  it('sets Content-Type to application/json when init has a body', () => {
-    const headers = buildBaseHeaders({ body: JSON.stringify({ key: 'value' }) });
-    expect(headers.get('Content-Type')).toBe('application/json');
-  });
-
-  it('does not override Content-Type when caller already set one', () => {
-    const headers = buildBaseHeaders({
-      body: JSON.stringify({}),
-      headers: { 'Content-Type': 'text/plain' },
-    });
-    expect(headers.get('Content-Type')).toBe('text/plain');
-  });
-
-  it('preserves existing headers from init', () => {
-    const headers = buildBaseHeaders({
-      headers: { 'X-Custom': 'value' },
-    });
-    expect(headers.get('X-Custom')).toBe('value');
-  });
-
-  it('preserves existing headers and adds Content-Type when body is present', () => {
-    const headers = buildBaseHeaders({
-      body: '{}',
-      headers: { 'X-Request-Id': 'abc123' },
-    });
-    expect(headers.get('Content-Type')).toBe('application/json');
-    expect(headers.get('X-Request-Id')).toBe('abc123');
-  });
-});
-
-describe('buildServiceConfig', () => {
-  describe('proxy mode', () => {
-    it('returns sdkConfig with empty domain and correct baseUrl', () => {
-      const { sdkConfig } = buildServiceConfig(mockProxyConfig, 'my-org');
-      expect(sdkConfig.domain).toBe('');
-      expect(sdkConfig.baseUrl).toBe(`${mockProxyConfig.proxyUrl}/my-org`);
-      expect(sdkConfig.telemetry).toBe(false);
+describe('api-utils', () => {
+  describe('createProxyFetcher', () => {
+    afterEach(() => {
+      vi.unstubAllGlobals();
     });
 
-    it.each([
-      { scopes: 'read:org', expected: 'read:org' },
-      { scopes: '', expected: null },
-    ])('sets auth0-scope to $expected when scopes is "$scopes"', async ({ scopes, expected }) => {
-      const { authHeaders } = buildServiceConfig(mockProxyConfig, 'my-org');
-      const headers = new Headers();
-      await authHeaders(headers, scopes);
-      expect(headers.get('auth0-scope')).toBe(expected);
+    it('sets content-type header to application/json', async () => {
+      const mockFetch = stubFetch();
+      const fetcher = createProxyFetcher();
+
+      await fetcher('https://example.com/api', { method: 'POST' }, undefined);
+
+      const [, requestInit] = mockFetch.mock.calls[0]!;
+      expect((requestInit?.headers as Headers).get(HeaderName.ContentType)).toBe(ContentType.JSON);
+    });
+
+    it('sets auth0-scope header when scope array is provided', async () => {
+      const mockFetch = stubFetch();
+      const fetcher = createProxyFetcher();
+
+      await fetcher(
+        'https://example.com/api',
+        { method: 'POST' },
+        { scope: ['read:users', 'write:users'] },
+      );
+
+      const [url, requestInit] = mockFetch.mock.calls[0]!;
+      expect(url).toBe('https://example.com/api');
+      expect((requestInit?.headers as Headers).get(AUTH0_SCOPE_HEADER)).toBe(
+        'read:users write:users',
+      );
+    });
+
+    it('does not set auth0-scope header when scope array is empty', async () => {
+      const mockFetch = stubFetch();
+      const fetcher = createProxyFetcher();
+
+      await fetcher('https://example.com/api', { method: 'GET' }, { scope: [] });
+
+      const [, requestInit] = mockFetch.mock.calls[0]!;
+      expect((requestInit?.headers as Headers).get(AUTH0_SCOPE_HEADER)).toBeNull();
+    });
+
+    it('does not set auth0-scope header when authParams is undefined', async () => {
+      const mockFetch = stubFetch();
+      const fetcher = createProxyFetcher();
+
+      await fetcher('https://example.com/api', { method: 'GET' }, undefined);
+
+      const [, requestInit] = mockFetch.mock.calls[0]!;
+      expect((requestInit?.headers as Headers).get(AUTH0_SCOPE_HEADER)).toBeNull();
+    });
+
+    it('preserves existing headers from init', async () => {
+      const mockFetch = stubFetch();
+      const fetcher = createProxyFetcher();
+      const customHeaders = new Headers({ 'X-Custom': 'value' });
+
+      await fetcher(
+        'https://example.com/api',
+        { method: 'POST', headers: customHeaders },
+        { scope: ['read:users'] },
+      );
+
+      const [, requestInit] = mockFetch.mock.calls[0]!;
+      const headers = requestInit?.headers as Headers;
+      expect(headers.get('X-Custom')).toBe('value');
+      expect(headers.get(AUTH0_SCOPE_HEADER)).toBe('read:users');
+    });
+
+    it('preserves other init options', async () => {
+      const mockFetch = stubFetch();
+      const fetcher = createProxyFetcher();
+      const body = JSON.stringify({ data: 'test' });
+
+      await fetcher(
+        'https://example.com/api',
+        { method: 'PUT', body, credentials: 'include' },
+        undefined,
+      );
+
+      const [, requestInit] = mockFetch.mock.calls[0]!;
+      expect(requestInit?.method).toBe('PUT');
+      expect(requestInit?.body).toBe(body);
+      expect(requestInit?.credentials).toBe('include');
     });
   });
 
-  describe('spa mode', () => {
-    const contextInterface = createMockContextInterface();
-    const config = { mode: 'spa' as const, domain: TEST_DOMAIN, contextInterface };
+  describe('createSpaFetcher', () => {
+    const mockFetchWithAuth = vi.fn().mockResolvedValue(new Response());
+    const mockCreateFetcher = vi.fn().mockReturnValue({
+      fetchWithAuth: mockFetchWithAuth,
+    });
+
+    const createSpaConfig = (): SpaAuthConfig => ({
+      mode: 'spa',
+      domain: TEST_DOMAIN,
+      contextInterface: {
+        ...createMockContextInterface(),
+        createFetcher: mockCreateFetcher,
+      },
+    });
 
     beforeEach(() => {
-      vi.spyOn(AuthUtils, 'getToken').mockResolvedValue('mock-access-token');
+      vi.clearAllMocks();
+      mockCreateFetcher.mockReturnValue({
+        fetchWithAuth: mockFetchWithAuth,
+      });
     });
 
-    it('returns sdkConfig with domain and no baseUrl', () => {
-      const { sdkConfig } = buildServiceConfig(config, 'me');
-      expect(sdkConfig.domain).toBe(TEST_DOMAIN);
-      expect(sdkConfig.baseUrl).toBeUndefined();
-      expect(sdkConfig.telemetry).toBe(false);
+    it('calls createFetcher with correct dpopNonceId', () => {
+      const config = createSpaConfig();
+      const dpopNonceId = '__test_dpop_nonce__';
+
+      createSpaFetcher(config, dpopNonceId);
+
+      expect(mockCreateFetcher).toHaveBeenCalledWith({ dpopNonceId });
     });
 
-    it('calls AuthUtils.getToken with correct arguments and sets Authorization Bearer header', async () => {
-      const { authHeaders } = buildServiceConfig(config, 'my-org');
-      const headers = new Headers();
-      await authHeaders(headers, 'read:org write:org');
-      expect(AuthUtils.getToken).toHaveBeenCalledWith(
-        contextInterface,
-        TEST_DOMAIN,
-        'my-org',
-        'read:org write:org',
+    it('sets Content-Type header to application/json', async () => {
+      const config = createSpaConfig();
+      const fetcher = createSpaFetcher(config, '__test_nonce__');
+
+      await fetcher('https://example.com/api', { method: 'POST' }, undefined);
+
+      const [, requestInit] = mockFetchWithAuth.mock.calls[0]!;
+      expect((requestInit?.headers as Headers).get(HeaderName.ContentType)).toBe(ContentType.JSON);
+    });
+
+    it('preserves existing headers from init when adding Content-Type', async () => {
+      const config = createSpaConfig();
+      const fetcher = createSpaFetcher(config, '__test_nonce__');
+      const customHeaders = new Headers({ 'X-Custom': 'value' });
+
+      await fetcher(
+        'https://example.com/api',
+        { method: 'POST', headers: customHeaders },
+        undefined,
       );
-      expect(headers.get('Authorization')).toBe('Bearer mock-access-token');
+
+      const [, requestInit] = mockFetchWithAuth.mock.calls[0]!;
+      const headers = requestInit?.headers as Headers;
+      expect(headers.get('X-Custom')).toBe('value');
+      expect(headers.get(HeaderName.ContentType)).toBe(ContentType.JSON);
+    });
+
+    it('preserves other init options when adding Content-Type header', async () => {
+      const config = createSpaConfig();
+      const fetcher = createSpaFetcher(config, '__test_nonce__');
+      const body = JSON.stringify({ data: 'test' });
+
+      await fetcher(
+        'https://example.com/api',
+        { method: 'PUT', body, credentials: 'include' },
+        undefined,
+      );
+
+      const [, requestInit] = mockFetchWithAuth.mock.calls[0]!;
+      expect(requestInit?.method).toBe('PUT');
+      expect(requestInit?.body).toBe(body);
+      expect(requestInit?.credentials).toBe('include');
+      expect((requestInit?.headers as Headers).get(HeaderName.ContentType)).toBe(ContentType.JSON);
+    });
+
+    it('delegates to SDK fetchWithAuth with scope and audience', async () => {
+      const config = createSpaConfig();
+      const fetcher = createSpaFetcher(config, '__test_nonce__');
+
+      await fetcher(
+        'https://example.com/api',
+        { method: 'POST', body: '{}' },
+        { scope: ['read:org', 'write:org'], audience: 'https://tenant.auth0.com/api/' },
+      );
+
+      expect(mockFetchWithAuth).toHaveBeenCalledWith(
+        'https://example.com/api',
+        expect.objectContaining({ method: 'POST', body: '{}' }),
+        { scope: ['read:org', 'write:org'], audience: 'https://tenant.auth0.com/api/' },
+      );
+    });
+
+    it('handles undefined authParams', async () => {
+      const config = createSpaConfig();
+      const fetcher = createSpaFetcher(config, '__test_nonce__');
+
+      await fetcher('https://example.com/api', { method: 'GET' }, undefined);
+
+      expect(mockFetchWithAuth).toHaveBeenCalledWith(
+        'https://example.com/api',
+        expect.objectContaining({ method: 'GET' }),
+        { scope: undefined, audience: undefined },
+      );
+    });
+
+    it('handles empty scope array', async () => {
+      const config = createSpaConfig();
+      const fetcher = createSpaFetcher(config, '__test_nonce__');
+
+      await fetcher('https://example.com/api', { method: 'GET' }, { scope: [] });
+
+      expect(mockFetchWithAuth).toHaveBeenCalledWith(
+        'https://example.com/api',
+        expect.objectContaining({ method: 'GET' }),
+        { scope: [], audience: undefined },
+      );
+    });
+
+    it('handles undefined init parameter', async () => {
+      const config = createSpaConfig();
+      const fetcher = createSpaFetcher(config, '__test_nonce__');
+
+      await fetcher('https://example.com/api', undefined, { scope: ['read:users'] });
+
+      expect(mockFetchWithAuth).toHaveBeenCalledWith(
+        'https://example.com/api',
+        expect.objectContaining({ headers: expect.any(Headers) }),
+        {
+          scope: ['read:users'],
+          audience: undefined,
+        },
+      );
     });
   });
 });

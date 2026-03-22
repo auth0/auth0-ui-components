@@ -10,7 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@auth0/nextjs-auth0": "^4.13.2",
+    "@auth0/nextjs-auth0": "^4.16.0",
     "@auth0/universal-components-react": "workspace:*",
     "@radix-ui/react-slot": "^1.2.3",
     "@tailwindcss/postcss": "^4.1.17",

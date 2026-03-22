@@ -52,7 +52,7 @@ export function ProfileDropdown() {
         <div className="absolute right-0 mt-2 w-48 bg-card rounded-md shadow-lg py-1 z-50 border border-gray-700">
           <Link
             href="/profile"
-            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:hover:bg-accent/60"
+            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:hover:bg-accent/60 cursor-default"
             onClick={() => setIsOpen(false)}
           >
             <div className="flex items-center space-x-2">
@@ -62,7 +62,7 @@ export function ProfileDropdown() {
           </Link>
           <a
             href="/auth/logout"
-            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-accent/60"
+            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-accent/60 cursor-default"
           >
             <div className="flex items-center space-x-2">
               <LogOut className="h-4 w-4" />

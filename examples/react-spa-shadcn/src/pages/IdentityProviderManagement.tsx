@@ -29,7 +29,7 @@ const IdentityProviderManagement = () => {
         </a>{' '}
         on how to add Identity Provider Management component.
       </p>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <div className="bg-background rounded-lg shadow p-6">
         {/* <SsoProviderTable
           createAction={{
             onAfter: handleCreate,

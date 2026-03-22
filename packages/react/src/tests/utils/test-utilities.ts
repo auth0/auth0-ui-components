@@ -26,9 +26,7 @@ export const createMockUseTranslator = (_customMessages?: object) => ({
   fallbackLanguage: 'en',
 });
 
-export const createMockUseErrorHandler = (handleError: ReturnType<typeof vi.fn>) => ({
-  handleError,
-});
+export const createMockUseErrorHandler = (handleError: ReturnType<typeof vi.fn>) => handleError;
 
 /**
  * Sets up a mock for useCoreClient hook with a valid core client.

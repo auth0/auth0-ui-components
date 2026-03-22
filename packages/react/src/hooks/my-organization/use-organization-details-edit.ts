@@ -7,13 +7,13 @@ import {
   OrganizationDetailsFactory,
   OrganizationDetailsMappers,
   type OrganizationPrivate,
-  MY_ORGANIZATION_DETAILS_EDIT_SCOPES,
 } from '@auth0/universal-components-core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseOrganizationDetailsEditOptions,
@@ -48,22 +48,12 @@ export function useOrganizationDetailsEdit({
   const queryClient = useQueryClient();
 
   const isInitializing = !coreClient;
-
-  const getErrorMessage = useCallback(
-    (error: unknown): string =>
-      error instanceof Error
-        ? t('organization_changes_error_message', { message: error.message })
-        : t('organization_changes_error_message_generic'),
-    [t],
-  );
+  const handleError = useErrorHandler();
 
   const organizationQuery = useQuery({
     queryKey: organizationDetailsQueryKeys.details(),
     queryFn: async () => {
-      const response = await coreClient!
-        .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_DETAILS_EDIT_SCOPES)
-        .organizationDetails.get();
+      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
       return OrganizationDetailsMappers.fromAPI(response);
     },
     enabled: !!coreClient,
@@ -71,12 +61,11 @@ export function useOrganizationDetailsEdit({
 
   useEffect(() => {
     if (organizationQuery.error) {
-      showToast({
-        type: 'error',
-        message: getErrorMessage(organizationQuery.error),
+      handleError(organizationQuery.error, {
+        fallbackMessage: t('organization_changes_error_message_generic'),
       });
     }
-  }, [organizationQuery.error, getErrorMessage]);
+  }, [organizationQuery.error, t, handleError]);
 
   const organization = organizationQuery.data ?? EMPTY_ORGANIZATION;
 
@@ -85,7 +74,6 @@ export function useOrganizationDetailsEdit({
       const updateData = OrganizationDetailsMappers.toAPI(data);
       const response = await coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_DETAILS_EDIT_SCOPES)
         .organizationDetails.update(updateData);
 
       return OrganizationDetailsMappers.fromAPI(response);
@@ -103,10 +91,7 @@ export function useOrganizationDetailsEdit({
       saveAction?.onAfter?.(variables);
     },
     onError: (error) => {
-      showToast({
-        type: 'error',
-        message: getErrorMessage(error),
-      });
+      handleError(error, { fallbackMessage: t('organization_changes_error_message_generic') });
     },
   });
 

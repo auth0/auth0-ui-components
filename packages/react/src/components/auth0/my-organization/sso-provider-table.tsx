@@ -12,6 +12,7 @@ import { SsoProviderDeleteModal } from '@/components/auth0/my-organization/share
 import { SsoProviderRemoveFromOrganizationModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove-modal';
 import { SsoProviderTableActionsColumn } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-table/sso-provider-table-action';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
+import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { useSsoProviderTable } from '@/hooks/my-organization/use-sso-provider-table';
@@ -26,7 +27,7 @@ import type {
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
 /**
- * Internal SSO provider table container(logic) component.
+ * SSO provider table container component.
  * @param props - Component props
  * @param props.customMessages - Custom translation messages to override defaults
  * @param props.styling - Custom styling configuration with variables and classes
@@ -39,7 +40,7 @@ import type {
  * @returns JSX element
  * @internal
  */
-function SsoProviderTableContainer(props: SsoProviderTableProps) {
+function SsoProviderTable(props: SsoProviderTableProps) {
   const {
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
@@ -119,10 +120,12 @@ function SsoProviderTableContainer(props: SsoProviderTableProps) {
   };
 
   return (
-    <SsoProviderTableView
-      logic={ssoProviderCreateLogicProps}
-      handlers={ssoProviderCreateHandlerProps}
-    />
+    <GateKeeper isLoading={isLoading} styling={styling}>
+      <SsoProviderTableView
+        logic={ssoProviderCreateLogicProps}
+        handlers={ssoProviderCreateHandlerProps}
+      />
+    </GateKeeper>
   );
 }
 
@@ -320,6 +323,4 @@ function SsoProviderTableView({ logic, handlers }: SsoProviderTableViewProps) {
  * />
  * ```
  */
-const SsoProviderTable = SsoProviderTableContainer;
-
 export { SsoProviderTable, SsoProviderTableView };

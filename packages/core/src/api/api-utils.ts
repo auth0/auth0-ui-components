@@ -1,57 +1,51 @@
 /**
- * Shared utilities for API service fetchers.
+ * Shared client initialization helpers.
  * @module api-utils
  * @internal
  */
 
-import type { ClientAuthConfig } from '../auth/auth-types';
-import { AuthUtils } from '../auth/auth-utils';
+import type { FetcherSupplier, SpaAuthConfig } from '../auth/auth-types';
+
+import { ContentType, HeaderName } from './http-constants';
+
+export const AUTH0_SCOPE_HEADER = HeaderName.Auth0Scope;
 
 /**
- * Builds a Headers object from an existing RequestInit, adding Content-Type
- * for requests with a body unless the caller already set one.
- *
- * @param init - Optional RequestInit to derive existing headers from.
- * @returns Headers with Content-Type set if applicable.
+ * Creates a fetcher function for proxy mode that injects scopes via auth0-scope header.
+ * The proxy will extract scopes from the header and request the appropriate token.
+ * @returns Fetcher function that sets auth0-scope and content-type headers
+ * @internal
  */
-export function buildBaseHeaders(init?: RequestInit): Headers {
-  const headers = new Headers(init?.headers);
-  if (init?.body && !headers.has('Content-Type')) {
-    headers.set('Content-Type', 'application/json');
-  }
-  return headers;
+export function createProxyFetcher(): FetcherSupplier {
+  return async (url, init, authParams) => {
+    const headers = new Headers(init?.headers);
+    headers.set(HeaderName.ContentType, ContentType.JSON);
+    if (authParams?.scope?.length) {
+      headers.set(HeaderName.Auth0Scope, authParams.scope.join(' '));
+    }
+    return fetch(url, { ...init, headers });
+  };
 }
 
 /**
- * Builds the SDK client config and auth header function for a service, resolved once at init time.
- * Proxy mode routes via baseUrl and injects an `auth0-scope` header.
- * SPA mode uses the domain directly and fetches a Bearer token.
- *
- * @param config - Auth configuration.
- * @param path - Service path used as proxy URL suffix and audience (e.g. 'me', 'my-org').
- * @returns SDK client config (without fetcher) and auth header function.
+ * Creates a fetcher function for SPA mode using Auth0 SDK's createFetcher.
+ * @param config - SPA auth configuration with context interface
+ * @param dpopNonceId - Unique identifier for DPoP nonce management
+ * @returns Fetcher function that delegates to SDK's fetchWithAuth with JSON content-type
+ * @internal
  */
-export function buildServiceConfig(
-  config: ClientAuthConfig,
-  path: string,
-): {
-  sdkConfig: { domain: string; baseUrl?: string; telemetry: false };
-  authHeaders: (headers: Headers, scopes: string) => Promise<void>;
-} {
-  if (config.mode === 'proxy') {
-    return {
-      sdkConfig: { domain: '', baseUrl: `${config.proxyUrl}/${path}`, telemetry: false },
-      authHeaders: async (headers, scopes) => {
-        if (scopes) headers.set('auth0-scope', scopes);
+export function createSpaFetcher(config: SpaAuthConfig, dpopNonceId: string): FetcherSupplier {
+  const sdkFetcher = config.contextInterface.createFetcher({ dpopNonceId });
+  return (url, init, authParams) => {
+    const headers = new Headers(init?.headers);
+    headers.set(HeaderName.ContentType, ContentType.JSON);
+    return sdkFetcher.fetchWithAuth(
+      url,
+      { ...init, headers },
+      {
+        scope: authParams?.scope,
+        audience: authParams?.audience,
       },
-    };
-  }
-
-  return {
-    sdkConfig: { domain: config.domain, telemetry: false },
-    authHeaders: async (headers, scopes) => {
-      const token = await AuthUtils.getToken(config.contextInterface, config.domain, path, scopes);
-      headers.set('Authorization', `Bearer ${token}`);
-    },
+    );
   };
 }

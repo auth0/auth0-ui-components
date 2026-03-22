@@ -1,14 +1,22 @@
+'use client';
+
 /**
  * TanStack Query provider wrapper.
  * @module query-provider
  * @internal
  */
 
+import { isMfaRequiredError, isNotifiableError } from '@auth0/universal-components-core';
 import {
+  MutationCache,
+  type Query,
+  QueryCache,
   QueryClient,
   QueryClientProvider as TanStackQueryClientProvider,
 } from '@tanstack/react-query';
-import { useState, type ReactElement, type ReactNode } from 'react';
+import { useMemo, useState, type ReactElement, type ReactNode } from 'react';
+
+import { GateKeeperContext } from '@/providers/gate-keeper-context';
 
 /** Query cache configuration. */
 export interface QueryCacheConfig {
@@ -24,7 +32,7 @@ export const DEFAULT_CACHE_CONFIG: Readonly<Required<QueryCacheConfig>> = {
   staleTime: 2 * 60 * 1000,
   gcTime: 5 * 60 * 1000,
   refetchOnWindowFocus: false,
-} as const;
+};
 
 const QUERY_RETRY_CONFIG = {
   maxRetries: 3,
@@ -62,19 +70,66 @@ export function resolveCacheConfig(userConfig?: QueryCacheConfig): Required<Quer
 }
 
 /**
- * Creates a QueryClient with config.
+ * Returns true if a cached query has an error that GateKeeper should handle.
+ * @param query - The cached query to check.
+ * @returns Whether the query error should be intercepted by GateKeeper.
+ */
+function isGateKeeperError(query: Query): boolean {
+  return !!query.state.error && !isNotifiableError(query.state.error);
+}
+
+/**
+ * Creates a QueryClient with config and global GateKeeper error interception.
  * @param cacheConfig - Cache configuration.
+ * @param setGateKeeperState - Setter for GateKeeper context state.
  * @returns The configured QueryClient instance
  * @internal
  */
-function createQueryClient(cacheConfig: Required<QueryCacheConfig>): QueryClient {
-  return new QueryClient({
+function createQueryClient(
+  cacheConfig: Required<QueryCacheConfig>,
+  setGateKeeperState: (state: { error: Error; onRetry: () => Promise<boolean> } | null) => void,
+): QueryClient {
+  const queryClient = new QueryClient({
+    queryCache: new QueryCache({
+      onError: (error) => {
+        if (!isNotifiableError(error)) {
+          setGateKeeperState({
+            error,
+            onRetry: async () => {
+              await queryClient.refetchQueries({ predicate: isGateKeeperError });
+              const stillFailing = queryClient.getQueryCache().getAll().some(isGateKeeperError);
+              if (!stillFailing) setGateKeeperState(null);
+              return !stillFailing;
+            },
+          });
+        }
+      },
+    }),
+    mutationCache: new MutationCache({
+      onError: (error, variables, _context, mutation) => {
+        if (isMfaRequiredError(error)) {
+          setGateKeeperState({
+            error,
+            onRetry: async () => {
+              try {
+                await mutation.execute(variables);
+                setGateKeeperState(null);
+                return true;
+              } catch {
+                return false;
+              }
+            },
+          });
+        }
+      },
+    }),
     defaultOptions: {
       queries: {
         staleTime: cacheConfig.staleTime,
         gcTime: cacheConfig.gcTime,
         refetchOnWindowFocus: cacheConfig.refetchOnWindowFocus,
-        retry: QUERY_RETRY_CONFIG.maxRetries,
+        retry: (failureCount, error) =>
+          !isMfaRequiredError(error) && failureCount < QUERY_RETRY_CONFIG.maxRetries,
         retryDelay: (attemptIndex: number) =>
           Math.min(
             1000 * QUERY_RETRY_CONFIG.backoffMultiplier ** attemptIndex,
@@ -83,10 +138,13 @@ function createQueryClient(cacheConfig: Required<QueryCacheConfig>): QueryClient
         refetchOnReconnect: true,
       },
       mutations: {
-        retry: MUTATION_RETRY_CONFIG.maxRetries,
+        retry: (failureCount, error) =>
+          !isMfaRequiredError(error) && failureCount < MUTATION_RETRY_CONFIG.maxRetries,
       },
     },
   });
+
+  return queryClient;
 }
 
 /** Props for QueryProvider. */
@@ -105,7 +163,19 @@ export interface QueryProviderProps {
  * @internal
  */
 export function QueryProvider({ children, cacheConfig }: QueryProviderProps): ReactElement {
-  const [queryClient] = useState(() => createQueryClient(resolveCacheConfig(cacheConfig)));
+  const [gateKeeperState, setGateKeeperState] = useState<{
+    error: Error;
+    onRetry: () => Promise<boolean>;
+  } | null>(null);
+  const [queryClient] = useState(() =>
+    createQueryClient(resolveCacheConfig(cacheConfig), setGateKeeperState),
+  );
 
-  return <TanStackQueryClientProvider client={queryClient}>{children}</TanStackQueryClientProvider>;
+  const contextValue = useMemo(() => gateKeeperState ?? { error: null }, [gateKeeperState]);
+
+  return (
+    <GateKeeperContext.Provider value={contextValue}>
+      <TanStackQueryClientProvider client={queryClient}>{children}</TanStackQueryClientProvider>
+    </GateKeeperContext.Provider>
+  );
 }

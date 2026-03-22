@@ -1,6 +1,6 @@
 {
   "buildCommand": "echo 'Already built in CI'",
-  "installCommand": "echo 'Dependencies already installed'",
+  "installCommand": "npm install @vercel/node",
   "framework": "vite",
   "outputDirectory": "dist",
   "rewrites": [

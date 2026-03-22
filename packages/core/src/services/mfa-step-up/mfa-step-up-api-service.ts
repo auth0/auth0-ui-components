@@ -1,3 +1,4 @@
+import { ContentType, HeaderName } from '../../api/http-constants';
 import type { ClientAuthConfig, TokenEndpointResponse } from '../../auth/auth-types';
 
 import type {
@@ -35,7 +36,7 @@ function createProxyMfaClient(authProxyUrl: string): MfaApiClient {
   const post = async <T>(path: string, body: unknown): Promise<T> => {
     const res = await fetch(`${authProxyUrl}${path}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { [HeaderName.ContentType]: ContentType.JSON },
       body: JSON.stringify(body),
     });
     if (!res.ok) throw await res.json().catch(() => ({ status: res.status }));

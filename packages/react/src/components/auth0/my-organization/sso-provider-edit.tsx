@@ -8,6 +8,7 @@ import { useState, useMemo } from 'react';
 import { SsoDomainTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab';
 import { SsoProviderTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-tab';
 import { SsoProvisioningTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab';
+import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Spinner } from '@/components/ui/spinner';
@@ -25,7 +26,7 @@ import type {
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
 /**
- * Internal SSO provider edit container(logic) component.
+ * SSO provider edit container component.
  * @param props - Component props
  * @param props.providerId - ID of the SSO provider
  * @param props.backButton - Configuration for the back button
@@ -40,7 +41,7 @@ import type {
  * @internal
  * @returns JSX element
  */
-function SsoProviderEditContainer(props: SsoProviderEditProps) {
+function SsoProviderEdit(props: SsoProviderEditProps) {
   const {
     providerId,
     backButton,
@@ -98,10 +99,12 @@ function SsoProviderEditContainer(props: SsoProviderEditProps) {
   };
 
   return (
-    <SsoProviderEditView
-      logic={ssoProviderCreateLogicProps}
-      handlers={ssoProviderCreateHandlerProps}
-    />
+    <GateKeeper isLoading={ssoProviderEdit.isLoading} styling={styling}>
+      <SsoProviderEditView
+        logic={ssoProviderCreateLogicProps}
+        handlers={ssoProviderCreateHandlerProps}
+      />
+    </GateKeeper>
   );
 }
 
@@ -329,6 +332,4 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
  * />
  * ```
  */
-const SsoProviderEdit = SsoProviderEditContainer;
-
 export { SsoProviderEdit, SsoProviderEditView };

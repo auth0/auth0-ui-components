@@ -1,4 +1,4 @@
-![Auth0 React Web Universal Components SDK for JavaScript/TypeScript](https://cdn.auth0.com/website/sdks/banners/web-ui-components-react.png)
+![Auth0 React Web Universal Components SDK for JavaScript/TypeScript](https://cdn.auth0.com/website/universalcomponentsreact/universal-components-react.png)
 
 React component library for Auth0 integrations. Built with TypeScript, Radix UI, and Tailwind CSS.
 
@@ -70,9 +70,7 @@ function App() {
       }}
     >
       <Auth0ComponentProvider
-        authDetails={{
-          domain: 'your-domain.auth0.com',
-        }}
+        domain="your-domain.auth0.com"
         themeSettings={{ theme: 'default', mode: 'light' }}
       >
         <OrganizationDetailsEdit />
@@ -94,9 +92,9 @@ export default function RootLayout({ children }) {
     <html>
       <body>
         <Auth0ComponentProvider
-          authDetails={{
-            authProxyUrl: '/api/auth',
-          }}
+          domain="your-domain.auth0.com"
+          mode="proxy"
+          proxyConfig={{ baseUrl: '/api/auth' }}
           themeSettings={{ theme: 'default', mode: 'light' }}
         >
           {children}

@@ -46,7 +46,7 @@ export const LanguageDropDown: React.FC = () => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-background/90 dark:hover:bg-background/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-accent/90 focus:outline-none"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
@@ -61,7 +61,7 @@ export const LanguageDropDown: React.FC = () => {
             <button
               key={language.code}
               onClick={() => handleLanguageChange(language.code)}
-              className={`w-full text-left px-4 py-2 text-sm hover:bg-background/90 dark:hover:bg-background/90 ${
+              className={`w-full text-left px-4 py-2 text-sm hover:bg-accent/90 ${
                 i18n.language === language.code
                   ? 'bg-gray-50 dark:bg-gray-700 text-blue-600 dark:text-blue-400'
                   : 'text-gray-700 dark:text-gray-200'

@@ -33,13 +33,30 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Deploy entire monorepo to Vercel
+      - name: Stage deployment artifacts
+        run: |
+          mkdir -p /tmp/static-deploy/dist
+
+          # Copy the built static files into dist/ (matches outputDirectory in vercel.json)
+          cp -r docs-site/dist/* /tmp/static-deploy/dist/
+
+          # Copy the API serverless functions to root api/ (Vercel convention)
+          cp -r docs-site/api /tmp/static-deploy/
+
+          # Copy package.json so Vercel can install deps for the API function
+          cp docs-site/package.json /tmp/static-deploy/package.json
+
+          # Use the docs-site vercel.json (outputDirectory: dist, rewrites, no build needed)
+          cp docs-site/vercel.json /tmp/static-deploy/vercel.json
+
+          echo "Staged deployment contents:"
+          ls -la /tmp/static-deploy/
+          ls -la /tmp/static-deploy/api/
+          ls -la /tmp/static-deploy/dist/ | head -20
+
+      - name: Deploy to Vercel (Production)
         id: deploy
         run: |
-          echo "Deploying monorepo to Vercel (Production)..."
-          echo "Project ID: $VERCEL_PROJECT_ID"
-          echo "Org ID: $VERCEL_ORG_ID"
-          echo "Contents of docs-site dist folder:"
-          ls -la docs-site/dist/
+          echo "Deploying to Vercel (Production)..."
           vercel --version
-          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes --scope=$VERCEL_ORG_ID
+          vercel deploy /tmp/static-deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes --scope=$VERCEL_ORG_ID

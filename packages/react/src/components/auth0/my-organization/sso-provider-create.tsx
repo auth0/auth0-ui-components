@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import ProviderConfigure from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure';
 import { ProviderDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details';
 import { ProviderSelect } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-select';
+import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Wizard } from '@/components/auth0/shared/wizard';
@@ -23,7 +24,7 @@ import type {
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 /**
- * Internal SSO provider creation container(logic) component.
+ * SSO provider creation container component.
  * @param props - Component props
  * @param props.createAction - Configuration for the create action
  * @param props.backButton - Configuration for the back button
@@ -34,7 +35,7 @@ import type {
  * @internal
  * @returns JSX element
  */
-function SsoProviderCreateContainer(props: SsoProviderCreateProps) {
+function SsoProviderCreate(props: SsoProviderCreateProps) {
   const {
     createAction,
     backButton,
@@ -47,7 +48,10 @@ function SsoProviderCreateContainer(props: SsoProviderCreateProps) {
     onPrevious,
   } = props;
 
-  const { createProvider, isCreating } = useSsoProviderCreate({ createAction, customMessages });
+  const { createProvider, isCreating } = useSsoProviderCreate({
+    createAction,
+    customMessages,
+  });
   const {
     formData,
     detailsRef,
@@ -93,10 +97,12 @@ function SsoProviderCreateContainer(props: SsoProviderCreateProps) {
   };
 
   return (
-    <SsoProviderCreateView
-      logic={ssoProviderCreateLogicProps}
-      handlers={ssoProviderCreateHandlerProps}
-    />
+    <GateKeeper styling={styling}>
+      <SsoProviderCreateView
+        logic={ssoProviderCreateLogicProps}
+        handlers={ssoProviderCreateHandlerProps}
+      />
+    </GateKeeper>
   );
 }
 
@@ -275,6 +281,4 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
  * />
  * ```
  */
-const SsoProviderCreate = SsoProviderCreateContainer;
-
 export { SsoProviderCreate, SsoProviderCreateView };

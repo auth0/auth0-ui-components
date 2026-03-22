@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${inter.className} h-full overflow-hidden bg-background`}>
         <Auth0Provider>
           <ClientProvider>
-            <div className="flex flex-col h-screen bg-background">
+            <div className="flex flex-col h-screen bg-background" data-theme="default">
               <Navbar />
               <div className="flex flex-1 overflow-hidden min-h-0">
                 <Sidebar />

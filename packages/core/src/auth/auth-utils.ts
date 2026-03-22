@@ -1,54 +1,45 @@
-import type { AuthDetails, BasicAuth0ContextInterface, ClientAuthConfig } from './auth-types';
+import type { AuthDetails, ClientAuthConfig } from './auth-types';
+
+/**
+ * Ensures a URL or path ends with exactly one trailing slash.
+ *
+ * @param url - The URL or path to normalize
+ * @returns URL or path with a single trailing slash
+ *
+ * @example
+ * ensureTrailingSlash('https://example.com') // 'https://example.com/'
+ * ensureTrailingSlash('https://example.com/') // 'https://example.com/'
+ * ensureTrailingSlash('https://example.com///') // 'https://example.com/'
+ */
+export function ensureTrailingSlash(url: string): string {
+  return url.replace(/\/*$/, '/');
+}
+
+/**
+ * Normalizes a proxy URL to be an absolute URL with a trailing slash.
+ * This ensures new URL(path, proxyUrl) works correctly for path appending.
+ *
+ * @param proxyUrl - The proxy URL to normalize (must be absolute, relative paths fallback to window.location.origin)
+ * @returns Normalized absolute URL with trailing slash
+ *
+ * @example
+ * normalizeProxyUrl('https://example.com/api/proxy') // 'https://example.com/api/proxy/'
+ * normalizeProxyUrl('https://example.com/api/proxy/') // 'https://example.com/api/proxy/'
+ * normalizeProxyUrl('/api/proxy') // 'https://current-origin.com/api/proxy/'
+ */
+export function normalizeProxyUrl(proxyUrl: string): string {
+  try {
+    // Try to parse as absolute URL first
+    const absoluteUrl = new URL(proxyUrl).href;
+    return ensureTrailingSlash(absoluteUrl);
+  } catch {
+    // If relative path, resolve against window.location.origin as fallback
+    const absoluteUrl = new URL(proxyUrl, window.location.origin).href;
+    return ensureTrailingSlash(absoluteUrl);
+  }
+}
 
 export const AuthUtils = {
-  /**
-   * Converts a domain string to a properly formatted URL with HTTPS protocol and trailing slash.
-   * @param domain - The domain string to convert.
-   * @returns A properly formatted URL with HTTPS protocol and trailing slash.
-   */
-  toURL(domain: string): string {
-    const domainWithSlash = domain.endsWith('/') ? domain : `${domain}/`;
-    if (domainWithSlash.startsWith('http://') || domainWithSlash.startsWith('https://')) {
-      return domainWithSlash;
-    }
-    return `https://${domainWithSlash}`;
-  },
-
-  /**
-   * Builds an audience URL from a domain and audience path.
-   * @param domain - The Auth0 tenant domain.
-   * @param audiencePath - The API audience path segment.
-   * @returns The constructed audience URL string.
-   */
-  buildAudience(domain: string, audiencePath: string): string {
-    return `${AuthUtils.toURL(domain)}${audiencePath}/`;
-  },
-
-  /**
-   * Retrieves an access token silently for the given domain and audience path.
-   * @param contextInterface - The Auth0 context interface.
-   * @param domain - The Auth0 tenant domain.
-   * @param audiencePath - The API audience path segment.
-   * @param scope - The required scopes.
-   * @param cacheMode - Optional cache mode override.
-   * @returns The access token string.
-   */
-  async getToken(
-    contextInterface: BasicAuth0ContextInterface,
-    domain: string,
-    audiencePath: string,
-    scope: string,
-    cacheMode?: 'on' | 'off' | 'cache-only',
-  ): Promise<string> {
-    const audience = AuthUtils.buildAudience(domain, audiencePath);
-    const tokenResponse = await contextInterface.getAccessTokenSilently({
-      authorizationParams: { audience, scope },
-      detailedResponse: true,
-      ...(cacheMode && { cacheMode }),
-    });
-    return tokenResponse.access_token;
-  },
-
   /**
    * Resolves the appropriate ClientAuthConfig based on provided AuthDetails.
    * @internal
@@ -60,7 +51,7 @@ export const AuthUtils = {
     if (auth.authProxyUrl) {
       return {
         mode: 'proxy',
-        proxyUrl: auth.authProxyUrl.replace(/\/$/, ''),
+        proxyUrl: normalizeProxyUrl(auth.authProxyUrl),
         ...(auth.domain && { domain: auth.domain.trim() }),
       };
     }

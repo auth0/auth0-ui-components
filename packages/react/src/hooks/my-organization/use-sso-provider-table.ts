@@ -11,13 +11,13 @@ import {
   type IdentityProvider,
   type OrganizationPrivate,
   BusinessError,
-  MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { UseSsoProviderTableReturn } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
@@ -44,6 +44,7 @@ export function useSsoProviderTable(
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
+  const handleError = useErrorHandler();
   const hasShownProvidersError = useRef(false);
   const hasShownOrganizationError = useRef(false);
 
@@ -52,7 +53,6 @@ export function useSsoProviderTable(
     queryFn: async () => {
       const response = await coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES)
         .organization.identityProviders.list();
       return (response?.identity_providers ?? []) as IdentityProvider[];
     },
@@ -62,10 +62,7 @@ export function useSsoProviderTable(
   const organizationQuery = useQuery({
     queryKey: ssoProviderQueryKeys.organization,
     queryFn: async () => {
-      const response = await coreClient!
-        .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES)
-        .organizationDetails.get();
+      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
       return OrganizationDetailsMappers.fromAPI(response);
     },
     enabled: !!coreClient,
@@ -73,31 +70,25 @@ export function useSsoProviderTable(
 
   useEffect(() => {
     if (providersQuery.isError && !hasShownProvidersError.current) {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
+      handleError(providersQuery.error, { fallbackMessage: t('general_error') });
       hasShownProvidersError.current = true;
     }
 
     if (!providersQuery.isError) {
       hasShownProvidersError.current = false;
     }
-  }, [providersQuery.isError, t]);
+  }, [providersQuery.isError, providersQuery.error, t, handleError]);
 
   useEffect(() => {
     if (organizationQuery.isError && !hasShownOrganizationError.current) {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
+      handleError(organizationQuery.error, { fallbackMessage: t('general_error') });
       hasShownOrganizationError.current = true;
     }
 
     if (!organizationQuery.isError) {
       hasShownOrganizationError.current = false;
     }
-  }, [organizationQuery.isError, t]);
+  }, [organizationQuery.isError, organizationQuery.error, t, handleError]);
 
   const enableProviderMutation = useMutation({
     mutationFn: async ({
@@ -125,7 +116,6 @@ export function useSsoProviderTable(
 
       const updatedProvider = await coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES)
         .organization.identityProviders.update(selectedIdp.id, apiRequestData);
 
       return updatedProvider as IdentityProvider;
@@ -148,11 +138,8 @@ export function useSsoProviderTable(
         );
       });
     },
-    onError: () => {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
+    onError: (error) => {
+      handleError(error, { fallbackMessage: t('general_error') });
     },
   });
 
@@ -164,7 +151,6 @@ export function useSsoProviderTable(
 
       await coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES)
         .organization.identityProviders.delete(selectedIdp.id);
     },
     onSuccess: async (_, selectedIdp) => {
@@ -179,11 +165,8 @@ export function useSsoProviderTable(
 
       queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
     },
-    onError: () => {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
+    onError: (error) => {
+      handleError(error, { fallbackMessage: t('general_error') });
     },
   });
 
@@ -195,7 +178,6 @@ export function useSsoProviderTable(
 
       await coreClient!
         .getMyOrganizationApiClient()
-        .withScopes(MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES)
         .organization.identityProviders.detach(selectedIdp.id);
     },
     onSuccess: async (_, selectedIdp) => {
@@ -217,12 +199,8 @@ export function useSsoProviderTable(
 
       queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
     },
-    onError: () => {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
-      return;
+    onError: (error) => {
+      handleError(error, { fallbackMessage: t('general_error') });
     },
   });
 
@@ -277,22 +255,16 @@ export function useSsoProviderTable(
       const data = await queryClient.ensureQueryData({
         queryKey: ssoProviderQueryKeys.organization,
         queryFn: async () => {
-          const response = await coreClient
-            .getMyOrganizationApiClient()
-            .withScopes(MY_ORGANIZATION_SSO_PROVIDER_TABLE_SCOPES)
-            .organizationDetails.get();
+          const response = await coreClient.getMyOrganizationApiClient().organizationDetails.get();
           return OrganizationDetailsMappers.fromAPI(response);
         },
       });
       return data;
     } catch (error) {
-      showToast({
-        type: 'error',
-        message: t('general_error'),
-      });
+      handleError(error, { fallbackMessage: t('general_error') });
       return null;
     }
-  }, [coreClient, queryClient, t]);
+  }, [coreClient, queryClient, t, handleError]);
 
   return {
     // Data from TanStack Query - single source of truth

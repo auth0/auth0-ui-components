@@ -122,7 +122,6 @@ export default function Styling() {
 
         <CodeBlock
           code={`<Auth0ComponentProvider
-  authDetails={authDetails}
   themeSettings={{
     mode: 'light',   // 'light' | 'dark'
     theme: 'default' // 'default' | 'minimal' | 'rounded'

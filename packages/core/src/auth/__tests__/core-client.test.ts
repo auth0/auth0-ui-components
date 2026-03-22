@@ -1,6 +1,6 @@
+import type { MyAccountClient } from '@auth0/myaccount-js';
+import type { MyOrganizationClient } from '@auth0/myorganization-js';
 import { initializeMfaStepUpClient } from '@core/services/mfa-step-up/mfa-step-up-api-service';
-import { initializeMyAccountClient } from '@core/services/my-account/my-account-api-service';
-import { initializeMyOrganizationClient } from '@core/services/my-organization/my-organization-api-service';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createI18nService } from '../../i18n';
@@ -9,24 +9,28 @@ import {
   createMockContextInterface,
   TEST_DOMAIN,
 } from '../../internals/__mocks__/shared/api-service.mocks';
-import { createMockMyAccountClient } from '../../services/my-account/__tests__/__mocks__/my-account-api-service.mocks';
-import type { MyAccountApiClient } from '../../services/my-account/my-account-api-service';
-import { createMockMyOrganizationClient } from '../../services/my-organization/__tests__/__mocks__/my-organization-api-service.mocks';
-import type { MyOrganizationApiClient } from '../../services/my-organization/my-organization-api-service';
+import { createMyAccountClient } from '../../services/my-account/my-account-client';
+import { createMyOrganizationClient } from '../../services/my-organization/my-organization-client';
 import type { AuthDetails } from '../auth-types';
 import { createCoreClient } from '../core-client';
 
 // Mock the modules
 vi.mock('@core/i18n');
-vi.mock('@core/services/my-organization/my-organization-api-service');
-vi.mock('@core/services/my-account/my-account-api-service');
 vi.mock('@core/services/mfa-step-up/mfa-step-up-api-service');
+vi.mock('../../services/my-account/my-account-client');
+vi.mock('../../services/my-organization/my-organization-client');
 
 describe('createCoreClient', () => {
-  // Create mock instances using mock utilities
+  // Create mock instances
   const mockI18nService = createMockI18nService();
-  const mockMyOrganizationClient = createMockMyOrganizationClient();
-  const mockMyAccountClient = createMockMyAccountClient();
+  const mockMyOrganizationClient = {
+    organizationDetails: { get: vi.fn(), update: vi.fn() },
+    organization: { identityProviders: { list: vi.fn() } },
+  } as unknown as MyOrganizationClient;
+  const mockMyAccountClient = {
+    factors: { list: vi.fn() },
+    authenticationMethods: { list: vi.fn(), create: vi.fn(), delete: vi.fn(), verify: vi.fn() },
+  } as unknown as MyAccountClient;
   const mockMfaApiClient = {
     getAuthenticators: vi.fn().mockResolvedValue([]),
     enroll: vi.fn().mockResolvedValue({}),
@@ -36,8 +40,8 @@ describe('createCoreClient', () => {
 
   // Get the mocked functions
   const createI18nServiceMock = vi.mocked(createI18nService);
-  const initializeMyOrganizationClientMock = vi.mocked(initializeMyOrganizationClient);
-  const initializeMyAccountClientMock = vi.mocked(initializeMyAccountClient);
+  const createMyOrganizationClientMock = vi.mocked(createMyOrganizationClient);
+  const createMyAccountClientMock = vi.mocked(createMyAccountClient);
   const initializeMfaStepUpClientMock = vi.mocked(initializeMfaStepUpClient);
 
   const createAuthDetails = (overrides: Partial<AuthDetails> = {}): AuthDetails => {
@@ -54,8 +58,8 @@ describe('createCoreClient', () => {
 
     // Setup default mock implementations
     createI18nServiceMock.mockResolvedValue(mockI18nService);
-    initializeMyOrganizationClientMock.mockReturnValue(mockMyOrganizationClient);
-    initializeMyAccountClientMock.mockReturnValue(mockMyAccountClient);
+    createMyOrganizationClientMock.mockReturnValue(mockMyOrganizationClient);
+    createMyAccountClientMock.mockReturnValue(mockMyAccountClient);
     initializeMfaStepUpClientMock.mockReturnValue(mockMfaApiClient);
   });
 
@@ -114,7 +118,7 @@ describe('createCoreClient', () => {
       const authDetails = createAuthDetails();
       await createCoreClient(authDetails);
 
-      expect(initializeMyOrganizationClientMock).toHaveBeenCalledWith(
+      expect(createMyOrganizationClientMock).toHaveBeenCalledWith(
         expect.objectContaining({ mode: 'spa', domain: TEST_DOMAIN }),
       );
     });
@@ -123,7 +127,7 @@ describe('createCoreClient', () => {
       const authDetails = createAuthDetails();
       await createCoreClient(authDetails);
 
-      expect(initializeMyAccountClientMock).toHaveBeenCalledWith(
+      expect(createMyAccountClientMock).toHaveBeenCalledWith(
         expect.objectContaining({ mode: 'spa', domain: TEST_DOMAIN }),
       );
     });
@@ -159,7 +163,7 @@ describe('createCoreClient', () => {
     });
 
     it('throws when myAccountApiClient is not available', async () => {
-      initializeMyAccountClientMock.mockReturnValueOnce(null as unknown as MyAccountApiClient);
+      createMyAccountClientMock.mockReturnValueOnce(null as unknown as MyAccountClient);
 
       const authDetails = createAuthDetails();
       const client = await createCoreClient(authDetails);
@@ -170,9 +174,7 @@ describe('createCoreClient', () => {
     });
 
     it('throws when myOrganizationApiClient is not available', async () => {
-      initializeMyOrganizationClientMock.mockReturnValueOnce(
-        null as unknown as MyOrganizationApiClient,
-      );
+      createMyOrganizationClientMock.mockReturnValueOnce(null as unknown as MyOrganizationClient);
       const authDetails = createAuthDetails();
       const client = await createCoreClient(authDetails);
 

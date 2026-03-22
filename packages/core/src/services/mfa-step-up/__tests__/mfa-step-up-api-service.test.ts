@@ -1,13 +1,12 @@
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
+import { stubFetch } from '../../../api/__tests__/__mocks__/api-utils.mocks';
 import type { ProxyAuthConfig, SpaAuthConfig } from '../../../auth/auth-types';
 import {
   TEST_DOMAIN,
   createMockContextInterface,
 } from '../../../internals/__mocks__/shared/api-service.mocks';
 import { initializeMfaStepUpClient } from '../mfa-step-up-api-service';
-
-import { stubFetch } from './__mocks__/mfa-step-up-api-service.mocks';
 
 const PROXY_URL = 'https://proxy.example.com';
 const MFA_TOKEN = 'test-mfa-token';

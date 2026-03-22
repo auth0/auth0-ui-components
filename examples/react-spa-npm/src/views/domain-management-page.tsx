@@ -3,7 +3,7 @@
 const DomainManagementPage = () => {
   return (
     <div className="p-6 pt-8 space-y-6">
-      <p>
+      <p className="text-primary">
         Follow{' '}
         <a
           href="https://github.com/auth0/auth0-ui-components/tree/main/examples/react-spa-npm#adding-a-universal-component-to-your-app"

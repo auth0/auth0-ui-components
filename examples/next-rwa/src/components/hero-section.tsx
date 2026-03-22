@@ -19,11 +19,12 @@ export function HeroSection() {
             </p>
 
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <Button className="cursor-pointer">
+              <Button>
                 <a
                   href="https://auth0-ui-components.vercel.app/"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="cursor-default"
                 >
                   {t('hero-section.get-started-button')}
                 </a>

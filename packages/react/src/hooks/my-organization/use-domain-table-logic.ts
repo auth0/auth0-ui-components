@@ -38,7 +38,7 @@ export function useDomainTableLogic({
   fetchProviders,
   fetchDomains,
 }: UseDomainTableLogicOptions): UseDomainTableLogicResult {
-  const { handleError } = useErrorHandler();
+  const handleError = useErrorHandler();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showConfigureModal, setShowConfigureModal] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);

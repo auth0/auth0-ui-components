@@ -10,6 +10,7 @@ import { DomainDeleteModal } from '@/components/auth0/my-organization/shared/dom
 import { DomainTableActionsColumn } from '@/components/auth0/my-organization/shared/domain-management/domain-table/domain-table-actions-column';
 import { DomainVerifyModal } from '@/components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
+import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
@@ -24,12 +25,12 @@ import type {
 } from '@/types/my-organization/domain-management/domain-table-types';
 
 /**
- * DomainTableContainer Component.
+ * DomainTable container component.
  * @param props - Component props
  * @returns Domain table container element
  * @internal
  */
-function DomainTableContainer(props: DomainTableProps) {
+function DomainTable(props: DomainTableProps) {
   const {
     schema,
     hideHeader = false,
@@ -77,7 +78,11 @@ function DomainTableContainer(props: DomainTableProps) {
     onCreateProvider,
   };
 
-  return <DomainTableView logic={domainTableLogic} handlers={domainTableHandlers} />;
+  return (
+    <GateKeeper isLoading={domainTableState.isFetching} styling={styling}>
+      <DomainTableView logic={domainTableLogic} handlers={domainTableHandlers} />
+    </GateKeeper>
+  );
 }
 
 /**
@@ -144,7 +149,9 @@ function DomainTableView({
         accessorKey: 'domain',
         title: t('domain_table.table.columns.domain'),
         width: '35%',
-        render: (domain) => <div className="font-medium text-primary">{domain.domain}</div>,
+        render: (domain) => (
+          <div className="font-medium text-primary truncate">{domain.domain}</div>
+        ),
       },
       {
         type: 'text',
@@ -286,6 +293,4 @@ function DomainTableView({
  * />
  * ```
  */
-const DomainTable = DomainTableContainer;
-
 export { DomainTable, DomainTableView };

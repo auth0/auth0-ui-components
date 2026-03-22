@@ -12,7 +12,7 @@ export default defineConfig(() => ({
   plugins: [react()],
   resolve: {
     alias: {
-      '@/auth0-ui-components': path.resolve('./src/auth0-ui-components'),
+      '@': path.resolve('./src'),
     },
   },
 }));

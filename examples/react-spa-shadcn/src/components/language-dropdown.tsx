@@ -46,7 +46,7 @@ export const LanguageDropDown: React.FC = () => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md text-primary hover:bg-accent/60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
@@ -56,15 +56,13 @@ export const LanguageDropDown: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white dark:bg-gray-800 py-1 shadow-lg ring-1 ring-black/5 dark:ring-white/10">
+        <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-background py-1 shadow-lg ring-1 ring-black/5 dark:ring-white/10">
           {languages.map((language) => (
             <button
               key={language.code}
               onClick={() => handleLanguageChange(language.code)}
-              className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                i18n.language === language.code
-                  ? 'bg-gray-50 dark:bg-gray-700 text-blue-600 dark:text-blue-400'
-                  : 'text-gray-700 dark:text-gray-200'
+              className={`w-full text-left px-4 py-2 text-sm hover:bg-accent/60 ${
+                i18n.language === language.code ? 'bg-accent/60 text-primary' : 'text-primary'
               }`}
             >
               {language.name}

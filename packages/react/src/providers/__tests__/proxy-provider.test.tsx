@@ -35,7 +35,11 @@ describe('Auth0ComponentProvider', () => {
 
   it('should render children', () => {
     render(
-      <Auth0ComponentProvider authDetails={{ authProxyUrl: '/api/auth' }}>
+      <Auth0ComponentProvider
+        domain="test.auth0.com"
+        mode="proxy"
+        proxyConfig={{ baseUrl: '/api/auth' }}
+      >
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );
@@ -46,7 +50,11 @@ describe('Auth0ComponentProvider', () => {
 
   it('should render ThemeProvider', () => {
     render(
-      <Auth0ComponentProvider authDetails={{ authProxyUrl: '/api/auth' }}>
+      <Auth0ComponentProvider
+        domain="test.auth0.com"
+        mode="proxy"
+        proxyConfig={{ baseUrl: '/api/auth' }}
+      >
         <div>Test</div>
       </Auth0ComponentProvider>,
     );
@@ -56,7 +64,11 @@ describe('Auth0ComponentProvider', () => {
 
   it('should render Toaster', () => {
     render(
-      <Auth0ComponentProvider authDetails={{ authProxyUrl: '/api/auth' }}>
+      <Auth0ComponentProvider
+        domain="test.auth0.com"
+        mode="proxy"
+        proxyConfig={{ baseUrl: '/api/auth' }}
+      >
         <div>Test</div>
       </Auth0ComponentProvider>,
     );
@@ -66,7 +78,11 @@ describe('Auth0ComponentProvider', () => {
 
   it('should apply default theme settings when not provided', () => {
     render(
-      <Auth0ComponentProvider authDetails={{ authProxyUrl: '/api/auth' }}>
+      <Auth0ComponentProvider
+        domain="test.auth0.com"
+        mode="proxy"
+        proxyConfig={{ baseUrl: '/api/auth' }}
+      >
         <div>Test</div>
       </Auth0ComponentProvider>,
     );
@@ -77,7 +93,9 @@ describe('Auth0ComponentProvider', () => {
   it('should apply custom theme settings', () => {
     render(
       <Auth0ComponentProvider
-        authDetails={{ authProxyUrl: '/api/auth' }}
+        domain="test.auth0.com"
+        mode="proxy"
+        proxyConfig={{ baseUrl: '/api/auth' }}
         themeSettings={{
           mode: 'dark',
           theme: 'rounded',
@@ -98,7 +116,9 @@ describe('Auth0ComponentProvider', () => {
   it('should render custom loader when provided', () => {
     render(
       <Auth0ComponentProvider
-        authDetails={{ authProxyUrl: '/api/auth' }}
+        domain="test.auth0.com"
+        mode="proxy"
+        proxyConfig={{ baseUrl: '/api/auth' }}
         loader={<div data-testid="custom-loader">Loading...</div>}
       >
         <div>Test</div>
@@ -112,7 +132,11 @@ describe('Auth0ComponentProvider', () => {
     mockUseCoreClientInitialization.mockReturnValueOnce(null as never);
 
     render(
-      <Auth0ComponentProvider authDetails={{ authProxyUrl: '/api/auth' }}>
+      <Auth0ComponentProvider
+        domain="test.auth0.com"
+        mode="proxy"
+        proxyConfig={{ baseUrl: '/api/auth' }}
+      >
         <div data-testid="child-content">Test Content</div>
       </Auth0ComponentProvider>,
     );

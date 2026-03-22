@@ -2,6 +2,8 @@
 
 @import '@auth0/universal-components-react/styles';
 
+@custom-variant theme-default (&:where([data-theme="default"], [data-theme="default"] *));
+
 @theme inline {
   --color-page: var(--color-page);
   --color-background: var(--color-background);
@@ -30,7 +32,7 @@
   --color-foreground: oklch(0.145 0 0);
   --color-card: oklch(1 0 0);
   --color-card-foreground: oklch(0.145 0 0);
-  --color-primary: oklch(0.205 0 0);
+  --color-primary: oklch(0.261 0.0079 84.59);
   --color-primary-foreground: oklch(0.985 0 0);
   --color-muted: oklch(0.97 0 0);
   --color-muted-foreground: oklch(0.556 0 0);
@@ -46,7 +48,7 @@
     --color-foreground: oklch(0.985 0 0);
     --color-card: oklch(0 0 0);
     --color-card-foreground: oklch(0.985 0 0);
-    --color-primary: oklch(0.922 0 0);
+    --color-primary: oklch(0.9465 0.0058 84.57);
     --color-primary-foreground: oklch(0.205 0 0);
     --color-muted: oklch(0.269 0 0);
     --color-muted-foreground: oklch(0.708 0 0);

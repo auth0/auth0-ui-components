@@ -1,50 +1,74 @@
 /**
- * Error handling hook with toast notifications.
+ * Error handling hook with toast error.
  * @module use-error-handler
  */
 
-import { hasApiErrorBody, isBusinessError } from '@auth0/universal-components-core';
+import {
+  isNotifiableError,
+  resolveErrorMessage,
+  getStatusCode,
+  hasApiErrorBody,
+  ERROR_CODES,
+} from '@auth0/universal-components-core';
 import { useCallback } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useTranslator } from '@/hooks/shared/use-translator';
 
-interface ErrorHandlerOptions {
+interface ErrorHandlerCallOptions {
   fallbackMessage?: string;
-  showToastNotification?: boolean;
 }
 
 /**
- * Hook for handling errors with optional toast notifications.
+ * Hook for consistent error handling across the app.
+ *
  * @returns Error handler function.
+ *
+ * @example
+ * const handleError = useErrorHandler();
+ *
+ * // With custom message
+ * onError: (error) => handleError(error, {
+ *   fallbackMessage: t('my_error')
+ * });
+ *
+ * // With defaults
+ * onError: handleError;
  */
-export const useErrorHandler = () => {
-  const handleError = useCallback((error: unknown, options: ErrorHandlerOptions = {}) => {
-    const { fallbackMessage = 'An error occurred', showToastNotification = true } = options;
+export function useErrorHandler() {
+  const { t } = useTranslator('common');
 
-    // Extract error message from various error types
-    let errorMessage: string;
+  return useCallback(
+    (error: unknown, options: ErrorHandlerCallOptions = {}): void => {
+      if (!isNotifiableError(error)) return;
 
-    if (isBusinessError(error)) {
-      errorMessage = error.message;
-    } else if (hasApiErrorBody(error) && error.body?.detail) {
-      errorMessage = error.body.detail;
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-    } else if (typeof error === 'string') {
-      errorMessage = error;
-    } else {
-      errorMessage = fallbackMessage;
-    }
+      const getCustomErrorMessage = (err: unknown): string | undefined => {
+        const status = getStatusCode(err);
+        switch (status) {
+          case 400:
+            return t('error.bad_request');
+          case 401:
+            return t('error.missing_token');
+          case 403:
+            return hasApiErrorBody(err) && err.body?.type?.includes(ERROR_CODES.INSUFFICIENT_SCOPE)
+              ? t('error.insufficient_scope')
+              : t('error.forbidden');
+          case 404:
+            return t('error.not_found');
+          case 429:
+            return t('error.rate_limit');
+          default:
+            return undefined;
+        }
+      };
 
-    if (showToastNotification) {
       showToast({
         type: 'error',
-        message: errorMessage,
+        message:
+          getCustomErrorMessage(error) ??
+          resolveErrorMessage(error, options.fallbackMessage ?? t('error.generic')),
       });
-    }
-
-    return errorMessage;
-  }, []);
-
-  return { handleError };
-};
+    },
+    [t],
+  );
+}
