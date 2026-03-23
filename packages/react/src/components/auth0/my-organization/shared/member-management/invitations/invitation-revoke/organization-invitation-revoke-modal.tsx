@@ -3,6 +3,7 @@
  * @module organization-invitation-revoke-modal
  */
 
+import type { MemberInvitation } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -15,19 +16,16 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type {
-  Invitation,
-  OrganizationInvitationTabMessages,
-} from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type { OrganizationInvitationTabMessages } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 export interface OrganizationInvitationRevokeModalProps {
-  invitation: Invitation | null;
+  invitation: MemberInvitation | null;
   isOpen: boolean;
   isLoading?: boolean;
   isRevokeAndResend?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   onClose: () => void;
-  onConfirm: (invitation: Invitation) => void;
+  onConfirm: (invitation: MemberInvitation) => void;
   className?: string;
 }
 
@@ -71,7 +69,14 @@ export function OrganizationInvitationRevokeModal({
           <DialogTitle>{t(`${namespace}.title`)}</DialogTitle>
         </DialogHeader>
         <DialogDescription className="py-2">
-          {t(`${namespace}.description`, { email: invitation?.invitee.email ?? '' })}
+          <>
+            {t.trans(`${namespace}.description`, {
+              components: {
+                bold: (children: string) => <strong key="email">{children}</strong>,
+              },
+              vars: { email: invitation?.invitee?.email ?? '' },
+            })}
+          </>
         </DialogDescription>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isLoading}>

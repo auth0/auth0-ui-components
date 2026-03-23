@@ -1160,14 +1160,14 @@
       },
       "revoke": {
         "title": "Revoke Invitation",
-        "description": "Are you sure you want to revoke the invitation to ${email}?",
+        "description": "Are you sure you want to revoke the invitation to <bold>${email}</bold>?",
         "confirm_button": "Revoke",
         "cancel_button": "Cancel",
         "success": "Invitation for ${email} has been revoked."
       },
       "revoke_resend": {
         "title": "Revoke and Resend Invitation",
-        "description": "Are you sure you want to revoke the current invitation and send a new one to ${email}?",
+        "description": "Are you sure you want to revoke the current invitation and send a new one to <bold>${email}</bold>?",
         "confirm_button": "Proceed",
         "cancel_button": "Cancel"
       },

@@ -125,7 +125,7 @@ describe('OrganizationInvitationCreateModal', () => {
       expect(
         screen.getByPlaceholderText('invitation.create.email_placeholder'),
       ).toBeInTheDocument();
-      expect(screen.getByText('invitation.create.email_label')).toBeInTheDocument();
+      expect(screen.getByText(/invitation\.create\.email_label/)).toBeInTheDocument();
     });
 
     it('should show helper text by default', () => {
@@ -168,14 +168,14 @@ describe('OrganizationInvitationCreateModal', () => {
     });
 
     describe('when no roles are provided', () => {
-      it('should not render roles combobox', () => {
+      it('should still render roles section', () => {
         renderWithProviders(
           <OrganizationInvitationCreateModal
             {...createMockCreateModalProps({ availableRoles: [] })}
           />,
         );
 
-        expect(screen.queryByText('invitation.create.roles_label')).not.toBeInTheDocument();
+        expect(screen.getByText('invitation.create.roles_label')).toBeInTheDocument();
       });
     });
   });
@@ -196,14 +196,14 @@ describe('OrganizationInvitationCreateModal', () => {
     });
 
     describe('when no providers are provided', () => {
-      it('should not render provider dropdown', () => {
+      it('should still render provider section', () => {
         renderWithProviders(
           <OrganizationInvitationCreateModal
             {...createMockCreateModalProps({ availableProviders: [] })}
           />,
         );
 
-        expect(screen.queryByText('invitation.create.provider_label')).not.toBeInTheDocument();
+        expect(screen.getByText('invitation.create.provider_label')).toBeInTheDocument();
       });
     });
   });

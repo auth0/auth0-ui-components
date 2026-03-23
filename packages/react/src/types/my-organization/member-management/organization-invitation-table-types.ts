@@ -3,7 +3,11 @@
  * @module organization-invitation-table-types
  */
 
-import type { SharedComponentProps, ComponentAction } from '@auth0/universal-components-core';
+import type {
+  SharedComponentProps,
+  ComponentAction,
+  MemberInvitation,
+} from '@auth0/universal-components-core';
 
 /** Invitation status. */
 export type InvitationStatus = 'pending' | 'expired';
@@ -20,26 +24,6 @@ export interface IdentityProviderOption {
   id: string;
   name: string;
   type?: string;
-}
-
-/** Organization invitation entity. */
-export interface Invitation {
-  id: string;
-  invitee: {
-    email: string;
-  };
-  inviter: {
-    name?: string;
-  };
-  roles?: string[];
-  created_at?: string;
-  expires_at?: string;
-  /** Computed status based on expires_at */
-  status?: InvitationStatus;
-  /** URL for the invitation */
-  invitation_url?: string;
-  /** Identity provider ID if assigned */
-  identity_provider_id?: string;
 }
 
 /** Input for creating an invitation. */
@@ -177,29 +161,28 @@ export interface OrganizationInvitationTabMessages {
 }
 
 /** Props for OrganizationInvitationTab component. */
-export interface OrganizationInvitationTabProps
-  extends SharedComponentProps<
-    OrganizationInvitationTabMessages,
-    OrganizationInvitationTabClasses
-  > {
-  createAction?: ComponentAction<CreateInvitationInput, Invitation>;
-  revokeAction?: ComponentAction<Invitation>;
+export interface OrganizationInvitationTabProps extends SharedComponentProps<
+  OrganizationInvitationTabMessages,
+  OrganizationInvitationTabClasses
+> {
+  createAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
+  revokeAction?: ComponentAction<MemberInvitation>;
 }
 
 /** Props for OrganizationInvitationTableActionsColumn component. */
 export interface OrganizationInvitationTableActionsColumnProps {
-  invitation: Invitation;
+  invitation: MemberInvitation;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   readOnly?: boolean;
-  onViewDetails?: (invitation: Invitation) => void;
-  onCopyUrl?: (invitation: Invitation) => void;
-  onRevokeAndResend?: (invitation: Invitation) => void;
-  onRevoke?: (invitation: Invitation) => void;
+  onViewDetails?: (invitation: MemberInvitation) => void;
+  onCopyUrl?: (invitation: MemberInvitation) => void;
+  onRevokeAndResend?: (invitation: MemberInvitation) => void;
+  onRevoke?: (invitation: MemberInvitation) => void;
 }
 
 /** Props for OrganizationInvitationTable component. */
 export interface OrganizationInvitationTableProps {
-  invitations: Invitation[];
+  invitations: MemberInvitation[];
   loading?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   pagination: InvitationPaginationState;
@@ -207,10 +190,10 @@ export interface OrganizationInvitationTableProps {
   sortConfig?: InvitationSortConfig;
   availableRoles?: RoleOption[];
   readOnly?: boolean;
-  onView?: (invitation: Invitation) => void;
-  onCopyUrl?: (invitation: Invitation) => void;
-  onRevokeAndResend?: (invitation: Invitation) => void;
-  onRevoke?: (invitation: Invitation) => void;
+  onView?: (invitation: MemberInvitation) => void;
+  onCopyUrl?: (invitation: MemberInvitation) => void;
+  onRevokeAndResend?: (invitation: MemberInvitation) => void;
+  onRevoke?: (invitation: MemberInvitation) => void;
   onNextPage?: () => void;
   onPreviousPage?: () => void;
   onPageSizeChange?: (pageSize: number) => void;

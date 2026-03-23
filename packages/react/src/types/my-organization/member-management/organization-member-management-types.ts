@@ -3,11 +3,14 @@
  * @module organization-member-management-types
  */
 
-import type { ComponentAction, SharedComponentProps } from '@auth0/universal-components-core';
+import type {
+  ComponentAction,
+  SharedComponentProps,
+  MemberInvitation,
+} from '@auth0/universal-components-core';
 
 import type {
   CreateInvitationInput,
-  Invitation,
   IdentityProviderOption,
   InvitationFilterState,
   InvitationPaginationState,
@@ -24,11 +27,11 @@ export interface UseOrganizationMemberManagementOptions {
   defaultTab?: ActiveTab;
   readOnly?: boolean;
   /** Action hooks for invitation creation (onBefore/onAfter) */
-  createInvitationAction?: ComponentAction<CreateInvitationInput, Invitation>;
+  createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   /** Action hooks for invitation revocation (onBefore/onAfter) */
-  revokeInvitationAction?: ComponentAction<Invitation>;
+  revokeInvitationAction?: ComponentAction<MemberInvitation>;
   /** Action hooks for invitation revoke-and-resend (onBefore/onAfter) */
-  resendInvitationAction?: ComponentAction<Invitation, Invitation>;
+  resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
 }
 
 export interface MemberManagementState {
@@ -37,7 +40,7 @@ export interface MemberManagementState {
   availableRoles: RoleOption[];
   availableProviders: IdentityProviderOption[];
 
-  invitations: Invitation[];
+  invitations: MemberInvitation[];
   isFetchingInvitations: boolean;
   isCreatingInvitation: boolean;
   isRevokingInvitation: boolean;
@@ -49,7 +52,7 @@ export interface MemberManagementState {
   showDetailsModal: boolean;
   showRevokeModal: boolean;
   showRevokeResendModal: boolean;
-  selectedInvitation: Invitation | null;
+  selectedInvitation: MemberInvitation | null;
 }
 
 export interface MemberManagementHandlers {
@@ -58,15 +61,15 @@ export interface MemberManagementHandlers {
   handleCreateClick: () => void;
   handleCreateSubmit: (data: CreateInvitationInput) => void;
   handleCreateCancel: () => void;
-  handleDetailsClick: (invitation: Invitation) => void;
+  handleDetailsClick: (invitation: MemberInvitation) => void;
   handleDetailsClose: () => void;
-  handleRevokeClick: (invitation: Invitation) => void;
+  handleRevokeClick: (invitation: MemberInvitation) => void;
   handleRevokeConfirm: () => void;
   handleRevokeCancel: () => void;
-  handleRevokeResendClick: (invitation: Invitation) => void;
+  handleRevokeResendClick: (invitation: MemberInvitation) => void;
   handleRevokeResendConfirm: () => void;
   handleRevokeResendCancel: () => void;
-  handleCopyUrl: (invitation: Invitation) => Promise<void>;
+  handleCopyUrl: (invitation: MemberInvitation) => Promise<void>;
   handleNextPage: () => void;
   handlePreviousPage: () => void;
   handlePageSizeChange: (pageSize: number) => void;
@@ -95,17 +98,16 @@ export interface OrganizationMemberManagementMessages {
 }
 
 /** Props for OrganizationMemberManagement component. */
-export interface OrganizationMemberManagementProps
-  extends SharedComponentProps<
-    OrganizationMemberManagementMessages,
-    OrganizationMemberManagementClasses
-  > {
+export interface OrganizationMemberManagementProps extends SharedComponentProps<
+  OrganizationMemberManagementMessages,
+  OrganizationMemberManagementClasses
+> {
   hideHeader?: boolean;
   defaultTab?: ActiveTab;
   /** Action hooks for invitation creation (onBefore/onAfter) */
-  createInvitationAction?: ComponentAction<CreateInvitationInput, Invitation>;
+  createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   /** Action hooks for invitation revocation (onBefore/onAfter) */
-  revokeInvitationAction?: ComponentAction<Invitation>;
+  revokeInvitationAction?: ComponentAction<MemberInvitation>;
   /** Action hooks for invitation revoke-and-resend (onBefore/onAfter) */
-  resendInvitationAction?: ComponentAction<Invitation, Invitation>;
+  resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
 }

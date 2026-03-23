@@ -3,17 +3,19 @@
  * @module use-organization-member-management
  */
 
-import { type MemberInvitation } from '@auth0/universal-components-core';
+import {
+  type MemberInvitation,
+  type ListIdentityProvidersResponseContent,
+} from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useConfig } from '@/hooks/my-organization/use-config';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
-  Invitation,
   CreateInvitationInput,
-  InvitationStatus,
   InvitationSortConfig,
   InvitationFilterState,
   RoleOption,
@@ -34,53 +36,12 @@ export const memberManagementQueryKeys = {
 };
 
 /**
- * Determines the status of an invitation.
- * @param invitation - The SDK member invitation object.
- * @returns The invitation status.
- */
-function getInvitationStatus(invitation: MemberInvitation): InvitationStatus {
-  if (invitation.expires_at) {
-    const expiresAt = new Date(invitation.expires_at);
-    if (expiresAt < new Date()) {
-      return 'expired';
-    }
-  }
-  return 'pending';
-}
-
-/**
- * Maps SDK MemberInvitation to UI Invitation type.
- * @param memberInvitation - The SDK member invitation object.
- * @returns The mapped Invitation object.
- */
-function mapMemberInvitationToInvitation(memberInvitation: MemberInvitation): Invitation {
-  return {
-    id: memberInvitation.id,
-    invitee: {
-      email: memberInvitation.invitee?.email ?? '',
-    },
-    inviter: {
-      name: memberInvitation.inviter?.name,
-    },
-    roles: memberInvitation.roles,
-    created_at: memberInvitation.created_at,
-    expires_at: memberInvitation.expires_at,
-    status: getInvitationStatus(memberInvitation),
-    invitation_url: memberInvitation.invitation_url,
-    identity_provider_id: memberInvitation.identity_provider_id,
-  };
-}
-
-/**
- * Maps invitation table column accessor keys to the API's sort_by field names.
- * API sortable fields: email, status, created-at, expires-at, invited-by
+ * Maps invitation table column accessor keys to the API's sort field names.
+ * API sortable fields: created_at, expires_at
  */
 const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
-  invitee: 'email',
-  status: 'status',
-  created_at: 'created-at',
-  expires_at: 'expires-at',
-  inviter: 'invited-by',
+  created_at: 'created_at',
+  expires_at: 'expires_at',
 };
 
 /**
@@ -106,46 +67,19 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
 
   const [activeTab, setActiveTab] = React.useState<ActiveTab>(defaultTab);
 
-  const rolesQuery = useQuery({
-    queryKey: [...memberManagementQueryKeys.all, 'roles'],
-    queryFn: async () => {
-      const response = await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.configuration.get();
-      const roles =
-        (response as { allowed_roles?: Array<{ id: string; name: string; description?: string }> })
-          ?.allowed_roles ?? [];
-      return roles.map((r) => ({
-        id: r.id,
-        name: r.name,
-        ...(r.description ? { description: r.description } : {}),
-      }));
-    },
-    enabled: !!coreClient,
-  });
-
-  const availableRoles: RoleOption[] = rolesQuery.data ?? [];
+  const { allowedRoles } = useConfig();
+  const availableRoles: RoleOption[] = allowedRoles;
 
   const providersQuery = useQuery({
     queryKey: [...memberManagementQueryKeys.all, 'identity-providers'],
     queryFn: async () => {
-      const response = await coreClient!
+      const response: ListIdentityProvidersResponseContent = await coreClient!
         .getMyOrganizationApiClient()
         .organization.identityProviders.list();
-      const providers =
-        (
-          response as {
-            identity_providers?: Array<{
-              id: string;
-              name: string;
-              display_name?: string;
-              strategy?: string;
-            }>;
-          }
-        )?.identity_providers ?? [];
+      const providers = response.identity_providers ?? [];
       return providers.map((p) => ({
-        id: p.id,
-        name: p.display_name ?? p.name,
+        id: p.id!,
+        name: p.display_name ?? p.name ?? '',
         type: p.strategy,
       }));
     },
@@ -165,7 +99,7 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   });
   const [showCreateModal, setShowCreateModal] = React.useState(false);
   const [showDetailsModal, setShowDetailsModal] = React.useState(false);
-  const [selectedInvitation, setSelectedInvitation] = React.useState<Invitation | null>(null);
+  const [selectedInvitation, setSelectedInvitation] = React.useState<MemberInvitation | null>(null);
   const detailsRequestIdRef = React.useRef(0);
 
   const invitationsQuery = useQuery({
@@ -187,10 +121,10 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
       const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list({
         take: invitationPageSize,
         from: currentFromToken,
-        sort_by: sortBy,
+        sort: sortBy,
       });
 
-      const invitations: Invitation[] = page.data.map(mapMemberInvitationToInvitation);
+      const invitations: MemberInvitation[] = page.data;
       const next = page.response.next ?? null;
       const total = (page.response as Record<string, unknown>).total as number | undefined;
 
@@ -215,13 +149,11 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
       const response = await coreClient!
         .getMyOrganizationApiClient()
         .organization.invitations.create({
-          invitee: { email: data.invitee.email },
+          invitees: [{ email: data.invitee.email, roles: data.roles }],
           inviter: data.inviter,
-          roles: data.roles,
-          identity_provider_id: data.identity_provider_id,
           ttl_sec: data.ttl_sec,
         });
-      return mapMemberInvitationToInvitation(response);
+      return Array.isArray(response) ? response[0] : response;
     },
     onSuccess: (result, data) => {
       createInvitationAction?.onAfter?.(data, result);
@@ -234,11 +166,13 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   });
 
   const revokeInvitationMutation = useMutation({
-    mutationFn: async (invitation: Invitation) => {
+    mutationFn: async (invitation: MemberInvitation) => {
       if (revokeInvitationAction?.onBefore && !revokeInvitationAction.onBefore(invitation)) {
         throw new Error('Revoke action cancelled by onBefore');
       }
-      await coreClient!.getMyOrganizationApiClient().organization.invitations.delete(invitation.id);
+      await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.invitations.delete(invitation.id!);
       return invitation;
     },
     onSuccess: (invitation) => {
@@ -252,25 +186,24 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   });
 
   const resendInvitationMutation = useMutation({
-    mutationFn: async (invitation: Invitation) => {
+    mutationFn: async (invitation: MemberInvitation) => {
       if (resendInvitationAction?.onBefore && !resendInvitationAction.onBefore(invitation)) {
         throw new Error('Resend action cancelled by onBefore');
       }
       const freshInvitation = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.invitations.get(invitation.id);
+        .organization.invitations.get(invitation.id!);
       await coreClient!
         .getMyOrganizationApiClient()
-        .organization.invitations.delete(freshInvitation.id);
+        .organization.invitations.delete(freshInvitation.id ?? invitation.id!);
+      const email = freshInvitation.invitee?.email ?? invitation.invitee?.email ?? '';
+      const roles = freshInvitation.roles ?? invitation.roles;
       const response = await coreClient!
         .getMyOrganizationApiClient()
         .organization.invitations.create({
-          invitee: { email: freshInvitation.invitee?.email ?? invitation.invitee.email },
-          roles: freshInvitation.roles ?? invitation.roles,
-          identity_provider_id:
-            freshInvitation.identity_provider_id ?? invitation.identity_provider_id,
+          invitees: [{ email, roles }],
         });
-      return mapMemberInvitationToInvitation(response);
+      return Array.isArray(response) ? response[0] : response;
     },
     onSuccess: (result, invitation) => {
       resendInvitationAction?.onAfter?.(invitation, result);
@@ -303,7 +236,7 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   }, []);
 
   const handleDetailsClick = React.useCallback(
-    async (invitation: Invitation) => {
+    async (invitation: MemberInvitation) => {
       setSelectedInvitation(invitation);
       setShowDetailsModal(true);
       if (!coreClient) return;
@@ -311,9 +244,9 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
       try {
         const response = await coreClient
           .getMyOrganizationApiClient()
-          .organization.invitations.get(invitation.id);
+          .organization.invitations.get(invitation.id!);
         if (detailsRequestIdRef.current === requestId) {
-          setSelectedInvitation(mapMemberInvitationToInvitation(response));
+          setSelectedInvitation(response);
         }
       } catch {
         if (detailsRequestIdRef.current === requestId) {
@@ -333,7 +266,7 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   const [showRevokeResendModal, setShowRevokeResendModal] = React.useState(false);
 
   const handleRevokeClick = React.useCallback(
-    (invitation: Invitation) => {
+    (invitation: MemberInvitation) => {
       if (readOnly) return;
       if (showDetailsModal) {
         setShowDetailsModal(false);
@@ -359,7 +292,7 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   }, []);
 
   const handleRevokeResendClick = React.useCallback(
-    (invitation: Invitation) => {
+    (invitation: MemberInvitation) => {
       if (readOnly) return;
       if (showDetailsModal) {
         setShowDetailsModal(false);
@@ -385,7 +318,7 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   }, []);
 
   const handleCopyUrl = React.useCallback(
-    async (invitation: Invitation) => {
+    async (invitation: MemberInvitation) => {
       if (!invitation.invitation_url) return;
       try {
         await navigator.clipboard.writeText(invitation.invitation_url);

@@ -1162,14 +1162,14 @@
       },
       "revoke": {
         "title": "招待を取り消す",
-        "description": "${email}への招待を取り消してもよろしいですか？",
+        "description": "<bold>${email}</bold>への招待を取り消してもよろしいですか？",
         "confirm_button": "取り消す",
         "cancel_button": "キャンセル",
         "success": "${email}への招待が取り消されました。"
       },
       "revoke_resend": {
         "title": "招待を取り消して再送信",
-        "description": "現在の招待を取り消し、${email}に新しい招待を送信してもよろしいですか？",
+        "description": "現在の招待を取り消し、<bold>${email}</bold>に新しい招待を送信してもよろしいですか？",
         "confirm_button": "続行",
         "cancel_button": "キャンセル"
       },

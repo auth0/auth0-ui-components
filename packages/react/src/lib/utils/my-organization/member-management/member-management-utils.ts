@@ -4,23 +4,16 @@
  * @internal
  */
 
-import type {
-  Invitation,
-  InvitationStatus,
-} from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type { MemberInvitation } from '@auth0/universal-components-core';
+
+import type { InvitationStatus } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
- * Determines the status of an invitation.
- * If the invitation has an explicit status, it is returned directly.
- * Otherwise, the status is computed from `expires_at`.
+ * Determines the status of an invitation based on `expires_at`.
  * @param invitation - The invitation to check.
  * @returns The invitation status.
  */
-export function getInvitationStatus(invitation: Invitation): InvitationStatus {
-  if (invitation.status) {
-    return invitation.status;
-  }
-
+export function getInvitationStatus(invitation: MemberInvitation): InvitationStatus {
   if (invitation.expires_at) {
     const expiresAt = new Date(invitation.expires_at);
     if (expiresAt < new Date()) {

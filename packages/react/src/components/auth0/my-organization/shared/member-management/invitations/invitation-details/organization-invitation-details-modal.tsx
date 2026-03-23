@@ -3,6 +3,7 @@
  * @module organization-invitation-details-modal
  */
 
+import type { MemberInvitation } from '@auth0/universal-components-core';
 import { Link } from 'lucide-react';
 import * as React from 'react';
 
@@ -12,16 +13,17 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { TextField } from '@/components/ui/text-field';
+import { TextFieldGroup } from '@/components/ui/text-field-group';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { getInvitationStatus } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
-  Invitation,
   InvitationStatus,
   RoleOption,
   IdentityProviderOption,
@@ -29,7 +31,7 @@ import type {
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 export interface OrganizationInvitationDetailsModalProps {
-  invitation: Invitation | null;
+  invitation: MemberInvitation | null;
   isOpen: boolean;
   isRevoking?: boolean;
   isResending?: boolean;
@@ -38,9 +40,9 @@ export interface OrganizationInvitationDetailsModalProps {
   availableProviders?: IdentityProviderOption[];
   readOnly?: boolean;
   onClose: () => void;
-  onCopyUrl?: (invitation: Invitation) => void;
-  onRevoke?: (invitation?: Invitation) => void;
-  onResend?: (invitation?: Invitation) => void;
+  onCopyUrl?: (invitation: MemberInvitation) => void;
+  onRevoke?: (invitation?: MemberInvitation) => void;
+  onResend?: (invitation?: MemberInvitation) => void;
   className?: string;
 }
 
@@ -138,6 +140,7 @@ export function OrganizationInvitationDetailsModal({
                 : t('invitation.table.status_expired')}
             </Badge>
           </div>
+          <DialogDescription className="sr-only">{t('invitation.details.title')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
@@ -146,7 +149,7 @@ export function OrganizationInvitationDetailsModal({
             <Label className="text-sm font-medium text-muted-foreground">
               {t('invitation.details.email_label')}
             </Label>
-            <TextField value={invitation?.invitee.email ?? '-'} readOnly />
+            <TextField value={invitation?.invitee?.email ?? '-'} readOnly />
           </div>
 
           {/* Created At */}
@@ -181,13 +184,12 @@ export function OrganizationInvitationDetailsModal({
               {t('invitation.details.roles_label')}
             </Label>
             {roleNames.length > 0 ? (
-              <div className="flex flex-wrap gap-1">
-                {roleNames.map((name, index) => (
-                  <Badge key={index} variant="outline" size="sm">
-                    {name}
-                  </Badge>
-                ))}
-              </div>
+              <TextFieldGroup
+                chips={roleNames.map((name) => ({ label: name, value: name }))}
+                summarizeChips={false}
+                disabled
+                readOnly
+              />
             ) : (
               <TextField value="-" readOnly />
             )}
@@ -225,7 +227,7 @@ export function OrganizationInvitationDetailsModal({
             <Label className="text-sm font-medium text-muted-foreground">
               {t('invitation.details.invited_by_label')}
             </Label>
-            <TextField value={invitation?.inviter.name ?? '-'} readOnly />
+            <TextField value={invitation?.inviter?.name ?? '-'} readOnly />
           </div>
 
           {/* Identity Provider */}

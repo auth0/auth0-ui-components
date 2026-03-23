@@ -4,6 +4,7 @@
  * @internal
  */
 
+import type { MemberInvitation } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { OrganizationInvitationTableActionsColumn } from './organization-invitation-table-actions-column';
@@ -15,10 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import { getInvitationStatus } from '@/lib/utils/my-organization/member-management/member-management-utils';
-import type {
-  Invitation,
-  OrganizationInvitationTableProps,
-} from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type { OrganizationInvitationTableProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
  * Organization invitation table component.
@@ -63,20 +61,22 @@ export function OrganizationInvitationTable({
 }: OrganizationInvitationTableProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
-  const columns: Column<Invitation>[] = React.useMemo(
+  const columns: Column<MemberInvitation>[] = React.useMemo(
     () => [
       {
         type: 'text',
         accessorKey: 'invitee',
         title: t('invitation.table.columns.email'),
         enableSorting: true,
-        render: (invitation) => <div className="font-medium">{invitation.invitee.email}</div>,
+        render: (invitation) => (
+          <div className="font-medium text-primary">{invitation.invitee?.email}</div>
+        ),
       },
       {
         type: 'text',
-        accessorKey: 'status',
+        accessorKey: 'organization_id',
         title: t('invitation.table.columns.status'),
-        enableSorting: true,
+        enableSorting: false,
         render: (invitation) => {
           const status = getInvitationStatus(invitation);
           return (
@@ -94,6 +94,17 @@ export function OrganizationInvitationTable({
         title: t('invitation.table.columns.created_at'),
         enableSorting: true,
         format: 'medium',
+        render: (_invitation, value) => (
+          <span className="text-primary">
+            {new Date(value).toLocaleString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit',
+            })}
+          </span>
+        ),
       },
       {
         type: 'date',
@@ -101,13 +112,26 @@ export function OrganizationInvitationTable({
         title: t('invitation.table.columns.expires_at'),
         enableSorting: true,
         format: 'medium',
+        render: (_invitation, value) => (
+          <span className="text-primary">
+            {new Date(value).toLocaleString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit',
+            })}
+          </span>
+        ),
       },
       {
         type: 'text',
         accessorKey: 'inviter',
         title: t('invitation.table.columns.inviter'),
         enableSorting: true,
-        render: (invitation) => invitation.inviter?.name ?? '-',
+        render: (invitation) => (
+          <span className="text-primary">{invitation.inviter?.name ?? '-'}</span>
+        ),
       },
       {
         type: 'actions',
@@ -147,24 +171,26 @@ export function OrganizationInvitationTable({
         onSortChange={onSortChange}
       />
 
-      <div className="mt-4">
-        <DataPagination
-          type="checkpoint"
-          paginationState={{
-            pageSize: pagination.pageSize,
-            currentPage: pagination.currentPage,
-            totalItems: pagination.totalItems,
-            hasNextPage: pagination.hasNextPage,
-            hasPreviousPage: pagination.hasPreviousPage,
-          }}
-          pageSizeOptions={[10, 25, 50]}
-          showPageSizeSelector
-          showPageInfo
-          onNextPage={onNextPage}
-          onPreviousPage={onPreviousPage}
-          onPageSizeChange={onPageSizeChange}
-        />
-      </div>
+      {invitations.length > 0 && (
+        <div className="mt-4">
+          <DataPagination
+            type="checkpoint"
+            paginationState={{
+              pageSize: pagination.pageSize,
+              currentPage: pagination.currentPage,
+              totalItems: pagination.totalItems,
+              hasNextPage: pagination.hasNextPage,
+              hasPreviousPage: pagination.hasPreviousPage,
+            }}
+            pageSizeOptions={[10, 25, 50]}
+            showPageSizeSelector
+            showPageInfo
+            onNextPage={onNextPage}
+            onPreviousPage={onPreviousPage}
+            onPageSizeChange={onPageSizeChange}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,39 +1,39 @@
+import type { MemberInvitation } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 import type { OrganizationInvitationDetailsModalProps } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal';
 import type { OrganizationInvitationRevokeModalProps } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-revoke-modal';
 import type { OrganizationInvitationCreateModalProps } from '@/components/auth0/my-organization/shared/member-management/shared/invitation-create/organization-invitation-create-modal';
 import type {
-  Invitation,
   RoleOption,
   IdentityProviderOption,
   OrganizationInvitationTableActionsColumnProps,
   InvitationSearchFilterProps,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
-export const createMockInvitation = (overrides?: Partial<Invitation>): Invitation => ({
+export const createMockInvitation = (overrides?: Partial<MemberInvitation>): MemberInvitation => ({
   id: 'inv_abc123xyz456',
   invitee: { email: 'test@example.com' },
   inviter: { name: 'Admin User' },
   roles: ['role_admin'],
   created_at: '2024-01-01T00:00:00.000Z',
-  expires_at: '2025-12-31T23:59:59.000Z',
-  status: 'pending',
+  expires_at: '2099-12-31T23:59:59.000Z',
   invitation_url: 'https://example.auth0.com/invitation?ticket=abc123',
-  identity_provider_id: undefined,
   ...overrides,
 });
 
-export const createMockPendingInvitation = (overrides?: Partial<Invitation>): Invitation =>
+export const createMockPendingInvitation = (
+  overrides?: Partial<MemberInvitation>,
+): MemberInvitation =>
   createMockInvitation({
-    status: 'pending',
     invitation_url: 'https://example.auth0.com/invitation?ticket=pending123',
     ...overrides,
   });
 
-export const createMockExpiredInvitation = (overrides?: Partial<Invitation>): Invitation =>
+export const createMockExpiredInvitation = (
+  overrides?: Partial<MemberInvitation>,
+): MemberInvitation =>
   createMockInvitation({
-    status: 'expired',
     expires_at: '2020-01-01T00:00:00.000Z',
     invitation_url: undefined,
     ...overrides,

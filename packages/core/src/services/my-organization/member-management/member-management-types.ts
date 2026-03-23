@@ -44,12 +44,6 @@ export type ListOrganizationMembersRequestParameters =
   MyOrganization.ListOrganizationMembersRequestParameters;
 
 /**
- * Request parameters for deleting an organization member.
- */
-export type DeleteOrganizationMemberRequestParameters =
-  MyOrganization.DeleteOrganizationMemberRequestParameters;
-
-/**
  * Response content for getting organization member roles.
  */
 export type GetOrganizationMemberRolesResponseContent =

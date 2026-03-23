@@ -220,7 +220,7 @@ export function OrganizationInvitationCreateModal({
           <div className="space-y-4 py-4">
             {/* Email Input */}
             <div className="space-y-2">
-              <Label htmlFor="email">{t('invitation.create.email_label')}</Label>
+              <Label htmlFor="email">{t('invitation.create.email_label')}*</Label>
               <TextFieldGroup
                 id="email"
                 placeholder={t('invitation.create.email_placeholder')}
@@ -241,38 +241,37 @@ export function OrganizationInvitationCreateModal({
             </div>
 
             {/* Roles Combobox */}
-            {availableRoles.length > 0 && (
-              <div className="space-y-2">
-                <Label htmlFor="roles">{t('invitation.create.roles_label')}</Label>
-                <Combobox
-                  value={selectedRoles}
-                  onChange={handleRoleChange}
-                  options={roleOptions}
-                  placeholder={t('invitation.create.roles_placeholder')}
-                  disabled={isLoading}
-                  multiple
-                />
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label htmlFor="roles">{t('invitation.create.roles_label')}</Label>
+              <Combobox
+                value={selectedRoles}
+                onChange={handleRoleChange}
+                options={roleOptions}
+                placeholder={t('invitation.create.roles_placeholder')}
+                disabled={isLoading}
+                multiple
+              />
+            </div>
 
             {/* Provider Dropdown */}
-            {availableProviders.length > 0 && (
-              <div className="space-y-2">
-                <Label htmlFor="provider">{t('invitation.create.provider_label')}</Label>
-                <Select value={selectedProvider ?? ''} onValueChange={handleProviderChange}>
-                  <SelectTrigger id="provider">
-                    <SelectValue placeholder={t('invitation.create.provider_placeholder')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableProviders.map((provider) => (
-                      <SelectItem key={provider.id} value={provider.id}>
-                        {provider.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label htmlFor="provider">{t('invitation.create.provider_label')}</Label>
+              <Select value={selectedProvider ?? ''} onValueChange={handleProviderChange}>
+                <SelectTrigger id="provider">
+                  <SelectValue placeholder={t('invitation.create.provider_placeholder')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableProviders.map((provider) => (
+                    <SelectItem key={provider.id} value={provider.id}>
+                      {provider.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                {t('invitation.create.provider_helper')}
+              </p>
+            </div>
           </div>
 
           <DialogFooter>
