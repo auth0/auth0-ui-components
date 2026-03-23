@@ -37,11 +37,9 @@ export const memberManagementQueryKeys = {
 
 /**
  * Maps invitation table column accessor keys to the API's sort field names.
- * API sortable fields: created_at, expires_at
  */
 const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
   created_at: 'created_at',
-  expires_at: 'expires_at',
 };
 
 /**

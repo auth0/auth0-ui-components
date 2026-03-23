@@ -61,13 +61,25 @@ export function OrganizationInvitationTable({
 }: OrganizationInvitationTableProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
+  const renderDate = (_invitation: MemberInvitation, value: string | number | Date) => (
+    <span className="text-primary">
+      {new Date(value).toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      })}
+    </span>
+  );
+
   const columns: Column<MemberInvitation>[] = React.useMemo(
     () => [
       {
         type: 'text',
         accessorKey: 'invitee',
         title: t('invitation.table.columns.email'),
-        enableSorting: true,
+        enableSorting: false,
         render: (invitation) => (
           <div className="font-medium text-primary">{invitation.invitee?.email}</div>
         ),
@@ -94,41 +106,21 @@ export function OrganizationInvitationTable({
         title: t('invitation.table.columns.created_at'),
         enableSorting: true,
         format: 'medium',
-        render: (_invitation, value) => (
-          <span className="text-primary">
-            {new Date(value).toLocaleString(undefined, {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: '2-digit',
-            })}
-          </span>
-        ),
+        render: renderDate,
       },
       {
         type: 'date',
         accessorKey: 'expires_at',
         title: t('invitation.table.columns.expires_at'),
-        enableSorting: true,
+        enableSorting: false,
         format: 'medium',
-        render: (_invitation, value) => (
-          <span className="text-primary">
-            {new Date(value).toLocaleString(undefined, {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: '2-digit',
-            })}
-          </span>
-        ),
+        render: renderDate,
       },
       {
         type: 'text',
         accessorKey: 'inviter',
         title: t('invitation.table.columns.inviter'),
-        enableSorting: true,
+        enableSorting: false,
         render: (invitation) => (
           <span className="text-primary">{invitation.inviter?.name ?? '-'}</span>
         ),
