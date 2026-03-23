@@ -5,7 +5,7 @@
   "title": "SSO provider table container component.",
   "description": "A block component for sso provider table.",
   "dependencies": [
-    "@auth0/universal-components-core@1.0.0-beta.18",
+    "@auth0/universal-components-core@1.0.0-beta.19",
     "@auth0/auth0-react",
     "@hookform/resolvers",
     "@radix-ui/react-checkbox",
@@ -454,6 +454,6 @@
     }
   ],
   "meta": {
-    "coreVersion": "1.0.0-beta.18"
+    "coreVersion": "1.0.0-beta.19"
   }
 }
