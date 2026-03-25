@@ -10,6 +10,19 @@ import { z } from 'zod';
 import { type OrganizationDetailsSchemas } from './organization-details-schema-types';
 
 /**
+ * Regex for valid Auth0 organization names.
+ * Allows lowercase alphanumeric characters and hyphens, but not at start/end.
+ */
+const ORGANIZATION_NAME_REGEX = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+
+/**
+ * Regex for valid organization display names.
+ * Allows alphanumeric, Unicode letters (accents/diacritics), spaces, hyphens,
+ * underscores, periods (no consecutive), and apostrophes.
+ */
+const ORGANIZATION_DISPLAY_NAME_REGEX = /^(?!.*\.\.)[a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF\s\-_.']+$/;
+
+/**
  * Creates a schema for organization detail form validation.
  * @internal
  *
@@ -39,11 +52,14 @@ export const createOrganizationDetailSchema = (options: OrganizationDetailsSchem
   return z.object({
     name: createStringSchema({
       required: true,
+      regex: name.regex ?? ORGANIZATION_NAME_REGEX,
       errorMessage: name.errorMessage,
+      minLength: name.minLength,
+      maxLength: name.maxLength,
     }),
     display_name: createStringSchema({
       required: displayName.required ?? true,
-      regex: displayName.regex,
+      regex: displayName.regex ?? ORGANIZATION_DISPLAY_NAME_REGEX,
       errorMessage: displayName.errorMessage,
       minLength: displayName.minLength,
       maxLength: displayName.maxLength,

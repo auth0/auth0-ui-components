@@ -42,14 +42,30 @@ describe('Organization Details Schema', () => {
 
       describe.each([
         { input: 'organization-name', shouldPass: true, description: 'kebab-case name' },
-        { input: 'organization_name', shouldPass: true, description: 'snake_case name' },
-        { input: 'OrganizationName', shouldPass: true, description: 'PascalCase name' },
         { input: 'organization123', shouldPass: true, description: 'name with numbers' },
         { input: 'a', shouldPass: true, description: 'single character name' },
         {
           input: 'very-long-organization-name-that-is-still-valid',
           shouldPass: true,
           description: 'long name',
+        },
+        {
+          input: 'organization_name',
+          shouldPass: false,
+          description: 'snake_case name (underscores not allowed)',
+        },
+        {
+          input: 'OrganizationName',
+          shouldPass: false,
+          description: 'PascalCase name (uppercase not allowed)',
+        },
+        { input: '-starts-with-hyphen', shouldPass: false, description: 'leading hyphen' },
+        { input: 'ends-with-hyphen-', shouldPass: false, description: 'trailing hyphen' },
+        { input: 'has spaces', shouldPass: false, description: 'spaces not allowed' },
+        {
+          input: 'has@special!chars',
+          shouldPass: false,
+          description: 'special characters not allowed',
         },
       ])('when name is "$input" ($description)', ({ input, shouldPass }) => {
         it(`should ${shouldPass ? 'accept' : 'reject'}`, () => {
@@ -80,9 +96,24 @@ describe('Organization Details Schema', () => {
         { input: 'My Organization', shouldPass: true, description: 'normal display name' },
         { input: 'Acme Corp.', shouldPass: true, description: 'name with period' },
         { input: "O'Brien Inc", shouldPass: true, description: 'name with apostrophe' },
-        { input: 'Company & Co', shouldPass: true, description: 'name with ampersand' },
-        { input: '日本語組織', shouldPass: true, description: 'unicode characters' },
-        { input: '  Spaces Around  ', shouldPass: true, description: 'name with spaces' },
+        { input: 'org_name', shouldPass: true, description: 'name with underscore' },
+        { input: 'org-name', shouldPass: true, description: 'name with hyphen' },
+        { input: 'Réseau Français', shouldPass: true, description: 'accented characters' },
+        { input: 'Señor García', shouldPass: true, description: 'spanish diacritics' },
+        { input: 'Ströme GmbH', shouldPass: true, description: 'german umlaut' },
+        { input: 'Company & Co', shouldPass: false, description: 'ampersand not allowed' },
+        { input: '******', shouldPass: false, description: 'asterisks not allowed' },
+        { input: 'name!@#$', shouldPass: false, description: 'special characters not allowed' },
+        {
+          input: 'path..traversal',
+          shouldPass: false,
+          description: 'consecutive periods not allowed',
+        },
+        {
+          input: '日本語組織',
+          shouldPass: false,
+          description: 'CJK characters not in allowed range',
+        },
       ])('when display_name is "$input" ($description)', ({ input, shouldPass }) => {
         it(`should ${shouldPass ? 'accept' : 'reject'}`, () => {
           const result = organizationDetailSchema.safeParse({
@@ -676,12 +707,20 @@ describe('Organization Details Schema', () => {
       expect(result.success).toBe(false);
     });
 
-    it('should handle special characters in name', () => {
+    it('should handle valid characters in name', () => {
       const result = organizationDetailSchema.safeParse({
         ...validOrganizationDetails,
-        name: 'organization-name_123',
+        name: 'organization-name-123',
       });
       expect(result.success).toBe(true);
+    });
+
+    it('should reject special characters in name', () => {
+      const result = organizationDetailSchema.safeParse({
+        ...validOrganizationDetails,
+        name: 'organization_name!123',
+      });
+      expect(result.success).toBe(false);
     });
 
     it('should handle very long URLs', () => {
