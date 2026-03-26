@@ -5,10 +5,15 @@
   "sideEffects": [
     "*.css"
   ],
-  "main": "./dist/spa.js",
-  "module": "./dist/spa.mjs",
-  "types": "./dist/spa.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
     "./rwa": {
       "types": "./dist/rwa.d.ts",
       "import": "./dist/rwa.mjs",
