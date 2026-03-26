@@ -288,8 +288,8 @@
           "edit_button_text": "編集",
           "delete_button_text": "削除",
           "remove_button_text": "組織から削除",
-          "enabled_tooltip": "日本語でのプロビジョニングを無効にするには、トグルを切り替えてください。",
-          "disabled_tooltip": "日本語でのプロビジョニングを有効にするには、トグルを切り替えてください。"
+          "enabled_tooltip": "SSOプロバイダーを無効にするには、トグルを切り替えてください。",
+          "disabled_tooltip": "SSOプロバイダーを有効にするには、トグルを切り替えてください。"
         }
       },
       "create_consent_modal": {

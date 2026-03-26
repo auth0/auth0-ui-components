@@ -288,8 +288,8 @@
           "edit_button_text": "Edit",
           "delete_button_text": "Delete",
           "remove_button_text": "Remove from organization",
-          "enabled_tooltip": "Toggle to disable provisioning",
-          "disabled_tooltip": "Toggle to enable provisioning"
+          "enabled_tooltip": "Toggle to disable the SSO provider",
+          "disabled_tooltip": "Toggle to enable the SSO provider"
         }
       },
       "create_consent_modal": {
