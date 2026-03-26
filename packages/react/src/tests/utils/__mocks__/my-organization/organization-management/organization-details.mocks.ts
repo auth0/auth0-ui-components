@@ -20,7 +20,6 @@ export function createMockOrganizationDetailsEditView(
 ): OrganizationDetailsEditViewProps {
   return {
     organization: { ...createMockOrganization() },
-    isFetchLoading: false,
     schema: undefined,
     styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     customMessages: {},
