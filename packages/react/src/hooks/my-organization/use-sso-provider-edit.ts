@@ -429,7 +429,7 @@ export function useSsoProviderEdit(
       });
 
       // Invalidate all queries from cache
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: ssoProviderEditQueryKeys.all,
       });
 
@@ -486,7 +486,7 @@ export function useSsoProviderEdit(
       });
 
       // Remove provider from cache to invalidate list
-      queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.list() });
+      await queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.list() });
 
       if (sso?.deleteFromOrganizationAction?.onAfter && provider) {
         await sso.deleteFromOrganizationAction.onAfter(provider);
