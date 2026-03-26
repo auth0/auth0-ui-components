@@ -33,7 +33,7 @@ describe('useSsoDomainTab', () => {
 
   // Mock functions for extended API methods that don't exist in the real client
   let mockDomainVerifyCreate: ReturnType<typeof vi.fn>;
-  let mockDomainIdentityProvidersGet: ReturnType<typeof vi.fn>;
+  let mockIdentityProviderGet: ReturnType<typeof vi.fn>;
   let mockIdentityProviderDomainsCreate: ReturnType<typeof vi.fn>;
   let mockIdentityProviderDomainsDelete: ReturnType<typeof vi.fn>;
 
@@ -60,10 +60,12 @@ describe('useSsoDomainTab', () => {
     >;
     mockDomainVerifyCreate.mockResolvedValue(mockVerifiedDomain);
 
-    mockDomainIdentityProvidersGet = apiService.organization.domains.identityProviders
-      .get as ReturnType<typeof vi.fn>;
-    mockDomainIdentityProvidersGet.mockResolvedValue({
-      identity_providers: [{ id: 'idp-1' }],
+    mockIdentityProviderGet = apiService.organization.identityProviders.get as ReturnType<
+      typeof vi.fn
+    >;
+    mockIdentityProviderGet.mockResolvedValue({
+      id: 'idp-1',
+      domains: [mockDomain.domain],
     });
 
     mockIdentityProviderDomainsCreate = apiService.organization.identityProviders.domains
@@ -160,8 +162,9 @@ describe('useSsoDomainTab', () => {
     });
 
     it('should fetch provider domains and update idpDomains', async () => {
-      mockDomainIdentityProvidersGet.mockResolvedValue({
-        identity_providers: [{ id: 'idp-1' }],
+      mockIdentityProviderGet.mockResolvedValue({
+        id: 'idp-1',
+        domains: [mockDomain.domain],
       });
 
       const { result } = await renderUseSsoDomainTab('idp-1');
@@ -170,8 +173,9 @@ describe('useSsoDomainTab', () => {
     });
 
     it('should not add domain to idpDomains if provider not enabled', async () => {
-      mockDomainIdentityProvidersGet.mockResolvedValue({
-        identity_providers: [{ id: 'other-idp' }],
+      mockIdentityProviderGet.mockResolvedValue({
+        id: 'idp-1',
+        domains: [],
       });
 
       const { result } = await renderUseSsoDomainTab('idp-1');

@@ -5,7 +5,7 @@
 
 import type { CreateOrganizationDomainRequestContent } from '@auth0/universal-components-core';
 import { BusinessError, type Domain, type IdpId } from '@auth0/universal-components-core';
-import { useQuery, useQueryClient, useMutation, useQueries } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useCallback, useState, useMemo, useEffect } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
@@ -21,9 +21,7 @@ const domainQueryKeys = {
   all: ['sso-domains'] as const,
   lists: () => [...domainQueryKeys.all, 'list'] as const,
   list: (idpId: IdpId) => [...domainQueryKeys.lists(), idpId] as const,
-  idpAssociations: () => [...domainQueryKeys.all, 'idp-associations'] as const,
-  idpAssociation: (domainId: string, idpId: IdpId) =>
-    [...domainQueryKeys.idpAssociations(), domainId, idpId] as const,
+  idpDetails: (idpId: IdpId) => [...domainQueryKeys.all, 'idp-details', idpId] as const,
 };
 
 /**
@@ -74,31 +72,26 @@ export function useSsoDomainTab(
     }
   }, [domainsQuery.error, handleError, t]);
 
-  // Fetch IDP associations for each domain using useQueries
-  const idpAssociationQueries = useQueries({
-    queries: domainsList.map((domain) => ({
-      queryKey: domainQueryKeys.idpAssociation(domain.id, idpId),
-      queryFn: async () => {
-        const response = await coreClient!
-          .getMyOrganizationApiClient()
-          .organization.domains.identityProviders.get(domain.id);
-
-        const isIdpEnabled = response.identity_providers?.some((idp) => idp.id === idpId);
-        return { domainId: domain.id, isEnabled: isIdpEnabled ?? false };
-      },
-      enabled: !!coreClient && !!idpId,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    })),
+  // Fetch IDP details with a single request to get associated domains
+  const idpDetailsQuery = useQuery({
+    queryKey: domainQueryKeys.idpDetails(idpId),
+    queryFn: async () => {
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.identityProviders.get(idpId);
+      return response;
+    },
+    enabled: !!coreClient && !!idpId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  // Derive idpDomains from query results
-  const idpDomains = useMemo(
-    () =>
-      idpAssociationQueries
-        .filter((query) => query.data?.isEnabled)
-        .map((query) => query.data!.domainId),
-    [idpAssociationQueries],
-  );
+  // Derive idpDomains from the IdP's domains field
+  const idpDomains = useMemo(() => {
+    const idpDomainNames = idpDetailsQuery.data?.domains ?? [];
+    return domainsList
+      .filter((domain) => idpDomainNames.includes(domain.domain))
+      .map((domain) => domain.id);
+  }, [idpDetailsQuery.data, domainsList]);
 
   // Mutations
   const createDomainMutation = useMutation({
@@ -118,12 +111,9 @@ export function useSsoDomainTab(
 
       return result;
     },
-    onSuccess: (newDomain) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: domainQueryKeys.list(idpId) });
-      // Also invalidate the IDP association for the new domain
-      queryClient.invalidateQueries({
-        queryKey: domainQueryKeys.idpAssociation(newDomain.id, idpId),
-      });
+      queryClient.invalidateQueries({ queryKey: domainQueryKeys.idpDetails(idpId) });
     },
   });
 
@@ -177,12 +167,9 @@ export function useSsoDomainTab(
 
       return domain;
     },
-    onSuccess: (domain) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: domainQueryKeys.list(idpId) });
-      // Also invalidate the IDP association for the deleted domain
-      queryClient.invalidateQueries({
-        queryKey: domainQueryKeys.idpAssociation(domain.id, idpId),
-      });
+      queryClient.invalidateQueries({ queryKey: domainQueryKeys.idpDetails(idpId) });
     },
   });
 
@@ -207,11 +194,8 @@ export function useSsoDomainTab(
 
       return domain;
     },
-    onSuccess: (domain) => {
-      // Invalidate the IDP association query for this domain
-      queryClient.invalidateQueries({
-        queryKey: domainQueryKeys.idpAssociation(domain.id, idpId),
-      });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: domainQueryKeys.idpDetails(idpId) });
     },
   });
 
@@ -238,11 +222,8 @@ export function useSsoDomainTab(
 
       return domain;
     },
-    onSuccess: (domain) => {
-      // Invalidate the IDP association query for this domain
-      queryClient.invalidateQueries({
-        queryKey: domainQueryKeys.idpAssociation(domain.id, idpId),
-      });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: domainQueryKeys.idpDetails(idpId) });
     },
   });
 
