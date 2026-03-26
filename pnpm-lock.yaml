@@ -541,10 +541,10 @@ importers:
   packages/core:
     dependencies:
       '@auth0/myaccount-js':
-        specifier: ^1.0.0-beta.0
+        specifier: 1.0.0-beta.0
         version: 1.0.0-beta.0
       '@auth0/myorganization-js':
-        specifier: ^1.0.0-beta.3
+        specifier: 1.0.0-beta.3
         version: 1.0.0-beta.3
       zod:
         specifier: ^3.22.4
@@ -712,9 +712,6 @@ packages:
 
   '@asamuzakjp/css-color@3.2.0':
     resolution: {integrity: sha512-K1A6z8tS3XsmCMM86xoWdn7Fkdn9m6RSVtocUrJYIwZnFVkng/PvkEoWtOWmP+Scc6saYWHWZYbndEEXxl24jw==}
-
-  '@auth0/auth0-auth-js@1.2.0':
-    resolution: {integrity: sha512-VBoSta4aCgNl9Ym+UAHHI3g0VFxIOiZhtY2oPEZxpHjhcUjS7xnNI957XZxXG45f+7zdOgCqLvfkJ1iWJJUv+Q==}
 
   '@auth0/auth0-auth-js@1.5.0':
     resolution: {integrity: sha512-shahG7sRw6VxduRvnNcmbgL8V42z+kNR9LDih9ofY4eM8ygt07RUh58x7S1M80ENx9wcMqYUsJWMaVudgQHyjQ==}
@@ -7286,11 +7283,6 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.4
       lru-cache: 10.4.3
 
-  '@auth0/auth0-auth-js@1.2.0':
-    dependencies:
-      jose: 6.1.3
-      openid-client: 6.8.1
-
   '@auth0/auth0-auth-js@1.5.0':
     dependencies:
       jose: 6.2.1
@@ -7313,7 +7305,7 @@ snapshots:
 
   '@auth0/myorganization-js@1.0.0-beta.3':
     dependencies:
-      '@auth0/auth0-auth-js': 1.2.0
+      '@auth0/auth0-auth-js': 1.5.0
 
   '@auth0/nextjs-auth0@4.16.0(next@16.1.5(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
     dependencies:

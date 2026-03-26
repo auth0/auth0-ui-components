@@ -51,8 +51,8 @@
     "@vitest/coverage-v8": "^3.2.4"
   },
   "dependencies": {
-    "@auth0/myaccount-js": "^1.0.0-beta.0",
-    "@auth0/myorganization-js": "^1.0.0-beta.3",
+    "@auth0/myaccount-js": "1.0.0-beta.0",
+    "@auth0/myorganization-js": "1.0.0-beta.3",
     "zod": "^3.22.4"
   }
 }
