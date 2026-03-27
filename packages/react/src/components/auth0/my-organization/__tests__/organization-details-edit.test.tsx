@@ -574,8 +574,8 @@ describe('OrganizationDetailsEditView', () => {
     expect(screen.getByText(/custom title/i)).toBeInTheDocument();
   });
 
-  it('renders loading state when isFetchLoading is true', () => {
-    renderWithProviders(<OrganizationDetailsEditView {...viewProps} isFetchLoading={true} />);
+  it('renders loading state when isLoading is true', () => {
+    renderWithProviders(<OrganizationDetailsEdit {...viewProps} isLoading={true} />);
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 });
