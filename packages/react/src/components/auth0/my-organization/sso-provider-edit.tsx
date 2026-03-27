@@ -69,9 +69,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
   const ssoProviderCreateLogicProps: Omit<SsoProviderEditLogicProps, 'handleToggleProvider'> = {
     ...ssoProviderEdit,
     shouldAllowDeletion: ssoProviderEditLogic.shouldAllowDeletion,
-    isLoadingConfig: ssoProviderEditLogic.isLoadingConfig,
     idpConfig: ssoProviderEditLogic.idpConfig,
-    isLoadingIdpConfig: ssoProviderEditLogic.isLoadingIdpConfig,
     showProvisioningTab: ssoProviderEditLogic.showProvisioningTab,
     styling,
     customMessages,
