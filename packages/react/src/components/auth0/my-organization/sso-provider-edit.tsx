@@ -11,7 +11,6 @@ import { SsoProvisioningTab } from '@/components/auth0/my-organization/shared/id
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
-import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useSsoProviderEditLogic } from '@/hooks/my-organization/use-sso-provider-edit-logic';
@@ -70,9 +69,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
   const ssoProviderCreateLogicProps: Omit<SsoProviderEditLogicProps, 'handleToggleProvider'> = {
     ...ssoProviderEdit,
     shouldAllowDeletion: ssoProviderEditLogic.shouldAllowDeletion,
-    isLoadingConfig: ssoProviderEditLogic.isLoadingConfig,
     idpConfig: ssoProviderEditLogic.idpConfig,
-    isLoadingIdpConfig: ssoProviderEditLogic.isLoadingIdpConfig,
     showProvisioningTab: ssoProviderEditLogic.showProvisioningTab,
     styling,
     customMessages,
@@ -98,8 +95,13 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     syncProvisioningAttributes: ssoProviderEdit.syncProvisioningAttributes,
   };
 
+  const isLoading =
+    ssoProviderEdit.isLoading ||
+    ssoProviderEditLogic.isLoadingConfig ||
+    ssoProviderEditLogic.isLoadingIdpConfig;
+
   return (
-    <GateKeeper isLoading={ssoProviderEdit.isLoading} styling={styling}>
+    <GateKeeper isLoading={isLoading} styling={styling}>
       <SsoProviderEditView
         logic={ssoProviderCreateLogicProps}
         handlers={ssoProviderCreateHandlerProps}
@@ -134,8 +136,6 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
     customMessages,
     backButton,
     shouldAllowDeletion,
-    isLoadingConfig,
-    isLoadingIdpConfig,
     showProvisioningTab,
     isProvisioningUpdating,
     isProvisioningDeleting,
@@ -169,14 +169,6 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
   );
-
-  if (isLoading || isLoadingConfig || isLoadingIdpConfig) {
-    return (
-      <div className="flex justify-center items-center p-8">
-        <Spinner />
-      </div>
-    );
-  }
 
   return (
     <StyledScope style={currentStyles.variables}>

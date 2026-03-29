@@ -10,10 +10,11 @@ import { I18nProvider } from './i18n-provider';
 
 interface ClientProviderProps {
   children: React.ReactNode;
+  initialTheme?: 'light' | 'dark';
 }
 
-export function ClientProvider({ children }: ClientProviderProps) {
-  const isDarkMode = useDarkMode();
+export function ClientProvider({ children, initialTheme = 'light' }: ClientProviderProps) {
+  const isDarkMode = useDarkMode(initialTheme === 'dark');
 
   return (
     <I18nProvider>

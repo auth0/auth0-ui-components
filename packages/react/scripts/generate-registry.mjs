@@ -583,8 +583,10 @@ async function generateBlockItem(blockFilePath) {
     'shadcn',
   ]);
 
+  const allDeclaredDeps = getNpmDependencies();
   const dependencies = Array.from(npmDeps)
     .filter((dep) => !peerDeps.has(dep) && !buildTools.has(dep))
+    .map((dep) => (allDeclaredDeps[dep] ? `${dep}@${allDeclaredDeps[dep]}` : dep))
     .sort();
 
   // Add @auth0/universal-components-core with version at the front

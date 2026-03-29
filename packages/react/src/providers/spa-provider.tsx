@@ -10,6 +10,7 @@ import type { AuthDetails, BasicAuth0ContextInterface } from '@auth0/universal-c
 import * as React from 'react';
 
 import { Toaster } from '@/components/auth0/shared/sonner';
+import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Spinner } from '@/components/ui/spinner';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
 import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
@@ -82,9 +83,11 @@ export const Auth0ComponentProvider = (
   );
 
   const fallback = loader || (
-    <div className="flex items-center justify-center min-h-[200px]">
-      <Spinner />
-    </div>
+    <StyledScope>
+      <div className="flex items-center justify-center min-h-[200px]">
+        <Spinner />
+      </div>
+    </StyledScope>
   );
 
   return (
