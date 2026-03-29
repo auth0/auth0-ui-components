@@ -8,6 +8,7 @@ import { Navbar } from './components/nav-bar';
 import { Sidebar } from './components/side-bar';
 import DomainManagementPage from './views/domain-management-page';
 import HomePage from './views/home-page';
+import MemberManagementPage from './views/member-management-page';
 import MFAPage from './views/mfa-page';
 import OrganizationManagementPage from './views/organization-management-page';
 import ProfilePage from './views/profile-page';
@@ -98,6 +99,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <DomainManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/member-management"
+            element={
+              <ProtectedRoute>
+                <MemberManagementPage />
               </ProtectedRoute>
             }
           />

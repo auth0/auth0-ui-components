@@ -26,7 +26,9 @@ describe('OrganizationInvitationDetailsModal', () => {
         );
 
         expect(screen.getByRole('dialog')).toBeInTheDocument();
-        expect(screen.getByText('invitation.details.title')).toBeInTheDocument();
+        expect(
+          screen.getByRole('heading', { name: 'invitation.details.title' }),
+        ).toBeInTheDocument();
       });
     });
 

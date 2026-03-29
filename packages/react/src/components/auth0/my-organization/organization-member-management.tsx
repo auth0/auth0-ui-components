@@ -181,7 +181,6 @@ export function OrganizationMemberManagementView({
 export function OrganizationMemberManagement(props: OrganizationMemberManagementProps) {
   const {
     hideHeader = false,
-    defaultTab = 'members',
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     readOnly = false,
@@ -192,7 +191,6 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
 
   const { state, handlers } = useOrganizationMemberManagement({
     customMessages,
-    defaultTab,
     readOnly,
     createInvitationAction,
     revokeInvitationAction,

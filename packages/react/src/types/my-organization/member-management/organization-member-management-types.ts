@@ -24,7 +24,6 @@ export type ActiveTab = 'members' | 'invitations';
 
 export interface UseOrganizationMemberManagementOptions {
   customMessages?: OrganizationMemberManagementMessages;
-  defaultTab?: ActiveTab;
   readOnly?: boolean;
   /** Action hooks for invitation creation (onBefore/onAfter) */
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
@@ -98,12 +97,12 @@ export interface OrganizationMemberManagementMessages {
 }
 
 /** Props for OrganizationMemberManagement component. */
-export interface OrganizationMemberManagementProps extends SharedComponentProps<
-  OrganizationMemberManagementMessages,
-  OrganizationMemberManagementClasses
-> {
+export interface OrganizationMemberManagementProps
+  extends SharedComponentProps<
+    OrganizationMemberManagementMessages,
+    OrganizationMemberManagementClasses
+  > {
   hideHeader?: boolean;
-  defaultTab?: ActiveTab;
   /** Action hooks for invitation creation (onBefore/onAfter) */
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   /** Action hooks for invitation revocation (onBefore/onAfter) */

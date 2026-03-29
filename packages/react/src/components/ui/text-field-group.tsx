@@ -7,10 +7,19 @@ import * as React from 'react';
 import { Chip } from '@/components/ui/chip';
 import { cn } from '@/lib/utils';
 export type TextFieldGroupSize = 'default' | 'sm' | 'lg';
+export type ChipVariant =
+  | 'default'
+  | 'secondary'
+  | 'outline'
+  | 'info'
+  | 'success'
+  | 'warning'
+  | 'destructive';
 
 export interface ChipItem {
   label: string;
   value: string;
+  variant?: ChipVariant;
 }
 
 export interface TextFieldGroupProps
@@ -24,14 +33,7 @@ export interface TextFieldGroupProps
   onChipRemove?: (value: string) => void;
   onChipAdd?: (value: string) => void;
   summarizeChips?: boolean;
-  chipVariant?:
-    | 'default'
-    | 'secondary'
-    | 'outline'
-    | 'info'
-    | 'success'
-    | 'warning'
-    | 'destructive';
+  chipVariant?: ChipVariant;
 }
 
 const textFieldGroupVariants = cva(
@@ -273,7 +275,7 @@ function TextFieldGroup(
                 )}
               >
                 <Chip
-                  variant={chipVariant}
+                  variant={chip.variant ?? chipVariant}
                   size="sm"
                   onDelete={isDisabled ? undefined : () => handleChipRemove(chip.value)}
                   className="max-w-xs"
@@ -342,7 +344,7 @@ function TextFieldGroup(
                 )}
               >
                 <Chip
-                  variant={chipVariant}
+                  variant={chip.variant ?? chipVariant}
                   size="sm"
                   onDelete={isDisabled ? undefined : () => handleChipRemove(chip.value)}
                   className="max-w-xs"

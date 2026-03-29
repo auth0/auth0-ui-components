@@ -30,7 +30,6 @@ import {
 import { TextFieldGroup } from '@/components/ui/text-field-group';
 import type { ChipItem } from '@/components/ui/text-field-group';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { cn } from '@/lib/utils';
 import type {
   CreateInvitationInput,
   RoleOption,
@@ -99,6 +98,11 @@ export function OrganizationInvitationCreateModal({
     setEmailError(undefined);
   }, []);
 
+  const hasInvalidChips = React.useMemo(
+    () => emailChips.some((chip) => chip.variant === 'destructive'),
+    [emailChips],
+  );
+
   const handleEmailChipAdd = React.useCallback(
     (value: string) => {
       const trimmedEmail = value.trim().replace(/,/g, '');
@@ -110,14 +114,19 @@ export function OrganizationInvitationCreateModal({
         return;
       }
 
-      const result = validationConfig.emailSchema.safeParse(trimmedEmail);
-      if (!result.success) {
-        setEmailError(result.error.errors[0]?.message ?? validationConfig.emailErrorMessage);
+      if (emailChips.some((chip) => chip.value === trimmedEmail)) {
+        setEmailError(t('invitation.create.email_duplicate_error'));
         return;
       }
 
-      if (emailChips.some((chip) => chip.value === trimmedEmail)) {
-        setEmailError(t('invitation.create.email_duplicate_error'));
+      const result = validationConfig.emailSchema.safeParse(trimmedEmail);
+      if (!result.success) {
+        setEmailChips((prev) => [
+          ...prev,
+          { label: trimmedEmail, value: trimmedEmail, variant: 'destructive' },
+        ]);
+        setEmailInput('');
+        setEmailError(t('invitation.create.email_invalid_error'));
         return;
       }
 
@@ -129,7 +138,13 @@ export function OrganizationInvitationCreateModal({
   );
 
   const handleEmailChipRemove = React.useCallback((value: string) => {
-    setEmailChips((prev) => prev.filter((chip) => chip.value !== value));
+    setEmailChips((prev) => {
+      const updated = prev.filter((chip) => chip.value !== value);
+      if (!updated.some((chip) => chip.variant === 'destructive')) {
+        setEmailError(undefined);
+      }
+      return updated;
+    });
   }, []);
 
   const handleRoleChange = React.useCallback((value: string | string[]) => {
@@ -197,10 +212,11 @@ export function OrganizationInvitationCreateModal({
 
   const canSubmit = React.useMemo(
     () =>
-      emailChips.length > 0 ||
-      (emailInput.trim() !== '' &&
-        validationConfig.emailSchema.safeParse(emailInput.trim()).success),
-    [emailChips.length, emailInput, validationConfig],
+      !hasInvalidChips &&
+      (emailChips.length > 0 ||
+        (emailInput.trim() !== '' &&
+          validationConfig.emailSchema.safeParse(emailInput.trim()).success)),
+    [emailChips.length, emailInput, validationConfig, hasInvalidChips],
   );
 
   const roleOptions = React.useMemo(
@@ -227,17 +243,14 @@ export function OrganizationInvitationCreateModal({
                 value={emailInput}
                 onChange={handleEmailInputChange}
                 disabled={isLoading}
-                variant={emailError ? 'error' : 'default'}
+                variant={emailError || hasInvalidChips ? 'error' : 'default'}
                 chips={emailChips}
                 onChipAdd={handleEmailChipAdd}
                 onChipRemove={handleEmailChipRemove}
                 summarizeChips={false}
               />
-              <p
-                className={cn('text-xs', emailError ? 'text-destructive' : 'text-muted-foreground')}
-              >
-                {emailError ?? t('invitation.create.email_helper')}
-              </p>
+              <p className="text-xs text-muted-foreground">{t('invitation.create.email_helper')}</p>
+              {emailError && <p className="text-sm text-destructive-foreground">{emailError}</p>}
             </div>
 
             {/* Roles Combobox */}

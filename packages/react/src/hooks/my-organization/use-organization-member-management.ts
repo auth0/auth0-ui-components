@@ -53,7 +53,6 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
 } {
   const {
     customMessages = {},
-    defaultTab = 'members',
     readOnly = false,
     createInvitationAction,
     revokeInvitationAction,
@@ -63,7 +62,7 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
   const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
   const queryClient = useQueryClient();
 
-  const [activeTab, setActiveTab] = React.useState<ActiveTab>(defaultTab);
+  const [activeTab, setActiveTab] = React.useState<ActiveTab>('members');
 
   const { allowedRoles } = useConfig();
   const availableRoles: RoleOption[] = allowedRoles;
@@ -81,7 +80,7 @@ export function useOrganizationMemberManagement(options: UseOrganizationMemberMa
         type: p.strategy,
       }));
     },
-    enabled: !!coreClient,
+    enabled: !!coreClient && activeTab === 'invitations',
   });
 
   const availableProviders: IdentityProviderOption[] = providersQuery.data ?? [];
