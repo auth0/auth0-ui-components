@@ -51,6 +51,11 @@ export function useConfig(): UseConfigResult {
 
   const isConfigValid = !!allowedStrategies?.length;
 
+  const allowedRoles =
+    ((config as Record<string, unknown>)?.allowed_roles as
+      | Array<{ id: string; name: string; description?: string }>
+      | undefined) ?? [];
+
   return {
     config: config ?? null,
     isLoadingConfig: configQuery.isLoading,
@@ -58,5 +63,6 @@ export function useConfig(): UseConfigResult {
     filteredStrategies,
     shouldAllowDeletion,
     isConfigValid,
+    allowedRoles,
   };
 }
