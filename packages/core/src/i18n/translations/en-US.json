@@ -214,7 +214,7 @@
               "label": "Name",
               "placeholder": "Enter organization name",
               "helper_text": "A human-readable identifier for the organization, used by end users to direct them to their organization in your application.",
-              "error": "Please enter a valid organization name"
+              "error": "Only lowercase letters, numbers, hyphens, and underscores are allowed (e.g., my-org-01)"
             },
             "display_name": {
               "label": "Display Name",
@@ -288,8 +288,8 @@
           "edit_button_text": "Edit",
           "delete_button_text": "Delete",
           "remove_button_text": "Remove from organization",
-          "enabled_tooltip": "Toggle to disable provisioning",
-          "disabled_tooltip": "Toggle to enable provisioning"
+          "enabled_tooltip": "Toggle to disable the SSO provider",
+          "disabled_tooltip": "Toggle to enable the SSO provider"
         }
       },
       "create_consent_modal": {

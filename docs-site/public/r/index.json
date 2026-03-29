@@ -11,8 +11,8 @@
     {
       "name": "domain-table",
       "type": "registry:block",
-      "title": "DomainTableContainer Component.",
-      "description": "A block component for domain table container."
+      "title": "DomainTable container component.",
+      "description": "A block component for domain table."
     },
     {
       "name": "organization-details-edit",
@@ -23,20 +23,20 @@
     {
       "name": "sso-provider-create",
       "type": "registry:block",
-      "title": "Internal SSO provider creation container(logic) component.",
-      "description": "A block component for sso provider create container."
+      "title": "SSO provider creation container component.",
+      "description": "A block component for sso provider create."
     },
     {
       "name": "sso-provider-edit",
       "type": "registry:block",
-      "title": "Internal SSO provider edit container(logic) component.",
-      "description": "A block component for sso provider edit container."
+      "title": "SSO provider edit container component.",
+      "description": "A block component for sso provider edit."
     },
     {
       "name": "sso-provider-table",
       "type": "registry:block",
-      "title": "Internal SSO provider table container(logic) component.",
-      "description": "A block component for sso provider table container."
+      "title": "SSO provider table container component.",
+      "description": "A block component for sso provider table."
     }
   ]
 }

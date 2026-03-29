@@ -56,6 +56,21 @@ export function BrandingDetails({
                 <ImagePreviewField
                   {...field}
                   readOnly={readOnly}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    if (!e.target.value.trim()) {
+                      form.clearErrors('branding.logo_url');
+                    }
+                  }}
+                  onImageError={() => {
+                    form.setError('branding.logo_url', {
+                      type: 'manual',
+                      message: t('sections.branding.fields.logo.error'),
+                    });
+                  }}
+                  onImageLoad={() => {
+                    form.clearErrors('branding.logo_url');
+                  }}
                   startAdornment={
                     <div className="p-1.5">
                       <LinkIcon />

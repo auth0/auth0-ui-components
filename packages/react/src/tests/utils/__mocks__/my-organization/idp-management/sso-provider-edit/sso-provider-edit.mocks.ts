@@ -69,8 +69,6 @@ export function createMockSsoProviderEditLogic(
     customMessages: {},
     backButton: undefined,
     shouldAllowDeletion: true,
-    isLoadingConfig: false,
-    isLoadingIdpConfig: false,
     showProvisioningTab: true,
     isProvisioningUpdating: false,
     isProvisioningDeleting: false,

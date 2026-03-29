@@ -26,6 +26,12 @@ vi.mock('../theme-provider', () => ({
   ThemeProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="theme-provider">{children}</div>
   ),
+  ThemeContext: React.createContext({
+    theme: 'default',
+    isDarkMode: false,
+    variables: undefined,
+    loader: undefined,
+  }),
 }));
 
 describe('Auth0ComponentProvider', () => {

@@ -143,7 +143,10 @@ export type SsoProviderEditViewProps = {
 
 export interface SsoProviderEditLogicProps
   extends SsoProviderEditProps,
-    Omit<UseSsoProviderEditLogicResult, 'handleToggleProvider'>,
+    Omit<
+      UseSsoProviderEditLogicResult,
+      'handleToggleProvider' | 'isLoadingConfig' | 'isLoadingIdpConfig'
+    >,
     Pick<
       UseSsoProviderEditReturn,
       | 'provider'

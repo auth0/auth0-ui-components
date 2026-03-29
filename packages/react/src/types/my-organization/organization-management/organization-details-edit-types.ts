@@ -67,7 +67,6 @@ export interface UseOrganizationDetailsEditResult {
 
 export interface OrganizationDetailsEditViewProps {
   organization: OrganizationPrivate;
-  isFetchLoading: boolean;
   schema: Partial<OrganizationDetailsEditSchemas> | undefined;
   styling: ComponentStyling<OrganizationDetailsClasses>;
   customMessages: OrganizationDetailsEditProps['customMessages'];

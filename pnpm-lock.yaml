@@ -541,7 +541,7 @@ importers:
   packages/core:
     dependencies:
       '@auth0/myaccount-js':
-        specifier: ^1.0.0-beta.0
+        specifier: 1.0.0-beta.0
         version: 1.0.0-beta.0
       '@auth0/myorganization-js':
         specifier: file:../../auth0-myorganization-js-1.0.0-beta.4.tgz

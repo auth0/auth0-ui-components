@@ -619,9 +619,6 @@ interface ComponentAction<T> {
                   <strong>details.name</strong> - Organization name validation
                   <ul className="ml-4 list-disc">
                     <li>
-                      <code>required?: boolean</code> (default: true)
-                    </li>
-                    <li>
                       <code>minLength?: number</code>
                     </li>
                     <li>
@@ -736,7 +733,6 @@ function OrganizationEditPage() {
         schema={{
           details: {
             name: {
-              required: true,
               minLength: 3,
               maxLength: 50,
               regex: /^[a-zA-Z0-9-_]+$/,
