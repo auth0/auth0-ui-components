@@ -8,6 +8,13 @@ import type {
   IdpStrategy,
 } from '@auth0/universal-components-core';
 
+/** Role returned from organization configuration. */
+export interface ConfigRole {
+  id: string;
+  name: string;
+  description?: string;
+}
+
 /** useConfig hook result. */
 export interface UseConfigResult {
   config: GetConfigurationResponseContent | null;
@@ -16,4 +23,5 @@ export interface UseConfigResult {
   filteredStrategies: IdpStrategy[];
   shouldAllowDeletion: boolean;
   isConfigValid: boolean;
+  allowedRoles: ConfigRole[];
 }

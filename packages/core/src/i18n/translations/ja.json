@@ -1067,5 +1067,124 @@
         "install_guardian_description": "続行するには、お使いのモバイルデバイスからアプリストア経由でAuth0 Guardianアプリをインストールしてください。"
       }
     }
+  },
+  "member_management": {
+    "header": {
+      "title": "メンバー",
+      "description": "組織のメンバーを管理します。"
+    },
+    "invite_button": "メンバーを招待",
+    "tabs": {
+      "members": "メンバー",
+      "invitations": "招待"
+    },
+    "member": {
+      "table": {
+        "columns": {
+          "name": "名前",
+          "email": "メール",
+          "roles": "ロール"
+        },
+        "empty_message": "メンバーが見つかりません。"
+      },
+      "remove": {
+        "title": "メンバーを削除",
+        "description": "この組織から${name}を削除してもよろしいですか？",
+        "confirm_button": "削除",
+        "cancel_button": "キャンセル",
+        "success": "${name}が組織から削除されました。"
+      },
+      "error": {
+        "fetch_failed": "メンバーの読み込みに失敗しました。もう一度お試しください。",
+        "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。"
+      }
+    },
+    "invitation": {
+      "table": {
+        "columns": {
+          "email": "メール",
+          "status": "ステータス",
+          "inviter": "招待者",
+          "created_at": "作成日",
+          "expires_at": "有効期限",
+          "roles": "ロール"
+        },
+        "empty_message": "保留中の招待はありません。",
+        "search_placeholder": "メールで検索...",
+        "filter_by_role": "ロールで絞り込み",
+        "all_roles": "すべて",
+        "reset_filter": "リセット",
+        "showing_results": "${start}〜${end} / ${total}件",
+        "status_pending": "保留中",
+        "status_expired": "期限切れ"
+      },
+      "actions": {
+        "menu_label": "アクション",
+        "view_details": "詳細を表示",
+        "copy_url": "招待URLをコピー",
+        "revoke_and_resend": "取り消して再送信",
+        "revoke": "招待を取り消す"
+      },
+      "create": {
+        "title": "メンバーを招待",
+        "description": "この組織に参加するための招待を送信します。",
+        "email_label": "メールアドレス",
+        "email_placeholder": "メールアドレスを入力してEnterを押してください",
+        "email_helper": "カンマ区切りで最大10名まで追加できます。",
+        "email_limit_error": "メールアドレスは最大10件まで追加できます。",
+        "email_invalid_error": "有効なメールアドレスを入力してください。",
+        "email_duplicate_error": "このメールアドレスは既に追加されています。",
+        "email_required_error": "メールアドレスを1つ以上入力してください。",
+        "roles_label": "ロール",
+        "roles_placeholder": "ロールを選択（任意）",
+        "provider_label": "プロバイダー",
+        "provider_placeholder": "プロバイダーを選択（任意）",
+        "provider_helper": "選択しない場合、メンバーは任意のプロバイダーでログインできます。",
+        "submit_button": "招待を送信",
+        "creating": "作成中...",
+        "cancel_button": "キャンセル",
+        "success": "${email}に招待を送信しました。"
+      },
+      "details": {
+        "title": "招待の詳細",
+        "email_label": "メール",
+        "status_label": "ステータス",
+        "roles_label": "ロール",
+        "provider_label": "IDプロバイダー",
+        "created_at_label": "作成日",
+        "expires_at_label": "有効期限",
+        "invited_by_label": "招待者",
+        "invitation_url_label": "招待URL",
+        "copy_url_button": "コピー",
+        "close_button": "閉じる",
+        "revoke_button": "招待を取り消す",
+        "resend_button": "取り消して再送信"
+      },
+      "revoke": {
+        "title": "招待を取り消す",
+        "description": "<bold>${email}</bold>への招待を取り消してもよろしいですか？",
+        "confirm_button": "取り消す",
+        "cancel_button": "キャンセル",
+        "success": "${email}への招待が取り消されました。"
+      },
+      "revoke_resend": {
+        "title": "招待を取り消して再送信",
+        "description": "現在の招待を取り消し、<bold>${email}</bold>に新しい招待を送信してもよろしいですか？",
+        "confirm_button": "続行",
+        "cancel_button": "キャンセル"
+      },
+      "success": {
+        "url_copied": "招待URLをクリップボードにコピーしました。",
+        "invitation_resent": "${email}に招待を再送信しました。"
+      },
+      "error": {
+        "fetch_failed": "招待の読み込みに失敗しました。もう一度お試しください。",
+        "create_failed": "招待の送信に失敗しました。もう一度お試しください。",
+        "revoke_failed": "招待の取り消しに失敗しました。もう一度お試しください。",
+        "resend_failed": "招待の再送信に失敗しました。もう一度お試しください。",
+        "revoke_resend_failed": "招待の取り消しと再送信に失敗しました。もう一度お試しください。",
+        "copy_url_failed": "招待URLのコピーに失敗しました。もう一度お試しください。"
+      }
+    }
   }
 }
