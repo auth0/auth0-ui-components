@@ -1,9 +1,7 @@
+import type { IdpConfig } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import type {
-  IdpConfig,
-  UseConfigIdpResult,
-} from '@/types/my-organization/config/config-idp-types';
+import type { UseConfigIdpResult } from '@/types/my-organization/config/config-idp-types';
 
 type MockUseIdpConfig = UseConfigIdpResult;
 
@@ -13,7 +11,7 @@ export const createMockUseIdpConfig = (
   idpConfig: {
     strategies: {
       okta: { enabled_features: [], provisioning_methods: [] },
-      'google-apps': { enabled_features: [], provisioning_methods: [] },
+      googleapps: { enabled_features: [], provisioning_methods: [] },
       adfs: { enabled_features: [], provisioning_methods: [] },
       oidc: { enabled_features: [], provisioning_methods: [] },
       pingfederate: { enabled_features: [], provisioning_methods: [] },

@@ -56,7 +56,9 @@ export function useSsoDomainTab(
   const domainsQuery = useQuery({
     queryKey: domainQueryKeys.list(idpId),
     queryFn: async () => {
-      const response = await coreClient!.getMyOrganizationApiClient().organization.domains.list();
+      const { response } = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.domains.list();
       return response.organization_domains;
     },
     enabled: !!coreClient && !!idpId,
@@ -76,9 +78,9 @@ export function useSsoDomainTab(
 
   // Fetch IDP associations for each domain using useQueries
   const idpAssociationQueries = useQueries({
-    queries: domainsList.map((domain) => ({
+    queries: domainsList.map((domain: Domain) => ({
       queryKey: domainQueryKeys.idpAssociation(domain.id, idpId),
-      queryFn: async () => {
+      queryFn: async (): Promise<{ domainId: string; isEnabled: boolean }> => {
         const response = await coreClient!
           .getMyOrganizationApiClient()
           .organization.domains.identityProviders.get(domain.id);

@@ -12,10 +12,10 @@ import type {
   SsoProviderDetailsMessages,
   SsoProviderDetailsSchema,
   ComponentAction,
+  IdpConfig,
 } from '@auth0/universal-components-core';
 
 import type { FormActionsProps } from '@/components/auth0/shared/form-actions';
-import type { IdpConfig } from '@/types/my-organization/config/config-idp-types';
 import type { SsoProviderCreateClasses } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 import type {
   SsoProviderDeleteClasses,

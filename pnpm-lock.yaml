@@ -544,8 +544,8 @@ importers:
         specifier: 1.0.0-beta.0
         version: 1.0.0-beta.0
       '@auth0/myorganization-js':
-        specifier: file:../../auth0-myorganization-js-1.0.0-beta.4.tgz
-        version: file:auth0-myorganization-js-1.0.0-beta.4.tgz
+        specifier: 1.0.0-beta.5
+        version: 1.0.0-beta.5
       zod:
         specifier: ^3.22.4
         version: 3.25.76
@@ -729,9 +729,8 @@ packages:
     resolution: {integrity: sha512-slj0RtNfieNk1BC1ERrCQw65qMUVKU5qacbTc8BFH8R316CUpsOhZ2MIiV9l3VEkaqY1hmCZm03+ZI6ym+3PZg==}
     engines: {node: '>=18.0.0'}
 
-  '@auth0/myorganization-js@file:auth0-myorganization-js-1.0.0-beta.4.tgz':
-    resolution: {integrity: sha512-yTZbJ0K75WsCGsb9bXBGTs32WLXEXqyTuM9lgmYST8uSag2ILfJdYZPQZkvyKM5v+7Sk5B9vz0mg3tNfv8SFNg==, tarball: file:auth0-myorganization-js-1.0.0-beta.4.tgz}
-    version: 1.0.0-beta.4
+  '@auth0/myorganization-js@1.0.0-beta.5':
+    resolution: {integrity: sha512-2KocBHkgrhIyZQ0YLfk1j5o9X2a/i/NpTjc5QLtv45T9qsnq9ybTPuCRPWkeJc8a8z670IT9aRyGR6SWGftZ0A==}
     engines: {node: '>=18.0.0'}
 
   '@auth0/nextjs-auth0@4.16.0':
@@ -4689,6 +4688,7 @@ packages:
   git-raw-commits@4.0.0:
     resolution: {integrity: sha512-ICsMM1Wk8xSGMowkOmPrzo2Fgmfo4bMHLNX6ytHjajRJUqvHOw/TFapQ+QG75c3X/tTDDhOSRPGC52dDbNM8FQ==}
     engines: {node: '>=16'}
+    deprecated: This package is no longer maintained. For the JavaScript API, please use @conventional-changelog/git-client instead.
     hasBin: true
 
   glob-parent@5.1.2:
@@ -7304,7 +7304,7 @@ snapshots:
 
   '@auth0/myaccount-js@1.0.0-beta.0': {}
 
-  '@auth0/myorganization-js@file:auth0-myorganization-js-1.0.0-beta.4.tgz':
+  '@auth0/myorganization-js@1.0.0-beta.5':
     dependencies:
       '@auth0/auth0-auth-js': 1.5.0
 
