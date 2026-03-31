@@ -9,6 +9,7 @@ import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useCallback, useState, useMemo, useEffect } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { ssoProviderEditQueryKeys } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -21,7 +22,6 @@ const domainQueryKeys = {
   all: ['sso-domains'] as const,
   lists: () => [...domainQueryKeys.all, 'list'] as const,
   list: (idpId: IdpId) => [...domainQueryKeys.lists(), idpId] as const,
-  idpDetails: (idpId: IdpId) => [...domainQueryKeys.all, 'idp-details', idpId] as const,
 };
 
 /**
@@ -72,26 +72,13 @@ export function useSsoDomainTab(
     }
   }, [domainsQuery.error, handleError, t]);
 
-  // Fetch IDP details with a single request to get associated domains
-  const idpDetailsQuery = useQuery({
-    queryKey: domainQueryKeys.idpDetails(idpId),
-    queryFn: async () => {
-      const response = await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.identityProviders.get(idpId);
-      return response;
-    },
-    enabled: !!coreClient && !!idpId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-
-  // Derive idpDomains from the IdP's domains field
+  // Derive idpDomains from the provider's domains field (provider is fetched by the parent hook)
   const idpDomains = useMemo(() => {
-    const idpDomainNames = idpDetailsQuery.data?.domains ?? [];
+    const idpDomainNames = provider?.domains ?? [];
     return domainsList
       .filter((domain) => idpDomainNames.includes(domain.domain))
       .map((domain) => domain.id);
-  }, [idpDetailsQuery.data, domainsList]);
+  }, [provider?.domains, domainsList]);
 
   // Mutations
   const createDomainMutation = useMutation({
@@ -113,7 +100,7 @@ export function useSsoDomainTab(
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: domainQueryKeys.list(idpId) });
-      queryClient.invalidateQueries({ queryKey: domainQueryKeys.idpDetails(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
     },
   });
 
@@ -169,7 +156,7 @@ export function useSsoDomainTab(
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: domainQueryKeys.list(idpId) });
-      queryClient.invalidateQueries({ queryKey: domainQueryKeys.idpDetails(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
     },
   });
 
@@ -195,7 +182,7 @@ export function useSsoDomainTab(
       return domain;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: domainQueryKeys.idpDetails(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
     },
   });
 
@@ -223,7 +210,7 @@ export function useSsoDomainTab(
       return domain;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: domainQueryKeys.idpDetails(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
     },
   });
 
