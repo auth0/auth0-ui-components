@@ -22,7 +22,11 @@ function getVersionInfo(): VersionInfo {
   if (!fs.existsSync(versionsPath)) {
     throw new Error('versions.json not found. Run the build to generate it.');
   }
-  return JSON.parse(fs.readFileSync(versionsPath, 'utf-8'));
+  try {
+    return JSON.parse(fs.readFileSync(versionsPath, 'utf-8'));
+  } catch (error) {
+    throw new Error(`Failed to parse versions.json: ${error}`);
+  }
 }
 
 export function registryMiddleware(): Plugin {
