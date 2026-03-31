@@ -46,12 +46,12 @@ export function registryMiddleware(): Plugin {
         }
 
         const rootFilePath = path.join(process.cwd(), 'public', 'r', normalizedFileName);
-        if (fs.existsSync(rootFilePath)) {
+        const versionParam = url.searchParams.get('version');
+        if (!versionParam && fs.existsSync(rootFilePath)) {
           return next();
         }
 
         const versionInfo = getVersionInfo();
-        const versionParam = url.searchParams.get('version');
         let versionPath: string;
 
         if (!versionParam || versionParam === 'latest') {

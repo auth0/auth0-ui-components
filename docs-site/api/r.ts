@@ -64,9 +64,10 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 
   const basePath = getBasePath();
   const versionInfo = getVersionInfo(basePath);
+  const versionParam = req.query.version as string | undefined;
 
   const rootFilePath = path.join(basePath, normalizedFileName);
-  if (fs.existsSync(rootFilePath)) {
+  if (!versionParam && fs.existsSync(rootFilePath)) {
     try {
       sendJson(res, fs.readFileSync(rootFilePath, 'utf-8'));
     } catch (error) {
@@ -78,7 +79,6 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const versionParam = req.query.version as string | undefined;
   let versionPath: string;
 
   if (!versionParam || versionParam === 'latest') {
