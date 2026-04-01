@@ -1,5 +1,5 @@
 {
-  "name": "auth0-web-ui-components",
+  "name": "@auth0/universal-components-web",
   "version": "1.0.0",
   "description": "Auth0 Universal Components",
   "private": true,
