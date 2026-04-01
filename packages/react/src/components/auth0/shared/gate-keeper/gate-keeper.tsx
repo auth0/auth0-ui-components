@@ -6,21 +6,18 @@
 
 import {
   type ComponentStyling,
-  type MfaRequiredError,
   getComponentStyles,
   getStatusCode,
   isMfaRequiredError,
-  normalizeMfaRequiredError,
 } from '@auth0/universal-components-core';
 import { RefreshCcw } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { MfaWizard } from '@/components/auth0/shared/gate-keeper/mfa-step-up/mfa-wizard';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
+import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { useGateKeeperContext } from '@/providers/gate-keeper-context';
@@ -40,50 +37,25 @@ interface GateKeeperProps {
  * @returns Error fallback element.
  * @internal
  */
-function ErrorFallback({ onRetry }: { onRetry: () => void }) {
+function ErrorFallback({ onRetry, isMfa }: { onRetry: () => void; isMfa?: boolean }) {
   const { t } = useTranslator('gate_keeper');
+  const key = isMfa ? 'mfa_error' : 'fallback';
 
   return (
     <Card className="text-center">
       <CardContent className="flex flex-col items-center gap-2">
-        <CardTitle>{t('fallback.title')}</CardTitle>
-        <CardDescription>{t('fallback.description')}</CardDescription>
+        <CardTitle>{t(`${key}.title`)}</CardTitle>
+        <CardDescription>{t(`${key}.description`)}</CardDescription>
       </CardContent>
-      <CardFooter className="justify-center">
-        <Button variant="primary" size="default" onClick={onRetry}>
-          <RefreshCcw className="size-4" />
-          {t('fallback.retry')}
-        </Button>
-      </CardFooter>
+      {!isMfa && (
+        <CardFooter className="justify-center">
+          <Button variant="primary" size="default" onClick={onRetry}>
+            <RefreshCcw className="size-4" />
+            {t('fallback.retry')}
+          </Button>
+        </CardFooter>
+      )}
     </Card>
-  );
-}
-
-/**
- * MFA step-up dialog.
- *
- * @param props - Component props.
- * @param props.error - MFA error containing the token and challenge details.
- * @param props.onComplete - Callback when MFA is completed successfully; triggers a retry.
- * @param props.onClose - Callback when the dialog is dismissed without completing.
- * @returns MFA dialog element.
- * @internal
- */
-function MfaDialog({
-  error,
-  onComplete,
-  onClose,
-}: {
-  error: MfaRequiredError;
-  onComplete: () => void;
-  onClose: () => void;
-}) {
-  return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
-        <MfaWizard error={error} onComplete={onComplete} onCancel={onClose} />
-      </DialogContent>
-    </Dialog>
   );
 }
 
@@ -103,15 +75,14 @@ function MfaDialog({
  */
 export function GateKeeper({ styling, isLoading, children }: GateKeeperProps) {
   const { error, onRetry } = useGateKeeperContext();
+  const { coreClient } = useCoreClient();
   const { isDarkMode } = useTheme();
   const [isRetrying, setIsRetrying] = useState(false);
-  const [dismissedMfaToken, setDismissedMfaToken] = useState<string | null>(null);
 
   const styles = useMemo(() => getComponentStyles(styling, isDarkMode), [styling, isDarkMode]);
 
   const handleRetry = useCallback(async () => {
     setIsRetrying(true);
-    setDismissedMfaToken(null);
     try {
       await onRetry?.();
     } finally {
@@ -120,10 +91,14 @@ export function GateKeeper({ styling, isLoading, children }: GateKeeperProps) {
   }, [onRetry]);
 
   const isMfaStepUp = isMfaRequiredError(error);
-  const mfaError = isMfaStepUp ? normalizeMfaRequiredError(error) : null;
-  const isMfaDismissed = dismissedMfaToken === mfaError?.mfa_token;
   const statusCode = getStatusCode(error);
   const isSystemError = !!error && !!statusCode && statusCode >= 500;
+
+  if (isMfaStepUp && coreClient && !coreClient.isProxyMode()) {
+    console.warn(
+      `🚨 [Auth0 Components Warning]: A step-up authentication (MFA) was triggered, but the interactiveErrorHandler is not configured.\n\nTo enable Universal Login redirects for MFA step-up, login required, or consent errors, please update your configuration:\n\n<Auth0Provider\n  ...\n  interactiveErrorHandler="popup"\n>\n\nFor more details, refer to the Auth0 Documentation.`,
+    );
+  }
 
   if (isLoading || isRetrying) {
     return (
@@ -135,24 +110,13 @@ export function GateKeeper({ styling, isLoading, children }: GateKeeperProps) {
     );
   }
 
-  if (isSystemError || (isMfaStepUp && isMfaDismissed)) {
+  if (isSystemError || isMfaStepUp) {
     return (
       <StyledScope style={styles.variables}>
-        <ErrorFallback onRetry={handleRetry} />
+        <ErrorFallback onRetry={handleRetry} isMfa={isMfaStepUp} />
       </StyledScope>
     );
   }
 
-  return (
-    <StyledScope style={styles.variables}>
-      {children}
-      {mfaError && !isMfaDismissed && (
-        <MfaDialog
-          error={mfaError}
-          onComplete={handleRetry}
-          onClose={() => setDismissedMfaToken(mfaError.mfa_token)}
-        />
-      )}
-    </StyledScope>
-  );
+  return <StyledScope style={styles.variables}>{children}</StyledScope>;
 }
