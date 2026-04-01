@@ -11,7 +11,7 @@ import {
   isMfaRequiredError,
 } from '@auth0/universal-components-core';
 import { RefreshCcw } from 'lucide-react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Button } from '@/components/ui/button';
@@ -94,11 +94,13 @@ export function GateKeeper({ styling, isLoading, children }: GateKeeperProps) {
   const statusCode = getStatusCode(error);
   const isSystemError = !!error && !!statusCode && statusCode >= 500;
 
-  if (isMfaStepUp && coreClient && !coreClient.isProxyMode()) {
-    console.warn(
-      `🚨 [Auth0 Components Warning]: A step-up authentication (MFA) was triggered, but the interactiveErrorHandler is not configured.\n\nTo enable Universal Login redirects for MFA step-up, login required, or consent errors, please update your configuration:\n\n<Auth0Provider\n  ...\n  interactiveErrorHandler="popup"\n>\n\nFor more details, refer to the Auth0 Documentation.`,
-    );
-  }
+  useEffect(() => {
+    if (isMfaStepUp && coreClient && !coreClient.isProxyMode()) {
+      console.warn(
+        `🚨 [Auth0 Components Warning]: A step-up authentication (MFA) was triggered, but the interactiveErrorHandler is not configured.\n\nTo enable Universal Login redirects for MFA step-up, login required, or consent errors, please update your configuration:\n\n<Auth0Provider\n  ...\n  interactiveErrorHandler="popup"\n>\n\nFor more details, refer to the Auth0 Documentation.`,
+      );
+    }
+  }, [isMfaStepUp, coreClient]);
 
   if (isLoading || isRetrying) {
     return (
