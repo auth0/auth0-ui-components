@@ -97,3 +97,21 @@ export type CreateMemberInvitationResponseContent =
  * Response content for getting a member invitation.
  */
 export type GetMemberInvitationResponseContent = MyOrganization.GetMemberInvitationResponseContent;
+
+/**
+ * Request content for deleting organization members.
+ */
+export type DeleteOrganizationMembersRequestContent =
+  MyOrganization.DeleteOrganizationMembersRequestContent;
+
+/**
+ * Request content for changing roles of an organization member.
+ */
+export type OrganizationMemberRolesChangeRequestContent =
+  MyOrganization.OrganizationMemberRolesChangeRequestContent;
+
+/**
+ * Response content for changing roles of an organization member.
+ */
+export type OrganizationMemberRolesChangeResponseContent =
+  MyOrganization.OrganizationMemberRolesChangeResponseContent;
