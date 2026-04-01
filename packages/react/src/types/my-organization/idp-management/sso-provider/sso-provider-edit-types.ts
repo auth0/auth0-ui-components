@@ -20,11 +20,11 @@ import type {
   IdpUserAttributeMap,
   IdpStrategy,
   AttributeSyncAlertMessages,
+  IdpConfig,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 
-import type { IdpConfig } from '@/types/my-organization/config/config-idp-types';
 import type {
   SsoDomainsTabEditProps,
   SsoDomainTabClasses,

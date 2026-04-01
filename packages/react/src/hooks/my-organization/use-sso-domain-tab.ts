@@ -54,7 +54,9 @@ export function useSsoDomainTab(
   const domainsQuery = useQuery({
     queryKey: domainQueryKeys.list(idpId),
     queryFn: async () => {
-      const response = await coreClient!.getMyOrganizationApiClient().organization.domains.list();
+      const { response } = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.domains.list();
       return response.organization_domains;
     },
     enabled: !!coreClient && !!idpId,
