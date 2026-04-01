@@ -1095,6 +1095,76 @@
       "error": {
         "fetch_failed": "Failed to load members. Please try again.",
         "remove_failed": "Failed to remove member. Please try again."
+      },
+      "detail": {
+        "back_button": "Back to Members",
+        "tabs": {
+          "details": "Details",
+          "roles": "Roles"
+        },
+        "user_details": {
+          "title": "User Details",
+          "name": "Name",
+          "email": "Email",
+          "phone_number": "Phone Number",
+          "provider": "Provider",
+          "created_at": "Created At",
+          "last_login": "Last Login"
+        },
+        "danger_zone": {
+          "remove_from_org": {
+            "title": "Remove member from ${organization}",
+            "description": "Once confirmed, this operation cannot be undone.",
+            "button": "Delete",
+            "confirm_title": "Remove Member",
+            "confirm_description": "Are you sure you want to remove ${email} from ${organization}? This action will not delete their account but it will revoke their access and prevent them from signing in.",
+            "confirm_button": "Remove",
+            "cancel_button": "Cancel",
+            "success": "${email} has been removed from ${organization}."
+          },
+          "delete_member": {
+            "title": "Delete this member",
+            "description": "Once confirmed, this operation cannot be undone.",
+            "button": "Delete",
+            "confirm_title": "Delete Member",
+            "confirm_description": "Are you sure you want to remove ${email} from ${organization}? This action will not delete their account but it will revoke their access and prevent them from signing in.",
+            "confirm_button": "Delete",
+            "cancel_button": "Cancel",
+            "success": "${email} has been deleted from ${organization}."
+          }
+        },
+        "roles": {
+          "title": "Roles",
+          "description": "Manage user roles and permissions when accessing ${appName}.",
+          "assign_button": "Assign Roles",
+          "table": {
+            "name": "Name",
+            "description": "Description",
+            "empty_message": "No roles assigned."
+          },
+          "assign_modal": {
+            "title": "Assign Roles",
+            "roles_label": "Roles",
+            "roles_placeholder": "Select role(s)",
+            "submit_button": "Assign Role(s)",
+            "cancel_button": "Cancel",
+            "no_roles_available": "All available roles are already assigned."
+          },
+          "remove_confirm": {
+            "title": "Remove Role",
+            "description": "Are you sure you want to remove the role <bold>${roleName}</bold> from this member?",
+            "confirm_button": "Remove",
+            "cancel_button": "Cancel"
+          }
+        },
+        "error": {
+          "fetch_failed": "Failed to load member details. Please try again.",
+          "fetch_roles_failed": "Failed to load member roles. Please try again.",
+          "remove_from_org_failed": "Failed to remove member from organization. Please try again.",
+          "delete_failed": "Failed to delete member. Please try again.",
+          "assign_role_failed": "Failed to assign role. Please try again.",
+          "remove_role_failed": "Failed to remove role. Please try again."
+        }
       }
     },
     "invitation": {
