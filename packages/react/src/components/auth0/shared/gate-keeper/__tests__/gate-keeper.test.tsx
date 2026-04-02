@@ -9,12 +9,9 @@ import {
   renderWithProviders,
   mockMfaRequiredError,
   mock5xxError,
-  mockUseMfaRequirements,
-  mockUseMfaStepUp,
+  createMockCoreClient,
 } from '@/tests/utils';
 
-vi.mock('@/hooks/shared/use-mfa-requirements');
-vi.mock('@/hooks/shared/use-mfa-step-up');
 vi.mock('@/providers/gate-keeper-context');
 
 const setupContext = (error: unknown = null, onRetry = vi.fn()) => {
@@ -30,10 +27,7 @@ const setupSystemError = (statusCode: number) => {
 };
 
 const setupMfaError = () => {
-  mockUseMfaRequirements();
-  mockUseMfaStepUp();
   vi.spyOn(coreModule, 'isMfaRequiredError').mockReturnValue(true);
-  vi.spyOn(coreModule, 'normalizeMfaRequiredError').mockReturnValue(mockMfaRequiredError as never);
   vi.spyOn(coreModule, 'getStatusCode').mockReturnValue(undefined);
   setupContext(mockMfaRequiredError);
 };
@@ -108,7 +102,7 @@ describe('GateKeeper', () => {
   });
 
   describe('MFA required error', () => {
-    it('renders children underneath MFA dialog when MFA error is present', async () => {
+    it('shows MFA error fallback without retry button', async () => {
       setupMfaError();
 
       renderWithProviders(
@@ -117,12 +111,13 @@ describe('GateKeeper', () => {
         </GateKeeper>,
       );
 
-      expect(await screen.findByText('child content')).toBeInTheDocument();
-      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+      expect(await screen.findByText('mfa_error.title')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /fallback.retry/i })).not.toBeInTheDocument();
+      expect(screen.queryByText('child content')).not.toBeInTheDocument();
     });
 
-    it('shows error fallback after MFA dialog is dismissed', async () => {
-      const user = userEvent.setup();
+    it('emits console.warn in SPA mode', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       setupMfaError();
 
       renderWithProviders(
@@ -131,16 +126,23 @@ describe('GateKeeper', () => {
         </GateKeeper>,
       );
 
-      await screen.findByRole('dialog');
+      await screen.findByText('mfa_error.title');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[Auth0 Components Warning]'));
+    });
 
-      // Dismiss via cancel button inside AuthenticatorsList empty state
-      const cancelButton = await screen.findByRole('button', { name: 'mfa.cancel' });
-      await user.click(cancelButton);
+    it('does not emit console.warn in proxy mode', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      setupMfaError();
 
-      await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-        expect(screen.getByText('fallback.title')).toBeInTheDocument();
-      });
+      renderWithProviders(
+        <GateKeeper>
+          <p>child content</p>
+        </GateKeeper>,
+        { coreClient: { ...createMockCoreClient(), isProxyMode: () => true } },
+      );
+
+      await screen.findByText('mfa_error.title');
+      expect(warnSpy).not.toHaveBeenCalled();
     });
   });
 });
