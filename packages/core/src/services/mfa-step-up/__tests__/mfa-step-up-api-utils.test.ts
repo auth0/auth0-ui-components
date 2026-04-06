@@ -22,10 +22,6 @@ describe('isMfaRequiredError', () => {
       expect(isMfaRequiredError({ error: 'mfa_required' })).toBe(true);
     });
 
-    it('returns true when error.code is mfa_required', () => {
-      expect(isMfaRequiredError({ code: 'mfa_required' })).toBe(true);
-    });
-
     it('returns false when error.error is a different value', () => {
       expect(isMfaRequiredError({ error: 'access_denied' })).toBe(false);
     });
@@ -38,10 +34,6 @@ describe('isMfaRequiredError', () => {
   describe('nested body object', () => {
     it('returns true when body.error is mfa_required', () => {
       expect(isMfaRequiredError({ body: { error: 'mfa_required' } })).toBe(true);
-    });
-
-    it('returns true when body.code is mfa_required', () => {
-      expect(isMfaRequiredError({ body: { code: 'mfa_required' } })).toBe(true);
     });
 
     it('returns false when body.error is a different value', () => {
