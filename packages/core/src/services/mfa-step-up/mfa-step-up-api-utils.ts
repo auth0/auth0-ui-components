@@ -7,18 +7,17 @@ import type { MfaRequiredError } from './mfa-step-up-api-types';
  * @returns True if the value matches the MFA payload shape.
  */
 function isMfaPayload(v: unknown): v is MfaRequiredError {
+  if (!v || typeof v !== 'object') return false;
   const p = v as Record<string, unknown>;
-  const code = p?.error || p?.code;
-  return code === MFA_REQUIRED_ERROR;
+  return p.error === MFA_REQUIRED_ERROR;
 }
-
 /**
  * Type guard for Auth0 `mfa_required` errors.
  * @param err - The error to check.
  * @returns True if the error is an MFA required error.
  */
 export function isMfaRequiredError(err: unknown): err is MfaRequiredError {
-  const e = err as Record<string, unknown>;
+  const e = err && typeof err === 'object' ? (err as Record<string, unknown>) : null;
   return [e, e?.body, e?.cause].some(isMfaPayload);
 }
 
