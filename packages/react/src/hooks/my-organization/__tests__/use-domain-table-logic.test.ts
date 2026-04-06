@@ -424,10 +424,14 @@ describe('useDomainTableLogic', () => {
   });
 
   describe('handleVerifyClick', () => {
-    it('should verify domain and show configure modal on success', async () => {
+    it('should verify domain, fetch providers, and show configure modal on success', async () => {
       const mockDomain = createMockDomain({ domain: 'test.com' });
       const mockOnVerifyDomain = vi.fn().mockResolvedValue(true);
-      const options = createMockOptions({ onVerifyDomain: mockOnVerifyDomain });
+      const mockFetchProviders = vi.fn().mockResolvedValue(undefined);
+      const options = createMockOptions({
+        onVerifyDomain: mockOnVerifyDomain,
+        fetchProviders: mockFetchProviders,
+      });
 
       const { result } = renderHook(() => useDomainTableLogic(options));
 
@@ -437,6 +441,7 @@ describe('useDomainTableLogic', () => {
 
       expect(result.current.selectedDomain).toEqual(mockDomain);
       expect(mockOnVerifyDomain).toHaveBeenCalledWith(mockDomain);
+      expect(mockFetchProviders).toHaveBeenCalledWith(mockDomain);
       expect(result.current.showConfigureModal).toBe(true);
       expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
