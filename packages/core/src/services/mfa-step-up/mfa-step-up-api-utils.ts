@@ -19,7 +19,7 @@ function isMfaPayload(v: unknown): v is MfaRequiredError {
  */
 export function isMfaRequiredError(err: unknown): err is MfaRequiredError {
   const e = err as Record<string, unknown>;
-  return isMfaPayload(e) || isMfaPayload(e?.body) || isMfaPayload(e?.cause);
+  return [e, e?.body, e?.cause].some(isMfaPayload);
 }
 
 /**
