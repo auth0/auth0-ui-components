@@ -1085,13 +1085,6 @@
         },
         "empty_message": "No members found."
       },
-      "remove": {
-        "title": "Remove Member",
-        "description": "Are you sure you want to remove ${name} from this organization?",
-        "confirm_button": "Remove",
-        "cancel_button": "Cancel",
-        "success": "${name} has been removed from the organization."
-      },
       "error": {
         "fetch_failed": "Failed to load members. Please try again.",
         "remove_failed": "Failed to remove member. Please try again."
@@ -1114,29 +1107,33 @@
         "danger_zone": {
           "remove_from_org": {
             "title": "Remove member from ${organization}",
-            "description": "Once confirmed, this operation cannot be undone.",
-            "button": "Delete",
-            "confirm_title": "Remove Member",
-            "confirm_description": "Are you sure you want to remove ${email} from ${organization}? This action will not delete their account but it will revoke their access and prevent them from signing in.",
+            "title_plural": "Remove members from ${organization}",
+            "description": "Are you sure you want to remove ${email} from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
+            "description_plural": "Are you sure you want to remove ${count} members from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
             "confirm_button": "Remove",
             "cancel_button": "Cancel",
-            "success": "${email} has been removed from ${organization}."
+            "success": "${email} has been removed from ${organization}.",
+            "success_plural": "The selected members have been removed from ${organization}."
           },
           "delete_member": {
-            "title": "Delete this member",
-            "description": "Once confirmed, this operation cannot be undone.",
-            "button": "Delete",
-            "confirm_title": "Delete Member",
-            "confirm_description": "Are you sure you want to remove ${email} from ${organization}? This action will not delete their account but it will revoke their access and prevent them from signing in.",
+            "title": "Delete member",
+            "title_plural": "Delete members",
+            "description": "Are you sure you want to delete ${email}? This action cannot be undone.",
+            "description_plural": "Are you sure you want to delete ${count} members? This action cannot be undone.",
             "confirm_button": "Delete",
             "cancel_button": "Cancel",
-            "success": "${email} has been deleted from ${organization}."
+            "success": "${email} has been deleted.",
+            "success_plural": "The selected members have been deleted."
           }
         },
         "roles": {
           "title": "Roles",
           "description": "Manage user roles and permissions when accessing ${appName}.",
           "assign_button": "Assign Roles",
+          "no_roles_available": "There are no more roles available to assign to this member.",
+          "max_roles_reached": "You have reached the maximum of ${max} roles for this member.",
+          "remove_button": "Remove Role",
+          "remove_button_plural": "Remove Roles",
           "table": {
             "name": "Name",
             "description": "Description",
@@ -1148,13 +1145,17 @@
             "roles_placeholder": "Select role(s)",
             "submit_button": "Assign Role(s)",
             "cancel_button": "Cancel",
-            "no_roles_available": "All available roles are already assigned."
+            "no_roles_available": "All available roles are already assigned.",
+            "success": "The role has been assigned.",
+            "success_plural": "The roles have been assigned."
           },
           "remove_confirm": {
-            "title": "Remove Role",
-            "description": "Are you sure you want to remove the role <bold>${roleName}</bold> from this member?",
+            "title": "Remove Role from Member?",
+            "title_plural": "Remove Roles from Member?",
+            "description": "This will remove the <bold>${roleName}</bold> role from <bold>\"${memberName}\"</bold>.",
             "confirm_button": "Remove",
-            "cancel_button": "Cancel"
+            "cancel_button": "Cancel",
+            "success": "<bold>\"${roleName}\"</bold> role has been removed from member."
           }
         },
         "error": {
