@@ -59,13 +59,11 @@ jobs:
         run: pnpm docs:api
 
       - name: Install Vercel CLI
-        run: npm install --global vercel@39.3.0
+        run: npm install --global vercel@50.40.0
 
       - name: Deploy to Vercel
         id: vercel-deploy
         run: |
-          echo "Deploying docs-site to Vercel..."
-
           # Create a completely isolated deployment directory
           mkdir -p /tmp/static-deploy
 

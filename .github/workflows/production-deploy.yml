@@ -31,7 +31,7 @@ jobs:
         run: pnpm build
 
       - name: Install Vercel CLI
-        run: npm install --global vercel@39.3.0
+        run: npm install --global vercel@50.40.0
 
       - name: Stage deployment artifacts
         run: |
@@ -60,4 +60,4 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           vercel --version
-          vercel deploy /tmp/static-deploy --prod --token=$VERCEL_TOKEN --yes --scope=$VERCEL_ORG_ID
+          vercel deploy /tmp/static-deploy --prod --token="$VERCEL_TOKEN" --yes --scope="$VERCEL_ORG_ID"
