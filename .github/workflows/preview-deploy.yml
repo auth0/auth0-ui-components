@@ -79,7 +79,7 @@ jobs:
           echo '{"buildCommand":"","installCommand":"","rewrites":[{"source":"/r/:path*","destination":"/api/r?file=:path*"},{"source":"/(.*)","destination":"/index.html"}]}' > /tmp/static-deploy/vercel.json
 
           vercel --version
-          DEPLOYMENT_URL=$(vercel deploy /tmp/static-deploy --token=$VERCEL_TOKEN --yes --scope=$VERCEL_ORG_ID)
+          DEPLOYMENT_URL=$(vercel deploy /tmp/static-deploy --token="$VERCEL_TOKEN" --yes --scope="$VERCEL_ORG_ID")
           echo "preview-url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
 
       - name: Comment PR
