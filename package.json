@@ -1,5 +1,5 @@
 {
-  "name": "auth0-web-ui-components",
+  "name": "@auth0/universal-components-web",
   "version": "1.0.0",
   "description": "Auth0 Universal Components",
   "private": true,
@@ -62,7 +62,11 @@
       "undici": ">=7.24.0",
       "rollup": ">=4.59.0",
       "qs": ">=6.14.2",
-      "@modelcontextprotocol/sdk": ">=1.26.0"
+      "@modelcontextprotocol/sdk": ">=1.26.0",
+      "brace-expansion": ">=5.0.5",
+      "path-to-regexp": ">=8.4.0",
+      "picomatch": ">=4.0.4",
+      "lodash": ">=4.18.1"
     }
   },
   "devDependencies": {

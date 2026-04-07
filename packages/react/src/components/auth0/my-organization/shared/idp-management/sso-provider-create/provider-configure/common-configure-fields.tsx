@@ -4,12 +4,12 @@
  * @internal
  */
 
+import type { IdpConfig } from '@auth0/universal-components-core';
 import { useFormContext } from 'react-hook-form';
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { FormField, FormItem, FormLabel, FormControl, FormDescription } from '@/components/ui/form';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { IdpConfig } from '@/types/my-organization/config/config-idp-types';
 
 interface CommonConfigureFieldsProps {
   idpConfig: IdpConfig | null;

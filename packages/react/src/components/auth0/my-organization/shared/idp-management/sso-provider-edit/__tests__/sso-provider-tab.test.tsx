@@ -31,7 +31,7 @@ describe('SsoProviderTab', () => {
       display_name: 'Test Provider Display',
       options: {},
       strategy: 'oidc', // Use a valid strategy property
-      attributes: [], // Required by IdpOidcResponse
+      attributes: [],
     },
     onDelete: vi.fn(),
     onRemove: vi.fn(),
