@@ -26,6 +26,7 @@ i18n.use(initReactI18next).init({
         'sidebar.organization-settings': 'Organization Settings',
         'sidebar.domains': 'Domains',
         'sidebar.identity-providers': 'Identity Providers',
+        'sidebar.members': 'Members',
       },
     },
   },

@@ -10,6 +10,7 @@ import { Sidebar } from './components/side-bar';
 import { config } from './config/env';
 // import { useDarkMode } from './hooks/use-dark-mode';
 import DomainManagement from './pages/DomainManagement';
+import MemberManagement from './pages/MemberManagement';
 import IdentityProviderManagement from './pages/IdentityProviderManagement';
 import IdentityProviderManagementCreate from './pages/IdentityProviderManagementCreate';
 import IdentityProviderManagementEdit from './pages/IdentityProviderManagementEdit';
@@ -133,6 +134,14 @@ const App = () => {
                   element={
                     <ProtectedRoute>
                       <DomainManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/member-management"
+                  element={
+                    <ProtectedRoute>
+                      <MemberManagement />
                     </ProtectedRoute>
                   }
                 />
