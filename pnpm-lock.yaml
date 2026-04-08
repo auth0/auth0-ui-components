@@ -548,8 +548,8 @@ importers:
         specifier: 1.0.0-beta.0
         version: 1.0.0-beta.0
       '@auth0/myorganization-js':
-        specifier: 1.0.0-beta.6
-        version: 1.0.0-beta.6
+        specifier: file:../../auth0-myorganization-js-1.0.0-beta.4.tgz
+        version: file:auth0-myorganization-js-1.0.0-beta.4.tgz
       zod:
         specifier: ^3.22.4
         version: 3.25.76
@@ -733,9 +733,10 @@ packages:
     resolution: {integrity: sha512-slj0RtNfieNk1BC1ERrCQw65qMUVKU5qacbTc8BFH8R316CUpsOhZ2MIiV9l3VEkaqY1hmCZm03+ZI6ym+3PZg==}
     engines: {node: '>=18.0.0'}
 
-  '@auth0/myorganization-js@1.0.0-beta.6':
-    resolution: {integrity: sha512-pHqZ86E3+l1++Aw3TbPLRzuCkZYHlQnmdIJz/Ydij8FrGXfUhS3wDP9ZZrwHnPVXBw91pOhxQR5kOavAYRmi5w==}
-    engines: {node: '>=20.0.0'}
+  '@auth0/myorganization-js@file:auth0-myorganization-js-1.0.0-beta.4.tgz':
+    resolution: {integrity: sha512-yTZbJ0K75WsCGsb9bXBGTs32WLXEXqyTuM9lgmYST8uSag2ILfJdYZPQZkvyKM5v+7Sk5B9vz0mg3tNfv8SFNg==, tarball: file:auth0-myorganization-js-1.0.0-beta.4.tgz}
+    version: 1.0.0-beta.4
+    engines: {node: '>=18.0.0'}
 
   '@auth0/nextjs-auth0@4.16.0':
     resolution: {integrity: sha512-QTQdK+/YL68J7b1tSdvJTT16+r+Dxwy/m0kwl73CEy/QsYCpHE1sCZYgQ4UaFZb5jHQ7d4R2JUkHN5k2fKQ4zg==}
@@ -7363,7 +7364,7 @@ snapshots:
 
   '@auth0/myaccount-js@1.0.0-beta.0': {}
 
-  '@auth0/myorganization-js@1.0.0-beta.6':
+  '@auth0/myorganization-js@file:auth0-myorganization-js-1.0.0-beta.4.tgz':
     dependencies:
       '@auth0/auth0-auth-js': 1.5.0
 
@@ -12375,7 +12376,7 @@ snapshots:
       headers-polyfill: 4.0.3
       is-node-process: 1.2.0
       outvariant: 1.4.3
-      path-to-regexp: 6.3.0
+      path-to-regexp: 8.4.2
       picocolors: 1.1.1
       rettime: 0.7.0
       strict-event-emitter: 0.5.1
