@@ -8,6 +8,7 @@ import type {
   SharedComponentProps,
   MemberInvitation,
 } from '@auth0/universal-components-core';
+import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 
 import type {
   CreateInvitationInput,
@@ -22,6 +23,43 @@ import type {
 
 export type ActiveTab = 'members' | 'invitations';
 
+export interface TableQueryParams<TSort, TFilter> {
+  pageSize: number;
+  fromToken: string | undefined;
+  sortConfig: TSort;
+  filters: TFilter;
+}
+
+export interface UseMemberManagementServiceOptions {
+  customMessages?: OrganizationMemberManagementMessages;
+  activeTab: ActiveTab;
+  createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
+  revokeInvitationAction?: ComponentAction<MemberInvitation>;
+  resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
+  invitationParams: TableQueryParams<InvitationSortConfig, InvitationFilterState>;
+}
+
+export interface UseMemberManagementServiceResult {
+  providersQuery: UseQueryResult<IdentityProviderOption[]>;
+  invitationsQuery: UseQueryResult<{
+    invitations: MemberInvitation[];
+    next: string | null;
+    total: number | undefined;
+  }>;
+  createInvitationMutation: UseMutationResult<
+    MemberInvitation | undefined,
+    Error,
+    CreateInvitationInput
+  >;
+  revokeInvitationMutation: UseMutationResult<MemberInvitation, Error, MemberInvitation>;
+  resendInvitationMutation: UseMutationResult<
+    MemberInvitation | undefined,
+    Error,
+    MemberInvitation
+  >;
+  fetchInvitationDetails: (invitationId: string) => Promise<MemberInvitation>;
+}
+
 export interface UseOrganizationMemberManagementOptions {
   customMessages?: OrganizationMemberManagementMessages;
   readOnly?: boolean;
@@ -33,7 +71,7 @@ export interface UseOrganizationMemberManagementOptions {
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
 }
 
-export interface MemberManagementState {
+export interface UseOrganizationMemberManagementResult {
   activeTab: ActiveTab;
   isLoading: boolean;
   availableRoles: RoleOption[];
@@ -52,11 +90,8 @@ export interface MemberManagementState {
   showRevokeModal: boolean;
   showRevokeResendModal: boolean;
   selectedInvitation: MemberInvitation | null;
-}
 
-export interface MemberManagementHandlers {
   setActiveTab: (tab: ActiveTab) => void;
-
   handleCreateClick: () => void;
   handleCreateSubmit: (data: CreateInvitationInput) => void;
   handleCreateCancel: () => void;

@@ -20,22 +20,19 @@ import { useOrganizationMemberManagement } from '@/hooks/my-organization/use-org
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
-  MemberManagementState,
-  MemberManagementHandlers,
   OrganizationMemberManagementProps,
+  UseOrganizationMemberManagementResult,
 } from '@/types/my-organization/member-management/organization-member-management-types';
 
 /**
  * Props for the OrganizationMemberManagementView component.
  */
-export interface OrganizationMemberManagementViewProps {
-  state: MemberManagementState & {
-    styling: OrganizationMemberManagementProps['styling'];
-    customMessages: OrganizationMemberManagementProps['customMessages'];
-    hideHeader: boolean;
-    readOnly: boolean;
-  };
-  handlers: MemberManagementHandlers;
+export interface OrganizationMemberManagementViewProps
+  extends UseOrganizationMemberManagementResult {
+  styling: OrganizationMemberManagementProps['styling'];
+  customMessages: OrganizationMemberManagementProps['customMessages'];
+  hideHeader: boolean;
+  readOnly: boolean;
 }
 
 /**
@@ -43,35 +40,73 @@ export interface OrganizationMemberManagementViewProps {
  * @param props - The component props.
  * @returns The component.
  */
-export function OrganizationMemberManagementView({
-  state,
-  handlers,
-}: OrganizationMemberManagementViewProps) {
+export function OrganizationMemberManagementView(props: OrganizationMemberManagementViewProps) {
+  const {
+    styling,
+    customMessages,
+    hideHeader,
+    readOnly,
+    activeTab,
+    invitations,
+    isFetchingInvitations,
+    isCreatingInvitation,
+    isRevokingInvitation,
+    isResendingInvitation,
+    invitationPagination,
+    invitationFilters,
+    invitationSortConfig,
+    availableRoles,
+    availableProviders,
+    showCreateModal,
+    showDetailsModal,
+    showRevokeModal,
+    showRevokeResendModal,
+    selectedInvitation,
+    setActiveTab,
+    handleCreateClick,
+    handleCreateSubmit,
+    handleCreateCancel,
+    handleDetailsClick,
+    handleDetailsClose,
+    handleRevokeClick,
+    handleRevokeConfirm,
+    handleRevokeCancel,
+    handleRevokeResendClick,
+    handleRevokeResendConfirm,
+    handleRevokeResendCancel,
+    handleCopyUrl,
+    handleSortChange,
+    handleNextPage,
+    handlePreviousPage,
+    handlePageSizeChange,
+    handleRoleFilterChange,
+  } = props;
+
   const { isDarkMode } = useTheme();
-  const { t } = useTranslator('member_management', state.customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
 
   const currentStyles = React.useMemo(
-    () => getComponentStyles(state.styling, isDarkMode),
-    [state.styling, isDarkMode],
+    () => getComponentStyles(styling, isDarkMode),
+    [styling, isDarkMode],
   );
 
   return (
     <StyledScope style={currentStyles.variables}>
       <div className={currentStyles.classes?.['OrganizationMemberManagement-root']}>
-        {!state.hideHeader && (
+        {!hideHeader && (
           <div className={currentStyles.classes?.['OrganizationMemberManagement-header']}>
             <Header
               title={t('header.title')}
               description={t('header.description')}
               actions={
-                !state.readOnly
+                !readOnly
                   ? [
                       {
                         type: 'button',
                         label: t('invite_button'),
-                        onClick: handlers.handleCreateClick,
+                        onClick: handleCreateClick,
                         icon: Plus,
-                        disabled: state.readOnly,
+                        disabled: readOnly,
                       },
                     ]
                   : []
@@ -81,10 +116,8 @@ export function OrganizationMemberManagementView({
         )}
 
         <Tabs
-          value={state.activeTab}
-          onValueChange={(value: string) =>
-            handlers.setActiveTab(value as 'members' | 'invitations')
-          }
+          value={activeTab}
+          onValueChange={(value: string) => setActiveTab(value as 'members' | 'invitations')}
           className={currentStyles.classes?.['OrganizationMemberManagement-tabs']}
         >
           <TabsList>
@@ -99,73 +132,73 @@ export function OrganizationMemberManagementView({
 
           <TabsContent value="invitations">
             <OrganizationInvitationTable
-              invitations={state.invitations}
-              loading={state.isFetchingInvitations}
-              customMessages={state.customMessages?.invitation}
-              pagination={state.invitationPagination}
-              filters={state.invitationFilters}
-              availableRoles={state.availableRoles}
-              readOnly={state.readOnly}
-              sortConfig={state.invitationSortConfig}
-              onSortChange={handlers.handleSortChange}
-              onView={handlers.handleDetailsClick}
-              onCopyUrl={handlers.handleCopyUrl}
-              onRevokeAndResend={state.readOnly ? undefined : handlers.handleRevokeResendClick}
-              onRevoke={state.readOnly ? undefined : handlers.handleRevokeClick}
-              onNextPage={handlers.handleNextPage}
-              onPreviousPage={handlers.handlePreviousPage}
-              onPageSizeChange={handlers.handlePageSizeChange}
-              onRoleFilterChange={handlers.handleRoleFilterChange}
+              invitations={invitations}
+              loading={isFetchingInvitations}
+              customMessages={customMessages?.invitation}
+              pagination={invitationPagination}
+              filters={invitationFilters}
+              availableRoles={availableRoles}
+              readOnly={readOnly}
+              sortConfig={invitationSortConfig}
+              onSortChange={handleSortChange}
+              onView={handleDetailsClick}
+              onCopyUrl={handleCopyUrl}
+              onRevokeAndResend={readOnly ? undefined : handleRevokeResendClick}
+              onRevoke={readOnly ? undefined : handleRevokeClick}
+              onNextPage={handleNextPage}
+              onPreviousPage={handlePreviousPage}
+              onPageSizeChange={handlePageSizeChange}
+              onRoleFilterChange={handleRoleFilterChange}
               className={currentStyles.classes?.['OrganizationInvitationTab-table']}
             />
           </TabsContent>
         </Tabs>
 
         <OrganizationInvitationCreateModal
-          isOpen={state.showCreateModal}
-          isLoading={state.isCreatingInvitation}
-          customMessages={state.customMessages?.invitation}
-          availableRoles={state.availableRoles}
-          availableProviders={state.availableProviders}
-          onClose={handlers.handleCreateCancel}
-          onCreate={handlers.handleCreateSubmit}
+          isOpen={showCreateModal}
+          isLoading={isCreatingInvitation}
+          customMessages={customMessages?.invitation}
+          availableRoles={availableRoles}
+          availableProviders={availableProviders}
+          onClose={handleCreateCancel}
+          onCreate={handleCreateSubmit}
           className={currentStyles.classes?.['OrganizationInvitationTab-createModal']}
         />
 
         <OrganizationInvitationDetailsModal
-          invitation={state.selectedInvitation}
-          isOpen={state.showDetailsModal}
-          isRevoking={state.isRevokingInvitation}
-          isResending={state.isResendingInvitation}
-          customMessages={state.customMessages?.invitation}
-          availableRoles={state.availableRoles}
-          availableProviders={state.availableProviders}
-          readOnly={state.readOnly}
-          onClose={handlers.handleDetailsClose}
-          onCopyUrl={handlers.handleCopyUrl}
-          onRevoke={(invitation) => invitation && handlers.handleRevokeClick(invitation)}
-          onResend={(invitation) => invitation && handlers.handleRevokeResendClick(invitation)}
+          invitation={selectedInvitation}
+          isOpen={showDetailsModal}
+          isRevoking={isRevokingInvitation}
+          isResending={isResendingInvitation}
+          customMessages={customMessages?.invitation}
+          availableRoles={availableRoles}
+          availableProviders={availableProviders}
+          readOnly={readOnly}
+          onClose={handleDetailsClose}
+          onCopyUrl={handleCopyUrl}
+          onRevoke={(invitation) => invitation && handleRevokeClick(invitation)}
+          onResend={(invitation) => invitation && handleRevokeResendClick(invitation)}
           className={currentStyles.classes?.['OrganizationInvitationTab-detailsModal']}
         />
 
         <OrganizationInvitationRevokeModal
-          invitation={state.selectedInvitation}
-          isOpen={state.showRevokeModal}
-          isLoading={state.isRevokingInvitation}
-          customMessages={state.customMessages?.invitation}
-          onClose={handlers.handleRevokeCancel}
-          onConfirm={() => handlers.handleRevokeConfirm()}
+          invitation={selectedInvitation}
+          isOpen={showRevokeModal}
+          isLoading={isRevokingInvitation}
+          customMessages={customMessages?.invitation}
+          onClose={handleRevokeCancel}
+          onConfirm={() => handleRevokeConfirm()}
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeModal']}
         />
 
         <OrganizationInvitationRevokeModal
-          invitation={state.selectedInvitation}
-          isOpen={state.showRevokeResendModal}
-          isLoading={state.isResendingInvitation}
+          invitation={selectedInvitation}
+          isOpen={showRevokeResendModal}
+          isLoading={isResendingInvitation}
           isRevokeAndResend
-          customMessages={state.customMessages?.invitation}
-          onClose={handlers.handleRevokeResendCancel}
-          onConfirm={() => handlers.handleRevokeResendConfirm()}
+          customMessages={customMessages?.invitation}
+          onClose={handleRevokeResendCancel}
+          onConfirm={() => handleRevokeResendConfirm()}
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeResendModal']}
         />
       </div>
@@ -189,7 +222,7 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
     resendInvitationAction,
   } = props;
 
-  const { state, handlers } = useOrganizationMemberManagement({
+  const hookResult = useOrganizationMemberManagement({
     customMessages,
     readOnly,
     createInvitationAction,
@@ -197,17 +230,15 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
     resendInvitationAction,
   });
 
-  const extendedState = {
-    ...state,
-    styling,
-    customMessages,
-    hideHeader,
-    readOnly,
-  };
-
   return (
-    <GateKeeper isLoading={state.isLoading} styling={styling}>
-      <OrganizationMemberManagementView state={extendedState} handlers={handlers} />
+    <GateKeeper isLoading={hookResult.isLoading} styling={styling}>
+      <OrganizationMemberManagementView
+        {...hookResult}
+        styling={styling}
+        customMessages={customMessages}
+        hideHeader={hideHeader}
+        readOnly={readOnly}
+      />
     </GateKeeper>
   );
 }
