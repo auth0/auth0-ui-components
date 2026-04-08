@@ -161,10 +161,11 @@ export interface OrganizationInvitationTabMessages {
 }
 
 /** Props for OrganizationInvitationTab component. */
-export interface OrganizationInvitationTabProps extends SharedComponentProps<
-  OrganizationInvitationTabMessages,
-  OrganizationInvitationTabClasses
-> {
+export interface OrganizationInvitationTabProps
+  extends SharedComponentProps<
+    OrganizationInvitationTabMessages,
+    OrganizationInvitationTabClasses
+  > {
   createAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   revokeAction?: ComponentAction<MemberInvitation>;
 }
@@ -202,8 +203,8 @@ export interface OrganizationInvitationTableProps {
   className?: string;
 }
 
-/** Props for InvitationSearchFilter component. */
-export interface InvitationSearchFilterProps {
+/** Props for SearchFilter component. */
+export interface SearchFilterProps {
   filters?: InvitationFilterState;
   availableRoles?: RoleOption[];
   customMessages?: Partial<OrganizationInvitationTabMessages>;
