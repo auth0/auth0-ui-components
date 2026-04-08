@@ -42,8 +42,8 @@ export interface SsoProviderTableProps
   enableProviderAction?: ComponentAction<IdentityProvider>;
 }
 
-/** useSsoProviderTable hook result. */
-export interface UseSsoProviderTableReturn extends SharedComponentProps {
+/** Internal service hook result for SSO provider table data and CRUD operations. */
+export interface UseSsoProviderTableServiceReturn extends SharedComponentProps {
   providers: IdentityProvider[];
   organization: OrganizationPrivate | null;
   isLoading: boolean;
@@ -56,6 +56,59 @@ export interface UseSsoProviderTableReturn extends SharedComponentProps {
   onDeleteConfirm: (selectedIdp: IdentityProvider) => Promise<void>;
   onRemoveConfirm: (selectedIdp: IdentityProvider) => Promise<void>;
   onEnableProvider: (selectedIdp: IdentityProvider, enabled: boolean) => Promise<boolean>;
+}
+
+/** Options for the combined useSsoProviderTable hook. */
+export interface UseSsoProviderTableOptions {
+  readOnly?: boolean;
+  customMessages?: SsoProviderTableMessages;
+  createAction: ComponentAction<void>;
+  editAction: ComponentAction<IdentityProvider>;
+  deleteAction?: ComponentAction<IdentityProvider>;
+  deleteFromOrganizationAction?: ComponentAction<IdentityProvider>;
+  enableProviderAction?: ComponentAction<IdentityProvider>;
+}
+
+/** useSsoProviderTable hook result. */
+export interface UseSsoProviderTableReturn {
+  // Data
+  providers: IdentityProvider[];
+  organization: OrganizationPrivate | null;
+
+  // Loading states
+  isLoading: boolean;
+  isViewLoading: boolean;
+  isDeleting: boolean;
+  isRemoving: boolean;
+  isUpdating: boolean;
+  isUpdatingId: string | null;
+
+  // Config
+  shouldAllowDeletion: boolean;
+  shouldHideCreate: boolean;
+
+  // UI state
+  showDeleteModal: boolean;
+  showRemoveModal: boolean;
+  selectedIdp: IdentityProvider | null;
+
+  // Data actions
+  fetchProviders: () => Promise<void>;
+  fetchOrganizationDetails: () => Promise<OrganizationPrivate | null>;
+
+  // UI handlers
+  handleCreate: () => void;
+  handleEdit: (idp: IdentityProvider) => void;
+  handleDelete: (idp: IdentityProvider) => void;
+  handleDeleteFromOrganization: (idp: IdentityProvider) => void;
+  handleToggleEnabled: (idp: IdentityProvider, enabled: boolean) => Promise<void>;
+  handleDeleteConfirm: (provider: IdentityProvider) => Promise<void>;
+  handleRemoveConfirm: (provider: IdentityProvider) => Promise<void>;
+
+  // UI state setters
+  setShowDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowRemoveModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedIdp: React.Dispatch<React.SetStateAction<IdentityProvider | null>>;
 }
 
 /** Props for SsoProviderTable actions column. */
@@ -77,43 +130,6 @@ export interface SsoProviderTableActionsColumnProps
   onDelete: (provider: IdentityProvider) => void;
   onRemoveFromOrganization: (provider: IdentityProvider) => void;
 }
-export interface UseSsoProviderTableLogicOptions {
-  readOnly: boolean;
-  isLoading: boolean;
-  createAction: ComponentAction<void>;
-  editAction: ComponentAction<IdentityProvider>;
-  deleteAction?: ComponentAction<IdentityProvider>;
-  deleteFromOrganizationAction?: ComponentAction<IdentityProvider>;
-  onEnableProvider: (selectedIdp: IdentityProvider, enabled: boolean) => Promise<boolean>;
-  onDeleteConfirm: (selectedIdp: IdentityProvider) => Promise<void>;
-  onRemoveConfirm: (selectedIdp: IdentityProvider) => Promise<void>;
-}
-/**
- * Combined logic and handler result for SSO provider table.
- * Used for hooks and view props.
- */
-export interface UseSsoProviderTableLogicResult {
-  // Logic props
-  isViewLoading: boolean;
-  showDeleteModal: boolean;
-  shouldAllowDeletion: boolean;
-  shouldHideCreate: boolean;
-  showRemoveModal: boolean;
-  selectedIdp: IdentityProvider | null;
-
-  // Handler props
-  setShowDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
-  setShowRemoveModal: React.Dispatch<React.SetStateAction<boolean>>;
-  setSelectedIdp: React.Dispatch<React.SetStateAction<IdentityProvider | null>>;
-  handleCreate: () => void;
-  handleEdit: (idp: IdentityProvider) => void;
-  handleDelete: (idp: IdentityProvider) => void;
-  handleDeleteFromOrganization: (idp: IdentityProvider) => void;
-  handleToggleEnabled: (idp: IdentityProvider, enabled: boolean) => Promise<void>;
-  handleDeleteConfirm: (provider: IdentityProvider) => Promise<void>;
-  handleRemoveConfirm: (provider: IdentityProvider) => Promise<void>;
-}
-
 export interface SsoProviderTableLogicProps {
   data: IdentityProvider[];
   isLoading: boolean;

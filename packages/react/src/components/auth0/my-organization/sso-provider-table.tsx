@@ -16,7 +16,6 @@ import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { useSsoProviderTable } from '@/hooks/my-organization/use-sso-provider-table';
-import { useSsoProviderTableLogic } from '@/hooks/my-organization/use-sso-provider-table-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
@@ -52,75 +51,53 @@ function SsoProviderTable(props: SsoProviderTableProps) {
     enableProviderAction,
   } = props;
 
-  const ssoProviderTable = useSsoProviderTable(
-    deleteAction,
-    deleteFromOrganizationAction,
-    enableProviderAction,
-    customMessages,
-  );
-
-  const {
-    providers,
-    organization,
-    isLoading,
-    isDeleting,
-    isRemoving,
-    isUpdating,
-    isUpdatingId,
-    onDeleteConfirm,
-    onRemoveConfirm,
-    onEnableProvider,
-  } = ssoProviderTable;
-
-  const tableLogic = useSsoProviderTableLogic({
-    isLoading,
+  const table = useSsoProviderTable({
     readOnly,
+    customMessages,
     createAction,
     editAction,
     deleteAction,
     deleteFromOrganizationAction,
-    onEnableProvider,
-    onDeleteConfirm,
-    onRemoveConfirm,
+    enableProviderAction,
   });
 
   const ssoProviderCreateLogicProps: SsoProviderTableLogicProps = {
-    data: providers,
+    data: table.providers,
     styling,
     customMessages,
     readOnly,
     createAction,
     editAction,
-    organization,
-    isUpdating,
-    isUpdatingId,
-    isDeleting,
-    isRemoving,
+    organization: table.organization,
+    isUpdating: table.isUpdating,
+    isUpdatingId: table.isUpdatingId,
+    isDeleting: table.isDeleting,
+    isRemoving: table.isRemoving,
     hideHeader: false,
-    isLoading: tableLogic.isViewLoading,
-    shouldHideCreate: tableLogic.shouldHideCreate,
-    isViewLoading: tableLogic.isViewLoading,
-    selectedIdp: tableLogic.selectedIdp,
-    showDeleteModal: tableLogic.showDeleteModal,
-    showRemoveModal: tableLogic.showRemoveModal,
-    shouldAllowDeletion: tableLogic.shouldAllowDeletion,
+    isLoading: table.isViewLoading,
+    shouldHideCreate: table.shouldHideCreate,
+    isViewLoading: table.isViewLoading,
+    selectedIdp: table.selectedIdp,
+    showDeleteModal: table.showDeleteModal,
+    showRemoveModal: table.showRemoveModal,
+    shouldAllowDeletion: table.shouldAllowDeletion,
   };
 
   const ssoProviderCreateHandlerProps: SsoProviderTableHandlerProps = {
-    handleCreate: tableLogic.handleCreate,
-    handleEdit: tableLogic.handleEdit,
-    handleDelete: tableLogic.handleDelete,
-    handleDeleteFromOrganization: tableLogic.handleDeleteFromOrganization,
-    handleToggleEnabled: tableLogic.handleToggleEnabled,
-    handleDeleteConfirm: tableLogic.handleDeleteConfirm,
-    handleRemoveConfirm: tableLogic.handleRemoveConfirm,
-    setShowDeleteModal: tableLogic.setShowDeleteModal,
-    setShowRemoveModal: tableLogic.setShowRemoveModal,
-    setSelectedIdp: tableLogic.setSelectedIdp,
+    handleCreate: table.handleCreate,
+    handleEdit: table.handleEdit,
+    handleDelete: table.handleDelete,
+    handleDeleteFromOrganization: table.handleDeleteFromOrganization,
+    handleToggleEnabled: table.handleToggleEnabled,
+    handleDeleteConfirm: table.handleDeleteConfirm,
+    handleRemoveConfirm: table.handleRemoveConfirm,
+    setShowDeleteModal: table.setShowDeleteModal,
+    setShowRemoveModal: table.setShowRemoveModal,
+    setSelectedIdp: table.setSelectedIdp,
   };
 
   return (
-    <GateKeeper isLoading={isLoading} styling={styling}>
+    <GateKeeper isLoading={table.isLoading} styling={styling}>
       <SsoProviderTableView
         logic={ssoProviderCreateLogicProps}
         handlers={ssoProviderCreateHandlerProps}
