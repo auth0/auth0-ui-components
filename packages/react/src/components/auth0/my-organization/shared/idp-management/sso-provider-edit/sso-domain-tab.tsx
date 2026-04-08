@@ -92,7 +92,9 @@ export function SsoDomainTab({
         type: 'text',
         accessorKey: 'domain',
         title: t('table.columns.name'),
-        render: (domain) => <div className="font-medium text-primary">{domain.domain}</div>,
+        render: (domain) => (
+          <div className="font-medium text-primary truncate">{domain.domain}</div>
+        ),
       },
       {
         type: 'text',
