@@ -222,7 +222,7 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
     resendInvitationAction,
   } = props;
 
-  const hookResult = useOrganizationMemberManagement({
+  const memberManagement = useOrganizationMemberManagement({
     customMessages,
     readOnly,
     createInvitationAction,
@@ -231,9 +231,9 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
   });
 
   return (
-    <GateKeeper isLoading={hookResult.isLoading} styling={styling}>
+    <GateKeeper isLoading={memberManagement.isLoading} styling={styling}>
       <OrganizationMemberManagementView
-        {...hookResult}
+        {...memberManagement}
         styling={styling}
         customMessages={customMessages}
         hideHeader={hideHeader}
