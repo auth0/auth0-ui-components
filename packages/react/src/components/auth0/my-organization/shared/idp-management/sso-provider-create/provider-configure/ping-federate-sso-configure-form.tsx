@@ -87,7 +87,7 @@ export const PingFederateProviderForm = React.forwardRef<
 
   const form = useForm<PingFederateConfigureFormValues>({
     resolver: zodResolver(createProviderConfigureSchema('pingfederate')),
-    mode: 'onSubmit',
+    mode: 'onTouched',
     reValidateMode: 'onChange',
     defaultValues: {
       pingFederateBaseUrl: pingFederateData?.pingFederateBaseUrl || '',

@@ -57,7 +57,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
 
     const form = useForm<AdfsConfigureFormValues>({
       resolver: zodResolver(createProviderConfigureSchema('adfs')),
-      mode: 'onSubmit',
+      mode: 'onTouched',
       reValidateMode: 'onChange',
       defaultValues: {
         meta_data_source: adfsData?.meta_data_source || 'meta_data_url',

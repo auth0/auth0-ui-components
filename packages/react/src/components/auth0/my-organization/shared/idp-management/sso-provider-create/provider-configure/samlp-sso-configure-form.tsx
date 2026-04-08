@@ -92,7 +92,7 @@ export const SamlpProviderForm = React.forwardRef<
 
   const form = useForm<SamlpConfigureFormValues>({
     resolver: zodResolver(createProviderConfigureSchema('samlp')),
-    mode: 'onSubmit',
+    mode: 'onTouched',
     reValidateMode: 'onChange',
     defaultValues: {
       meta_data_source: samlpData?.meta_data_source || 'meta_data_url',

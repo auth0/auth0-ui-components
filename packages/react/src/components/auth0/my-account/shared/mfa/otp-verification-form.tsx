@@ -122,7 +122,7 @@ export function OTPVerificationForm({
     onClose,
   });
 
-  const form = useForm<OtpForm>({ mode: 'onChange' });
+  const form = useForm<OtpForm>({ mode: 'onTouched' });
   const userOtp = form.watch('userOtp');
 
   const otpInputRef = React.useRef<HTMLInputElement>(null);

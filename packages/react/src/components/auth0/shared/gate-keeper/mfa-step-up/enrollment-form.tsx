@@ -107,7 +107,7 @@ export function EnrollmentForm({ error, factor, onComplete, onCancel }: Enrollme
 
   const inputForm = useForm<ContactForm>({
     resolver: zodResolver(contactSchema),
-    mode: 'onChange',
+    mode: 'onTouched',
   });
 
   // OTP only: call enroll on mount then show QR.

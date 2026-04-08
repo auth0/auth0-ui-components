@@ -61,7 +61,7 @@ export function DomainCreateModal({
     defaultValues: {
       domain_url: '',
     },
-    mode: 'onBlur',
+    mode: 'onTouched',
   });
 
   const handleCreate = React.useCallback(

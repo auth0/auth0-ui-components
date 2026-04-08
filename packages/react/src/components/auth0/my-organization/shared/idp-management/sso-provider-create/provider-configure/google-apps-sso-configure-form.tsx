@@ -71,7 +71,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
 
   const form = useForm<GoogleAppsConfigureFormValues>({
     resolver: zodResolver(createProviderConfigureSchema('google-apps')),
-    mode: 'onSubmit',
+    mode: 'onTouched',
     reValidateMode: 'onChange',
     defaultValues: {
       domain: googleAppsData?.domain || '',

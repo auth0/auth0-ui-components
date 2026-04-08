@@ -54,7 +54,7 @@ export function OtpCodeForm({
 
   const isRecoveryCode = authenticator?.authenticatorType === FACTOR_TYPE_RECOVERY_CODE;
 
-  const form = useForm<CodeForm>({ mode: 'onChange' });
+  const form = useForm<CodeForm>({ mode: 'onTouched' });
   const code = form.watch('code');
   const inputRef = useRef<HTMLInputElement>(null);
 

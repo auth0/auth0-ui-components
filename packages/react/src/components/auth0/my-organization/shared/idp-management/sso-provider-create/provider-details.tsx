@@ -41,7 +41,7 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
 
     const form = useForm<ProviderDetailsFormValues>({
       resolver: zodResolver(createProviderDetailsSchema()),
-      mode: 'onSubmit',
+      mode: 'onTouched',
       reValidateMode: 'onChange',
       defaultValues: {
         name: initialData?.name || '',

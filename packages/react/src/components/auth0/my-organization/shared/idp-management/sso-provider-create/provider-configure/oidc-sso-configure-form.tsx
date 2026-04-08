@@ -64,7 +64,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
 
     const form = useForm<OidcConfigureFormValues>({
       resolver: zodResolver(createProviderConfigureSchema('oidc')),
-      mode: 'onSubmit',
+      mode: 'onTouched',
       reValidateMode: 'onChange',
       defaultValues: {
         discovery_url: oidcData?.discovery_url || '',

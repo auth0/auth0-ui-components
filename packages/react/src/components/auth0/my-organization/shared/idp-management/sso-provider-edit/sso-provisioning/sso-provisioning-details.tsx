@@ -87,6 +87,7 @@ export function SsoProvisioningDetails({
 
   const form = useForm<ProvisioningDetailsFormValues>({
     resolver: zodResolver(ssoProvisioningSchema),
+    mode: 'onTouched',
     defaultValues: {
       userIdAttribute: provisioningConfig?.user_id_attribute || '',
       scimEndpointUrl: scimEndpointUrl || '',

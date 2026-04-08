@@ -69,7 +69,7 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
 
     const form = useForm<WaadConfigureFormValues>({
       resolver: zodResolver(createProviderConfigureSchema('waad')),
-      mode: 'onSubmit',
+      mode: 'onTouched',
       reValidateMode: 'onChange',
       defaultValues: {
         tenant_domain: waadData?.tenant_domain || '',

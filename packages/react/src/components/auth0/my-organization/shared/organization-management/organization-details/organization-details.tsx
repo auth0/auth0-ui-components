@@ -114,6 +114,7 @@ export function OrganizationDetails({
 
   const form = useForm<OrganizationDetailsFormValues>({
     resolver: zodResolver(organizationDetailSchema),
+    mode: 'onTouched',
     defaultValues: formValues,
     values: formValues,
   });
