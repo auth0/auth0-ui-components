@@ -39,7 +39,7 @@ export interface UseMemberManagementServiceOptions {
   invitationParams: TableQueryParams<InvitationSortConfig, InvitationFilterState>;
 }
 
-export interface UseMemberManagementServiceResult {
+export interface MemberManagementServiceResult {
   providersQuery: UseQueryResult<IdentityProviderOption[]>;
   invitationsQuery: UseQueryResult<{
     invitations: MemberInvitation[];

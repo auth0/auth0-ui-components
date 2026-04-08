@@ -20,7 +20,7 @@ import type {
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   UseMemberManagementServiceOptions,
-  UseMemberManagementServiceResult,
+  MemberManagementServiceResult,
 } from '@/types/my-organization/member-management/organization-member-management-types';
 
 export const memberManagementQueryKeys = {
@@ -52,7 +52,7 @@ function buildSortParam(sortConfig: InvitationSortConfig): string | undefined {
  */
 export function useMemberManagementService(
   options: UseMemberManagementServiceOptions,
-): UseMemberManagementServiceResult {
+): MemberManagementServiceResult {
   const {
     customMessages = {},
     activeTab,
