@@ -9,7 +9,7 @@
       "title": "User MFA management container(logic) component",
       "description": "Handles loading factors, enroll/delete flows, and UI state.",
       "dependencies": [
-        "@auth0/universal-components-core@1.0.0-beta.20",
+        "@auth0/universal-components-core@1.0.0-beta.25",
         "@auth0/auth0-react@^2.15.1",
         "@hookform/resolvers@^5.1.0",
         "@radix-ui/react-dialog@^1.1.14",
@@ -314,7 +314,7 @@
         }
       ],
       "meta": {
-        "coreVersion": "1.0.0-beta.20"
+        "coreVersion": "1.0.0-beta.25"
       }
     },
     {
@@ -323,7 +323,7 @@
       "title": "DomainTable container component.",
       "description": "A block component for domain table.",
       "dependencies": [
-        "@auth0/universal-components-core@1.0.0-beta.20",
+        "@auth0/universal-components-core@1.0.0-beta.25",
         "@auth0/auth0-react@^2.15.1",
         "@hookform/resolvers@^5.1.0",
         "@radix-ui/react-checkbox@^1.1.1",
@@ -711,7 +711,7 @@
         }
       ],
       "meta": {
-        "coreVersion": "1.0.0-beta.20"
+        "coreVersion": "1.0.0-beta.25"
       }
     },
     {
@@ -720,7 +720,7 @@
       "title": "Organization details edit component.",
       "description": "A block component for organization details edit.",
       "dependencies": [
-        "@auth0/universal-components-core@1.0.0-beta.20",
+        "@auth0/universal-components-core@1.0.0-beta.25",
         "@auth0/auth0-react@^2.15.1",
         "@hookform/resolvers@^5.1.0",
         "@radix-ui/react-checkbox@^1.1.1",
@@ -1065,7 +1065,7 @@
         }
       ],
       "meta": {
-        "coreVersion": "1.0.0-beta.20"
+        "coreVersion": "1.0.0-beta.25"
       }
     },
     {
@@ -1074,7 +1074,7 @@
       "title": "SSO provider creation container component.",
       "description": "A block component for sso provider create.",
       "dependencies": [
-        "@auth0/universal-components-core@1.0.0-beta.20",
+        "@auth0/universal-components-core@1.0.0-beta.25",
         "@auth0/auth0-react@^2.15.1",
         "@hookform/resolvers@^5.1.0",
         "@radix-ui/react-accordion@^1.2.0",
@@ -1543,7 +1543,7 @@
         }
       ],
       "meta": {
-        "coreVersion": "1.0.0-beta.20"
+        "coreVersion": "1.0.0-beta.25"
       }
     },
     {
@@ -1552,7 +1552,7 @@
       "title": "SSO provider edit container component.",
       "description": "A block component for sso provider edit.",
       "dependencies": [
-        "@auth0/universal-components-core@1.0.0-beta.20",
+        "@auth0/universal-components-core@1.0.0-beta.25",
         "@auth0/auth0-react@^2.15.1",
         "@hookform/resolvers@^5.1.0",
         "@radix-ui/react-accordion@^1.2.0",
@@ -1982,6 +1982,11 @@
           "target": "hooks/my-organization/use-sso-provider-edit.ts"
         },
         {
+          "path": "src/hooks/my-organization/use-sso-provider-table.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-sso-provider-table.ts"
+        },
+        {
           "path": "src/hooks/shared/use-core-client-initialization.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-core-client-initialization.ts"
@@ -2122,6 +2127,11 @@
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts"
         },
         {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-table-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-table-types.ts"
+        },
+        {
           "path": "src/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types.ts"
@@ -2178,7 +2188,7 @@
         }
       ],
       "meta": {
-        "coreVersion": "1.0.0-beta.20"
+        "coreVersion": "1.0.0-beta.25"
       }
     },
     {
@@ -2187,7 +2197,7 @@
       "title": "SSO provider table container component.",
       "description": "A block component for sso provider table.",
       "dependencies": [
-        "@auth0/universal-components-core@1.0.0-beta.20",
+        "@auth0/universal-components-core@1.0.0-beta.25",
         "@auth0/auth0-react@^2.15.1",
         "@hookform/resolvers@^5.1.0",
         "@radix-ui/react-checkbox@^1.1.1",
@@ -2565,7 +2575,7 @@
         }
       ],
       "meta": {
-        "coreVersion": "1.0.0-beta.20"
+        "coreVersion": "1.0.0-beta.25"
       }
     }
   ]

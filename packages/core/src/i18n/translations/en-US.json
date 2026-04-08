@@ -18,6 +18,10 @@
       "description": "Please try again or contact support if the problem persists.",
       "retry": "Retry"
     },
+    "mfa_error": {
+      "title": "Additional verification required",
+      "description": "Additional verification could not be completed. Please contact support."
+    },
     "mfa": {
       "title": "Verify your account",
       "subtitle": "You must provide a second factor from one of the options below to perform this action.",

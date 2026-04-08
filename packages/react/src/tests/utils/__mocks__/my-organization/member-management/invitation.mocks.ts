@@ -8,7 +8,7 @@ import type {
   RoleOption,
   IdentityProviderOption,
   OrganizationInvitationTableActionsColumnProps,
-  InvitationSearchFilterProps,
+  SearchFilterProps,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 export const createMockInvitation = (overrides?: Partial<MemberInvitation>): MemberInvitation => ({
@@ -99,8 +99,8 @@ export const createMockRevokeModalProps = (
 });
 
 export const createMockSearchFilterProps = (
-  overrides: Partial<InvitationSearchFilterProps> = {},
-): InvitationSearchFilterProps => ({
+  overrides: Partial<SearchFilterProps> = {},
+): SearchFilterProps => ({
   filters: {},
   availableRoles: createMockRoles(),
   onRoleFilterChange: vi.fn(),
