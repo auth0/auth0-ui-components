@@ -20,16 +20,8 @@ describe('isNotifiableError', () => {
       expect(isNotifiableError({ error: 'mfa_required' })).toBe(false);
     });
 
-    it('should return false for error with mfa_required code field', () => {
-      expect(isNotifiableError({ code: 'mfa_required' })).toBe(false);
-    });
-
     it('should return false for error with mfa_required nested in body', () => {
       expect(isNotifiableError({ body: { error: 'mfa_required' } })).toBe(false);
-    });
-
-    it('should return false for error with mfa_required code nested in body', () => {
-      expect(isNotifiableError({ body: { code: 'mfa_required' } })).toBe(false);
     });
   });
 

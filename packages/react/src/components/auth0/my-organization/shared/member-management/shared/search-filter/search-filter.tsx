@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { InvitationSearchFilterProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type { SearchFilterProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
  * Filter bar for invitation table.
@@ -29,13 +29,13 @@ import type { InvitationSearchFilterProps } from '@/types/my-organization/member
  * @param props.onRoleFilterChange - Callback fired when role filter changes.
  * @returns The filter bar component.
  */
-export function InvitationSearchFilter({
+export function SearchFilter({
   filters,
   availableRoles = [],
   customMessages = {},
   className,
   onRoleFilterChange,
-}: InvitationSearchFilterProps): React.JSX.Element | null {
+}: SearchFilterProps): React.JSX.Element | null {
   const { t } = useTranslator('member_management', customMessages);
 
   const handleRoleFilterChange = React.useCallback(

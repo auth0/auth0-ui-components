@@ -9,7 +9,7 @@ import * as React from 'react';
 
 import { OrganizationInvitationTableActionsColumn } from './organization-invitation-table-actions-column';
 
-import { InvitationSearchFilter } from '@/components/auth0/my-organization/shared/member-management/shared/search-filter/search-filter';
+import { SearchFilter } from '@/components/auth0/my-organization/shared/member-management/shared/search-filter/search-filter';
 import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Badge } from '@/components/ui/badge';
@@ -147,7 +147,7 @@ export function OrganizationInvitationTable({
 
   return (
     <div className={cn('flex flex-col', className)}>
-      <InvitationSearchFilter
+      <SearchFilter
         filters={filters}
         availableRoles={availableRoles}
         customMessages={customMessages}
