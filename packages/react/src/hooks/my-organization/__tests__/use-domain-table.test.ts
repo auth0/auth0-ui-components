@@ -214,28 +214,24 @@ describe('useDomainTable', () => {
       const provider1 = createMockIdentityProvider({
         id: 'provider-1',
         display_name: 'Provider 1',
+        domains: [mockDomain.domain],
       });
       const provider2 = createMockIdentityProvider({
         id: 'provider-2',
         display_name: 'Provider 2',
+        domains: [],
       });
       const provider3 = createMockIdentityProvider({
         id: 'provider-3',
         display_name: 'Provider 3',
+        domains: [mockDomain.domain],
       });
 
-      // Mock all providers response
+      // Mock all providers response - domains field indicates association
       mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
         .fn()
         .mockResolvedValue({
           identity_providers: [provider1, provider2, provider3],
-        });
-
-      // Mock associated providers response - only provider1 and provider3 are associated
-      mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get = vi
-        .fn()
-        .mockResolvedValue({
-          identity_providers: [{ id: 'provider-1' }, { id: 'provider-3' }],
         });
 
       const { result } = renderUseDomainTable(mockOptions);
@@ -249,9 +245,6 @@ describe('useDomainTable', () => {
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list,
       ).toHaveBeenCalled();
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get,
-      ).toHaveBeenCalledWith(mockDomain.id);
 
       // Verify the providers are correctly matched with association status
       expect(result.current.providers).toHaveLength(3);
@@ -280,24 +273,19 @@ describe('useDomainTable', () => {
       const provider1 = createMockIdentityProvider({
         id: 'provider-1',
         display_name: 'Provider 1',
+        domains: [],
       });
       const provider2 = createMockIdentityProvider({
         id: 'provider-2',
         display_name: 'Provider 2',
+        domains: [],
       });
 
-      // Mock all providers response
+      // Mock all providers response - no domains associated
       mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
         .fn()
         .mockResolvedValue({
           identity_providers: [provider1, provider2],
-        });
-
-      // Mock empty associated providers response
-      mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get = vi
-        .fn()
-        .mockResolvedValue({
-          identity_providers: [],
         });
 
       const { result } = renderUseDomainTable(mockOptions);
@@ -320,24 +308,19 @@ describe('useDomainTable', () => {
       const provider1 = createMockIdentityProvider({
         id: 'provider-1',
         display_name: 'Provider 1',
+        domains: [mockDomain.domain],
       });
       const provider2 = createMockIdentityProvider({
         id: 'provider-2',
         display_name: 'Provider 2',
+        domains: [mockDomain.domain],
       });
 
-      // Mock all providers response
+      // Mock all providers response - all associated via domains field
       mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
         .fn()
         .mockResolvedValue({
           identity_providers: [provider1, provider2],
-        });
-
-      // Mock all providers as associated
-      mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get = vi
-        .fn()
-        .mockResolvedValue({
-          identity_providers: [{ id: 'provider-1' }, { id: 'provider-2' }],
         });
 
       const { result } = renderUseDomainTable(mockOptions);
@@ -374,13 +357,8 @@ describe('useDomainTable', () => {
     it('should handle null/undefined responses gracefully', async () => {
       const mockDomain = createMockDomain();
 
-      // Mock null responses
+      // Mock null response
       mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
-        .fn()
-        .mockResolvedValue({
-          identity_providers: null,
-        });
-      mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get = vi
         .fn()
         .mockResolvedValue({
           identity_providers: null,
@@ -403,17 +381,13 @@ describe('useDomainTable', () => {
       const provider1 = createMockIdentityProvider({
         id: 'provider-1',
         display_name: 'Provider 1',
+        domains: [mockDomain.domain],
       });
 
       mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
         .fn()
         .mockResolvedValue({
           identity_providers: [provider1],
-        });
-      mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get = vi
-        .fn()
-        .mockResolvedValue({
-          identity_providers: [{ id: 'provider-1' }],
         });
 
       const { result } = renderUseDomainTable(mockOptions);
@@ -435,17 +409,13 @@ describe('useDomainTable', () => {
       const provider1 = createMockIdentityProvider({
         id: 'provider-1',
         display_name: 'Provider 1',
+        domains: [mockDomain.domain],
       });
 
       mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
         .fn()
         .mockResolvedValue({
           identity_providers: [provider1],
-        });
-      mockCoreClient.getMyOrganizationApiClient().organization.domains.identityProviders.get = vi
-        .fn()
-        .mockResolvedValue({
-          identity_providers: [{ id: 'provider-1' }],
         });
 
       const { result } = renderUseDomainTable(mockOptions);

@@ -203,8 +203,8 @@ export interface OrganizationInvitationTableProps {
   className?: string;
 }
 
-/** Props for InvitationSearchFilter component. */
-export interface InvitationSearchFilterProps {
+/** Props for SearchFilter component. */
+export interface SearchFilterProps {
   filters?: InvitationFilterState;
   availableRoles?: RoleOption[];
   customMessages?: Partial<OrganizationInvitationTabMessages>;

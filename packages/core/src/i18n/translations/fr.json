@@ -1019,74 +1019,94 @@
   },
   "member_management": {
     "member": {
+      "table": {
+        "columns": {
+          "name": "Nom",
+          "email": "E-mail",
+          "roles": "Rôles"
+        },
+        "empty_message": "Aucun membre trouvé."
+      },
+      "error": {
+        "fetch_failed": "Échec du chargement des membres. Veuillez réessayer.",
+        "remove_failed": "Échec de la suppression du membre. Veuillez réessayer."
+      },
       "detail": {
-        "back_button": "Back to Members",
+        "back_button": "Retour aux membres",
         "tabs": {
-          "details": "Details",
-          "roles": "Roles"
+          "details": "Détails",
+          "roles": "Rôles"
         },
         "user_details": {
-          "title": "User Details",
-          "name": "Name",
-          "email": "Email",
-          "phone_number": "Phone Number",
-          "provider": "Provider",
-          "created_at": "Created At",
-          "last_login": "Last Login"
+          "title": "Détails de l'utilisateur",
+          "name": "Nom",
+          "email": "E-mail",
+          "phone_number": "Numéro de téléphone",
+          "provider": "Fournisseur",
+          "created_at": "Créé le",
+          "last_login": "Dernière connexion"
         },
         "danger_zone": {
           "remove_from_org": {
-            "title": "Remove member from organization",
-            "description": "Once confirmed, this operation cannot be undone.",
-            "button": "Delete",
-            "confirm_title": "Remove Member",
-            "confirm_description": "Are you sure you want to remove this member from the organization?",
-            "confirm_button": "Remove",
-            "cancel_button": "Cancel",
-            "success": "Member has been removed from the organization."
+            "title": "Retirer le membre de ${organization}",
+            "title_plural": "Retirer les membres de ${organization}",
+            "description": "Êtes-vous sûr de vouloir retirer ${email} de cette organisation ? Cette action ne supprimera pas son compte, mais révoquera son accès et l'empêchera de se connecter.",
+            "description_plural": "Êtes-vous sûr de vouloir retirer ${count} membres de cette organisation ? Cette action ne supprimera pas leur compte, mais révoquera leur accès et les empêchera de se connecter.",
+            "confirm_button": "Retirer",
+            "cancel_button": "Annuler",
+            "success": "${email} a été retiré de ${organization}.",
+            "success_plural": "Les membres sélectionnés ont été retirés de ${organization}."
           },
           "delete_member": {
-            "title": "Delete this member",
-            "description": "Once confirmed, this operation cannot be undone.",
-            "button": "Delete",
-            "confirm_title": "Delete Member",
-            "confirm_description": "Are you sure you want to permanently delete this member? This action cannot be undone.",
-            "confirm_button": "Delete",
-            "cancel_button": "Cancel",
-            "success": "Member has been deleted."
+            "title": "Supprimer le membre",
+            "title_plural": "Supprimer les membres",
+            "description": "Êtes-vous sûr de vouloir supprimer ${email} ? Cette action est irréversible.",
+            "description_plural": "Êtes-vous sûr de vouloir supprimer ${count} membres ? Cette action est irréversible.",
+            "confirm_button": "Supprimer",
+            "cancel_button": "Annuler",
+            "success": "${email} a été supprimé.",
+            "success_plural": "Les membres sélectionnés ont été supprimés."
           }
         },
         "roles": {
-          "title": "Roles",
-          "description": "Manage user roles and permissions when accessing ${appName}.",
-          "assign_button": "Assign Roles",
+          "title": "Rôles",
+          "description": "Gérez les rôles et autorisations de l'utilisateur pour l'accès à ${appName}.",
+          "assign_button": "Attribuer des rôles",
+          "no_roles_available": "Il n'y a plus de rôles disponibles à attribuer à ce membre.",
+          "max_roles_reached": "Vous avez atteint le nombre maximum de ${max} rôles pour ce membre.",
+          "remove_button": "Supprimer le rôle",
+          "remove_button_plural": "Supprimer les rôles",
           "table": {
-            "name": "Name",
+            "name": "Nom",
             "description": "Description",
-            "empty_message": "No roles assigned."
+            "empty_message": "Aucun rôle attribué."
           },
           "assign_modal": {
-            "title": "Assign Roles",
-            "roles_label": "Roles",
-            "roles_placeholder": "Select roles",
-            "submit_button": "Assign",
-            "cancel_button": "Cancel",
-            "no_roles_available": "All available roles are already assigned."
+            "title": "Attribuer des rôles",
+            "roles_label": "Rôles",
+            "roles_placeholder": "Sélectionner un ou des rôles",
+            "submit_button": "Attribuer le(s) rôle(s)",
+            "cancel_button": "Annuler",
+            "no_roles_available": "Tous les rôles disponibles sont déjà attribués.",
+            "success": "Le rôle a été attribué.",
+            "success_plural": "Les rôles ont été attribués."
           },
           "remove_confirm": {
-            "title": "Remove Role",
-            "description": "Are you sure you want to remove the role <bold>${roleName}</bold> from this member?",
-            "confirm_button": "Remove",
-            "cancel_button": "Cancel"
+            "title": "Retirer le rôle du membre ?",
+            "title_plural": "Retirer les rôles du membre ?",
+            "description": "Cela retirera le rôle <bold>${roleName}</bold> de <bold>\"${memberName}\"</bold>.",
+            "confirm_button": "Retirer",
+            "cancel_button": "Annuler",
+            "success": "Le rôle <bold>\"${roleName}\"</bold> a été retiré du membre."
           }
         },
         "error": {
-          "fetch_failed": "Failed to load member details. Please try again.",
-          "fetch_roles_failed": "Failed to load member roles. Please try again.",
-          "remove_from_org_failed": "Failed to remove member from organization. Please try again.",
-          "delete_failed": "Failed to delete member. Please try again.",
-          "assign_role_failed": "Failed to assign role. Please try again.",
-          "remove_role_failed": "Failed to remove role. Please try again."
+          "fetch_failed": "Échec du chargement des détails du membre. Veuillez réessayer.",
+          "fetch_roles_failed": "Échec du chargement des rôles du membre. Veuillez réessayer.",
+          "remove_from_org_failed": "Échec du retrait du membre de l'organisation. Veuillez réessayer.",
+          "delete_failed": "Échec de la suppression du membre. Veuillez réessayer.",
+          "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer.",
+          "remove_role_failed": "Échec du retrait du rôle. Veuillez réessayer."
         }
       }
     }
