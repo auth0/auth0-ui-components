@@ -18,6 +18,10 @@
       "description": "もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
       "retry": "再試行"
     },
+    "mfa_error": {
+      "title": "追加認証が必要です",
+      "description": "追加認証を完了できませんでした。サポートにお問い合わせください。"
+    },
     "mfa": {
       "title": "アカウントを確認してください",
       "subtitle": "この操作を実行するには、以下のオプションのいずれかから第二認証要素を入力してください。",
@@ -1086,85 +1090,86 @@
         },
         "empty_message": "メンバーが見つかりません。"
       },
-      "remove": {
-        "title": "メンバーを削除",
-        "description": "この組織から${name}を削除してもよろしいですか？",
-        "confirm_button": "削除",
-        "cancel_button": "キャンセル",
-        "success": "${name}が組織から削除されました。"
-      },
       "error": {
         "fetch_failed": "メンバーの読み込みに失敗しました。もう一度お試しください。",
         "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。"
       },
       "detail": {
-        "back_button": "Back to Members",
+        "back_button": "メンバー一覧に戻る",
         "tabs": {
-          "details": "Details",
-          "roles": "Roles"
+          "details": "詳細",
+          "roles": "ロール"
         },
         "user_details": {
-          "title": "User Details",
-          "name": "Name",
-          "email": "Email",
-          "phone_number": "Phone Number",
-          "provider": "Provider",
-          "created_at": "Created At",
-          "last_login": "Last Login"
+          "title": "ユーザー詳細",
+          "name": "名前",
+          "email": "メール",
+          "phone_number": "電話番号",
+          "provider": "プロバイダー",
+          "created_at": "作成日",
+          "last_login": "最終ログイン"
         },
         "danger_zone": {
           "remove_from_org": {
-            "title": "Remove member from organization",
-            "description": "Once confirmed, this operation cannot be undone.",
-            "button": "Delete",
-            "confirm_title": "Remove Member",
-            "confirm_description": "Are you sure you want to remove this member from the organization?",
-            "confirm_button": "Remove",
-            "cancel_button": "Cancel",
-            "success": "Member has been removed from the organization."
+            "title": "${organization} からメンバーを削除",
+            "title_plural": "${organization} からメンバーを削除",
+            "description": "この組織から ${email} を削除してもよろしいですか？この操作によりアカウントは削除されませんが、アクセス権が取り消され、サインインできなくなります。",
+            "description_plural": "この組織から ${count} 人のメンバーを削除してもよろしいですか？この操作によりアカウントは削除されませんが、アクセス権が取り消され、サインインできなくなります。",
+            "confirm_button": "削除",
+            "cancel_button": "キャンセル",
+            "success": "${email} が ${organization} から削除されました。",
+            "success_plural": "選択されたメンバーが ${organization} から削除されました。"
           },
           "delete_member": {
-            "title": "Delete this member",
-            "description": "Once confirmed, this operation cannot be undone.",
-            "button": "Delete",
-            "confirm_title": "Delete Member",
-            "confirm_description": "Are you sure you want to permanently delete this member? This action cannot be undone.",
-            "confirm_button": "Delete",
-            "cancel_button": "Cancel",
-            "success": "Member has been deleted."
+            "title": "メンバーを削除",
+            "title_plural": "メンバーを削除",
+            "description": "${email} を削除してもよろしいですか？この操作は取り消せません。",
+            "description_plural": "${count} 人のメンバーを削除してもよろしいですか？この操作は取り消せません。",
+            "confirm_button": "削除",
+            "cancel_button": "キャンセル",
+            "success": "${email} が削除されました。",
+            "success_plural": "選択されたメンバーが削除されました。"
           }
         },
         "roles": {
-          "title": "Roles",
-          "description": "Manage user roles and permissions when accessing ${appName}.",
-          "assign_button": "Assign Roles",
+          "title": "ロール",
+          "description": "${appName} にアクセスする際のユーザーのロールと権限を管理します。",
+          "assign_button": "ロールを割り当てる",
+          "no_roles_available": "このメンバーに割り当てられるロールはもうありません。",
+          "max_roles_reached": "このメンバーの最大登録数 ${max} に達しました。",
+          "remove_button": "ロールを削除",
+          "remove_button_plural": "ロールを削除",
           "table": {
-            "name": "Name",
-            "description": "Description",
-            "empty_message": "No roles assigned."
+            "name": "名前",
+            "description": "説明",
+            "empty_message": "割り当てられたロールはありません。"
           },
           "assign_modal": {
-            "title": "Assign Roles",
-            "roles_label": "Roles",
-            "roles_placeholder": "Select roles",
-            "submit_button": "Assign",
-            "cancel_button": "Cancel",
-            "no_roles_available": "All available roles are already assigned."
+            "title": "ロールを割り当てる",
+            "roles_label": "ロール",
+            "roles_placeholder": "ロールを選択",
+            "submit_button": "割り当て",
+            "cancel_button": "キャンセル",
+            "no_roles_available": "利用可能なすべてのロールがすでに割り当てられています。",
+            "success": "ロールが割り当てられました。",
+            "success_plural": "ロールが割り当てられました。"
           },
           "remove_confirm": {
-            "title": "Remove Role",
-            "description": "Are you sure you want to remove the role <bold>${roleName}</bold> from this member?",
-            "confirm_button": "Remove",
-            "cancel_button": "Cancel"
+            "title": "メンバーからロールを削除しますか？",
+            "title_plural": "メンバーからロールを削除しますか？",
+            "description": "<bold>\"${memberName}\"</bold> から <bold>${roleName}</bold> ロールを削除します。",
+            "confirm_button": "削除",
+            "cancel_button": "キャンセル",
+            "success": "<bold>\"${roleName}\"</bold> ロールがメンバーから削除されました。"
           }
         },
         "error": {
-          "fetch_failed": "Failed to load member details. Please try again.",
-          "fetch_roles_failed": "Failed to load member roles. Please try again.",
-          "remove_from_org_failed": "Failed to remove member from organization. Please try again.",
-          "delete_failed": "Failed to delete member. Please try again.",
-          "assign_role_failed": "Failed to assign role. Please try again.",
-          "remove_role_failed": "Failed to remove role. Please try again."
+          "fetch_failed": "メンバー詳細の読み込みに失敗しました。もう一度お試しください。",
+          "fetch_roles_failed": "メンバーのロールの読み込みに失敗しました。もう一度お試しください。",
+          "remove_from_org_failed": "組織からのメンバーの削除に失敗しました。もう一度お試しください。",
+          "delete_failed": "メンバーの削除に失敗しました。もう一度お試しください。",
+          "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。",
+          "remove_role_failed": "ロールの削除に失敗しました。もう一度お試しください。"
         }
       }
     },

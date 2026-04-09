@@ -20,6 +20,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { SsoProviderAttributeMappingsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
+type AttributeItem = IdpBaseUserAttributeItem & { provisioning_field?: string };
+
 const SCIM_NAMESPACE = 'urn:ietf:params:scim:schemas:core:2.0:User';
 
 const CHANGE_STATUS = {
@@ -123,8 +125,8 @@ export function SsoProviderAttributeMappings({
   }, [strategy]);
 
   const { requiredItems, optionalItems } = React.useMemo(() => {
-    const required: IdpBaseUserAttributeItem[] = [];
-    const optional: IdpBaseUserAttributeItem[] = [];
+    const required: AttributeItem[] = [];
+    const optional: AttributeItem[] = [];
 
     userAttributeMap?.forEach((item) => {
       if (item.is_required) required.push(item);
@@ -135,7 +137,7 @@ export function SsoProviderAttributeMappings({
   }, [userAttributeMap]);
 
   const getColumns = React.useCallback(
-    (section: 'required' | 'optional'): Column<IdpBaseUserAttributeItem>[] => [
+    (section: 'required' | 'optional'): Column<AttributeItem>[] => [
       {
         accessorKey: 'label',
         type: 'text',
@@ -144,13 +146,13 @@ export function SsoProviderAttributeMappings({
         render: (item) => <AttributeNameCell item={item} section={section} t={t} />,
       },
       {
-        accessorKey: 'user_attribute',
+        accessorKey: isProvisioning ? 'provisioning_field' : 'user_attribute',
         type: 'copy',
         width: '70%',
         title: t(`mappings.${section}.table.columns.external_field_label`),
       },
     ],
-    [t],
+    [t, isProvisioning],
   );
 
   return (

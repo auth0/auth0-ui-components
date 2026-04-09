@@ -238,16 +238,11 @@ async function main() {
   const status = version.includes('beta') ? 'beta' : 'stable';
 
   versionsData.name = 'auth0-ui-components';
-  versionsData.current = version;
   versionsData.latest = version;
-  versionsData.beta = status === 'beta' ? version : (versionsData.beta || null);
-  versionsData.stable = status === 'stable' ? version : (versionsData.stable || null);
 
   if (!versionsData.majorVersions) versionsData.majorVersions = {};
   versionsData.majorVersions[`v${major}`] = {
     latest: version,
-    stable: status === 'stable' ? version : (versionsData.majorVersions[`v${major}`]?.stable || null),
-    beta: status === 'beta' ? version : (versionsData.majorVersions[`v${major}`]?.beta || null),
   };
 
   if (!versionsData.versions) versionsData.versions = {};

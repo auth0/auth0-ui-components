@@ -2,32 +2,32 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
-import { InvitationSearchFilter } from '@/components/auth0/my-organization/shared/member-management/shared/search-filter/search-filter';
+import { SearchFilter } from '@/components/auth0/my-organization/shared/member-management/shared/search-filter/search-filter';
 import { renderWithProviders } from '@/tests/utils';
 import { createMockSearchFilterProps } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 
-describe('InvitationSearchFilter', () => {
+describe('SearchFilter', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
 
   describe('rendering', () => {
     it('should render the filter when roles are provided', () => {
-      renderWithProviders(<InvitationSearchFilter {...createMockSearchFilterProps()} />);
+      renderWithProviders(<SearchFilter {...createMockSearchFilterProps()} />);
 
       expect(screen.getByText(/invitation\.table\.filter_by_role/)).toBeInTheDocument();
     });
 
     it('should return null when no roles are provided', () => {
       const { container } = renderWithProviders(
-        <InvitationSearchFilter {...createMockSearchFilterProps({ availableRoles: [] })} />,
+        <SearchFilter {...createMockSearchFilterProps({ availableRoles: [] })} />,
       );
 
       expect(container.innerHTML).toBe('');
     });
 
     it('should render reset button', () => {
-      renderWithProviders(<InvitationSearchFilter {...createMockSearchFilterProps()} />);
+      renderWithProviders(<SearchFilter {...createMockSearchFilterProps()} />);
 
       expect(
         screen.getByRole('button', { name: 'invitation.table.reset_filter' }),
@@ -37,9 +37,7 @@ describe('InvitationSearchFilter', () => {
 
   describe('reset button', () => {
     it('should be disabled when no active filter', () => {
-      renderWithProviders(
-        <InvitationSearchFilter {...createMockSearchFilterProps({ filters: {} })} />,
-      );
+      renderWithProviders(<SearchFilter {...createMockSearchFilterProps({ filters: {} })} />);
 
       const resetButton = screen.getByRole('button', {
         name: 'invitation.table.reset_filter',
@@ -49,9 +47,7 @@ describe('InvitationSearchFilter', () => {
 
     it('should be enabled when there is an active filter', () => {
       renderWithProviders(
-        <InvitationSearchFilter
-          {...createMockSearchFilterProps({ filters: { roleId: 'role_admin' } })}
-        />,
+        <SearchFilter {...createMockSearchFilterProps({ filters: { roleId: 'role_admin' } })} />,
       );
 
       const resetButton = screen.getByRole('button', {
@@ -65,7 +61,7 @@ describe('InvitationSearchFilter', () => {
       const onRoleFilterChange = vi.fn();
 
       renderWithProviders(
-        <InvitationSearchFilter
+        <SearchFilter
           {...createMockSearchFilterProps({
             filters: { roleId: 'role_admin' },
             onRoleFilterChange,
@@ -88,7 +84,7 @@ describe('InvitationSearchFilter', () => {
       const customClass = 'custom-filter-class';
 
       const { container } = renderWithProviders(
-        <InvitationSearchFilter {...createMockSearchFilterProps({ className: customClass })} />,
+        <SearchFilter {...createMockSearchFilterProps({ className: customClass })} />,
       );
 
       const filterDiv = container.firstChild as HTMLElement;
@@ -97,7 +93,7 @@ describe('InvitationSearchFilter', () => {
 
     it('should apply default class when no custom class provided', () => {
       const { container } = renderWithProviders(
-        <InvitationSearchFilter {...createMockSearchFilterProps()} />,
+        <SearchFilter {...createMockSearchFilterProps()} />,
       );
 
       const filterDiv = container.firstChild as HTMLElement;
