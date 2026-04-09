@@ -186,6 +186,7 @@ export function useDomainTableLogic({
       try {
         const isVerified = await onVerifyDomain(domain);
         if (isVerified) {
+          await fetchProviders(domain);
           setShowConfigureModal(true);
           showToast({
             type: 'success',
@@ -207,7 +208,7 @@ export function useDomainTableLogic({
         });
       }
     },
-    [onVerifyDomain, t, handleError],
+    [onVerifyDomain, fetchProviders, t, handleError],
   );
 
   const handleDeleteClick = useCallback((domain: Domain) => {

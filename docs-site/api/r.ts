@@ -4,11 +4,8 @@ import path from 'path';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 interface VersionInfo {
-  current: string;
   latest: string;
-  beta?: string;
-  stable?: string | null;
-  majorVersions?: Record<string, { latest: string; stable: string | null; beta: string }>;
+  majorVersions?: Record<string, { latest: string }>;
   versions?: Record<string, { status: string; major: string }>;
 }
 
@@ -38,21 +35,15 @@ function getBasePath(): string {
 }
 
 function getVersionInfo(basePath: string): VersionInfo {
-  try {
-    const versionsPath = path.join(basePath, 'versions.json');
-    if (fs.existsSync(versionsPath)) {
-      return JSON.parse(fs.readFileSync(versionsPath, 'utf-8'));
-    }
-  } catch (error) {
-    console.error('Failed to read versions.json:', error);
+  const versionsPath = path.join(basePath, 'versions.json');
+  if (!fs.existsSync(versionsPath)) {
+    throw new Error('versions.json not found. Run the build to generate it.');
   }
-  return {
-    current: '1.0.0-beta.6',
-    latest: '1.0.0-beta.6',
-    versions: {
-      '1.0.0-beta.6': { status: 'beta', major: '1' },
-    },
-  };
+  try {
+    return JSON.parse(fs.readFileSync(versionsPath, 'utf-8'));
+  } catch (error) {
+    throw new Error(`Failed to parse versions.json: ${error}`);
+  }
 }
 
 function sendJson(res: VercelResponse, content: string): void {
@@ -77,9 +68,10 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 
   const basePath = getBasePath();
   const versionInfo = getVersionInfo(basePath);
+  const versionParam = req.query.version as string | undefined;
 
   const rootFilePath = path.join(basePath, normalizedFileName);
-  if (fs.existsSync(rootFilePath)) {
+  if (!versionParam && fs.existsSync(rootFilePath)) {
     try {
       sendJson(res, fs.readFileSync(rootFilePath, 'utf-8'));
     } catch (error) {
@@ -91,12 +83,9 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const versionParam = req.query.version as string | undefined;
   let versionPath: string;
 
-  if (!versionParam) {
-    versionPath = getVersionPath(versionInfo.current, versionInfo);
-  } else if (versionParam === 'latest') {
+  if (!versionParam || versionParam === 'latest') {
     versionPath = getVersionPath(versionInfo.latest, versionInfo);
   } else if (versionParam.startsWith('v') && versionParam.includes('/')) {
     versionPath = versionParam;
@@ -104,7 +93,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     const majorVersion = versionInfo.majorVersions?.[versionParam]?.latest;
     versionPath = majorVersion
       ? getVersionPath(majorVersion, versionInfo)
-      : getVersionPath(versionInfo.current, versionInfo);
+      : getVersionPath(versionInfo.latest, versionInfo);
   } else {
     versionPath = getVersionPath(versionParam, versionInfo);
   }
