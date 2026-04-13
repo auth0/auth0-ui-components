@@ -7,6 +7,7 @@ import type {
   ComponentAction,
   SharedComponentProps,
   MemberInvitation,
+  OrganizationMemberManagementMessages,
 } from '@auth0/universal-components-core';
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 
@@ -17,7 +18,6 @@ import type {
   InvitationPaginationState,
   InvitationSortConfig,
   OrganizationInvitationTabClasses,
-  OrganizationInvitationTabMessages,
   RoleOption,
 } from './organization-invitation-table-types';
 
@@ -114,19 +114,6 @@ export interface OrganizationMemberManagementClasses extends OrganizationInvitat
   'OrganizationMemberManagement-root'?: string;
   'OrganizationMemberManagement-header'?: string;
   'OrganizationMemberManagement-tabs'?: string;
-}
-
-/** OrganizationMemberManagement translation messages. */
-export interface OrganizationMemberManagementMessages {
-  header?: {
-    title?: string;
-    description?: string;
-  };
-  tabs?: {
-    members?: string;
-    invitations?: string;
-  };
-  invitation?: OrganizationInvitationTabMessages;
 }
 
 /** Props for OrganizationMemberManagement component. */
