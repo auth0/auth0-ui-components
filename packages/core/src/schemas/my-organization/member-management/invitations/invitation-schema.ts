@@ -35,7 +35,7 @@ export const invitationListResponseSchema = z.object({
 });
 
 /**
- * Schema for creating invitation(s). Supports bulk invite via invitees array.
+ * Schema for creating invitation(s)
  * @internal
  */
 export const createInvitationSchema = z.object({
