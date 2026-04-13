@@ -7,7 +7,6 @@ import { OrganizationDetails } from '@/components/auth0/my-organization/shared/o
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
-import { Spinner } from '@/components/ui/spinner';
 import { useOrganizationDetailsEdit } from '@/hooks/my-organization/use-organization-details-edit';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -56,7 +55,6 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
     <GateKeeper isLoading={isFetchLoading} styling={styling}>
       <OrganizationDetailsEditView
         organization={organization}
-        isFetchLoading={false}
         schema={schema}
         styling={styling}
         customMessages={customMessages}
@@ -76,7 +74,6 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
  */
 function OrganizationDetailsEditView({
   organization,
-  isFetchLoading,
   schema,
   styling,
   customMessages,
@@ -92,16 +89,6 @@ function OrganizationDetailsEditView({
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
   );
-
-  if (isFetchLoading) {
-    return (
-      <StyledScope style={currentStyles.variables}>
-        <div className="flex items-center justify-center min-h-96 w-full">
-          <Spinner />
-        </div>
-      </StyledScope>
-    );
-  }
 
   return (
     <StyledScope style={currentStyles.variables}>

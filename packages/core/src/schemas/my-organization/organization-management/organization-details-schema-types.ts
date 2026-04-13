@@ -10,7 +10,10 @@
  */
 export interface OrganizationDetailsSchemas {
   name?: {
+    regex?: RegExp;
     errorMessage?: string;
+    minLength?: number;
+    maxLength?: number;
   };
   displayName?: {
     regex?: RegExp;

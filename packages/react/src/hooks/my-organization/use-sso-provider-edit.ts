@@ -19,6 +19,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { ssoProviderQueryKeys } from '@/hooks/my-organization/use-sso-provider-table';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -35,6 +36,7 @@ const isActionCancelledError = (error: unknown): boolean => {
 
 export const ssoProviderEditQueryKeys = {
   all: ['sso-providers'] as const,
+  list: () => [...ssoProviderEditQueryKeys.all, 'list'] as const,
   detail: (idpId: IdpId) => [...ssoProviderEditQueryKeys.all, 'detail', idpId] as const,
   organization: () => ['organization', 'details'] as const,
   provisioning: (idpId: IdpId) => [...ssoProviderEditQueryKeys.all, 'provisioning', idpId] as const,
@@ -181,6 +183,11 @@ export function useSsoProviderEdit(
       showToast({
         type: 'success',
         message: t('update_success', { providerName: provider?.display_name }),
+      });
+
+      // Invalidate queries to refetch fresh data
+      await queryClient.invalidateQueries({
+        queryKey: ssoProviderQueryKeys.list(),
       });
 
       // Update cache with new data
@@ -421,6 +428,11 @@ export function useSsoProviderEdit(
         queryKey: ssoProviderEditQueryKeys.scimTokens(idpId),
       });
 
+      // Invalidate all queries from cache
+      await queryClient.invalidateQueries({
+        queryKey: ssoProviderEditQueryKeys.all,
+      });
+
       if (sso?.deleteAction?.onAfter && provider) {
         await sso.deleteAction.onAfter(provider);
       }
@@ -468,10 +480,13 @@ export function useSsoProviderEdit(
         }),
       });
 
-      // Remove provider from cache
+      // Remove provider from cache to invalidate details
       queryClient.removeQueries({
         queryKey: ssoProviderEditQueryKeys.detail(idpId),
       });
+
+      // Remove provider from cache to invalidate list
+      await queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.list() });
 
       if (sso?.deleteFromOrganizationAction?.onAfter && provider) {
         await sso.deleteFromOrganizationAction.onAfter(provider);

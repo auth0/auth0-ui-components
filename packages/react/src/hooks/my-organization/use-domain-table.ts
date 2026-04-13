@@ -50,23 +50,18 @@ export function useDomainTable({
   const queryClient = useQueryClient();
 
   const [selectedDomainId, setSelectedDomainId] = useState<string | null>(null);
+  const [selectedDomainName, setSelectedDomainName] = useState<string | null>(null);
 
-  const fetchProvidersForDomain = async (domainId: string) => {
+  const fetchProvidersForDomain = async (domainName: string) => {
     const api = coreClient!.getMyOrganizationApiClient();
 
-    const [allProvidersResponse, associatedProvidersResponse] = await Promise.all([
-      api.organization.identityProviders.list(),
-      api.organization.domains.identityProviders.get(domainId),
-    ]);
-
+    const allProvidersResponse = await api.organization.identityProviders.list();
     const allProviders = allProvidersResponse?.identity_providers ?? [];
-    const associatedProviders = associatedProvidersResponse?.identity_providers ?? [];
-    const associatedIds = new Set(associatedProviders.map((p) => p.id).filter(Boolean));
 
     return allProviders.map(
       (provider): IdentityProviderAssociatedWithDomain => ({
         ...provider,
-        is_associated: provider.id ? associatedIds.has(provider.id) : false,
+        is_associated: provider.domains?.includes(domainName) ?? false,
       }),
     );
   };
@@ -74,7 +69,9 @@ export function useDomainTable({
   const domainsQuery = useQuery({
     queryKey: domainQueryKeys.list(),
     queryFn: async () => {
-      const response = await coreClient!.getMyOrganizationApiClient().organization.domains.list();
+      const { response } = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.domains.list();
       return response?.organization_domains ?? [];
     },
     enabled: !!coreClient,
@@ -82,8 +79,8 @@ export function useDomainTable({
 
   const providersQuery = useQuery({
     queryKey: domainQueryKeys.providers(selectedDomainId ?? ''),
-    queryFn: () => fetchProvidersForDomain(selectedDomainId!),
-    enabled: !!coreClient && !!selectedDomainId,
+    queryFn: () => fetchProvidersForDomain(selectedDomainName!),
+    enabled: !!coreClient && !!selectedDomainId && !!selectedDomainName,
   });
 
   const createDomainMutation = useMutation({
@@ -175,9 +172,10 @@ export function useDomainTable({
     isLoadingProviders: providersQuery.isLoading,
     fetchProviders: async (domain: Domain) => {
       setSelectedDomainId(domain.id);
+      setSelectedDomainName(domain.domain);
       await queryClient.ensureQueryData({
         queryKey: domainQueryKeys.providers(domain.id),
-        queryFn: () => fetchProvidersForDomain(domain.id),
+        queryFn: () => fetchProvidersForDomain(domain.domain),
       });
     },
     fetchDomains: async () => {

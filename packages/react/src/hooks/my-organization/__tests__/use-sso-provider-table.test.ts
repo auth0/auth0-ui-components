@@ -31,6 +31,7 @@ const mockIdentityProviders: IdentityProvider[] = [
     strategy: 'okta',
     is_enabled: true,
     options: {},
+    attributes: [],
   },
   {
     id: 'idp-2',

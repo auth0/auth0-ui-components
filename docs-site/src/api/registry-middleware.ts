@@ -4,11 +4,8 @@ import path from 'path';
 import type { Plugin } from 'vite';
 
 interface VersionInfo {
-  current: string;
   latest: string;
-  beta?: string;
-  stable?: string | null;
-  majorVersions?: Record<string, { latest: string; stable: string | null; beta: string }>;
+  majorVersions?: Record<string, { latest: string }>;
   versions?: Record<string, { status: string; major: string }>;
 }
 
@@ -21,21 +18,15 @@ function getVersionPath(version: string, versionInfo: VersionInfo): string {
 }
 
 function getVersionInfo(): VersionInfo {
-  try {
-    const versionsPath = path.join(process.cwd(), 'public', 'r', 'versions.json');
-    if (fs.existsSync(versionsPath)) {
-      return JSON.parse(fs.readFileSync(versionsPath, 'utf-8'));
-    }
-  } catch (error) {
-    console.error('Failed to read versions.json:', error);
+  const versionsPath = path.join(process.cwd(), 'public', 'r', 'versions.json');
+  if (!fs.existsSync(versionsPath)) {
+    throw new Error('versions.json not found. Run the build to generate it.');
   }
-  return {
-    current: '1.0.0-beta.6',
-    latest: '1.0.0-beta.6',
-    versions: {
-      '1.0.0-beta.6': { status: 'beta', major: '1' },
-    },
-  };
+  try {
+    return JSON.parse(fs.readFileSync(versionsPath, 'utf-8'));
+  } catch (error) {
+    throw new Error(`Failed to parse versions.json: ${error}`);
+  }
 }
 
 export function registryMiddleware(): Plugin {
@@ -59,17 +50,15 @@ export function registryMiddleware(): Plugin {
         }
 
         const rootFilePath = path.join(process.cwd(), 'public', 'r', normalizedFileName);
-        if (fs.existsSync(rootFilePath)) {
+        const versionParam = url.searchParams.get('version');
+        if (!versionParam && fs.existsSync(rootFilePath)) {
           return next();
         }
 
         const versionInfo = getVersionInfo();
-        const versionParam = url.searchParams.get('version');
         let versionPath: string;
 
-        if (!versionParam) {
-          versionPath = getVersionPath(versionInfo.current, versionInfo);
-        } else if (versionParam === 'latest') {
+        if (!versionParam || versionParam === 'latest') {
           versionPath = getVersionPath(versionInfo.latest, versionInfo);
         } else if (versionParam.startsWith('v') && versionParam.includes('/')) {
           versionPath = versionParam;
@@ -77,7 +66,7 @@ export function registryMiddleware(): Plugin {
           const majorVersion = versionInfo.majorVersions?.[versionParam]?.latest;
           versionPath = majorVersion
             ? getVersionPath(majorVersion, versionInfo)
-            : getVersionPath(versionInfo.current, versionInfo);
+            : getVersionPath(versionInfo.latest, versionInfo);
         } else {
           versionPath = getVersionPath(versionParam, versionInfo);
         }

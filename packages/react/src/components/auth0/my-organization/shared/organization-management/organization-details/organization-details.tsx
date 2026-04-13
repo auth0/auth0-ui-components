@@ -119,6 +119,7 @@ export function OrganizationDetails({
   });
 
   const hasUnsavedChanges = form.formState.isDirty;
+  const hasFormErrors = Object.keys(form.formState.errors).length > 0;
 
   const onValid = React.useCallback(
     async (values: OrganizationDetailsFormValues) => {
@@ -187,7 +188,8 @@ export function OrganizationDetails({
                     formActions?.nextAction?.disabled ||
                     !hasUnsavedChanges ||
                     formActions.isLoading ||
-                    readOnly,
+                    readOnly ||
+                    hasFormErrors,
                   type: 'submit',
                 }}
                 previousAction={{

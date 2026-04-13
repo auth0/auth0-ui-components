@@ -33,7 +33,6 @@ describe('useSsoDomainTab', () => {
 
   // Mock functions for extended API methods that don't exist in the real client
   let mockDomainVerifyCreate: ReturnType<typeof vi.fn>;
-  let mockDomainIdentityProvidersGet: ReturnType<typeof vi.fn>;
   let mockIdentityProviderDomainsCreate: ReturnType<typeof vi.fn>;
   let mockIdentityProviderDomainsDelete: ReturnType<typeof vi.fn>;
 
@@ -47,7 +46,7 @@ describe('useSsoDomainTab', () => {
 
     // Mock existing API methods
     (apiService.organization.domains.list as ReturnType<typeof vi.fn>).mockResolvedValue({
-      organization_domains: [mockDomain],
+      response: { organization_domains: [mockDomain] },
     });
     (apiService.organization.domains.create as ReturnType<typeof vi.fn>).mockResolvedValue(
       mockDomain,
@@ -59,12 +58,6 @@ describe('useSsoDomainTab', () => {
       typeof vi.fn
     >;
     mockDomainVerifyCreate.mockResolvedValue(mockVerifiedDomain);
-
-    mockDomainIdentityProvidersGet = apiService.organization.domains.identityProviders
-      .get as ReturnType<typeof vi.fn>;
-    mockDomainIdentityProvidersGet.mockResolvedValue({
-      identity_providers: [{ id: 'idp-1' }],
-    });
 
     mockIdentityProviderDomainsCreate = apiService.organization.identityProviders.domains
       .create as ReturnType<typeof vi.fn>;
@@ -85,12 +78,16 @@ describe('useSsoDomainTab', () => {
     mockHandleError = setupMockHandleError;
   });
 
+  // Default provider with domains matching mockDomain
+  const defaultProvider = { ...mockProvider, domains: [mockDomain.domain] };
+
   const renderUseSsoDomainTab = async (
     idpId: string,
     options?: Parameters<typeof useSsoDomainTab>[1],
   ) => {
     const { wrapper, queryClient } = createTestQueryClientWrapper();
-    const hook = renderHook(() => useSsoDomainTab(idpId, options), { wrapper });
+    const mergedOptions = { provider: defaultProvider, ...options };
+    const hook = renderHook(() => useSsoDomainTab(idpId, mergedOptions), { wrapper });
     await waitFor(() => expect(hook.result.current.isLoading).toBe(false));
     return { queryClient, ...hook };
   };
@@ -159,22 +156,18 @@ describe('useSsoDomainTab', () => {
       });
     });
 
-    it('should fetch provider domains and update idpDomains', async () => {
-      mockDomainIdentityProvidersGet.mockResolvedValue({
-        identity_providers: [{ id: 'idp-1' }],
+    it('should derive idpDomains from provider prop', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1', {
+        provider: { ...mockProvider, domains: [mockDomain.domain] },
       });
-
-      const { result } = await renderUseSsoDomainTab('idp-1');
 
       expect(result.current.idpDomains).toContain(mockDomain.id);
     });
 
-    it('should not add domain to idpDomains if provider not enabled', async () => {
-      mockDomainIdentityProvidersGet.mockResolvedValue({
-        identity_providers: [{ id: 'other-idp' }],
+    it('should not add domain to idpDomains if provider has no matching domains', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1', {
+        provider: { ...mockProvider, domains: [] },
       });
-
-      const { result } = await renderUseSsoDomainTab('idp-1');
 
       expect(result.current.idpDomains).not.toContain(mockDomain.id);
     });

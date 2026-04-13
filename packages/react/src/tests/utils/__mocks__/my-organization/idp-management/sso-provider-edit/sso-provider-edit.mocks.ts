@@ -44,7 +44,7 @@ export function createMockSsoProviderEditLogic(
           provisioning_methods: [],
           enabled_features: [],
         },
-        'google-apps': {
+        googleapps: {
           provisioning_methods: [],
           enabled_features: [],
         },
@@ -69,8 +69,6 @@ export function createMockSsoProviderEditLogic(
     customMessages: {},
     backButton: undefined,
     shouldAllowDeletion: true,
-    isLoadingConfig: false,
-    isLoadingIdpConfig: false,
     showProvisioningTab: true,
     isProvisioningUpdating: false,
     isProvisioningDeleting: false,

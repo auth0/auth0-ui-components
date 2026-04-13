@@ -6,6 +6,7 @@
 
 'use client';
 
+import { getCoreStyles } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -21,15 +22,24 @@ export interface StyledScopeProps {
  *
  * @param props - Component props.
  * @param props.children - Content to render inside the scope root.
- * @param props.style - Optional inline CSS styles.
+ * @param props.style - Optional inline CSS styles
  * @returns A scoped wrapper div with dark-mode and theme attributes applied.
  * @internal
  */
 export const StyledScope: React.FC<StyledScopeProps> = ({ children, style }) => {
-  const { theme = 'default', isDarkMode } = React.useContext(ThemeContext);
+  const { theme = 'default', isDarkMode, variables } = React.useContext(ThemeContext);
+
+  const mergedStyle = React.useMemo(() => {
+    const providerVars = getCoreStyles(variables, isDarkMode).variables;
+    return { ...providerVars, ...style };
+  }, [variables, isDarkMode, style]);
 
   return (
-    <div className={cn('auth0-universal', isDarkMode && 'dark')} data-theme={theme} style={style}>
+    <div
+      className={cn('auth0-universal', isDarkMode && 'dark')}
+      data-theme={theme}
+      style={mergedStyle}
+    >
       {children}
     </div>
   );
