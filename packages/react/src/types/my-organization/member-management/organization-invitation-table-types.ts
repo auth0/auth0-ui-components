@@ -26,15 +26,15 @@ export interface IdentityProviderOption {
   type?: string;
 }
 
-/** Input for creating an invitation. */
+/** Input for creating invitation(s). Supports bulk invite via invitees array. */
 export interface CreateInvitationInput {
-  invitee: {
+  invitees: Array<{
     email: string;
-  };
+    roles?: string[];
+  }>;
   inviter?: {
     name?: string;
   };
-  roles?: string[];
   identity_provider_id?: string;
   /** Time to live in seconds */
   ttl_sec?: number;

@@ -156,11 +156,12 @@ export function OrganizationInvitationCreateModal({
   }, []);
 
   const handleSubmit = React.useCallback(
-    async (e: React.FormEvent) => {
+    (e: React.FormEvent) => {
       e.preventDefault();
+      const finalEmails = emailChips
+        .filter((chip) => chip.variant !== 'destructive')
+        .map((chip) => chip.value);
 
-      // Add any remaining input to emails
-      const finalEmails = emailChips.map((chip) => chip.value);
       if (emailInput.trim()) {
         const trimmedEmail = emailInput.trim();
         const result = validationConfig.emailSchema.safeParse(trimmedEmail);
@@ -174,19 +175,14 @@ export function OrganizationInvitationCreateModal({
         return;
       }
 
-      const invitationData: CreateInvitationInput = {
+      onCreate({
         invitees: finalEmails.map((email) => ({
           email,
           roles: selectedRoles.length > 0 ? selectedRoles : undefined,
         })),
         identity_provider_id: selectedProvider,
-      };
-
-      if (inviterName) {
-        invitationData.inviter = { name: inviterName };
-      }
-
-      onCreate(invitationData);
+        ...(inviterName && { inviter: { name: inviterName } }),
+      });
     },
     [
       emailChips,
