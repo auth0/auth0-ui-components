@@ -27,7 +27,7 @@ import { TextField } from '@/components/ui/text-field';
 import { useProviderFormMode } from '@/hooks/my-organization/use-provider-form-mode';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants';
+import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 

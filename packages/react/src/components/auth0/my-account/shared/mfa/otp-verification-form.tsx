@@ -27,7 +27,7 @@ import { OTPField } from '@/components/ui/otp-field';
 import { useOtpConfirmation } from '@/hooks/my-account/use-otp-confirmation';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { FORM_VALIDATION_MODE } from '@/lib/constants';
+import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
 import type { OTPVerificationFormProps } from '@/types/my-account/mfa/mfa-types';
 

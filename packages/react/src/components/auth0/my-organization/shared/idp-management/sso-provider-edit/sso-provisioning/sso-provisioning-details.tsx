@@ -32,7 +32,7 @@ import { TextField } from '@/components/ui/text-field';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { FORM_VALIDATION_MODE } from '@/lib/constants';
+import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
 import type { SsoProvisioningDetailsProps } from '@/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
 

@@ -32,7 +32,7 @@ import { TextField } from '@/components/ui/text-field';
 import { useContactEnrollment } from '@/hooks/my-account/use-contact-enrollment';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants';
+import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { ENTER_CONTACT, ENTER_OTP } from '@/lib/constants/my-account/mfa/mfa-constants';
 import { cn } from '@/lib/utils';
 import type { ContactInputFormProps } from '@/types/my-account/mfa/mfa-types';

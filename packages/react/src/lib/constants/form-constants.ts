@@ -1,5 +1,5 @@
 /**
- * Common constants used across the components.
+ * Form constants used across the components.
  * @internal
  */
 

@@ -23,7 +23,7 @@ import {
 import { Modal } from '@/components/ui/modal';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { FORM_VALIDATION_MODE } from '@/lib/constants';
+import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
 import type { DomainCreateModalProps } from '@/types/my-organization/domain-management/domain-create-types';
 

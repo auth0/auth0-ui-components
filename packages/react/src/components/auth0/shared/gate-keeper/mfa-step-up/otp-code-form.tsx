@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { FORM_VALIDATION_MODE } from '@/lib/constants';
+import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 
 interface Authenticator {
   authenticatorType?: string;

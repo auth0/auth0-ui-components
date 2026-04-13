@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/form';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants';
+import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import type {
   ProviderDetailsFormHandle,
   ProviderDetailsProps,
