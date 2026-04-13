@@ -7,6 +7,7 @@ import type {
   SharedComponentProps,
   ComponentAction,
   MemberInvitation,
+  InvitationCreateSchemas,
 } from '@auth0/universal-components-core';
 
 /** Invitation status. */
@@ -210,4 +211,47 @@ export interface SearchFilterProps {
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   className?: string;
   onRoleFilterChange?: (roleId: string | undefined) => void;
+}
+
+/** Props for OrganizationInvitationCreateModal component. */
+export interface OrganizationInvitationCreateModalProps {
+  isOpen: boolean;
+  isLoading?: boolean;
+  customMessages?: Partial<OrganizationInvitationTabMessages>;
+  availableRoles?: RoleOption[];
+  availableProviders?: IdentityProviderOption[];
+  inviterName?: string;
+  schema?: InvitationCreateSchemas;
+  onClose: () => void;
+  onCreate: (data: CreateInvitationInput) => void;
+  className?: string;
+}
+
+/** Props for OrganizationInvitationDetailsModal component. */
+export interface OrganizationInvitationDetailsModalProps {
+  invitation: MemberInvitation | null;
+  isOpen: boolean;
+  isRevoking?: boolean;
+  isResending?: boolean;
+  customMessages?: Partial<OrganizationInvitationTabMessages>;
+  availableRoles?: RoleOption[];
+  availableProviders?: IdentityProviderOption[];
+  readOnly?: boolean;
+  onClose: () => void;
+  onCopyUrl?: (invitation: MemberInvitation) => void;
+  onRevoke?: (invitation?: MemberInvitation) => void;
+  onResend?: (invitation?: MemberInvitation) => void;
+  className?: string;
+}
+
+/** Props for OrganizationInvitationRevokeModal component. */
+export interface OrganizationInvitationRevokeModalProps {
+  invitation: MemberInvitation | null;
+  isOpen: boolean;
+  isLoading?: boolean;
+  isRevokeAndResend?: boolean;
+  customMessages?: Partial<OrganizationInvitationTabMessages>;
+  onClose: () => void;
+  onConfirm: (invitation: MemberInvitation) => void;
+  className?: string;
 }

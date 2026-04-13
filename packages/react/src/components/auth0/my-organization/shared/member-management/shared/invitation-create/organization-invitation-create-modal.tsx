@@ -3,10 +3,7 @@
  * @module organization-invitation-create-modal
  */
 
-import {
-  createInvitationCreateSchema,
-  type InvitationCreateSchemas,
-} from '@auth0/universal-components-core';
+import { createInvitationCreateSchema } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -30,25 +27,9 @@ import {
 import { TextFieldGroup } from '@/components/ui/text-field-group';
 import type { ChipItem } from '@/components/ui/text-field-group';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type {
-  CreateInvitationInput,
-  RoleOption,
-  IdentityProviderOption,
-  OrganizationInvitationTabMessages,
-} from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type { OrganizationInvitationCreateModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
-export interface OrganizationInvitationCreateModalProps {
-  isOpen: boolean;
-  isLoading?: boolean;
-  customMessages?: Partial<OrganizationInvitationTabMessages>;
-  availableRoles?: RoleOption[];
-  availableProviders?: IdentityProviderOption[];
-  inviterName?: string;
-  schema?: InvitationCreateSchemas;
-  onClose: () => void;
-  onCreate: (data: CreateInvitationInput) => void;
-  className?: string;
-}
+export type { OrganizationInvitationCreateModalProps };
 
 /**
  * Modal for creating a new invitation.
