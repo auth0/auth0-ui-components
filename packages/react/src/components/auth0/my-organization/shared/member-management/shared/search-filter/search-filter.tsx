@@ -58,7 +58,10 @@ export function SearchFilter({
   return (
     <div className={className ?? 'mb-4 flex items-center justify-end gap-2'}>
       <Select value={filters?.roleId ?? 'all'} onValueChange={handleRoleFilterChange}>
-        <SelectTrigger className="w-auto min-w-[180px]">
+        <SelectTrigger
+          className="w-auto min-w-[180px]"
+          aria-label={t('invitation.table.filter_by_role')}
+        >
           <span className="text-muted-foreground mr-1">
             {t('invitation.table.filter_by_role')}:
           </span>

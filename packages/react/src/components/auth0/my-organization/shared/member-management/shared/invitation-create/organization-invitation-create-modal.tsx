@@ -174,20 +174,19 @@ export function OrganizationInvitationCreateModal({
         return;
       }
 
-      // Create invitations for each email
-      for (const email of finalEmails) {
-        const invitationData: CreateInvitationInput = {
-          invitee: { email },
+      const invitationData: CreateInvitationInput = {
+        invitees: finalEmails.map((email) => ({
+          email,
           roles: selectedRoles.length > 0 ? selectedRoles : undefined,
-          identity_provider_id: selectedProvider,
-        };
+        })),
+        identity_provider_id: selectedProvider,
+      };
 
-        if (inviterName) {
-          invitationData.inviter = { name: inviterName };
-        }
-
-        onCreate(invitationData);
+      if (inviterName) {
+        invitationData.inviter = { name: inviterName };
       }
+
+      onCreate(invitationData);
     },
     [
       emailChips,
