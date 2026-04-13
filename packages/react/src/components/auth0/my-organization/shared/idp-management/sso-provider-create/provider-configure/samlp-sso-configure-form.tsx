@@ -43,6 +43,7 @@ import {
 } from '@/components/ui/select';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
@@ -92,8 +93,8 @@ export const SamlpProviderForm = React.forwardRef<
 
   const form = useForm<SamlpConfigureFormValues>({
     resolver: zodResolver(createProviderConfigureSchema('samlp')),
-    mode: 'onTouched',
-    reValidateMode: 'onChange',
+    mode: FORM_VALIDATION_MODE,
+    reValidateMode: FORM_REVALIDATE_MODE,
     defaultValues: {
       meta_data_source: samlpData?.meta_data_source || 'meta_data_url',
       metadataUrl: samlpData?.metadataUrl || '',

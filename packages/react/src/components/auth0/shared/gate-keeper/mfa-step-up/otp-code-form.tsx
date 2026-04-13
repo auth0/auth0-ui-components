@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { FORM_VALIDATION_MODE } from '@/lib/constants';
 
 interface Authenticator {
   authenticatorType?: string;
@@ -54,7 +55,7 @@ export function OtpCodeForm({
 
   const isRecoveryCode = authenticator?.authenticatorType === FACTOR_TYPE_RECOVERY_CODE;
 
-  const form = useForm<CodeForm>({ mode: 'onTouched' });
+  const form = useForm<CodeForm>({ mode: FORM_VALIDATION_MODE });
   const code = form.watch('code');
   const inputRef = useRef<HTMLInputElement>(null);
 

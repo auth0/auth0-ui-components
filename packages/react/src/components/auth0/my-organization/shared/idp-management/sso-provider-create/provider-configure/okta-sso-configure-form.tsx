@@ -28,6 +28,7 @@ import { TextField } from '@/components/ui/text-field';
 import { useProviderFormMode } from '@/hooks/my-organization/use-provider-form-mode';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
@@ -76,8 +77,8 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
 
     const form = useForm<OktaConfigureFormValues>({
       resolver: zodResolver(createProviderConfigureSchema('okta')),
-      mode: 'onTouched',
-      reValidateMode: 'onChange',
+      mode: FORM_VALIDATION_MODE,
+      reValidateMode: FORM_REVALIDATE_MODE,
       defaultValues: {
         domain: oktaData?.domain || '',
         client_id: oktaData?.client_id || '',

@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/form';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants';
 import type {
   ProviderDetailsFormHandle,
   ProviderDetailsProps,
@@ -41,8 +42,8 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
 
     const form = useForm<ProviderDetailsFormValues>({
       resolver: zodResolver(createProviderDetailsSchema()),
-      mode: 'onTouched',
-      reValidateMode: 'onChange',
+      mode: FORM_VALIDATION_MODE,
+      reValidateMode: FORM_REVALIDATE_MODE,
       defaultValues: {
         name: initialData?.name || '',
         display_name: initialData?.display_name || '',

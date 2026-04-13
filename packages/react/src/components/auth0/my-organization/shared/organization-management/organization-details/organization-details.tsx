@@ -26,6 +26,7 @@ import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { FORM_VALIDATION_MODE } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import type { OrganizationDetailsProps } from '@/types/my-organization/organization-management/organization-details-types';
 
@@ -114,7 +115,7 @@ export function OrganizationDetails({
 
   const form = useForm<OrganizationDetailsFormValues>({
     resolver: zodResolver(organizationDetailSchema),
-    mode: 'onTouched',
+    mode: FORM_VALIDATION_MODE,
     defaultValues: formValues,
     values: formValues,
   });
