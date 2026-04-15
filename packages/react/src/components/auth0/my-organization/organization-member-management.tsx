@@ -57,23 +57,13 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     invitationSortConfig,
     availableRoles,
     availableProviders,
-    showCreateModal,
-    showDetailsModal,
-    showRevokeModal,
-    showRevokeResendModal,
-    selectedInvitation,
+    modalState,
     setActiveTab,
-    handleCreateClick,
+    openModal,
+    closeModal,
     handleCreateSubmit,
-    handleCreateCancel,
-    handleDetailsClick,
-    handleDetailsClose,
-    handleRevokeClick,
     handleRevokeConfirm,
-    handleRevokeCancel,
-    handleRevokeResendClick,
     handleRevokeResendConfirm,
-    handleRevokeResendCancel,
     handleCopyUrl,
     handleSortChange,
     handleNextPage,
@@ -81,6 +71,13 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     handlePageSizeChange,
     handleRoleFilterChange,
   } = props;
+
+  const selectedInvitation =
+    modalState.type === 'details' ||
+    modalState.type === 'revoke' ||
+    modalState.type === 'revokeResend'
+      ? modalState.invitation
+      : null;
 
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
@@ -104,7 +101,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
                       {
                         type: 'button',
                         label: t('invite_button'),
-                        onClick: handleCreateClick,
+                        onClick: () => openModal({ type: 'create' }),
                         icon: Plus,
                         disabled: readOnly,
                       },
@@ -141,10 +138,16 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               readOnly={readOnly}
               sortConfig={invitationSortConfig}
               onSortChange={handleSortChange}
-              onView={handleDetailsClick}
+              onView={(invitation) => openModal({ type: 'details', invitation })}
               onCopyUrl={handleCopyUrl}
-              onRevokeAndResend={readOnly ? undefined : handleRevokeResendClick}
-              onRevoke={readOnly ? undefined : handleRevokeClick}
+              onRevokeAndResend={
+                readOnly
+                  ? undefined
+                  : (invitation) => openModal({ type: 'revokeResend', invitation })
+              }
+              onRevoke={
+                readOnly ? undefined : (invitation) => openModal({ type: 'revoke', invitation })
+              }
               onNextPage={handleNextPage}
               onPreviousPage={handlePreviousPage}
               onPageSizeChange={handlePageSizeChange}
@@ -155,49 +158,49 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
         </Tabs>
 
         <OrganizationInvitationCreateModal
-          isOpen={showCreateModal}
+          isOpen={modalState.type === 'create'}
           isLoading={isCreatingInvitation}
           customMessages={customMessages?.invitation}
           availableRoles={availableRoles}
           availableProviders={availableProviders}
-          onClose={handleCreateCancel}
+          onClose={closeModal}
           onCreate={handleCreateSubmit}
           className={currentStyles.classes?.['OrganizationInvitationTab-createModal']}
         />
 
         <OrganizationInvitationDetailsModal
           invitation={selectedInvitation}
-          isOpen={showDetailsModal}
+          isOpen={modalState.type === 'details'}
           isRevoking={isRevokingInvitation}
           isResending={isResendingInvitation}
           customMessages={customMessages?.invitation}
           availableRoles={availableRoles}
           availableProviders={availableProviders}
           readOnly={readOnly}
-          onClose={handleDetailsClose}
+          onClose={closeModal}
           onCopyUrl={handleCopyUrl}
-          onRevoke={(invitation) => invitation && handleRevokeClick(invitation)}
-          onResend={(invitation) => invitation && handleRevokeResendClick(invitation)}
+          onRevoke={(invitation) => invitation && openModal({ type: 'revoke', invitation })}
+          onResend={(invitation) => invitation && openModal({ type: 'revokeResend', invitation })}
           className={currentStyles.classes?.['OrganizationInvitationTab-detailsModal']}
         />
 
         <OrganizationInvitationRevokeModal
           invitation={selectedInvitation}
-          isOpen={showRevokeModal}
+          isOpen={modalState.type === 'revoke'}
           isLoading={isRevokingInvitation}
           customMessages={customMessages?.invitation}
-          onClose={handleRevokeCancel}
+          onClose={closeModal}
           onConfirm={() => handleRevokeConfirm()}
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeModal']}
         />
 
         <OrganizationInvitationRevokeModal
           invitation={selectedInvitation}
-          isOpen={showRevokeResendModal}
+          isOpen={modalState.type === 'revokeResend'}
           isLoading={isResendingInvitation}
           isRevokeAndResend
           customMessages={customMessages?.invitation}
-          onClose={handleRevokeResendCancel}
+          onClose={closeModal}
           onConfirm={() => handleRevokeResendConfirm()}
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeResendModal']}
         />

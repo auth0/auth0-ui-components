@@ -85,6 +85,14 @@ export interface DataPaginationProps {
   onPreviousPage?: () => void;
 }
 
+interface PageRangeInfoProps {
+  totalItems: number;
+  currentPage: number;
+  pageSize: number;
+  locale?: string;
+  labels: DataPaginationLabels;
+}
+
 const formatNumber = (num: number | undefined | null, locale?: string): string => {
   if (num === null || num === undefined || isNaN(num)) {
     return '0';
@@ -94,6 +102,46 @@ const formatNumber = (num: number | undefined | null, locale?: string): string =
     locale ?? (typeof navigator !== 'undefined' ? navigator.language : 'en-US');
   return num.toLocaleString(resolvedLocale);
 };
+
+const getPageRange = (
+  totalItems: number,
+  currentPage: number,
+  pageSize: number,
+  locale?: string,
+): { start: string; end: string } => {
+  const start = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const end = Math.min(currentPage * pageSize, totalItems);
+  return {
+    start: formatNumber(start, locale),
+    end: formatNumber(end, locale),
+  };
+};
+
+/**
+ * Renders the page range info.
+ *
+ * @param props - Component props.
+ * @param props.totalItems - Total number of items.
+ * @param props.currentPage - Current page number.
+ * @param props.pageSize - Number of items per page.
+ * @param props.locale - Locale identifier for number formatting.
+ * @param props.labels - Label text configuration.
+ * @returns JSX element displaying the page range info.
+ */
+function PageRangeInfo({ totalItems, currentPage, pageSize, locale, labels }: PageRangeInfoProps) {
+  const range = getPageRange(totalItems, currentPage, pageSize, locale);
+  return (
+    <>
+      {labels.showing}{' '}
+      <span className="font-medium text-foreground">
+        {range.start}-{range.end}
+      </span>{' '}
+      {labels.of}{' '}
+      <span className="font-medium text-foreground">{formatNumber(totalItems, locale)}</span>
+      {labels.results && <> {labels.results}</>}
+    </>
+  );
+}
 
 /**
  *
@@ -174,56 +222,22 @@ export function DataPagination({
       {showPageInfo && (
         <div className="text-sm text-foreground whitespace-nowrap sm:mr-auto">
           {isRegular && regularState ? (
-            <>
-              {labels.showing}{' '}
-              <span className="font-medium text-foreground">
-                {formatNumber(
-                  regularState.totalItems === 0
-                    ? 0
-                    : (regularState.currentPage - 1) * regularState.pageSize + 1,
-                  locale,
-                )}
-                -
-                {formatNumber(
-                  Math.min(
-                    regularState.currentPage * regularState.pageSize,
-                    regularState.totalItems,
-                  ),
-                  locale,
-                )}
-              </span>{' '}
-              {labels.of}{' '}
-              <span className="font-medium text-foreground">
-                {formatNumber(regularState.totalItems, locale)}
-              </span>
-              {labels.results && <> {labels.results}</>}
-            </>
+            <PageRangeInfo
+              totalItems={regularState.totalItems}
+              currentPage={regularState.currentPage}
+              pageSize={regularState.pageSize}
+              locale={locale}
+              labels={labels}
+            />
           ) : checkpointState?.totalItems !== undefined &&
             checkpointState?.currentPage !== undefined ? (
-            <>
-              {labels.showing}{' '}
-              <span className="font-medium text-foreground">
-                {formatNumber(
-                  checkpointState.totalItems === 0
-                    ? 0
-                    : (checkpointState.currentPage - 1) * checkpointState.pageSize + 1,
-                  locale,
-                )}
-                -
-                {formatNumber(
-                  Math.min(
-                    checkpointState.currentPage * checkpointState.pageSize,
-                    checkpointState.totalItems,
-                  ),
-                  locale,
-                )}
-              </span>{' '}
-              {labels.of}{' '}
-              <span className="font-medium text-foreground">
-                {formatNumber(checkpointState.totalItems, locale)}
-              </span>
-              {labels.results && <> {labels.results}</>}
-            </>
+            <PageRangeInfo
+              totalItems={checkpointState.totalItems}
+              currentPage={checkpointState.currentPage}
+              pageSize={checkpointState.pageSize}
+              locale={locale}
+              labels={labels}
+            />
           ) : checkpointState?.totalItems !== undefined ? (
             <>
               <span className="font-medium text-foreground">

@@ -20,6 +20,7 @@ import type {
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   ActiveTab,
+  MemberManagementModalState,
   UseOrganizationMemberManagementOptions,
   UseOrganizationMemberManagementResult,
 } from '@/types/my-organization/member-management/organization-member-management-types';
@@ -63,11 +64,7 @@ export function useOrganizationMemberManagement(
     changeFilters: invitationChangeFilters,
   } = useCheckpointPagination<InvitationFilterState>();
 
-  const [showCreateModal, setShowCreateModal] = React.useState(false);
-  const [showDetailsModal, setShowDetailsModal] = React.useState(false);
-  const [showRevokeModal, setShowRevokeModal] = React.useState(false);
-  const [showRevokeResendModal, setShowRevokeResendModal] = React.useState(false);
-  const [selectedInvitation, setSelectedInvitation] = React.useState<MemberInvitation | null>(null);
+  const [modalState, setModalState] = React.useState<MemberManagementModalState>({ type: null });
   const detailsRequestIdRef = React.useRef(0);
 
   const {
@@ -96,99 +93,55 @@ export function useOrganizationMemberManagement(
   const invitationNextToken = invitationsQuery.data?.next ?? null;
   const invitationsTotalItems = invitationsQuery.data?.total;
 
-  const handleCreateClick = React.useCallback(() => {
-    if (readOnly) return;
-    setShowCreateModal(true);
-  }, [readOnly]);
+  const openModal = React.useCallback(
+    async (state: MemberManagementModalState) => {
+      if (state.type === 'create' && readOnly) return;
+      if ((state.type === 'revoke' || state.type === 'revokeResend') && readOnly) return;
+      setModalState(state);
+
+      if (state.type === 'details') {
+        const requestId = ++detailsRequestIdRef.current;
+        try {
+          const response = await fetchInvitationDetails(state.invitation.id!);
+          if (detailsRequestIdRef.current === requestId) {
+            setModalState({ type: 'details', invitation: response });
+          }
+        } catch {
+          if (detailsRequestIdRef.current === requestId) {
+            showToast({ type: 'error', message: t('invitation.error.fetch_failed') });
+          }
+        }
+      }
+    },
+    [readOnly, fetchInvitationDetails, t],
+  );
+
+  const closeModal = React.useCallback(() => {
+    setModalState({ type: null });
+  }, []);
 
   const handleCreateSubmit = React.useCallback(
     (data: CreateInvitationInput) => {
       createInvitationMutation.mutate(data, {
-        onSuccess: () => setShowCreateModal(false),
+        onSuccess: () => closeModal(),
       });
     },
-    [createInvitationMutation],
-  );
-
-  const handleCreateCancel = React.useCallback(() => {
-    setShowCreateModal(false);
-  }, []);
-
-  const handleDetailsClick = React.useCallback(
-    async (invitation: MemberInvitation) => {
-      setSelectedInvitation(invitation);
-      setShowDetailsModal(true);
-      const requestId = ++detailsRequestIdRef.current;
-      try {
-        const response = await fetchInvitationDetails(invitation.id!);
-        if (detailsRequestIdRef.current === requestId) {
-          setSelectedInvitation(response);
-        }
-      } catch {
-        if (detailsRequestIdRef.current === requestId) {
-          showToast({ type: 'error', message: t('invitation.error.fetch_failed') });
-        }
-      }
-    },
-    [fetchInvitationDetails, t],
-  );
-
-  const handleDetailsClose = React.useCallback(() => {
-    setShowDetailsModal(false);
-    setSelectedInvitation(null);
-  }, []);
-
-  const handleRevokeClick = React.useCallback(
-    (invitation: MemberInvitation) => {
-      if (readOnly) return;
-      if (showDetailsModal) {
-        setShowDetailsModal(false);
-      }
-      setSelectedInvitation(invitation);
-      setShowRevokeModal(true);
-    },
-    [readOnly, showDetailsModal],
+    [createInvitationMutation, closeModal],
   );
 
   const handleRevokeConfirm = React.useCallback(() => {
-    if (!selectedInvitation) return;
-    revokeInvitationMutation.mutate(selectedInvitation, {
-      onSuccess: () => {
-        setShowRevokeModal(false);
-        setSelectedInvitation(null);
-      },
+    if (modalState.type !== 'revoke') return;
+    revokeInvitationMutation.mutate(modalState.invitation, {
+      onSuccess: () => closeModal(),
     });
-  }, [selectedInvitation, revokeInvitationMutation]);
-
-  const handleRevokeCancel = React.useCallback(() => {
-    setShowRevokeModal(false);
-  }, []);
-
-  const handleRevokeResendClick = React.useCallback(
-    (invitation: MemberInvitation) => {
-      if (readOnly) return;
-      if (showDetailsModal) {
-        setShowDetailsModal(false);
-      }
-      setSelectedInvitation(invitation);
-      setShowRevokeResendModal(true);
-    },
-    [readOnly, showDetailsModal],
-  );
+  }, [modalState, revokeInvitationMutation, closeModal]);
 
   const handleRevokeResendConfirm = React.useCallback(() => {
-    if (!selectedInvitation) return;
-    resendInvitationMutation.mutate(selectedInvitation, {
-      onSuccess: () => {
-        setShowRevokeResendModal(false);
-        setSelectedInvitation(null);
-      },
+    if (modalState.type !== 'revokeResend') return;
+    resendInvitationMutation.mutate(modalState.invitation, {
+      onSuccess: () => closeModal(),
     });
-  }, [selectedInvitation, resendInvitationMutation]);
-
-  const handleRevokeResendCancel = React.useCallback(() => {
-    setShowRevokeResendModal(false);
-  }, []);
+  }, [modalState, resendInvitationMutation, closeModal]);
 
   const handleCopyUrl = React.useCallback(
     async (invitation: MemberInvitation) => {
@@ -254,24 +207,14 @@ export function useOrganizationMemberManagement(
     },
     invitationFilters,
     invitationSortConfig,
-    showCreateModal,
-    showDetailsModal,
-    showRevokeModal,
-    showRevokeResendModal,
-    selectedInvitation,
+    modalState,
 
     setActiveTab,
-    handleCreateClick,
+    openModal,
+    closeModal,
     handleCreateSubmit,
-    handleCreateCancel,
-    handleDetailsClick,
-    handleDetailsClose,
-    handleRevokeClick,
     handleRevokeConfirm,
-    handleRevokeCancel,
-    handleRevokeResendClick,
     handleRevokeResendConfirm,
-    handleRevokeResendCancel,
     handleCopyUrl,
     handleNextPage,
     handlePreviousPage,
