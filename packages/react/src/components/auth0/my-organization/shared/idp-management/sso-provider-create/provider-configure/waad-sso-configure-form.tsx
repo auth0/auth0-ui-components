@@ -27,6 +27,7 @@ import { TextField } from '@/components/ui/text-field';
 import { useProviderFormMode } from '@/hooks/my-organization/use-provider-form-mode';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
@@ -69,8 +70,8 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
 
     const form = useForm<WaadConfigureFormValues>({
       resolver: zodResolver(createProviderConfigureSchema('waad')),
-      mode: 'onSubmit',
-      reValidateMode: 'onChange',
+      mode: FORM_VALIDATION_MODE,
+      reValidateMode: FORM_REVALIDATE_MODE,
       defaultValues: {
         tenant_domain: waadData?.tenant_domain || '',
         client_id: waadData?.client_id || '',
