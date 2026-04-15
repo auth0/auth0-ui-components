@@ -63,6 +63,6 @@ export function useConfig(): UseConfigResult {
     filteredStrategies,
     shouldAllowDeletion,
     isConfigValid,
-    allowedRoles: [],
+    allowedRoles,
   };
 }
