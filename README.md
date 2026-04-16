@@ -14,7 +14,7 @@ Drop-in React components for Auth0 organization management, SSO configuration, a
 <p align="center">
   <img src="docs-site/public/SSOProviderCreateComponent.gif" alt="SSO Provider Configuration" width="700">
   <br>
-  <sub>SSO Provider Configuration — one of the pre-built components included in the library</sub>
+  <sub>SSO Provider Create Component</sub>
 </p>
 
 ## Quick Start
