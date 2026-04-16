@@ -1,172 +1,163 @@
-# **Universal Components** demo for Next.js
+# Auth0 Universal Components - Next.js Example
 
-A Next.js example that demonstrates Auth0 authentication using proxy mode along with Auth0 Universal Components demonstrating delegated administration.
+A Next.js application demonstrating Auth0 Universal Components with proxy-based authentication (RWA mode). This approach keeps tokens server-side and uses `@auth0/nextjs-auth0` for secure authentication.
 
-## Jump to a section
+## Table of Contents
 
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
-- [Adding a Universal Component](#adding-a-universal-component-to-your-app)
-- [Universal Component Docs (Component-Specific Requirements)](#universal-component-docs-component-specific-requirements)
+- [Using Components](#using-components)
 - [Troubleshooting](#troubleshooting)
 
 ## Prerequisites
 
-1. **Node.js v20 or later** is required to run the bootstrapping process.
+1. **Node.js v20 or later**
 
-We recommend using [`nvm`](https://github.com/nvm-sh/nvm) to manage node versions in your development environment. Click these links to [learn how to install nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script) or [how to use nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#usage) to make sure you're using Node 20+.
+   We recommend using [nvm](https://github.com/nvm-sh/nvm) to manage Node versions. See [how to install nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script) or [how to use nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#usage).
 
-2. **[`pnpm`](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) or a comparable package manager** installed in your development environment.
+2. **pnpm**
 
-These instructions assume that you're using `pnpm`, which is automatically included as part of the Node.js installation from prerequisite 1.
+   Install globally with npm:
 
-3. **A new Auth0 tenant**.
+   ```bash
+   npm install -g pnpm
+   ```
 
-**This is important!** Using a new Auth0 tenant for this sample application ensures you don't encounter any conflicts due to existing configuration in an existing tenant.
+   Or see [pnpm.io/installation](https://pnpm.io/installation) for other installation methods.
 
-The tenant you create will be configured automatically by our bootstrapping command during the installation process. You can sign up for a free Auth0 account at [https://auth0.com/signup](https://auth0.com/signup?utm_source=github&utm_medium=thirdpartyutm_campaign=universal-components). See [Create Tenants](https://auth0.com/docs/get-started/auth0-overview/create-tenants) in the Auth0 docs if you need help.
+3. **Auth0 CLI**
 
-4. Continue with the **[Getting Started](#getting-started)** section.
+   Required for the bootstrap script that configures your tenant. Install from [auth0.com/docs/deploy-monitor/auth0-cli](https://auth0.com/docs/deploy-monitor/auth0-cli).
+
+4. **An Auth0 tenant**
+
+   Sign up for a free Auth0 account at [auth0.com/signup](https://auth0.com/signup) if you don't have one. See [Create Tenants](https://auth0.com/docs/get-started/auth0-overview/create-tenants) if you need help. You can use an existing tenant — the bootstrap script will only add what's missing without modifying your existing configuration.
 
 ## Getting Started
 
-1. **Clone the repository and navigate to its folder:**
+### 1. Clone and install dependencies
 
-   ```bash
-   git clone https://github.com/auth0/auth0-ui-components
-   cd auth0-ui-components
-   ```
+```bash
+git clone https://github.com/auth0/auth0-ui-components
+cd auth0-ui-components
+pnpm install
+pnpm build
+```
 
-2. **Build the components package and install dependencies:**
+### 2. Install bootstrap script dependencies
 
-   ```bash
-   pnpm install
-   pnpm run build
-   ```
+```bash
+cd examples/scripts
+pnpm install
+```
 
-3. **Navigate to the examples folder and install dependencies:**
+### 3. Configure your Auth0 tenant
 
-   ```bash
-   cd examples/next-rwa
-   pnpm install
-   ```
+Run the bootstrap script to handle Auth0 CLI authentication and configure your tenant with the necessary APIs, applications, roles, and organization:
 
-4. **Login to `auth0-cli` and execute the bootstrap script to setup your tenant:**
+```bash
+pnpm run auth0:bootstrap <your-tenant-domain>
+```
 
-   Below `cli` command opens up a login prompt in your browser to select relevant tenant and confirm permissions.
+Alternatively, you can follow the [manual configuration guide](https://auth0.com/docs/get-started/universal-components/my-organization/build-delegated-admin#create-application) and create a `.env.local` file with your tenant credentials.
 
-   ```bash
-   auth0 login --scopes "read:connection_profiles,create:connection_profiles,update:connection_profiles,read:user_attribute_profiles,create:user_attribute_profiles,update:user_attribute_profiles,read:client_grants,create:client_grants,update:client_grants,delete:client_grants,read:connections,create:connections,update:connections,create:organization_connections,create:organization_members,create:organization_member_roles,read:clients,create:clients,update:clients,read:client_keys,read:roles,create:roles,update:roles,read:resource_servers,create:resource_servers,update:resource_servers,update:tenant_settings"
-   ```
+> [!IMPORTANT]
+> **Private-cloud tenants** are not supported by the bootstrap script. Follow the [manual configuration guide](https://auth0.com/docs/get-started/universal-components/my-organization/build-delegated-admin#create-application) to set up your tenant.
 
-   For a private-cloud tenant, authenticate using client-id and secret. If required, create a Machine to Machine application on your tenant authorized for Management API with relevant scopes.
+### 4. Start the development server
 
-   ```bash
-   auth0 login --domain <tenant-domain> --client-id <client-id> --client-secret <client-secret>
-   ```
+```bash
+cd ../next-rwa
+pnpm install
+pnpm dev
+```
 
-   After successful login, verify your selected tenant is Active.
+### 5. Access the application
 
-   ```bash
-   auth0 tenants list
-   ```
+Open [http://localhost:5173](http://localhost:5173) in your browser. Log in with the org admin credentials created during bootstrap.
 
-   > [!WARNING]  
-   > The step below will modify your tenant configuration. Only execute this against a dev tenant.
+## Using Components
 
-   Execute the bootstrap script with the domain of your tenant.
+Components are imported from `@auth0/universal-components-react/rwa` for Next.js applications. The `/rwa` entry point uses proxy-based authentication.
 
-   ```bash
-   pnpm run auth0:bootstrap <your tenant domain>
-   ```
+### Provider Setup
 
-   This scripts configures your tenant. If required it will also ask you to create an org admin and set password that you can use to login to the demo.
+The Auth0ComponentProvider is configured in `src/providers/client-provider.tsx` with proxy mode:
 
-5. **Navigate to examples folder, install dependencies & run:**
+```tsx
+'use client';
 
-   ```bash
-   cd ../next-rwa
-   pnpm install
-   pnpm run dev
-   ```
+import { Auth0ComponentProvider } from '@auth0/universal-components-react/rwa';
 
-6. **Access the Application:**
+export function ClientProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <Auth0ComponentProvider
+      domain={process.env.NEXT_PUBLIC_AUTH0_DOMAIN!}
+      mode="proxy"
+      proxyConfig={{ baseUrl: '/' }}
+      themeSettings={{ theme: 'default', mode: 'light' }}
+    >
+      {children}
+    </Auth0ComponentProvider>
+  );
+}
+```
 
-   Once the development server is running, you can access the application at:
+### Using a Component
 
-   **http://localhost:5173**
+To enable a component, edit the corresponding page file. For example, to enable the Domain Table, edit `src/app/domain-management/page.tsx`:
 
-   The application should now be running with Auth0 authentication integrated.
-
-## Adding a Universal Component to your app
-
-In this example, we have routes defined within the side-bar at `examples/next-rwa/src/components/navigation/side-bar.tsx`.
-
-The Domains route is served by `examples/next-rwa/src/app/domain-management/page.tsx` which currently renders an empty page.
-
-Edit this file to uncomment `<DomainTable />` and deleted the `<p>` entry and save. Final result should look like below.
-
-```typescript
+```tsx
 'use client';
 
 import { DomainTable } from '@auth0/universal-components-react';
 
-export default function OrganizationManagementPage() {
+export default function DomainManagementPage() {
   return (
     <div className="p-6 pt-8 space-y-6">
-        <DomainTable />
+      <DomainTable />
     </div>
   );
 }
 ```
 
-Navigate to `Domains` menu items to view the Domain Management Universal Component.
-
-## Universal Component Docs (Component-Specific Requirements)
-
-For detailed configuration options, props, troubleshooting, and component-specific requirements, please refer to the official component documentation:
-
-**[Auth0 Universal Components Documentation](https://auth0-ui-components.vercel.app/getting-started)**
-
-**Important**: Each component may have specific Auth0 configuration requirements. Before using any component, please check the [Auth0 UI Components Documentation](https://auth0-ui-components.vercel.app/) for component-specific prerequisites and setup instructions.
+For component-specific configuration requirements, see the [Auth0 Universal Components documentation](https://auth0.com/docs/get-started/universal-components/universal-components-overview).
 
 ## Troubleshooting
 
-### Common Issues
+### Build errors
 
-1. **Build Errors in Monorepo Setup**
-   - Make sure you run `pnpm run build` at the project root before starting the dev server
-   - Ensure all dependencies are installed with `pnpm install` at the root
+- Run `pnpm build` at the project root before starting the dev server
+- Ensure all dependencies are installed with `pnpm install` at the root
 
-2. **Auth0 Configuration Issues**
-   - Verify your `.env` file is in the correct location
-   - Check that your Auth0 domain, client ID and configured variables are correct
-   - Ensure Auth0 application settings match your local development URL
+### Auth0 configuration issues
 
-3. **Port Already in Use**
-   - If port 5173 is already in use, Vite will automatically use the next available port
-   - Check the terminal output for the actual port being used
+- Verify your `.env.local` file exists and contains all required variables:
+  - `AUTH0_SECRET`
+  - `AUTH0_ISSUER_BASE_URL`
+  - `AUTH0_CLIENT_ID`
+  - `AUTH0_CLIENT_SECRET`
+  - `NEXT_PUBLIC_AUTH0_DOMAIN`
+- Check that Auth0 application settings include `http://localhost:5173/api/auth/callback` in Allowed Callback URLs
 
-4. **pnpm Command Not Found**
-   - Install pnpm globally: `npm install -g pnpm`
-   - Or use npx: `npx pnpm install`
+### Port already in use
 
-### Getting Help
+Next.js will automatically use the next available port if 5173 is in use. Check the terminal output for the actual port.
 
-If you encounter any issues:
+### pnpm command not found
 
-- Check the [Auth0 Documentation](https://auth0.com/docs)
-- Open an issue in the project repository
+Install pnpm globally: `npm install -g pnpm`
 
----
+### Auth0 CLI not authenticated
 
-**Note**: This setup guide assumes you're working with the latest version of the codebase. If you encounter version-specific issues, please refer to the project's main documentation or create an issue in the repository.
+Run `auth0 tenants list` to verify your session is active. Re-authenticate with `auth0 login` if needed.
+
+### Proxy authentication errors
+
+Ensure your Auth0 application is configured as a "Regular Web Application" (not SPA) for the RWA mode to work correctly.
 
 ## License
 
 Copyright 2026 Okta, Inc.
 
 Distributed under the [Apache License 2.0](https://github.com/auth0/auth0-ui-components/blob/main/LICENSE).
-
-**Authors**  
-Okta Inc.

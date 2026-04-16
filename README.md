@@ -1,161 +1,93 @@
-# Auth0 Universal Components for Web
+![Auth0 Universal Components](docs-site/public/auth0-ui-components-small.png)
 
-A comprehensive library of reusable UI components and utilities for Auth0 integrations, built with modern web technologies and designed for scalability.
+Drop-in React components for Auth0 organization management, SSO configuration, and MFA enrollment.
 
-## 📖 Documentation
+[![npm version](https://img.shields.io/npm/v/@auth0/universal-components-react.svg?style=flat-square)](https://www.npmjs.com/package/@auth0/universal-components-react)
+[![license](https://img.shields.io/npm/l/@auth0/universal-components-react.svg?style=flat-square)](https://github.com/auth0/auth0-ui-components/blob/main/LICENSE)
+[![downloads](https://img.shields.io/npm/dm/@auth0/universal-components-react.svg?style=flat-square)](https://www.npmjs.com/package/@auth0/universal-components-react)
 
-For detailed information on how to use these components and get started with Auth0, please refer to the following resources:
+> [!IMPORTANT]
+> **Early Access**: This feature is currently in Early Access. To learn more, see [Product Release Stages](https://auth0.com/docs/troubleshoot/product-lifecycle/product-release-stages).
 
-- **[Auth0 Quickstarts](https://auth0.com/docs/quickstarts)**: Official guides for creating and configuring your application on the Auth0 platform.
-- **[Auth0 APIs](https://auth0.com/docs/api)**: Comprehensive documentation for Auth0's APIs.
-- **[Component Documentation](https://auth0-ui-components.vercel.app/)**: Live Storybook showcasing all available components, their props, and usage examples.
-- **[Examples Folder](https://github.com/auth0/auth0-ui-components/tree/main/examples)**: Practical, hands-on sample applications demonstrating how to integrate and use these components in a real project.
-- **[Component Reference](#-component-reference)**: Explore public components available in @auth0/universal-components-react.
+📚 [Documentation](#documentation) - 🚀 [Quick Start](#quick-start) - 💬 [Feedback](#feedback)
 
-## Packages Overview
+<p align="center">
+  <img src="docs-site/public/SSOProviderCreateComponent.png" alt="SSO Provider Configuration" width="700">
+</p>
 
-This project uses a **monorepo architecture** designed for multi-framework support. It is organized into two main types of packages:
-
-- A framework-agnostic `@auth0/universal-components-core` package that contains all the core logic, services, and utilities.
-- Framework-specific packages (like `@auth0/universal-components-react`) that provide UI components and hooks for a particular technology. This structure allows for the future addition of packages for other frameworks like Vue or Angular.
-
-### `packages/core/`
-
-**@auth0/universal-components-core** - The foundational package containing core utilities and services.
-
-**What it provides:**
-
-- 📦 **Internal Services**: Handles all API logic for "My Account" and "My Organization" components, using the "My Account" and "My Organization" SDKs.
-- 🌐 **Internationalization (i18n)**: Contains all translation files for multi-language support and utils.
-- 🛡️ **Schema Validation**: Defines and maintains types for schema validation.
-- 🛠️ **Shared Utilities**: Provides shared functions, TypeScript types, and theme management utilities.
-
-### `packages/react/`
-
-**@auth0/universal-components-react** - React-specific UI components and hooks for Auth0 integrations.
-
-**What it provides:**
-
-- ⚛️ **React Components**: Pre-built UI components for Auth0 features (MFA management, user profiles, ,organization management etc.)
-- 🎣 **Custom Hooks**: React hooks for component state management and API interactions
-- 🎨 **UI Elements**: Beautiful, accessible components built with Radix UI and Tailwind CSS, following shadcn design patterns.
-- 🔄 **Providers**: React context providers for managing authentication, theme, and internationalization.
-
-## 🚀 Using the Library
-
-For detailed instructions on how to install and use the components in your project, please refer to the `README.md` file within the specific framework package you are using.
-
-- **[React Usage Guide](./packages/react/README.md)**
-
-## 🛠️ Getting Started (for Contributors)
-
-### Prerequisites
-
-- Node.js >= 18
-- PNPM (recommended package manager)
-
-### Installation
-
-1.  **Clone the repository:**
-
-    ```bash
-    git clone https://github.com/auth0/auth0-ui-components
-    cd auth0-ui-components
-    ```
-
-2.  **Install dependencies:**
-
-    ```bash
-    pnpm install
-    ```
-
-3.  **Build all packages:**
-    ```bash
-    pnpm run build
-    ```
-
-### Development
-
-#### Local Development Workflow
-
-To make and test changes locally:
-
-1.  Make your desired changes in any of the packages (e.g., `packages/core` or `packages/react`).
-2.  Re-build all packages to apply your changes:
-    ```bash
-    pnpm run build
-    ```
-3.  Navigate to a technology-specific example application in the `examples/` directory (e.g., `examples/react-spa-npm`).
-4.  Configure the required environment variables in a `.env` file as per the example's `README`.
-5.  Start the development server to see your changes in action:
-    ```bash
-    pnpm run dev
-    ```
-
-#### Testing
-
-Running tests:
+## Quick Start
 
 ```bash
-pnpm run test
-pnpm run test:react
-pnpm run test:core
+npm install @auth0/universal-components-react @auth0/auth0-react react-hook-form
 ```
 
-To run a specific test, go to the relevant package folder and run:
+### 1. Wrap Your App with Providers
 
-```bash
-pnpm run test organization-details-edit
+```tsx
+import { Auth0Provider } from '@auth0/auth0-react';
+import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
+import '@auth0/universal-components-react/styles';
+
+function App() {
+  return (
+    <Auth0Provider
+      domain="your-tenant.auth0.com"
+      clientId="your-client-id"
+      authorizationParams={{ redirect_uri: window.location.origin }}
+      interactiveErrorHandler="popup" // Required to handle step-up auth challenges via Universal Login popup
+    >
+      <Auth0ComponentProvider themeSettings={{ theme: 'default', mode: 'light' }}>
+        {/* Your app */}
+      </Auth0ComponentProvider>
+    </Auth0Provider>
+  );
+}
 ```
 
-#### Shadcn Local Development
+### 2. Use a Component
 
-1.  Update `registry.json` with your changes.
+```tsx
+import { SsoProviderCreate } from '@auth0/universal-components-react/spa';
 
-2.  Create a new build based on `registry.json`:
-
-    ```bash
-    pnpm build:shadcn
-    ```
-
-3.  Open `docs-site` and serve the registry:
-
-```bash
-cd docs-site
-pnpm install
-pnpm run dev
+function SettingsPage() {
+  return <SsoProviderCreate />;
+}
 ```
 
-4.  Go to your app (e.g., `react-spa-shadcn`) and update the components:
+[Read the full documentation →](https://auth0.com/docs/get-started/universal-components/universal-components-overview)
 
-    ```bash
-    npx shadcn@latest add http://localhost:5173/r/my-account/user-mfa-management.json --overwrite
-    npx shadcn@latest add http://localhost:5173/r/my-organization/organization-details-edit.json --overwrite
-    # ... other components
-    ```
+## Documentation
 
-    _Note: The port may differ if other applications are running._
+- [Universal Components Overview](https://auth0.com/docs/get-started/universal-components/universal-components-overview) - available components, installation, and configuration
+- [Styling Guide](https://auth0.com/docs/get-started/universal-components/universal-components-style) - theming, CSS variables, and dark mode
+- [Build a Delegated Admin](https://auth0.com/docs/get-started/universal-components/my-organization/build-delegated-admin) - end-to-end setup guide
+- [Examples](https://github.com/auth0/auth0-ui-components/tree/main/examples) - sample applications for React SPA, React shadcn, and Next.js
+- [Auth0 Docs](https://auth0.com/docs) - explore our docs site and learn more about Auth0
 
-## 📚 Component Reference
+## Packages
 
-Explore public components available in @auth0/universal-components-react.
+| Package                                                | Description                                           |
+| ------------------------------------------------------ | ----------------------------------------------------- |
+| [@auth0/universal-components-react](./packages/react/) | React components with `/spa` and `/rwa` entry points  |
+| [@auth0/universal-components-core](./packages/core/)   | Framework-agnostic core utilities, services, and i18n |
 
-- [UserMfaManagement](https://auth0.github.io/auth0-ui-components/variables/public-api.UserMFAMgmt.html)
-- [DomainTable](https://auth0.github.io/auth0-ui-components/variables/public-api.DomainTable.html)
-- [SsoProviderCreate](https://auth0.github.io/auth0-ui-components/variables/public-api.SsoProviderCreate.html)
-- [SsoProviderEdit](https://auth0.github.io/auth0-ui-components/variables/public-api.SsoProviderEdit.html)
-- [SsoProviderTable](https://auth0.github.io/auth0-ui-components/variables/public-api.SsoProviderTable.html)
-- [OrganizationDetailsEdit](https://auth0.github.io/auth0-ui-components/variables/public-api.OrganizationDetailsEdit.html)
+## Feedback
 
-## 🤝 Contributing
+- [Raise an issue](https://github.com/auth0/auth0-ui-components/issues) - Report bugs or request features
+- [Contributing Guide](./CONTRIBUTING.md) - Local development setup
+- [Vulnerability Reporting](https://auth0.com/responsible-disclosure-policy) - Security issues
 
-Contributions are welcome! Please feel free to submit a pull request or open an issue for any bugs, feature requests, or improvements.
+## License
 
-## 📜 License
+Copyright 2026 Okta, Inc. Licensed under [Apache License 2.0](LICENSE).
 
-Copyright 2026 Okta, Inc
+---
 
-This project is licensed under the [Apache License 2.0](LICENSE). See the [LICENSE](LICENSE) file for details.
-
-**Authors**  
-Okta Inc.
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="https://cdn.auth0.com/website/sdks/logos/auth0_light_mode.png" width="150">
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.auth0.com/website/sdks/logos/auth0_dark_mode.png" width="150">
+    <img alt="Auth0 Logo" src="https://cdn.auth0.com/website/sdks/logos/auth0_light_mode.png" width="150">
+  </picture>
+</p>
+<p align="center">Auth0 is an easy to implement, adaptable authentication and authorization platform. To learn more checkout <a href="https://auth0.com/why-auth0">Why Auth0?</a></p>
