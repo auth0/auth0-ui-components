@@ -78,34 +78,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser. Log in with
 
 ## Using Components
 
-Components are imported from `@auth0/universal-components-react/rwa` for Next.js applications. The `/rwa` entry point uses proxy-based authentication.
-
-### Provider Setup
-
-The Auth0ComponentProvider is configured in `src/providers/client-provider.tsx` with proxy mode:
-
-```tsx
-'use client';
-
-import { Auth0ComponentProvider } from '@auth0/universal-components-react/rwa';
-
-export function ClientProvider({ children }: { children: React.ReactNode }) {
-  return (
-    <Auth0ComponentProvider
-      domain={process.env.NEXT_PUBLIC_AUTH0_DOMAIN!}
-      mode="proxy"
-      proxyConfig={{ baseUrl: '/' }}
-      themeSettings={{ theme: 'default', mode: 'light' }}
-    >
-      {children}
-    </Auth0ComponentProvider>
-  );
-}
-```
-
-### Using a Component
-
-To enable a component, edit the corresponding page file. For example, to enable the Domain Table, edit `src/app/domain-management/page.tsx`:
+The provider is already configured in `src/providers/client-provider.tsx` and styles are imported in `src/app/globals.css`. To enable a component, edit the corresponding page file. For example, to enable the Domain Table, edit `src/app/domain-management/page.tsx`:
 
 ```tsx
 'use client';

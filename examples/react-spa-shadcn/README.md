@@ -89,36 +89,7 @@ This installs the component source code to your `components/auth0/` directory. S
 
 ## Using Components
 
-### Configure the Provider
-
-Update your main App component to include the Auth0 Component Provider:
-
-```tsx
-import { Auth0Provider } from '@auth0/auth0-react';
-import { Auth0ComponentProvider } from '@/providers/spa-provider';
-
-function App() {
-  return (
-    <Auth0Provider
-      domain={import.meta.env.VITE_AUTH0_DOMAIN}
-      clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
-      authorizationParams={{ redirect_uri: window.location.origin }}
-      interactiveErrorHandler="popup" // Required to handle step-up auth challenges via Universal Login popup
-    >
-      <Auth0ComponentProvider
-        i18n={{ currentLanguage: 'en' }}
-        themeSettings={{ theme: 'default', mode: 'light' }}
-      >
-        {/* Your routes */}
-      </Auth0ComponentProvider>
-    </Auth0Provider>
-  );
-}
-```
-
-### Use a Component
-
-Import from the local components directory:
+The provider is already configured in `src/App.tsx` and styles are included with the shadcn-installed source code. Components are imported from the local `components/auth0/` directory. For example:
 
 ```tsx
 import { OrganizationDetailsEdit } from '@/components/auth0/my-organization/organization-details-edit';

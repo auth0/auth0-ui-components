@@ -78,20 +78,10 @@ Open [http://localhost:5173](http://localhost:5173) in your browser. Log in with
 
 ## Using Components
 
-Components are imported from `@auth0/universal-components-react/spa`. Make sure you import the styles in your app entry point:
+The provider is already configured in `src/App.tsx` and styles are imported in `src/index.css`. To enable a component, edit the corresponding page file. For example, to enable the Domain Table, edit `src/views/domain-management-page.tsx`:
 
 ```tsx
-import '@auth0/universal-components-react/styles';
-```
-
-This example includes pre-configured routes in `src/App.tsx`.
-
-To enable a component, edit the corresponding page file. For example, to enable the Domain Table on the domain management page, edit `src/views/domain-management-page.tsx`:
-
-Edit this file to uncomment `<DomainTable />` and deleted the `<p>` entry and save. Final result should look like below.
-
-```typescript
-import { DomainTable } from '@auth0/universal-components-react';
+import { DomainTable } from '@auth0/universal-components-react/spa';
 
 const DomainManagementPage = () => {
   return (
