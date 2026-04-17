@@ -42,6 +42,7 @@ function SsoProviderTable(props: SsoProviderTableProps) {
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     readOnly = false,
+    hideHeader = false,
     createAction,
     editAction,
     deleteAction,
@@ -66,6 +67,7 @@ function SsoProviderTable(props: SsoProviderTableProps) {
         styling={styling}
         customMessages={customMessages}
         readOnly={readOnly}
+        hideHeader={hideHeader}
         createAction={createAction}
         editAction={editAction}
       />
@@ -83,6 +85,7 @@ function SsoProviderTableView({
   styling,
   customMessages,
   readOnly,
+  hideHeader,
   providers,
   shouldHideCreate,
   isViewLoading,
@@ -174,22 +177,24 @@ function SsoProviderTableView({
 
   return (
     <StyledScope style={currentStyles.variables}>
-      <div className={currentStyles.classes?.['SsoProviderTable-header']}>
-        <Header
-          title={t('header.title')}
-          description={t('header.description')}
-          actions={[
-            {
-              type: 'button',
-              label: t('header.create_button_text'),
-              onClick: () => handleCreate(),
-              icon: Plus,
-              hidden: shouldHideCreate || isViewLoading,
-              disabled: createAction?.disabled || readOnly,
-            },
-          ]}
-        />
-      </div>
+      {!hideHeader && (
+        <div className={currentStyles.classes?.['SsoProviderTable-header']}>
+          <Header
+            title={t('header.title')}
+            description={t('header.description')}
+            actions={[
+              {
+                type: 'button',
+                label: t('header.create_button_text'),
+                onClick: () => handleCreate(),
+                icon: Plus,
+                hidden: shouldHideCreate || isViewLoading,
+                disabled: createAction?.disabled || readOnly,
+              },
+            ]}
+          />
+        </div>
+      )}
 
       <DataTable
         loading={isViewLoading}

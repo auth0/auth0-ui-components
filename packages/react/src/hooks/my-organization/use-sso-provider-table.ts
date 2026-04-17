@@ -36,7 +36,20 @@ export function useSsoProviderTable({
   enableProviderAction,
 }: UseSsoProviderTableOptions): UseSsoProviderTableReturn {
   // Internal service for data fetching and CRUD
-  const service = useSsoProviderTableService(
+  const {
+    providers,
+    organization,
+    isLoading,
+    isDeleting,
+    isRemoving,
+    isUpdating,
+    isUpdatingId,
+    fetchProviders,
+    fetchOrganizationDetails,
+    onDeleteConfirm,
+    onRemoveConfirm,
+    onEnableProvider,
+  } = useSsoProviderTableService(
     deleteAction,
     deleteFromOrganizationAction,
     enableProviderAction,
@@ -52,7 +65,7 @@ export function useSsoProviderTable({
   const { isLoadingConfig, shouldAllowDeletion, isConfigValid } = useConfig();
   const { isLoadingIdpConfig, isIdpConfigValid } = useIdpConfig();
   const shouldHideCreate = !isConfigValid || !isIdpConfigValid;
-  const isViewLoading = service.isLoading || isLoadingConfig || isLoadingIdpConfig;
+  const isViewLoading = isLoading || isLoadingConfig || isLoadingIdpConfig;
 
   // UI handlers
   const handleCreate = useCallback(() => {
@@ -100,42 +113,42 @@ export function useSsoProviderTable({
 
   const handleToggleEnabled = useCallback(
     async (idp: IdentityProvider, enabled: boolean) => {
-      if (readOnly || !service.onEnableProvider) return;
-      await service.onEnableProvider(idp, enabled);
+      if (readOnly || !onEnableProvider) return;
+      await onEnableProvider(idp, enabled);
     },
-    [readOnly, service.onEnableProvider],
+    [readOnly, onEnableProvider],
   );
 
   const handleDeleteConfirm = useCallback(
     async (provider: IdentityProvider) => {
-      await service.onDeleteConfirm(provider);
+      await onDeleteConfirm(provider);
       setShowDeleteModal(false);
       setSelectedIdp(null);
     },
-    [service.onDeleteConfirm],
+    [onDeleteConfirm],
   );
 
   const handleRemoveConfirm = useCallback(
     async (provider: IdentityProvider) => {
-      await service.onRemoveConfirm(provider);
+      await onRemoveConfirm(provider);
       setShowRemoveModal(false);
       setSelectedIdp(null);
     },
-    [service.onRemoveConfirm],
+    [onRemoveConfirm],
   );
 
   return {
     // Data
-    providers: service.providers,
-    organization: service.organization,
+    providers,
+    organization,
 
     // Loading states
-    isLoading: service.isLoading,
+    isLoading,
     isViewLoading,
-    isDeleting: service.isDeleting,
-    isRemoving: service.isRemoving,
-    isUpdating: service.isUpdating,
-    isUpdatingId: service.isUpdatingId,
+    isDeleting,
+    isRemoving,
+    isUpdating,
+    isUpdatingId,
 
     // Config
     shouldAllowDeletion,
@@ -147,8 +160,8 @@ export function useSsoProviderTable({
     selectedIdp,
 
     // Data actions
-    fetchProviders: service.fetchProviders,
-    fetchOrganizationDetails: service.fetchOrganizationDetails,
+    fetchProviders,
+    fetchOrganizationDetails,
 
     // UI handlers
     handleCreate,

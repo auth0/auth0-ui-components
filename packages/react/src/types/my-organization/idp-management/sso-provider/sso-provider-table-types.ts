@@ -35,6 +35,7 @@ export interface SsoProviderTableProps
     SsoProviderTableClasses,
     SsoProviderTableSchema
   > {
+  hideHeader?: boolean;
   createAction: ComponentAction<void>;
   editAction: ComponentAction<IdentityProvider>;
   deleteAction?: ComponentAction<IdentityProvider>;
@@ -134,6 +135,7 @@ export interface SsoProviderTableViewProps extends UseSsoProviderTableReturn {
   styling: SsoProviderTableProps['styling'];
   customMessages: SsoProviderTableProps['customMessages'];
   readOnly: boolean;
+  hideHeader: boolean;
   createAction: SsoProviderTableProps['createAction'];
   editAction: SsoProviderTableProps['editAction'];
 }

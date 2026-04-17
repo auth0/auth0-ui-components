@@ -10,6 +10,7 @@ export function createMockSsoProviderTableViewProps(
     styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     customMessages: {},
     readOnly: false,
+    hideHeader: false,
     isLoading: false,
     shouldHideCreate: false,
     isViewLoading: false,
