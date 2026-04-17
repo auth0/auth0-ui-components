@@ -527,6 +527,7 @@ npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-organization/o
 - ❌ Storing sensitive data in client-accessible props
 - ❌ Type casting (`as`) unless there is no other option
 - ❌ Using linter/tsc skip annotations (`// @ts-ignore`, `// eslint-disable`) unless there is no other option
+- ❌ Defining custom types for API request/response shapes when the SDK already exports them — always re-export SDK types via `type Alias = SDK.Type`
 
 ---
 
