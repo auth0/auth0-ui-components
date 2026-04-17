@@ -133,7 +133,6 @@ export function useSsoProviderTableService(
         message: t('update_success', { providerName: selectedIdp.display_name }),
       });
 
-      // Update the cache optimistically
       queryClient.setQueryData<IdentityProvider[]>(ssoProviderQueryKeys.list(), (old) => {
         if (!old) return old;
         return old.map((provider) =>
@@ -270,11 +269,8 @@ export function useSsoProviderTableService(
   }, [coreClient, queryClient, t, handleError]);
 
   return {
-    // Data from TanStack Query - single source of truth
     providers: providersQuery.data ?? [],
     organization: organizationQuery.data ?? null,
-
-    // Loading states - all derived from TanStack Query
     isLoading: providersQuery.isLoading || organizationQuery.isLoading,
     isDeleting: deleteProviderMutation.isPending,
     isRemoving: removeProviderMutation.isPending,
@@ -283,7 +279,6 @@ export function useSsoProviderTableService(
       ? (enableProviderMutation.variables?.selectedIdp?.id ?? null)
       : null,
 
-    // Actions
     fetchProviders,
     fetchOrganizationDetails,
     onDeleteConfirm,

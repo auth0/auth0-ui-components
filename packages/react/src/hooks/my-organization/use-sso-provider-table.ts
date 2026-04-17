@@ -35,7 +35,6 @@ export function useSsoProviderTable({
   deleteFromOrganizationAction,
   enableProviderAction,
 }: UseSsoProviderTableOptions): UseSsoProviderTableReturn {
-  // Internal service for data fetching and CRUD
   const {
     providers,
     organization,
@@ -56,18 +55,15 @@ export function useSsoProviderTable({
     customMessages,
   );
 
-  // UI state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [selectedIdp, setSelectedIdp] = useState<IdentityProvider | null>(null);
 
-  // Config
   const { isLoadingConfig, shouldAllowDeletion, isConfigValid } = useConfig();
   const { isLoadingIdpConfig, isIdpConfigValid } = useIdpConfig();
   const shouldHideCreate = !isConfigValid || !isIdpConfigValid;
   const isViewLoading = isLoading || isLoadingConfig || isLoadingIdpConfig;
 
-  // UI handlers
   const handleCreate = useCallback(() => {
     if (createAction?.onAfter) {
       createAction.onAfter();
@@ -138,11 +134,9 @@ export function useSsoProviderTable({
   );
 
   return {
-    // Data
     providers,
     organization,
 
-    // Loading states
     isLoading,
     isViewLoading,
     isDeleting,
@@ -150,20 +144,16 @@ export function useSsoProviderTable({
     isUpdating,
     isUpdatingId,
 
-    // Config
     shouldAllowDeletion,
     shouldHideCreate,
 
-    // UI state
     showDeleteModal,
     showRemoveModal,
     selectedIdp,
 
-    // Data actions
     fetchProviders,
     fetchOrganizationDetails,
 
-    // UI handlers
     handleCreate,
     handleEdit,
     handleDelete,
@@ -172,7 +162,6 @@ export function useSsoProviderTable({
     handleDeleteConfirm,
     handleRemoveConfirm,
 
-    // UI state setters
     setShowDeleteModal,
     setShowRemoveModal,
     setSelectedIdp,

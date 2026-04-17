@@ -9,20 +9,17 @@ import {
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
-import { mockToast, createMockI18nService } from '@/tests/utils';
+import { mockToast } from '@/tests/utils';
 import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 import {
   setupMockUseCoreClient,
   setupMockUseCoreClientNull,
   setupMockUseErrorHandler,
+  setupMockUseTranslator,
 } from '@/tests/utils/test-utilities';
 
-// ===== Mock packages =====
-
 const { mockedShowToast } = mockToast();
-
-// ===== Mock Data =====
 
 const mockIdentityProviders: IdentityProvider[] = [
   {
@@ -71,69 +68,27 @@ const renderUseSsoProviderTableServiceWithClient = (
 
 describe('useSsoProviderTableService', () => {
   const mockCoreClient = createMockCoreClient();
+  const mockMyOrgClient = mockCoreClient.getMyOrganizationApiClient();
   let mockHandleError: ReturnType<typeof vi.fn>;
-
-  // Helper function to setup the mock organization client with common mocks
-  const setupMockMyOrgClient = (
-    overrides: {
-      list?: ReturnType<typeof vi.fn>;
-      update?: ReturnType<typeof vi.fn>;
-      delete?: ReturnType<typeof vi.fn>;
-      detach?: ReturnType<typeof vi.fn>;
-      organizationGet?: ReturnType<typeof vi.fn>;
-    } = {},
-  ) => {
-    const mockMyOrgClient = mockCoreClient.getMyOrganizationApiClient();
-
-    if (overrides.list) {
-      mockMyOrgClient.organization.identityProviders.list = overrides.list;
-    }
-    if (overrides.update) {
-      mockMyOrgClient.organization.identityProviders.update = overrides.update;
-    }
-    if (overrides.delete) {
-      mockMyOrgClient.organization.identityProviders.delete = overrides.delete;
-    }
-    if (overrides.detach) {
-      mockMyOrgClient.organization.identityProviders.detach = overrides.detach;
-    }
-    if (overrides.organizationGet) {
-      mockMyOrgClient.organizationDetails.get = overrides.organizationGet;
-    } else {
-      // Default organization get
-      mockMyOrgClient.organizationDetails.get = vi.fn().mockResolvedValue(mockOrganization);
-    }
-
-    return mockMyOrgClient;
-  };
 
   beforeEach(() => {
     vi.clearAllMocks();
     setupMockUseCoreClient(mockCoreClient, useCoreClientModule);
     mockHandleError = setupMockUseErrorHandler(useErrorHandlerModule);
+    setupMockUseTranslator(useTranslatorModule);
 
-    // Setup translator using createMockI18nService
-    // The translator will return the key itself (no interpolation needed for tests)
-    vi.spyOn(useTranslatorModule, 'useTranslator').mockImplementation((namespace, messages) => {
-      const mockT = createMockI18nService().translator(namespace, messages);
-      return {
-        t: mockT,
-        changeLanguage: vi.fn(),
-        currentLanguage: 'en-US',
-        fallbackLanguage: 'en-US',
-      };
-    });
+    (mockMyOrgClient.organizationDetails.get as ReturnType<typeof vi.fn>).mockResolvedValue(
+      mockOrganization,
+    );
   });
 
   describe('fetchProviders', () => {
-    // Test: Verifies that the hook successfully fetches identity providers from the API
-    // and updates the providers state with the fetched data
     it('should fetch and set providers successfully', async () => {
       const mockList = vi.fn().mockResolvedValue({
         identity_providers: mockIdentityProviders,
       });
 
-      setupMockMyOrgClient({ list: mockList });
+      mockMyOrgClient.organization.identityProviders.list = mockList;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -144,13 +99,10 @@ describe('useSsoProviderTableService', () => {
       expect(result.current.providers).toEqual(mockIdentityProviders);
       expect(mockList).toHaveBeenCalled();
     });
-
-    // Test: Validates error handling when the API call to fetch providers fails
-    // Should display an error toast notification to the user
     it('should handle fetch providers error', async () => {
       const mockList = vi.fn().mockRejectedValue(new Error('Network error'));
 
-      setupMockMyOrgClient({ list: mockList });
+      mockMyOrgClient.organization.identityProviders.list = mockList;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -162,9 +114,6 @@ describe('useSsoProviderTableService', () => {
         fallbackMessage: 'general_error',
       });
     });
-
-    // Test: Ensures the hook doesn't attempt to fetch data when coreClient is unavailable
-    // Loading state should remain false and providers array should stay empty
     it('should not fetch if coreClient is not available', async () => {
       setupMockUseCoreClientNull(useCoreClientModule);
 
@@ -180,7 +129,7 @@ describe('useSsoProviderTableService', () => {
     it('should read from cache without invalidating when fetchProviders is called', async () => {
       const mockList = vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders });
 
-      setupMockMyOrgClient({ list: mockList });
+      mockMyOrgClient.organization.identityProviders.list = mockList;
 
       const { result, queryClient } = renderUseSsoProviderTableServiceWithClient();
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
@@ -198,14 +147,13 @@ describe('useSsoProviderTableService', () => {
   });
 
   describe('fetchOrganizationDetails', () => {
-    // Test: Verifies that organization details are successfully fetched and stored in state
     it('should fetch and set organization details successfully', async () => {
       const mockGet = vi.fn().mockResolvedValue(mockOrganization);
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: [] }),
-        organizationGet: mockGet,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: [] });
+      mockMyOrgClient.organizationDetails.get = mockGet;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -216,16 +164,13 @@ describe('useSsoProviderTableService', () => {
       expect(result.current.organization).toEqual(mockOrganization);
       expect(mockGet).toHaveBeenCalled();
     });
-
-    // Test: Validates error handling when fetching organization details fails
-    // Should display an error toast notification
     it('should handle fetch organization details error', async () => {
       const mockGet = vi.fn().mockRejectedValue(new Error('Not found'));
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: [] }),
-        organizationGet: mockGet,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: [] });
+      mockMyOrgClient.organizationDetails.get = mockGet;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -241,10 +186,10 @@ describe('useSsoProviderTableService', () => {
     it('should return null and show toast when fetchOrganizationDetails fails', async () => {
       const mockGet = vi.fn().mockRejectedValue(new Error('Not found'));
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: [] }),
-        organizationGet: mockGet,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: [] });
+      mockMyOrgClient.organizationDetails.get = mockGet;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -262,16 +207,14 @@ describe('useSsoProviderTableService', () => {
   });
 
   describe('onEnableProvider', () => {
-    // Test: Verifies that a provider can be successfully enabled/disabled
-    // Should call the update API, show success toast, and return true
     it('should enable provider successfully', async () => {
       const updatedProvider = { ...mockIdentityProviders[1], is_enabled: true };
       const mockUpdate = vi.fn().mockResolvedValue(updatedProvider);
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-        update: mockUpdate,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: mockIdentityProviders });
+      mockMyOrgClient.organization.identityProviders.update = mockUpdate;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -287,19 +230,16 @@ describe('useSsoProviderTableService', () => {
         message: 'update_success',
       });
     });
-
-    // Test: Validates that enableAction callbacks (onBefore and onAfter) are properly invoked
-    // during the enable/disable operation
     it('should call enableAction callbacks', async () => {
       const onBefore = vi.fn().mockReturnValue(true);
       const onAfter = vi.fn();
       const updatedProvider = { ...mockIdentityProviders[0], is_enabled: false };
       const mockUpdate = vi.fn().mockResolvedValue(updatedProvider);
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-        update: mockUpdate,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: mockIdentityProviders });
+      mockMyOrgClient.organization.identityProviders.update = mockUpdate;
 
       const { result } = renderUseSsoProviderTableService(undefined, undefined, {
         onBefore,
@@ -315,17 +255,14 @@ describe('useSsoProviderTableService', () => {
       expect(onBefore).toHaveBeenCalledWith(mockIdentityProviders[0]);
       expect(onAfter).toHaveBeenCalledWith(mockIdentityProviders[0]);
     });
-
-    // Test: Ensures that if onBefore callback returns false, the enable operation is cancelled
-    // and the update API is never called
     it('should not proceed if onBefore returns false', async () => {
       const onBefore = vi.fn().mockReturnValue(false);
       const mockUpdate = vi.fn();
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-        update: mockUpdate,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: mockIdentityProviders });
+      mockMyOrgClient.organization.identityProviders.update = mockUpdate;
 
       const { result } = renderUseSsoProviderTableService(undefined, undefined, { onBefore });
 
@@ -337,16 +274,13 @@ describe('useSsoProviderTableService', () => {
 
       expect(mockUpdate).not.toHaveBeenCalled();
     });
-
-    // Test: Validates error handling when the provider update API call fails
-    // Should display error toast and return false
     it('should handle enable provider error', async () => {
       const mockUpdate = vi.fn().mockRejectedValue(new Error('Update failed'));
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-        update: mockUpdate,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: mockIdentityProviders });
+      mockMyOrgClient.organization.identityProviders.update = mockUpdate;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -360,15 +294,12 @@ describe('useSsoProviderTableService', () => {
         fallbackMessage: 'general_error',
       });
     });
-
-    // Test: Ensures the function safely handles providers without an ID
-    // Should return false without attempting any API calls
     it('should return false if provider has no id', async () => {
       const providerWithoutId = { ...mockIdentityProviders[0], id: undefined } as IdentityProvider;
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: mockIdentityProviders });
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -395,18 +326,14 @@ describe('useSsoProviderTableService', () => {
   });
 
   describe('onDeleteConfirm', () => {
-    // Test: Verifies that a provider can be successfully deleted
-    // Should call delete API, show success toast, and refresh the providers list
     it('should delete provider successfully', async () => {
       const mockDelete = vi.fn().mockResolvedValue(undefined);
       const mockList = vi
         .fn()
         .mockResolvedValue({ identity_providers: [mockIdentityProviders[1]] });
 
-      setupMockMyOrgClient({
-        list: mockList,
-        delete: mockDelete,
-      });
+      mockMyOrgClient.organization.identityProviders.list = mockList;
+      mockMyOrgClient.organization.identityProviders.delete = mockDelete;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -423,16 +350,14 @@ describe('useSsoProviderTableService', () => {
       });
       expect(mockList).toHaveBeenCalledTimes(2); // Once on mount, once after delete
     });
-
-    // Test: Validates that the deleteAction onAfter callback is invoked after deletion
     it('should call deleteAction onAfter callback', async () => {
       const onAfter = vi.fn();
       const mockDelete = vi.fn().mockResolvedValue(undefined);
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-        delete: mockDelete,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: mockIdentityProviders });
+      mockMyOrgClient.organization.identityProviders.delete = mockDelete;
 
       const { result } = renderUseSsoProviderTableService({ onAfter });
 
@@ -444,16 +369,13 @@ describe('useSsoProviderTableService', () => {
 
       expect(onAfter).toHaveBeenCalledWith(mockIdentityProviders[0]);
     });
-
-    // Test: Validates error handling when the delete API call fails
-    // Should display an error toast notification
     it('should handle delete provider error', async () => {
       const mockDelete = vi.fn().mockRejectedValue(new Error('Delete failed'));
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-        delete: mockDelete,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: mockIdentityProviders });
+      mockMyOrgClient.organization.identityProviders.delete = mockDelete;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -467,17 +389,14 @@ describe('useSsoProviderTableService', () => {
         fallbackMessage: 'general_error',
       });
     });
-
-    // Test: Ensures the function safely handles providers without an ID
-    // Should not attempt to call the delete API
     it('should not delete if provider has no id', async () => {
       const providerWithoutId = { ...mockIdentityProviders[0], id: undefined } as IdentityProvider;
       const mockDelete = vi.fn();
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-        delete: mockDelete,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: mockIdentityProviders });
+      mockMyOrgClient.organization.identityProviders.delete = mockDelete;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -492,8 +411,6 @@ describe('useSsoProviderTableService', () => {
   });
 
   describe('onRemoveConfirm', () => {
-    // Test: Verifies that a provider can be successfully removed from an organization
-    // Should call detach API, show success toast with organization name, and refresh providers list
     it('should remove provider from organization successfully', async () => {
       const mockDetach = vi.fn().mockResolvedValue(undefined);
       const mockList = vi
@@ -501,11 +418,9 @@ describe('useSsoProviderTableService', () => {
         .mockResolvedValue({ identity_providers: [mockIdentityProviders[1]] });
       const mockOrganizationGet = vi.fn().mockResolvedValue(mockOrganization);
 
-      setupMockMyOrgClient({
-        list: mockList,
-        detach: mockDetach,
-        organizationGet: mockOrganizationGet,
-      });
+      mockMyOrgClient.organization.identityProviders.list = mockList;
+      mockMyOrgClient.organization.identityProviders.detach = mockDetach;
+      mockMyOrgClient.organizationDetails.get = mockOrganizationGet;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -522,16 +437,14 @@ describe('useSsoProviderTableService', () => {
       });
       expect(mockList).toHaveBeenCalledTimes(2); // Once on mount, once after remove
     });
-
-    // Test: Validates that the removeFromOrganization onAfter callback is invoked after removal
     it('should call removeFromOrganization onAfter callback', async () => {
       const onAfter = vi.fn();
       const mockDetach = vi.fn().mockResolvedValue(undefined);
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-        detach: mockDetach,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: mockIdentityProviders });
+      mockMyOrgClient.organization.identityProviders.detach = mockDetach;
 
       const { result } = renderUseSsoProviderTableService(undefined, { onAfter });
 
@@ -543,16 +456,13 @@ describe('useSsoProviderTableService', () => {
 
       expect(onAfter).toHaveBeenCalledWith(mockIdentityProviders[0]);
     });
-
-    // Test: Validates error handling when the detach API call fails
-    // Should display an error toast notification
     it('should handle remove provider error', async () => {
       const mockDetach = vi.fn().mockRejectedValue(new Error('Remove failed'));
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-        detach: mockDetach,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: mockIdentityProviders });
+      mockMyOrgClient.organization.identityProviders.detach = mockDetach;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -566,17 +476,14 @@ describe('useSsoProviderTableService', () => {
         fallbackMessage: 'general_error',
       });
     });
-
-    // Test: Ensures the function safely handles providers without an ID
-    // Should not attempt to call the detach API
     it('should not remove if provider has no id', async () => {
       const providerWithoutId = { ...mockIdentityProviders[0], id: undefined } as IdentityProvider;
       const mockDetach = vi.fn();
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-        detach: mockDetach,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: mockIdentityProviders });
+      mockMyOrgClient.organization.identityProviders.detach = mockDetach;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -591,8 +498,6 @@ describe('useSsoProviderTableService', () => {
   });
 
   describe('loading states', () => {
-    // Test: Validates that isUpdating and isUpdatingId states are correctly managed
-    // during the enable/disable operation lifecycle
     it('should set isUpdating and isUpdatingId when enabling provider', async () => {
       const updatedProvider = { ...mockIdentityProviders[0], is_enabled: false };
       const mockUpdate = vi
@@ -601,10 +506,10 @@ describe('useSsoProviderTableService', () => {
           () => new Promise((resolve) => setTimeout(() => resolve(updatedProvider), 100)),
         );
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-        update: mockUpdate,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: mockIdentityProviders });
+      mockMyOrgClient.organization.identityProviders.update = mockUpdate;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -623,17 +528,15 @@ describe('useSsoProviderTableService', () => {
         expect(result.current.isUpdatingId).toBe(null);
       });
     });
-
-    // Test: Validates that isDeleting state is correctly managed during deletion
     it('should set isDeleting when deleting provider', async () => {
       const mockDelete = vi
         .fn()
         .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-        delete: mockDelete,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: mockIdentityProviders });
+      mockMyOrgClient.organization.identityProviders.delete = mockDelete;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -650,17 +553,15 @@ describe('useSsoProviderTableService', () => {
         expect(result.current.isDeleting).toBe(false);
       });
     });
-
-    // Test: Validates that isRemoving state is correctly managed during removal
     it('should set isRemoving when removing provider', async () => {
       const mockDetach = vi
         .fn()
         .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: mockIdentityProviders }),
-        detach: mockDetach,
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: mockIdentityProviders });
+      mockMyOrgClient.organization.identityProviders.detach = mockDetach;
 
       const { result } = renderUseSsoProviderTableService();
 
@@ -680,14 +581,12 @@ describe('useSsoProviderTableService', () => {
   });
 
   describe('custom messages', () => {
-    // Test: Verifies that custom toast messages are properly passed to the translator
-    // for displaying localized notifications
     it('should pass custom messages to translator', async () => {
       const customMessages = { update_success: 'Custom update message' };
 
-      setupMockMyOrgClient({
-        list: vi.fn().mockResolvedValue({ identity_providers: [] }),
-      });
+      (
+        mockMyOrgClient.organization.identityProviders.list as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ identity_providers: [] });
 
       renderUseSsoProviderTableService(undefined, undefined, undefined, customMessages);
 

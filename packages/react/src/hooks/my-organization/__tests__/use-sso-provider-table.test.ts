@@ -3,7 +3,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useSsoProviderTable } from '../use-sso-provider-table';
 
-// Mock the service hook
 vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-table-service', () => ({
   useSsoProviderTableService: vi.fn(() => ({
     providers: [],
@@ -26,7 +25,6 @@ vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-table-service'
   },
 }));
 
-// Mock useConfig and useIdpConfig
 vi.mock('@/hooks/my-organization/use-config', () => ({
   useConfig: () => ({
     isLoadingConfig: false,

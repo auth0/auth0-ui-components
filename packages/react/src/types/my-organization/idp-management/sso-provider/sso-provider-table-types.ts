@@ -72,11 +72,9 @@ export interface UseSsoProviderTableOptions {
 
 /** useSsoProviderTable hook result. */
 export interface UseSsoProviderTableReturn {
-  // Data
   providers: IdentityProvider[];
   organization: OrganizationPrivate | null;
 
-  // Loading states
   isLoading: boolean;
   isViewLoading: boolean;
   isDeleting: boolean;
@@ -84,20 +82,16 @@ export interface UseSsoProviderTableReturn {
   isUpdating: boolean;
   isUpdatingId: string | null;
 
-  // Config
   shouldAllowDeletion: boolean;
   shouldHideCreate: boolean;
 
-  // UI state
   showDeleteModal: boolean;
   showRemoveModal: boolean;
   selectedIdp: IdentityProvider | null;
 
-  // Data actions
   fetchProviders: () => Promise<void>;
   fetchOrganizationDetails: () => Promise<OrganizationPrivate | null>;
 
-  // UI handlers
   handleCreate: () => void;
   handleEdit: (idp: IdentityProvider) => void;
   handleDelete: (idp: IdentityProvider) => void;
@@ -106,7 +100,6 @@ export interface UseSsoProviderTableReturn {
   handleDeleteConfirm: (provider: IdentityProvider) => Promise<void>;
   handleRemoveConfirm: (provider: IdentityProvider) => Promise<void>;
 
-  // UI state setters
   setShowDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
   setShowRemoveModal: React.Dispatch<React.SetStateAction<boolean>>;
   setSelectedIdp: React.Dispatch<React.SetStateAction<IdentityProvider | null>>;
