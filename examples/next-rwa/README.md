@@ -109,7 +109,7 @@ Edit this file to uncomment `<DomainTable />` and deleted the `<p>` entry and sa
 ```typescript
 'use client';
 
-import { DomainTable } from '@auth0/universal-components-react/rwa';
+import { DomainTable } from '@auth0/universal-components-react';
 
 export default function OrganizationManagementPage() {
   return (

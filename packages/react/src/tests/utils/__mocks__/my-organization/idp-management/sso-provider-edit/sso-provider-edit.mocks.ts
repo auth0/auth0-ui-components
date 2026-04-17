@@ -65,9 +65,6 @@ export function createMockSsoProviderEditLogic(
           enabled_features: [],
         },
       },
-      domain_aliases_config: {
-        domain_verification: 'optional',
-      },
     },
     customMessages: {},
     backButton: undefined,
