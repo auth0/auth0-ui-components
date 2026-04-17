@@ -24,7 +24,7 @@ export function createMyOrganizationClient(config: ClientAuthConfig) {
       domain: '',
       baseUrl: new URL(MY_ORGANIZATION_PROXY_PATH, config.proxyUrl).href,
       telemetry: false,
-      fetcher: createProxyFetcher(),
+      fetcher: createProxyFetcher(config.fetcher),
     });
   }
 

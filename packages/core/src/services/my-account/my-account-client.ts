@@ -24,7 +24,7 @@ export function createMyAccountClient(config: ClientAuthConfig) {
       domain: '',
       baseUrl: new URL(MY_ACCOUNT_PROXY_PATH, config.proxyUrl).href,
       telemetry: false,
-      fetcher: createProxyFetcher(),
+      fetcher: createProxyFetcher(config.fetcher),
     });
   }
 
