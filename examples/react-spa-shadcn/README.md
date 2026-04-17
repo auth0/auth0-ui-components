@@ -54,7 +54,7 @@ pnpm install
 
 ### 3. Configure your Auth0 tenant
 
-Run the bootstrap script to handle Auth0 CLI authentication and configure your tenant with the necessary APIs, applications, roles, and organization:
+Run the bootstrap script to handle Auth0 CLI authentication and configure your tenant with the necessary APIs, applications, roles, and organization. See the [bootstrap script README](../scripts/README.md) for detailed usage, required CLI scopes, and what it configures.
 
 ```bash
 pnpm run auth0:bootstrap <your-tenant-domain>

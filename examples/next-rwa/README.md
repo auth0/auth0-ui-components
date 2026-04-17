@@ -53,7 +53,7 @@ pnpm install
 
 ### 3. Configure your Auth0 tenant
 
-Run the bootstrap script to handle Auth0 CLI authentication and configure your tenant with the necessary APIs, applications, roles, and organization:
+Run the bootstrap script to handle Auth0 CLI authentication and configure your tenant with the necessary APIs, applications, roles, and organization. See the [bootstrap script README](../scripts/README.md) for detailed usage, required CLI scopes, and what it configures.
 
 ```bash
 pnpm run auth0:bootstrap <your-tenant-domain>
@@ -107,9 +107,10 @@ For component-specific configuration requirements, see the [Auth0 Universal Comp
 
 - Verify your `.env.local` file exists and contains all required variables:
   - `AUTH0_SECRET`
-  - `AUTH0_ISSUER_BASE_URL`
+  - `AUTH0_DOMAIN`
   - `AUTH0_CLIENT_ID`
   - `AUTH0_CLIENT_SECRET`
+  - `APP_BASE_URL`
   - `NEXT_PUBLIC_AUTH0_DOMAIN`
 - Check that Auth0 application settings include `http://localhost:5173/api/auth/callback` in Allowed Callback URLs
 
