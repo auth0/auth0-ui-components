@@ -130,42 +130,10 @@ export interface SsoProviderTableActionsColumnProps
   onDelete: (provider: IdentityProvider) => void;
   onRemoveFromOrganization: (provider: IdentityProvider) => void;
 }
-export interface SsoProviderTableLogicProps {
-  data: IdentityProvider[];
-  isLoading: boolean;
+export interface SsoProviderTableViewProps extends UseSsoProviderTableReturn {
   styling: SsoProviderTableProps['styling'];
   customMessages: SsoProviderTableProps['customMessages'];
-  hideHeader: boolean;
   readOnly: boolean;
-  shouldHideCreate: boolean;
-  isViewLoading: boolean;
   createAction: SsoProviderTableProps['createAction'];
   editAction: SsoProviderTableProps['editAction'];
-  selectedIdp: IdentityProvider | null;
-  showDeleteModal: boolean;
-  showRemoveModal: boolean;
-  organization: OrganizationPrivate | null;
-  isUpdating: boolean;
-  isUpdatingId: string | null;
-  isDeleting: boolean;
-  isRemoving: boolean;
-  shouldAllowDeletion: boolean;
 }
-
-export interface SsoProviderTableHandlerProps {
-  handleCreate: () => void;
-  handleEdit: (idp: IdentityProvider) => void;
-  handleDelete: (idp: IdentityProvider) => void;
-  handleDeleteFromOrganization: (idp: IdentityProvider) => void;
-  handleToggleEnabled: (idp: IdentityProvider, enabled: boolean) => void;
-  handleDeleteConfirm: (provider: IdentityProvider) => Promise<void>;
-  handleRemoveConfirm: (provider: IdentityProvider) => Promise<void>;
-  setShowDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
-  setShowRemoveModal: React.Dispatch<React.SetStateAction<boolean>>;
-  setSelectedIdp: React.Dispatch<React.SetStateAction<IdentityProvider | null>>;
-}
-
-export type SsoProviderTableViewProps = {
-  logic: SsoProviderTableLogicProps;
-  handlers: SsoProviderTableHandlerProps;
-};

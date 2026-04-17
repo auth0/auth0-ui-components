@@ -20,8 +20,6 @@ import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   SsoProviderTableProps,
-  SsoProviderTableLogicProps,
-  SsoProviderTableHandlerProps,
   SsoProviderTableViewProps,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
@@ -51,7 +49,7 @@ function SsoProviderTable(props: SsoProviderTableProps) {
     enableProviderAction,
   } = props;
 
-  const table = useSsoProviderTable({
+  const providerTable = useSsoProviderTable({
     readOnly,
     customMessages,
     createAction,
@@ -61,46 +59,15 @@ function SsoProviderTable(props: SsoProviderTableProps) {
     enableProviderAction,
   });
 
-  const ssoProviderCreateLogicProps: SsoProviderTableLogicProps = {
-    data: table.providers,
-    styling,
-    customMessages,
-    readOnly,
-    createAction,
-    editAction,
-    organization: table.organization,
-    isUpdating: table.isUpdating,
-    isUpdatingId: table.isUpdatingId,
-    isDeleting: table.isDeleting,
-    isRemoving: table.isRemoving,
-    hideHeader: false,
-    isLoading: table.isViewLoading,
-    shouldHideCreate: table.shouldHideCreate,
-    isViewLoading: table.isViewLoading,
-    selectedIdp: table.selectedIdp,
-    showDeleteModal: table.showDeleteModal,
-    showRemoveModal: table.showRemoveModal,
-    shouldAllowDeletion: table.shouldAllowDeletion,
-  };
-
-  const ssoProviderCreateHandlerProps: SsoProviderTableHandlerProps = {
-    handleCreate: table.handleCreate,
-    handleEdit: table.handleEdit,
-    handleDelete: table.handleDelete,
-    handleDeleteFromOrganization: table.handleDeleteFromOrganization,
-    handleToggleEnabled: table.handleToggleEnabled,
-    handleDeleteConfirm: table.handleDeleteConfirm,
-    handleRemoveConfirm: table.handleRemoveConfirm,
-    setShowDeleteModal: table.setShowDeleteModal,
-    setShowRemoveModal: table.setShowRemoveModal,
-    setSelectedIdp: table.setSelectedIdp,
-  };
-
   return (
-    <GateKeeper isLoading={table.isLoading} styling={styling}>
+    <GateKeeper isLoading={providerTable.isLoading} styling={styling}>
       <SsoProviderTableView
-        logic={ssoProviderCreateLogicProps}
-        handlers={ssoProviderCreateHandlerProps}
+        {...providerTable}
+        styling={styling}
+        customMessages={customMessages}
+        readOnly={readOnly}
+        createAction={createAction}
+        editAction={editAction}
       />
     </GateKeeper>
   );
@@ -109,44 +76,37 @@ function SsoProviderTable(props: SsoProviderTableProps) {
 /**
  * Internal SSO provider table view component
  * @param props - Component props
- * @param props.logic - Component logic props
- * @param props.handlers - Component handler props
  * @internal
  * @returns JSX element
  */
-function SsoProviderTableView({ logic, handlers }: SsoProviderTableViewProps) {
-  const {
-    styling,
-    customMessages,
-    readOnly,
-    data,
-    shouldHideCreate,
-    isViewLoading,
-    createAction,
-    editAction,
-    selectedIdp,
-    showDeleteModal,
-    showRemoveModal,
-    shouldAllowDeletion,
-    organization,
-    isUpdating,
-    isUpdatingId,
-    isDeleting,
-    isRemoving,
-  } = logic;
-
-  const {
-    handleCreate,
-    handleEdit,
-    handleDelete,
-    handleDeleteFromOrganization,
-    handleToggleEnabled,
-    handleDeleteConfirm,
-    handleRemoveConfirm,
-    setShowDeleteModal,
-    setShowRemoveModal,
-  } = handlers;
-
+function SsoProviderTableView({
+  styling,
+  customMessages,
+  readOnly,
+  providers,
+  shouldHideCreate,
+  isViewLoading,
+  createAction,
+  editAction,
+  selectedIdp,
+  showDeleteModal,
+  showRemoveModal,
+  shouldAllowDeletion,
+  organization,
+  isUpdating,
+  isUpdatingId,
+  isDeleting,
+  isRemoving,
+  handleCreate,
+  handleEdit,
+  handleDelete,
+  handleDeleteFromOrganization,
+  handleToggleEnabled,
+  handleDeleteConfirm,
+  handleRemoveConfirm,
+  setShowDeleteModal,
+  setShowRemoveModal,
+}: SsoProviderTableViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('idp_management.sso_provider_table', customMessages);
   const currentStyles = React.useMemo(
@@ -234,7 +194,7 @@ function SsoProviderTableView({ logic, handlers }: SsoProviderTableViewProps) {
       <DataTable
         loading={isViewLoading}
         columns={columns}
-        data={data}
+        data={providers}
         emptyState={{ title: t('table.empty_message') }}
         className={currentStyles.classes?.['SsoProviderTable-table']}
       />
