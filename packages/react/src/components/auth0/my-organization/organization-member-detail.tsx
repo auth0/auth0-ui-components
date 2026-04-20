@@ -10,12 +10,9 @@ import * as React from 'react';
 import { GateKeeper } from '../shared/gate-keeper/gate-keeper';
 
 import { MemberDeleteModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-delete-modal';
-import { MemberDetailDangerZone } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-detail-danger-zone';
 import { MemberRemoveFromOrgModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-org-modal';
-import { MemberAssignRolesModal } from '@/components/auth0/my-organization/shared/member-management/members/member-roles/member-assign-roles-modal';
-import { MemberDetailRolesTab } from '@/components/auth0/my-organization/shared/member-management/members/member-roles/member-detail-roles-tab';
-import { MemberRemoveRoleModal } from '@/components/auth0/my-organization/shared/member-management/members/member-roles/member-remove-role-modal';
-import { MemberDetailUserDetails } from '@/components/auth0/my-organization/shared/member-management/members/member-user-details/member-detail-user-details';
+import { OrganizationMemberEditDetailsTab } from '@/components/auth0/my-organization/shared/member-management/organization-member-detail/organization-member-details-tab';
+import { OrganizationMemberEditRolesTab } from '@/components/auth0/my-organization/shared/member-management/organization-member-detail/organization-member-roles-tab';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,21 +21,11 @@ import { useOrganizationMemberDetail } from '@/hooks/my-organization/use-member-
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
-  MemberDetailState,
-  MemberDetailHandlers,
   OrganizationMemberDetailProps,
+  OrganizationMemberDetailViewProps,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
 
-/**
- * Props for the OrganizationMemberDetailView component.
- */
-export interface OrganizationMemberDetailViewProps {
-  state: MemberDetailState & {
-    styling: OrganizationMemberDetailProps['styling'];
-    customMessages: OrganizationMemberDetailProps['customMessages'];
-  };
-  handlers: MemberDetailHandlers;
-}
+export type { OrganizationMemberDetailViewProps };
 
 /**
  * Returns the initials (up to 2 chars) from a display name.
@@ -55,49 +42,49 @@ function getInitials(name?: string): string {
 }
 
 /**
- * Details tab content — user details card + danger zone.
+ * Member detail header component
  * @param root0 - Component props containing state and handlers
- * @returns The rendered details tab element, or null if no member is loaded
+ * @returns The rendered header element
  */
-function OrganizationMemberEditDetailsTab({
-  state,
-  handlers,
-}: OrganizationMemberDetailViewProps): React.JSX.Element | null {
-  if (!state.member) return null;
-
-  return (
-    <div className="flex flex-col gap-4">
-      <MemberDetailUserDetails member={state.member} customMessages={state.customMessages} />
-      <MemberDetailDangerZone
-        isRemovingFromOrg={state.isRemovingFromOrg}
-        isDeletingMember={state.isDeletingMember}
-        customMessages={state.customMessages}
-        onRemoveFromOrgClick={handlers.handleRemoveFromOrgClick}
-        onDeleteMemberClick={handlers.handleDeleteMemberClick}
-      />
-    </div>
+function Header({ state, handlers }: OrganizationMemberDetailViewProps): React.JSX.Element {
+  const { isDarkMode } = useTheme();
+  const { t } = useTranslator('member_management', state.customMessages as Record<string, unknown>);
+  const currentStyles = React.useMemo(
+    () => getComponentStyles(state.styling, isDarkMode),
+    [state.styling, isDarkMode],
   );
-}
 
-/**
- * Roles tab content — roles table with assign/remove.
- * @param root0 - Component props containing state and handlers
- * @returns The rendered roles tab element
- */
-function OrganizationMemberEditRolesTab({
-  state,
-  handlers,
-}: OrganizationMemberDetailViewProps): React.JSX.Element {
+  const memberRecord = state.member as Record<string, unknown> | null;
+  const userId = (memberRecord?.user_id as string | undefined) ?? '';
+  const displayName = (memberRecord?.name as string | undefined) ?? userId;
+  const initials = getInitials(displayName || undefined);
+
   return (
-    <MemberDetailRolesTab
-      memberRoles={state.memberRoles}
-      availableRoles={state.availableRoles}
-      isLoading={state.isFetchingRoles}
-      removingRoleId={state.removingRoleId}
-      customMessages={state.customMessages}
-      onAssignRolesClick={handlers.handleAssignRolesClick}
-      onRemoveRole={handlers.handleRemoveRoleClick}
-    />
+    <div className={currentStyles.classes?.['OrganizationMemberDetail-header']}>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="mb-4 -ml-2 text-muted-foreground hover:text-primary"
+        onClick={handlers.handleBack}
+      >
+        <ArrowLeft className="h-4 w-4 mr-1" />
+        {t('member.detail.back_button')}
+      </Button>
+
+      <div className="flex items-center gap-4 mb-6">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-muted-foreground text-xl font-semibold shrink-0">
+          {initials}
+        </div>
+        <div className="flex flex-col gap-1 min-w-0">
+          <h1 className="text-2xl font-bold text-primary truncate">{displayName}</h1>
+          {userId && (
+            <Badge variant="secondary" className="w-fit font-mono text-xs">
+              {userId}
+            </Badge>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -118,43 +105,10 @@ export function OrganizationMemberDetailView({
     [state.styling, isDarkMode],
   );
 
-  const memberRecord = state.member as Record<string, unknown> | null;
-  const userId = (memberRecord?.user_id as string | undefined) ?? '';
-  const displayName = (memberRecord?.name as string | undefined) ?? userId;
-  const initials = getInitials(displayName || undefined);
-
   return (
     <StyledScope style={currentStyles.variables}>
       <div className={currentStyles.classes?.['OrganizationMemberDetail-root']}>
-        {/* Back button */}
-        <div className={currentStyles.classes?.['OrganizationMemberDetail-header']}>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mb-4 -ml-2 text-muted-foreground hover:text-primary"
-            onClick={handlers.handleBack}
-          >
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            {t('member.detail.back_button')}
-          </Button>
-
-          {/* Member header */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-muted-foreground text-xl font-semibold shrink-0">
-              {initials}
-            </div>
-            <div className="flex flex-col gap-1 min-w-0">
-              <h1 className="text-2xl font-bold text-primary truncate">{displayName}</h1>
-              {userId && (
-                <Badge variant="secondary" className="w-fit font-mono text-xs">
-                  {userId}
-                </Badge>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Tabs */}
+        <Header state={state} handlers={handlers} />
         <Tabs
           value={state.activeTab}
           onValueChange={(value) => handlers.setActiveTab(value as 'details' | 'roles')}
@@ -180,7 +134,6 @@ export function OrganizationMemberDetailView({
           </TabsContent>
         </Tabs>
 
-        {/* Modals */}
         <MemberRemoveFromOrgModal
           isOpen={state.showRemoveFromOrgModal}
           isLoading={state.isRemovingFromOrg}
@@ -195,25 +148,6 @@ export function OrganizationMemberDetailView({
           customMessages={state.customMessages}
           onClose={handlers.handleDeleteMemberCancel}
           onConfirm={handlers.handleDeleteMemberConfirm}
-        />
-
-        <MemberAssignRolesModal
-          isOpen={state.showAssignRolesModal}
-          isLoading={state.isAssigningRole}
-          availableRoles={state.availableRoles}
-          assignedRoles={state.memberRoles}
-          customMessages={state.customMessages}
-          onClose={handlers.handleAssignRolesCancel}
-          onAssign={handlers.handleAssignRolesSubmit}
-        />
-
-        <MemberRemoveRoleModal
-          isOpen={state.showRemoveRoleModal}
-          isLoading={state.removingRoleId !== null}
-          role={state.roleToRemove}
-          customMessages={state.customMessages}
-          onClose={handlers.handleRemoveRoleCancel}
-          onConfirm={handlers.handleRemoveRoleConfirm}
         />
       </div>
     </StyledScope>
