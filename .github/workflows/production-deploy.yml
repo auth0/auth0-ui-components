@@ -19,7 +19,7 @@ jobs:
         uses: pnpm/action-setup@36de12bed180fa130ed56a35e7344f2fa7a820ab # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v4
         with:
           node-version: '22'
           cache: 'pnpm'
