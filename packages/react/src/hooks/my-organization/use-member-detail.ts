@@ -4,13 +4,10 @@
  */
 
 import type { OrgMember, OrgMemberRole } from '@auth0/universal-components-core';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
 
-import { showToast } from '@/components/auth0/shared/toast';
+import { useMemberDetailService } from '@/hooks/my-organization/shared/services/use-member-detail-service';
 import { useConfig } from '@/hooks/my-organization/use-config';
-import { useCoreClient } from '@/hooks/shared/use-core-client';
-import { useTranslator } from '@/hooks/shared/use-translator';
 import type { RoleOption } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   MemberDetailTab,
@@ -19,10 +16,7 @@ import type {
   UseOrganizationMemberDetailOptions,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
 
-export const memberDetailQueryKeys = {
-  all: ['member-detail'] as const,
-  member: (id: string) => [...memberDetailQueryKeys.all, 'member', id] as const,
-};
+export { memberDetailQueryKeys } from '@/hooks/my-organization/shared/services/use-member-detail-service';
 
 /**
  * Hook for organization member detail page.
@@ -44,12 +38,23 @@ export function useOrganizationMemberDetail(options: UseOrganizationMemberDetail
     removeRoleAction,
   } = options;
 
-  const { coreClient } = useCoreClient();
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
-  const queryClient = useQueryClient();
   const { allowedRoles } = useConfig();
-
   const availableRoles: RoleOption[] = allowedRoles;
+
+  const {
+    memberQuery,
+    removeFromOrgMutation,
+    deleteMemberMutation,
+    assignRoleMutation,
+    removeRoleMutation,
+  } = useMemberDetailService({
+    userId,
+    customMessages,
+    removeFromOrgAction,
+    deleteMemberAction,
+    assignRoleAction,
+    removeRoleAction,
+  });
 
   const [activeTab, setActiveTab] = React.useState<MemberDetailTab>('details');
   const [showRemoveFromOrgModal, setShowRemoveFromOrgModal] = React.useState(false);
@@ -57,106 +62,6 @@ export function useOrganizationMemberDetail(options: UseOrganizationMemberDetail
   const [showAssignRolesModal, setShowAssignRolesModal] = React.useState(false);
   const [showRemoveRoleModal, setShowRemoveRoleModal] = React.useState(false);
   const [roleToRemove, setRoleToRemove] = React.useState<OrgMemberRole | null>(null);
-
-  const memberQuery = useQuery({
-    queryKey: memberDetailQueryKeys.member(userId),
-    queryFn: () => coreClient!.getMyOrganizationApiClient().organization.members.get(userId),
-    enabled: !!coreClient && !!userId,
-  });
-
-  const removeFromOrgMutation = useMutation({
-    mutationFn: async () => {
-      if (removeFromOrgAction?.onBefore && !removeFromOrgAction.onBefore(userId)) {
-        throw new Error('Remove from org cancelled by onBefore');
-      }
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.memberships.deleteMemberships({ members: [userId] });
-    },
-    onSuccess: () => {
-      removeFromOrgAction?.onAfter?.(userId);
-      showToast({
-        type: 'success',
-        message: t('member.detail.danger_zone.remove_from_org.success'),
-      });
-      setShowRemoveFromOrgModal(false);
-      onBack?.();
-    },
-    onError: () => {
-      showToast({ type: 'error', message: t('member.detail.error.remove_from_org_failed') });
-    },
-  });
-
-  const deleteMemberMutation = useMutation({
-    mutationFn: async () => {
-      if (deleteMemberAction?.onBefore && !deleteMemberAction.onBefore(userId)) {
-        throw new Error('Delete member cancelled by onBefore');
-      }
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.members.deleteMembers({ members: [userId] });
-    },
-    onSuccess: () => {
-      deleteMemberAction?.onAfter?.(userId);
-      showToast({ type: 'success', message: t('member.detail.danger_zone.delete_member.success') });
-      setShowDeleteMemberModal(false);
-      onBack?.();
-    },
-    onError: () => {
-      showToast({ type: 'error', message: t('member.detail.error.delete_failed') });
-    },
-  });
-
-  const assignRoleMutation = useMutation({
-    mutationFn: async (roleIds: string[]) => {
-      for (const roleId of roleIds) {
-        if (assignRoleAction?.onBefore && !assignRoleAction.onBefore({ userId: userId, roleId })) {
-          throw new Error('Assign role cancelled by onBefore');
-        }
-      }
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.members.roles.assign(userId, { role_ids: roleIds });
-      for (const roleId of roleIds) {
-        assignRoleAction?.onAfter?.({ userId: userId, roleId });
-      }
-    },
-    onSuccess: () => {
-      showToast({ type: 'success', message: t('member.detail.roles.assign_button') });
-      setShowAssignRolesModal(false);
-      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.member(userId) });
-    },
-    onError: () => {
-      showToast({ type: 'error', message: t('member.detail.error.assign_role_failed') });
-    },
-  });
-
-  const removeRoleMutation = useMutation({
-    mutationFn: async (role: OrgMemberRole) => {
-      if (
-        removeRoleAction?.onBefore &&
-        !removeRoleAction.onBefore({ userId: userId, roleId: role.id })
-      ) {
-        throw new Error('Remove role cancelled by onBefore');
-      }
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.members.roles.unassign(userId, { role_ids: [role.id] });
-      removeRoleAction?.onAfter?.({ userId: userId, roleId: role.id });
-    },
-    onSuccess: () => {
-      showToast({
-        type: 'success',
-        message: t('member.detail.roles.remove_confirm.confirm_button'),
-      });
-      setShowRemoveRoleModal(false);
-      setRoleToRemove(null);
-      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.member(userId) });
-    },
-    onError: () => {
-      showToast({ type: 'error', message: t('member.detail.error.remove_role_failed') });
-    },
-  });
 
   const handleBack = React.useCallback(() => {
     onBack?.();
@@ -168,9 +73,13 @@ export function useOrganizationMemberDetail(options: UseOrganizationMemberDetail
   }, [readOnly]);
 
   const handleRemoveFromOrgConfirm = React.useCallback(() => {
-    if (!coreClient) return;
-    removeFromOrgMutation.mutate();
-  }, [coreClient]);
+    removeFromOrgMutation.mutate(undefined, {
+      onSuccess: () => {
+        setShowRemoveFromOrgModal(false);
+        onBack?.();
+      },
+    });
+  }, [removeFromOrgMutation, onBack]);
 
   const handleRemoveFromOrgCancel = React.useCallback(() => {
     setShowRemoveFromOrgModal(false);
@@ -182,9 +91,13 @@ export function useOrganizationMemberDetail(options: UseOrganizationMemberDetail
   }, [readOnly]);
 
   const handleDeleteMemberConfirm = React.useCallback(() => {
-    if (!coreClient) return;
-    deleteMemberMutation.mutate();
-  }, [coreClient]);
+    deleteMemberMutation.mutate(undefined, {
+      onSuccess: () => {
+        setShowDeleteMemberModal(false);
+        onBack?.();
+      },
+    });
+  }, [deleteMemberMutation, onBack]);
 
   const handleDeleteMemberCancel = React.useCallback(() => {
     setShowDeleteMemberModal(false);
@@ -197,10 +110,13 @@ export function useOrganizationMemberDetail(options: UseOrganizationMemberDetail
 
   const handleAssignRolesSubmit = React.useCallback(
     (roleIds: string[]) => {
-      if (!coreClient) return;
-      assignRoleMutation.mutate(roleIds);
+      assignRoleMutation.mutate(roleIds, {
+        onSuccess: () => {
+          setShowAssignRolesModal(false);
+        },
+      });
     },
-    [coreClient],
+    [assignRoleMutation],
   );
 
   const handleAssignRolesCancel = React.useCallback(() => {
@@ -217,9 +133,14 @@ export function useOrganizationMemberDetail(options: UseOrganizationMemberDetail
   );
 
   const handleRemoveRoleConfirm = React.useCallback(() => {
-    if (!roleToRemove || !coreClient) return;
-    removeRoleMutation.mutate(roleToRemove);
-  }, [roleToRemove, coreClient]);
+    if (!roleToRemove) return;
+    removeRoleMutation.mutate(roleToRemove, {
+      onSuccess: () => {
+        setShowRemoveRoleModal(false);
+        setRoleToRemove(null);
+      },
+    });
+  }, [roleToRemove, removeRoleMutation]);
 
   const handleRemoveRoleCancel = React.useCallback(() => {
     setShowRemoveRoleModal(false);

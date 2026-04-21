@@ -9,10 +9,19 @@ import type {
   OrgMember,
   OrgMemberRole,
 } from '@auth0/universal-components-core';
+import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 
 import type { RoleOption } from './organization-invitation-table-types';
 
 export type MemberDetailTab = 'details' | 'roles';
+
+export interface MemberDetailServiceResult {
+  memberQuery: UseQueryResult<OrgMember>;
+  removeFromOrgMutation: UseMutationResult<void, Error, void>;
+  deleteMemberMutation: UseMutationResult<void, Error, void>;
+  assignRoleMutation: UseMutationResult<void, Error, string[]>;
+  removeRoleMutation: UseMutationResult<void, Error, OrgMemberRole>;
+}
 
 export interface UseOrganizationMemberDetailOptions {
   userId: string;
