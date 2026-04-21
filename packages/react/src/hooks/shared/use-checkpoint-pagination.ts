@@ -44,72 +44,81 @@ export function useCheckpointPagination<TFilter extends object = Record<string, 
   } = options;
 
   const [pageSize, setPageSize] = React.useState(defaultPageSize);
-  const [fromToken, setFromToken] = React.useState<string | undefined>(undefined);
-  const [previousTokens, setPreviousTokens] = React.useState<Array<string | undefined>>([]);
-  const [currentPage, setCurrentPage] = React.useState(1);
+  const [cursor, setCursor] = React.useState<{
+    fromToken: string | undefined;
+    previousTokens: (string | undefined)[];
+    currentPage: number;
+  }>({
+    fromToken: undefined,
+    previousTokens: [],
+    currentPage: 1,
+  });
   const [sortConfig, setSortConfig] = React.useState<SortConfig>(defaultSortConfig);
   const [filters, setFilters] = React.useState<TFilter>(defaultFilters);
 
-  const resetPagination = React.useCallback(() => {
-    setFromToken(undefined);
-    setPreviousTokens([]);
-    setCurrentPage(1);
+  const resetCursor = React.useCallback(() => {
+    setCursor({ fromToken: undefined, previousTokens: [], currentPage: 1 });
   }, []);
 
-  const goToNextPage = React.useCallback(
-    (nextToken: string) => {
-      setPreviousTokens((prev) => [...prev, fromToken]);
-      setFromToken(nextToken);
-      setCurrentPage((prev) => prev + 1);
-    },
-    [fromToken],
-  );
+  const goToNextPage = React.useCallback((nextToken: string) => {
+    setCursor((prev) => ({
+      previousTokens: [...prev.previousTokens, prev.fromToken],
+      fromToken: nextToken,
+      currentPage: prev.currentPage + 1,
+    }));
+  }, []);
 
   const goToPreviousPage = React.useCallback(() => {
-    setPreviousTokens((prev) => {
-      const token = prev[prev.length - 1];
-      setFromToken(token);
-      return prev.slice(0, -1);
+    setCursor((prev) => {
+      if (prev.previousTokens.length === 0) return prev;
+
+      const newStack = [...prev.previousTokens];
+      const prevToken = newStack.pop();
+
+      return {
+        previousTokens: newStack,
+        fromToken: prevToken,
+        currentPage: Math.max(1, prev.currentPage - 1),
+      };
     });
-    setCurrentPage((prev) => Math.max(1, prev - 1));
   }, []);
 
   const changePageSize = React.useCallback(
     (newPageSize: number) => {
       setPageSize(newPageSize);
-      resetPagination();
+      resetCursor();
     },
-    [resetPagination],
+    [resetCursor],
   );
 
   const changeSortConfig = React.useCallback(
     (newSortConfig: SortConfig) => {
       setSortConfig(newSortConfig);
-      resetPagination();
+      resetCursor();
     },
-    [resetPagination],
+    [resetCursor],
   );
 
   const changeFilters = React.useCallback(
     (updater: TFilter | ((prev: TFilter) => TFilter)) => {
       setFilters(updater);
-      resetPagination();
+      resetCursor();
     },
-    [resetPagination],
+    [resetCursor],
   );
 
   const reset = React.useCallback(() => {
     setPageSize(defaultPageSize);
     setSortConfig(defaultSortConfig);
     setFilters(defaultFilters);
-    resetPagination();
-  }, [defaultPageSize, defaultSortConfig, defaultFilters, resetPagination]);
+    resetCursor();
+  }, [defaultPageSize, defaultSortConfig, defaultFilters, resetCursor]);
 
   return {
     pageSize,
-    currentPage,
-    fromToken,
-    hasPreviousPage: previousTokens.length > 0,
+    currentPage: cursor.currentPage,
+    fromToken: cursor.fromToken,
+    hasPreviousPage: cursor.previousTokens.length > 0,
     sortConfig,
     filters,
     goToNextPage,

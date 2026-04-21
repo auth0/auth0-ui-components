@@ -35,14 +35,16 @@ export const invitationListResponseSchema = z.object({
 });
 
 /**
- * Schema for creating an invitation.
+ * Schema for creating invitation(s)
  * @internal
  */
 export const createInvitationSchema = z.object({
-  invitee: z.object({
-    email: z.string().email(),
-  }),
-  roles: z.array(z.string()).optional(),
+  invitees: z.array(
+    z.object({
+      email: z.string().email(),
+      roles: z.array(z.string()).optional(),
+    }),
+  ),
 });
 
 /**
