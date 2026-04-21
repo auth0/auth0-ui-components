@@ -69,7 +69,9 @@ export function useDomainTable({
   const domainsQuery = useQuery({
     queryKey: domainQueryKeys.list(),
     queryFn: async () => {
-      const response = await coreClient!.getMyOrganizationApiClient().organization.domains.list();
+      const { response } = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.domains.list();
       return response?.organization_domains ?? [];
     },
     enabled: !!coreClient,

@@ -22,6 +22,7 @@ function createMockProvider(overrides = {}) {
     strategy: 'oidc' as const,
     is_enabled: true,
     options: {},
+    attributes: [],
     ...overrides,
   };
 }

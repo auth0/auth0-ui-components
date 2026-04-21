@@ -46,7 +46,7 @@ describe('DomainTable', () => {
 
     const apiService = mockCoreClient.getMyOrganizationApiClient();
     (apiService.organization.domains.list as ReturnType<typeof vi.fn>).mockResolvedValue({
-      organization_domains: [mockDomain, mockVerifiedDomain],
+      response: { organization_domains: [mockDomain, mockVerifiedDomain] },
     });
 
     vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({

@@ -5,7 +5,7 @@
   "title": "User MFA management container(logic) component",
   "description": "Handles loading factors, enroll/delete flows, and UI state.",
   "dependencies": [
-    "@auth0/universal-components-core@1.0.0-beta.20",
+    "@auth0/universal-components-core@1.0.0",
     "@auth0/auth0-react@^2.15.1",
     "@hookform/resolvers@^5.1.0",
     "@radix-ui/react-dialog@^1.1.14",
@@ -97,7 +97,7 @@
     },
     {
       "path": "src/components/auth0/shared/styled-scope.tsx",
-      "content": "/**\n * Auth0Scope component — CSS scope root and portal container for lib components.\n * @module auth0-scope\n * @internal\n */\n\n'use client';\n\nimport * as React from 'react';\n\nimport { cn } from '@/lib/utils';\nimport { ThemeContext } from '@/providers/theme-provider';\n\nexport interface StyledScopeProps {\n  children: React.ReactNode;\n  style?: React.CSSProperties;\n}\n\n/**\n * CSS scope root for lib components. Handles dark-mode class and theme attribute.\n *\n * @param props - Component props.\n * @param props.children - Content to render inside the scope root.\n * @param props.style - Optional inline CSS styles.\n * @returns A scoped wrapper div with dark-mode and theme attributes applied.\n * @internal\n */\nexport const StyledScope: React.FC<StyledScopeProps> = ({ children, style }) => {\n  const { theme = 'default', isDarkMode } = React.useContext(ThemeContext);\n\n  return (\n    <div className={cn('auth0-universal', isDarkMode && 'dark')} data-theme={theme} style={style}>\n      {children}\n    </div>\n  );\n};\n",
+      "content": "/**\n * Auth0Scope component — CSS scope root and portal container for lib components.\n * @module auth0-scope\n * @internal\n */\n\n'use client';\n\nimport { getCoreStyles } from '@auth0/universal-components-core';\nimport * as React from 'react';\n\nimport { cn } from '@/lib/utils';\nimport { ThemeContext } from '@/providers/theme-provider';\n\nexport interface StyledScopeProps {\n  children: React.ReactNode;\n  style?: React.CSSProperties;\n}\n\n/**\n * CSS scope root for lib components. Handles dark-mode class and theme attribute.\n *\n * @param props - Component props.\n * @param props.children - Content to render inside the scope root.\n * @param props.style - Optional inline CSS styles\n * @returns A scoped wrapper div with dark-mode and theme attributes applied.\n * @internal\n */\nexport const StyledScope: React.FC<StyledScopeProps> = ({ children, style }) => {\n  const { theme = 'default', isDarkMode, variables } = React.useContext(ThemeContext);\n\n  const mergedStyle = React.useMemo(() => {\n    const providerVars = getCoreStyles(variables, isDarkMode).variables;\n    return { ...providerVars, ...style };\n  }, [variables, isDarkMode, style]);\n\n  return (\n    <div\n      className={cn('auth0-universal', isDarkMode && 'dark')}\n      data-theme={theme}\n      style={mergedStyle}\n    >\n      {children}\n    </div>\n  );\n};\n",
       "type": "registry:component",
       "target": "components/auth0/shared/styled-scope.tsx"
     },
@@ -367,6 +367,6 @@
     }
   ],
   "meta": {
-    "coreVersion": "1.0.0-beta.20"
+    "coreVersion": "1.0.0"
   }
 }

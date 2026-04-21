@@ -1,14 +1,19 @@
 {
   "name": "@auth0/universal-components-react",
-  "version": "1.0.0-beta.24",
+  "version": "1.1.0",
   "private": false,
   "sideEffects": [
     "*.css"
   ],
-  "main": "./dist/spa.js",
-  "module": "./dist/spa.mjs",
-  "types": "./dist/spa.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
     "./rwa": {
       "types": "./dist/rwa.d.ts",
       "import": "./dist/rwa.mjs",

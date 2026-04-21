@@ -6,25 +6,25 @@
     {
       "name": "my-account/user-mfa-management",
       "type": "registry:block",
-      "title": "Internal MFA management UI used by `UserMFAMgmt`.",
+      "title": "User MFA management container(logic) component",
       "description": "Handles loading factors, enroll/delete flows, and UI state.",
       "dependencies": [
-        "@auth0/universal-components-core@1.0.0-beta.11",
-        "@auth0/auth0-react",
-        "@hookform/resolvers",
-        "@radix-ui/react-dialog",
-        "@radix-ui/react-label",
-        "@radix-ui/react-popover",
-        "@radix-ui/react-slot",
-        "@radix-ui/react-tooltip",
-        "@tanstack/react-query",
-        "class-variance-authority",
-        "clsx",
-        "lucide-react",
-        "qrcode",
-        "react-hook-form",
-        "sonner",
-        "tailwind-merge"
+        "@auth0/universal-components-core@1.0.0-beta.25",
+        "@auth0/auth0-react@^2.15.1",
+        "@hookform/resolvers@^5.1.0",
+        "@radix-ui/react-dialog@^1.1.14",
+        "@radix-ui/react-label@^2.1.7",
+        "@radix-ui/react-popover@^1.1.14",
+        "@radix-ui/react-slot@^1.2.3",
+        "@radix-ui/react-tooltip@^1.2.7",
+        "@tanstack/react-query@^5.56.2",
+        "class-variance-authority@^0.7.1",
+        "clsx@^2.1.1",
+        "lucide-react@^0.511.0",
+        "qrcode@^1.5.4",
+        "react-hook-form@^7.57.0",
+        "sonner@^2.0.5",
+        "tailwind-merge@^3.3.0"
       ],
       "files": [
         {
@@ -86,6 +86,11 @@
           "path": "src/components/auth0/shared/sonner.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/sonner.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/styled-scope.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/styled-scope.tsx"
         },
         {
           "path": "src/components/auth0/shared/toast.tsx",
@@ -168,6 +173,11 @@
           "target": "hooks/my-account/use-contact-enrollment.ts"
         },
         {
+          "path": "src/hooks/my-account/use-mfa-logic.ts",
+          "type": "registry:component",
+          "target": "hooks/my-account/use-mfa-logic.ts"
+        },
+        {
           "path": "src/hooks/my-account/use-mfa.ts",
           "type": "registry:component",
           "target": "hooks/my-account/use-mfa.ts"
@@ -198,11 +208,6 @@
           "target": "hooks/shared/use-core-client.ts"
         },
         {
-          "path": "src/hooks/shared/use-scope-manager.ts",
-          "type": "registry:component",
-          "target": "hooks/shared/use-scope-manager.ts"
-        },
-        {
           "path": "src/hooks/shared/use-theme.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-theme.ts"
@@ -218,6 +223,16 @@
           "target": "hooks/shared/use-translator.ts"
         },
         {
+          "path": "src/providers/gate-keeper-context.tsx",
+          "type": "registry:component",
+          "target": "providers/gate-keeper-context.tsx"
+        },
+        {
+          "path": "src/providers/portal-context.tsx",
+          "type": "registry:component",
+          "target": "providers/portal-context.tsx"
+        },
+        {
           "path": "src/providers/proxy-provider.tsx",
           "type": "registry:component",
           "target": "providers/proxy-provider.tsx"
@@ -226,11 +241,6 @@
           "path": "src/providers/query-provider.tsx",
           "type": "registry:component",
           "target": "providers/query-provider.tsx"
-        },
-        {
-          "path": "src/providers/scope-manager-provider.tsx",
-          "type": "registry:component",
-          "target": "providers/scope-manager-provider.tsx"
         },
         {
           "path": "src/providers/spa-provider.tsx",
@@ -293,43 +303,45 @@
           "target": "assets/icons/google-logo.tsx"
         },
         {
-          "path": "src/hoc/with-services.tsx",
-          "type": "registry:component",
-          "target": "hoc/with-services.tsx"
-        },
-        {
           "path": "src/styles/globals.css",
           "type": "registry:component",
           "target": "styles/globals.css"
+        },
+        {
+          "path": "src/styles/tailwind.css",
+          "type": "registry:component",
+          "target": "styles/tailwind.css"
         }
       ],
       "meta": {
-        "coreVersion": "1.0.0-beta.11"
+        "coreVersion": "1.0.0-beta.25"
       }
     },
     {
       "name": "my-organization/domain-table",
       "type": "registry:block",
-      "title": "DomainTableContainer Component.",
-      "description": "A block component for domain table container.",
+      "title": "DomainTable container component.",
+      "description": "A block component for domain table.",
       "dependencies": [
-        "@auth0/universal-components-core@1.0.0-beta.11",
-        "@auth0/auth0-react",
-        "@hookform/resolvers",
-        "@radix-ui/react-dialog",
-        "@radix-ui/react-dropdown-menu",
-        "@radix-ui/react-label",
-        "@radix-ui/react-slot",
-        "@radix-ui/react-switch",
-        "@radix-ui/react-tooltip",
-        "@tanstack/react-query",
-        "@tanstack/react-table",
-        "class-variance-authority",
-        "clsx",
-        "lucide-react",
-        "react-hook-form",
-        "sonner",
-        "tailwind-merge"
+        "@auth0/universal-components-core@1.0.0-beta.25",
+        "@auth0/auth0-react@^2.15.1",
+        "@hookform/resolvers@^5.1.0",
+        "@radix-ui/react-checkbox@^1.1.1",
+        "@radix-ui/react-dialog@^1.1.14",
+        "@radix-ui/react-dropdown-menu@^2.1.1",
+        "@radix-ui/react-label@^2.1.7",
+        "@radix-ui/react-slot@^1.2.3",
+        "@radix-ui/react-switch@^1.1.0",
+        "@radix-ui/react-tooltip@^1.2.7",
+        "@tanstack/react-query@^5.56.2",
+        "@tanstack/react-table@^8.21.3",
+        "class-variance-authority@^0.7.1",
+        "clsx@^2.1.1",
+        "lucide-react@^0.511.0",
+        "qrcode@^1.5.4",
+        "react-hook-form@^7.57.0",
+        "sonner@^2.0.5",
+        "tailwind-merge@^3.3.0"
       ],
       "files": [
         {
@@ -378,6 +390,36 @@
           "target": "components/auth0/shared/form-actions.tsx"
         },
         {
+          "path": "src/components/auth0/shared/gate-keeper/gate-keeper.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/gate-keeper.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/authenticators-list.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/authenticators-list.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/enrollment-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/enrollment-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/mfa-wizard.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/mfa-wizard.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/otp-code-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/otp-code-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/verify-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/verify-form.tsx"
+        },
+        {
           "path": "src/components/auth0/shared/header.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/header.tsx"
@@ -391,6 +433,11 @@
           "path": "src/components/auth0/shared/sonner.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/sonner.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/styled-scope.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/styled-scope.tsx"
         },
         {
           "path": "src/components/auth0/shared/toast.tsx",
@@ -411,6 +458,16 @@
           "path": "src/components/ui/button.tsx",
           "type": "registry:component",
           "target": "components/ui/button.tsx"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "type": "registry:component",
+          "target": "components/ui/card.tsx"
+        },
+        {
+          "path": "src/components/ui/checkbox.tsx",
+          "type": "registry:component",
+          "target": "components/ui/checkbox.tsx"
         },
         {
           "path": "src/components/ui/dialog.tsx",
@@ -438,9 +495,34 @@
           "target": "components/ui/label.tsx"
         },
         {
+          "path": "src/components/ui/link.tsx",
+          "type": "registry:component",
+          "target": "components/ui/link.tsx"
+        },
+        {
+          "path": "src/components/ui/list.tsx",
+          "type": "registry:component",
+          "target": "components/ui/list.tsx"
+        },
+        {
           "path": "src/components/ui/modal.tsx",
           "type": "registry:component",
           "target": "components/ui/modal.tsx"
+        },
+        {
+          "path": "src/components/ui/otp-field.tsx",
+          "type": "registry:component",
+          "target": "components/ui/otp-field.tsx"
+        },
+        {
+          "path": "src/components/ui/qr-code.tsx",
+          "type": "registry:component",
+          "target": "components/ui/qr-code.tsx"
+        },
+        {
+          "path": "src/components/ui/separator.tsx",
+          "type": "registry:component",
+          "target": "components/ui/separator.tsx"
         },
         {
           "path": "src/components/ui/spinner.tsx",
@@ -493,9 +575,14 @@
           "target": "hooks/shared/use-error-handler.ts"
         },
         {
-          "path": "src/hooks/shared/use-scope-manager.ts",
+          "path": "src/hooks/shared/use-mfa-requirements.ts",
           "type": "registry:component",
-          "target": "hooks/shared/use-scope-manager.ts"
+          "target": "hooks/shared/use-mfa-requirements.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-mfa-step-up.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-mfa-step-up.ts"
         },
         {
           "path": "src/hooks/shared/use-theme.ts",
@@ -513,6 +600,16 @@
           "target": "hooks/shared/use-translator.ts"
         },
         {
+          "path": "src/providers/gate-keeper-context.tsx",
+          "type": "registry:component",
+          "target": "providers/gate-keeper-context.tsx"
+        },
+        {
+          "path": "src/providers/portal-context.tsx",
+          "type": "registry:component",
+          "target": "providers/portal-context.tsx"
+        },
+        {
           "path": "src/providers/proxy-provider.tsx",
           "type": "registry:component",
           "target": "providers/proxy-provider.tsx"
@@ -521,11 +618,6 @@
           "path": "src/providers/query-provider.tsx",
           "type": "registry:component",
           "target": "providers/query-provider.tsx"
-        },
-        {
-          "path": "src/providers/scope-manager-provider.tsx",
-          "type": "registry:component",
-          "target": "providers/scope-manager-provider.tsx"
         },
         {
           "path": "src/providers/spa-provider.tsx",
@@ -551,11 +643,6 @@
           "path": "src/types/i18n-types.ts",
           "type": "registry:component",
           "target": "types/i18n-types.ts"
-        },
-        {
-          "path": "src/types/index.ts",
-          "type": "registry:component",
-          "target": "types/index.ts"
         },
         {
           "path": "src/types/my-organization/domain-management/domain-configure-types.ts",
@@ -603,44 +690,57 @@
           "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
         },
         {
-          "path": "src/hoc/with-services.tsx",
+          "path": "src/assets/icons/apple-logo.tsx",
           "type": "registry:component",
-          "target": "hoc/with-services.tsx"
+          "target": "assets/icons/apple-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/google-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/google-logo.tsx"
         },
         {
           "path": "src/styles/globals.css",
           "type": "registry:component",
           "target": "styles/globals.css"
+        },
+        {
+          "path": "src/styles/tailwind.css",
+          "type": "registry:component",
+          "target": "styles/tailwind.css"
         }
       ],
       "meta": {
-        "coreVersion": "1.0.0-beta.11"
+        "coreVersion": "1.0.0-beta.25"
       }
     },
     {
       "name": "my-organization/organization-details-edit",
       "type": "registry:block",
-      "title": "Internal organization details edit component.",
+      "title": "Organization details edit component.",
       "description": "A block component for organization details edit.",
       "dependencies": [
-        "@auth0/universal-components-core@1.0.0-beta.11",
-        "@auth0/auth0-react",
-        "@hookform/resolvers",
-        "@radix-ui/react-label",
-        "@radix-ui/react-popover",
-        "@radix-ui/react-select",
-        "@radix-ui/react-slot",
-        "@radix-ui/react-switch",
-        "@radix-ui/react-tooltip",
-        "@tanstack/react-query",
-        "@uiw/color-convert",
-        "@uiw/react-color",
-        "class-variance-authority",
-        "clsx",
-        "lucide-react",
-        "react-hook-form",
-        "sonner",
-        "tailwind-merge"
+        "@auth0/universal-components-core@1.0.0-beta.25",
+        "@auth0/auth0-react@^2.15.1",
+        "@hookform/resolvers@^5.1.0",
+        "@radix-ui/react-checkbox@^1.1.1",
+        "@radix-ui/react-dialog@^1.1.14",
+        "@radix-ui/react-label@^2.1.7",
+        "@radix-ui/react-popover@^1.1.14",
+        "@radix-ui/react-select@^2.2.5",
+        "@radix-ui/react-slot@^1.2.3",
+        "@radix-ui/react-switch@^1.1.0",
+        "@radix-ui/react-tooltip@^1.2.7",
+        "@tanstack/react-query@^5.56.2",
+        "@uiw/color-convert@^2.9.2",
+        "@uiw/react-color@^2.9.2",
+        "class-variance-authority@^0.7.1",
+        "clsx@^2.1.1",
+        "lucide-react@^0.511.0",
+        "qrcode@^1.5.4",
+        "react-hook-form@^7.57.0",
+        "sonner@^2.0.5",
+        "tailwind-merge@^3.3.0"
       ],
       "files": [
         {
@@ -664,9 +764,44 @@
           "target": "components/auth0/my-organization/shared/organization-management/organization-details/settings-details.tsx"
         },
         {
+          "path": "src/components/auth0/shared/copyable-text-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/copyable-text-field.tsx"
+        },
+        {
           "path": "src/components/auth0/shared/form-actions.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/form-actions.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/gate-keeper.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/gate-keeper.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/authenticators-list.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/authenticators-list.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/enrollment-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/enrollment-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/mfa-wizard.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/mfa-wizard.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/otp-code-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/otp-code-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/verify-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/verify-form.tsx"
         },
         {
           "path": "src/components/auth0/shared/header.tsx",
@@ -684,6 +819,11 @@
           "target": "components/auth0/shared/sonner.tsx"
         },
         {
+          "path": "src/components/auth0/shared/styled-scope.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/styled-scope.tsx"
+        },
+        {
           "path": "src/components/auth0/shared/toast.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/toast.tsx"
@@ -699,9 +839,19 @@
           "target": "components/ui/card.tsx"
         },
         {
+          "path": "src/components/ui/checkbox.tsx",
+          "type": "registry:component",
+          "target": "components/ui/checkbox.tsx"
+        },
+        {
           "path": "src/components/ui/color-picker.tsx",
           "type": "registry:component",
           "target": "components/ui/color-picker.tsx"
+        },
+        {
+          "path": "src/components/ui/dialog.tsx",
+          "type": "registry:component",
+          "target": "components/ui/dialog.tsx"
         },
         {
           "path": "src/components/ui/form.tsx",
@@ -719,9 +869,29 @@
           "target": "components/ui/label.tsx"
         },
         {
+          "path": "src/components/ui/link.tsx",
+          "type": "registry:component",
+          "target": "components/ui/link.tsx"
+        },
+        {
+          "path": "src/components/ui/list.tsx",
+          "type": "registry:component",
+          "target": "components/ui/list.tsx"
+        },
+        {
+          "path": "src/components/ui/otp-field.tsx",
+          "type": "registry:component",
+          "target": "components/ui/otp-field.tsx"
+        },
+        {
           "path": "src/components/ui/popover.tsx",
           "type": "registry:component",
           "target": "components/ui/popover.tsx"
+        },
+        {
+          "path": "src/components/ui/qr-code.tsx",
+          "type": "registry:component",
+          "target": "components/ui/qr-code.tsx"
         },
         {
           "path": "src/components/ui/select.tsx",
@@ -774,9 +944,19 @@
           "target": "hooks/shared/use-core-client.ts"
         },
         {
-          "path": "src/hooks/shared/use-scope-manager.ts",
+          "path": "src/hooks/shared/use-error-handler.ts",
           "type": "registry:component",
-          "target": "hooks/shared/use-scope-manager.ts"
+          "target": "hooks/shared/use-error-handler.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-mfa-requirements.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-mfa-requirements.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-mfa-step-up.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-mfa-step-up.ts"
         },
         {
           "path": "src/hooks/shared/use-theme.ts",
@@ -794,6 +974,16 @@
           "target": "hooks/shared/use-translator.ts"
         },
         {
+          "path": "src/providers/gate-keeper-context.tsx",
+          "type": "registry:component",
+          "target": "providers/gate-keeper-context.tsx"
+        },
+        {
+          "path": "src/providers/portal-context.tsx",
+          "type": "registry:component",
+          "target": "providers/portal-context.tsx"
+        },
+        {
           "path": "src/providers/proxy-provider.tsx",
           "type": "registry:component",
           "target": "providers/proxy-provider.tsx"
@@ -802,11 +992,6 @@
           "path": "src/providers/query-provider.tsx",
           "type": "registry:component",
           "target": "providers/query-provider.tsx"
-        },
-        {
-          "path": "src/providers/scope-manager-provider.tsx",
-          "type": "registry:component",
-          "target": "providers/scope-manager-provider.tsx"
         },
         {
           "path": "src/providers/spa-provider.tsx",
@@ -859,44 +1044,56 @@
           "target": "lib/utils.ts"
         },
         {
-          "path": "src/hoc/with-services.tsx",
+          "path": "src/assets/icons/apple-logo.tsx",
           "type": "registry:component",
-          "target": "hoc/with-services.tsx"
+          "target": "assets/icons/apple-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/google-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/google-logo.tsx"
         },
         {
           "path": "src/styles/globals.css",
           "type": "registry:component",
           "target": "styles/globals.css"
+        },
+        {
+          "path": "src/styles/tailwind.css",
+          "type": "registry:component",
+          "target": "styles/tailwind.css"
         }
       ],
       "meta": {
-        "coreVersion": "1.0.0-beta.11"
+        "coreVersion": "1.0.0-beta.25"
       }
     },
     {
       "name": "my-organization/sso-provider-create",
       "type": "registry:block",
-      "title": "Internal SSO provider creation component.",
+      "title": "SSO provider creation container component.",
       "description": "A block component for sso provider create.",
       "dependencies": [
-        "@auth0/universal-components-core@1.0.0-beta.11",
-        "@auth0/auth0-react",
-        "@hookform/resolvers",
-        "@radix-ui/react-accordion",
-        "@radix-ui/react-checkbox",
-        "@radix-ui/react-label",
-        "@radix-ui/react-radio-group",
-        "@radix-ui/react-select",
-        "@radix-ui/react-slot",
-        "@radix-ui/react-switch",
-        "@radix-ui/react-tooltip",
-        "@tanstack/react-query",
-        "class-variance-authority",
-        "clsx",
-        "lucide-react",
-        "react-hook-form",
-        "sonner",
-        "tailwind-merge"
+        "@auth0/universal-components-core@1.0.0-beta.25",
+        "@auth0/auth0-react@^2.15.1",
+        "@hookform/resolvers@^5.1.0",
+        "@radix-ui/react-accordion@^1.2.0",
+        "@radix-ui/react-checkbox@^1.1.1",
+        "@radix-ui/react-dialog@^1.1.14",
+        "@radix-ui/react-label@^2.1.7",
+        "@radix-ui/react-radio-group@^1.2.0",
+        "@radix-ui/react-select@^2.2.5",
+        "@radix-ui/react-slot@^1.2.3",
+        "@radix-ui/react-switch@^1.1.0",
+        "@radix-ui/react-tooltip@^1.2.7",
+        "@tanstack/react-query@^5.56.2",
+        "class-variance-authority@^0.7.1",
+        "clsx@^2.1.1",
+        "lucide-react@^0.511.0",
+        "qrcode@^1.5.4",
+        "react-hook-form@^7.57.0",
+        "sonner@^2.0.5",
+        "tailwind-merge@^3.3.0"
       ],
       "files": [
         {
@@ -975,6 +1172,36 @@
           "target": "components/auth0/shared/form-actions.tsx"
         },
         {
+          "path": "src/components/auth0/shared/gate-keeper/gate-keeper.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/gate-keeper.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/authenticators-list.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/authenticators-list.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/enrollment-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/enrollment-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/mfa-wizard.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/mfa-wizard.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/otp-code-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/otp-code-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/verify-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/verify-form.tsx"
+        },
+        {
           "path": "src/components/auth0/shared/header.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/header.tsx"
@@ -988,6 +1215,11 @@
           "path": "src/components/auth0/shared/sonner.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/sonner.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/styled-scope.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/styled-scope.tsx"
         },
         {
           "path": "src/components/auth0/shared/toast.tsx",
@@ -1025,6 +1257,11 @@
           "target": "components/ui/checkbox.tsx"
         },
         {
+          "path": "src/components/ui/dialog.tsx",
+          "type": "registry:component",
+          "target": "components/ui/dialog.tsx"
+        },
+        {
           "path": "src/components/ui/file-upload.tsx",
           "type": "registry:component",
           "target": "components/ui/file-upload.tsx"
@@ -1043,6 +1280,21 @@
           "path": "src/components/ui/link.tsx",
           "type": "registry:component",
           "target": "components/ui/link.tsx"
+        },
+        {
+          "path": "src/components/ui/list.tsx",
+          "type": "registry:component",
+          "target": "components/ui/list.tsx"
+        },
+        {
+          "path": "src/components/ui/otp-field.tsx",
+          "type": "registry:component",
+          "target": "components/ui/otp-field.tsx"
+        },
+        {
+          "path": "src/components/ui/qr-code.tsx",
+          "type": "registry:component",
+          "target": "components/ui/qr-code.tsx"
         },
         {
           "path": "src/components/ui/radio-group.tsx",
@@ -1105,6 +1357,11 @@
           "target": "hooks/my-organization/use-provider-form-mode.ts"
         },
         {
+          "path": "src/hooks/my-organization/use-sso-provider-create-logic.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-sso-provider-create-logic.ts"
+        },
+        {
           "path": "src/hooks/my-organization/use-sso-provider-create.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/use-sso-provider-create.ts"
@@ -1125,9 +1382,19 @@
           "target": "hooks/shared/use-core-client.ts"
         },
         {
-          "path": "src/hooks/shared/use-scope-manager.ts",
+          "path": "src/hooks/shared/use-error-handler.ts",
           "type": "registry:component",
-          "target": "hooks/shared/use-scope-manager.ts"
+          "target": "hooks/shared/use-error-handler.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-mfa-requirements.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-mfa-requirements.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-mfa-step-up.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-mfa-step-up.ts"
         },
         {
           "path": "src/hooks/shared/use-theme.ts",
@@ -1145,6 +1412,16 @@
           "target": "hooks/shared/use-translator.ts"
         },
         {
+          "path": "src/providers/gate-keeper-context.tsx",
+          "type": "registry:component",
+          "target": "providers/gate-keeper-context.tsx"
+        },
+        {
+          "path": "src/providers/portal-context.tsx",
+          "type": "registry:component",
+          "target": "providers/portal-context.tsx"
+        },
+        {
           "path": "src/providers/proxy-provider.tsx",
           "type": "registry:component",
           "target": "providers/proxy-provider.tsx"
@@ -1153,11 +1430,6 @@
           "path": "src/providers/query-provider.tsx",
           "type": "registry:component",
           "target": "providers/query-provider.tsx"
-        },
-        {
-          "path": "src/providers/scope-manager-provider.tsx",
-          "type": "registry:component",
-          "target": "providers/scope-manager-provider.tsx"
         },
         {
           "path": "src/providers/spa-provider.tsx",
@@ -1220,6 +1492,11 @@
           "target": "lib/utils.ts"
         },
         {
+          "path": "src/assets/icons/apple-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/apple-logo.tsx"
+        },
+        {
           "path": "src/assets/icons/entraid-logo.tsx",
           "type": "registry:component",
           "target": "assets/icons/entraid-logo.tsx"
@@ -1255,47 +1532,48 @@
           "target": "assets/icons/sampl-logo.tsx"
         },
         {
-          "path": "src/hoc/with-services.tsx",
-          "type": "registry:component",
-          "target": "hoc/with-services.tsx"
-        },
-        {
           "path": "src/styles/globals.css",
           "type": "registry:component",
           "target": "styles/globals.css"
+        },
+        {
+          "path": "src/styles/tailwind.css",
+          "type": "registry:component",
+          "target": "styles/tailwind.css"
         }
       ],
       "meta": {
-        "coreVersion": "1.0.0-beta.11"
+        "coreVersion": "1.0.0-beta.25"
       }
     },
     {
       "name": "my-organization/sso-provider-edit",
       "type": "registry:block",
-      "title": "Internal SSO provider edit component.",
+      "title": "SSO provider edit container component.",
       "description": "A block component for sso provider edit.",
       "dependencies": [
-        "@auth0/universal-components-core@1.0.0-beta.11",
-        "@auth0/auth0-react",
-        "@hookform/resolvers",
-        "@radix-ui/react-accordion",
-        "@radix-ui/react-checkbox",
-        "@radix-ui/react-dialog",
-        "@radix-ui/react-label",
-        "@radix-ui/react-radio-group",
-        "@radix-ui/react-select",
-        "@radix-ui/react-slot",
-        "@radix-ui/react-switch",
-        "@radix-ui/react-tabs",
-        "@radix-ui/react-tooltip",
-        "@tanstack/react-query",
-        "@tanstack/react-table",
-        "class-variance-authority",
-        "clsx",
-        "lucide-react",
-        "react-hook-form",
-        "sonner",
-        "tailwind-merge"
+        "@auth0/universal-components-core@1.0.0-beta.25",
+        "@auth0/auth0-react@^2.15.1",
+        "@hookform/resolvers@^5.1.0",
+        "@radix-ui/react-accordion@^1.2.0",
+        "@radix-ui/react-checkbox@^1.1.1",
+        "@radix-ui/react-dialog@^1.1.14",
+        "@radix-ui/react-label@^2.1.7",
+        "@radix-ui/react-radio-group@^1.2.0",
+        "@radix-ui/react-select@^2.2.5",
+        "@radix-ui/react-slot@^1.2.3",
+        "@radix-ui/react-switch@^1.1.0",
+        "@radix-ui/react-tabs@^1.1.12",
+        "@radix-ui/react-tooltip@^1.2.7",
+        "@tanstack/react-query@^5.56.2",
+        "@tanstack/react-table@^8.21.3",
+        "class-variance-authority@^0.7.1",
+        "clsx@^2.1.1",
+        "lucide-react@^0.511.0",
+        "qrcode@^1.5.4",
+        "react-hook-form@^7.57.0",
+        "sonner@^2.0.5",
+        "tailwind-merge@^3.3.0"
       ],
       "files": [
         {
@@ -1479,6 +1757,36 @@
           "target": "components/auth0/shared/form-actions.tsx"
         },
         {
+          "path": "src/components/auth0/shared/gate-keeper/gate-keeper.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/gate-keeper.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/authenticators-list.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/authenticators-list.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/enrollment-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/enrollment-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/mfa-wizard.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/mfa-wizard.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/otp-code-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/otp-code-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/verify-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/verify-form.tsx"
+        },
+        {
           "path": "src/components/auth0/shared/header.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/header.tsx"
@@ -1502,6 +1810,11 @@
           "path": "src/components/auth0/shared/sonner.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/sonner.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/styled-scope.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/styled-scope.tsx"
         },
         {
           "path": "src/components/auth0/shared/toast.tsx",
@@ -1569,9 +1882,24 @@
           "target": "components/ui/link.tsx"
         },
         {
+          "path": "src/components/ui/list.tsx",
+          "type": "registry:component",
+          "target": "components/ui/list.tsx"
+        },
+        {
           "path": "src/components/ui/modal.tsx",
           "type": "registry:component",
           "target": "components/ui/modal.tsx"
+        },
+        {
+          "path": "src/components/ui/otp-field.tsx",
+          "type": "registry:component",
+          "target": "components/ui/otp-field.tsx"
+        },
+        {
+          "path": "src/components/ui/qr-code.tsx",
+          "type": "registry:component",
+          "target": "components/ui/qr-code.tsx"
         },
         {
           "path": "src/components/ui/radio-group.tsx",
@@ -1644,9 +1972,19 @@
           "target": "hooks/my-organization/use-sso-domain-tab.ts"
         },
         {
+          "path": "src/hooks/my-organization/use-sso-provider-edit-logic.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-sso-provider-edit-logic.ts"
+        },
+        {
           "path": "src/hooks/my-organization/use-sso-provider-edit.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/use-sso-provider-edit.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-sso-provider-table.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-sso-provider-table.ts"
         },
         {
           "path": "src/hooks/shared/use-core-client-initialization.ts",
@@ -1664,9 +2002,14 @@
           "target": "hooks/shared/use-error-handler.ts"
         },
         {
-          "path": "src/hooks/shared/use-scope-manager.ts",
+          "path": "src/hooks/shared/use-mfa-requirements.ts",
           "type": "registry:component",
-          "target": "hooks/shared/use-scope-manager.ts"
+          "target": "hooks/shared/use-mfa-requirements.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-mfa-step-up.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-mfa-step-up.ts"
         },
         {
           "path": "src/hooks/shared/use-theme.ts",
@@ -1684,6 +2027,16 @@
           "target": "hooks/shared/use-translator.ts"
         },
         {
+          "path": "src/providers/gate-keeper-context.tsx",
+          "type": "registry:component",
+          "target": "providers/gate-keeper-context.tsx"
+        },
+        {
+          "path": "src/providers/portal-context.tsx",
+          "type": "registry:component",
+          "target": "providers/portal-context.tsx"
+        },
+        {
           "path": "src/providers/proxy-provider.tsx",
           "type": "registry:component",
           "target": "providers/proxy-provider.tsx"
@@ -1692,11 +2045,6 @@
           "path": "src/providers/query-provider.tsx",
           "type": "registry:component",
           "target": "providers/query-provider.tsx"
-        },
-        {
-          "path": "src/providers/scope-manager-provider.tsx",
-          "type": "registry:component",
-          "target": "providers/scope-manager-provider.tsx"
         },
         {
           "path": "src/providers/spa-provider.tsx",
@@ -1779,6 +2127,11 @@
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts"
         },
         {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-table-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-table-types.ts"
+        },
+        {
           "path": "src/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types.ts"
@@ -1814,40 +2167,55 @@
           "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
         },
         {
-          "path": "src/hoc/with-services.tsx",
+          "path": "src/assets/icons/apple-logo.tsx",
           "type": "registry:component",
-          "target": "hoc/with-services.tsx"
+          "target": "assets/icons/apple-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/google-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/google-logo.tsx"
         },
         {
           "path": "src/styles/globals.css",
           "type": "registry:component",
           "target": "styles/globals.css"
+        },
+        {
+          "path": "src/styles/tailwind.css",
+          "type": "registry:component",
+          "target": "styles/tailwind.css"
         }
       ],
       "meta": {
-        "coreVersion": "1.0.0-beta.11"
+        "coreVersion": "1.0.0-beta.25"
       }
     },
     {
       "name": "my-organization/sso-provider-table",
       "type": "registry:block",
-      "title": "Internal SSO provider table component.",
+      "title": "SSO provider table container component.",
       "description": "A block component for sso provider table.",
       "dependencies": [
-        "@auth0/universal-components-core@1.0.0-beta.11",
-        "@auth0/auth0-react",
-        "@radix-ui/react-dialog",
-        "@radix-ui/react-dropdown-menu",
-        "@radix-ui/react-slot",
-        "@radix-ui/react-switch",
-        "@radix-ui/react-tooltip",
-        "@tanstack/react-query",
-        "@tanstack/react-table",
-        "class-variance-authority",
-        "clsx",
-        "lucide-react",
-        "sonner",
-        "tailwind-merge"
+        "@auth0/universal-components-core@1.0.0-beta.25",
+        "@auth0/auth0-react@^2.15.1",
+        "@hookform/resolvers@^5.1.0",
+        "@radix-ui/react-checkbox@^1.1.1",
+        "@radix-ui/react-dialog@^1.1.14",
+        "@radix-ui/react-dropdown-menu@^2.1.1",
+        "@radix-ui/react-label@^2.1.7",
+        "@radix-ui/react-slot@^1.2.3",
+        "@radix-ui/react-switch@^1.1.0",
+        "@radix-ui/react-tooltip@^1.2.7",
+        "@tanstack/react-query@^5.56.2",
+        "@tanstack/react-table@^8.21.3",
+        "class-variance-authority@^0.7.1",
+        "clsx@^2.1.1",
+        "lucide-react@^0.511.0",
+        "qrcode@^1.5.4",
+        "react-hook-form@^7.57.0",
+        "sonner@^2.0.5",
+        "tailwind-merge@^3.3.0"
       ],
       "files": [
         {
@@ -1876,6 +2244,11 @@
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-table/sso-provider-table-action.tsx"
         },
         {
+          "path": "src/components/auth0/shared/copyable-text-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/copyable-text-field.tsx"
+        },
+        {
           "path": "src/components/auth0/shared/data-table.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/data-table.tsx"
@@ -1884,6 +2257,36 @@
           "path": "src/components/auth0/shared/form-actions.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/form-actions.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/gate-keeper.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/gate-keeper.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/authenticators-list.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/authenticators-list.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/enrollment-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/enrollment-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/mfa-wizard.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/mfa-wizard.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/otp-code-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/otp-code-form.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/mfa-step-up/verify-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/mfa-step-up/verify-form.tsx"
         },
         {
           "path": "src/components/auth0/shared/header.tsx",
@@ -1901,6 +2304,11 @@
           "target": "components/auth0/shared/sonner.tsx"
         },
         {
+          "path": "src/components/auth0/shared/styled-scope.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/styled-scope.tsx"
+        },
+        {
           "path": "src/components/auth0/shared/toast.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/toast.tsx"
@@ -1916,6 +2324,16 @@
           "target": "components/ui/button.tsx"
         },
         {
+          "path": "src/components/ui/card.tsx",
+          "type": "registry:component",
+          "target": "components/ui/card.tsx"
+        },
+        {
+          "path": "src/components/ui/checkbox.tsx",
+          "type": "registry:component",
+          "target": "components/ui/checkbox.tsx"
+        },
+        {
           "path": "src/components/ui/dialog.tsx",
           "type": "registry:component",
           "target": "components/ui/dialog.tsx"
@@ -1924,6 +2342,11 @@
           "path": "src/components/ui/dropdown-menu.tsx",
           "type": "registry:component",
           "target": "components/ui/dropdown-menu.tsx"
+        },
+        {
+          "path": "src/components/ui/form.tsx",
+          "type": "registry:component",
+          "target": "components/ui/form.tsx"
         },
         {
           "path": "src/components/ui/inline-code.tsx",
@@ -1936,9 +2359,34 @@
           "target": "components/ui/label.tsx"
         },
         {
+          "path": "src/components/ui/link.tsx",
+          "type": "registry:component",
+          "target": "components/ui/link.tsx"
+        },
+        {
+          "path": "src/components/ui/list.tsx",
+          "type": "registry:component",
+          "target": "components/ui/list.tsx"
+        },
+        {
           "path": "src/components/ui/modal.tsx",
           "type": "registry:component",
           "target": "components/ui/modal.tsx"
+        },
+        {
+          "path": "src/components/ui/otp-field.tsx",
+          "type": "registry:component",
+          "target": "components/ui/otp-field.tsx"
+        },
+        {
+          "path": "src/components/ui/qr-code.tsx",
+          "type": "registry:component",
+          "target": "components/ui/qr-code.tsx"
+        },
+        {
+          "path": "src/components/ui/separator.tsx",
+          "type": "registry:component",
+          "target": "components/ui/separator.tsx"
         },
         {
           "path": "src/components/ui/spinner.tsx",
@@ -1976,6 +2424,11 @@
           "target": "hooks/my-organization/use-idp-config.ts"
         },
         {
+          "path": "src/hooks/my-organization/use-sso-provider-table-logic.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-sso-provider-table-logic.ts"
+        },
+        {
           "path": "src/hooks/my-organization/use-sso-provider-table.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/use-sso-provider-table.ts"
@@ -1991,9 +2444,19 @@
           "target": "hooks/shared/use-core-client.ts"
         },
         {
-          "path": "src/hooks/shared/use-scope-manager.ts",
+          "path": "src/hooks/shared/use-error-handler.ts",
           "type": "registry:component",
-          "target": "hooks/shared/use-scope-manager.ts"
+          "target": "hooks/shared/use-error-handler.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-mfa-requirements.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-mfa-requirements.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-mfa-step-up.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-mfa-step-up.ts"
         },
         {
           "path": "src/hooks/shared/use-theme.ts",
@@ -2011,6 +2474,16 @@
           "target": "hooks/shared/use-translator.ts"
         },
         {
+          "path": "src/providers/gate-keeper-context.tsx",
+          "type": "registry:component",
+          "target": "providers/gate-keeper-context.tsx"
+        },
+        {
+          "path": "src/providers/portal-context.tsx",
+          "type": "registry:component",
+          "target": "providers/portal-context.tsx"
+        },
+        {
           "path": "src/providers/proxy-provider.tsx",
           "type": "registry:component",
           "target": "providers/proxy-provider.tsx"
@@ -2019,11 +2492,6 @@
           "path": "src/providers/query-provider.tsx",
           "type": "registry:component",
           "target": "providers/query-provider.tsx"
-        },
-        {
-          "path": "src/providers/scope-manager-provider.tsx",
-          "type": "registry:component",
-          "target": "providers/scope-manager-provider.tsx"
         },
         {
           "path": "src/providers/spa-provider.tsx",
@@ -2086,18 +2554,28 @@
           "target": "lib/utils.ts"
         },
         {
-          "path": "src/hoc/with-services.tsx",
+          "path": "src/assets/icons/apple-logo.tsx",
           "type": "registry:component",
-          "target": "hoc/with-services.tsx"
+          "target": "assets/icons/apple-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/google-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/google-logo.tsx"
         },
         {
           "path": "src/styles/globals.css",
           "type": "registry:component",
           "target": "styles/globals.css"
+        },
+        {
+          "path": "src/styles/tailwind.css",
+          "type": "registry:component",
+          "target": "styles/tailwind.css"
         }
       ],
       "meta": {
-        "coreVersion": "1.0.0-beta.11"
+        "coreVersion": "1.0.0-beta.25"
       }
     }
   ]

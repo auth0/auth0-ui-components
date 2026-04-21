@@ -46,7 +46,7 @@ describe('useSsoDomainTab', () => {
 
     // Mock existing API methods
     (apiService.organization.domains.list as ReturnType<typeof vi.fn>).mockResolvedValue({
-      organization_domains: [mockDomain],
+      response: { organization_domains: [mockDomain] },
     });
     (apiService.organization.domains.create as ReturnType<typeof vi.fn>).mockResolvedValue(
       mockDomain,

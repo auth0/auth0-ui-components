@@ -3,6 +3,9 @@
  * @module types
  */
 
+// Auth types
+export * from './auth-types';
+
 // My Account types
 export * from './my-account/mfa/mfa-types';
 
