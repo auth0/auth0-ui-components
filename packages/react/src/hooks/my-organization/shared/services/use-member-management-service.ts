@@ -116,7 +116,7 @@ export function useMemberManagementService(
       const response = await coreClient!
         .getMyOrganizationApiClient()
         .organization.invitations.create({
-          invitees: [{ email: data.invitee.email, roles: data.roles }],
+          invitees: data.invitees,
           inviter: data.inviter,
           ttl_sec: data.ttl_sec,
         });
