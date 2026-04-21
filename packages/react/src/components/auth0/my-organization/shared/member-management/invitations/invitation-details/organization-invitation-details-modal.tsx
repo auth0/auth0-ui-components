@@ -3,7 +3,6 @@
  * @module organization-invitation-details-modal
  */
 
-import type { MemberInvitation } from '@auth0/universal-components-core';
 import { Link } from 'lucide-react';
 import * as React from 'react';
 
@@ -25,26 +24,10 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import { getInvitationStatus } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
   InvitationStatus,
-  RoleOption,
-  IdentityProviderOption,
-  OrganizationInvitationTabMessages,
+  OrganizationInvitationDetailsModalProps,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
-export interface OrganizationInvitationDetailsModalProps {
-  invitation: MemberInvitation | null;
-  isOpen: boolean;
-  isRevoking?: boolean;
-  isResending?: boolean;
-  customMessages?: Partial<OrganizationInvitationTabMessages>;
-  availableRoles?: RoleOption[];
-  availableProviders?: IdentityProviderOption[];
-  readOnly?: boolean;
-  onClose: () => void;
-  onCopyUrl?: (invitation: MemberInvitation) => void;
-  onRevoke?: (invitation?: MemberInvitation) => void;
-  onResend?: (invitation?: MemberInvitation) => void;
-  className?: string;
-}
+export type { OrganizationInvitationDetailsModalProps };
 
 /**
  * Returns the badge variant for a given invitation status.
