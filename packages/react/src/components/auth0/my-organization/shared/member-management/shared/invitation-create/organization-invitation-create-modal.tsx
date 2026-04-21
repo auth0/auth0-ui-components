@@ -3,10 +3,7 @@
  * @module organization-invitation-create-modal
  */
 
-import {
-  createInvitationCreateSchema,
-  type InvitationCreateSchemas,
-} from '@auth0/universal-components-core';
+import { createInvitationCreateSchema } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -30,25 +27,9 @@ import {
 import { TextFieldGroup } from '@/components/ui/text-field-group';
 import type { ChipItem } from '@/components/ui/text-field-group';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type {
-  CreateInvitationInput,
-  RoleOption,
-  IdentityProviderOption,
-  OrganizationInvitationTabMessages,
-} from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type { OrganizationInvitationCreateModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
-export interface OrganizationInvitationCreateModalProps {
-  isOpen: boolean;
-  isLoading?: boolean;
-  customMessages?: Partial<OrganizationInvitationTabMessages>;
-  availableRoles?: RoleOption[];
-  availableProviders?: IdentityProviderOption[];
-  inviterName?: string;
-  schema?: InvitationCreateSchemas;
-  onClose: () => void;
-  onCreate: (data: CreateInvitationInput) => void;
-  className?: string;
-}
+export type { OrganizationInvitationCreateModalProps };
 
 /**
  * Modal for creating a new invitation.
@@ -156,11 +137,12 @@ export function OrganizationInvitationCreateModal({
   }, []);
 
   const handleSubmit = React.useCallback(
-    async (e: React.FormEvent) => {
+    (e: React.FormEvent) => {
       e.preventDefault();
+      const finalEmails = emailChips
+        .filter((chip) => chip.variant !== 'destructive')
+        .map((chip) => chip.value);
 
-      // Add any remaining input to emails
-      const finalEmails = emailChips.map((chip) => chip.value);
       if (emailInput.trim()) {
         const trimmedEmail = emailInput.trim();
         const result = validationConfig.emailSchema.safeParse(trimmedEmail);
@@ -174,20 +156,14 @@ export function OrganizationInvitationCreateModal({
         return;
       }
 
-      // Create invitations for each email
-      for (const email of finalEmails) {
-        const invitationData: CreateInvitationInput = {
-          invitee: { email },
+      onCreate({
+        invitees: finalEmails.map((email) => ({
+          email,
           roles: selectedRoles.length > 0 ? selectedRoles : undefined,
-          identity_provider_id: selectedProvider,
-        };
-
-        if (inviterName) {
-          invitationData.inviter = { name: inviterName };
-        }
-
-        onCreate(invitationData);
-      }
+        })),
+        identity_provider_id: selectedProvider,
+        ...(inviterName && { inviter: { name: inviterName } }),
+      });
     },
     [
       emailChips,

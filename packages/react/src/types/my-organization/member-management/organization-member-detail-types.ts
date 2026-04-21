@@ -158,3 +158,12 @@ export interface OrganizationMemberDetailProps
   assignRoleAction?: ComponentAction<{ userId: string; roleId: string }>;
   removeRoleAction?: ComponentAction<{ userId: string; roleId: string }>;
 }
+
+/** Props for OrganizationMemberDetailView component. */
+export interface OrganizationMemberDetailViewProps {
+  state: MemberDetailState & {
+    styling: OrganizationMemberDetailProps['styling'];
+    customMessages: OrganizationMemberDetailProps['customMessages'];
+  };
+  handlers: MemberDetailHandlers;
+}

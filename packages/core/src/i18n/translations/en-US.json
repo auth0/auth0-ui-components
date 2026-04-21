@@ -1108,16 +1108,11 @@
           "created_at": "Created At",
           "last_login": "Last Login"
         },
-        "danger_zone": {
+        "actions": {
           "remove_from_org": {
-            "title": "Remove member from ${organization}",
-            "title_plural": "Remove members from ${organization}",
-            "description": "Are you sure you want to remove ${email} from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
-            "description_plural": "Are you sure you want to remove ${count} members from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
-            "confirm_button": "Remove",
-            "cancel_button": "Cancel",
-            "success": "${email} has been removed from ${organization}.",
-            "success_plural": "The selected members have been removed from ${organization}."
+            "title": "Remove Member from Organization",
+            "description": "Once confirmed, this operation cannot be undone.",
+            "delete_button": "Delete"
           },
           "delete_member": {
             "title": "Delete member",
