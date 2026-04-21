@@ -3,7 +3,6 @@
  * @module organization-invitation-revoke-modal
  */
 
-import type { MemberInvitation } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -16,18 +15,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { OrganizationInvitationTabMessages } from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type { OrganizationInvitationRevokeModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
-export interface OrganizationInvitationRevokeModalProps {
-  invitation: MemberInvitation | null;
-  isOpen: boolean;
-  isLoading?: boolean;
-  isRevokeAndResend?: boolean;
-  customMessages?: Partial<OrganizationInvitationTabMessages>;
-  onClose: () => void;
-  onConfirm: (invitation: MemberInvitation) => void;
-  className?: string;
-}
+export type { OrganizationInvitationRevokeModalProps };
 
 /**
  * Modal for confirming invitation revocation or revoke and resend.

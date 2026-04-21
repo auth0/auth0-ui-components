@@ -14,12 +14,7 @@ import type { InvitationStatus } from '@/types/my-organization/member-management
  * @returns The invitation status.
  */
 export function getInvitationStatus(invitation: MemberInvitation): InvitationStatus {
-  if (invitation.expires_at) {
-    const expiresAt = new Date(invitation.expires_at);
-    if (expiresAt < new Date()) {
-      return 'expired';
-    }
-  }
+  const isExpired = invitation.expires_at && new Date(invitation.expires_at) < new Date();
 
-  return 'pending';
+  return isExpired ? 'expired' : 'pending';
 }
