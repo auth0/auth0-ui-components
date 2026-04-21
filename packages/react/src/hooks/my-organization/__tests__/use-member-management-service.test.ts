@@ -193,8 +193,7 @@ describe('useMemberManagementService', () => {
 
       await act(async () => {
         result.current.createInvitationMutation.mutate({
-          invitee: { email: 'new@example.com' },
-          roles: ['role_admin'],
+          invitees: [{ email: 'new@example.com', roles: ['role_admin'] }],
         });
       });
 
@@ -217,7 +216,7 @@ describe('useMemberManagementService', () => {
 
       await act(async () => {
         result.current.createInvitationMutation.mutate({
-          invitee: { email: 'new@example.com' },
+          invitees: [{ email: 'new@example.com' }],
         });
       });
 
@@ -240,7 +239,7 @@ describe('useMemberManagementService', () => {
 
       await act(async () => {
         result.current.createInvitationMutation.mutate({
-          invitee: { email: 'new@example.com' },
+          invitees: [{ email: 'new@example.com' }],
         });
       });
 
@@ -261,7 +260,7 @@ describe('useMemberManagementService', () => {
 
       await act(async () => {
         result.current.createInvitationMutation.mutate({
-          invitee: { email: 'new@example.com' },
+          invitees: [{ email: 'new@example.com' }],
         });
       });
 
