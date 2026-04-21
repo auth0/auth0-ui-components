@@ -8,6 +8,7 @@
 import {
   OrganizationDetailsMappers,
   SsoProviderMappers,
+  ssoProviderQueryKeys,
   type UpdateIdentityProviderRequestContent,
   type ComponentAction,
   type IdentityProvider,
@@ -23,11 +24,7 @@ import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { UseSsoProviderTableServiceReturn } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
-export const ssoProviderQueryKeys = {
-  all: ['sso-providers'] as const,
-  list: () => [...ssoProviderQueryKeys.all, 'list'] as const,
-  organization: ['organization', 'details'] as const,
-};
+export { ssoProviderQueryKeys };
 
 /**
  * Internal service hook for SSO provider table data and CRUD operations.

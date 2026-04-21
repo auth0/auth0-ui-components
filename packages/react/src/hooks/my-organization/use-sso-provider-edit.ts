@@ -15,11 +15,11 @@ import {
   type GetIdPProvisioningConfigResponseContent,
   getStatusCode,
 } from '@auth0/universal-components-core';
+import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
-import { ssoProviderQueryKeys } from '@/hooks/my-organization/use-sso-provider-table';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';

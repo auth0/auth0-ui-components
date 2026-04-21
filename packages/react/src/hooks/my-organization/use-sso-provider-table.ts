@@ -5,12 +5,10 @@
  */
 
 import type { IdentityProvider } from '@auth0/universal-components-core';
+import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
 import { useCallback, useState } from 'react';
 
-import {
-  useSsoProviderTableService,
-  ssoProviderQueryKeys,
-} from '@/hooks/my-organization/shared/services/use-sso-provider-table-service';
+import { useSsoProviderTableService } from '@/hooks/my-organization/shared/services/use-sso-provider-table-service';
 import { useConfig } from '@/hooks/my-organization/use-config';
 import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import type {

@@ -10,11 +10,11 @@ import {
   type CreateIdentityProviderRequestContentPrivate,
   type IdentityProvider,
 } from '@auth0/universal-components-core';
+import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
-import { ssoProviderQueryKeys } from '@/hooks/my-organization/use-sso-provider-table';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';

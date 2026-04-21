@@ -1,11 +1,9 @@
 import type { IdentityProvider, OrganizationPrivate } from '@auth0/universal-components-core';
+import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  ssoProviderQueryKeys,
-  useSsoProviderTableService,
-} from '@/hooks/my-organization/shared/services/use-sso-provider-table-service';
+import { useSsoProviderTableService } from '@/hooks/my-organization/shared/services/use-sso-provider-table-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
