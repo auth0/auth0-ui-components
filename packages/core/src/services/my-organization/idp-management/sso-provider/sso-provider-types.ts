@@ -47,7 +47,12 @@ export type IdentityProviderAssociatedWithDomain = IdentityProvider & {
 
 export type ProvisioningMethod = MyOrganization.IdpProvisioningMethodEnum;
 
-export type ProvisioningField = MyOrganization.IdpProvisioningFieldMapItem;
+export type ProvisioningField = {
+  provisioning_field: string;
+  user_attribute: string;
+  description?: string;
+  label?: string;
+};
 
 export type Provisioning = MyOrganization.IdpProvisioningConfig & {
   updated_on: string;
