@@ -11,13 +11,14 @@ import {
   getSortedRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import type { SortingState, ColumnDef } from '@tanstack/react-table';
+import type { SortingState, ColumnDef, RowSelectionState } from '@tanstack/react-table';
 import { Copy } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 
 import { MiddleEllipsisText } from '@/components/auth0/shared/middle-ellipsis-text';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { InlineCode } from '@/components/ui/inline-code';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
@@ -39,7 +40,7 @@ interface ActionButton extends Omit<CoreActionButton, 'onClick'> {
 type AlignmentType = 'left' | 'center' | 'right';
 
 export interface BaseColumn<Item> {
-  title: string;
+  title: string | React.ReactNode;
   accessorKey: keyof Item;
   width?: string;
   enableSorting?: boolean;
@@ -128,6 +129,14 @@ export interface DataTableProps<Item> {
   onSortChange?: (sortConfig: DataTableSortConfig) => void;
   /** Controlled sort state. Used with onSortChange for server-side sorting. */
   sortConfig?: DataTableSortConfig;
+  /** Enable row selection with checkboxes. */
+  selectable?: boolean;
+  /** Controlled selected rows. */
+  selectedRows?: Item[];
+  /** Called when selection changes. */
+  onSelectedRowsChange?: (rows: Item[]) => void;
+  /** Derive a stable string ID from a row for selection tracking. */
+  getRowId?: (row: Item) => string;
 }
 
 const ALIGNMENT_CLASSES = {
@@ -398,10 +407,16 @@ export function DataTable<Item>({
   headerAlign = 'left',
   onSortChange,
   sortConfig,
+  selectable = false,
+  selectedRows,
+  onSelectedRowsChange,
+  getRowId,
 }: DataTableProps<Item>) {
   const isServerSideSort = !!onSortChange;
+  const isControlledSelection = selectedRows !== undefined;
 
   const [internalSorting, setInternalSorting] = useState<SortingState>([]);
+  const [internalRowSelection, setInternalRowSelection] = useState<RowSelectionState>({});
 
   // Convert controlled sortConfig to TanStack SortingState for header display
   const sorting: SortingState = useMemo(() => {
@@ -410,6 +425,22 @@ export function DataTable<Item>({
     }
     return internalSorting;
   }, [isServerSideSort, sortConfig, internalSorting]);
+
+  const rowSelection = useMemo<RowSelectionState>(() => {
+    if (!selectable) return {};
+    if (isControlledSelection && selectedRows) {
+      if (getRowId) {
+        return Object.fromEntries(selectedRows.map((row) => [getRowId(row), true]));
+      }
+      return Object.fromEntries(
+        data.reduce<[string, boolean][]>((acc, item, idx) => {
+          if (selectedRows.includes(item)) acc.push([String(idx), true]);
+          return acc;
+        }, []),
+      );
+    }
+    return internalRowSelection;
+  }, [selectable, isControlledSelection, selectedRows, getRowId, data, internalRowSelection]);
 
   const handleSortingChange = React.useCallback(
     (updater: SortingState | ((old: SortingState) => SortingState)) => {
@@ -429,12 +460,68 @@ export function DataTable<Item>({
     [isServerSideSort, onSortChange, sorting],
   );
 
+  const handleRowSelectionChange = React.useCallback(
+    (updater: RowSelectionState | ((old: RowSelectionState) => RowSelectionState)) => {
+      const newSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
+      if (!isControlledSelection) setInternalRowSelection(newSelection);
+      if (onSelectedRowsChange) {
+        const items = getRowId
+          ? data.filter((item) => newSelection[getRowId(item)])
+          : data.filter((_, idx) => newSelection[String(idx)]);
+        onSelectedRowsChange(items);
+      }
+    },
+    [rowSelection, isControlledSelection, onSelectedRowsChange, getRowId, data],
+  );
+
+  const selectionColumn = useMemo<ColumnDef<Item>>(
+    () => ({
+      id: '__selection__',
+      enableSorting: false,
+      size: 48,
+      meta: {
+        headerAlign: 'left' as AlignmentType,
+        column: {
+          type: 'actions',
+          title: '',
+          width: '48px',
+          enableSorting: false,
+          render: () => null,
+        } as unknown as Column<Item>,
+      },
+      header: ({ table: t }) => (
+        <Checkbox
+          checked={
+            t.getIsAllPageRowsSelected()
+              ? true
+              : t.getIsSomePageRowsSelected()
+                ? 'indeterminate'
+                : false
+          }
+          onCheckedChange={(checked) => t.toggleAllPageRowsSelected(!!checked)}
+          aria-label="Select all rows"
+          onClick={(e: React.MouseEvent) => e.stopPropagation()}
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(checked) => row.toggleSelected(!!checked)}
+          aria-label={`Select row ${row.index + 1}`}
+          onClick={(e: React.MouseEvent) => e.stopPropagation()}
+        />
+      ),
+    }),
+    [],
+  );
+
   const tableColumns = useMemo<ColumnDef<Item>[]>(() => {
-    return columns.map((column, index) => {
+    const dataCols: ColumnDef<Item>[] = columns.map((column, index) => {
       return {
         id: column.accessorKey ? String(column.accessorKey) : `column-${index}`,
         accessorKey: column.accessorKey as string,
-        header: column.title,
+        header:
+          typeof column.title === 'string' ? column.title : () => column.title as React.ReactNode,
         size: column.width
           ? isNaN(Number(column.width))
             ? undefined
@@ -485,15 +572,20 @@ export function DataTable<Item>({
         },
       };
     });
-  }, [columns, headerAlign]);
+    return selectable ? [selectionColumn, ...dataCols] : dataCols;
+  }, [columns, headerAlign, selectable, selectionColumn]);
 
   const table = useReactTable({
     data,
     columns: tableColumns,
     state: {
       sorting,
+      ...(selectable && { rowSelection }),
     },
+    getRowId: getRowId,
     onSortingChange: handleSortingChange,
+    ...(selectable && { onRowSelectionChange: handleRowSelectionChange }),
+    enableRowSelection: selectable,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: isServerSideSort ? undefined : getSortedRowModel(),
     manualSorting: isServerSideSort,
