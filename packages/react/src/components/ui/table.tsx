@@ -189,14 +189,14 @@ function DataTable<T extends object>({
     return index;
   };
 
-  const isRowSelected = (row: T, index: number): boolean => {
+  const isRowSelected = (row: T, _index: number): boolean => {
     if (getRowId) {
       return (selectedRowIds as Set<string | number>).has(getRowId(row));
     }
     return (selectedRowIds as Set<T>).has(row);
   };
 
-  const handleRowSelect = (row: T, index: number, checked: boolean) => {
+  const handleRowSelect = (row: T, _index: number, checked: boolean) => {
     let newSelectedRows: T[];
 
     if (checked) {
