@@ -105,7 +105,7 @@ The domain-management route is served by `examples/react-spa-npm/src/views/domai
 Edit this file to uncomment `<DomainTable />` and deleted the `<p>` entry and save. Final result should look like below.
 
 ```typescript
-import { DomainTable } from '@auth0/universal-components-react/spa';
+import { DomainTable } from '@auth0/universal-components-react';
 
 const DomainManagementPage = () => {
   return (

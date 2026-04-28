@@ -59,7 +59,7 @@ limitations under the License.
 - @antfu/ni (25.0.0) [MIT]
 - @auth0/auth0-auth-js (1.2.0) [MIT]
 - @auth0/myaccount-js (1.0.0-beta.0) [MIT]
-- @auth0/myorganization-js (1.0.0-beta.3) [MIT]
+- @auth0/myorganization-js (1.0.0) [MIT]
 - @babel/code-frame (7.27.1) [MIT]
 - @babel/compat-data (7.28.5) [MIT]
 - @babel/core (7.28.5) [MIT]

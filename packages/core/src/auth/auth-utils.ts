@@ -53,6 +53,7 @@ export const AuthUtils = {
         mode: 'proxy',
         proxyUrl: normalizeProxyUrl(auth.authProxyUrl),
         ...(auth.domain && { domain: auth.domain.trim() }),
+        ...(auth.fetcher && { fetcher: auth.fetcher }),
       };
     }
 

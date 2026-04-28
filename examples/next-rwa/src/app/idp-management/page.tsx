@@ -1,6 +1,6 @@
 'use client';
 
-import { SsoProviderTable, type IdentityProvider } from '@auth0/universal-components-react/rwa';
+import { SsoProviderTable, type IdentityProvider } from '@auth0/universal-components-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 

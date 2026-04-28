@@ -18,7 +18,14 @@ export type Auth0ComponentProviderProps = (
       authContext?: AuthDetails['contextInterface'];
       proxyConfig?: never;
     }
-  | { mode: 'proxy'; domain: string; proxyConfig: { baseUrl: string } }
+  | {
+      mode: 'proxy';
+      domain: string;
+      proxyConfig: {
+        baseUrl: string;
+        fetcher?: (url: string, init?: RequestInit) => Promise<Response>;
+      };
+    }
 ) & {
   i18n?: I18nOptions;
   themeSettings?: ThemeSettings;

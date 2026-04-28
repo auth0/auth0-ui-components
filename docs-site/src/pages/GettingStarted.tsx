@@ -503,7 +503,7 @@ function App() {
               </h4>
               <CodeBlock
                 code={`import { useAuth0 } from '@auth0/auth0-react';
-import { OrganizationDetailsEdit } from '@auth0/universal-components-react/spa';
+import { OrganizationDetailsEdit } from '@auth0/universal-components-react';
 
 function OrganizationManagementPage() {
   const { isAuthenticated, isLoading } = useAuth0();
@@ -574,7 +574,7 @@ export default function RootLayout({
               <CodeBlock
                 code={`'use client';
 
-import { OrganizationDetailsEdit } from '@auth0/universal-components-react/rwa';
+import { OrganizationDetailsEdit } from '@auth0/universal-components-react';
 
 export default function OrganizationManagementPage() {
   return (

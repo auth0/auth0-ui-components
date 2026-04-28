@@ -101,6 +101,7 @@ export type ProxyAuthConfig = {
   mode: 'proxy';
   proxyUrl: string;
   domain?: string;
+  fetcher?: (url: string, init?: RequestInit) => Promise<Response>;
 };
 
 /**
@@ -127,6 +128,7 @@ export interface AuthDetails {
   domain?: string | undefined;
   authProxyUrl?: string | undefined;
   contextInterface?: BasicAuth0ContextInterface | undefined;
+  fetcher?: (url: string, init?: RequestInit) => Promise<Response>;
   previewMode?: boolean; // For docs - skip API client initialization
 }
 
