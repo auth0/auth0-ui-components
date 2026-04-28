@@ -25,8 +25,6 @@ import type {
   UseOrganizationMemberManagementResult,
 } from '@/types/my-organization/member-management/organization-member-management-types';
 
-export { memberManagementQueryKeys } from '@/hooks/my-organization/shared/services/use-member-management-service';
-
 /**
  * Hook for organization member management.
  * @param options - Hook configuration options.
@@ -189,7 +187,6 @@ export function useOrganizationMemberManagement(
 
   return {
     activeTab,
-    isLoading: invitationsQuery.isLoading || invitationsQuery.isFetching,
     availableRoles,
     availableProviders,
 

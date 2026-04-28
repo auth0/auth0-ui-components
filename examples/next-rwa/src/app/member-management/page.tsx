@@ -1,6 +1,6 @@
 'use client';
 
-import { OrganizationMemberManagement } from '@auth0/universal-components-react/rwa';
+import { OrganizationMemberManagement } from '@auth0/universal-components-react';
 
 export default function MemberManagementPage() {
   return (

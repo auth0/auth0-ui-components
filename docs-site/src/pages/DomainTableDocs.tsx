@@ -147,11 +147,8 @@ export default function DomainTableDocs() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
         <CodeBlock
-          code={`// For SPA applications:
-import { DomainTable } from '@auth0/universal-components-react/spa';
-
-// For Next.js/RWA applications:          
-// import { DomainTable } from '@auth0/universal-components-react/rwa';
+          code={`// For SPA/Next.js/RWA applications:
+import { DomainTable } from '@auth0/universal-components-react';
 
 // For shadcn users:
 // import { DomainTable } from '@/components/auth0/my-organization/domain-table';
@@ -748,9 +745,9 @@ interface ComponentAction<T, U = undefined> {
         <h2 className="text-2xl font-semibold text-gray-900">Complete Integration Example</h2>
         <CodeBlock
           code={`import React from 'react';
-import { DomainTable } from '@auth0/universal-components-react/rwa';
+import { DomainTable } from '@auth0/universal-components-react';
 // For SPA mode:
-// import { DomainTable } from '@auth0/universal-components-react/spa';
+// import { DomainTable } from '@auth0/universal-components-react';
 import { UserProvider } from '@auth0/nextjs-auth0/client';
 import { Auth0ProxyProvider } from '@auth0/universal-components-react/rwa';
 import { useRouter } from 'next/navigation';
