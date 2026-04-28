@@ -8,4 +8,5 @@ export * from './organization-management';
 export * from './idp-management';
 export * from './domain-management';
 export * from './member-management/member-management-types';
+export * from './member-management/member-management-constants';
 export * from './config';

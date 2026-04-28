@@ -7,6 +7,7 @@
 import {
   type MemberInvitation,
   type ListIdentityProvidersResponseContent,
+  memberManagementQueryKeys,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
@@ -23,11 +24,6 @@ import type {
   UseMemberManagementServiceOptions,
   MemberManagementServiceResult,
 } from '@/types/my-organization/member-management/organization-member-management-types';
-
-export const memberManagementQueryKeys = {
-  all: ['member-management'] as const,
-  invitations: () => [...memberManagementQueryKeys.all, 'invitations'] as const,
-};
 
 const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
   created_at: 'created_at',
