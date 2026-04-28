@@ -41,6 +41,7 @@ import {
 } from '@/components/ui/select';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
@@ -87,8 +88,8 @@ export const PingFederateProviderForm = React.forwardRef<
 
   const form = useForm<PingFederateConfigureFormValues>({
     resolver: zodResolver(createProviderConfigureSchema('pingfederate')),
-    mode: 'onSubmit',
-    reValidateMode: 'onChange',
+    mode: FORM_VALIDATION_MODE,
+    reValidateMode: FORM_REVALIDATE_MODE,
     defaultValues: {
       pingFederateBaseUrl: pingFederateData?.pingFederateBaseUrl || '',
       signingCert: pingFederateData?.signingCert || '',
