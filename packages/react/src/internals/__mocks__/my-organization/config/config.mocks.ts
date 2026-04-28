@@ -20,5 +20,6 @@ export const createMockUseConfig = (overrides?: Partial<MockUseConfig>): MockUse
   },
   fetchConfig: vi.fn(async () => undefined),
   filteredStrategies: [],
+  allowedRoles: [],
   ...overrides,
 });
