@@ -641,7 +641,7 @@ export function DataTable<Item>({
         <TableBody>
           {table.getRowModel().rows.length === 0 ? (
             <TableRow disableHover>
-              <TableCell colSpan={columns.length}>
+              <TableCell colSpan={tableColumns.length}>
                 <EmptyState
                   {...(emptyState ?? {
                     title: 'No data available',
