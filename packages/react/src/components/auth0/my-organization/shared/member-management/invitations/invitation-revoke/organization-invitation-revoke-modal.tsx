@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { OrganizationInvitationRevokeModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
@@ -73,6 +74,7 @@ export function OrganizationInvitationRevokeModal({
             {t(`${namespace}.cancel_button`)}
           </Button>
           <Button variant="destructive" onClick={handleConfirm} disabled={isLoading}>
+            {isLoading ? <Spinner size="sm" /> : null}
             {t(`${namespace}.confirm_button`)}
           </Button>
         </DialogFooter>
