@@ -189,7 +189,6 @@ export function useOrganizationMemberManagement(
 
   return {
     activeTab,
-    isLoading: invitationsQuery.isLoading || invitationsQuery.isFetching,
     availableRoles,
     availableProviders,
 

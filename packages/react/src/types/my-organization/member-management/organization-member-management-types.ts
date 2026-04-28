@@ -81,7 +81,6 @@ export type MemberManagementModalState =
 
 export interface UseOrganizationMemberManagementResult {
   activeTab: ActiveTab;
-  isLoading: boolean;
   availableRoles: RoleOption[];
   availableProviders: IdentityProviderOption[];
 
