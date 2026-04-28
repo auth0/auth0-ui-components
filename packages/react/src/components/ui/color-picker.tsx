@@ -651,9 +651,10 @@ export const ColorPickerInput = ({
       )}
       {showColorPicker && (
         <Popover open={open} onOpenChange={handlePickerOpenChange}>
-          <PopoverTrigger ref={triggerRef} asChild>
+          <PopoverTrigger ref={triggerRef}>
             <div className="sr-only" />
           </PopoverTrigger>
+
           <PopoverContent
             className="w-full max-w-72 p-0"
             align="start"

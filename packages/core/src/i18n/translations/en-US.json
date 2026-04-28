@@ -1069,5 +1069,124 @@
         "install_guardian_description": "In order to continue, install the Auth0 Guardian app via the app store from your mobile device"
       }
     }
+  },
+  "member_management": {
+    "header": {
+      "title": "Members",
+      "description": "Manage the members of your organization."
+    },
+    "invite_button": "Invite Member",
+    "tabs": {
+      "members": "Members",
+      "invitations": "Invitations"
+    },
+    "member": {
+      "table": {
+        "columns": {
+          "name": "Name",
+          "email": "Email",
+          "roles": "Roles"
+        },
+        "empty_message": "No members found."
+      },
+      "remove": {
+        "title": "Remove Member",
+        "description": "Are you sure you want to remove ${name} from this organization?",
+        "confirm_button": "Remove",
+        "cancel_button": "Cancel",
+        "success": "${name} has been removed from the organization."
+      },
+      "error": {
+        "fetch_failed": "Failed to load members. Please try again.",
+        "remove_failed": "Failed to remove member. Please try again."
+      }
+    },
+    "invitation": {
+      "table": {
+        "columns": {
+          "email": "Email",
+          "status": "Status",
+          "inviter": "Invited By",
+          "created_at": "Created At",
+          "expires_at": "Expires At",
+          "roles": "Roles"
+        },
+        "empty_message": "No pending invitations.",
+        "search_placeholder": "Search by email...",
+        "filter_by_role": "Filter By Role",
+        "all_roles": "All",
+        "reset_filter": "Reset",
+        "showing_results": "Showing ${start}-${end} of ${total}",
+        "status_pending": "Pending",
+        "status_expired": "Expired"
+      },
+      "actions": {
+        "menu_label": "Actions",
+        "view_details": "View Details",
+        "copy_url": "Copy Invitation URL",
+        "revoke_and_resend": "Revoke and Resend",
+        "revoke": "Revoke Invitation"
+      },
+      "create": {
+        "title": "Invite Member",
+        "description": "Send an invitation to join this organization.",
+        "email_label": "Email Address",
+        "email_placeholder": "Enter email address and press Enter",
+        "email_helper": "Add up to 10 members in a comma-separated list.",
+        "email_limit_error": "You can add up to 10 email addresses.",
+        "email_invalid_error": "Please enter a valid email address.",
+        "email_duplicate_error": "This email has already been added.",
+        "email_required_error": "Please enter at least one email address.",
+        "roles_label": "Roles",
+        "roles_placeholder": "Select roles (optional)",
+        "provider_label": "Provider",
+        "provider_placeholder": "Select provider (optional)",
+        "provider_helper": "If none is selected, the member can log in with any provider.",
+        "submit_button": "Send Invite",
+        "creating": "Creating...",
+        "cancel_button": "Cancel",
+        "success": "Invitation sent to ${email}."
+      },
+      "details": {
+        "title": "Invitation Details",
+        "email_label": "Email",
+        "status_label": "Status",
+        "roles_label": "Roles",
+        "provider_label": "Identity Provider",
+        "created_at_label": "Created",
+        "expires_at_label": "Expires",
+        "invited_by_label": "Invited By",
+        "invitation_url_label": "Invitation URL",
+        "copy_url_button": "Copy",
+        "close_button": "Close",
+        "revoke_button": "Revoke Invitation",
+        "resend_button": "Revoke and Resend"
+      },
+      "revoke": {
+        "title": "Revoke Invitation",
+        "description": "Are you sure you want to revoke the invitation to <bold>${email}</bold>?",
+        "confirm_button": "Revoke",
+        "cancel_button": "Cancel",
+        "success": "Invitation for ${email} has been revoked."
+      },
+      "revoke_resend": {
+        "title": "Revoke and Resend Invitation",
+        "description": "Are you sure you want to revoke the current invitation and send a new one to <bold>${email}</bold>?",
+        "confirm_button": "Proceed",
+        "cancel_button": "Cancel"
+      },
+      "success": {
+        "url_copied": "Invitation URL copied to clipboard.",
+        "invitation_resent": "Invitation resent to ${email}."
+      },
+      "error": {
+        "fetch_failed": "Failed to load invitations. Please try again.",
+        "create_failed": "Failed to send invitation. Please try again.",
+        "revoke_failed": "Failed to revoke invitation. Please try again.",
+        "resend_failed": "Failed to resend invitation. Please try again.",
+        "revoke_resend_failed": "Failed to revoke and resend invitation. Please try again.",
+        "copy_url_failed": "Failed to copy invitation URL. Please try again."
+      }
+    }
   }
 }
