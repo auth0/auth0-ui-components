@@ -47,12 +47,12 @@
 | `@auth0/universal-components-react`        | components, hooks, types                 |
 | `@auth0/universal-components-react/styles` | CSS stylesheet (`dist/styles.css`)       |
 
-### Available Blocks and Hooks
+### Available Components and Hooks
 
-For the full list of available blocks and hooks, see:
+For the full list of available exports, see:
 
-- **Blocks:** [`packages/react/src/blocks/index.ts`](packages/react/src/blocks/index.ts)
-- **Hooks:** [`packages/react/src/hooks/`](packages/react/src/hooks/)
+- **Components:** [`packages/react/src/components/index.ts`](packages/react/src/components/index.ts)
+- **Hooks:** [`packages/react/src/hooks/index.ts`](packages/react/src/hooks/index.ts)
 
 ---
 
@@ -61,41 +61,125 @@ For the full list of available blocks and hooks, see:
 ```
 auth0-ui-components/
 ├── packages/
-│   ├── core/                 # @auth0/universal-components-core
+│   ├── core/                        # @auth0/universal-components-core
 │   │   └── src/
-│   │       ├── api/          # API utilities
-│   │       ├── auth/         # CoreClient, TokenManager, auth types
-│   │       ├── i18n/         # Internationalization service + translations
-│   │       ├── schemas/      # Zod validation schemas
-│   │       ├── services/     # API service layer
-│   │       │   ├── my-account/    # MFA management APIs
+│   │       ├── api/                 # API utilities
+│   │       │   └── __tests__/
+│   │       ├── auth/                # CoreClient, TokenManager, auth types
+│   │       │   ├── __mocks__/
+│   │       │   └── __tests__/
+│   │       ├── i18n/                # Internationalization service + translations
+│   │       │   ├── __mocks__/
+│   │       │   ├── custom-messages/ # Custom message type definitions
+│   │       │   │   ├── my-account/mfa/
+│   │       │   │   └── my-organization/
+│   │       │   │       ├── domain-management/
+│   │       │   │       ├── idp-management/
+│   │       │   │       │   ├── sso-domain/
+│   │       │   │       │   ├── sso-provider/
+│   │       │   │       │   └── sso-provisioning/
+│   │       │   │       └── organization-management/
+│   │       │   └── translations/    # Base translations (en-US, ja)
+│   │       ├── schemas/             # Zod validation schemas
+│   │       │   ├── common/
+│   │       │   ├── my-account/mfa/
+│   │       │   └── my-organization/
+│   │       │       ├── domain-management/
+│   │       │       ├── idp-management/
+│   │       │       │   ├── sso-provider/
+│   │       │       │   └── sso-provisioning/
+│   │       │       └── organization-management/
+│   │       ├── services/            # API service layer
+│   │       │   ├── mfa-step-up/     # MFA step-up service
+│   │       │   ├── my-account/      # MFA management APIs
+│   │       │   │   └── mfa/
 │   │       │   └── my-organization/ # Org, SSO, Domain APIs
-│   │       ├── theme/        # Theme utilities
-│   │       └── assets/       # Icons, images
+│   │       │       ├── config/
+│   │       │       ├── domain-management/
+│   │       │       ├── idp-management/
+│   │       │       │   ├── sso-provider/
+│   │       │       │   └── sso-provisioning/
+│   │       │       └── organization-management/
+│   │       ├── theme/               # Theme utilities
+│   │       ├── styles/themes/       # Theme CSS variables
+│   │       ├── assets/icons/        # SVG icons
+│   │       └── internals/           # Internal test utilities
 │   │
-│   └── react/                # @auth0/universal-components-react
+│   └── react/                       # @auth0/universal-components-react
 │       └── src/
-│           ├── spa.ts        # SPA entry point
-│           ├── rwa.ts        # RWA/Proxy entry point
-│           ├── providers/    # Auth0ComponentProvider (SPA + Proxy)
-│           ├── blocks/       # High-level feature components
+│           ├── spa.ts               # SPA entry point
+│           ├── rwa.ts               # RWA/Proxy entry point
+│           ├── index.ts             # Unified exports (components, hooks, types)
+│           ├── providers/           # Auth0ComponentProvider (SPA + Proxy)
+│           │   └── __tests__/
+│           ├── components/          # UI & feature components
+│           │   ├── ui/              # Base components (button, dialog, form, etc.)
+│           │   └── auth0/           # Auth0-specific components
+│           │       ├── shared/      # Shared components (gate-keeper, mfa-step-up)
+│           │       │   └── gate-keeper/
+│           │       │       └── mfa-step-up/
+│           │       ├── my-account/  # MFA management components
+│           │       │   └── shared/mfa/
+│           │       └── my-organization/  # Organization management components
+│           │           └── shared/
+│           │               ├── domain-management/
+│           │               │   ├── domain-configure/
+│           │               │   ├── domain-create/
+│           │               │   ├── domain-delete/
+│           │               │   ├── domain-table/
+│           │               │   └── domain-verify/
+│           │               ├── idp-management/
+│           │               │   ├── sso-provider-create/
+│           │               │   │   └── provider-configure/
+│           │               │   ├── sso-provider-delete/
+│           │               │   ├── sso-provider-edit/
+│           │               │   │   └── sso-provisioning/
+│           │               │   │       ├── sso-provisioning-create-token/
+│           │               │   │       └── sso-provisioning-delete-token/
+│           │               │   ├── sso-provider-remove/
+│           │               │   └── sso-provider-table/
+│           │               └── organization-management/
+│           ├── hooks/               # React hooks
+│           │   ├── shared/          # Core hooks (useCoreClient, useTranslator, useTheme)
+│           │   ├── my-account/      # MFA-related hooks
+│           │   └── my-organization/ # Organization-related hooks
+│           ├── types/               # TypeScript type definitions
 │           │   ├── my-account/mfa/
 │           │   └── my-organization/
-│           ├── components/   # UI components
-│           │   ├── ui/       # Base components (button, dialog, etc.)
-│           │   ├── my-account/
-│           │   └── my-organization/
-│           ├── hooks/        # React hooks
-│           ├── hoc/          # Higher-order components (withServices)
-│           ├── types/        # TypeScript types
-│           └── styles/       # Tailwind CSS
+│           │       ├── config/
+│           │       ├── domain-management/
+│           │       ├── idp-management/
+│           │       │   ├── sso-domain/
+│           │       │   ├── sso-provider/
+│           │       │   └── sso-provisioning/
+│           │       └── organization-management/
+│           ├── internals/           # Internal test utilities & mocks
+│           │   └── __mocks__/
+│           ├── tests/utils/         # Additional test utilities
+│           │   └── __mocks__/
+│           ├── styles/              # Tailwind CSS
+│           ├── lib/                 # Utility functions
+│           └── assets/              # Static assets
 │
 ├── examples/
-│   ├── react-spa-npm/        # React SPA using npm package
-│   ├── react-spa-shadcn/     # React SPA using shadcn registry
-│   └── next-rwa/             # Next.js with proxy auth
+│   ├── react-spa-npm/               # React SPA using npm package
+│   ├── react-spa-shadcn/            # React SPA using shadcn registry
+│   ├── next-rwa/                    # Next.js with proxy auth
+│   └── scripts/                     # Example setup scripts
 │
-└── docs-site/                # Documentation site (Vite + React)
+├── docs-site/                       # Documentation site (Vite + React)
+│   ├── src/                         # Source files
+│   ├── public/                      # Static assets & shadcn registry output
+│   └── api/                         # API routes
+│
+├── docs-api/                        # API documentation (TypeDoc output)
+│
+└── .github/
+    ├── workflows/                   # CI/CD workflows
+    ├── skills/                      # AI agent skills
+    │   ├── vercel-react-best-practices/
+    │   └── web-design-guidelines/
+    └── PULL_REQUEST_TEMPLATE.md
 ```
 
 ---
@@ -204,28 +288,43 @@ packages/core/src/schemas/
 
 ## Component Structure
 
-### Block Component Location
+### Component Locations
 
-| Type                   | Location                                     |
-| ---------------------- | -------------------------------------------- |
-| My Account blocks      | `packages/react/src/blocks/my-account/`      |
-| My Organization blocks | `packages/react/src/blocks/my-organization/` |
+| Type                                 | Location                                               |
+| ------------------------------------ | ------------------------------------------------------ |
+| Base UI (button, dialog, form, etc.) | `packages/react/src/components/ui/`                    |
+| Shared (gate-keeper, mfa-step-up)    | `packages/react/src/components/auth0/shared/`          |
+| My Account (MFA)                     | `packages/react/src/components/auth0/my-account/`      |
+| My Organization (SSO, domains, org)  | `packages/react/src/components/auth0/my-organization/` |
 
-### Block Component Template
+### Public Component Exports
+
+The following components are exported from `@auth0/universal-components-react`:
+
+| Component                 | Export Name                                              |
+| ------------------------- | -------------------------------------------------------- |
+| MFA Management            | `UserMFAMgmt`, `UserMFAMgmtView`                         |
+| SSO Provider Edit         | `SsoProviderEdit`, `SsoProviderEditView`                 |
+| SSO Provider Create       | `SsoProviderCreate`, `SsoProviderCreateView`             |
+| SSO Provider Table        | `SsoProviderTable`, `SsoProviderTableView`               |
+| Domain Table              | `DomainTable`, `DomainTableView`                         |
+| Organization Details Edit | `OrganizationDetailsEdit`, `OrganizationDetailsEditView` |
+
+### Component Template
 
 ```tsx
-// packages/react/src/blocks/my-organization/{feature}/{component}.tsx
+// packages/react/src/components/auth0/my-organization/{feature}/{component}.tsx
 
 import { getComponentStyles, REQUIRED_SCOPES } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { SubComponent } from '../../../components/my-organization/{feature}/sub-component';
-import { Header } from '../../../components/ui/header';
-import { Spinner } from '../../../components/ui/spinner';
+import { SubComponent } from './shared/{feature}/sub-component';
+import { Header } from '../../ui/header';
+import { Spinner } from '../../ui/spinner';
 import { withMyOrganizationService } from '../../../hoc/with-services';
-import { useFeatureHook } from '../../../hooks/my-organization/{feature}/use-feature';
-import { useTheme } from '../../../hooks/use-theme';
-import { useTranslator } from '../../../hooks/use-translator';
+import { useFeatureHook } from '../../../hooks/my-organization/use-feature';
+import { useTheme } from '../../../hooks/shared/use-theme';
+import { useTranslator } from '../../../hooks/shared/use-translator';
 import type { ComponentProps } from '../../../types/my-organization/{feature}/{component}-types';
 
 function ComponentInternal({
@@ -254,14 +353,6 @@ function ComponentInternal({
 
 export const Component = withMyOrganizationService(ComponentInternal, REQUIRED_SCOPES);
 ```
-
-### UI Component Location
-
-| Type                                 | Location                                         |
-| ------------------------------------ | ------------------------------------------------ |
-| Base UI (button, dialog, form, etc.) | `packages/react/src/components/ui/`              |
-| My Account components                | `packages/react/src/components/my-account/`      |
-| My Organization components           | `packages/react/src/components/my-organization/` |
 
 ---
 
@@ -507,10 +598,11 @@ npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-organization/o
 | [`packages/core/src/i18n/i18n-service.ts`](packages/core/src/i18n/i18n-service.ts)                   | i18n service implementation |
 | [`packages/react/src/spa.ts`](packages/react/src/spa.ts)                                             | SPA entry point             |
 | [`packages/react/src/rwa.ts`](packages/react/src/rwa.ts)                                             | RWA entry point             |
+| [`packages/react/src/index.ts`](packages/react/src/index.ts)                                         | Unified exports             |
+| [`packages/react/src/components/index.ts`](packages/react/src/components/index.ts)                   | Component exports           |
+| [`packages/react/src/hooks/index.ts`](packages/react/src/hooks/index.ts)                             | Hook exports                |
 | [`packages/react/src/providers/spa-provider.tsx`](packages/react/src/providers/spa-provider.tsx)     | SPA provider                |
 | [`packages/react/src/providers/proxy-provider.tsx`](packages/react/src/providers/proxy-provider.tsx) | RWA proxy provider          |
-| [`packages/react/src/hoc/with-services.tsx`](packages/react/src/hoc/with-services.tsx)               | Service HOC                 |
-| [`packages/react/src/blocks/index.ts`](packages/react/src/blocks/index.ts)                           | Block exports               |
 | [`packages/react/registry.json`](packages/react/registry.json)                                       | Shadcn registry config      |
 
 ---
