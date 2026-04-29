@@ -163,53 +163,66 @@ function OrganizationMemberEditRolesTable({
  * @returns The rendered roles tab element
  */
 export function OrganizationMemberEditRolesTab({
-  state,
-  handlers,
+  customMessages,
+  memberRoles,
+  availableRoles,
+  isFetchingRoles,
+  removingRoleId,
+  showAssignRolesModal,
+  isAssigningRole,
+  showRemoveRoleModal,
+  roleToRemove,
+  handleAssignRolesClick,
+  handleAssignRolesCancel,
+  handleAssignRolesSubmit,
+  handleRemoveRoleClick,
+  handleRemoveRoleCancel,
+  handleRemoveRoleConfirm,
 }: OrganizationMemberDetailViewProps): React.JSX.Element {
   const [selectedRoles, setSelectedRoles] = React.useState<OrgMemberRole[]>([]);
 
   const handleRemoveSelectedRoles = React.useCallback(() => {
-    selectedRoles.forEach((role) => handlers.handleRemoveRoleClick(role));
+    selectedRoles.forEach((role) => handleRemoveRoleClick(role));
     setSelectedRoles([]);
-  }, [selectedRoles, handlers]);
+  }, [selectedRoles, handleRemoveRoleClick]);
 
   return (
     <>
       <RolesTabHeader
         selectedRoles={selectedRoles}
-        customMessages={state.customMessages}
-        onAssignRolesClick={handlers.handleAssignRolesClick}
+        customMessages={customMessages}
+        onAssignRolesClick={handleAssignRolesClick}
         onRemoveSelectedRoles={handleRemoveSelectedRoles}
       />
 
       <OrganizationMemberEditRolesTable
-        memberRoles={state.memberRoles}
-        availableRoles={state.availableRoles}
-        isLoading={state.isFetchingRoles}
-        removingRoleId={state.removingRoleId}
+        memberRoles={memberRoles}
+        availableRoles={availableRoles}
+        isLoading={isFetchingRoles}
+        removingRoleId={removingRoleId}
         selectedRoles={selectedRoles}
-        customMessages={state.customMessages}
-        onRemoveRole={handlers.handleRemoveRoleClick}
+        customMessages={customMessages}
+        onRemoveRole={handleRemoveRoleClick}
         onSelectedRolesChange={setSelectedRoles}
       />
 
       <MemberAssignRolesModal
-        isOpen={state.showAssignRolesModal}
-        isLoading={state.isAssigningRole}
-        availableRoles={state.availableRoles}
-        assignedRoles={state.memberRoles}
-        customMessages={state.customMessages}
-        onClose={handlers.handleAssignRolesCancel}
-        onAssign={handlers.handleAssignRolesSubmit}
+        isOpen={showAssignRolesModal}
+        isLoading={isAssigningRole}
+        availableRoles={availableRoles}
+        assignedRoles={memberRoles}
+        customMessages={customMessages}
+        onClose={handleAssignRolesCancel}
+        onAssign={handleAssignRolesSubmit}
       />
 
       <MemberRemoveRoleModal
-        isOpen={state.showRemoveRoleModal}
-        isLoading={state.removingRoleId !== null}
-        role={state.roleToRemove}
-        customMessages={state.customMessages}
-        onClose={handlers.handleRemoveRoleCancel}
-        onConfirm={handlers.handleRemoveRoleConfirm}
+        isOpen={showRemoveRoleModal}
+        isLoading={removingRoleId !== null}
+        role={roleToRemove}
+        customMessages={customMessages}
+        onClose={handleRemoveRoleCancel}
+        onConfirm={handleRemoveRoleConfirm}
       />
     </>
   );

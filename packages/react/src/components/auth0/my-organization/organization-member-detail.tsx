@@ -46,15 +46,20 @@ function getInitials(name?: string): string {
  * @param root0 - Component props containing state and handlers
  * @returns The rendered header element
  */
-function Header({ state, handlers }: OrganizationMemberDetailViewProps): React.JSX.Element {
+function Header({
+  member,
+  styling,
+  customMessages,
+  handleBack,
+}: OrganizationMemberDetailViewProps): React.JSX.Element {
   const { isDarkMode } = useTheme();
-  const { t } = useTranslator('member_management', state.customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
   const currentStyles = React.useMemo(
-    () => getComponentStyles(state.styling, isDarkMode),
-    [state.styling, isDarkMode],
+    () => getComponentStyles(styling, isDarkMode),
+    [styling, isDarkMode],
   );
 
-  const memberRecord = state.member as Record<string, unknown> | null;
+  const memberRecord = member as Record<string, unknown> | null;
   const userId = (memberRecord?.user_id as string | undefined) ?? '';
   const displayName = (memberRecord?.name as string | undefined) ?? userId;
   const initials = getInitials(displayName || undefined);
@@ -65,7 +70,7 @@ function Header({ state, handlers }: OrganizationMemberDetailViewProps): React.J
         variant="ghost"
         size="sm"
         className="mb-4 -ml-2 text-muted-foreground hover:text-primary"
-        onClick={handlers.handleBack}
+        onClick={handleBack}
       >
         <ArrowLeft className="h-4 w-4 mr-1" />
         {t('member.detail.back_button')}
@@ -90,28 +95,42 @@ function Header({ state, handlers }: OrganizationMemberDetailViewProps): React.J
 
 /**
  * View component for organization member detail.
- * @param root0 - Component props containing state and handlers
+ * @param props - Component props containing state and handlers
  * @returns The rendered member detail view element
  */
-export function OrganizationMemberDetailView({
-  state,
-  handlers,
-}: OrganizationMemberDetailViewProps): React.JSX.Element {
+export function OrganizationMemberDetailView(
+  props: OrganizationMemberDetailViewProps,
+): React.JSX.Element {
+  const {
+    styling,
+    customMessages,
+    activeTab,
+    showRemoveFromOrgModal,
+    isRemovingFromOrg,
+    showDeleteMemberModal,
+    isDeletingMember,
+    setActiveTab,
+    handleRemoveFromOrgCancel,
+    handleRemoveFromOrgConfirm,
+    handleDeleteMemberCancel,
+    handleDeleteMemberConfirm,
+  } = props;
+
   const { isDarkMode } = useTheme();
-  const { t } = useTranslator('member_management', state.customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
 
   const currentStyles = React.useMemo(
-    () => getComponentStyles(state.styling, isDarkMode),
-    [state.styling, isDarkMode],
+    () => getComponentStyles(styling, isDarkMode),
+    [styling, isDarkMode],
   );
 
   return (
     <StyledScope style={currentStyles.variables}>
       <div className={currentStyles.classes?.['OrganizationMemberDetail-root']}>
-        <Header state={state} handlers={handlers} />
+        <Header {...props} />
         <Tabs
-          value={state.activeTab}
-          onValueChange={(value) => handlers.setActiveTab(value as 'details' | 'roles')}
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as 'details' | 'roles')}
           className={currentStyles.classes?.['OrganizationMemberDetail-tabs']}
         >
           <TabsList>
@@ -123,31 +142,31 @@ export function OrganizationMemberDetailView({
             value="details"
             className={currentStyles.classes?.['OrganizationMemberDetail-detailsTab']}
           >
-            <OrganizationMemberEditDetailsTab state={state} handlers={handlers} />
+            <OrganizationMemberEditDetailsTab {...props} />
           </TabsContent>
 
           <TabsContent
             value="roles"
             className={currentStyles.classes?.['OrganizationMemberDetail-rolesTab']}
           >
-            <OrganizationMemberEditRolesTab state={state} handlers={handlers} />
+            <OrganizationMemberEditRolesTab {...props} />
           </TabsContent>
         </Tabs>
 
         <MemberRemoveFromOrgModal
-          isOpen={state.showRemoveFromOrgModal}
-          isLoading={state.isRemovingFromOrg}
-          customMessages={state.customMessages}
-          onClose={handlers.handleRemoveFromOrgCancel}
-          onConfirm={handlers.handleRemoveFromOrgConfirm}
+          isOpen={showRemoveFromOrgModal}
+          isLoading={isRemovingFromOrg}
+          customMessages={customMessages}
+          onClose={handleRemoveFromOrgCancel}
+          onConfirm={handleRemoveFromOrgConfirm}
         />
 
         <MemberDeleteModal
-          isOpen={state.showDeleteMemberModal}
-          isLoading={state.isDeletingMember}
-          customMessages={state.customMessages}
-          onClose={handlers.handleDeleteMemberCancel}
-          onConfirm={handlers.handleDeleteMemberConfirm}
+          isOpen={showDeleteMemberModal}
+          isLoading={isDeletingMember}
+          customMessages={customMessages}
+          onClose={handleDeleteMemberCancel}
+          onConfirm={handleDeleteMemberConfirm}
         />
       </div>
     </StyledScope>
@@ -171,7 +190,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     removeRoleAction,
   } = props;
 
-  const { state, handlers } = useOrganizationMemberDetail({
+  const memberDetail = useOrganizationMemberDetail({
     userId,
     onBack,
     customMessages,
@@ -181,15 +200,13 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     removeRoleAction,
   });
 
-  const extendedState = {
-    ...state,
-    styling,
-    customMessages,
-  };
-
   return (
-    <GateKeeper isLoading={state.isLoading} styling={styling}>
-      <OrganizationMemberDetailView state={extendedState} handlers={handlers} />
+    <GateKeeper isLoading={memberDetail.isLoading} styling={styling}>
+      <OrganizationMemberDetailView
+        {...memberDetail}
+        styling={styling}
+        customMessages={customMessages}
+      />
     </GateKeeper>
   );
 }
