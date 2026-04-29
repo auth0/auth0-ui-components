@@ -41,7 +41,7 @@ export function useOrganizationMemberManagement(
     resendInvitationAction,
   } = options;
 
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
 
   const [activeTab, setActiveTab] = React.useState<ActiveTab>('members');
 

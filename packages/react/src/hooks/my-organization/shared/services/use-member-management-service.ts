@@ -62,7 +62,7 @@ export function useMemberManagementService(
   const isInvitationsTabActive = activeTab === 'invitations';
 
   const { coreClient } = useCoreClient();
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
   const handleError = useErrorHandler();
   const queryClient = useQueryClient();
 

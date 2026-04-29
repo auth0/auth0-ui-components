@@ -21,19 +21,8 @@ import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   OrganizationMemberManagementProps,
-  UseOrganizationMemberManagementResult,
+  OrganizationMemberManagementViewProps,
 } from '@/types/my-organization/member-management/organization-member-management-types';
-
-/**
- * Props for the OrganizationMemberManagementView component.
- */
-export interface OrganizationMemberManagementViewProps
-  extends UseOrganizationMemberManagementResult {
-  styling: OrganizationMemberManagementProps['styling'];
-  customMessages: OrganizationMemberManagementProps['customMessages'];
-  hideHeader: boolean;
-  readOnly: boolean;
-}
 
 /**
  * View component for organization member management.
@@ -80,7 +69,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
       : null;
 
   const { isDarkMode } = useTheme();
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
 
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -190,7 +179,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isLoading={isRevokingInvitation}
           customMessages={customMessages?.invitation}
           onClose={closeModal}
-          onConfirm={() => handleRevokeConfirm()}
+          onConfirm={handleRevokeConfirm}
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeModal']}
         />
 
@@ -201,7 +190,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isRevokeAndResend
           customMessages={customMessages?.invitation}
           onClose={closeModal}
-          onConfirm={() => handleRevokeResendConfirm()}
+          onConfirm={handleRevokeResendConfirm}
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeResendModal']}
         />
       </div>
