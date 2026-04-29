@@ -71,7 +71,7 @@ function Header({ state, handlers }: OrganizationMemberDetailViewProps): React.J
         {t('member.detail.back_button')}
       </Button>
 
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4 mb-8">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-muted-foreground text-xl font-semibold shrink-0">
           {initials}
         </div>
