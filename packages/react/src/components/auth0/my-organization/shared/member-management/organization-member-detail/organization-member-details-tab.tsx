@@ -11,29 +11,34 @@ import { Card } from '@/components/ui/card';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { OrganizationMemberDetailViewProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
+type OrganizationMemberEditDetailsTabProps = Pick<
+  OrganizationMemberDetailViewProps,
+  'member' | 'customMessages' | 'isRemovingFromOrg' | 'handleRemoveFromOrgClick'
+>;
+
 /**
- * Renders the user details section of the member detail view.
- * @param root0 - Component props containing state and handlers
- * @returns The rendered member user details element, or null if no member
+ * Renders user details for the selected member.
+ * @param root0 - Component props containing member and customMessages
+ * @returns The rendered user details element, or null if member is not set
  */
 function OrganizationMemberUserDetails({
   member,
   customMessages,
-}: OrganizationMemberDetailViewProps): React.JSX.Element | null {
+}: OrganizationMemberEditDetailsTabProps): React.JSX.Element | null {
   if (!member) return null;
   return <MemberDetailUserDetails member={member} customMessages={customMessages} />;
 }
 
 /**
- * Renders the remove from organization danger zone card.
- * @param root0 - Component props containing state and handlers
- * @returns The rendered remove from organization card element
+ * Card with a button to remove the member from the organization.
+ * @param root0 - Component props containing handlers and loading state
+ * @returns The rendered remove-from-org card element
  */
 function RemoveFromOrganizationCard({
   customMessages,
   isRemovingFromOrg,
   handleRemoveFromOrgClick,
-}: OrganizationMemberDetailViewProps): React.JSX.Element {
+}: OrganizationMemberEditDetailsTabProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
   return (
     <Card className="flex-row items-center justify-between gap-4 p-6">
@@ -60,11 +65,11 @@ function RemoveFromOrganizationCard({
 
 /**
  * Details tab — user details + danger zone actions.
- * @param props - Component props containing state and handlers
+ * @param props - Component props
  * @returns The rendered details tab element
  */
 export function OrganizationMemberEditDetailsTab(
-  props: OrganizationMemberDetailViewProps,
+  props: OrganizationMemberEditDetailsTabProps,
 ): React.JSX.Element {
   return (
     <div className="flex flex-col gap-4">

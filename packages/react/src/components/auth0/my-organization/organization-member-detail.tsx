@@ -41,17 +41,17 @@ function getInitials(name?: string): string {
   return (first.charAt(0) + last.charAt(0)).toUpperCase();
 }
 
+type HeaderProps = Pick<
+  OrganizationMemberDetailViewProps,
+  'member' | 'styling' | 'customMessages' | 'handleBack'
+>;
+
 /**
  * Member detail header component
  * @param root0 - Component props containing state and handlers
  * @returns The rendered header element
  */
-function Header({
-  member,
-  styling,
-  customMessages,
-  handleBack,
-}: OrganizationMemberDetailViewProps): React.JSX.Element {
+function Header({ member, styling, customMessages, handleBack }: HeaderProps): React.JSX.Element {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
   const currentStyles = React.useMemo(
@@ -127,7 +127,12 @@ export function OrganizationMemberDetailView(
   return (
     <StyledScope style={currentStyles.variables}>
       <div className={currentStyles.classes?.['OrganizationMemberDetail-root']}>
-        <Header {...props} />
+        <Header
+          member={props.member}
+          styling={styling}
+          customMessages={customMessages}
+          handleBack={props.handleBack}
+        />
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as 'details' | 'roles')}
@@ -142,14 +147,35 @@ export function OrganizationMemberDetailView(
             value="details"
             className={currentStyles.classes?.['OrganizationMemberDetail-detailsTab']}
           >
-            <OrganizationMemberEditDetailsTab {...props} />
+            <OrganizationMemberEditDetailsTab
+              member={props.member}
+              customMessages={customMessages}
+              isRemovingFromOrg={isRemovingFromOrg}
+              handleRemoveFromOrgClick={props.handleRemoveFromOrgClick}
+            />
           </TabsContent>
 
           <TabsContent
             value="roles"
             className={currentStyles.classes?.['OrganizationMemberDetail-rolesTab']}
           >
-            <OrganizationMemberEditRolesTab {...props} />
+            <OrganizationMemberEditRolesTab
+              customMessages={customMessages}
+              memberRoles={props.memberRoles}
+              availableRoles={props.availableRoles}
+              isFetchingRoles={props.isFetchingRoles}
+              removingRoleId={props.removingRoleId}
+              showAssignRolesModal={props.showAssignRolesModal}
+              isAssigningRole={props.isAssigningRole}
+              showRemoveRoleModal={props.showRemoveRoleModal}
+              roleToRemove={props.roleToRemove}
+              handleAssignRolesClick={props.handleAssignRolesClick}
+              handleAssignRolesCancel={props.handleAssignRolesCancel}
+              handleAssignRolesSubmit={props.handleAssignRolesSubmit}
+              handleRemoveRoleClick={props.handleRemoveRoleClick}
+              handleRemoveRoleCancel={props.handleRemoveRoleCancel}
+              handleRemoveRoleConfirm={props.handleRemoveRoleConfirm}
+            />
           </TabsContent>
         </Tabs>
 

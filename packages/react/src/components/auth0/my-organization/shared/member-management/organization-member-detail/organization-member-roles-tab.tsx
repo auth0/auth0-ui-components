@@ -18,6 +18,25 @@ import type {
   OrganizationMemberDetailViewProps,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
 
+type OrganizationMemberEditRolesTabProps = Pick<
+  OrganizationMemberDetailViewProps,
+  | 'customMessages'
+  | 'memberRoles'
+  | 'availableRoles'
+  | 'isFetchingRoles'
+  | 'removingRoleId'
+  | 'showAssignRolesModal'
+  | 'isAssigningRole'
+  | 'showRemoveRoleModal'
+  | 'roleToRemove'
+  | 'handleAssignRolesClick'
+  | 'handleAssignRolesCancel'
+  | 'handleAssignRolesSubmit'
+  | 'handleRemoveRoleClick'
+  | 'handleRemoveRoleCancel'
+  | 'handleRemoveRoleConfirm'
+>;
+
 interface RolesTabHeaderProps {
   selectedRoles: OrgMemberRole[];
   customMessages: OrganizationMemberDetailProps['customMessages'];
@@ -178,7 +197,7 @@ export function OrganizationMemberEditRolesTab({
   handleRemoveRoleClick,
   handleRemoveRoleCancel,
   handleRemoveRoleConfirm,
-}: OrganizationMemberDetailViewProps): React.JSX.Element {
+}: OrganizationMemberEditRolesTabProps): React.JSX.Element {
   const [selectedRoles, setSelectedRoles] = React.useState<OrgMemberRole[]>([]);
 
   const handleRemoveSelectedRoles = React.useCallback(() => {
