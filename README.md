@@ -1,4 +1,4 @@
-![Auth0 Universal Components](docs-site/public/auth0-ui-components-small.png)
+![Auth0 Universal Components](https://cdn.auth0.com/website/sdks/banners/universal-components-web.png)
 
 Drop-in React components for Auth0 organization management, SSO configuration, and MFA enrollment.
 
@@ -12,7 +12,7 @@ Drop-in React components for Auth0 organization management, SSO configuration, a
 📚 [Documentation](#documentation) - 🚀 [Quick Start](#quick-start) - 💬 [Feedback](#feedback)
 
 <p align="center">
-  <img src="docs-site/public/SSOProviderCreateComponent.gif" alt="SSO Provider Configuration" width="700">
+  <img src="https://cdn.auth0.com/website/sdks/banners/SSOProviderCreateComponent.gif" alt="SSO Provider Configuration" width="700">
   <br>
   <sub>SSO Provider Create Component</sub>
 </p>
