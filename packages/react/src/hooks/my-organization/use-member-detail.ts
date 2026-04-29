@@ -11,9 +11,8 @@ import { useConfig } from '@/hooks/my-organization/use-config';
 import type { RoleOption } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   MemberDetailTab,
-  MemberDetailState,
-  MemberDetailHandlers,
   UseOrganizationMemberDetailOptions,
+  UseOrganizationMemberDetailResult,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 export { memberDetailQueryKeys } from '@/hooks/my-organization/shared/services/use-member-detail-service';
@@ -23,10 +22,9 @@ export { memberDetailQueryKeys } from '@/hooks/my-organization/shared/services/u
  * @param options - Hook configuration options.
  * @returns State and handler functions.
  */
-export function useOrganizationMemberDetail(options: UseOrganizationMemberDetailOptions): {
-  state: MemberDetailState;
-  handlers: MemberDetailHandlers;
-} {
+export function useOrganizationMemberDetail(
+  options: UseOrganizationMemberDetailOptions,
+): UseOrganizationMemberDetailResult {
   const {
     userId,
     onBack,
@@ -150,7 +148,7 @@ export function useOrganizationMemberDetail(options: UseOrganizationMemberDetail
   const member = (memberQuery.data as OrgMember) ?? null;
   const memberRoles: OrgMemberRole[] = member?.roles ?? [];
 
-  const state: MemberDetailState = {
+  return {
     activeTab,
     member,
     memberRoles,
@@ -167,9 +165,7 @@ export function useOrganizationMemberDetail(options: UseOrganizationMemberDetail
     showAssignRolesModal,
     showRemoveRoleModal,
     roleToRemove,
-  };
 
-  const handlers: MemberDetailHandlers = {
     setActiveTab,
     handleBack,
     handleRemoveFromOrgClick,
@@ -185,8 +181,6 @@ export function useOrganizationMemberDetail(options: UseOrganizationMemberDetail
     handleRemoveRoleConfirm,
     handleRemoveRoleCancel,
   };
-
-  return { state, handlers };
 }
 
-export type UseOrganizationMemberDetailResult = ReturnType<typeof useOrganizationMemberDetail>;
+export type { UseOrganizationMemberDetailResult };

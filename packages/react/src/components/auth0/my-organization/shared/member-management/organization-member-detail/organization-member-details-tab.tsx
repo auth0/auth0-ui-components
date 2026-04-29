@@ -17,10 +17,11 @@ import type { OrganizationMemberDetailViewProps } from '@/types/my-organization/
  * @returns The rendered member user details element, or null if no member
  */
 function OrganizationMemberUserDetails({
-  state,
+  member,
+  customMessages,
 }: OrganizationMemberDetailViewProps): React.JSX.Element | null {
-  if (!state.member) return null;
-  return <MemberDetailUserDetails member={state.member} customMessages={state.customMessages} />;
+  if (!member) return null;
+  return <MemberDetailUserDetails member={member} customMessages={customMessages} />;
 }
 
 /**
@@ -29,10 +30,11 @@ function OrganizationMemberUserDetails({
  * @returns The rendered remove from organization card element
  */
 function RemoveFromOrganizationCard({
-  state,
-  handlers,
+  customMessages,
+  isRemovingFromOrg,
+  handleRemoveFromOrgClick,
 }: OrganizationMemberDetailViewProps): React.JSX.Element {
-  const { t } = useTranslator('member_management', state.customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
   return (
     <Card className="flex-row items-center justify-between gap-4 p-6">
       <div className="flex flex-col gap-1">
@@ -46,8 +48,8 @@ function RemoveFromOrganizationCard({
       <Button
         variant="destructive"
         size="sm"
-        onClick={handlers.handleRemoveFromOrgClick}
-        disabled={state.isRemovingFromOrg}
+        onClick={handleRemoveFromOrgClick}
+        disabled={isRemovingFromOrg}
         className="shrink-0"
       >
         {t('member.detail.actions.remove_from_org.delete_button')}
@@ -58,17 +60,16 @@ function RemoveFromOrganizationCard({
 
 /**
  * Details tab — user details + danger zone actions.
- * @param root0 - Component props containing state and handlers
+ * @param props - Component props containing state and handlers
  * @returns The rendered details tab element
  */
-export function OrganizationMemberEditDetailsTab({
-  state,
-  handlers,
-}: OrganizationMemberDetailViewProps): React.JSX.Element {
+export function OrganizationMemberEditDetailsTab(
+  props: OrganizationMemberDetailViewProps,
+): React.JSX.Element {
   return (
     <div className="flex flex-col gap-4">
-      <OrganizationMemberUserDetails state={state} handlers={handlers} />
-      <RemoveFromOrganizationCard state={state} handlers={handlers} />
+      <OrganizationMemberUserDetails {...props} />
+      <RemoveFromOrganizationCard {...props} />
     </div>
   );
 }
