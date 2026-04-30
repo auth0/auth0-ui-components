@@ -69,7 +69,6 @@ export function OrganizationInvitationTableActionsColumn({
           className="relative h-8 w-8 overflow-hidden rounded-xl border border-primary/35 bg-background shadow-button-outlined-resting transition-all duration-150 ease-in-out hover:bg-muted hover:shadow-button-outlined-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 theme-default:before:absolute theme-default:before:top-0 theme-default:before:left-0 theme-default:before:block theme-default:before:h-full theme-default:before:w-full theme-default:before:bg-gradient-to-t theme-default:before:from-primary/5 theme-default:before:to-primary/0 theme-default:before:content-[''] flex items-center justify-center"
         >
           <MoreHorizontal className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-          <span className="sr-only">{t('invitation.actions.menu_label')}</span>
         </DropdownMenuTrigger>
         <DropdownMenuPortal>
           <DropdownMenuContent align="end">
@@ -88,14 +87,11 @@ export function OrganizationInvitationTableActionsColumn({
             )}
 
             {!readOnly && (
-              <DropdownMenuItem onClick={handleRevokeAndResend}>
-                <RefreshCcw className="mr-2 h-4 w-4" />
-                {t('invitation.actions.revoke_and_resend')}
-              </DropdownMenuItem>
-            )}
-
-            {!readOnly && (
               <>
+                <DropdownMenuItem onClick={handleRevokeAndResend}>
+                  <RefreshCcw className="mr-2 h-4 w-4" />
+                  {t('invitation.actions.revoke_and_resend')}
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleRevoke}

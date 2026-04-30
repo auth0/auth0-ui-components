@@ -54,10 +54,8 @@ For detailed setup instructions, follow the [Auth0 React Quickstart](https://aut
 
 ```tsx
 import { Auth0Provider } from '@auth0/auth0-react';
-import {
-  Auth0ComponentProvider,
-  OrganizationDetailsEdit,
-} from '@auth0/universal-components-react/spa';
+import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
+import { OrganizationDetailsEdit } from '@auth0/universal-components-react';
 import '@auth0/universal-components-react/styles';
 
 function App() {
@@ -108,9 +106,7 @@ export default function RootLayout({ children }) {
 ### Step 3: Use Components
 
 ```tsx
-import { OrganizationDetailsEdit } from '@auth0/universal-components-react/spa';
-// or
-import { OrganizationDetailsEdit } from '@auth0/universal-components-react/rwa';
+import { OrganizationDetailsEdit } from '@auth0/universal-components-react';
 
 function MyPage() {
   return (
