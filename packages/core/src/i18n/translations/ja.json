@@ -1109,16 +1109,11 @@
           "created_at": "作成日",
           "last_login": "最終ログイン"
         },
-        "danger_zone": {
+        "actions": {
           "remove_from_org": {
-            "title": "${organization} からメンバーを削除",
-            "title_plural": "${organization} からメンバーを削除",
-            "description": "この組織から ${email} を削除してもよろしいですか？この操作によりアカウントは削除されませんが、アクセス権が取り消され、サインインできなくなります。",
-            "description_plural": "この組織から ${count} 人のメンバーを削除してもよろしいですか？この操作によりアカウントは削除されませんが、アクセス権が取り消され、サインインできなくなります。",
-            "confirm_button": "削除",
-            "cancel_button": "キャンセル",
-            "success": "${email} が ${organization} から削除されました。",
-            "success_plural": "選択されたメンバーが ${organization} から削除されました。"
+            "title": "組織からメンバーを削除",
+            "description": "一度確定すると、この操作は元に戻せません。",
+            "delete_button": "削除"
           },
           "delete_member": {
             "title": "メンバーを削除",
