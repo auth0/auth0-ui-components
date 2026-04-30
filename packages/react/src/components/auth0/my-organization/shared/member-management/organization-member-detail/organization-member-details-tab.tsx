@@ -5,7 +5,7 @@
 
 import * as React from 'react';
 
-import { MemberDetailUserDetails } from '@/components/auth0/my-organization/shared/member-management/members/member-user-details/member-detail-user-details';
+import { MemberDetails } from '@/components/auth0/my-organization/shared/member-management/members/member-user-details/member-detail-user-details';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -26,7 +26,7 @@ function OrganizationMemberUserDetails({
   customMessages,
 }: OrganizationMemberEditDetailsTabProps): React.JSX.Element | null {
   if (!member) return null;
-  return <MemberDetailUserDetails member={member} customMessages={customMessages} />;
+  return <MemberDetails member={member} customMessages={customMessages} />;
 }
 
 /**
@@ -72,7 +72,7 @@ export function OrganizationMemberEditDetailsTab(
   props: OrganizationMemberEditDetailsTabProps,
 ): React.JSX.Element {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <OrganizationMemberUserDetails {...props} />
       <RemoveFromOrganizationCard {...props} />
     </div>

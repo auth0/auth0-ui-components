@@ -94,7 +94,7 @@ function CopyableValue({
  * @param root0 - Component props
  * @returns The rendered user details card element
  */
-export function MemberDetailUserDetails({
+export function MemberDetails({
   member,
   customMessages,
 }: MemberDetailUserDetailsProps): React.JSX.Element {
@@ -139,7 +139,7 @@ export function MemberDetailUserDetails({
 
   return (
     <>
-      <h3 className="text-base font-semibold text-primary mb-4">
+      <h3 className="text-base font-semibold text-primary py-4">
         {t('member.detail.user_details.title')}
       </h3>
       <Card className="p-6">
