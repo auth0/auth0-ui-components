@@ -63,6 +63,7 @@ function SettingsPage() {
 - [Universal Components Overview](https://auth0.com/docs/get-started/universal-components/universal-components-overview) - available components, installation, and configuration
 - [Styling Guide](https://auth0.com/docs/get-started/universal-components/universal-components-style) - theming, CSS variables, and dark mode
 - [Build a Delegated Admin](https://auth0.com/docs/get-started/universal-components/my-organization/build-delegated-admin) - end-to-end setup guide
+- [TypeDoc Reference](https://auth0.github.io/auth0-ui-components/) - TypeDoc-generated source documentation
 - [Examples](https://github.com/auth0/auth0-ui-components/tree/main/examples) - sample applications for React SPA, React shadcn, and Next.js
 - [Auth0 Docs](https://auth0.com/docs) - explore our docs site and learn more about Auth0
 
