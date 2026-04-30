@@ -1016,5 +1016,94 @@
         "install_guardian_description": "Pour continuer, installez l'application Auth0 Guardian via l'app store depuis votre appareil mobile"
       }
     }
+  },
+  "member_management": {
+    "member": {
+      "table": {
+        "columns": {
+          "name": "Nom",
+          "email": "E-mail",
+          "roles": "Rôles"
+        },
+        "empty_message": "Aucun membre trouvé."
+      },
+      "error": {
+        "fetch_failed": "Échec du chargement des membres. Veuillez réessayer.",
+        "remove_failed": "Échec de la suppression du membre. Veuillez réessayer."
+      },
+      "detail": {
+        "back_button": "Retour aux membres",
+        "tabs": {
+          "details": "Détails",
+          "roles": "Rôles"
+        },
+        "user_details": {
+          "title": "Détails de l'utilisateur",
+          "name": "Nom",
+          "email": "E-mail",
+          "phone_number": "Numéro de téléphone",
+          "provider": "Fournisseur",
+          "created_at": "Créé le",
+          "last_login": "Dernière connexion"
+        },
+        "actions": {
+          "remove_from_org": {
+            "title": "Retirer un membre de l'organisation",
+            "description": "Une fois confirmée, cette opération ne peut pas être annulée.",
+            "delete_button": "supprimer"
+          },
+          "delete_member": {
+            "title": "Supprimer le membre",
+            "title_plural": "Supprimer les membres",
+            "description": "Êtes-vous sûr de vouloir supprimer ${email} ? Cette action est irréversible.",
+            "description_plural": "Êtes-vous sûr de vouloir supprimer ${count} membres ? Cette action est irréversible.",
+            "confirm_button": "Supprimer",
+            "cancel_button": "Annuler",
+            "success": "${email} a été supprimé.",
+            "success_plural": "Les membres sélectionnés ont été supprimés."
+          }
+        },
+        "roles": {
+          "title": "Rôles",
+          "description": "Gérez les rôles et autorisations de l'utilisateur pour l'accès à ${appName}.",
+          "assign_button": "Attribuer des rôles",
+          "no_roles_available": "Il n'y a plus de rôles disponibles à attribuer à ce membre.",
+          "max_roles_reached": "Vous avez atteint le nombre maximum de ${max} rôles pour ce membre.",
+          "remove_button": "Supprimer le rôle",
+          "remove_button_plural": "Supprimer les rôles",
+          "table": {
+            "name": "Nom",
+            "description": "Description",
+            "empty_message": "Aucun rôle attribué."
+          },
+          "assign_modal": {
+            "title": "Attribuer des rôles",
+            "roles_label": "Rôles",
+            "roles_placeholder": "Sélectionner un ou des rôles",
+            "submit_button": "Attribuer le(s) rôle(s)",
+            "cancel_button": "Annuler",
+            "no_roles_available": "Tous les rôles disponibles sont déjà attribués.",
+            "success": "Le rôle a été attribué.",
+            "success_plural": "Les rôles ont été attribués."
+          },
+          "remove_confirm": {
+            "title": "Retirer le rôle du membre ?",
+            "title_plural": "Retirer les rôles du membre ?",
+            "description": "Cela retirera le rôle <bold>${roleName}</bold> de <bold>\"${memberName}\"</bold>.",
+            "confirm_button": "Retirer",
+            "cancel_button": "Annuler",
+            "success": "Le rôle <bold>\"${roleName}\"</bold> a été retiré du membre."
+          }
+        },
+        "error": {
+          "fetch_failed": "Échec du chargement des détails du membre. Veuillez réessayer.",
+          "fetch_roles_failed": "Échec du chargement des rôles du membre. Veuillez réessayer.",
+          "remove_from_org_failed": "Échec du retrait du membre de l'organisation. Veuillez réessayer.",
+          "delete_failed": "Échec de la suppression du membre. Veuillez réessayer.",
+          "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer.",
+          "remove_role_failed": "Échec du retrait du rôle. Veuillez réessayer."
+        }
+      }
+    }
   }
 }
