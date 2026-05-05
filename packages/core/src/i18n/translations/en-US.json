@@ -502,8 +502,8 @@
               "title": "Advanced Settings",
               "sign_request": {
                 "label": "Sign Request",
-                "helper_text_metadata_file": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature. This needs to be enabled first in the SAMLP. Once enabled, share the metadata URL for integration.",
-                "helper_text_metadata_url": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature."
+                "helper_text_metadata_file": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature. This needs to be enabled first in the SAMLP. Once enabled, share the metadata URL for integration.",
+                "helper_text_metadata_url": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature."
               },
               "request_protocol_binding": {
                 "label": "Request Protocol Binding",
@@ -580,7 +580,7 @@
               "title": "Advanced Settings",
               "sign_request": {
                 "label": "Sign Request",
-                "helper_text": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature. This needs to be enabled first in the SAMLP. Once enabled, share the metadata URL for integration.",
+                "helper_text": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature. This needs to be enabled first in the SAMLP. Once enabled, share the metadata URL for integration.",
                 "error": "Please select an option"
               },
               "sign_request_algorithm": {
@@ -1108,16 +1108,11 @@
           "created_at": "Created At",
           "last_login": "Last Login"
         },
-        "danger_zone": {
+        "actions": {
           "remove_from_org": {
-            "title": "Remove member from ${organization}",
-            "title_plural": "Remove members from ${organization}",
-            "description": "Are you sure you want to remove ${email} from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
-            "description_plural": "Are you sure you want to remove ${count} members from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
-            "confirm_button": "Remove",
-            "cancel_button": "Cancel",
-            "success": "${email} has been removed from ${organization}.",
-            "success_plural": "The selected members have been removed from ${organization}."
+            "title": "Remove Member from Organization",
+            "description": "Once confirmed, this operation cannot be undone.",
+            "delete_button": "Delete"
           },
           "delete_member": {
             "title": "Delete member",

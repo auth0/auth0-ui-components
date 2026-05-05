@@ -161,11 +161,8 @@ export default function UserMFA() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
         <CodeBlock
-          code={`// For SPA applications:
-import { UserMFAMgmt } from '@auth0/universal-components-react/spa';
-
-// For Next.js/RWA applications:
-// import { UserMFAMgmt } from '@auth0/universal-components-react/rwa';
+          code={`// For SPA/Next.js/RWA applications:
+import { UserMFAMgmt } from '@auth0/universal-components-react';
 
 // For shadcn users:
 // import { UserMFAMgmt } from '@/components/auth0/my-account/user-mfa-management';
@@ -742,7 +739,8 @@ interface UserMFAMgmtClasses {
         <h2 className="text-2xl font-semibold text-gray-900">Complete Integration Example</h2>
         <CodeBlock
           code={`import React from 'react';
-import { UserMFAMgmt, Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
+import { UserMFAMgmt } from '@auth0/universal-components-react';
+import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
 import { Auth0Provider } from '@auth0/auth0-react';
 
 function SecurityPage() {

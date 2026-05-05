@@ -1,31 +1,41 @@
-### Changes
+### Summary
 
-Please describe both what is changing and why this is important. Include:
+<!-- One or two sentences describing what this PR does. -->
 
-- Components added, deleted, or changed
-- Functions added, deleted, or changed
-- Screenshots of new or changed UI, if applicable
-- A summary of usage if this is a new feature or change to a public Component (this should also be added to relevant documentation once released)
-- Any alternative designs or approaches considered
+### Why
+
+<!-- The problem or motivation behind this change. -->
+
+### What
+
+<!-- Key changes made in this PR. -->
+
+**Packages**
+
+- [ ] `packages/core`
+- [ ] `packages/react`
+- [ ] `examples`
 
 ### References
 
-Please include relevant links supporting this change such as a:
-
-- support ticket
-- community post
-- StackOverflow post
-- support forum thread
+<!-- Link any related issues, tickets, or discussions.
+     For UI changes, include screenshots or a screen recording (before/after). -->
 
 ### Testing
 
-Please describe how this can be tested by reviewers. Be specific about anything not tested and reasons why. If this library has unit and tests should be added for new functionality and existing tests should complete without errors.
+How can this be verified? Note anything intentionally not covered by tests and why.
 
 - [ ] This change adds unit test coverage
-- [ ] This change has been tested on the latest version of the platform/language or why not
+- [ ] Tested for both SPA and RWA flows, all example apps working
+- [ ] All existing and new tests complete without errors
 
 ### Checklist
 
+- [ ] Breaking change
+- [ ] Requires docs update
+- [ ] Backward compatible
+
+### Contributing
+
 - [ ] I have read the [Auth0 general contribution guidelines](https://github.com/auth0/.github/blob/master/CONTRIBUTING.md)
 - [ ] I have read the [Auth0 Code of Conduct](https://github.com/auth0/open-source-template/blob/master/CODE-OF-CONDUCT.md)
-- [ ] All existing and new tests complete without errors

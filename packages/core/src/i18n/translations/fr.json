@@ -1046,16 +1046,11 @@
           "created_at": "Créé le",
           "last_login": "Dernière connexion"
         },
-        "danger_zone": {
+        "actions": {
           "remove_from_org": {
-            "title": "Retirer le membre de ${organization}",
-            "title_plural": "Retirer les membres de ${organization}",
-            "description": "Êtes-vous sûr de vouloir retirer ${email} de cette organisation ? Cette action ne supprimera pas son compte, mais révoquera son accès et l'empêchera de se connecter.",
-            "description_plural": "Êtes-vous sûr de vouloir retirer ${count} membres de cette organisation ? Cette action ne supprimera pas leur compte, mais révoquera leur accès et les empêchera de se connecter.",
-            "confirm_button": "Retirer",
-            "cancel_button": "Annuler",
-            "success": "${email} a été retiré de ${organization}.",
-            "success_plural": "Les membres sélectionnés ont été retirés de ${organization}."
+            "title": "Retirer un membre de l'organisation",
+            "description": "Une fois confirmée, cette opération ne peut pas être annulée.",
+            "delete_button": "supprimer"
           },
           "delete_member": {
             "title": "Supprimer le membre",
