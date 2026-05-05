@@ -43,15 +43,16 @@ export const Auth0ComponentProvider = ({
   children,
 }: Extract<Auth0ComponentProviderProps, { mode: 'proxy' }> & { children: React.ReactNode }) => {
   const mergedToastSettings = useToastProvider(toastSettings);
-  const baseUrl = proxyConfig.baseUrl;
+  const { baseUrl, fetcher } = proxyConfig;
 
   const memoizedAuthDetails = React.useMemo<AuthDetails>(
     () => ({
       domain,
       authProxyUrl: baseUrl,
+      fetcher,
       previewMode,
     }),
-    [domain, baseUrl, previewMode],
+    [domain, baseUrl, fetcher, previewMode],
   );
 
   const coreClient = useCoreClientInitialization({
