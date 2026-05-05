@@ -10,10 +10,8 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationLink,
   PaginationPrevious,
   PaginationNext,
-  PaginationEllipsis,
 } from '@/components/auth0/shared/pagination';
 import {
   Select,
@@ -44,12 +42,12 @@ export const defaultLabels: DataPaginationLabels = {
   showing: 'Showing',
   to: 'to',
   of: 'of',
-  results: 'results',
+  results: '',
   totalResults: 'total results',
-  show: 'Show',
+  show: '',
   perPage: 'per page',
-  previous: 'Previous',
-  next: 'Next',
+  previous: '',
+  next: '',
   goToPage: 'Go to page {page}',
   goToPrevious: 'Go to previous page',
   goToNext: 'Go to next page',
@@ -66,6 +64,7 @@ export interface RegularPaginationState {
 
 export interface CheckpointPaginationState {
   pageSize: number;
+  currentPage?: number;
   totalItems?: number;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
@@ -86,6 +85,14 @@ export interface DataPaginationProps {
   onPreviousPage?: () => void;
 }
 
+interface PageRangeInfoProps {
+  totalItems: number;
+  currentPage: number;
+  pageSize: number;
+  locale?: string;
+  labels: DataPaginationLabels;
+}
+
 const formatNumber = (num: number | undefined | null, locale?: string): string => {
   if (num === null || num === undefined || isNaN(num)) {
     return '0';
@@ -96,31 +103,45 @@ const formatNumber = (num: number | undefined | null, locale?: string): string =
   return num.toLocaleString(resolvedLocale);
 };
 
-const interpolate = (str: string, values: Record<string, string | number>): string =>
-  str.replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
-
-const generatePageNumbers = (
+const getPageRange = (
+  totalItems: number,
   currentPage: number,
-  totalPages: number,
-  maxVisible: number = 5,
-): (number | 'ellipsis')[] => {
-  if (totalPages <= maxVisible) return Array.from({ length: totalPages }, (_, i) => i + 1);
-
-  const pages: (number | 'ellipsis')[] = [1];
-  const range = Math.floor((maxVisible - 3) / 2);
-  let start = Math.max(2, currentPage - range);
-  let end = Math.min(totalPages - 1, currentPage + range);
-
-  if (currentPage <= range + 2) end = maxVisible - 2;
-  if (currentPage >= totalPages - range - 1) start = totalPages - (maxVisible - 2);
-
-  if (start > 2) pages.push('ellipsis');
-  for (let i = start; i <= end; i++) pages.push(i);
-  if (end < totalPages - 1) pages.push('ellipsis');
-  pages.push(totalPages);
-
-  return pages;
+  pageSize: number,
+  locale?: string,
+): { start: string; end: string } => {
+  const start = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const end = Math.min(currentPage * pageSize, totalItems);
+  return {
+    start: formatNumber(start, locale),
+    end: formatNumber(end, locale),
+  };
 };
+
+/**
+ * Renders the page range info.
+ *
+ * @param props - Component props.
+ * @param props.totalItems - Total number of items.
+ * @param props.currentPage - Current page number.
+ * @param props.pageSize - Number of items per page.
+ * @param props.locale - Locale identifier for number formatting.
+ * @param props.labels - Label text configuration.
+ * @returns JSX element displaying the page range info.
+ */
+function PageRangeInfo({ totalItems, currentPage, pageSize, locale, labels }: PageRangeInfoProps) {
+  const range = getPageRange(totalItems, currentPage, pageSize, locale);
+  return (
+    <>
+      {labels.showing}{' '}
+      <span className="font-medium text-foreground">
+        {range.start}-{range.end}
+      </span>{' '}
+      {labels.of}{' '}
+      <span className="font-medium text-foreground">{formatNumber(totalItems, locale)}</span>
+      {labels.results && <> {labels.results}</>}
+    </>
+  );
+}
 
 /**
  *
@@ -170,18 +191,6 @@ export function DataPagination({
     return Array.from(uniqueOptions).sort((a, b) => a - b);
   }, [shouldShowPageSizeSelector, pageSizeOptions, currentPageSize]);
 
-  const pageNumbers = useMemo(
-    () =>
-      isRegular && regularState
-        ? generatePageNumbers(
-            regularState.currentPage,
-            regularState.totalPages,
-            regularState.maxVisiblePages,
-          )
-        : [],
-    [isRegular, regularState],
-  );
-
   useEffect(() => {
     if (ariaLiveRegionRef.current) {
       if (isRegular && regularState) {
@@ -196,7 +205,6 @@ export function DataPagination({
     return null;
   }
 
-  const shouldShowPageNumbers = isRegular;
   const safeCurrentPageSize = currentPageSize as number;
 
   return (
@@ -214,32 +222,22 @@ export function DataPagination({
       {showPageInfo && (
         <div className="text-sm text-foreground whitespace-nowrap sm:mr-auto">
           {isRegular && regularState ? (
-            <>
-              {labels.showing}{' '}
-              <span className="font-medium text-foreground">
-                {formatNumber(
-                  regularState.totalItems === 0
-                    ? 0
-                    : (regularState.currentPage - 1) * regularState.pageSize + 1,
-                  locale,
-                )}
-              </span>{' '}
-              {labels.to}{' '}
-              <span className="font-medium text-foreground">
-                {formatNumber(
-                  Math.min(
-                    regularState.currentPage * regularState.pageSize,
-                    regularState.totalItems,
-                  ),
-                  locale,
-                )}
-              </span>{' '}
-              {labels.of}{' '}
-              <span className="font-medium text-foreground">
-                {formatNumber(regularState.totalItems, locale)}
-              </span>{' '}
-              {labels.results}
-            </>
+            <PageRangeInfo
+              totalItems={regularState.totalItems}
+              currentPage={regularState.currentPage}
+              pageSize={regularState.pageSize}
+              locale={locale}
+              labels={labels}
+            />
+          ) : checkpointState?.totalItems !== undefined &&
+            checkpointState?.currentPage !== undefined ? (
+            <PageRangeInfo
+              totalItems={checkpointState.totalItems}
+              currentPage={checkpointState.currentPage}
+              pageSize={checkpointState.pageSize}
+              locale={locale}
+              labels={labels}
+            />
           ) : checkpointState?.totalItems !== undefined ? (
             <>
               <span className="font-medium text-foreground">
@@ -254,7 +252,7 @@ export function DataPagination({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         {shouldShowPageSizeSelector && allPageSizeOptions.length > 0 && (
           <div className="flex items-center justify-center gap-2 whitespace-nowrap sm:justify-start">
-            <span className="text-sm text-foreground">{labels.show}</span>
+            {labels.show && <span className="text-sm text-foreground">{labels.show}</span>}
             <Select
               value={safeCurrentPageSize.toString()}
               onValueChange={(value) => onPageSizeChange?.(Number(value))}
@@ -290,28 +288,6 @@ export function DataPagination({
                     aria-disabled={regularState.currentPage <= 1}
                   />
                 </PaginationItem>
-
-                {shouldShowPageNumbers &&
-                  pageNumbers.map((page, idx) => (
-                    <PaginationItem key={`page-${idx}`}>
-                      {page === 'ellipsis' ? (
-                        <PaginationEllipsis>
-                          <span className="sr-only">{labels.morePages}</span>
-                        </PaginationEllipsis>
-                      ) : (
-                        <PaginationLink
-                          onClick={() => onPageChange?.(page)}
-                          isActive={regularState.currentPage === page}
-                          aria-label={interpolate(labels.goToPage, {
-                            page: formatNumber(page, locale),
-                          })}
-                          aria-current={regularState.currentPage === page ? 'page' : undefined}
-                        >
-                          {formatNumber(page, locale)}
-                        </PaginationLink>
-                      )}
-                    </PaginationItem>
-                  ))}
 
                 <PaginationItem>
                   <PaginationNext
