@@ -41,6 +41,7 @@ export {
   FACTOR_TYPE_RECOVERY_CODE,
   FACTOR_TYPE_WEBAUTHN_ROAMING,
   FACTOR_TYPE_WEBAUTHN_PLATFORM,
+  mfaQueryKeys,
 } from './services/my-account/mfa/mfa-constants';
 
 export * from './types';
