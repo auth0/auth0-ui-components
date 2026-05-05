@@ -1,6 +1,6 @@
 'use client';
 
-// import { DomainTable } from '@auth0/universal-components-react/rwa';
+// import { DomainTable } from '@auth0/universal-components-react';
 
 export default function DomainManagementPage() {
   return (

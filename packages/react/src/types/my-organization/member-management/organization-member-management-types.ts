@@ -31,7 +31,7 @@ export interface TableQueryParams<TSort, TFilter> {
 }
 
 export interface UseMemberManagementServiceOptions {
-  customMessages?: OrganizationMemberManagementMessages;
+  customMessages?: Partial<OrganizationMemberManagementMessages>;
   activeTab: ActiveTab;
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   revokeInvitationAction?: ComponentAction<MemberInvitation>;
@@ -61,7 +61,7 @@ export interface MemberManagementServiceResult {
 }
 
 export interface UseOrganizationMemberManagementOptions {
-  customMessages?: OrganizationMemberManagementMessages;
+  customMessages?: Partial<OrganizationMemberManagementMessages>;
   readOnly?: boolean;
   /** Action hooks for invitation creation (onBefore/onAfter) */
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
@@ -81,7 +81,6 @@ export type MemberManagementModalState =
 
 export interface UseOrganizationMemberManagementResult {
   activeTab: ActiveTab;
-  isLoading: boolean;
   availableRoles: RoleOption[];
   availableProviders: IdentityProviderOption[];
 
@@ -107,6 +106,17 @@ export interface UseOrganizationMemberManagementResult {
   handlePageSizeChange: (pageSize: number) => void;
   handleSortChange: (sortConfig: InvitationSortConfig) => void;
   handleRoleFilterChange: (roleId: string | undefined) => void;
+}
+
+/**
+ * Props for the OrganizationMemberManagementView component.
+ */
+export interface OrganizationMemberManagementViewProps
+  extends UseOrganizationMemberManagementResult {
+  styling: OrganizationMemberManagementProps['styling'];
+  customMessages: OrganizationMemberManagementProps['customMessages'];
+  hideHeader: boolean;
+  readOnly: boolean;
 }
 
 /** CSS classes for OrganizationMemberManagement. */

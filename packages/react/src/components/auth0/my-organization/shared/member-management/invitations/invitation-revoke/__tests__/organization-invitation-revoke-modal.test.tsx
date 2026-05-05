@@ -122,7 +122,7 @@ describe('OrganizationInvitationRevokeModal', () => {
         );
 
         const confirmButton = screen.getByRole('button', {
-          name: 'invitation.revoke.confirm_button',
+          name: /invitation\.revoke\.confirm_button/,
         });
         expect(confirmButton).toBeDisabled();
       });

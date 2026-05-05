@@ -2,6 +2,7 @@ import { defineConfig } from 'tsup';
 
 export default defineConfig({
   entry: {
+    index: 'src/index.ts',
     spa: 'src/spa.ts',
     rwa: 'src/rwa.ts',
   },

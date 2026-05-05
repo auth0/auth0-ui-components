@@ -1,8 +1,8 @@
+import { memberManagementQueryKeys } from '@auth0/universal-components-core';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
-import { memberManagementQueryKeys } from '@/hooks/my-organization/shared/services/use-member-management-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import { mockCore, mockToast, createMockI18nService } from '@/tests/utils';
