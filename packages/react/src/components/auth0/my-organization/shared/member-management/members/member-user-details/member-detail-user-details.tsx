@@ -5,12 +5,12 @@
  */
 
 import type { OrgMember } from '@auth0/universal-components-core';
+import type { OrganizationMemberDetailMessages } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import { Card } from '@/components/ui/card';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { OrganizationMemberDetailMessages } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 export interface MemberDetailUserDetailsProps {
   member: OrgMember;

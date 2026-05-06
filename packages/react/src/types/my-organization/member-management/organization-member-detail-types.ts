@@ -8,6 +8,7 @@ import type {
   SharedComponentProps,
   OrgMember,
   OrgMemberRole,
+  OrganizationMemberDetailMessages,
 } from '@auth0/universal-components-core';
 
 import type { RoleOption } from './organization-invitation-table-types';
@@ -25,40 +26,36 @@ export interface UseOrganizationMemberDetailOptions {
   removeRoleAction?: ComponentAction<{ userId: string; roleId: string }>;
 }
 
-export interface MemberDetailState {
+/** Discriminated union for member detail modal state. */
+export type MemberDetailModalState =
+  | { type: null }
+  | { type: 'removeFromOrg' }
+  | { type: 'deleteMember' }
+  | { type: 'assignRoles' }
+  | { type: 'removeRole'; role: OrgMemberRole };
+
+export interface UseOrganizationMemberDetailResult {
   activeTab: MemberDetailTab;
   member: OrgMember | null;
   memberRoles: OrgMemberRole[];
   availableRoles: RoleOption[];
+  isLoading: boolean;
   isFetchingMember: boolean;
   isFetchingRoles: boolean;
-  isLoading: boolean;
   isRemovingFromOrg: boolean;
   isDeletingMember: boolean;
   isAssigningRole: boolean;
   removingRoleId: string | null;
-  showRemoveFromOrgModal: boolean;
-  showDeleteMemberModal: boolean;
-  showAssignRolesModal: boolean;
-  showRemoveRoleModal: boolean;
-  roleToRemove: OrgMemberRole | null;
-}
+  modalState: MemberDetailModalState;
 
-export interface MemberDetailHandlers {
   setActiveTab: (tab: MemberDetailTab) => void;
   handleBack: () => void;
-  handleRemoveFromOrgClick: () => void;
+  openModal: (state: MemberDetailModalState) => void;
+  closeModal: () => void;
   handleRemoveFromOrgConfirm: () => void;
-  handleRemoveFromOrgCancel: () => void;
-  handleDeleteMemberClick: () => void;
   handleDeleteMemberConfirm: () => void;
-  handleDeleteMemberCancel: () => void;
-  handleAssignRolesClick: () => void;
   handleAssignRolesSubmit: (roleIds: string[]) => void;
-  handleAssignRolesCancel: () => void;
-  handleRemoveRoleClick: (role: OrgMemberRole) => void;
   handleRemoveRoleConfirm: () => void;
-  handleRemoveRoleCancel: () => void;
 }
 
 /** CSS classes for OrganizationMemberDetail. */
@@ -68,83 +65,6 @@ export interface OrganizationMemberDetailClasses {
   'OrganizationMemberDetail-tabs'?: string;
   'OrganizationMemberDetail-detailsTab'?: string;
   'OrganizationMemberDetail-rolesTab'?: string;
-}
-
-/** OrganizationMemberDetail translation messages. */
-export interface OrganizationMemberDetailMessages {
-  member?: {
-    detail?: {
-      back_button?: string;
-      tabs?: {
-        details?: string;
-        roles?: string;
-      };
-      user_details?: {
-        title?: string;
-        name?: string;
-        email?: string;
-        phone_number?: string;
-        provider?: string;
-        created_at?: string;
-        last_login?: string;
-      };
-      danger_zone?: {
-        remove_from_org?: {
-          title?: string;
-          description?: string;
-          button?: string;
-          confirm_title?: string;
-          confirm_description?: string;
-          confirm_button?: string;
-          cancel_button?: string;
-          success?: string;
-        };
-        delete_member?: {
-          title?: string;
-          description?: string;
-          button?: string;
-          confirm_title?: string;
-          confirm_description?: string;
-          confirm_button?: string;
-          cancel_button?: string;
-          success?: string;
-        };
-      };
-      roles?: {
-        title?: string;
-        description?: string;
-        assign_button?: string;
-        table?: {
-          name?: string;
-          description?: string;
-          empty_message?: string;
-        };
-        assign_modal?: {
-          title?: string;
-          description?: string;
-          roles_label?: string;
-          roles_placeholder?: string;
-          submit_button?: string;
-          cancel_button?: string;
-          no_roles_available?: string;
-        };
-        remove_confirm?: {
-          title?: string;
-          description?: string;
-          confirm_button?: string;
-          cancel_button?: string;
-        };
-      };
-      error?: {
-        fetch_failed?: string;
-        fetch_roles_failed?: string;
-        remove_from_org_failed?: string;
-        delete_failed?: string;
-        assign_role_failed?: string;
-        remove_role_failed?: string;
-      };
-    };
-  };
 }
 
 export interface MemberDetailDangerZoneProps {

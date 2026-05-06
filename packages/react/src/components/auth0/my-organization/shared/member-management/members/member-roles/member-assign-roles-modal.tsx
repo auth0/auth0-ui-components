@@ -5,6 +5,7 @@
  */
 
 import type { OrgMemberRole } from '@auth0/universal-components-core';
+import type { OrganizationMemberDetailMessages } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -19,7 +20,6 @@ import {
 import { Label } from '@/components/ui/label';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { RoleOption } from '@/types/my-organization/member-management/organization-invitation-table-types';
-import type { OrganizationMemberDetailMessages } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 export interface MemberAssignRolesModalProps {
   isOpen: boolean;
@@ -73,12 +73,6 @@ export function MemberAssignRolesModal({
       onAssign(selectedRoles);
     }
   }, [selectedRoles, onAssign]);
-
-  React.useEffect(() => {
-    if (!isOpen) {
-      setSelectedRoles([]);
-    }
-  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>

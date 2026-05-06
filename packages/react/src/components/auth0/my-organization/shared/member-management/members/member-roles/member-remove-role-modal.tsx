@@ -21,7 +21,7 @@ import type { MemberRemoveRoleModalProps } from '@/types/my-organization/member-
 
 /**
  * Renders the remove role confirmation dialog.
- * @param root0 - Component props
+ * @param props - Component props
  * @returns The rendered confirmation dialog element
  */
 export function MemberRemoveRoleModal({
