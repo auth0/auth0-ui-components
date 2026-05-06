@@ -26,7 +26,7 @@ export interface MemberAssignRolesModalProps {
   isLoading?: boolean;
   availableRoles: RoleOption[];
   assignedRoles: OrgMemberRole[];
-  customMessages?: OrganizationMemberDetailMessages;
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
   onClose: () => void;
   onAssign: (roleIds: string[]) => void;
 }
@@ -45,7 +45,7 @@ export function MemberAssignRolesModal({
   onClose,
   onAssign,
 }: MemberAssignRolesModalProps): React.JSX.Element {
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
 
   const assignedRoleIds = React.useMemo(

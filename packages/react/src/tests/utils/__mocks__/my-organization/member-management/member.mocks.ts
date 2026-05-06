@@ -1,14 +1,16 @@
 import type { OrgMember, OrgMemberRole } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import type { MemberDeleteModalProps } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-delete-modal';
-import type { MemberDetailDangerZoneProps } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-detail-danger-zone';
-import type { MemberRemoveFromOrgModalProps } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-org-modal';
 import type { MemberAssignRolesModalProps } from '@/components/auth0/my-organization/shared/member-management/members/member-roles/member-assign-roles-modal';
-import type { MemberDetailRolesTabProps } from '@/components/auth0/my-organization/shared/member-management/members/member-roles/member-detail-roles-tab';
-import type { MemberRemoveRoleModalProps } from '@/components/auth0/my-organization/shared/member-management/members/member-roles/member-remove-role-modal';
 import type { MemberDetailUserDetailsProps } from '@/components/auth0/my-organization/shared/member-management/members/member-user-details/member-detail-user-details';
 import type { RoleOption } from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type {
+  MemberDeleteModalProps,
+  MemberDetailDangerZoneProps,
+  MemberDetailRolesTabProps,
+  MemberRemoveFromOrgModalProps,
+  MemberRemoveRoleModalProps,
+} from '@/types/my-organization/member-management/organization-member-detail-types';
 
 export const createMockMember = (overrides?: Partial<OrgMember>): OrgMember =>
   ({

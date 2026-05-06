@@ -9,16 +9,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { OrganizationMemberDetailMessages } from '@/types/my-organization/member-management/organization-member-detail-types';
-
-export interface MemberDetailDangerZoneProps {
-  readOnly?: boolean;
-  isRemovingFromOrg?: boolean;
-  isDeletingMember?: boolean;
-  customMessages?: OrganizationMemberDetailMessages;
-  onRemoveFromOrgClick: () => void;
-  onDeleteMemberClick: () => void;
-}
+import type { MemberDetailDangerZoneProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
  * Renders a single danger zone action card with a title, description, and destructive button.
@@ -72,7 +63,7 @@ export function MemberDetailDangerZone({
   onRemoveFromOrgClick,
   onDeleteMemberClick,
 }: MemberDetailDangerZoneProps): React.JSX.Element {
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
 
   return (
     <div className="flex flex-col gap-4 mt-4">

@@ -11,19 +11,7 @@ import * as React from 'react';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Button } from '@/components/ui/button';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { RoleOption } from '@/types/my-organization/member-management/organization-invitation-table-types';
-import type { OrganizationMemberDetailMessages } from '@/types/my-organization/member-management/organization-member-detail-types';
-
-export interface MemberDetailRolesTabProps {
-  memberRoles: OrgMemberRole[];
-  availableRoles: RoleOption[];
-  isLoading?: boolean;
-  removingRoleId?: string | null;
-  readOnly?: boolean;
-  customMessages?: OrganizationMemberDetailMessages;
-  onAssignRolesClick: () => void;
-  onRemoveRole: (role: OrgMemberRole) => void;
-}
+import type { MemberDetailRolesTabProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
  * Renders the roles tab for a member detail view with a table and assign/remove actions.
@@ -39,7 +27,7 @@ export function MemberDetailRolesTab({
   onAssignRolesClick,
   onRemoveRole,
 }: MemberDetailRolesTabProps): React.JSX.Element {
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
 
   const columns: Column<OrgMemberRole>[] = React.useMemo(
     () => [

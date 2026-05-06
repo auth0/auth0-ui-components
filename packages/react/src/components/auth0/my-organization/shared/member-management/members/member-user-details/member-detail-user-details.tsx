@@ -14,7 +14,7 @@ import type { OrganizationMemberDetailMessages } from '@/types/my-organization/m
 
 export interface MemberDetailUserDetailsProps {
   member: OrgMember;
-  customMessages?: OrganizationMemberDetailMessages;
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
 }
 
 /**
@@ -42,7 +42,7 @@ export function MemberDetailUserDetails({
   member,
   customMessages,
 }: MemberDetailUserDetailsProps): React.JSX.Element {
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
 
   const memberRecord = member as Record<string, unknown>;
   const phoneNumber = (memberRecord.phone_number as string | undefined) ?? '';

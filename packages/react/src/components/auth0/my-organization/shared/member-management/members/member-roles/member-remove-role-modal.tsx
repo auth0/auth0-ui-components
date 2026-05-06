@@ -4,7 +4,6 @@
  * @internal
  */
 
-import type { OrgMemberRole } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -16,17 +15,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { OrganizationMemberDetailMessages } from '@/types/my-organization/member-management/organization-member-detail-types';
-
-export interface MemberRemoveRoleModalProps {
-  isOpen: boolean;
-  isLoading?: boolean;
-  role: OrgMemberRole | null;
-  customMessages?: OrganizationMemberDetailMessages;
-  onClose: () => void;
-  onConfirm: () => void;
-}
+import type { MemberRemoveRoleModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
  * Renders the remove role confirmation dialog.
@@ -41,7 +32,7 @@ export function MemberRemoveRoleModal({
   onClose,
   onConfirm,
 }: MemberRemoveRoleModalProps): React.JSX.Element {
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -62,7 +53,11 @@ export function MemberRemoveRoleModal({
             {t('member.detail.roles.remove_confirm.cancel_button')}
           </Button>
           <Button variant="destructive" onClick={onConfirm} disabled={isLoading}>
-            {isLoading ? '...' : t('member.detail.roles.remove_confirm.confirm_button')}
+            {isLoading ? (
+              <Spinner size="sm" />
+            ) : (
+              t('member.detail.roles.remove_confirm.confirm_button')
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
