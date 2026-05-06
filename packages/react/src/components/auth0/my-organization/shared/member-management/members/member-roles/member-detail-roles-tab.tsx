@@ -15,7 +15,7 @@ import type { MemberDetailRolesTabProps } from '@/types/my-organization/member-m
 
 /**
  * Renders the roles tab for a member detail view with a table and assign/remove actions.
- * @param root0 - Component props
+ * @param props - Component props
  * @returns The rendered roles tab element
  */
 export function MemberDetailRolesTab({

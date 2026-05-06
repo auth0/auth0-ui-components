@@ -13,7 +13,7 @@ import type { MemberDetailDangerZoneProps } from '@/types/my-organization/member
 
 /**
  * Renders a single danger zone action card with a title, description, and destructive button.
- * @param root0 - Component props
+ * @param props - Component props
  * @returns The rendered danger zone card element
  */
 function DangerCard({
@@ -52,7 +52,7 @@ function DangerCard({
 
 /**
  * Renders the danger zone section with remove from org and delete member actions.
- * @param root0 - Component props
+ * @param props - Component props
  * @returns The rendered danger zone section element
  */
 export function MemberDetailDangerZone({

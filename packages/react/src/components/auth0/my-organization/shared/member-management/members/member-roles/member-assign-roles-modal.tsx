@@ -33,7 +33,7 @@ export interface MemberAssignRolesModalProps {
 
 /**
  * Renders the assign roles dialog for selecting and assigning roles to a member.
- * @param root0 - Component props
+ * @param props - Component props
  * @returns The rendered assign roles dialog element
  */
 export function MemberAssignRolesModal({

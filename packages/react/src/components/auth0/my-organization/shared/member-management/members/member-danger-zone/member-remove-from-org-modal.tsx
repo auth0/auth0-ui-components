@@ -21,7 +21,7 @@ import type { MemberRemoveFromOrgModalProps } from '@/types/my-organization/memb
 
 /**
  * Renders the remove from organization confirmation dialog.
- * @param root0 - Component props
+ * @param props - Component props
  * @returns The rendered confirmation dialog element
  */
 export function MemberRemoveFromOrgModal({

@@ -35,7 +35,7 @@ function formatDate(dateStr?: string): string {
 
 /**
  * Renders the user details card for a member showing name, email, phone, and login timestamps.
- * @param root0 - Component props
+ * @param props - Component props
  * @returns The rendered user details card element
  */
 export function MemberDetailUserDetails({
