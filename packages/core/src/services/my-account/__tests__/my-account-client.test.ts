@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { stubFetch } from '../../../api/__tests__/__mocks__/api-utils.mocks';
 import { AUTH0_SCOPE_HEADER } from '../../../api/api-utils';
+import { getClientInfo } from '../../../api/telemetry';
 import type { FetcherSupplier, SpaAuthConfig } from '../../../auth/auth-types';
 import {
   createMockContextInterface,
@@ -45,7 +46,8 @@ describe('createMyAccountClient', () => {
     expect(MyAccountClient).toHaveBeenCalledWith(
       expect.objectContaining({
         baseUrl: new URL(MY_ACCOUNT_PROXY_PATH, mockProxyConfig.proxyUrl).href,
-        telemetry: false,
+        telemetry: true,
+        clientInfo: getClientInfo(true),
       }),
     );
   });
@@ -56,7 +58,8 @@ describe('createMyAccountClient', () => {
     expect(MyAccountClient).toHaveBeenCalledWith(
       expect.objectContaining({
         domain: TEST_DOMAIN,
-        telemetry: false,
+        telemetry: true,
+        clientInfo: getClientInfo(false),
       }),
     );
   });

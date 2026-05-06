@@ -7,6 +7,7 @@
 import { MyOrganizationClient } from '@auth0/myorganization-js';
 
 import { createProxyFetcher, createSpaFetcher } from '../../api/api-utils';
+import { getClientInfo } from '../../api/telemetry';
 import type { ClientAuthConfig } from '../../auth/auth-types';
 
 export const MY_ORGANIZATION_PROXY_PATH = 'my-org';
@@ -19,18 +20,22 @@ export const MY_ORGANIZATION_DPOP_NONCE_ID = '__auth0_my_organization_api__';
  * @internal
  */
 export function createMyOrganizationClient(config: ClientAuthConfig) {
-  if (config.mode === 'proxy') {
+  const isProxyMode = config.mode === 'proxy';
+
+  if (isProxyMode) {
     return new MyOrganizationClient({
       domain: config.domain ?? '',
       baseUrl: new URL(MY_ORGANIZATION_PROXY_PATH, config.proxyUrl).href,
-      telemetry: false,
+      telemetry: true,
+      clientInfo: getClientInfo(true),
       fetcher: createProxyFetcher(config.fetcher),
     });
   }
 
   return new MyOrganizationClient({
     domain: config.domain,
-    telemetry: false,
+    telemetry: true,
+    clientInfo: getClientInfo(false),
     fetcher: createSpaFetcher(config, MY_ORGANIZATION_DPOP_NONCE_ID),
   });
 }
