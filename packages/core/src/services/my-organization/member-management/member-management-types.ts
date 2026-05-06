@@ -50,18 +50,6 @@ export type GetOrganizationMemberRolesResponseContent =
   MyOrganization.GetOrganizationMemberRolesResponseContent;
 
 /**
- * Request content for assigning a role to an organization member.
- */
-export type AssignOrganizationMemberRoleRequestContent =
-  MyOrganization.AssignOrganizationMemberRoleRequestContent;
-
-/**
- * Response content for assigning a role to an organization member.
- */
-export type AssignOrganizationMemberRoleResponseContent =
-  MyOrganization.AssignOrganizationMemberRoleResponseContent;
-
-/**
  * Invitation ID type.
  */
 export type InvitationId = MyOrganization.InvitationId;
