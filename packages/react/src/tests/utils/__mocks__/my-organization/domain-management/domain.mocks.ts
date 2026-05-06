@@ -1,7 +1,7 @@
 import type {
   ComponentAction,
   Domain,
-  IdentityProvider,
+  IdpKnownResponse,
   IdentityProviderAssociatedWithDomain,
 } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
@@ -33,8 +33,8 @@ export const createMockFailedDomain = (): Domain =>
   });
 
 export const createMockIdentityProvider = (
-  overrides: Partial<IdentityProvider> = {},
-): IdentityProvider => {
+  overrides: Partial<IdpKnownResponse> = {},
+): IdpKnownResponse => {
   const baseProvider = {
     id: 'con_abc123xyz456',
     name: 'mock-provider',
@@ -45,7 +45,7 @@ export const createMockIdentityProvider = (
   return {
     ...baseProvider,
     ...overrides,
-  } as IdentityProvider;
+  } as IdpKnownResponse;
 };
 
 export const createMockIdentityProviderAssociatedWithDomain = (
@@ -66,8 +66,8 @@ export const createMockIdentityProviderAssociatedWithDomain = (
 };
 
 export const createMockIdentityProviderWithoutProvisioning = (
-  overrides: Partial<IdentityProvider> = {},
-): IdentityProvider => {
+  overrides: Partial<IdpKnownResponse> = {},
+): IdpKnownResponse => {
   // Use a strategy that doesn't have provisioning enabled by default
   const baseProvider = {
     id: 'con_abc123xyz456',
@@ -79,7 +79,7 @@ export const createMockIdentityProviderWithoutProvisioning = (
   return {
     ...baseProvider,
     ...overrides,
-  } as IdentityProvider;
+  } as IdpKnownResponse;
 };
 
 export const createMockDomainTableProps = (
