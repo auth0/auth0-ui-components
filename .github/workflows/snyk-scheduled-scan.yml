@@ -1,0 +1,237 @@
+name: Scheduled Snyk Security Scan
+
+on:
+  schedule:
+    # Runs every Monday at 9:00 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: read
+
+jobs:
+  snyk-scan:
+    name: Snyk Vulnerability Scan
+    runs-on:
+      labels: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@36de12bed180fa130ed56a35e7344f2fa7a820ab # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+        with:
+          node-version: 18
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Snyk Open Source scan
+        id: snyk_oss
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          npx snyk test --all-projects --severity-threshold=low --json > /tmp/snyk_oss_report.json 2>&1 || true
+
+      - name: Run Snyk Code scan (SAST)
+        id: snyk_code
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          npx snyk code test --severity-threshold=low --json > /tmp/snyk_code_report.json 2>&1 || true
+
+      - name: Parse results and notify Slack
+        if: always()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_CI_WORKFLOW_WEBHOOK }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: |
+          ACTION_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+          # ── Parse OSS (SCA) results ──
+          OSS_SUMMARY="No issues found"
+          OSS_VULNS=""
+          if [ -f /tmp/snyk_oss_report.json ] && jq -e . /tmp/snyk_oss_report.json > /dev/null 2>&1; then
+            # Handle both single object and array responses
+            OSS_TOTAL=$(jq '[if type == "array" then .[] else . end | .vulnerabilities // [] | length] | add // 0' /tmp/snyk_oss_report.json)
+            OSS_CRITICAL=$(jq '[if type == "array" then .[] else . end | .vulnerabilities // [] | .[] | select(.severity == "critical")] | length' /tmp/snyk_oss_report.json)
+            OSS_HIGH=$(jq '[if type == "array" then .[] else . end | .vulnerabilities // [] | .[] | select(.severity == "high")] | length' /tmp/snyk_oss_report.json)
+            OSS_MEDIUM=$(jq '[if type == "array" then .[] else . end | .vulnerabilities // [] | .[] | select(.severity == "medium")] | length' /tmp/snyk_oss_report.json)
+            OSS_LOW=$(jq '[if type == "array" then .[] else . end | .vulnerabilities // [] | .[] | select(.severity == "low")] | length' /tmp/snyk_oss_report.json)
+
+            if [ "$OSS_TOTAL" -gt 0 ]; then
+              OSS_SUMMARY="${OSS_TOTAL} vulnerabilities found"
+              OSS_VULNS="🔴 Critical: ${OSS_CRITICAL}  |  🟠 High: ${OSS_HIGH}  |  🟡 Medium: ${OSS_MEDIUM}  |  🔵 Low: ${OSS_LOW}"
+
+              # Extract top 10 unique vulnerability details
+              OSS_DETAILS=$(jq -r '
+                [if type == "array" then .[] else . end | .vulnerabilities // [] | .[]]
+                | sort_by(if .severity == "critical" then 0 elif .severity == "high" then 1 elif .severity == "medium" then 2 else 3 end)
+                | unique_by(.id)
+                | .[:10]
+                | .[]
+                | "• *\(.severity | ascii_upcase)*: \(.title) (\(.packageName)@\(.version // "n/a")) — \(.id)"
+              ' /tmp/snyk_oss_report.json 2>/dev/null || echo "")
+            fi
+          fi
+
+          # ── Parse Code (SAST) results ──
+          CODE_SUMMARY="No issues found"
+          CODE_VULNS=""
+          if [ -f /tmp/snyk_code_report.json ] && jq -e . /tmp/snyk_code_report.json > /dev/null 2>&1; then
+            CODE_TOTAL=$(jq '[.runs // [] | .[].results // [] | .[]] | length' /tmp/snyk_code_report.json 2>/dev/null || echo "0")
+            CODE_HIGH=$(jq '[.runs // [] | .[].results // [] | .[] | select(.level == "error")] | length' /tmp/snyk_code_report.json 2>/dev/null || echo "0")
+            CODE_MEDIUM=$(jq '[.runs // [] | .[].results // [] | .[] | select(.level == "warning")] | length' /tmp/snyk_code_report.json 2>/dev/null || echo "0")
+            CODE_LOW=$(jq '[.runs // [] | .[].results // [] | .[] | select(.level == "note")] | length' /tmp/snyk_code_report.json 2>/dev/null || echo "0")
+
+            if [ "$CODE_TOTAL" -gt 0 ]; then
+              CODE_SUMMARY="${CODE_TOTAL} issues found"
+              CODE_VULNS="🟠 High: ${CODE_HIGH}  |  🟡 Medium: ${CODE_MEDIUM}  |  🔵 Low: ${CODE_LOW}"
+
+              # Extract top 10 code issues
+              CODE_DETAILS=$(jq -r '
+                [.runs // [] | .[].results // [] | .[]]
+                | sort_by(if .level == "error" then 0 elif .level == "warning" then 1 else 2 end)
+                | .[:10]
+                | .[]
+                | "• *\(.level | ascii_upcase)*: \(.message.text // .ruleId) — \(.locations[0].physicalLocation.artifactLocation.uri // "unknown"):L\(.locations[0].physicalLocation.region.startLine // "?")"
+              ' /tmp/snyk_code_report.json 2>/dev/null || echo "")
+            fi
+          fi
+
+          # ── Determine status ──
+          HAS_ISSUES=false
+          if [ "${OSS_TOTAL:-0}" -gt 0 ] || [ "${CODE_TOTAL:-0}" -gt 0 ]; then
+            HAS_ISSUES=true
+          fi
+
+          if [ "$HAS_ISSUES" = true ]; then
+            STATUS="🚨 Snyk Security Scan: Vulnerabilities detected"
+            COLOR="#e01e5a"
+          else
+            STATUS="✅ Snyk Security Scan: No vulnerabilities found"
+            COLOR="#36a64f"
+          fi
+
+          echo "=== SNYK SCAN SUMMARY ==="
+          echo "OSS: $OSS_SUMMARY"
+          echo "Code: $CODE_SUMMARY"
+
+          # ── Build Slack blocks ──
+          # Truncate details to fit Slack's 3000-char block limit
+          truncate_text() {
+            local text="$1"
+            local max_len=2800
+            if [ ${#text} -gt $max_len ]; then
+              echo "${text:0:$max_len}..."
+            else
+              echo "$text"
+            fi
+          }
+
+          BLOCKS="[
+            {
+              \"type\": \"header\",
+              \"text\": { \"type\": \"plain_text\", \"text\": \"${STATUS}\" }
+            },
+            {
+              \"type\": \"section\",
+              \"text\": { \"type\": \"mrkdwn\", \"text\": \"*Repository:* ${GITHUB_REPOSITORY}\" }
+            },
+            {
+              \"type\": \"divider\"
+            },
+            {
+              \"type\": \"section\",
+              \"text\": { \"type\": \"mrkdwn\", \"text\": \"*📦 Open Source (SCA) — ${OSS_SUMMARY}*\" }
+            }"
+
+          if [ -n "$OSS_VULNS" ]; then
+            BLOCKS="${BLOCKS},
+            {
+              \"type\": \"section\",
+              \"text\": { \"type\": \"mrkdwn\", \"text\": \"${OSS_VULNS}\" }
+            }"
+          fi
+
+          if [ -n "$OSS_DETAILS" ]; then
+            ESCAPED_OSS=$(echo "$OSS_DETAILS" | sed 's/"/\\"/g' | tr '\n' '\\' | sed 's/\\/\\n/g' | sed 's/\\n$//')
+            ESCAPED_OSS=$(truncate_text "$ESCAPED_OSS")
+            BLOCKS="${BLOCKS},
+            {
+              \"type\": \"section\",
+              \"text\": { \"type\": \"mrkdwn\", \"text\": \"${ESCAPED_OSS}\" }
+            }"
+          fi
+
+          BLOCKS="${BLOCKS},
+            {
+              \"type\": \"divider\"
+            },
+            {
+              \"type\": \"section\",
+              \"text\": { \"type\": \"mrkdwn\", \"text\": \"*🔍 Code (SAST) — ${CODE_SUMMARY}*\" }
+            }"
+
+          if [ -n "$CODE_VULNS" ]; then
+            BLOCKS="${BLOCKS},
+            {
+              \"type\": \"section\",
+              \"text\": { \"type\": \"mrkdwn\", \"text\": \"${CODE_VULNS}\" }
+            }"
+          fi
+
+          if [ -n "$CODE_DETAILS" ]; then
+            ESCAPED_CODE=$(echo "$CODE_DETAILS" | sed 's/"/\\"/g' | tr '\n' '\\' | sed 's/\\/\\n/g' | sed 's/\\n$//')
+            ESCAPED_CODE=$(truncate_text "$ESCAPED_CODE")
+            BLOCKS="${BLOCKS},
+            {
+              \"type\": \"section\",
+              \"text\": { \"type\": \"mrkdwn\", \"text\": \"${ESCAPED_CODE}\" }
+            }"
+          fi
+
+          BLOCKS="${BLOCKS},
+            {
+              \"type\": \"divider\"
+            },
+            {
+              \"type\": \"actions\",
+              \"elements\": [{
+                \"type\": \"button\",
+                \"text\": { \"type\": \"plain_text\", \"text\": \"View Full Results\" },
+                \"url\": \"${ACTION_URL}\"
+              }]
+            }
+          ]"
+
+          # ── Send Slack notification ──
+          if [ -n "$SLACK_WEBHOOK" ]; then
+            echo "Sending Slack notification..."
+            PAYLOAD=$(jq -n --argjson blocks "$BLOCKS" --arg color "$COLOR" '{
+              attachments: [{ color: $color, blocks: $blocks }]
+            }')
+
+            HTTP_CODE=$(curl -s -X POST "$SLACK_WEBHOOK" \
+              -H "Content-Type: application/json" \
+              -w "%{http_code}" \
+              -o /tmp/slack_response.txt \
+              -d "$PAYLOAD")
+
+            if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+              echo "Slack notification sent successfully (HTTP $HTTP_CODE)"
+            else
+              echo "Slack notification failed (HTTP $HTTP_CODE)"
+              cat /tmp/slack_response.txt 2>/dev/null || true
+            fi
+          else
+            echo "SLACK_WEBHOOK not configured, skipping notification"
+          fi
