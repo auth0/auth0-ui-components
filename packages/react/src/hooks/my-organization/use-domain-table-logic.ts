@@ -4,7 +4,7 @@
  * @internal
  */
 
-import { type Domain, type IdentityProvider } from '@auth0/universal-components-core';
+import { type Domain, type IdpKnownResponse } from '@auth0/universal-components-core';
 import { useCallback, useEffect, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
@@ -116,7 +116,7 @@ export function useDomainTableLogic({
   );
 
   const handleToggleSwitch = useCallback(
-    async (domain: Domain, provider: IdentityProvider, newCheckedValue: boolean) => {
+    async (domain: Domain, provider: IdpKnownResponse, newCheckedValue: boolean) => {
       if (newCheckedValue) {
         try {
           await onAssociateToProvider(domain, provider);
