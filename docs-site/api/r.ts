@@ -3,6 +3,23 @@ import path from 'path';
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX = 60;
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX;
+}
+
 interface VersionInfo {
   latest: string;
   majorVersions?: Record<string, { latest: string }>;
@@ -54,6 +71,11 @@ function sendJson(res: VercelResponse, content: string): void {
 }
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
+  const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || 'unknown';
+  if (isRateLimited(clientIp)) {
+    return res.status(429).json({ error: 'Too Many Requests', message: 'Rate limit exceeded' });
+  }
+
   const { file } = req.query;
   const fileName = Array.isArray(file) ? file.join('/') : file || '';
 
@@ -68,14 +90,15 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 
   const basePath = getBasePath();
   const versionInfo = getVersionInfo(basePath);
-  const versionParam = req.query.version as string | undefined;
+  const rawVersionParam = req.query.version;
+  const versionParam = typeof rawVersionParam === 'string' ? rawVersionParam : undefined;
 
   const rootFilePath = path.join(basePath, normalizedFileName);
   if (!versionParam && fs.existsSync(rootFilePath)) {
     try {
       sendJson(res, fs.readFileSync(rootFilePath, 'utf-8'));
     } catch (error) {
-      console.error(`Failed to read registry file ${rootFilePath}:`, error);
+      console.error('Failed to read registry file: %s', rootFilePath);
       res
         .status(500)
         .json({ error: 'Internal Server Error', message: 'Failed to read registry file' });
@@ -121,7 +144,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     try {
       sendJson(res, fs.readFileSync(versionedPath, 'utf-8'));
     } catch (error) {
-      console.error(`Failed to read registry file ${versionedPath}:`, error);
+      console.error('Failed to read registry file: %s', versionedPath);
       res
         .status(500)
         .json({ error: 'Internal Server Error', message: 'Failed to read registry file' });
