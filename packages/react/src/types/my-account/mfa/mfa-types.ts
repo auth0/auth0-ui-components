@@ -336,7 +336,6 @@ export type UseMFAResult = {
 export interface UserMFAMgmtViewProps {
   error: string | null;
   schema: UserMFAMgmtProps['schema'];
-  isLoading: boolean;
   isEnrolling: boolean;
   isDeleting: boolean;
   isConfirming: boolean;
