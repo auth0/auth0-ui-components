@@ -14,94 +14,99 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { List, ListItem } from '@/components/ui/list';
 import { Spinner } from '@/components/ui/spinner';
-import { useMFA } from '@/hooks/my-account/use-mfa';
-import { useMFALogic } from '@/hooks/my-account/use-mfa-logic';
+import { useUserMFA } from '@/hooks/my-account/use-user-mfa';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import type {
-  UserMFAMgmtProps,
-  UserMFAMgmtLogicProps,
-  UserMFAMgmtHandlerProps,
-  UserMFAMgmtViewProps,
-} from '@/types/my-account/mfa/mfa-types';
+import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/mfa/mfa-types';
 
 /**
- * User MFA management container(logic) component
- * Handles loading factors, enroll/delete flows, and UI state.
+ * Multi-factor authentication management component.
  *
- * @param props - Component props.
- * @param props.customMessages - Override i18n messages.
- * @param props.styling - CSS variables and class overrides.
- * @param props.hideHeader - Hide the header section.
- * @param props.showActiveOnly - Show only enrolled factors.
- * @param props.disableEnroll - Disable enroll actions.
- * @param props.disableDelete - Disable delete actions.
- * @param props.readOnly - Render in read-only mode.
- * @param props.factorConfig - Per-factor visibility/enabled config.
- * @param props.onEnroll - Called after successful enroll.
- * @param props.onDelete - Called after successful delete.
- * @param props.onFetch - Called after factors load.
- * @param props.onErrorAction - Called when actions error.
- * @param props.onBeforeAction - Called before actions; return false to cancel.
- * @param props.schema - Validation schema overrides.
- * @returns MFA management UI.
- * @internal
+ * Complete MFA management interface for enrolling, viewing, and deleting authentication
+ * factors. Supports TOTP authenticators, SMS, Email, Push notifications, and recovery codes.
+ *
+ * @param props - {@link UserMFAMgmtProps}
+ * @param props.customMessages - Custom i18n message overrides
+ * @param props.styling - CSS variables and class overrides
+ * @param props.hideHeader - Hide the header section
+ * @param props.showActiveOnly - Show only enrolled factors
+ * @param props.disableEnroll - Disable enroll actions
+ * @param props.disableDelete - Disable delete actions
+ * @param props.readOnly - Render in read-only mode
+ * @param props.factorConfig - Per-factor visibility/enabled configuration
+ * @param props.onEnroll - Callback after successful enrollment
+ * @param props.onDelete - Callback after successful deletion
+ * @param props.onFetch - Callback after factors are loaded
+ * @param props.onErrorAction - Callback when actions error
+ * @param props.onBeforeAction - Callback before actions; return false to cancel
+ * @param props.schema - Validation schema overrides
+ * @returns MFA management component
+ *
+ * @see {@link UserMFAMgmtProps} for full props documentation
+ *
+ * @example
+ * ```tsx
+ * <UserMFAMgmt
+ *   onEnroll={(factor) => console.log('Enrolled:', factor)}
+ *   onDelete={(factor) => console.log('Deleted:', factor)}
+ *   factorConfig={{
+ *     otp: { enabled: true },
+ *     sms: { enabled: true },
+ *     email: { enabled: false },
+ *   }}
+ * />
+ * ```
  */
-function UserMFAMgmtContainer(props: UserMFAMgmtProps) {
-  const {
-    customMessages = {},
-    styling = {
-      variables: {
-        common: {},
-        light: {},
-        dark: {},
-      },
-      classes: {},
-    },
-    hideHeader = false,
-    showActiveOnly = false,
-    disableEnroll = false,
-    disableDelete = false,
-    readOnly = false,
-    factorConfig = {},
-    onEnroll,
-    onDelete,
-    onFetch,
-    onErrorAction,
-    onBeforeAction,
-    schema,
-  } = props;
-  const { fetchFactors, enrollMfa, deleteMfa, confirmEnrollment } = useMFA();
-
+function UserMFAMgmt({
+  customMessages = {},
+  styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
+  hideHeader = false,
+  showActiveOnly = false,
+  disableEnroll = false,
+  disableDelete = false,
+  readOnly = false,
+  factorConfig = {},
+  onEnroll,
+  onDelete,
+  onFetch,
+  onErrorAction,
+  onBeforeAction,
+  schema,
+}: UserMFAMgmtProps) {
   const {
     factorsByType,
-    loading,
+    isLoadingFactors,
+    isEnrolling,
+    isDeleting,
+    isConfirming,
     error,
-    isDeletingFactor,
-    dialogOpen,
+    isEnrollDialogOpen,
     enrollFactor,
+    enrollmentPhase,
+    contact,
+    otpData,
+    recoveryCode,
     isDeleteDialogOpen,
     factorToDelete,
     visibleFactorTypes,
     hasNoActiveFactors,
-    setIsDeleteDialogOpen,
-    loadFactors,
     handleEnroll,
-    handleCloseDialog,
+    handleCloseEnrollDialog,
     handleDeleteFactor,
     handleConfirmDelete,
-    handleEnrollSuccess,
-    handleEnrollError,
-  } = useMFALogic({
-    readOnly,
-    customMessages,
-    disableDelete,
+    handleCancelDelete,
+    handleSubmitContact,
+    handleConfirmOtp,
+    handleContinueQR,
+    handleConfirmRecoveryCode,
+    handleAdvanceToQR,
+  } = useUserMFA({
     showActiveOnly,
+    readOnly,
+    disableDelete,
     factorConfig,
-    fetchFactors,
-    deleteMfa,
-    confirmEnrollment,
+    customMessages,
     onFetch,
     onEnroll,
     onDelete,
@@ -109,88 +114,90 @@ function UserMFAMgmtContainer(props: UserMFAMgmtProps) {
     onBeforeAction,
   });
 
-  React.useEffect(() => {
-    loadFactors();
-  }, []);
-
-  const logic: UserMFAMgmtLogicProps = {
-    isLoading: loading,
-    isDeleting: isDeletingFactor,
-    styling,
-    customMessages,
-    hideHeader,
-    showActiveOnly,
-    disableEnroll,
-    disableDelete,
-    readOnly,
-    factorConfig,
-    error,
-    schema,
-    dialogOpen,
-    enrollFactor,
-    isDeleteDialogOpen,
-    factorToDelete,
-    factorsByType,
-    visibleFactorTypes,
-    hasNoActiveFactors,
-    confirmEnrollment,
-  };
-
-  const handlers: UserMFAMgmtHandlerProps = {
-    enrollMfa,
-    onEnrollFactor: handleEnroll,
-    onDeleteFactor: handleDeleteFactor,
-    handleCloseDialog,
-    handleEnrollError,
-    handleEnrollSuccess,
-    handleConfirmDelete,
-    setIsDeleteDialogOpen,
-  };
-
-  return <UserMFAMgmtView logic={logic} handlers={handlers} />;
+  return (
+    <UserMFAMgmtView
+      error={error}
+      schema={schema}
+      isLoading={isLoadingFactors}
+      isEnrolling={isEnrolling}
+      isDeleting={isDeleting}
+      isConfirming={isConfirming}
+      styling={styling}
+      customMessages={customMessages}
+      hideHeader={hideHeader}
+      showActiveOnly={showActiveOnly}
+      disableEnroll={disableEnroll}
+      disableDelete={disableDelete}
+      readOnly={readOnly}
+      factorConfig={factorConfig}
+      isEnrollDialogOpen={isEnrollDialogOpen}
+      enrollFactor={enrollFactor}
+      enrollmentPhase={enrollmentPhase}
+      contact={contact}
+      otpData={otpData}
+      recoveryCode={recoveryCode}
+      isDeleteDialogOpen={isDeleteDialogOpen}
+      factorToDelete={factorToDelete}
+      factorsByType={factorsByType}
+      visibleFactorTypes={visibleFactorTypes}
+      hasNoActiveFactors={hasNoActiveFactors}
+      onEnrollFactor={handleEnroll}
+      onDeleteFactor={handleDeleteFactor}
+      onCloseEnrollDialog={handleCloseEnrollDialog}
+      onConfirmDelete={handleConfirmDelete}
+      onCancelDelete={handleCancelDelete}
+      onSubmitContact={handleSubmitContact}
+      onConfirmOtp={handleConfirmOtp}
+      onContinueQR={handleContinueQR}
+      onConfirmRecoveryCode={handleConfirmRecoveryCode}
+      onAdvanceToQR={handleAdvanceToQR}
+    />
+  );
 }
 
 /**
  * UserMFAMgmtView — Presentational component.
- * @param props - View props with logic and handlers
+ * @param props - All state and handlers passed directly.
  * @returns User Management View element
  * @internal
  */
-function UserMFAMgmtView({ logic, handlers }: UserMFAMgmtViewProps) {
-  const {
-    isLoading,
-    isDeleting,
-    styling,
-    customMessages,
-    hideHeader,
-    showActiveOnly,
-    disableEnroll,
-    disableDelete,
-    readOnly,
-    factorConfig,
-    schema,
-    error,
-    dialogOpen,
-    enrollFactor,
-    isDeleteDialogOpen,
-    factorToDelete,
-    factorsByType,
-    visibleFactorTypes,
-    hasNoActiveFactors,
-    confirmEnrollment,
-  } = logic;
-
-  const {
-    enrollMfa,
-    onEnrollFactor,
-    onDeleteFactor,
-    handleCloseDialog,
-    handleEnrollSuccess,
-    handleEnrollError,
-    handleConfirmDelete,
-    setIsDeleteDialogOpen,
-  } = handlers;
-
+function UserMFAMgmtView({
+  error,
+  schema,
+  isLoading,
+  isEnrolling,
+  isDeleting,
+  isConfirming,
+  styling,
+  customMessages,
+  hideHeader,
+  showActiveOnly,
+  disableEnroll,
+  disableDelete,
+  readOnly,
+  factorConfig,
+  isEnrollDialogOpen,
+  enrollFactor,
+  enrollmentPhase,
+  contact,
+  otpData,
+  recoveryCode,
+  isDeleteDialogOpen,
+  factorToDelete,
+  factorsByType,
+  visibleFactorTypes,
+  hasNoActiveFactors,
+  onEnrollFactor,
+  onDeleteFactor,
+  onCloseEnrollDialog,
+  onConfirmDelete,
+  onCancelDelete,
+  onSubmitContact,
+  onConfirmOtp,
+  onContinueQR,
+  onConfirmRecoveryCode,
+  onAdvanceToQR,
+}: UserMFAMgmtViewProps) {
   const { loader, isDarkMode } = useTheme();
   const { t } = useTranslator('mfa', customMessages);
   const currentStyles = React.useMemo(
@@ -329,13 +336,20 @@ function UserMFAMgmtView({ logic, handlers }: UserMFAMgmtViewProps) {
       )}
       {enrollFactor && (
         <UserMFASetupForm
-          open={dialogOpen}
-          onClose={handleCloseDialog}
+          open={isEnrollDialogOpen}
+          onClose={onCloseEnrollDialog}
           factorType={enrollFactor}
-          enrollMfa={enrollMfa}
-          confirmEnrollment={confirmEnrollment}
-          onSuccess={handleEnrollSuccess}
-          onError={handleEnrollError}
+          enrollmentPhase={enrollmentPhase}
+          contact={contact}
+          otpData={otpData}
+          recoveryCode={recoveryCode}
+          isEnrolling={isEnrolling}
+          isConfirming={isConfirming}
+          onSubmitContact={onSubmitContact}
+          onConfirmOtp={onConfirmOtp}
+          onContinueQR={onContinueQR}
+          onConfirmRecoveryCode={onConfirmRecoveryCode}
+          onAdvanceToQR={onAdvanceToQR}
           schema={schema}
           styling={styling}
           customMessages={customMessages}
@@ -343,56 +357,16 @@ function UserMFAMgmtView({ logic, handlers }: UserMFAMgmtViewProps) {
       )}
       <DeleteFactorConfirmation
         open={isDeleteDialogOpen}
-        onOpenChange={(open) => !isDeleting && setIsDeleteDialogOpen(open)}
+        onOpenChange={(open) => !open && !isDeleting && onCancelDelete()}
         factorToDelete={factorToDelete}
         isDeletingFactor={isDeleting}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setIsDeleteDialogOpen(false)}
+        onConfirm={onConfirmDelete}
+        onCancel={onCancelDelete}
         styling={styling}
         customMessages={customMessages}
       />
     </StyledScope>
   );
 }
-
-/**
- * Multi-factor authentication management component.
- *
- * Complete MFA management interface for enrolling, viewing, and deleting authentication
- * factors. Supports TOTP authenticators, SMS, Email, Push notifications, and recovery codes.
- *
- * @param props - {@link UserMFAMgmtProps}
- * @param props.customMessages - Custom i18n message overrides
- * @param props.styling - CSS variables and class overrides
- * @param props.hideHeader - Hide the header section
- * @param props.showActiveOnly - Show only enrolled factors
- * @param props.disableEnroll - Disable enroll actions
- * @param props.disableDelete - Disable delete actions
- * @param props.readOnly - Render in read-only mode
- * @param props.factorConfig - Per-factor visibility/enabled configuration
- * @param props.onEnroll - Callback after successful enrollment
- * @param props.onDelete - Callback after successful deletion
- * @param props.onFetch - Callback after factors are loaded
- * @param props.onErrorAction - Callback when actions error
- * @param props.onBeforeAction - Callback before actions; return false to cancel
- * @param props.schema - Validation schema overrides
- * @returns MFA management component
- *
- * @see {@link UserMFAMgmtProps} for full props documentation
- *
- * @example
- * ```tsx
- * <UserMFAMgmt
- *   onEnroll={(factor) => console.log('Enrolled:', factor)}
- *   onDelete={(factor) => console.log('Deleted:', factor)}
- *   factorConfig={{
- *     otp: { enabled: true },
- *     sms: { enabled: true },
- *     email: { enabled: false },
- *   }}
- * />
- * ```
- */
-const UserMFAMgmt = UserMFAMgmtContainer;
 
 export { UserMFAMgmt, UserMFAMgmtView };

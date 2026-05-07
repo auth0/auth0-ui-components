@@ -248,7 +248,7 @@ export function useUserMFA({
   );
 
   const handleSubmitContact = useCallback(
-    async (options: Record<string, string>) => {
+    async (options: Record<string, string>): Promise<boolean> => {
       try {
         const enrollment = await enrollMutation.mutateAsync({ factorType: enrollFactor!, options });
         setContact(options.email ?? options.phone_number ?? '');
@@ -256,8 +256,10 @@ export function useUserMFA({
           authSession: 'auth_session' in enrollment ? enrollment.auth_session : '',
           authenticationMethodId: 'id' in enrollment ? enrollment.id : '',
         });
+        return true;
       } catch (err) {
         notifyEnrollError(err, ENROLL);
+        return false;
       }
     },
     [enrollFactor, enrollMutation, notifyEnrollError],

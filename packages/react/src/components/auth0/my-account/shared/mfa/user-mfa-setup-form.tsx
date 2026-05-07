@@ -5,13 +5,8 @@
  */
 
 import {
-  type MFAType,
-  FACTOR_TYPE_EMAIL,
-  FACTOR_TYPE_PHONE,
-  FACTOR_TYPE_TOTP,
-  FACTOR_TYPE_PUSH_NOTIFICATION,
-  FACTOR_TYPE_RECOVERY_CODE,
   getComponentStyles,
+  FACTOR_TYPE_PUSH_NOTIFICATION,
 } from '@auth0/universal-components-core';
 import * as React from 'react';
 
@@ -24,10 +19,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
-import { useRecoveryCodeGeneration } from '@/hooks/my-account/use-recovery-code';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { ENTER_OTP } from '@/lib/constants/my-account/mfa/mfa-constants';
 import {
   ENTER_QR,
   ENTER_CONTACT,
@@ -37,37 +30,42 @@ import {
 import { cn } from '@/lib/utils';
 import type { UserMFASetupFormProps } from '@/types/my-account/mfa/mfa-types';
 
-type EnrollmentPhase =
-  | typeof ENTER_CONTACT
-  | typeof ENTER_OTP
-  | typeof ENTER_QR
-  | typeof QR_PHASE_INSTALLATION
-  | typeof SHOW_RECOVERY_CODE
-  | null;
-
 /**
  *
  * @param props - Component props.
- * @param props.open - Whether the component is open/visible
- * @param props.onClose - Callback fired when the component should close
- * @param props.factorType - The MFA factor type
- * @param props.enrollMfa - Function to enroll a new MFA factor
- * @param props.confirmEnrollment - Function to confirm MFA enrollment
- * @param props.onSuccess - Callback fired on successful operation
- * @param props.onError - Callback fired when an error occurs
- * @param props.schema - Zod validation schema
- * @param props.styling - Custom styling configuration with variables and classes
- * @param props.customMessages - Custom translation messages to override defaults
+ * @param props.open - Whether the dialog is open
+ * @param props.onClose - Callback fired when the dialog should close
+ * @param props.factorType - The MFA factor type being enrolled
+ * @param props.enrollmentPhase - Current enrollment phase from useUserMFA
+ * @param props.contact - Current enrolled contact (email/phone) from hook state
+ * @param props.otpData - QR code data from hook state
+ * @param props.recoveryCode - Recovery code from hook state
+ * @param props.isEnrolling - Whether enrollment mutation is pending
+ * @param props.isConfirming - Whether confirmation mutation is pending
+ * @param props.onSubmitContact - Called with contact options on submit
+ * @param props.onConfirmOtp - Called with OTP code on verification
+ * @param props.onContinueQR - Called when continuing past QR scan (push notification)
+ * @param props.onConfirmRecoveryCode - Called when confirming recovery code
+ * @param props.onAdvanceToQR - Called to move from installation to QR scan phase
+ * @param props.styling - Custom styling configuration
+ * @param props.customMessages - Custom translation messages
  * @returns JSX element
  */
 export function UserMFASetupForm({
   open,
   onClose,
   factorType,
-  enrollMfa,
-  confirmEnrollment,
-  onSuccess,
-  onError,
+  enrollmentPhase,
+  contact,
+  otpData,
+  recoveryCode,
+  isEnrolling,
+  isConfirming,
+  onSubmitContact,
+  onConfirmOtp,
+  onContinueQR,
+  onConfirmRecoveryCode,
+  onAdvanceToQR,
   schema,
   styling = {
     variables: {
@@ -86,49 +84,13 @@ export function UserMFASetupForm({
     [styling, isDarkMode],
   );
 
-  // Initialize phase as null, meaning no UI shown by default
-  const [phase, setPhase] = React.useState<EnrollmentPhase>(null);
-  const { fetchRecoveryCode, loading, recoveryCodeData, resetRecoveryCodeData } =
-    useRecoveryCodeGeneration({
-      factorType,
-      enrollMfa,
-      onError,
-      onClose,
-    });
-
-  React.useEffect(() => {
-    if (!open) {
-      setPhase(null);
-    }
-  }, [open]);
-
-  React.useEffect(() => {
-    if (!open) return;
-    const phaseMap: Partial<Record<MFAType, EnrollmentPhase>> = {
-      [FACTOR_TYPE_EMAIL]: ENTER_CONTACT,
-      [FACTOR_TYPE_PHONE]: ENTER_CONTACT,
-      [FACTOR_TYPE_PUSH_NOTIFICATION]: QR_PHASE_INSTALLATION,
-      [FACTOR_TYPE_TOTP]: ENTER_QR,
-      [FACTOR_TYPE_RECOVERY_CODE]: SHOW_RECOVERY_CODE,
-    };
-
-    setPhase(phaseMap[factorType] ?? null);
-  }, [open, factorType]);
-
-  React.useEffect(() => {
-    if (phase === SHOW_RECOVERY_CODE) {
-      fetchRecoveryCode();
-    }
-  }, [phase]);
+  const isPushNotification = factorType === FACTOR_TYPE_PUSH_NOTIFICATION;
+  const isQrPhase = enrollmentPhase === ENTER_QR;
 
   const renderInstallationPhase = () => (
-    <div style={currentStyles?.variables} className="w-full max-w-sm mx-auto">
+    <div style={currentStyles.variables} className="w-full max-w-sm mx-auto">
       <div className="flex flex-col items-center justify-center flex-1 space-y-10">
-        <p
-          className={cn(
-            'text-center text-primary text-sm text-(length:--font-size-paragraph) font-normal',
-          )}
-        >
+        <p className="text-center text-primary text-sm text-(length:--font-size-paragraph) font-normal">
           {t('enrollment_form.show_otp.install_guardian_description')}
         </p>
         <div className="flex gap-4 w-full">
@@ -140,7 +102,7 @@ export function UserMFASetupForm({
           >
             <Card className="flex flex-col items-center gap-1 min-w-24 p-6 h-full">
               <AppleLogo className="w-8 h-8" />
-              <span className={cn('text-sm text-(length:--font-size-paragraph) text-center')}>
+              <span className="text-sm text-(length:--font-size-paragraph) text-center">
                 {t('app-store')}
               </span>
             </Card>
@@ -153,7 +115,7 @@ export function UserMFASetupForm({
           >
             <Card className="flex flex-col items-center gap-1 min-w-24 p-6 h-full">
               <GoogleLogo className="w-8 h-8" />
-              <span className={cn('text-sm text-(length:--font-size-paragraph) text-center')}>
+              <span className="text-sm text-(length:--font-size-paragraph) text-center">
                 {t('google-play')}
               </span>
             </Card>
@@ -169,12 +131,7 @@ export function UserMFASetupForm({
           >
             {t('cancel')}
           </Button>
-          <Button
-            type="button"
-            className="text-sm"
-            size="default"
-            onClick={() => setPhase(ENTER_QR)}
-          >
+          <Button type="button" className="text-sm" size="default" onClick={onAdvanceToQR}>
             {t('continue')}
           </Button>
         </div>
@@ -183,17 +140,18 @@ export function UserMFASetupForm({
   );
 
   const renderForm = () => {
-    switch (phase) {
+    switch (enrollmentPhase) {
       case QR_PHASE_INSTALLATION:
         return renderInstallationPhase();
       case ENTER_CONTACT:
         return (
           <ContactInputForm
             factorType={factorType}
-            enrollMfa={enrollMfa}
-            confirmEnrollment={confirmEnrollment}
-            onError={onError}
-            onSuccess={onSuccess}
+            contact={contact}
+            isEnrolling={isEnrolling}
+            isConfirming={isConfirming}
+            onSubmitContact={onSubmitContact}
+            onConfirmOtp={onConfirmOtp}
             onClose={onClose}
             schema={schema}
             styling={styling}
@@ -204,10 +162,12 @@ export function UserMFASetupForm({
         return (
           <QRCodeEnrollmentForm
             factorType={factorType}
-            enrollMfa={enrollMfa}
-            confirmEnrollment={confirmEnrollment}
-            onError={onError}
-            onSuccess={onSuccess}
+            barcodeUri={otpData.barcodeUri}
+            manualInputCode={otpData.manualInputCode}
+            isEnrolling={isEnrolling}
+            isConfirming={isConfirming}
+            onContinueQR={onContinueQR}
+            onConfirmOtp={onConfirmOtp}
             onClose={onClose}
             styling={styling}
             customMessages={customMessages}
@@ -216,21 +176,12 @@ export function UserMFASetupForm({
       case SHOW_RECOVERY_CODE:
         return (
           <ShowRecoveryCode
-            recoveryCode={recoveryCodeData.recoveryCode}
-            authSession={recoveryCodeData.authSession}
-            authenticationMethodId={recoveryCodeData.authenticationMethodId}
-            confirmEnrollment={confirmEnrollment}
-            onSuccess={() => {
-              onSuccess();
-              resetRecoveryCodeData();
-            }}
-            onBack={() => {
-              resetRecoveryCodeData();
-              onClose();
-            }}
+            recoveryCode={recoveryCode}
+            isEnrolling={isEnrolling}
+            isConfirming={isConfirming}
+            onConfirmRecoveryCode={onConfirmRecoveryCode}
+            onClose={onClose}
             styling={styling}
-            factorType={factorType}
-            loading={loading}
             customMessages={customMessages}
           />
         );
@@ -240,7 +191,7 @@ export function UserMFASetupForm({
   };
 
   return (
-    <Dialog open={open && Boolean(phase)} onOpenChange={onClose}>
+    <Dialog open={open && Boolean(enrollmentPhase)} onOpenChange={onClose}>
       <DialogContent
         style={currentStyles.variables}
         aria-describedby="mfa-setup-form"
@@ -251,7 +202,9 @@ export function UserMFASetupForm({
       >
         <DialogHeader>
           <DialogTitle className="text-left font-medium text-xl text-(length:--font-size-title)">
-            {t('enrollment_form.enroll_title')}
+            {isPushNotification && isQrPhase
+              ? t('enrollment_form.show_auth0_guardian_title')
+              : t('enrollment_form.enroll_title')}
           </DialogTitle>
           <Separator className="my-2" />
         </DialogHeader>

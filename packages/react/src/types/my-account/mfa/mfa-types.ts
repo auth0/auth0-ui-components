@@ -73,7 +73,7 @@ export interface UseUserMFAReturn {
   handleCloseEnrollDialog: () => void;
   handleDeleteFactor: (factorId: string, factorType: MFAType) => Promise<void>;
   handleConfirmDelete: (factorId: string) => Promise<void>;
-  handleSubmitContact: (options: Record<string, string>) => Promise<void>;
+  handleSubmitContact: (options: Record<string, string>) => Promise<boolean>;
   handleConfirmOtp: (otpCode: string) => Promise<void>;
   handleContinueQR: () => Promise<void>;
   handleConfirmRecoveryCode: () => Promise<void>;
@@ -216,18 +216,11 @@ export interface ContactInputFormProps
     { email?: RegExp; phone?: RegExp }
   > {
   factorType: MFAType;
-  enrollMfa: (
-    factorType: MFAType,
-    options: Record<string, string>,
-  ) => Promise<CreateAuthenticationMethodResponseContent>;
-  confirmEnrollment: (
-    factorType: MFAType,
-    authSession: string,
-    authenticationMethodId: string,
-    options: { userOtpCode?: string },
-  ) => Promise<unknown | null>;
-  onError: (error: Error, stage: typeof ENROLL | typeof CONFIRM) => void;
-  onSuccess: () => void;
+  contact: string;
+  isEnrolling: boolean;
+  isConfirming: boolean;
+  onSubmitContact: (options: Record<string, string>) => Promise<boolean>;
+  onConfirmOtp: (otpCode: string) => Promise<void>;
   onClose: () => void;
 }
 
@@ -247,38 +240,21 @@ export interface DeleteFactorConfirmationProps
 export interface OTPVerificationFormProps
   extends SharedComponentProps<MFAMessages, UserMFAMgmtClasses> {
   factorType: MFAType;
-  authSession: string;
-  authenticationMethodId: string;
-  confirmEnrollment: (
-    factorType: MFAType,
-    authSession: string,
-    authenticationMethodId: string,
-    options: { userOtpCode?: string },
-  ) => Promise<unknown | null>;
-  onError: (error: Error, stage: typeof CONFIRM) => void;
-  onSuccess: () => void;
-  onClose: () => void;
-  oobCode?: string;
   contact?: string;
-  recoveryCode?: string;
+  isConfirming: boolean;
+  onConfirmOtp: (otpCode: string) => Promise<void>;
   onBack?: () => void;
 }
 
 export interface QRCodeEnrollmentFormProps
   extends SharedComponentProps<MFAMessages, UserMFAMgmtClasses> {
   factorType: MFAType;
-  enrollMfa: (
-    factorType: MFAType,
-    options: Record<string, string>,
-  ) => Promise<CreateAuthenticationMethodResponseContent>;
-  confirmEnrollment: (
-    factorType: MFAType,
-    authSession: string,
-    authenticationMethodId: string,
-    options: { userOtpCode?: string },
-  ) => Promise<unknown | null>;
-  onError: (error: Error, stage: typeof ENROLL | typeof CONFIRM) => void;
-  onSuccess: () => void;
+  barcodeUri: string;
+  manualInputCode: string;
+  isEnrolling: boolean;
+  isConfirming: boolean;
+  onContinueQR: () => Promise<void>;
+  onConfirmOtp: (otpCode: string) => Promise<void>;
   onClose: () => void;
 }
 
@@ -287,39 +263,26 @@ export interface UserMFASetupFormProps
   open: boolean;
   onClose: () => void;
   factorType: MFAType;
-  enrollMfa: (
-    factorType: MFAType,
-    options: Record<string, string>,
-  ) => Promise<CreateAuthenticationMethodResponseContent>;
-  confirmEnrollment: (
-    factorType: MFAType,
-    authSession: string,
-    authenticationMethodId: string,
-    options: { userOtpCode?: string },
-  ) => Promise<unknown | null>;
-  onSuccess: () => void;
-  onError: (error: Error, stage: typeof ENROLL | typeof CONFIRM) => void;
+  enrollmentPhase: EnrollmentPhase;
+  contact: string;
+  otpData: { barcodeUri: string; manualInputCode: string };
+  recoveryCode: string;
+  isEnrolling: boolean;
+  isConfirming: boolean;
+  onSubmitContact: (options: Record<string, string>) => Promise<boolean>;
+  onConfirmOtp: (otpCode: string) => Promise<void>;
+  onContinueQR: () => Promise<void>;
+  onConfirmRecoveryCode: () => Promise<void>;
+  onAdvanceToQR: () => void;
 }
 
 export interface ShowRecoveryCodeProps
   extends SharedComponentProps<MFAMessages, UserMFAMgmtClasses> {
   recoveryCode: string;
-  onSuccess: () => void;
-  factorType: MFAType;
-  authSession: string;
-  authenticationMethodId: string;
-  confirmEnrollment: (
-    factorType: MFAType,
-    authSession: string,
-    authenticationMethodId: string,
-    options: { userOtpCode?: string },
-  ) => Promise<unknown | null>;
-  onError?: (error: Error, stage: typeof CONFIRM) => void;
-  onClose?: () => void;
-  oobCode?: string;
-  userOtp?: string;
-  onBack?: () => void;
-  loading?: boolean;
+  isEnrolling: boolean;
+  isConfirming: boolean;
+  onConfirmRecoveryCode: () => Promise<void>;
+  onClose: () => void;
 }
 
 export interface FactorsListProps extends SharedComponentProps<MFAMessages, UserMFAMgmtClasses> {
@@ -370,16 +333,13 @@ export type UseMFAResult = {
   ) => Promise<unknown>;
 };
 
-export interface UserMFAMgmtLogicProps {
+export interface UserMFAMgmtViewProps {
   error: string | null;
-  schema:
-    | Partial<{
-        email?: RegExp;
-        phone?: RegExp;
-      }>
-    | undefined;
+  schema: UserMFAMgmtProps['schema'];
   isLoading: boolean;
+  isEnrolling: boolean;
   isDeleting: boolean;
+  isConfirming: boolean;
   styling: UserMFAMgmtProps['styling'];
   customMessages: UserMFAMgmtProps['customMessages'];
   hideHeader: boolean;
@@ -388,30 +348,27 @@ export interface UserMFAMgmtLogicProps {
   disableDelete: boolean;
   readOnly: boolean;
   factorConfig?: FactorConfig;
-  dialogOpen: boolean;
+  isEnrollDialogOpen: boolean;
   enrollFactor: MFAType | null;
+  enrollmentPhase: EnrollmentPhase;
+  contact: string;
+  otpData: { barcodeUri: string; manualInputCode: string };
+  recoveryCode: string;
   isDeleteDialogOpen: boolean;
   factorToDelete: { id: string; type: MFAType } | null;
   factorsByType: Record<MFAType, Authenticator[]>;
   visibleFactorTypes: MFAType[];
   hasNoActiveFactors: boolean;
-  confirmEnrollment: UseMFAResult['confirmEnrollment'];
-}
-
-export interface UserMFAMgmtHandlerProps {
-  enrollMfa: UseMFAResult['enrollMfa'];
   onEnrollFactor: (factor: MFAType) => void;
   onDeleteFactor: (factorId: string, factorType: MFAType) => Promise<void>;
-  handleCloseDialog: () => void;
-  handleEnrollSuccess: () => void;
-  handleEnrollError: (error: Error, stage: typeof ENROLL | typeof CONFIRM) => void;
-  handleConfirmDelete: (factorId: string) => Promise<void>;
-  setIsDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-export interface UserMFAMgmtViewProps {
-  logic: UserMFAMgmtLogicProps;
-  handlers: UserMFAMgmtHandlerProps;
+  onCloseEnrollDialog: () => void;
+  onConfirmDelete: (factorId: string) => Promise<void>;
+  onCancelDelete: () => void;
+  onSubmitContact: (options: Record<string, string>) => Promise<boolean>;
+  onConfirmOtp: (otpCode: string) => Promise<void>;
+  onContinueQR: () => Promise<void>;
+  onConfirmRecoveryCode: () => Promise<void>;
+  onAdvanceToQR: () => void;
 }
 
 /**
