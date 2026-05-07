@@ -7,24 +7,20 @@ import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import { mockCore, setupAllCommonMocks, createQueryClientWrapper } from '@/tests/utils';
-import { createMockAvailableFactors } from '@/tests/utils/__mocks__/my-account/mfa/mfa.mocks';
 
 const { initMockCoreClient } = mockCore();
 let mockCoreClient: ReturnType<typeof initMockCoreClient>;
 
 describe('useUserMFAService', () => {
-  let mockHandleError: ReturnType<typeof vi.fn>;
-
   beforeEach(() => {
     vi.clearAllMocks();
     mockCoreClient = initMockCoreClient();
-
-    ({ mockHandleError } = setupAllCommonMocks({
-      useTranslatorModule,
+    setupAllCommonMocks({
       coreClient: mockCoreClient,
       useCoreClientModule,
+      useTranslatorModule,
       useErrorHandlerModule,
-    }));
+    });
   });
 
   const renderService = (onlyActive = false) => {
@@ -44,45 +40,6 @@ describe('useUserMFAService', () => {
     const apiClient = mockCoreClient.getMyAccountApiClient();
     expect(apiClient.factors.list).toHaveBeenCalledTimes(1);
     expect(apiClient.authenticationMethods.list).toHaveBeenCalledTimes(1);
-  });
-
-  it('calls handleError once when factorsQuery fails', async () => {
-    const apiError = new Error('network error');
-    mockCoreClient.getMyAccountApiClient().factors.list = vi.fn().mockRejectedValue(apiError);
-
-    const { result } = renderService();
-    await waitFor(() => expect(result.current.factorsQuery.isError).toBe(true));
-
-    expect(mockHandleError).toHaveBeenCalledTimes(1);
-    expect(mockHandleError).toHaveBeenCalledWith(
-      apiError,
-      expect.objectContaining({ fallbackMessage: expect.any(String) }),
-    );
-  });
-
-  it('resets the error guard after recovery so a subsequent error fires handleError again', async () => {
-    const apiClient = mockCoreClient.getMyAccountApiClient();
-    const listFn = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('first failure'))
-      .mockResolvedValueOnce(createMockAvailableFactors())
-      .mockRejectedValueOnce(new Error('second failure'));
-    apiClient.factors.list = listFn;
-
-    const { result } = renderService();
-
-    // first error fires handleError
-    await waitFor(() => expect(result.current.factorsQuery.isError).toBe(true));
-    expect(mockHandleError).toHaveBeenCalledTimes(1);
-
-    // recovery clears the ref
-    await result.current.factorsQuery.refetch();
-    await waitFor(() => expect(result.current.factorsQuery.isSuccess).toBe(true));
-
-    // second error should fire handleError again
-    await result.current.factorsQuery.refetch();
-    await waitFor(() => expect(result.current.factorsQuery.isError).toBe(true));
-    expect(mockHandleError).toHaveBeenCalledTimes(2);
   });
 
   it('does not fetch when coreClient is null', () => {
@@ -123,23 +80,6 @@ describe('useUserMFAService', () => {
     await waitFor(() => {
       expect(vi.mocked(apiClient.factors.list).mock.calls.length).toBeGreaterThan(initialCallCount);
     });
-  });
-
-  it('calls handleError on delete failure', async () => {
-    const deleteError = new Error('delete failed');
-    mockCoreClient.getMyAccountApiClient().authenticationMethods.delete = vi
-      .fn()
-      .mockRejectedValue(deleteError);
-
-    const { result } = renderService();
-    await waitFor(() => expect(result.current.factorsQuery.isSuccess).toBe(true));
-
-    await expect(result.current.deleteMutation.mutateAsync('auth-id-123')).rejects.toThrow();
-
-    expect(mockHandleError).toHaveBeenCalledWith(
-      deleteError,
-      expect.objectContaining({ fallbackMessage: expect.any(String) }),
-    );
   });
 
   it('calls authenticationMethods.verify with correct params on confirm', async () => {

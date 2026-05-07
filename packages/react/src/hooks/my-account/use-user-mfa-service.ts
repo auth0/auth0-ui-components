@@ -13,30 +13,20 @@ import {
   type ConfirmEnrollmentOptions,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useRef } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
-import { useErrorHandler } from '@/hooks/shared/use-error-handler';
-import { useTranslator } from '@/hooks/shared/use-translator';
-import type { UseUserMFAServiceReturn, UserMFAMgmtProps } from '@/types/my-account/mfa/mfa-types';
+import type { UseUserMFAServiceReturn } from '@/types/my-account/mfa/mfa-types';
 
 /**
  * Internal service hook for MFA operations backed by TanStack Query.
  * Provides queries and mutations; use `useUserMFA` for the public API.
  * @param onlyActive - Whether to return only active factors.
- * @param customMessages - Optional custom i18n messages for MFA translations.
  * @returns MFA query and mutation handlers for factor listing and enrollment lifecycle operations.
  * @internal
  */
-export function useUserMFAService(
-  onlyActive: boolean,
-  customMessages: UserMFAMgmtProps['customMessages'] = {},
-): UseUserMFAServiceReturn {
+export function useUserMFAService(onlyActive: boolean): UseUserMFAServiceReturn {
   const { coreClient } = useCoreClient();
-  const { t } = useTranslator('mfa', customMessages);
   const queryClient = useQueryClient();
-  const handleError = useErrorHandler();
-  const hasFiredFactorsError = useRef(false);
 
   const factorsQuery = useQuery<Record<MFAType, Authenticator[]>>({
     queryKey: mfaQueryKeys.factors(onlyActive),
@@ -53,16 +43,6 @@ export function useUserMFAService(
     },
     enabled: !!coreClient,
   });
-
-  useEffect(() => {
-    if (!factorsQuery.isError) {
-      hasFiredFactorsError.current = false;
-      return;
-    }
-    if (hasFiredFactorsError.current) return;
-    hasFiredFactorsError.current = true;
-    handleError(factorsQuery.error, { fallbackMessage: t('errors.factors_loading_error') });
-  }, [factorsQuery.isError, factorsQuery.error, handleError, t]);
 
   const enrollMutation = useMutation({
     mutationFn: ({
@@ -83,9 +63,6 @@ export function useUserMFAService(
       coreClient!.getMyAccountApiClient().authenticationMethods.delete(authenticatorId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: mfaQueryKeys.factors(onlyActive) });
-    },
-    onError: (error) => {
-      handleError(error, { fallbackMessage: t('errors.delete_factor') });
     },
   });
 
