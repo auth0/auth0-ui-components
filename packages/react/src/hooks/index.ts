@@ -11,6 +11,7 @@ export { useCoreClientInitialization } from './shared/use-core-client-initializa
 export { useErrorHandler } from './shared/use-error-handler';
 
 // My Account hooks
+export { useUserMFA } from './my-account/use-user-mfa';
 export { useContactEnrollment } from './my-account/use-contact-enrollment';
 export { useOtpConfirmation } from './my-account/use-otp-confirmation';
 export { useOtpEnrollment } from './my-account/use-otp-enrollment';

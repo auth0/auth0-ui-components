@@ -14,7 +14,71 @@ import type {
 } from '@auth0/universal-components-core';
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 
-import type { ENROLL, CONFIRM } from '@/lib/constants/my-account/mfa/mfa-constants';
+import type {
+  ENROLL,
+  CONFIRM,
+  ENTER_CONTACT,
+  ENTER_QR,
+  SHOW_RECOVERY_CODE,
+  QR_PHASE_INSTALLATION,
+  QR_PHASE_SCAN,
+  QR_PHASE_ENTER_OTP,
+} from '@/lib/constants/my-account/mfa/mfa-constants';
+
+export type EnrollmentPhase =
+  | typeof ENTER_CONTACT
+  | typeof ENTER_QR
+  | typeof SHOW_RECOVERY_CODE
+  | typeof QR_PHASE_INSTALLATION
+  | typeof QR_PHASE_SCAN
+  | typeof QR_PHASE_ENTER_OTP
+  | null;
+
+export interface UserMFAOptions {
+  showActiveOnly?: boolean;
+  readOnly?: boolean;
+  disableDelete?: boolean;
+  factorConfig?: FactorConfig;
+  customMessages?: UserMFAMgmtProps['customMessages'];
+  onFetch?: () => void;
+  onEnroll?: () => void;
+  onDelete?: () => void;
+  onErrorAction?: (error: Error, action: 'enroll' | 'delete' | 'confirm') => void;
+  onBeforeAction?: (
+    action: 'enroll' | 'delete' | 'confirm',
+    factorType: MFAType,
+  ) => boolean | Promise<boolean>;
+}
+
+export interface UseUserMFAReturn {
+  factorsByType: Record<MFAType, Authenticator[]>;
+  isLoadingFactors: boolean;
+  isEnrolling: boolean;
+  isDeleting: boolean;
+  isConfirming: boolean;
+  error: string | null;
+  isEnrollDialogOpen: boolean;
+  enrollFactor: MFAType | null;
+  enrollmentPhase: EnrollmentPhase;
+  isDeleteDialogOpen: boolean;
+  factorToDelete: { id: string; type: MFAType } | null;
+  visibleFactorTypes: MFAType[];
+  hasNoActiveFactors: boolean;
+  contact: string;
+  otpData: { barcodeUri: string; manualInputCode: string };
+  recoveryCode: string;
+  handleCancelDelete: () => void;
+  refreshFactors: () => void;
+  handleEnroll: (factor: MFAType) => void;
+  handleCloseEnrollDialog: () => void;
+  handleDeleteFactor: (factorId: string, factorType: MFAType) => Promise<void>;
+  handleConfirmDelete: (factorId: string) => Promise<void>;
+  handleSubmitContact: (options: Record<string, string>) => Promise<void>;
+  handleConfirmOtp: (otpCode: string) => Promise<void>;
+  handleContinueQR: () => Promise<void>;
+  handleConfirmRecoveryCode: () => Promise<void>;
+  handleAdvanceToQR: () => void;
+}
 
 export interface UseUserMFAServiceReturn {
   factorsQuery: UseQueryResult<Record<MFAType, Authenticator[]>>;
