@@ -2,7 +2,7 @@ import { mfaQueryKeys } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { useUserMFAService } from '@/hooks/my-account/use-user-mfa-service';
+import { useUserMFAService } from '@/hooks/my-account/shared/services/use-user-mfa-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { mockCore, setupMockUseCoreClient, createQueryClientWrapper } from '@/tests/utils';
 
