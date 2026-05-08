@@ -69,16 +69,16 @@ export interface UseUserMFAReturn {
   otpData: { barcodeUri: string; manualInputCode: string };
   recoveryCode: string;
   handleCancelDelete: () => void;
-  refreshFactors: () => void;
-  handleEnroll: (factor: MFAType) => void;
+  handleRefreshFactors: () => void;
+  handleEnroll: (factor: MFAType) => Promise<void>;
   handleCloseEnrollDialog: () => void;
   handleDeleteFactor: (factorId: string, factorType: MFAType) => Promise<void>;
   handleConfirmDelete: (factorId: string) => Promise<void>;
-  handleSubmitContact: (options: Record<string, string>) => Promise<void>;
+  handleSendCode: (options: Record<string, string>) => Promise<void>;
   handleConfirmOtp: (otpCode: string) => Promise<void>;
-  handleContinueQR: () => Promise<void>;
+  handleConfirmPush: () => Promise<void>;
   handleConfirmRecoveryCode: () => Promise<void>;
-  handleAdvanceToQR: () => void;
+  handleEnterQRPhase: () => Promise<void>;
 }
 
 export interface UseUserMFAServiceReturn {
