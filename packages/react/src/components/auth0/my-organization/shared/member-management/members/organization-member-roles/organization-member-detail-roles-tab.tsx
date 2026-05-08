@@ -1,6 +1,6 @@
 /**
  * Member detail roles tab component.
- * @module member-detail-roles-tab
+ * @module organization-member-detail-roles-tab
  * @internal
  */
 
@@ -11,14 +11,14 @@ import * as React from 'react';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Button } from '@/components/ui/button';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { MemberDetailRolesTabProps } from '@/types/my-organization/member-management/organization-member-detail-types';
+import type { OrganizationMemberDetailRolesTabProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
  * Renders the roles tab for a member detail view with a table and assign/remove actions.
  * @param props - Component props
  * @returns The rendered roles tab element
  */
-export function MemberDetailRolesTab({
+export function OrganizationMemberDetailRolesTab({
   memberRoles,
   isLoading = false,
   removingRoleId = null,
@@ -26,7 +26,7 @@ export function MemberDetailRolesTab({
   customMessages,
   onAssignRolesClick,
   onRemoveRole,
-}: MemberDetailRolesTabProps): React.JSX.Element {
+}: OrganizationMemberDetailRolesTabProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
   const columns: Column<OrgMemberRole>[] = React.useMemo(

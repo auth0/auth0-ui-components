@@ -2,14 +2,14 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
-import { MemberRemoveRoleModal } from '@/components/auth0/my-organization/shared/member-management/members/member-roles/member-remove-role-modal';
+import { OrganizationMemberRemoveRoleModal } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-roles/organization-member-remove-role-modal';
 import { renderWithProviders } from '@/tests/utils';
 import {
   createMockRemoveRoleModalProps,
   createMockMemberRole,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
 
-describe('MemberRemoveRoleModal', () => {
+describe('OrganizationMemberRemoveRoleModal', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
@@ -17,7 +17,7 @@ describe('MemberRemoveRoleModal', () => {
   describe('isOpen', () => {
     it('should render the modal when isOpen is true', () => {
       renderWithProviders(
-        <MemberRemoveRoleModal {...createMockRemoveRoleModalProps({ isOpen: true })} />,
+        <OrganizationMemberRemoveRoleModal {...createMockRemoveRoleModalProps({ isOpen: true })} />,
       );
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -25,7 +25,9 @@ describe('MemberRemoveRoleModal', () => {
 
     it('should not render the modal when isOpen is false', () => {
       renderWithProviders(
-        <MemberRemoveRoleModal {...createMockRemoveRoleModalProps({ isOpen: false })} />,
+        <OrganizationMemberRemoveRoleModal
+          {...createMockRemoveRoleModalProps({ isOpen: false })}
+        />,
       );
 
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -34,13 +36,17 @@ describe('MemberRemoveRoleModal', () => {
 
   describe('content', () => {
     it('should display the confirm title', () => {
-      renderWithProviders(<MemberRemoveRoleModal {...createMockRemoveRoleModalProps()} />);
+      renderWithProviders(
+        <OrganizationMemberRemoveRoleModal {...createMockRemoveRoleModalProps()} />,
+      );
 
       expect(screen.getByText('member.detail.roles.remove_confirm.title')).toBeInTheDocument();
     });
 
     it('should render confirm and cancel buttons', () => {
-      renderWithProviders(<MemberRemoveRoleModal {...createMockRemoveRoleModalProps()} />);
+      renderWithProviders(
+        <OrganizationMemberRemoveRoleModal {...createMockRemoveRoleModalProps()} />,
+      );
 
       expect(
         screen.getByRole('button', {
@@ -58,7 +64,7 @@ describe('MemberRemoveRoleModal', () => {
   describe('role', () => {
     it('should handle null role gracefully', () => {
       renderWithProviders(
-        <MemberRemoveRoleModal {...createMockRemoveRoleModalProps({ role: null })} />,
+        <OrganizationMemberRemoveRoleModal {...createMockRemoveRoleModalProps({ role: null })} />,
       );
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -67,7 +73,9 @@ describe('MemberRemoveRoleModal', () => {
     it('should render with a specific role', () => {
       const role = createMockMemberRole({ id: 'rol_1', name: 'Manager' });
 
-      renderWithProviders(<MemberRemoveRoleModal {...createMockRemoveRoleModalProps({ role })} />);
+      renderWithProviders(
+        <OrganizationMemberRemoveRoleModal {...createMockRemoveRoleModalProps({ role })} />,
+      );
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
@@ -76,7 +84,9 @@ describe('MemberRemoveRoleModal', () => {
   describe('isLoading', () => {
     it('should disable cancel button when isLoading is true', () => {
       renderWithProviders(
-        <MemberRemoveRoleModal {...createMockRemoveRoleModalProps({ isLoading: true })} />,
+        <OrganizationMemberRemoveRoleModal
+          {...createMockRemoveRoleModalProps({ isLoading: true })}
+        />,
       );
 
       expect(
@@ -88,7 +98,9 @@ describe('MemberRemoveRoleModal', () => {
 
     it('should enable buttons when isLoading is false', () => {
       renderWithProviders(
-        <MemberRemoveRoleModal {...createMockRemoveRoleModalProps({ isLoading: false })} />,
+        <OrganizationMemberRemoveRoleModal
+          {...createMockRemoveRoleModalProps({ isLoading: false })}
+        />,
       );
 
       expect(
@@ -105,7 +117,7 @@ describe('MemberRemoveRoleModal', () => {
       const onConfirm = vi.fn();
 
       renderWithProviders(
-        <MemberRemoveRoleModal {...createMockRemoveRoleModalProps({ onConfirm })} />,
+        <OrganizationMemberRemoveRoleModal {...createMockRemoveRoleModalProps({ onConfirm })} />,
       );
 
       await user.click(
@@ -124,7 +136,7 @@ describe('MemberRemoveRoleModal', () => {
       const onClose = vi.fn();
 
       renderWithProviders(
-        <MemberRemoveRoleModal {...createMockRemoveRoleModalProps({ onClose })} />,
+        <OrganizationMemberRemoveRoleModal {...createMockRemoveRoleModalProps({ onClose })} />,
       );
 
       await user.click(

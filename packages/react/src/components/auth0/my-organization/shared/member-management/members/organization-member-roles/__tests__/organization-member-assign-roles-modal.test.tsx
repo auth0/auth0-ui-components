@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
-import { MemberAssignRolesModal } from '@/components/auth0/my-organization/shared/member-management/members/member-roles/member-assign-roles-modal';
+import { OrganizationMemberAssignRolesModal } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-roles/organization-member-assign-roles-modal';
 import { renderWithProviders } from '@/tests/utils';
 import {
   createMockAssignRolesModalProps,
@@ -10,7 +10,7 @@ import {
   createMockAvailableRoles,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
 
-describe('MemberAssignRolesModal', () => {
+describe('OrganizationMemberAssignRolesModal', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
@@ -18,7 +18,9 @@ describe('MemberAssignRolesModal', () => {
   describe('isOpen', () => {
     it('should render the modal when isOpen is true', () => {
       renderWithProviders(
-        <MemberAssignRolesModal {...createMockAssignRolesModalProps({ isOpen: true })} />,
+        <OrganizationMemberAssignRolesModal
+          {...createMockAssignRolesModalProps({ isOpen: true })}
+        />,
       );
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -26,7 +28,9 @@ describe('MemberAssignRolesModal', () => {
 
     it('should not render the modal when isOpen is false', () => {
       renderWithProviders(
-        <MemberAssignRolesModal {...createMockAssignRolesModalProps({ isOpen: false })} />,
+        <OrganizationMemberAssignRolesModal
+          {...createMockAssignRolesModalProps({ isOpen: false })}
+        />,
       );
 
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -35,13 +39,17 @@ describe('MemberAssignRolesModal', () => {
 
   describe('content', () => {
     it('should display the modal title', () => {
-      renderWithProviders(<MemberAssignRolesModal {...createMockAssignRolesModalProps()} />);
+      renderWithProviders(
+        <OrganizationMemberAssignRolesModal {...createMockAssignRolesModalProps()} />,
+      );
 
       expect(screen.getByText('member.detail.roles.assign_modal.title')).toBeInTheDocument();
     });
 
     it('should render submit and cancel buttons', () => {
-      renderWithProviders(<MemberAssignRolesModal {...createMockAssignRolesModalProps()} />);
+      renderWithProviders(
+        <OrganizationMemberAssignRolesModal {...createMockAssignRolesModalProps()} />,
+      );
 
       expect(
         screen.getByRole('button', { name: 'member.detail.roles.assign_modal.submit_button' }),
@@ -60,7 +68,7 @@ describe('MemberAssignRolesModal', () => {
       );
 
       renderWithProviders(
-        <MemberAssignRolesModal
+        <OrganizationMemberAssignRolesModal
           {...createMockAssignRolesModalProps({ availableRoles, assignedRoles })}
         />,
       );
@@ -72,7 +80,7 @@ describe('MemberAssignRolesModal', () => {
 
     it('should not show no roles message when there are unassigned roles', () => {
       renderWithProviders(
-        <MemberAssignRolesModal
+        <OrganizationMemberAssignRolesModal
           {...createMockAssignRolesModalProps({
             availableRoles: createMockAvailableRoles(),
             assignedRoles: [],
@@ -89,7 +97,7 @@ describe('MemberAssignRolesModal', () => {
   describe('roles label', () => {
     it('should show roles label when there are unassigned roles', () => {
       renderWithProviders(
-        <MemberAssignRolesModal
+        <OrganizationMemberAssignRolesModal
           {...createMockAssignRolesModalProps({
             availableRoles: createMockAvailableRoles(),
             assignedRoles: [],
@@ -103,7 +111,9 @@ describe('MemberAssignRolesModal', () => {
 
   describe('submit button', () => {
     it('should disable submit button when no roles are selected', () => {
-      renderWithProviders(<MemberAssignRolesModal {...createMockAssignRolesModalProps()} />);
+      renderWithProviders(
+        <OrganizationMemberAssignRolesModal {...createMockAssignRolesModalProps()} />,
+      );
 
       expect(
         screen.getByRole('button', { name: 'member.detail.roles.assign_modal.submit_button' }),
@@ -112,7 +122,9 @@ describe('MemberAssignRolesModal', () => {
 
     it('should disable submit button when isLoading is true', () => {
       renderWithProviders(
-        <MemberAssignRolesModal {...createMockAssignRolesModalProps({ isLoading: true })} />,
+        <OrganizationMemberAssignRolesModal
+          {...createMockAssignRolesModalProps({ isLoading: true })}
+        />,
       );
 
       expect(
@@ -127,7 +139,7 @@ describe('MemberAssignRolesModal', () => {
       const onClose = vi.fn();
 
       renderWithProviders(
-        <MemberAssignRolesModal {...createMockAssignRolesModalProps({ onClose })} />,
+        <OrganizationMemberAssignRolesModal {...createMockAssignRolesModalProps({ onClose })} />,
       );
 
       await user.click(

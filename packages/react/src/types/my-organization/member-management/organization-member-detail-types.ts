@@ -97,7 +97,7 @@ export interface MemberRemoveFromOrgModalProps {
   onConfirm: () => void;
 }
 
-export interface MemberDetailRolesTabProps {
+export interface OrganizationMemberDetailRolesTabProps {
   memberRoles: OrgMemberRole[];
   availableRoles: RoleOption[];
   isLoading?: boolean;
@@ -108,7 +108,7 @@ export interface MemberDetailRolesTabProps {
   onRemoveRole: (role: OrgMemberRole) => void;
 }
 
-export interface MemberRemoveRoleModalProps {
+export interface OrganizationMemberRemoveRoleModalProps {
   isOpen: boolean;
   isLoading?: boolean;
   role: OrgMemberRole | null;
@@ -117,7 +117,7 @@ export interface MemberRemoveRoleModalProps {
   onConfirm: () => void;
 }
 
-export interface MemberAssignRolesModalProps {
+export interface OrganizationMemberAssignRolesModalProps {
   isOpen: boolean;
   isLoading?: boolean;
   availableRoles: RoleOption[];

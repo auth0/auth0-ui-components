@@ -1,6 +1,6 @@
 /**
  * Modal for assigning roles to a member.
- * @module member-assign-roles-modal
+ * @module organization-member-assign-roles-modal
  * @internal
  */
 
@@ -17,16 +17,16 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { MemberAssignRolesModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
+import type { OrganizationMemberAssignRolesModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
-export type { MemberAssignRolesModalProps };
+export type { OrganizationMemberAssignRolesModalProps };
 
 /**
  * Renders the assign roles dialog for selecting and assigning roles to a member.
  * @param props - Component props
  * @returns The rendered assign roles dialog element
  */
-export function MemberAssignRolesModal({
+export function OrganizationMemberAssignRolesModal({
   isOpen,
   isLoading = false,
   availableRoles,
@@ -34,7 +34,7 @@ export function MemberAssignRolesModal({
   customMessages,
   onClose,
   onAssign,
-}: MemberAssignRolesModalProps): React.JSX.Element {
+}: OrganizationMemberAssignRolesModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
 

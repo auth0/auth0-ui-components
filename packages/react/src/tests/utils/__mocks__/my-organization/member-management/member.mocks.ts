@@ -1,15 +1,15 @@
 import type { OrgMember, OrgMemberRole } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import type { MemberAssignRolesModalProps } from '@/components/auth0/my-organization/shared/member-management/members/member-roles/member-assign-roles-modal';
 import type { RoleOption } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   MemberDeleteModalProps,
   MemberDetailDangerZoneProps,
-  MemberDetailRolesTabProps,
+  OrganizationMemberAssignRolesModalProps,
+  OrganizationMemberDetailRolesTabProps,
   OrganizationMemberUserDetailsProps,
   MemberRemoveFromOrgModalProps,
-  MemberRemoveRoleModalProps,
+  OrganizationMemberRemoveRoleModalProps,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 export const createMockMember = (overrides?: Partial<OrgMember>): OrgMember =>
@@ -86,8 +86,8 @@ export const createMockDeleteModalProps = (
 });
 
 export const createMockRolesTabProps = (
-  overrides: Partial<MemberDetailRolesTabProps> = {},
-): MemberDetailRolesTabProps => ({
+  overrides: Partial<OrganizationMemberDetailRolesTabProps> = {},
+): OrganizationMemberDetailRolesTabProps => ({
   memberRoles: createMockMemberRoles(),
   availableRoles: createMockAvailableRoles(),
   isLoading: false,
@@ -99,8 +99,8 @@ export const createMockRolesTabProps = (
 });
 
 export const createMockAssignRolesModalProps = (
-  overrides: Partial<MemberAssignRolesModalProps> = {},
-): MemberAssignRolesModalProps => ({
+  overrides: Partial<OrganizationMemberAssignRolesModalProps> = {},
+): OrganizationMemberAssignRolesModalProps => ({
   isOpen: true,
   isLoading: false,
   availableRoles: createMockAvailableRoles(),
@@ -111,8 +111,8 @@ export const createMockAssignRolesModalProps = (
 });
 
 export const createMockRemoveRoleModalProps = (
-  overrides: Partial<MemberRemoveRoleModalProps> = {},
-): MemberRemoveRoleModalProps => ({
+  overrides: Partial<OrganizationMemberRemoveRoleModalProps> = {},
+): OrganizationMemberRemoveRoleModalProps => ({
   isOpen: true,
   isLoading: false,
   role: createMockMemberRole(),

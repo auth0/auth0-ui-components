@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
-import { OrganizationMemberUserDetails } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-user-details/member-detail-user-details';
+import { OrganizationMemberUserDetails } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-user-details/organization-member-user-details';
 import { renderWithProviders } from '@/tests/utils';
 import {
   createMockUserDetailsProps,

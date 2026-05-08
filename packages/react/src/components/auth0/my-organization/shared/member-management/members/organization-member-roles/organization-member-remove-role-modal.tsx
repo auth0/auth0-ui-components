@@ -1,6 +1,6 @@
 /**
  * Confirmation modal for removing a role from a member.
- * @module member-remove-role-modal
+ * @module organization-member-remove-role-modal
  * @internal
  */
 
@@ -17,21 +17,21 @@ import {
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { MemberRemoveRoleModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
+import type { OrganizationMemberRemoveRoleModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
  * Renders the remove role confirmation dialog.
  * @param props - Component props
  * @returns The rendered confirmation dialog element
  */
-export function MemberRemoveRoleModal({
+export function OrganizationMemberRemoveRoleModal({
   isOpen,
   isLoading = false,
   role,
   customMessages,
   onClose,
   onConfirm,
-}: MemberRemoveRoleModalProps): React.JSX.Element {
+}: OrganizationMemberRemoveRoleModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
   return (

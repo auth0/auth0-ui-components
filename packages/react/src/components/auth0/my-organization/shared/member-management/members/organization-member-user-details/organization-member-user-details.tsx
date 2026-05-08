@@ -1,6 +1,6 @@
 /**
  * Member detail user details card component.
- * @module member-detail-user-details
+ * @module organization-member-user-details
  * @internal
  */
 
