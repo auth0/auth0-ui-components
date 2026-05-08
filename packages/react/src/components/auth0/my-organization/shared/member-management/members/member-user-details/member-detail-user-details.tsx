@@ -18,9 +18,8 @@ export interface MemberDetailUserDetailsProps {
 }
 
 /**
- * Formats an ISO date string into a human-readable locale string.
- * @param dateStr - The ISO date string to format
- * @returns A formatted date/time string, or '—' if the input is empty
+ * @param dateStr - ISO date string to format
+ * @returns Formatted locale date string, or '—' if empty
  */
 function formatDate(dateStr?: string): string {
   if (!dateStr) return '—';
@@ -31,6 +30,41 @@ function formatDate(dateStr?: string): string {
     hour: 'numeric',
     minute: '2-digit',
   });
+}
+
+/**
+ * @param member - The org member whose details are being displayed
+ * @param phoneNumber - Resolved phone number string
+ * @param provider - Resolved connection/provider string
+ * @param t - Translation function
+ * @returns Array of label/value/copyable field definitions
+ */
+function buildMemberDetailFields(
+  member: OrgMember,
+  phoneNumber: string,
+  provider: string,
+  t: (key: string) => string,
+) {
+  return [
+    { label: t('member.detail.user_details.name'), value: member.name ?? '—', copyable: false },
+    { label: t('member.detail.user_details.email'), value: member.email ?? '—', copyable: true },
+    {
+      label: t('member.detail.user_details.phone_number'),
+      value: phoneNumber || '—',
+      copyable: !!phoneNumber,
+    },
+    { label: t('member.detail.user_details.provider'), value: provider || '—', copyable: false },
+    {
+      label: t('member.detail.user_details.created_at'),
+      value: formatDate(member.created_at),
+      copyable: false,
+    },
+    {
+      label: t('member.detail.user_details.last_login'),
+      value: formatDate(member.last_login),
+      copyable: false,
+    },
+  ];
 }
 
 /**
@@ -48,38 +82,10 @@ export function MemberDetailUserDetails({
   const phoneNumber = (memberRecord.phone_number as string | undefined) ?? '';
   const provider = (memberRecord.connection as string | undefined) ?? '';
 
-  const fields = [
-    {
-      label: t('member.detail.user_details.name'),
-      value: member.name ?? '—',
-      copyable: false,
-    },
-    {
-      label: t('member.detail.user_details.email'),
-      value: member.email ?? '—',
-      copyable: true,
-    },
-    {
-      label: t('member.detail.user_details.phone_number'),
-      value: phoneNumber || '—',
-      copyable: !!phoneNumber,
-    },
-    {
-      label: t('member.detail.user_details.provider'),
-      value: provider || '—',
-      copyable: false,
-    },
-    {
-      label: t('member.detail.user_details.created_at'),
-      value: formatDate(member.created_at),
-      copyable: false,
-    },
-    {
-      label: t('member.detail.user_details.last_login'),
-      value: formatDate(member.last_login),
-      copyable: false,
-    },
-  ];
+  const fields = React.useMemo(
+    () => buildMemberDetailFields(member, phoneNumber, provider, t),
+    [member, phoneNumber, provider, t],
+  );
 
   return (
     <Card className="p-6">
