@@ -4,9 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useUserMFAService } from '@/hooks/my-account/use-user-mfa-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
-import * as useTranslatorModule from '@/hooks/shared/use-translator';
-import { mockCore, setupAllCommonMocks, createQueryClientWrapper } from '@/tests/utils';
+import { mockCore, setupMockUseCoreClient, createQueryClientWrapper } from '@/tests/utils';
 
 const { initMockCoreClient } = mockCore();
 let mockCoreClient: ReturnType<typeof initMockCoreClient>;
@@ -15,12 +13,7 @@ describe('useUserMFAService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockCoreClient = initMockCoreClient();
-    setupAllCommonMocks({
-      coreClient: mockCoreClient,
-      useCoreClientModule,
-      useTranslatorModule,
-      useErrorHandlerModule,
-    });
+    setupMockUseCoreClient(mockCoreClient, useCoreClientModule);
   });
 
   const renderService = (onlyActive = false) => {
@@ -69,14 +62,13 @@ describe('useUserMFAService', () => {
   it('calls authenticationMethods.delete and invalidates query on success', async () => {
     const apiClient = mockCoreClient.getMyAccountApiClient();
 
-    const { result, rerender } = renderService();
+    const { result } = renderService();
     await waitFor(() => expect(result.current.factorsQuery.isSuccess).toBe(true));
 
     const initialCallCount = vi.mocked(apiClient.factors.list).mock.calls.length;
     await result.current.deleteMutation.mutateAsync('auth-id-123');
 
     expect(apiClient.authenticationMethods.delete).toHaveBeenCalledWith('auth-id-123');
-    rerender();
     await waitFor(() => {
       expect(vi.mocked(apiClient.factors.list).mock.calls.length).toBeGreaterThan(initialCallCount);
     });
@@ -88,7 +80,7 @@ describe('useUserMFAService', () => {
     const { result } = renderService();
     await waitFor(() => expect(result.current.factorsQuery.isSuccess).toBe(true));
 
-    await result.current.confirmEnrollmentMutation.mutateAsync({
+    await result.current.verifyMutation.mutateAsync({
       factorType: 'totp',
       authSession: 'sess-abc',
       authenticationMethodId: 'method-123',
