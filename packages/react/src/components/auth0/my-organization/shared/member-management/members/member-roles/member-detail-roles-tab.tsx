@@ -57,7 +57,9 @@ export function MemberDetailRolesTab({
               className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
               disabled={removingRoleId === role.id}
               onClick={() => onRemoveRole(role)}
-              aria-label={`Remove role ${role.name}`}
+              aria-label={t('member.detail.roles.table.remove_button_label', {
+                roleName: role.name,
+              })}
             >
               <Trash2 className="h-4 w-4" />
             </Button>

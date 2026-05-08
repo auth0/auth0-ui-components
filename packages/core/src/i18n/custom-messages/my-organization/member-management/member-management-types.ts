@@ -65,6 +65,7 @@ export interface OrganizationMemberDetailMessages {
           name?: string;
           description?: string;
           empty_message?: string;
+          remove_button_label?: string;
         };
         assign_modal?: {
           title?: string;
