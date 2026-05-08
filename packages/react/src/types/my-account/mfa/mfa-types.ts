@@ -5,6 +5,7 @@
 
 import type {
   CreateAuthenticationMethodResponseContent,
+  VerifyAuthenticationMethodResponseContent,
   Authenticator,
   MFAType,
   EnrollOptions,
@@ -25,7 +26,7 @@ export interface UseUserMFAServiceReturn {
   >;
   deleteMutation: UseMutationResult<void, Error, string>;
   confirmEnrollmentMutation: UseMutationResult<
-    unknown,
+    VerifyAuthenticationMethodResponseContent,
     Error,
     {
       factorType: MFAType;
