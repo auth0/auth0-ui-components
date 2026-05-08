@@ -2,12 +2,12 @@ import type { OrgMember, OrgMemberRole } from '@auth0/universal-components-core'
 import { vi } from 'vitest';
 
 import type { MemberAssignRolesModalProps } from '@/components/auth0/my-organization/shared/member-management/members/member-roles/member-assign-roles-modal';
-import type { MemberDetailUserDetailsProps } from '@/components/auth0/my-organization/shared/member-management/members/member-user-details/member-detail-user-details';
 import type { RoleOption } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   MemberDeleteModalProps,
   MemberDetailDangerZoneProps,
   MemberDetailRolesTabProps,
+  OrganizationMemberUserDetailsProps,
   MemberRemoveFromOrgModalProps,
   MemberRemoveRoleModalProps,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
@@ -24,10 +24,8 @@ export const createMockMember = (overrides?: Partial<OrgMember>): OrgMember =>
 
 export const createMockMemberWithPhone = (overrides?: Partial<OrgMember>): OrgMember =>
   createMockMember({
-    ...({
-      phone_number: '+1234567890',
-      connection: 'Username-Password-Authentication',
-    } as unknown as Partial<OrgMember>),
+    phone_number: '+1234567890',
+    provider: 'Username-Password-Authentication',
     ...overrides,
   });
 
@@ -50,8 +48,8 @@ export const createMockAvailableRoles = (): RoleOption[] => [
 ];
 
 export const createMockUserDetailsProps = (
-  overrides: Partial<MemberDetailUserDetailsProps> = {},
-): MemberDetailUserDetailsProps => ({
+  overrides: Partial<OrganizationMemberUserDetailsProps> = {},
+): OrganizationMemberUserDetailsProps => ({
   member: createMockMember(),
   ...overrides,
 });

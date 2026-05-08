@@ -67,6 +67,11 @@ export interface OrganizationMemberDetailClasses {
   'OrganizationMemberDetail-rolesTab'?: string;
 }
 
+export interface OrganizationMemberUserDetailsProps {
+  member: OrgMember;
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
+}
+
 export interface MemberDetailDangerZoneProps {
   readOnly?: boolean;
   isRemovingFromOrg?: boolean;

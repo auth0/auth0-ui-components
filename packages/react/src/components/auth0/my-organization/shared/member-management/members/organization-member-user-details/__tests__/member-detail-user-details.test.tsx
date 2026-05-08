@@ -1,27 +1,27 @@
 import { screen } from '@testing-library/react';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
-import { MemberDetailUserDetails } from '@/components/auth0/my-organization/shared/member-management/members/member-user-details/member-detail-user-details';
+import { OrganizationMemberUserDetails } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-user-details/member-detail-user-details';
 import { renderWithProviders } from '@/tests/utils';
 import {
   createMockUserDetailsProps,
   createMockMember,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
 
-describe('MemberDetailUserDetails', () => {
+describe('OrganizationMemberUserDetails', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
 
   describe('rendering', () => {
     it('should render the user details card', () => {
-      renderWithProviders(<MemberDetailUserDetails {...createMockUserDetailsProps()} />);
+      renderWithProviders(<OrganizationMemberUserDetails {...createMockUserDetailsProps()} />);
 
       expect(screen.getByText('member.detail.user_details.title')).toBeInTheDocument();
     });
 
     it('should render all field labels', () => {
-      renderWithProviders(<MemberDetailUserDetails {...createMockUserDetailsProps()} />);
+      renderWithProviders(<OrganizationMemberUserDetails {...createMockUserDetailsProps()} />);
 
       expect(screen.getByText('member.detail.user_details.name')).toBeInTheDocument();
       expect(screen.getByText('member.detail.user_details.email')).toBeInTheDocument();
@@ -36,7 +36,9 @@ describe('MemberDetailUserDetails', () => {
     it('should display the member name', () => {
       const member = createMockMember({ name: 'Jane Doe' });
 
-      renderWithProviders(<MemberDetailUserDetails {...createMockUserDetailsProps({ member })} />);
+      renderWithProviders(
+        <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
+      );
 
       expect(screen.getByText('Jane Doe')).toBeInTheDocument();
     });
@@ -44,7 +46,9 @@ describe('MemberDetailUserDetails', () => {
     it('should display "—" when name is missing', () => {
       const member = createMockMember({ name: undefined });
 
-      renderWithProviders(<MemberDetailUserDetails {...createMockUserDetailsProps({ member })} />);
+      renderWithProviders(
+        <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
+      );
 
       expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(1);
     });
@@ -54,7 +58,9 @@ describe('MemberDetailUserDetails', () => {
     it('should display the email as a copyable field when present', () => {
       const member = createMockMember({ email: 'user@example.com' });
 
-      renderWithProviders(<MemberDetailUserDetails {...createMockUserDetailsProps({ member })} />);
+      renderWithProviders(
+        <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
+      );
 
       expect(screen.getByDisplayValue('user@example.com')).toBeInTheDocument();
     });
@@ -62,7 +68,9 @@ describe('MemberDetailUserDetails', () => {
     it('should display "—" when email is missing', () => {
       const member = createMockMember({ email: undefined });
 
-      renderWithProviders(<MemberDetailUserDetails {...createMockUserDetailsProps({ member })} />);
+      renderWithProviders(
+        <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
+      );
 
       expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(1);
     });
@@ -73,9 +81,11 @@ describe('MemberDetailUserDetails', () => {
       const member = {
         ...createMockMember(),
         phone_number: '+1234567890',
-      } as Parameters<typeof MemberDetailUserDetails>[0]['member'];
+      } as Parameters<typeof OrganizationMemberUserDetails>[0]['member'];
 
-      renderWithProviders(<MemberDetailUserDetails {...createMockUserDetailsProps({ member })} />);
+      renderWithProviders(
+        <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
+      );
 
       expect(screen.getByDisplayValue('+1234567890')).toBeInTheDocument();
     });
@@ -83,7 +93,9 @@ describe('MemberDetailUserDetails', () => {
     it('should display "—" when phone number is absent', () => {
       const member = createMockMember();
 
-      renderWithProviders(<MemberDetailUserDetails {...createMockUserDetailsProps({ member })} />);
+      renderWithProviders(
+        <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
+      );
 
       expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(1);
     });
@@ -94,9 +106,11 @@ describe('MemberDetailUserDetails', () => {
       const member = {
         ...createMockMember(),
         connection: 'google-oauth2',
-      } as Parameters<typeof MemberDetailUserDetails>[0]['member'];
+      } as Parameters<typeof OrganizationMemberUserDetails>[0]['member'];
 
-      renderWithProviders(<MemberDetailUserDetails {...createMockUserDetailsProps({ member })} />);
+      renderWithProviders(
+        <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
+      );
 
       expect(screen.getByText('google-oauth2')).toBeInTheDocument();
     });
@@ -104,7 +118,9 @@ describe('MemberDetailUserDetails', () => {
     it('should display "—" when provider is absent', () => {
       const member = createMockMember();
 
-      renderWithProviders(<MemberDetailUserDetails {...createMockUserDetailsProps({ member })} />);
+      renderWithProviders(
+        <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
+      );
 
       expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(1);
     });
@@ -112,13 +128,13 @@ describe('MemberDetailUserDetails', () => {
 
   describe('date fields', () => {
     it('should render created_at label', () => {
-      renderWithProviders(<MemberDetailUserDetails {...createMockUserDetailsProps()} />);
+      renderWithProviders(<OrganizationMemberUserDetails {...createMockUserDetailsProps()} />);
 
       expect(screen.getByText('member.detail.user_details.created_at')).toBeInTheDocument();
     });
 
     it('should render last_login label', () => {
-      renderWithProviders(<MemberDetailUserDetails {...createMockUserDetailsProps()} />);
+      renderWithProviders(<OrganizationMemberUserDetails {...createMockUserDetailsProps()} />);
 
       expect(screen.getByText('member.detail.user_details.last_login')).toBeInTheDocument();
     });
@@ -126,7 +142,9 @@ describe('MemberDetailUserDetails', () => {
     it('should display "—" when created_at is missing', () => {
       const member = createMockMember({ created_at: undefined });
 
-      renderWithProviders(<MemberDetailUserDetails {...createMockUserDetailsProps({ member })} />);
+      renderWithProviders(
+        <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
+      );
 
       expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(1);
     });

@@ -4,17 +4,13 @@
  * @internal
  */
 
-import type { OrgMember, OrganizationMemberDetailMessages } from '@auth0/universal-components-core';
+import type { OrgMember } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import { Card } from '@/components/ui/card';
 import { useTranslator } from '@/hooks/shared/use-translator';
-
-export interface MemberDetailUserDetailsProps {
-  member: OrgMember;
-  customMessages?: Partial<OrganizationMemberDetailMessages>;
-}
+import type { OrganizationMemberUserDetailsProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
  * @param dateStr - ISO date string to format
@@ -67,10 +63,10 @@ function buildMemberDetailFields(member: OrgMember, t: (key: string) => string) 
  * @param props - Component props
  * @returns The rendered user details card element
  */
-export function MemberDetailUserDetails({
+export function OrganizationMemberUserDetails({
   member,
   customMessages,
-}: MemberDetailUserDetailsProps): React.JSX.Element {
+}: OrganizationMemberUserDetailsProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
   const fields = React.useMemo(() => buildMemberDetailFields(member, t), [member, t]);
