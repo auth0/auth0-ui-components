@@ -80,7 +80,7 @@ describe('useUserMFAService', () => {
     const { result } = renderService();
     await waitFor(() => expect(result.current.factorsQuery.isSuccess).toBe(true));
 
-    await result.current.confirmEnrollmentMutation.mutateAsync({
+    await result.current.verifyMutation.mutateAsync({
       factorType: 'totp',
       authSession: 'sess-abc',
       authenticationMethodId: 'method-123',

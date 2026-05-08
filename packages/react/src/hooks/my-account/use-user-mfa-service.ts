@@ -66,7 +66,7 @@ export function useUserMFAService(onlyActive: boolean): UseUserMFAServiceReturn 
     },
   });
 
-  const confirmEnrollmentMutation = useMutation({
+  const verifyMutation = useMutation({
     mutationFn: ({
       factorType,
       authSession,
@@ -88,6 +88,6 @@ export function useUserMFAService(onlyActive: boolean): UseUserMFAServiceReturn 
     factorsQuery,
     enrollMutation,
     deleteMutation,
-    confirmEnrollmentMutation,
+    verifyMutation,
   };
 }

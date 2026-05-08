@@ -25,7 +25,7 @@ export interface UseUserMFAServiceReturn {
     { factorType: MFAType; options?: EnrollOptions }
   >;
   deleteMutation: UseMutationResult<void, Error, string>;
-  confirmEnrollmentMutation: UseMutationResult<
+  verifyMutation: UseMutationResult<
     VerifyAuthenticationMethodResponseContent,
     Error,
     {
