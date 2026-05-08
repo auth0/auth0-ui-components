@@ -112,6 +112,16 @@ export interface MemberRemoveRoleModalProps {
   onConfirm: () => void;
 }
 
+export interface MemberAssignRolesModalProps {
+  isOpen: boolean;
+  isLoading?: boolean;
+  availableRoles: RoleOption[];
+  assignedRoles: OrgMemberRole[];
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
+  onClose: () => void;
+  onAssign: (roleIds: string[]) => void;
+}
+
 /** Props for OrganizationMemberDetail component. */
 export interface OrganizationMemberDetailProps
   extends SharedComponentProps<OrganizationMemberDetailMessages, OrganizationMemberDetailClasses> {

@@ -4,8 +4,7 @@
  * @internal
  */
 
-import type { OrgMember } from '@auth0/universal-components-core';
-import type { OrganizationMemberDetailMessages } from '@auth0/universal-components-core';
+import type { OrgMember, OrganizationMemberDetailMessages } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
@@ -34,17 +33,13 @@ function formatDate(dateStr?: string): string {
 
 /**
  * @param member - The org member whose details are being displayed
- * @param phoneNumber - Resolved phone number string
- * @param provider - Resolved connection/provider string
  * @param t - Translation function
  * @returns Array of label/value/copyable field definitions
  */
-function buildMemberDetailFields(
-  member: OrgMember,
-  phoneNumber: string,
-  provider: string,
-  t: (key: string) => string,
-) {
+function buildMemberDetailFields(member: OrgMember, t: (key: string) => string) {
+  const phoneNumber = member.phone_number ?? '';
+  const provider = member.provider ?? '';
+
   return [
     { label: t('member.detail.user_details.name'), value: member.name ?? '—', copyable: false },
     { label: t('member.detail.user_details.email'), value: member.email ?? '—', copyable: true },
@@ -78,14 +73,7 @@ export function MemberDetailUserDetails({
 }: MemberDetailUserDetailsProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
-  const memberRecord = member as Record<string, unknown>;
-  const phoneNumber = (memberRecord.phone_number as string | undefined) ?? '';
-  const provider = (memberRecord.connection as string | undefined) ?? '';
-
-  const fields = React.useMemo(
-    () => buildMemberDetailFields(member, phoneNumber, provider, t),
-    [member, phoneNumber, provider, t],
-  );
+  const fields = React.useMemo(() => buildMemberDetailFields(member, t), [member, t]);
 
   return (
     <Card className="p-6">

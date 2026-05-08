@@ -13,7 +13,10 @@ export type OrgMemberId = MyOrganization.OrgMemberId;
 /**
  * Organization member entity.
  */
-export type OrgMember = MyOrganization.OrgMember;
+export interface OrgMember extends MyOrganization.OrgMember {
+  phone_number?: string;
+  provider?: string;
+}
 
 /**
  * Organization member role.

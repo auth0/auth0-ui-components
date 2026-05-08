@@ -4,8 +4,6 @@
  * @internal
  */
 
-import type { OrgMemberRole } from '@auth0/universal-components-core';
-import type { OrganizationMemberDetailMessages } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -19,17 +17,9 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { RoleOption } from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type { MemberAssignRolesModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
-export interface MemberAssignRolesModalProps {
-  isOpen: boolean;
-  isLoading?: boolean;
-  availableRoles: RoleOption[];
-  assignedRoles: OrgMemberRole[];
-  customMessages?: Partial<OrganizationMemberDetailMessages>;
-  onClose: () => void;
-  onAssign: (roleIds: string[]) => void;
-}
+export type { MemberAssignRolesModalProps };
 
 /**
  * Renders the assign roles dialog for selecting and assigning roles to a member.
