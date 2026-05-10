@@ -28,7 +28,8 @@ export const MYORG_API_SCOPES = [
 "read:my_org:configuration",
 "read:my_org:member_invitations",
 "delete:my_org:member_invitations",
-"create:my_org:member_invitations"
+"create:my_org:member_invitations",
+"read:my_org:member_roles"
 ]
 
 // My Account API Scopes - desired scopes for MFA management

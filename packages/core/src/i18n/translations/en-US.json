@@ -1145,7 +1145,8 @@
         "submit_button": "Send Invite",
         "creating": "Creating...",
         "cancel_button": "Cancel",
-        "success": "Invitation sent to ${email}."
+        "success": "Invitation has been sent to ${email}.",
+        "success_bulk": "Invitations have been sent."
       },
       "details": {
         "title": "Invitation Details",
@@ -1177,7 +1178,7 @@
       },
       "success": {
         "url_copied": "Invitation URL copied to clipboard.",
-        "invitation_resent": "Invitation resent to ${email}."
+        "invitation_resent": "Previous invite revoked. A new invitation has been sent to ${email}."
       },
       "error": {
         "fetch_failed": "Failed to load invitations. Please try again.",

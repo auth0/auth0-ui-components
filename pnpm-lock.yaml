@@ -734,7 +734,7 @@ packages:
     engines: {node: '>=18.0.0'}
 
   '@auth0/myorganization-js@file:auth0-myorganization-js-1.0.0.tgz':
-    resolution: {integrity: sha512-6pW4m2dosFoeGxwdiGkuczUgamn5kHjxoc09xOvqdyUzk0a1HiBlzzEeMt8ggqFtzQI1pJ/PSpgbLFMPSfDZQA==, tarball: file:auth0-myorganization-js-1.0.0.tgz}
+    resolution: {integrity: sha512-hGR+oS3B5sY0BWxR2aj+4YQlWnarCcMC2wcHlzLCggN2Cyk6qhCvB/doeH/r2SpsGJkT0SLtd3CoYjXBbRvQVg==, tarball: file:auth0-myorganization-js-1.0.0.tgz}
     version: 1.0.0
     engines: {node: '>=20.0.0'}
 

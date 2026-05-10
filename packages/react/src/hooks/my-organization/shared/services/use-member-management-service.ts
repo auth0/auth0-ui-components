@@ -79,7 +79,18 @@ export function useMemberManagementService(
         type: p.strategy,
       }));
     },
-    enabled: !!coreClient && isInvitationsTabActive,
+    enabled: !!coreClient,
+  });
+
+  const rolesQuery = useQuery({
+    queryKey: memberManagementQueryKeys.roles(),
+    queryFn: async () => {
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.roles.list({ take: 50 });
+      return response.data;
+    },
+    enabled: !!coreClient,
   });
 
   const invitationsQuery = useQuery({
@@ -99,9 +110,8 @@ export function useMemberManagementService(
 
       const invitations: MemberInvitation[] = page.data;
       const next = page.response.next ?? null;
-      const total = (page.response as Record<string, unknown>).total as number | undefined;
 
-      return { invitations, next, total };
+      return { invitations, next };
     },
     enabled: !!coreClient && isInvitationsTabActive,
   });
@@ -116,13 +126,18 @@ export function useMemberManagementService(
         .organization.invitations.create({
           invitees: data.invitees,
           inviter: data.inviter,
+          identity_provider_id: data.identity_provider_id,
           ttl_sec: data.ttl_sec,
         });
       return Array.isArray(response) ? response[0] : response;
     },
     onSuccess: (result, data) => {
       createInvitationAction?.onAfter?.(data, result);
-      showToast({ type: 'success', message: t('invitation.create.success') });
+      const isBulk = data.invitees.length > 1;
+      const message = isBulk
+        ? t('invitation.create.success_bulk')
+        : t('invitation.create.success', { email: data.invitees[0]?.email ?? '' });
+      showToast({ type: 'success', message });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
     },
     onError: (error) => {
@@ -142,7 +157,10 @@ export function useMemberManagementService(
     },
     onSuccess: (invitation) => {
       revokeInvitationAction?.onAfter?.(invitation);
-      showToast({ type: 'success', message: t('invitation.revoke.success') });
+      showToast({
+        type: 'success',
+        message: t('invitation.revoke.success', { email: invitation.invitee?.email ?? '' }),
+      });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
     },
     onError: (error) => {
@@ -172,7 +190,12 @@ export function useMemberManagementService(
     },
     onSuccess: (result, invitation) => {
       resendInvitationAction?.onAfter?.(invitation, result);
-      showToast({ type: 'success', message: t('invitation.success.invitation_resent') });
+      showToast({
+        type: 'success',
+        message: t('invitation.success.invitation_resent', {
+          email: invitation.invitee?.email ?? '',
+        }),
+      });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
     },
     onError: (error) => {
@@ -190,6 +213,7 @@ export function useMemberManagementService(
 
   return {
     providersQuery,
+    rolesQuery,
     invitationsQuery,
     createInvitationMutation,
     revokeInvitationMutation,
