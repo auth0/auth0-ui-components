@@ -1,4 +1,4 @@
-import { SsoProviderTable, type IdentityProvider } from '@auth0/universal-components-react';
+import { SsoProviderTable, type IdpKnownResponse } from '@auth0/universal-components-react';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,7 +10,7 @@ const SsoProviderPage = () => {
   }, [navigate]);
 
   const handleEdit = useCallback(
-    (provider: IdentityProvider) => {
+    (provider: IdpKnownResponse) => {
       navigate(`/sso-provider/edit/${provider.id}`);
     },
     [navigate],

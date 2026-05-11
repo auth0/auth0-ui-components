@@ -7,7 +7,7 @@ import {
   OrganizationDetailsFactory,
   OrganizationDetailsMappers,
   SsoProviderMappers,
-  type IdentityProvider,
+  type IdpKnownResponse,
   type IdpId,
   type OrganizationPrivate,
   type UpdateIdentityProviderRequestContent,
@@ -70,7 +70,7 @@ export function useSsoProviderEdit(
    */
   const providerQuery = useQuery({
     queryKey: ssoProviderEditQueryKeys.detail(idpId),
-    queryFn: async (): Promise<IdentityProvider> => {
+    queryFn: async (): Promise<IdpKnownResponse> => {
       const response = await coreClient!
         .getMyOrganizationApiClient()
         .organization.identityProviders.get(idpId);
@@ -153,7 +153,7 @@ export function useSsoProviderEdit(
    * Update provider mutation - updates SSO provider configuration.
    */
   const updateProviderMutation = useMutation({
-    mutationFn: async (data: UpdateIdentityProviderRequestContent): Promise<IdentityProvider> => {
+    mutationFn: async (data: UpdateIdentityProviderRequestContent): Promise<IdpKnownResponse> => {
       const provider = providerQuery.data;
       if (!provider) {
         throw new Error('Provider not loaded');
@@ -500,7 +500,7 @@ export function useSsoProviderEdit(
     },
   });
 
-  const fetchProvider = useCallback(async (): Promise<IdentityProvider | null> => {
+  const fetchProvider = useCallback(async (): Promise<IdpKnownResponse | null> => {
     if (!coreClient || !idpId) {
       return null;
     }
