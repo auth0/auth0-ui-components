@@ -1,0 +1,149 @@
+/**
+ * Organization member detail types.
+ * @module organization-member-detail-types
+ */
+
+import type {
+  ComponentAction,
+  SharedComponentProps,
+  OrgMember,
+  OrgMemberRole,
+  OrganizationMemberDetailMessages,
+} from '@auth0/universal-components-core';
+
+import type { RoleOption } from './organization-invitation-table-types';
+
+export type MemberDetailTab = 'details' | 'roles';
+
+export interface UseOrganizationMemberDetailOptions {
+  userId: string;
+  onBack?: () => void;
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
+  readOnly?: boolean;
+  removeFromOrgAction?: ComponentAction<string>;
+  deleteMemberAction?: ComponentAction<string>;
+  assignRoleAction?: ComponentAction<{ userId: string; roleId: string }>;
+  removeRoleAction?: ComponentAction<{ userId: string; roleId: string }>;
+}
+
+/** Discriminated union for member detail modal state. */
+export type MemberDetailModalState =
+  | { type: null }
+  | { type: 'removeFromOrg' }
+  | { type: 'deleteMember' }
+  | { type: 'assignRoles' }
+  | { type: 'removeRole'; role: OrgMemberRole };
+
+export interface UseOrganizationMemberDetailResult {
+  activeTab: MemberDetailTab;
+  member: OrgMember | null;
+  memberRoles: OrgMemberRole[];
+  availableRoles: RoleOption[];
+  isLoading: boolean;
+  isFetchingMember: boolean;
+  isFetchingRoles: boolean;
+  isRemovingFromOrg: boolean;
+  isDeletingMember: boolean;
+  isAssigningRole: boolean;
+  removingRoleId: string | null;
+  modalState: MemberDetailModalState;
+
+  setActiveTab: (tab: MemberDetailTab) => void;
+  handleBack: () => void;
+  openModal: (state: MemberDetailModalState) => void;
+  closeModal: () => void;
+  handleRemoveFromOrgConfirm: () => void;
+  handleDeleteMemberConfirm: () => void;
+  handleAssignRolesSubmit: (roleIds: string[]) => void;
+  handleRemoveRoleConfirm: () => void;
+}
+
+/** CSS classes for OrganizationMemberDetail. */
+export interface OrganizationMemberDetailClasses {
+  'OrganizationMemberDetail-root'?: string;
+  'OrganizationMemberDetail-header'?: string;
+  'OrganizationMemberDetail-tabs'?: string;
+  'OrganizationMemberDetail-detailsTab'?: string;
+  'OrganizationMemberDetail-rolesTab'?: string;
+}
+
+export interface OrganizationMemberUserDetailsProps {
+  member: OrgMember;
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
+}
+
+export interface MemberDetailDangerCardProps {
+  title: string;
+  description: string;
+  buttonLabel: string;
+  isLoading?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+}
+
+export interface MemberDetailDangerZoneProps {
+  readOnly?: boolean;
+  isRemovingFromOrg?: boolean;
+  isDeletingMember?: boolean;
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
+  onRemoveFromOrgClick: () => void;
+  onDeleteMemberClick: () => void;
+}
+
+export interface MemberDeleteModalProps {
+  isOpen: boolean;
+  isLoading?: boolean;
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+export interface MemberRemoveFromOrgModalProps {
+  isOpen: boolean;
+  isLoading?: boolean;
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+export interface OrganizationMemberDetailRolesTabProps {
+  memberRoles: OrgMemberRole[];
+  availableRoles: RoleOption[];
+  isLoading?: boolean;
+  removingRoleId?: string | null;
+  readOnly?: boolean;
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
+  onAssignRolesClick: () => void;
+  onRemoveRole: (role: OrgMemberRole) => void;
+}
+
+export interface OrganizationMemberRemoveRoleModalProps {
+  isOpen: boolean;
+  isLoading?: boolean;
+  role: OrgMemberRole | null;
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+export interface OrganizationMemberAssignRolesModalProps {
+  isOpen: boolean;
+  isLoading?: boolean;
+  availableRoles: RoleOption[];
+  assignedRoles: OrgMemberRole[];
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
+  onClose: () => void;
+  onAssign: (roleIds: string[]) => void;
+}
+
+/** Props for OrganizationMemberDetail component. */
+export interface OrganizationMemberDetailProps
+  extends SharedComponentProps<OrganizationMemberDetailMessages, OrganizationMemberDetailClasses> {
+  userId: string;
+  onBack?: () => void;
+  hideHeader?: boolean;
+  removeFromOrgAction?: ComponentAction<string>;
+  deleteMemberAction?: ComponentAction<string>;
+  assignRoleAction?: ComponentAction<{ userId: string; roleId: string }>;
+  removeRoleAction?: ComponentAction<{ userId: string; roleId: string }>;
+}

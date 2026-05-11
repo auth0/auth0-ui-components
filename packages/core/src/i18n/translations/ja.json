@@ -1137,7 +1137,8 @@
           "table": {
             "name": "名前",
             "description": "説明",
-            "empty_message": "割り当てられたロールはありません。"
+            "empty_message": "割り当てられたロールはありません。",
+            "remove_button_label": "ロール ${roleName} を削除する"
           },
           "assign_modal": {
             "title": "ロールを割り当てる",

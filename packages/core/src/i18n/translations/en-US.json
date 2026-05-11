@@ -1136,7 +1136,8 @@
           "table": {
             "name": "Name",
             "description": "Description",
-            "empty_message": "No roles assigned."
+            "empty_message": "No roles assigned.",
+            "remove_button_label": "Remove role ${roleName}"
           },
           "assign_modal": {
             "title": "Assign Roles",

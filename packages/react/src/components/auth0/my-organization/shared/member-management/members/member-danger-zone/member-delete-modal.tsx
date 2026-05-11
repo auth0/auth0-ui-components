@@ -1,0 +1,59 @@
+/**
+ * Confirmation modal for deleting a member (deletes the underlying user).
+ * @module member-delete-modal
+ */
+
+import * as React from 'react';
+
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Spinner } from '@/components/ui/spinner';
+import { useTranslator } from '@/hooks/shared/use-translator';
+import type { MemberDeleteModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
+
+/**
+ * Renders the delete member confirmation dialog.
+ * @param props - Component props
+ * @returns The rendered confirmation dialog element
+ */
+export function MemberDeleteModal({
+  isOpen,
+  isLoading = false,
+  customMessages,
+  onClose,
+  onConfirm,
+}: MemberDeleteModalProps): React.JSX.Element {
+  const { t } = useTranslator('member_management', customMessages);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('member.detail.danger_zone.delete_member.confirm_title')}</DialogTitle>
+          <DialogDescription>
+            {t('member.detail.danger_zone.delete_member.confirm_description')}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={isLoading}>
+            {t('member.detail.danger_zone.delete_member.cancel_button')}
+          </Button>
+          <Button variant="destructive" onClick={onConfirm} disabled={isLoading}>
+            {isLoading ? (
+              <Spinner size="sm" />
+            ) : (
+              t('member.detail.danger_zone.delete_member.confirm_button')
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
