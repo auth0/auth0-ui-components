@@ -17,7 +17,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { useUserMFAService } from '@/hooks/my-account/use-user-mfa-service';
+import { useUserMFAService } from '@/hooks/my-account/shared/services/use-user-mfa-service';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import {

@@ -8,8 +8,8 @@ import {
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import * as useUserMFAServiceModule from '@/hooks/my-account/shared/services/use-user-mfa-service';
 import { useUserMFA } from '@/hooks/my-account/use-user-mfa';
-import * as useUserMFAServiceModule from '@/hooks/my-account/use-user-mfa-service';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import {
