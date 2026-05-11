@@ -105,7 +105,7 @@ describe('OrganizationMemberUserDetails', () => {
     it('should display provider when present', () => {
       const member = {
         ...createMockMember(),
-        connection: 'google-oauth2',
+        provider: 'google-oauth2',
       } as Parameters<typeof OrganizationMemberUserDetails>[0]['member'];
 
       renderWithProviders(

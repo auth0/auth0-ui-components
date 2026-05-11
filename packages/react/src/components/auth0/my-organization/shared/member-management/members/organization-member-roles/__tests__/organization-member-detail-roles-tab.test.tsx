@@ -138,8 +138,9 @@ describe('OrganizationMemberDetailRolesTab', () => {
         />,
       );
 
-      expect(screen.getByLabelText('Remove role Admin')).toBeInTheDocument();
-      expect(screen.getByLabelText('Remove role Viewer')).toBeInTheDocument();
+      expect(
+        screen.getAllByLabelText('member.detail.roles.table.remove_button_label'),
+      ).toHaveLength(2);
     });
 
     it('should not render trash icon when readOnly is true', () => {
@@ -151,7 +152,9 @@ describe('OrganizationMemberDetailRolesTab', () => {
         />,
       );
 
-      expect(screen.queryByLabelText('Remove role Admin')).not.toBeInTheDocument();
+      expect(
+        screen.queryByLabelText('member.detail.roles.table.remove_button_label'),
+      ).not.toBeInTheDocument();
     });
 
     it('should call onRemoveRole with the role when trash button is clicked', async () => {
@@ -165,7 +168,7 @@ describe('OrganizationMemberDetailRolesTab', () => {
         />,
       );
 
-      await user.click(screen.getByLabelText('Remove role Admin'));
+      await user.click(screen.getByLabelText('member.detail.roles.table.remove_button_label'));
 
       expect(onRemoveRole).toHaveBeenCalledTimes(1);
       expect(onRemoveRole).toHaveBeenCalledWith(role);
@@ -184,7 +187,7 @@ describe('OrganizationMemberDetailRolesTab', () => {
         />,
       );
 
-      expect(screen.getByLabelText('Remove role Admin')).toBeDisabled();
+      expect(screen.getByLabelText('member.detail.roles.table.remove_button_label')).toBeDisabled();
     });
   });
 });

@@ -72,6 +72,15 @@ export interface OrganizationMemberUserDetailsProps {
   customMessages?: Partial<OrganizationMemberDetailMessages>;
 }
 
+export interface MemberDetailDangerCardProps {
+  title: string;
+  description: string;
+  buttonLabel: string;
+  isLoading?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+}
+
 export interface MemberDetailDangerZoneProps {
   readOnly?: boolean;
   isRemovingFromOrg?: boolean;

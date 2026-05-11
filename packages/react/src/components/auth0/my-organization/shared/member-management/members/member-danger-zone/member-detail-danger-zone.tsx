@@ -8,13 +8,23 @@ import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { MemberDetailDangerZoneProps } from '@/types/my-organization/member-management/organization-member-detail-types';
+import type {
+  MemberDetailDangerCardProps,
+  MemberDetailDangerZoneProps,
+} from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
  * Renders a single danger zone action card with a title, description, and destructive button.
  * @param props - Component props
- * @returns The rendered danger zone card element
+ * @param props.title - Card title text
+ * @param props.description - Card description text
+ * @param props.buttonLabel - Label for the action button
+ * @param props.isLoading - Whether the action is in progress
+ * @param props.disabled - Whether the button is disabled
+ * @param props.onClick - Click handler for the action button
+ * @returns The rendered danger card element
  */
 function DangerCard({
   title,
@@ -23,14 +33,7 @@ function DangerCard({
   isLoading,
   disabled,
   onClick,
-}: {
-  title: string;
-  description: string;
-  buttonLabel: string;
-  isLoading?: boolean;
-  disabled?: boolean;
-  onClick: () => void;
-}): React.JSX.Element {
+}: MemberDetailDangerCardProps): React.JSX.Element {
   return (
     <Card className="flex items-center justify-between gap-4 p-6">
       <div className="flex flex-col gap-1">
@@ -44,7 +47,7 @@ function DangerCard({
         disabled={disabled || isLoading}
         className="shrink-0"
       >
-        {buttonLabel}
+        {isLoading ? <Spinner size="sm" /> : buttonLabel}
       </Button>
     </Card>
   );

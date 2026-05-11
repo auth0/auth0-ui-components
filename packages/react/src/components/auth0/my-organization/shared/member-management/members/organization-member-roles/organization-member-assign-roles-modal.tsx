@@ -19,8 +19,6 @@ import { Label } from '@/components/ui/label';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { OrganizationMemberAssignRolesModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
-export type { OrganizationMemberAssignRolesModalProps };
-
 /**
  * Renders the assign roles dialog for selecting and assigning roles to a member.
  * @param props - Component props
