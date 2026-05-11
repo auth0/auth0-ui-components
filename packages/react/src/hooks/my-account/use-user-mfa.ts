@@ -79,27 +79,17 @@ export function useUserMFA({
   const [otpData, setOtpData] = useState({ barcodeUri: '', manualInputCode: '' });
   const [recoveryCode, setRecoveryCode] = useState('');
 
-  const factorsByType = (factorsQuery.data ?? {}) as Record<MFAType, Authenticator[]>;
+  const factorsByType = factorsQuery.data ?? ({} as Record<MFAType, Authenticator[]>);
 
   useEffect(() => {
     if (factorsQuery.isSuccess) onFetch?.();
-  }, [factorsQuery.dataUpdatedAt, onFetch]);
+  }, [factorsQuery.isSuccess, onFetch]);
 
   useEffect(() => {
     if (factorsQuery.isError) {
       handleError(factorsQuery.error, { fallbackMessage: t('errors.factors_loading_error') });
     }
   }, [factorsQuery.isError, factorsQuery.error, handleError, t]);
-
-  useEffect(() => {
-    if (!isEnrollDialogOpen) {
-      setEnrollmentPhase(null);
-      setEnrollmentSession(EMPTY_SESSION);
-      setContact('');
-      setOtpData({ barcodeUri: '', manualInputCode: '' });
-      setRecoveryCode('');
-    }
-  }, [isEnrollDialogOpen]);
 
   const visibleFactorTypes = useMemo(
     () =>
@@ -137,6 +127,11 @@ export function useUserMFA({
     });
     setIsEnrollDialogOpen(false);
     setEnrollFactor(null);
+    setEnrollmentPhase(null);
+    setEnrollmentSession(EMPTY_SESSION);
+    setContact('');
+    setOtpData({ barcodeUri: '', manualInputCode: '' });
+    setRecoveryCode('');
     await factorsQuery.refetch();
   }, [factorsQuery, onEnroll, t]);
 
@@ -151,10 +146,6 @@ export function useUserMFA({
     },
     [verifyMutation, handleEnrollSuccess, handleEnrollError],
   );
-
-  const handleRefreshFactors = useCallback(() => {
-    factorsQuery.refetch();
-  }, [factorsQuery]);
 
   const handleEnroll = useCallback(
     async (factor: MFAType) => {
@@ -198,6 +189,11 @@ export function useUserMFA({
 
   const handleCloseEnrollDialog = useCallback(() => {
     setIsEnrollDialogOpen(false);
+    setEnrollmentPhase(null);
+    setEnrollmentSession(EMPTY_SESSION);
+    setContact('');
+    setOtpData({ barcodeUri: '', manualInputCode: '' });
+    setRecoveryCode('');
     if (enrollFactor === FACTOR_TYPE_PUSH_NOTIFICATION) {
       factorsQuery.refetch();
     }
@@ -243,13 +239,15 @@ export function useUserMFA({
   );
 
   const handleSendCode = useCallback(
-    async (options: Record<string, string>) => {
+    async (options: Record<string, string>): Promise<boolean> => {
       try {
         const enrollment = await enrollMutation.mutateAsync({ factorType: enrollFactor!, options });
         setContact(options.email ?? options.phone_number ?? '');
         setEnrollmentSession(extractSession(enrollment));
+        return true;
       } catch (err) {
         handleEnrollError(err, ENROLL);
+        return false;
       }
     },
     [enrollFactor, enrollMutation, handleEnrollError],
@@ -322,11 +320,9 @@ export function useUserMFA({
     otpData,
     recoveryCode,
     handleCancelDelete,
-    handleRefreshFactors,
     handleEnroll,
     handleCloseEnrollDialog,
     handleDeleteFactor,
-    handleConfirmDelete,
     handleSendCode,
     handleConfirmOtp,
     handleConfirmPush,
