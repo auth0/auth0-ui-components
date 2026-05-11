@@ -9,7 +9,7 @@ import {
   type ListIdentityProvidersResponseContent,
   memberManagementQueryKeys,
 } from '@auth0/universal-components-core';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
@@ -114,6 +114,7 @@ export function useMemberManagementService(
       return { invitations, next };
     },
     enabled: !!coreClient && isInvitationsTabActive,
+    placeholderData: keepPreviousData,
   });
 
   const createInvitationMutation = useMutation({

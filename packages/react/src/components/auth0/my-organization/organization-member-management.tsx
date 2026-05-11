@@ -220,7 +220,7 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
   });
 
   return (
-    <GateKeeper isLoading={memberManagement.isFetchingInvitations} styling={styling}>
+    <GateKeeper isLoading={memberManagement.isInitialLoading} styling={styling}>
       <OrganizationMemberManagementView
         {...memberManagement}
         styling={styling}

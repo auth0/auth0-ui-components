@@ -3,10 +3,9 @@
  * @module organization-invitation-details-modal
  */
 
-import { Link } from 'lucide-react';
+import { Link, Copy, Check } from 'lucide-react';
 import * as React from 'react';
 
-import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -94,9 +93,16 @@ export function OrganizationInvitationDetailsModal({
     return provider?.name ?? invitation.identity_provider_id;
   }, [invitation?.identity_provider_id, availableProviders]);
 
+  const [copied, setCopied] = React.useState(false);
+
+  React.useEffect(() => {
+    if (isOpen) setCopied(false);
+  }, [isOpen]);
+
   const handleCopyUrl = React.useCallback(() => {
     if (invitation) {
       onCopyUrl?.(invitation);
+      setCopied(true);
     }
   }, [invitation, onCopyUrl]);
 
@@ -185,11 +191,30 @@ export function OrganizationInvitationDetailsModal({
               <Label className="text-sm font-medium text-muted-foreground">
                 {t('invitation.details.invitation_url_label')}
               </Label>
-              <CopyableTextField
+              <TextField
                 value={invitation.invitation_url}
                 readOnly
-                onCopy={handleCopyUrl}
                 startAdornment={<Link className="h-4 w-4 text-muted-foreground" />}
+                endAdornment={
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={handleCopyUrl}
+                    aria-label={
+                      copied
+                        ? t('invitation.details.copied')
+                        : t('invitation.details.copy_url_button')
+                    }
+                  >
+                    {copied ? (
+                      <Check className="h-4 w-4" aria-hidden="true" />
+                    ) : (
+                      <Copy className="h-4 w-4" aria-hidden="true" />
+                    )}
+                  </Button>
+                }
               />
             </div>
           )}

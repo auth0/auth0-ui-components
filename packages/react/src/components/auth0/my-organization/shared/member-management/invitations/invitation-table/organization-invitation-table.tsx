@@ -163,7 +163,7 @@ export function OrganizationInvitationTable({
         onSortChange={onSortChange}
       />
 
-      {invitations.length > 0 && (
+      {!loading && invitations.length > 0 && (
         <div className="mt-4">
           <DataPagination
             type="checkpoint"

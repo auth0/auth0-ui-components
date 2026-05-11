@@ -1126,6 +1126,7 @@
         "menu_label": "アクション",
         "view_details": "詳細を表示",
         "copy_url": "招待URLをコピー",
+        "copied": "コピーしました！",
         "revoke_and_resend": "取り消して再送信",
         "revoke": "招待を取り消す"
       },
