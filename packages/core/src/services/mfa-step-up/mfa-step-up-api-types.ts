@@ -1,3 +1,12 @@
+/**
+ * MFA Step-Up API types for raw `/auth/mfa/*` HTTP endpoints.
+ *
+ * Intentionally custom: `@auth0/auth0-spa-js` exports matching MFA types but is
+ * not a dependency of `@auth0/universal-components-core`. If that dependency is
+ * added in the future, replace these with SDK re-exports.
+ * @module mfa-step-up-api-types
+ * @internal
+ */
 import type { TokenEndpointResponse } from '@core/auth/auth-types';
 
 import type { MFA_REQUIRED_ERROR } from './mfa-step-up-api-constants';

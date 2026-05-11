@@ -79,11 +79,53 @@ describe('useMemberManagementService', () => {
       ).toHaveBeenCalled();
     });
 
-    it('should not fetch identity providers when members tab is active', () => {
+    it('should not fetch identity providers when members tab is active', async () => {
       const options = createDefaultOptions({ activeTab: 'members' });
       const { result } = renderService(options);
 
+      // Wait for rolesQuery to settle (it's always enabled)
+      await waitFor(() => {
+        expect(result.current.rolesQuery.isSuccess).toBe(true);
+      });
+
       expect(result.current.providersQuery.fetchStatus).toBe('idle');
+    });
+  });
+
+  describe('rolesQuery', () => {
+    it('should fetch roles when coreClient is available', async () => {
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.rolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.rolesQuery.data).toBeDefined();
+    });
+
+    it('should return roles data', async () => {
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.rolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.rolesQuery.data).toEqual([
+        { id: 'rol_admin', name: 'admin', description: 'Admin role' },
+      ]);
+    });
+
+    it('should fetch roles regardless of active tab', async () => {
+      const options = createDefaultOptions({ activeTab: 'members' });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.rolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.rolesQuery.data).toBeDefined();
     });
   });
 
@@ -168,7 +210,7 @@ describe('useMemberManagementService', () => {
         .fn()
         .mockResolvedValue({
           data: [mockInvitation],
-          response: { next: 'next_token', total: 5 },
+          response: { next: 'next_token' },
         });
 
       const options = createDefaultOptions();
@@ -181,7 +223,6 @@ describe('useMemberManagementService', () => {
       expect(result.current.invitationsQuery.data).toEqual({
         invitations: [mockInvitation],
         next: 'next_token',
-        total: 5,
       });
     });
   });

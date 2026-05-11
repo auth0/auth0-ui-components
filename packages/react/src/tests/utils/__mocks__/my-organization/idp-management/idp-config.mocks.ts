@@ -1,4 +1,4 @@
-import type { IdpConfig } from '@auth0/universal-components-core';
+import type { GetIdpConfigurationResponseContent } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 import type { UseConfigIdpResult } from '@/types/my-organization/config/config-idp-types';
@@ -22,7 +22,7 @@ export const createMockUseIdpConfig = (
       can_set_assign_membership_on_login: true,
       can_set_show_as_button: true,
     },
-  } as IdpConfig,
+  } as GetIdpConfigurationResponseContent,
   isLoadingIdpConfig: false,
   isIdpConfigValid: true,
   fetchIdpConfig: vi.fn(async () => undefined),

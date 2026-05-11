@@ -9,17 +9,11 @@ import type {
   MemberInvitation,
   InvitationCreateSchemas,
   OrganizationInvitationTabMessages,
+  Role,
 } from '@auth0/universal-components-core';
 
 /** Invitation status. */
 export type InvitationStatus = 'pending' | 'expired';
-
-/** Role option for invitation. */
-export interface RoleOption {
-  id: string;
-  name: string;
-  description?: string;
-}
 
 /** Identity provider option for invitation. */
 export interface IdentityProviderOption {
@@ -105,7 +99,7 @@ export interface OrganizationInvitationTableProps {
   pagination: InvitationPaginationState;
   filters?: InvitationFilterState;
   sortConfig?: InvitationSortConfig;
-  availableRoles?: RoleOption[];
+  availableRoles?: Role[];
   readOnly?: boolean;
   onView?: (invitation: MemberInvitation) => void;
   onCopyUrl?: (invitation: MemberInvitation) => void;
@@ -122,7 +116,7 @@ export interface OrganizationInvitationTableProps {
 /** Props for SearchFilter component. */
 export interface SearchFilterProps {
   filters?: InvitationFilterState;
-  availableRoles?: RoleOption[];
+  availableRoles?: Role[];
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   className?: string;
   onRoleFilterChange?: (roleId: string | undefined) => void;
@@ -133,7 +127,7 @@ export interface OrganizationInvitationCreateModalProps {
   isOpen: boolean;
   isLoading?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
-  availableRoles?: RoleOption[];
+  availableRoles?: Role[];
   availableProviders?: IdentityProviderOption[];
   inviterName?: string;
   schema?: InvitationCreateSchemas;
@@ -149,7 +143,7 @@ export interface OrganizationInvitationDetailsModalProps {
   isRevoking?: boolean;
   isResending?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
-  availableRoles?: RoleOption[];
+  availableRoles?: Role[];
   availableProviders?: IdentityProviderOption[];
   readOnly?: boolean;
   onClose: () => void;
