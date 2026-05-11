@@ -155,6 +155,8 @@ export const createMockUserMFAMgmtLogic = (
     'webauthn-roaming': [],
     'webauthn-platform': [],
     'recovery-code': [],
+    password: [],
+    passkey: [],
   },
   visibleFactorTypes: ['email'],
   hasNoActiveFactors: false,
