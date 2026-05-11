@@ -74,7 +74,7 @@ export interface UseUserMFAReturn {
   handleCloseEnrollDialog: () => void;
   handleDeleteFactor: (factorId: string, factorType: MFAType) => Promise<void>;
   handleConfirmDelete: (factorId: string) => Promise<void>;
-  handleSendCode: (options: Record<string, string>) => Promise<void>;
+  handleSendCode: (options: Record<string, string>) => Promise<boolean>;
   handleConfirmOtp: (otpCode: string) => Promise<void>;
   handleConfirmPush: () => Promise<void>;
   handleConfirmRecoveryCode: () => Promise<void>;

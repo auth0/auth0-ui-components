@@ -243,13 +243,15 @@ export function useUserMFA({
   );
 
   const handleSendCode = useCallback(
-    async (options: Record<string, string>) => {
+    async (options: Record<string, string>): Promise<boolean> => {
       try {
         const enrollment = await enrollMutation.mutateAsync({ factorType: enrollFactor!, options });
         setContact(options.email ?? options.phone_number ?? '');
         setEnrollmentSession(extractSession(enrollment));
+        return true;
       } catch (err) {
         handleEnrollError(err, ENROLL);
+        return false;
       }
     },
     [enrollFactor, enrollMutation, handleEnrollError],

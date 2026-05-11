@@ -96,11 +96,11 @@ function UserMFAMgmt({
     handleDeleteFactor,
     handleConfirmDelete,
     handleCancelDelete,
-    handleSubmitContact,
+    handleSendCode,
     handleConfirmOtp,
-    handleContinueQR,
+    handleConfirmPush,
     handleConfirmRecoveryCode,
-    handleAdvanceToQR,
+    handleEnterQRPhase,
   } = useUserMFA({
     showActiveOnly,
     readOnly,
@@ -146,11 +146,11 @@ function UserMFAMgmt({
         onCloseEnrollDialog={handleCloseEnrollDialog}
         onConfirmDelete={handleConfirmDelete}
         onCancelDelete={handleCancelDelete}
-        onSubmitContact={handleSubmitContact}
+        onSubmitContact={handleSendCode}
         onConfirmOtp={handleConfirmOtp}
-        onContinueQR={handleContinueQR}
+        onContinueQR={handleConfirmPush}
         onConfirmRecoveryCode={handleConfirmRecoveryCode}
-        onAdvanceToQR={handleAdvanceToQR}
+        onAdvanceToQR={handleEnterQRPhase}
       />
     </GateKeeper>
   );
