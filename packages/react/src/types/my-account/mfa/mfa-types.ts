@@ -5,6 +5,7 @@
 
 import type {
   CreateAuthenticationMethodResponseContent,
+  VerifyAuthenticationMethodResponseContent,
   Authenticator,
   MFAType,
   EnrollOptions,
@@ -66,16 +67,15 @@ export interface UseUserMFAReturn {
   otpData: { barcodeUri: string; manualInputCode: string };
   recoveryCode: string;
   handleCancelDelete: () => void;
-  refreshFactors: () => void;
-  handleEnroll: (factor: MFAType) => void;
-  handleCloseEnrollDialog: () => void;
+  handleConfirmDelete: () => Promise<void>;
+  handleEnroll: (factor: MFAType) => Promise<void>;
+  handleCloseEnrollDialog: () => Promise<void>;
   handleDeleteFactor: (factorId: string, factorType: MFAType) => Promise<void>;
-  handleConfirmDelete: (factorId: string) => Promise<void>;
-  handleSubmitContact: (options: Record<string, string>) => Promise<boolean>;
+  handleSendCode: (options: Record<string, string>) => Promise<boolean>;
   handleConfirmOtp: (otpCode: string) => Promise<void>;
-  handleContinueQR: () => Promise<void>;
+  handleConfirmPush: () => Promise<void>;
   handleConfirmRecoveryCode: () => Promise<void>;
-  handleAdvanceToQR: () => void;
+  handleEnterQRPhase: () => Promise<void>;
 }
 
 export interface UseUserMFAServiceReturn {
@@ -86,8 +86,8 @@ export interface UseUserMFAServiceReturn {
     { factorType: MFAType; options?: EnrollOptions }
   >;
   deleteMutation: UseMutationResult<void, Error, string>;
-  confirmEnrollmentMutation: UseMutationResult<
-    unknown,
+  verifyMutation: UseMutationResult<
+    VerifyAuthenticationMethodResponseContent,
     Error,
     {
       factorType: MFAType;
@@ -231,7 +231,7 @@ export interface DeleteFactorConfirmationProps
     type: MFAType;
   } | null;
   isDeletingFactor: boolean;
-  onConfirm: (factorId: string) => void;
+  onConfirm: () => void;
   onCancel: () => void;
 }
 
@@ -296,7 +296,6 @@ export interface FactorsListProps extends SharedComponentProps<MFAMessages, User
 export interface UserMFAMgmtViewProps {
   error: string | null;
   schema: UserMFAMgmtProps['schema'];
-  isLoading: boolean;
   isEnrolling: boolean;
   isDeleting: boolean;
   isConfirming: boolean;
@@ -322,7 +321,7 @@ export interface UserMFAMgmtViewProps {
   onEnrollFactor: (factor: MFAType) => void;
   onDeleteFactor: (factorId: string, factorType: MFAType) => Promise<void>;
   onCloseEnrollDialog: () => void;
-  onConfirmDelete: (factorId: string) => Promise<void>;
+  onConfirmDelete: () => Promise<void>;
   onCancelDelete: () => void;
   onSubmitContact: (options: Record<string, string>) => Promise<boolean>;
   onConfirmOtp: (otpCode: string) => Promise<void>;

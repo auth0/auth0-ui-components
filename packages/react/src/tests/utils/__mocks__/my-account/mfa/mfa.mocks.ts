@@ -122,7 +122,6 @@ export const createMockAPIError = (message: string, statusCode?: number) => {
 export const createMockUserMFAMgmtViewProps = (
   overrides: Partial<UserMFAMgmtViewProps> = {},
 ): UserMFAMgmtViewProps => ({
-  isLoading: false,
   isEnrolling: false,
   isDeleting: false,
   isConfirming: false,

@@ -8,16 +8,16 @@ import {
   FACTOR_TYPE_PHONE,
   FACTOR_TYPE_PUSH_NOTIFICATION,
   FACTOR_TYPE_RECOVERY_CODE,
-  FACTOR_TYPE_TOTP,
   isNotifiableError,
   normalizeError,
   type Authenticator,
+  type CreateAuthenticationMethodResponseContent,
   type MFAType,
 } from '@auth0/universal-components-core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { useUserMFAService } from '@/hooks/my-account/use-user-mfa-service';
+import { useUserMFAService } from '@/hooks/my-account/shared/services/use-user-mfa-service';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import {
@@ -34,15 +34,17 @@ import type {
   UseUserMFAReturn,
 } from '@/types/my-account/mfa/mfa-types';
 
-const INITIAL_PHASE_MAP: Partial<Record<MFAType, EnrollmentPhase>> = {
-  [FACTOR_TYPE_EMAIL]: ENTER_CONTACT,
-  [FACTOR_TYPE_PHONE]: ENTER_CONTACT,
-  [FACTOR_TYPE_PUSH_NOTIFICATION]: QR_PHASE_INSTALLATION,
-  [FACTOR_TYPE_TOTP]: ENTER_QR,
-  [FACTOR_TYPE_RECOVERY_CODE]: SHOW_RECOVERY_CODE,
-};
-
 const EMPTY_SESSION = { authSession: '', authenticationMethodId: '' };
+
+const extractSession = (res: CreateAuthenticationMethodResponseContent) => ({
+  authSession: res.auth_session,
+  authenticationMethodId: 'id' in res ? res.id : '',
+});
+
+const extractOtpData = (res: CreateAuthenticationMethodResponseContent) => ({
+  barcodeUri: 'barcode_uri' in res ? res.barcode_uri : '',
+  manualInputCode: 'manual_input_code' in res ? (res.manual_input_code ?? '') : '',
+});
 
 /**
  * Hook for user MFA management — fetch, enroll, delete, confirm, and all UI state.
@@ -63,7 +65,7 @@ export function useUserMFA({
 }: UserMFAOptions = {}): UseUserMFAReturn {
   const { t } = useTranslator('mfa', customMessages);
   const handleError = useErrorHandler();
-  const { factorsQuery, enrollMutation, deleteMutation, confirmEnrollmentMutation } =
+  const { factorsQuery, enrollMutation, deleteMutation, verifyMutation } =
     useUserMFAService(showActiveOnly);
 
   const [isEnrollDialogOpen, setIsEnrollDialogOpen] = useState(false);
@@ -77,29 +79,17 @@ export function useUserMFA({
   const [otpData, setOtpData] = useState({ barcodeUri: '', manualInputCode: '' });
   const [recoveryCode, setRecoveryCode] = useState('');
 
-  const factorsByType = (factorsQuery.data ?? {}) as Record<MFAType, Authenticator[]>;
+  const factorsByType = factorsQuery.data ?? ({} as Record<MFAType, Authenticator[]>);
 
   useEffect(() => {
     if (factorsQuery.isSuccess) onFetch?.();
-  }, [factorsQuery.dataUpdatedAt, onFetch]);
+  }, [factorsQuery.isSuccess, onFetch]);
 
   useEffect(() => {
     if (factorsQuery.isError) {
       handleError(factorsQuery.error, { fallbackMessage: t('errors.factors_loading_error') });
     }
   }, [factorsQuery.isError, factorsQuery.error, handleError, t]);
-
-  useEffect(() => {
-    if (!isEnrollDialogOpen) {
-      setEnrollmentPhase(null);
-      setEnrollmentSession(EMPTY_SESSION);
-      setContact('');
-      setOtpData({ barcodeUri: '', manualInputCode: '' });
-      setRecoveryCode('');
-    } else if (enrollFactor) {
-      setEnrollmentPhase(INITIAL_PHASE_MAP[enrollFactor] ?? null);
-    }
-  }, [isEnrollDialogOpen, enrollFactor]);
 
   const visibleFactorTypes = useMemo(
     () =>
@@ -114,87 +104,82 @@ export function useUserMFA({
     [visibleFactorTypes, factorsByType],
   );
 
-  const notifyEnrollError = useCallback(
-    (err: unknown, stage: typeof ENROLL | typeof CONFIRM) => {
+  const handleEnrollError = useCallback(
+    (err: unknown, stage: typeof ENROLL | typeof CONFIRM, factor: MFAType | null) => {
       if (!isNotifiableError(err)) {
         handleError(err);
         return;
       }
       const label = stage === ENROLL ? t('enrollment') : t('confirmation');
       const error = normalizeError(err, {
-        resolver: (code) => t(`errors.${enrollFactor}.${code}`, {}, t('errors.unexpected')),
+        resolver: (code) => t(`errors.${factor}.${code}`, {}, t('errors.unexpected')),
       });
       toast.error(`${label} ${t('errors.failed', { message: error.message })}`);
       onErrorAction?.(error, stage);
     },
-    [enrollFactor, handleError, onErrorAction, t],
+    [handleError, onErrorAction, t],
   );
 
-  const completeEnrollment = useCallback(async () => {
+  const handleEnrollSuccess = useCallback(async () => {
     toast.success(t('enroll_factor'), {
       duration: 2000,
       onAutoClose: () => onEnroll?.(),
     });
     setIsEnrollDialogOpen(false);
     setEnrollFactor(null);
+    setEnrollmentPhase(null);
+    setEnrollmentSession(EMPTY_SESSION);
+    setContact('');
+    setOtpData({ barcodeUri: '', manualInputCode: '' });
+    setRecoveryCode('');
     await factorsQuery.refetch();
   }, [factorsQuery, onEnroll, t]);
 
-  const confirmAndComplete = useCallback(
-    async (params: Parameters<typeof confirmEnrollmentMutation.mutateAsync>[0]) => {
+  const verifyAndComplete = useCallback(
+    async (params: Parameters<typeof verifyMutation.mutateAsync>[0]) => {
       try {
-        await confirmEnrollmentMutation.mutateAsync(params);
-        await completeEnrollment();
+        await verifyMutation.mutateAsync(params);
+        await handleEnrollSuccess();
       } catch (err) {
-        notifyEnrollError(err, CONFIRM);
+        handleEnrollError(err, CONFIRM, params.factorType);
       }
     },
-    [confirmEnrollmentMutation, completeEnrollment, notifyEnrollError],
+    [verifyMutation, handleEnrollSuccess, handleEnrollError],
   );
 
-  // Auto-fetch enrollment data when entering SHOW_RECOVERY_CODE or ENTER_QR
-  useEffect(() => {
-    if (enrollmentPhase !== SHOW_RECOVERY_CODE && enrollmentPhase !== ENTER_QR) return;
-    if (!enrollFactor) return;
-    if (enrollmentPhase === ENTER_QR && otpData.barcodeUri) return;
+  const handleEnroll = useCallback(
+    async (factor: MFAType) => {
+      setEnrollFactor(factor);
+      setIsEnrollDialogOpen(true);
 
-    const fetchEnrollmentData = async () => {
+      if (factor === FACTOR_TYPE_EMAIL || factor === FACTOR_TYPE_PHONE) {
+        setEnrollmentPhase(ENTER_CONTACT);
+        return;
+      }
+
+      if (factor === FACTOR_TYPE_PUSH_NOTIFICATION) {
+        setEnrollmentPhase(QR_PHASE_INSTALLATION);
+        return;
+      }
+
       try {
-        const enrollment = await enrollMutation.mutateAsync({
-          factorType: enrollFactor!,
-          options: {},
-        });
-        setEnrollmentSession({
-          authSession: 'auth_session' in enrollment ? enrollment.auth_session : '',
-          authenticationMethodId: 'id' in enrollment ? enrollment.id : '',
-        });
-        if (enrollmentPhase === SHOW_RECOVERY_CODE) {
+        const enrollment = await enrollMutation.mutateAsync({ factorType: factor, options: {} });
+        setEnrollmentSession(extractSession(enrollment));
+        if (factor === FACTOR_TYPE_RECOVERY_CODE) {
           setRecoveryCode('recovery_code' in enrollment ? enrollment.recovery_code : '');
+          setEnrollmentPhase(SHOW_RECOVERY_CODE);
         } else {
-          setOtpData({
-            barcodeUri: 'barcode_uri' in enrollment ? enrollment.barcode_uri : '',
-            manualInputCode:
-              'manual_input_code' in enrollment ? (enrollment.manual_input_code ?? '') : '',
-          });
+          setOtpData(extractOtpData(enrollment));
+          setEnrollmentPhase(ENTER_QR);
         }
       } catch (err) {
-        notifyEnrollError(err, ENROLL);
+        handleEnrollError(err, ENROLL, factor);
         setIsEnrollDialogOpen(false);
         setEnrollFactor(null);
       }
-    };
-
-    fetchEnrollmentData();
-  }, [enrollmentPhase]);
-
-  const refreshFactors = useCallback(() => {
-    factorsQuery.refetch();
-  }, [factorsQuery]);
-
-  const handleEnroll = useCallback((factor: MFAType) => {
-    setEnrollFactor(factor);
-    setIsEnrollDialogOpen(true);
-  }, []);
+    },
+    [enrollMutation, handleEnrollError],
+  );
 
   const handleCancelDelete = useCallback(() => {
     if (deleteMutation.isPending) return;
@@ -202,27 +187,35 @@ export function useUserMFA({
     setFactorToDelete(null);
   }, [deleteMutation.isPending]);
 
-  const handleCloseEnrollDialog = useCallback(() => {
+  const handleCloseEnrollDialog = useCallback(async () => {
     setIsEnrollDialogOpen(false);
+    setEnrollmentPhase(null);
+    setEnrollmentSession(EMPTY_SESSION);
+    setContact('');
+    setOtpData({ barcodeUri: '', manualInputCode: '' });
+    setRecoveryCode('');
     if (enrollFactor === FACTOR_TYPE_PUSH_NOTIFICATION) {
-      factorsQuery.refetch();
+      await factorsQuery.refetch();
     }
     setEnrollFactor(null);
   }, [enrollFactor, factorsQuery]);
 
-  const handleConfirmDelete = useCallback(
+  const executeDelete = useCallback(
     async (factorId: string) => {
       try {
         await deleteMutation.mutateAsync(factorId);
+        await factorsQuery.refetch();
         toast.success(t('remove_factor'), {
           duration: 2000,
           onAutoClose: () => onDelete?.(),
         });
       } catch (err) {
-        onErrorAction?.(
-          err instanceof Error ? err : new Error(t('errors.delete_factor')),
-          'delete',
-        );
+        if (isNotifiableError(err)) {
+          onErrorAction?.(
+            err instanceof Error ? err : new Error(t('errors.delete_factor')),
+            'delete',
+          );
+        }
         handleError(err, { fallbackMessage: t('errors.delete_factor') });
       } finally {
         setIsDeleteDialogOpen(false);
@@ -232,81 +225,96 @@ export function useUserMFA({
     [deleteMutation, handleError, onDelete, onErrorAction, t],
   );
 
+  const handleConfirmDelete = useCallback(async () => {
+    if (!factorToDelete) return;
+    await executeDelete(factorToDelete.id);
+  }, [factorToDelete, executeDelete]);
+
   const handleDeleteFactor = useCallback(
     async (factorId: string, factorType: MFAType) => {
       if (readOnly || disableDelete) return;
       if (onBeforeAction) {
         const canProceed = await onBeforeAction('delete', factorType);
         if (!canProceed) return;
-        await handleConfirmDelete(factorId);
+        await executeDelete(factorId);
       } else {
         setFactorToDelete({ id: factorId, type: factorType });
         setIsDeleteDialogOpen(true);
       }
     },
-    [readOnly, disableDelete, onBeforeAction, handleConfirmDelete],
+    [readOnly, disableDelete, onBeforeAction, executeDelete],
   );
 
-  const handleSubmitContact = useCallback(
+  const handleSendCode = useCallback(
     async (options: Record<string, string>): Promise<boolean> => {
       try {
         const enrollment = await enrollMutation.mutateAsync({ factorType: enrollFactor!, options });
         setContact(options.email ?? options.phone_number ?? '');
-        setEnrollmentSession({
-          authSession: 'auth_session' in enrollment ? enrollment.auth_session : '',
-          authenticationMethodId: 'id' in enrollment ? enrollment.id : '',
-        });
+        setEnrollmentSession(extractSession(enrollment));
         return true;
       } catch (err) {
-        notifyEnrollError(err, ENROLL);
+        handleEnrollError(err, ENROLL, enrollFactor);
         return false;
       }
     },
-    [enrollFactor, enrollMutation, notifyEnrollError],
+    [enrollFactor, enrollMutation, handleEnrollError],
   );
 
   const handleConfirmOtp = useCallback(
     (otpCode: string) =>
-      confirmAndComplete({
+      verifyAndComplete({
         factorType: enrollFactor!,
         authSession: enrollmentSession.authSession,
         authenticationMethodId: enrollmentSession.authenticationMethodId,
         options: { userOtpCode: otpCode },
       }),
-    [enrollFactor, enrollmentSession, confirmAndComplete],
+    [enrollFactor, enrollmentSession, verifyAndComplete],
   );
 
-  const handleContinueQR = useCallback(async () => {
+  const handleEnterQRPhase = useCallback(async () => {
+    if (!enrollFactor) return;
+    try {
+      const enrollment = await enrollMutation.mutateAsync({
+        factorType: enrollFactor,
+        options: {},
+      });
+      setEnrollmentSession(extractSession(enrollment));
+      setOtpData(extractOtpData(enrollment));
+      setEnrollmentPhase(ENTER_QR);
+    } catch (err) {
+      handleEnrollError(err, ENROLL, enrollFactor);
+      setIsEnrollDialogOpen(false);
+      setEnrollFactor(null);
+    }
+  }, [enrollFactor, enrollMutation, handleEnrollError]);
+
+  const handleConfirmPush = useCallback(async () => {
     if (enrollFactor !== FACTOR_TYPE_PUSH_NOTIFICATION) return;
-    await confirmAndComplete({
+    await verifyAndComplete({
       factorType: enrollFactor,
       authSession: enrollmentSession.authSession,
       authenticationMethodId: enrollmentSession.authenticationMethodId,
       options: {},
     });
-  }, [enrollFactor, enrollmentSession, confirmAndComplete]);
+  }, [enrollFactor, enrollmentSession, verifyAndComplete]);
 
   const handleConfirmRecoveryCode = useCallback(
     () =>
-      confirmAndComplete({
+      verifyAndComplete({
         factorType: enrollFactor!,
         authSession: enrollmentSession.authSession,
         authenticationMethodId: enrollmentSession.authenticationMethodId,
         options: {},
       }),
-    [enrollFactor, enrollmentSession, confirmAndComplete],
+    [enrollFactor, enrollmentSession, verifyAndComplete],
   );
-
-  const handleAdvanceToQR = useCallback(() => {
-    setEnrollmentPhase(ENTER_QR);
-  }, []);
 
   return {
     factorsByType,
     isLoadingFactors: factorsQuery.isLoading,
     isEnrolling: enrollMutation.isPending,
     isDeleting: deleteMutation.isPending,
-    isConfirming: confirmEnrollmentMutation.isPending,
+    isConfirming: verifyMutation.isPending,
     error: factorsQuery.isError ? t('errors.factors_loading_error') : null,
     isEnrollDialogOpen,
     enrollFactor,
@@ -319,15 +327,14 @@ export function useUserMFA({
     otpData,
     recoveryCode,
     handleCancelDelete,
-    refreshFactors,
+    handleConfirmDelete,
     handleEnroll,
     handleCloseEnrollDialog,
     handleDeleteFactor,
-    handleConfirmDelete,
-    handleSubmitContact,
+    handleSendCode,
     handleConfirmOtp,
-    handleContinueQR,
+    handleConfirmPush,
     handleConfirmRecoveryCode,
-    handleAdvanceToQR,
+    handleEnterQRPhase,
   };
 }

@@ -682,11 +682,6 @@ describe('UserMFAMgmtView', () => {
     return props;
   }
 
-  it('renders loading state', () => {
-    setupView({ isLoading: true });
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
-  });
-
   it('renders error state', () => {
     setupView({ error: 'Some error' });
     expect(screen.getByText(/component_error_title/i)).toBeInTheDocument();
