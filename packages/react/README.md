@@ -1,41 +1,33 @@
 ![Auth0 React Web Universal Components SDK for JavaScript/TypeScript](https://cdn.auth0.com/website/universalcomponentsreact/universal-components-react.png)
 
-React component library for Auth0 integrations. Built with TypeScript, Radix UI, and Tailwind CSS.
+Auth0 Universal Components for React - pre-built UI components for organization management, SSO configuration, and MFA enrollment.
 
 [![npm version](https://img.shields.io/npm/v/@auth0/universal-components-react.svg?style=flat-square)](https://www.npmjs.com/package/@auth0/universal-components-react)
 [![license](https://img.shields.io/npm/l/@auth0/universal-components-react.svg?style=flat-square)](https://github.com/auth0/auth0-ui-components/blob/main/LICENSE)
 [![downloads](https://img.shields.io/npm/dm/@auth0/universal-components-react.svg?style=flat-square)](https://www.npmjs.com/package/@auth0/universal-components-react)
 
-**What it provides:**
+📚 [Documentation](#documentation) - 🚀 [Getting Started](#getting-started) - 💬 [Feedback](#feedback)
 
-- ⚛️ **React Components**: Pre-built UI components for Auth0 features (MFA management, organization management etc.)
-- 🎣 **Custom Hooks**: React hooks for component state management and API interactions
-- 🎨 **UI Elements**: Beautiful, accessible components built with Radix UI and Tailwind CSS, following shadcn design patterns
-- 🔄 **Providers**: React context providers for managing authentication, theme, and internationalization
+## Documentation
 
-## 📖 Documentation
+- [Auth0 Universal Components](https://auth0.com/docs/get-started/universal-components/universal-components-overview) - installation, configuration, and component reference
+- [Examples](https://github.com/auth0/auth0-ui-components/tree/main/examples) - sample applications for React SPA, React shadcn, and Next.js
+- [Auth0 Docs](https://auth0.com/docs) - explore our docs site and learn more about Auth0
 
-For detailed information on how to use these components and get started with Auth0, please refer to the following resources:
-
-- **[Component Documentation](https://auth0-ui-components.vercel.app/)**: Live Storybook showcasing all available components, their props, and usage examples
-- **[Examples Folder](./examples/)**: Practical, hands-on sample applications demonstrating how to integrate and use these components in a real project
-- **[Auth0 Quickstarts](https://auth0.com/docs/quickstarts)**: Official guides for creating and configuring your application on the Auth0 platform
-- **[Auth0 APIs](https://auth0.com/docs/api)**: Comprehensive documentation for Auth0's APIs
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Installation
 
 **For SPA (Single Page Application):**
 
 ```bash
-npm install @auth0/universal-components-react @auth0/auth0-react
+npm install @auth0/universal-components-react @auth0/auth0-react react-hook-form
 ```
 
 **For Next.js/Server-Side (RWA):**
 
 ```bash
-npm install @auth0/universal-components-react @auth0/nextjs-auth0
+npm install @auth0/universal-components-react react-hook-form
 ```
 
 ### Step 1: Set up Auth0
@@ -66,11 +58,9 @@ function App() {
       authorizationParams={{
         redirect_uri: window.location.origin,
       }}
+      interactiveErrorHandler="popup" // Required to handle step-up auth challenges via Universal Login popup
     >
-      <Auth0ComponentProvider
-        domain="your-domain.auth0.com"
-        themeSettings={{ theme: 'default', mode: 'light' }}
-      >
+      <Auth0ComponentProvider themeSettings={{ theme: 'default', mode: 'light' }}>
         <OrganizationDetailsEdit />
       </Auth0ComponentProvider>
     </Auth0Provider>
@@ -132,11 +122,31 @@ function MyPage() {
 - [@auth0/auth0-react](https://www.npmjs.com/package/@auth0/auth0-react) - Auth0 SDK for React (SPA mode)
 - [@auth0/nextjs-auth0](https://www.npmjs.com/package/@auth0/nextjs-auth0) - Auth0 SDK for Next.js (RWA mode)
 
-## License
+## Feedback
 
-Copyright 2026 Okta, Inc.
+### Contributing
 
-Distributed under the [Apache License 2.0](https://github.com/auth0/auth0-ui-components/blob/main/LICENSE).
+We appreciate feedback and contribution to this repo! Before you get started, please read the following:
 
-**Authors**  
-Okta Inc.
+- [Contributing Guide](https://github.com/auth0/auth0-ui-components/blob/main/CONTRIBUTING.md)
+
+### Raise an issue
+
+To provide feedback or report a bug, please [raise an issue on our issue tracker](https://github.com/auth0/auth0-ui-components/issues).
+
+### Vulnerability Reporting
+
+Please do not report security vulnerabilities on the public GitHub issue tracker. The [Responsible Disclosure Program](https://auth0.com/responsible-disclosure-policy) details the procedure for disclosing security issues.
+
+---
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="https://cdn.auth0.com/website/sdks/logos/auth0_light_mode.png" width="150">
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.auth0.com/website/sdks/logos/auth0_dark_mode.png" width="150">
+    <img alt="Auth0 Logo" src="https://cdn.auth0.com/website/sdks/logos/auth0_light_mode.png" width="150">
+  </picture>
+</p>
+<p align="center">Auth0 is an easy to implement, adaptable authentication and authorization platform. To learn more checkout <a href="https://auth0.com/why-auth0">Why Auth0?</a></p>
+<p align="center">
+This project is licensed under the Apache 2.0 license. See the <a href="https://github.com/auth0/auth0-ui-components/blob/main/LICENSE">LICENSE</a> file for more info.</p>

@@ -9,7 +9,7 @@ import type {
   ProviderDetailsMessages,
   IdpStrategy,
   ProviderSelectionFormValues,
-  IdentityProvider,
+  IdpKnownResponse,
   ProviderConfigureMessages,
   ProviderConfigureFieldsMessages,
   SsoProviderCreateMessages,
@@ -20,7 +20,7 @@ import type {
   ComponentAction,
   BackButton,
   CreateIdentityProviderRequestContentPrivate,
-  IdpConfig,
+  GetIdpConfigurationResponseContent,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
@@ -78,7 +78,7 @@ export interface ProviderConfigureProps
   isLoading: boolean;
   strategy: IdpStrategy;
   initialData?: Partial<ProviderConfigureFormValues>;
-  idpConfig: IdpConfig | null;
+  idpConfig: GetIdpConfigurationResponseContent | null;
 }
 
 export interface ProviderConfigureFieldsProps
@@ -87,7 +87,7 @@ export interface ProviderConfigureFieldsProps
   initialData?: Partial<ProviderConfigureFormValues>;
   className?: string;
   onFormDirty?: (isDirty: boolean) => void;
-  idpConfig: IdpConfig | null;
+  idpConfig: GetIdpConfigurationResponseContent | null;
   mode?: FormMode;
 }
 
@@ -101,7 +101,7 @@ export interface SsoProviderCreateProps
     SsoProviderCreateClasses,
     SsoProviderSchema
   > {
-  createAction: ComponentAction<CreateIdentityProviderRequestContentPrivate, IdentityProvider>;
+  createAction: ComponentAction<CreateIdentityProviderRequestContentPrivate, IdpKnownResponse>;
   backButton?: SsoProviderCreateBackButton;
   onPrevious?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
   onNext?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
@@ -127,7 +127,7 @@ export interface UseSsoProviderCreateLogicResult {
   isLoadingConfig: boolean;
   filteredStrategies: IdpStrategy[];
   isLoadingIdpConfig: boolean;
-  idpConfig?: IdpConfig | null;
+  idpConfig?: GetIdpConfigurationResponseContent | null;
   createStepActions: (
     stepId: 'provider_details' | 'provider_configure',
     ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,
@@ -157,7 +157,7 @@ export interface SsoProviderCreateLogicProps {
   isLoadingConfig: boolean;
   filteredStrategies: IdpStrategy[];
   isLoadingIdpConfig: boolean;
-  idpConfig?: IdpConfig | null;
+  idpConfig?: GetIdpConfigurationResponseContent | null;
   styling?: SsoProviderCreateProps['styling'];
   customMessages?: SsoProviderCreateProps['customMessages'];
   backButton?: SsoProviderCreateProps['backButton'];

@@ -1,6 +1,6 @@
 import type {
   CreateIdentityProviderRequestContentPrivate,
-  IdentityProvider,
+  IdpKnownResponse,
 } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
@@ -21,7 +21,7 @@ describe('useSsoProviderCreate', () => {
   const mockCreate = vi.fn();
   let mockHandleError: Mock;
 
-  const mockIdentityProvider: IdentityProvider = {
+  const mockIdentityProvider: IdpKnownResponse = {
     id: 'idp_123',
     name: 'test-provider',
     strategy: 'samlp',

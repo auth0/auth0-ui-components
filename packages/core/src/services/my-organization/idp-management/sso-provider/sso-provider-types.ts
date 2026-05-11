@@ -12,7 +12,7 @@ import type {
 
 export type ListIdentityProvidersResponseContent =
   MyOrganization.ListIdentityProvidersResponseContent;
-export type IdentityProvider = MyOrganization.IdpKnownResponse;
+export type IdpKnownResponse = MyOrganization.IdpKnownResponse;
 export type CreateIdentityProviderRequestContent =
   MyOrganization.CreateIdentityProviderRequestContent;
 export type CreateIdentityProviderResponseContent =
@@ -37,51 +37,24 @@ export type UpdateIdentityProviderRequestContentPrivate = ProviderSelectionFormV
 export type CreateIdpDomainRequestContent = MyOrganization.CreateIdpDomainRequestContent;
 export type CreateIdpDomainResponseContent = MyOrganization.CreateIdpDomainResponseContent;
 
-export type IdpStrategy =
-  | 'adfs'
-  | 'google-apps'
-  | 'oidc'
-  | 'okta'
-  | 'pingfederate'
-  | 'samlp'
-  | 'waad';
+export type IdpStrategy = MyOrganization.IdpStrategyEnum;
 
-export type IdentityProviderCreate = Omit<IdentityProvider, 'id'>;
+export type IdentityProviderCreate = Omit<IdpKnownResponse, 'id'>;
 
-export type IdentityProviderAssociatedWithDomain = IdentityProvider & {
+export type IdentityProviderAssociatedWithDomain = IdpKnownResponse & {
   is_associated: boolean;
 };
 
-export type ProvisioningMethod = 'scim' | 'google-sync';
+export type ProvisioningMethod = MyOrganization.IdpProvisioningMethodEnum;
 
-export interface ProvisioningField {
-  provisioning_field: string;
-  user_attribute: string;
-  description: string;
-  label: string;
-}
-
-export interface Provisioning {
-  identity_provider_id: string;
-  identity_provider_name: string;
-  strategy: IdpStrategy;
-  method: ProvisioningMethod;
-  fields: ProvisioningField[];
+export type Provisioning = MyOrganization.IdpProvisioningConfig & {
   updated_on: string;
   created_at: string;
-  user_id_attribute: string;
-}
+};
 
-export interface SCIMTokenCreate {
-  token_lifetime?: number;
-}
+export type SCIMTokenCreate = MyOrganization.CreateIdpProvisioningScimTokenRequestContent;
 
-export interface SCIMToken {
-  token_id: string;
-  token: string;
-  created_at: string;
-  valid_until?: string;
-}
+export type SCIMToken = MyOrganization.IdpScimTokenCreate;
 
-export type IdpUserAttributeMap = MyOrganization.IdpUserAttributeMapItem[];
-export type IdpBaseUserAttributeItem = MyOrganization.BaseUserAttributeMapItem;
+export type IdpUserAttributeMapItem = MyOrganization.IdpUserAttributeMapItem;
+export type BaseUserAttributeMapItem = MyOrganization.BaseUserAttributeMapItem;
