@@ -253,8 +253,8 @@ describe('useUserMFA', () => {
 
   it('closes dialog and calls onDelete on successful delete', async () => {
     const onDelete = vi.fn();
-    const { result } = render({ onDelete });
-    await act(() => result.current.handleConfirmDelete('fid'));
+    const { result } = render({ onDelete, onBeforeAction: vi.fn().mockResolvedValue(true) });
+    await act(() => result.current.handleDeleteFactor('fid', FACTOR_TYPE_EMAIL));
     await waitFor(() => expect(result.current.isDeleteDialogOpen).toBe(false));
     expect(result.current.factorToDelete).toBeNull();
     await new Promise((r) => setTimeout(r, 10));
@@ -265,8 +265,8 @@ describe('useUserMFA', () => {
     const deleteError = new Error('delete failed');
     vi.mocked(mockService.deleteMutation.mutateAsync).mockRejectedValue(deleteError);
     const onErrorAction = vi.fn();
-    const { result } = render({ onErrorAction });
-    await act(() => result.current.handleConfirmDelete('fid'));
+    const { result } = render({ onErrorAction, onBeforeAction: vi.fn().mockResolvedValue(true) });
+    await act(() => result.current.handleDeleteFactor('fid', FACTOR_TYPE_EMAIL));
     expect(onErrorAction).toHaveBeenCalledWith(deleteError, 'delete');
     expect(result.current.isDeleteDialogOpen).toBe(false);
   });

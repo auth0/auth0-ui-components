@@ -69,11 +69,10 @@ export interface UseUserMFAReturn {
   otpData: { barcodeUri: string; manualInputCode: string };
   recoveryCode: string;
   handleCancelDelete: () => void;
-  handleRefreshFactors: () => void;
+  handleConfirmDelete: () => Promise<void>;
   handleEnroll: (factor: MFAType) => Promise<void>;
-  handleCloseEnrollDialog: () => void;
+  handleCloseEnrollDialog: () => Promise<void>;
   handleDeleteFactor: (factorId: string, factorType: MFAType) => Promise<void>;
-  handleConfirmDelete: (factorId: string) => Promise<void>;
   handleSendCode: (options: Record<string, string>) => Promise<boolean>;
   handleConfirmOtp: (otpCode: string) => Promise<void>;
   handleConfirmPush: () => Promise<void>;
@@ -234,7 +233,7 @@ export interface DeleteFactorConfirmationProps
     type: MFAType;
   } | null;
   isDeletingFactor: boolean;
-  onConfirm: (factorId: string) => void;
+  onConfirm: () => void;
   onCancel: () => void;
 }
 
@@ -362,7 +361,7 @@ export interface UserMFAMgmtViewProps {
   onEnrollFactor: (factor: MFAType) => void;
   onDeleteFactor: (factorId: string, factorType: MFAType) => Promise<void>;
   onCloseEnrollDialog: () => void;
-  onConfirmDelete: (factorId: string) => Promise<void>;
+  onConfirmDelete: () => Promise<void>;
   onCancelDelete: () => void;
   onSubmitContact: (options: Record<string, string>) => Promise<boolean>;
   onConfirmOtp: (otpCode: string) => Promise<void>;

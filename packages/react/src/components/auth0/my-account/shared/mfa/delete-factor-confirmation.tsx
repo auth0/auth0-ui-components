@@ -92,7 +92,7 @@ export function DeleteFactorConfirmation({
               variant="destructive"
               size="default"
               className="text-sm"
-              onClick={() => factorToDelete && onConfirm(factorToDelete.id)}
+              onClick={() => onConfirm()}
               disabled={isDeletingFactor}
               aria-label={t('confirm')}
             >
