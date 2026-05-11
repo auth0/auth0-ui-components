@@ -60,17 +60,13 @@ export interface Authenticator {
  * Represents the type of an MFA authenticator.
  * @internal
  */
-export type MFAType =
-  | 'phone'
-  | 'push-notification'
-  | 'totp'
-  | 'email'
-  | 'webauthn-roaming'
-  | 'webauthn-platform'
-  | 'recovery-code';
+export type MFAType = MyAccount.FactorTypeEnum;
 
 /**
- * Options for enrolling in MFA factors.
+ * Simplified enroll options for `MFAControllerInterface`.
+ *
+ * Intentionally custom: the SDK uses `CreateAuthenticationMethodRequestContent`
+ * (a discriminated union per factor type). This is an internal abstraction.
  * @internal
  */
 export interface EnrollOptions {
@@ -79,7 +75,10 @@ export interface EnrollOptions {
 }
 
 /**
- * Options for confirming MFA enrollment.
+ * Simplified confirm options for `MFAControllerInterface`.
+ *
+ * Intentionally custom: the SDK uses `VerifyAuthenticationMethodRequestContent`
+ * (a discriminated union per factor type). This is an internal abstraction.
  * @internal
  */
 export interface ConfirmEnrollmentOptions {
