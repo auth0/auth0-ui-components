@@ -4,10 +4,7 @@
  * @internal
  */
 
-import {
-  getComponentStyles,
-  FACTOR_TYPE_PUSH_NOTIFICATION,
-} from '@auth0/universal-components-core';
+import { getComponentStyles } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import AppleLogo from '@/assets/icons/apple-logo';
@@ -83,9 +80,6 @@ export function UserMFASetupForm({
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
   );
-
-  const isPushNotification = factorType === FACTOR_TYPE_PUSH_NOTIFICATION;
-  const isQrPhase = enrollmentPhase === ENTER_QR;
 
   const renderInstallationPhase = () => (
     <div style={currentStyles.variables} className="w-full max-w-sm mx-auto">
@@ -202,9 +196,7 @@ export function UserMFASetupForm({
       >
         <DialogHeader>
           <DialogTitle className="text-left font-medium text-xl text-(length:--font-size-title)">
-            {isPushNotification && isQrPhase
-              ? t('enrollment_form.show_auth0_guardian_title')
-              : t('enrollment_form.enroll_title')}
+            {t('enrollment_form.enroll_title')}
           </DialogTitle>
           <Separator className="my-2" />
         </DialogHeader>
