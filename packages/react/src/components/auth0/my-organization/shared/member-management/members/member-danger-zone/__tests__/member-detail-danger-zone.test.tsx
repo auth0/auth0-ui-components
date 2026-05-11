@@ -67,9 +67,7 @@ describe('MemberDetailDangerZone', () => {
         <MemberDetailDangerZone {...createMockDangerZoneProps({ isRemovingFromOrg: true })} />,
       );
 
-      expect(
-        screen.getByRole('button', { name: 'member.detail.danger_zone.remove_from_org.button' }),
-      ).toBeDisabled();
+      expect(screen.getAllByRole('button')[0]).toBeDisabled();
     });
 
     it('should disable delete button when isDeletingMember is true', () => {
@@ -77,9 +75,23 @@ describe('MemberDetailDangerZone', () => {
         <MemberDetailDangerZone {...createMockDangerZoneProps({ isDeletingMember: true })} />,
       );
 
-      expect(
-        screen.getByRole('button', { name: 'member.detail.danger_zone.delete_member.button' }),
-      ).toBeDisabled();
+      expect(screen.getAllByRole('button')[1]).toBeDisabled();
+    });
+
+    it('should show spinner when isRemovingFromOrg is true', () => {
+      renderWithProviders(
+        <MemberDetailDangerZone {...createMockDangerZoneProps({ isRemovingFromOrg: true })} />,
+      );
+
+      expect(screen.getByRole('button', { name: 'Loading...' })).toBeInTheDocument();
+    });
+
+    it('should show spinner when isDeletingMember is true', () => {
+      renderWithProviders(
+        <MemberDetailDangerZone {...createMockDangerZoneProps({ isDeletingMember: true })} />,
+      );
+
+      expect(screen.getByRole('button', { name: 'Loading...' })).toBeInTheDocument();
     });
   });
 

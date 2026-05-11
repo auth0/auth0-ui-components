@@ -15,20 +15,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { OrganizationMemberDetailMessages } from '@/types/my-organization/member-management/organization-member-detail-types';
-
-export interface MemberRemoveFromOrgModalProps {
-  isOpen: boolean;
-  isLoading?: boolean;
-  customMessages?: OrganizationMemberDetailMessages;
-  onClose: () => void;
-  onConfirm: () => void;
-}
+import type { MemberRemoveFromOrgModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
  * Renders the remove from organization confirmation dialog.
- * @param root0 - Component props
+ * @param props - Component props
  * @returns The rendered confirmation dialog element
  */
 export function MemberRemoveFromOrgModal({
@@ -38,7 +31,7 @@ export function MemberRemoveFromOrgModal({
   onClose,
   onConfirm,
 }: MemberRemoveFromOrgModalProps): React.JSX.Element {
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -54,7 +47,11 @@ export function MemberRemoveFromOrgModal({
             {t('member.detail.danger_zone.remove_from_org.cancel_button')}
           </Button>
           <Button variant="destructive" onClick={onConfirm} disabled={isLoading}>
-            {isLoading ? '...' : t('member.detail.danger_zone.remove_from_org.confirm_button')}
+            {isLoading ? (
+              <Spinner size="sm" />
+            ) : (
+              t('member.detail.danger_zone.remove_from_org.confirm_button')
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

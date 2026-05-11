@@ -1074,7 +1074,8 @@
           "table": {
             "name": "Nom",
             "description": "Description",
-            "empty_message": "Aucun rôle attribué."
+            "empty_message": "Aucun rôle attribué.",
+            "remove_button_label": "Supprimer le rôle ${roleName}"
           },
           "assign_modal": {
             "title": "Attribuer des rôles",

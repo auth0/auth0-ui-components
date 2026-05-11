@@ -2,33 +2,33 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
-import { MemberDetailRolesTab } from '@/components/auth0/my-organization/shared/member-management/members/member-roles/member-detail-roles-tab';
+import { OrganizationMemberDetailRolesTab } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-roles/organization-member-detail-roles-tab';
 import { renderWithProviders } from '@/tests/utils';
 import {
   createMockRolesTabProps,
   createMockMemberRole,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
 
-describe('MemberDetailRolesTab', () => {
+describe('OrganizationMemberDetailRolesTab', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
 
   describe('rendering', () => {
     it('should render the roles section title', () => {
-      renderWithProviders(<MemberDetailRolesTab {...createMockRolesTabProps()} />);
+      renderWithProviders(<OrganizationMemberDetailRolesTab {...createMockRolesTabProps()} />);
 
       expect(screen.getByText('member.detail.roles.title')).toBeInTheDocument();
     });
 
     it('should render the roles description', () => {
-      renderWithProviders(<MemberDetailRolesTab {...createMockRolesTabProps()} />);
+      renderWithProviders(<OrganizationMemberDetailRolesTab {...createMockRolesTabProps()} />);
 
       expect(screen.getByText('member.detail.roles.description')).toBeInTheDocument();
     });
 
     it('should render column headers', () => {
-      renderWithProviders(<MemberDetailRolesTab {...createMockRolesTabProps()} />);
+      renderWithProviders(<OrganizationMemberDetailRolesTab {...createMockRolesTabProps()} />);
 
       expect(screen.getByText('member.detail.roles.table.name')).toBeInTheDocument();
       expect(screen.getByText('member.detail.roles.table.description')).toBeInTheDocument();
@@ -42,7 +42,9 @@ describe('MemberDetailRolesTab', () => {
         createMockMemberRole({ id: 'rol_2', name: 'Viewer', description: 'Viewer role' }),
       ];
 
-      renderWithProviders(<MemberDetailRolesTab {...createMockRolesTabProps({ memberRoles })} />);
+      renderWithProviders(
+        <OrganizationMemberDetailRolesTab {...createMockRolesTabProps({ memberRoles })} />,
+      );
 
       expect(screen.getByText('Admin')).toBeInTheDocument();
       expect(screen.getByText('Viewer')).toBeInTheDocument();
@@ -53,7 +55,9 @@ describe('MemberDetailRolesTab', () => {
         createMockMemberRole({ id: 'rol_1', name: 'Admin', description: 'Administrator role' }),
       ];
 
-      renderWithProviders(<MemberDetailRolesTab {...createMockRolesTabProps({ memberRoles })} />);
+      renderWithProviders(
+        <OrganizationMemberDetailRolesTab {...createMockRolesTabProps({ memberRoles })} />,
+      );
 
       expect(screen.getByText('Administrator role')).toBeInTheDocument();
     });
@@ -63,7 +67,9 @@ describe('MemberDetailRolesTab', () => {
         createMockMemberRole({ id: 'rol_1', name: 'Admin', description: undefined }),
       ];
 
-      renderWithProviders(<MemberDetailRolesTab {...createMockRolesTabProps({ memberRoles })} />);
+      renderWithProviders(
+        <OrganizationMemberDetailRolesTab {...createMockRolesTabProps({ memberRoles })} />,
+      );
 
       // The role name should still render
       expect(screen.getByText('Admin')).toBeInTheDocument();
@@ -73,7 +79,7 @@ describe('MemberDetailRolesTab', () => {
 
     it('should show empty state message when there are no roles', () => {
       renderWithProviders(
-        <MemberDetailRolesTab {...createMockRolesTabProps({ memberRoles: [] })} />,
+        <OrganizationMemberDetailRolesTab {...createMockRolesTabProps({ memberRoles: [] })} />,
       );
 
       expect(screen.getByText('member.detail.roles.table.empty_message')).toBeInTheDocument();
@@ -83,7 +89,7 @@ describe('MemberDetailRolesTab', () => {
   describe('assign roles button', () => {
     it('should show assign button when readOnly is false', () => {
       renderWithProviders(
-        <MemberDetailRolesTab {...createMockRolesTabProps({ readOnly: false })} />,
+        <OrganizationMemberDetailRolesTab {...createMockRolesTabProps({ readOnly: false })} />,
       );
 
       expect(
@@ -93,7 +99,7 @@ describe('MemberDetailRolesTab', () => {
 
     it('should hide assign button when readOnly is true', () => {
       renderWithProviders(
-        <MemberDetailRolesTab {...createMockRolesTabProps({ readOnly: true })} />,
+        <OrganizationMemberDetailRolesTab {...createMockRolesTabProps({ readOnly: true })} />,
       );
 
       expect(
@@ -106,7 +112,7 @@ describe('MemberDetailRolesTab', () => {
       const onAssignRolesClick = vi.fn();
 
       renderWithProviders(
-        <MemberDetailRolesTab
+        <OrganizationMemberDetailRolesTab
           {...createMockRolesTabProps({ readOnly: false, onAssignRolesClick })}
         />,
       );
@@ -127,21 +133,28 @@ describe('MemberDetailRolesTab', () => {
       ];
 
       renderWithProviders(
-        <MemberDetailRolesTab {...createMockRolesTabProps({ memberRoles, readOnly: false })} />,
+        <OrganizationMemberDetailRolesTab
+          {...createMockRolesTabProps({ memberRoles, readOnly: false })}
+        />,
       );
 
-      expect(screen.getByLabelText('Remove role Admin')).toBeInTheDocument();
-      expect(screen.getByLabelText('Remove role Viewer')).toBeInTheDocument();
+      expect(
+        screen.getAllByLabelText('member.detail.roles.table.remove_button_label'),
+      ).toHaveLength(2);
     });
 
     it('should not render trash icon when readOnly is true', () => {
       const memberRoles = [createMockMemberRole({ id: 'rol_1', name: 'Admin' })];
 
       renderWithProviders(
-        <MemberDetailRolesTab {...createMockRolesTabProps({ memberRoles, readOnly: true })} />,
+        <OrganizationMemberDetailRolesTab
+          {...createMockRolesTabProps({ memberRoles, readOnly: true })}
+        />,
       );
 
-      expect(screen.queryByLabelText('Remove role Admin')).not.toBeInTheDocument();
+      expect(
+        screen.queryByLabelText('member.detail.roles.table.remove_button_label'),
+      ).not.toBeInTheDocument();
     });
 
     it('should call onRemoveRole with the role when trash button is clicked', async () => {
@@ -150,12 +163,12 @@ describe('MemberDetailRolesTab', () => {
       const role = createMockMemberRole({ id: 'rol_1', name: 'Admin' });
 
       renderWithProviders(
-        <MemberDetailRolesTab
+        <OrganizationMemberDetailRolesTab
           {...createMockRolesTabProps({ memberRoles: [role], readOnly: false, onRemoveRole })}
         />,
       );
 
-      await user.click(screen.getByLabelText('Remove role Admin'));
+      await user.click(screen.getByLabelText('member.detail.roles.table.remove_button_label'));
 
       expect(onRemoveRole).toHaveBeenCalledTimes(1);
       expect(onRemoveRole).toHaveBeenCalledWith(role);
@@ -165,7 +178,7 @@ describe('MemberDetailRolesTab', () => {
       const role = createMockMemberRole({ id: 'rol_1', name: 'Admin' });
 
       renderWithProviders(
-        <MemberDetailRolesTab
+        <OrganizationMemberDetailRolesTab
           {...createMockRolesTabProps({
             memberRoles: [role],
             readOnly: false,
@@ -174,7 +187,7 @@ describe('MemberDetailRolesTab', () => {
         />,
       );
 
-      expect(screen.getByLabelText('Remove role Admin')).toBeDisabled();
+      expect(screen.getByLabelText('member.detail.roles.table.remove_button_label')).toBeDisabled();
     });
   });
 });

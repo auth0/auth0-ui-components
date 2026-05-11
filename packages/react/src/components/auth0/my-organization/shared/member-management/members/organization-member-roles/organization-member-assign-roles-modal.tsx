@@ -1,10 +1,9 @@
 /**
  * Modal for assigning roles to a member.
- * @module member-assign-roles-modal
+ * @module organization-member-assign-roles-modal
  * @internal
  */
 
-import type { OrgMemberRole } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -18,25 +17,14 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { RoleOption } from '@/types/my-organization/member-management/organization-invitation-table-types';
-import type { OrganizationMemberDetailMessages } from '@/types/my-organization/member-management/organization-member-detail-types';
-
-export interface MemberAssignRolesModalProps {
-  isOpen: boolean;
-  isLoading?: boolean;
-  availableRoles: RoleOption[];
-  assignedRoles: OrgMemberRole[];
-  customMessages?: OrganizationMemberDetailMessages;
-  onClose: () => void;
-  onAssign: (roleIds: string[]) => void;
-}
+import type { OrganizationMemberAssignRolesModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
  * Renders the assign roles dialog for selecting and assigning roles to a member.
- * @param root0 - Component props
+ * @param props - Component props
  * @returns The rendered assign roles dialog element
  */
-export function MemberAssignRolesModal({
+export function OrganizationMemberAssignRolesModal({
   isOpen,
   isLoading = false,
   availableRoles,
@@ -44,8 +32,8 @@ export function MemberAssignRolesModal({
   customMessages,
   onClose,
   onAssign,
-}: MemberAssignRolesModalProps): React.JSX.Element {
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+}: OrganizationMemberAssignRolesModalProps): React.JSX.Element {
+  const { t } = useTranslator('member_management', customMessages);
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
 
   const assignedRoleIds = React.useMemo(
@@ -73,12 +61,6 @@ export function MemberAssignRolesModal({
       onAssign(selectedRoles);
     }
   }, [selectedRoles, onAssign]);
-
-  React.useEffect(() => {
-    if (!isOpen) {
-      setSelectedRoles([]);
-    }
-  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>

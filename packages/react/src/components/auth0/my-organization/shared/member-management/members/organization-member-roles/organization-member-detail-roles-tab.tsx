@@ -1,6 +1,6 @@
 /**
  * Member detail roles tab component.
- * @module member-detail-roles-tab
+ * @module organization-member-detail-roles-tab
  * @internal
  */
 
@@ -11,26 +11,14 @@ import * as React from 'react';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Button } from '@/components/ui/button';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { RoleOption } from '@/types/my-organization/member-management/organization-invitation-table-types';
-import type { OrganizationMemberDetailMessages } from '@/types/my-organization/member-management/organization-member-detail-types';
-
-export interface MemberDetailRolesTabProps {
-  memberRoles: OrgMemberRole[];
-  availableRoles: RoleOption[];
-  isLoading?: boolean;
-  removingRoleId?: string | null;
-  readOnly?: boolean;
-  customMessages?: OrganizationMemberDetailMessages;
-  onAssignRolesClick: () => void;
-  onRemoveRole: (role: OrgMemberRole) => void;
-}
+import type { OrganizationMemberDetailRolesTabProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
  * Renders the roles tab for a member detail view with a table and assign/remove actions.
- * @param root0 - Component props
+ * @param props - Component props
  * @returns The rendered roles tab element
  */
-export function MemberDetailRolesTab({
+export function OrganizationMemberDetailRolesTab({
   memberRoles,
   isLoading = false,
   removingRoleId = null,
@@ -38,8 +26,8 @@ export function MemberDetailRolesTab({
   customMessages,
   onAssignRolesClick,
   onRemoveRole,
-}: MemberDetailRolesTabProps): React.JSX.Element {
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+}: OrganizationMemberDetailRolesTabProps): React.JSX.Element {
+  const { t } = useTranslator('member_management', customMessages);
 
   const columns: Column<OrgMemberRole>[] = React.useMemo(
     () => [
@@ -69,7 +57,9 @@ export function MemberDetailRolesTab({
               className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
               disabled={removingRoleId === role.id}
               onClick={() => onRemoveRole(role)}
-              aria-label={`Remove role ${role.name}`}
+              aria-label={t('member.detail.roles.table.remove_button_label', {
+                roleName: role.name,
+              })}
             >
               <Trash2 className="h-4 w-4" />
             </Button>

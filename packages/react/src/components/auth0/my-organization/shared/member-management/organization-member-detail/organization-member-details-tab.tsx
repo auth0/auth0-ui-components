@@ -5,7 +5,7 @@
 
 import * as React from 'react';
 
-import { MemberDetailUserDetails } from '@/components/auth0/my-organization/shared/member-management/members/member-user-details/member-detail-user-details';
+import { OrganizationMemberUserDetails } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-user-details/organization-member-user-details';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -15,19 +15,6 @@ type OrganizationMemberEditDetailsTabProps = Pick<
   OrganizationMemberDetailViewProps,
   'member' | 'customMessages' | 'isRemovingFromOrg' | 'handleRemoveFromOrgClick'
 >;
-
-/**
- * Renders user details for the selected member.
- * @param root0 - Component props containing member and customMessages
- * @returns The rendered user details element, or null if member is not set
- */
-function OrganizationMemberUserDetails({
-  member,
-  customMessages,
-}: OrganizationMemberEditDetailsTabProps): React.JSX.Element | null {
-  if (!member) return null;
-  return <MemberDetailUserDetails member={member} customMessages={customMessages} />;
-}
 
 /**
  * Card with a button to remove the member from the organization.
@@ -73,7 +60,12 @@ export function OrganizationMemberEditDetailsTab(
 ): React.JSX.Element {
   return (
     <div className="flex flex-col gap-4">
-      <OrganizationMemberUserDetails {...props} />
+      {props.member && (
+        <OrganizationMemberUserDetails
+          member={props.member}
+          customMessages={props.customMessages}
+        />
+      )}
       <RemoveFromOrganizationCard {...props} />
     </div>
   );
