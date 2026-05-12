@@ -24,14 +24,16 @@ export function createProxyFetcher(
     authParams?: FetcherAuthParams,
   ) => Promise<Response>,
 ): FetcherSupplier {
-  const fetchFn = customFetcher ?? fetch;
   return async (url, init, authParams) => {
     const headers = new Headers(init?.headers);
     headers.set(HeaderName.ContentType, ContentType.JSON);
     if (authParams?.scope?.length) {
       headers.set(HeaderName.Auth0Scope, authParams.scope.join(' '));
     }
-    return fetchFn(url, { ...init, headers }, authParams);
+    if (customFetcher) {
+      return customFetcher(url, { ...init, headers }, authParams);
+    }
+    return fetch(url, { ...init, headers });
   };
 }
 
