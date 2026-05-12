@@ -9,7 +9,6 @@ import * as React from 'react';
 
 import { GateKeeper } from '../shared/gate-keeper/gate-keeper';
 
-import { MemberDeleteModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-delete-modal';
 import { MemberRemoveFromOrgModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-org-modal';
 import { OrganizationMemberEditDetailsTab } from '@/components/auth0/my-organization/shared/member-management/organization-member-detail/organization-member-details-tab';
 import { OrganizationMemberEditRolesTab } from '@/components/auth0/my-organization/shared/member-management/organization-member-detail/organization-member-roles-tab';
@@ -107,11 +106,9 @@ export function OrganizationMemberDetailView(
     activeTab,
     modalState,
     isRemovingFromOrg,
-    isDeletingMember,
     setActiveTab,
     closeModal,
     handleRemoveFromOrgConfirm,
-    handleDeleteMemberConfirm,
   } = props;
 
   const { isDarkMode } = useTheme();
@@ -182,14 +179,6 @@ export function OrganizationMemberDetailView(
           onClose={closeModal}
           onConfirm={handleRemoveFromOrgConfirm}
         />
-
-        <MemberDeleteModal
-          isOpen={modalState.type === 'deleteMember'}
-          isLoading={isDeletingMember}
-          customMessages={customMessages}
-          onClose={closeModal}
-          onConfirm={handleDeleteMemberConfirm}
-        />
       </div>
     </StyledScope>
   );
@@ -207,7 +196,6 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     removeFromOrgAction,
-    deleteMemberAction,
     assignRoleAction,
     removeRoleAction,
   } = props;
@@ -217,7 +205,6 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     onBack,
     customMessages,
     removeFromOrgAction,
-    deleteMemberAction,
     assignRoleAction,
     removeRoleAction,
   });

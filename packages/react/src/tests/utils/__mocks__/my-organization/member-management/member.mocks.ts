@@ -3,7 +3,6 @@ import { vi } from 'vitest';
 
 import type { RoleOption } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
-  MemberDeleteModalProps,
   MemberDetailDangerZoneProps,
   OrganizationMemberAssignRolesModalProps,
   OrganizationMemberDetailRolesTabProps,
@@ -59,25 +58,13 @@ export const createMockDangerZoneProps = (
 ): MemberDetailDangerZoneProps => ({
   readOnly: false,
   isRemovingFromOrg: false,
-  isDeletingMember: false,
   onRemoveFromOrgClick: vi.fn(),
-  onDeleteMemberClick: vi.fn(),
   ...overrides,
 });
 
 export const createMockRemoveFromOrgModalProps = (
   overrides: Partial<MemberRemoveFromOrgModalProps> = {},
 ): MemberRemoveFromOrgModalProps => ({
-  isOpen: true,
-  isLoading: false,
-  onClose: vi.fn(),
-  onConfirm: vi.fn(),
-  ...overrides,
-});
-
-export const createMockDeleteModalProps = (
-  overrides: Partial<MemberDeleteModalProps> = {},
-): MemberDeleteModalProps => ({
   isOpen: true,
   isLoading: false,
   onClose: vi.fn(),

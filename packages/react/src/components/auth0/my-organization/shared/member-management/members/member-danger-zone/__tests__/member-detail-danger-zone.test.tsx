@@ -12,29 +12,25 @@ describe('MemberDetailDangerZone', () => {
   });
 
   describe('rendering', () => {
-    it('should render both danger cards', () => {
+    it('should render the remove from org card', () => {
       renderWithProviders(<MemberDetailDangerZone {...createMockDangerZoneProps()} />);
 
       expect(
         screen.getByText('member.detail.danger_zone.remove_from_org.title'),
       ).toBeInTheDocument();
-      expect(screen.getByText('member.detail.danger_zone.delete_member.title')).toBeInTheDocument();
     });
 
-    it('should render both action buttons', () => {
+    it('should render the remove from org button', () => {
       renderWithProviders(<MemberDetailDangerZone {...createMockDangerZoneProps()} />);
 
       expect(
         screen.getByRole('button', { name: 'member.detail.danger_zone.remove_from_org.button' }),
       ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'member.detail.danger_zone.delete_member.button' }),
-      ).toBeInTheDocument();
     });
   });
 
   describe('readOnly', () => {
-    it('should disable both buttons when readOnly is true', () => {
+    it('should disable the button when readOnly is true', () => {
       renderWithProviders(
         <MemberDetailDangerZone {...createMockDangerZoneProps({ readOnly: true })} />,
       );
@@ -42,12 +38,9 @@ describe('MemberDetailDangerZone', () => {
       expect(
         screen.getByRole('button', { name: 'member.detail.danger_zone.remove_from_org.button' }),
       ).toBeDisabled();
-      expect(
-        screen.getByRole('button', { name: 'member.detail.danger_zone.delete_member.button' }),
-      ).toBeDisabled();
     });
 
-    it('should enable buttons when readOnly is false', () => {
+    it('should enable the button when readOnly is false', () => {
       renderWithProviders(
         <MemberDetailDangerZone {...createMockDangerZoneProps({ readOnly: false })} />,
       );
@@ -55,40 +48,21 @@ describe('MemberDetailDangerZone', () => {
       expect(
         screen.getByRole('button', { name: 'member.detail.danger_zone.remove_from_org.button' }),
       ).toBeEnabled();
-      expect(
-        screen.getByRole('button', { name: 'member.detail.danger_zone.delete_member.button' }),
-      ).toBeEnabled();
     });
   });
 
   describe('loading states', () => {
-    it('should disable remove button when isRemovingFromOrg is true', () => {
+    it('should disable button when isRemovingFromOrg is true', () => {
       renderWithProviders(
         <MemberDetailDangerZone {...createMockDangerZoneProps({ isRemovingFromOrg: true })} />,
       );
 
-      expect(screen.getAllByRole('button')[0]).toBeDisabled();
-    });
-
-    it('should disable delete button when isDeletingMember is true', () => {
-      renderWithProviders(
-        <MemberDetailDangerZone {...createMockDangerZoneProps({ isDeletingMember: true })} />,
-      );
-
-      expect(screen.getAllByRole('button')[1]).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Loading...' })).toBeDisabled();
     });
 
     it('should show spinner when isRemovingFromOrg is true', () => {
       renderWithProviders(
         <MemberDetailDangerZone {...createMockDangerZoneProps({ isRemovingFromOrg: true })} />,
-      );
-
-      expect(screen.getByRole('button', { name: 'Loading...' })).toBeInTheDocument();
-    });
-
-    it('should show spinner when isDeletingMember is true', () => {
-      renderWithProviders(
-        <MemberDetailDangerZone {...createMockDangerZoneProps({ isDeletingMember: true })} />,
       );
 
       expect(screen.getByRole('button', { name: 'Loading...' })).toBeInTheDocument();
@@ -109,21 +83,6 @@ describe('MemberDetailDangerZone', () => {
       );
 
       expect(onRemoveFromOrgClick).toHaveBeenCalledTimes(1);
-    });
-
-    it('should call onDeleteMemberClick when delete button is clicked', async () => {
-      const user = userEvent.setup();
-      const onDeleteMemberClick = vi.fn();
-
-      renderWithProviders(
-        <MemberDetailDangerZone {...createMockDangerZoneProps({ onDeleteMemberClick })} />,
-      );
-
-      await user.click(
-        screen.getByRole('button', { name: 'member.detail.danger_zone.delete_member.button' }),
-      );
-
-      expect(onDeleteMemberClick).toHaveBeenCalledTimes(1);
     });
   });
 });

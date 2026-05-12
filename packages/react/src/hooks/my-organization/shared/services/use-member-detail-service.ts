@@ -22,12 +22,7 @@ export const memberDetailQueryKeys = {
 
 type UseMemberDetailServiceOptions = Pick<
   UseOrganizationMemberDetailOptions,
-  | 'userId'
-  | 'customMessages'
-  | 'removeFromOrgAction'
-  | 'deleteMemberAction'
-  | 'assignRoleAction'
-  | 'removeRoleAction'
+  'userId' | 'customMessages' | 'removeFromOrgAction' | 'assignRoleAction' | 'removeRoleAction'
 >;
 
 /**
@@ -42,7 +37,6 @@ export function useMemberDetailService(
     userId,
     customMessages = {},
     removeFromOrgAction,
-    deleteMemberAction,
     assignRoleAction,
     removeRoleAction,
   } = options;
@@ -75,24 +69,6 @@ export function useMemberDetailService(
     },
     onError: () => {
       showToast({ type: 'error', message: t('member.detail.error.remove_from_org_failed') });
-    },
-  });
-
-  const deleteMemberMutation = useMutation({
-    mutationFn: async () => {
-      if (deleteMemberAction?.onBefore && !deleteMemberAction.onBefore(userId)) {
-        throw new Error('Delete member cancelled by onBefore');
-      }
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.members.deleteMembers({ members: [userId] });
-    },
-    onSuccess: () => {
-      deleteMemberAction?.onAfter?.(userId);
-      showToast({ type: 'success', message: t('member.detail.danger_zone.delete_member.success') });
-    },
-    onError: () => {
-      showToast({ type: 'error', message: t('member.detail.error.delete_failed') });
     },
   });
 
@@ -144,7 +120,6 @@ export function useMemberDetailService(
   return {
     memberQuery,
     removeFromOrgMutation,
-    deleteMemberMutation,
     assignRoleMutation,
     removeRoleMutation,
   };
