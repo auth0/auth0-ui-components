@@ -62,7 +62,7 @@ describe('OrganizationMemberUserDetails', () => {
         <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
       );
 
-      expect(screen.getByText('user@example.com')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('user@example.com')).toBeInTheDocument();
     });
 
     it('should display "—" when email is missing', () => {
@@ -87,7 +87,7 @@ describe('OrganizationMemberUserDetails', () => {
         <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
       );
 
-      expect(screen.getByText('+1234567890')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('+1234567890')).toBeInTheDocument();
     });
 
     it('should display "—" when phone number is absent', () => {
