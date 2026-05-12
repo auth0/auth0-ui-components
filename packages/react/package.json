@@ -1,6 +1,6 @@
 {
   "name": "@auth0/universal-components-react",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Auth0 Universal Components for React - pre-built UI components for organization management, SSO configuration, and MFA enrollment",
   "private": false,
   "keywords": [
