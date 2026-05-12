@@ -17,6 +17,7 @@ import {
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type {
+  MemberDetailModalState,
   OrganizationMemberDetailProps,
   OrganizationMemberDetailViewProps,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
@@ -39,11 +40,12 @@ const createMockOrganizationMemberDetailProps = (
     classes: {},
   },
   removeFromOrgAction: undefined,
-  deleteMemberAction: undefined,
-  assignRoleAction: undefined,
-  removeRoleAction: undefined,
+  assignRolesAction: undefined,
+  removeRolesAction: undefined,
   ...overrides,
 });
+
+const noModal: MemberDetailModalState = { type: null };
 
 const createMockOrganizationMemberDetailViewProps = (
   overrides?: Partial<OrganizationMemberDetailViewProps>,
@@ -61,28 +63,16 @@ const createMockOrganizationMemberDetailViewProps = (
   isFetchingRoles: false,
   isLoading: false,
   isRemovingFromOrg: false,
-  isDeletingMember: false,
-  isAssigningRole: false,
-  removingRoleId: null,
-  showRemoveFromOrgModal: false,
-  showDeleteMemberModal: false,
-  showAssignRolesModal: false,
-  showRemoveRoleModal: false,
-  roleToRemove: null,
+  isAssigningRoles: false,
+  removingRoleIds: [],
+  modalState: noModal,
   setActiveTab: vi.fn(),
   handleBack: vi.fn(),
-  handleRemoveFromOrgClick: vi.fn(),
+  openModal: vi.fn(),
+  closeModal: vi.fn(),
   handleRemoveFromOrgConfirm: vi.fn(),
-  handleRemoveFromOrgCancel: vi.fn(),
-  handleDeleteMemberClick: vi.fn(),
-  handleDeleteMemberConfirm: vi.fn(),
-  handleDeleteMemberCancel: vi.fn(),
-  handleAssignRolesClick: vi.fn(),
   handleAssignRolesSubmit: vi.fn(),
-  handleAssignRolesCancel: vi.fn(),
-  handleRemoveRoleClick: vi.fn(),
-  handleRemoveRoleConfirm: vi.fn(),
-  handleRemoveRoleCancel: vi.fn(),
+  handleRemoveRolesConfirm: vi.fn(),
   ...overrides,
 });
 
@@ -209,7 +199,7 @@ describe('OrganizationMemberDetail', () => {
       expect(screen.getByText('A')).toBeInTheDocument();
     });
 
-    it('should show "?" initials when member has no name and no user_id', async () => {
+    it('should show "U" initials when member has no name and no user_id', async () => {
       const member = createMockMember({ name: undefined, user_id: '' });
       (
         mockCoreClient.getMyOrganizationApiClient().organization.members.get as ReturnType<
@@ -223,7 +213,7 @@ describe('OrganizationMemberDetail', () => {
 
       await waitForComponentToLoad();
 
-      expect(screen.getByText('?')).toBeInTheDocument();
+      expect(screen.getByText('U')).toBeInTheDocument();
     });
 
     it('should use user_id as display name when name is missing', async () => {
@@ -445,257 +435,7 @@ describe('OrganizationMemberDetail', () => {
     });
   });
 
-  describe('deleteMemberAction', () => {
-    const navigateToDeleteModal = async (user: ReturnType<typeof userEvent.setup>) => {
-      // Navigate to roles tab to find delete — actually delete is NOT in roles tab.
-      // The component as designed shows remove-from-org on the details tab.
-      // deleteMember modal is triggered via handleDeleteMemberClick which isn't
-      // wired to any visible button in the current details/roles tab UI.
-      // We test it via the View component instead (see OrganizationMemberDetailView tests).
-      // For the container, we verify the mutation side effects by triggering
-      // handleDeleteMemberConfirm directly through the view. To avoid duplication,
-      // this is a no-op here — see OrganizationMemberDetailView tests for modal interactions.
-      void user;
-    };
-
-    describe('deleteMemberAction.onBefore', () => {
-      describe('when returns true', () => {
-        it('should call members.deleteMembers when delete modal is confirmed', async () => {
-          const user = userEvent.setup();
-          const deleteMemberAction: ComponentAction<string> = {
-            disabled: false,
-            onBefore: vi.fn(() => true),
-            onAfter: vi.fn(),
-          };
-
-          const apiService = mockCoreClient.getMyOrganizationApiClient();
-          (
-            apiService.organization.members.deleteMembers as ReturnType<typeof vi.fn>
-          ).mockResolvedValue(undefined);
-
-          // Render with showDeleteMemberModal open via the View component
-          renderWithProviders(
-            <OrganizationMemberDetailView
-              {...createMockOrganizationMemberDetailViewProps({
-                showDeleteMemberModal: true,
-                handleDeleteMemberConfirm: vi.fn(async () => {
-                  if (
-                    deleteMemberAction.onBefore &&
-                    !deleteMemberAction.onBefore('auth0|testuser123')
-                  )
-                    return;
-                  await apiService.organization.members.deleteMembers({
-                    members: ['auth0|testuser123'],
-                  });
-                  deleteMemberAction.onAfter?.('auth0|testuser123');
-                }),
-              })}
-            />,
-          );
-
-          const confirmButton = await screen.findByRole('button', {
-            name: /member.detail.danger_zone.delete_member.confirm_button/i,
-          });
-          await user.click(confirmButton);
-
-          await waitFor(() => {
-            expect(deleteMemberAction.onBefore).toHaveBeenCalled();
-            expect(apiService.organization.members.deleteMembers).toHaveBeenCalledWith({
-              members: ['auth0|testuser123'],
-            });
-          });
-        });
-      });
-
-      describe('when returns false', () => {
-        it('should not call members.deleteMembers', async () => {
-          const user = userEvent.setup();
-          const deleteMemberAction: ComponentAction<string> = {
-            disabled: false,
-            onBefore: vi.fn(() => false),
-            onAfter: vi.fn(),
-          };
-
-          const apiService = mockCoreClient.getMyOrganizationApiClient();
-          (
-            apiService.organization.members.deleteMembers as ReturnType<typeof vi.fn>
-          ).mockResolvedValue(undefined);
-
-          renderWithProviders(
-            <OrganizationMemberDetailView
-              {...createMockOrganizationMemberDetailViewProps({
-                showDeleteMemberModal: true,
-                handleDeleteMemberConfirm: vi.fn(async () => {
-                  if (
-                    deleteMemberAction.onBefore &&
-                    !deleteMemberAction.onBefore('auth0|testuser123')
-                  )
-                    return;
-                  await apiService.organization.members.deleteMembers({
-                    members: ['auth0|testuser123'],
-                  });
-                }),
-              })}
-            />,
-          );
-
-          const confirmButton = await screen.findByRole('button', {
-            name: /member.detail.danger_zone.delete_member.confirm_button/i,
-          });
-          await user.click(confirmButton);
-
-          await waitFor(() => {
-            expect(deleteMemberAction.onBefore).toHaveBeenCalled();
-          });
-
-          expect(apiService.organization.members.deleteMembers).not.toHaveBeenCalled();
-        });
-      });
-    });
-
-    describe('deleteMemberAction.onAfter', () => {
-      it('when delete succeeds, should call onAfter with userId', async () => {
-        const user = userEvent.setup();
-        const onAfter = vi.fn();
-
-        const apiService = mockCoreClient.getMyOrganizationApiClient();
-        (
-          apiService.organization.members.deleteMembers as ReturnType<typeof vi.fn>
-        ).mockResolvedValue(undefined);
-
-        renderWithProviders(
-          <OrganizationMemberDetailView
-            {...createMockOrganizationMemberDetailViewProps({
-              showDeleteMemberModal: true,
-              handleDeleteMemberConfirm: vi.fn(async () => {
-                await apiService.organization.members.deleteMembers({
-                  members: ['auth0|testuser123'],
-                });
-                onAfter('auth0|testuser123');
-              }),
-            })}
-          />,
-        );
-
-        const confirmButton = await screen.findByRole('button', {
-          name: /member.detail.danger_zone.delete_member.confirm_button/i,
-        });
-        await user.click(confirmButton);
-
-        await waitFor(() => {
-          expect(onAfter).toHaveBeenCalledWith('auth0|testuser123');
-        });
-      });
-    });
-
-    // Suppress no-op lint warning
-    void navigateToDeleteModal;
-  });
-
-  describe('assignRoleAction', () => {
-    describe('assignRoleAction.onBefore', () => {
-      describe('when returns true', () => {
-        it('should call members.roles.assign when onBefore returns true', async () => {
-          const user = userEvent.setup();
-          const assignRoleAction: ComponentAction<{ userId: string; roleId: string }> = {
-            disabled: false,
-            onBefore: vi.fn(() => true),
-            onAfter: vi.fn(),
-          };
-
-          const apiService = mockCoreClient.getMyOrganizationApiClient();
-          (
-            apiService.organization.members.roles.assign as ReturnType<typeof vi.fn>
-          ).mockResolvedValue({});
-
-          renderWithProviders(
-            <OrganizationMemberDetailView
-              {...createMockOrganizationMemberDetailViewProps({
-                activeTab: 'roles',
-                showAssignRolesModal: true,
-                availableRoles: createMockAvailableRoles(),
-                handleAssignRolesSubmit: vi.fn((roleIds: string[]) => {
-                  for (const roleId of roleIds) {
-                    if (
-                      assignRoleAction.onBefore &&
-                      !assignRoleAction.onBefore({ userId: 'auth0|testuser123', roleId })
-                    )
-                      return;
-                  }
-                  void apiService.organization.members.roles.assign('auth0|testuser123', {
-                    role_ids: roleIds,
-                  });
-                  roleIds.forEach((roleId) =>
-                    assignRoleAction.onAfter?.({ userId: 'auth0|testuser123', roleId }),
-                  );
-                }),
-              })}
-            />,
-          );
-
-          // The modal is open — submit with an empty selection first triggers nothing.
-          // Verify that when handleAssignRolesSubmit is called with role IDs it calls assign.
-          // We test this by finding the submit button but it'll be disabled (no roles selected).
-          // Instead, verify the modal renders and onBefore integration via the handler directly.
-          expect(screen.getByText('member.detail.roles.assign_modal.title')).toBeInTheDocument();
-
-          // Verify submit button is disabled when no roles selected
-          const submitButton = screen.getByRole('button', {
-            name: /member.detail.roles.assign_modal.submit_button/i,
-          });
-          expect(submitButton).toBeDisabled();
-
-          void user;
-        });
-      });
-
-      describe('when returns false', () => {
-        it('should not call members.roles.assign when onBefore returns false', async () => {
-          const assignRoleAction: ComponentAction<{ userId: string; roleId: string }> = {
-            disabled: false,
-            onBefore: vi.fn(() => false),
-            onAfter: vi.fn(),
-          };
-
-          const apiService = mockCoreClient.getMyOrganizationApiClient();
-          (
-            apiService.organization.members.roles.assign as ReturnType<typeof vi.fn>
-          ).mockResolvedValue({});
-
-          const handleAssignRolesSubmit = vi.fn((roleIds: string[]) => {
-            for (const roleId of roleIds) {
-              if (
-                assignRoleAction.onBefore &&
-                !assignRoleAction.onBefore({ userId: 'auth0|testuser123', roleId })
-              )
-                return;
-            }
-            void apiService.organization.members.roles.assign('auth0|testuser123', {
-              role_ids: roleIds,
-            });
-          });
-
-          renderWithProviders(
-            <OrganizationMemberDetailView
-              {...createMockOrganizationMemberDetailViewProps({
-                showAssignRolesModal: true,
-                handleAssignRolesSubmit,
-              })}
-            />,
-          );
-
-          // Directly invoke the submit handler with role IDs to test the guard
-          handleAssignRolesSubmit(['rol_admin']);
-
-          expect(assignRoleAction.onBefore).toHaveBeenCalledWith({
-            userId: 'auth0|testuser123',
-            roleId: 'rol_admin',
-          });
-          expect(apiService.organization.members.roles.assign).not.toHaveBeenCalled();
-        });
-      });
-    });
-
+  describe('assignRolesAction', () => {
     describe('when assign roles button is clicked', () => {
       it('should open the assign roles modal', async () => {
         const user = userEvent.setup();
@@ -717,17 +457,110 @@ describe('OrganizationMemberDetail', () => {
         await screen.findByText('member.detail.roles.assign_modal.title');
       });
     });
+
+    describe('assignRolesAction.onBefore', () => {
+      describe('when returns true', () => {
+        it('should call members.roles.assign when onBefore returns true', async () => {
+          const user = userEvent.setup();
+          const assignRolesAction: ComponentAction<{ userId: string; roleIds: string[] }> = {
+            disabled: false,
+            onBefore: vi.fn(() => true),
+            onAfter: vi.fn(),
+          };
+
+          const apiService = mockCoreClient.getMyOrganizationApiClient();
+          (
+            apiService.organization.members.roles.assign as ReturnType<typeof vi.fn>
+          ).mockResolvedValue({});
+
+          renderWithProviders(
+            <OrganizationMemberDetailView
+              {...createMockOrganizationMemberDetailViewProps({
+                activeTab: 'roles',
+                modalState: { type: 'assignRoles' } satisfies MemberDetailModalState,
+                availableRoles: createMockAvailableRoles(),
+                handleAssignRolesSubmit: vi.fn((roleIds: string[]) => {
+                  if (
+                    assignRolesAction.onBefore &&
+                    !assignRolesAction.onBefore({ userId: 'auth0|testuser123', roleIds })
+                  )
+                    return;
+                  void apiService.organization.members.roles.assign('auth0|testuser123', {
+                    role_ids: roleIds,
+                  });
+                  assignRolesAction.onAfter?.({ userId: 'auth0|testuser123', roleIds });
+                }),
+              })}
+            />,
+          );
+
+          // Modal is open — verify it renders and submit button is disabled (no roles selected)
+          expect(screen.getByText('member.detail.roles.assign_modal.title')).toBeInTheDocument();
+
+          const submitButton = screen.getByRole('button', {
+            name: /member.detail.roles.assign_modal.submit_button/i,
+          });
+          expect(submitButton).toBeDisabled();
+
+          void user;
+        });
+      });
+
+      describe('when returns false', () => {
+        it('should not call members.roles.assign when onBefore returns false', async () => {
+          const assignRolesAction: ComponentAction<{ userId: string; roleIds: string[] }> = {
+            disabled: false,
+            onBefore: vi.fn(() => false),
+            onAfter: vi.fn(),
+          };
+
+          const apiService = mockCoreClient.getMyOrganizationApiClient();
+          (
+            apiService.organization.members.roles.assign as ReturnType<typeof vi.fn>
+          ).mockResolvedValue({});
+
+          const handleAssignRolesSubmit = vi.fn((roleIds: string[]) => {
+            if (
+              assignRolesAction.onBefore &&
+              !assignRolesAction.onBefore({ userId: 'auth0|testuser123', roleIds })
+            )
+              return;
+            void apiService.organization.members.roles.assign('auth0|testuser123', {
+              role_ids: roleIds,
+            });
+          });
+
+          renderWithProviders(
+            <OrganizationMemberDetailView
+              {...createMockOrganizationMemberDetailViewProps({
+                modalState: { type: 'assignRoles' } satisfies MemberDetailModalState,
+                handleAssignRolesSubmit,
+              })}
+            />,
+          );
+
+          // Directly invoke the submit handler with role IDs to test the guard
+          handleAssignRolesSubmit(['rol_admin']);
+
+          expect(assignRolesAction.onBefore).toHaveBeenCalledWith({
+            userId: 'auth0|testuser123',
+            roleIds: ['rol_admin'],
+          });
+          expect(apiService.organization.members.roles.assign).not.toHaveBeenCalled();
+        });
+      });
+    });
   });
 
-  describe('removeRoleAction', () => {
+  describe('removeRolesAction', () => {
     const memberWithRoles = createMockMember();
     (memberWithRoles as Record<string, unknown>).roles = createMockMemberRoles();
 
-    describe('removeRoleAction.onBefore', () => {
+    describe('removeRolesAction.onBefore', () => {
       describe('when returns true', () => {
         it('should call members.roles.unassign', async () => {
           const user = userEvent.setup();
-          const removeRoleAction: ComponentAction<{ userId: string; roleId: string }> = {
+          const removeRolesAction: ComponentAction<{ userId: string; roleIds: string[] }> = {
             disabled: false,
             onBefore: vi.fn(() => true),
             onAfter: vi.fn(),
@@ -743,7 +576,7 @@ describe('OrganizationMemberDetail', () => {
 
           renderWithProviders(
             <OrganizationMemberDetail
-              {...createMockOrganizationMemberDetailProps({ removeRoleAction })}
+              {...createMockOrganizationMemberDetailProps({ removeRolesAction })}
             />,
           );
 
@@ -776,7 +609,7 @@ describe('OrganizationMemberDetail', () => {
       describe('when returns false', () => {
         it('should not call members.roles.unassign', async () => {
           const user = userEvent.setup();
-          const removeRoleAction: ComponentAction<{ userId: string; roleId: string }> = {
+          const removeRolesAction: ComponentAction<{ userId: string; roleIds: string[] }> = {
             disabled: false,
             onBefore: vi.fn(() => false),
             onAfter: vi.fn(),
@@ -794,12 +627,14 @@ describe('OrganizationMemberDetail', () => {
             <OrganizationMemberDetailView
               {...createMockOrganizationMemberDetailViewProps({
                 activeTab: 'roles',
-                showRemoveRoleModal: true,
-                roleToRemove: role,
-                handleRemoveRoleConfirm: vi.fn(() => {
+                modalState: { type: 'removeRoles', roles: [role] } satisfies MemberDetailModalState,
+                handleRemoveRolesConfirm: vi.fn(() => {
                   if (
-                    removeRoleAction.onBefore &&
-                    !removeRoleAction.onBefore({ userId: 'auth0|testuser123', roleId: role.id })
+                    removeRolesAction.onBefore &&
+                    !removeRolesAction.onBefore({
+                      userId: 'auth0|testuser123',
+                      roleIds: [role.id],
+                    })
                   )
                     return;
                   void apiService.organization.members.roles.unassign('auth0|testuser123', {
@@ -816,7 +651,7 @@ describe('OrganizationMemberDetail', () => {
           await user.click(confirmButton);
 
           await waitFor(() => {
-            expect(removeRoleAction.onBefore).toHaveBeenCalled();
+            expect(removeRolesAction.onBefore).toHaveBeenCalled();
           });
 
           expect(apiService.organization.members.roles.unassign).not.toHaveBeenCalled();
@@ -942,7 +777,7 @@ describe('OrganizationMemberDetailView', () => {
       expect(screen.getByText('TU')).toBeInTheDocument();
     });
 
-    it('should display "?" when member name and user_id are both empty', () => {
+    it('should display "U" when member name and user_id are both empty', () => {
       renderWithProviders(
         <OrganizationMemberDetailView
           {...createMockOrganizationMemberDetailViewProps({
@@ -951,7 +786,7 @@ describe('OrganizationMemberDetailView', () => {
         />,
       );
 
-      expect(screen.getByText('?')).toBeInTheDocument();
+      expect(screen.getByText('U')).toBeInTheDocument();
     });
 
     it('should display user_id badge', () => {
@@ -980,10 +815,12 @@ describe('OrganizationMemberDetailView', () => {
   });
 
   describe('MemberRemoveFromOrgModal', () => {
-    it('when showRemoveFromOrgModal is true, should render the modal', () => {
+    it('when modalState is removeFromOrg, should render the modal', () => {
       renderWithProviders(
         <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ showRemoveFromOrgModal: true })}
+          {...createMockOrganizationMemberDetailViewProps({
+            modalState: { type: 'removeFromOrg' } satisfies MemberDetailModalState,
+          })}
         />,
       );
 
@@ -992,10 +829,10 @@ describe('OrganizationMemberDetailView', () => {
       ).toBeInTheDocument();
     });
 
-    it('when showRemoveFromOrgModal is false, should not render the modal', () => {
+    it('when modalState is null, should not render the modal', () => {
       renderWithProviders(
         <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ showRemoveFromOrgModal: false })}
+          {...createMockOrganizationMemberDetailViewProps({ modalState: noModal })}
         />,
       );
 
@@ -1004,15 +841,15 @@ describe('OrganizationMemberDetailView', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('when modal cancel is clicked, should call handleRemoveFromOrgCancel', async () => {
+    it('when modal cancel is clicked, should call closeModal', async () => {
       const user = userEvent.setup();
-      const handleRemoveFromOrgCancel = vi.fn();
+      const closeModal = vi.fn();
 
       renderWithProviders(
         <OrganizationMemberDetailView
           {...createMockOrganizationMemberDetailViewProps({
-            showRemoveFromOrgModal: true,
-            handleRemoveFromOrgCancel,
+            modalState: { type: 'removeFromOrg' } satisfies MemberDetailModalState,
+            closeModal,
           })}
         />,
       );
@@ -1022,7 +859,7 @@ describe('OrganizationMemberDetailView', () => {
       });
       await user.click(cancelButton);
 
-      expect(handleRemoveFromOrgCancel).toHaveBeenCalledTimes(1);
+      expect(closeModal).toHaveBeenCalledTimes(1);
     });
 
     it('when modal confirm is clicked, should call handleRemoveFromOrgConfirm', async () => {
@@ -1032,7 +869,7 @@ describe('OrganizationMemberDetailView', () => {
       renderWithProviders(
         <OrganizationMemberDetailView
           {...createMockOrganizationMemberDetailViewProps({
-            showRemoveFromOrgModal: true,
+            modalState: { type: 'removeFromOrg' } satisfies MemberDetailModalState,
             handleRemoveFromOrgConfirm,
           })}
         />,
@@ -1050,95 +887,14 @@ describe('OrganizationMemberDetailView', () => {
       renderWithProviders(
         <OrganizationMemberDetailView
           {...createMockOrganizationMemberDetailViewProps({
-            showRemoveFromOrgModal: true,
+            modalState: { type: 'removeFromOrg' } satisfies MemberDetailModalState,
             isRemovingFromOrg: true,
           })}
         />,
       );
 
-      // Loading state shows '...' instead of confirm text
-      expect(screen.getByText('...')).toBeInTheDocument();
-    });
-  });
-
-  describe('MemberDeleteModal', () => {
-    it('when showDeleteMemberModal is true, should render the modal', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ showDeleteMemberModal: true })}
-        />,
-      );
-
-      expect(
-        screen.getByText('member.detail.danger_zone.delete_member.confirm_title'),
-      ).toBeInTheDocument();
-    });
-
-    it('when showDeleteMemberModal is false, should not render the modal', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ showDeleteMemberModal: false })}
-        />,
-      );
-
-      expect(
-        screen.queryByText('member.detail.danger_zone.delete_member.confirm_title'),
-      ).not.toBeInTheDocument();
-    });
-
-    it('when modal cancel is clicked, should call handleDeleteMemberCancel', async () => {
-      const user = userEvent.setup();
-      const handleDeleteMemberCancel = vi.fn();
-
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({
-            showDeleteMemberModal: true,
-            handleDeleteMemberCancel,
-          })}
-        />,
-      );
-
-      const cancelButton = screen.getByRole('button', {
-        name: 'member.detail.danger_zone.delete_member.cancel_button',
-      });
-      await user.click(cancelButton);
-
-      expect(handleDeleteMemberCancel).toHaveBeenCalledTimes(1);
-    });
-
-    it('when modal confirm is clicked, should call handleDeleteMemberConfirm', async () => {
-      const user = userEvent.setup();
-      const handleDeleteMemberConfirm = vi.fn();
-
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({
-            showDeleteMemberModal: true,
-            handleDeleteMemberConfirm,
-          })}
-        />,
-      );
-
-      const confirmButton = screen.getByRole('button', {
-        name: 'member.detail.danger_zone.delete_member.confirm_button',
-      });
-      await user.click(confirmButton);
-
-      expect(handleDeleteMemberConfirm).toHaveBeenCalledTimes(1);
-    });
-
-    it('when isDeletingMember is true, modal confirm button should show loading indicator', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({
-            showDeleteMemberModal: true,
-            isDeletingMember: true,
-          })}
-        />,
-      );
-
-      expect(screen.getByText('...')).toBeInTheDocument();
+      // Loading state shows Spinner (sr-only text "Loading...")
+      expect(screen.getByRole('button', { name: 'Loading...' })).toBeInTheDocument();
     });
   });
 
@@ -1231,14 +987,14 @@ describe('OrganizationMemberDetailView', () => {
       expect(screen.getByText('member.detail.back_button')).toBeInTheDocument();
     });
 
-    it('should show "?" initials when member is null', () => {
+    it('should show "U" initials when member is null', () => {
       renderWithProviders(
         <OrganizationMemberDetailView
           {...createMockOrganizationMemberDetailViewProps({ member: null })}
         />,
       );
 
-      expect(screen.getByText('?')).toBeInTheDocument();
+      expect(screen.getByText('U')).toBeInTheDocument();
     });
   });
 });

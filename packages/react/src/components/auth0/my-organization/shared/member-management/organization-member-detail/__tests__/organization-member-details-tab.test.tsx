@@ -14,7 +14,7 @@ const createProps = (overrides = {}) => ({
   member: createMockMember(),
   customMessages: {},
   isRemovingFromOrg: false,
-  handleRemoveFromOrgClick: vi.fn(),
+  onRemoveFromOrgClick: vi.fn(),
   ...overrides,
 });
 
@@ -54,19 +54,19 @@ describe('OrganizationMemberEditDetailsTab', () => {
     });
   });
 
-  describe('handleRemoveFromOrgClick', () => {
+  describe('onRemoveFromOrgClick', () => {
     it('calls handler when remove button is clicked', async () => {
       const user = userEvent.setup();
-      const handleRemoveFromOrgClick = vi.fn();
+      const onRemoveFromOrgClick = vi.fn();
       renderWithProviders(
-        <OrganizationMemberEditDetailsTab {...createProps({ handleRemoveFromOrgClick })} />,
+        <OrganizationMemberEditDetailsTab {...createProps({ onRemoveFromOrgClick })} />,
       );
       await user.click(
         screen.getByRole('button', {
           name: /member.detail.actions.remove_from_org.delete_button/i,
         }),
       );
-      expect(handleRemoveFromOrgClick).toHaveBeenCalledTimes(1);
+      expect(onRemoveFromOrgClick).toHaveBeenCalledTimes(1);
     });
   });
 

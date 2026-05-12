@@ -11,25 +11,26 @@ import {
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
+import type { MemberDetailModalState } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 mockToast();
+
+const noModal: MemberDetailModalState = { type: null };
 
 const createProps = (overrides = {}) => ({
   customMessages: {},
   memberRoles: createMockMemberRoles(),
   availableRoles: createMockAvailableRoles(),
   isFetchingRoles: false,
-  removingRoleId: null,
-  showAssignRolesModal: false,
-  isAssigningRole: false,
-  showRemoveRoleModal: false,
-  roleToRemove: null,
-  handleAssignRolesClick: vi.fn(),
-  handleAssignRolesCancel: vi.fn(),
-  handleAssignRolesSubmit: vi.fn(),
-  handleRemoveRoleClick: vi.fn(),
-  handleRemoveRoleCancel: vi.fn(),
-  handleRemoveRoleConfirm: vi.fn(),
+  removingRoleIds: [],
+  isAssigningRoles: false,
+  modalState: noModal,
+  onAssignRolesClick: vi.fn(),
+  onAssignRolesCancel: vi.fn(),
+  onAssignRolesSubmit: vi.fn(),
+  onRemoveRolesClick: vi.fn(),
+  onRemoveRolesCancel: vi.fn(),
+  onRemoveRolesConfirm: vi.fn(),
   ...overrides,
 });
 
@@ -71,24 +72,25 @@ describe('OrganizationMemberEditRolesTab', () => {
     });
   });
 
-  describe('handleAssignRolesClick', () => {
+  describe('onAssignRolesClick', () => {
     it('calls handler when assign button is clicked', async () => {
       const user = userEvent.setup();
-      const handleAssignRolesClick = vi.fn();
+      const onAssignRolesClick = vi.fn();
       renderWithProviders(
-        <OrganizationMemberEditRolesTab {...createProps({ handleAssignRolesClick })} />,
+        <OrganizationMemberEditRolesTab {...createProps({ onAssignRolesClick })} />,
       );
       await user.click(screen.getByRole('button', { name: /member.detail.roles.assign_button/i }));
-      expect(handleAssignRolesClick).toHaveBeenCalledTimes(1);
+      expect(onAssignRolesClick).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('row selection', () => {
-    it('when 1 role selected shows "1 role selected" label and bulk remove button; hides assign button', async () => {
+    it('when 1 role selected shows selection label and bulk remove button; hides assign button', async () => {
       const user = userEvent.setup();
       renderWithProviders(<OrganizationMemberEditRolesTab {...createProps()} />);
       await user.click(screen.getByRole('checkbox', { name: 'Select row 1' }));
-      expect(screen.getByText(/1 role selected/)).toBeInTheDocument();
+      // Translator returns key as-is; singular key used for 1 selected
+      expect(screen.getByText('member.detail.roles.roles_selected')).toBeInTheDocument();
       expect(
         screen.getByRole('button', { name: /member.detail.roles.remove_button/i }),
       ).toBeInTheDocument();
@@ -97,108 +99,120 @@ describe('OrganizationMemberEditRolesTab', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('when 2 roles selected shows "2 roles selected" label', async () => {
+    it('when 2 roles selected shows plural selection label', async () => {
       const user = userEvent.setup();
       renderWithProviders(<OrganizationMemberEditRolesTab {...createProps()} />);
       await user.click(screen.getByRole('checkbox', { name: 'Select row 1' }));
       await user.click(screen.getByRole('checkbox', { name: 'Select row 2' }));
-      expect(screen.getByText(/2 roles selected/)).toBeInTheDocument();
+      // Translator returns key as-is; plural key used for 2+ selected
+      expect(screen.getByText('member.detail.roles.roles_selected_plural')).toBeInTheDocument();
     });
   });
 
-  describe('handleRemoveRoleClick (per-row trash)', () => {
+  describe('onRemoveRolesClick (per-row trash)', () => {
     it('calls handler with correct role when trash button clicked', async () => {
       const user = userEvent.setup();
-      const handleRemoveRoleClick = vi.fn();
+      const onRemoveRolesClick = vi.fn();
       renderWithProviders(
-        <OrganizationMemberEditRolesTab {...createProps({ handleRemoveRoleClick })} />,
+        <OrganizationMemberEditRolesTab {...createProps({ onRemoveRolesClick })} />,
       );
-      await user.click(screen.getByRole('button', { name: 'Remove role Admin' }));
-      expect(handleRemoveRoleClick).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'Admin' }),
+      // aria-label is the raw i18n key (mock translator has no interpolation)
+      const removeButtons = screen.getAllByRole('button', {
+        name: 'member.detail.roles.table.remove_button_label',
+      });
+      await user.click(removeButtons[0]!);
+      expect(onRemoveRolesClick).toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({ name: 'Admin' })]),
       );
     });
   });
 
-  describe('removingRoleId', () => {
+  describe('removingRoleIds', () => {
     it('when matches a role id that role trash button is disabled', () => {
       renderWithProviders(
-        <OrganizationMemberEditRolesTab {...createProps({ removingRoleId: 'rol_admin' })} />,
+        <OrganizationMemberEditRolesTab {...createProps({ removingRoleIds: ['rol_admin'] })} />,
       );
-      expect(screen.getByRole('button', { name: 'Remove role Admin' })).toBeDisabled();
+      const removeButtons = screen.getAllByRole('button', {
+        name: 'member.detail.roles.table.remove_button_label',
+      });
+      // First button corresponds to Admin (rol_admin) — should be disabled
+      expect(removeButtons[0]).toBeDisabled();
     });
 
-    it('when null all trash buttons are enabled', () => {
+    it('when empty all trash buttons are enabled', () => {
       renderWithProviders(
-        <OrganizationMemberEditRolesTab {...createProps({ removingRoleId: null })} />,
+        <OrganizationMemberEditRolesTab {...createProps({ removingRoleIds: [] })} />,
       );
-      expect(screen.getByRole('button', { name: 'Remove role Admin' })).not.toBeDisabled();
-      expect(screen.getByRole('button', { name: 'Remove role Member' })).not.toBeDisabled();
+      const removeButtons = screen.getAllByRole('button', {
+        name: 'member.detail.roles.table.remove_button_label',
+      });
+      removeButtons.forEach((btn) => expect(btn).not.toBeDisabled());
     });
   });
 
   describe('MemberAssignRolesModal', () => {
-    it('when showAssignRolesModal true modal is visible', () => {
+    it('when modalState is assignRoles modal is visible', () => {
       renderWithProviders(
-        <OrganizationMemberEditRolesTab {...createProps({ showAssignRolesModal: true })} />,
+        <OrganizationMemberEditRolesTab
+          {...createProps({ modalState: { type: 'assignRoles' } satisfies MemberDetailModalState })}
+        />,
       );
       expect(screen.getByText('member.detail.roles.assign_modal.title')).toBeInTheDocument();
     });
 
-    it('when showAssignRolesModal false modal is not visible', () => {
+    it('when modalState is null modal is not visible', () => {
       renderWithProviders(
-        <OrganizationMemberEditRolesTab {...createProps({ showAssignRolesModal: false })} />,
+        <OrganizationMemberEditRolesTab {...createProps({ modalState: noModal })} />,
       );
       expect(screen.queryByText('member.detail.roles.assign_modal.title')).not.toBeInTheDocument();
     });
 
-    it('cancel clicked calls handleAssignRolesCancel', async () => {
+    it('cancel clicked calls onAssignRolesCancel', async () => {
       const user = userEvent.setup();
-      const handleAssignRolesCancel = vi.fn();
+      const onAssignRolesCancel = vi.fn();
       renderWithProviders(
         <OrganizationMemberEditRolesTab
-          {...createProps({ showAssignRolesModal: true, handleAssignRolesCancel })}
+          {...createProps({
+            modalState: { type: 'assignRoles' } satisfies MemberDetailModalState,
+            onAssignRolesCancel,
+          })}
         />,
       );
       await user.click(
         screen.getByRole('button', { name: /member.detail.roles.assign_modal.cancel_button/i }),
       );
-      expect(handleAssignRolesCancel).toHaveBeenCalledTimes(1);
+      expect(onAssignRolesCancel).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('MemberRemoveRoleModal', () => {
-    it('when showRemoveRoleModal true modal is visible', () => {
+    const removeRolesState: MemberDetailModalState = {
+      type: 'removeRoles',
+      roles: [createMockMemberRole()],
+    };
+
+    it('when modalState is removeRoles modal is visible', () => {
       renderWithProviders(
-        <OrganizationMemberEditRolesTab
-          {...createProps({
-            showRemoveRoleModal: true,
-            roleToRemove: createMockMemberRole(),
-          })}
-        />,
+        <OrganizationMemberEditRolesTab {...createProps({ modalState: removeRolesState })} />,
       );
       expect(screen.getByText('member.detail.roles.remove_confirm.title')).toBeInTheDocument();
     });
 
-    it('when showRemoveRoleModal false modal is not visible', () => {
+    it('when modalState is null modal is not visible', () => {
       renderWithProviders(
-        <OrganizationMemberEditRolesTab {...createProps({ showRemoveRoleModal: false })} />,
+        <OrganizationMemberEditRolesTab {...createProps({ modalState: noModal })} />,
       );
       expect(
         screen.queryByText('member.detail.roles.remove_confirm.title'),
       ).not.toBeInTheDocument();
     });
 
-    it('cancel clicked calls handleRemoveRoleCancel', async () => {
+    it('cancel clicked calls onRemoveRolesCancel', async () => {
       const user = userEvent.setup();
-      const handleRemoveRoleCancel = vi.fn();
+      const onRemoveRolesCancel = vi.fn();
       renderWithProviders(
         <OrganizationMemberEditRolesTab
-          {...createProps({
-            showRemoveRoleModal: true,
-            roleToRemove: createMockMemberRole(),
-            handleRemoveRoleCancel,
-          })}
+          {...createProps({ modalState: removeRolesState, onRemoveRolesCancel })}
         />,
       );
       await user.click(
@@ -206,19 +220,15 @@ describe('OrganizationMemberEditRolesTab', () => {
           name: /member.detail.roles.remove_confirm.cancel_button/i,
         }),
       );
-      expect(handleRemoveRoleCancel).toHaveBeenCalledTimes(1);
+      expect(onRemoveRolesCancel).toHaveBeenCalledTimes(1);
     });
 
-    it('confirm clicked calls handleRemoveRoleConfirm', async () => {
+    it('confirm clicked calls onRemoveRolesConfirm', async () => {
       const user = userEvent.setup();
-      const handleRemoveRoleConfirm = vi.fn();
+      const onRemoveRolesConfirm = vi.fn();
       renderWithProviders(
         <OrganizationMemberEditRolesTab
-          {...createProps({
-            showRemoveRoleModal: true,
-            roleToRemove: createMockMemberRole(),
-            handleRemoveRoleConfirm,
-          })}
+          {...createProps({ modalState: removeRolesState, onRemoveRolesConfirm })}
         />,
       );
       await user.click(
@@ -226,20 +236,19 @@ describe('OrganizationMemberEditRolesTab', () => {
           name: /member.detail.roles.remove_confirm.confirm_button/i,
         }),
       );
-      expect(handleRemoveRoleConfirm).toHaveBeenCalledTimes(1);
+      expect(onRemoveRolesConfirm).toHaveBeenCalledTimes(1);
     });
 
-    it('when removingRoleId is set modal shows loading indicator', () => {
+    it('when removingRoleIds is set modal shows loading indicator', () => {
       renderWithProviders(
         <OrganizationMemberEditRolesTab
           {...createProps({
-            showRemoveRoleModal: true,
-            roleToRemove: createMockMemberRole(),
-            removingRoleId: 'rol_admin',
+            modalState: removeRolesState,
+            removingRoleIds: ['rol_admin'],
           })}
         />,
       );
-      expect(screen.getByRole('button', { name: '...' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Loading...' })).toBeInTheDocument();
     });
   });
 
