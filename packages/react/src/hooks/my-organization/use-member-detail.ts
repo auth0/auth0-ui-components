@@ -32,7 +32,6 @@ export function useOrganizationMemberDetail(
     customMessages = {},
     readOnly = false,
     removeFromOrgAction,
-    deleteMemberAction,
     assignRoleAction,
     removeRoleAction,
   } = options;
@@ -40,20 +39,14 @@ export function useOrganizationMemberDetail(
   const { allowedRoles } = useConfig();
   const availableRoles: RoleOption[] = allowedRoles;
 
-  const {
-    memberQuery,
-    removeFromOrgMutation,
-    deleteMemberMutation,
-    assignRoleMutation,
-    removeRoleMutation,
-  } = useMemberDetailService({
-    userId,
-    customMessages,
-    removeFromOrgAction,
-    deleteMemberAction,
-    assignRoleAction,
-    removeRoleAction,
-  });
+  const { memberQuery, removeFromOrgMutation, assignRoleMutation, removeRoleMutation } =
+    useMemberDetailService({
+      userId,
+      customMessages,
+      removeFromOrgAction,
+      assignRoleAction,
+      removeRoleAction,
+    });
 
   const [activeTab, setActiveTab] = React.useState<MemberDetailTab>('details');
   const [modalState, setModalState] = React.useState<MemberDetailModalState>({ type: null });
@@ -82,15 +75,6 @@ export function useOrganizationMemberDetail(
       },
     });
   }, [removeFromOrgMutation, closeModal, onBack]);
-
-  const handleDeleteMemberConfirm = React.useCallback(() => {
-    deleteMemberMutation.mutate(undefined, {
-      onSuccess: () => {
-        closeModal();
-        onBack?.();
-      },
-    });
-  }, [deleteMemberMutation, closeModal, onBack]);
 
   const handleAssignRolesSubmit = React.useCallback(
     (roleIds: string[]) => {
@@ -125,7 +109,6 @@ export function useOrganizationMemberDetail(
     isFetchingRoles: memberQuery.isLoading || memberQuery.isFetching,
     isLoading: memberQuery.isLoading,
     isRemovingFromOrg: removeFromOrgMutation.isPending,
-    isDeletingMember: deleteMemberMutation.isPending,
     isAssigningRole: assignRoleMutation.isPending,
     removingRoleId: removeRoleMutation.isPending ? (removingRole?.id ?? null) : null,
     modalState,
@@ -135,7 +118,6 @@ export function useOrganizationMemberDetail(
     openModal,
     closeModal,
     handleRemoveFromOrgConfirm,
-    handleDeleteMemberConfirm,
     handleAssignRolesSubmit,
     handleRemoveRoleConfirm,
   };

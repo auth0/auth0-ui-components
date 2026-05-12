@@ -1114,16 +1114,6 @@
             "title": "組織からメンバーを削除",
             "description": "一度確定すると、この操作は元に戻せません。",
             "delete_button": "削除"
-          },
-          "delete_member": {
-            "title": "メンバーを削除",
-            "title_plural": "メンバーを削除",
-            "description": "${email} を削除してもよろしいですか？この操作は取り消せません。",
-            "description_plural": "${count} 人のメンバーを削除してもよろしいですか？この操作は取り消せません。",
-            "confirm_button": "削除",
-            "cancel_button": "キャンセル",
-            "success": "${email} が削除されました。",
-            "success_plural": "選択されたメンバーが削除されました。"
           }
         },
         "roles": {
@@ -1165,7 +1155,6 @@
           "fetch_failed": "メンバー詳細の読み込みに失敗しました。もう一度お試しください。",
           "fetch_roles_failed": "メンバーのロールの読み込みに失敗しました。もう一度お試しください。",
           "remove_from_org_failed": "組織からのメンバーの削除に失敗しました。もう一度お試しください。",
-          "delete_failed": "メンバーの削除に失敗しました。もう一度お試しください。",
           "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。",
           "remove_role_failed": "ロールの削除に失敗しました。もう一度お試しください。"
         }

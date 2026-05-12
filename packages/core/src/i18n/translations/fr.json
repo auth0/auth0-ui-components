@@ -1051,16 +1051,6 @@
             "title": "Retirer un membre de l'organisation",
             "description": "Une fois confirmée, cette opération ne peut pas être annulée.",
             "delete_button": "supprimer"
-          },
-          "delete_member": {
-            "title": "Supprimer le membre",
-            "title_plural": "Supprimer les membres",
-            "description": "Êtes-vous sûr de vouloir supprimer ${email} ? Cette action est irréversible.",
-            "description_plural": "Êtes-vous sûr de vouloir supprimer ${count} membres ? Cette action est irréversible.",
-            "confirm_button": "Supprimer",
-            "cancel_button": "Annuler",
-            "success": "${email} a été supprimé.",
-            "success_plural": "Les membres sélectionnés ont été supprimés."
           }
         },
         "roles": {
@@ -1102,7 +1092,6 @@
           "fetch_failed": "Échec du chargement des détails du membre. Veuillez réessayer.",
           "fetch_roles_failed": "Échec du chargement des rôles du membre. Veuillez réessayer.",
           "remove_from_org_failed": "Échec du retrait du membre de l'organisation. Veuillez réessayer.",
-          "delete_failed": "Échec de la suppression du membre. Veuillez réessayer.",
           "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer.",
           "remove_role_failed": "Échec du retrait du rôle. Veuillez réessayer."
         }

@@ -19,7 +19,6 @@ export type MemberDetailTab = 'details' | 'roles';
 export interface MemberDetailServiceResult {
   memberQuery: UseQueryResult<OrgMember>;
   removeFromOrgMutation: UseMutationResult<void, Error, void>;
-  deleteMemberMutation: UseMutationResult<void, Error, void>;
   assignRoleMutation: UseMutationResult<void, Error, string[]>;
   removeRoleMutation: UseMutationResult<void, Error, OrgMemberRole>;
 }
@@ -30,7 +29,6 @@ export interface UseOrganizationMemberDetailOptions {
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   readOnly?: boolean;
   removeFromOrgAction?: ComponentAction<string>;
-  deleteMemberAction?: ComponentAction<string>;
   assignRoleAction?: ComponentAction<{ userId: string; roleId: string }>;
   removeRoleAction?: ComponentAction<{ userId: string; roleId: string }>;
 }
@@ -39,7 +37,6 @@ export interface UseOrganizationMemberDetailOptions {
 export type MemberDetailModalState =
   | { type: null }
   | { type: 'removeFromOrg' }
-  | { type: 'deleteMember' }
   | { type: 'assignRoles' }
   | { type: 'removeRole'; role: OrgMemberRole };
 
@@ -52,7 +49,6 @@ export interface UseOrganizationMemberDetailResult {
   isFetchingMember: boolean;
   isFetchingRoles: boolean;
   isRemovingFromOrg: boolean;
-  isDeletingMember: boolean;
   isAssigningRole: boolean;
   removingRoleId: string | null;
   modalState: MemberDetailModalState;
@@ -62,7 +58,6 @@ export interface UseOrganizationMemberDetailResult {
   openModal: (state: MemberDetailModalState) => void;
   closeModal: () => void;
   handleRemoveFromOrgConfirm: () => void;
-  handleDeleteMemberConfirm: () => void;
   handleAssignRolesSubmit: (roleIds: string[]) => void;
   handleRemoveRoleConfirm: () => void;
 }
@@ -100,18 +95,8 @@ export interface MemberDetailDangerCardProps {
 export interface MemberDetailDangerZoneProps {
   readOnly?: boolean;
   isRemovingFromOrg?: boolean;
-  isDeletingMember?: boolean;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   onRemoveFromOrgClick: () => void;
-  onDeleteMemberClick: () => void;
-}
-
-export interface MemberDeleteModalProps {
-  isOpen: boolean;
-  isLoading?: boolean;
-  customMessages?: Partial<OrganizationMemberDetailMessages>;
-  onClose: () => void;
-  onConfirm: () => void;
 }
 
 export interface MemberRemoveFromOrgModalProps {
@@ -193,7 +178,6 @@ export interface OrganizationMemberDetailProps
   onBack?: () => void;
   hideHeader?: boolean;
   removeFromOrgAction?: ComponentAction<string>;
-  deleteMemberAction?: ComponentAction<string>;
   assignRoleAction?: ComponentAction<{ userId: string; roleId: string }>;
   removeRoleAction?: ComponentAction<{ userId: string; roleId: string }>;
 }

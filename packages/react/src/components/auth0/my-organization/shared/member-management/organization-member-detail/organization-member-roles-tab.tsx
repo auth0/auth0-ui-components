@@ -7,8 +7,8 @@ import type { OrgMemberRole } from '@auth0/universal-components-core';
 import { Plus, Trash2 } from 'lucide-react';
 import * as React from 'react';
 
-import { MemberAssignRolesModal } from '@/components/auth0/my-organization/shared/member-management/members/member-roles/member-assign-roles-modal';
-import { MemberRemoveRoleModal } from '@/components/auth0/my-organization/shared/member-management/members/member-roles/member-remove-role-modal';
+import { OrganizationMemberAssignRolesModal } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-roles/organization-member-assign-roles-modal';
+import { OrganizationMemberRemoveRoleModal } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-roles/organization-member-remove-role-modal';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Button } from '@/components/ui/button';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -194,7 +194,7 @@ export function OrganizationMemberEditRolesTab({
         onSelectedRolesChange={setSelectedRoles}
       />
 
-      <MemberAssignRolesModal
+      <OrganizationMemberAssignRolesModal
         isOpen={modalState.type === 'assignRoles'}
         isLoading={isAssigningRole}
         availableRoles={availableRoles}
@@ -204,7 +204,7 @@ export function OrganizationMemberEditRolesTab({
         onAssign={onAssignRolesSubmit}
       />
 
-      <MemberRemoveRoleModal
+      <OrganizationMemberRemoveRoleModal
         isOpen={modalState.type === 'removeRole'}
         isLoading={removingRoleId !== null}
         role={roleToRemove}
