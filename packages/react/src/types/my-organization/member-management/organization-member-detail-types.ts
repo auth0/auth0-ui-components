@@ -186,3 +186,8 @@ export interface OrganizationMemberDetailViewProps extends UseOrganizationMember
   styling: OrganizationMemberDetailProps['styling'];
   customMessages: OrganizationMemberDetailProps['customMessages'];
 }
+
+export type MemberDetailHeaderProps = Pick<
+  OrganizationMemberDetailViewProps,
+  'member' | 'styling' | 'customMessages' | 'handleBack'
+>;

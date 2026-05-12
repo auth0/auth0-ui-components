@@ -19,38 +19,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOrganizationMemberDetail } from '@/hooks/my-organization/use-member-detail';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { getInitials } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
+  MemberDetailHeaderProps,
   OrganizationMemberDetailProps,
   OrganizationMemberDetailViewProps,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
 
-export type { OrganizationMemberDetailViewProps };
-
 /**
- * Returns the initials (up to 2 chars) from a display name.
- * @param name - The display name to extract initials from
- * @returns Up to 2 uppercase initials, or '?' if the name is empty
- */
-function getInitials(name?: string): string {
-  if (!name) return '?';
-  const parts = name.trim().split(/\s+/);
-  const first = parts[0] ?? '';
-  if (parts.length === 1) return first.charAt(0).toUpperCase();
-  const last = parts[parts.length - 1] ?? '';
-  return (first.charAt(0) + last.charAt(0)).toUpperCase();
-}
-
-type HeaderProps = Pick<
-  OrganizationMemberDetailViewProps,
-  'member' | 'styling' | 'customMessages' | 'handleBack'
->;
-
-/**
- * Member detail header component
- * @param root0 - Component props containing state and handlers
+ * Member detail header component.
+ * @param props - Component props containing state and handlers
  * @returns The rendered header element
  */
-function Header({ member, styling, customMessages, handleBack }: HeaderProps): React.JSX.Element {
+function Header({
+  member,
+  styling,
+  customMessages,
+  handleBack,
+}: MemberDetailHeaderProps): React.JSX.Element {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('member_management', customMessages);
   const currentStyles = React.useMemo(
@@ -58,10 +44,9 @@ function Header({ member, styling, customMessages, handleBack }: HeaderProps): R
     [styling, isDarkMode],
   );
 
-  const memberRecord = member as Record<string, unknown> | null;
-  const userId = (memberRecord?.user_id as string | undefined) ?? '';
-  const displayName = (memberRecord?.name as string | undefined) ?? userId;
-  const initials = getInitials(displayName || undefined);
+  const userId = member?.user_id ?? '';
+  const displayName = member?.name ?? userId;
+  const initials = getInitials(displayName);
 
   return (
     <div className={currentStyles.classes?.['OrganizationMemberDetail-header']}>
@@ -112,7 +97,7 @@ export function OrganizationMemberDetailView(
   } = props;
 
   const { isDarkMode } = useTheme();
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
 
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
