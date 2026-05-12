@@ -1,4 +1,4 @@
-// import { OrganizationMemberManagement } from '@auth0/universal-components-react/spa';
+// import { OrganizationMemberManagement } from '@auth0/universal-components-react';
 
 const MemberManagementPage = () => {
   return (

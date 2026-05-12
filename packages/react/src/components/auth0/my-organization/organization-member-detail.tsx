@@ -9,7 +9,6 @@ import * as React from 'react';
 
 import { GateKeeper } from '../shared/gate-keeper/gate-keeper';
 
-import { MemberDeleteModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-delete-modal';
 import { MemberRemoveFromOrgModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-org-modal';
 import { OrganizationMemberEditDetailsTab } from '@/components/auth0/my-organization/shared/member-management/organization-member-detail/organization-member-details-tab';
 import { OrganizationMemberEditRolesTab } from '@/components/auth0/my-organization/shared/member-management/organization-member-detail/organization-member-roles-tab';
@@ -20,49 +19,34 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOrganizationMemberDetail } from '@/hooks/my-organization/use-member-detail';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { getInitials } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
+  MemberDetailHeaderProps,
   OrganizationMemberDetailProps,
   OrganizationMemberDetailViewProps,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
 
-export type { OrganizationMemberDetailViewProps };
-
 /**
- * Returns the initials (up to 2 chars) from a display name.
- * @param name - The display name to extract initials from
- * @returns Up to 2 uppercase initials, or '?' if the name is empty
- */
-function getInitials(name?: string): string {
-  if (!name) return '?';
-  const parts = name.trim().split(/\s+/);
-  const first = parts[0] ?? '';
-  if (parts.length === 1) return first.charAt(0).toUpperCase();
-  const last = parts[parts.length - 1] ?? '';
-  return (first.charAt(0) + last.charAt(0)).toUpperCase();
-}
-
-type HeaderProps = Pick<
-  OrganizationMemberDetailViewProps,
-  'member' | 'styling' | 'customMessages' | 'handleBack'
->;
-
-/**
- * Member detail header component
- * @param root0 - Component props containing state and handlers
+ * Member detail header component.
+ * @param props - Component props containing state and handlers
  * @returns The rendered header element
  */
-function Header({ member, styling, customMessages, handleBack }: HeaderProps): React.JSX.Element {
+function Header({
+  member,
+  styling,
+  customMessages,
+  handleBack,
+}: MemberDetailHeaderProps): React.JSX.Element {
   const { isDarkMode } = useTheme();
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
   );
 
-  const memberRecord = member as Record<string, unknown> | null;
-  const userId = (memberRecord?.user_id as string | undefined) ?? '';
-  const displayName = (memberRecord?.name as string | undefined) ?? userId;
-  const initials = getInitials(displayName || undefined);
+  const userId = member?.user_id ?? '';
+  const displayName = member?.name ?? userId;
+  const initials = getInitials(displayName);
 
   return (
     <div className={currentStyles.classes?.['OrganizationMemberDetail-header']}>
@@ -105,19 +89,15 @@ export function OrganizationMemberDetailView(
     styling,
     customMessages,
     activeTab,
-    showRemoveFromOrgModal,
+    modalState,
     isRemovingFromOrg,
-    showDeleteMemberModal,
-    isDeletingMember,
     setActiveTab,
-    handleRemoveFromOrgCancel,
+    closeModal,
     handleRemoveFromOrgConfirm,
-    handleDeleteMemberCancel,
-    handleDeleteMemberConfirm,
   } = props;
 
   const { isDarkMode } = useTheme();
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
 
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -151,7 +131,7 @@ export function OrganizationMemberDetailView(
               member={props.member}
               customMessages={customMessages}
               isRemovingFromOrg={isRemovingFromOrg}
-              handleRemoveFromOrgClick={props.handleRemoveFromOrgClick}
+              onRemoveFromOrgClick={() => props.openModal({ type: 'removeFromOrg' })}
             />
           </TabsContent>
 
@@ -164,35 +144,25 @@ export function OrganizationMemberDetailView(
               memberRoles={props.memberRoles}
               availableRoles={props.availableRoles}
               isFetchingRoles={props.isFetchingRoles}
-              removingRoleId={props.removingRoleId}
-              showAssignRolesModal={props.showAssignRolesModal}
-              isAssigningRole={props.isAssigningRole}
-              showRemoveRoleModal={props.showRemoveRoleModal}
-              roleToRemove={props.roleToRemove}
-              handleAssignRolesClick={props.handleAssignRolesClick}
-              handleAssignRolesCancel={props.handleAssignRolesCancel}
-              handleAssignRolesSubmit={props.handleAssignRolesSubmit}
-              handleRemoveRoleClick={props.handleRemoveRoleClick}
-              handleRemoveRoleCancel={props.handleRemoveRoleCancel}
-              handleRemoveRoleConfirm={props.handleRemoveRoleConfirm}
+              removingRoleIds={props.removingRoleIds}
+              modalState={modalState}
+              isAssigningRoles={props.isAssigningRoles}
+              onAssignRolesClick={() => props.openModal({ type: 'assignRoles' })}
+              onAssignRolesCancel={closeModal}
+              onAssignRolesSubmit={props.handleAssignRolesSubmit}
+              onRemoveRolesClick={(roles) => props.openModal({ type: 'removeRoles', roles })}
+              onRemoveRolesCancel={closeModal}
+              onRemoveRolesConfirm={props.handleRemoveRolesConfirm}
             />
           </TabsContent>
         </Tabs>
 
         <MemberRemoveFromOrgModal
-          isOpen={showRemoveFromOrgModal}
+          isOpen={modalState.type === 'removeFromOrg'}
           isLoading={isRemovingFromOrg}
           customMessages={customMessages}
-          onClose={handleRemoveFromOrgCancel}
+          onClose={closeModal}
           onConfirm={handleRemoveFromOrgConfirm}
-        />
-
-        <MemberDeleteModal
-          isOpen={showDeleteMemberModal}
-          isLoading={isDeletingMember}
-          customMessages={customMessages}
-          onClose={handleDeleteMemberCancel}
-          onConfirm={handleDeleteMemberConfirm}
         />
       </div>
     </StyledScope>
@@ -211,9 +181,8 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     removeFromOrgAction,
-    deleteMemberAction,
-    assignRoleAction,
-    removeRoleAction,
+    assignRolesAction,
+    removeRolesAction,
   } = props;
 
   const memberDetail = useOrganizationMemberDetail({
@@ -221,9 +190,8 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     onBack,
     customMessages,
     removeFromOrgAction,
-    deleteMemberAction,
-    assignRoleAction,
-    removeRoleAction,
+    assignRolesAction,
+    removeRolesAction,
   });
 
   return (

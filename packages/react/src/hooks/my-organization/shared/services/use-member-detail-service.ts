@@ -9,6 +9,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   MemberDetailServiceResult,
@@ -18,16 +19,12 @@ import type {
 export const memberDetailQueryKeys = {
   all: ['member-detail'] as const,
   member: (id: string) => [...memberDetailQueryKeys.all, 'member', id] as const,
+  roles: () => [...memberDetailQueryKeys.all, 'roles'] as const,
 };
 
 type UseMemberDetailServiceOptions = Pick<
   UseOrganizationMemberDetailOptions,
-  | 'userId'
-  | 'customMessages'
-  | 'removeFromOrgAction'
-  | 'deleteMemberAction'
-  | 'assignRoleAction'
-  | 'removeRoleAction'
+  'userId' | 'customMessages' | 'removeFromOrgAction' | 'assignRolesAction' | 'removeRolesAction'
 >;
 
 /**
@@ -42,19 +39,30 @@ export function useMemberDetailService(
     userId,
     customMessages = {},
     removeFromOrgAction,
-    deleteMemberAction,
-    assignRoleAction,
-    removeRoleAction,
+    assignRolesAction,
+    removeRolesAction,
   } = options;
 
   const { coreClient } = useCoreClient();
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
+  const handleError = useErrorHandler();
   const queryClient = useQueryClient();
 
   const memberQuery = useQuery({
     queryKey: memberDetailQueryKeys.member(userId),
     queryFn: () => coreClient!.getMyOrganizationApiClient().organization.members.get(userId),
     enabled: !!coreClient && !!userId,
+  });
+
+  const rolesQuery = useQuery({
+    queryKey: memberDetailQueryKeys.roles(),
+    queryFn: async () => {
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.roles.list({ take: 50 });
+      return response.data;
+    },
+    enabled: !!coreClient,
   });
 
   const removeFromOrgMutation = useMutation({
@@ -73,79 +81,58 @@ export function useMemberDetailService(
         message: t('member.detail.danger_zone.remove_from_org.success'),
       });
     },
-    onError: () => {
-      showToast({ type: 'error', message: t('member.detail.error.remove_from_org_failed') });
+    onError: (error) => {
+      handleError(error, { fallbackMessage: t('member.detail.error.remove_from_org_failed') });
     },
   });
 
-  const deleteMemberMutation = useMutation({
-    mutationFn: async () => {
-      if (deleteMemberAction?.onBefore && !deleteMemberAction.onBefore(userId)) {
-        throw new Error('Delete member cancelled by onBefore');
-      }
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.members.deleteMembers({ members: [userId] });
-    },
-    onSuccess: () => {
-      deleteMemberAction?.onAfter?.(userId);
-      showToast({ type: 'success', message: t('member.detail.danger_zone.delete_member.success') });
-    },
-    onError: () => {
-      showToast({ type: 'error', message: t('member.detail.error.delete_failed') });
-    },
-  });
-
-  const assignRoleMutation = useMutation({
+  const assignRolesMutation = useMutation({
     mutationFn: async (roleIds: string[]) => {
-      for (const roleId of roleIds) {
-        if (assignRoleAction?.onBefore && !assignRoleAction.onBefore({ userId, roleId })) {
-          throw new Error('Assign role cancelled by onBefore');
-        }
+      if (assignRolesAction?.onBefore && !assignRolesAction.onBefore({ userId, roleIds })) {
+        throw new Error('Assign roles cancelled by onBefore');
       }
       await coreClient!
         .getMyOrganizationApiClient()
         .organization.members.roles.assign(userId, { role_ids: roleIds });
-      for (const roleId of roleIds) {
-        assignRoleAction?.onAfter?.({ userId, roleId });
-      }
+      assignRolesAction?.onAfter?.({ userId, roleIds });
     },
     onSuccess: () => {
-      showToast({ type: 'success', message: t('member.detail.roles.assign_button') });
+      showToast({ type: 'success', message: t('member.detail.roles.assign_modal.success') });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.member(userId) });
     },
-    onError: () => {
-      showToast({ type: 'error', message: t('member.detail.error.assign_role_failed') });
+    onError: (error) => {
+      handleError(error, { fallbackMessage: t('member.detail.error.assign_role_failed') });
     },
   });
 
-  const removeRoleMutation = useMutation({
-    mutationFn: async (role: OrgMemberRole) => {
-      if (removeRoleAction?.onBefore && !removeRoleAction.onBefore({ userId, roleId: role.id })) {
-        throw new Error('Remove role cancelled by onBefore');
+  const removeRolesMutation = useMutation({
+    mutationFn: async (roles: OrgMemberRole[]) => {
+      const roleIds = roles.map((r) => r.id);
+      if (removeRolesAction?.onBefore && !removeRolesAction.onBefore({ userId, roleIds })) {
+        throw new Error('Remove roles cancelled by onBefore');
       }
       await coreClient!
         .getMyOrganizationApiClient()
-        .organization.members.roles.unassign(userId, { role_ids: [role.id] });
-      removeRoleAction?.onAfter?.({ userId, roleId: role.id });
+        .organization.members.roles.unassign(userId, { role_ids: roleIds });
+      removeRolesAction?.onAfter?.({ userId, roleIds });
     },
     onSuccess: () => {
       showToast({
         type: 'success',
-        message: t('member.detail.roles.remove_confirm.confirm_button'),
+        message: t('member.detail.roles.remove_confirm.success'),
       });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.member(userId) });
     },
-    onError: () => {
-      showToast({ type: 'error', message: t('member.detail.error.remove_role_failed') });
+    onError: (error) => {
+      handleError(error, { fallbackMessage: t('member.detail.error.remove_role_failed') });
     },
   });
 
   return {
     memberQuery,
+    rolesQuery,
     removeFromOrgMutation,
-    deleteMemberMutation,
-    assignRoleMutation,
-    removeRoleMutation,
+    assignRolesMutation,
+    removeRolesMutation,
   };
 }

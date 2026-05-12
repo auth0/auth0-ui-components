@@ -48,6 +48,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { TextField } from '@/components/ui/text-field';
 import { useMfaStepUp } from '@/hooks/shared/use-mfa-step-up';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 
 interface EnrollmentFormProps {
   error: MfaRequiredError;
@@ -107,7 +108,7 @@ export function EnrollmentForm({ error, factor, onComplete, onCancel }: Enrollme
 
   const inputForm = useForm<ContactForm>({
     resolver: zodResolver(contactSchema),
-    mode: 'onChange',
+    mode: FORM_VALIDATION_MODE,
   });
 
   // OTP only: call enroll on mount then show QR.

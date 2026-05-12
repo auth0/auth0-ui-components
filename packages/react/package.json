@@ -1,14 +1,31 @@
 {
   "name": "@auth0/universal-components-react",
-  "version": "1.0.0-beta.28",
+  "version": "2.0.0",
+  "description": "Auth0 Universal Components for React - pre-built UI components for organization management, SSO configuration, and MFA enrollment",
   "private": false,
+  "keywords": [
+    "auth0",
+    "react",
+    "universal components",
+    "organization management",
+    "SSO",
+    "MFA",
+    "delegated administration",
+    "identity",
+    "authentication"
+  ],
   "sideEffects": [
     "*.css"
   ],
-  "main": "./dist/spa.js",
-  "module": "./dist/spa.mjs",
-  "types": "./dist/spa.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
     "./rwa": {
       "types": "./dist/rwa.d.ts",
       "import": "./dist/rwa.mjs",

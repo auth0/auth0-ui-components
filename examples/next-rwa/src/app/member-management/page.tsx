@@ -1,6 +1,6 @@
 'use client';
 
-import { OrganizationMemberManagement } from '@auth0/universal-components-react/rwa';
+// import { OrganizationMemberManagement } from '@auth0/universal-components-react';
 
 export default function MemberManagementPage() {
   return (
@@ -15,7 +15,7 @@ export default function MemberManagementPage() {
         </a>{' '}
         on how to add Member Management component.
       </p>
-      <OrganizationMemberManagement />
+      {/* <OrganizationMemberManagement /> */}
     </div>
   );
 }

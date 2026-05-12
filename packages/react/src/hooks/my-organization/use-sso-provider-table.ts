@@ -8,7 +8,7 @@ import {
   SsoProviderMappers,
   type UpdateIdentityProviderRequestContent,
   type ComponentAction,
-  type IdentityProvider,
+  type IdpKnownResponse,
   type OrganizationPrivate,
   BusinessError,
 } from '@auth0/universal-components-core';
@@ -36,9 +36,9 @@ export const ssoProviderQueryKeys = {
  * @returns Provider data, mutations, and actions.
  */
 export function useSsoProviderTable(
-  deleteAction?: ComponentAction<IdentityProvider, void>,
-  removeFromOrg?: ComponentAction<IdentityProvider, void>,
-  enableAction?: ComponentAction<IdentityProvider>,
+  deleteAction?: ComponentAction<IdpKnownResponse, void>,
+  removeFromOrg?: ComponentAction<IdpKnownResponse, void>,
+  enableAction?: ComponentAction<IdpKnownResponse>,
   customMessages = {},
 ): UseSsoProviderTableReturn {
   const { t } = useTranslator('idp_management.notifications', customMessages);
@@ -54,7 +54,7 @@ export function useSsoProviderTable(
       const response = await coreClient!
         .getMyOrganizationApiClient()
         .organization.identityProviders.list();
-      return (response?.identity_providers ?? []) as IdentityProvider[];
+      return (response?.identity_providers ?? []) as IdpKnownResponse[];
     },
     enabled: !!coreClient,
   });
@@ -95,9 +95,9 @@ export function useSsoProviderTable(
       selectedIdp,
       enabled,
     }: {
-      selectedIdp: IdentityProvider;
+      selectedIdp: IdpKnownResponse;
       enabled: boolean;
-    }): Promise<IdentityProvider> => {
+    }): Promise<IdpKnownResponse> => {
       if (!selectedIdp?.id) {
         throw new Error('Invalid provider');
       }
@@ -118,7 +118,7 @@ export function useSsoProviderTable(
         .getMyOrganizationApiClient()
         .organization.identityProviders.update(selectedIdp.id, apiRequestData);
 
-      return updatedProvider as IdentityProvider;
+      return updatedProvider as IdpKnownResponse;
     },
     onSuccess: async (updatedProvider, { selectedIdp }) => {
       if (enableAction?.onAfter) {
@@ -131,7 +131,7 @@ export function useSsoProviderTable(
       });
 
       // Update the cache optimistically
-      queryClient.setQueryData<IdentityProvider[]>(ssoProviderQueryKeys.list(), (old) => {
+      queryClient.setQueryData<IdpKnownResponse[]>(ssoProviderQueryKeys.list(), (old) => {
         if (!old) return old;
         return old.map((provider) =>
           provider.id === selectedIdp.id ? { ...provider, ...updatedProvider } : provider,
@@ -144,7 +144,7 @@ export function useSsoProviderTable(
   });
 
   const deleteProviderMutation = useMutation({
-    mutationFn: async (selectedIdp: IdentityProvider): Promise<void> => {
+    mutationFn: async (selectedIdp: IdpKnownResponse): Promise<void> => {
       if (!selectedIdp?.id) {
         throw new Error('Invalid provider');
       }
@@ -171,7 +171,7 @@ export function useSsoProviderTable(
   });
 
   const removeProviderMutation = useMutation({
-    mutationFn: async (selectedIdp: IdentityProvider): Promise<void> => {
+    mutationFn: async (selectedIdp: IdpKnownResponse): Promise<void> => {
       if (!selectedIdp?.id) {
         throw new Error('Invalid provider');
       }
@@ -205,7 +205,7 @@ export function useSsoProviderTable(
   });
 
   const onEnableProvider = useCallback(
-    async (selectedIdp: IdentityProvider, enabled: boolean): Promise<boolean> => {
+    async (selectedIdp: IdpKnownResponse, enabled: boolean): Promise<boolean> => {
       if (!selectedIdp || !coreClient || !selectedIdp.id) {
         return false;
       }
@@ -221,7 +221,7 @@ export function useSsoProviderTable(
   );
 
   const onDeleteConfirm = useCallback(
-    async (selectedIdp: IdentityProvider): Promise<void> => {
+    async (selectedIdp: IdpKnownResponse): Promise<void> => {
       if (!selectedIdp || !coreClient || !selectedIdp.id) {
         return;
       }
@@ -232,7 +232,7 @@ export function useSsoProviderTable(
   );
 
   const onRemoveConfirm = useCallback(
-    async (selectedIdp: IdentityProvider): Promise<void> => {
+    async (selectedIdp: IdpKnownResponse): Promise<void> => {
       if (!selectedIdp || !coreClient || !selectedIdp.id) {
         return;
       }

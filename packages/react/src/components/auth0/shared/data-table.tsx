@@ -75,6 +75,11 @@ export interface CopyColumnLabels {
   copiedTooltip?: string;
 }
 
+export interface DataTableSelectionLabels {
+  selectAll: string;
+  selectRow: (index: number) => string;
+}
+
 export interface CopyColumn<Item> extends BaseColumn<Item> {
   type: 'copy';
 }
@@ -137,6 +142,8 @@ export interface DataTableProps<Item> {
   onSelectedRowsChange?: (rows: Item[]) => void;
   /** Derive a stable string ID from a row for selection tracking. */
   getRowId?: (row: Item) => string;
+  /** Accessible labels for selection checkboxes. */
+  selectionLabels?: DataTableSelectionLabels;
 }
 
 const ALIGNMENT_CLASSES = {
@@ -194,6 +201,11 @@ const formatDate = (value: Date | string | number, format: string = 'medium'): s
 const DEFAULT_COPY_LABELS: Required<CopyColumnLabels> = {
   copyTooltip: 'Copy to clipboard',
   copiedTooltip: 'Copied!',
+};
+
+const DEFAULT_SELECTION_LABELS: DataTableSelectionLabels = {
+  selectAll: 'Select all rows',
+  selectRow: (index: number) => `Select row ${index + 1}`,
 };
 
 /**
@@ -411,6 +423,7 @@ export function DataTable<Item>({
   selectedRows,
   onSelectedRowsChange,
   getRowId,
+  selectionLabels,
 }: DataTableProps<Item>) {
   const isServerSideSort = !!onSortChange;
   const isControlledSelection = selectedRows !== undefined;
@@ -499,7 +512,7 @@ export function DataTable<Item>({
                 : false
           }
           onCheckedChange={(checked) => t.toggleAllPageRowsSelected(!!checked)}
-          aria-label="Select all rows"
+          aria-label={selectionLabels?.selectAll ?? DEFAULT_SELECTION_LABELS.selectAll}
           onClick={(e: React.MouseEvent) => e.stopPropagation()}
         />
       ),
@@ -507,12 +520,14 @@ export function DataTable<Item>({
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(checked) => row.toggleSelected(!!checked)}
-          aria-label={`Select row ${row.index + 1}`}
+          aria-label={
+            selectionLabels?.selectRow(row.index) ?? DEFAULT_SELECTION_LABELS.selectRow(row.index)
+          }
           onClick={(e: React.MouseEvent) => e.stopPropagation()}
         />
       ),
     }),
-    [],
+    [selectionLabels],
   );
 
   const tableColumns = useMemo<ColumnDef<Item>[]>(() => {

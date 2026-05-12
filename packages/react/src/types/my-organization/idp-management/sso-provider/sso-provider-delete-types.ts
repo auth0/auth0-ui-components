@@ -7,7 +7,7 @@ import type {
   SharedComponentProps,
   SsoProvideDeleteMessages,
   SsoProviderDeleteModalContentMessages,
-  IdentityProvider,
+  IdpKnownResponse,
   SsoProviderDeleteSchema,
   SsoProvideRemoveMessages,
 } from '@auth0/universal-components-core';
@@ -36,8 +36,8 @@ export interface SsoProviderDeleteProps
     SsoProviderDeleteClasses,
     SsoProviderDeleteSchema
   > {
-  provider: IdentityProvider;
-  onDelete: (provider: IdentityProvider) => Promise<void>;
+  provider: IdpKnownResponse;
+  onDelete: (provider: IdpKnownResponse) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -51,8 +51,8 @@ export interface SsoProviderDeleteModalProps
   className?: string;
   isOpen: boolean;
   onClose: () => void;
-  provider: IdentityProvider;
-  onDelete: (provider: IdentityProvider) => Promise<void>;
+  provider: IdpKnownResponse;
+  onDelete: (provider: IdpKnownResponse) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -63,9 +63,9 @@ export interface SsoProviderRemoveFromOrganizationProps
     SsoProviderRemoveClasses,
     SsoProviderDeleteSchema
   > {
-  provider: IdentityProvider;
+  provider: IdpKnownResponse;
   organizationName: string | undefined;
-  onRemove: (provider: IdentityProvider) => Promise<void>;
+  onRemove: (provider: IdpKnownResponse) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -78,8 +78,8 @@ export interface SsoProviderRemoveFromOrganizationModalProps
   className?: string;
   isOpen: boolean;
   onClose: () => void;
-  provider: IdentityProvider;
+  provider: IdpKnownResponse;
   organizationName?: string;
-  onRemove: (provider: IdentityProvider) => Promise<void>;
+  onRemove: (provider: IdpKnownResponse) => Promise<void>;
   isLoading?: boolean;
 }

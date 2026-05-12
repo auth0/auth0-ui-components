@@ -73,7 +73,9 @@ const MYORG_SCOPES = [
   "create:my_org:domains",
   "update:my_org:domains",
   "read:my_org:member_invitations",
-  "delete:my_org:member_invitations"
+  "delete:my_org:member_invitations",
+  "create:my_org:member_invitations",
+  "read:my_org:member_roles"
 ]
 
 // My Account API scopes

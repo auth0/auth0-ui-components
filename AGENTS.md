@@ -40,11 +40,12 @@
 
 ### `@auth0/universal-components-react`
 
-| Import Path                                | Contents                                                                      |
-| ------------------------------------------ | ----------------------------------------------------------------------------- |
-| `@auth0/universal-components-react/spa`    | SPA mode: `Auth0ComponentProvider`, blocks, hooks (uses `@auth0/auth0-react`) |
-| `@auth0/universal-components-react/rwa`    | RWA/Proxy mode: `Auth0ComponentProvider`, blocks, hooks (uses auth proxy URL) |
-| `@auth0/universal-components-react/styles` | CSS stylesheet (`dist/styles.css`)                                            |
+| Import Path                                | Contents                                 |
+| ------------------------------------------ | ---------------------------------------- |
+| `@auth0/universal-components-react/spa`    | SPA mode: `Auth0ComponentProvider`       |
+| `@auth0/universal-components-react/rwa`    | RWA/Proxy mode: `Auth0ComponentProvider` |
+| `@auth0/universal-components-react`        | components, hooks, types                 |
+| `@auth0/universal-components-react/styles` | CSS stylesheet (`dist/styles.css`)       |
 
 ### Available Blocks and Hooks
 
@@ -527,6 +528,7 @@ npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-organization/o
 - ❌ Storing sensitive data in client-accessible props
 - ❌ Type casting (`as`) unless there is no other option
 - ❌ Using linter/tsc skip annotations (`// @ts-ignore`, `// eslint-disable`) unless there is no other option
+- ❌ Defining custom types for API request/response shapes when the SDK already exports them — always re-export SDK types via `type Alias = SDK.Type`
 
 ---
 

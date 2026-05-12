@@ -8,6 +8,7 @@ import type {
   SharedComponentProps,
   MemberInvitation,
   OrganizationMemberManagementMessages,
+  OrgMemberRole,
 } from '@auth0/universal-components-core';
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 
@@ -18,7 +19,6 @@ import type {
   InvitationPaginationState,
   InvitationSortConfig,
   OrganizationInvitationTabClasses,
-  RoleOption,
 } from './organization-invitation-table-types';
 
 export type ActiveTab = 'members' | 'invitations';
@@ -31,7 +31,7 @@ export interface TableQueryParams<TSort, TFilter> {
 }
 
 export interface UseMemberManagementServiceOptions {
-  customMessages?: OrganizationMemberManagementMessages;
+  customMessages?: Partial<OrganizationMemberManagementMessages>;
   activeTab: ActiveTab;
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   revokeInvitationAction?: ComponentAction<MemberInvitation>;
@@ -41,10 +41,10 @@ export interface UseMemberManagementServiceOptions {
 
 export interface MemberManagementServiceResult {
   providersQuery: UseQueryResult<IdentityProviderOption[]>;
+  rolesQuery: UseQueryResult<OrgMemberRole[]>;
   invitationsQuery: UseQueryResult<{
     invitations: MemberInvitation[];
     next: string | null;
-    total: number | undefined;
   }>;
   createInvitationMutation: UseMutationResult<
     MemberInvitation | undefined,
@@ -61,7 +61,7 @@ export interface MemberManagementServiceResult {
 }
 
 export interface UseOrganizationMemberManagementOptions {
-  customMessages?: OrganizationMemberManagementMessages;
+  customMessages?: Partial<OrganizationMemberManagementMessages>;
   readOnly?: boolean;
   /** Action hooks for invitation creation (onBefore/onAfter) */
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
@@ -81,8 +81,7 @@ export type MemberManagementModalState =
 
 export interface UseOrganizationMemberManagementResult {
   activeTab: ActiveTab;
-  isLoading: boolean;
-  availableRoles: RoleOption[];
+  availableRoles: OrgMemberRole[];
   availableProviders: IdentityProviderOption[];
 
   invitations: MemberInvitation[];
@@ -107,6 +106,17 @@ export interface UseOrganizationMemberManagementResult {
   handlePageSizeChange: (pageSize: number) => void;
   handleSortChange: (sortConfig: InvitationSortConfig) => void;
   handleRoleFilterChange: (roleId: string | undefined) => void;
+}
+
+/**
+ * Props for the OrganizationMemberManagementView component.
+ */
+export interface OrganizationMemberManagementViewProps
+  extends UseOrganizationMemberManagementResult {
+  styling: OrganizationMemberManagementProps['styling'];
+  customMessages: OrganizationMemberManagementProps['customMessages'];
+  hideHeader: boolean;
+  readOnly: boolean;
 }
 
 /** CSS classes for OrganizationMemberManagement. */

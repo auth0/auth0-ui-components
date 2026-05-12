@@ -5,41 +5,27 @@
 
 import * as React from 'react';
 
-import { MemberDetails } from '@/components/auth0/my-organization/shared/member-management/members/member-user-details/member-detail-user-details';
+import { OrganizationMemberUserDetails } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-user-details/organization-member-user-details';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { OrganizationMemberDetailViewProps } from '@/types/my-organization/member-management/organization-member-detail-types';
-
-type OrganizationMemberEditDetailsTabProps = Pick<
-  OrganizationMemberDetailViewProps,
-  'member' | 'customMessages' | 'isRemovingFromOrg' | 'handleRemoveFromOrgClick'
->;
-
-/**
- * Renders user details for the selected member.
- * @param root0 - Component props containing member and customMessages
- * @returns The rendered user details element, or null if member is not set
- */
-function OrganizationMemberUserDetails({
-  member,
-  customMessages,
-}: OrganizationMemberEditDetailsTabProps): React.JSX.Element | null {
-  if (!member) return null;
-  return <MemberDetails member={member} customMessages={customMessages} />;
-}
+import type {
+  OrganizationMemberEditDetailsTabProps,
+  RemoveMemberFromOrganizationCardProps,
+} from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
  * Card with a button to remove the member from the organization.
- * @param root0 - Component props containing handlers and loading state
+ * @param props - Component props containing handlers and loading state
  * @returns The rendered remove-from-org card element
  */
-function RemoveFromOrganizationCard({
+function RemoveMemberFromOrganizationCard({
   customMessages,
   isRemovingFromOrg,
-  handleRemoveFromOrgClick,
-}: OrganizationMemberEditDetailsTabProps): React.JSX.Element {
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  onRemoveFromOrgClick,
+}: RemoveMemberFromOrganizationCardProps): React.JSX.Element {
+  const { t } = useTranslator('member_management', customMessages);
+
   return (
     <Card className="flex-row items-center justify-between gap-4 p-6">
       <div className="flex flex-col gap-1">
@@ -53,7 +39,7 @@ function RemoveFromOrganizationCard({
       <Button
         variant="destructive"
         size="sm"
-        onClick={handleRemoveFromOrgClick}
+        onClick={onRemoveFromOrgClick}
         disabled={isRemovingFromOrg}
         className="shrink-0"
       >
@@ -72,9 +58,18 @@ export function OrganizationMemberEditDetailsTab(
   props: OrganizationMemberEditDetailsTabProps,
 ): React.JSX.Element {
   return (
-    <div className="flex flex-col gap-6">
-      <OrganizationMemberUserDetails {...props} />
-      <RemoveFromOrganizationCard {...props} />
+    <div className="flex flex-col gap-4">
+      {props.member && (
+        <OrganizationMemberUserDetails
+          member={props.member}
+          customMessages={props.customMessages}
+        />
+      )}
+      <RemoveMemberFromOrganizationCard
+        customMessages={props.customMessages}
+        isRemovingFromOrg={props.isRemovingFromOrg}
+        onRemoveFromOrgClick={props.onRemoveFromOrgClick}
+      />
     </div>
   );
 }

@@ -1,11 +1,10 @@
-import type { MemberInvitation } from '@auth0/universal-components-core';
+import type { MemberInvitation, OrgMemberRole } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 import type { OrganizationInvitationDetailsModalProps } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal';
 import type { OrganizationInvitationRevokeModalProps } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-revoke-modal';
 import type { OrganizationInvitationCreateModalProps } from '@/components/auth0/my-organization/shared/member-management/shared/invitation-create/organization-invitation-create-modal';
 import type {
-  RoleOption,
   IdentityProviderOption,
   OrganizationInvitationTableActionsColumnProps,
   SearchFilterProps,
@@ -39,7 +38,7 @@ export const createMockExpiredInvitation = (
     ...overrides,
   });
 
-export const createMockRoles = (): RoleOption[] => [
+export const createMockRoles = (): OrgMemberRole[] => [
   { id: 'role_admin', name: 'Admin', description: 'Administrator role' },
   { id: 'role_member', name: 'Member', description: 'Member role' },
   { id: 'role_viewer', name: 'Viewer', description: 'Viewer role' },

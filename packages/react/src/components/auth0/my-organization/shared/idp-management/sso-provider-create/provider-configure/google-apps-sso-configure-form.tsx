@@ -27,6 +27,7 @@ import { TextField } from '@/components/ui/text-field';
 import { useProviderFormMode } from '@/hooks/my-organization/use-provider-form-mode';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
@@ -71,8 +72,8 @@ export const GoogleAppsProviderForm = React.forwardRef<
 
   const form = useForm<GoogleAppsConfigureFormValues>({
     resolver: zodResolver(createProviderConfigureSchema('google-apps')),
-    mode: 'onSubmit',
-    reValidateMode: 'onChange',
+    mode: FORM_VALIDATION_MODE,
+    reValidateMode: FORM_REVALIDATE_MODE,
     defaultValues: {
       domain: googleAppsData?.domain || '',
       client_id: googleAppsData?.client_id || '',

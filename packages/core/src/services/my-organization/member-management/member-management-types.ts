@@ -13,17 +13,20 @@ export type OrgMemberId = MyOrganization.OrgMemberId;
 /**
  * Organization member entity.
  */
-export type OrgMember = MyOrganization.OrgMember;
+export interface OrgMember extends MyOrganization.OrgMember {
+  phone_number?: string;
+  provider?: string;
+}
 
 /**
  * Organization member role.
  */
-export type OrgMemberRole = MyOrganization.OrgMemberRole;
+export type OrgMemberRole = MyOrganization.Role;
 
 /**
  * Organization member role ID.
  */
-export type OrgMemberRoleId = MyOrganization.OrgMemberRoleId;
+export type OrgMemberRoleId = MyOrganization.RoleId;
 
 /**
  * Response content for listing organization members.
@@ -99,19 +102,13 @@ export type CreateMemberInvitationResponseContent =
 export type GetMemberInvitationResponseContent = MyOrganization.GetMemberInvitationResponseContent;
 
 /**
- * Request content for deleting organization members.
+ * Request parameters for deleting organization memberships.
  */
 export type DeleteOrganizationMembersRequestContent =
-  MyOrganization.DeleteOrganizationMembersRequestContent;
+  MyOrganization.DeleteOrganizationMembershipsRequestParameters;
 
 /**
  * Request content for changing roles of an organization member.
  */
 export type OrganizationMemberRolesChangeRequestContent =
   MyOrganization.OrganizationMemberRolesChangeRequestContent;
-
-/**
- * Response content for changing roles of an organization member.
- */
-export type OrganizationMemberRolesChangeResponseContent =
-  MyOrganization.OrganizationMemberRolesChangeResponseContent;

@@ -3,11 +3,14 @@
  * @module config-idp-types
  */
 
-import type { IdpConfig, IdpStrategy } from '@auth0/universal-components-core';
+import type {
+  GetIdpConfigurationResponseContent,
+  IdpStrategy,
+} from '@auth0/universal-components-core';
 
 /** useIdpConfig hook result. */
 export interface UseConfigIdpResult {
-  idpConfig: IdpConfig | null;
+  idpConfig: GetIdpConfigurationResponseContent | null;
   isLoadingIdpConfig: boolean;
   fetchIdpConfig: () => Promise<void>;
   isProvisioningEnabled: (strategy: IdpStrategy | undefined) => boolean;
