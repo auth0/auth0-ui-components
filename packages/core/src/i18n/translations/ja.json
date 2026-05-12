@@ -1204,7 +1204,8 @@
         "submit_button": "招待を送信",
         "creating": "作成中...",
         "cancel_button": "キャンセル",
-        "success": "${email}に招待を送信しました。"
+        "success": "${email}に招待が送信されました。",
+        "success_bulk": "招待が送信されました。"
       },
       "details": {
         "title": "招待の詳細",
@@ -1236,7 +1237,7 @@
       },
       "success": {
         "url_copied": "招待URLをクリップボードにコピーしました。",
-        "invitation_resent": "${email}に招待を再送信しました。"
+        "invitation_resent": "以前の招待が取り消されました。${email}に新しい招待が送信されました。"
       },
       "error": {
         "fetch_failed": "招待の読み込みに失敗しました。もう一度お試しください。",

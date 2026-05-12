@@ -1,5 +1,3 @@
-// import { OrganizationMemberManagement } from '@auth0/universal-components-react/spa';
-
 const MemberManagement = () => {
   return (
     <div className="p-6">
@@ -13,9 +11,7 @@ const MemberManagement = () => {
         </a>{' '}
         on how to add Member Management component.
       </p>
-      <div className="bg-background rounded-lg shadow p-6">
-        {/* <OrganizationMemberManagement /> */}
-      </div>
+      <div className="bg-background rounded-lg shadow p-6"></div>
     </div>
   );
 };

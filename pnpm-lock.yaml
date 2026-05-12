@@ -548,8 +548,8 @@ importers:
         specifier: 1.0.0-beta.0
         version: 1.0.0-beta.0
       '@auth0/myorganization-js':
-        specifier: ../../auth0-myorganization-js-1.0.0-beta.5.tgz
-        version: file:auth0-myorganization-js-1.0.0-beta.5.tgz
+        specifier: file:../../auth0-myorganization-js-1.0.0.tgz
+        version: file:auth0-myorganization-js-1.0.0.tgz
       zod:
         specifier: ^3.22.4
         version: 3.25.76
@@ -733,10 +733,10 @@ packages:
     resolution: {integrity: sha512-slj0RtNfieNk1BC1ERrCQw65qMUVKU5qacbTc8BFH8R316CUpsOhZ2MIiV9l3VEkaqY1hmCZm03+ZI6ym+3PZg==}
     engines: {node: '>=18.0.0'}
 
-  '@auth0/myorganization-js@file:auth0-myorganization-js-1.0.0-beta.5.tgz':
-    resolution: {integrity: sha512-7KODXVGUP0OTU7l8SUHfhmjtpXgrwETJnysD111i2WxPTb31Ssx4iGMLlkA7wnJwuM+mEjzAdDXVOtaoLAMxbg==, tarball: file:auth0-myorganization-js-1.0.0-beta.5.tgz}
-    version: 1.0.0-beta.5
-    engines: {node: '>=18.0.0'}
+  '@auth0/myorganization-js@file:auth0-myorganization-js-1.0.0.tgz':
+    resolution: {integrity: sha512-hGR+oS3B5sY0BWxR2aj+4YQlWnarCcMC2wcHlzLCggN2Cyk6qhCvB/doeH/r2SpsGJkT0SLtd3CoYjXBbRvQVg==, tarball: file:auth0-myorganization-js-1.0.0.tgz}
+    version: 1.0.0
+    engines: {node: '>=20.0.0'}
 
   '@auth0/nextjs-auth0@4.16.0':
     resolution: {integrity: sha512-QTQdK+/YL68J7b1tSdvJTT16+r+Dxwy/m0kwl73CEy/QsYCpHE1sCZYgQ4UaFZb5jHQ7d4R2JUkHN5k2fKQ4zg==}
@@ -7364,7 +7364,7 @@ snapshots:
 
   '@auth0/myaccount-js@1.0.0-beta.0': {}
 
-  '@auth0/myorganization-js@file:auth0-myorganization-js-1.0.0-beta.5.tgz':
+  '@auth0/myorganization-js@file:auth0-myorganization-js-1.0.0.tgz':
     dependencies:
       '@auth0/auth0-auth-js': 1.5.0
 

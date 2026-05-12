@@ -1,4 +1,4 @@
-import type { ComponentAction, IdentityProvider } from '@auth0/universal-components-core';
+import type { ComponentAction, IdpKnownResponse } from '@auth0/universal-components-core';
 import type { QueryClient } from '@tanstack/react-query';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -55,19 +55,19 @@ const createMockCreateAction = (): ComponentAction<void> => ({
   onAfter: vi.fn(),
 });
 
-const createMockEditAction = (): ComponentAction<IdentityProvider> => ({
+const createMockEditAction = (): ComponentAction<IdpKnownResponse> => ({
   disabled: false,
   onBefore: vi.fn(() => true),
   onAfter: vi.fn(),
 });
 
-const createMockDeleteAction = (): ComponentAction<IdentityProvider> => ({
+const createMockDeleteAction = (): ComponentAction<IdpKnownResponse> => ({
   disabled: false,
   onBefore: vi.fn(() => true),
   onAfter: vi.fn(),
 });
 
-const createMockDeleteFromOrganizationAction = (): ComponentAction<IdentityProvider> => ({
+const createMockDeleteFromOrganizationAction = (): ComponentAction<IdpKnownResponse> => ({
   disabled: false,
   onBefore: vi.fn(() => true),
   onAfter: vi.fn(),

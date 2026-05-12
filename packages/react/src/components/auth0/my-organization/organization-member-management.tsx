@@ -42,7 +42,6 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     isRevokingInvitation,
     isResendingInvitation,
     invitationPagination,
-    invitationFilters,
     invitationSortConfig,
     availableRoles,
     availableProviders,
@@ -122,8 +121,6 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               loading={isFetchingInvitations}
               customMessages={customMessages?.invitation}
               pagination={invitationPagination}
-              filters={invitationFilters}
-              availableRoles={availableRoles}
               readOnly={readOnly}
               sortConfig={invitationSortConfig}
               onSortChange={handleSortChange}

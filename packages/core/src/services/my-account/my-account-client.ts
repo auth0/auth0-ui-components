@@ -21,7 +21,7 @@ export const MY_ACCOUNT_DPOP_NONCE_ID = '__auth0_my_account_api__';
 export function createMyAccountClient(config: ClientAuthConfig) {
   if (config.mode === 'proxy') {
     return new MyAccountClient({
-      domain: '',
+      domain: config.domain ?? '',
       baseUrl: new URL(MY_ACCOUNT_PROXY_PATH, config.proxyUrl).href,
       telemetry: false,
       fetcher: createProxyFetcher(config.fetcher),

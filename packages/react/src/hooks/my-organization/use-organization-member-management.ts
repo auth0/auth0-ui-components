@@ -8,14 +8,12 @@ import * as React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
-import { useConfig } from '@/hooks/my-organization/use-config';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   CreateInvitationInput,
   InvitationFilterState,
   InvitationSortConfig,
-  RoleOption,
   IdentityProviderOption,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
@@ -45,9 +43,6 @@ export function useOrganizationMemberManagement(
 
   const [activeTab, setActiveTab] = React.useState<ActiveTab>('members');
 
-  const { allowedRoles } = useConfig();
-  const availableRoles: RoleOption[] = allowedRoles;
-
   const {
     pageSize: invitationPageSize,
     currentPage: invitationCurrentPage,
@@ -67,6 +62,7 @@ export function useOrganizationMemberManagement(
 
   const {
     providersQuery,
+    rolesQuery,
     invitationsQuery,
     createInvitationMutation,
     revokeInvitationMutation,
@@ -87,9 +83,9 @@ export function useOrganizationMemberManagement(
   });
 
   const availableProviders: IdentityProviderOption[] = providersQuery.data ?? [];
+  const availableRoles = rolesQuery.data ?? [];
   const currentInvitations = invitationsQuery.data?.invitations ?? [];
   const invitationNextToken = invitationsQuery.data?.next ?? null;
-  const invitationsTotalItems = invitationsQuery.data?.total;
 
   const openModal = React.useCallback(
     async (state: MemberManagementModalState) => {
@@ -198,7 +194,6 @@ export function useOrganizationMemberManagement(
     invitationPagination: {
       pageSize: invitationPageSize,
       currentPage: invitationCurrentPage,
-      totalItems: invitationsTotalItems,
       hasNextPage: !!invitationNextToken,
       hasPreviousPage: invitationHasPreviousPage,
     },
