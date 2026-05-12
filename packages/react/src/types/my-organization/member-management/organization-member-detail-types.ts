@@ -75,6 +75,12 @@ export interface OrganizationMemberUserDetailsProps {
   customMessages?: Partial<OrganizationMemberDetailMessages>;
 }
 
+export interface RemoveMemberFromOrganizationCardProps {
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
+  isRemovingFromOrg: boolean;
+  onRemoveFromOrgClick: () => void;
+}
+
 export interface OrganizationMemberEditDetailsTabProps {
   member: OrgMember | null;
   customMessages?: Partial<OrganizationMemberDetailMessages>;

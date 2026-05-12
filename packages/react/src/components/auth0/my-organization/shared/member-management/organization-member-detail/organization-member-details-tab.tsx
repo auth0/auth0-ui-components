@@ -9,18 +9,21 @@ import { OrganizationMemberUserDetails } from '@/components/auth0/my-organizatio
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { OrganizationMemberEditDetailsTabProps } from '@/types/my-organization/member-management/organization-member-detail-types';
+import type {
+  OrganizationMemberEditDetailsTabProps,
+  RemoveMemberFromOrganizationCardProps,
+} from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
  * Card with a button to remove the member from the organization.
- * @param root0 - Component props containing handlers and loading state
+ * @param props - Component props containing handlers and loading state
  * @returns The rendered remove-from-org card element
  */
-function RemoveFromOrganizationCard({
+function RemoveMemberFromOrganizationCard({
   customMessages,
   isRemovingFromOrg,
   onRemoveFromOrgClick,
-}: OrganizationMemberEditDetailsTabProps): React.JSX.Element {
+}: RemoveMemberFromOrganizationCardProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
   return (
@@ -62,7 +65,11 @@ export function OrganizationMemberEditDetailsTab(
           customMessages={props.customMessages}
         />
       )}
-      <RemoveFromOrganizationCard {...props} />
+      <RemoveMemberFromOrganizationCard
+        customMessages={props.customMessages}
+        isRemovingFromOrg={props.isRemovingFromOrg}
+        onRemoveFromOrgClick={props.onRemoveFromOrgClick}
+      />
     </div>
   );
 }
