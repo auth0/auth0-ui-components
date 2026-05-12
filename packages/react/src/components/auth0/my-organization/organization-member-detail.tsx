@@ -105,14 +105,12 @@ export function OrganizationMemberDetailView(
     styling,
     customMessages,
     activeTab,
-    showRemoveFromOrgModal,
+    modalState,
     isRemovingFromOrg,
-    showDeleteMemberModal,
     isDeletingMember,
     setActiveTab,
-    handleRemoveFromOrgCancel,
+    closeModal,
     handleRemoveFromOrgConfirm,
-    handleDeleteMemberCancel,
     handleDeleteMemberConfirm,
   } = props;
 
@@ -151,7 +149,7 @@ export function OrganizationMemberDetailView(
               member={props.member}
               customMessages={customMessages}
               isRemovingFromOrg={isRemovingFromOrg}
-              handleRemoveFromOrgClick={props.handleRemoveFromOrgClick}
+              onRemoveFromOrgClick={() => props.openModal({ type: 'removeFromOrg' })}
             />
           </TabsContent>
 
@@ -165,33 +163,31 @@ export function OrganizationMemberDetailView(
               availableRoles={props.availableRoles}
               isFetchingRoles={props.isFetchingRoles}
               removingRoleId={props.removingRoleId}
-              showAssignRolesModal={props.showAssignRolesModal}
+              modalState={modalState}
               isAssigningRole={props.isAssigningRole}
-              showRemoveRoleModal={props.showRemoveRoleModal}
-              roleToRemove={props.roleToRemove}
-              handleAssignRolesClick={props.handleAssignRolesClick}
-              handleAssignRolesCancel={props.handleAssignRolesCancel}
-              handleAssignRolesSubmit={props.handleAssignRolesSubmit}
-              handleRemoveRoleClick={props.handleRemoveRoleClick}
-              handleRemoveRoleCancel={props.handleRemoveRoleCancel}
-              handleRemoveRoleConfirm={props.handleRemoveRoleConfirm}
+              onAssignRolesClick={() => props.openModal({ type: 'assignRoles' })}
+              onAssignRolesCancel={closeModal}
+              onAssignRolesSubmit={props.handleAssignRolesSubmit}
+              onRemoveRoleClick={(role) => props.openModal({ type: 'removeRole', role })}
+              onRemoveRoleCancel={closeModal}
+              onRemoveRoleConfirm={props.handleRemoveRoleConfirm}
             />
           </TabsContent>
         </Tabs>
 
         <MemberRemoveFromOrgModal
-          isOpen={showRemoveFromOrgModal}
+          isOpen={modalState.type === 'removeFromOrg'}
           isLoading={isRemovingFromOrg}
           customMessages={customMessages}
-          onClose={handleRemoveFromOrgCancel}
+          onClose={closeModal}
           onConfirm={handleRemoveFromOrgConfirm}
         />
 
         <MemberDeleteModal
-          isOpen={showDeleteMemberModal}
+          isOpen={modalState.type === 'deleteMember'}
           isLoading={isDeletingMember}
           customMessages={customMessages}
-          onClose={handleDeleteMemberCancel}
+          onClose={closeModal}
           onConfirm={handleDeleteMemberConfirm}
         />
       </div>

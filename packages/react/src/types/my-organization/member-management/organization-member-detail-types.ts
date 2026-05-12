@@ -81,6 +81,13 @@ export interface OrganizationMemberUserDetailsProps {
   customMessages?: Partial<OrganizationMemberDetailMessages>;
 }
 
+export interface OrganizationMemberEditDetailsTabProps {
+  member: OrgMember | null;
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
+  isRemovingFromOrg: boolean;
+  onRemoveFromOrgClick: () => void;
+}
+
 export interface MemberDetailDangerCardProps {
   title: string;
   description: string;
@@ -143,6 +150,40 @@ export interface OrganizationMemberAssignRolesModalProps {
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   onClose: () => void;
   onAssign: (roleIds: string[]) => void;
+}
+
+export interface RolesTabHeaderProps {
+  selectedRoles: OrgMemberRole[];
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
+  onAssignRolesClick: () => void;
+  onRemoveSelectedRoles: () => void;
+}
+
+export interface OrganizationMemberEditRolesTableProps {
+  memberRoles: OrgMemberRole[];
+  availableRoles: RoleOption[];
+  isLoading?: boolean;
+  removingRoleId?: string | null;
+  selectedRoles: OrgMemberRole[];
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
+  onRemoveRole: (role: OrgMemberRole) => void;
+  onSelectedRolesChange: (roles: OrgMemberRole[]) => void;
+}
+
+export interface OrganizationMemberEditRolesTabProps {
+  customMessages?: Partial<OrganizationMemberDetailMessages>;
+  memberRoles: OrgMemberRole[];
+  availableRoles: RoleOption[];
+  isFetchingRoles?: boolean;
+  removingRoleId?: string | null;
+  isAssigningRole?: boolean;
+  modalState: MemberDetailModalState;
+  onAssignRolesClick: () => void;
+  onAssignRolesCancel: () => void;
+  onAssignRolesSubmit: (roleIds: string[]) => void;
+  onRemoveRoleClick: (role: OrgMemberRole) => void;
+  onRemoveRoleCancel: () => void;
+  onRemoveRoleConfirm: () => void;
 }
 
 /** Props for OrganizationMemberDetail component. */

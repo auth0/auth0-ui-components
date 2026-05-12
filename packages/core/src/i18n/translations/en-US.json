@@ -1133,6 +1133,8 @@
           "max_roles_reached": "You have reached the maximum of ${max} roles for this member.",
           "remove_button": "Remove Role",
           "remove_button_plural": "Remove Roles",
+          "roles_selected": "${count} role selected",
+          "roles_selected_plural": "${count} roles selected",
           "table": {
             "name": "Name",
             "description": "Description",

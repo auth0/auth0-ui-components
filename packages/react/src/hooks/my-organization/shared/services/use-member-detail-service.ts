@@ -111,7 +111,7 @@ export function useMemberDetailService(
       }
     },
     onSuccess: () => {
-      showToast({ type: 'success', message: t('member.detail.roles.assign_button') });
+      showToast({ type: 'success', message: t('member.detail.roles.assign_modal.success') });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.member(userId) });
     },
     onError: () => {
@@ -132,7 +132,7 @@ export function useMemberDetailService(
     onSuccess: () => {
       showToast({
         type: 'success',
-        message: t('member.detail.roles.remove_confirm.confirm_button'),
+        message: t('member.detail.roles.remove_confirm.success'),
       });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.member(userId) });
     },

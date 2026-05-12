@@ -1134,6 +1134,8 @@
           "max_roles_reached": "このメンバーの最大登録数 ${max} に達しました。",
           "remove_button": "ロールを削除",
           "remove_button_plural": "ロールを削除",
+          "roles_selected": "${count}件のロールが選択されています",
+          "roles_selected_plural": "${count}件のロールが選択されています",
           "table": {
             "name": "名前",
             "description": "説明",

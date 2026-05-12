@@ -9,12 +9,7 @@ import { OrganizationMemberUserDetails } from '@/components/auth0/my-organizatio
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { OrganizationMemberDetailViewProps } from '@/types/my-organization/member-management/organization-member-detail-types';
-
-type OrganizationMemberEditDetailsTabProps = Pick<
-  OrganizationMemberDetailViewProps,
-  'member' | 'customMessages' | 'isRemovingFromOrg' | 'handleRemoveFromOrgClick'
->;
+import type { OrganizationMemberEditDetailsTabProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
  * Card with a button to remove the member from the organization.
@@ -24,9 +19,10 @@ type OrganizationMemberEditDetailsTabProps = Pick<
 function RemoveFromOrganizationCard({
   customMessages,
   isRemovingFromOrg,
-  handleRemoveFromOrgClick,
+  onRemoveFromOrgClick,
 }: OrganizationMemberEditDetailsTabProps): React.JSX.Element {
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
+
   return (
     <Card className="flex-row items-center justify-between gap-4 p-6">
       <div className="flex flex-col gap-1">
@@ -40,7 +36,7 @@ function RemoveFromOrganizationCard({
       <Button
         variant="destructive"
         size="sm"
-        onClick={handleRemoveFromOrgClick}
+        onClick={onRemoveFromOrgClick}
         disabled={isRemovingFromOrg}
         className="shrink-0"
       >
