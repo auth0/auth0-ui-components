@@ -27,8 +27,6 @@ import type {
   OrganizationInvitationDetailsModalProps,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
-export type { OrganizationInvitationDetailsModalProps };
-
 /**
  * Returns the badge variant for a given invitation status.
  * @param status - The invitation status.

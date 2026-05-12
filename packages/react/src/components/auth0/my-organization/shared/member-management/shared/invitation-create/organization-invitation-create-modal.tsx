@@ -29,8 +29,6 @@ import type { ChipItem } from '@/components/ui/text-field-group';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { OrganizationInvitationCreateModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
-export type { OrganizationInvitationCreateModalProps };
-
 /**
  * Modal for creating a new invitation.
  * Supports multiple email addresses, role selection, and provider selection.
