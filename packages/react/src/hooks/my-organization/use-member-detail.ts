@@ -7,9 +7,8 @@ import type { OrgMember, OrgMemberRole } from '@auth0/universal-components-core'
 import * as React from 'react';
 
 import { useMemberDetailService } from '@/hooks/my-organization/shared/services/use-member-detail-service';
-import { useConfig } from '@/hooks/my-organization/use-config';
-import type { RoleOption } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
+  MemberDetailModalState,
   MemberDetailTab,
   UseOrganizationMemberDetailOptions,
   UseOrganizationMemberDetailResult,
@@ -31,122 +30,76 @@ export function useOrganizationMemberDetail(
     customMessages = {},
     readOnly = false,
     removeFromOrgAction,
-    deleteMemberAction,
-    assignRoleAction,
-    removeRoleAction,
+    assignRolesAction,
+    removeRolesAction,
   } = options;
-
-  const { allowedRoles } = useConfig();
-  const availableRoles: RoleOption[] = allowedRoles;
 
   const {
     memberQuery,
+    rolesQuery,
     removeFromOrgMutation,
-    deleteMemberMutation,
-    assignRoleMutation,
-    removeRoleMutation,
+    assignRolesMutation,
+    removeRolesMutation,
   } = useMemberDetailService({
     userId,
     customMessages,
     removeFromOrgAction,
-    deleteMemberAction,
-    assignRoleAction,
-    removeRoleAction,
+    assignRolesAction,
+    removeRolesAction,
   });
 
   const [activeTab, setActiveTab] = React.useState<MemberDetailTab>('details');
-  const [showRemoveFromOrgModal, setShowRemoveFromOrgModal] = React.useState(false);
-  const [showDeleteMemberModal, setShowDeleteMemberModal] = React.useState(false);
-  const [showAssignRolesModal, setShowAssignRolesModal] = React.useState(false);
-  const [showRemoveRoleModal, setShowRemoveRoleModal] = React.useState(false);
-  const [roleToRemove, setRoleToRemove] = React.useState<OrgMemberRole | null>(null);
+  const [modalState, setModalState] = React.useState<MemberDetailModalState>({ type: null });
 
   const handleBack = React.useCallback(() => {
     onBack?.();
   }, [onBack]);
 
-  const handleRemoveFromOrgClick = React.useCallback(() => {
-    if (readOnly) return;
-    setShowRemoveFromOrgModal(true);
-  }, [readOnly]);
-
-  const handleRemoveFromOrgConfirm = React.useCallback(() => {
-    removeFromOrgMutation.mutate(undefined, {
-      onSuccess: () => {
-        setShowRemoveFromOrgModal(false);
-        onBack?.();
-      },
-    });
-  }, [removeFromOrgMutation, onBack]);
-
-  const handleRemoveFromOrgCancel = React.useCallback(() => {
-    setShowRemoveFromOrgModal(false);
-  }, []);
-
-  const handleDeleteMemberClick = React.useCallback(() => {
-    if (readOnly) return;
-    setShowDeleteMemberModal(true);
-  }, [readOnly]);
-
-  const handleDeleteMemberConfirm = React.useCallback(() => {
-    deleteMemberMutation.mutate(undefined, {
-      onSuccess: () => {
-        setShowDeleteMemberModal(false);
-        onBack?.();
-      },
-    });
-  }, [deleteMemberMutation, onBack]);
-
-  const handleDeleteMemberCancel = React.useCallback(() => {
-    setShowDeleteMemberModal(false);
-  }, []);
-
-  const handleAssignRolesClick = React.useCallback(() => {
-    if (readOnly) return;
-    setShowAssignRolesModal(true);
-  }, [readOnly]);
-
-  const handleAssignRolesSubmit = React.useCallback(
-    (roleIds: string[]) => {
-      assignRoleMutation.mutate(roleIds, {
-        onSuccess: () => {
-          setShowAssignRolesModal(false);
-        },
-      });
-    },
-    [assignRoleMutation],
-  );
-
-  const handleAssignRolesCancel = React.useCallback(() => {
-    setShowAssignRolesModal(false);
-  }, []);
-
-  const handleRemoveRoleClick = React.useCallback(
-    (role: OrgMemberRole) => {
-      if (readOnly) return;
-      setRoleToRemove(role);
-      setShowRemoveRoleModal(true);
+  const openModal = React.useCallback(
+    (state: MemberDetailModalState) => {
+      if (readOnly && state.type !== null) return;
+      setModalState(state);
     },
     [readOnly],
   );
 
-  const handleRemoveRoleConfirm = React.useCallback(() => {
-    if (!roleToRemove) return;
-    removeRoleMutation.mutate(roleToRemove, {
+  const closeModal = React.useCallback(() => {
+    setModalState({ type: null });
+  }, []);
+
+  const handleRemoveFromOrgConfirm = React.useCallback(() => {
+    removeFromOrgMutation.mutate(undefined, {
       onSuccess: () => {
-        setShowRemoveRoleModal(false);
-        setRoleToRemove(null);
+        closeModal();
+        onBack?.();
       },
     });
-  }, [roleToRemove, removeRoleMutation]);
+  }, [removeFromOrgMutation, closeModal, onBack]);
 
-  const handleRemoveRoleCancel = React.useCallback(() => {
-    setShowRemoveRoleModal(false);
-    setRoleToRemove(null);
-  }, []);
+  const handleAssignRolesSubmit = React.useCallback(
+    (roleIds: string[]) => {
+      assignRolesMutation.mutate(roleIds, {
+        onSuccess: () => {
+          closeModal();
+        },
+      });
+    },
+    [assignRolesMutation, closeModal],
+  );
+
+  const handleRemoveRolesConfirm = React.useCallback(() => {
+    if (modalState.type !== 'removeRoles') return;
+    removeRolesMutation.mutate(modalState.roles, {
+      onSuccess: () => {
+        closeModal();
+      },
+    });
+  }, [modalState, removeRolesMutation, closeModal]);
 
   const member = (memberQuery.data as OrgMember) ?? null;
   const memberRoles: OrgMemberRole[] = member?.roles ?? [];
+  const availableRoles: OrgMemberRole[] = rolesQuery.data ?? [];
+  const removingRoles = modalState.type === 'removeRoles' ? modalState.roles : [];
 
   return {
     activeTab,
@@ -154,32 +107,20 @@ export function useOrganizationMemberDetail(
     memberRoles,
     availableRoles,
     isFetchingMember: memberQuery.isLoading || memberQuery.isFetching,
-    isFetchingRoles: memberQuery.isLoading || memberQuery.isFetching,
+    isFetchingRoles: rolesQuery.isLoading || rolesQuery.isFetching,
     isLoading: memberQuery.isLoading,
     isRemovingFromOrg: removeFromOrgMutation.isPending,
-    isDeletingMember: deleteMemberMutation.isPending,
-    isAssigningRole: assignRoleMutation.isPending,
-    removingRoleId: removeRoleMutation.isPending ? (roleToRemove?.id ?? null) : null,
-    showRemoveFromOrgModal,
-    showDeleteMemberModal,
-    showAssignRolesModal,
-    showRemoveRoleModal,
-    roleToRemove,
+    isAssigningRoles: assignRolesMutation.isPending,
+    removingRoleIds: removeRolesMutation.isPending ? removingRoles.map((r) => r.id) : [],
+    modalState,
 
     setActiveTab,
     handleBack,
-    handleRemoveFromOrgClick,
+    openModal,
+    closeModal,
     handleRemoveFromOrgConfirm,
-    handleRemoveFromOrgCancel,
-    handleDeleteMemberClick,
-    handleDeleteMemberConfirm,
-    handleDeleteMemberCancel,
-    handleAssignRolesClick,
     handleAssignRolesSubmit,
-    handleAssignRolesCancel,
-    handleRemoveRoleClick,
-    handleRemoveRoleConfirm,
-    handleRemoveRoleCancel,
+    handleRemoveRolesConfirm,
   };
 }
 

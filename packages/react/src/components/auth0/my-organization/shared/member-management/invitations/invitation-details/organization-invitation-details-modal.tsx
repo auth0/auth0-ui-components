@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 import { TextField } from '@/components/ui/text-field';
 import { TextFieldGroup } from '@/components/ui/text-field-group';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -197,9 +198,11 @@ export function OrganizationInvitationDetailsModal({
           {!readOnly && (
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" onClick={handleResend} disabled={isActionInProgress}>
+                {isResending ? <Spinner size="sm" /> : null}
                 {t('invitation.details.resend_button')}
               </Button>
               <Button variant="destructive" onClick={handleRevoke} disabled={isActionInProgress}>
+                {isRevoking ? <Spinner size="sm" /> : null}
                 {t('invitation.details.revoke_button')}
               </Button>
             </div>

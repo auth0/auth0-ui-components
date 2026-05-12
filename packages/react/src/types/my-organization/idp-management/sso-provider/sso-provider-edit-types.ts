@@ -7,7 +7,7 @@ import type {
   SharedComponentProps,
   BackButton,
   SsoProviderEditMessages,
-  IdentityProvider,
+  IdpKnownResponse,
   IdpId,
   OrganizationPrivate,
   UpdateIdentityProviderRequestContentPrivate,
@@ -16,11 +16,11 @@ import type {
   ListIdpProvisioningScimTokensResponseContent,
   GetIdPProvisioningConfigResponseContent,
   SsoProviderAttributeMappingsMessages,
-  IdpProvisioningUserAttributeMap,
-  IdpUserAttributeMap,
+  IdpProvisioningUserAttributeMapItem,
+  IdpUserAttributeMapItem,
   IdpStrategy,
   AttributeSyncAlertMessages,
-  IdpConfig,
+  GetIdpConfigurationResponseContent,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
@@ -86,7 +86,7 @@ export interface UseSsoProviderEditOptions extends SharedComponentProps {
 }
 
 export interface UseSsoProviderEditReturn {
-  provider: IdentityProvider | null;
+  provider: IdpKnownResponse | null;
   organization: OrganizationPrivate | null;
   provisioningConfig: GetIdPProvisioningConfigResponseContent | null;
   isLoading: boolean;
@@ -103,7 +103,7 @@ export interface UseSsoProviderEditReturn {
   isProvisioningAttributesSyncing: boolean;
   hasSsoAttributeSyncWarning: boolean;
   hasProvisioningAttributeSyncWarning: boolean;
-  fetchProvider: () => Promise<IdentityProvider | null>;
+  fetchProvider: () => Promise<IdpKnownResponse | null>;
   fetchOrganizationDetails: () => Promise<void>;
   fetchProvisioning: () => Promise<GetIdPProvisioningConfigResponseContent | null>;
   updateProvider: (data: UpdateIdentityProviderRequestContentPrivate) => Promise<void>;
@@ -122,7 +122,7 @@ export interface UseSsoProviderEditReturn {
 
 export interface SsoProviderAttributeMappingsProps
   extends SharedComponentProps<SsoProviderAttributeMappingsMessages> {
-  userAttributeMap: IdpProvisioningUserAttributeMap | IdpUserAttributeMap | null;
+  userAttributeMap: IdpProvisioningUserAttributeMapItem[] | IdpUserAttributeMapItem[] | null;
   strategy: IdpStrategy | null;
   isProvisioning?: boolean;
   className?: string;
@@ -185,7 +185,7 @@ export interface SsoProviderEditHandlerProps {
 export interface UseSsoProviderEditLogicResult {
   shouldAllowDeletion: boolean;
   isLoadingConfig: boolean;
-  idpConfig: IdpConfig | null;
+  idpConfig: GetIdpConfigurationResponseContent | null;
   isLoadingIdpConfig: boolean;
   showProvisioningTab: boolean;
   handleToggleProvider: (enabled: boolean) => Promise<void>;

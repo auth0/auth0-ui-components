@@ -1,16 +1,15 @@
 {
   "name": "auth0-ui-components",
-  "latest": "1.0.0-beta.25",
+  "latest": "2.0.0",
   "majorVersions": {
     "v1": {
-      "latest": "1.0.0-beta.25"
+      "latest": "1.0.0"
+    },
+    "v2": {
+      "latest": "2.0.0"
     }
   },
   "versions": {
-    "1.0.0-beta.11": {
-      "status": "beta",
-      "major": "1"
-    },
     "1.0.0-beta.16": {
       "status": "beta",
       "major": "1"
@@ -26,6 +25,14 @@
     "1.0.0-beta.25": {
       "status": "beta",
       "major": "1"
+    },
+    "1.0.0": {
+      "status": "stable",
+      "major": "1"
+    },
+    "2.0.0": {
+      "status": "stable",
+      "major": "2"
     }
   }
 }

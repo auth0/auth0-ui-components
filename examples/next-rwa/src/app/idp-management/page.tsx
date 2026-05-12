@@ -1,6 +1,6 @@
 'use client';
 
-import { SsoProviderTable, type IdentityProvider } from '@auth0/universal-components-react/rwa';
+import { SsoProviderTable, type IdpKnownResponse } from '@auth0/universal-components-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 
@@ -11,7 +11,7 @@ export default function IdpManagementPage() {
   }, [router]);
 
   const handleEdit = useCallback(
-    (provider: IdentityProvider): void => {
+    (provider: IdpKnownResponse): void => {
       router.push(`/idp-management/edit/${provider.id}`);
     },
     [router],

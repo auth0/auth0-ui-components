@@ -7,12 +7,14 @@
 import {
   type MemberInvitation,
   type ListIdentityProvidersResponseContent,
+  memberManagementQueryKeys,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   CreateInvitationInput,
@@ -22,11 +24,6 @@ import type {
   UseMemberManagementServiceOptions,
   MemberManagementServiceResult,
 } from '@/types/my-organization/member-management/organization-member-management-types';
-
-export const memberManagementQueryKeys = {
-  all: ['member-management'] as const,
-  invitations: () => [...memberManagementQueryKeys.all, 'invitations'] as const,
-};
 
 const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
   created_at: 'created_at',
@@ -65,7 +62,8 @@ export function useMemberManagementService(
   const isInvitationsTabActive = activeTab === 'invitations';
 
   const { coreClient } = useCoreClient();
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
+  const handleError = useErrorHandler();
   const queryClient = useQueryClient();
 
   const providersQuery = useQuery({
@@ -81,7 +79,18 @@ export function useMemberManagementService(
         type: p.strategy,
       }));
     },
-    enabled: !!coreClient && isInvitationsTabActive,
+    enabled: !!coreClient,
+  });
+
+  const rolesQuery = useQuery({
+    queryKey: memberManagementQueryKeys.roles(),
+    queryFn: async () => {
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.roles.list({ take: 50 });
+      return response.data;
+    },
+    enabled: !!coreClient,
   });
 
   const invitationsQuery = useQuery({
@@ -101,9 +110,8 @@ export function useMemberManagementService(
 
       const invitations: MemberInvitation[] = page.data;
       const next = page.response.next ?? null;
-      const total = (page.response as Record<string, unknown>).total as number | undefined;
 
-      return { invitations, next, total };
+      return { invitations, next };
     },
     enabled: !!coreClient && isInvitationsTabActive,
   });
@@ -118,17 +126,22 @@ export function useMemberManagementService(
         .organization.invitations.create({
           invitees: data.invitees,
           inviter: data.inviter,
+          identity_provider_id: data.identity_provider_id,
           ttl_sec: data.ttl_sec,
         });
       return Array.isArray(response) ? response[0] : response;
     },
     onSuccess: (result, data) => {
       createInvitationAction?.onAfter?.(data, result);
-      showToast({ type: 'success', message: t('invitation.create.success') });
+      const isBulk = data.invitees.length > 1;
+      const message = isBulk
+        ? t('invitation.create.success_bulk')
+        : t('invitation.create.success', { email: data.invitees[0]?.email ?? '' });
+      showToast({ type: 'success', message });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
     },
-    onError: () => {
-      showToast({ type: 'error', message: t('invitation.error.create_failed') });
+    onError: (error) => {
+      handleError(error, { fallbackMessage: t('invitation.error.create_failed') });
     },
   });
 
@@ -144,11 +157,14 @@ export function useMemberManagementService(
     },
     onSuccess: (invitation) => {
       revokeInvitationAction?.onAfter?.(invitation);
-      showToast({ type: 'success', message: t('invitation.revoke.success') });
+      showToast({
+        type: 'success',
+        message: t('invitation.revoke.success', { email: invitation.invitee?.email ?? '' }),
+      });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
     },
-    onError: () => {
-      showToast({ type: 'error', message: t('invitation.error.revoke_failed') });
+    onError: (error) => {
+      handleError(error, { fallbackMessage: t('invitation.error.revoke_failed') });
     },
   });
 
@@ -174,11 +190,16 @@ export function useMemberManagementService(
     },
     onSuccess: (result, invitation) => {
       resendInvitationAction?.onAfter?.(invitation, result);
-      showToast({ type: 'success', message: t('invitation.success.invitation_resent') });
+      showToast({
+        type: 'success',
+        message: t('invitation.success.invitation_resent', {
+          email: invitation.invitee?.email ?? '',
+        }),
+      });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
     },
-    onError: () => {
-      showToast({ type: 'error', message: t('invitation.error.resend_failed') });
+    onError: (error) => {
+      handleError(error, { fallbackMessage: t('invitation.error.resend_failed') });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
     },
   });
@@ -192,6 +213,7 @@ export function useMemberManagementService(
 
   return {
     providersQuery,
+    rolesQuery,
     invitationsQuery,
     createInvitationMutation,
     revokeInvitationMutation,

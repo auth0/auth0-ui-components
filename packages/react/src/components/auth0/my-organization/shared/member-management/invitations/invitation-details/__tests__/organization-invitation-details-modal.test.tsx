@@ -333,7 +333,7 @@ describe('OrganizationInvitationDetailsModal', () => {
       );
 
       const revokeButton = screen.getByRole('button', {
-        name: 'invitation.details.revoke_button',
+        name: /invitation\.details\.revoke_button/,
       });
       expect(revokeButton).toBeDisabled();
     });
@@ -346,7 +346,7 @@ describe('OrganizationInvitationDetailsModal', () => {
       );
 
       const resendButton = screen.getByRole('button', {
-        name: 'invitation.details.resend_button',
+        name: /invitation\.details\.resend_button/,
       });
       expect(resendButton).toBeDisabled();
     });
@@ -359,10 +359,10 @@ describe('OrganizationInvitationDetailsModal', () => {
       );
 
       const revokeButton = screen.getByRole('button', {
-        name: 'invitation.details.revoke_button',
+        name: /invitation\.details\.revoke_button/,
       });
       const resendButton = screen.getByRole('button', {
-        name: 'invitation.details.resend_button',
+        name: /invitation\.details\.resend_button/,
       });
       expect(revokeButton).toBeDisabled();
       expect(resendButton).toBeDisabled();

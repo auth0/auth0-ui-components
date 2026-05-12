@@ -43,6 +43,7 @@ import {
 } from '@/components/ui/select';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
@@ -61,8 +62,8 @@ const DIGEST_ALGORITHMS = [
 ] as const;
 
 const BINDING_METHODS = [
-  { value: 'HTTP-Redirect', label: 'HTTP-Redirect' },
-  { value: 'HTTP-POST', label: 'HTTP-POST' },
+  { value: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect', label: 'HTTP-Redirect' },
+  { value: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST', label: 'HTTP-POST' },
 ] as const;
 
 export interface SamlpConfigureFormHandle {
@@ -92,8 +93,8 @@ export const SamlpProviderForm = React.forwardRef<
 
   const form = useForm<SamlpConfigureFormValues>({
     resolver: zodResolver(createProviderConfigureSchema('samlp')),
-    mode: 'onSubmit',
-    reValidateMode: 'onChange',
+    mode: FORM_VALIDATION_MODE,
+    reValidateMode: FORM_REVALIDATE_MODE,
     defaultValues: {
       meta_data_source: samlpData?.meta_data_source || 'meta_data_url',
       metadataUrl: samlpData?.metadataUrl || '',
@@ -102,7 +103,7 @@ export const SamlpProviderForm = React.forwardRef<
       signSAMLRequest: samlpData?.signSAMLRequest || false,
       signatureAlgorithm: samlpData?.signatureAlgorithm || 'rsa-sha256',
       digestAlgorithm: samlpData?.digestAlgorithm || 'sha256',
-      bindingMethod: samlpData?.bindingMethod || 'HTTP-POST',
+      bindingMethod: samlpData?.bindingMethod || 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
     },
   });
 

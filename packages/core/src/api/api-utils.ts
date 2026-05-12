@@ -13,17 +13,21 @@ export const AUTH0_SCOPE_HEADER = HeaderName.Auth0Scope;
 /**
  * Creates a fetcher function for proxy mode that injects scopes via auth0-scope header.
  * The proxy will extract scopes from the header and request the appropriate token.
+ * @param customFetcher - Optional custom fetch implementation to use instead of global fetch
  * @returns Fetcher function that sets auth0-scope and content-type headers
  * @internal
  */
-export function createProxyFetcher(): FetcherSupplier {
+export function createProxyFetcher(
+  customFetcher?: (url: string, init?: RequestInit) => Promise<Response>,
+): FetcherSupplier {
+  const fetchFn = customFetcher ?? fetch;
   return async (url, init, authParams) => {
     const headers = new Headers(init?.headers);
     headers.set(HeaderName.ContentType, ContentType.JSON);
     if (authParams?.scope?.length) {
       headers.set(HeaderName.Auth0Scope, authParams.scope.join(' '));
     }
-    return fetch(url, { ...init, headers });
+    return fetchFn(url, { ...init, headers });
   };
 }
 
