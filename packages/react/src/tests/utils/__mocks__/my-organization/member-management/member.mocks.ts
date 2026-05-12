@@ -1,7 +1,6 @@
 import type { OrgMember, OrgMemberRole } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import type { RoleOption } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   MemberDetailDangerZoneProps,
   OrganizationMemberAssignRolesModalProps,
@@ -40,7 +39,7 @@ export const createMockMemberRoles = (): OrgMemberRole[] => [
   createMockMemberRole({ id: 'rol_member', name: 'Member', description: 'Member role' }),
 ];
 
-export const createMockAvailableRoles = (): RoleOption[] => [
+export const createMockAvailableRoles = (): OrgMemberRole[] => [
   { id: 'rol_admin', name: 'Admin', description: 'Administrator role' },
   { id: 'rol_member', name: 'Member', description: 'Member role' },
   { id: 'rol_viewer', name: 'Viewer', description: 'Viewer role' },
@@ -78,10 +77,10 @@ export const createMockRolesTabProps = (
   memberRoles: createMockMemberRoles(),
   availableRoles: createMockAvailableRoles(),
   isLoading: false,
-  removingRoleId: null,
+  removingRoleIds: [],
   readOnly: false,
   onAssignRolesClick: vi.fn(),
-  onRemoveRole: vi.fn(),
+  onRemoveRoles: vi.fn(),
   ...overrides,
 });
 
@@ -102,7 +101,7 @@ export const createMockRemoveRoleModalProps = (
 ): OrganizationMemberRemoveRoleModalProps => ({
   isOpen: true,
   isLoading: false,
-  role: createMockMemberRole(),
+  roles: [createMockMemberRole()],
   onClose: vi.fn(),
   onConfirm: vi.fn(),
   ...overrides,

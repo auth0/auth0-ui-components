@@ -62,9 +62,9 @@ describe('OrganizationMemberRemoveRoleModal', () => {
   });
 
   describe('role', () => {
-    it('should handle null role gracefully', () => {
+    it('should handle empty roles gracefully', () => {
       renderWithProviders(
-        <OrganizationMemberRemoveRoleModal {...createMockRemoveRoleModalProps({ role: null })} />,
+        <OrganizationMemberRemoveRoleModal {...createMockRemoveRoleModalProps({ roles: [] })} />,
       );
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -74,7 +74,9 @@ describe('OrganizationMemberRemoveRoleModal', () => {
       const role = createMockMemberRole({ id: 'rol_1', name: 'Manager' });
 
       renderWithProviders(
-        <OrganizationMemberRemoveRoleModal {...createMockRemoveRoleModalProps({ role })} />,
+        <OrganizationMemberRemoveRoleModal
+          {...createMockRemoveRoleModalProps({ roles: [role] })}
+        />,
       );
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();

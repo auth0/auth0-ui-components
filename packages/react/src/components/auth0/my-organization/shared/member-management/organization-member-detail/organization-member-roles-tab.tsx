@@ -53,7 +53,11 @@ function RolesTabHeader({
               )}
             </span>
             <Button variant="destructive" size="sm" onClick={onRemoveSelectedRoles}>
-              {t('member.detail.roles.remove_button')}
+              {t(
+                selectedRoles.length === 1
+                  ? 'member.detail.roles.remove_button'
+                  : 'member.detail.roles.remove_button_plural',
+              )}
             </Button>
           </>
         ) : (
@@ -72,20 +76,20 @@ function RolesTabHeader({
  * @param props - Component props
  * @param props.memberRoles - The list of roles assigned to the member
  * @param props.isLoading - Whether the roles data is loading
- * @param props.removingRoleId - The ID of the role currently being removed
+ * @param props.removingRoleIds - IDs of roles currently being removed
  * @param props.selectedRoles - The currently selected roles
  * @param props.customMessages - Optional custom message overrides
- * @param props.onRemoveRole - Handler called when a role removal is requested
+ * @param props.onRemoveRoles - Handler called when role removal is requested
  * @param props.onSelectedRolesChange - Handler called when row selection changes
  * @returns The rendered roles table element
  */
 function OrganizationMemberEditRolesTable({
   memberRoles,
   isLoading = false,
-  removingRoleId = null,
+  removingRoleIds = [],
   selectedRoles,
   customMessages,
-  onRemoveRole,
+  onRemoveRoles,
   onSelectedRolesChange,
 }: OrganizationMemberEditRolesTableProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
@@ -116,8 +120,8 @@ function OrganizationMemberEditRolesTable({
               variant="destructive"
               size="icon"
               className="h-8 w-8"
-              disabled={removingRoleId === role.id}
-              onClick={() => onRemoveRole(role)}
+              disabled={removingRoleIds.includes(role.id)}
+              onClick={() => onRemoveRoles([role])}
               aria-label={t('member.detail.roles.table.remove_button_label', {
                 roleName: role.name,
               })}
@@ -128,7 +132,7 @@ function OrganizationMemberEditRolesTable({
         ),
       },
     ],
-    [t, removingRoleId, onRemoveRole],
+    [t, removingRoleIds, onRemoveRoles],
   );
 
   return (
@@ -155,24 +159,24 @@ export function OrganizationMemberEditRolesTab({
   memberRoles,
   availableRoles,
   isFetchingRoles,
-  removingRoleId,
-  isAssigningRole,
+  removingRoleIds,
+  isAssigningRoles,
   modalState,
   onAssignRolesClick,
   onAssignRolesCancel,
   onAssignRolesSubmit,
-  onRemoveRoleClick,
-  onRemoveRoleCancel,
-  onRemoveRoleConfirm,
+  onRemoveRolesClick,
+  onRemoveRolesCancel,
+  onRemoveRolesConfirm,
 }: OrganizationMemberEditRolesTabProps): React.JSX.Element {
   const [selectedRoles, setSelectedRoles] = React.useState<OrgMemberRole[]>([]);
 
   const handleRemoveSelectedRoles = React.useCallback(() => {
-    selectedRoles.forEach((role) => onRemoveRoleClick(role));
+    onRemoveRolesClick(selectedRoles);
     setSelectedRoles([]);
-  }, [selectedRoles, onRemoveRoleClick]);
+  }, [selectedRoles, onRemoveRolesClick]);
 
-  const roleToRemove = modalState.type === 'removeRole' ? modalState.role : null;
+  const rolesToRemove = modalState.type === 'removeRoles' ? modalState.roles : [];
 
   return (
     <>
@@ -187,16 +191,16 @@ export function OrganizationMemberEditRolesTab({
         memberRoles={memberRoles}
         availableRoles={availableRoles}
         isLoading={isFetchingRoles}
-        removingRoleId={removingRoleId}
+        removingRoleIds={removingRoleIds}
         selectedRoles={selectedRoles}
         customMessages={customMessages}
-        onRemoveRole={onRemoveRoleClick}
+        onRemoveRoles={onRemoveRolesClick}
         onSelectedRolesChange={setSelectedRoles}
       />
 
       <OrganizationMemberAssignRolesModal
         isOpen={modalState.type === 'assignRoles'}
-        isLoading={isAssigningRole}
+        isLoading={isAssigningRoles}
         availableRoles={availableRoles}
         assignedRoles={memberRoles}
         customMessages={customMessages}
@@ -205,12 +209,12 @@ export function OrganizationMemberEditRolesTab({
       />
 
       <OrganizationMemberRemoveRoleModal
-        isOpen={modalState.type === 'removeRole'}
-        isLoading={removingRoleId !== null}
-        role={roleToRemove}
+        isOpen={modalState.type === 'removeRoles'}
+        isLoading={(removingRoleIds?.length ?? 0) > 0}
+        roles={rolesToRemove}
         customMessages={customMessages}
-        onClose={onRemoveRoleCancel}
-        onConfirm={onRemoveRoleConfirm}
+        onClose={onRemoveRolesCancel}
+        onConfirm={onRemoveRolesConfirm}
       />
     </>
   );

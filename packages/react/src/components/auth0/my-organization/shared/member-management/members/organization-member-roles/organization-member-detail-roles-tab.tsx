@@ -21,11 +21,11 @@ import type { OrganizationMemberDetailRolesTabProps } from '@/types/my-organizat
 export function OrganizationMemberDetailRolesTab({
   memberRoles,
   isLoading = false,
-  removingRoleId = null,
+  removingRoleIds = [],
   readOnly = false,
   customMessages,
   onAssignRolesClick,
-  onRemoveRole,
+  onRemoveRoles,
 }: OrganizationMemberDetailRolesTabProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
@@ -55,8 +55,8 @@ export function OrganizationMemberDetailRolesTab({
               variant="ghost"
               size="icon"
               className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-              disabled={removingRoleId === role.id}
-              onClick={() => onRemoveRole(role)}
+              disabled={removingRoleIds.includes(role.id)}
+              onClick={() => onRemoveRoles([role])}
               aria-label={t('member.detail.roles.table.remove_button_label', {
                 roleName: role.name,
               })}
@@ -66,7 +66,7 @@ export function OrganizationMemberDetailRolesTab({
           ),
       },
     ],
-    [t, readOnly, removingRoleId, onRemoveRole],
+    [t, readOnly, removingRoleIds, onRemoveRoles],
   );
 
   return (

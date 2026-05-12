@@ -27,23 +27,30 @@ import type { OrganizationMemberRemoveRoleModalProps } from '@/types/my-organiza
 export function OrganizationMemberRemoveRoleModal({
   isOpen,
   isLoading = false,
-  role,
+  roles,
   customMessages,
   onClose,
   onConfirm,
 }: OrganizationMemberRemoveRoleModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
+  const isPlural = roles.length > 1;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('member.detail.roles.remove_confirm.title')}</DialogTitle>
+          <DialogTitle>
+            {t(
+              isPlural
+                ? 'member.detail.roles.remove_confirm.title_plural'
+                : 'member.detail.roles.remove_confirm.title',
+            )}
+          </DialogTitle>
         </DialogHeader>
         <DialogDescription className="py-2">
           <>
             {t.trans('member.detail.roles.remove_confirm.description', {
-              vars: { roleName: role?.name ?? '' },
+              vars: { roleName: roles.map((r) => r.name).join(', ') },
               components: { bold: (children: string) => <strong key="role">{children}</strong> },
             })}
           </>

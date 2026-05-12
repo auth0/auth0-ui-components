@@ -52,7 +52,7 @@ type HeaderProps = Pick<
  */
 function Header({ member, styling, customMessages, handleBack }: HeaderProps): React.JSX.Element {
   const { isDarkMode } = useTheme();
-  const { t } = useTranslator('member_management', customMessages as Record<string, unknown>);
+  const { t } = useTranslator('member_management', customMessages);
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
@@ -159,15 +159,15 @@ export function OrganizationMemberDetailView(
               memberRoles={props.memberRoles}
               availableRoles={props.availableRoles}
               isFetchingRoles={props.isFetchingRoles}
-              removingRoleId={props.removingRoleId}
+              removingRoleIds={props.removingRoleIds}
               modalState={modalState}
-              isAssigningRole={props.isAssigningRole}
+              isAssigningRoles={props.isAssigningRoles}
               onAssignRolesClick={() => props.openModal({ type: 'assignRoles' })}
               onAssignRolesCancel={closeModal}
               onAssignRolesSubmit={props.handleAssignRolesSubmit}
-              onRemoveRoleClick={(role) => props.openModal({ type: 'removeRole', role })}
-              onRemoveRoleCancel={closeModal}
-              onRemoveRoleConfirm={props.handleRemoveRoleConfirm}
+              onRemoveRolesClick={(roles) => props.openModal({ type: 'removeRoles', roles })}
+              onRemoveRolesCancel={closeModal}
+              onRemoveRolesConfirm={props.handleRemoveRolesConfirm}
             />
           </TabsContent>
         </Tabs>
@@ -196,8 +196,8 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     removeFromOrgAction,
-    assignRoleAction,
-    removeRoleAction,
+    assignRolesAction,
+    removeRolesAction,
   } = props;
 
   const memberDetail = useOrganizationMemberDetail({
@@ -205,8 +205,8 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     onBack,
     customMessages,
     removeFromOrgAction,
-    assignRoleAction,
-    removeRoleAction,
+    assignRolesAction,
+    removeRolesAction,
   });
 
   return (
