@@ -7,7 +7,7 @@ import type {
   ComponentAction,
   Domain,
   DomainCreateSchemas,
-  IdentityProvider,
+  IdpKnownResponse,
   SharedComponentProps,
   SsoDomainTabMessages,
 } from '@auth0/universal-components-core';
@@ -17,8 +17,8 @@ export interface SsoDomainsTabEditProps {
   createAction?: ComponentAction<Domain>;
   verifyAction?: ComponentAction<Domain>;
   deleteAction?: ComponentAction<Domain, void>;
-  associateToProviderAction?: ComponentAction<Domain, IdentityProvider | null>;
-  deleteFromProviderAction?: ComponentAction<Domain, IdentityProvider | null>;
+  associateToProviderAction?: ComponentAction<Domain, IdpKnownResponse | null>;
+  deleteFromProviderAction?: ComponentAction<Domain, IdpKnownResponse | null>;
 }
 
 /** CSS classes for SsoDomainsTab. */
@@ -44,7 +44,7 @@ export interface SsoDomainsTabProps
   > {
   domains: SsoDomainsTabEditProps | undefined;
   idpId: string;
-  provider: IdentityProvider | null;
+  provider: IdpKnownResponse | null;
 }
 
 export interface SsoDomainTabActionColumn
@@ -64,7 +64,7 @@ export interface SsoDomainTabActionColumn
 
 export interface UseSsoDomainTabOptions extends SharedComponentProps {
   domains: SsoDomainsTabEditProps;
-  provider: IdentityProvider | null;
+  provider: IdpKnownResponse | null;
 }
 
 export interface UseSsoDomainTabReturn {

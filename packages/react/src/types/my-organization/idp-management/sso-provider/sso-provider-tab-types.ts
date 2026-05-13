@@ -5,14 +5,14 @@
 
 import type {
   SharedComponentProps,
-  IdentityProvider,
+  IdpKnownResponse,
   OrganizationPrivate,
   UpdateIdentityProviderRequestContentPrivate,
   SsoProviderTabMessages,
   SsoProviderDetailsMessages,
   SsoProviderDetailsSchema,
   ComponentAction,
-  IdpConfig,
+  GetIdpConfigurationResponseContent,
 } from '@auth0/universal-components-core';
 
 import type { FormActionsProps } from '@/components/auth0/shared/form-actions';
@@ -24,9 +24,9 @@ import type {
 
 /** SSO provider tab edit action props. */
 export interface SsoProviderTabEditProps {
-  updateAction?: ComponentAction<IdentityProvider, IdentityProvider>;
-  deleteAction: ComponentAction<IdentityProvider, void>;
-  deleteFromOrganizationAction: ComponentAction<IdentityProvider, void>;
+  updateAction?: ComponentAction<IdpKnownResponse, IdpKnownResponse>;
+  deleteAction: ComponentAction<IdpKnownResponse, void>;
+  deleteFromOrganizationAction: ComponentAction<IdpKnownResponse, void>;
 }
 
 /** CSS classes for SsoProviderTab. */
@@ -56,11 +56,11 @@ export interface SsoProviderTabProps
     SsoProviderTabSchemas
   > {
   formActions: SsoProviderDetailsFormActions;
-  idpConfig: IdpConfig | null;
+  idpConfig: GetIdpConfigurationResponseContent | null;
   shouldAllowDeletion: boolean;
-  provider: IdentityProvider | null;
-  onDelete: (provider: IdentityProvider) => Promise<void>;
-  onRemove: (provider: IdentityProvider) => Promise<void>;
+  provider: IdpKnownResponse | null;
+  onDelete: (provider: IdpKnownResponse) => Promise<void>;
+  onRemove: (provider: IdpKnownResponse) => Promise<void>;
   organization: OrganizationPrivate | null;
   isDeleting: boolean;
   isRemoving: boolean;
@@ -91,8 +91,8 @@ export interface SsoProviderDetailsClasses {
 
 export interface SsoProviderDetailsProps
   extends SharedComponentProps<SsoProviderDetailsMessages, SsoProviderDetailsClasses> {
-  provider: IdentityProvider;
-  idpConfig: IdpConfig | null;
+  provider: IdpKnownResponse;
+  idpConfig: GetIdpConfigurationResponseContent | null;
   readOnly?: boolean;
   formActions?: SsoProviderDetailsFormActions;
 }
