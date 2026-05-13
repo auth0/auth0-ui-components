@@ -13,76 +13,20 @@ import {
   createMockMemberRoles,
   createMockAvailableRoles,
   createMockMemberRole,
+  createMockOrganizationMemberDetailProps,
+  createMockOrganizationMemberDetailViewProps,
+  noModal,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
-import type {
-  MemberDetailModalState,
-  OrganizationMemberDetailProps,
-  OrganizationMemberDetailViewProps,
-} from '@/types/my-organization/member-management/organization-member-detail-types';
-
-// ===== Mock packages =====
+import type { MemberDetailModalState } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 mockToast();
 const { initMockCoreClient } = mockCore();
 
-// ===== Local mock creators =====
-
-const createMockOrganizationMemberDetailProps = (
-  overrides?: Partial<OrganizationMemberDetailProps>,
-): OrganizationMemberDetailProps => ({
-  userId: 'auth0|testuser123',
-  onBack: vi.fn(),
-  customMessages: {},
-  styling: {
-    variables: { common: {}, light: {}, dark: {} },
-    classes: {},
-  },
-  removeFromOrgAction: undefined,
-  assignRolesAction: undefined,
-  removeRolesAction: undefined,
-  ...overrides,
-});
-
-const noModal: MemberDetailModalState = { type: null };
-
-const createMockOrganizationMemberDetailViewProps = (
-  overrides?: Partial<OrganizationMemberDetailViewProps>,
-): OrganizationMemberDetailViewProps => ({
-  styling: {
-    variables: { common: {}, light: {}, dark: {} },
-    classes: {},
-  },
-  customMessages: {},
-  activeTab: 'details',
-  member: createMockMember(),
-  memberRoles: createMockMemberRoles(),
-  availableRoles: createMockAvailableRoles(),
-  isFetchingMember: false,
-  isFetchingRoles: false,
-  isLoading: false,
-  isRemovingFromOrg: false,
-  isAssigningRoles: false,
-  removingRoleIds: [],
-  modalState: noModal,
-  setActiveTab: vi.fn(),
-  handleBack: vi.fn(),
-  openModal: vi.fn(),
-  closeModal: vi.fn(),
-  handleRemoveFromOrgConfirm: vi.fn(),
-  handleAssignRolesSubmit: vi.fn(),
-  handleRemoveRolesConfirm: vi.fn(),
-  ...overrides,
-});
-
-// ===== Local utils =====
-
 const waitForComponentToLoad = async () => {
   return await screen.findByText('member.detail.back_button');
 };
-
-// ===== Tests =====
 
 describe('OrganizationMemberDetail', () => {
   const mockMember = createMockMember();
@@ -460,8 +404,7 @@ describe('OrganizationMemberDetail', () => {
 
     describe('assignRolesAction.onBefore', () => {
       describe('when returns true', () => {
-        it('should call members.roles.assign when onBefore returns true', async () => {
-          const user = userEvent.setup();
+        it('should call members.roles.assign when onBefore returns true', () => {
           const assignRolesAction: ComponentAction<{ userId: string; roleIds: string[] }> = {
             disabled: false,
             onBefore: vi.fn(() => true),
@@ -501,8 +444,6 @@ describe('OrganizationMemberDetail', () => {
             name: /member.detail.roles.assign_modal.submit_button/i,
           });
           expect(submitButton).toBeDisabled();
-
-          void user;
         });
       });
 
@@ -553,8 +494,7 @@ describe('OrganizationMemberDetail', () => {
   });
 
   describe('removeRolesAction', () => {
-    const memberWithRoles = createMockMember();
-    (memberWithRoles as Record<string, unknown>).roles = createMockMemberRoles();
+    const memberWithRoles = createMockMember({ roles: createMockMemberRoles() });
 
     describe('removeRolesAction.onBefore', () => {
       describe('when returns true', () => {
@@ -590,19 +530,17 @@ describe('OrganizationMemberDetail', () => {
             name: /member.detail.roles.remove_confirm.confirm_button|remove/i,
           });
 
-          if (removeRoleButtons.length > 0) {
-            await user.click(removeRoleButtons[0]!);
+          await user.click(removeRoleButtons[0]!);
 
-            // Confirm in modal
-            const confirmButton = await screen.findByRole('button', {
-              name: /member.detail.roles.remove_confirm.confirm_button/i,
-            });
-            await user.click(confirmButton);
+          // Confirm in modal
+          const confirmButton = await screen.findByRole('button', {
+            name: /member.detail.roles.remove_confirm.confirm_button/i,
+          });
+          await user.click(confirmButton);
 
-            await waitFor(() => {
-              expect(apiService.organization.members.roles.unassign).toHaveBeenCalled();
-            });
-          }
+          await waitFor(() => {
+            expect(apiService.organization.members.roles.unassign).toHaveBeenCalled();
+          });
         });
       });
 

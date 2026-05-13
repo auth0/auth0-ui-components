@@ -3,8 +3,11 @@ import { vi } from 'vitest';
 
 import type {
   MemberDetailDangerZoneProps,
+  MemberDetailModalState,
   OrganizationMemberAssignRolesModalProps,
+  OrganizationMemberDetailProps,
   OrganizationMemberDetailRolesTabProps,
+  OrganizationMemberDetailViewProps,
   OrganizationMemberUserDetailsProps,
   MemberRemoveFromOrgModalProps,
   OrganizationMemberRemoveRoleModalProps,
@@ -104,5 +107,52 @@ export const createMockRemoveRoleModalProps = (
   roles: [createMockMemberRole()],
   onClose: vi.fn(),
   onConfirm: vi.fn(),
+  ...overrides,
+});
+
+export const noModal: MemberDetailModalState = { type: null };
+
+export const createMockOrganizationMemberDetailProps = (
+  overrides?: Partial<OrganizationMemberDetailProps>,
+): OrganizationMemberDetailProps => ({
+  userId: 'auth0|testuser123',
+  onBack: vi.fn(),
+  customMessages: {},
+  styling: {
+    variables: { common: {}, light: {}, dark: {} },
+    classes: {},
+  },
+  removeFromOrgAction: undefined,
+  assignRolesAction: undefined,
+  removeRolesAction: undefined,
+  ...overrides,
+});
+
+export const createMockOrganizationMemberDetailViewProps = (
+  overrides?: Partial<OrganizationMemberDetailViewProps>,
+): OrganizationMemberDetailViewProps => ({
+  styling: {
+    variables: { common: {}, light: {}, dark: {} },
+    classes: {},
+  },
+  customMessages: {},
+  activeTab: 'details',
+  member: createMockMember(),
+  memberRoles: createMockMemberRoles(),
+  availableRoles: createMockAvailableRoles(),
+  isFetchingMember: false,
+  isFetchingRoles: false,
+  isLoading: false,
+  isRemovingFromOrg: false,
+  isAssigningRoles: false,
+  removingRoleIds: [],
+  modalState: noModal,
+  setActiveTab: vi.fn(),
+  handleBack: vi.fn(),
+  openModal: vi.fn(),
+  closeModal: vi.fn(),
+  handleRemoveFromOrgConfirm: vi.fn(),
+  handleAssignRolesSubmit: vi.fn(),
+  handleRemoveRolesConfirm: vi.fn(),
   ...overrides,
 });
