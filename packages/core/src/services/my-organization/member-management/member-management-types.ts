@@ -19,16 +19,6 @@ export interface OrgMember extends MyOrganization.OrgMember {
 }
 
 /**
- * Organization member role.
- */
-export type OrgMemberRole = MyOrganization.Role;
-
-/**
- * Organization member role ID.
- */
-export type OrgMemberRoleId = MyOrganization.RoleId;
-
-/**
  * Response content for listing organization members.
  */
 export type ListOrganizationMembersResponseContent =
@@ -112,3 +102,13 @@ export type DeleteOrganizationMembersRequestContent =
  */
 export type OrganizationMemberRolesChangeRequestContent =
   MyOrganization.OrganizationMemberRolesChangeRequestContent;
+
+/**
+ * Organization role available for binding to members and invitations.
+ */
+export type Role = MyOrganization.Role;
+
+/**
+ * Organization role ID.
+ */
+export type RoleId = MyOrganization.RoleId;

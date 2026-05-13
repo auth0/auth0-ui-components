@@ -8,7 +8,7 @@ import type {
   SharedComponentProps,
   MemberInvitation,
   OrganizationMemberManagementMessages,
-  OrgMemberRole,
+  Role,
 } from '@auth0/universal-components-core';
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 
@@ -41,7 +41,7 @@ export interface UseMemberManagementServiceOptions {
 
 export interface MemberManagementServiceResult {
   providersQuery: UseQueryResult<IdentityProviderOption[]>;
-  rolesQuery: UseQueryResult<OrgMemberRole[]>;
+  rolesQuery: UseQueryResult<Role[]>;
   invitationsQuery: UseQueryResult<{
     invitations: MemberInvitation[];
     next: string | null;
@@ -81,7 +81,7 @@ export type MemberManagementModalState =
 
 export interface UseOrganizationMemberManagementResult {
   activeTab: ActiveTab;
-  availableRoles: OrgMemberRole[];
+  availableRoles: Role[];
   availableProviders: IdentityProviderOption[];
 
   invitations: MemberInvitation[];

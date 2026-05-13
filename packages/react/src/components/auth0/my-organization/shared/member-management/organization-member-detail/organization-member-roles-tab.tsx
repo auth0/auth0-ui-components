@@ -3,7 +3,7 @@
  * @module organization-member-roles-tab
  */
 
-import type { OrgMemberRole } from '@auth0/universal-components-core';
+import type { Role } from '@auth0/universal-components-core';
 import { Plus, Trash2 } from 'lucide-react';
 import * as React from 'react';
 
@@ -94,7 +94,7 @@ function OrganizationMemberEditRolesTable({
 }: OrganizationMemberEditRolesTableProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
-  const columns: Column<OrgMemberRole>[] = React.useMemo(
+  const columns: Column<Role>[] = React.useMemo(
     () => [
       {
         type: 'text',
@@ -142,6 +142,10 @@ function OrganizationMemberEditRolesTable({
       loading={isLoading}
       emptyState={{ title: t('member.detail.roles.table.empty_message') }}
       selectable
+      selectionLabels={{
+        selectAll: t('data_table.select_all'),
+        selectRow: (index) => `${t('data_table.select_row')} ${index + 1}`,
+      }}
       selectedRows={selectedRoles}
       onSelectedRowsChange={onSelectedRolesChange}
       getRowId={(role) => role.id}
@@ -158,10 +162,12 @@ export function OrganizationMemberEditRolesTab({
   customMessages,
   memberRoles,
   availableRoles,
+  selectedRoles,
   isFetchingRoles,
   removingRoleIds,
   isAssigningRoles,
   modalState,
+  onSelectedRolesChange,
   onAssignRolesClick,
   onAssignRolesCancel,
   onAssignRolesSubmit,
@@ -169,11 +175,8 @@ export function OrganizationMemberEditRolesTab({
   onRemoveRolesCancel,
   onRemoveRolesConfirm,
 }: OrganizationMemberEditRolesTabProps): React.JSX.Element {
-  const [selectedRoles, setSelectedRoles] = React.useState<OrgMemberRole[]>([]);
-
   const handleRemoveSelectedRoles = React.useCallback(() => {
     onRemoveRolesClick(selectedRoles);
-    setSelectedRoles([]);
   }, [selectedRoles, onRemoveRolesClick]);
 
   const rolesToRemove = modalState.type === 'removeRoles' ? modalState.roles : [];
@@ -195,7 +198,7 @@ export function OrganizationMemberEditRolesTab({
         selectedRoles={selectedRoles}
         customMessages={customMessages}
         onRemoveRoles={onRemoveRolesClick}
-        onSelectedRolesChange={setSelectedRoles}
+        onSelectedRolesChange={onSelectedRolesChange}
       />
 
       <OrganizationMemberAssignRolesModal

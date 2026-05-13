@@ -4,7 +4,7 @@
  * @internal
  */
 
-import type { OrgMemberRole } from '@auth0/universal-components-core';
+import type { Role } from '@auth0/universal-components-core';
 import { Plus, Trash2 } from 'lucide-react';
 import * as React from 'react';
 
@@ -29,7 +29,7 @@ export function OrganizationMemberDetailRolesTab({
 }: OrganizationMemberDetailRolesTabProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
-  const columns: Column<OrgMemberRole>[] = React.useMemo(
+  const columns: Column<Role>[] = React.useMemo(
     () => [
       {
         type: 'text',

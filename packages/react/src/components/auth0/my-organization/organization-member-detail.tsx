@@ -143,15 +143,17 @@ export function OrganizationMemberDetailView(
               customMessages={customMessages}
               memberRoles={props.memberRoles}
               availableRoles={props.availableRoles}
+              selectedRoles={props.selectedRoles}
               isFetchingRoles={props.isFetchingRoles}
               removingRoleIds={props.removingRoleIds}
               modalState={modalState}
               isAssigningRoles={props.isAssigningRoles}
+              onSelectedRolesChange={props.setSelectedRoles}
               onAssignRolesClick={() => props.openModal({ type: 'assignRoles' })}
               onAssignRolesCancel={closeModal}
               onAssignRolesSubmit={props.handleAssignRolesSubmit}
               onRemoveRolesClick={(roles) => props.openModal({ type: 'removeRoles', roles })}
-              onRemoveRolesCancel={closeModal}
+              onRemoveRolesCancel={props.handleRemoveRolesCancel}
               onRemoveRolesConfirm={props.handleRemoveRolesConfirm}
             />
           </TabsContent>

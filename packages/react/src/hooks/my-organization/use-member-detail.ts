@@ -3,7 +3,7 @@
  * @module use-member-detail
  */
 
-import type { OrgMember, OrgMemberRole } from '@auth0/universal-components-core';
+import type { OrgMember, Role } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { useMemberDetailService } from '@/hooks/my-organization/shared/services/use-member-detail-service';
@@ -50,6 +50,7 @@ export function useOrganizationMemberDetail(
 
   const [activeTab, setActiveTab] = React.useState<MemberDetailTab>('details');
   const [modalState, setModalState] = React.useState<MemberDetailModalState>({ type: null });
+  const [selectedRoles, setSelectedRoles] = React.useState<Role[]>([]);
 
   const handleBack = React.useCallback(() => {
     onBack?.();
@@ -87,18 +88,24 @@ export function useOrganizationMemberDetail(
     [assignRolesMutation, closeModal],
   );
 
+  const handleRemoveRolesCancel = React.useCallback(() => {
+    setSelectedRoles([]);
+    closeModal();
+  }, [closeModal]);
+
   const handleRemoveRolesConfirm = React.useCallback(() => {
     if (modalState.type !== 'removeRoles') return;
     removeRolesMutation.mutate(modalState.roles, {
       onSuccess: () => {
+        setSelectedRoles([]);
         closeModal();
       },
     });
   }, [modalState, removeRolesMutation, closeModal]);
 
   const member = (memberQuery.data as OrgMember) ?? null;
-  const memberRoles: OrgMemberRole[] = member?.roles ?? [];
-  const availableRoles: OrgMemberRole[] = rolesQuery.data ?? [];
+  const memberRoles: Role[] = member?.roles ?? [];
+  const availableRoles: Role[] = rolesQuery.data ?? [];
   const removingRoles = modalState.type === 'removeRoles' ? modalState.roles : [];
 
   return {
@@ -106,6 +113,7 @@ export function useOrganizationMemberDetail(
     member,
     memberRoles,
     availableRoles,
+    selectedRoles,
     isFetchingMember: memberQuery.isLoading || memberQuery.isFetching,
     isFetchingRoles: rolesQuery.isLoading || rolesQuery.isFetching,
     isLoading: memberQuery.isLoading,
@@ -115,11 +123,13 @@ export function useOrganizationMemberDetail(
     modalState,
 
     setActiveTab,
+    setSelectedRoles,
     handleBack,
     openModal,
     closeModal,
     handleRemoveFromOrgConfirm,
     handleAssignRolesSubmit,
+    handleRemoveRolesCancel,
     handleRemoveRolesConfirm,
   };
 }

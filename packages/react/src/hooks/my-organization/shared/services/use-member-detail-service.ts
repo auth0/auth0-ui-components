@@ -4,7 +4,7 @@
  * @internal
  */
 
-import type { OrgMemberRole } from '@auth0/universal-components-core';
+import type { Role } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { showToast } from '@/components/auth0/shared/toast';
@@ -13,7 +13,7 @@ import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   MemberDetailServiceResult,
-  UseOrganizationMemberDetailOptions,
+  UseMemberDetailServiceOptions,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 export const memberDetailQueryKeys = {
@@ -21,11 +21,6 @@ export const memberDetailQueryKeys = {
   member: (id: string) => [...memberDetailQueryKeys.all, 'member', id] as const,
   roles: () => [...memberDetailQueryKeys.all, 'roles'] as const,
 };
-
-type UseMemberDetailServiceOptions = Pick<
-  UseOrganizationMemberDetailOptions,
-  'userId' | 'customMessages' | 'removeFromOrgAction' | 'assignRolesAction' | 'removeRolesAction'
->;
 
 /**
  * Service hook for member detail API operations.
@@ -67,6 +62,7 @@ export function useMemberDetailService(
 
   const removeFromOrgMutation = useMutation({
     mutationFn: async () => {
+      if (!userId) throw new Error('userId is required');
       if (removeFromOrgAction?.onBefore && !removeFromOrgAction.onBefore(userId)) {
         throw new Error('Remove from org cancelled by onBefore');
       }
@@ -88,6 +84,7 @@ export function useMemberDetailService(
 
   const assignRolesMutation = useMutation({
     mutationFn: async (roleIds: string[]) => {
+      if (!userId) throw new Error('userId is required');
       if (assignRolesAction?.onBefore && !assignRolesAction.onBefore({ userId, roleIds })) {
         throw new Error('Assign roles cancelled by onBefore');
       }
@@ -99,6 +96,7 @@ export function useMemberDetailService(
     onSuccess: () => {
       showToast({ type: 'success', message: t('member.detail.roles.assign_modal.success') });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.member(userId) });
+      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.roles() });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.assign_role_failed') });
@@ -106,7 +104,8 @@ export function useMemberDetailService(
   });
 
   const removeRolesMutation = useMutation({
-    mutationFn: async (roles: OrgMemberRole[]) => {
+    mutationFn: async (roles: Role[]) => {
+      if (!userId) throw new Error('userId is required');
       const roleIds = roles.map((r) => r.id);
       if (removeRolesAction?.onBefore && !removeRolesAction.onBefore({ userId, roleIds })) {
         throw new Error('Remove roles cancelled by onBefore');
@@ -122,6 +121,7 @@ export function useMemberDetailService(
         message: t('member.detail.roles.remove_confirm.success'),
       });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.member(userId) });
+      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.roles() });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.remove_role_failed') });
