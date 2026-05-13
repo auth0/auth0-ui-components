@@ -21,10 +21,12 @@ const createProps = (overrides = {}) => ({
   customMessages: {},
   memberRoles: createMockMemberRoles(),
   availableRoles: createMockAvailableRoles(),
+  selectedRoles: [],
   isFetchingRoles: false,
   removingRoleIds: [],
   isAssigningRoles: false,
   modalState: noModal,
+  onSelectedRolesChange: vi.fn(),
   onAssignRolesClick: vi.fn(),
   onAssignRolesCancel: vi.fn(),
   onAssignRolesSubmit: vi.fn(),
@@ -85,11 +87,11 @@ describe('OrganizationMemberEditRolesTab', () => {
   });
 
   describe('row selection', () => {
-    it('when 1 role selected shows selection label and bulk remove button; hides assign button', async () => {
-      const user = userEvent.setup();
-      renderWithProviders(<OrganizationMemberEditRolesTab {...createProps()} />);
-      await user.click(screen.getByRole('checkbox', { name: 'Select row 1' }));
-      // Translator returns key as-is; singular key used for 1 selected
+    it('when 1 role selected shows selection label and bulk remove button; hides assign button', () => {
+      const roles = createMockMemberRoles();
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab {...createProps({ selectedRoles: [roles[0]!] })} />,
+      );
       expect(screen.getByText('member.detail.roles.roles_selected')).toBeInTheDocument();
       expect(
         screen.getByRole('button', { name: /member.detail.roles.remove_button/i }),
@@ -99,13 +101,22 @@ describe('OrganizationMemberEditRolesTab', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('when 2 roles selected shows plural selection label', async () => {
-      const user = userEvent.setup();
-      renderWithProviders(<OrganizationMemberEditRolesTab {...createProps()} />);
-      await user.click(screen.getByRole('checkbox', { name: 'Select row 1' }));
-      await user.click(screen.getByRole('checkbox', { name: 'Select row 2' }));
-      // Translator returns key as-is; plural key used for 2+ selected
+    it('when 2 roles selected shows plural selection label', () => {
+      const roles = createMockMemberRoles();
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab {...createProps({ selectedRoles: roles })} />,
+      );
       expect(screen.getByText('member.detail.roles.roles_selected_plural')).toBeInTheDocument();
+    });
+
+    it('calls onSelectedRolesChange when a row checkbox is clicked', async () => {
+      const user = userEvent.setup();
+      const onSelectedRolesChange = vi.fn();
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab {...createProps({ onSelectedRolesChange })} />,
+      );
+      await user.click(screen.getByRole('checkbox', { name: 'data_table.select_row 1' }));
+      expect(onSelectedRolesChange).toHaveBeenCalled();
     });
   });
 
@@ -239,12 +250,12 @@ describe('OrganizationMemberEditRolesTab', () => {
       expect(onRemoveRolesConfirm).toHaveBeenCalledTimes(1);
     });
 
-    it('when removingRoleIds is set modal shows loading indicator', () => {
+    it('when isRemovingRoles is true modal shows loading indicator', () => {
       renderWithProviders(
         <OrganizationMemberEditRolesTab
           {...createProps({
             modalState: removeRolesState,
-            removingRoleIds: ['rol_admin'],
+            isRemovingRoles: true,
           })}
         />,
       );
