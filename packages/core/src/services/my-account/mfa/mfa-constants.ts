@@ -18,3 +18,8 @@ export const FACTOR_TYPE_RECOVERY_CODE = 'recovery-code';
 export const FACTOR_TYPE_WEBAUTHN_ROAMING = 'webauthn-roaming';
 /** @internal */
 export const FACTOR_TYPE_WEBAUTHN_PLATFORM = 'webauthn-platform';
+
+export const mfaQueryKeys = {
+  all: ['mfa'] as const,
+  factors: (onlyActive: boolean) => [...mfaQueryKeys.all, 'factors', { onlyActive }] as const,
+};
