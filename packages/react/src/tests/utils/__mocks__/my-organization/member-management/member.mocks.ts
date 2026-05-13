@@ -1,4 +1,4 @@
-import type { OrgMember, OrgMemberRole } from '@auth0/universal-components-core';
+import type { OrgMember, Role } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 import type {
@@ -27,19 +27,19 @@ export const createMockMemberWithPhone = (overrides?: Partial<OrgMember>): OrgMe
     ...overrides,
   });
 
-export const createMockMemberRole = (overrides?: Partial<OrgMemberRole>): OrgMemberRole => ({
+export const createMockMemberRole = (overrides?: Partial<Role>): Role => ({
   id: 'rol_abc123',
   name: 'Admin',
   description: 'Administrator role',
   ...overrides,
 });
 
-export const createMockMemberRoles = (): OrgMemberRole[] => [
+export const createMockMemberRoles = (): Role[] => [
   createMockMemberRole({ id: 'rol_admin', name: 'Admin', description: 'Administrator role' }),
   createMockMemberRole({ id: 'rol_member', name: 'Member', description: 'Member role' }),
 ];
 
-export const createMockAvailableRoles = (): OrgMemberRole[] => [
+export const createMockAvailableRoles = (): Role[] => [
   { id: 'rol_admin', name: 'Admin', description: 'Administrator role' },
   { id: 'rol_member', name: 'Member', description: 'Member role' },
   { id: 'rol_viewer', name: 'Viewer', description: 'Viewer role' },

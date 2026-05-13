@@ -13,6 +13,7 @@ import { MemberRemoveFromOrgModal } from '@/components/auth0/my-organization/sha
 import { OrganizationMemberEditDetailsTab } from '@/components/auth0/my-organization/shared/member-management/organization-member-detail/organization-member-details-tab';
 import { OrganizationMemberEditRolesTab } from '@/components/auth0/my-organization/shared/member-management/organization-member-detail/organization-member-roles-tab';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -61,9 +62,9 @@ function Header({
       </Button>
 
       <div className="flex items-center gap-4 mb-8">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-muted-foreground text-xl font-semibold shrink-0">
-          {initials}
-        </div>
+        <Avatar className="h-16 w-16 shrink-0">
+          <AvatarFallback className="text-xl font-semibold">{initials}</AvatarFallback>
+        </Avatar>
         <div className="flex flex-col gap-1 min-w-0">
           <h1 className="text-2xl font-bold text-primary truncate">{displayName}</h1>
           {userId && (
@@ -143,15 +144,18 @@ export function OrganizationMemberDetailView(
               customMessages={customMessages}
               memberRoles={props.memberRoles}
               availableRoles={props.availableRoles}
+              selectedRoles={props.selectedRoles}
               isFetchingRoles={props.isFetchingRoles}
               removingRoleIds={props.removingRoleIds}
+              isRemovingRoles={props.isRemovingRoles}
               modalState={modalState}
               isAssigningRoles={props.isAssigningRoles}
+              onSelectedRolesChange={props.setSelectedRoles}
               onAssignRolesClick={() => props.openModal({ type: 'assignRoles' })}
               onAssignRolesCancel={closeModal}
               onAssignRolesSubmit={props.handleAssignRolesSubmit}
               onRemoveRolesClick={(roles) => props.openModal({ type: 'removeRoles', roles })}
-              onRemoveRolesCancel={closeModal}
+              onRemoveRolesCancel={props.handleRemoveRolesCancel}
               onRemoveRolesConfirm={props.handleRemoveRolesConfirm}
             />
           </TabsContent>
