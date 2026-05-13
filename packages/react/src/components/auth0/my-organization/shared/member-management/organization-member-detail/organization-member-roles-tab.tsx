@@ -195,7 +195,6 @@ export function OrganizationMemberEditRolesTab({
 
       <OrganizationMemberEditRolesTable
         memberRoles={memberRoles}
-        availableRoles={availableRoles}
         isLoading={isFetchingRoles}
         removingRoleIds={removingRoleIds}
         selectedRoles={selectedRoles}

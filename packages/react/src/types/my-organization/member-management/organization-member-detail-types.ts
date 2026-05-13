@@ -155,7 +155,6 @@ export interface RolesTabHeaderProps {
 
 export interface OrganizationMemberEditRolesTableProps {
   memberRoles: Role[];
-  availableRoles: Role[];
   isLoading?: boolean;
   removingRoleIds?: string[];
   selectedRoles: Role[];
