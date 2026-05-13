@@ -50,6 +50,7 @@ export interface UseOrganizationMemberDetailResult {
   isFetchingRoles: boolean;
   isRemovingFromOrg: boolean;
   isAssigningRoles: boolean;
+  isRemovingRoles: boolean;
   removingRoleIds: string[];
   modalState: MemberDetailModalState;
 
@@ -171,6 +172,7 @@ export interface OrganizationMemberEditRolesTabProps {
   isFetchingRoles?: boolean;
   removingRoleIds?: string[];
   isAssigningRoles?: boolean;
+  isRemovingRoles?: boolean;
   modalState: MemberDetailModalState;
   onSelectedRolesChange: (roles: Role[]) => void;
   onAssignRolesClick: () => void;

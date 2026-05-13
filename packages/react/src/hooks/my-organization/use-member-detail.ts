@@ -3,7 +3,7 @@
  * @module use-member-detail
  */
 
-import type { OrgMember, Role } from '@auth0/universal-components-core';
+import type { Role } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { useMemberDetailService } from '@/hooks/my-organization/shared/services/use-member-detail-service';
@@ -13,8 +13,6 @@ import type {
   UseOrganizationMemberDetailOptions,
   UseOrganizationMemberDetailResult,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
-
-export { memberDetailQueryKeys } from '@/hooks/my-organization/shared/services/use-member-detail-service';
 
 /**
  * Hook for organization member detail page.
@@ -103,7 +101,7 @@ export function useOrganizationMemberDetail(
     });
   }, [modalState, removeRolesMutation, closeModal]);
 
-  const member = (memberQuery.data as OrgMember) ?? null;
+  const member = memberQuery.data ?? null;
   const memberRoles: Role[] = member?.roles ?? [];
   const availableRoles: Role[] = rolesQuery.data ?? [];
   const removingRoles = modalState.type === 'removeRoles' ? modalState.roles : [];
@@ -119,6 +117,7 @@ export function useOrganizationMemberDetail(
     isLoading: memberQuery.isLoading,
     isRemovingFromOrg: removeFromOrgMutation.isPending,
     isAssigningRoles: assignRolesMutation.isPending,
+    isRemovingRoles: removeRolesMutation.isPending,
     removingRoleIds: removeRolesMutation.isPending ? removingRoles.map((r) => r.id) : [],
     modalState,
 

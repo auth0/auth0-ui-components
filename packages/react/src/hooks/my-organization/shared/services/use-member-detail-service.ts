@@ -4,7 +4,7 @@
  * @internal
  */
 
-import type { Role } from '@auth0/universal-components-core';
+import { memberDetailQueryKeys, type Role } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { showToast } from '@/components/auth0/shared/toast';
@@ -15,12 +15,6 @@ import type {
   MemberDetailServiceResult,
   UseMemberDetailServiceOptions,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
-
-export const memberDetailQueryKeys = {
-  all: ['member-detail'] as const,
-  member: (id: string) => [...memberDetailQueryKeys.all, 'member', id] as const,
-  roles: () => [...memberDetailQueryKeys.all, 'roles'] as const,
-};
 
 /**
  * Service hook for member detail API operations.
