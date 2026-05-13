@@ -70,7 +70,9 @@ export interface OrganizationMemberDetailMessages {
         };
         remove_confirm?: {
           title?: string;
+          title_plural?: string;
           description?: string;
+          description_plural?: string;
           confirm_button?: string;
           cancel_button?: string;
         };

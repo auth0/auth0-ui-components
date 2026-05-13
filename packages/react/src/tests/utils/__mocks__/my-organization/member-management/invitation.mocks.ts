@@ -1,4 +1,4 @@
-import type { MemberInvitation, OrgMemberRole } from '@auth0/universal-components-core';
+import type { MemberInvitation, Role } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 import type { OrganizationInvitationDetailsModalProps } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal';
@@ -38,7 +38,7 @@ export const createMockExpiredInvitation = (
     ...overrides,
   });
 
-export const createMockRoles = (): OrgMemberRole[] => [
+export const createMockRoles = (): Role[] => [
   { id: 'role_admin', name: 'Admin', description: 'Administrator role' },
   { id: 'role_member', name: 'Member', description: 'Member role' },
   { id: 'role_viewer', name: 'Viewer', description: 'Viewer role' },

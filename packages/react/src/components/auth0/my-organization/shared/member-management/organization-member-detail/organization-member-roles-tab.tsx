@@ -3,7 +3,7 @@
  * @module organization-member-roles-tab
  */
 
-import type { OrgMemberRole } from '@auth0/universal-components-core';
+import type { Role } from '@auth0/universal-components-core';
 import { Plus, Trash2 } from 'lucide-react';
 import * as React from 'react';
 
@@ -94,7 +94,7 @@ function OrganizationMemberEditRolesTable({
 }: OrganizationMemberEditRolesTableProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
-  const columns: Column<OrgMemberRole>[] = React.useMemo(
+  const columns: Column<Role>[] = React.useMemo(
     () => [
       {
         type: 'text',
@@ -142,6 +142,10 @@ function OrganizationMemberEditRolesTable({
       loading={isLoading}
       emptyState={{ title: t('member.detail.roles.table.empty_message') }}
       selectable
+      selectionLabels={{
+        selectAll: t('data_table.select_all'),
+        selectRow: (index) => `${t('data_table.select_row')} ${index + 1}`,
+      }}
       selectedRows={selectedRoles}
       onSelectedRowsChange={onSelectedRolesChange}
       getRowId={(role) => role.id}
@@ -158,10 +162,13 @@ export function OrganizationMemberEditRolesTab({
   customMessages,
   memberRoles,
   availableRoles,
+  selectedRoles,
   isFetchingRoles,
   removingRoleIds,
   isAssigningRoles,
+  isRemovingRoles = false,
   modalState,
+  onSelectedRolesChange,
   onAssignRolesClick,
   onAssignRolesCancel,
   onAssignRolesSubmit,
@@ -169,14 +176,13 @@ export function OrganizationMemberEditRolesTab({
   onRemoveRolesCancel,
   onRemoveRolesConfirm,
 }: OrganizationMemberEditRolesTabProps): React.JSX.Element {
-  const [selectedRoles, setSelectedRoles] = React.useState<OrgMemberRole[]>([]);
+  const isRemoveRolesModal = modalState.type === 'removeRoles';
+  const isAssignRolesModal = modalState.type === 'assignRoles';
+  const rolesToRemove = isRemoveRolesModal ? modalState.roles : [];
 
   const handleRemoveSelectedRoles = React.useCallback(() => {
     onRemoveRolesClick(selectedRoles);
-    setSelectedRoles([]);
   }, [selectedRoles, onRemoveRolesClick]);
-
-  const rolesToRemove = modalState.type === 'removeRoles' ? modalState.roles : [];
 
   return (
     <>
@@ -189,17 +195,16 @@ export function OrganizationMemberEditRolesTab({
 
       <OrganizationMemberEditRolesTable
         memberRoles={memberRoles}
-        availableRoles={availableRoles}
         isLoading={isFetchingRoles}
         removingRoleIds={removingRoleIds}
         selectedRoles={selectedRoles}
         customMessages={customMessages}
         onRemoveRoles={onRemoveRolesClick}
-        onSelectedRolesChange={setSelectedRoles}
+        onSelectedRolesChange={onSelectedRolesChange}
       />
 
       <OrganizationMemberAssignRolesModal
-        isOpen={modalState.type === 'assignRoles'}
+        isOpen={isAssignRolesModal}
         isLoading={isAssigningRoles}
         availableRoles={availableRoles}
         assignedRoles={memberRoles}
@@ -209,8 +214,8 @@ export function OrganizationMemberEditRolesTab({
       />
 
       <OrganizationMemberRemoveRoleModal
-        isOpen={modalState.type === 'removeRoles'}
-        isLoading={(removingRoleIds?.length ?? 0) > 0}
+        isOpen={isRemoveRolesModal}
+        isLoading={isRemovingRoles}
         roles={rolesToRemove}
         customMessages={customMessages}
         onClose={onRemoveRolesCancel}
