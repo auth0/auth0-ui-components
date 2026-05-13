@@ -23,6 +23,7 @@ import {
   setupMockUseErrorHandler,
   createQueryClientWrapper,
 } from '@/tests/utils';
+import type { UseUserMFAServiceReturn } from '@/types/my-account/mfa/mfa-types';
 
 vi.mock('sonner', () => ({
   toast: {
@@ -33,7 +34,15 @@ vi.mock('sonner', () => ({
   },
 }));
 
-type MockService = ReturnType<typeof useUserMFAServiceModule.useUserMFAService>;
+type MockService = {
+  factorsQuery: Pick<
+    UseUserMFAServiceReturn['factorsQuery'],
+    'data' | 'isLoading' | 'isSuccess' | 'isError' | 'error' | 'refetch'
+  >;
+  enrollMutation: Pick<UseUserMFAServiceReturn['enrollMutation'], 'mutateAsync' | 'isPending'>;
+  deleteMutation: Pick<UseUserMFAServiceReturn['deleteMutation'], 'mutateAsync' | 'isPending'>;
+  verifyMutation: Pick<UseUserMFAServiceReturn['verifyMutation'], 'mutateAsync' | 'isPending'>;
+};
 
 const makeEnrollResponse = (overrides: Record<string, string> = {}) => ({
   id: 'mid',
@@ -44,38 +53,37 @@ const makeEnrollResponse = (overrides: Record<string, string> = {}) => ({
   ...overrides,
 });
 
-const makeMockService = (overrides?: Partial<MockService>): MockService =>
-  ({
-    factorsQuery: {
-      data: {
-        [FACTOR_TYPE_EMAIL]: [
-          { id: 'e1', type: FACTOR_TYPE_EMAIL, enrolled: true, created_at: '2024' },
-        ],
-        [FACTOR_TYPE_TOTP]: [],
-        [FACTOR_TYPE_PHONE]: [],
-        [FACTOR_TYPE_PUSH_NOTIFICATION]: [],
-        [FACTOR_TYPE_RECOVERY_CODE]: [],
-      },
-      isLoading: false,
-      isSuccess: true,
-      isError: false,
-      error: null,
-      refetch: vi.fn().mockResolvedValue({}),
-    },
-    enrollMutation: {
-      mutateAsync: vi.fn().mockResolvedValue(makeEnrollResponse()),
-      isPending: false,
-    },
-    deleteMutation: {
-      mutateAsync: vi.fn().mockResolvedValue(undefined),
-      isPending: false,
-    },
-    verifyMutation: {
-      mutateAsync: vi.fn().mockResolvedValue({}),
-      isPending: false,
-    },
-    ...overrides,
-  }) as unknown as MockService;
+const makeMockService = (overrides?: Partial<MockService>): MockService => ({
+  factorsQuery: {
+    data: {
+      [FACTOR_TYPE_EMAIL]: [
+        { id: 'e1', type: FACTOR_TYPE_EMAIL, enrolled: true, created_at: '2024' },
+      ],
+      [FACTOR_TYPE_TOTP]: [],
+      [FACTOR_TYPE_PHONE]: [],
+      [FACTOR_TYPE_PUSH_NOTIFICATION]: [],
+      [FACTOR_TYPE_RECOVERY_CODE]: [],
+    } as unknown as NonNullable<MockService['factorsQuery']['data']>,
+    isLoading: false,
+    isSuccess: true,
+    isError: false,
+    error: null,
+    refetch: vi.fn().mockResolvedValue({}),
+  },
+  enrollMutation: {
+    mutateAsync: vi.fn().mockResolvedValue(makeEnrollResponse()),
+    isPending: false,
+  },
+  deleteMutation: {
+    mutateAsync: vi.fn().mockResolvedValue(undefined),
+    isPending: false,
+  },
+  verifyMutation: {
+    mutateAsync: vi.fn().mockResolvedValue({}),
+    isPending: false,
+  },
+  ...overrides,
+});
 
 let mockService: MockService;
 
@@ -87,7 +95,11 @@ const render = (opts?: Parameters<typeof useUserMFA>[0]) => {
 const mockEnrollWith = (overrides: Record<string, string>) =>
   vi
     .mocked(mockService.enrollMutation.mutateAsync)
-    .mockResolvedValue(makeEnrollResponse(overrides) as never);
+    .mockResolvedValue(
+      makeEnrollResponse(overrides) as unknown as Awaited<
+        ReturnType<MockService['enrollMutation']['mutateAsync']>
+      >,
+    );
 
 describe('useUserMFA', () => {
   beforeEach(() => {
@@ -95,7 +107,9 @@ describe('useUserMFA', () => {
     setupMockUseTranslator(useTranslatorModule);
     setupMockUseErrorHandler(useErrorHandlerModule);
     mockService = makeMockService();
-    vi.spyOn(useUserMFAServiceModule, 'useUserMFAService').mockReturnValue(mockService);
+    vi.spyOn(useUserMFAServiceModule, 'useUserMFAService').mockReturnValue(
+      mockService as unknown as UseUserMFAServiceReturn,
+    );
   });
 
   it('returns correct initial state', () => {
@@ -109,15 +123,13 @@ describe('useUserMFA', () => {
   });
 
   it('reflects pending/loading flags from service', () => {
-    const pending = { isPending: true };
-    vi.spyOn(useUserMFAServiceModule, 'useUserMFAService').mockReturnValue(
-      makeMockService({
-        factorsQuery: { ...makeMockService().factorsQuery, isLoading: true } as never,
-        enrollMutation: pending as never,
-        deleteMutation: pending as never,
-        verifyMutation: pending as never,
-      }),
-    );
+    vi.mocked(useUserMFAServiceModule.useUserMFAService).mockReturnValue({
+      ...mockService,
+      factorsQuery: { ...mockService.factorsQuery, isLoading: true },
+      enrollMutation: { ...mockService.enrollMutation, isPending: true },
+      deleteMutation: { ...mockService.deleteMutation, isPending: true },
+      verifyMutation: { ...mockService.verifyMutation, isPending: true },
+    } as unknown as UseUserMFAServiceReturn);
     const { result } = render();
     expect(result.current.isLoadingFactors).toBe(true);
     expect(result.current.isEnrolling).toBe(true);
@@ -127,9 +139,8 @@ describe('useUserMFA', () => {
 
   it('calls onFetch once on first success', async () => {
     const onFetch = vi.fn();
-    const { result } = render({ onFetch });
-    await waitFor(() => expect(result.current.isLoadingFactors).toBe(false));
-    expect(onFetch).toHaveBeenCalledTimes(1);
+    render({ onFetch });
+    await waitFor(() => expect(onFetch).toHaveBeenCalledTimes(1));
   });
 
   it('filters out factors with visible: false', () => {
@@ -143,18 +154,17 @@ describe('useUserMFA', () => {
   });
 
   it('hasNoActiveFactors is true when no factors are enrolled', () => {
-    vi.spyOn(useUserMFAServiceModule, 'useUserMFAService').mockReturnValue(
-      makeMockService({
-        factorsQuery: {
-          ...makeMockService().factorsQuery,
-          data: {
-            [FACTOR_TYPE_EMAIL]: [
-              { id: 'e1', type: FACTOR_TYPE_EMAIL, enrolled: false, created_at: null },
-            ],
-          },
-        } as never,
-      }),
-    );
+    vi.mocked(useUserMFAServiceModule.useUserMFAService).mockReturnValue({
+      ...mockService,
+      factorsQuery: {
+        ...mockService.factorsQuery,
+        data: {
+          [FACTOR_TYPE_EMAIL]: [
+            { id: 'e1', type: FACTOR_TYPE_EMAIL, enrolled: false, created_at: null },
+          ],
+        } as unknown as NonNullable<MockService['factorsQuery']['data']>,
+      },
+    } as unknown as UseUserMFAServiceReturn);
     const { result } = render();
     expect(result.current.hasNoActiveFactors).toBe(true);
   });
@@ -199,27 +209,25 @@ describe('useUserMFA', () => {
   it('resets all enrollment state when dialog closes', async () => {
     const { result } = render();
     await act(() => result.current.handleEnroll(FACTOR_TYPE_EMAIL));
-    act(() => result.current.handleCloseEnrollDialog());
-    await waitFor(() => {
-      expect(result.current.isEnrollDialogOpen).toBe(false);
-      expect(result.current.enrollmentPhase).toBeNull();
-      expect(result.current.contact).toBe('');
-      expect(result.current.otpData).toEqual({ barcodeUri: '', manualInputCode: '' });
-      expect(result.current.recoveryCode).toBe('');
-    });
+    await act(() => result.current.handleCloseEnrollDialog());
+    expect(result.current.isEnrollDialogOpen).toBe(false);
+    expect(result.current.enrollmentPhase).toBeNull();
+    expect(result.current.contact).toBe('');
+    expect(result.current.otpData).toEqual({ barcodeUri: '', manualInputCode: '' });
+    expect(result.current.recoveryCode).toBe('');
   });
 
   it('refetches when closing dialog for push notification', async () => {
     const { result } = render();
     await act(() => result.current.handleEnroll(FACTOR_TYPE_PUSH_NOTIFICATION));
-    act(() => result.current.handleCloseEnrollDialog());
+    await act(() => result.current.handleCloseEnrollDialog());
     expect(mockService.factorsQuery.refetch).toHaveBeenCalled();
   });
 
   it('does not refetch when closing dialog for non-push factor', async () => {
     const { result } = render();
     await act(() => result.current.handleEnroll(FACTOR_TYPE_EMAIL));
-    act(() => result.current.handleCloseEnrollDialog());
+    await act(() => result.current.handleCloseEnrollDialog());
     expect(mockService.factorsQuery.refetch).not.toHaveBeenCalled();
   });
 
@@ -257,8 +265,7 @@ describe('useUserMFA', () => {
     await act(() => result.current.handleDeleteFactor('fid', FACTOR_TYPE_EMAIL));
     await waitFor(() => expect(result.current.isDeleteDialogOpen).toBe(false));
     expect(result.current.factorToDelete).toBeNull();
-    await new Promise((r) => setTimeout(r, 10));
-    expect(onDelete).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(onDelete).toHaveBeenCalledTimes(1));
   });
 
   it('calls onErrorAction and closes dialog on delete failure', async () => {
@@ -282,8 +289,7 @@ describe('useUserMFA', () => {
   });
 
   it('calls confirm mutation with OTP code and completes enrollment', async () => {
-    const onEnroll = vi.fn();
-    const { result } = render({ onEnroll });
+    const { result } = render();
     await act(() => result.current.handleEnroll(FACTOR_TYPE_EMAIL));
     await act(() => result.current.handleConfirmOtp('123456'));
     expect(mockService.verifyMutation.mutateAsync).toHaveBeenCalledWith(
@@ -292,7 +298,7 @@ describe('useUserMFA', () => {
     await waitFor(() => expect(result.current.isEnrollDialogOpen).toBe(false));
   });
 
-  it('does nothing when enrollFactor is not push notification', async () => {
+  it('skips verify mutation when enrollFactor is not push notification', async () => {
     const { result } = render();
     await act(() => result.current.handleEnroll(FACTOR_TYPE_TOTP));
     await act(() => result.current.handleConfirmPush());
@@ -316,7 +322,12 @@ describe('useUserMFA', () => {
     const { result } = render();
     await act(() => result.current.handleEnroll(FACTOR_TYPE_RECOVERY_CODE));
     await act(() => result.current.handleConfirmRecoveryCode());
-    expect(mockService.verifyMutation.mutateAsync).toHaveBeenCalled();
+    expect(mockService.verifyMutation.mutateAsync).toHaveBeenCalledWith({
+      factorType: FACTOR_TYPE_RECOVERY_CODE,
+      authSession: 'rc-sess',
+      authenticationMethodId: 'mid',
+      options: {},
+    });
     await waitFor(() => expect(result.current.isEnrollDialogOpen).toBe(false));
   });
 
