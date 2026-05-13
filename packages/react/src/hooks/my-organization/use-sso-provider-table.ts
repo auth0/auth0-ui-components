@@ -4,7 +4,7 @@
  * @module use-sso-provider-table
  */
 
-import type { IdentityProvider } from '@auth0/universal-components-core';
+import type { IdpKnownResponse } from '@auth0/universal-components-core';
 import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
 import { useCallback, useState } from 'react';
 
@@ -55,7 +55,7 @@ export function useSsoProviderTable({
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
-  const [selectedIdp, setSelectedIdp] = useState<IdentityProvider | null>(null);
+  const [selectedIdp, setSelectedIdp] = useState<IdpKnownResponse | null>(null);
 
   const { isLoadingConfig, shouldAllowDeletion, isConfigValid } = useConfig();
   const { isLoadingIdpConfig, isIdpConfigValid } = useIdpConfig();
@@ -69,7 +69,7 @@ export function useSsoProviderTable({
   }, [createAction]);
 
   const handleEdit = useCallback(
-    (idp: IdentityProvider) => {
+    (idp: IdpKnownResponse) => {
       if (editAction?.onAfter) {
         editAction.onAfter(idp);
       }
@@ -78,7 +78,7 @@ export function useSsoProviderTable({
   );
 
   const handleDelete = useCallback(
-    (idp: IdentityProvider) => {
+    (idp: IdpKnownResponse) => {
       setSelectedIdp(idp);
 
       if (deleteAction?.onBefore) {
@@ -92,7 +92,7 @@ export function useSsoProviderTable({
   );
 
   const handleDeleteFromOrganization = useCallback(
-    (idp: IdentityProvider) => {
+    (idp: IdpKnownResponse) => {
       setSelectedIdp(idp);
 
       if (deleteFromOrganizationAction?.onBefore) {
@@ -106,7 +106,7 @@ export function useSsoProviderTable({
   );
 
   const handleToggleEnabled = useCallback(
-    async (idp: IdentityProvider, enabled: boolean) => {
+    async (idp: IdpKnownResponse, enabled: boolean) => {
       if (readOnly || !onEnableProvider) return;
       await onEnableProvider(idp, enabled);
     },
@@ -114,7 +114,7 @@ export function useSsoProviderTable({
   );
 
   const handleDeleteConfirm = useCallback(
-    async (provider: IdentityProvider) => {
+    async (provider: IdpKnownResponse) => {
       await onDeleteConfirm(provider);
       setShowDeleteModal(false);
       setSelectedIdp(null);
@@ -123,7 +123,7 @@ export function useSsoProviderTable({
   );
 
   const handleRemoveConfirm = useCallback(
-    async (provider: IdentityProvider) => {
+    async (provider: IdpKnownResponse) => {
       await onRemoveConfirm(provider);
       setShowRemoveModal(false);
       setSelectedIdp(null);

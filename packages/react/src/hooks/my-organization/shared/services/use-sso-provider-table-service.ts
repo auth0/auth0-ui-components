@@ -11,7 +11,7 @@ import {
   ssoProviderQueryKeys,
   type UpdateIdentityProviderRequestContent,
   type ComponentAction,
-  type IdentityProvider,
+  type IdpKnownResponse,
   type OrganizationPrivate,
   BusinessError,
 } from '@auth0/universal-components-core';
@@ -36,9 +36,9 @@ export { ssoProviderQueryKeys };
  * @internal
  */
 export function useSsoProviderTableService(
-  deleteAction?: ComponentAction<IdentityProvider, void>,
-  removeFromOrg?: ComponentAction<IdentityProvider, void>,
-  enableAction?: ComponentAction<IdentityProvider>,
+  deleteAction?: ComponentAction<IdpKnownResponse, void>,
+  removeFromOrg?: ComponentAction<IdpKnownResponse, void>,
+  enableAction?: ComponentAction<IdpKnownResponse>,
   customMessages = {},
 ): UseSsoProviderTableServiceReturn {
   const { t } = useTranslator('idp_management.notifications', customMessages);
@@ -54,7 +54,7 @@ export function useSsoProviderTableService(
       const response = await coreClient!
         .getMyOrganizationApiClient()
         .organization.identityProviders.list();
-      return (response?.identity_providers ?? []) as IdentityProvider[];
+      return (response?.identity_providers ?? []) as IdpKnownResponse[];
     },
     enabled: !!coreClient,
   });
@@ -95,9 +95,9 @@ export function useSsoProviderTableService(
       selectedIdp,
       enabled,
     }: {
-      selectedIdp: IdentityProvider;
+      selectedIdp: IdpKnownResponse;
       enabled: boolean;
-    }): Promise<IdentityProvider> => {
+    }): Promise<IdpKnownResponse> => {
       if (!selectedIdp?.id) {
         throw new Error('Invalid provider');
       }
@@ -118,7 +118,7 @@ export function useSsoProviderTableService(
         .getMyOrganizationApiClient()
         .organization.identityProviders.update(selectedIdp.id, apiRequestData);
 
-      return updatedProvider as IdentityProvider;
+      return updatedProvider as IdpKnownResponse;
     },
     onSuccess: async (updatedProvider, { selectedIdp }) => {
       if (enableAction?.onAfter) {
@@ -130,7 +130,7 @@ export function useSsoProviderTableService(
         message: t('update_success', { providerName: selectedIdp.display_name }),
       });
 
-      queryClient.setQueryData<IdentityProvider[]>(ssoProviderQueryKeys.list(), (old) => {
+      queryClient.setQueryData<IdpKnownResponse[]>(ssoProviderQueryKeys.list(), (old) => {
         if (!old) return old;
         return old.map((provider) =>
           provider.id === selectedIdp.id ? { ...provider, ...updatedProvider } : provider,
@@ -143,7 +143,7 @@ export function useSsoProviderTableService(
   });
 
   const deleteProviderMutation = useMutation({
-    mutationFn: async (selectedIdp: IdentityProvider): Promise<void> => {
+    mutationFn: async (selectedIdp: IdpKnownResponse): Promise<void> => {
       if (!selectedIdp?.id) {
         throw new Error('Invalid provider');
       }
@@ -170,7 +170,7 @@ export function useSsoProviderTableService(
   });
 
   const removeProviderMutation = useMutation({
-    mutationFn: async (selectedIdp: IdentityProvider): Promise<void> => {
+    mutationFn: async (selectedIdp: IdpKnownResponse): Promise<void> => {
       if (!selectedIdp?.id) {
         throw new Error('Invalid provider');
       }
@@ -204,7 +204,7 @@ export function useSsoProviderTableService(
   });
 
   const onEnableProvider = useCallback(
-    async (selectedIdp: IdentityProvider, enabled: boolean): Promise<boolean> => {
+    async (selectedIdp: IdpKnownResponse, enabled: boolean): Promise<boolean> => {
       if (!selectedIdp || !coreClient || !selectedIdp.id) {
         return false;
       }
@@ -220,7 +220,7 @@ export function useSsoProviderTableService(
   );
 
   const onDeleteConfirm = useCallback(
-    async (selectedIdp: IdentityProvider): Promise<void> => {
+    async (selectedIdp: IdpKnownResponse): Promise<void> => {
       if (!selectedIdp || !coreClient || !selectedIdp.id) {
         return;
       }
@@ -231,7 +231,7 @@ export function useSsoProviderTableService(
   );
 
   const onRemoveConfirm = useCallback(
-    async (selectedIdp: IdentityProvider): Promise<void> => {
+    async (selectedIdp: IdpKnownResponse): Promise<void> => {
       if (!selectedIdp || !coreClient || !selectedIdp.id) {
         return;
       }

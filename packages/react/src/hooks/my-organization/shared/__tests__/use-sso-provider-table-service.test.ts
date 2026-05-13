@@ -1,4 +1,4 @@
-import type { IdentityProvider, OrganizationPrivate } from '@auth0/universal-components-core';
+import type { IdpKnownResponse, OrganizationPrivate } from '@auth0/universal-components-core';
 import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -19,7 +19,7 @@ import {
 
 const { mockedShowToast } = mockToast();
 
-const mockIdentityProviders: IdentityProvider[] = [
+const mockIdentityProviders: IdpKnownResponse[] = [
   {
     id: 'idp-1',
     display_name: 'OKTA SSO',
@@ -291,7 +291,7 @@ describe('useSsoProviderTableService', () => {
       });
     });
     it('should return false if provider has no id', async () => {
-      const providerWithoutId = { ...mockIdentityProviders[0], id: undefined } as IdentityProvider;
+      const providerWithoutId = { ...mockIdentityProviders[0], id: undefined } as IdpKnownResponse;
 
       vi.mocked(mockMyOrgClient.organization.identityProviders.list).mockResolvedValue({
         identity_providers: mockIdentityProviders,
@@ -386,7 +386,7 @@ describe('useSsoProviderTableService', () => {
       });
     });
     it('should not delete if provider has no id', async () => {
-      const providerWithoutId = { ...mockIdentityProviders[0], id: undefined } as IdentityProvider;
+      const providerWithoutId = { ...mockIdentityProviders[0], id: undefined } as IdpKnownResponse;
       const mockDelete = vi.fn();
 
       vi.mocked(mockMyOrgClient.organization.identityProviders.list).mockResolvedValue({
@@ -473,7 +473,7 @@ describe('useSsoProviderTableService', () => {
       });
     });
     it('should not remove if provider has no id', async () => {
-      const providerWithoutId = { ...mockIdentityProviders[0], id: undefined } as IdentityProvider;
+      const providerWithoutId = { ...mockIdentityProviders[0], id: undefined } as IdpKnownResponse;
       const mockDetach = vi.fn();
 
       vi.mocked(mockMyOrgClient.organization.identityProviders.list).mockResolvedValue({

@@ -8,11 +8,11 @@ import type {
   ComponentAction,
   SsoProviderDeleteSchema,
   SsoProviderTableMessages,
-  IdentityProvider as CoreIdentityProvider,
+  IdpKnownResponse,
   OrganizationPrivate,
 } from '@auth0/universal-components-core';
 
-export type IdentityProvider = CoreIdentityProvider;
+export type { IdpKnownResponse };
 
 /** SSO provider table schema. */
 interface SsoProviderTableSchema {
@@ -37,15 +37,15 @@ export interface SsoProviderTableProps
   > {
   hideHeader?: boolean;
   createAction: ComponentAction<void>;
-  editAction: ComponentAction<IdentityProvider>;
-  deleteAction?: ComponentAction<IdentityProvider>;
-  deleteFromOrganizationAction?: ComponentAction<IdentityProvider>;
-  enableProviderAction?: ComponentAction<IdentityProvider>;
+  editAction: ComponentAction<IdpKnownResponse>;
+  deleteAction?: ComponentAction<IdpKnownResponse>;
+  deleteFromOrganizationAction?: ComponentAction<IdpKnownResponse>;
+  enableProviderAction?: ComponentAction<IdpKnownResponse>;
 }
 
 /** Internal service hook result for SSO provider table data and CRUD operations. */
 export interface UseSsoProviderTableServiceReturn extends SharedComponentProps {
-  providers: IdentityProvider[];
+  providers: IdpKnownResponse[];
   organization: OrganizationPrivate | null;
   isLoading: boolean;
   isDeleting: boolean;
@@ -54,9 +54,9 @@ export interface UseSsoProviderTableServiceReturn extends SharedComponentProps {
   isUpdatingId: string | null;
   fetchProviders: () => Promise<void>;
   fetchOrganizationDetails: () => Promise<OrganizationPrivate | null>;
-  onDeleteConfirm: (selectedIdp: IdentityProvider) => Promise<void>;
-  onRemoveConfirm: (selectedIdp: IdentityProvider) => Promise<void>;
-  onEnableProvider: (selectedIdp: IdentityProvider, enabled: boolean) => Promise<boolean>;
+  onDeleteConfirm: (selectedIdp: IdpKnownResponse) => Promise<void>;
+  onRemoveConfirm: (selectedIdp: IdpKnownResponse) => Promise<void>;
+  onEnableProvider: (selectedIdp: IdpKnownResponse, enabled: boolean) => Promise<boolean>;
 }
 
 /** Options for the combined useSsoProviderTable hook. */
@@ -64,15 +64,15 @@ export interface UseSsoProviderTableOptions {
   readOnly?: boolean;
   customMessages?: SsoProviderTableMessages;
   createAction: ComponentAction<void>;
-  editAction: ComponentAction<IdentityProvider>;
-  deleteAction?: ComponentAction<IdentityProvider>;
-  deleteFromOrganizationAction?: ComponentAction<IdentityProvider>;
-  enableProviderAction?: ComponentAction<IdentityProvider>;
+  editAction: ComponentAction<IdpKnownResponse>;
+  deleteAction?: ComponentAction<IdpKnownResponse>;
+  deleteFromOrganizationAction?: ComponentAction<IdpKnownResponse>;
+  enableProviderAction?: ComponentAction<IdpKnownResponse>;
 }
 
 /** useSsoProviderTable hook result. */
 export interface UseSsoProviderTableReturn {
-  providers: IdentityProvider[];
+  providers: IdpKnownResponse[];
   organization: OrganizationPrivate | null;
 
   isLoading: boolean;
@@ -87,22 +87,22 @@ export interface UseSsoProviderTableReturn {
 
   showDeleteModal: boolean;
   showRemoveModal: boolean;
-  selectedIdp: IdentityProvider | null;
+  selectedIdp: IdpKnownResponse | null;
 
   fetchProviders: () => Promise<void>;
   fetchOrganizationDetails: () => Promise<OrganizationPrivate | null>;
 
   handleCreate: () => void;
-  handleEdit: (idp: IdentityProvider) => void;
-  handleDelete: (idp: IdentityProvider) => void;
-  handleDeleteFromOrganization: (idp: IdentityProvider) => void;
-  handleToggleEnabled: (idp: IdentityProvider, enabled: boolean) => Promise<void>;
-  handleDeleteConfirm: (provider: IdentityProvider) => Promise<void>;
-  handleRemoveConfirm: (provider: IdentityProvider) => Promise<void>;
+  handleEdit: (idp: IdpKnownResponse) => void;
+  handleDelete: (idp: IdpKnownResponse) => void;
+  handleDeleteFromOrganization: (idp: IdpKnownResponse) => void;
+  handleToggleEnabled: (idp: IdpKnownResponse, enabled: boolean) => Promise<void>;
+  handleDeleteConfirm: (provider: IdpKnownResponse) => Promise<void>;
+  handleRemoveConfirm: (provider: IdpKnownResponse) => Promise<void>;
 
   setShowDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
   setShowRemoveModal: React.Dispatch<React.SetStateAction<boolean>>;
-  setSelectedIdp: React.Dispatch<React.SetStateAction<IdentityProvider | null>>;
+  setSelectedIdp: React.Dispatch<React.SetStateAction<IdpKnownResponse | null>>;
 }
 
 /** Props for SsoProviderTable actions column. */
@@ -112,17 +112,17 @@ export interface SsoProviderTableActionsColumnProps
     SsoProviderTableClasses,
     SsoProviderTableSchema
   > {
-  provider: IdentityProvider;
+  provider: IdpKnownResponse;
   shouldAllowDeletion: boolean;
   isUpdating?: boolean;
   isUpdatingId?: string | null;
   edit?: {
     disabled?: boolean;
   };
-  onToggleEnabled: (provider: IdentityProvider, enabled: boolean) => void;
-  onEdit: (provider: IdentityProvider) => void;
-  onDelete: (provider: IdentityProvider) => void;
-  onRemoveFromOrganization: (provider: IdentityProvider) => void;
+  onToggleEnabled: (provider: IdpKnownResponse, enabled: boolean) => void;
+  onEdit: (provider: IdpKnownResponse) => void;
+  onDelete: (provider: IdpKnownResponse) => void;
+  onRemoveFromOrganization: (provider: IdpKnownResponse) => void;
 }
 export interface SsoProviderTableViewProps extends UseSsoProviderTableReturn {
   styling: SsoProviderTableProps['styling'];
