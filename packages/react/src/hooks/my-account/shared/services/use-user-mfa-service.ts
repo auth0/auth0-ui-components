@@ -12,7 +12,7 @@ import {
   type EnrollOptions,
   type ConfirmEnrollmentOptions,
 } from '@auth0/universal-components-core';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import type { UseUserMFAServiceReturn } from '@/types/my-account/mfa/mfa-types';
@@ -26,6 +26,7 @@ import type { UseUserMFAServiceReturn } from '@/types/my-account/mfa/mfa-types';
  */
 export function useUserMFAService(onlyActive: boolean): UseUserMFAServiceReturn {
   const { coreClient } = useCoreClient();
+  const queryClient = useQueryClient();
 
   const factorsQuery = useQuery<Record<MFAType, Authenticator[]>>({
     queryKey: mfaQueryKeys.factors(onlyActive),
@@ -60,6 +61,9 @@ export function useUserMFAService(onlyActive: boolean): UseUserMFAServiceReturn 
   const deleteMutation = useMutation({
     mutationFn: (authenticatorId: string) =>
       coreClient!.getMyAccountApiClient().authenticationMethods.delete(authenticatorId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: mfaQueryKeys.factors(onlyActive) });
+    },
   });
 
   const verifyMutation = useMutation({
