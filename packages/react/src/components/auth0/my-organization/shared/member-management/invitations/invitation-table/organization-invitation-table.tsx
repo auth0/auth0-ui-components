@@ -79,15 +79,17 @@ export function OrganizationInvitationTable({
         type: 'text',
         accessorKey: 'invitee',
         title: t('invitation.table.columns.email'),
+        width: '25%',
         enableSorting: false,
         render: (invitation) => (
-          <div className="font-medium text-primary">{invitation.invitee?.email}</div>
+          <div className="font-medium text-primary truncate">{invitation.invitee?.email}</div>
         ),
       },
       {
         type: 'text',
         accessorKey: 'organization_id',
         title: t('invitation.table.columns.status'),
+        width: '10%',
         enableSorting: false,
         render: (invitation) => {
           const status = getInvitationStatus(invitation);
