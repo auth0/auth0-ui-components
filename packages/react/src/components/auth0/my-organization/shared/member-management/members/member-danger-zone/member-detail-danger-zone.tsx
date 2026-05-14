@@ -61,10 +61,8 @@ function DangerCard({
 export function MemberDetailDangerZone({
   readOnly = false,
   isRemovingFromOrg = false,
-  isDeletingMember = false,
   customMessages,
   onRemoveFromOrgClick,
-  onDeleteMemberClick,
 }: MemberDetailDangerZoneProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
@@ -77,14 +75,6 @@ export function MemberDetailDangerZone({
         isLoading={isRemovingFromOrg}
         disabled={readOnly}
         onClick={onRemoveFromOrgClick}
-      />
-      <DangerCard
-        title={t('member.detail.danger_zone.delete_member.title')}
-        description={t('member.detail.danger_zone.delete_member.description')}
-        buttonLabel={t('member.detail.danger_zone.delete_member.button')}
-        isLoading={isDeletingMember}
-        disabled={readOnly}
-        onClick={onDeleteMemberClick}
       />
     </div>
   );

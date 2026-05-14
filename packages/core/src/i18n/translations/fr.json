@@ -2,6 +2,10 @@
   "common": {
     "copy": "Copier",
     "copied": "Copié!",
+    "data_table": {
+      "select_all": "Sélectionner toutes les lignes",
+      "select_row": "Sélectionner la ligne"
+    },
     "error": {
       "generic": "Un problème est survenu lors du traitement de votre demande. Veuillez réessayer ou contacter le support si le problème persiste.",
       "bad_request": "La demande est invalide. Veuillez vérifier votre saisie et réessayer.",
@@ -1051,16 +1055,6 @@
             "title": "Retirer un membre de l'organisation",
             "description": "Une fois confirmée, cette opération ne peut pas être annulée.",
             "delete_button": "supprimer"
-          },
-          "delete_member": {
-            "title": "Supprimer le membre",
-            "title_plural": "Supprimer les membres",
-            "description": "Êtes-vous sûr de vouloir supprimer ${email} ? Cette action est irréversible.",
-            "description_plural": "Êtes-vous sûr de vouloir supprimer ${count} membres ? Cette action est irréversible.",
-            "confirm_button": "Supprimer",
-            "cancel_button": "Annuler",
-            "success": "${email} a été supprimé.",
-            "success_plural": "Les membres sélectionnés ont été supprimés."
           }
         },
         "roles": {
@@ -1071,6 +1065,8 @@
           "max_roles_reached": "Vous avez atteint le nombre maximum de ${max} rôles pour ce membre.",
           "remove_button": "Supprimer le rôle",
           "remove_button_plural": "Supprimer les rôles",
+          "roles_selected": "${count} rôle sélectionné",
+          "roles_selected_plural": "${count} rôles sélectionnés",
           "table": {
             "name": "Nom",
             "description": "Description",
@@ -1100,7 +1096,6 @@
           "fetch_failed": "Échec du chargement des détails du membre. Veuillez réessayer.",
           "fetch_roles_failed": "Échec du chargement des rôles du membre. Veuillez réessayer.",
           "remove_from_org_failed": "Échec du retrait du membre de l'organisation. Veuillez réessayer.",
-          "delete_failed": "Échec de la suppression du membre. Veuillez réessayer.",
           "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer.",
           "remove_role_failed": "Échec du retrait du rôle. Veuillez réessayer."
         }

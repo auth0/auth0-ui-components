@@ -1,9 +1,7 @@
-import type { OrgMember, OrgMemberRole } from '@auth0/universal-components-core';
+import type { OrgMember, Role } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import type { RoleOption } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
-  MemberDeleteModalProps,
   MemberDetailDangerZoneProps,
   OrganizationMemberAssignRolesModalProps,
   OrganizationMemberDetailRolesTabProps,
@@ -29,19 +27,19 @@ export const createMockMemberWithPhone = (overrides?: Partial<OrgMember>): OrgMe
     ...overrides,
   });
 
-export const createMockMemberRole = (overrides?: Partial<OrgMemberRole>): OrgMemberRole => ({
+export const createMockMemberRole = (overrides?: Partial<Role>): Role => ({
   id: 'rol_abc123',
   name: 'Admin',
   description: 'Administrator role',
   ...overrides,
 });
 
-export const createMockMemberRoles = (): OrgMemberRole[] => [
+export const createMockMemberRoles = (): Role[] => [
   createMockMemberRole({ id: 'rol_admin', name: 'Admin', description: 'Administrator role' }),
   createMockMemberRole({ id: 'rol_member', name: 'Member', description: 'Member role' }),
 ];
 
-export const createMockAvailableRoles = (): RoleOption[] => [
+export const createMockAvailableRoles = (): Role[] => [
   { id: 'rol_admin', name: 'Admin', description: 'Administrator role' },
   { id: 'rol_member', name: 'Member', description: 'Member role' },
   { id: 'rol_viewer', name: 'Viewer', description: 'Viewer role' },
@@ -59,9 +57,7 @@ export const createMockDangerZoneProps = (
 ): MemberDetailDangerZoneProps => ({
   readOnly: false,
   isRemovingFromOrg: false,
-  isDeletingMember: false,
   onRemoveFromOrgClick: vi.fn(),
-  onDeleteMemberClick: vi.fn(),
   ...overrides,
 });
 
@@ -75,26 +71,16 @@ export const createMockRemoveFromOrgModalProps = (
   ...overrides,
 });
 
-export const createMockDeleteModalProps = (
-  overrides: Partial<MemberDeleteModalProps> = {},
-): MemberDeleteModalProps => ({
-  isOpen: true,
-  isLoading: false,
-  onClose: vi.fn(),
-  onConfirm: vi.fn(),
-  ...overrides,
-});
-
 export const createMockRolesTabProps = (
   overrides: Partial<OrganizationMemberDetailRolesTabProps> = {},
 ): OrganizationMemberDetailRolesTabProps => ({
   memberRoles: createMockMemberRoles(),
   availableRoles: createMockAvailableRoles(),
   isLoading: false,
-  removingRoleId: null,
+  removingRoleIds: [],
   readOnly: false,
   onAssignRolesClick: vi.fn(),
-  onRemoveRole: vi.fn(),
+  onRemoveRoles: vi.fn(),
   ...overrides,
 });
 
@@ -115,7 +101,7 @@ export const createMockRemoveRoleModalProps = (
 ): OrganizationMemberRemoveRoleModalProps => ({
   isOpen: true,
   isLoading: false,
-  role: createMockMemberRole(),
+  roles: [createMockMemberRole()],
   onClose: vi.fn(),
   onConfirm: vi.fn(),
   ...overrides,

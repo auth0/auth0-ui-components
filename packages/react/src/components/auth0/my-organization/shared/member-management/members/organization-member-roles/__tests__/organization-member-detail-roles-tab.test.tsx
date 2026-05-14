@@ -157,21 +157,21 @@ describe('OrganizationMemberDetailRolesTab', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('should call onRemoveRole with the role when trash button is clicked', async () => {
+    it('should call onRemoveRoles with the role when trash button is clicked', async () => {
       const user = userEvent.setup();
-      const onRemoveRole = vi.fn();
+      const onRemoveRoles = vi.fn();
       const role = createMockMemberRole({ id: 'rol_1', name: 'Admin' });
 
       renderWithProviders(
         <OrganizationMemberDetailRolesTab
-          {...createMockRolesTabProps({ memberRoles: [role], readOnly: false, onRemoveRole })}
+          {...createMockRolesTabProps({ memberRoles: [role], readOnly: false, onRemoveRoles })}
         />,
       );
 
       await user.click(screen.getByLabelText('member.detail.roles.table.remove_button_label'));
 
-      expect(onRemoveRole).toHaveBeenCalledTimes(1);
-      expect(onRemoveRole).toHaveBeenCalledWith(role);
+      expect(onRemoveRoles).toHaveBeenCalledTimes(1);
+      expect(onRemoveRoles).toHaveBeenCalledWith([role]);
     });
 
     it('should disable trash button for role being removed', () => {
@@ -182,7 +182,7 @@ describe('OrganizationMemberDetailRolesTab', () => {
           {...createMockRolesTabProps({
             memberRoles: [role],
             readOnly: false,
-            removingRoleId: 'rol_1',
+            removingRoleIds: ['rol_1'],
           })}
         />,
       );

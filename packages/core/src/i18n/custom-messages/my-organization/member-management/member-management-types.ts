@@ -46,21 +46,13 @@ export interface OrganizationMemberDetailMessages {
           cancel_button?: string;
           success?: string;
         };
-        delete_member?: {
-          title?: string;
-          description?: string;
-          button?: string;
-          confirm_title?: string;
-          confirm_description?: string;
-          confirm_button?: string;
-          cancel_button?: string;
-          success?: string;
-        };
       };
       roles?: {
         title?: string;
         description?: string;
         assign_button?: string;
+        roles_selected?: string;
+        roles_selected_plural?: string;
         table?: {
           name?: string;
           description?: string;
@@ -78,7 +70,9 @@ export interface OrganizationMemberDetailMessages {
         };
         remove_confirm?: {
           title?: string;
+          title_plural?: string;
           description?: string;
+          description_plural?: string;
           confirm_button?: string;
           cancel_button?: string;
         };
@@ -87,7 +81,6 @@ export interface OrganizationMemberDetailMessages {
         fetch_failed?: string;
         fetch_roles_failed?: string;
         remove_from_org_failed?: string;
-        delete_failed?: string;
         assign_role_failed?: string;
         remove_role_failed?: string;
       };

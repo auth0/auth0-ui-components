@@ -2,6 +2,10 @@
   "common": {
     "copy": "Copy",
     "copied": "Copied!",
+    "data_table": {
+      "select_all": "Select all rows",
+      "select_row": "Select row"
+    },
     "error": {
       "generic": "There was an issue processing your request. Please try again or contact support if the issue persists.",
       "bad_request": "The request is invalid. Please check your input and try again.",
@@ -1113,16 +1117,6 @@
             "title": "Remove Member from Organization",
             "description": "Once confirmed, this operation cannot be undone.",
             "delete_button": "Delete"
-          },
-          "delete_member": {
-            "title": "Delete member",
-            "title_plural": "Delete members",
-            "description": "Are you sure you want to delete ${email}? This action cannot be undone.",
-            "description_plural": "Are you sure you want to delete ${count} members? This action cannot be undone.",
-            "confirm_button": "Delete",
-            "cancel_button": "Cancel",
-            "success": "${email} has been deleted.",
-            "success_plural": "The selected members have been deleted."
           }
         },
         "roles": {
@@ -1133,6 +1127,8 @@
           "max_roles_reached": "You have reached the maximum of ${max} roles for this member.",
           "remove_button": "Remove Role",
           "remove_button_plural": "Remove Roles",
+          "roles_selected": "${count} role selected",
+          "roles_selected_plural": "${count} roles selected",
           "table": {
             "name": "Name",
             "description": "Description",
@@ -1162,7 +1158,6 @@
           "fetch_failed": "Failed to load member details. Please try again.",
           "fetch_roles_failed": "Failed to load member roles. Please try again.",
           "remove_from_org_failed": "Failed to remove member from organization. Please try again.",
-          "delete_failed": "Failed to delete member. Please try again.",
           "assign_role_failed": "Failed to assign role. Please try again.",
           "remove_role_failed": "Failed to remove role. Please try again."
         }
