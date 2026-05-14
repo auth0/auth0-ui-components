@@ -7,8 +7,17 @@ const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX = 60;
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
+function pruneExpiredRateLimitEntries(now: number): void {
+  for (const [ip, entry] of rateLimitMap.entries()) {
+    if (now > entry.resetTime) {
+      rateLimitMap.delete(ip);
+    }
+  }
+}
+
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
+  pruneExpiredRateLimitEntries(now);
   const entry = rateLimitMap.get(ip);
 
   if (!entry || now > entry.resetTime) {
