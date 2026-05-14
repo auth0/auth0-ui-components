@@ -240,7 +240,6 @@ describe('OrganizationMemberDetail', () => {
 
       await waitForComponentToLoad();
 
-      // Navigate to roles then back to details
       const rolesTab = screen.getByRole('tab', { name: 'member.detail.tabs.roles' });
       await user.click(rolesTab);
 
@@ -278,13 +277,11 @@ describe('OrganizationMemberDetail', () => {
 
           await waitForComponentToLoad();
 
-          // Click remove from org button in details tab
           const removeButton = screen.getByRole('button', {
             name: /member.detail.actions.remove_from_org.delete_button/i,
           });
           await user.click(removeButton);
 
-          // Modal should open — confirm
           const confirmButton = await screen.findByRole('button', {
             name: /member.detail.danger_zone.remove_from_org.confirm_button/i,
           });
@@ -404,7 +401,8 @@ describe('OrganizationMemberDetail', () => {
 
     describe('assignRolesAction.onBefore', () => {
       describe('when returns true', () => {
-        it('should call members.roles.assign when onBefore returns true', () => {
+        it('should call members.roles.assign', async () => {
+          const user = userEvent.setup();
           const assignRolesAction: ComponentAction<{ userId: string; roleIds: string[] }> = {
             disabled: false,
             onBefore: vi.fn(() => true),
@@ -417,38 +415,46 @@ describe('OrganizationMemberDetail', () => {
           ).mockResolvedValue({});
 
           renderWithProviders(
-            <OrganizationMemberDetailView
-              {...createMockOrganizationMemberDetailViewProps({
-                activeTab: 'roles',
-                modalState: { type: 'assignRoles' } satisfies MemberDetailModalState,
-                availableRoles: createMockAvailableRoles(),
-                handleAssignRolesSubmit: vi.fn((roleIds: string[]) => {
-                  if (
-                    assignRolesAction.onBefore &&
-                    !assignRolesAction.onBefore({ userId: 'auth0|testuser123', roleIds })
-                  )
-                    return;
-                  void apiService.organization.members.roles.assign('auth0|testuser123', {
-                    role_ids: roleIds,
-                  });
-                  assignRolesAction.onAfter?.({ userId: 'auth0|testuser123', roleIds });
-                }),
-              })}
+            <OrganizationMemberDetail
+              {...createMockOrganizationMemberDetailProps({ assignRolesAction })}
             />,
           );
 
-          // Modal is open — verify it renders and submit button is disabled (no roles selected)
-          expect(screen.getByText('member.detail.roles.assign_modal.title')).toBeInTheDocument();
+          await waitForComponentToLoad();
 
-          const submitButton = screen.getByRole('button', {
-            name: /member.detail.roles.assign_modal.submit_button/i,
+          const rolesTab = screen.getByRole('tab', { name: 'member.detail.tabs.roles' });
+          await user.click(rolesTab);
+
+          const assignButton = await screen.findByRole('button', {
+            name: /member.detail.roles.assign_button/i,
           });
-          expect(submitButton).toBeDisabled();
+          await user.click(assignButton);
+
+          await screen.findByText('member.detail.roles.assign_modal.title');
+
+          const comboboxInput = screen.getByPlaceholderText(
+            'member.detail.roles.assign_modal.roles_placeholder',
+          );
+          await user.click(comboboxInput);
+
+          await user.click(await screen.findByRole('button', { name: /admin/i }));
+
+          await user.click(
+            screen.getByRole('button', {
+              name: /member.detail.roles.assign_modal.submit_button/i,
+            }),
+          );
+
+          await waitFor(() => {
+            expect(assignRolesAction.onBefore).toHaveBeenCalled();
+            expect(apiService.organization.members.roles.assign).toHaveBeenCalled();
+          });
         });
       });
 
       describe('when returns false', () => {
-        it('should not call members.roles.assign when onBefore returns false', async () => {
+        it('should not call members.roles.assign', async () => {
+          const user = userEvent.setup();
           const assignRolesAction: ComponentAction<{ userId: string; roleIds: string[] }> = {
             disabled: false,
             onBefore: vi.fn(() => false),
@@ -460,33 +466,41 @@ describe('OrganizationMemberDetail', () => {
             apiService.organization.members.roles.assign as ReturnType<typeof vi.fn>
           ).mockResolvedValue({});
 
-          const handleAssignRolesSubmit = vi.fn((roleIds: string[]) => {
-            if (
-              assignRolesAction.onBefore &&
-              !assignRolesAction.onBefore({ userId: 'auth0|testuser123', roleIds })
-            )
-              return;
-            void apiService.organization.members.roles.assign('auth0|testuser123', {
-              role_ids: roleIds,
-            });
-          });
-
           renderWithProviders(
-            <OrganizationMemberDetailView
-              {...createMockOrganizationMemberDetailViewProps({
-                modalState: { type: 'assignRoles' } satisfies MemberDetailModalState,
-                handleAssignRolesSubmit,
-              })}
+            <OrganizationMemberDetail
+              {...createMockOrganizationMemberDetailProps({ assignRolesAction })}
             />,
           );
 
-          // Directly invoke the submit handler with role IDs to test the guard
-          handleAssignRolesSubmit(['rol_admin']);
+          await waitForComponentToLoad();
 
-          expect(assignRolesAction.onBefore).toHaveBeenCalledWith({
-            userId: 'auth0|testuser123',
-            roleIds: ['rol_admin'],
+          const rolesTab = screen.getByRole('tab', { name: 'member.detail.tabs.roles' });
+          await user.click(rolesTab);
+
+          const assignButton = await screen.findByRole('button', {
+            name: /member.detail.roles.assign_button/i,
           });
+          await user.click(assignButton);
+
+          await screen.findByText('member.detail.roles.assign_modal.title');
+
+          const comboboxInput = screen.getByPlaceholderText(
+            'member.detail.roles.assign_modal.roles_placeholder',
+          );
+          await user.click(comboboxInput);
+
+          await user.click(await screen.findByRole('button', { name: /admin/i }));
+
+          await user.click(
+            screen.getByRole('button', {
+              name: /member.detail.roles.assign_modal.submit_button/i,
+            }),
+          );
+
+          await waitFor(() => {
+            expect(assignRolesAction.onBefore).toHaveBeenCalled();
+          });
+
           expect(apiService.organization.members.roles.assign).not.toHaveBeenCalled();
         });
       });
@@ -525,14 +539,12 @@ describe('OrganizationMemberDetail', () => {
           const rolesTab = screen.getByRole('tab', { name: 'member.detail.tabs.roles' });
           await user.click(rolesTab);
 
-          // Find remove role button for first role
           const removeRoleButtons = await screen.findAllByRole('button', {
             name: /member.detail.roles.remove_confirm.confirm_button|remove/i,
           });
 
           await user.click(removeRoleButtons[0]!);
 
-          // Confirm in modal
           const confirmButton = await screen.findByRole('button', {
             name: /member.detail.roles.remove_confirm.confirm_button/i,
           });
@@ -553,35 +565,30 @@ describe('OrganizationMemberDetail', () => {
             onAfter: vi.fn(),
           };
 
-          const role = createMockMemberRole({ id: 'rol_admin', name: 'Admin' });
-
           const apiService = mockCoreClient.getMyOrganizationApiClient();
+          (apiService.organization.members.get as ReturnType<typeof vi.fn>).mockResolvedValue(
+            memberWithRoles,
+          );
           (
             apiService.organization.members.roles.unassign as ReturnType<typeof vi.fn>
           ).mockResolvedValue({});
 
-          // Directly render the view with the remove role modal open
           renderWithProviders(
-            <OrganizationMemberDetailView
-              {...createMockOrganizationMemberDetailViewProps({
-                activeTab: 'roles',
-                modalState: { type: 'removeRoles', roles: [role] } satisfies MemberDetailModalState,
-                handleRemoveRolesConfirm: vi.fn(() => {
-                  if (
-                    removeRolesAction.onBefore &&
-                    !removeRolesAction.onBefore({
-                      userId: 'auth0|testuser123',
-                      roleIds: [role.id],
-                    })
-                  )
-                    return;
-                  void apiService.organization.members.roles.unassign('auth0|testuser123', {
-                    role_ids: [role.id],
-                  });
-                }),
-              })}
+            <OrganizationMemberDetail
+              {...createMockOrganizationMemberDetailProps({ removeRolesAction })}
             />,
           );
+
+          await waitForComponentToLoad();
+
+          const rolesTab = screen.getByRole('tab', { name: 'member.detail.tabs.roles' });
+          await user.click(rolesTab);
+
+          const removeRoleButtons = await screen.findAllByRole('button', {
+            name: /member.detail.roles.remove_confirm.confirm_button|remove/i,
+          });
+
+          await user.click(removeRoleButtons[0]!);
 
           const confirmButton = await screen.findByRole('button', {
             name: /member.detail.roles.remove_confirm.confirm_button/i,
@@ -746,7 +753,6 @@ describe('OrganizationMemberDetailView', () => {
         />,
       );
 
-      // Badge should not be in DOM when userId is empty
       const badges = document.querySelectorAll('.font-mono');
       expect(badges.length).toBe(0);
     });
@@ -779,7 +785,7 @@ describe('OrganizationMemberDetailView', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('when modal cancel is clicked, should call closeModal', async () => {
+    it('when cancel is clicked, should call closeModal', async () => {
       const user = userEvent.setup();
       const closeModal = vi.fn();
 
@@ -831,7 +837,6 @@ describe('OrganizationMemberDetailView', () => {
         />,
       );
 
-      // Loading state shows Spinner (sr-only text "Loading...")
       expect(screen.getByRole('button', { name: 'Loading...' })).toBeInTheDocument();
     });
   });
