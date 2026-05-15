@@ -72,15 +72,19 @@ export function OrganizationInvitationCreateModal({
   const [selectedProvider, setSelectedProvider] = React.useState<string | undefined>();
   const [emailError, setEmailError] = React.useState<string | undefined>();
 
+  const resetForm = React.useCallback(() => {
+    setEmailInput('');
+    setEmailChips([]);
+    setSelectedRoles([]);
+    setSelectedProvider(undefined);
+    setEmailError(undefined);
+  }, []);
+
   React.useEffect(() => {
     if (!isOpen) {
-      setEmailInput('');
-      setEmailChips([]);
-      setSelectedRoles([]);
-      setSelectedProvider(undefined);
-      setEmailError(undefined);
+      resetForm();
     }
-  }, [isOpen]);
+  }, [isOpen, resetForm]);
 
   const handleEmailInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setEmailInput(e.target.value);
@@ -154,6 +158,9 @@ export function OrganizationInvitationCreateModal({
       const result = validationConfig.emailSchema.safeParse(trimmedEmail);
       if (result.success && !finalEmails.includes(trimmedEmail)) {
         finalEmails.push(trimmedEmail);
+      } else if (!result.success) {
+        setEmailError(t('invitation.create.email_invalid_error'));
+        return;
       }
     }
 
@@ -182,13 +189,9 @@ export function OrganizationInvitationCreateModal({
   ]);
 
   const handleClose = React.useCallback(() => {
-    setEmailInput('');
-    setEmailChips([]);
-    setSelectedRoles([]);
-    setSelectedProvider(undefined);
-    setEmailError(undefined);
+    resetForm();
     onClose();
-  }, [onClose]);
+  }, [onClose, resetForm]);
 
   const canSubmit = React.useMemo(
     () =>
@@ -213,7 +216,6 @@ export function OrganizationInvitationCreateModal({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* Email Input */}
           <div className="space-y-2">
             <Label htmlFor="email">{t('invitation.create.email_label')}*</Label>
             <TextFieldGroup
@@ -232,7 +234,6 @@ export function OrganizationInvitationCreateModal({
             {emailError && <p className="text-sm text-destructive-foreground">{emailError}</p>}
           </div>
 
-          {/* Roles Combobox */}
           <div className="space-y-2">
             <Label htmlFor="roles">{t('invitation.create.roles_label')}</Label>
             <Combobox
@@ -245,7 +246,6 @@ export function OrganizationInvitationCreateModal({
             />
           </div>
 
-          {/* Provider Dropdown */}
           <div className="space-y-2">
             <Label htmlFor="provider">{t('invitation.create.provider_label')}</Label>
             <Select value={selectedProvider ?? ''} onValueChange={handleProviderChange}>
