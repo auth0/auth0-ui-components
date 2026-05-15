@@ -1117,12 +1117,18 @@
           "remove_from_org": {
             "title": "組織からメンバーを削除",
             "description": "一度確定すると、この操作は元に戻せません。",
-            "delete_button": "削除"
+            "button": "削除",
+            "modal": {
+              "title": "${orgName} からメンバーを削除",
+              "description": "\"${memberName}\" をこの組織から削除してもよろしいですか？この操作はアカウントを削除しませんが、アクセスを取り消し、サインインできなくなります。",
+              "cancel_button": "キャンセル",
+              "confirm_button": "削除する"
+            }
           }
         },
         "roles": {
           "title": "ロール",
-          "description": "${appName} にアクセスする際のユーザーのロールと権限を管理します。",
+          "description": "${orgName} にアクセスする際のユーザーのロールと権限を管理します。",
           "assign_button": "ロールを割り当てる",
           "no_roles_available": "このメンバーに割り当てられるロールはもうありません。",
           "max_roles_reached": "このメンバーの最大登録数 ${max} に達しました。",

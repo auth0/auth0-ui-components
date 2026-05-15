@@ -34,7 +34,7 @@ describe('MemberRemoveFromOrgModal', () => {
       renderWithProviders(<MemberRemoveFromOrgModal {...createMockRemoveFromOrgModalProps()} />);
 
       expect(
-        screen.getByText('member.detail.danger_zone.remove_from_org.confirm_title'),
+        screen.getByText('member.detail.actions.remove_from_org.modal.title'),
       ).toBeInTheDocument();
     });
 
@@ -42,7 +42,7 @@ describe('MemberRemoveFromOrgModal', () => {
       renderWithProviders(<MemberRemoveFromOrgModal {...createMockRemoveFromOrgModalProps()} />);
 
       expect(
-        screen.getByText('member.detail.danger_zone.remove_from_org.confirm_description'),
+        screen.getByText('member.detail.actions.remove_from_org.modal.description'),
       ).toBeInTheDocument();
     });
 
@@ -51,12 +51,12 @@ describe('MemberRemoveFromOrgModal', () => {
 
       expect(
         screen.getByRole('button', {
-          name: 'member.detail.danger_zone.remove_from_org.confirm_button',
+          name: 'member.detail.actions.remove_from_org.modal.confirm_button',
         }),
       ).toBeInTheDocument();
       expect(
         screen.getByRole('button', {
-          name: 'member.detail.danger_zone.remove_from_org.cancel_button',
+          name: 'member.detail.actions.remove_from_org.modal.cancel_button',
         }),
       ).toBeInTheDocument();
     });
@@ -70,7 +70,7 @@ describe('MemberRemoveFromOrgModal', () => {
 
       expect(
         screen.getByRole('button', {
-          name: 'member.detail.danger_zone.remove_from_org.cancel_button',
+          name: 'member.detail.actions.remove_from_org.modal.cancel_button',
         }),
       ).toBeDisabled();
     });
@@ -82,7 +82,7 @@ describe('MemberRemoveFromOrgModal', () => {
 
       expect(
         screen.getByRole('button', {
-          name: 'member.detail.danger_zone.remove_from_org.cancel_button',
+          name: 'member.detail.actions.remove_from_org.modal.cancel_button',
         }),
       ).toBeEnabled();
     });
@@ -99,7 +99,7 @@ describe('MemberRemoveFromOrgModal', () => {
 
       await user.click(
         screen.getByRole('button', {
-          name: 'member.detail.danger_zone.remove_from_org.confirm_button',
+          name: 'member.detail.actions.remove_from_org.modal.confirm_button',
         }),
       );
 
@@ -118,7 +118,7 @@ describe('MemberRemoveFromOrgModal', () => {
 
       await user.click(
         screen.getByRole('button', {
-          name: 'member.detail.danger_zone.remove_from_org.cancel_button',
+          name: 'member.detail.actions.remove_from_org.modal.cancel_button',
         }),
       );
 

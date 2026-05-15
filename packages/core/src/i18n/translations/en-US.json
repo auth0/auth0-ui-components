@@ -1116,12 +1116,18 @@
           "remove_from_org": {
             "title": "Remove Member from Organization",
             "description": "Once confirmed, this operation cannot be undone.",
-            "delete_button": "Delete"
+            "button": "Delete",
+            "modal": {
+              "title": "Remove Member from ${orgName}",
+              "description": "Are you sure you want to remove \"${memberName}\" from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
+              "cancel_button": "Cancel",
+              "confirm_button": "Remove"
+            }
           }
         },
         "roles": {
           "title": "Roles",
-          "description": "Manage user roles and permissions when accessing ${appName}.",
+          "description": "Manage user roles and permissions when accessing ${orgName}.",
           "assign_button": "Assign Roles",
           "no_roles_available": "There are no more roles available to assign to this member.",
           "max_roles_reached": "You have reached the maximum of ${max} roles for this member.",

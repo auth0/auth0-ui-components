@@ -62,7 +62,7 @@ describe('OrganizationMemberUserDetails', () => {
         <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
       );
 
-      expect(screen.getByDisplayValue('user@example.com')).toBeInTheDocument();
+      expect(screen.getByText('user@example.com')).toBeInTheDocument();
     });
 
     it('should display "—" when email is missing', () => {
@@ -87,7 +87,7 @@ describe('OrganizationMemberUserDetails', () => {
         <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
       );
 
-      expect(screen.getByDisplayValue('+1234567890')).toBeInTheDocument();
+      expect(screen.getByText('+1234567890')).toBeInTheDocument();
     });
 
     it('should display "—" when phone number is absent', () => {
@@ -102,17 +102,17 @@ describe('OrganizationMemberUserDetails', () => {
   });
 
   describe('provider field', () => {
-    it('should display provider when present', () => {
+    it('should display provider and connection from first identity when present', () => {
       const member = {
         ...createMockMember(),
-        provider: 'google-oauth2',
+        identities: [{ provider: 'auth0', connection: 'Username-Password-Authentication' }],
       } as Parameters<typeof OrganizationMemberUserDetails>[0]['member'];
 
       renderWithProviders(
         <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
       );
 
-      expect(screen.getByText('google-oauth2')).toBeInTheDocument();
+      expect(screen.getByText('auth0, Username-Password-Authentication')).toBeInTheDocument();
     });
 
     it('should display "—" when provider is absent', () => {

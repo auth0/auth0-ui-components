@@ -28,6 +28,7 @@ export function OrganizationMemberRemoveRoleModal({
   isOpen,
   isLoading = false,
   roles,
+  memberName,
   customMessages,
   onClose,
   onConfirm,
@@ -50,7 +51,7 @@ export function OrganizationMemberRemoveRoleModal({
         <DialogDescription className="py-2">
           <>
             {t.trans('member.detail.roles.remove_confirm.description', {
-              vars: { roleName: roles.map((r) => r.name).join(', ') },
+              vars: { roleName: roles.map((r) => r.name).join(', '), memberName },
               components: { bold: (children: string) => <strong key="role">{children}</strong> },
             })}
           </>

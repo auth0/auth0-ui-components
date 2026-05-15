@@ -35,6 +35,7 @@ export function useOrganizationMemberDetail(
   const {
     memberQuery,
     rolesQuery,
+    organizationQuery,
     removeFromOrgMutation,
     assignRolesMutation,
     removeRolesMutation,
@@ -102,6 +103,7 @@ export function useOrganizationMemberDetail(
   }, [modalState, removeRolesMutation, closeModal]);
 
   const member = memberQuery.data ?? null;
+  const orgDisplayName = organizationQuery.data?.display_name ?? '';
   const memberRoles: Role[] = member?.roles ?? [];
   const availableRoles: Role[] = rolesQuery.data ?? [];
   const removingRoles = modalState.type === 'removeRoles' ? modalState.roles : [];
@@ -109,6 +111,7 @@ export function useOrganizationMemberDetail(
   return {
     activeTab,
     member,
+    orgDisplayName,
     memberRoles,
     availableRoles,
     selectedRoles,

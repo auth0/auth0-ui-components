@@ -27,7 +27,7 @@ function RemoveMemberFromOrganizationCard({
   const { t } = useTranslator('member_management', customMessages);
 
   return (
-    <Card className="flex-row items-center justify-between gap-4 p-6">
+    <Card className="flex flex-row items-center justify-between gap-4 p-6">
       <div className="flex flex-col gap-1">
         <span className="text-sm font-medium text-primary">
           {t('member.detail.actions.remove_from_org.title')}
@@ -43,7 +43,7 @@ function RemoveMemberFromOrganizationCard({
         disabled={isRemovingFromOrg}
         className="shrink-0"
       >
-        {t('member.detail.actions.remove_from_org.delete_button')}
+        {t('member.detail.actions.remove_from_org.button')}
       </Button>
     </Card>
   );
@@ -58,7 +58,7 @@ export function OrganizationMemberEditDetailsTab(
   props: OrganizationMemberEditDetailsTabProps,
 ): React.JSX.Element {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-10">
       {props.member && (
         <OrganizationMemberUserDetails
           member={props.member}
