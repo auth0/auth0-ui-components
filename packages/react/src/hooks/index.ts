@@ -31,3 +31,4 @@ export { useSsoProviderTable } from './my-organization/use-sso-provider-table';
 
 // Member Management hooks
 export { useOrganizationMemberManagement } from './my-organization/use-organization-member-management';
+export { useOrganizationMemberDetail } from './my-organization/use-member-detail';

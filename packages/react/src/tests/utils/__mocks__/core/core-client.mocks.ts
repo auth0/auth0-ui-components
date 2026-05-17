@@ -111,6 +111,24 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
           }),
         },
       },
+      members: {
+        list: vi.fn().mockResolvedValue({ data: [], response: { next: null, total: 0 } }),
+        get: vi.fn().mockResolvedValue({
+          user_id: 'auth0|123234235',
+          name: 'Test User',
+          email: 'test@example.com',
+          created_at: '2025-01-01T00:00:00.000Z',
+          last_login: '2025-01-01T00:00:00.000Z',
+        }),
+        roles: {
+          list: vi.fn().mockResolvedValue({ roles: [] }),
+          assign: vi.fn().mockResolvedValue({}),
+          unassign: vi.fn().mockResolvedValue({}),
+        },
+      },
+      memberships: {
+        deleteMemberships: vi.fn().mockResolvedValue(undefined),
+      },
     },
   } as unknown as NonNullable<CoreClientInterface['myOrganizationApiClient']>;
   return service;
