@@ -1102,13 +1102,15 @@
       },
       "error": {
         "fetch_failed": "Failed to load members. Please try again.",
-        "remove_failed": "Failed to remove member. Please try again."
+        "remove_failed": "Failed to remove member. Please try again.",
+        "assign_role_failed": "Failed to assign role. Please try again."
       },
       "remove_from_org_modal": {
         "title": "Remove Member from ${organizationName}",
         "description": "Are you sure you want to remove ${memberName} from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
         "remove_button": "Remove",
-        "cancel_button": "Cancel"
+        "cancel_button": "Cancel",
+        "success": "Member has been removed from the organization."
       },
       "assign_role_modal": {
         "title": "Assign Roles",

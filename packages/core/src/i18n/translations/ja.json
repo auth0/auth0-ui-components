@@ -1103,13 +1103,15 @@
       },
       "error": {
         "fetch_failed": "メンバーの読み込みに失敗しました。もう一度お試しください。",
-        "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。"
+        "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。",
+        "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。"
       },
       "remove_from_org_modal": {
         "title": "${organizationName} からメンバーを削除",
         "description": "この組織から ${memberName} を削除してもよろしいですか？この操作でアカウントは削除されませんが、アクセス権が取り消され、サインインできなくなります。",
         "remove_button": "削除",
-        "cancel_button": "キャンセル"
+        "cancel_button": "キャンセル",
+        "success": "メンバーが組織から削除されました。"
       },
       "assign_role_modal": {
         "title": "ロールを割り当てる",
