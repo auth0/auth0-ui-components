@@ -183,7 +183,7 @@ export interface OrganizationMemberAssignRoleModalProps {
   availableRoles: Role[];
   assignedRoles: Role[];
   className?: string;
-  customMessages?: Partial<OrganizationMemberTabMessages>;
+  customMessages?: Partial<OrganizationMemberManagementMessages>;
   onClose: () => void;
   onAssign: (userId: string, roleIds: string[]) => void;
 }
@@ -194,7 +194,7 @@ export interface OrganizationMemberRemoveFromOrgModalProps {
   isOpen: boolean;
   isLoading?: boolean;
   className?: string;
-  customMessages?: Partial<OrganizationMemberTabMessages>;
+  customMessages?: Partial<OrganizationMemberManagementMessages>;
   onClose: () => void;
   onConfirm: (userId: string) => void;
 }
