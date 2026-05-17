@@ -451,4 +451,45 @@ describe('useMemberManagementService', () => {
       expect(details).toEqual(mockInvitation);
     });
   });
+
+  describe('removeFromOrgMutation', () => {
+    it('should remove the provided member id from the organization', async () => {
+      const options = createDefaultOptions({ activeTab: 'members' });
+      const { result } = renderService(options);
+
+      await act(async () => {
+        result.current.removeFromOrgMutation.mutate('user_123');
+      });
+
+      await waitFor(() => {
+        expect(result.current.removeFromOrgMutation.isSuccess).toBe(true);
+      });
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.memberships.deleteMemberships,
+      ).toHaveBeenCalledWith({ members: ['user_123'] });
+    });
+  });
+
+  describe('assignRoleMutation', () => {
+    it('should assign roles to the provided member id', async () => {
+      const options = createDefaultOptions({ activeTab: 'members' });
+      const { result } = renderService(options);
+
+      await act(async () => {
+        result.current.assignRoleMutation.mutate({
+          userId: 'user_123',
+          roleIds: ['role_admin'],
+        });
+      });
+
+      await waitFor(() => {
+        expect(result.current.assignRoleMutation.isSuccess).toBe(true);
+      });
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.members.roles.assign,
+      ).toHaveBeenCalledWith('user_123', { role_ids: ['role_admin'] });
+    });
+  });
 });

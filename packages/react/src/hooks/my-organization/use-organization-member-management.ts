@@ -12,8 +12,8 @@ import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-paginatio
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   CreateInvitationInput,
-  InvitationFilterState,
-  InvitationSortConfig,
+  MemberManagementFilterState,
+  MemberManagementSortConfig,
   IdentityProviderOption,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
@@ -37,12 +37,15 @@ export function useOrganizationMemberManagement(
     createInvitationAction,
     revokeInvitationAction,
     resendInvitationAction,
+    assignRoleAction,
+    removeFromOrgAction,
   } = options;
 
   const { t } = useTranslator('member_management', customMessages);
 
   const [activeTab, setActiveTab] = React.useState<ActiveTab>('members');
 
+  /** Pagination and sorting for invitations */
   const {
     pageSize: invitationPageSize,
     currentPage: invitationCurrentPage,
@@ -55,7 +58,22 @@ export function useOrganizationMemberManagement(
     changePageSize: invitationChangePageSize,
     changeSortConfig: invitationChangeSortConfig,
     changeFilters: invitationChangeFilters,
-  } = useCheckpointPagination<InvitationFilterState>();
+  } = useCheckpointPagination<MemberManagementFilterState>();
+
+  /** Pagination and sorting for members */
+  const {
+    pageSize: memberPageSize,
+    currentPage: memberCurrentPage,
+    fromToken: memberFromToken,
+    hasPreviousPage: memberHasPreviousPage,
+    sortConfig: memberSortConfig,
+    filters: memberFilters,
+    goToNextPage: memberGoToNextPage,
+    goToPreviousPage: memberGoToPreviousPage,
+    changePageSize: memberChangePageSize,
+    changeSortConfig: memberChangeSortConfig,
+    changeFilters: memberChangeFilters,
+  } = useCheckpointPagination<MemberManagementFilterState>();
 
   const [modalState, setModalState] = React.useState<MemberManagementModalState>({ type: null });
   const detailsRequestIdRef = React.useRef(0);
@@ -64,6 +82,9 @@ export function useOrganizationMemberManagement(
     providersQuery,
     rolesQuery,
     invitationsQuery,
+    membersQuery,
+    assignRoleMutation,
+    removeFromOrgMutation,
     createInvitationMutation,
     revokeInvitationMutation,
     resendInvitationMutation,
@@ -80,12 +101,22 @@ export function useOrganizationMemberManagement(
       sortConfig: invitationSortConfig,
       filters: invitationFilters,
     },
+    memberParams: {
+      pageSize: memberPageSize,
+      fromToken: memberFromToken,
+      sortConfig: memberSortConfig,
+      filters: memberFilters,
+    },
+    assignRoleAction,
+    removeFromOrgAction,
   });
 
   const availableProviders: IdentityProviderOption[] = providersQuery.data ?? [];
   const availableRoles = rolesQuery.data ?? [];
   const currentInvitations = invitationsQuery.data?.invitations ?? [];
+  const currentMembers = membersQuery.data?.members ?? [];
   const invitationNextToken = invitationsQuery.data?.next ?? null;
+  const memberNextToken = membersQuery.data?.next ?? null;
 
   const openModal = React.useCallback(
     async (state: MemberManagementModalState) => {
@@ -150,35 +181,59 @@ export function useOrganizationMemberManagement(
     [t],
   );
 
+  const handleAssignRole = React.useCallback(
+    (userId: string, roleId: string[]) => {
+      assignRoleMutation.mutate({ userId, roleIds: roleId });
+    },
+    [assignRoleMutation],
+  );
+
+  const handleRemoveFromOrg = React.useCallback(
+    (userId: string) => {
+      removeFromOrgMutation.mutate(userId);
+    },
+    [removeFromOrgMutation],
+  );
+
   const handleNextPage = React.useCallback(() => {
-    if (invitationNextToken) {
+    if (activeTab === 'members' && memberNextToken) {
+      memberGoToNextPage(memberNextToken);
+    } else if (invitationNextToken) {
       invitationGoToNextPage(invitationNextToken);
     }
-  }, [invitationNextToken, invitationGoToNextPage]);
+  }, [activeTab, invitationNextToken, memberNextToken, invitationGoToNextPage, memberGoToNextPage]);
 
   const handlePreviousPage = React.useCallback(() => {
-    invitationGoToPreviousPage();
-  }, [invitationGoToPreviousPage]);
+    if (activeTab === 'members') {
+      memberGoToPreviousPage();
+    } else invitationGoToPreviousPage();
+  }, [activeTab, invitationGoToPreviousPage, memberGoToPreviousPage]);
 
   const handlePageSizeChange = React.useCallback(
     (pageSize: number) => {
-      invitationChangePageSize(pageSize);
+      if (activeTab === 'members') {
+        memberChangePageSize(pageSize);
+      } else invitationChangePageSize(pageSize);
     },
-    [invitationChangePageSize],
+    [activeTab, invitationChangePageSize, memberChangePageSize],
   );
 
   const handleSortChange = React.useCallback(
-    (sortConfig: InvitationSortConfig) => {
-      invitationChangeSortConfig(sortConfig);
+    (sortConfig: MemberManagementSortConfig) => {
+      if (activeTab === 'members') {
+        memberChangeSortConfig(sortConfig);
+      } else invitationChangeSortConfig(sortConfig);
     },
-    [invitationChangeSortConfig],
+    [activeTab, invitationChangeSortConfig, memberChangeSortConfig],
   );
 
   const handleRoleFilterChange = React.useCallback(
     (roleId: string | undefined) => {
-      invitationChangeFilters((prev) => ({ ...prev, roleId }));
+      if (activeTab === 'members') {
+        memberChangeFilters((prev) => ({ ...prev, roleId }));
+      } else invitationChangeFilters((prev) => ({ ...prev, roleId }));
     },
-    [invitationChangeFilters],
+    [activeTab, invitationChangeFilters, memberChangeFilters],
   );
 
   return {
@@ -187,7 +242,10 @@ export function useOrganizationMemberManagement(
     availableProviders,
 
     invitations: currentInvitations,
+    members: currentMembers,
     isFetchingInvitations: invitationsQuery.isLoading || invitationsQuery.isFetching,
+    isFetchingMembers: membersQuery.isLoading || membersQuery.isFetching,
+    isFetchingRoles: rolesQuery.isLoading || rolesQuery.isFetching,
     isCreatingInvitation: createInvitationMutation.isPending,
     isRevokingInvitation: revokeInvitationMutation.isPending,
     isResendingInvitation: resendInvitationMutation.isPending,
@@ -197,9 +255,19 @@ export function useOrganizationMemberManagement(
       hasNextPage: !!invitationNextToken,
       hasPreviousPage: invitationHasPreviousPage,
     },
+    memberPagination: {
+      pageSize: memberPageSize,
+      currentPage: memberCurrentPage,
+      hasNextPage: !!memberNextToken,
+      hasPreviousPage: memberHasPreviousPage,
+    },
     invitationFilters,
     invitationSortConfig,
+    memberFilters,
+    memberSortConfig,
     modalState,
+    isRemovingFromOrg: removeFromOrgMutation.isPending,
+    isAssigningRole: assignRoleMutation.isPending,
 
     setActiveTab,
     openModal,
@@ -213,5 +281,7 @@ export function useOrganizationMemberManagement(
     handlePageSizeChange,
     handleSortChange,
     handleRoleFilterChange,
+    handleAssignRole,
+    handleRemoveFromOrg,
   };
 }

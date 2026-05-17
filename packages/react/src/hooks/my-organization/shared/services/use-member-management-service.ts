@@ -4,6 +4,7 @@
  * @internal
  */
 
+import type { OrgMember } from '@auth0/universal-components-core';
 import {
   type MemberInvitation,
   type ListIdentityProvidersResponseContent,
@@ -18,9 +19,10 @@ import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   CreateInvitationInput,
-  InvitationSortConfig,
+  MemberManagementSortConfig,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
+  AssignRoleMutationInput,
   UseMemberManagementServiceOptions,
   MemberManagementServiceResult,
 } from '@/types/my-organization/member-management/organization-member-management-types';
@@ -34,7 +36,7 @@ const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
  * @param sortConfig - The sort configuration.
  * @returns The formatted sort string, or undefined if no valid sort key.
  */
-function buildSortParam(sortConfig: InvitationSortConfig): string | undefined {
+function buildSortParam(sortConfig: MemberManagementSortConfig): string | undefined {
   if (!sortConfig.key) return undefined;
   const apiField = INVITATION_SORT_FIELD_MAP[sortConfig.key];
   if (!apiField) return undefined;
@@ -57,9 +59,13 @@ export function useMemberManagementService(
     revokeInvitationAction,
     resendInvitationAction,
     invitationParams,
+    memberParams,
+    assignRoleAction,
+    removeFromOrgAction,
   } = options;
 
   const isInvitationsTabActive = activeTab === 'invitations';
+  const isMembersTabActive = activeTab === 'members';
 
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('member_management', customMessages);
@@ -96,16 +102,16 @@ export function useMemberManagementService(
   const invitationsQuery = useQuery({
     queryKey: [
       ...memberManagementQueryKeys.invitations(),
-      invitationParams.pageSize,
-      invitationParams.fromToken,
-      invitationParams.filters,
-      invitationParams.sortConfig,
+      invitationParams?.pageSize,
+      invitationParams?.fromToken,
+      invitationParams?.filters,
+      invitationParams?.sortConfig,
     ],
     queryFn: async () => {
       const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list({
-        take: invitationParams.pageSize,
-        from: invitationParams.fromToken,
-        sort: buildSortParam(invitationParams.sortConfig),
+        take: invitationParams?.pageSize,
+        from: invitationParams?.fromToken,
+        sort: buildSortParam(invitationParams?.sortConfig || { key: null, direction: 'asc' }),
       });
 
       const invitations: MemberInvitation[] = page.data;
@@ -114,6 +120,21 @@ export function useMemberManagementService(
       return { invitations, next };
     },
     enabled: !!coreClient && isInvitationsTabActive,
+  });
+
+  const membersQuery = useQuery({
+    queryKey: memberManagementQueryKeys.members(),
+    queryFn: async () => {
+      const page = await coreClient!.getMyOrganizationApiClient().organization.members.list({
+        take: memberParams?.pageSize,
+        from: memberParams?.fromToken,
+      });
+      const members: OrgMember[] = page.data;
+      const next = page.response.next ?? null;
+
+      return { members, next };
+    },
+    enabled: !!coreClient && isMembersTabActive,
   });
 
   const createInvitationMutation = useMutation({
@@ -211,6 +232,52 @@ export function useMemberManagementService(
     [coreClient],
   );
 
+  const removeFromOrgMutation = useMutation<void, Error, string>({
+    mutationFn: async (userId: string) => {
+      if (removeFromOrgAction?.onBefore && !removeFromOrgAction.onBefore({ userId })) {
+        throw new Error('Remove from org cancelled by onBefore');
+      }
+      await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.memberships.deleteMemberships({ members: [userId] });
+    },
+    onSuccess: (_, userId) => {
+      removeFromOrgAction?.onAfter?.({ userId });
+      showToast({
+        type: 'success',
+        message: t('member.remove_from_org_modal.success'),
+      });
+    },
+    onError: () => {
+      showToast({ type: 'error', message: t('member.error.remove_failed') });
+    },
+  });
+
+  const assignRoleMutation = useMutation<void, Error, AssignRoleMutationInput>({
+    mutationFn: async ({ userId, roleIds }: AssignRoleMutationInput) => {
+      for (const roleId of roleIds) {
+        if (assignRoleAction?.onBefore && !assignRoleAction.onBefore({ userId, roleId })) {
+          throw new Error('Assign role cancelled by onBefore');
+        }
+      }
+      await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.members.roles.assign(userId, { role_ids: roleIds });
+      for (const roleId of roleIds) {
+        assignRoleAction?.onAfter?.({ userId, roleId });
+      }
+    },
+    onSuccess: (_, { roleIds }) => {
+      if (roleIds.length === 1) {
+        showToast({ type: 'success', message: t('member.assign_role_modal.success') });
+      } else showToast({ type: 'success', message: t('member.assign_role_modal.success_plural') });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.members() });
+    },
+    onError: () => {
+      showToast({ type: 'error', message: t('member.error.assign_role_failed') });
+    },
+  });
+
   return {
     providersQuery,
     rolesQuery,
@@ -219,5 +286,8 @@ export function useMemberManagementService(
     revokeInvitationMutation,
     resendInvitationMutation,
     fetchInvitationDetails,
+    membersQuery,
+    assignRoleMutation,
+    removeFromOrgMutation,
   };
 }
