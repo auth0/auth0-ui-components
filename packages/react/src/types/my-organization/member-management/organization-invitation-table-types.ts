@@ -36,8 +36,8 @@ export interface CreateInvitationInput {
   ttl_sec?: number;
 }
 
-/** Pagination state for invitation table (checkpoint-based). */
-export interface InvitationPaginationState {
+/** Pagination state for member management tables - invitation and member tables (checkpoint-based). */
+export interface MemberManagementPaginationState {
   pageSize: number;
   currentPage: number;
   totalItems?: number;
@@ -45,14 +45,14 @@ export interface InvitationPaginationState {
   hasPreviousPage: boolean;
 }
 
-/** Sort configuration for invitation table. */
-export interface InvitationSortConfig {
+/** Sort configuration for member management tables. */
+export interface MemberManagementSortConfig {
   key: string | null;
   direction: 'asc' | 'desc';
 }
 
-/** Filter state for invitation table. */
-export interface InvitationFilterState {
+/** Filter state for member management tables. */
+export interface MemberManagementFilterState {
   searchQuery?: string;
   roleId?: string;
 }
@@ -71,11 +71,10 @@ export interface OrganizationInvitationTabClasses {
 }
 
 /** Props for OrganizationInvitationTab component. */
-export interface OrganizationInvitationTabProps
-  extends SharedComponentProps<
-    OrganizationInvitationTabMessages,
-    OrganizationInvitationTabClasses
-  > {
+export interface OrganizationInvitationTabProps extends SharedComponentProps<
+  OrganizationInvitationTabMessages,
+  OrganizationInvitationTabClasses
+> {
   createAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   revokeAction?: ComponentAction<MemberInvitation>;
 }
@@ -96,9 +95,9 @@ export interface OrganizationInvitationTableProps {
   invitations: MemberInvitation[];
   loading?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
-  pagination: InvitationPaginationState;
-  filters?: InvitationFilterState;
-  sortConfig?: InvitationSortConfig;
+  pagination: MemberManagementPaginationState;
+  filters?: MemberManagementFilterState;
+  sortConfig?: MemberManagementSortConfig;
   availableRoles?: Role[];
   readOnly?: boolean;
   onView?: (invitation: MemberInvitation) => void;
@@ -108,18 +107,20 @@ export interface OrganizationInvitationTableProps {
   onNextPage?: () => void;
   onPreviousPage?: () => void;
   onPageSizeChange?: (pageSize: number) => void;
-  onSortChange?: (sortConfig: InvitationSortConfig) => void;
+  onSortChange?: (sortConfig: MemberManagementSortConfig) => void;
   onRoleFilterChange?: (roleId: string | undefined) => void;
   className?: string;
 }
 
 /** Props for SearchFilter component. */
 export interface SearchFilterProps {
-  filters?: InvitationFilterState;
+  filters?: MemberManagementFilterState;
   availableRoles?: Role[];
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   className?: string;
+  activeTab?: string | undefined;
   onRoleFilterChange?: (roleId: string | undefined) => void;
+  onSearchTermChange?: (searchTerm: string) => void;
 }
 
 /** Props for OrganizationInvitationCreateModal component. */

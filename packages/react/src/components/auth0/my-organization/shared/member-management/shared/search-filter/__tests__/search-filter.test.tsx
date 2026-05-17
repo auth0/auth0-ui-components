@@ -33,6 +33,72 @@ describe('SearchFilter', () => {
         screen.getByRole('button', { name: 'invitation.table.reset_filter' }),
       ).toBeInTheDocument();
     });
+
+    it('should render member search input on the members tab', () => {
+      renderWithProviders(
+        <SearchFilter {...createMockSearchFilterProps({ activeTab: 'members' })} />,
+      );
+
+      expect(
+        screen.getByPlaceholderText('Search for a member by name or email'),
+      ).toBeInTheDocument();
+    });
+
+    it('should not render member search input on the invitations tab', () => {
+      renderWithProviders(
+        <SearchFilter {...createMockSearchFilterProps({ activeTab: 'invitations' })} />,
+      );
+
+      expect(
+        screen.queryByPlaceholderText('Search for a member by name or email'),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('search', () => {
+    it('should update the search input value as the user types', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <SearchFilter {...createMockSearchFilterProps({ activeTab: 'members' })} />,
+      );
+
+      const searchInput = screen.getByPlaceholderText('Search for a member by name or email');
+      await user.type(searchInput, 'ada@example.com');
+
+      expect(searchInput).toHaveValue('ada@example.com');
+    });
+
+    it('should call onSearchTermChange with the current search term on keydown', async () => {
+      const user = userEvent.setup();
+      const onSearchTermChange = vi.fn();
+
+      renderWithProviders(
+        <SearchFilter
+          {...createMockSearchFilterProps({ activeTab: 'members', onSearchTermChange })}
+        />,
+      );
+
+      const searchInput = screen.getByPlaceholderText('Search for a member by name or email');
+      await user.type(searchInput, 'ada');
+      await user.keyboard('{Enter}');
+
+      expect(onSearchTermChange).toHaveBeenLastCalledWith('ada');
+    });
+
+    it('should clear the search input when Escape is pressed', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <SearchFilter {...createMockSearchFilterProps({ activeTab: 'members' })} />,
+      );
+
+      const searchInput = screen.getByPlaceholderText('Search for a member by name or email');
+      await user.type(searchInput, 'ada');
+      await user.keyboard('{Escape}');
+
+      expect(searchInput).toHaveValue('');
+    });
   });
 
   describe('reset button', () => {
@@ -97,7 +163,7 @@ describe('SearchFilter', () => {
       );
 
       const filterDiv = container.firstChild as HTMLElement;
-      expect(filterDiv).toHaveClass('mb-4');
+      expect(filterDiv).toHaveClass('mt-8', 'mb-6');
     });
   });
 });

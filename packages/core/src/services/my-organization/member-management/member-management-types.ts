@@ -103,3 +103,8 @@ export type Role = MyOrganization.Role;
  * Organization role ID.
  */
 export type RoleId = MyOrganization.RoleId;
+
+/**
+ * Response content for listing organization roles.
+ */
+export type ListRolesResponseContent = MyOrganization.ListRolesResponseContent;

@@ -1,0 +1,116 @@
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { OrganizationMemberTableActionsColumn } from '@/components/auth0/my-organization/shared/member-management/members/members-table/organization-member-table-actions-column';
+import { renderWithProviders } from '@/tests/utils';
+import {
+  createMockMember,
+  createMockMemberActionsColumnProps,
+} from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+
+describe('OrganizationMemberTableActionsColumn', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('Rendering and Basic Structure', () => {
+    it('should render dropdown trigger button', () => {
+      const props = createMockMemberActionsColumnProps();
+      renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
+
+      const trigger = screen.getByRole('button', { name: 'member.actions.menu_label' });
+      expect(trigger).toBeInTheDocument();
+      expect(trigger).toHaveClass('h-8', 'w-8');
+    });
+
+    it('should have proper accessibility attributes', () => {
+      const props = createMockMemberActionsColumnProps();
+      renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
+
+      const trigger = screen.getByRole('button', { name: 'member.actions.menu_label' });
+      expect(trigger).toHaveAttribute('type', 'button');
+    });
+  });
+
+  describe('Dropdown Menu Interactions', () => {
+    it('should open dropdown menu when trigger button is clicked', async () => {
+      const user = userEvent.setup();
+      const props = createMockMemberActionsColumnProps();
+      renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
+
+      await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
+
+      expect(
+        screen.getByRole('menuitem', { name: 'member.actions.view_details' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('menuitem', { name: 'member.actions.assign_role' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('menuitem', { name: 'member.actions.remove_from_org' }),
+      ).toBeInTheDocument();
+    });
+
+    it('should close dropdown menu when user presses Escape key', async () => {
+      const user = userEvent.setup();
+      const props = createMockMemberActionsColumnProps();
+      renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
+
+      await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
+      expect(
+        screen.getByRole('menuitem', { name: 'member.actions.assign_role' }),
+      ).toBeInTheDocument();
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(
+          screen.queryByRole('menuitem', { name: 'member.actions.assign_role' }),
+        ).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Actions', () => {
+    it('should link View Details to the member management details route', async () => {
+      const user = userEvent.setup();
+      const member = createMockMember({ user_id: 'usr_abc' });
+      const props = createMockMemberActionsColumnProps({ member });
+      renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
+
+      await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
+
+      const viewDetailsLink = screen.getByRole('link', { name: 'member.actions.view_details' });
+      expect(viewDetailsLink).toHaveAttribute('href', '/member-management/usr_abc');
+    });
+
+    it('should call onAssignRole when Assign Role is clicked', async () => {
+      const user = userEvent.setup();
+      const onAssignRole = vi.fn();
+      const member = createMockMember();
+      const props = createMockMemberActionsColumnProps({ member, onAssignRole });
+      renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
+
+      await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
+      await user.click(screen.getByRole('menuitem', { name: 'member.actions.assign_role' }));
+
+      expect(onAssignRole).toHaveBeenCalledTimes(1);
+      expect(onAssignRole).toHaveBeenCalledWith(member);
+    });
+
+    it('should call onRemoveFromOrg when Remove from Org is clicked', async () => {
+      const user = userEvent.setup();
+      const onRemoveFromOrg = vi.fn();
+      const member = createMockMember();
+      const props = createMockMemberActionsColumnProps({ member, onRemoveFromOrg });
+      renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
+
+      await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
+      await user.click(screen.getByRole('menuitem', { name: 'member.actions.remove_from_org' }));
+
+      expect(onRemoveFromOrg).toHaveBeenCalledTimes(1);
+      expect(onRemoveFromOrg).toHaveBeenCalledWith(member);
+    });
+  });
+});
