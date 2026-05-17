@@ -1,4 +1,4 @@
-import type { OrgMember } from '@auth0/universal-components-core';
+import type { OrgMember, Role } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 import type {
@@ -8,7 +8,6 @@ import type {
 import type {
   OrganizationMemberTableActionsColumnProps,
   OrganizationMemberTableProps,
-  RoleOption,
 } from '@/types/my-organization/member-management/organization-member-table-types';
 
 export const createMockMember = (overrides?: Partial<OrgMember>): OrgMember =>
@@ -77,7 +76,7 @@ export const createMockMemberTableProps = (
   ...overrides,
 });
 
-export const createMockRoleOptions = (): RoleOption[] => [
+export const createMockRoleOptions = (): Role[] => [
   { id: 'role_admin', name: 'Admin' },
   { id: 'role_member', name: 'Member' },
   { id: 'role_viewer', name: 'Viewer' },
