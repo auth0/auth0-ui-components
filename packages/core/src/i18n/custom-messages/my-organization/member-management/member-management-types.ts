@@ -5,6 +5,7 @@
  */
 
 import type { OrganizationInvitationTabMessages } from './invitation-tab-types';
+import type { OrganizationMemberTabMessages } from './member-tab-types';
 
 export interface OrganizationMemberManagementMessages {
   header?: {
@@ -16,4 +17,5 @@ export interface OrganizationMemberManagementMessages {
     invitations?: string;
   };
   invitation?: OrganizationInvitationTabMessages;
+  member?: OrganizationMemberTabMessages;
 }
