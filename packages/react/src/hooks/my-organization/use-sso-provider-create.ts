@@ -8,7 +8,7 @@ import {
   SsoProviderMappers,
   type CreateIdentityProviderRequestContent,
   type CreateIdentityProviderRequestContentPrivate,
-  type IdentityProvider,
+  type IdpKnownResponse,
 } from '@auth0/universal-components-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
@@ -55,7 +55,7 @@ export function useSsoProviderCreate({
   const createProviderMutation = useMutation({
     mutationFn: async (
       data: CreateIdentityProviderRequestContentPrivate,
-    ): Promise<IdentityProvider> => {
+    ): Promise<IdpKnownResponse> => {
       if (!coreClient) {
         throw new Error('Core client not available');
       }
@@ -72,7 +72,7 @@ export function useSsoProviderCreate({
       const apiRequestData: CreateIdentityProviderRequestContent =
         SsoProviderMappers.createToAPI(formData);
 
-      const result: IdentityProvider = await coreClient
+      const result: IdpKnownResponse = await coreClient
         .getMyOrganizationApiClient()
         .organization.identityProviders.create(apiRequestData);
 

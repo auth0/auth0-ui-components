@@ -15,6 +15,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Verify core/react version parity
+        run: |
+          CORE_VERSION=$(jq -r '.version' packages/core/package.json)
+          REACT_VERSION=$(jq -r '.version' packages/react/package.json)
+          if [ "$CORE_VERSION" != "$REACT_VERSION" ]; then
+            echo "::error::Version mismatch — core@$CORE_VERSION != react@$REACT_VERSION. Both packages must have the same version."
+            exit 1
+          fi
+          echo "Version parity OK: $CORE_VERSION"
+
       - name: Setup pnpm
         uses: pnpm/action-setup@36de12bed180fa130ed56a35e7344f2fa7a820ab # v4
         with:
@@ -34,6 +44,9 @@ jobs:
 
       - name: Run linting
         run: pnpm lint
+
+      - name: Type check
+        run: pnpm type-check
 
       - name: Run tests
         run: pnpm test

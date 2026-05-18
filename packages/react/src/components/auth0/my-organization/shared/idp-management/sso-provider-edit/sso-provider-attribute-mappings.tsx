@@ -6,7 +6,7 @@
 
 import {
   STRATEGY_DISPLAY_NAMES,
-  type IdpBaseUserAttributeItem,
+  type BaseUserAttributeMapItem,
 } from '@auth0/universal-components-core';
 import { Info } from 'lucide-react';
 import * as React from 'react';
@@ -20,7 +20,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { SsoProviderAttributeMappingsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
-type AttributeItem = IdpBaseUserAttributeItem & { provisioning_field?: string };
+type AttributeItem = BaseUserAttributeMapItem & { provisioning_field?: string };
 
 const SCIM_NAMESPACE = 'urn:ietf:params:scim:schemas:core:2.0:User';
 
@@ -38,7 +38,7 @@ const STATUS_VARIANTS: Record<ChangeStatus, 'info' | 'warning' | 'default'> = {
   [CHANGE_STATUS.NEW]: 'default',
 };
 
-const getChangeStatus = (item: IdpBaseUserAttributeItem): ChangeStatus | null => {
+const getChangeStatus = (item: BaseUserAttributeMapItem): ChangeStatus | null => {
   const { is_extra: isRemoved, is_missing: isNew } = item;
 
   if (isRemoved && isNew) return CHANGE_STATUS.UPDATED;
@@ -53,7 +53,7 @@ const AttributeNameCell = ({
   section,
   t,
 }: {
-  item: IdpBaseUserAttributeItem;
+  item: BaseUserAttributeMapItem;
   section: 'required' | 'optional';
   t: (key: string) => string;
 }) => {

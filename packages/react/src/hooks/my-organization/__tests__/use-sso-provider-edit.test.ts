@@ -1,5 +1,5 @@
 import type {
-  IdentityProvider,
+  IdpKnownResponse,
   CreateIdpProvisioningScimTokenRequestContent,
   OrganizationPrivate,
 } from '@auth0/universal-components-core';
@@ -82,7 +82,7 @@ describe('useSsoProviderEdit', () => {
     getMyOrganizationApiClient: () => mockOrgClient,
   };
 
-  const mockProvider: IdentityProvider = {
+  const mockProvider: IdpKnownResponse = {
     id: mockIdpId,
     name: 'test-provider',
     strategy: 'samlp',
