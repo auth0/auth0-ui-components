@@ -12,11 +12,6 @@ export { useErrorHandler } from './shared/use-error-handler';
 
 // My Account hooks
 export { useUserMFA } from './my-account/use-user-mfa';
-export { useContactEnrollment } from './my-account/use-contact-enrollment';
-export { useOtpConfirmation } from './my-account/use-otp-confirmation';
-export { useOtpEnrollment } from './my-account/use-otp-enrollment';
-export { useMFA } from './my-account/use-mfa';
-export { useRecoveryCodeGeneration } from './my-account/use-recovery-code';
 
 // My Organization hooks
 export { useConfig } from './my-organization/use-config';

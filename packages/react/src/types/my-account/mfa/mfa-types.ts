@@ -16,8 +16,6 @@ import type {
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 
 import type {
-  ENROLL,
-  CONFIRM,
   ENTER_CONTACT,
   ENTER_QR,
   SHOW_RECOVERY_CODE,
@@ -295,44 +293,6 @@ export interface FactorsListProps extends SharedComponentProps<MFAMessages, User
   disableDelete: boolean;
 }
 
-/**
- * Result returned by the `useMFA` hook.
- * Provides methods to fetch, enroll, and delete MFA authenticators.
- */
-export type UseMFAResult = {
-  /**
-   * Fetch the list of MFA authenticators grouped by factor type.
-   * @param onlyActive - Whether to return only active authenticators.
-   * @returns A promise resolving to factors grouped by type.
-   */
-  fetchFactors: (onlyActive?: boolean) => Promise<unknown>;
-
-  /**
-   * Enroll a new MFA factor (e.g., SMS, TOTP, Email).
-   * @param factorType - The type of MFA to enroll.
-   * @param options - Optional options like phone number or email.
-   * @returns A promise resolving to the enrollment response.
-   */
-  enrollMfa: (
-    factorType: MFAType,
-    options?: EnrollOptions,
-  ) => Promise<CreateAuthenticationMethodResponseContent>;
-
-  /**
-   * Delete an enrolled MFA authenticator by its ID.
-   * @param authenticatorId - The ID of the authenticator to delete.
-   * @returns A promise resolving to a success flag.
-   */
-  deleteMfa: (authenticatorId: string) => Promise<void>;
-
-  confirmEnrollment: (
-    factorType: MFAType,
-    authSession: string,
-    authenticationMethodId: string,
-    options: ConfirmEnrollmentOptions,
-  ) => Promise<unknown>;
-};
-
 export interface UserMFAMgmtViewProps {
   error: string | null;
   schema: UserMFAMgmtProps['schema'];
@@ -368,62 +328,4 @@ export interface UserMFAMgmtViewProps {
   onContinueQR: () => Promise<void>;
   onConfirmRecoveryCode: () => Promise<void>;
   onAdvanceToQR: () => void;
-}
-
-/**
- * Options for useMFALogic hook.
- */
-export interface UseMFALogicOptions {
-  readOnly?: boolean;
-  disableDelete?: boolean;
-  customMessages?: UserMFAMgmtProps['customMessages'];
-  factorConfig?: FactorConfig;
-  fetchFactors: (onlyActive?: boolean) => Promise<unknown>;
-  enrollMfa?: (
-    factorType: MFAType,
-    options?: EnrollOptions,
-  ) => Promise<CreateAuthenticationMethodResponseContent>;
-  deleteMfa: (authenticatorId: string) => Promise<void>;
-  confirmEnrollment?: (
-    factorType: MFAType,
-    authSession: string,
-    authenticationMethodId: string,
-    options: ConfirmEnrollmentOptions,
-  ) => Promise<unknown>;
-  showActiveOnly?: boolean;
-  onFetch?: () => void;
-  onEnroll?: () => void;
-  onDelete?: () => void;
-  onErrorAction?: (error: Error, action: 'enroll' | 'delete' | 'confirm') => void;
-  onBeforeAction?: (
-    action: 'enroll' | 'delete' | 'confirm',
-    factorType: MFAType,
-  ) => boolean | Promise<boolean>;
-}
-
-/**
- * Result returned by useMFALogic hook.
- */
-export interface UseMFALogicResult {
-  factorsByType: Record<MFAType, Authenticator[]>;
-  loading: boolean;
-  error: string | null;
-  isDeletingFactor: boolean;
-  dialogOpen: boolean;
-  enrollFactor: MFAType | null;
-  isDeleteDialogOpen: boolean;
-  factorToDelete: { id: string; type: MFAType } | null;
-  visibleFactorTypes: MFAType[];
-  hasNoActiveFactors: boolean;
-
-  setIsDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setFactorToDelete: React.Dispatch<React.SetStateAction<{ id: string; type: MFAType } | null>>;
-
-  loadFactors: () => Promise<void>;
-  handleEnroll: (factor: MFAType) => void;
-  handleCloseDialog: () => void;
-  handleDeleteFactor: (factorId: string, factorType: MFAType) => Promise<void>;
-  handleConfirmDelete: (factorId: string) => Promise<void>;
-  handleEnrollSuccess: () => Promise<void>;
-  handleEnrollError: (error: Error, stage: typeof ENROLL | typeof CONFIRM) => void;
 }
