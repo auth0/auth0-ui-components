@@ -222,7 +222,7 @@ export function useUserMFA({
         setFactorToDelete(null);
       }
     },
-    [deleteMutation, handleError, onDelete, onErrorAction, t],
+    [deleteMutation, factorsQuery, handleError, onDelete, onErrorAction, t],
   );
 
   const handleConfirmDelete = useCallback(async () => {
