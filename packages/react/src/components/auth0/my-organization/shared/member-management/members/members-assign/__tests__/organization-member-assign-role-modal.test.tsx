@@ -61,7 +61,7 @@ describe('OrganizationMemberAssignRolesModal', () => {
         <OrganizationMemberAssignRolesModal
           {...createMockMemberAssignRoleModalProps({
             availableRoles,
-            assignedRoles: availableRoles.map((role) => ({ id: role.id })),
+            assignedRoles: availableRoles.map((role) => ({ id: role.id, name: role.name })),
           })}
         />,
       );
@@ -164,7 +164,7 @@ describe('OrganizationMemberAssignRolesModal', () => {
       renderWithProviders(
         <OrganizationMemberAssignRolesModal
           {...createMockMemberAssignRoleModalProps({
-            assignedRoles: [{ id: 'role_admin' }],
+            assignedRoles: [{ id: 'role_admin', name: 'Admin' }],
           })}
         />,
       );
