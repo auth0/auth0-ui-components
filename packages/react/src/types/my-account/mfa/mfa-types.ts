@@ -5,6 +5,7 @@
 
 import type {
   CreateAuthenticationMethodResponseContent,
+  VerifyAuthenticationMethodResponseContent,
   Authenticator,
   MFAType,
   EnrollOptions,
@@ -12,8 +13,29 @@ import type {
   MFAMessages,
   SharedComponentProps,
 } from '@auth0/universal-components-core';
+import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 
 import type { ENROLL, CONFIRM } from '@/lib/constants/my-account/mfa/mfa-constants';
+
+export interface UseUserMFAServiceReturn {
+  factorsQuery: UseQueryResult<Record<MFAType, Authenticator[]>>;
+  enrollMutation: UseMutationResult<
+    CreateAuthenticationMethodResponseContent,
+    Error,
+    { factorType: MFAType; options?: EnrollOptions }
+  >;
+  deleteMutation: UseMutationResult<void, Error, string>;
+  verifyMutation: UseMutationResult<
+    VerifyAuthenticationMethodResponseContent,
+    Error,
+    {
+      factorType: MFAType;
+      authSession: string;
+      authenticationMethodId: string;
+      options: ConfirmEnrollmentOptions;
+    }
+  >;
+}
 
 /** Configuration for an individual MFA factor type. */
 export interface FactorConfigOptions {
