@@ -11,7 +11,7 @@ const MemberManagementPage = () => {
         >
           <u>Quickstart guidance</u>
         </a>{' '}
-        on how to add Domain Management component.
+        on how to add Member Management component.
       </p>
       {/* <OrganizationMemberManagement /> */}
     </div>

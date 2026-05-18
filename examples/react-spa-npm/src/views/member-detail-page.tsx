@@ -12,7 +12,7 @@ const MemberDetailPage = () => {
         >
           <u>Quickstart guidance</u>
         </a>{' '}
-        on how to add Domain Management component.
+        on how to add Member Detail component.
       </p>
       {/* <OrganizationMemberDetail userId={user_id!} onBack={() => navigate('/member-management')} /> */}
     </div>
