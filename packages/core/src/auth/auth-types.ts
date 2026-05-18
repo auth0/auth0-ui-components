@@ -12,7 +12,9 @@ import type { MfaApiClient } from '../services/mfa-step-up/mfa-step-up-api-types
 
 /**
  * Auth parameters for fetcher functions.
- * Used by both MyAccount/MyOrganization SDKs and Auth0 SDK's fetchWithAuth.
+ *
+ * Intentionally custom: internal abstraction used by the fetcher layer, not a
+ * direct SDK API request/response type.
  * @internal
  */
 export interface FetcherAuthParams {
@@ -58,6 +60,9 @@ export type CreateFetcherFunction = (options: CreateFetcherOptions) => Auth0Fetc
 
 /**
  * Response structure from the token endpoint.
+ *
+ * Intentionally custom: `@auth0/auth0-spa-js` exports a similar type (with an
+ * additional `token_type` field) but is not a dependency of this package.
  * @internal
  */
 export type TokenEndpointResponse = {
@@ -128,7 +133,7 @@ export interface AuthDetails {
   domain?: string | undefined;
   authProxyUrl?: string | undefined;
   contextInterface?: BasicAuth0ContextInterface | undefined;
-  fetcher?: (url: string, init?: RequestInit) => Promise<Response>;
+  fetcher?: (url: string, init?: RequestInit, authParams?: FetcherAuthParams) => Promise<Response>;
   previewMode?: boolean; // For docs - skip API client initialization
 }
 

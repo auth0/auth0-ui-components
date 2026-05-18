@@ -18,7 +18,12 @@ export * from './api';
 
 export { createCoreClient } from './auth/core-client';
 
-export { AuthDetails, CoreClientInterface, BasicAuth0ContextInterface } from './auth/auth-types';
+export {
+  AuthDetails,
+  CoreClientInterface,
+  BasicAuth0ContextInterface,
+  FetcherAuthParams,
+} from './auth/auth-types';
 
 export * from './schemas';
 

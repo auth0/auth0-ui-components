@@ -5,7 +5,7 @@
 
 import {
   type Domain,
-  type IdentityProvider,
+  type IdpKnownResponse,
   type CreateOrganizationDomainRequestContent,
   type IdentityProviderAssociatedWithDomain,
   BusinessError,
@@ -127,7 +127,7 @@ export function useDomainTable({
   });
 
   const associateToProviderMutation = useMutation({
-    mutationFn: async ({ domain, provider }: { domain: Domain; provider: IdentityProvider }) => {
+    mutationFn: async ({ domain, provider }: { domain: Domain; provider: IdpKnownResponse }) => {
       if (
         associateToProviderAction?.onBefore &&
         !associateToProviderAction.onBefore(domain, provider)
@@ -145,7 +145,7 @@ export function useDomainTable({
   });
 
   const deleteFromProviderMutation = useMutation({
-    mutationFn: async ({ domain, provider }: { domain: Domain; provider: IdentityProvider }) => {
+    mutationFn: async ({ domain, provider }: { domain: Domain; provider: IdpKnownResponse }) => {
       if (
         deleteFromProviderAction?.onBefore &&
         !deleteFromProviderAction.onBefore(domain, provider)
