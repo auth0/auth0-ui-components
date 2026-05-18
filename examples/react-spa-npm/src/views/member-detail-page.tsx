@@ -9,6 +9,7 @@ const MemberDetailPage = () => {
         <a
           href="https://github.com/auth0/auth0-ui-components/tree/main/examples/react-spa-npm#adding-a-universal-component-to-your-app"
           target="_blank"
+          rel="noopener noreferrer"
         >
           <u>Quickstart guidance</u>
         </a>{' '}
