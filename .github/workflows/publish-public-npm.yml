@@ -33,6 +33,10 @@ permissions:
   contents: write
   id-token: write
 
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
 jobs:
   publish:
     name: Build & Publish to Public NPM
@@ -61,6 +65,35 @@ jobs:
 
       - name: Upgrade npm to latest version
         run: npm install -g npm@latest
+
+      - name: Pre-flight version and registry check
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          VERSION_INPUT: ${{ github.event.inputs.version }}
+        run: |
+          CORE_VERSION=$(jq -r '.version' packages/core/package.json)
+          REACT_VERSION=$(jq -r '.version' packages/react/package.json)
+
+          if [ "$CORE_VERSION" != "$REACT_VERSION" ]; then
+            echo "::error::Version mismatch — core@$CORE_VERSION != react@$REACT_VERSION. Both packages must have the same version."
+            exit 1
+          fi
+
+          VERSION="${VERSION_INPUT:-$CORE_VERSION}"
+
+          if [ "$DRY_RUN" != "true" ]; then
+            if npm view "@auth0/universal-components-core@$VERSION" version 2>/dev/null; then
+              echo "::error::@auth0/universal-components-core@$VERSION already exists on npm. Aborting."
+              exit 1
+            fi
+            if npm view "@auth0/universal-components-react@$VERSION" version 2>/dev/null; then
+              echo "::error::@auth0/universal-components-react@$VERSION already exists on npm. Aborting."
+              exit 1
+            fi
+            echo "Neither package exists at $VERSION — safe to publish."
+          else
+            echo "Dry run — skipping npm registry check."
+          fi
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
