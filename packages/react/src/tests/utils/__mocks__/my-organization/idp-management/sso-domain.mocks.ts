@@ -1,4 +1,4 @@
-import type { Domain, IdentityProvider } from '@auth0/universal-components-core';
+import type { Domain, IdpKnownResponse } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 import type {
@@ -22,7 +22,7 @@ export const createMockVerifiedSsoDomain = (overrides?: Partial<Domain>): Domain
     ...overrides,
   });
 
-export const createMockSsoProvider = (overrides?: Partial<IdentityProvider>): IdentityProvider =>
+export const createMockSsoProvider = (overrides?: Partial<IdpKnownResponse>): IdpKnownResponse =>
   ({
     id: 'provider-1',
     name: 'Test Provider',
@@ -34,7 +34,7 @@ export const createMockSsoProvider = (overrides?: Partial<IdentityProvider>): Id
       discovery_url: 'https://example.com/.well-known/openid_configuration',
     },
     ...overrides,
-  }) as IdentityProvider;
+  }) as IdpKnownResponse;
 
 export function createMockSsoProviderCreateLogic(
   overrides: Partial<SsoProviderCreateLogicProps> = {},

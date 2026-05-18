@@ -1,7 +1,7 @@
 import {
   AVAILABLE_STRATEGY_LIST,
   type ComponentAction,
-  type IdentityProvider,
+  type IdpKnownResponse,
   type CreateIdentityProviderRequestContentPrivate,
 } from '@auth0/universal-components-core';
 import type { QueryClient } from '@tanstack/react-query';
@@ -55,7 +55,7 @@ const createMockSsoProviderCreateProps = (
 
 const createMockCreateAction = (): ComponentAction<
   CreateIdentityProviderRequestContentPrivate,
-  IdentityProvider
+  IdpKnownResponse
 > => ({
   disabled: false,
   onBefore: vi.fn(() => true),
