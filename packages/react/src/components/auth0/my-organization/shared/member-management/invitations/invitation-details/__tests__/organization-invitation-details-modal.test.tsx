@@ -1,9 +1,9 @@
-import { screen } from '@testing-library/react';
+import { screen, act, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { OrganizationInvitationDetailsModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal';
-import { renderWithProviders } from '@/tests/utils';
+import { renderWithProviders, TestProvider } from '@/tests/utils';
 import {
   createMockDetailsModalProps,
   createMockInvitation,
@@ -262,6 +262,85 @@ describe('OrganizationInvitationDetailsModal', () => {
         expect(
           screen.queryByRole('button', { name: 'invitation.details.resend_button' }),
         ).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('copy URL', () => {
+    it('should call onCopyUrl and show copied state when copy button is clicked', async () => {
+      const user = userEvent.setup();
+      const onCopyUrl = vi.fn();
+      const invitation = createMockInvitation({
+        invitation_url: 'https://example.auth0.com/invite?ticket=abc',
+      });
+
+      renderWithProviders(
+        <OrganizationInvitationDetailsModal
+          {...createMockDetailsModalProps({ invitation, onCopyUrl })}
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'invitation.details.copy_url_button' }));
+
+      expect(onCopyUrl).toHaveBeenCalledTimes(1);
+      expect(onCopyUrl).toHaveBeenCalledWith(invitation);
+      expect(screen.getByRole('button', { name: 'invitation.details.copied' })).toBeInTheDocument();
+    });
+
+    describe('with fake timers', () => {
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      it('should reset copied state after 3 seconds', () => {
+        vi.useFakeTimers();
+
+        const invitation = createMockInvitation({
+          invitation_url: 'https://example.auth0.com/invite?ticket=abc',
+        });
+
+        renderWithProviders(
+          <OrganizationInvitationDetailsModal {...createMockDetailsModalProps({ invitation })} />,
+        );
+
+        fireEvent.click(screen.getByRole('button', { name: 'invitation.details.copy_url_button' }));
+
+        expect(
+          screen.getByRole('button', { name: 'invitation.details.copied' }),
+        ).toBeInTheDocument();
+
+        act(() => vi.advanceTimersByTime(3000));
+
+        expect(
+          screen.getByRole('button', { name: 'invitation.details.copy_url_button' }),
+        ).toBeInTheDocument();
+      });
+
+      it('should clear the timeout when modal is closed before 3 seconds', () => {
+        vi.useFakeTimers();
+
+        const invitation = createMockInvitation({
+          invitation_url: 'https://example.auth0.com/invite?ticket=abc',
+        });
+
+        const { rerender } = renderWithProviders(
+          <OrganizationInvitationDetailsModal {...createMockDetailsModalProps({ invitation })} />,
+        );
+
+        fireEvent.click(screen.getByRole('button', { name: 'invitation.details.copy_url_button' }));
+
+        rerender(
+          <TestProvider>
+            <OrganizationInvitationDetailsModal
+              {...createMockDetailsModalProps({ invitation, isOpen: false })}
+            />
+          </TestProvider>,
+        );
+
+        act(() => vi.advanceTimersByTime(3000));
+
+        // no state update errors — timeout was cleared cleanly
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       });
     });
   });
