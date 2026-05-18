@@ -29,31 +29,25 @@ import {
 } from '@/components/ui/form';
 import { Spinner } from '@/components/ui/spinner';
 import { TextField } from '@/components/ui/text-field';
-import { useContactEnrollment } from '@/hooks/my-account/use-contact-enrollment';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { ENTER_CONTACT, ENTER_OTP } from '@/lib/constants/my-account/mfa/mfa-constants';
-import { cn } from '@/lib/utils';
 import type { ContactInputFormProps } from '@/types/my-account/mfa/mfa-types';
 
 type ContactForm = EmailContactForm | SmsContactForm;
 
-const PHASES = {
-  ENTER_CONTACT: ENTER_CONTACT,
-  ENTER_OTP: ENTER_OTP,
-} as const;
-
-type Phase = (typeof PHASES)[keyof typeof PHASES];
+type Phase = typeof ENTER_CONTACT | typeof ENTER_OTP;
 
 /**
  *
  * @param props - Component props.
  * @param props.factorType - The MFA factor type
- * @param props.enrollMfa - Function to enroll a new MFA factor
- * @param props.onError - Callback fired when an error occurs
- * @param props.confirmEnrollment - Function to confirm MFA enrollment
- * @param props.onSuccess - Callback fired on successful operation
+ * @param props.contact - Current contact value (email or phone) from hook state
+ * @param props.isEnrolling - Whether enrollment is in progress
+ * @param props.isConfirming - Whether OTP confirmation is in progress
+ * @param props.onSubmitContact - Called with contact options; returns true on success
+ * @param props.onConfirmOtp - Called with the 6-digit OTP code
  * @param props.onClose - Callback fired when the component should close
  * @param props.schema - Zod validation schema
  * @param props.styling - Custom styling configuration with variables and classes
@@ -62,10 +56,11 @@ type Phase = (typeof PHASES)[keyof typeof PHASES];
  */
 export function ContactInputForm({
   factorType,
-  enrollMfa,
-  onError,
-  confirmEnrollment,
-  onSuccess,
+  contact,
+  isEnrolling,
+  isConfirming,
+  onSubmitContact,
+  onConfirmOtp,
   onClose,
   schema,
   styling = {
@@ -86,12 +81,6 @@ export function ContactInputForm({
     [styling, isDarkMode],
   );
 
-  const { onSubmitContact, loading, contactData, setContactData } = useContactEnrollment({
-    factorType,
-    enrollMfa,
-    onError,
-  });
-
   const ContactSchema = React.useMemo(() => {
     return factorType === FACTOR_TYPE_EMAIL
       ? createEmailContactSchema(t('errors.invalid_email'), schema?.email)
@@ -102,35 +91,27 @@ export function ContactInputForm({
     resolver: zodResolver(ContactSchema),
     mode: FORM_VALIDATION_MODE,
     reValidateMode: FORM_REVALIDATE_MODE,
-    defaultValues: { contact: contactData.contact || '' },
+    defaultValues: { contact: contact || '' },
   });
 
   const handleCancel = () => {
     form.reset();
-    setContactData({
-      contact: '',
-      authSession: '',
-      authenticationMethodId: '',
-    });
     onClose?.();
   };
 
-  const handleBack = React.useCallback(() => {
-    setPhase(ENTER_CONTACT);
-  }, [phase]);
+  const handleBack = () => setPhase(ENTER_CONTACT);
 
-  const handleSubmit = React.useCallback(
-    async (data: ContactForm) => {
-      await onSubmitContact(data);
-      setPhase(ENTER_OTP);
-    },
-    [onSubmitContact],
-  );
+  const handleSubmit = async (data: ContactForm) => {
+    const options: Record<string, string> =
+      factorType === FACTOR_TYPE_EMAIL ? { email: data.contact } : { phone_number: data.contact };
+    const success = await onSubmitContact(options);
+    if (success) setPhase(ENTER_OTP);
+  };
 
   const renderContactScreen = () => (
-    <div style={currentStyles?.variables} className="w-full max-w-sm mx-auto">
+    <div style={currentStyles.variables} className="w-full max-w-sm mx-auto">
       <div className="flex flex-col items-center justify-center flex-1 space-y-10">
-        {loading ? (
+        {isEnrolling ? (
           <div
             className="absolute inset-0 flex items-center justify-center"
             role="status"
@@ -141,9 +122,7 @@ export function ContactInputForm({
         ) : (
           <>
             <p
-              className={cn(
-                'text-center text-primary text-sm text-(length:--font-size-paragraph) font-normal',
-              )}
+              className="text-center text-primary text-sm text-(length:--font-size-paragraph) font-normal"
               id="contact-description"
             >
               {factorType === FACTOR_TYPE_EMAIL
@@ -218,7 +197,7 @@ export function ContactInputForm({
                       type="submit"
                       size="default"
                       className="text-sm"
-                      disabled={!form.formState.isValid || loading}
+                      disabled={!form.formState.isValid || isEnrolling}
                       aria-label={t('submit')}
                     >
                       {t('submit')}
@@ -236,13 +215,9 @@ export function ContactInputForm({
   const renderOtpScreen = () => (
     <OTPVerificationForm
       factorType={factorType}
-      confirmEnrollment={confirmEnrollment}
-      onError={onError}
-      onSuccess={onSuccess}
-      onClose={onClose}
-      contact={contactData.contact}
-      authSession={contactData.authSession}
-      authenticationMethodId={contactData.authenticationMethodId}
+      contact={contact}
+      isConfirming={isConfirming}
+      onConfirmOtp={onConfirmOtp}
       onBack={handleBack}
       styling={styling}
       customMessages={customMessages}

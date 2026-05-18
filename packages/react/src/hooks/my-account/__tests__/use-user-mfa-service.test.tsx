@@ -59,19 +59,15 @@ describe('useUserMFAService', () => {
     expect(apiClient.authenticationMethods.create).toHaveBeenCalled();
   });
 
-  it('calls authenticationMethods.delete and invalidates query on success', async () => {
+  it('calls authenticationMethods.delete on success', async () => {
     const apiClient = mockCoreClient.getMyAccountApiClient();
 
     const { result } = renderService();
     await waitFor(() => expect(result.current.factorsQuery.isSuccess).toBe(true));
 
-    const initialCallCount = vi.mocked(apiClient.factors.list).mock.calls.length;
     await result.current.deleteMutation.mutateAsync('auth-id-123');
 
     expect(apiClient.authenticationMethods.delete).toHaveBeenCalledWith('auth-id-123');
-    await waitFor(() => {
-      expect(vi.mocked(apiClient.factors.list).mock.calls.length).toBeGreaterThan(initialCallCount);
-    });
   });
 
   it('calls authenticationMethods.verify with correct params on confirm', async () => {

@@ -6,13 +6,9 @@ export const createMockOTPVerificationFormProps = (
   overrides: Partial<OTPVerificationFormProps> = {},
 ): OTPVerificationFormProps => ({
   factorType: 'email',
-  confirmEnrollment: vi.fn().mockResolvedValue(null),
-  onError: vi.fn(),
-  onSuccess: vi.fn(),
-  onClose: vi.fn(),
   contact: '',
-  authSession: 'test-auth-session',
-  authenticationMethodId: 'test-auth-method-id',
+  isConfirming: false,
+  onConfirmOtp: vi.fn(),
   onBack: vi.fn(),
   styling: {
     variables: {

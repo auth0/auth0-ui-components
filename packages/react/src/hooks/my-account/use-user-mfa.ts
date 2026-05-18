@@ -105,19 +105,19 @@ export function useUserMFA({
   );
 
   const handleEnrollError = useCallback(
-    (err: unknown, stage: typeof ENROLL | typeof CONFIRM) => {
+    (err: unknown, stage: typeof ENROLL | typeof CONFIRM, factor: MFAType | null) => {
       if (!isNotifiableError(err)) {
         handleError(err);
         return;
       }
       const label = stage === ENROLL ? t('enrollment') : t('confirmation');
       const error = normalizeError(err, {
-        resolver: (code) => t(`errors.${enrollFactor}.${code}`, {}, t('errors.unexpected')),
+        resolver: (code) => t(`errors.${factor}.${code}`, {}, t('errors.unexpected')),
       });
       toast.error(`${label} ${t('errors.failed', { message: error.message })}`);
       onErrorAction?.(error, stage);
     },
-    [enrollFactor, handleError, onErrorAction, t],
+    [handleError, onErrorAction, t],
   );
 
   const handleEnrollSuccess = useCallback(async () => {
@@ -141,7 +141,7 @@ export function useUserMFA({
         await verifyMutation.mutateAsync(params);
         await handleEnrollSuccess();
       } catch (err) {
-        handleEnrollError(err, CONFIRM);
+        handleEnrollError(err, CONFIRM, params.factorType);
       }
     },
     [verifyMutation, handleEnrollSuccess, handleEnrollError],
@@ -173,7 +173,7 @@ export function useUserMFA({
           setEnrollmentPhase(ENTER_QR);
         }
       } catch (err) {
-        handleEnrollError(err, ENROLL);
+        handleEnrollError(err, ENROLL, factor);
         setIsEnrollDialogOpen(false);
         setEnrollFactor(null);
       }
@@ -187,7 +187,7 @@ export function useUserMFA({
     setFactorToDelete(null);
   }, [deleteMutation.isPending]);
 
-  const handleCloseEnrollDialog = useCallback(() => {
+  const handleCloseEnrollDialog = useCallback(async () => {
     setIsEnrollDialogOpen(false);
     setEnrollmentPhase(null);
     setEnrollmentSession(EMPTY_SESSION);
@@ -195,12 +195,12 @@ export function useUserMFA({
     setOtpData({ barcodeUri: '', manualInputCode: '' });
     setRecoveryCode('');
     if (enrollFactor === FACTOR_TYPE_PUSH_NOTIFICATION) {
-      factorsQuery.refetch();
+      await factorsQuery.refetch();
     }
     setEnrollFactor(null);
   }, [enrollFactor, factorsQuery]);
 
-  const handleConfirmDelete = useCallback(
+  const executeDelete = useCallback(
     async (factorId: string) => {
       try {
         await deleteMutation.mutateAsync(factorId);
@@ -210,18 +210,25 @@ export function useUserMFA({
           onAutoClose: () => onDelete?.(),
         });
       } catch (err) {
-        onErrorAction?.(
-          err instanceof Error ? err : new Error(t('errors.delete_factor')),
-          'delete',
-        );
+        if (isNotifiableError(err)) {
+          onErrorAction?.(
+            err instanceof Error ? err : new Error(t('errors.delete_factor')),
+            'delete',
+          );
+        }
         handleError(err, { fallbackMessage: t('errors.delete_factor') });
       } finally {
         setIsDeleteDialogOpen(false);
         setFactorToDelete(null);
       }
     },
-    [deleteMutation, handleError, onDelete, onErrorAction, t],
+    [deleteMutation, factorsQuery, handleError, onDelete, onErrorAction, t],
   );
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!factorToDelete) return;
+    await executeDelete(factorToDelete.id);
+  }, [factorToDelete, executeDelete]);
 
   const handleDeleteFactor = useCallback(
     async (factorId: string, factorType: MFAType) => {
@@ -229,13 +236,13 @@ export function useUserMFA({
       if (onBeforeAction) {
         const canProceed = await onBeforeAction('delete', factorType);
         if (!canProceed) return;
-        await handleConfirmDelete(factorId);
+        await executeDelete(factorId);
       } else {
         setFactorToDelete({ id: factorId, type: factorType });
         setIsDeleteDialogOpen(true);
       }
     },
-    [readOnly, disableDelete, onBeforeAction, handleConfirmDelete],
+    [readOnly, disableDelete, onBeforeAction, executeDelete],
   );
 
   const handleSendCode = useCallback(
@@ -246,7 +253,7 @@ export function useUserMFA({
         setEnrollmentSession(extractSession(enrollment));
         return true;
       } catch (err) {
-        handleEnrollError(err, ENROLL);
+        handleEnrollError(err, ENROLL, enrollFactor);
         return false;
       }
     },
@@ -275,7 +282,7 @@ export function useUserMFA({
       setOtpData(extractOtpData(enrollment));
       setEnrollmentPhase(ENTER_QR);
     } catch (err) {
-      handleEnrollError(err, ENROLL);
+      handleEnrollError(err, ENROLL, enrollFactor);
       setIsEnrollDialogOpen(false);
       setEnrollFactor(null);
     }
@@ -320,6 +327,7 @@ export function useUserMFA({
     otpData,
     recoveryCode,
     handleCancelDelete,
+    handleConfirmDelete,
     handleEnroll,
     handleCloseEnrollDialog,
     handleDeleteFactor,
