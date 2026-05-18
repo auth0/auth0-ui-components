@@ -30,15 +30,30 @@ const CopyableText = React.forwardRef<HTMLSpanElement, CopyableTextProps>(
     const [tooltipText, setTooltipText] = React.useState(t('copy'));
     const [tooltipOpen, setTooltipOpen] = React.useState(false);
 
+    const resetTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    React.useEffect(() => {
+      return () => {
+        if (resetTimeoutRef.current) {
+          clearTimeout(resetTimeoutRef.current);
+        }
+      };
+    }, []);
+
     const handleCopy = async () => {
-      await navigator.clipboard.writeText(value);
-      setTooltipText(t('copied'));
-      setTooltipOpen(true);
-      setTimeout(() => {
-        setTooltipText(t('copy'));
-        setTooltipOpen(false);
-      }, 1000);
-      onCopy?.();
+      try {
+        await navigator.clipboard.writeText(value);
+        setTooltipText(t('copied'));
+        setTooltipOpen(true);
+        if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
+        resetTimeoutRef.current = setTimeout(() => {
+          setTooltipText(t('copy'));
+          setTooltipOpen(false);
+        }, 1000);
+        onCopy?.();
+      } catch {
+        // clipboard write failed silently — nothing to reset
+      }
     };
 
     return (
