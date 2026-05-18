@@ -4,7 +4,7 @@
  * @internal
  */
 
-import type { FetcherSupplier, SpaAuthConfig } from '../auth/auth-types';
+import type { FetcherAuthParams, FetcherSupplier, SpaAuthConfig } from '../auth/auth-types';
 
 import { ContentType, HeaderName } from './http-constants';
 
@@ -18,16 +18,22 @@ export const AUTH0_SCOPE_HEADER = HeaderName.Auth0Scope;
  * @internal
  */
 export function createProxyFetcher(
-  customFetcher?: (url: string, init?: RequestInit) => Promise<Response>,
+  customFetcher?: (
+    url: string,
+    init?: RequestInit,
+    authParams?: FetcherAuthParams,
+  ) => Promise<Response>,
 ): FetcherSupplier {
-  const fetchFn = customFetcher ?? fetch;
   return async (url, init, authParams) => {
     const headers = new Headers(init?.headers);
     headers.set(HeaderName.ContentType, ContentType.JSON);
     if (authParams?.scope?.length) {
       headers.set(HeaderName.Auth0Scope, authParams.scope.join(' '));
     }
-    return fetchFn(url, { ...init, headers });
+    if (customFetcher) {
+      return customFetcher(url, { ...init, headers }, authParams);
+    }
+    return fetch(url, { ...init, headers });
   };
 }
 

@@ -1,0 +1,58 @@
+name: Auto Publish on Version Bump
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/core/package.json"
+      - "packages/react/package.json"
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  check-and-publish:
+    name: Detect version bump & trigger publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect version change
+        id: detect
+        run: |
+          CORE_CURR=$(jq -r '.version' packages/core/package.json)
+          REACT_CURR=$(jq -r '.version' packages/react/package.json)
+
+          CORE_PREV=$(git show HEAD~1:packages/core/package.json | jq -r '.version')
+          REACT_PREV=$(git show HEAD~1:packages/react/package.json | jq -r '.version')
+
+          echo "core: $CORE_PREV → $CORE_CURR"
+          echo "react: $REACT_PREV → $REACT_CURR"
+
+          if [ "$CORE_CURR" = "$CORE_PREV" ] && [ "$REACT_CURR" = "$REACT_PREV" ]; then
+            echo "No version bump detected. Skipping publish."
+            echo "changed=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [ "$CORE_CURR" != "$REACT_CURR" ]; then
+            echo "::error::Version mismatch — core@$CORE_CURR != react@$REACT_CURR. Both packages must have the same version."
+            exit 1
+          fi
+
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "version=$CORE_CURR" >> $GITHUB_OUTPUT
+
+      - name: Trigger publish workflow
+        if: steps.detect.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run publish-public-npm.yml \
+            -f dry_run=false \
+            -f version="${{ steps.detect.outputs.version }}"
+          echo "Triggered publish for v${{ steps.detect.outputs.version }}"
