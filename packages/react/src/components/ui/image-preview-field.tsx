@@ -77,6 +77,7 @@ function ImagePreviewField({
 
   const hasError = error || (!isValidUrl && imageUrl.trim() !== '') || imageError;
   const showPreview = imageUrl.trim() !== '' && isValidUrl && !imageError;
+  const sanitizedImageUrl = showPreview ? encodeURI(imageUrl) : '';
 
   return (
     <div className="space-y-2">
@@ -90,8 +91,8 @@ function ImagePreviewField({
         {showPreview ? (
           <img
             loading="lazy"
-            srcSet={imageUrl}
-            src={imageUrl}
+            srcSet={sanitizedImageUrl}
+            src={sanitizedImageUrl}
             sizes={imgSizes}
             decoding="async"
             alt="Preview"
