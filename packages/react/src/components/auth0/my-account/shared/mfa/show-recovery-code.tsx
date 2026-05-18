@@ -81,6 +81,7 @@ export function ShowRecoveryCode({
               className="text-sm"
               size="default"
               onClick={onConfirmRecoveryCode}
+              aria-label={t('submit')}
             >
               {t('submit')}
             </Button>
