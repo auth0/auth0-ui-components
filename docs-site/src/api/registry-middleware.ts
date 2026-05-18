@@ -3,6 +3,32 @@ import path from 'path';
 
 import type { Plugin } from 'vite';
 
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX = 60;
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+function pruneExpiredRateLimitEntries(now: number): void {
+  for (const [ip, entry] of rateLimitMap.entries()) {
+    if (now > entry.resetTime) {
+      rateLimitMap.delete(ip);
+    }
+  }
+}
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  pruneExpiredRateLimitEntries(now);
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX;
+}
+
 interface VersionInfo {
   latest: string;
   majorVersions?: Record<string, { latest: string }>;
@@ -36,6 +62,17 @@ export function registryMiddleware(): Plugin {
       server.middlewares.use((req, res, next) => {
         if (!req.url || !req.url.startsWith('/r/')) {
           return next();
+        }
+
+        const clientIp =
+          (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+          req.socket.remoteAddress ||
+          'unknown';
+        if (isRateLimited(clientIp)) {
+          res.statusCode = 429;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ error: 'Too Many Requests' }));
+          return;
         }
 
         const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
