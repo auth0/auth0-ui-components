@@ -2,6 +2,7 @@
   "common": {
     "copy": "Copy",
     "copied": "Copied!",
+    "copy_failed": "Failed to copy",
     "data_table": {
       "select_all": "Select all rows",
       "select_row": "Select row"

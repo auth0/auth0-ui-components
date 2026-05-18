@@ -52,7 +52,13 @@ const CopyableText = React.forwardRef<HTMLSpanElement, CopyableTextProps>(
         }, 1000);
         onCopy?.();
       } catch {
-        // clipboard write failed silently — nothing to reset
+        setTooltipText(t('copy_failed'));
+        setTooltipOpen(true);
+        if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
+        resetTimeoutRef.current = setTimeout(() => {
+          setTooltipText(t('copy'));
+          setTooltipOpen(false);
+        }, 1000);
       }
     };
 

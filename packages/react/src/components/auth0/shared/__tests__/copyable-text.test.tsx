@@ -74,6 +74,27 @@ describe('CopyableText', () => {
     ).resolves.not.toThrow();
   });
 
+  it('shows copy_failed tooltip when clipboard write fails', async () => {
+    writeText.mockRejectedValueOnce(new Error('denied'));
+    render(<CopyableText value="x" />);
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'copy' }));
+    });
+    expect(screen.getAllByText('copy_failed').length).toBeGreaterThan(0);
+  });
+
+  it('resets tooltip to copy after 1 second on failure', async () => {
+    writeText.mockRejectedValueOnce(new Error('denied'));
+    render(<CopyableText value="x" />);
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'copy' }));
+    });
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(screen.queryByText('copy_failed')).not.toBeInTheDocument();
+  });
+
   it('does not call onCopy when clipboard write fails', async () => {
     writeText.mockRejectedValueOnce(new Error('denied'));
     const onCopy = vi.fn();
