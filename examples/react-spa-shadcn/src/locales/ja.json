@@ -40,5 +40,11 @@
   },
   "domain-management": {
     "title": "ドメイン管理"
+  },
+  "member-management": {
+    "title": "メンバー管理"
+  },
+  "member-detail": {
+    "title": "メンバー詳細"
   }
 }

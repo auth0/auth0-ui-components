@@ -40,5 +40,11 @@
   },
   "domain-management": {
     "title": "Domain Management"
+  },
+  "member-management": {
+    "title": "Member Management"
+  },
+  "member-detail": {
+    "title": "Member Detail"
   }
 }
