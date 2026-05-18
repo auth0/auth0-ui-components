@@ -2,6 +2,7 @@
   "common": {
     "copy": "Copier",
     "copied": "Copié!",
+    "copy_failed": "Échec de la copie",
     "data_table": {
       "select_all": "Sélectionner toutes les lignes",
       "select_row": "Sélectionner la ligne"
@@ -1054,12 +1055,18 @@
           "remove_from_org": {
             "title": "Retirer un membre de l'organisation",
             "description": "Une fois confirmée, cette opération ne peut pas être annulée.",
-            "delete_button": "supprimer"
+            "button": "Supprimer",
+            "modal": {
+              "title": "Retirer un membre de ${orgName}",
+              "description": "Êtes-vous sûr de vouloir retirer \"${memberName}\" de cette organisation ? Cette action ne supprimera pas son compte, mais révoquera son accès et l'empêchera de se connecter.",
+              "cancel_button": "Annuler",
+              "confirm_button": "Retirer"
+            }
           }
         },
         "roles": {
           "title": "Rôles",
-          "description": "Gérez les rôles et autorisations de l'utilisateur pour l'accès à ${appName}.",
+          "description": "Gérez les rôles et autorisations de l'utilisateur pour l'accès à ${orgName}.",
           "assign_button": "Attribuer des rôles",
           "no_roles_available": "Il n'y a plus de rôles disponibles à attribuer à ce membre.",
           "max_roles_reached": "Vous avez atteint le nombre maximum de ${max} rôles pour ce membre.",

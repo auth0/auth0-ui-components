@@ -26,7 +26,7 @@ export const createMockMember = (overrides?: Partial<OrgMember>): OrgMember =>
 export const createMockMemberWithPhone = (overrides?: Partial<OrgMember>): OrgMember =>
   createMockMember({
     phone_number: '+1234567890',
-    provider: 'Username-Password-Authentication',
+    identities: [{ provider: 'Username-Password-Authentication' }],
     ...overrides,
   });
 

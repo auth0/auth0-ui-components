@@ -15,16 +15,14 @@ describe('MemberDetailDangerZone', () => {
     it('should render the remove from org card', () => {
       renderWithProviders(<MemberDetailDangerZone {...createMockDangerZoneProps()} />);
 
-      expect(
-        screen.getByText('member.detail.danger_zone.remove_from_org.title'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('member.detail.actions.remove_from_org.title')).toBeInTheDocument();
     });
 
     it('should render the remove from org button', () => {
       renderWithProviders(<MemberDetailDangerZone {...createMockDangerZoneProps()} />);
 
       expect(
-        screen.getByRole('button', { name: 'member.detail.danger_zone.remove_from_org.button' }),
+        screen.getByRole('button', { name: 'member.detail.actions.remove_from_org.button' }),
       ).toBeInTheDocument();
     });
   });
@@ -36,7 +34,7 @@ describe('MemberDetailDangerZone', () => {
       );
 
       expect(
-        screen.getByRole('button', { name: 'member.detail.danger_zone.remove_from_org.button' }),
+        screen.getByRole('button', { name: 'member.detail.actions.remove_from_org.button' }),
       ).toBeDisabled();
     });
 
@@ -46,7 +44,7 @@ describe('MemberDetailDangerZone', () => {
       );
 
       expect(
-        screen.getByRole('button', { name: 'member.detail.danger_zone.remove_from_org.button' }),
+        screen.getByRole('button', { name: 'member.detail.actions.remove_from_org.button' }),
       ).toBeEnabled();
     });
   });
@@ -79,7 +77,7 @@ describe('MemberDetailDangerZone', () => {
       );
 
       await user.click(
-        screen.getByRole('button', { name: 'member.detail.danger_zone.remove_from_org.button' }),
+        screen.getByRole('button', { name: 'member.detail.actions.remove_from_org.button' }),
       );
 
       expect(onRemoveFromOrgClick).toHaveBeenCalledTimes(1);

@@ -27,6 +27,8 @@ import type { MemberRemoveFromOrgModalProps } from '@/types/my-organization/memb
 export function MemberRemoveFromOrgModal({
   isOpen,
   isLoading = false,
+  memberName,
+  orgName,
   customMessages,
   onClose,
   onConfirm,
@@ -37,20 +39,22 @@ export function MemberRemoveFromOrgModal({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('member.detail.danger_zone.remove_from_org.confirm_title')}</DialogTitle>
+          <DialogTitle>
+            {t('member.detail.actions.remove_from_org.modal.title', { orgName })}
+          </DialogTitle>
           <DialogDescription>
-            {t('member.detail.danger_zone.remove_from_org.confirm_description')}
+            {t('member.detail.actions.remove_from_org.modal.description', { memberName })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            {t('member.detail.danger_zone.remove_from_org.cancel_button')}
+            {t('member.detail.actions.remove_from_org.modal.cancel_button')}
           </Button>
           <Button variant="destructive" onClick={onConfirm} disabled={isLoading}>
             {isLoading ? (
               <Spinner size="sm" />
             ) : (
-              t('member.detail.danger_zone.remove_from_org.confirm_button')
+              t('member.detail.actions.remove_from_org.modal.confirm_button')
             )}
           </Button>
         </DialogFooter>

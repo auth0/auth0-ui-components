@@ -69,9 +69,9 @@ export function MemberDetailDangerZone({
   return (
     <div className="flex flex-col gap-4 mt-4">
       <DangerCard
-        title={t('member.detail.danger_zone.remove_from_org.title')}
-        description={t('member.detail.danger_zone.remove_from_org.description')}
-        buttonLabel={t('member.detail.danger_zone.remove_from_org.button')}
+        title={t('member.detail.actions.remove_from_org.title')}
+        description={t('member.detail.actions.remove_from_org.description')}
+        buttonLabel={t('member.detail.actions.remove_from_org.button')}
         isLoading={isRemovingFromOrg}
         disabled={readOnly}
         onClick={onRemoveFromOrgClick}

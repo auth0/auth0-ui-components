@@ -7,6 +7,7 @@ import type {
   ComponentAction,
   SharedComponentProps,
   OrgMember,
+  OrganizationPrivate,
   Role,
   OrganizationMemberDetailMessages,
 } from '@auth0/universal-components-core';
@@ -17,6 +18,7 @@ export type MemberDetailTab = 'details' | 'roles';
 export interface MemberDetailServiceResult {
   memberQuery: UseQueryResult<OrgMember>;
   rolesQuery: UseQueryResult<Role[]>;
+  organizationQuery: UseQueryResult<OrganizationPrivate>;
   removeFromOrgMutation: UseMutationResult<void, Error, void>;
   assignRolesMutation: UseMutationResult<void, Error, string[]>;
   removeRolesMutation: UseMutationResult<void, Error, Role[]>;
@@ -42,6 +44,7 @@ export type MemberDetailModalState =
 export interface UseOrganizationMemberDetailResult {
   activeTab: MemberDetailTab;
   member: OrgMember | null;
+  orgDisplayName: string;
   memberRoles: Role[];
   availableRoles: Role[];
   selectedRoles: Role[];
@@ -111,6 +114,8 @@ export interface MemberDetailDangerZoneProps {
 export interface MemberRemoveFromOrgModalProps {
   isOpen: boolean;
   isLoading?: boolean;
+  memberName?: string;
+  orgName?: string;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   onClose: () => void;
   onConfirm: () => void;
@@ -131,6 +136,7 @@ export interface OrganizationMemberRemoveRoleModalProps {
   isOpen: boolean;
   isLoading?: boolean;
   roles: Role[];
+  memberName?: string;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   onClose: () => void;
   onConfirm: () => void;
@@ -148,6 +154,7 @@ export interface OrganizationMemberAssignRolesModalProps {
 
 export interface RolesTabHeaderProps {
   selectedRoles: Role[];
+  orgName?: string;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   onAssignRolesClick: () => void;
   onRemoveSelectedRoles: () => void;
@@ -165,6 +172,8 @@ export interface OrganizationMemberEditRolesTableProps {
 
 export interface OrganizationMemberEditRolesTabProps {
   customMessages?: Partial<OrganizationMemberDetailMessages>;
+  orgName?: string;
+  memberName?: string;
   memberRoles: Role[];
   availableRoles: Role[];
   selectedRoles: Role[];

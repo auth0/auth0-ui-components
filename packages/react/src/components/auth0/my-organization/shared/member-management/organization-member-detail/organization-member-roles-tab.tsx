@@ -29,6 +29,7 @@ import type {
  */
 function RolesTabHeader({
   selectedRoles,
+  orgName,
   customMessages,
   onAssignRolesClick,
   onRemoveSelectedRoles,
@@ -36,10 +37,12 @@ function RolesTabHeader({
   const { t } = useTranslator('member_management', customMessages);
 
   return (
-    <div className="flex items-center justify-between gap-4 py-4">
+    <div className="flex items-center justify-between gap-4">
       <div className="flex flex-col gap-1">
         <h3 className="text-base font-semibold text-primary">{t('member.detail.roles.title')}</h3>
-        <p className="text-sm text-muted-foreground">{t('member.detail.roles.description')}</p>
+        <p className="text-sm text-muted-foreground">
+          {t('member.detail.roles.description', { orgName })}
+        </p>
       </div>
       <div className="flex items-center gap-2">
         {selectedRoles.length > 0 ? (
@@ -160,6 +163,8 @@ function OrganizationMemberEditRolesTable({
  */
 export function OrganizationMemberEditRolesTab({
   customMessages,
+  orgName,
+  memberName,
   memberRoles,
   availableRoles,
   selectedRoles,
@@ -186,22 +191,25 @@ export function OrganizationMemberEditRolesTab({
 
   return (
     <>
-      <RolesTabHeader
-        selectedRoles={selectedRoles}
-        customMessages={customMessages}
-        onAssignRolesClick={onAssignRolesClick}
-        onRemoveSelectedRoles={handleRemoveSelectedRoles}
-      />
+      <div className="flex flex-col gap-4">
+        <RolesTabHeader
+          selectedRoles={selectedRoles}
+          orgName={orgName}
+          customMessages={customMessages}
+          onAssignRolesClick={onAssignRolesClick}
+          onRemoveSelectedRoles={handleRemoveSelectedRoles}
+        />
 
-      <OrganizationMemberEditRolesTable
-        memberRoles={memberRoles}
-        isLoading={isFetchingRoles}
-        removingRoleIds={removingRoleIds}
-        selectedRoles={selectedRoles}
-        customMessages={customMessages}
-        onRemoveRoles={onRemoveRolesClick}
-        onSelectedRolesChange={onSelectedRolesChange}
-      />
+        <OrganizationMemberEditRolesTable
+          memberRoles={memberRoles}
+          isLoading={isFetchingRoles}
+          removingRoleIds={removingRoleIds}
+          selectedRoles={selectedRoles}
+          customMessages={customMessages}
+          onRemoveRoles={onRemoveRolesClick}
+          onSelectedRolesChange={onSelectedRolesChange}
+        />
+      </div>
 
       <OrganizationMemberAssignRolesModal
         isOpen={isAssignRolesModal}
@@ -217,6 +225,7 @@ export function OrganizationMemberEditRolesTab({
         isOpen={isRemoveRolesModal}
         isLoading={isRemovingRoles}
         roles={rolesToRemove}
+        memberName={memberName}
         customMessages={customMessages}
         onClose={onRemoveRolesCancel}
         onConfirm={onRemoveRolesConfirm}

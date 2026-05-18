@@ -4,7 +4,11 @@
  * @internal
  */
 
-import { memberDetailQueryKeys, type Role } from '@auth0/universal-components-core';
+import {
+  memberDetailQueryKeys,
+  OrganizationDetailsMappers,
+  type Role,
+} from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { showToast } from '@/components/auth0/shared/toast';
@@ -54,6 +58,15 @@ export function useMemberDetailService(
     enabled: !!coreClient,
   });
 
+  const organizationQuery = useQuery({
+    queryKey: memberDetailQueryKeys.organization,
+    queryFn: async () => {
+      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
+      return OrganizationDetailsMappers.fromAPI(response);
+    },
+    enabled: !!coreClient,
+  });
+
   const removeFromOrgMutation = useMutation({
     mutationFn: async () => {
       if (!userId) throw new Error('userId is required');
@@ -68,7 +81,7 @@ export function useMemberDetailService(
       removeFromOrgAction?.onAfter?.(userId);
       showToast({
         type: 'success',
-        message: t('member.detail.danger_zone.remove_from_org.success'),
+        message: t('member.detail.actions.remove_from_org.success'),
       });
     },
     onError: (error) => {
@@ -125,6 +138,7 @@ export function useMemberDetailService(
   return {
     memberQuery,
     rolesQuery,
+    organizationQuery,
     removeFromOrgMutation,
     assignRolesMutation,
     removeRolesMutation,

@@ -24,7 +24,11 @@ export function formatDate(dateStr?: string): string {
  */
 export function buildMemberDetailFields(member: OrgMember, t: (key: string) => string) {
   const phoneNumber = member.phone_number ?? '';
-  const provider = member.provider ?? '';
+  const firstIdentity = member.identities?.[0];
+  const provider =
+    firstIdentity?.provider && firstIdentity?.connection
+      ? `${firstIdentity.provider}, ${firstIdentity.connection}`
+      : '';
 
   return [
     { label: t('member.detail.user_details.name'), value: member.name ?? '—', copyable: false },

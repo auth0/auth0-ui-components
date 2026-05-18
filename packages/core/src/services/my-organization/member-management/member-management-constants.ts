@@ -14,4 +14,5 @@ export const memberDetailQueryKeys = {
   all: ['member-detail'] as const,
   member: (id: string) => [...memberDetailQueryKeys.all, 'member', id] as const,
   roles: () => [...memberDetailQueryKeys.all, 'roles'] as const,
+  organization: ['organization', 'details'] as const,
 };

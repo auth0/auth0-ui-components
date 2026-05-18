@@ -20,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOrganizationMemberDetail } from '@/hooks/my-organization/use-member-detail';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
 import { getInitials } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
   MemberDetailHeaderProps,
@@ -117,7 +118,7 @@ export function OrganizationMemberDetailView(
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as 'details' | 'roles')}
-          className={currentStyles.classes?.['OrganizationMemberDetail-tabs']}
+          className={cn('gap-8', currentStyles.classes?.['OrganizationMemberDetail-tabs'])}
         >
           <TabsList>
             <TabsTrigger value="details">{t('member.detail.tabs.details')}</TabsTrigger>
@@ -142,6 +143,8 @@ export function OrganizationMemberDetailView(
           >
             <OrganizationMemberEditRolesTab
               customMessages={customMessages}
+              orgName={props.orgDisplayName}
+              memberName={props.member?.name}
               memberRoles={props.memberRoles}
               availableRoles={props.availableRoles}
               selectedRoles={props.selectedRoles}
@@ -164,6 +167,8 @@ export function OrganizationMemberDetailView(
         <MemberRemoveFromOrgModal
           isOpen={modalState.type === 'removeFromOrg'}
           isLoading={isRemovingFromOrg}
+          memberName={props.member?.name}
+          orgName={props.orgDisplayName}
           customMessages={customMessages}
           onClose={closeModal}
           onConfirm={handleRemoveFromOrgConfirm}

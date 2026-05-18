@@ -35,15 +35,17 @@ export interface OrganizationMemberDetailMessages {
         created_at?: string;
         last_login?: string;
       };
-      danger_zone?: {
+      actions?: {
         remove_from_org?: {
           title?: string;
           description?: string;
           button?: string;
-          confirm_title?: string;
-          confirm_description?: string;
-          confirm_button?: string;
-          cancel_button?: string;
+          modal?: {
+            title?: string;
+            description?: string;
+            cancel_button?: string;
+            confirm_button?: string;
+          };
           success?: string;
         };
       };
