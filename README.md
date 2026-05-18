@@ -69,10 +69,10 @@ function SettingsPage() {
 
 ## Packages
 
-| Package                                                | Description                                           |
-| ------------------------------------------------------ | ----------------------------------------------------- |
-| [@auth0/universal-components-react](./packages/react/) | React components with `/spa` and `/rwa` entry points  |
-| [@auth0/universal-components-core](./packages/core/)   | Framework-agnostic core utilities, services, and i18n |
+| Package                                                         | Description                                           |
+| --------------------------------------------------------------- | ----------------------------------------------------- |
+| [@auth0/universal-components-react](./packages/react/README.md) | React components with `/spa` and `/rwa` entry points  |
+| [@auth0/universal-components-core](./packages/core/README.md)   | Framework-agnostic core utilities, services, and i18n |
 
 ## Feedback
 

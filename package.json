@@ -40,6 +40,7 @@
     "test:react:watch": "turbo run test:watch --filter=./packages/react",
     "test:coverage": "vitest run --coverage",
     "test:coverage:sonar": "vitest run --coverage --reporter=verbose --reporter=junit --outputFile=coverage/junit.xml",
+    "type-check": "turbo run type-check",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
