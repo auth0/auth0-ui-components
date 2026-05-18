@@ -47,6 +47,17 @@ export function useMemberDetailService(
     enabled: !!coreClient && !!userId,
   });
 
+  const memberRolesQuery = useQuery({
+    queryKey: memberDetailQueryKeys.memberRoles(userId),
+    queryFn: async () => {
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.members.roles.list(userId);
+      return response.data;
+    },
+    enabled: !!coreClient && !!userId,
+  });
+
   const rolesQuery = useQuery({
     queryKey: memberDetailQueryKeys.roles(),
     queryFn: async () => {
@@ -102,7 +113,7 @@ export function useMemberDetailService(
     },
     onSuccess: () => {
       showToast({ type: 'success', message: t('member.detail.roles.assign_modal.success') });
-      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.member(userId) });
+      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.roles() });
     },
     onError: (error) => {
@@ -127,7 +138,7 @@ export function useMemberDetailService(
         type: 'success',
         message: t('member.detail.roles.remove_confirm.success'),
       });
-      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.member(userId) });
+      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.roles() });
     },
     onError: (error) => {
@@ -137,6 +148,7 @@ export function useMemberDetailService(
 
   return {
     memberQuery,
+    memberRolesQuery,
     rolesQuery,
     organizationQuery,
     removeFromOrgMutation,

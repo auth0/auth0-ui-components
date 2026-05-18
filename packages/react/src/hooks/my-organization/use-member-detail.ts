@@ -34,6 +34,7 @@ export function useOrganizationMemberDetail(
 
   const {
     memberQuery,
+    memberRolesQuery,
     rolesQuery,
     organizationQuery,
     removeFromOrgMutation,
@@ -104,8 +105,13 @@ export function useOrganizationMemberDetail(
 
   const member = memberQuery.data ?? null;
   const orgDisplayName = organizationQuery.data?.display_name ?? '';
-  const memberRoles: Role[] = member?.roles ?? [];
-  const availableRoles: Role[] = rolesQuery.data ?? [];
+  const memberRoles: Role[] = memberRolesQuery.data ?? [];
+  const assignedRoleIds = React.useMemo(() => new Set(memberRoles.map((r) => r.id)), [memberRoles]);
+  const availableRoles: Role[] = React.useMemo(
+    () => (rolesQuery.data ?? []).filter((r) => !assignedRoleIds.has(r.id)),
+    [rolesQuery.data, assignedRoleIds],
+  );
+
   const removingRoles = modalState.type === 'removeRoles' ? modalState.roles : [];
 
   return {
@@ -116,7 +122,8 @@ export function useOrganizationMemberDetail(
     availableRoles,
     selectedRoles,
     isFetchingMember: memberQuery.isLoading || memberQuery.isFetching,
-    isFetchingRoles: rolesQuery.isLoading || rolesQuery.isFetching,
+    isFetchingMemberRoles: memberRolesQuery.isLoading || memberRolesQuery.isFetching,
+    isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
     isLoading: memberQuery.isLoading,
     isRemovingFromOrg: removeFromOrgMutation.isPending,
     isAssigningRoles: assignRolesMutation.isPending,
