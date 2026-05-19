@@ -137,18 +137,10 @@ export function useOrganizationMemberManagement(
     });
   }, [modalState, resendInvitationMutation, closeModal]);
 
-  const handleCopyUrl = React.useCallback(
-    async (invitation: MemberInvitation) => {
-      if (!invitation.invitation_url) return;
-      try {
-        await navigator.clipboard.writeText(invitation.invitation_url);
-        showToast({ type: 'success', message: t('invitation.success.url_copied') });
-      } catch {
-        showToast({ type: 'error', message: t('invitation.error.copy_url_failed') });
-      }
-    },
-    [t],
-  );
+  const handleCopyUrl = React.useCallback(async (invitation: MemberInvitation) => {
+    if (!invitation.invitation_url) return;
+    await navigator.clipboard.writeText(invitation.invitation_url);
+  }, []);
 
   const handleNextPage = React.useCallback(() => {
     if (invitationNextToken) {
@@ -187,7 +179,8 @@ export function useOrganizationMemberManagement(
     availableProviders,
 
     invitations: currentInvitations,
-    isFetchingInvitations: invitationsQuery.isLoading || invitationsQuery.isFetching,
+    isInitialLoading: invitationsQuery.isLoading,
+    isFetchingInvitations: invitationsQuery.isFetching,
     isCreatingInvitation: createInvitationMutation.isPending,
     isRevokingInvitation: revokeInvitationMutation.isPending,
     isResendingInvitation: resendInvitationMutation.isPending,

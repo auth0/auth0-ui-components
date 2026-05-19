@@ -18,8 +18,6 @@ import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { OrganizationInvitationRevokeModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
-export type { OrganizationInvitationRevokeModalProps };
-
 /**
  * Modal for confirming invitation revocation or revoke and resend.
  * @param props - The component props.
