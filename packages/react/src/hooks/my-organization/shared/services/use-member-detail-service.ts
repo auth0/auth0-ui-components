@@ -6,6 +6,7 @@
 
 import {
   memberDetailQueryKeys,
+  memberManagementQueryKeys,
   OrganizationDetailsMappers,
   type Role,
 } from '@auth0/universal-components-core';
@@ -41,10 +42,12 @@ export function useMemberDetailService(
   const handleError = useErrorHandler();
   const queryClient = useQueryClient();
 
+  const isValidUserId = !!userId && /^[^|]+\|[^|]+$/.test(userId);
+
   const memberQuery = useQuery({
     queryKey: memberDetailQueryKeys.member(userId),
     queryFn: () => coreClient!.getMyOrganizationApiClient().organization.members.get(userId),
-    enabled: !!coreClient && !!userId,
+    enabled: !!coreClient && isValidUserId,
   });
 
   const memberRolesQuery = useQuery({
@@ -55,11 +58,11 @@ export function useMemberDetailService(
         .organization.members.roles.list(userId);
       return response.data;
     },
-    enabled: !!coreClient && !!userId,
+    enabled: !!coreClient && isValidUserId,
   });
 
   const rolesQuery = useQuery({
-    queryKey: memberDetailQueryKeys.roles(),
+    queryKey: memberManagementQueryKeys.roles(),
     queryFn: async () => {
       const response = await coreClient!
         .getMyOrganizationApiClient()
@@ -112,7 +115,7 @@ export function useMemberDetailService(
       assignRolesAction?.onAfter?.({ userId, roleIds });
     },
     onSuccess: (_, roleIds) => {
-      const allRoles = queryClient.getQueryData<Role[]>(memberDetailQueryKeys.roles()) ?? [];
+      const allRoles = queryClient.getQueryData<Role[]>(memberManagementQueryKeys.roles()) ?? [];
       const newRoles = allRoles.filter((r) => roleIds.includes(r.id));
       queryClient.setQueryData<Role[]>(memberDetailQueryKeys.memberRoles(userId), (old) => [
         ...(old ?? []),
@@ -124,7 +127,7 @@ export function useMemberDetailService(
           : 'member.detail.roles.assign_modal.success_plural';
       showToast({ type: 'success', message: t(assignKey) });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
-      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.roles() });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.roles() });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.assign_role_failed') });
@@ -156,7 +159,7 @@ export function useMemberDetailService(
           });
       showToast({ type: 'success', message });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
-      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.roles() });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.roles() });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.remove_role_failed') });

@@ -48,7 +48,7 @@ describe('OrganizationMemberEditDetailsTab', () => {
       renderWithProviders(<OrganizationMemberEditDetailsTab {...createProps()} />);
       expect(
         screen.getByRole('button', {
-          name: /member.detail.actions.remove_from_org.delete_button/i,
+          name: /member.detail.actions.remove_from_org.button/i,
         }),
       ).toBeInTheDocument();
     });
@@ -63,7 +63,7 @@ describe('OrganizationMemberEditDetailsTab', () => {
       );
       await user.click(
         screen.getByRole('button', {
-          name: /member.detail.actions.remove_from_org.delete_button/i,
+          name: /member.detail.actions.remove_from_org.button/i,
         }),
       );
       expect(onRemoveFromOrgClick).toHaveBeenCalledTimes(1);
@@ -77,7 +77,7 @@ describe('OrganizationMemberEditDetailsTab', () => {
       );
       expect(
         screen.getByRole('button', {
-          name: /member.detail.actions.remove_from_org.delete_button/i,
+          name: /member.detail.actions.remove_from_org.button/i,
         }),
       ).toBeDisabled();
     });
@@ -88,7 +88,7 @@ describe('OrganizationMemberEditDetailsTab', () => {
       );
       expect(
         screen.getByRole('button', {
-          name: /member.detail.actions.remove_from_org.delete_button/i,
+          name: /member.detail.actions.remove_from_org.button/i,
         }),
       ).not.toBeDisabled();
     });
@@ -101,7 +101,7 @@ describe('OrganizationMemberEditDetailsTab', () => {
           {...createProps({
             customMessages: {
               member: {
-                detail: { actions: { remove_from_org: { delete_button: 'Custom Button' } } },
+                detail: { actions: { remove_from_org: { button: 'Custom Button' } } },
               },
             },
           })}
