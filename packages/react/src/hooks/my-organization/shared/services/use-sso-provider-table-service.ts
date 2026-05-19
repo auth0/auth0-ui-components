@@ -13,15 +13,11 @@ import {
   type ComponentAction,
   type IdpKnownResponse,
   type OrganizationPrivate,
-  BusinessError,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback } from 'react';
 
-import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
-import { useErrorHandler } from '@/hooks/shared/use-error-handler';
-import { useTranslator } from '@/hooks/shared/use-translator';
 import type { UseSsoProviderTableServiceReturn } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
 export { ssoProviderQueryKeys };
@@ -31,7 +27,6 @@ export { ssoProviderQueryKeys };
  * @param deleteAction - Delete action handler.
  * @param removeFromOrg - Remove from org handler.
  * @param enableAction - Enable/disable handler.
- * @param customMessages - Translation overrides.
  * @returns Provider data, mutations, and actions.
  * @internal
  */
@@ -39,14 +34,9 @@ export function useSsoProviderTableService(
   deleteAction?: ComponentAction<IdpKnownResponse, void>,
   removeFromOrg?: ComponentAction<IdpKnownResponse, void>,
   enableAction?: ComponentAction<IdpKnownResponse>,
-  customMessages = {},
 ): UseSsoProviderTableServiceReturn {
-  const { t } = useTranslator('idp_management.notifications', customMessages);
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
-  const handleError = useErrorHandler();
-  const hasShownProvidersError = useRef(false);
-  const hasShownOrganizationError = useRef(false);
 
   const providersQuery = useQuery({
     queryKey: ssoProviderQueryKeys.list(),
@@ -68,28 +58,6 @@ export function useSsoProviderTableService(
     enabled: !!coreClient,
   });
 
-  useEffect(() => {
-    if (providersQuery.isError && !hasShownProvidersError.current) {
-      handleError(providersQuery.error, { fallbackMessage: t('general_error') });
-      hasShownProvidersError.current = true;
-    }
-
-    if (!providersQuery.isError) {
-      hasShownProvidersError.current = false;
-    }
-  }, [providersQuery.isError, providersQuery.error, t, handleError]);
-
-  useEffect(() => {
-    if (organizationQuery.isError && !hasShownOrganizationError.current) {
-      handleError(organizationQuery.error, { fallbackMessage: t('general_error') });
-      hasShownOrganizationError.current = true;
-    }
-
-    if (!organizationQuery.isError) {
-      hasShownOrganizationError.current = false;
-    }
-  }, [organizationQuery.isError, organizationQuery.error, t, handleError]);
-
   const enableProviderMutation = useMutation({
     mutationFn: async ({
       selectedIdp,
@@ -105,7 +73,7 @@ export function useSsoProviderTableService(
       if (enableAction?.onBefore) {
         const shouldProceed = enableAction.onBefore(selectedIdp);
         if (!shouldProceed) {
-          throw new BusinessError({ message: t('general_error') });
+          throw new Error('Enable provider cancelled by onBefore');
         }
       }
 
@@ -125,20 +93,12 @@ export function useSsoProviderTableService(
         await enableAction.onAfter(selectedIdp);
       }
 
-      showToast({
-        type: 'success',
-        message: t('update_success', { providerName: selectedIdp.display_name }),
-      });
-
       queryClient.setQueryData<IdpKnownResponse[]>(ssoProviderQueryKeys.list(), (old) => {
         if (!old) return old;
         return old.map((provider) =>
           provider.id === selectedIdp.id ? { ...provider, ...updatedProvider } : provider,
         );
       });
-    },
-    onError: (error) => {
-      handleError(error, { fallbackMessage: t('general_error') });
     },
   });
 
@@ -157,15 +117,7 @@ export function useSsoProviderTableService(
         await deleteAction.onAfter(selectedIdp);
       }
 
-      showToast({
-        type: 'success',
-        message: t('delete_success', { providerName: selectedIdp.display_name }),
-      });
-
       queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
-    },
-    onError: (error) => {
-      handleError(error, { fallbackMessage: t('general_error') });
     },
   });
 
@@ -184,37 +136,17 @@ export function useSsoProviderTableService(
         await removeFromOrg.onAfter(selectedIdp);
       }
 
-      const organizationData = queryClient.getQueryData<OrganizationPrivate>(
-        ssoProviderQueryKeys.organization,
-      );
-
-      showToast({
-        type: 'success',
-        message: t('remove_success', {
-          providerName: selectedIdp.display_name,
-          organizationName: organizationData?.display_name,
-        }),
-      });
-
       queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
-    },
-    onError: (error) => {
-      handleError(error, { fallbackMessage: t('general_error') });
     },
   });
 
   const onEnableProvider = useCallback(
-    async (selectedIdp: IdpKnownResponse, enabled: boolean): Promise<boolean> => {
+    async (selectedIdp: IdpKnownResponse, enabled: boolean): Promise<void> => {
       if (!selectedIdp || !coreClient || !selectedIdp.id) {
-        return false;
+        throw new Error('Invalid provider');
       }
 
-      try {
-        await enableProviderMutation.mutateAsync({ selectedIdp, enabled });
-        return true;
-      } catch {
-        return false;
-      }
+      await enableProviderMutation.mutateAsync({ selectedIdp, enabled });
     },
     [coreClient, enableProviderMutation],
   );
@@ -222,10 +154,10 @@ export function useSsoProviderTableService(
   const onDeleteConfirm = useCallback(
     async (selectedIdp: IdpKnownResponse): Promise<void> => {
       if (!selectedIdp || !coreClient || !selectedIdp.id) {
-        return;
+        throw new Error('Invalid provider');
       }
 
-      deleteProviderMutation.mutate(selectedIdp);
+      await deleteProviderMutation.mutateAsync(selectedIdp);
     },
     [coreClient, deleteProviderMutation],
   );
@@ -233,10 +165,10 @@ export function useSsoProviderTableService(
   const onRemoveConfirm = useCallback(
     async (selectedIdp: IdpKnownResponse): Promise<void> => {
       if (!selectedIdp || !coreClient || !selectedIdp.id) {
-        return;
+        throw new Error('Invalid provider');
       }
 
-      removeProviderMutation.mutate(selectedIdp);
+      await removeProviderMutation.mutateAsync(selectedIdp);
     },
     [coreClient, removeProviderMutation],
   );
@@ -250,25 +182,22 @@ export function useSsoProviderTableService(
       return null;
     }
 
-    try {
-      const data = await queryClient.ensureQueryData({
-        queryKey: ssoProviderQueryKeys.organization,
-        queryFn: async () => {
-          const response = await coreClient.getMyOrganizationApiClient().organizationDetails.get();
-          return OrganizationDetailsMappers.fromAPI(response);
-        },
-      });
-      return data;
-    } catch (error) {
-      handleError(error, { fallbackMessage: t('general_error') });
-      return null;
-    }
-  }, [coreClient, queryClient, t, handleError]);
+    const data = await queryClient.ensureQueryData({
+      queryKey: ssoProviderQueryKeys.organization,
+      queryFn: async () => {
+        const response = await coreClient.getMyOrganizationApiClient().organizationDetails.get();
+        return OrganizationDetailsMappers.fromAPI(response);
+      },
+    });
+    return data;
+  }, [coreClient, queryClient]);
 
   return {
     providers: providersQuery.data ?? [],
     organization: organizationQuery.data ?? null,
     isLoading: providersQuery.isLoading || organizationQuery.isLoading,
+    providersError: providersQuery.error,
+    organizationError: organizationQuery.error,
     isDeleting: deleteProviderMutation.isPending,
     isRemoving: removeProviderMutation.isPending,
     isUpdating: enableProviderMutation.isPending,

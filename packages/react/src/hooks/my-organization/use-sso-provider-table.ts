@@ -6,11 +6,14 @@
 
 import type { IdpKnownResponse } from '@auth0/universal-components-core';
 import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { showToast } from '@/components/auth0/shared/toast';
 import { useSsoProviderTableService } from '@/hooks/my-organization/shared/services/use-sso-provider-table-service';
 import { useConfig } from '@/hooks/my-organization/use-config';
 import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseSsoProviderTableOptions,
   UseSsoProviderTableReturn,
@@ -33,10 +36,18 @@ export function useSsoProviderTable({
   deleteFromOrganizationAction,
   enableProviderAction,
 }: UseSsoProviderTableOptions): UseSsoProviderTableReturn {
+  const { t } = useTranslator(
+    'idp_management.notifications',
+    customMessages as Record<string, unknown>,
+  );
+  const handleError = useErrorHandler();
+
   const {
     providers,
     organization,
     isLoading,
+    providersError,
+    organizationError,
     isDeleting,
     isRemoving,
     isUpdating,
@@ -46,21 +57,40 @@ export function useSsoProviderTable({
     onDeleteConfirm,
     onRemoveConfirm,
     onEnableProvider,
-  } = useSsoProviderTableService(
-    deleteAction,
-    deleteFromOrganizationAction,
-    enableProviderAction,
-    customMessages,
-  );
+  } = useSsoProviderTableService(deleteAction, deleteFromOrganizationAction, enableProviderAction);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [selectedIdp, setSelectedIdp] = useState<IdpKnownResponse | null>(null);
+  const hasShownProvidersError = useRef(false);
+  const hasShownOrganizationError = useRef(false);
 
   const { isLoadingConfig, shouldAllowDeletion, isConfigValid } = useConfig();
   const { isLoadingIdpConfig, isIdpConfigValid } = useIdpConfig();
   const shouldHideCreate = !isConfigValid || !isIdpConfigValid;
   const isViewLoading = isLoading || isLoadingConfig || isLoadingIdpConfig;
+
+  useEffect(() => {
+    if (providersError && !hasShownProvidersError.current) {
+      handleError(providersError, { fallbackMessage: t('general_error') });
+      hasShownProvidersError.current = true;
+    }
+
+    if (!providersError) {
+      hasShownProvidersError.current = false;
+    }
+  }, [providersError, t, handleError]);
+
+  useEffect(() => {
+    if (organizationError && !hasShownOrganizationError.current) {
+      handleError(organizationError, { fallbackMessage: t('general_error') });
+      hasShownOrganizationError.current = true;
+    }
+
+    if (!organizationError) {
+      hasShownOrganizationError.current = false;
+    }
+  }, [organizationError, t, handleError]);
 
   const handleCreate = useCallback(() => {
     if (createAction?.onAfter) {
@@ -105,30 +135,66 @@ export function useSsoProviderTable({
     [deleteFromOrganizationAction],
   );
 
+  const handleFetchOrganizationDetails = useCallback(async () => {
+    try {
+      return await fetchOrganizationDetails();
+    } catch (error) {
+      handleError(error, { fallbackMessage: t('general_error') });
+      return null;
+    }
+  }, [fetchOrganizationDetails, handleError, t]);
+
   const handleToggleEnabled = useCallback(
     async (idp: IdpKnownResponse, enabled: boolean) => {
       if (readOnly || !onEnableProvider) return;
-      await onEnableProvider(idp, enabled);
+      try {
+        await onEnableProvider(idp, enabled);
+        showToast({
+          type: 'success',
+          message: t('update_success', { providerName: idp.display_name }),
+        });
+      } catch (error) {
+        handleError(error, { fallbackMessage: t('general_error') });
+      }
     },
-    [readOnly, onEnableProvider],
+    [readOnly, onEnableProvider, t, handleError],
   );
 
   const handleDeleteConfirm = useCallback(
     async (provider: IdpKnownResponse) => {
-      await onDeleteConfirm(provider);
-      setShowDeleteModal(false);
-      setSelectedIdp(null);
+      try {
+        await onDeleteConfirm(provider);
+        showToast({
+          type: 'success',
+          message: t('delete_success', { providerName: provider.display_name }),
+        });
+        setShowDeleteModal(false);
+        setSelectedIdp(null);
+      } catch (error) {
+        handleError(error, { fallbackMessage: t('general_error') });
+      }
     },
-    [onDeleteConfirm],
+    [onDeleteConfirm, t, handleError],
   );
 
   const handleRemoveConfirm = useCallback(
     async (provider: IdpKnownResponse) => {
-      await onRemoveConfirm(provider);
-      setShowRemoveModal(false);
-      setSelectedIdp(null);
+      try {
+        await onRemoveConfirm(provider);
+        showToast({
+          type: 'success',
+          message: t('remove_success', {
+            providerName: provider.display_name,
+            organizationName: organization?.display_name,
+          }),
+        });
+        setShowRemoveModal(false);
+        setSelectedIdp(null);
+      } catch (error) {
+        handleError(error, { fallbackMessage: t('general_error') });
+      }
     },
-    [onRemoveConfirm],
+    [onRemoveConfirm, organization?.display_name, t, handleError],
   );
 
   return {
@@ -150,7 +216,7 @@ export function useSsoProviderTable({
     selectedIdp,
 
     fetchProviders,
-    fetchOrganizationDetails,
+    fetchOrganizationDetails: handleFetchOrganizationDetails,
 
     handleCreate,
     handleEdit,

@@ -3,11 +3,25 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useSsoProviderTable } from '../use-sso-provider-table';
 
+vi.mock('@/hooks/shared/use-translator', () => ({
+  useTranslator: () => ({ t: (key: string) => key }),
+}));
+
+vi.mock('@/hooks/shared/use-error-handler', () => ({
+  useErrorHandler: () => vi.fn(),
+}));
+
+vi.mock('@/components/auth0/shared/toast', () => ({
+  showToast: vi.fn(),
+}));
+
 vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-table-service', () => ({
   useSsoProviderTableService: vi.fn(() => ({
     providers: [],
     organization: null,
     isLoading: false,
+    providersError: null,
+    organizationError: null,
     isDeleting: false,
     isRemoving: false,
     isUpdating: false,
@@ -117,6 +131,8 @@ describe('useSsoProviderTable', () => {
       providers: [],
       organization: null,
       isLoading: false,
+      providersError: null,
+      organizationError: null,
       isDeleting: false,
       isRemoving: false,
       isUpdating: false,
@@ -145,6 +161,8 @@ describe('useSsoProviderTable', () => {
       providers: [],
       organization: null,
       isLoading: false,
+      providersError: null,
+      organizationError: null,
       isDeleting: false,
       isRemoving: false,
       isUpdating: false,
@@ -173,6 +191,8 @@ describe('useSsoProviderTable', () => {
       providers: [],
       organization: null,
       isLoading: false,
+      providersError: null,
+      organizationError: null,
       isDeleting: false,
       isRemoving: false,
       isUpdating: false,
@@ -207,6 +227,8 @@ describe('useSsoProviderTable', () => {
       providers: [],
       organization: null,
       isLoading: false,
+      providersError: null,
+      organizationError: null,
       isDeleting: false,
       isRemoving: false,
       isUpdating: false,

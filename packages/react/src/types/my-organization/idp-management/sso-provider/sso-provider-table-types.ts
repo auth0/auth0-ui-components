@@ -48,6 +48,8 @@ export interface UseSsoProviderTableServiceReturn extends SharedComponentProps {
   providers: IdpKnownResponse[];
   organization: OrganizationPrivate | null;
   isLoading: boolean;
+  providersError: unknown;
+  organizationError: unknown;
   isDeleting: boolean;
   isRemoving: boolean;
   isUpdating: boolean;
@@ -56,7 +58,7 @@ export interface UseSsoProviderTableServiceReturn extends SharedComponentProps {
   fetchOrganizationDetails: () => Promise<OrganizationPrivate | null>;
   onDeleteConfirm: (selectedIdp: IdpKnownResponse) => Promise<void>;
   onRemoveConfirm: (selectedIdp: IdpKnownResponse) => Promise<void>;
-  onEnableProvider: (selectedIdp: IdpKnownResponse, enabled: boolean) => Promise<boolean>;
+  onEnableProvider: (selectedIdp: IdpKnownResponse, enabled: boolean) => Promise<void>;
 }
 
 /** Options for the combined useSsoProviderTable hook. */
