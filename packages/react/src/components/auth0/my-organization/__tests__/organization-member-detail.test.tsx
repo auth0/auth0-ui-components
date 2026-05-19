@@ -12,7 +12,6 @@ import {
   createMockMember,
   createMockMemberRoles,
   createMockAvailableRoles,
-  createMockMemberRole,
   createMockOrganizationMemberDetailProps,
   createMockOrganizationMemberDetailViewProps,
   noModal,

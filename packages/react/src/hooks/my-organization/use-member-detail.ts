@@ -122,7 +122,7 @@ export function useOrganizationMemberDetail(
     availableRoles,
     selectedRoles,
     isFetchingMember: memberQuery.isLoading || memberQuery.isFetching,
-    isFetchingMemberRoles: memberRolesQuery.isLoading || memberRolesQuery.isFetching,
+    isFetchingMemberRoles: memberRolesQuery.isLoading,
     isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
     isLoading: memberQuery.isLoading,
     isRemovingFromOrg: removeFromOrgMutation.isPending,

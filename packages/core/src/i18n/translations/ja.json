@@ -1159,7 +1159,8 @@
             "description": "<bold>\"${memberName}\"</bold> から <bold>${roleName}</bold> ロールを削除します。",
             "confirm_button": "削除",
             "cancel_button": "キャンセル",
-            "success": "<bold>\"${roleName}\"</bold> ロールがメンバーから削除されました。"
+            "success": "<bold>\"${roleName}\"</bold> ロールがメンバーから削除されました。",
+            "success_plural": "${roleNames} ロールがメンバーから削除されました。"
           }
         },
         "error": {

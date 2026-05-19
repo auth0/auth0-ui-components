@@ -111,8 +111,18 @@ export function useMemberDetailService(
         .organization.members.roles.assign(userId, { role_ids: roleIds });
       assignRolesAction?.onAfter?.({ userId, roleIds });
     },
-    onSuccess: () => {
-      showToast({ type: 'success', message: t('member.detail.roles.assign_modal.success') });
+    onSuccess: (_, roleIds) => {
+      const allRoles = queryClient.getQueryData<Role[]>(memberDetailQueryKeys.roles()) ?? [];
+      const newRoles = allRoles.filter((r) => roleIds.includes(r.id));
+      queryClient.setQueryData<Role[]>(memberDetailQueryKeys.memberRoles(userId), (old) => [
+        ...(old ?? []),
+        ...newRoles,
+      ]);
+      const assignKey =
+        roleIds.length === 1
+          ? 'member.detail.roles.assign_modal.success'
+          : 'member.detail.roles.assign_modal.success_plural';
+      showToast({ type: 'success', message: t(assignKey) });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.roles() });
     },
@@ -133,11 +143,18 @@ export function useMemberDetailService(
         .organization.members.roles.unassign(userId, { role_ids: roleIds });
       removeRolesAction?.onAfter?.({ userId, roleIds });
     },
-    onSuccess: () => {
-      showToast({
-        type: 'success',
-        message: t('member.detail.roles.remove_confirm.success'),
-      });
+    onSuccess: (_, roles) => {
+      const removedIds = new Set(roles.map((r) => r.id));
+      queryClient.setQueryData<Role[]>(memberDetailQueryKeys.memberRoles(userId), (old) =>
+        (old ?? []).filter((r) => !removedIds.has(r.id)),
+      );
+      const isSingle = roles.length === 1;
+      const message = isSingle
+        ? t('member.detail.roles.remove_confirm.success', { roleName: roles[0]?.name })
+        : t('member.detail.roles.remove_confirm.success_plural', {
+            roleNames: roles.map((r) => `"${r.name}"`).join(', '),
+          });
+      showToast({ type: 'success', message });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.roles() });
     },
