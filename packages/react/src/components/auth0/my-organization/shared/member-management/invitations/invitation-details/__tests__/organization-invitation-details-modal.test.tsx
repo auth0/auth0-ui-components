@@ -14,6 +14,8 @@ import {
 } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 
 describe('OrganizationInvitationDetailsModal', () => {
+  const invitationUrl = 'https://example.auth0.com/invite?ticket=abc';
+
   afterEach(() => {
     vi.clearAllMocks();
   });
@@ -172,7 +174,7 @@ describe('OrganizationInvitationDetailsModal', () => {
   describe('invitation URL', () => {
     it('should display invitation URL when available', () => {
       const invitation = createMockInvitation({
-        invitation_url: 'https://example.auth0.com/invite?ticket=abc',
+        invitation_url: invitationUrl,
       });
 
       renderWithProviders(
@@ -271,7 +273,7 @@ describe('OrganizationInvitationDetailsModal', () => {
       const user = userEvent.setup();
       const onCopyUrl = vi.fn();
       const invitation = createMockInvitation({
-        invitation_url: 'https://example.auth0.com/invite?ticket=abc',
+        invitation_url: invitationUrl,
       });
 
       renderWithProviders(
@@ -296,7 +298,7 @@ describe('OrganizationInvitationDetailsModal', () => {
         vi.useFakeTimers();
 
         const invitation = createMockInvitation({
-          invitation_url: 'https://example.auth0.com/invite?ticket=abc',
+          invitation_url: invitationUrl,
         });
 
         renderWithProviders(
@@ -320,7 +322,7 @@ describe('OrganizationInvitationDetailsModal', () => {
         vi.useFakeTimers();
 
         const invitation = createMockInvitation({
-          invitation_url: 'https://example.auth0.com/invite?ticket=abc',
+          invitation_url: invitationUrl,
         });
 
         const { rerender } = renderWithProviders(

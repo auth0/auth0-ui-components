@@ -96,17 +96,24 @@ export function OrganizationInvitationDetailsModal({
 
   React.useEffect(() => {
     if (isOpen) setCopied(false);
+    cleanUpTimeout();
+    return () => {
+      cleanUpTimeout();
+    };
+  }, [isOpen]);
+
+  const cleanUpTimeout = () => {
     if (copyTimeoutRef.current) {
       clearTimeout(copyTimeoutRef.current);
       copyTimeoutRef.current = null;
     }
-  }, [isOpen]);
+  };
 
   const handleCopyUrlClick = React.useCallback(() => {
     if (invitation) {
       onCopyUrl?.(invitation);
       setCopied(true);
-      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      cleanUpTimeout();
       copyTimeoutRef.current = setTimeout(() => setCopied(false), 3000);
     }
   }, [invitation, onCopyUrl]);
