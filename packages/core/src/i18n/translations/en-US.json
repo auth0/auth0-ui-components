@@ -1193,6 +1193,7 @@
         "menu_label": "Actions",
         "view_details": "View Details",
         "copy_url": "Copy Invitation URL",
+        "copied": "Copied!",
         "revoke_and_resend": "Revoke and Resend",
         "revoke": "Revoke Invitation"
       },

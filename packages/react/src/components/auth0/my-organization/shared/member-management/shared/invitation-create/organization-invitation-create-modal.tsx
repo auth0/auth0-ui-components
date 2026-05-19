@@ -29,8 +29,6 @@ import type { ChipItem } from '@/components/ui/text-field-group';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { OrganizationInvitationCreateModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
-export type { OrganizationInvitationCreateModalProps };
-
 /**
  * Modal for creating a new invitation.
  * Supports multiple email addresses, role selection, and provider selection.
@@ -73,6 +71,20 @@ export function OrganizationInvitationCreateModal({
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
   const [selectedProvider, setSelectedProvider] = React.useState<string | undefined>();
   const [emailError, setEmailError] = React.useState<string | undefined>();
+
+  const resetForm = React.useCallback(() => {
+    setEmailInput('');
+    setEmailChips([]);
+    setSelectedRoles([]);
+    setSelectedProvider(undefined);
+    setEmailError(undefined);
+  }, []);
+
+  React.useEffect(() => {
+    if (!isOpen) {
+      resetForm();
+    }
+  }, [isOpen, resetForm]);
 
   const handleEmailInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setEmailInput(e.target.value);
@@ -136,55 +148,50 @@ export function OrganizationInvitationCreateModal({
     setSelectedProvider(value || undefined);
   }, []);
 
-  const handleSubmit = React.useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      const finalEmails = emailChips
-        .filter((chip) => chip.variant !== 'destructive')
-        .map((chip) => chip.value);
+  const handleSubmit = React.useCallback(() => {
+    const finalEmails = emailChips
+      .filter((chip) => chip.variant !== 'destructive')
+      .map((chip) => chip.value);
 
-      if (emailInput.trim()) {
-        const trimmedEmail = emailInput.trim();
-        const result = validationConfig.emailSchema.safeParse(trimmedEmail);
-        if (result.success && !finalEmails.includes(trimmedEmail)) {
-          finalEmails.push(trimmedEmail);
-        }
-      }
-
-      if (finalEmails.length === 0) {
-        setEmailError(t('invitation.create.email_required_error'));
+    if (emailInput.trim()) {
+      const trimmedEmail = emailInput.trim();
+      const result = validationConfig.emailSchema.safeParse(trimmedEmail);
+      if (result.success && !finalEmails.includes(trimmedEmail)) {
+        finalEmails.push(trimmedEmail);
+      } else if (!result.success) {
+        setEmailError(t('invitation.create.email_invalid_error'));
         return;
       }
+    }
 
-      onCreate({
-        invitees: finalEmails.map((email) => ({
-          email,
-          roles: selectedRoles.length > 0 ? selectedRoles : undefined,
-        })),
-        identity_provider_id: selectedProvider,
-        ...(inviterName && { inviter: { name: inviterName } }),
-      });
-    },
-    [
-      emailChips,
-      emailInput,
-      validationConfig,
-      selectedRoles,
-      selectedProvider,
-      inviterName,
-      onCreate,
-      t,
-    ],
-  );
+    if (finalEmails.length === 0) {
+      setEmailError(t('invitation.create.email_required_error'));
+      return;
+    }
+
+    onCreate({
+      invitees: finalEmails.map((email) => ({
+        email,
+        roles: selectedRoles.length > 0 ? selectedRoles : undefined,
+      })),
+      identity_provider_id: selectedProvider,
+      ...(inviterName && { inviter: { name: inviterName } }),
+    });
+  }, [
+    emailChips,
+    emailInput,
+    validationConfig,
+    selectedRoles,
+    selectedProvider,
+    inviterName,
+    onCreate,
+    t,
+  ]);
 
   const handleClose = React.useCallback(() => {
-    setEmailInput('');
-    setEmailChips([]);
-    setSelectedRoles([]);
-    setSelectedProvider(undefined);
-    setEmailError(undefined);
+    resetForm();
     onClose();
-  }, [onClose]);
+  }, [onClose, resetForm]);
 
   const canSubmit = React.useMemo(
     () =>
@@ -203,75 +210,70 @@ export function OrganizationInvitationCreateModal({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className={className}>
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>{t('invitation.create.title')}</DialogTitle>
-            <DialogDescription>{t('invitation.create.description')}</DialogDescription>
-          </DialogHeader>
+        <DialogHeader>
+          <DialogTitle>{t('invitation.create.title')}</DialogTitle>
+          <DialogDescription>{t('invitation.create.description')}</DialogDescription>
+        </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            {/* Email Input */}
-            <div className="space-y-2">
-              <Label htmlFor="email">{t('invitation.create.email_label')}*</Label>
-              <TextFieldGroup
-                id="email"
-                placeholder={t('invitation.create.email_placeholder')}
-                value={emailInput}
-                onChange={handleEmailInputChange}
-                disabled={isLoading}
-                variant={emailError || hasInvalidChips ? 'error' : 'default'}
-                chips={emailChips}
-                onChipAdd={handleEmailChipAdd}
-                onChipRemove={handleEmailChipRemove}
-                summarizeChips={false}
-              />
-              <p className="text-xs text-muted-foreground">{t('invitation.create.email_helper')}</p>
-              {emailError && <p className="text-sm text-destructive-foreground">{emailError}</p>}
-            </div>
-
-            {/* Roles Combobox */}
-            <div className="space-y-2">
-              <Label htmlFor="roles">{t('invitation.create.roles_label')}</Label>
-              <Combobox
-                value={selectedRoles}
-                onChange={handleRoleChange}
-                options={roleOptions}
-                placeholder={t('invitation.create.roles_placeholder')}
-                disabled={isLoading}
-                multiple
-              />
-            </div>
-
-            {/* Provider Dropdown */}
-            <div className="space-y-2">
-              <Label htmlFor="provider">{t('invitation.create.provider_label')}</Label>
-              <Select value={selectedProvider ?? ''} onValueChange={handleProviderChange}>
-                <SelectTrigger id="provider">
-                  <SelectValue placeholder={t('invitation.create.provider_placeholder')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableProviders.map((provider) => (
-                    <SelectItem key={provider.id} value={provider.id}>
-                      {provider.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                {t('invitation.create.provider_helper')}
-              </p>
-            </div>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">{t('invitation.create.email_label')}*</Label>
+            <TextFieldGroup
+              id="email"
+              placeholder={t('invitation.create.email_placeholder')}
+              value={emailInput}
+              onChange={handleEmailInputChange}
+              disabled={isLoading}
+              variant={emailError || hasInvalidChips ? 'error' : 'default'}
+              chips={emailChips}
+              onChipAdd={handleEmailChipAdd}
+              onChipRemove={handleEmailChipRemove}
+              summarizeChips={false}
+            />
+            <p className="text-xs text-muted-foreground">{t('invitation.create.email_helper')}</p>
+            {emailError && <p className="text-sm text-destructive-foreground">{emailError}</p>}
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose} disabled={isLoading}>
-              {t('invitation.create.cancel_button')}
-            </Button>
-            <Button type="submit" disabled={isLoading || !canSubmit}>
-              {isLoading ? t('invitation.create.creating') : t('invitation.create.submit_button')}
-            </Button>
-          </DialogFooter>
-        </form>
+          <div className="space-y-2">
+            <Label htmlFor="roles">{t('invitation.create.roles_label')}</Label>
+            <Combobox
+              value={selectedRoles}
+              onChange={handleRoleChange}
+              options={roleOptions}
+              placeholder={t('invitation.create.roles_placeholder')}
+              disabled={isLoading}
+              multiple
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="provider">{t('invitation.create.provider_label')}</Label>
+            <Select value={selectedProvider ?? ''} onValueChange={handleProviderChange}>
+              <SelectTrigger id="provider">
+                <SelectValue placeholder={t('invitation.create.provider_placeholder')} />
+              </SelectTrigger>
+              <SelectContent>
+                {availableProviders.map((provider) => (
+                  <SelectItem key={provider.id} value={provider.id}>
+                    {provider.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              {t('invitation.create.provider_helper')}
+            </p>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={handleClose} disabled={isLoading}>
+            {t('invitation.create.cancel_button')}
+          </Button>
+          <Button type="button" onClick={handleSubmit} disabled={isLoading || !canSubmit}>
+            {isLoading ? t('invitation.create.creating') : t('invitation.create.submit_button')}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

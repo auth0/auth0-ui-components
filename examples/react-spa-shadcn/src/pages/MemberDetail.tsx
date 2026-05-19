@@ -1,22 +1,17 @@
 import { useTranslation } from 'react-i18next';
-// import { useNavigate } from 'react-router-dom';
+// import { useNavigate, useParams } from 'react-router-dom';
 
-// import { OrganizationMemberManagement } from '@/components/auth0/my-organization/organization-member-management';
+// import { OrganizationMemberDetail } from '@/components/auth0/my-organization/organization-member-detail';
 
-const MemberManagement = () => {
+const MemberDetail = () => {
   const { t } = useTranslation();
   // const navigate = useNavigate();
-
-  // const memberDetailAction = {
-  //   onAfter: (userId: string) => {
-  //     navigate(`/member-management/${encodeURIComponent(userId)}`);
-  //   },
-  // };
+  // const { user_id } = useParams<{ user_id: string }>();
 
   return (
     <div className="p-6">
       <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-6">
-        {t('member-management.title')}
+        {t('member-detail.title')}
       </h1>
       <p>
         Follow{' '}
@@ -27,13 +22,13 @@ const MemberManagement = () => {
         >
           <u>Quickstart guidance</u>
         </a>{' '}
-        on how to add Member Management component.
+        on how to add Member Detail component.
       </p>
       <div className="bg-background rounded-lg shadow p-6">
-        {/* <OrganizationMemberManagement /> */}
+        {/* <OrganizationMemberDetail userId={user_id} onBack={() => navigate('/member-management')} /> */}
       </div>
     </div>
   );
 };
 
-export default MemberManagement;
+export default MemberDetail;

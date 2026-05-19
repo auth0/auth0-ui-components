@@ -6,7 +6,7 @@ const MemberManagementPage = () => {
       <p className="text-primary">
         Follow{' '}
         <a
-          href="https://github.com/auth0/auth0-ui-components/tree/main/examples/next-rwa#adding-a-universal-component-to-your-app"
+          href="https://github.com/auth0/auth0-ui-components/tree/main/examples/react-spa-npm#adding-a-universal-component-to-your-app"
           target="_blank"
         >
           <u>Quickstart guidance</u>

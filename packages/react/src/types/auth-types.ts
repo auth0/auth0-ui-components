@@ -3,7 +3,7 @@
  * @module auth-types
  */
 
-import type { AuthDetails } from '@auth0/universal-components-core';
+import type { AuthDetails, FetcherAuthParams } from '@auth0/universal-components-core';
 import type * as React from 'react';
 
 import type { QueryCacheConfig } from '@/types/cache-types';
@@ -23,7 +23,11 @@ export type Auth0ComponentProviderProps = (
       domain: string;
       proxyConfig: {
         baseUrl: string;
-        fetcher?: (url: string, init?: RequestInit) => Promise<Response>;
+        fetcher?: (
+          url: string,
+          init?: RequestInit,
+          authParams?: FetcherAuthParams,
+        ) => Promise<Response>;
       };
     }
 ) & {

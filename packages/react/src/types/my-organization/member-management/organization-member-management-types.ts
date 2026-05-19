@@ -85,6 +85,7 @@ export interface UseOrganizationMemberManagementResult {
   availableProviders: IdentityProviderOption[];
 
   invitations: MemberInvitation[];
+  isInitialLoading: boolean;
   isFetchingInvitations: boolean;
   isCreatingInvitation: boolean;
   isRevokingInvitation: boolean;

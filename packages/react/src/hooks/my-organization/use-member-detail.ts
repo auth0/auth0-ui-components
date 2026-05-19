@@ -142,5 +142,3 @@ export function useOrganizationMemberDetail(
     handleRemoveRolesConfirm,
   };
 }
-
-export type { UseOrganizationMemberDetailResult };
