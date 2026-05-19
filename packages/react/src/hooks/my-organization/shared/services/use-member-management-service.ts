@@ -13,6 +13,7 @@ import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tansta
 import * as React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useRolesQuery } from '@/hooks/my-organization/shared/use-roles-query';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -82,16 +83,7 @@ export function useMemberManagementService(
     enabled: !!coreClient,
   });
 
-  const rolesQuery = useQuery({
-    queryKey: memberManagementQueryKeys.roles(),
-    queryFn: async () => {
-      const response = await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.roles.list({ take: 50 });
-      return response.data;
-    },
-    enabled: !!coreClient,
-  });
+  const rolesQuery = useRolesQuery();
 
   const invitationsQuery = useQuery({
     queryKey: [
