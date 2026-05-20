@@ -30,3 +30,4 @@ export * from './my-organization/organization-management/organization-details-ed
 export * from './my-organization/organization-management/organization-details-types';
 export * from './my-organization/member-management/organization-invitation-table-types';
 export * from './my-organization/member-management/organization-member-management-types';
+export * from './my-organization/member-management/organization-member-detail-types';
