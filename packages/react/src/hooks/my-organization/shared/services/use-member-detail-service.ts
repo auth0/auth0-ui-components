@@ -13,7 +13,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { showToast } from '@/components/auth0/shared/toast';
-import { useRolesQuery } from '@/hooks/my-organization/shared/use-roles-query';
+import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -62,7 +62,7 @@ export function useMemberDetailService(
     enabled: !!coreClient && isValidUserId,
   });
 
-  const rolesQuery = useRolesQuery();
+  const { rolesQuery } = useMemberManagementService({});
 
   const organizationQuery = useQuery({
     queryKey: memberDetailQueryKeys.organization,
@@ -119,7 +119,6 @@ export function useMemberDetailService(
           : 'member.detail.roles.assign_modal.success_plural';
       showToast({ type: 'success', message: t(assignKey) });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
-      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.roles() });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.assign_role_failed') });
@@ -151,7 +150,6 @@ export function useMemberDetailService(
           });
       showToast({ type: 'success', message });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
-      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.roles() });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.remove_role_failed') });

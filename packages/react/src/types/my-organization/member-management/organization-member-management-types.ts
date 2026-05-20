@@ -32,11 +32,11 @@ export interface TableQueryParams<TSort, TFilter> {
 
 export interface UseMemberManagementServiceOptions {
   customMessages?: Partial<OrganizationMemberManagementMessages>;
-  activeTab: ActiveTab;
+  activeTab?: ActiveTab;
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   revokeInvitationAction?: ComponentAction<MemberInvitation>;
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
-  invitationParams: TableQueryParams<InvitationSortConfig, InvitationFilterState>;
+  invitationParams?: TableQueryParams<InvitationSortConfig, InvitationFilterState>;
 }
 
 export interface MemberManagementServiceResult {
