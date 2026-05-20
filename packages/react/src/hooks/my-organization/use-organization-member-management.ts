@@ -12,8 +12,8 @@ import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-paginatio
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   CreateInvitationInput,
-  InvitationFilterState,
-  InvitationSortConfig,
+  MemberManagementFilterState,
+  MemberManagementSortConfig,
   IdentityProviderOption,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
@@ -55,7 +55,7 @@ export function useOrganizationMemberManagement(
     changePageSize: invitationChangePageSize,
     changeSortConfig: invitationChangeSortConfig,
     changeFilters: invitationChangeFilters,
-  } = useCheckpointPagination<InvitationFilterState>();
+  } = useCheckpointPagination<MemberManagementFilterState>();
 
   const [modalState, setModalState] = React.useState<MemberManagementModalState>({ type: null });
   const detailsRequestIdRef = React.useRef(0);
@@ -168,7 +168,7 @@ export function useOrganizationMemberManagement(
   );
 
   const handleSortChange = React.useCallback(
-    (sortConfig: InvitationSortConfig) => {
+    (sortConfig: MemberManagementSortConfig) => {
       invitationChangeSortConfig(sortConfig);
     },
     [invitationChangeSortConfig],
