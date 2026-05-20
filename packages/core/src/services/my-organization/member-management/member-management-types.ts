@@ -11,9 +11,22 @@ import type { MyOrganization } from '@auth0/myorganization-js';
 export type OrgMemberId = MyOrganization.OrgMemberId;
 
 /**
+ * Organization member identity.
+ */
+export interface OrgMemberIdentity {
+  connection?: string;
+  provider?: string;
+  user_id?: string;
+  isSocial?: boolean;
+}
+
+/**
  * Organization member entity.
  */
-export type OrgMember = MyOrganization.OrgMember;
+export interface OrgMember extends MyOrganization.OrgMember {
+  phone_number?: string;
+  identities?: OrgMemberIdentity[];
+}
 
 /**
  * Response content for listing organization members.
@@ -87,6 +100,12 @@ export type CreateMemberInvitationResponseContent =
  * Response content for getting a member invitation.
  */
 export type GetMemberInvitationResponseContent = MyOrganization.GetMemberInvitationResponseContent;
+
+/**
+ * Request parameters for deleting organization memberships.
+ */
+export type DeleteOrganizationMembersRequestContent =
+  MyOrganization.DeleteOrganizationMembershipsRequestParameters;
 
 /**
  * Request content for changing roles of an organization member.

@@ -101,6 +101,7 @@ export interface UseOrganizationMemberManagementResult {
   members?: OrgMember[];
 
   invitations: MemberInvitation[];
+  isInitialLoading: boolean;
   isFetchingInvitations: boolean;
   isFetchingMembers?: boolean;
   isFetchingRoles?: boolean;
