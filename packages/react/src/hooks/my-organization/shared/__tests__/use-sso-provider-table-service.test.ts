@@ -1,13 +1,18 @@
 import type { IdpKnownResponse, OrganizationPrivate } from '@auth0/universal-components-core';
-import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
+import { BusinessError, ssoProviderQueryKeys } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useSsoProviderTableService } from '@/hooks/my-organization/shared/services/use-sso-provider-table-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
-import { setupMockUseCoreClient, setupMockUseCoreClientNull } from '@/tests/utils/test-utilities';
+import {
+  setupMockUseCoreClient,
+  setupMockUseCoreClientNull,
+  setupMockUseTranslator,
+} from '@/tests/utils/test-utilities';
 
 const mockIdentityProviders: IdpKnownResponse[] = [
   {
@@ -61,6 +66,7 @@ describe('useSsoProviderTableService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setupMockUseCoreClient(mockCoreClient, useCoreClientModule);
+    setupMockUseTranslator(useTranslatorModule);
 
     vi.mocked(mockMyOrgClient.organizationDetails.get).mockResolvedValue(mockOrganization);
   });
@@ -253,7 +259,7 @@ describe('useSsoProviderTableService', () => {
 
       await expect(
         result.current.onEnableProvider(mockIdentityProviders[0]!, true),
-      ).rejects.toThrow('Enable provider cancelled by onBefore');
+      ).rejects.toThrow(BusinessError);
       expect(mockUpdate).not.toHaveBeenCalled();
     });
 

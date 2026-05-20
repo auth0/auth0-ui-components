@@ -6,6 +6,7 @@
  */
 
 import {
+  BusinessError,
   OrganizationDetailsMappers,
   SsoProviderMappers,
   ssoProviderQueryKeys,
@@ -18,6 +19,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import type { UseSsoProviderTableServiceReturn } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
 export { ssoProviderQueryKeys };
@@ -27,6 +29,7 @@ export { ssoProviderQueryKeys };
  * @param deleteAction - Delete action handler.
  * @param removeFromOrg - Remove from org handler.
  * @param enableAction - Enable/disable handler.
+ * @param customMessages - Custom translation messages.
  * @returns Provider data, mutations, and actions.
  * @internal
  */
@@ -34,9 +37,11 @@ export function useSsoProviderTableService(
   deleteAction?: ComponentAction<IdpKnownResponse, void>,
   removeFromOrg?: ComponentAction<IdpKnownResponse, void>,
   enableAction?: ComponentAction<IdpKnownResponse>,
+  customMessages: Record<string, unknown> = {},
 ): UseSsoProviderTableServiceReturn {
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
+  const { t } = useTranslator('idp_management.notifications', customMessages);
 
   const providersQuery = useQuery({
     queryKey: ssoProviderQueryKeys.list(),
@@ -73,7 +78,7 @@ export function useSsoProviderTableService(
       if (enableAction?.onBefore) {
         const shouldProceed = enableAction.onBefore(selectedIdp);
         if (!shouldProceed) {
-          throw new Error('Enable provider cancelled by onBefore');
+          throw new BusinessError({ message: t('enable_on_before') });
         }
       }
 

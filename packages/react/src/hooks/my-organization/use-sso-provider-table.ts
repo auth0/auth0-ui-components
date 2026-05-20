@@ -57,7 +57,12 @@ export function useSsoProviderTable({
     onDeleteConfirm,
     onRemoveConfirm,
     onEnableProvider,
-  } = useSsoProviderTableService(deleteAction, deleteFromOrganizationAction, enableProviderAction);
+  } = useSsoProviderTableService(
+    deleteAction,
+    deleteFromOrganizationAction,
+    enableProviderAction,
+    customMessages as Record<string, unknown>,
+  );
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
