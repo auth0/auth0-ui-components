@@ -1158,7 +1158,8 @@
             "description": "This will remove the <bold>${roleName}</bold> role from <bold>\"${memberName}\"</bold>.",
             "confirm_button": "Remove",
             "cancel_button": "Cancel",
-            "success": "<bold>\"${roleName}\"</bold> role has been removed from member."
+            "success": "<bold>\"${roleName}\"</bold> role has been removed from member.",
+            "success_plural": "${roleNames} roles have been removed from member."
           }
         },
         "error": {

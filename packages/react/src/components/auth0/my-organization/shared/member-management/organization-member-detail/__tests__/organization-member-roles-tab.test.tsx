@@ -22,7 +22,7 @@ const createProps = (overrides = {}) => ({
   memberRoles: createMockMemberRoles(),
   availableRoles: createMockAvailableRoles(),
   selectedRoles: [],
-  isFetchingRoles: false,
+  isFetchingMemberRoles: false,
   removingRoleIds: [],
   isAssigningRoles: false,
   modalState: noModal,
@@ -68,7 +68,7 @@ describe('OrganizationMemberEditRolesTab', () => {
 
     it('renders loading state when isFetchingRoles is true', () => {
       renderWithProviders(
-        <OrganizationMemberEditRolesTab {...createProps({ isFetchingRoles: true })} />,
+        <OrganizationMemberEditRolesTab {...createProps({ isFetchingMemberRoles: true })} />,
       );
       expect(screen.queryByText('Admin')).not.toBeInTheDocument();
     });

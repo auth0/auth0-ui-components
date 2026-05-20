@@ -1096,7 +1096,8 @@
             "description": "Cela retirera le rôle <bold>${roleName}</bold> de <bold>\"${memberName}\"</bold>.",
             "confirm_button": "Retirer",
             "cancel_button": "Annuler",
-            "success": "Le rôle <bold>\"${roleName}\"</bold> a été retiré du membre."
+            "success": "Le rôle <bold>\"${roleName}\"</bold> a été retiré du membre.",
+            "success_plural": "${roleNames} rôles ont été retirés du membre."
           }
         },
         "error": {

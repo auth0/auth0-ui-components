@@ -36,6 +36,12 @@ export function OrganizationMemberAssignRolesModal({
   const { t } = useTranslator('member_management', customMessages);
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
 
+  React.useEffect(() => {
+    if (!isOpen) {
+      setSelectedRoles([]);
+    }
+  }, [isOpen]);
+
   const assignedRoleIds = React.useMemo(
     () => new Set(assignedRoles.map((r) => r.id)),
     [assignedRoles],

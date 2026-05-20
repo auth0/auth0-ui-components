@@ -17,6 +17,7 @@ export type MemberDetailTab = 'details' | 'roles';
 
 export interface MemberDetailServiceResult {
   memberQuery: UseQueryResult<OrgMember>;
+  memberRolesQuery: UseQueryResult<Role[]>;
   rolesQuery: UseQueryResult<Role[]>;
   organizationQuery: UseQueryResult<OrganizationPrivate>;
   removeFromOrgMutation: UseMutationResult<void, Error, void>;
@@ -50,7 +51,8 @@ export interface UseOrganizationMemberDetailResult {
   selectedRoles: Role[];
   isLoading: boolean;
   isFetchingMember: boolean;
-  isFetchingRoles: boolean;
+  isFetchingMemberRoles: boolean;
+  isFetchingAvailableRoles: boolean;
   isRemovingFromOrg: boolean;
   isAssigningRoles: boolean;
   isRemovingRoles: boolean;
@@ -177,7 +179,8 @@ export interface OrganizationMemberEditRolesTabProps {
   memberRoles: Role[];
   availableRoles: Role[];
   selectedRoles: Role[];
-  isFetchingRoles?: boolean;
+  isFetchingMemberRoles?: boolean;
+  isFetchingAvailableRoles?: boolean;
   removingRoleIds?: string[];
   isAssigningRoles?: boolean;
   isRemovingRoles?: boolean;

@@ -34,8 +34,8 @@ const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
  * @param sortConfig - The sort configuration.
  * @returns The formatted sort string, or undefined if no valid sort key.
  */
-function buildSortParam(sortConfig: InvitationSortConfig): string | undefined {
-  if (!sortConfig.key) return undefined;
+function buildSortParam(sortConfig?: InvitationSortConfig): string | undefined {
+  if (!sortConfig?.key) return undefined;
   const apiField = INVITATION_SORT_FIELD_MAP[sortConfig.key];
   if (!apiField) return undefined;
   const direction = sortConfig.direction === 'asc' ? '1' : '-1';
@@ -60,6 +60,7 @@ export function useMemberManagementService(
   } = options;
 
   const isInvitationsTabActive = activeTab === 'invitations';
+  const isActiveTabProvided = !!activeTab;
 
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('member_management', customMessages);
@@ -79,7 +80,7 @@ export function useMemberManagementService(
         type: p.strategy,
       }));
     },
-    enabled: !!coreClient,
+    enabled: !!coreClient && isActiveTabProvided,
   });
 
   const rolesQuery = useQuery({
@@ -96,16 +97,16 @@ export function useMemberManagementService(
   const invitationsQuery = useQuery({
     queryKey: [
       ...memberManagementQueryKeys.invitations(),
-      invitationParams.pageSize,
-      invitationParams.fromToken,
-      invitationParams.filters,
-      invitationParams.sortConfig,
+      invitationParams?.pageSize,
+      invitationParams?.fromToken,
+      invitationParams?.filters,
+      invitationParams?.sortConfig,
     ],
     queryFn: async () => {
       const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list({
-        take: invitationParams.pageSize,
-        from: invitationParams.fromToken,
-        sort: buildSortParam(invitationParams.sortConfig),
+        take: invitationParams?.pageSize,
+        from: invitationParams?.fromToken,
+        sort: buildSortParam(invitationParams?.sortConfig),
       });
 
       const invitations: MemberInvitation[] = page.data;

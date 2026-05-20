@@ -6,12 +6,14 @@
 
 import {
   memberDetailQueryKeys,
+  memberManagementQueryKeys,
   OrganizationDetailsMappers,
   type Role,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -41,22 +43,26 @@ export function useMemberDetailService(
   const handleError = useErrorHandler();
   const queryClient = useQueryClient();
 
+  const isValidUserId = !!userId && /^[^|]+\|[^|]+$/.test(userId);
+
   const memberQuery = useQuery({
     queryKey: memberDetailQueryKeys.member(userId),
     queryFn: () => coreClient!.getMyOrganizationApiClient().organization.members.get(userId),
-    enabled: !!coreClient && !!userId,
+    enabled: !!coreClient && isValidUserId,
   });
 
-  const rolesQuery = useQuery({
-    queryKey: memberDetailQueryKeys.roles(),
+  const memberRolesQuery = useQuery({
+    queryKey: memberDetailQueryKeys.memberRoles(userId),
     queryFn: async () => {
       const response = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.roles.list({ take: 50 });
+        .organization.members.roles.list(userId);
       return response.data;
     },
-    enabled: !!coreClient,
+    enabled: !!coreClient && isValidUserId,
   });
+
+  const { rolesQuery } = useMemberManagementService({});
 
   const organizationQuery = useQuery({
     queryKey: memberDetailQueryKeys.organization,
@@ -100,10 +106,19 @@ export function useMemberDetailService(
         .organization.members.roles.assign(userId, { role_ids: roleIds });
       assignRolesAction?.onAfter?.({ userId, roleIds });
     },
-    onSuccess: () => {
-      showToast({ type: 'success', message: t('member.detail.roles.assign_modal.success') });
-      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.member(userId) });
-      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.roles() });
+    onSuccess: (_, roleIds) => {
+      const allRoles = queryClient.getQueryData<Role[]>(memberManagementQueryKeys.roles()) ?? [];
+      const newRoles = allRoles.filter((r) => roleIds.includes(r.id));
+      queryClient.setQueryData<Role[]>(memberDetailQueryKeys.memberRoles(userId), (old) => [
+        ...(old ?? []),
+        ...newRoles,
+      ]);
+      const assignKey =
+        roleIds.length === 1
+          ? 'member.detail.roles.assign_modal.success'
+          : 'member.detail.roles.assign_modal.success_plural';
+      showToast({ type: 'success', message: t(assignKey) });
+      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.assign_role_failed') });
@@ -122,13 +137,19 @@ export function useMemberDetailService(
         .organization.members.roles.unassign(userId, { role_ids: roleIds });
       removeRolesAction?.onAfter?.({ userId, roleIds });
     },
-    onSuccess: () => {
-      showToast({
-        type: 'success',
-        message: t('member.detail.roles.remove_confirm.success'),
-      });
-      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.member(userId) });
-      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.roles() });
+    onSuccess: (_, roles) => {
+      const removedIds = new Set(roles.map((r) => r.id));
+      queryClient.setQueryData<Role[]>(memberDetailQueryKeys.memberRoles(userId), (old) =>
+        (old ?? []).filter((r) => !removedIds.has(r.id)),
+      );
+      const isSingle = roles.length === 1;
+      const message = isSingle
+        ? t('member.detail.roles.remove_confirm.success', { roleName: roles[0]?.name })
+        : t('member.detail.roles.remove_confirm.success_plural', {
+            roleNames: roles.map((r) => `"${r.name}"`).join(', '),
+          });
+      showToast({ type: 'success', message });
+      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.remove_role_failed') });
@@ -137,6 +158,7 @@ export function useMemberDetailService(
 
   return {
     memberQuery,
+    memberRolesQuery,
     rolesQuery,
     organizationQuery,
     removeFromOrgMutation,

@@ -148,7 +148,8 @@ export function OrganizationMemberDetailView(
               memberRoles={props.memberRoles}
               availableRoles={props.availableRoles}
               selectedRoles={props.selectedRoles}
-              isFetchingRoles={props.isFetchingRoles}
+              isFetchingMemberRoles={props.isFetchingMemberRoles}
+              isFetchingAvailableRoles={props.isFetchingAvailableRoles}
               removingRoleIds={props.removingRoleIds}
               isRemovingRoles={props.isRemovingRoles}
               modalState={modalState}

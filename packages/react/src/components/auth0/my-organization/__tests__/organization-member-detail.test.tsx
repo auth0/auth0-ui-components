@@ -12,7 +12,6 @@ import {
   createMockMember,
   createMockMemberRoles,
   createMockAvailableRoles,
-  createMockMemberRole,
   createMockOrganizationMemberDetailProps,
   createMockOrganizationMemberDetailViewProps,
   noModal,
@@ -278,12 +277,12 @@ describe('OrganizationMemberDetail', () => {
           await waitForComponentToLoad();
 
           const removeButton = screen.getByRole('button', {
-            name: /member.detail.actions.remove_from_org.delete_button/i,
+            name: /member.detail.actions.remove_from_org.button/i,
           });
           await user.click(removeButton);
 
           const confirmButton = await screen.findByRole('button', {
-            name: /member.detail.danger_zone.remove_from_org.confirm_button/i,
+            name: /member.detail.actions.remove_from_org.modal.confirm_button/i,
           });
           await user.click(confirmButton);
 
@@ -319,12 +318,12 @@ describe('OrganizationMemberDetail', () => {
           await waitForComponentToLoad();
 
           const removeButton = screen.getByRole('button', {
-            name: /member.detail.actions.remove_from_org.delete_button/i,
+            name: /member.detail.actions.remove_from_org.button/i,
           });
           await user.click(removeButton);
 
           const confirmButton = await screen.findByRole('button', {
-            name: /member.detail.danger_zone.remove_from_org.confirm_button/i,
+            name: /member.detail.actions.remove_from_org.modal.confirm_button/i,
           });
           await user.click(confirmButton);
 
@@ -360,12 +359,12 @@ describe('OrganizationMemberDetail', () => {
         await waitForComponentToLoad();
 
         const removeButton = screen.getByRole('button', {
-          name: /member.detail.actions.remove_from_org.delete_button/i,
+          name: /member.detail.actions.remove_from_org.button/i,
         });
         await user.click(removeButton);
 
         const confirmButton = await screen.findByRole('button', {
-          name: /member.detail.danger_zone.remove_from_org.confirm_button/i,
+          name: /member.detail.actions.remove_from_org.modal.confirm_button/i,
         });
         await user.click(confirmButton);
 
@@ -509,6 +508,13 @@ describe('OrganizationMemberDetail', () => {
 
   describe('removeRolesAction', () => {
     const memberWithRoles = createMockMember({ roles: createMockMemberRoles() });
+
+    beforeEach(() => {
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      (apiService.organization.members.roles.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        data: createMockMemberRoles(),
+      });
+    });
 
     describe('removeRolesAction.onBefore', () => {
       describe('when returns true', () => {
@@ -769,7 +775,7 @@ describe('OrganizationMemberDetailView', () => {
       );
 
       expect(
-        screen.getByText('member.detail.danger_zone.remove_from_org.confirm_title'),
+        screen.getByText('member.detail.actions.remove_from_org.modal.title'),
       ).toBeInTheDocument();
     });
 
@@ -781,7 +787,7 @@ describe('OrganizationMemberDetailView', () => {
       );
 
       expect(
-        screen.queryByText('member.detail.danger_zone.remove_from_org.confirm_title'),
+        screen.queryByText('member.detail.actions.remove_from_org.modal.title'),
       ).not.toBeInTheDocument();
     });
 
@@ -799,7 +805,7 @@ describe('OrganizationMemberDetailView', () => {
       );
 
       const cancelButton = screen.getByRole('button', {
-        name: 'member.detail.danger_zone.remove_from_org.cancel_button',
+        name: 'member.detail.actions.remove_from_org.modal.cancel_button',
       });
       await user.click(cancelButton);
 
@@ -820,7 +826,7 @@ describe('OrganizationMemberDetailView', () => {
       );
 
       const confirmButton = screen.getByRole('button', {
-        name: 'member.detail.danger_zone.remove_from_org.confirm_button',
+        name: 'member.detail.actions.remove_from_org.modal.confirm_button',
       });
       await user.click(confirmButton);
 
