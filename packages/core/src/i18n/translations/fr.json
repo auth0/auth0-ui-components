@@ -1026,7 +1026,7 @@
           "roles": "Rôles",
           "last_login": "Dernière connexion"
         },
-        "empty_message": "Aucun membre trouvé.",
+        "empty_message": "Cette organisation n'a aucun membre.",
         "search_placeholder": "Rechercher par e-mail...",
         "filter_by_role": "Filtrer par rôle",
         "all_roles": "Tous",

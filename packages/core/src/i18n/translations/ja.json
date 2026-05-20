@@ -1089,7 +1089,7 @@
           "roles": "ロール",
           "last_login": "最終ログイン"
         },
-        "empty_message": "メンバーが見つかりません。",
+        "empty_message": "この組織にはメンバーがいません。",
         "search_placeholder": "メールで検索...",
         "filter_by_role": "ロールでフィルター",
         "all_roles": "すべて",

@@ -1088,7 +1088,7 @@
           "roles": "Roles",
           "last_login": "Last Login"
         },
-        "empty_message": "No members found.",
+        "empty_message": "This organization does not have any members.",
         "search_placeholder": "Search by email...",
         "filter_by_role": "Filter By Role",
         "all_roles": "All",
