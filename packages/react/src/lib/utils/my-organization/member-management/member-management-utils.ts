@@ -27,10 +27,19 @@ export function getMemberDisplayName(member: OrgMember): string {
  * @returns The member initials.
  */
 export function getMemberInitials(member: OrgMember): string {
-  const firstInitial =
-    member.given_name?.charAt(0) ?? member.name?.charAt(0) ?? member.email?.charAt(0) ?? '';
-  const lastInitial = member.family_name?.charAt(0) ?? '';
-  const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase();
+  if (member.given_name && member.family_name) {
+    return `${member.given_name.charAt(0)}${member.family_name.charAt(0)}`.toUpperCase();
+  }
+
+  const normalizedNameParts = member.name?.trim().split(/\s+/).filter(Boolean) ?? [];
+
+  if (normalizedNameParts.length >= 2) {
+    return `${normalizedNameParts[0]?.charAt(0) ?? ''}${normalizedNameParts[1]?.charAt(0) ?? ''}`.toUpperCase();
+  }
+
+  const initials = `${normalizedNameParts[0]?.charAt(0) ?? member.email?.charAt(0) ?? ''}`
+    .trim()
+    .toUpperCase();
 
   return initials || '-';
 }

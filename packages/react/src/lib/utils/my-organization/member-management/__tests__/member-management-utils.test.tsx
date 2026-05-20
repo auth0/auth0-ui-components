@@ -78,6 +78,43 @@ describe('member-management-utils', () => {
       ).toBe('AL');
     });
 
+    it('should build initials from the first two name parts when given and family names are unavailable', () => {
+      expect(
+        getMemberInitials(
+          createMockMember({
+            given_name: undefined,
+            family_name: undefined,
+            name: 'Grace Hopper',
+          }),
+        ),
+      ).toBe('GH');
+    });
+
+    it('should fall back to the name when either given_name or family_name is missing', () => {
+      expect(
+        getMemberInitials(
+          createMockMember({
+            given_name: undefined,
+            family_name: 'Lovelace',
+            name: 'Ada Byron',
+          }),
+        ),
+      ).toBe('AB');
+    });
+
+    it('should fall back to a single initial from email when only one name part is available', () => {
+      expect(
+        getMemberInitials(
+          createMockMember({
+            given_name: undefined,
+            family_name: undefined,
+            name: 'Prince',
+            email: 'prince@example.com',
+          }),
+        ),
+      ).toBe('P');
+    });
+
     it('should return a dash when there is no usable member identity text', () => {
       expect(
         getMemberInitials(
