@@ -1091,13 +1091,42 @@
         "columns": {
           "name": "名前",
           "email": "メール",
-          "roles": "ロール"
+          "roles": "ロール",
+          "last_login": "最終ログイン"
         },
-        "empty_message": "メンバーが見つかりません。"
+        "empty_message": "この組織にはメンバーがいません。",
+        "search_placeholder": "メールで検索...",
+        "filter_by_role": "ロールでフィルター",
+        "all_roles": "すべて",
+        "reset_filter": "リセット"
+      },
+      "actions": {
+        "menu_label": "アクション",
+        "view_details": "詳細を表示",
+        "assign_role": "ロールを割り当てる",
+        "remove_from_org": "組織から削除"
       },
       "error": {
         "fetch_failed": "メンバーの読み込みに失敗しました。もう一度お試しください。",
-        "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。"
+        "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。",
+        "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。"
+      },
+      "remove_from_org_modal": {
+        "title": "${organizationName} からメンバーを削除",
+        "description": "この組織から ${memberName} を削除してもよろしいですか？この操作でアカウントは削除されませんが、アクセス権が取り消され、サインインできなくなります。",
+        "remove_button": "削除",
+        "cancel_button": "キャンセル",
+        "success": "メンバーが組織から削除されました。"
+      },
+      "assign_role_modal": {
+        "title": "ロールを割り当てる",
+        "roles_label": "ロール",
+        "roles_placeholder": "ロールを選択",
+        "submit_button": "ロールを割り当てる",
+        "cancel_button": "キャンセル",
+        "no_roles_available": "利用可能なすべてのロールがすでに割り当てられています。",
+        "success": "ロールが割り当てられました。",
+        "success_plural": "ロールが割り当てられました。"
       },
       "detail": {
         "back_button": "メンバー一覧に戻る",

@@ -1028,13 +1028,42 @@
         "columns": {
           "name": "Nom",
           "email": "E-mail",
-          "roles": "Rôles"
+          "roles": "Rôles",
+          "last_login": "Dernière connexion"
         },
-        "empty_message": "Aucun membre trouvé."
+        "empty_message": "Cette organisation n'a aucun membre.",
+        "search_placeholder": "Rechercher par e-mail...",
+        "filter_by_role": "Filtrer par rôle",
+        "all_roles": "Tous",
+        "reset_filter": "Réinitialiser"
+      },
+      "actions": {
+        "menu_label": "Actions",
+        "view_details": "Afficher les détails",
+        "assign_role": "Attribuer un rôle",
+        "remove_from_org": "Supprimer de l'organisation"
       },
       "error": {
         "fetch_failed": "Échec du chargement des membres. Veuillez réessayer.",
-        "remove_failed": "Échec de la suppression du membre. Veuillez réessayer."
+        "remove_failed": "Échec de la suppression du membre. Veuillez réessayer.",
+        "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer."
+      },
+      "remove_from_org_modal": {
+        "title": "Supprimer le membre de ${organizationName}",
+        "description": "Voulez-vous vraiment supprimer ${memberName} de cette organisation ? Cette action ne supprimera pas son compte, mais elle révoquera son accès et l'empêchera de se connecter.",
+        "remove_button": "Supprimer",
+        "cancel_button": "Annuler",
+        "success": "Le membre a été supprimé de l'organisation."
+      },
+      "assign_role_modal": {
+        "title": "Attribuer des rôles",
+        "roles_label": "Rôles",
+        "roles_placeholder": "Sélectionner un ou des rôles",
+        "submit_button": "Attribuer le(s) rôle(s)",
+        "cancel_button": "Annuler",
+        "no_roles_available": "Tous les rôles disponibles sont déjà attribués.",
+        "success": "Le rôle a été attribué.",
+        "success_plural": "Les rôles ont été attribués."
       },
       "detail": {
         "back_button": "Retour aux membres",
