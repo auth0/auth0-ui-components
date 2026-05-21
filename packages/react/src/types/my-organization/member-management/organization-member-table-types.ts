@@ -9,30 +9,16 @@ import type {
   Role,
 } from '@auth0/universal-components-core';
 
-/** Filter state for member table. */
-export interface MemberFilterState {
-  searchQuery?: string;
-  roleId?: string;
-}
-
-/** Sort configuration for member table. */
-export interface MemberSortConfig {
-  key: string | null;
-  direction: 'asc' | 'desc';
-}
-
-/** Pagination state for member table (checkpoint-based). */
-export interface MemberPaginationState {
-  pageSize: number;
-  currentPage: number;
-  totalItems?: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-}
+import type {
+  MemberManagementFilterState,
+  MemberManagementPaginationState,
+  MemberManagementSortConfig,
+} from '@/types';
 
 /** Props for OrganizationMemberTableActionsColumn component. */
 export interface OrganizationMemberTableActionsColumnProps {
   member: OrgMember;
+  customMessages?: Partial<OrganizationMemberTabMessages>;
   onViewDetails?: (member: OrgMember) => void;
   onAssignRole?: (member: OrgMember) => void;
   onRemoveFromOrg?: (member: OrgMember) => void;
@@ -42,9 +28,10 @@ export interface OrganizationMemberTableActionsColumnProps {
 export interface OrganizationMemberTableProps {
   members: OrgMember[];
   loading?: boolean;
-  pagination: MemberPaginationState;
-  filters?: MemberFilterState;
-  sortConfig?: MemberSortConfig;
+  pagination: MemberManagementPaginationState;
+  pageSizeOptions?: number[];
+  filters?: MemberManagementFilterState;
+  sortConfig?: MemberManagementSortConfig;
   customMessages?: Partial<OrganizationMemberTabMessages>;
   availableRoles?: Role[];
   readOnly?: boolean;
@@ -55,7 +42,7 @@ export interface OrganizationMemberTableProps {
   onNextPage?: () => void;
   onPreviousPage?: () => void;
   onPageSizeChange?: (pageSize: number) => void;
-  onSortChange?: (sortConfig: MemberSortConfig) => void;
+  onSortChange?: (sortConfig: MemberManagementSortConfig) => void;
   onRoleFilterChange?: (roleId: string | undefined) => void;
   onSearchTermChange?: (searchTerm: string) => void;
 }

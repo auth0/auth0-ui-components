@@ -1,11 +1,11 @@
 import type { MemberInvitation, Role } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import type { OrganizationInvitationDetailsModalProps } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal';
-import type { OrganizationInvitationRevokeModalProps } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-revoke-modal';
-import type { OrganizationInvitationCreateModalProps } from '@/components/auth0/my-organization/shared/member-management/shared/invitation-create/organization-invitation-create-modal';
 import type {
   IdentityProviderOption,
+  OrganizationInvitationCreateModalProps,
+  OrganizationInvitationDetailsModalProps,
+  OrganizationInvitationRevokeModalProps,
   OrganizationInvitationTableActionsColumnProps,
   SearchFilterProps,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';

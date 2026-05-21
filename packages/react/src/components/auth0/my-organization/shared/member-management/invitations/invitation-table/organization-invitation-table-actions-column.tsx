@@ -15,6 +15,7 @@ import {
   DropdownMenuPortal,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { getInvitationStatus } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type { OrganizationInvitationTableActionsColumnProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
@@ -45,12 +46,16 @@ export function OrganizationInvitationTableActionsColumn({
   const status = getInvitationStatus(invitation);
   const isPending = status === 'pending';
 
+  const [copiedTooltipOpen, setCopiedTooltipOpen] = React.useState(false);
+
   const handleViewDetails = React.useCallback(() => {
     onViewDetails?.(invitation);
   }, [invitation, onViewDetails]);
 
   const handleCopyUrl = React.useCallback(() => {
     onCopyUrl?.(invitation);
+    setCopiedTooltipOpen(true);
+    setTimeout(() => setCopiedTooltipOpen(false), 1500);
   }, [invitation, onCopyUrl]);
 
   const handleRevokeAndResend = React.useCallback(() => {
@@ -63,48 +68,56 @@ export function OrganizationInvitationTableActionsColumn({
 
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          aria-label={t('invitation.actions.menu_label')}
-          className="relative h-8 w-8 overflow-hidden rounded-xl border border-primary/35 bg-background shadow-button-outlined-resting transition-all duration-150 ease-in-out hover:bg-muted hover:shadow-button-outlined-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 theme-default:before:absolute theme-default:before:top-0 theme-default:before:left-0 theme-default:before:block theme-default:before:h-full theme-default:before:w-full theme-default:before:bg-gradient-to-t theme-default:before:from-primary/5 theme-default:before:to-primary/0 theme-default:before:content-[''] flex items-center justify-center"
-        >
-          <MoreHorizontal className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-        </DropdownMenuTrigger>
-        <DropdownMenuPortal>
-          <DropdownMenuContent align="end">
-            {/* View Details - always available */}
-            <DropdownMenuItem onClick={handleViewDetails}>
-              <Eye className="mr-2 h-4 w-4" />
-              {t('invitation.actions.view_details')}
-            </DropdownMenuItem>
+      <Tooltip open={copiedTooltipOpen}>
+        <TooltipTrigger asChild>
+          <div>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                aria-label={t('invitation.actions.menu_label')}
+                className="relative h-8 w-8 overflow-hidden rounded-xl border border-primary/35 bg-background shadow-button-outlined-resting transition-all duration-150 ease-in-out hover:bg-muted hover:shadow-button-outlined-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 theme-default:before:absolute theme-default:before:top-0 theme-default:before:left-0 theme-default:before:block theme-default:before:h-full theme-default:before:w-full theme-default:before:bg-gradient-to-t theme-default:before:from-primary/5 theme-default:before:to-primary/0 theme-default:before:content-[''] flex items-center justify-center"
+              >
+                <MoreHorizontal className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+              </DropdownMenuTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuContent align="end">
+                  {/* View Details - always available */}
+                  <DropdownMenuItem onClick={handleViewDetails}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    {t('invitation.actions.view_details')}
+                  </DropdownMenuItem>
 
-            {/* Copy URL - only for pending invitations with URL */}
-            {isPending && invitation.invitation_url && (
-              <DropdownMenuItem onClick={handleCopyUrl}>
-                <Copy className="mr-2 h-4 w-4" />
-                {t('invitation.actions.copy_url')}
-              </DropdownMenuItem>
-            )}
+                  {isPending && invitation.invitation_url && (
+                    <DropdownMenuItem onClick={handleCopyUrl}>
+                      <Copy className="mr-2 h-4 w-4" />
+                      {t('invitation.actions.copy_url')}
+                    </DropdownMenuItem>
+                  )}
 
-            {!readOnly && (
-              <>
-                <DropdownMenuItem onClick={handleRevokeAndResend}>
-                  <RefreshCcw className="mr-2 h-4 w-4" />
-                  {t('invitation.actions.revoke_and_resend')}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={handleRevoke}
-                  className="text-destructive-foreground focus:text-destructive-foreground"
-                >
-                  <Trash2 className="mr-2 h-4 w-4 text-destructive-foreground" />
-                  {t('invitation.actions.revoke')}
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenuPortal>
-      </DropdownMenu>
+                  {!readOnly && (
+                    <>
+                      <DropdownMenuItem onClick={handleRevokeAndResend}>
+                        <RefreshCcw className="mr-2 h-4 w-4" />
+                        {t('invitation.actions.revoke_and_resend')}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={handleRevoke}
+                        className="text-destructive-foreground focus:text-destructive-foreground"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4 text-destructive-foreground" />
+                        {t('invitation.actions.revoke')}
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenuPortal>
+            </DropdownMenu>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="top" sideOffset={5} className="z-[1000]">
+          <span>{t('invitation.actions.copied')}</span>
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 }

@@ -2,6 +2,11 @@
   "common": {
     "copy": "Copier",
     "copied": "Copié!",
+    "copy_failed": "Échec de la copie",
+    "data_table": {
+      "select_all": "Sélectionner toutes les lignes",
+      "select_row": "Sélectionner la ligne"
+    },
     "error": {
       "generic": "Un problème est survenu lors du traitement de votre demande. Veuillez réessayer ou contacter le support si le problème persiste.",
       "bad_request": "La demande est invalide. Veuillez vérifier votre saisie et réessayer.",
@@ -1026,11 +1031,26 @@
           "roles": "Rôles",
           "last_login": "Dernière connexion"
         },
-        "empty_message": "Aucun membre trouvé.",
-        "search_placeholder": "Rechercher par e-mail...",
+        "empty_message": "Cette organisation n'a aucun membre.",
+        "search_placeholder": "Rechercher un membre par nom ou e-mail",
         "filter_by_role": "Filtrer par rôle",
         "all_roles": "Tous",
-        "reset_filter": "Réinitialiser"
+        "reset_filter": "Réinitialiser",
+        "never": "Jamais",
+        "just_now": "À l'instant",
+        "ago": "il y a",
+        "minute": "minute",
+        "minutes": "minutes",
+        "hour": "heure",
+        "hours": "heures",
+        "day": "jour",
+        "days": "jours",
+        "week": "semaine",
+        "weeks": "semaines",
+        "month": "mois",
+        "months": "mois",
+        "year": "an",
+        "years": "ans"
       },
       "actions": {
         "menu_label": "Actions",
@@ -1040,13 +1060,15 @@
       },
       "error": {
         "fetch_failed": "Échec du chargement des membres. Veuillez réessayer.",
-        "remove_failed": "Échec de la suppression du membre. Veuillez réessayer."
+        "remove_failed": "Échec de la suppression du membre. Veuillez réessayer.",
+        "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer."
       },
       "remove_from_org_modal": {
         "title": "Supprimer le membre de ${organizationName}",
         "description": "Voulez-vous vraiment supprimer ${memberName} de cette organisation ? Cette action ne supprimera pas son compte, mais elle révoquera son accès et l'empêchera de se connecter.",
         "remove_button": "Supprimer",
-        "cancel_button": "Annuler"
+        "cancel_button": "Annuler",
+        "success": "Le membre a été supprimé de l'organisation."
       },
       "assign_role_modal": {
         "title": "Attribuer des rôles",
@@ -1077,31 +1099,30 @@
           "remove_from_org": {
             "title": "Retirer un membre de l'organisation",
             "description": "Une fois confirmée, cette opération ne peut pas être annulée.",
-            "delete_button": "supprimer"
-          },
-          "delete_member": {
-            "title": "Supprimer le membre",
-            "title_plural": "Supprimer les membres",
-            "description": "Êtes-vous sûr de vouloir supprimer ${email} ? Cette action est irréversible.",
-            "description_plural": "Êtes-vous sûr de vouloir supprimer ${count} membres ? Cette action est irréversible.",
-            "confirm_button": "Supprimer",
-            "cancel_button": "Annuler",
-            "success": "${email} a été supprimé.",
-            "success_plural": "Les membres sélectionnés ont été supprimés."
+            "button": "Supprimer",
+            "modal": {
+              "title": "Retirer un membre de ${orgName}",
+              "description": "Êtes-vous sûr de vouloir retirer \"${memberName}\" de cette organisation ? Cette action ne supprimera pas son compte, mais révoquera son accès et l'empêchera de se connecter.",
+              "cancel_button": "Annuler",
+              "confirm_button": "Retirer"
+            }
           }
         },
         "roles": {
           "title": "Rôles",
-          "description": "Gérez les rôles et autorisations de l'utilisateur pour l'accès à ${appName}.",
+          "description": "Gérez les rôles et autorisations de l'utilisateur pour l'accès à ${orgName}.",
           "assign_button": "Attribuer des rôles",
           "no_roles_available": "Il n'y a plus de rôles disponibles à attribuer à ce membre.",
           "max_roles_reached": "Vous avez atteint le nombre maximum de ${max} rôles pour ce membre.",
           "remove_button": "Supprimer le rôle",
           "remove_button_plural": "Supprimer les rôles",
+          "roles_selected": "${count} rôle sélectionné",
+          "roles_selected_plural": "${count} rôles sélectionnés",
           "table": {
             "name": "Nom",
             "description": "Description",
-            "empty_message": "Aucun rôle attribué."
+            "empty_message": "Aucun rôle attribué.",
+            "remove_button_label": "Supprimer le rôle ${roleName}"
           },
           "assign_modal": {
             "title": "Attribuer des rôles",
@@ -1119,14 +1140,14 @@
             "description": "Cela retirera le rôle <bold>${roleName}</bold> de <bold>\"${memberName}\"</bold>.",
             "confirm_button": "Retirer",
             "cancel_button": "Annuler",
-            "success": "Le rôle <bold>\"${roleName}\"</bold> a été retiré du membre."
+            "success": "Le rôle <bold>\"${roleName}\"</bold> a été retiré du membre.",
+            "success_plural": "${roleNames} rôles ont été retirés du membre."
           }
         },
         "error": {
           "fetch_failed": "Échec du chargement des détails du membre. Veuillez réessayer.",
           "fetch_roles_failed": "Échec du chargement des rôles du membre. Veuillez réessayer.",
           "remove_from_org_failed": "Échec du retrait du membre de l'organisation. Veuillez réessayer.",
-          "delete_failed": "Échec de la suppression du membre. Veuillez réessayer.",
           "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer.",
           "remove_role_failed": "Échec du retrait du rôle. Veuillez réessayer."
         }

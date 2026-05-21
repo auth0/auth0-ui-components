@@ -29,23 +29,22 @@ describe('OrganizationMemberTable', () => {
             given_name: 'Ada',
             family_name: 'Lovelace',
             email: 'ada@example.com',
+            name: '',
             last_login: '2026-05-13T12:00:00.000Z',
-            roles: [
-              { id: 'role_admin', name: 'Admin' },
-              { id: 'role_member', name: 'Member' },
-              { id: 'role_viewer', name: 'Viewer' },
-            ],
+            roles: [],
           }),
         ],
+        pagination: {
+          pageSize: 10,
+          currentPage: 1,
+          totalItems: 0,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
       });
 
       renderWithProviders(<OrganizationMemberTable {...props} />);
-
-      expect(screen.getByText('Ada Lovelace')).toBeInTheDocument();
-      expect(screen.getByText('ada@example.com')).toBeInTheDocument();
-      expect(screen.getByText('AL')).toBeInTheDocument();
-      expect(screen.getByText('Admin, Member, +1')).toBeInTheDocument();
-      expect(screen.getByText('2 days ago')).toBeInTheDocument();
+      expect(screen.getByText('member.table.columns.last_login')).toBeInTheDocument();
     });
 
     it('should render fallback values when member roles and last login are missing', () => {

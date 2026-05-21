@@ -4,10 +4,12 @@
  * @internal
  */
 
-import type { MemberInvitation, OrgMember } from '@auth0/universal-components-core';
-import * as React from 'react';
+import type {
+  EnhancedTranslationFunction,
+  MemberInvitation,
+  OrgMember,
+} from '@auth0/universal-components-core';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { InvitationStatus } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
@@ -18,21 +20,7 @@ import type { InvitationStatus } from '@/types/my-organization/member-management
 export function getMemberDisplayName(member: OrgMember): string {
   const fullName = `${member.given_name ?? ''} ${member.family_name ?? ''}`.trim();
 
-  return fullName || member.name || member.email || '-';
-}
-
-/**
- * Builds a member's initials for avatar fallback rendering.
- * @param member - The organization member.
- * @returns The member initials.
- */
-export function getMemberInitials(member: OrgMember): string {
-  const firstInitial =
-    member.given_name?.charAt(0) ?? member.name?.charAt(0) ?? member.email?.charAt(0) ?? '';
-  const lastInitial = member.family_name?.charAt(0) ?? '';
-  const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase();
-
-  return initials || '-';
+  return fullName || member.name || member.email || member.user_id || '-';
 }
 
 /**
@@ -45,40 +33,9 @@ export function getMemberPicture(member: OrgMember): string | undefined {
 }
 
 /**
- * Member avatar with profile image fallback.
- * @param props - Component props.
- * @param props.member - The organization member to render.
- * @returns The member avatar element.
- */
-export function MemberAvatar({ member }: { member: OrgMember }): React.JSX.Element {
-  const [imageFailed, setImageFailed] = React.useState(false);
-  const displayName = getMemberDisplayName(member);
-  const picture = getMemberPicture(member);
-
-  return React.createElement(
-    Avatar,
-    { className: 'size-12' },
-    !imageFailed && picture
-      ? React.createElement(AvatarImage, {
-          src: picture,
-          alt: displayName,
-          onError: () => setImageFailed(true),
-        })
-      : null,
-    imageFailed || !picture
-      ? React.createElement(
-          AvatarFallback,
-          { className: 'bg-muted text-lg font-medium text-primary' },
-          getMemberInitials(member),
-        )
-      : null,
-  );
-}
-
-/**
  * Determines the status of an invitation based on `expires_at`.
- * @param invitation - The invitation to check.
- * @returns The invitation status.
+ * @param invitation - The invitation to check
+ * @returns The invitation status
  */
 export function getInvitationStatus(invitation: MemberInvitation): InvitationStatus {
   const isExpired = invitation.expires_at && new Date(invitation.expires_at) < new Date();
@@ -87,52 +44,89 @@ export function getInvitationStatus(invitation: MemberInvitation): InvitationSta
 }
 
 /**
- * Formats a member's last login time as a relative label.
+ * Formats a member's last login time as a label.
  * @param lastLogin - The member last login timestamp.
+ * @param t - Translator function (namespace: `member_management`).
  * @returns A human readable relative time label.
  */
-export function getRelativeLastLoginLabel(lastLogin?: string): string {
+export function getRelativeLastLoginLabel(
+  lastLogin: string | undefined,
+  t: EnhancedTranslationFunction,
+): string {
+  const never = t('member.table.never', undefined, 'Never');
+  const ago = t('member.table.ago', undefined, 'ago');
+  const justNow = t('member.table.just_now', undefined, 'Just now');
+
   if (!lastLogin) {
-    return 'Never';
+    return never;
   }
 
   const lastLoginDate = new Date(lastLogin);
 
   if (Number.isNaN(lastLoginDate.getTime())) {
-    return 'Never';
+    return never;
   }
 
   const diffInMs = Date.now() - lastLoginDate.getTime();
 
   if (diffInMs < 60 * 1000) {
-    return 'Just now';
+    return justNow;
   }
+
+  const translateUnit = (
+    count: number,
+    singularKey: string,
+    pluralKey: string,
+    singularFallback: string,
+    pluralFallback: string,
+  ): string => {
+    const unit =
+      count === 1
+        ? t(`member.table.${singularKey}`, undefined, singularFallback)
+        : t(`member.table.${pluralKey}`, undefined, pluralFallback);
+    return `${count} ${unit} ${ago}`;
+  };
 
   const diffInMinutes = Math.floor(diffInMs / (60 * 1000));
   if (diffInMinutes < 60) {
-    return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`;
+    return translateUnit(diffInMinutes, 'minute', 'minutes', 'minute', 'minutes');
   }
 
   const diffInHours = Math.floor(diffInMinutes / 60);
   if (diffInHours < 24) {
-    return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+    return translateUnit(diffInHours, 'hour', 'hours', 'hour', 'hours');
   }
 
   const diffInDays = Math.floor(diffInHours / 24);
   if (diffInDays < 7) {
-    return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
+    return translateUnit(diffInDays, 'day', 'days', 'day', 'days');
   }
 
   const diffInWeeks = Math.floor(diffInDays / 7);
   if (diffInWeeks < 4) {
-    return `${diffInWeeks} week${diffInWeeks === 1 ? '' : 's'} ago`;
+    return translateUnit(diffInWeeks, 'week', 'weeks', 'week', 'weeks');
   }
 
   const diffInMonths = Math.floor(diffInDays / 30);
   if (diffInMonths < 12) {
-    return `${diffInMonths} month${diffInMonths === 1 ? '' : 's'} ago`;
+    return translateUnit(diffInMonths, 'month', 'months', 'month', 'months');
   }
 
   const diffInYears = Math.floor(diffInDays / 365);
-  return `${diffInYears} year${diffInYears === 1 ? '' : 's'} ago`;
+  return translateUnit(diffInYears, 'year', 'years', 'year', 'years');
+}
+
+/**
+ * Returns up to 2 uppercase initials from a display name, or 'U' if the name is empty.
+ * @param name - The display name to extract initials from
+ * @returns Up to 2 uppercase initials, or 'U' if the name is empty
+ */
+export function getInitials(name?: string): string {
+  const trimmed = name?.trim();
+  if (!trimmed) return 'U';
+  const parts = trimmed.split(/\s+/);
+  const first = parts[0] ?? '';
+  if (parts.length === 1) return first.charAt(0).toUpperCase();
+  const last = parts[parts.length - 1] ?? '';
+  return (first.charAt(0) + last.charAt(0)).toUpperCase();
 }

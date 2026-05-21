@@ -26,6 +26,7 @@ import type { OrganizationInvitationTableProps } from '@/types/my-organization/m
  * @param props.loading - Whether the table is loading.
  * @param props.customMessages - Custom translation messages.
  * @param props.pagination - Pagination state.
+ * @param props.pageSizeOptions - Options for page size selection.
  * @param props.filters - Current filter state.
  * @param props.availableRoles - Available roles for filtering.
  * @param props.readOnly - Whether the component is in read-only mode.
@@ -44,6 +45,7 @@ export function OrganizationInvitationTable({
   loading = false,
   customMessages = {},
   pagination,
+  pageSizeOptions,
   filters,
   availableRoles,
   readOnly = false,
@@ -79,15 +81,17 @@ export function OrganizationInvitationTable({
         type: 'text',
         accessorKey: 'invitee',
         title: t('invitation.table.columns.email'),
+        width: '25%',
         enableSorting: false,
         render: (invitation) => (
-          <div className="font-medium text-primary">{invitation.invitee?.email}</div>
+          <div className="font-medium text-primary truncate">{invitation.invitee?.email}</div>
         ),
       },
       {
         type: 'text',
         accessorKey: 'organization_id',
         title: t('invitation.table.columns.status'),
+        width: '10%',
         enableSorting: false,
         render: (invitation) => {
           const status = getInvitationStatus(invitation);
@@ -163,7 +167,7 @@ export function OrganizationInvitationTable({
         onSortChange={onSortChange}
       />
 
-      {invitations.length > 0 && (
+      {!loading && invitations.length > 0 && (
         <div className="mt-4">
           <DataPagination
             type="checkpoint"
@@ -174,7 +178,7 @@ export function OrganizationInvitationTable({
               hasNextPage: pagination.hasNextPage,
               hasPreviousPage: pagination.hasPreviousPage,
             }}
-            pageSizeOptions={[10, 25, 50]}
+            pageSizeOptions={pageSizeOptions}
             showPageSizeSelector
             showPageInfo
             onNextPage={onNextPage}

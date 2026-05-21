@@ -12,13 +12,13 @@ import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-paginatio
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   CreateInvitationInput,
-  MemberManagementFilterState,
-  MemberManagementSortConfig,
   IdentityProviderOption,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   ActiveTab,
   MemberManagementModalState,
+  MemberManagementFilterState,
+  MemberManagementSortConfig,
   UseOrganizationMemberManagementOptions,
   UseOrganizationMemberManagementResult,
 } from '@/types/my-organization/member-management/organization-member-management-types';
@@ -83,8 +83,6 @@ export function useOrganizationMemberManagement(
     rolesQuery,
     invitationsQuery,
     membersQuery,
-    assignRoleMutation,
-    removeFromOrgMutation,
     createInvitationMutation,
     revokeInvitationMutation,
     resendInvitationMutation,
@@ -168,32 +166,10 @@ export function useOrganizationMemberManagement(
     });
   }, [modalState, resendInvitationMutation, closeModal]);
 
-  const handleCopyUrl = React.useCallback(
-    async (invitation: MemberInvitation) => {
-      if (!invitation.invitation_url) return;
-      try {
-        await navigator.clipboard.writeText(invitation.invitation_url);
-        showToast({ type: 'success', message: t('invitation.success.url_copied') });
-      } catch {
-        showToast({ type: 'error', message: t('invitation.error.copy_url_failed') });
-      }
-    },
-    [t],
-  );
-
-  const handleAssignRole = React.useCallback(
-    (userId: string, roleId: string[]) => {
-      assignRoleMutation.mutate({ userId, roleIds: roleId });
-    },
-    [assignRoleMutation],
-  );
-
-  const handleRemoveFromOrg = React.useCallback(
-    (userId: string) => {
-      removeFromOrgMutation.mutate(userId);
-    },
-    [removeFromOrgMutation],
-  );
+  const handleCopyUrl = React.useCallback(async (invitation: MemberInvitation) => {
+    if (!invitation.invitation_url) return;
+    await navigator.clipboard.writeText(invitation.invitation_url);
+  }, []);
 
   const handleNextPage = React.useCallback(() => {
     if (activeTab === 'members' && memberNextToken) {
@@ -243,8 +219,9 @@ export function useOrganizationMemberManagement(
 
     invitations: currentInvitations,
     members: currentMembers,
-    isFetchingInvitations: invitationsQuery.isLoading || invitationsQuery.isFetching,
-    isFetchingMembers: membersQuery.isLoading || membersQuery.isFetching,
+    isInitialLoading: invitationsQuery.isLoading || membersQuery.isLoading,
+    isFetchingInvitations: invitationsQuery.isFetching,
+    isFetchingMembers: membersQuery.isFetching,
     isFetchingRoles: rolesQuery.isLoading || rolesQuery.isFetching,
     isCreatingInvitation: createInvitationMutation.isPending,
     isRevokingInvitation: revokeInvitationMutation.isPending,
@@ -266,8 +243,6 @@ export function useOrganizationMemberManagement(
     memberFilters,
     memberSortConfig,
     modalState,
-    isRemovingFromOrg: removeFromOrgMutation.isPending,
-    isAssigningRole: assignRoleMutation.isPending,
 
     setActiveTab,
     openModal,
@@ -281,7 +256,5 @@ export function useOrganizationMemberManagement(
     handlePageSizeChange,
     handleSortChange,
     handleRoleFilterChange,
-    handleAssignRole,
-    handleRemoveFromOrg,
   };
 }

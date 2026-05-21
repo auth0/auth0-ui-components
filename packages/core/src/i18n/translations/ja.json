@@ -2,6 +2,11 @@
   "common": {
     "copy": "コピー",
     "copied": "コピーしました",
+    "copy_failed": "コピーに失敗しました",
+    "data_table": {
+      "select_all": "すべての行を選択",
+      "select_row": "行を選択"
+    },
     "error": {
       "generic": "リクエストの処理中に問題が発生しました。もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
       "bad_request": "リクエストが無効です。入力内容を確認してもう一度お試しください。",
@@ -904,6 +909,7 @@
       "delete_success": "${providerName}が削除されました。",
       "remove_success": "${providerName}が${organizationName}から削除されました",
       "update_success": "${providerName}への変更が保存されました。",
+      "enable_on_before": "プロバイダーの有効化バリデーションに失敗しました。",
       "general_error": "リクエストの処理中に問題が発生しました。もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
       "domain_create": {
         "success": "${domainName}が作成されました。",
@@ -1089,11 +1095,26 @@
           "roles": "ロール",
           "last_login": "最終ログイン"
         },
-        "empty_message": "メンバーが見つかりません。",
-        "search_placeholder": "メールで検索...",
+        "empty_message": "この組織にはメンバーがいません。",
+        "search_placeholder": "名前またはメールでメンバーを検索",
         "filter_by_role": "ロールでフィルター",
         "all_roles": "すべて",
-        "reset_filter": "リセット"
+        "reset_filter": "リセット",
+        "never": "一度もない",
+        "just_now": "たった今",
+        "ago": "前",
+        "minute": "分",
+        "minutes": "分",
+        "hour": "時間",
+        "hours": "時間",
+        "day": "日",
+        "days": "日",
+        "week": "週間",
+        "weeks": "週間",
+        "month": "か月",
+        "months": "か月",
+        "year": "年",
+        "years": "年"
       },
       "actions": {
         "menu_label": "アクション",
@@ -1103,13 +1124,15 @@
       },
       "error": {
         "fetch_failed": "メンバーの読み込みに失敗しました。もう一度お試しください。",
-        "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。"
+        "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。",
+        "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。"
       },
       "remove_from_org_modal": {
         "title": "${organizationName} からメンバーを削除",
         "description": "この組織から ${memberName} を削除してもよろしいですか？この操作でアカウントは削除されませんが、アクセス権が取り消され、サインインできなくなります。",
         "remove_button": "削除",
-        "cancel_button": "キャンセル"
+        "cancel_button": "キャンセル",
+        "success": "メンバーが組織から削除されました。"
       },
       "assign_role_modal": {
         "title": "ロールを割り当てる",
@@ -1140,31 +1163,30 @@
           "remove_from_org": {
             "title": "組織からメンバーを削除",
             "description": "一度確定すると、この操作は元に戻せません。",
-            "delete_button": "削除"
-          },
-          "delete_member": {
-            "title": "メンバーを削除",
-            "title_plural": "メンバーを削除",
-            "description": "${email} を削除してもよろしいですか？この操作は取り消せません。",
-            "description_plural": "${count} 人のメンバーを削除してもよろしいですか？この操作は取り消せません。",
-            "confirm_button": "削除",
-            "cancel_button": "キャンセル",
-            "success": "${email} が削除されました。",
-            "success_plural": "選択されたメンバーが削除されました。"
+            "button": "削除",
+            "modal": {
+              "title": "${orgName} からメンバーを削除",
+              "description": "\"${memberName}\" をこの組織から削除してもよろしいですか？この操作はアカウントを削除しませんが、アクセスを取り消し、サインインできなくなります。",
+              "cancel_button": "キャンセル",
+              "confirm_button": "削除する"
+            }
           }
         },
         "roles": {
           "title": "ロール",
-          "description": "${appName} にアクセスする際のユーザーのロールと権限を管理します。",
+          "description": "${orgName} にアクセスする際のユーザーのロールと権限を管理します。",
           "assign_button": "ロールを割り当てる",
           "no_roles_available": "このメンバーに割り当てられるロールはもうありません。",
           "max_roles_reached": "このメンバーの最大登録数 ${max} に達しました。",
           "remove_button": "ロールを削除",
           "remove_button_plural": "ロールを削除",
+          "roles_selected": "${count}件のロールが選択されています",
+          "roles_selected_plural": "${count}件のロールが選択されています",
           "table": {
             "name": "名前",
             "description": "説明",
-            "empty_message": "割り当てられたロールはありません。"
+            "empty_message": "割り当てられたロールはありません。",
+            "remove_button_label": "ロール ${roleName} を削除する"
           },
           "assign_modal": {
             "title": "ロールを割り当てる",
@@ -1182,14 +1204,14 @@
             "description": "<bold>\"${memberName}\"</bold> から <bold>${roleName}</bold> ロールを削除します。",
             "confirm_button": "削除",
             "cancel_button": "キャンセル",
-            "success": "<bold>\"${roleName}\"</bold> ロールがメンバーから削除されました。"
+            "success": "<bold>\"${roleName}\"</bold> ロールがメンバーから削除されました。",
+            "success_plural": "${roleNames} ロールがメンバーから削除されました。"
           }
         },
         "error": {
           "fetch_failed": "メンバー詳細の読み込みに失敗しました。もう一度お試しください。",
           "fetch_roles_failed": "メンバーのロールの読み込みに失敗しました。もう一度お試しください。",
           "remove_from_org_failed": "組織からのメンバーの削除に失敗しました。もう一度お試しください。",
-          "delete_failed": "メンバーの削除に失敗しました。もう一度お試しください。",
           "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。",
           "remove_role_failed": "ロールの削除に失敗しました。もう一度お試しください。"
         }
@@ -1218,6 +1240,7 @@
         "menu_label": "アクション",
         "view_details": "詳細を表示",
         "copy_url": "招待URLをコピー",
+        "copied": "コピーしました！",
         "revoke_and_resend": "取り消して再送信",
         "revoke": "招待を取り消す"
       },

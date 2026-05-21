@@ -10,21 +10,18 @@ import {
   type ListIdentityProvidersResponseContent,
   memberManagementQueryKeys,
 } from '@auth0/universal-components-core';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as React from 'react';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
-  CreateInvitationInput,
-  MemberManagementSortConfig,
-} from '@/types/my-organization/member-management/organization-invitation-table-types';
-import type {
-  AssignRoleMutationInput,
   UseMemberManagementServiceOptions,
   MemberManagementServiceResult,
+  MemberManagementSortConfig,
 } from '@/types/my-organization/member-management/organization-member-management-types';
 
 const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
@@ -60,12 +57,11 @@ export function useMemberManagementService(
     resendInvitationAction,
     invitationParams,
     memberParams,
-    assignRoleAction,
-    removeFromOrgAction,
   } = options;
 
   const isInvitationsTabActive = activeTab === 'invitations';
   const isMembersTabActive = activeTab === 'members';
+  const isActiveTabProvided = !!activeTab;
 
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('member_management', customMessages);
@@ -85,7 +81,7 @@ export function useMemberManagementService(
         type: p.strategy,
       }));
     },
-    enabled: !!coreClient,
+    enabled: !!coreClient && isActiveTabProvided,
   });
 
   const rolesQuery = useQuery({
@@ -111,7 +107,7 @@ export function useMemberManagementService(
       const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list({
         take: invitationParams?.pageSize,
         from: invitationParams?.fromToken,
-        sort: buildSortParam(invitationParams?.sortConfig || { key: null, direction: 'asc' }),
+        sort: buildSortParam(invitationParams?.sortConfig ?? { key: null, direction: 'asc' }),
       });
 
       const invitations: MemberInvitation[] = page.data;
@@ -120,6 +116,7 @@ export function useMemberManagementService(
       return { invitations, next };
     },
     enabled: !!coreClient && isInvitationsTabActive,
+    placeholderData: keepPreviousData,
   });
 
   const membersQuery = useQuery({
@@ -232,62 +229,14 @@ export function useMemberManagementService(
     [coreClient],
   );
 
-  const removeFromOrgMutation = useMutation<void, Error, string>({
-    mutationFn: async (userId: string) => {
-      if (removeFromOrgAction?.onBefore && !removeFromOrgAction.onBefore({ userId })) {
-        throw new Error('Remove from org cancelled by onBefore');
-      }
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.memberships.deleteMemberships({ members: [userId] });
-    },
-    onSuccess: (_, userId) => {
-      removeFromOrgAction?.onAfter?.({ userId });
-      showToast({
-        type: 'success',
-        message: t('member.remove_from_org_modal.success'),
-      });
-    },
-    onError: () => {
-      showToast({ type: 'error', message: t('member.error.remove_failed') });
-    },
-  });
-
-  const assignRoleMutation = useMutation<void, Error, AssignRoleMutationInput>({
-    mutationFn: async ({ userId, roleIds }: AssignRoleMutationInput) => {
-      for (const roleId of roleIds) {
-        if (assignRoleAction?.onBefore && !assignRoleAction.onBefore({ userId, roleId })) {
-          throw new Error('Assign role cancelled by onBefore');
-        }
-      }
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.members.roles.assign(userId, { role_ids: roleIds });
-      for (const roleId of roleIds) {
-        assignRoleAction?.onAfter?.({ userId, roleId });
-      }
-    },
-    onSuccess: (_, { roleIds }) => {
-      if (roleIds.length === 1) {
-        showToast({ type: 'success', message: t('member.assign_role_modal.success') });
-      } else showToast({ type: 'success', message: t('member.assign_role_modal.success_plural') });
-      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.members() });
-    },
-    onError: () => {
-      showToast({ type: 'error', message: t('member.error.assign_role_failed') });
-    },
-  });
-
   return {
     providersQuery,
     rolesQuery,
     invitationsQuery,
+    membersQuery,
     createInvitationMutation,
     revokeInvitationMutation,
     resendInvitationMutation,
     fetchInvitationDetails,
-    membersQuery,
-    assignRoleMutation,
-    removeFromOrgMutation,
   };
 }

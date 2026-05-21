@@ -11,11 +11,7 @@ export { useCoreClientInitialization } from './shared/use-core-client-initializa
 export { useErrorHandler } from './shared/use-error-handler';
 
 // My Account hooks
-export { useContactEnrollment } from './my-account/use-contact-enrollment';
-export { useOtpConfirmation } from './my-account/use-otp-confirmation';
-export { useOtpEnrollment } from './my-account/use-otp-enrollment';
-export { useMFA } from './my-account/use-mfa';
-export { useRecoveryCodeGeneration } from './my-account/use-recovery-code';
+export { useUserMFA } from './my-account/use-user-mfa';
 
 // My Organization hooks
 export { useConfig } from './my-organization/use-config';
@@ -31,3 +27,4 @@ export { useSsoProviderTable } from './my-organization/use-sso-provider-table';
 
 // Member Management hooks
 export { useOrganizationMemberManagement } from './my-organization/use-organization-member-management';
+export { useOrganizationMemberDetail } from './my-organization/use-member-detail';

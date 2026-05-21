@@ -133,7 +133,7 @@ export interface AuthDetails {
   domain?: string | undefined;
   authProxyUrl?: string | undefined;
   contextInterface?: BasicAuth0ContextInterface | undefined;
-  fetcher?: (url: string, init?: RequestInit) => Promise<Response>;
+  fetcher?: (url: string, init?: RequestInit, authParams?: FetcherAuthParams) => Promise<Response>;
   previewMode?: boolean; // For docs - skip API client initialization
 }
 

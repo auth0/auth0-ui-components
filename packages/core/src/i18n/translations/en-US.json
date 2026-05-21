@@ -2,6 +2,11 @@
   "common": {
     "copy": "Copy",
     "copied": "Copied!",
+    "copy_failed": "Failed to copy",
+    "data_table": {
+      "select_all": "Select all rows",
+      "select_row": "Select row"
+    },
     "error": {
       "generic": "There was an issue processing your request. Please try again or contact support if the issue persists.",
       "bad_request": "The request is invalid. Please check your input and try again.",
@@ -904,6 +909,7 @@
       "delete_success": "${providerName} has been deleted.",
       "remove_success": "${providerName} has been removed from ${organizationName}",
       "update_success": "Changes to ${providerName} have been saved.",
+      "enable_on_before": "Enable provider validation failed.",
       "general_error": "There was an issue processing your request. Please try again or contact support if the issue persists.",
       "domain_create": {
         "success": "${domainName} has been created.",
@@ -1088,11 +1094,26 @@
           "roles": "Roles",
           "last_login": "Last Login"
         },
-        "empty_message": "No members found.",
-        "search_placeholder": "Search by email...",
+        "empty_message": "This organization does not have any members.",
+        "search_placeholder": "Search for a member by name or email",
         "filter_by_role": "Filter By Role",
         "all_roles": "All",
-        "reset_filter": "Reset"
+        "reset_filter": "Reset",
+        "never": "Never",
+        "just_now": "Just now",
+        "ago": "ago",
+        "minute": "minute",
+        "minutes": "minutes",
+        "hour": "hour",
+        "hours": "hours",
+        "day": "day",
+        "days": "days",
+        "week": "week",
+        "weeks": "weeks",
+        "month": "month",
+        "months": "months",
+        "year": "year",
+        "years": "years"
       },
       "actions": {
         "menu_label": "Actions",
@@ -1102,13 +1123,15 @@
       },
       "error": {
         "fetch_failed": "Failed to load members. Please try again.",
-        "remove_failed": "Failed to remove member. Please try again."
+        "remove_failed": "Failed to remove member. Please try again.",
+        "assign_role_failed": "Failed to assign role. Please try again."
       },
       "remove_from_org_modal": {
         "title": "Remove Member from ${organizationName}",
         "description": "Are you sure you want to remove ${memberName} from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
         "remove_button": "Remove",
-        "cancel_button": "Cancel"
+        "cancel_button": "Cancel",
+        "success": "Member has been removed from the organization."
       },
       "assign_role_modal": {
         "title": "Assign Roles",
@@ -1139,31 +1162,30 @@
           "remove_from_org": {
             "title": "Remove Member from Organization",
             "description": "Once confirmed, this operation cannot be undone.",
-            "delete_button": "Delete"
-          },
-          "delete_member": {
-            "title": "Delete member",
-            "title_plural": "Delete members",
-            "description": "Are you sure you want to delete ${email}? This action cannot be undone.",
-            "description_plural": "Are you sure you want to delete ${count} members? This action cannot be undone.",
-            "confirm_button": "Delete",
-            "cancel_button": "Cancel",
-            "success": "${email} has been deleted.",
-            "success_plural": "The selected members have been deleted."
+            "button": "Delete",
+            "modal": {
+              "title": "Remove Member from ${orgName}",
+              "description": "Are you sure you want to remove \"${memberName}\" from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
+              "cancel_button": "Cancel",
+              "confirm_button": "Remove"
+            }
           }
         },
         "roles": {
           "title": "Roles",
-          "description": "Manage user roles and permissions when accessing ${appName}.",
+          "description": "Manage user roles and permissions when accessing ${orgName}.",
           "assign_button": "Assign Roles",
           "no_roles_available": "There are no more roles available to assign to this member.",
           "max_roles_reached": "You have reached the maximum of ${max} roles for this member.",
           "remove_button": "Remove Role",
           "remove_button_plural": "Remove Roles",
+          "roles_selected": "${count} role selected",
+          "roles_selected_plural": "${count} roles selected",
           "table": {
             "name": "Name",
             "description": "Description",
-            "empty_message": "No roles assigned."
+            "empty_message": "No roles assigned.",
+            "remove_button_label": "Remove role ${roleName}"
           },
           "assign_modal": {
             "title": "Assign Roles",
@@ -1181,14 +1203,14 @@
             "description": "This will remove the <bold>${roleName}</bold> role from <bold>\"${memberName}\"</bold>.",
             "confirm_button": "Remove",
             "cancel_button": "Cancel",
-            "success": "<bold>\"${roleName}\"</bold> role has been removed from member."
+            "success": "<bold>\"${roleName}\"</bold> role has been removed from member.",
+            "success_plural": "${roleNames} roles have been removed from member."
           }
         },
         "error": {
           "fetch_failed": "Failed to load member details. Please try again.",
           "fetch_roles_failed": "Failed to load member roles. Please try again.",
           "remove_from_org_failed": "Failed to remove member from organization. Please try again.",
-          "delete_failed": "Failed to delete member. Please try again.",
           "assign_role_failed": "Failed to assign role. Please try again.",
           "remove_role_failed": "Failed to remove role. Please try again."
         }
@@ -1217,6 +1239,7 @@
         "menu_label": "Actions",
         "view_details": "View Details",
         "copy_url": "Copy Invitation URL",
+        "copied": "Copied!",
         "revoke_and_resend": "Revoke and Resend",
         "revoke": "Revoke Invitation"
       },

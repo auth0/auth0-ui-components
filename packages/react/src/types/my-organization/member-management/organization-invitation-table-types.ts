@@ -12,6 +12,12 @@ import type {
   Role,
 } from '@auth0/universal-components-core';
 
+import type {
+  MemberManagementFilterState,
+  MemberManagementPaginationState,
+  MemberManagementSortConfig,
+} from '@/types';
+
 /** Invitation status. */
 export type InvitationStatus = 'pending' | 'expired';
 
@@ -36,27 +42,6 @@ export interface CreateInvitationInput {
   ttl_sec?: number;
 }
 
-/** Pagination state for member management tables - invitation and member tables (checkpoint-based). */
-export interface MemberManagementPaginationState {
-  pageSize: number;
-  currentPage: number;
-  totalItems?: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-}
-
-/** Sort configuration for member management tables. */
-export interface MemberManagementSortConfig {
-  key: string | null;
-  direction: 'asc' | 'desc';
-}
-
-/** Filter state for member management tables. */
-export interface MemberManagementFilterState {
-  searchQuery?: string;
-  roleId?: string;
-}
-
 /** CSS classes for OrganizationInvitationTab. */
 export interface OrganizationInvitationTabClasses {
   'OrganizationInvitationTab-root'?: string;
@@ -71,10 +56,11 @@ export interface OrganizationInvitationTabClasses {
 }
 
 /** Props for OrganizationInvitationTab component. */
-export interface OrganizationInvitationTabProps extends SharedComponentProps<
-  OrganizationInvitationTabMessages,
-  OrganizationInvitationTabClasses
-> {
+export interface OrganizationInvitationTabProps
+  extends SharedComponentProps<
+    OrganizationInvitationTabMessages,
+    OrganizationInvitationTabClasses
+  > {
   createAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   revokeAction?: ComponentAction<MemberInvitation>;
 }
@@ -96,6 +82,7 @@ export interface OrganizationInvitationTableProps {
   loading?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   pagination: MemberManagementPaginationState;
+  pageSizeOptions?: number[];
   filters?: MemberManagementFilterState;
   sortConfig?: MemberManagementSortConfig;
   availableRoles?: Role[];

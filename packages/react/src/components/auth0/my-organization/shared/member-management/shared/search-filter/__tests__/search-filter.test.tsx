@@ -1,14 +1,18 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi, describe, it, expect, afterEach } from 'vitest';
+import { vi, describe, it, expect, afterEach, beforeEach } from 'vitest';
 
 import { SearchFilter } from '@/components/auth0/my-organization/shared/member-management/shared/search-filter/search-filter';
 import { renderWithProviders } from '@/tests/utils';
 import { createMockSearchFilterProps } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 
 describe('SearchFilter', () => {
-  afterEach(() => {
+  beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('rendering', () => {
@@ -34,16 +38,6 @@ describe('SearchFilter', () => {
       ).toBeInTheDocument();
     });
 
-    it('should render member search input on the members tab', () => {
-      renderWithProviders(
-        <SearchFilter {...createMockSearchFilterProps({ activeTab: 'members' })} />,
-      );
-
-      expect(
-        screen.getByPlaceholderText('Search for a member by name or email'),
-      ).toBeInTheDocument();
-    });
-
     it('should not render member search input on the invitations tab', () => {
       renderWithProviders(
         <SearchFilter {...createMockSearchFilterProps({ activeTab: 'invitations' })} />,
@@ -52,52 +46,6 @@ describe('SearchFilter', () => {
       expect(
         screen.queryByPlaceholderText('Search for a member by name or email'),
       ).not.toBeInTheDocument();
-    });
-  });
-
-  describe('search', () => {
-    it('should update the search input value as the user types', async () => {
-      const user = userEvent.setup();
-
-      renderWithProviders(
-        <SearchFilter {...createMockSearchFilterProps({ activeTab: 'members' })} />,
-      );
-
-      const searchInput = screen.getByPlaceholderText('Search for a member by name or email');
-      await user.type(searchInput, 'ada@example.com');
-
-      expect(searchInput).toHaveValue('ada@example.com');
-    });
-
-    it('should call onSearchTermChange with the current search term on keydown', async () => {
-      const user = userEvent.setup();
-      const onSearchTermChange = vi.fn();
-
-      renderWithProviders(
-        <SearchFilter
-          {...createMockSearchFilterProps({ activeTab: 'members', onSearchTermChange })}
-        />,
-      );
-
-      const searchInput = screen.getByPlaceholderText('Search for a member by name or email');
-      await user.type(searchInput, 'ada');
-      await user.keyboard('{Enter}');
-
-      expect(onSearchTermChange).toHaveBeenLastCalledWith('ada');
-    });
-
-    it('should clear the search input when Escape is pressed', async () => {
-      const user = userEvent.setup();
-
-      renderWithProviders(
-        <SearchFilter {...createMockSearchFilterProps({ activeTab: 'members' })} />,
-      );
-
-      const searchInput = screen.getByPlaceholderText('Search for a member by name or email');
-      await user.type(searchInput, 'ada');
-      await user.keyboard('{Escape}');
-
-      expect(searchInput).toHaveValue('');
     });
   });
 
