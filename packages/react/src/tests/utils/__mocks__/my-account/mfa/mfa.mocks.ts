@@ -1,10 +1,7 @@
 import type { Authenticator, MFAType } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import type {
-  UserMFAMgmtHandlerProps,
-  UserMFAMgmtLogicProps,
-} from '@/types/my-account/mfa/mfa-types';
+import type { UserMFAMgmtViewProps } from '@/types/my-account/mfa/mfa-types';
 
 export const createMockAuthenticator = (overrides?: Partial<Authenticator>): Authenticator => ({
   id: 'auth_mock123',
@@ -122,11 +119,12 @@ export const createMockAPIError = (message: string, statusCode?: number) => {
   return error;
 };
 
-export const createMockUserMFAMgmtLogic = (
-  logicOverrides: Partial<UserMFAMgmtLogicProps> = {},
-): UserMFAMgmtLogicProps => ({
-  isLoading: false,
+export const createMockUserMFAMgmtViewProps = (
+  overrides: Partial<UserMFAMgmtViewProps> = {},
+): UserMFAMgmtViewProps => ({
+  isEnrolling: false,
   isDeleting: false,
+  isConfirming: false,
   customMessages: {},
   hideHeader: false,
   showActiveOnly: false,
@@ -136,19 +134,16 @@ export const createMockUserMFAMgmtLogic = (
   factorConfig: {},
   error: null,
   schema: undefined,
-  dialogOpen: false,
+  isEnrollDialogOpen: false,
   enrollFactor: null,
+  enrollmentPhase: null,
+  contact: '',
+  otpData: { barcodeUri: '', manualInputCode: '' },
+  recoveryCode: '',
   isDeleteDialogOpen: false,
   factorToDelete: null,
   factorsByType: {
-    email: [
-      {
-        id: '2',
-        type: 'email',
-        enrolled: false,
-        created_at: null,
-      },
-    ],
+    email: [{ id: '2', type: 'email', enrolled: false, created_at: null }],
     phone: [],
     'push-notification': [],
     totp: [],
@@ -160,21 +155,16 @@ export const createMockUserMFAMgmtLogic = (
   },
   visibleFactorTypes: ['email'],
   hasNoActiveFactors: false,
-  confirmEnrollment: vi.fn(),
   styling: undefined,
-  ...logicOverrides,
-});
-
-export const createMockUserMFAMgmtHandlers = (
-  handlerOverrides: Partial<UserMFAMgmtHandlerProps> = {},
-): UserMFAMgmtHandlerProps => ({
-  enrollMfa: vi.fn(),
   onEnrollFactor: vi.fn(),
   onDeleteFactor: vi.fn(),
-  handleCloseDialog: vi.fn(),
-  handleEnrollError: vi.fn(),
-  handleEnrollSuccess: vi.fn(),
-  handleConfirmDelete: vi.fn(),
-  setIsDeleteDialogOpen: vi.fn(),
-  ...handlerOverrides,
+  onCloseEnrollDialog: vi.fn(),
+  onConfirmDelete: vi.fn(),
+  onCancelDelete: vi.fn(),
+  onSubmitContact: vi.fn().mockResolvedValue(true),
+  onConfirmOtp: vi.fn(),
+  onContinueQR: vi.fn(),
+  onConfirmRecoveryCode: vi.fn(),
+  onAdvanceToQR: vi.fn(),
+  ...overrides,
 });
