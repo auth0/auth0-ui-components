@@ -12,13 +12,13 @@ import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-paginatio
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   CreateInvitationInput,
-  MemberManagementFilterState,
-  MemberManagementSortConfig,
   IdentityProviderOption,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   ActiveTab,
   MemberManagementModalState,
+  MemberManagementFilterState,
+  MemberManagementSortConfig,
   UseOrganizationMemberManagementOptions,
   UseOrganizationMemberManagementResult,
 } from '@/types/my-organization/member-management/organization-member-management-types';

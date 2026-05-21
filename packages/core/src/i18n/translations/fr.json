@@ -1032,10 +1032,25 @@
           "last_login": "Dernière connexion"
         },
         "empty_message": "Cette organisation n'a aucun membre.",
-        "search_placeholder": "Rechercher par e-mail...",
+        "search_placeholder": "Rechercher un membre par nom ou e-mail",
         "filter_by_role": "Filtrer par rôle",
         "all_roles": "Tous",
-        "reset_filter": "Réinitialiser"
+        "reset_filter": "Réinitialiser",
+        "never": "Jamais",
+        "just_now": "À l'instant",
+        "ago": "il y a",
+        "minute": "minute",
+        "minutes": "minutes",
+        "hour": "heure",
+        "hours": "heures",
+        "day": "jour",
+        "days": "jours",
+        "week": "semaine",
+        "weeks": "semaines",
+        "month": "mois",
+        "months": "mois",
+        "year": "an",
+        "years": "ans"
       },
       "actions": {
         "menu_label": "Actions",

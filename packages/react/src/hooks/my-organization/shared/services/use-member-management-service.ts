@@ -16,13 +16,11 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type {
-  CreateInvitationInput,
-  MemberManagementSortConfig,
-} from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   UseMemberManagementServiceOptions,
   MemberManagementServiceResult,
+  MemberManagementSortConfig,
 } from '@/types/my-organization/member-management/organization-member-management-types';
 
 const INVITATION_SORT_FIELD_MAP: Record<string, string> = {

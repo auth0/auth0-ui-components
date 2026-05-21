@@ -16,13 +16,31 @@ import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 import type {
   CreateInvitationInput,
   IdentityProviderOption,
-  MemberManagementFilterState,
-  MemberManagementPaginationState,
-  MemberManagementSortConfig,
   OrganizationInvitationTabClasses,
 } from './organization-invitation-table-types';
 
 export type ActiveTab = 'members' | 'invitations';
+
+/** Pagination state for member management tables - invitation and member tables (checkpoint-based). */
+export interface MemberManagementPaginationState {
+  pageSize: number;
+  currentPage: number;
+  totalItems?: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+/** Sort configuration for member management tables. */
+export interface MemberManagementSortConfig {
+  key: string | null;
+  direction: 'asc' | 'desc';
+}
+
+/** Filter state for member management tables. */
+export interface MemberManagementFilterState {
+  searchQuery?: string;
+  roleId?: string;
+}
 
 export interface TableQueryParams<TSort, TFilter> {
   pageSize: number;
@@ -167,28 +185,4 @@ export interface OrganizationMemberManagementProps
   removeFromOrgAction?: ComponentAction<{ userId: string }>;
   /** Action hooks for assigning a role to a member (onBefore/onAfter) */
   assignRoleAction?: ComponentAction<{ userId: string; roleId: string }>;
-}
-
-/** Props for OrganizationMemberAssignRoleModal component. */
-export interface OrganizationMemberAssignRoleModalProps {
-  member: OrgMember | null;
-  isOpen: boolean;
-  isLoading?: boolean;
-  availableRoles: Role[];
-  assignedRoles: Role[];
-  className?: string;
-  customMessages?: Partial<OrganizationMemberManagementMessages>;
-  onClose: () => void;
-  onAssign: (userId: string, roleIds: string[]) => void;
-}
-
-/** Props for OrganizationMemberRemoveFromOrgModal component. */
-export interface OrganizationMemberRemoveFromOrgModalProps {
-  member: OrgMember | null;
-  isOpen: boolean;
-  isLoading?: boolean;
-  className?: string;
-  customMessages?: Partial<OrganizationMemberManagementMessages>;
-  onClose: () => void;
-  onConfirm: (userId: string) => void;
 }

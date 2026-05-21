@@ -1095,10 +1095,25 @@
           "last_login": "最終ログイン"
         },
         "empty_message": "この組織にはメンバーがいません。",
-        "search_placeholder": "メールで検索...",
+        "search_placeholder": "名前またはメールでメンバーを検索",
         "filter_by_role": "ロールでフィルター",
         "all_roles": "すべて",
-        "reset_filter": "リセット"
+        "reset_filter": "リセット",
+        "never": "一度もない",
+        "just_now": "たった今",
+        "ago": "前",
+        "minute": "分",
+        "minutes": "分",
+        "hour": "時間",
+        "hours": "時間",
+        "day": "日",
+        "days": "日",
+        "week": "週間",
+        "weeks": "週間",
+        "month": "か月",
+        "months": "か月",
+        "year": "年",
+        "years": "年"
       },
       "actions": {
         "menu_label": "アクション",

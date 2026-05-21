@@ -14,7 +14,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
-import { Link } from '@/components/ui/link';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { OrganizationMemberTableActionsColumnProps } from '@/types/my-organization/member-management/organization-member-table-types';
 
@@ -24,17 +23,22 @@ import type { OrganizationMemberTableActionsColumnProps } from '@/types/my-organ
  * @param props - Component props.
  * @param props.member - The member to show actions for.
  * @param props.customMessages - Custom translation messages to override defaults.
- * @param props.readOnly - Whether the component is in read-only mode.
  * @param props.onAssignRole - Callback fired when assign role action is triggered.
  * @param props.onRemoveFromOrg - Callback fired when remove from organization action is triggered.
  * @returns JSX element.
  */
 export function OrganizationMemberTableActionsColumn({
   member,
+  customMessages = {},
+  onViewDetails,
   onAssignRole,
   onRemoveFromOrg,
 }: OrganizationMemberTableActionsColumnProps): React.JSX.Element {
-  const { t } = useTranslator('member_management');
+  const { t } = useTranslator('member_management', customMessages);
+
+  const handleViewDetails = React.useCallback(() => {
+    onViewDetails?.(member);
+  }, [member, onViewDetails]);
 
   const handleAssignRole = React.useCallback(() => {
     onAssignRole?.(member);
@@ -56,19 +60,14 @@ export function OrganizationMemberTableActionsColumn({
         </DropdownMenuTrigger>
         <DropdownMenuPortal>
           <DropdownMenuContent align="end">
-            {/* View Details */}
-            <DropdownMenuItem>
-              <Link href={`/member-management/${member.user_id}`} underline="none">
-                <Eye className="mr-2 h-4 w-4" />
-                {t('member.actions.view_details')}
-              </Link>
+            <DropdownMenuItem onClick={handleViewDetails}>
+              <Eye className="mr-2 h-4 w-4" />
+              {t('member.actions.view_details')}
             </DropdownMenuItem>
-            {/* Assign Role */}
             <DropdownMenuItem onClick={handleAssignRole}>
               <UserRoundCheck className="mr-2 h-4 w-4" />
               {t('member.actions.assign_role')}
             </DropdownMenuItem>
-            {/* Remove from Org */}
             <DropdownMenuItem
               onClick={handleRemoveFromOrg}
               className="text-destructive-foreground focus:text-destructive-foreground"

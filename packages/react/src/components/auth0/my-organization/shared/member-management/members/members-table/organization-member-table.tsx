@@ -12,12 +12,14 @@ import { OrganizationMemberTableActionsColumn } from './organization-member-tabl
 import { SearchFilter } from '@/components/auth0/my-organization/shared/member-management/shared/search-filter/search-filter';
 import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import {
+  getInitials,
   getMemberDisplayName,
+  getMemberPicture,
   getRelativeLastLoginLabel,
-  MemberAvatar,
 } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type { OrganizationMemberTableProps } from '@/types/my-organization/member-management/organization-member-table-types';
 
@@ -28,6 +30,7 @@ import type { OrganizationMemberTableProps } from '@/types/my-organization/membe
  * @param props.members - The list of members to display.
  * @param props.loading - Whether the table is loading.
  * @param props.pagination - Pagination state.
+ * @param props.pageSizeOptions - Options for page size selection.
  * @param props.filters - Current filter state.
  * @param props.availableRoles - Available roles for filtering.
  * @param props.onView - Callback when viewing member details.
@@ -45,6 +48,7 @@ export function OrganizationMemberTable({
   members,
   loading = false,
   pagination,
+  pageSizeOptions,
   filters,
   customMessages = {},
   availableRoles,
@@ -62,18 +66,23 @@ export function OrganizationMemberTable({
 }: OrganizationMemberTableProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
-  const renderName = React.useCallback(
-    (member: OrgMember) => (
+  const renderName = React.useCallback((member: OrgMember) => {
+    const memberPictureUrl = getMemberPicture(member);
+    const displayName = getMemberDisplayName(member);
+    const initials = getInitials(displayName);
+    return (
       <div className="flex items-center gap-4">
-        <MemberAvatar member={member} />
+        <Avatar>
+          <AvatarImage src={memberPictureUrl} alt={displayName} />
+          <AvatarFallback>{initials}</AvatarFallback>
+        </Avatar>
         <div className="min-w-0">
-          <div className="truncate font-medium text-primary">{getMemberDisplayName(member)}</div>
+          <div className="truncate font-medium text-primary">{displayName}</div>
           <div className="truncate text-muted-foreground">{member.email ?? '-'}</div>
         </div>
       </div>
-    ),
-    [],
-  );
+    );
+  }, []);
 
   const renderRoles = React.useCallback((member: OrgMember) => {
     const roleNames = member.roles?.map((role) => role.name) ?? [];
@@ -93,9 +102,14 @@ export function OrganizationMemberTable({
     );
   }, []);
 
-  const renderLastLogin = React.useCallback((member: OrgMember) => {
-    return <span className="text-primary">{getRelativeLastLoginLabel(member.last_login)}</span>;
-  }, []);
+  const renderLastLogin = React.useCallback(
+    (member: OrgMember) => {
+      return (
+        <span className="text-primary">{getRelativeLastLoginLabel(member.last_login, t)}</span>
+      );
+    },
+    [t],
+  );
 
   const columns: Column<OrgMember>[] = React.useMemo(
     () => [
@@ -138,15 +152,13 @@ export function OrganizationMemberTable({
 
   return (
     <div className={cn('flex flex-col', className)}>
-      {false && (
-        <SearchFilter
-          filters={filters}
-          availableRoles={availableRoles}
-          activeTab="members"
-          onRoleFilterChange={onRoleFilterChange}
-          onSearchTermChange={onSearchTermChange}
-        />
-      )}
+      <SearchFilter
+        filters={filters}
+        availableRoles={availableRoles}
+        activeTab="members"
+        onRoleFilterChange={onRoleFilterChange}
+        onSearchTermChange={onSearchTermChange}
+      />
 
       <DataTable
         columns={columns}
@@ -168,7 +180,7 @@ export function OrganizationMemberTable({
               hasNextPage: pagination.hasNextPage,
               hasPreviousPage: pagination.hasPreviousPage,
             }}
-            pageSizeOptions={[10, 25, 50]}
+            pageSizeOptions={pageSizeOptions}
             showPageSizeSelector
             showPageInfo
             onNextPage={onNextPage}

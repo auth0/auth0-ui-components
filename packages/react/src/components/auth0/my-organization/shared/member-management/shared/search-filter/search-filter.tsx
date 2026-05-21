@@ -56,9 +56,11 @@ export function SearchFilter({
       if (event.key === 'Escape') {
         setSearchTerm('');
       }
-      onSearchTermChange?.(searchTerm);
+      if (event.key === 'Enter') {
+        onSearchTermChange?.(searchTerm);
+      }
     },
-    [searchTerm],
+    [searchTerm, onSearchTermChange],
   );
 
   const handleReset = React.useCallback(() => {
@@ -76,7 +78,7 @@ export function SearchFilter({
       {activeTab === 'members' && (
         <Search
           className="flex-1"
-          placeholder="Search for a member by name or email"
+          placeholder={t('member.table.search_placeholder')}
           value={searchTerm}
           onChange={setSearchTerm}
           onKeyDown={handleKeyDownSearch}

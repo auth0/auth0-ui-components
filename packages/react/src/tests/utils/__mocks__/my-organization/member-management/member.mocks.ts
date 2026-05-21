@@ -69,10 +69,7 @@ export const createMockMemberTableProps = (
   },
   filters: {},
   sortConfig: { key: null, direction: 'asc' },
-  availableRoles: [
-    { id: 'role_admin', name: 'Admin' },
-    { id: 'role_member', name: 'Member' },
-  ],
+  availableRoles: [],
   onView: vi.fn(),
   onAssignRole: vi.fn(),
   onRemoveFromOrg: vi.fn(),

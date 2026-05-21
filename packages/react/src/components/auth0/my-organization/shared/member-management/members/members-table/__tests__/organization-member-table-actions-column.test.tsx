@@ -1,6 +1,6 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { OrganizationMemberTableActionsColumn } from '@/components/auth0/my-organization/shared/member-management/members/members-table/organization-member-table-actions-column';
 import { renderWithProviders } from '@/tests/utils';
@@ -12,6 +12,10 @@ import {
 describe('OrganizationMemberTableActionsColumn', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('Rendering and Basic Structure', () => {
@@ -73,16 +77,18 @@ describe('OrganizationMemberTableActionsColumn', () => {
   });
 
   describe('Actions', () => {
-    it('should link View Details to the member management details route', async () => {
+    it('should call onViewDetails when View Details is clicked', async () => {
       const user = userEvent.setup();
+      const onViewDetails = vi.fn();
       const member = createMockMember({ user_id: 'usr_abc' });
-      const props = createMockMemberActionsColumnProps({ member });
+      const props = createMockMemberActionsColumnProps({ member, onViewDetails });
       renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
 
       await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
+      await user.click(screen.getByRole('menuitem', { name: 'member.actions.view_details' }));
 
-      const viewDetailsLink = screen.getByRole('link', { name: 'member.actions.view_details' });
-      expect(viewDetailsLink).toHaveAttribute('href', '/member-management/usr_abc');
+      expect(onViewDetails).toHaveBeenCalledTimes(1);
+      expect(onViewDetails).toHaveBeenCalledWith(member);
     });
 
     it('should call onAssignRole when Assign Role is clicked', async () => {
