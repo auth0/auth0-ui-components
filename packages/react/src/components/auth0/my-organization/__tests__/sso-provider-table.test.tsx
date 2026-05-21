@@ -9,7 +9,7 @@ import { SsoProviderTableView } from '@/components/auth0/my-organization/sso-pro
 import * as useConfigModule from '@/hooks/my-organization/use-config';
 import * as useIdpConfigModule from '@/hooks/my-organization/use-idp-config';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import { createMockSsoProviderTableHandler, createMockSsoProviderTableLogic } from '@/tests/utils';
+import { createMockSsoProviderTableViewProps } from '@/tests/utils';
 import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
 import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
@@ -17,12 +17,8 @@ import { createTestQueryClient, renderWithProviders } from '@/tests/utils/test-p
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { SsoProviderTableProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
-// ===== Mock packages =====
-
 mockToast();
 const { initMockCoreClient } = mockCore();
-
-// ===== Local mock creators =====
 
 const createMockSsoProviderTableProps = (
   overrides?: Partial<SsoProviderTableProps>,
@@ -73,8 +69,6 @@ const createMockDeleteFromOrganizationAction = (): ComponentAction<IdpKnownRespo
   onAfter: vi.fn(),
 });
 
-// ===== Local utils =====
-
 const waitForComponentToLoad = async () => {
   return await waitFor(() => {
     expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
@@ -96,8 +90,6 @@ const createMockIdpConfig = () => ({
     waad: { enabled_features: [], provisioning_methods: [] },
   },
 });
-
-// ===== Tests =====
 
 describe('SsoProviderTable', () => {
   const mockProvider = createMockIdentityProvider();
@@ -261,7 +253,6 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          // Open the dropdown menu for the row
           const actionButtons = screen.getAllByRole('button');
           const rowActionButton = actionButtons.find(
             (btn) =>
@@ -271,7 +262,6 @@ describe('SsoProviderTable', () => {
           expect(rowActionButton).toBeDefined();
           await user.click(rowActionButton!);
 
-          // Edit menu item should be disabled
           const editMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.edit_button_text/i,
           });
@@ -290,7 +280,6 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          // Open the dropdown menu for the row
           const actionButtons = screen.getAllByRole('button');
           const rowActionButton = actionButtons.find(
             (btn) =>
@@ -300,7 +289,6 @@ describe('SsoProviderTable', () => {
           expect(rowActionButton).toBeDefined();
           await user.click(rowActionButton!);
 
-          // Edit menu item should not be disabled
           const editMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.edit_button_text/i,
           });
@@ -320,7 +308,6 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          // Open the dropdown menu for the row
           const actionButtons = screen.getAllByRole('button');
           const rowActionButton = actionButtons.find(
             (btn) =>
@@ -330,7 +317,6 @@ describe('SsoProviderTable', () => {
           expect(rowActionButton).toBeDefined();
           await user.click(rowActionButton!);
 
-          // Click the edit menu item
           const editMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.edit_button_text/i,
           });
@@ -359,7 +345,6 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          // Open the dropdown menu for the row
           const actionButtons = screen.getAllByRole('button');
           const rowActionButton = actionButtons.find(
             (btn) =>
@@ -369,7 +354,6 @@ describe('SsoProviderTable', () => {
           expect(rowActionButton).toBeDefined();
           await user.click(rowActionButton!);
 
-          // Delete menu item should be disabled when readOnly is true
           const deleteMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.delete_button_text/i,
           });
@@ -388,7 +372,6 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          // Open the dropdown menu for the row
           const actionButtons = screen.getAllByRole('button');
           const rowActionButton = actionButtons.find(
             (btn) =>
@@ -398,7 +381,6 @@ describe('SsoProviderTable', () => {
           expect(rowActionButton).toBeDefined();
           await user.click(rowActionButton!);
 
-          // Delete menu item should not be disabled
           const deleteMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.delete_button_text/i,
           });
@@ -420,7 +402,6 @@ describe('SsoProviderTable', () => {
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
 
-            // Open the dropdown menu for the row
             const actionButtons = screen.getAllByRole('button');
             const rowActionButton = actionButtons.find(
               (btn) =>
@@ -430,7 +411,6 @@ describe('SsoProviderTable', () => {
             expect(rowActionButton).toBeDefined();
             await user.click(rowActionButton!);
 
-            // Click the delete menu item
             const deleteMenuItem = screen.getByRole('menuitem', {
               name: /table.actions.delete_button_text/i,
             });
@@ -439,7 +419,6 @@ describe('SsoProviderTable', () => {
             // onBefore should be called with the provider data
             expect(mockDeleteAction.onBefore).toHaveBeenCalledWith(mockProvider);
 
-            // Delete modal should be shown
             await waitFor(() => {
               expect(screen.getByRole('dialog')).toBeInTheDocument();
             });
@@ -457,7 +436,6 @@ describe('SsoProviderTable', () => {
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
 
-            // Open the dropdown menu for the row
             const actionButtons = screen.getAllByRole('button');
             const rowActionButton = actionButtons.find(
               (btn) =>
@@ -467,7 +445,6 @@ describe('SsoProviderTable', () => {
             expect(rowActionButton).toBeDefined();
             await user.click(rowActionButton!);
 
-            // Click the delete menu item
             const deleteMenuItem = screen.getByRole('menuitem', {
               name: /table.actions.delete_button_text/i,
             });
@@ -476,7 +453,6 @@ describe('SsoProviderTable', () => {
             // onBefore should be called with the provider data
             expect(mockDeleteAction.onBefore).toHaveBeenCalledWith(mockProvider);
 
-            // Delete modal should NOT be shown
             expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
           });
         });
@@ -494,7 +470,6 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          // Open the dropdown menu for the row
           const actionButtons = screen.getAllByRole('button');
           const rowActionButton = actionButtons.find(
             (btn) =>
@@ -504,22 +479,18 @@ describe('SsoProviderTable', () => {
           expect(rowActionButton).toBeDefined();
           await user.click(rowActionButton!);
 
-          // Click the delete menu item
           const deleteMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.delete_button_text/i,
           });
           await user.click(deleteMenuItem);
 
-          // Delete modal should be shown
           await waitFor(() => {
             expect(screen.getByRole('dialog')).toBeInTheDocument();
           });
 
-          // Type provider name to confirm
           const input = screen.getByRole('textbox');
           await user.type(input, mockProvider.name!);
 
-          // Find and click the confirm delete button in the modal
           const confirmButton = screen.getByRole('button', {
             name: /delete_modal.confirm_button_text|confirm|delete/i,
           });
@@ -550,7 +521,6 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          // Open the dropdown menu for the row
           const actionButtons = screen.getAllByRole('button');
           const rowActionButton = actionButtons.find(
             (btn) =>
@@ -560,7 +530,6 @@ describe('SsoProviderTable', () => {
           expect(rowActionButton).toBeDefined();
           await user.click(rowActionButton!);
 
-          // Remove from organization menu item should be disabled when readOnly is true
           const removeMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.remove_button_text/i,
           });
@@ -581,7 +550,6 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          // Open the dropdown menu for the row
           const actionButtons = screen.getAllByRole('button');
           const rowActionButton = actionButtons.find(
             (btn) =>
@@ -591,7 +559,6 @@ describe('SsoProviderTable', () => {
           expect(rowActionButton).toBeDefined();
           await user.click(rowActionButton!);
 
-          // Remove from organization menu item should not be disabled
           const removeMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.remove_button_text/i,
           });
@@ -615,7 +582,6 @@ describe('SsoProviderTable', () => {
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
 
-            // Open the dropdown menu for the row
             const actionButtons = screen.getAllByRole('button');
             const rowActionButton = actionButtons.find(
               (btn) =>
@@ -625,7 +591,6 @@ describe('SsoProviderTable', () => {
             expect(rowActionButton).toBeDefined();
             await user.click(rowActionButton!);
 
-            // Click the remove from organization menu item
             const removeMenuItem = screen.getByRole('menuitem', {
               name: /table.actions.remove_button_text/i,
             });
@@ -634,7 +599,6 @@ describe('SsoProviderTable', () => {
             // onBefore should be called with the provider data
             expect(mockDeleteFromOrganizationAction.onBefore).toHaveBeenCalledWith(mockProvider);
 
-            // Remove modal should be shown
             await waitFor(() => {
               expect(screen.getByRole('dialog')).toBeInTheDocument();
             });
@@ -654,7 +618,6 @@ describe('SsoProviderTable', () => {
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
 
-            // Open the dropdown menu for the row
             const actionButtons = screen.getAllByRole('button');
             const rowActionButton = actionButtons.find(
               (btn) =>
@@ -664,7 +627,6 @@ describe('SsoProviderTable', () => {
             expect(rowActionButton).toBeDefined();
             await user.click(rowActionButton!);
 
-            // Click the remove from organization menu item
             const removeMenuItem = screen.getByRole('menuitem', {
               name: /table.actions.remove_button_text/i,
             });
@@ -673,7 +635,6 @@ describe('SsoProviderTable', () => {
             // onBefore should be called with the provider data
             expect(mockDeleteFromOrganizationAction.onBefore).toHaveBeenCalledWith(mockProvider);
 
-            // Remove modal should NOT be shown
             expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
           });
         });
@@ -693,7 +654,6 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          // Open the dropdown menu for the row
           const actionButtons = screen.getAllByRole('button');
           const rowActionButton = actionButtons.find(
             (btn) =>
@@ -703,22 +663,18 @@ describe('SsoProviderTable', () => {
           expect(rowActionButton).toBeDefined();
           await user.click(rowActionButton!);
 
-          // Click the remove from organization menu item
           const removeMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.remove_button_text/i,
           });
           await user.click(removeMenuItem);
 
-          // Remove modal should be shown
           await waitFor(() => {
             expect(screen.getByRole('dialog')).toBeInTheDocument();
           });
 
-          // Type provider name to confirm
           const input = screen.getByRole('textbox');
           await user.type(input, mockProvider.name!);
 
-          // Find and click the confirm removal button in the modal
           const confirmButton = screen.getByRole('button', {
             name: /remove_modal.confirm_button_text|confirm|remove/i,
           });
@@ -751,11 +707,9 @@ describe('SsoProviderTable', () => {
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
 
-        // Find the toggle switch in the row
         const toggleSwitch = screen.getByRole('switch');
         expect(toggleSwitch).toBeInTheDocument();
 
-        // Click the toggle switch
         await user.click(toggleSwitch);
 
         // onBefore should be called with the provider data
@@ -763,7 +717,6 @@ describe('SsoProviderTable', () => {
           expect(enableProviderAction.onBefore).toHaveBeenCalledWith(mockProvider);
         });
 
-        // API update should be called
         await waitFor(() => {
           expect(
             mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.update,
@@ -789,11 +742,9 @@ describe('SsoProviderTable', () => {
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
 
-        // Find the toggle switch in the row
         const toggleSwitch = screen.getByRole('switch');
         expect(toggleSwitch).toBeInTheDocument();
 
-        // Click the toggle switch
         await user.click(toggleSwitch);
 
         // onBefore should be called
@@ -801,7 +752,6 @@ describe('SsoProviderTable', () => {
           expect(enableProviderAction.onBefore).toHaveBeenCalledWith(mockProvider);
         });
 
-        // API update should NOT be called since onBefore returned false
         expect(
           mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.update,
         ).not.toHaveBeenCalled();
@@ -822,7 +772,6 @@ describe('SsoProviderTable', () => {
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
 
-        // Find the toggle switch in the row
         const toggleSwitch = screen.getByRole('switch');
         expect(toggleSwitch).toBeInTheDocument();
         expect(toggleSwitch).toBeDisabled();
@@ -837,7 +786,6 @@ describe('SsoProviderTable', () => {
 
         await waitForComponentToLoad();
 
-        // Provider name should be displayed
         await waitFor(() => {
           expect(screen.getByText(mockProvider.name!)).toBeInTheDocument();
         });
@@ -864,49 +812,41 @@ describe('SsoProviderTable', () => {
 });
 
 describe('SsoProviderTableView', () => {
-  const logic = createMockSsoProviderTableLogic();
-  const handlers = createMockSsoProviderTableHandler();
+  const viewProps = createMockSsoProviderTableViewProps();
 
   it('renders the table and header', () => {
-    renderWithProviders(<SsoProviderTableView logic={logic} handlers={handlers} />);
+    renderWithProviders(<SsoProviderTableView {...viewProps} />);
     expect(screen.getByRole('table')).toBeInTheDocument();
     expect(screen.getByRole('banner')).toBeInTheDocument();
   });
 
   it('renders empty state when data is empty', () => {
-    renderWithProviders(
-      <SsoProviderTableView logic={{ ...logic, data: [] }} handlers={handlers} />,
-    );
+    renderWithProviders(<SsoProviderTableView {...viewProps} providers={[]} />);
     expect(screen.getByText(/empty/i)).toBeInTheDocument();
   });
 
   it('disables create button when readOnly is true', () => {
-    renderWithProviders(
-      <SsoProviderTableView logic={{ ...logic, readOnly: true }} handlers={handlers} />,
-    );
+    renderWithProviders(<SsoProviderTableView {...viewProps} readOnly={true} />);
     const createButton = screen.getByRole('button', { name: /create/i });
     expect(createButton).toBeDisabled();
   });
 
-  it('renders loading state when isLoading is true', () => {
-    renderWithProviders(
-      <SsoProviderTableView logic={{ ...logic, isLoading: true }} handlers={handlers} />,
-    );
-    expect(screen.getByRole('table')).toBeInTheDocument();
-    // Optionally check for a loading indicator if present in your DataTable
+  it('renders loading state when isViewLoading is true', () => {
+    renderWithProviders(<SsoProviderTableView {...viewProps} isViewLoading={true} />);
+    expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
 
   it('renders custom header class if provided', () => {
     renderWithProviders(
       <SsoProviderTableView
-        logic={{
-          ...logic,
-          styling: {
-            ...logic.styling,
-            classes: { ...logic?.styling?.classes, 'SsoProviderTable-header': 'custom-header' },
+        {...viewProps}
+        styling={{
+          ...viewProps.styling,
+          classes: {
+            ...viewProps?.styling?.classes,
+            'SsoProviderTable-header': 'custom-header',
           },
         }}
-        handlers={handlers}
       />,
     );
     expect(document.querySelector('.custom-header')).toBeInTheDocument();
@@ -915,14 +855,11 @@ describe('SsoProviderTableView', () => {
   it('renders custom table class if provided', () => {
     renderWithProviders(
       <SsoProviderTableView
-        logic={{
-          ...logic,
-          styling: {
-            ...logic.styling,
-            classes: { ...logic?.styling?.classes, 'SsoProviderTable-table': 'custom-table' },
-          },
+        {...viewProps}
+        styling={{
+          ...viewProps.styling,
+          classes: { ...viewProps?.styling?.classes, 'SsoProviderTable-table': 'custom-table' },
         }}
-        handlers={handlers}
       />,
     );
     expect(document.querySelector('.custom-table')).toBeInTheDocument();
