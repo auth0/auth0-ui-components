@@ -62,8 +62,8 @@ const DIGEST_ALGORITHMS = [
 ] as const;
 
 const BINDING_METHODS = [
-  { value: 'HTTP-Redirect', label: 'HTTP-Redirect' },
-  { value: 'HTTP-POST', label: 'HTTP-POST' },
+  { value: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect', label: 'HTTP-Redirect' },
+  { value: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST', label: 'HTTP-POST' },
 ] as const;
 
 export interface SamlpConfigureFormHandle {
@@ -103,7 +103,7 @@ export const SamlpProviderForm = React.forwardRef<
       signSAMLRequest: samlpData?.signSAMLRequest || false,
       signatureAlgorithm: samlpData?.signatureAlgorithm || 'rsa-sha256',
       digestAlgorithm: samlpData?.digestAlgorithm || 'sha256',
-      bindingMethod: samlpData?.bindingMethod || 'HTTP-POST',
+      bindingMethod: samlpData?.bindingMethod || 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
     },
   });
 

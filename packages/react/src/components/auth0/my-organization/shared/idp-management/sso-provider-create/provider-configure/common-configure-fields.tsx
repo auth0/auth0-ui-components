@@ -4,7 +4,7 @@
  * @internal
  */
 
-import type { IdpConfig } from '@auth0/universal-components-core';
+import type { GetIdpConfigurationResponseContent } from '@auth0/universal-components-core';
 import { useFormContext } from 'react-hook-form';
 
 import { Checkbox } from '@/components/ui/checkbox';
@@ -12,7 +12,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormDescription } from '@/
 import { useTranslator } from '@/hooks/shared/use-translator';
 
 interface CommonConfigureFieldsProps {
-  idpConfig: IdpConfig | null;
+  idpConfig: GetIdpConfigurationResponseContent | null;
   readOnly?: boolean;
   customMessages?: Partial<Record<string, unknown>>;
 }

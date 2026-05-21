@@ -2,7 +2,7 @@
 
 import {
   getComponentStyles,
-  type IdentityProvider,
+  type IdpKnownResponse,
   STRATEGY_DISPLAY_NAMES,
 } from '@auth0/universal-components-core';
 import { Plus } from 'lucide-react';
@@ -177,7 +177,7 @@ function SsoProviderTableView({ logic, handlers }: SsoProviderTableViewProps) {
     [styling, isDarkMode],
   );
 
-  const columns: Column<IdentityProvider>[] = React.useMemo(
+  const columns: Column<IdpKnownResponse>[] = React.useMemo(
     () => [
       {
         type: 'text',

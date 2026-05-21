@@ -21,7 +21,7 @@ export const MY_ORGANIZATION_DPOP_NONCE_ID = '__auth0_my_organization_api__';
 export function createMyOrganizationClient(config: ClientAuthConfig) {
   if (config.mode === 'proxy') {
     return new MyOrganizationClient({
-      domain: '',
+      domain: config.domain ?? '',
       baseUrl: new URL(MY_ORGANIZATION_PROXY_PATH, config.proxyUrl).href,
       telemetry: false,
       fetcher: createProxyFetcher(config.fetcher),

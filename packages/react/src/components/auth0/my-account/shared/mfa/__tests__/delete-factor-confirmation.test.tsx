@@ -72,7 +72,7 @@ describe('DeleteFactorConfirmation', () => {
     expect(mockOnCancel).toHaveBeenCalledTimes(1);
   });
 
-  it('should call onConfirm callback with factor id when confirm button is clicked', async () => {
+  it('should call onConfirm callback when confirm button is clicked', async () => {
     const user = userEvent.setup();
     const mockOnConfirm = vi.fn();
 
@@ -90,9 +90,8 @@ describe('DeleteFactorConfirmation', () => {
     // When confirm button is clicked, should trigger onConfirm callback
     await user.click(confirmButton);
 
-    // When onConfirm is called, should be invoked with factor id
+    // When onConfirm is called, should be invoked once
     expect(mockOnConfirm).toHaveBeenCalledTimes(1);
-    expect(mockOnConfirm).toHaveBeenCalledWith('test-id-123');
   });
 
   describe('Loading state during factor deletion', () => {

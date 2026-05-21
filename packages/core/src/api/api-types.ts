@@ -6,6 +6,9 @@
 
 /**
  * Represents a standardized API error shape.
+ *
+ * Intentionally custom: neither `@auth0/myaccount-js` nor `@auth0/myorganization-js`
+ * export an equivalent error response interface.
  * @internal
  */
 export interface ApiError {

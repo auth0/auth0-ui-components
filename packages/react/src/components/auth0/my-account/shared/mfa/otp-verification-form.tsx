@@ -24,42 +24,15 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { OTPField } from '@/components/ui/otp-field';
-import { useOtpConfirmation } from '@/hooks/my-account/use-otp-confirmation';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
-import { cn } from '@/lib/utils';
 import type { OTPVerificationFormProps } from '@/types/my-account/mfa/mfa-types';
 
 type OtpForm = {
   userOtp: string;
 };
 
-// Mask contact info (email or phone)
-/**
- * Masks sensitive contact information for display purposes.
- *
- * For email addresses:
- * - Shows the first 2 characters of the local part
- * - Masks the remaining characters with asterisks
- * - Preserves the @ symbol and domain unchanged
- *
- * For phone numbers:
- * - Shows the first 3 and last 3 characters
- * - Masks the middle characters with asterisks
- *
- * @param contact - The contact information to mask (email or phone number).
- * @param factorType - The type of MFA factor to determine masking strategy.
- * @returns The masked contact information.
- *
- * @example
- * // Email masking
- * maskContact('john.doe@example.com', 'email') // Returns 'jo******@example.com'
- *
- * @example
- * // Phone number masking
- * maskContact('1234567890', 'sms') // Returns '123****890'
- */
 const maskContact = (contact: string, factorType: MFAType): string => {
   if (!contact) return '';
 
@@ -78,13 +51,9 @@ const maskContact = (contact: string, factorType: MFAType): string => {
  * OTP verification form for MFA enrollment confirmation.
  * @param props - Component props.
  * @param props.factorType - The MFA factor type
- * @param props.confirmEnrollment - Function to confirm MFA enrollment
- * @param props.onError - Callback fired when an error occurs
- * @param props.onSuccess - Callback fired on successful operation
- * @param props.onClose - Callback fired when the component should close
  * @param props.contact - Contact information (email/phone)
- * @param props.authSession - Authentication session data
- * @param props.authenticationMethodId - ID of the authentication method
+ * @param props.isConfirming - Whether confirmation is in progress
+ * @param props.onConfirmOtp - Called with the 6-digit OTP code on submit
  * @param props.onBack - Callback fired when back navigation is triggered
  * @param props.styling - Custom styling configuration with variables and classes
  * @param props.customMessages - Custom translation messages to override defaults
@@ -92,13 +61,9 @@ const maskContact = (contact: string, factorType: MFAType): string => {
  */
 export function OTPVerificationForm({
   factorType,
-  confirmEnrollment,
-  onError,
-  onSuccess,
-  onClose,
   contact,
-  authSession,
-  authenticationMethodId,
+  isConfirming,
+  onConfirmOtp,
   onBack,
   styling = {
     variables: { common: {}, light: {}, dark: {} },
@@ -113,16 +78,6 @@ export function OTPVerificationForm({
     [styling, isDarkMode],
   );
 
-  const { onSubmitOtp, loading } = useOtpConfirmation({
-    factorType,
-    authSession,
-    authenticationMethodId,
-    confirmEnrollment,
-    onError,
-    onSuccess,
-    onClose,
-  });
-
   const form = useForm<OtpForm>({ mode: FORM_VALIDATION_MODE });
   const userOtp = form.watch('userOtp');
 
@@ -132,32 +87,20 @@ export function OTPVerificationForm({
     otpInputRef.current?.focus();
   }, []);
 
-  const handleSubmit = async (data: OtpForm) => {
-    await onSubmitOtp(data);
-  };
-
-  const maskedContact = React.useMemo(
-    () => (contact ? maskContact(contact, factorType) : ''),
-    [contact, factorType],
-  );
-
-  const buttonText = loading ? t('enrollment_form.show_otp.verifying') : t('submit');
+  const maskedContact = contact ? maskContact(contact, factorType) : '';
 
   return (
     <div style={currentStyles.variables} className="w-full max-w-sm mx-auto text-center">
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(handleSubmit)}
+          onSubmit={form.handleSubmit((data) => onConfirmOtp(data.userOtp))}
           autoComplete="off"
           className="space-y-6"
           aria-describedby="otp-description"
         >
           <p
             id="otp-description"
-            className={cn(
-              'text-sm text-primary font-normal text-center',
-              'text-(length:--font-size-paragraph)',
-            )}
+            className="text-sm text-primary font-normal text-center text-(length:--font-size-paragraph)"
           >
             {[FACTOR_TYPE_PUSH_NOTIFICATION, FACTOR_TYPE_TOTP].includes(factorType)
               ? t('enrollment_form.show_otp.enter_opt_code')
@@ -211,10 +154,10 @@ export function OTPVerificationForm({
               type="submit"
               className="text-sm"
               size="default"
-              disabled={userOtp?.length !== 6 || loading}
-              aria-label={buttonText}
+              disabled={userOtp?.length !== 6 || isConfirming}
+              aria-label={isConfirming ? t('enrollment_form.show_otp.verifying') : t('submit')}
             >
-              {buttonText}
+              {isConfirming ? t('enrollment_form.show_otp.verifying') : t('submit')}
             </Button>
           </div>
         </form>
