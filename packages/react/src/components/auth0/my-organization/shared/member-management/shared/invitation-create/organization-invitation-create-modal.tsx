@@ -241,14 +241,18 @@ export function OrganizationInvitationCreateModal({
               onChange={handleRoleChange}
               options={roleOptions}
               placeholder={t('invitation.create.roles_placeholder')}
-              disabled={isLoading}
+              disabled={isLoading || availableRoles.length === 0}
               multiple
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="provider">{t('invitation.create.provider_label')}</Label>
-            <Select value={selectedProvider ?? ''} onValueChange={handleProviderChange}>
+            <Select
+              value={selectedProvider ?? ''}
+              onValueChange={handleProviderChange}
+              disabled={isLoading || availableProviders.length === 0}
+            >
               <SelectTrigger id="provider">
                 <SelectValue placeholder={t('invitation.create.provider_placeholder')} />
               </SelectTrigger>
