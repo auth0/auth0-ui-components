@@ -15,9 +15,9 @@ import type {
   DomainVerifyMessages,
   DomainTableMessages,
   CreateOrganizationDomainRequestContent,
-  EnhancedTranslationFunction,
   IdentityProviderAssociatedWithDomain,
 } from '@auth0/universal-components-core';
+import type React from 'react';
 
 export type { Domain };
 
@@ -56,12 +56,6 @@ export interface DomainTableProps
   onCreateProvider?: () => void;
 }
 
-// DomainTableView component props
-export interface DomainTableViewProps {
-  logic: UseDomainTableResult & DomainTableProps;
-  handlers: UseDomainTableLogicResult;
-}
-
 /** Props for DomainTable actions column. */
 export interface DomainTableActionsColumnProps {
   customMessages?: Partial<DomainTableMainMessages>;
@@ -73,6 +67,17 @@ export interface DomainTableActionsColumnProps {
   onDelete: (domain: Domain) => void;
 }
 
+/** Options for the internal domain table service hook. */
+export interface UseDomainTableServiceOptions {
+  createAction?: DomainTableProps['createAction'];
+  verifyAction?: DomainTableProps['verifyAction'];
+  deleteAction?: DomainTableProps['deleteAction'];
+  associateToProviderAction?: DomainTableProps['associateToProviderAction'];
+  deleteFromProviderAction?: DomainTableProps['deleteFromProviderAction'];
+  customMessages?: DomainTableProps['customMessages'];
+}
+
+/** Options for the public domain table hook. */
 export interface UseDomainTableOptions {
   createAction?: DomainTableProps['createAction'];
   verifyAction?: DomainTableProps['verifyAction'];
@@ -82,7 +87,8 @@ export interface UseDomainTableOptions {
   customMessages?: DomainTableProps['customMessages'];
 }
 
-export interface UseDomainTableResult extends SharedComponentProps {
+/** Return type for the internal domain table service hook. */
+export interface UseDomainTableServiceReturn {
   domains: Domain[];
   providers: IdentityProviderAssociatedWithDomain[];
   isFetching: boolean;
@@ -92,25 +98,26 @@ export interface UseDomainTableResult extends SharedComponentProps {
   isVerifying: boolean;
   fetchProviders: (domain: Domain) => Promise<void>;
   fetchDomains: () => Promise<void>;
-  onCreateDomain: (data: CreateOrganizationDomainRequestContent) => Promise<Domain | null>;
-  onVerifyDomain: (data: Domain) => Promise<boolean>;
+  onCreateDomain: (data: CreateOrganizationDomainRequestContent) => Promise<Domain>;
+  onVerifyDomain: (domain: Domain) => Promise<boolean>;
   onDeleteDomain: (domain: Domain) => Promise<void>;
   onAssociateToProvider: (domain: Domain, provider: IdpKnownResponse) => Promise<void>;
   onDeleteFromProvider: (domain: Domain, provider: IdpKnownResponse) => Promise<void>;
 }
 
-export interface UseDomainTableLogicOptions {
-  t: EnhancedTranslationFunction;
-  onCreateDomain: UseDomainTableResult['onCreateDomain'];
-  onVerifyDomain: UseDomainTableResult['onVerifyDomain'];
-  onDeleteDomain: UseDomainTableResult['onDeleteDomain'];
-  onAssociateToProvider: UseDomainTableResult['onAssociateToProvider'];
-  onDeleteFromProvider: UseDomainTableResult['onDeleteFromProvider'];
-  fetchProviders: UseDomainTableResult['fetchProviders'];
-  fetchDomains: UseDomainTableResult['fetchDomains'];
-}
+/** Return type for the public domain table hook. */
+export interface UseDomainTableReturn {
+  // Data
+  domains: Domain[];
+  providers: IdentityProviderAssociatedWithDomain[];
 
-export interface UseDomainTableLogicResult {
+  // Loading states
+  isFetching: boolean;
+  isCreating: boolean;
+  isDeleting: boolean;
+  isVerifying: boolean;
+  isLoadingProviders: boolean;
+
   // Modal state
   showCreateModal: boolean;
   showConfigureModal: boolean;
@@ -120,15 +127,15 @@ export interface UseDomainTableLogicResult {
   selectedDomain: Domain | null;
 
   // State setters
-  setShowCreateModal: (show: boolean) => void;
-  setShowConfigureModal: (show: boolean) => void;
-  setShowVerifyModal: (show: boolean) => void;
-  setShowDeleteModal: (show: boolean) => void;
+  setShowCreateModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowConfigureModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowVerifyModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
 
   // Handlers
   handleCreate: (domainUrl: string) => Promise<void>;
   handleVerify: (domain: Domain) => Promise<void>;
-  handleDelete: (domain: Domain) => void;
+  handleDelete: (domain: Domain) => Promise<void>;
   handleToggleSwitch: (domain: Domain, provider: IdpKnownResponse, checked: boolean) => void;
   handleCloseVerifyModal: () => void;
   handleCreateClick: () => void;

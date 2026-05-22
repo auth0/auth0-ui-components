@@ -6,7 +6,7 @@ import { BusinessError } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-import { useDomainTable } from '@/hooks/my-organization/use-domain-table';
+import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import {
@@ -16,7 +16,7 @@ import {
   createMockI18nService,
 } from '@/tests/utils';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
-import type { UseDomainTableOptions } from '@/types/my-organization/domain-management/domain-table-types';
+import type { UseDomainTableServiceOptions } from '@/types/my-organization/domain-management/domain-table-types';
 
 // ===== Mock packages =====
 
@@ -24,7 +24,9 @@ const { initMockCoreClient } = mockCore();
 
 // ===== Mock Data =====
 
-const createMockOptions = (overrides?: Partial<UseDomainTableOptions>): UseDomainTableOptions => ({
+const createMockOptions = (
+  overrides?: Partial<UseDomainTableServiceOptions>,
+): UseDomainTableServiceOptions => ({
   createAction: {
     onBefore: vi.fn().mockReturnValue(true),
     onAfter: vi.fn(),
@@ -49,19 +51,19 @@ const createMockOptions = (overrides?: Partial<UseDomainTableOptions>): UseDomai
   ...overrides,
 });
 
-const renderUseDomainTable = (options: UseDomainTableOptions) => {
+const renderUseDomainTable = (options: UseDomainTableServiceOptions) => {
   const { wrapper, queryClient } = createTestQueryClientWrapper();
   return {
     queryClient,
-    ...renderHook(() => useDomainTable(options), { wrapper }),
+    ...renderHook(() => useDomainTableService(options), { wrapper }),
   };
 };
 
 // ===== Tests =====
 
-describe('useDomainTable', () => {
+describe('useDomainTableService', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;
-  let mockOptions: UseDomainTableOptions;
+  let mockOptions: UseDomainTableServiceOptions;
   let mockT: EnhancedTranslationFunction;
 
   beforeEach(() => {

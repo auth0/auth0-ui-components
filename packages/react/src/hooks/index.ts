@@ -18,7 +18,6 @@ export { useConfig } from './my-organization/use-config';
 export { useIdpConfig } from './my-organization/use-idp-config';
 export { useOrganizationDetailsEdit } from './my-organization/use-organization-details-edit';
 export { useDomainTable } from './my-organization/use-domain-table';
-export { useDomainTableLogic } from './my-organization/use-domain-table-logic';
 export { useProviderFormMode } from './my-organization/use-provider-form-mode';
 export { useSsoDomainTab } from './my-organization/use-sso-domain-tab';
 export { useSsoProviderCreate } from './my-organization/use-sso-provider-create';
