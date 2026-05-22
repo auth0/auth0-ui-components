@@ -611,6 +611,79 @@ describe('OrganizationMemberDetail', () => {
     });
   });
 
+  describe('member fetch error state', () => {
+    it('when members.get fails with a backend message, should show backend message in place of tabs', async () => {
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      (apiService.organization.members.get as ReturnType<typeof vi.fn>).mockRejectedValue(
+        Object.assign(new Error(), { body: { detail: 'Organization or member not found.' } }),
+      );
+
+      renderWithProviders(
+        <OrganizationMemberDetail {...createMockOrganizationMemberDetailProps()} />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Organization or member not found.')).toBeInTheDocument();
+      });
+
+      expect(
+        screen.queryByRole('tab', { name: 'member.detail.tabs.details' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('when members.get fails without a backend message, should show fallback message', async () => {
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      (apiService.organization.members.get as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error(),
+      );
+
+      renderWithProviders(
+        <OrganizationMemberDetail {...createMockOrganizationMemberDetailProps()} />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('member.detail.error.fetch_failed')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('error handling', () => {
+    it('when members.get fails, should not call members.roles.list', async () => {
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      (apiService.organization.members.get as ReturnType<typeof vi.fn>).mockRejectedValue(
+        Object.assign(new Error(), {
+          body: { detail: 'User is not a member of this organization.' },
+        }),
+      );
+
+      renderWithProviders(
+        <OrganizationMemberDetail {...createMockOrganizationMemberDetailProps()} />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('User is not a member of this organization.')).toBeInTheDocument();
+      });
+
+      expect(apiService.organization.members.roles.list).not.toHaveBeenCalled();
+    });
+
+    it('when members.roles.list fails, should show a fetch_roles_failed toast', async () => {
+      const { mockedShowToast } = mockToast();
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      (apiService.organization.members.roles.list as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('Network error'),
+      );
+
+      renderWithProviders(
+        <OrganizationMemberDetail {...createMockOrganizationMemberDetailProps()} />,
+      );
+
+      await waitFor(() => {
+        expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));
+      });
+    });
+  });
+
   describe('customMessages', () => {
     it('should override the back button text', async () => {
       renderWithProviders(
@@ -922,6 +995,43 @@ describe('OrganizationMemberDetailView', () => {
       expect(screen.getByText('Go Back')).toBeInTheDocument();
       expect(screen.getByRole('tab', { name: 'Info' })).toBeInTheDocument();
       expect(screen.getByRole('tab', { name: 'Permissions' })).toBeInTheDocument();
+    });
+  });
+
+  describe('memberError', () => {
+    it('when memberError is set, should display the error message', () => {
+      renderWithProviders(
+        <OrganizationMemberDetailView
+          {...createMockOrganizationMemberDetailViewProps({ memberError: 'Member not found.' })}
+        />,
+      );
+
+      expect(screen.getByText('Member not found.')).toBeInTheDocument();
+    });
+
+    it('when memberError is set, should not render tabs', () => {
+      renderWithProviders(
+        <OrganizationMemberDetailView
+          {...createMockOrganizationMemberDetailViewProps({ memberError: 'Member not found.' })}
+        />,
+      );
+
+      expect(
+        screen.queryByRole('tab', { name: 'member.detail.tabs.details' }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('tab', { name: 'member.detail.tabs.roles' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('when memberError is set, should still render the back button', () => {
+      renderWithProviders(
+        <OrganizationMemberDetailView
+          {...createMockOrganizationMemberDetailViewProps({ memberError: 'Member not found.' })}
+        />,
+      );
+
+      expect(screen.getByText('member.detail.back_button')).toBeInTheDocument();
     });
   });
 

@@ -50,6 +50,7 @@ export interface UseOrganizationMemberDetailResult {
   availableRoles: Role[];
   selectedRoles: Role[];
   isLoading: boolean;
+  memberError: string | null;
   isFetchingMember: boolean;
   isFetchingMemberRoles: boolean;
   isFetchingAvailableRoles: boolean;

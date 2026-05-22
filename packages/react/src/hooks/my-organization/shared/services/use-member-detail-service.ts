@@ -59,7 +59,7 @@ export function useMemberDetailService(
         .organization.members.roles.list(userId);
       return response.data;
     },
-    enabled: !!coreClient && isValidUserId,
+    enabled: !!coreClient && isValidUserId && memberQuery.isSuccess,
   });
 
   const { rolesQuery } = useMemberManagementService({});

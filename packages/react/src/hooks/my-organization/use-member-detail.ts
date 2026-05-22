@@ -3,10 +3,12 @@
  * @module use-member-detail
  */
 
-import type { Role } from '@auth0/universal-components-core';
+import { resolveErrorMessage, type Role } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { useMemberDetailService } from '@/hooks/my-organization/shared/services/use-member-detail-service';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   MemberDetailModalState,
   MemberDetailTab,
@@ -47,6 +49,22 @@ export function useOrganizationMemberDetail(
     assignRolesAction,
     removeRolesAction,
   });
+
+  const { t } = useTranslator('member_management', customMessages);
+  const handleError = useErrorHandler();
+  const hasShownMemberRolesError = React.useRef(false);
+
+  React.useEffect(() => {
+    if (memberRolesQuery.isError && !hasShownMemberRolesError.current) {
+      handleError(memberRolesQuery.error, {
+        fallbackMessage: t('member.detail.error.fetch_roles_failed'),
+      });
+      hasShownMemberRolesError.current = true;
+    }
+    if (!memberRolesQuery.isError) {
+      hasShownMemberRolesError.current = false;
+    }
+  }, [memberRolesQuery.isError, memberRolesQuery.error, handleError, t]);
 
   const [activeTab, setActiveTab] = React.useState<MemberDetailTab>('details');
   const [modalState, setModalState] = React.useState<MemberDetailModalState>({ type: null });
@@ -113,6 +131,10 @@ export function useOrganizationMemberDetail(
 
   const removingRoles = modalState.type === 'removeRoles' ? modalState.roles : [];
 
+  const memberErrorMessage = memberQuery.isError
+    ? resolveErrorMessage(memberQuery.error, t('member.detail.error.fetch_failed'))
+    : null;
+
   return {
     activeTab,
     member,
@@ -120,6 +142,7 @@ export function useOrganizationMemberDetail(
     memberRoles,
     availableRoles,
     selectedRoles,
+    memberError: memberErrorMessage,
     isFetchingMember: memberQuery.isLoading || memberQuery.isFetching,
     isFetchingMemberRoles: memberRolesQuery.isLoading,
     isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
