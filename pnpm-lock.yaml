@@ -270,8 +270,8 @@ importers:
         specifier: ^25.2.1
         version: 25.6.3(typescript@5.8.3)
       lucide-react:
-        specifier: ^0.511.0
-        version: 0.511.0(react@19.2.1)
+        specifier: ^1.16.0
+        version: 1.16.0(react@19.2.1)
       radix-ui:
         specifier: ^1.4.3
         version: 1.4.3(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -630,8 +630,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       lucide-react:
-        specifier: ^0.511.0
-        version: 0.511.0(react@19.2.1)
+        specifier: ^1.16.0
+        version: 1.16.0(react@19.2.1)
       postcss-prefix-selector:
         specifier: ^2.1.1
         version: 2.1.1(postcss@8.5.14)
@@ -5607,6 +5607,11 @@ packages:
 
   lucide-react@0.511.0:
     resolution: {integrity: sha512-VK5a2ydJ7xm8GvBeKLS9mu1pVK6ucef9780JVUjw6bAjJL/QXnd4Y0p7SPeOUMC27YhzNCZvm5d/QX0Tp3rc0w==}
+    peerDependencies:
+      react: 19.2.1
+
+  lucide-react@1.16.0:
+    resolution: {integrity: sha512-dYwyPzb4MEKpGUmNYk3WKWPnMrHs3FKM+q94kAnJrcDIqqn1hq2xY8scaS2ovsOCM5D51ey2gaRG3PBb1vgoYQ==}
     peerDependencies:
       react: 19.2.1
 
@@ -12551,6 +12556,10 @@ snapshots:
       react: 19.2.1
 
   lucide-react@0.511.0(react@19.2.1):
+    dependencies:
+      react: 19.2.1
+
+  lucide-react@1.16.0(react@19.2.1):
     dependencies:
       react: 19.2.1
 

@@ -3,82 +3,53 @@
  * @module passkey-types
  */
 
-import type { SharedComponentProps } from '@auth0/universal-components-core';
+import type {
+  BlockComponentSharedProps,
+  ComponentAction,
+  PasskeyMessages,
+  PasskeyRenameDialogMessages,
+  PasskeyRevokeDialogMessages,
+  SharedComponentProps,
+  UpdatePasskeyResponse,
+} from '@auth0/universal-components-core';
+import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 
-/** Props for the PasskeyActionDialog in rename mode. */
-export interface PasskeyActionDialogRenameProps {
-  mode: 'rename';
+export interface PasskeyActionModalProps
+  extends SharedComponentProps<
+    PasskeyRenameDialogMessages & PasskeyRevokeDialogMessages,
+    UserPasskeyMgmtClasses
+  > {
+  mode: 'rename' | 'revoke';
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isPending: boolean;
-  onConfirm: (newName: string) => Promise<void>;
+  onConfirm: (newName?: string) => Promise<void>;
   onCancel: () => void;
-  initialName?: string;
-  styling?: UserPasskeyMgmtProps['styling'];
-  customMessages?: UserPasskeyMgmtProps['customMessages'];
+  name?: string;
 }
 
-/** Props for the PasskeyActionDialog in revoke mode. */
-export interface PasskeyActionDialogRevokeProps {
-  mode: 'revoke';
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  isPending: boolean;
-  onConfirm: () => Promise<void>;
-  onCancel: () => void;
-  passKeyName?: string;
-  styling?: UserPasskeyMgmtProps['styling'];
-  customMessages?: UserPasskeyMgmtProps['customMessages'];
-}
-
-/** Combined props for PasskeyActionDialog. */
-export type PasskeyActionDialogProps =
-  | PasskeyActionDialogRenameProps
-  | PasskeyActionDialogRevokeProps;
-
-/** A single enrolled passkey. */
 export interface Passkey {
   id: string;
   name?: string;
   createdAt?: string;
 }
 
-/** CSS class overrides for UserPasskeyMgmt. */
 export interface UserPasskeyMgmtClasses {
-  'UserPasskeyMgmt-card'?: string;
-  'RenamePasskey-dialogContent'?: string;
-  'RevokePasskeyConfirmation-dialogContent'?: string;
+  'UserPasskeyMgmt-root'?: string;
+  'UserPasskeyMgmt-item'?: string;
+  'PasskeyActionModal-modalContent'?: string;
 }
-
-/** Props for UserPasskeyMgmt component. */
 export interface UserPasskeyMgmtProps
-  extends SharedComponentProps<Record<string, string>, UserPasskeyMgmtClasses> {
-  /** Hide the header section. */
-  hideHeader?: boolean;
-
-  /** Disable adding new passkeys. */
-  disableAdd?: boolean;
-
-  /** Disable renaming passkeys. */
-  disableRename?: boolean;
-
-  /** Disable revoking passkeys. */
-  disableRevoke?: boolean;
-
-  /** Called after a passkey action succeeds. */
-  onSuccess?: (action: 'add' | 'rename' | 'revoke') => void;
-
-  /** Called after passkeys are fetched. */
+  extends BlockComponentSharedProps<PasskeyMessages, UserPasskeyMgmtClasses> {
+  addAction?: ComponentAction<void>;
+  revokeAction?: ComponentAction<Passkey>;
+  renameAction?: ComponentAction<Passkey, string>;
   onFetch?: () => void;
-
-  /** Called when an action errors. */
-  onError?: (error: Error, action: 'add' | 'rename' | 'revoke') => void;
+  onErrorAction?: (error: Error, action: 'add' | 'rename' | 'revoke') => void;
 }
 
-/** Props for UserPasskeyMgmtView. */
 export interface UserPasskeyMgmtViewProps {
   passkeys: Passkey[];
-  isLoading: boolean;
   isRevoking: boolean;
   isEnrolling: boolean;
   isRenaming: boolean;
@@ -89,62 +60,50 @@ export interface UserPasskeyMgmtViewProps {
   disableAdd: boolean;
   disableRename: boolean;
   disableRevoke: boolean;
-  readOnly: boolean;
   isRevokeDialogOpen: boolean;
-  passkeyToRevoke: Passkey | null;
   isRenameDialogOpen: boolean;
-  passkeyToRename: Passkey | null;
-  onAddPasskey: () => void;
-  onRenamePasskey: (passkey: Passkey) => void;
-  onRevokePasskey: (passkey: Passkey) => void;
+  currentPasskey: Passkey | null;
+  handleAddPasskey: () => void;
+  handleRenamePasskey: (passkey: Passkey) => void;
+  handleRevokePasskey: (passkey: Passkey) => void;
   handleConfirmRevoke: () => Promise<void>;
-  handleConfirmRename: (newName: string) => Promise<void>;
+  handleConfirmRename: (newName?: string) => Promise<void>;
   setIsRevokeDialogOpen: (open: boolean) => void;
   setIsRenameDialogOpen: (open: boolean) => void;
 }
-
-/** Options for useUserPasskey. */
 export interface UseUserPasskeyOptions {
-  readOnly: boolean;
-  disableAdd: boolean;
-  disableRename: boolean;
-  disableRevoke: boolean;
   customMessages: UserPasskeyMgmtProps['customMessages'];
-  fetchPasskeys: () => Promise<Passkey[]>;
-  enrollPasskey: () => Promise<void>;
-  revokePasskey: (id: string) => Promise<void>;
-  renamePasskey: (id: string, name: string) => Promise<void>;
+  addAction?: ComponentAction<void>;
+  revokeAction?: ComponentAction<Passkey>;
+  renameAction?: ComponentAction<Passkey, string>;
   onFetch?: () => void;
-  onSuccess?: (action: 'add' | 'rename' | 'revoke') => void;
-  onError?: (error: Error, action: 'add' | 'rename' | 'revoke') => void;
+  onErrorAction?: (error: Error, action: 'add' | 'rename' | 'revoke') => void;
 }
-
-/** Return type of useUserPasskey. */
-export interface UseUserPasskeyResult {
+export interface UseUserPasskeyReturn {
   passkeys: Passkey[];
   isLoading: boolean;
   isEnrolling: boolean;
   isRevoking: boolean;
   isRenaming: boolean;
   error: string | null;
+  disableAdd: boolean;
+  disableRename: boolean;
+  disableRevoke: boolean;
+  readOnly: boolean;
   isRevokeDialogOpen: boolean;
-  passkeyToRevoke: Passkey | null;
   isRenameDialogOpen: boolean;
-  passkeyToRename: Passkey | null;
+  currentPasskey: Passkey | null;
   setIsRevokeDialogOpen: (open: boolean) => void;
   setIsRenameDialogOpen: (open: boolean) => void;
-  loadPasskeys: () => Promise<void>;
-  onAddPasskey: () => Promise<void>;
-  onRenamePasskey: (passkey: Passkey) => void;
-  onRevokePasskey: (passkey: Passkey) => void;
+  handleAddPasskey: () => Promise<void>;
+  handleRenamePasskey: (passkey: Passkey) => void;
+  handleRevokePasskey: (passkey: Passkey) => void;
   handleConfirmRevoke: () => Promise<void>;
-  handleConfirmRename: (newName: string) => Promise<void>;
+  handleConfirmRename: (newName?: string) => Promise<void>;
 }
-
-/** Return type of useUserPasskeyService. */
 export interface UseUserPasskeyServiceResult {
-  fetchPasskeys: () => Promise<Passkey[]>;
-  enrollPasskey: () => Promise<void>;
-  revokePasskey: (id: string) => Promise<void>;
-  renamePasskey: (id: string, name: string) => Promise<void>;
+  passkeysQuery: UseQueryResult<Passkey[]>;
+  enrollMutation: UseMutationResult<void, Error, void>;
+  revokeMutation: UseMutationResult<void, Error, string>;
+  renameMutation: UseMutationResult<UpdatePasskeyResponse, Error, { id: string; name: string }>;
 }

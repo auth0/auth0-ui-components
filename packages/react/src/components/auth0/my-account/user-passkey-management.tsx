@@ -1,14 +1,24 @@
 /** @module user-passkey-management */
 
 import { getComponentStyles } from '@auth0/universal-components-core';
-import { MoreHorizontal, PencilLine, Trash2 } from 'lucide-react';
+import { MoreVertical, SquarePen, Trash2, UserRoundKey } from 'lucide-react';
 import * as React from 'react';
 
-import { PasskeyActionDialog } from '@/components/auth0/my-account/shared/passkey/passkey-action-dialog';
+import { PasskeyActionModal } from '@/components/auth0/my-account/shared/passkey/passkey-action-modal';
+import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
+import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardAction,
+  CardAdornment,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,41 +26,40 @@ import {
   DropdownMenuPortal,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { List, ListItem } from '@/components/ui/list';
-import { Spinner } from '@/components/ui/spinner';
 import { useUserPasskey } from '@/hooks/my-account/use-user-passkey';
-import { useUserPasskeyService } from '@/hooks/my-account/use-user-passkey-service';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type {
-  Passkey,
   UserPasskeyMgmtViewProps,
   UserPasskeyMgmtProps,
 } from '@/types/my-account/passkey/passkey-types';
 
 /**
- * UserPasskeyMgmtContainer — logic/container component.
+ * Passkey management component.
+ * @param props - Component props
+ * @param props.customMessages - Custom translation messages to override defaults
+ * @param props.styling - Custom styling configuration with variables and classes
+ * @param props.hideHeader - Whether to hide the header
+ * @param props.addAction - Configuration for the add passkey action
+ * @param props.revokeAction - Configuration for the revoke passkey action
+ * @param props.renameAction - Configuration for the rename passkey action
+ * @param props.onFetch - Callback after passkeys are loaded
+ * @param props.onErrorAction - Callback when an action errors
+ * @returns JSX element
  * @internal
- * @param props - {@link UserPasskeyMgmtProps}
- * @returns Container component
  */
-function UserPasskeyMgmtContainer(props: UserPasskeyMgmtProps) {
+function UserPasskeyMgmt(props: UserPasskeyMgmtProps) {
   const {
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     hideHeader = false,
-    disableAdd = false,
-    disableRename = false,
-    disableRevoke = false,
-    onSuccess,
+    addAction,
+    revokeAction,
+    renameAction,
     onFetch,
-    onError,
+    onErrorAction,
   } = props;
-
-  const readOnly = disableAdd && disableRename && disableRevoke;
-
-  const { fetchPasskeys, enrollPasskey, revokePasskey, renamePasskey } = useUserPasskeyService();
 
   const {
     passkeys,
@@ -59,64 +68,54 @@ function UserPasskeyMgmtContainer(props: UserPasskeyMgmtProps) {
     isRevoking,
     isRenaming,
     error,
-    isRevokeDialogOpen,
-    passkeyToRevoke,
-    isRenameDialogOpen,
-    passkeyToRename,
-    setIsRevokeDialogOpen,
-    setIsRenameDialogOpen,
-    loadPasskeys,
-    onAddPasskey,
-    onRevokePasskey,
-    onRenamePasskey,
-    handleConfirmRevoke,
-    handleConfirmRename,
-  } = useUserPasskey({
-    readOnly,
     disableAdd,
     disableRename,
     disableRevoke,
+    isRevokeDialogOpen,
+    isRenameDialogOpen,
+    currentPasskey,
+    setIsRevokeDialogOpen,
+    setIsRenameDialogOpen,
+    handleAddPasskey,
+    handleRevokePasskey,
+    handleRenamePasskey,
+    handleConfirmRevoke,
+    handleConfirmRename,
+  } = useUserPasskey({
     customMessages,
-    fetchPasskeys,
-    enrollPasskey,
-    revokePasskey,
-    renamePasskey,
+    addAction,
+    revokeAction,
+    renameAction,
     onFetch,
-    onSuccess,
-    onError,
+    onErrorAction,
   });
 
-  React.useEffect(() => {
-    loadPasskeys();
-  }, []);
-
   return (
-    <UserPasskeyMgmtView
-      passkeys={passkeys}
-      isLoading={isLoading}
-      isEnrolling={isEnrolling}
-      isRevoking={isRevoking}
-      isRenaming={isRenaming}
-      error={error}
-      styling={styling}
-      customMessages={customMessages}
-      hideHeader={hideHeader}
-      disableAdd={disableAdd}
-      disableRename={disableRename}
-      disableRevoke={disableRevoke}
-      readOnly={readOnly}
-      isRevokeDialogOpen={isRevokeDialogOpen}
-      passkeyToRevoke={passkeyToRevoke}
-      isRenameDialogOpen={isRenameDialogOpen}
-      passkeyToRename={passkeyToRename}
-      onAddPasskey={onAddPasskey}
-      onRevokePasskey={onRevokePasskey}
-      onRenamePasskey={onRenamePasskey}
-      handleConfirmRevoke={handleConfirmRevoke}
-      handleConfirmRename={handleConfirmRename}
-      setIsRevokeDialogOpen={setIsRevokeDialogOpen}
-      setIsRenameDialogOpen={setIsRenameDialogOpen}
-    />
+    <GateKeeper isLoading={isLoading} styling={styling}>
+      <UserPasskeyMgmtView
+        passkeys={passkeys}
+        isEnrolling={isEnrolling}
+        isRevoking={isRevoking}
+        isRenaming={isRenaming}
+        error={error}
+        styling={styling}
+        customMessages={customMessages}
+        hideHeader={hideHeader}
+        disableAdd={disableAdd}
+        disableRename={disableRename}
+        disableRevoke={disableRevoke}
+        isRevokeDialogOpen={isRevokeDialogOpen}
+        isRenameDialogOpen={isRenameDialogOpen}
+        currentPasskey={currentPasskey}
+        handleAddPasskey={handleAddPasskey}
+        handleRevokePasskey={handleRevokePasskey}
+        handleRenamePasskey={handleRenamePasskey}
+        handleConfirmRevoke={handleConfirmRevoke}
+        handleConfirmRename={handleConfirmRename}
+        setIsRevokeDialogOpen={setIsRevokeDialogOpen}
+        setIsRenameDialogOpen={setIsRenameDialogOpen}
+      />
+    </GateKeeper>
   );
 }
 
@@ -129,7 +128,6 @@ function UserPasskeyMgmtContainer(props: UserPasskeyMgmtProps) {
 function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
   const {
     passkeys,
-    isLoading,
     isEnrolling,
     isRevoking,
     isRenaming,
@@ -140,21 +138,19 @@ function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
     disableAdd,
     disableRename,
     disableRevoke,
-    readOnly,
     isRevokeDialogOpen,
-    passkeyToRevoke,
     isRenameDialogOpen,
-    passkeyToRename,
-    onAddPasskey,
-    onRevokePasskey,
-    onRenamePasskey,
+    currentPasskey,
+    handleAddPasskey,
+    handleRevokePasskey,
+    handleRenamePasskey,
     handleConfirmRevoke,
     handleConfirmRename,
     setIsRevokeDialogOpen,
     setIsRenameDialogOpen,
   } = props;
 
-  const { loader, isDarkMode } = useTheme();
+  const { isDarkMode } = useTheme();
   const { t } = useTranslator('passkey', customMessages);
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -163,175 +159,144 @@ function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
 
   const hasPasskeys = passkeys.length > 0;
 
+  const handleDialogClose = React.useCallback(
+    () => setIsRevokeDialogOpen(false),
+    [setIsRevokeDialogOpen],
+  );
+
   return (
     <StyledScope style={currentStyles.variables}>
-      {isLoading ? (
-        <div className="flex items-center justify-center py-16">{loader || <Spinner />}</div>
-      ) : (
-        <Card
-          className={cn(
-            'py-10 px-8 sm:py-8 sm:px-6',
-            currentStyles.classes?.['UserPasskeyMgmt-card'],
-          )}
-        >
+      {!hideHeader && <Header title={t('title')} description={t('description')} />}
+
+      <Card className={cn(currentStyles.classes?.['UserPasskeyMgmt-root'])}>
+        {error ? (
           <CardContent>
-            {error ? (
-              <div
-                className="flex flex-col items-center justify-center p-4 space-y-2"
-                role="alert"
-                aria-live="assertive"
-              >
-                <h1 className="text-base font-medium text-center text-destructive-foreground">
-                  {t('component_error_title')}
-                </h1>
-                <p className="text-sm text-center text-destructive-foreground whitespace-pre-line">
-                  {t('component_error_description')}
-                </p>
-              </div>
-            ) : (
-              <>
-                {!hideHeader && (
-                  <>
-                    <CardTitle
-                      id="passkey-management-title"
-                      className="text-2xl text-(length:--font-size-heading) font-medium text-left"
-                    >
-                      {t('title')}
-                    </CardTitle>
-                    <CardDescription
-                      id="passkey-management-desc"
-                      className="text-sm text-(length:--font-size-paragraph) text-muted-foreground text-left"
-                    >
-                      {t('description')}
-                    </CardDescription>
-                  </>
+            <div
+              className="flex flex-col items-center justify-center p-4 space-y-2"
+              role="alert"
+              aria-live="assertive"
+            >
+              <h1 className="text-base font-medium text-center text-destructive-foreground">
+                {t('component_error_title')}
+              </h1>
+              <p className="text-sm text-center text-destructive-foreground whitespace-pre-line">
+                {t('component_error_description')}
+              </p>
+            </div>
+          </CardContent>
+        ) : (
+          <>
+            <CardHeader>
+              <CardTitle className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <span className="text-base text-(length:--font-size-body) font-semibold text-card-foreground">
+                  {t('section_title')}
+                </span>
+                {hasPasskeys && (
+                  <Badge variant="success" size="sm" className="shrink-0" aria-label={t('enabled')}>
+                    {t('enabled')}
+                  </Badge>
                 )}
-
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-6 mb-3">
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                    <span className="text-base text-(length:--font-size-body) font-medium text-card-foreground">
-                      {t('section_title')}
-                    </span>
-                    {hasPasskeys && (
-                      <Badge
-                        variant="success"
-                        size="sm"
-                        className="shrink-0"
-                        aria-label={t('enabled')}
-                      >
-                        {t('enabled')}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {!readOnly && !disableAdd && (
-                    <Button
-                      size="default"
-                      variant="outline"
-                      className="text-sm w-full sm:w-auto shrink-0"
-                      onClick={onAddPasskey}
-                      disabled={isEnrolling}
-                      aria-label={t('add_passkey')}
-                    >
-                      {t('add_passkey')}
-                    </Button>
-                  )}
-                </div>
-
-                {hasPasskeys ? (
-                  <List
-                    className="flex flex-col gap-2 w-full mt-2"
-                    aria-labelledby="passkey-management-title"
+              </CardTitle>
+              {!hasPasskeys && <CardDescription>{t('no_passkeys')}</CardDescription>}
+              {!disableAdd && (
+                <CardAction>
+                  <Button
+                    size="default"
+                    variant="outline"
+                    className="text-sm w-full sm:w-auto shrink-0"
+                    onClick={handleAddPasskey}
+                    disabled={isEnrolling}
+                    aria-label={t('add_passkey')}
                   >
-                    {passkeys.map((passkey: Passkey) => (
-                      <ListItem
-                        key={passkey.id}
-                        className="flex items-center justify-between w-full px-4 py-3 rounded-lg border border-border bg-card"
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="flex flex-col min-w-0">
-                            {passkey.name && (
-                              <span className="text-sm font-medium text-card-foreground truncate">
-                                {passkey.name}
-                              </span>
-                            )}
-                            {passkey.createdAt && (
-                              <span className="text-xs text-muted-foreground">
-                                {t('created_at', {
-                                  date: new Date(passkey.createdAt).toLocaleDateString(),
-                                })}
-                              </span>
-                            )}
-                          </div>
-                        </div>
+                    {t('add_passkey')}
+                  </Button>
+                </CardAction>
+              )}
+            </CardHeader>
 
-                        {!readOnly && (!disableRename || !disableRevoke) && (
+            {hasPasskeys && (
+              <CardContent className="space-y-2">
+                {passkeys.map((passkey) => (
+                  <Card
+                    key={passkey.id}
+                    className={cn(currentStyles.classes?.['UserPasskeyMgmt-item'])}
+                  >
+                    <CardHeader>
+                      <CardAdornment>
+                        <UserRoundKey
+                          className="h-4 w-4 text-muted-foreground"
+                          aria-hidden="true"
+                        />
+                      </CardAdornment>
+                      <CardTitle className="text-base text-(length:--font-size-body) font-semibold text-card-foreground">
+                        {passkey.name}
+                      </CardTitle>
+                      {passkey.createdAt && (
+                        <CardDescription>
+                          {t('created_at', {
+                            date: new Date(passkey.createdAt).toLocaleDateString(),
+                          })}
+                        </CardDescription>
+                      )}
+                      {(!disableRename || !disableRevoke) && (
+                        <CardAction>
                           <DropdownMenu>
-                            <DropdownMenuTrigger
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 shrink-0"
-                              aria-label={t('actions')}
-                            >
-                              <MoreHorizontal className="h-4 w-4" />
+                            <DropdownMenuTrigger className="h-8 w-8 p-0 rounded-xl bg-primary border border-primary/20 shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50">
+                              <MoreVertical className="h-4 w-4 text-primary-foreground" />
                             </DropdownMenuTrigger>
                             <DropdownMenuPortal>
                               <DropdownMenuContent align="end">
                                 {!disableRename && (
-                                  <DropdownMenuItem onClick={() => onRenamePasskey(passkey)}>
-                                    <PencilLine className="mr-2 h-4 w-4" />
+                                  <DropdownMenuItem onClick={() => handleRenamePasskey(passkey)}>
+                                    <SquarePen className="mr-2 h-4 w-4" />
                                     {t('rename')}
                                   </DropdownMenuItem>
                                 )}
                                 {!disableRevoke && (
                                   <DropdownMenuItem
-                                    onClick={() => onRevokePasskey(passkey)}
+                                    onClick={() => handleRevokePasskey(passkey)}
                                     className="text-destructive-foreground focus:text-destructive-foreground"
                                   >
-                                    <Trash2 className="mr-2 h-4 w-4 text-destructive-foreground" />
+                                    <Trash2 className="mr-2 h-4 w-4" />
                                     {t('revoke')}
                                   </DropdownMenuItem>
                                 )}
                               </DropdownMenuContent>
                             </DropdownMenuPortal>
                           </DropdownMenu>
-                        )}
-                      </ListItem>
-                    ))}
-                  </List>
-                ) : (
-                  <p className="text-sm text-(length:--font-size-paragraph) text-muted-foreground mt-2">
-                    {t('no_passkeys')}
-                  </p>
-                )}
-              </>
+                        </CardAction>
+                      )}
+                    </CardHeader>
+                  </Card>
+                ))}
+              </CardContent>
             )}
-          </CardContent>
-        </Card>
-      )}
+          </>
+        )}
+      </Card>
 
-      <PasskeyActionDialog
+      <PasskeyActionModal
         mode="revoke"
         open={isRevokeDialogOpen}
-        onOpenChange={(open: boolean) => !isRevoking && setIsRevokeDialogOpen(open)}
+        onOpenChange={setIsRevokeDialogOpen}
         isPending={isRevoking}
         onConfirm={handleConfirmRevoke}
-        onCancel={() => setIsRevokeDialogOpen(false)}
-        passKeyName={passkeyToRevoke?.name}
+        onCancel={handleDialogClose}
+        name={currentPasskey?.name}
         styling={styling}
-        customMessages={customMessages}
+        customMessages={customMessages?.revoke_dialog}
       />
 
-      <PasskeyActionDialog
+      <PasskeyActionModal
         mode="rename"
         open={isRenameDialogOpen}
-        onOpenChange={(open: boolean) => !isRenaming && setIsRenameDialogOpen(open)}
+        onOpenChange={setIsRenameDialogOpen}
         isPending={isRenaming}
         onConfirm={handleConfirmRename}
-        onCancel={() => setIsRenameDialogOpen(false)}
-        initialName={passkeyToRename?.name}
+        onCancel={handleDialogClose}
+        name={currentPasskey?.name}
         styling={styling}
-        customMessages={customMessages}
+        customMessages={customMessages?.rename_dialog}
       />
     </StyledScope>
   );
@@ -343,16 +308,26 @@ function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
  * Displays enrolled passkeys with options to add, rename, and revoke.
  *
  * @param props - {@link UserPasskeyMgmtProps}
+ * @param props.customMessages - Custom i18n message overrides
+ * @param props.styling - CSS variables and class overrides
+ * @param props.hideHeader - Hide the header section
+ * @param props.addAction - Lifecycle hooks for the add passkey operation
+ * @param props.revokeAction - Lifecycle hooks for the revoke passkey operation
+ * @param props.renameAction - Lifecycle hooks for the rename passkey operation
+ * @param props.onFetch - Callback after passkeys are loaded
+ * @param props.onErrorAction - Callback when an action errors
  * @returns Passkey management component
+ *
+ * @see {@link UserPasskeyMgmtProps} for full props documentation
  *
  * @example
  * ```tsx
  * <UserPasskeyMgmt
- *   onSuccess={(action) => console.log('Passkey action succeeded:', action)}
- *   onError={(error, action) => console.error('Passkey action failed:', action, error)}
+ *   addAction={{ onAfter: () => console.log('Passkey added') }}
+ *   revokeAction={{ onAfter: (passkey) => console.log('Revoked:', passkey.name) }}
+ *   renameAction={{ onAfter: (passkey, name) => console.log('Renamed to:', name) }}
+ *   onErrorAction={(error, action) => console.error(action, error)}
  * />
  * ```
  */
-const UserPasskeyMgmt = UserPasskeyMgmtContainer;
-
 export { UserPasskeyMgmt, UserPasskeyMgmtView };

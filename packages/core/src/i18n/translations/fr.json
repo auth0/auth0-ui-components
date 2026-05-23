@@ -1016,5 +1016,35 @@
         "install_guardian_description": "Pour continuer, installez l'application Auth0 Guardian via l'app store depuis votre appareil mobile"
       }
     }
+  },
+  "passkey": {
+    "title": "Clés d'accès",
+    "description": "Gérez vos clés d'accès pour une connexion sans mot de passe",
+    "section_title": "Clés d'accès",
+    "enabled": "ACTIVÉ",
+    "add_passkey": "Ajouter une clé d'accès",
+    "created_at": "Créée le ${date}",
+    "no_passkeys": "Aucune clé d'accès enregistrée.",
+    "actions": "Actions",
+    "rename": "Renommer",
+    "revoke": "Supprimer",
+    "add_success": "Clé d'accès ajoutée avec succès.",
+    "rename_success": "Clé d'accès renommée avec succès.",
+    "revoke_success": "Clé d'accès supprimée avec succès.",
+    "component_error_title": "Erreur de chargement du composant Clés d'accès",
+    "component_error_description": "Nous avons des difficultés à charger vos clés d'accès.\nVeuillez actualiser la page et réessayer",
+    "rename_dialog": {
+      "title": "Renommer la clé d'accès",
+      "label": "Nom de la clé d'accès",
+      "placeholder": "Saisir le nom de la clé d'accès",
+      "cancel": "Annuler",
+      "update": "Mettre à jour"
+    },
+    "revoke_dialog": {
+      "title": "Supprimer la clé d'accès",
+      "consent": "Êtes-vous sûr de vouloir supprimer <bold>${name}</bold> ? Cette action est irréversible.",
+      "cancel": "Annuler",
+      "confirm": "Supprimer"
+    }
   }
 }

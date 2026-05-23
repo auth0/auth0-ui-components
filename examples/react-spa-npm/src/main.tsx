@@ -13,7 +13,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <Auth0Provider
-        domain={config.auth0.domain}
+        domain={'passkey.acmetest.org'}
         clientId={config.auth0.clientId}
         authorizationParams={{
           redirect_uri: window.location.origin,

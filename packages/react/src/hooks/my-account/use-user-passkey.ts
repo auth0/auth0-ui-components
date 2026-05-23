@@ -3,16 +3,22 @@
  * @module use-user-passkey
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
+import { useUserPasskeyService } from '@/hooks/my-account/shared/services/use-user-passkey-service';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   Passkey,
   UseUserPasskeyOptions,
-  UseUserPasskeyResult,
+  UseUserPasskeyReturn,
 } from '@/types/my-account/passkey/passkey-types';
+
+type ActiveModal =
+  | { mode: 'revoke'; passkey: Passkey }
+  | { mode: 'rename'; passkey: Passkey }
+  | null;
 
 /**
  * Hook for passkey management UI state and handlers.
@@ -20,148 +26,126 @@ import type {
  * @returns State and handlers for UserPasskeyMgmt.
  */
 export function useUserPasskey({
-  readOnly,
-  disableRevoke,
-  disableRename,
   customMessages,
-  fetchPasskeys,
-  enrollPasskey,
-  revokePasskey,
-  renamePasskey,
+  addAction,
+  revokeAction,
+  renameAction,
   onFetch,
-  onSuccess,
-  onError,
-}: UseUserPasskeyOptions): UseUserPasskeyResult {
+  onErrorAction,
+}: UseUserPasskeyOptions): UseUserPasskeyReturn {
   const { t } = useTranslator('passkey', customMessages);
   const handleError = useErrorHandler();
 
-  const [passkeys, setPasskeys] = useState<Passkey[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isEnrolling, setIsEnrolling] = useState(false);
-  const [isRevoking, setIsRevoking] = useState(false);
-  const [isRenaming, setIsRenaming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const disableAdd = !!addAction?.disabled;
+  const disableRename = !!renameAction?.disabled;
+  const disableRevoke = !!revokeAction?.disabled;
+  const readOnly = disableAdd && disableRename && disableRevoke;
+  const { passkeysQuery, enrollMutation, revokeMutation, renameMutation } = useUserPasskeyService();
 
-  const [isRevokeDialogOpen, setIsRevokeDialogOpen] = useState(false);
-  const [passkeyToRevoke, setPasskeyToRevoke] = useState<Passkey | null>(null);
+  const [activeModal, setActiveModal] = useState<ActiveModal>(null);
 
-  const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
-  const [passkeyToRename, setPasskeyToRename] = useState<Passkey | null>(null);
+  const isRevokeDialogOpen = activeModal?.mode === 'revoke';
+  const isRenameDialogOpen = activeModal?.mode === 'rename';
+  const currentPasskey = activeModal?.passkey ?? null;
 
-  const loadPasskeys = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const result = await fetchPasskeys();
-      setPasskeys(result);
-      onFetch?.();
-    } catch (err) {
-      setError(t('component_error_description'));
-      handleError(err, { fallbackMessage: t('errors.loading_error') });
-    } finally {
-      setIsLoading(false);
+  const closeModal = useCallback((open: boolean) => {
+    if (!open) setActiveModal(null);
+  }, []);
+
+  useEffect(() => {
+    if (passkeysQuery.isSuccess) onFetch?.();
+  }, [passkeysQuery.isSuccess, onFetch]);
+
+  useEffect(() => {
+    if (passkeysQuery.isError) {
+      handleError(passkeysQuery.error);
     }
-  }, [fetchPasskeys, onFetch, t, handleError]);
+  }, [passkeysQuery.isError, passkeysQuery.error, handleError]);
 
-  const onAddPasskey = useCallback(async () => {
-    if (readOnly) return;
-    setIsEnrolling(true);
+  const handleAddPasskey = useCallback(async () => {
+    if (disableAdd) return;
+    if (addAction?.onBefore && !addAction.onBefore()) return;
     try {
-      await enrollPasskey();
-      toast.success(t('add_success'), {
-        duration: 2000,
-        onAutoClose: () => onSuccess?.('add'),
-      });
-      await loadPasskeys();
+      await enrollMutation.mutateAsync();
+      addAction?.onAfter?.();
+      toast.success(t('add_success'), { duration: 2000 });
+      await passkeysQuery.refetch();
     } catch (err) {
-      const error = err instanceof Error ? err : new Error(t('errors.add_failed'));
-      handleError(err, { fallbackMessage: t('errors.add_failed') });
-      onError?.(error, 'add');
-    } finally {
-      setIsEnrolling(false);
+      handleError(err);
+      onErrorAction?.(err as Error, 'add');
     }
-  }, [readOnly, enrollPasskey, loadPasskeys, onSuccess, onError, t, handleError]);
+  }, [disableAdd, addAction, enrollMutation, passkeysQuery, onErrorAction, t, handleError]);
 
-  const onRevokePasskey = useCallback(
+  const handleRevokePasskey = useCallback(
     (passkey: Passkey) => {
-      if (readOnly || disableRevoke) return;
-      setPasskeyToRevoke(passkey);
-      setIsRevokeDialogOpen(true);
+      if (disableRevoke) return;
+      if (revokeAction?.onBefore && !revokeAction.onBefore(passkey)) return;
+      setActiveModal({ mode: 'revoke', passkey });
     },
-    [readOnly, disableRevoke],
+    [disableRevoke, revokeAction],
   );
 
   const handleConfirmRevoke = useCallback(async () => {
-    if (!passkeyToRevoke) return;
-    setIsRevoking(true);
+    if (!currentPasskey) return;
     try {
-      await revokePasskey(passkeyToRevoke.id);
-      toast.success(t('revoke_success'), {
-        duration: 2000,
-        onAutoClose: () => onSuccess?.('revoke'),
-      });
-      await loadPasskeys();
+      await revokeMutation.mutateAsync(currentPasskey.id);
+      revokeAction?.onAfter?.(currentPasskey);
+      toast.success(t('revoke_success'), { duration: 2000 });
+      await passkeysQuery.refetch();
     } catch (err) {
-      const error = err instanceof Error ? err : new Error(t('errors.revoke_failed'));
-      handleError(err, { fallbackMessage: t('errors.revoke_failed') });
-      onError?.(error, 'revoke');
+      handleError(err);
+      onErrorAction?.(err as Error, 'revoke');
     } finally {
-      setIsRevoking(false);
-      setIsRevokeDialogOpen(false);
-      setPasskeyToRevoke(null);
+      setActiveModal(null);
     }
-  }, [passkeyToRevoke, revokePasskey, loadPasskeys, onSuccess, onError, t, handleError]);
+  }, [currentPasskey, revokeAction, revokeMutation, passkeysQuery, onErrorAction, t, handleError]);
 
-  const onRenamePasskey = useCallback(
+  const handleRenamePasskey = useCallback(
     (passkey: Passkey) => {
-      if (readOnly || disableRename) return;
-      setPasskeyToRename(passkey);
-      setIsRenameDialogOpen(true);
+      if (disableRename) return;
+      if (renameAction?.onBefore && !renameAction.onBefore(passkey)) return;
+      setActiveModal({ mode: 'rename', passkey });
     },
-    [readOnly, disableRename],
+    [disableRename, renameAction],
   );
 
   const handleConfirmRename = useCallback(
-    async (newName: string) => {
-      if (!passkeyToRename) return;
-      setIsRenaming(true);
+    async (newName?: string) => {
+      if (!currentPasskey || !newName) return;
       try {
-        await renamePasskey(passkeyToRename.id, newName);
-        toast.success(t('rename_success'), {
-          duration: 2000,
-          onAutoClose: () => onSuccess?.('rename'),
-        });
-        await loadPasskeys();
+        await renameMutation.mutateAsync({ id: currentPasskey.id, name: newName });
+        renameAction?.onAfter?.(currentPasskey, newName);
+        toast.success(t('rename_success'), { duration: 2000 });
+        await passkeysQuery.refetch();
       } catch (err) {
-        const error = err instanceof Error ? err : new Error(t('errors.rename_failed'));
-        handleError(err, { fallbackMessage: t('errors.rename_failed') });
-        onError?.(error, 'rename');
+        handleError(err);
+        onErrorAction?.(err as Error, 'rename');
       } finally {
-        setIsRenaming(false);
-        setIsRenameDialogOpen(false);
-        setPasskeyToRename(null);
+        setActiveModal(null);
       }
     },
-    [passkeyToRename, renamePasskey, loadPasskeys, onSuccess, onError, t, handleError],
+    [currentPasskey, renameAction, renameMutation, passkeysQuery, onErrorAction, t, handleError],
   );
 
   return {
-    passkeys,
-    isLoading,
-    isEnrolling,
-    isRevoking,
-    isRenaming,
-    error,
+    passkeys: passkeysQuery.data ?? [],
+    isLoading: passkeysQuery.isLoading,
+    isEnrolling: enrollMutation.isPending,
+    isRevoking: revokeMutation.isPending,
+    isRenaming: renameMutation.isPending,
+    error: passkeysQuery.error?.message ?? null,
+    disableAdd,
+    disableRename,
+    disableRevoke,
+    readOnly,
     isRevokeDialogOpen,
-    passkeyToRevoke,
     isRenameDialogOpen,
-    passkeyToRename,
-    setIsRevokeDialogOpen,
-    setIsRenameDialogOpen,
-    loadPasskeys,
-    onAddPasskey,
-    onRevokePasskey,
-    onRenamePasskey,
+    currentPasskey,
+    setIsRevokeDialogOpen: closeModal,
+    setIsRenameDialogOpen: closeModal,
+    handleAddPasskey,
+    handleRevokePasskey,
+    handleRenamePasskey,
     handleConfirmRevoke,
     handleConfirmRename,
   };

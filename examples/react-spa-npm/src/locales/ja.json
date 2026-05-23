@@ -19,6 +19,7 @@
   "sidebar": {
     "my-account": "マイアカウント",
     "multi-factor-authentication": "多要素認証",
+    "passkey-management": "パスキー管理",
     "my-organization": "マイ組織",
     "organization-management": "組織管理",
     "sso-provider": "SSOプロバイダー",

@@ -12,7 +12,7 @@ export const Sidebar: React.FC = () => {
     <div className="fixed top-0 left-0 z-40 h-full w-64 bg-white dark:bg-black border-r border-gray-200 dark:border-gray-700 shadow-lg pt-20">
       <div className="p-4 space-y-6">
         {/* My Account Section */}
-        {config.features.enableMyAccount && (
+        {
           <div>
             <div className="flex items-center gap-2 mb-3 px-2">
               <User className="h-4 w-4 text-gray-600 dark:text-gray-300 flex-shrink-0" />
@@ -32,7 +32,7 @@ export const Sidebar: React.FC = () => {
               </li>
             </ul>
           </div>
-        )}
+        }
 
         {/* My Organization Section */}
         <div>

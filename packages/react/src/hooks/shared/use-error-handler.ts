@@ -46,7 +46,7 @@ export function useErrorHandler() {
         const status = getStatusCode(err);
         switch (status) {
           case 400:
-            return t('error.bad_request');
+            return resolveErrorMessage(err, t('error.bad_request'));
           case 401:
             return t('error.missing_token');
           case 403:
