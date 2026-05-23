@@ -143,6 +143,8 @@ auth0-ui-components/
 │           │   ├── shared/          # Core hooks (useCoreClient, useTranslator, useTheme)
 │           │   ├── my-account/      # MFA-related hooks
 │           │   └── my-organization/ # Organization-related hooks
+│           │       └── shared/
+│           │           └── services/ # Internal service hooks (not exported)
 │           ├── types/               # TypeScript type definitions
 │           │   ├── my-account/mfa/
 │           │   └── my-organization/
@@ -258,6 +260,89 @@ export const OrganizationDetailsEdit = withMyOrganizationService(
   MY_ORGANIZATION_DETAILS_EDIT_SCOPES,
 );
 ```
+
+### Hook Architecture (Service & Logic Separation)
+
+Hooks follow a **two-layer architecture** where only the public hook is exported. This balances ease of use with internal modularity.
+
+**Decision:** [RAPID: Hook Architecture Service & Logic Separation](https://oktainc.atlassian.net/wiki/spaces/UCT/pages/806322220)
+
+#### Directory Structure
+
+```
+hooks/my-organization/
+├── shared/
+│   └── services/                    # Internal service hooks (not exported)
+│       └── use-{feature}-service.ts
+├── use-{feature}.ts                 # Public hook (exported)
+└── __tests__/
+```
+
+#### Layer Responsibilities
+
+| Layer            | Location                                   | Responsibility                                                                     |
+| ---------------- | ------------------------------------------ | ---------------------------------------------------------------------------------- |
+| **Service Hook** | `shared/services/use-{feature}-service.ts` | TanStack Query queries/mutations, API calls, cache management                      |
+| **Public Hook**  | `use-{feature}.ts`                         | UI state (modals, selections), event handlers, toast notifications, error handling |
+
+#### Service Hook (Internal)
+
+```tsx
+// hooks/my-organization/shared/services/use-domain-table-service.ts
+// @internal — not exported
+
+function useDomainTableService(options) {
+  const { coreClient } = useCoreClient();
+  const queryClient = useQueryClient();
+
+  const domainsQuery = useQuery({ ... });
+  const createMutation = useMutation({ ... });
+
+  return { domains: domainsQuery.data, createDomain, deleteDomain, ... };
+}
+```
+
+#### Public Hook (Exported)
+
+```tsx
+// hooks/my-organization/use-domain-table.ts
+// Exported to consumers
+
+export function useDomainTable(options) {
+  // Service hook handles all data operations
+  const service = useDomainTableService(options);
+
+  // UI state managed here
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedDomain, setSelectedDomain] = useState(null);
+
+  // Event handlers with toast notifications
+  const handleDelete = useCallback(async (domain) => {
+    await service.deleteDomain(domain);
+    showToast({ type: 'success', message: t('delete_success') });
+    setShowDeleteModal(false);
+  }, [service]);
+
+  return { ...service, showDeleteModal, handleDelete, ... };
+}
+```
+
+#### Consumer Usage
+
+```tsx
+// Simple single-hook API for consumers
+const { domains, isLoading, handleCreate, handleDelete } = useDomainTable({
+  createAction,
+  deleteAction,
+});
+```
+
+#### Key Principles
+
+1. **Single Public Hook:** Consumers interact with exactly one hook per feature
+2. **Internal Separation:** Service hooks handle data; public hooks handle UI orchestration
+3. **Dependency Ownership:** Each hook resolves its own dependencies (no prop drilling)
+4. **Testability:** Service and logic layers can be unit-tested independently
 
 ### Translation System
 
@@ -604,6 +689,80 @@ npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-organization/o
 | [`packages/react/src/providers/spa-provider.tsx`](packages/react/src/providers/spa-provider.tsx)     | SPA provider                |
 | [`packages/react/src/providers/proxy-provider.tsx`](packages/react/src/providers/proxy-provider.tsx) | RWA proxy provider          |
 | [`packages/react/registry.json`](packages/react/registry.json)                                       | Shadcn registry config      |
+
+---
+
+## Code Style
+
+### Path Aliases
+
+The React package uses `@/*` as a path alias for `src/*`:
+
+```tsx
+// ✅ Use path alias
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import type { DomainTableProps } from '@/types/my-organization/domain-management/domain-table-types';
+
+// ❌ Avoid relative paths for deep imports
+import { useCoreClient } from '../../../hooks/shared/use-core-client';
+```
+
+### Import Order
+
+ESLint enforces import ordering with newlines between groups, alphabetized within each group:
+
+```tsx
+// 1. External packages (node_modules)
+import { BusinessError, ssoProviderQueryKeys } from '@auth0/universal-components-core';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useState } from 'react';
+
+// 2. Internal imports (path alias)
+import { showToast } from '@/components/auth0/shared/toast';
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import type { UseSsoProviderTableOptions } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
+```
+
+### Query Keys
+
+TanStack Query cache keys are defined in the core package and exported for consistent cache management:
+
+```tsx
+// packages/core/src/services/.../sso-provider-query-keys.ts
+export const ssoProviderQueryKeys = {
+  all: ['sso-providers'] as const,
+  list: () => [...ssoProviderQueryKeys.all, 'list'] as const,
+  organization: ['organization', 'details'] as const,
+};
+```
+
+**Available query key exports from core:**
+
+| Export                 | Usage                                    |
+| ---------------------- | ---------------------------------------- |
+| `ssoProviderQueryKeys` | SSO provider list, details, organization |
+| `mfaQueryKeys`         | MFA factors                              |
+| `domainQueryKeys`      | Domain list, providers                   |
+
+### JSDoc Tags
+
+Use these JSDoc tags for documentation:
+
+| Tag         | Purpose                         | Example                           |
+| ----------- | ------------------------------- | --------------------------------- |
+| `@module`   | File/module name                | `@module use-domain-table`        |
+| `@internal` | Mark as internal (not exported) | `@internal`                       |
+| `@param`    | Parameter documentation         | `@param options - Hook options`   |
+| `@returns`  | Return value documentation      | `@returns Hook state and methods` |
+
+```tsx
+/**
+ * Internal SSO provider table service hook.
+ * Handles data fetching and CRUD operations.
+ * @module use-sso-provider-table-service
+ * @internal
+ */
+```
 
 ---
 
