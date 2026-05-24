@@ -1126,23 +1126,6 @@
         "remove_failed": "Failed to remove member. Please try again.",
         "assign_role_failed": "Failed to assign role. Please try again."
       },
-      "remove_from_org_modal": {
-        "title": "Remove Member from ${organizationName}",
-        "description": "Are you sure you want to remove ${memberName} from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
-        "remove_button": "Remove",
-        "cancel_button": "Cancel",
-        "success": "Member has been removed from the organization."
-      },
-      "assign_role_modal": {
-        "title": "Assign Roles",
-        "roles_label": "Roles",
-        "roles_placeholder": "Select role(s)",
-        "submit_button": "Assign Role(s)",
-        "cancel_button": "Cancel",
-        "no_roles_available": "All available roles are already assigned.",
-        "success": "The role has been assigned.",
-        "success_plural": "The roles have been assigned."
-      },
       "detail": {
         "back_button": "Back to Members",
         "tabs": {
@@ -1163,9 +1146,10 @@
             "title": "Remove Member from Organization",
             "description": "Once confirmed, this operation cannot be undone.",
             "button": "Delete",
+            "success": "${memberName} has been removed from the ${orgName}.",
             "modal": {
               "title": "Remove Member from ${orgName}",
-              "description": "Are you sure you want to remove \"${memberName}\" from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
+              "description": "Are you sure you want to remove <bold>\"${memberName}\"</bold> from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
               "cancel_button": "Cancel",
               "confirm_button": "Remove"
             }

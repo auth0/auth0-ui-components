@@ -37,7 +37,8 @@ export function useOrganizationMemberManagement(
     createInvitationAction,
     revokeInvitationAction,
     resendInvitationAction,
-    assignRoleAction,
+    viewMemberDetailsAction,
+    assignRolesAction,
     removeFromOrgAction,
   } = options;
 
@@ -83,9 +84,12 @@ export function useOrganizationMemberManagement(
     rolesQuery,
     invitationsQuery,
     membersQuery,
+    organizationQuery,
     createInvitationMutation,
     revokeInvitationMutation,
     resendInvitationMutation,
+    assignRolesMutation,
+    removeFromOrgMutation,
     fetchInvitationDetails,
   } = useMemberManagementService({
     customMessages,
@@ -105,7 +109,7 @@ export function useOrganizationMemberManagement(
       sortConfig: memberSortConfig,
       filters: memberFilters,
     },
-    assignRoleAction,
+    assignRolesAction,
     removeFromOrgAction,
   });
 
@@ -115,6 +119,7 @@ export function useOrganizationMemberManagement(
   const currentMembers = membersQuery.data?.members ?? [];
   const invitationNextToken = invitationsQuery.data?.next ?? null;
   const memberNextToken = membersQuery.data?.next ?? null;
+  const orgDisplayName = organizationQuery.data?.display_name ?? '';
 
   const openModal = React.useCallback(
     async (state: MemberManagementModalState) => {
@@ -171,6 +176,41 @@ export function useOrganizationMemberManagement(
     await navigator.clipboard.writeText(invitation.invitation_url);
   }, []);
 
+  const handleViewMemberDetails = React.useCallback(
+    (userId: string) => {
+      viewMemberDetailsAction?.onAfter?.(userId);
+    },
+    [viewMemberDetailsAction],
+  );
+
+  const handleAssignRolesSubmit = React.useCallback(
+    (roleIds: string[], userId?: string | null) => {
+      assignRolesMutation.mutate(
+        { roleIds, userId },
+        {
+          onSuccess: () => {
+            closeModal();
+          },
+        },
+      );
+    },
+    [assignRolesMutation, closeModal],
+  );
+
+  const handleRemoveFromOrgConfirm = React.useCallback(
+    (userId?: string | null, memberName?: string, orgName?: string) => {
+      removeFromOrgMutation.mutate(
+        { userId, memberName, orgName },
+        {
+          onSuccess: () => {
+            closeModal();
+          },
+        },
+      );
+    },
+    [removeFromOrgMutation, closeModal],
+  );
+
   const handleNextPage = React.useCallback(() => {
     if (activeTab === 'members' && memberNextToken) {
       memberGoToNextPage(memberNextToken);
@@ -219,10 +259,13 @@ export function useOrganizationMemberManagement(
 
     invitations: currentInvitations,
     members: currentMembers,
+    orgDisplayName: orgDisplayName,
     isInitialLoading: invitationsQuery.isLoading || membersQuery.isLoading,
     isFetchingInvitations: invitationsQuery.isFetching,
     isFetchingMembers: membersQuery.isFetching,
-    isFetchingRoles: rolesQuery.isLoading || rolesQuery.isFetching,
+    isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
+    isRemovingFromOrg: removeFromOrgMutation.isPending,
+    isAssigningRoles: assignRolesMutation.isPending,
     isCreatingInvitation: createInvitationMutation.isPending,
     isRevokingInvitation: revokeInvitationMutation.isPending,
     isResendingInvitation: resendInvitationMutation.isPending,
@@ -256,5 +299,8 @@ export function useOrganizationMemberManagement(
     handlePageSizeChange,
     handleSortChange,
     handleRoleFilterChange,
+    handleViewMemberDetails,
+    handleAssignRolesSubmit,
+    handleRemoveFromOrgConfirm,
   };
 }

@@ -22,7 +22,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOrganizationMemberManagement } from '@/hooks/my-organization/use-organization-member-management';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { MEMBER_MANAGEMENT_PAGE_SIZE_OPTIONS } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import {
+  MEMBER_MANAGEMENT_PAGE_SIZE_OPTIONS,
+  MEMBER_MANAGEMENT_MODAL_CLASSNAME,
+} from '@/lib/constants/my-organization/member-management/member-management-constants';
 import type {
   OrganizationMemberManagementProps,
   OrganizationMemberManagementViewProps,
@@ -42,9 +45,10 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     activeTab,
     members,
     invitations,
+    orgDisplayName,
     isFetchingInvitations,
     isFetchingMembers,
-    isFetchingRoles,
+    isFetchingAvailableRoles,
     isCreatingInvitation,
     isRevokingInvitation,
     isResendingInvitation,
@@ -52,7 +56,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     memberPagination,
     invitationSortConfig,
     memberSortConfig,
-    isAssigningRole,
+    isAssigningRoles,
     isRemovingFromOrg,
     availableRoles,
     availableProviders,
@@ -69,8 +73,9 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     handlePreviousPage,
     handlePageSizeChange,
     handleRoleFilterChange,
-    handleAssignRole,
-    handleRemoveFromOrg,
+    handleViewMemberDetails,
+    handleAssignRolesSubmit,
+    handleRemoveFromOrgConfirm,
   } = props;
 
   const selectedInvitation =
@@ -125,7 +130,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           onValueChange={(value: string) => setActiveTab(value as 'members' | 'invitations')}
           className={currentStyles.classes?.['OrganizationMemberManagement-tabs']}
         >
-          <TabsList>
+          <TabsList className="mb-8">
             <TabsTrigger value="members">{t('tabs.members')}</TabsTrigger>
             <TabsTrigger value="invitations">{t('tabs.invitations')}</TabsTrigger>
           </TabsList>
@@ -139,6 +144,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               pageSizeOptions={pageSizeOptions}
               sortConfig={memberSortConfig}
               className={currentStyles.classes?.['OrganizationMemberTab-table']}
+              onView={handleViewMemberDetails}
               onAssignRole={(member) => openModal({ type: 'assignRole', member })}
               onRemoveFromOrg={(member) => openModal({ type: 'removeFromOrg', member })}
               onSortChange={handleSortChange}
@@ -227,18 +233,27 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
         />
 
         <OrganizationMemberAssignRolesModal
+          selectedMember={selectedMember}
           isOpen={modalState.type === 'assignRole'}
-          isLoading={isFetchingRoles || isAssigningRole}
+          isLoading={isFetchingAvailableRoles || isAssigningRoles}
           availableRoles={availableRoles}
           assignedRoles={selectedMember?.roles || []}
+          customMessages={customMessages?.member}
           onClose={closeModal}
-          onAssign={handleAssignRole}
+          onAssign={handleAssignRolesSubmit}
+          className={MEMBER_MANAGEMENT_MODAL_CLASSNAME}
         />
+
         <MemberRemoveFromOrgModal
+          memberName={selectedMember?.name}
+          memberUserId={selectedMember?.user_id}
           isOpen={modalState.type === 'removeFromOrg'}
           isLoading={isRemovingFromOrg}
+          orgName={orgDisplayName}
+          customMessages={customMessages?.member}
           onClose={closeModal}
-          onConfirm={handleRemoveFromOrg}
+          onConfirm={handleRemoveFromOrgConfirm}
+          className={MEMBER_MANAGEMENT_MODAL_CLASSNAME}
         />
       </div>
     </StyledScope>
@@ -259,7 +274,8 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
     createInvitationAction,
     revokeInvitationAction,
     resendInvitationAction,
-    assignRoleAction,
+    viewMemberDetailsAction,
+    assignRolesAction,
     removeFromOrgAction,
   } = props;
 
@@ -269,7 +285,8 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
     createInvitationAction,
     revokeInvitationAction,
     resendInvitationAction,
-    assignRoleAction,
+    viewMemberDetailsAction,
+    assignRolesAction,
     removeFromOrgAction,
   });
 

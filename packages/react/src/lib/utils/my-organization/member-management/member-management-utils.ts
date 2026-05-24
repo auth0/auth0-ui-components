@@ -24,15 +24,6 @@ export function getMemberDisplayName(member: OrgMember): string {
 }
 
 /**
- * Reads the optional profile picture URL from a member.
- * @param member - The organization member.
- * @returns The picture URL when available.
- */
-export function getMemberPicture(member: OrgMember): string | undefined {
-  return (member as OrgMember & { picture?: string }).picture;
-}
-
-/**
  * Determines the status of an invitation based on `expires_at`.
  * @param invitation - The invitation to check
  * @returns The invitation status

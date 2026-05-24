@@ -19,7 +19,7 @@ import type {
 export interface OrganizationMemberTableActionsColumnProps {
   member: OrgMember;
   customMessages?: Partial<OrganizationMemberTabMessages>;
-  onViewDetails?: (member: OrgMember) => void;
+  onViewDetails?: (userId: string) => void;
   onAssignRole?: (member: OrgMember) => void;
   onRemoveFromOrg?: (member: OrgMember) => void;
 }
@@ -36,7 +36,7 @@ export interface OrganizationMemberTableProps {
   availableRoles?: Role[];
   readOnly?: boolean;
   className?: string;
-  onView?: (member: OrgMember) => void;
+  onView?: (userId: string) => void;
   onAssignRole?: (member: OrgMember) => void;
   onRemoveFromOrg?: (member: OrgMember) => void;
   onNextPage?: () => void;

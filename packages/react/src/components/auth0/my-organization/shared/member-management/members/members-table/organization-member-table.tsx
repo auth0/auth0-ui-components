@@ -9,16 +9,17 @@ import * as React from 'react';
 
 import { OrganizationMemberTableActionsColumn } from './organization-member-table-actions-column';
 
+import { formatDate } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-user-details/utils';
 import { SearchFilter } from '@/components/auth0/my-organization/shared/member-management/shared/search-filter/search-filter';
 import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import {
   getInitials,
   getMemberDisplayName,
-  getMemberPicture,
   getRelativeLastLoginLabel,
 } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type { OrganizationMemberTableProps } from '@/types/my-organization/member-management/organization-member-table-types';
@@ -67,13 +68,11 @@ export function OrganizationMemberTable({
   const { t } = useTranslator('member_management', customMessages);
 
   const renderName = React.useCallback((member: OrgMember) => {
-    const memberPictureUrl = getMemberPicture(member);
     const displayName = getMemberDisplayName(member);
     const initials = getInitials(displayName);
     return (
       <div className="flex items-center gap-4">
         <Avatar>
-          <AvatarImage src={memberPictureUrl} alt={displayName} />
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
         <div className="min-w-0">
@@ -93,19 +92,34 @@ export function OrganizationMemberTable({
 
     const visibleRoles = roleNames.slice(0, 2).join(', ');
     const remainingCount = roleNames.length - 2;
+    const fullRoles = roleNames.join(', ');
 
     return (
-      <span className="text-primary">
-        {visibleRoles}
-        {remainingCount > 0 ? `, +${remainingCount}` : ''}
-      </span>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="text-primary">
+            {visibleRoles}
+            {remainingCount > 0 ? `, +${remainingCount}` : ''}
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>{fullRoles}</TooltipContent>
+      </Tooltip>
     );
   }, []);
 
   const renderLastLogin = React.useCallback(
     (member: OrgMember) => {
+      const label = getRelativeLastLoginLabel(member.last_login, t);
+      if (!member.last_login || Number.isNaN(new Date(member.last_login).getTime())) {
+        return <span className="text-primary">{label}</span>;
+      }
       return (
-        <span className="text-primary">{getRelativeLastLoginLabel(member.last_login, t)}</span>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="text-primary">{label}</span>
+          </TooltipTrigger>
+          <TooltipContent>{formatDate(member.last_login)}</TooltipContent>
+        </Tooltip>
       );
     },
     [t],
@@ -128,7 +142,7 @@ export function OrganizationMemberTable({
         render: renderRoles,
       },
       {
-        type: 'text',
+        type: 'custom',
         accessorKey: 'last_login',
         title: t('member.table.columns.last_login'),
         enableSorting: false,
@@ -169,7 +183,7 @@ export function OrganizationMemberTable({
         onSortChange={onSortChange}
       />
 
-      {members.length > 0 && (
+      {(members.length > 0 || pagination.hasPreviousPage) && (
         <div className="mt-4">
           <DataPagination
             type="checkpoint"

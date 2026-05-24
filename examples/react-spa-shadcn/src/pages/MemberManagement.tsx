@@ -7,9 +7,9 @@ const MemberManagement = () => {
   const { t } = useTranslation();
   // const navigate = useNavigate();
 
-  // const memberDetailAction = {
+  // const viewMemberDetailsAction = {
   //   onAfter: (userId: string) => {
-  //     navigate(`/member-management/${encodeURIComponent(userId)}`);
+  //     navigate(`/member-management/${userId}`);
   //   },
   // };
 
@@ -30,7 +30,7 @@ const MemberManagement = () => {
         on how to add Member Management component.
       </p>
       <div className="bg-background rounded-lg shadow p-6">
-        {/* <OrganizationMemberManagement /> */}
+        {/* <OrganizationMemberManagement viewMemberDetailsAction={viewMemberDetailsAction} /> */}
       </div>
     </div>
   );
