@@ -9,19 +9,38 @@ import type {
   MemberInvitation,
   OrganizationMemberManagementMessages,
   Role,
+  OrgMember,
 } from '@auth0/universal-components-core';
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 
 import type {
   CreateInvitationInput,
   IdentityProviderOption,
-  InvitationFilterState,
-  InvitationPaginationState,
-  InvitationSortConfig,
   OrganizationInvitationTabClasses,
 } from './organization-invitation-table-types';
 
 export type ActiveTab = 'members' | 'invitations';
+
+/** Pagination state for member management tables - invitation and member tables (checkpoint-based). */
+export interface MemberManagementPaginationState {
+  pageSize: number;
+  currentPage: number;
+  totalItems?: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+/** Sort configuration for member management tables. */
+export interface MemberManagementSortConfig {
+  key: string | null;
+  direction: 'asc' | 'desc';
+}
+
+/** Filter state for member management tables. */
+export interface MemberManagementFilterState {
+  searchQuery?: string;
+  roleId?: string;
+}
 
 export interface TableQueryParams<TSort, TFilter> {
   pageSize: number;
@@ -30,13 +49,21 @@ export interface TableQueryParams<TSort, TFilter> {
   filters: TFilter;
 }
 
+export interface AssignRoleMutationInput {
+  userId: string;
+  roleIds: string[];
+}
+
 export interface UseMemberManagementServiceOptions {
   customMessages?: Partial<OrganizationMemberManagementMessages>;
   activeTab?: ActiveTab;
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   revokeInvitationAction?: ComponentAction<MemberInvitation>;
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
-  invitationParams?: TableQueryParams<InvitationSortConfig, InvitationFilterState>;
+  invitationParams?: TableQueryParams<MemberManagementSortConfig, MemberManagementFilterState>;
+  memberParams?: TableQueryParams<MemberManagementSortConfig, MemberManagementFilterState>;
+  removeFromOrgAction?: ComponentAction<{ userId: string }>;
+  assignRoleAction?: ComponentAction<{ userId: string; roleId: string }>;
 }
 
 export interface MemberManagementServiceResult {
@@ -69,6 +96,10 @@ export interface UseOrganizationMemberManagementOptions {
   revokeInvitationAction?: ComponentAction<MemberInvitation>;
   /** Action hooks for invitation revoke-and-resend (onBefore/onAfter) */
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
+  /** Action hooks for removing a member from the organization (onBefore/onAfter) */
+  removeFromOrgAction?: ComponentAction<{ userId: string }>;
+  /** Action hooks for assigning a role to a member (onBefore/onAfter) */
+  assignRoleAction?: ComponentAction<{ userId: string; roleId: string }>;
 }
 
 /** Discriminated union for member management modal state. */
@@ -77,23 +108,33 @@ export type MemberManagementModalState =
   | { type: 'create' }
   | { type: 'details'; invitation: MemberInvitation }
   | { type: 'revoke'; invitation: MemberInvitation }
-  | { type: 'revokeResend'; invitation: MemberInvitation };
+  | { type: 'revokeResend'; invitation: MemberInvitation }
+  | { type: 'assignRole'; member: OrgMember }
+  | { type: 'removeFromOrg'; member: OrgMember };
 
 export interface UseOrganizationMemberManagementResult {
   activeTab: ActiveTab;
   availableRoles: Role[];
   availableProviders: IdentityProviderOption[];
+  members?: OrgMember[];
 
   invitations: MemberInvitation[];
   isInitialLoading: boolean;
   isFetchingInvitations: boolean;
+  isFetchingMembers?: boolean;
+  isFetchingRoles?: boolean;
   isCreatingInvitation: boolean;
   isRevokingInvitation: boolean;
   isResendingInvitation: boolean;
-  invitationPagination: InvitationPaginationState;
-  invitationFilters: InvitationFilterState;
-  invitationSortConfig: InvitationSortConfig;
+  invitationPagination: MemberManagementPaginationState;
+  memberPagination?: MemberManagementPaginationState;
+  invitationFilters?: MemberManagementFilterState;
+  invitationSortConfig?: MemberManagementSortConfig;
+  memberFilters?: MemberManagementFilterState;
+  memberSortConfig?: MemberManagementSortConfig;
   modalState: MemberManagementModalState;
+  isRemovingFromOrg?: boolean;
+  isAssigningRole?: boolean;
 
   setActiveTab: (tab: ActiveTab) => void;
   openModal: (state: MemberManagementModalState) => void;
@@ -105,7 +146,7 @@ export interface UseOrganizationMemberManagementResult {
   handleNextPage: () => void;
   handlePreviousPage: () => void;
   handlePageSizeChange: (pageSize: number) => void;
-  handleSortChange: (sortConfig: InvitationSortConfig) => void;
+  handleSortChange: (sortConfig: MemberManagementSortConfig) => void;
   handleRoleFilterChange: (roleId: string | undefined) => void;
 }
 
@@ -140,4 +181,8 @@ export interface OrganizationMemberManagementProps
   revokeInvitationAction?: ComponentAction<MemberInvitation>;
   /** Action hooks for invitation revoke-and-resend (onBefore/onAfter) */
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
+  /** Action hooks for removing a member from the organization (onBefore/onAfter) */
+  removeFromOrgAction?: ComponentAction<{ userId: string }>;
+  /** Action hooks for assigning a role to a member (onBefore/onAfter) */
+  assignRoleAction?: ComponentAction<{ userId: string; roleId: string }>;
 }

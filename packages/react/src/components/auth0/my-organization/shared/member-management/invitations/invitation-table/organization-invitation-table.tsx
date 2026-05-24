@@ -26,6 +26,7 @@ import type { OrganizationInvitationTableProps } from '@/types/my-organization/m
  * @param props.loading - Whether the table is loading.
  * @param props.customMessages - Custom translation messages.
  * @param props.pagination - Pagination state.
+ * @param props.pageSizeOptions - Options for page size selection.
  * @param props.filters - Current filter state.
  * @param props.availableRoles - Available roles for filtering.
  * @param props.readOnly - Whether the component is in read-only mode.
@@ -44,6 +45,7 @@ export function OrganizationInvitationTable({
   loading = false,
   customMessages = {},
   pagination,
+  pageSizeOptions,
   filters,
   availableRoles,
   readOnly = false,
@@ -176,7 +178,7 @@ export function OrganizationInvitationTable({
               hasNextPage: pagination.hasNextPage,
               hasPreviousPage: pagination.hasPreviousPage,
             }}
-            pageSizeOptions={[10, 25, 50]}
+            pageSizeOptions={pageSizeOptions}
             showPageSizeSelector
             showPageInfo
             onNextPage={onNextPage}

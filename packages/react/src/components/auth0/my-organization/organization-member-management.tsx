@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOrganizationMemberManagement } from '@/hooks/my-organization/use-organization-member-management';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MEMBER_MANAGEMENT_PAGE_SIZE_OPTIONS } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import type {
   OrganizationMemberManagementProps,
   OrganizationMemberManagementViewProps,
@@ -75,6 +76,8 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     [styling, isDarkMode],
   );
 
+  const pageSizeOptions = MEMBER_MANAGEMENT_PAGE_SIZE_OPTIONS;
+
   return (
     <StyledScope style={currentStyles.variables}>
       <div className={currentStyles.classes?.['OrganizationMemberManagement-root']}>
@@ -121,6 +124,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               loading={isFetchingInvitations}
               customMessages={customMessages?.invitation}
               pagination={invitationPagination}
+              pageSizeOptions={pageSizeOptions}
               readOnly={readOnly}
               sortConfig={invitationSortConfig}
               onSortChange={handleSortChange}

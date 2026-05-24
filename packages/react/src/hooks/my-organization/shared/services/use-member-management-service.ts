@@ -16,13 +16,11 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type {
-  CreateInvitationInput,
-  InvitationSortConfig,
-} from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   UseMemberManagementServiceOptions,
   MemberManagementServiceResult,
+  MemberManagementSortConfig,
 } from '@/types/my-organization/member-management/organization-member-management-types';
 
 const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
@@ -34,8 +32,8 @@ const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
  * @param sortConfig - The sort configuration.
  * @returns The formatted sort string, or undefined if no valid sort key.
  */
-function buildSortParam(sortConfig?: InvitationSortConfig): string | undefined {
-  if (!sortConfig?.key) return undefined;
+function buildSortParam(sortConfig: MemberManagementSortConfig): string | undefined {
+  if (!sortConfig.key) return undefined;
   const apiField = INVITATION_SORT_FIELD_MAP[sortConfig.key];
   if (!apiField) return undefined;
   const direction = sortConfig.direction === 'asc' ? '1' : '-1';
@@ -106,7 +104,7 @@ export function useMemberManagementService(
       const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list({
         take: invitationParams?.pageSize,
         from: invitationParams?.fromToken,
-        sort: buildSortParam(invitationParams?.sortConfig),
+        sort: buildSortParam(invitationParams?.sortConfig ?? { key: null, direction: 'asc' }),
       });
 
       const invitations: MemberInvitation[] = page.data;
