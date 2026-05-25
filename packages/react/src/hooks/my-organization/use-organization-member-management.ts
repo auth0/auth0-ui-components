@@ -181,9 +181,12 @@ export function useOrganizationMemberManagement(
     invitations: currentInvitations,
     isInitialLoading: invitationsQuery.isLoading,
     isFetchingInvitations: invitationsQuery.isFetching,
-    isCreatingInvitation: createInvitationMutation.isPending,
-    isRevokingInvitation: revokeInvitationMutation.isPending,
-    isResendingInvitation: resendInvitationMutation.isPending,
+    isCreatingInvitation:
+      createInvitationMutation.isPending ?? (createInvitationMutation as any).isLoading,
+    isRevokingInvitation:
+      revokeInvitationMutation.isPending ?? (revokeInvitationMutation as any).isLoading,
+    isResendingInvitation:
+      resendInvitationMutation.isPending ?? (resendInvitationMutation as any).isLoading,
     invitationPagination: {
       pageSize: invitationPageSize,
       currentPage: invitationCurrentPage,

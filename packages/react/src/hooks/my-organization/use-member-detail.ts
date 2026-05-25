@@ -124,10 +124,13 @@ export function useOrganizationMemberDetail(
     isFetchingMemberRoles: memberRolesQuery.isLoading,
     isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
     isLoading: memberQuery.isLoading,
-    isRemovingFromOrg: removeFromOrgMutation.isPending,
-    isAssigningRoles: assignRolesMutation.isPending,
-    isRemovingRoles: removeRolesMutation.isPending,
-    removingRoleIds: removeRolesMutation.isPending ? removingRoles.map((r) => r.id) : [],
+    isRemovingFromOrg: removeFromOrgMutation.isPending ?? (removeFromOrgMutation as any).isLoading,
+    isAssigningRoles: assignRolesMutation.isPending ?? (assignRolesMutation as any).isLoading,
+    isRemovingRoles: removeRolesMutation.isPending ?? (removeRolesMutation as any).isLoading,
+    removingRoleIds:
+      (removeRolesMutation.isPending ?? (removeRolesMutation as any).isLoading)
+        ? removingRoles.map((r) => r.id)
+        : [],
     modalState,
 
     setActiveTab,
