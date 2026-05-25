@@ -12,6 +12,10 @@ import type {
   MemberRemoveFromOrgModalProps,
   OrganizationMemberRemoveRoleModalProps,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
+import type {
+  OrganizationMemberTableActionsColumnProps,
+  OrganizationMemberTableProps,
+} from '@/types/my-organization/member-management/organization-member-table-types';
 
 export const createMockMember = (overrides?: Partial<OrgMember>): OrgMember =>
   ({
@@ -20,8 +24,69 @@ export const createMockMember = (overrides?: Partial<OrgMember>): OrgMember =>
     email: 'test@example.com',
     created_at: '2024-01-01T00:00:00.000Z',
     last_login: '2024-06-15T10:00:00.000Z',
+    given_name: 'Ada',
+    family_name: 'Lovelace',
+    roles: [{ id: 'role_admin', name: 'Admin' }],
+    picture: undefined,
     ...overrides,
   }) as OrgMember;
+
+export const createMockMembers = (): OrgMember[] => [
+  createMockMember(),
+  createMockMember({
+    user_id: 'auth0|testuser123',
+    name: 'Test User',
+    email: 'test@example.com',
+    created_at: '2024-01-01T00:00:00.000Z',
+    given_name: 'Ada',
+    family_name: 'Lovelace',
+    last_login: undefined,
+    roles: [],
+  }),
+];
+
+export const createMockMemberActionsColumnProps = (
+  overrides: Partial<OrganizationMemberTableActionsColumnProps> = {},
+): OrganizationMemberTableActionsColumnProps => ({
+  member: createMockMember(),
+  onViewDetails: vi.fn(),
+  onAssignRole: vi.fn(),
+  onRemoveFromOrg: vi.fn(),
+  ...overrides,
+});
+
+export const createMockMemberTableProps = (
+  overrides: Partial<OrganizationMemberTableProps> = {},
+): OrganizationMemberTableProps => ({
+  members: createMockMembers(),
+  loading: false,
+  pagination: {
+    pageSize: 10,
+    currentPage: 1,
+    totalItems: 2,
+    hasNextPage: true,
+    hasPreviousPage: false,
+  },
+  filters: {},
+  sortConfig: { key: null, direction: 'asc' },
+  availableRoles: [],
+  onView: vi.fn(),
+  onAssignRole: vi.fn(),
+  onRemoveFromOrg: vi.fn(),
+  onNextPage: vi.fn(),
+  onPreviousPage: vi.fn(),
+  onPageSizeChange: vi.fn(),
+  onSortChange: vi.fn(),
+  onRoleFilterChange: vi.fn(),
+  onSearchTermChange: vi.fn(),
+  ...overrides,
+});
+
+export const createMockRoleOptions = (): Role[] => [
+  { id: 'role_admin', name: 'Admin' },
+  { id: 'role_member', name: 'Member' },
+  { id: 'role_viewer', name: 'Viewer' },
+];
 
 export const createMockMemberWithPhone = (overrides?: Partial<OrgMember>): OrgMember =>
   createMockMember({

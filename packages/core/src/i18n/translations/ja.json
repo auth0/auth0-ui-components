@@ -909,6 +909,7 @@
       "delete_success": "${providerName}が削除されました。",
       "remove_success": "${providerName}が${organizationName}から削除されました",
       "update_success": "${providerName}への変更が保存されました。",
+      "enable_on_before": "プロバイダーの有効化バリデーションに失敗しました。",
       "general_error": "リクエストの処理中に問題が発生しました。もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
       "domain_create": {
         "success": "${domainName}が作成されました。",
@@ -1095,10 +1096,25 @@
           "last_login": "最終ログイン"
         },
         "empty_message": "この組織にはメンバーがいません。",
-        "search_placeholder": "メールで検索...",
+        "search_placeholder": "名前またはメールでメンバーを検索",
         "filter_by_role": "ロールでフィルター",
         "all_roles": "すべて",
-        "reset_filter": "リセット"
+        "reset_filter": "リセット",
+        "never": "一度もない",
+        "just_now": "たった今",
+        "ago": "前",
+        "minute": "分",
+        "minutes": "分",
+        "hour": "時間",
+        "hours": "時間",
+        "day": "日",
+        "days": "日",
+        "week": "週間",
+        "weeks": "週間",
+        "month": "か月",
+        "months": "か月",
+        "year": "年",
+        "years": "年"
       },
       "actions": {
         "menu_label": "アクション",
@@ -1110,23 +1126,6 @@
         "fetch_failed": "メンバーの読み込みに失敗しました。もう一度お試しください。",
         "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。",
         "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。"
-      },
-      "remove_from_org_modal": {
-        "title": "${organizationName} からメンバーを削除",
-        "description": "この組織から ${memberName} を削除してもよろしいですか？この操作でアカウントは削除されませんが、アクセス権が取り消され、サインインできなくなります。",
-        "remove_button": "削除",
-        "cancel_button": "キャンセル",
-        "success": "メンバーが組織から削除されました。"
-      },
-      "assign_role_modal": {
-        "title": "ロールを割り当てる",
-        "roles_label": "ロール",
-        "roles_placeholder": "ロールを選択",
-        "submit_button": "ロールを割り当てる",
-        "cancel_button": "キャンセル",
-        "no_roles_available": "利用可能なすべてのロールがすでに割り当てられています。",
-        "success": "ロールが割り当てられました。",
-        "success_plural": "ロールが割り当てられました。"
       },
       "detail": {
         "back_button": "メンバー一覧に戻る",
@@ -1148,9 +1147,10 @@
             "title": "組織からメンバーを削除",
             "description": "一度確定すると、この操作は元に戻せません。",
             "button": "削除",
+            "success": "${memberName} が ${orgName} から削除されました。",
             "modal": {
               "title": "${orgName} からメンバーを削除",
-              "description": "\"${memberName}\" をこの組織から削除してもよろしいですか？この操作はアカウントを削除しませんが、アクセスを取り消し、サインインできなくなります。",
+              "description": "<bold>\"${memberName}\"</bold> をこの組織から削除してもよろしいですか？この操作はアカウントを削除しませんが、アクセスを取り消し、サインインできなくなります。",
               "cancel_button": "キャンセル",
               "confirm_button": "削除する"
             }

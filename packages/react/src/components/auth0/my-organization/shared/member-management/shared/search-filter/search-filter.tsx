@@ -8,6 +8,7 @@ import { X } from 'lucide-react';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
+import { Search } from '@/components/ui/search';
 import {
   Select,
   SelectContent,
@@ -26,23 +27,40 @@ import type { SearchFilterProps } from '@/types/my-organization/member-managemen
  * @param props.availableRoles - Available roles for filtering.
  * @param props.customMessages - Custom translation messages.
  * @param props.className - Optional CSS class name.
+ * @param props.activeTab - The currently active tab (members or invitations).
  * @param props.onRoleFilterChange - Callback fired when role filter changes.
- * @returns The filter bar component.
+ * @param props.onSearchTermChange - Callback fired when search term changes.
+ * @returns The search and filter component.
  */
 export function SearchFilter({
   filters,
   availableRoles = [],
   customMessages = {},
   className,
+  activeTab,
   onRoleFilterChange,
+  onSearchTermChange,
 }: SearchFilterProps): React.JSX.Element | null {
   const { t } = useTranslator('member_management', customMessages);
+  const [searchTerm, setSearchTerm] = React.useState('');
 
   const handleRoleFilterChange = React.useCallback(
     (value: string) => {
       onRoleFilterChange?.(value === 'all' ? undefined : value);
     },
     [onRoleFilterChange],
+  );
+
+  const handleKeyDownSearch = React.useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Escape') {
+        setSearchTerm('');
+      }
+      if (event.key === 'Enter') {
+        onSearchTermChange?.(searchTerm);
+      }
+    },
+    [searchTerm, onSearchTermChange],
   );
 
   const handleReset = React.useCallback(() => {
@@ -56,10 +74,19 @@ export function SearchFilter({
   }
 
   return (
-    <div className={className ?? 'mb-4 flex items-center justify-end gap-2'}>
+    <div className={className ?? 'mt-8 mb-6 flex items-center justify-end gap-2'}>
+      {activeTab === 'members' && (
+        <Search
+          className="flex-1"
+          placeholder={t('member.table.search_placeholder')}
+          value={searchTerm}
+          onChange={setSearchTerm}
+          onKeyDown={handleKeyDownSearch}
+        />
+      )}
       <Select value={filters?.roleId ?? 'all'} onValueChange={handleRoleFilterChange}>
         <SelectTrigger
-          className="w-auto min-w-[180px]"
+          className="w-auto min-w-45"
           aria-label={t('invitation.table.filter_by_role')}
         >
           <span className="text-muted-foreground mr-1">

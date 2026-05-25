@@ -909,6 +909,7 @@
       "delete_success": "${providerName} has been deleted.",
       "remove_success": "${providerName} has been removed from ${organizationName}",
       "update_success": "Changes to ${providerName} have been saved.",
+      "enable_on_before": "Enable provider validation failed.",
       "general_error": "There was an issue processing your request. Please try again or contact support if the issue persists.",
       "domain_create": {
         "success": "${domainName} has been created.",
@@ -1094,10 +1095,25 @@
           "last_login": "Last Login"
         },
         "empty_message": "This organization does not have any members.",
-        "search_placeholder": "Search by email...",
+        "search_placeholder": "Search for a member by name or email",
         "filter_by_role": "Filter By Role",
         "all_roles": "All",
-        "reset_filter": "Reset"
+        "reset_filter": "Reset",
+        "never": "Never",
+        "just_now": "Just now",
+        "ago": "ago",
+        "minute": "minute",
+        "minutes": "minutes",
+        "hour": "hour",
+        "hours": "hours",
+        "day": "day",
+        "days": "days",
+        "week": "week",
+        "weeks": "weeks",
+        "month": "month",
+        "months": "months",
+        "year": "year",
+        "years": "years"
       },
       "actions": {
         "menu_label": "Actions",
@@ -1109,23 +1125,6 @@
         "fetch_failed": "Failed to load members. Please try again.",
         "remove_failed": "Failed to remove member. Please try again.",
         "assign_role_failed": "Failed to assign role. Please try again."
-      },
-      "remove_from_org_modal": {
-        "title": "Remove Member from ${organizationName}",
-        "description": "Are you sure you want to remove ${memberName} from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
-        "remove_button": "Remove",
-        "cancel_button": "Cancel",
-        "success": "Member has been removed from the organization."
-      },
-      "assign_role_modal": {
-        "title": "Assign Roles",
-        "roles_label": "Roles",
-        "roles_placeholder": "Select role(s)",
-        "submit_button": "Assign Role(s)",
-        "cancel_button": "Cancel",
-        "no_roles_available": "All available roles are already assigned.",
-        "success": "The role has been assigned.",
-        "success_plural": "The roles have been assigned."
       },
       "detail": {
         "back_button": "Back to Members",
@@ -1147,9 +1146,10 @@
             "title": "Remove Member from Organization",
             "description": "Once confirmed, this operation cannot be undone.",
             "button": "Delete",
+            "success": "${memberName} has been removed from the ${orgName}.",
             "modal": {
               "title": "Remove Member from ${orgName}",
-              "description": "Are you sure you want to remove \"${memberName}\" from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
+              "description": "Are you sure you want to remove <bold>\"${memberName}\"</bold> from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
               "cancel_button": "Cancel",
               "confirm_button": "Remove"
             }

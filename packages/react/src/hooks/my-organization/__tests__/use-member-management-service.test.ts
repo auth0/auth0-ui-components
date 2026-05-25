@@ -24,6 +24,12 @@ const createDefaultOptions = (
     sortConfig: { key: null, direction: 'asc' },
     filters: {},
   },
+  memberParams: {
+    pageSize: 10,
+    fromToken: undefined,
+    sortConfig: { key: null, direction: 'asc' },
+    filters: {},
+  },
   ...overrides,
 });
 
