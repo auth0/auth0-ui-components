@@ -28,6 +28,7 @@ export function MemberRemoveFromOrgModal({
   isOpen,
   isLoading = false,
   memberName,
+  memberUserId,
   orgName,
   customMessages,
   onClose,
@@ -35,22 +36,33 @@ export function MemberRemoveFromOrgModal({
 }: MemberRemoveFromOrgModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
+  const handleSubmit = React.useCallback(() => {
+    onConfirm(memberUserId, memberName, orgName);
+  }, [onConfirm, memberUserId, memberName, orgName]);
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="mb-4">
             {t('member.detail.actions.remove_from_org.modal.title', { orgName })}
           </DialogTitle>
           <DialogDescription>
-            {t('member.detail.actions.remove_from_org.modal.description', { memberName })}
+            <>
+              {t.trans('member.detail.actions.remove_from_org.modal.description', {
+                components: {
+                  bold: (children: string) => <strong key="memberName">{children}</strong>,
+                },
+                vars: { memberName },
+              })}
+            </>
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
             {t('member.detail.actions.remove_from_org.modal.cancel_button')}
           </Button>
-          <Button variant="destructive" onClick={onConfirm} disabled={isLoading}>
+          <Button variant="destructive" onClick={handleSubmit} disabled={isLoading}>
             {isLoading ? (
               <Spinner size="sm" />
             ) : (

@@ -4,13 +4,15 @@
  * @internal
  */
 
+import type { OrgMember, Role } from '@auth0/universal-components-core';
 import {
   type MemberInvitation,
   type ListIdentityProvidersResponseContent,
   memberManagementQueryKeys,
+  OrganizationDetailsMappers,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
-import * as React from 'react';
+import React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
@@ -55,6 +57,9 @@ export function useMemberManagementService(
     revokeInvitationAction,
     resendInvitationAction,
     invitationParams,
+    memberParams,
+    assignRolesAction,
+    removeFromOrgAction,
   } = options;
 
   const isInvitationsTabActive = activeTab === 'invitations';
@@ -102,9 +107,9 @@ export function useMemberManagementService(
     ],
     queryFn: async () => {
       const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list({
-        take: invitationParams?.pageSize,
-        from: invitationParams?.fromToken,
-        sort: buildSortParam(invitationParams?.sortConfig ?? { key: null, direction: 'asc' }),
+        take: invitationParams!.pageSize,
+        from: invitationParams!.fromToken,
+        sort: buildSortParam(invitationParams!.sortConfig),
       });
 
       const invitations: MemberInvitation[] = page.data;
@@ -112,8 +117,100 @@ export function useMemberManagementService(
 
       return { invitations, next };
     },
-    enabled: !!coreClient && isInvitationsTabActive,
+    enabled: !!coreClient && isInvitationsTabActive && !!invitationParams,
     placeholderData: keepPreviousData,
+  });
+
+  const membersQuery = useQuery({
+    queryKey: [
+      ...memberManagementQueryKeys.members(),
+      memberParams?.pageSize,
+      memberParams?.fromToken,
+    ],
+    queryFn: async () => {
+      const page = await coreClient!.getMyOrganizationApiClient().organization.members.list({
+        take: memberParams!.pageSize,
+        from: memberParams!.fromToken,
+      });
+      const members: OrgMember[] = page.data;
+      const next = members.length < memberParams!.pageSize ? null : page.response.next;
+      return { members, next };
+    },
+    enabled: !!coreClient && !isInvitationsTabActive && !!memberParams,
+    placeholderData: keepPreviousData,
+  });
+
+  const organizationQuery = useQuery({
+    queryKey: memberManagementQueryKeys.organization,
+    queryFn: async () => {
+      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
+      return OrganizationDetailsMappers.fromAPI(response);
+    },
+    enabled: !!coreClient,
+  });
+
+  const assignRolesMutation = useMutation({
+    mutationFn: async ({ roleIds, userId }: { roleIds: string[]; userId?: string | null }) => {
+      if (!userId) throw new Error('userId is required');
+      if (assignRolesAction?.onBefore && !assignRolesAction.onBefore({ userId, roleIds })) {
+        throw new Error('Assign roles cancelled by onBefore');
+      }
+      await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.members.roles.assign(userId, { role_ids: roleIds });
+      assignRolesAction?.onAfter?.({ userId, roleIds });
+    },
+    onSuccess: (_, { roleIds, userId }) => {
+      if (!userId) return;
+      const allRoles = queryClient.getQueryData<Role[]>(memberManagementQueryKeys.roles()) ?? [];
+      const newRoles = allRoles.filter((r) => roleIds.includes(r.id));
+      queryClient.setQueryData<Role[]>(memberManagementQueryKeys.memberRoles(userId), (old) => [
+        ...(old ?? []),
+        ...newRoles,
+      ]);
+      const assignKey =
+        roleIds.length === 1
+          ? 'member.detail.roles.assign_modal.success'
+          : 'member.detail.roles.assign_modal.success_plural';
+      showToast({ type: 'success', message: t(assignKey) });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.all });
+    },
+    onError: (error) => {
+      handleError(error, { fallbackMessage: t('member.detail.error.assign_role_failed') });
+    },
+  });
+
+  const removeFromOrgMutation = useMutation({
+    mutationFn: async ({
+      userId,
+    }: {
+      userId?: string | null;
+      memberName?: string;
+      orgName?: string;
+    }) => {
+      if (!userId) throw new Error('userId is required');
+      if (removeFromOrgAction?.onBefore && !removeFromOrgAction.onBefore(userId)) {
+        throw new Error('Remove from org cancelled by onBefore');
+      }
+      await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.memberships.deleteMemberships({ members: [userId] });
+    },
+    onSuccess: (_, { userId, memberName, orgName }) => {
+      if (!userId) return;
+      removeFromOrgAction?.onAfter?.(userId);
+      showToast({
+        type: 'success',
+        message: t('member.detail.actions.remove_from_org.success', {
+          memberName: memberName ?? '',
+          orgName: orgName ?? '',
+        }),
+      });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.all });
+    },
+    onError: (error) => {
+      handleError(error, { fallbackMessage: t('member.detail.error.remove_from_org_failed') });
+    },
   });
 
   const createInvitationMutation = useMutation({
@@ -215,6 +312,10 @@ export function useMemberManagementService(
     providersQuery,
     rolesQuery,
     invitationsQuery,
+    organizationQuery,
+    membersQuery,
+    assignRolesMutation,
+    removeFromOrgMutation,
     createInvitationMutation,
     revokeInvitationMutation,
     resendInvitationMutation,

@@ -37,12 +37,16 @@ export function useOrganizationMemberManagement(
     createInvitationAction,
     revokeInvitationAction,
     resendInvitationAction,
+    viewMemberDetailsAction,
+    assignRolesAction,
+    removeFromOrgAction,
   } = options;
 
   const { t } = useTranslator('member_management', customMessages);
 
   const [activeTab, setActiveTab] = React.useState<ActiveTab>('members');
 
+  /** Pagination and sorting for invitations */
   const {
     pageSize: invitationPageSize,
     currentPage: invitationCurrentPage,
@@ -57,6 +61,21 @@ export function useOrganizationMemberManagement(
     changeFilters: invitationChangeFilters,
   } = useCheckpointPagination<MemberManagementFilterState>();
 
+  /** Pagination and sorting for members */
+  const {
+    pageSize: memberPageSize,
+    currentPage: memberCurrentPage,
+    fromToken: memberFromToken,
+    hasPreviousPage: memberHasPreviousPage,
+    sortConfig: memberSortConfig,
+    filters: memberFilters,
+    goToNextPage: memberGoToNextPage,
+    goToPreviousPage: memberGoToPreviousPage,
+    changePageSize: memberChangePageSize,
+    changeSortConfig: memberChangeSortConfig,
+    changeFilters: memberChangeFilters,
+  } = useCheckpointPagination<MemberManagementFilterState>();
+
   const [modalState, setModalState] = React.useState<MemberManagementModalState>({ type: null });
   const detailsRequestIdRef = React.useRef(0);
 
@@ -64,9 +83,13 @@ export function useOrganizationMemberManagement(
     providersQuery,
     rolesQuery,
     invitationsQuery,
+    membersQuery,
+    organizationQuery,
     createInvitationMutation,
     revokeInvitationMutation,
     resendInvitationMutation,
+    assignRolesMutation,
+    removeFromOrgMutation,
     fetchInvitationDetails,
   } = useMemberManagementService({
     customMessages,
@@ -80,12 +103,23 @@ export function useOrganizationMemberManagement(
       sortConfig: invitationSortConfig,
       filters: invitationFilters,
     },
+    memberParams: {
+      pageSize: memberPageSize,
+      fromToken: memberFromToken,
+      sortConfig: memberSortConfig,
+      filters: memberFilters,
+    },
+    assignRolesAction,
+    removeFromOrgAction,
   });
 
   const availableProviders: IdentityProviderOption[] = providersQuery.data ?? [];
   const availableRoles = rolesQuery.data ?? [];
   const currentInvitations = invitationsQuery.data?.invitations ?? [];
+  const currentMembers = membersQuery.data?.members ?? [];
   const invitationNextToken = invitationsQuery.data?.next ?? null;
+  const memberNextToken = membersQuery.data?.next ?? null;
+  const orgDisplayName = organizationQuery.data?.display_name ?? '';
 
   const openModal = React.useCallback(
     async (state: MemberManagementModalState) => {
@@ -142,35 +176,88 @@ export function useOrganizationMemberManagement(
     await navigator.clipboard.writeText(invitation.invitation_url);
   }, []);
 
+  const handleViewMemberDetails = React.useCallback(
+    (userId: string) => {
+      viewMemberDetailsAction?.onAfter?.(userId);
+    },
+    [viewMemberDetailsAction],
+  );
+
+  const handleAssignRolesSubmit = React.useCallback(
+    (roleIds: string[], userId?: string | null) => {
+      assignRolesMutation.mutate(
+        { roleIds, userId },
+        {
+          onSuccess: () => {
+            closeModal();
+          },
+        },
+      );
+    },
+    [assignRolesMutation, closeModal],
+  );
+
+  const handleRemoveFromOrgConfirm = React.useCallback(
+    (userId?: string | null, memberName?: string, orgName?: string) => {
+      removeFromOrgMutation.mutate(
+        { userId, memberName, orgName },
+        {
+          onSuccess: () => {
+            closeModal();
+          },
+        },
+      );
+    },
+    [removeFromOrgMutation, closeModal],
+  );
+
   const handleNextPage = React.useCallback(() => {
-    if (invitationNextToken) {
+    if (activeTab === 'members' && memberNextToken) {
+      memberGoToNextPage(memberNextToken);
+    } else if (invitationNextToken) {
       invitationGoToNextPage(invitationNextToken);
     }
-  }, [invitationNextToken, invitationGoToNextPage]);
+  }, [activeTab, invitationNextToken, memberNextToken, invitationGoToNextPage, memberGoToNextPage]);
 
   const handlePreviousPage = React.useCallback(() => {
-    invitationGoToPreviousPage();
-  }, [invitationGoToPreviousPage]);
+    if (activeTab === 'members') {
+      memberGoToPreviousPage();
+    } else {
+      invitationGoToPreviousPage();
+    }
+  }, [activeTab, invitationGoToPreviousPage, memberGoToPreviousPage]);
 
   const handlePageSizeChange = React.useCallback(
     (pageSize: number) => {
-      invitationChangePageSize(pageSize);
+      if (activeTab === 'members') {
+        memberChangePageSize(pageSize);
+      } else {
+        invitationChangePageSize(pageSize);
+      }
     },
-    [invitationChangePageSize],
+    [activeTab, invitationChangePageSize, memberChangePageSize],
   );
 
   const handleSortChange = React.useCallback(
     (sortConfig: MemberManagementSortConfig) => {
-      invitationChangeSortConfig(sortConfig);
+      if (activeTab === 'members') {
+        memberChangeSortConfig(sortConfig);
+      } else {
+        invitationChangeSortConfig(sortConfig);
+      }
     },
-    [invitationChangeSortConfig],
+    [activeTab, invitationChangeSortConfig, memberChangeSortConfig],
   );
 
   const handleRoleFilterChange = React.useCallback(
     (roleId: string | undefined) => {
-      invitationChangeFilters((prev) => ({ ...prev, roleId }));
+      if (activeTab === 'members') {
+        memberChangeFilters((prev) => ({ ...prev, roleId }));
+      } else {
+        invitationChangeFilters((prev) => ({ ...prev, roleId }));
+      }
     },
-    [invitationChangeFilters],
+    [activeTab, invitationChangeFilters, memberChangeFilters],
   );
 
   return {
@@ -179,8 +266,14 @@ export function useOrganizationMemberManagement(
     availableProviders,
 
     invitations: currentInvitations,
-    isInitialLoading: invitationsQuery.isLoading,
+    members: currentMembers,
+    orgDisplayName: orgDisplayName,
+    isInitialLoading: invitationsQuery.isLoading || membersQuery.isLoading,
     isFetchingInvitations: invitationsQuery.isFetching,
+    isFetchingMembers: membersQuery.isFetching,
+    isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
+    isRemovingFromOrg: removeFromOrgMutation.isPending,
+    isAssigningRoles: assignRolesMutation.isPending,
     isCreatingInvitation: createInvitationMutation.isPending,
     isRevokingInvitation: revokeInvitationMutation.isPending,
     isResendingInvitation: resendInvitationMutation.isPending,
@@ -190,8 +283,16 @@ export function useOrganizationMemberManagement(
       hasNextPage: !!invitationNextToken,
       hasPreviousPage: invitationHasPreviousPage,
     },
+    memberPagination: {
+      pageSize: memberPageSize,
+      currentPage: memberCurrentPage,
+      hasNextPage: !!memberNextToken,
+      hasPreviousPage: memberHasPreviousPage,
+    },
     invitationFilters,
     invitationSortConfig,
+    memberFilters,
+    memberSortConfig,
     modalState,
 
     setActiveTab,
@@ -206,5 +307,8 @@ export function useOrganizationMemberManagement(
     handlePageSizeChange,
     handleSortChange,
     handleRoleFilterChange,
+    handleViewMemberDetails,
+    handleAssignRolesSubmit,
+    handleRemoveFromOrgConfirm,
   };
 }

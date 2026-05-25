@@ -1063,23 +1063,6 @@
         "remove_failed": "Échec de la suppression du membre. Veuillez réessayer.",
         "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer."
       },
-      "remove_from_org_modal": {
-        "title": "Supprimer le membre de ${organizationName}",
-        "description": "Voulez-vous vraiment supprimer ${memberName} de cette organisation ? Cette action ne supprimera pas son compte, mais elle révoquera son accès et l'empêchera de se connecter.",
-        "remove_button": "Supprimer",
-        "cancel_button": "Annuler",
-        "success": "Le membre a été supprimé de l'organisation."
-      },
-      "assign_role_modal": {
-        "title": "Attribuer des rôles",
-        "roles_label": "Rôles",
-        "roles_placeholder": "Sélectionner un ou des rôles",
-        "submit_button": "Attribuer le(s) rôle(s)",
-        "cancel_button": "Annuler",
-        "no_roles_available": "Tous les rôles disponibles sont déjà attribués.",
-        "success": "Le rôle a été attribué.",
-        "success_plural": "Les rôles ont été attribués."
-      },
       "detail": {
         "back_button": "Retour aux membres",
         "tabs": {
@@ -1100,9 +1083,10 @@
             "title": "Retirer un membre de l'organisation",
             "description": "Une fois confirmée, cette opération ne peut pas être annulée.",
             "button": "Supprimer",
+            "success": "${memberName} a été retiré de ${orgName}.",
             "modal": {
               "title": "Retirer un membre de ${orgName}",
-              "description": "Êtes-vous sûr de vouloir retirer \"${memberName}\" de cette organisation ? Cette action ne supprimera pas son compte, mais révoquera son accès et l'empêchera de se connecter.",
+              "description": "Êtes-vous sûr de vouloir retirer <bold>\"${memberName}\"</bold> de cette organisation ? Cette action ne supprimera pas son compte, mais révoquera son accès et l'empêchera de se connecter.",
               "cancel_button": "Annuler",
               "confirm_button": "Retirer"
             }

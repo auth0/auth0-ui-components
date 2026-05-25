@@ -1,8 +1,10 @@
 'use client';
 
 // import { OrganizationMemberManagement } from '@auth0/universal-components-react';
+// import { useRouter } from 'next/navigation';
 
 export default function MemberManagementPage() {
+  // const router = useRouter();
   return (
     <div className="p-6 pt-8 space-y-6">
       <p className="text-primary">
@@ -15,7 +17,13 @@ export default function MemberManagementPage() {
         </a>{' '}
         on how to add Member Management component.
       </p>
-      {/* <OrganizationMemberManagement /> */}
+      {/* <OrganizationMemberManagement
+        viewMemberDetailsAction={{
+          onAfter: (userId) => {
+            router.push(`/member-management/${userId}`);
+          },
+        }}
+      /> */}
     </div>
   );
 }

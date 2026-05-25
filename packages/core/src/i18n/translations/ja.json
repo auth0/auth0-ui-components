@@ -1127,23 +1127,6 @@
         "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。",
         "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。"
       },
-      "remove_from_org_modal": {
-        "title": "${organizationName} からメンバーを削除",
-        "description": "この組織から ${memberName} を削除してもよろしいですか？この操作でアカウントは削除されませんが、アクセス権が取り消され、サインインできなくなります。",
-        "remove_button": "削除",
-        "cancel_button": "キャンセル",
-        "success": "メンバーが組織から削除されました。"
-      },
-      "assign_role_modal": {
-        "title": "ロールを割り当てる",
-        "roles_label": "ロール",
-        "roles_placeholder": "ロールを選択",
-        "submit_button": "ロールを割り当てる",
-        "cancel_button": "キャンセル",
-        "no_roles_available": "利用可能なすべてのロールがすでに割り当てられています。",
-        "success": "ロールが割り当てられました。",
-        "success_plural": "ロールが割り当てられました。"
-      },
       "detail": {
         "back_button": "メンバー一覧に戻る",
         "tabs": {
@@ -1164,9 +1147,10 @@
             "title": "組織からメンバーを削除",
             "description": "一度確定すると、この操作は元に戻せません。",
             "button": "削除",
+            "success": "${memberName} が ${orgName} から削除されました。",
             "modal": {
               "title": "${orgName} からメンバーを削除",
-              "description": "\"${memberName}\" をこの組織から削除してもよろしいですか？この操作はアカウントを削除しませんが、アクセスを取り消し、サインインできなくなります。",
+              "description": "<bold>\"${memberName}\"</bold> をこの組織から削除してもよろしいですか？この操作はアカウントを削除しませんが、アクセスを取り消し、サインインできなくなります。",
               "cancel_button": "キャンセル",
               "confirm_button": "削除する"
             }

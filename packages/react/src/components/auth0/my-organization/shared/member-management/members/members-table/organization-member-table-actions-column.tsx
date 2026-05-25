@@ -37,7 +37,7 @@ export function OrganizationMemberTableActionsColumn({
   const { t } = useTranslator('member_management', customMessages);
 
   const handleViewDetails = React.useCallback(() => {
-    onViewDetails?.(member);
+    onViewDetails?.(member?.user_id ?? '');
   }, [member, onViewDetails]);
 
   const handleAssignRole = React.useCallback(() => {
