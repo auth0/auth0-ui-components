@@ -86,6 +86,162 @@ describe('OrganizationMemberTable', () => {
     });
   });
 
+  describe('renderName', () => {
+    it('should render display name, email, and two-letter initials when given and family names are present', () => {
+      const props = createMockMemberTableProps({
+        members: [
+          createMockMember({
+            user_id: 'usr_name_1',
+            given_name: 'Ada',
+            family_name: 'Lovelace',
+            name: 'ignored-name',
+            email: 'ada@example.com',
+            roles: [],
+            last_login: undefined,
+          }),
+        ],
+      });
+
+      renderWithProviders(<OrganizationMemberTable {...props} />);
+
+      expect(screen.getByText('Ada Lovelace')).toBeInTheDocument();
+      expect(screen.getByText('ada@example.com')).toBeInTheDocument();
+      expect(screen.getByText('AL')).toBeInTheDocument();
+    });
+
+    it('should fall back to member.name when given/family names are missing', () => {
+      const props = createMockMemberTableProps({
+        members: [
+          createMockMember({
+            user_id: 'usr_name_2',
+            given_name: undefined,
+            family_name: undefined,
+            name: 'Grace Hopper',
+            email: 'grace@example.com',
+            roles: [],
+            last_login: undefined,
+          }),
+        ],
+      });
+
+      renderWithProviders(<OrganizationMemberTable {...props} />);
+
+      expect(screen.getByText('Grace Hopper')).toBeInTheDocument();
+      expect(screen.getByText('GH')).toBeInTheDocument();
+    });
+  });
+
+  describe('renderRoles', () => {
+    it('should render "-" when member has no roles', () => {
+      const props = createMockMemberTableProps({
+        members: [
+          createMockMember({
+            user_id: 'usr_roles_1',
+            roles: [],
+            last_login: undefined,
+          }),
+        ],
+      });
+
+      renderWithProviders(<OrganizationMemberTable {...props} />);
+
+      expect(screen.getAllByText('-').length).toBeGreaterThan(0);
+    });
+
+    it('should render all role names joined by comma when there are at most 2 roles', () => {
+      const props = createMockMemberTableProps({
+        members: [
+          createMockMember({
+            user_id: 'usr_roles_2',
+            roles: [
+              { id: 'r1', name: 'Admin' },
+              { id: 'r2', name: 'Member' },
+            ],
+            last_login: undefined,
+          }),
+        ],
+      });
+
+      renderWithProviders(<OrganizationMemberTable {...props} />);
+
+      expect(screen.getByText('Admin, Member')).toBeInTheDocument();
+      expect(screen.queryByText(/\+\d+/)).not.toBeInTheDocument();
+    });
+
+    it('should render the first 2 role names with a "+N" suffix when there are more than 2 roles', () => {
+      const props = createMockMemberTableProps({
+        members: [
+          createMockMember({
+            user_id: 'usr_roles_3',
+            roles: [
+              { id: 'r1', name: 'Admin' },
+              { id: 'r2', name: 'Member' },
+              { id: 'r3', name: 'Viewer' },
+              { id: 'r4', name: 'Editor' },
+            ],
+            last_login: undefined,
+          }),
+        ],
+      });
+
+      renderWithProviders(<OrganizationMemberTable {...props} />);
+
+      expect(screen.getByText('Admin, Member, +2')).toBeInTheDocument();
+    });
+  });
+
+  describe('renderLastLogin', () => {
+    it('should render the relative last login label when last_login is a valid date', () => {
+      vi.spyOn(Date, 'now').mockReturnValue(new Date('2026-05-15T12:00:00.000Z').getTime());
+
+      const props = createMockMemberTableProps({
+        members: [
+          createMockMember({
+            user_id: 'usr_login_1',
+            last_login: '2026-05-13T12:00:00.000Z',
+            roles: [],
+          }),
+        ],
+      });
+
+      renderWithProviders(<OrganizationMemberTable {...props} />);
+
+      expect(screen.getByText(/member\.table\.days/)).toBeInTheDocument();
+    });
+
+    it('should render the "never" label when last_login is undefined', () => {
+      const props = createMockMemberTableProps({
+        members: [
+          createMockMember({
+            user_id: 'usr_login_2',
+            last_login: undefined,
+            roles: [],
+          }),
+        ],
+      });
+
+      renderWithProviders(<OrganizationMemberTable {...props} />);
+
+      expect(screen.getByText('member.table.never')).toBeInTheDocument();
+    });
+
+    it('should render the "never" label when last_login is an invalid date string', () => {
+      const props = createMockMemberTableProps({
+        members: [
+          createMockMember({
+            user_id: 'usr_login_3',
+            last_login: 'not-a-date',
+            roles: [],
+          }),
+        ],
+      });
+
+      renderWithProviders(<OrganizationMemberTable {...props} />);
+
+      expect(screen.getByText('member.table.never')).toBeInTheDocument();
+    });
+  });
+
   describe('Pagination', () => {
     it('should call onNextPage and onPreviousPage when pagination controls are clicked', async () => {
       const user = userEvent.setup();

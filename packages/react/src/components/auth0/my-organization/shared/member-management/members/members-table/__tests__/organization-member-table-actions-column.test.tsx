@@ -88,7 +88,7 @@ describe('OrganizationMemberTableActionsColumn', () => {
       await user.click(screen.getByRole('menuitem', { name: 'member.actions.view_details' }));
 
       expect(onViewDetails).toHaveBeenCalledTimes(1);
-      expect(onViewDetails).toHaveBeenCalledWith(member);
+      expect(onViewDetails).toHaveBeenCalledWith('usr_abc');
     });
 
     it('should call onAssignRole when Assign Role is clicked', async () => {

@@ -63,7 +63,6 @@ export function useMemberManagementService(
   } = options;
 
   const isInvitationsTabActive = activeTab === 'invitations';
-  const isMembersTabActive = activeTab === 'members';
   const isActiveTabProvided = !!activeTab;
 
   const { coreClient } = useCoreClient();
@@ -108,9 +107,9 @@ export function useMemberManagementService(
     ],
     queryFn: async () => {
       const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list({
-        take: invitationParams?.pageSize,
-        from: invitationParams?.fromToken,
-        sort: buildSortParam(invitationParams?.sortConfig ?? { key: null, direction: 'asc' }),
+        take: invitationParams!.pageSize,
+        from: invitationParams!.fromToken,
+        sort: buildSortParam(invitationParams!.sortConfig),
       });
 
       const invitations: MemberInvitation[] = page.data;
@@ -118,7 +117,7 @@ export function useMemberManagementService(
 
       return { invitations, next };
     },
-    enabled: !!coreClient && isInvitationsTabActive,
+    enabled: !!coreClient && isInvitationsTabActive && !!invitationParams,
     placeholderData: keepPreviousData,
   });
 
@@ -127,19 +126,17 @@ export function useMemberManagementService(
       ...memberManagementQueryKeys.members(),
       memberParams?.pageSize,
       memberParams?.fromToken,
-      memberParams?.filters,
-      memberParams?.sortConfig,
     ],
     queryFn: async () => {
       const page = await coreClient!.getMyOrganizationApiClient().organization.members.list({
-        take: memberParams?.pageSize,
-        from: memberParams?.fromToken,
+        take: memberParams!.pageSize,
+        from: memberParams!.fromToken,
       });
       const members: OrgMember[] = page.data;
-      const next = members.length < (memberParams?.pageSize ?? 0) ? null : page.response.next;
+      const next = members.length < memberParams!.pageSize ? null : page.response.next;
       return { members, next };
     },
-    enabled: !!coreClient && isMembersTabActive,
+    enabled: !!coreClient && !isInvitationsTabActive && !!memberParams,
     placeholderData: keepPreviousData,
   });
 
