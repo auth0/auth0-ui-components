@@ -2096,9 +2096,9 @@
           "target": "hooks/my-organization/use-idp-config.ts"
         },
         {
-          "path": "src/hooks/my-organization/use-sso-provider-table-logic.ts",
+          "path": "src/hooks/my-organization/shared/services/use-sso-provider-table-service.ts",
           "type": "registry:component",
-          "target": "hooks/my-organization/use-sso-provider-table-logic.ts"
+          "target": "hooks/my-organization/shared/services/use-sso-provider-table-service.ts"
         },
         {
           "path": "src/hooks/my-organization/use-sso-provider-table.ts",

@@ -909,6 +909,7 @@
       "delete_success": "${providerName} has been deleted.",
       "remove_success": "${providerName} has been removed from ${organizationName}",
       "update_success": "Changes to ${providerName} have been saved.",
+      "enable_on_before": "Enable provider validation failed.",
       "general_error": "There was an issue processing your request. Please try again or contact support if the issue persists.",
       "domain_create": {
         "success": "${domainName} has been created.",

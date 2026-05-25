@@ -909,6 +909,7 @@
       "delete_success": "${providerName}が削除されました。",
       "remove_success": "${providerName}が${organizationName}から削除されました",
       "update_success": "${providerName}への変更が保存されました。",
+      "enable_on_before": "プロバイダーの有効化バリデーションに失敗しました。",
       "general_error": "リクエストの処理中に問題が発生しました。もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
       "domain_create": {
         "success": "${domainName}が作成されました。",
