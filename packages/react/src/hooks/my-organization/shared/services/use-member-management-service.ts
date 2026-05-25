@@ -25,6 +25,11 @@ import type {
   MemberManagementServiceResult,
 } from '@/types/my-organization/member-management/organization-member-management-types';
 
+const keepPreviousDataOption =
+  typeof keepPreviousData === 'function'
+    ? { placeholderData: keepPreviousData }
+    : ({ keepPreviousData: true } as object);
+
 const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
   created_at: 'created_at',
 };
@@ -115,7 +120,7 @@ export function useMemberManagementService(
       return { invitations, next };
     },
     enabled: !!coreClient && isInvitationsTabActive,
-    placeholderData: keepPreviousData,
+    ...keepPreviousDataOption,
   });
 
   const createInvitationMutation = useMutation({
