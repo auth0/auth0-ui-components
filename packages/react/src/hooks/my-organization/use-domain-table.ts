@@ -166,9 +166,9 @@ export function useDomainTable({
     domains: domainsQuery.data ?? [],
     providers: providersQuery.data ?? [],
     isFetching: domainsQuery.isLoading,
-    isCreating: createDomainMutation.isPending,
-    isDeleting: deleteDomainMutation.isPending,
-    isVerifying: verifyDomainMutation.isPending,
+    isCreating: createDomainMutation.isPending ?? (createDomainMutation as any).isLoading,
+    isDeleting: deleteDomainMutation.isPending ?? (deleteDomainMutation as any).isLoading,
+    isVerifying: verifyDomainMutation.isPending ?? (verifyDomainMutation as any).isLoading,
     isLoadingProviders: providersQuery.isLoading,
     fetchProviders: async (domain: Domain) => {
       setSelectedDomainId(domain.id);

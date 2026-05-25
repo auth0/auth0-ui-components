@@ -785,17 +785,25 @@ export function useSsoProviderEdit(
 
     // Loading states - all derived from TanStack Query
     isLoading: providerQuery.isLoading || organizationQuery.isLoading,
-    isUpdating: updateProviderMutation.isPending,
-    isDeleting: deleteProviderMutation.isPending,
-    isRemoving: detachProviderMutation.isPending,
-    isProvisioningUpdating: createProvisioningMutation.isPending,
-    isProvisioningDeleting: deleteProvisioningMutation.isPending,
+    isUpdating: updateProviderMutation.isPending ?? (updateProviderMutation as any).isLoading,
+    isDeleting: deleteProviderMutation.isPending ?? (deleteProviderMutation as any).isLoading,
+    isRemoving: detachProviderMutation.isPending ?? (detachProviderMutation as any).isLoading,
+    isProvisioningUpdating:
+      createProvisioningMutation.isPending ?? (createProvisioningMutation as any).isLoading,
+    isProvisioningDeleting:
+      deleteProvisioningMutation.isPending ?? (deleteProvisioningMutation as any).isLoading,
     isProvisioningLoading: provisioningQuery.isLoading || provisioningQuery.isFetching,
-    isScimTokensLoading: listScimTokensMutation.isPending,
-    isScimTokenCreating: createScimTokenMutation.isPending,
-    isScimTokenDeleting: deleteScimTokenMutation.isPending,
-    isSsoAttributesSyncing: syncSsoAttributesMutation.isPending,
-    isProvisioningAttributesSyncing: syncProvisioningAttributesMutation.isPending,
+    isScimTokensLoading:
+      listScimTokensMutation.isPending ?? (listScimTokensMutation as any).isLoading,
+    isScimTokenCreating:
+      createScimTokenMutation.isPending ?? (createScimTokenMutation as any).isLoading,
+    isScimTokenDeleting:
+      deleteScimTokenMutation.isPending ?? (deleteScimTokenMutation as any).isLoading,
+    isSsoAttributesSyncing:
+      syncSsoAttributesMutation.isPending ?? (syncSsoAttributesMutation as any).isLoading,
+    isProvisioningAttributesSyncing:
+      syncProvisioningAttributesMutation.isPending ??
+      (syncProvisioningAttributesMutation as any).isLoading,
 
     // Warning states
     hasSsoAttributeSyncWarning,

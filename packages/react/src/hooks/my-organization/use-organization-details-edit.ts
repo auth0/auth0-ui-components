@@ -96,7 +96,8 @@ export function useOrganizationDetailsEdit({
   });
 
   const hasData = !!organizationQuery.data;
-  const isActionDisabled = updateMutation.isPending || isInitializing;
+  const isActionDisabled =
+    (updateMutation.isPending ?? (updateMutation as any).isLoading) || isInitializing;
 
   const fetchOrgDetails = useCallback(async (): Promise<void> => {
     await queryClient.getQueryData(organizationDetailsQueryKeys.details());
@@ -120,7 +121,7 @@ export function useOrganizationDetailsEdit({
 
   const formActions = useMemo(
     (): OrganizationDetailsFormActions => ({
-      isLoading: updateMutation.isPending,
+      isLoading: updateMutation.isPending ?? (updateMutation as any).isLoading,
       previousAction: {
         disabled: cancelAction?.disabled || readOnly || !hasData || isActionDisabled,
         onClick: () => cancelAction?.onAfter?.(organization),
@@ -144,7 +145,7 @@ export function useOrganizationDetailsEdit({
   return {
     organization,
     isFetchLoading: organizationQuery.isFetching,
-    isSaveLoading: updateMutation.isPending,
+    isSaveLoading: updateMutation.isPending ?? (updateMutation as any).isLoading,
     isInitializing,
     formActions,
     fetchOrgDetails,

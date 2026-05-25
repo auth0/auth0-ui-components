@@ -182,10 +182,10 @@ export function useUserMFA({
   );
 
   const handleCancelDelete = useCallback(() => {
-    if (deleteMutation.isPending) return;
+    if (deleteMutation.isPending ?? (deleteMutation as any).isLoading) return;
     setIsDeleteDialogOpen(false);
     setFactorToDelete(null);
-  }, [deleteMutation.isPending]);
+  }, [deleteMutation.isPending ?? (deleteMutation as any).isLoading]);
 
   const handleCloseEnrollDialog = useCallback(async () => {
     setIsEnrollDialogOpen(false);
@@ -312,9 +312,9 @@ export function useUserMFA({
   return {
     factorsByType,
     isLoadingFactors: factorsQuery.isLoading,
-    isEnrolling: enrollMutation.isPending,
-    isDeleting: deleteMutation.isPending,
-    isConfirming: verifyMutation.isPending,
+    isEnrolling: enrollMutation.isPending ?? (enrollMutation as any).isLoading,
+    isDeleting: deleteMutation.isPending ?? (deleteMutation as any).isLoading,
+    isConfirming: verifyMutation.isPending ?? (verifyMutation as any).isLoading,
     error: factorsQuery.isError ? t('errors.factors_loading_error') : null,
     isEnrollDialogOpen,
     enrollFactor,

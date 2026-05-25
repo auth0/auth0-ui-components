@@ -145,6 +145,6 @@ export function useSsoProviderCreate({
 
   return {
     createProvider,
-    isCreating: createProviderMutation.isPending,
+    isCreating: createProviderMutation.isPending ?? (createProviderMutation as any).isLoading,
   };
 }

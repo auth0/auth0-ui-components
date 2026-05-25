@@ -203,12 +203,13 @@ export function useSsoProviderTableService(
     isLoading: providersQuery.isLoading || organizationQuery.isLoading,
     providersError: providersQuery.error,
     organizationError: organizationQuery.error,
-    isDeleting: deleteProviderMutation.isPending,
-    isRemoving: removeProviderMutation.isPending,
-    isUpdating: enableProviderMutation.isPending,
-    isUpdatingId: enableProviderMutation.isPending
-      ? (enableProviderMutation.variables?.selectedIdp?.id ?? null)
-      : null,
+    isDeleting: deleteProviderMutation.isPending ?? (deleteProviderMutation as any).isLoading,
+    isRemoving: removeProviderMutation.isPending ?? (removeProviderMutation as any).isLoading,
+    isUpdating: enableProviderMutation.isPending ?? (enableProviderMutation as any).isLoading,
+    isUpdatingId:
+      (enableProviderMutation.isPending ?? (enableProviderMutation as any).isLoading)
+        ? (enableProviderMutation.variables?.selectedIdp?.id ?? null)
+        : null,
 
     fetchProviders,
     fetchOrganizationDetails,
