@@ -608,9 +608,6 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.2.7
         version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      '@tanstack/react-query':
-        specifier: ^5.56.2
-        version: 5.90.11(react@19.2.1)
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -666,6 +663,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.10
         version: 4.1.17
+      '@tanstack/react-query':
+        specifier: ^5.56.2
+        version: 5.90.11(react@19.2.1)
       '@testing-library/jest-dom':
         specifier: ^6.6.3
         version: 6.9.1
