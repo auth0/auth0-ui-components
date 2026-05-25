@@ -5,7 +5,12 @@
 
 'use client';
 
-import type { AuthDetails } from '@auth0/universal-components-core';
+import type {
+  AuthDetails,
+  CssImplementation,
+  TelemetryConfig,
+} from '@auth0/universal-components-core';
+import type { DistributionChannel } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Toaster } from '@/components/auth0/shared/sonner';
@@ -14,9 +19,20 @@ import { Spinner } from '@/components/ui/spinner';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
 import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
 import { useToastProvider } from '@/hooks/shared/use-toast-provider';
+import { detectCssImplementation } from '@/lib/utils/css-detection';
 import { QueryProvider } from '@/providers/query-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
 import type { Auth0ComponentProviderProps } from '@/types/auth-types';
+
+/**
+ * Build-time constant for distribution channel.
+ * - npm build: tsup replaces __DISTRIBUTION__ with 'npm'
+ * - shadcn copy: __DISTRIBUTION__ undefined, falls back to 'shadcn'
+ */
+declare const __DISTRIBUTION__: DistributionChannel;
+const DISTRIBUTION: DistributionChannel =
+  typeof __DISTRIBUTION__ !== 'undefined' ? __DISTRIBUTION__ : 'shadcn';
+const FRAMEWORK = 'react' as const;
 
 /**
  * Auth0 provider for RWAs using backend proxy auth.
@@ -45,6 +61,16 @@ export const Auth0ComponentProvider = ({
   const mergedToastSettings = useToastProvider(toastSettings);
   const { baseUrl, fetcher } = proxyConfig;
 
+  // CSS detection for telemetry
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [css, setCss] = React.useState<CssImplementation>('unknown');
+
+  React.useLayoutEffect(() => {
+    if (containerRef.current) {
+      setCss(detectCssImplementation(containerRef.current));
+    }
+  }, []);
+
   const memoizedAuthDetails = React.useMemo<AuthDetails>(
     () => ({
       domain,
@@ -55,9 +81,19 @@ export const Auth0ComponentProvider = ({
     [domain, baseUrl, fetcher, previewMode],
   );
 
+  const telemetry = React.useMemo<TelemetryConfig>(
+    () => ({
+      css,
+      distribution: DISTRIBUTION,
+      framework: FRAMEWORK,
+    }),
+    [css],
+  );
+
   const coreClient = useCoreClientInitialization({
     authDetails: memoizedAuthDetails,
     i18nOptions: i18n,
+    telemetry,
   });
 
   const coreClientValue = React.useMemo(
@@ -76,29 +112,31 @@ export const Auth0ComponentProvider = ({
   );
 
   return (
-    <ThemeProvider
-      themeSettings={{
-        mode: themeSettings.mode,
-        variables: themeSettings.variables,
-        loader,
-        theme: themeSettings.theme,
-      }}
-    >
-      {mergedToastSettings.provider === 'sonner' && (
-        <Toaster
-          position={mergedToastSettings.settings?.position || 'top-right'}
-          closeButton={mergedToastSettings.settings?.closeButton ?? true}
-          className="auth0-universal"
-        />
-      )}
-      {coreClient ? (
-        <CoreClientContext.Provider value={coreClientValue}>
-          <QueryProvider cacheConfig={cacheConfig}>{children}</QueryProvider>
-        </CoreClientContext.Provider>
-      ) : (
-        fallback
-      )}
-    </ThemeProvider>
+    <div ref={containerRef}>
+      <ThemeProvider
+        themeSettings={{
+          mode: themeSettings.mode,
+          variables: themeSettings.variables,
+          loader,
+          theme: themeSettings.theme,
+        }}
+      >
+        {mergedToastSettings.provider === 'sonner' && (
+          <Toaster
+            position={mergedToastSettings.settings?.position || 'top-right'}
+            closeButton={mergedToastSettings.settings?.closeButton ?? true}
+            className="auth0-universal"
+          />
+        )}
+        {coreClient ? (
+          <CoreClientContext.Provider value={coreClientValue}>
+            <QueryProvider cacheConfig={cacheConfig}>{children}</QueryProvider>
+          </CoreClientContext.Provider>
+        ) : (
+          fallback
+        )}
+      </ThemeProvider>
+    </div>
   );
 };
 

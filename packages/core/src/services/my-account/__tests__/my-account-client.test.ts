@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { stubFetch } from '../../../api/__tests__/__mocks__/api-utils.mocks';
 import { AUTH0_SCOPE_HEADER } from '../../../api/api-utils';
-import { getClientInfo } from '../../../api/telemetry';
+import type { TelemetryConfig } from '../../../api/telemetry';
 import type { FetcherSupplier, SpaAuthConfig } from '../../../auth/auth-types';
 import {
   createMockContextInterface,
@@ -17,6 +17,12 @@ import {
 } from '../my-account-client';
 
 vi.mock('@auth0/myaccount-js', () => ({ MyAccountClient: vi.fn() }));
+
+const defaultTelemetry: TelemetryConfig = {
+  css: 'unknown',
+  distribution: 'npm',
+  framework: 'react',
+};
 
 describe('createMyAccountClient', () => {
   const mockFetchWithAuth = vi.fn().mockResolvedValue(new Response());
@@ -41,31 +47,37 @@ describe('createMyAccountClient', () => {
   });
 
   it('creates client with baseUrl in proxy mode', () => {
-    createMyAccountClient(mockProxyConfig);
+    createMyAccountClient(mockProxyConfig, {
+      css: 'tailwind',
+      distribution: 'npm',
+      framework: 'react',
+    });
 
     expect(MyAccountClient).toHaveBeenCalledWith(
       expect.objectContaining({
         baseUrl: new URL(MY_ACCOUNT_PROXY_PATH, mockProxyConfig.proxyUrl).href,
-        telemetry: true,
-        clientInfo: getClientInfo(true),
+        telemetry: false,
       }),
     );
   });
 
   it('creates client with domain in SPA mode', () => {
-    createMyAccountClient(createSpaConfig());
+    createMyAccountClient(createSpaConfig(), {
+      css: 'scoped',
+      distribution: 'shadcn',
+      framework: 'react',
+    });
 
     expect(MyAccountClient).toHaveBeenCalledWith(
       expect.objectContaining({
         domain: TEST_DOMAIN,
-        telemetry: true,
-        clientInfo: getClientInfo(false),
+        telemetry: false,
       }),
     );
   });
 
   it('calls SDK createFetcher with correct dpopNonceId in SPA mode', () => {
-    createMyAccountClient(createSpaConfig());
+    createMyAccountClient(createSpaConfig(), defaultTelemetry);
 
     expect(mockCreateFetcher).toHaveBeenCalledWith({
       dpopNonceId: MY_ACCOUNT_DPOP_NONCE_ID,
@@ -79,7 +91,11 @@ describe('createMyAccountClient', () => {
 
     it('sets auth0-scope header when authParams has scope array', async () => {
       const mockFetch = stubFetch();
-      createMyAccountClient(mockProxyConfig);
+      createMyAccountClient(mockProxyConfig, {
+        css: 'tailwind',
+        distribution: 'npm',
+        framework: 'react',
+      });
 
       const constructorOptions = vi.mocked(MyAccountClient).mock.calls[0]![0];
       const fetcher = constructorOptions.fetcher as FetcherSupplier;
@@ -103,7 +119,11 @@ describe('createMyAccountClient', () => {
 
     it('does not set auth0-scope header when authParams has empty scope array', async () => {
       const mockFetch = stubFetch();
-      createMyAccountClient(mockProxyConfig);
+      createMyAccountClient(mockProxyConfig, {
+        css: 'scoped',
+        distribution: 'shadcn',
+        framework: 'react',
+      });
 
       const constructorOptions = vi.mocked(MyAccountClient).mock.calls[0]![0];
       const fetcher = constructorOptions.fetcher as FetcherSupplier;
@@ -117,7 +137,7 @@ describe('createMyAccountClient', () => {
 
   describe('SPA mode fetcher', () => {
     it('calls SDK fetchWithAuth with scope and audience', async () => {
-      createMyAccountClient(createSpaConfig());
+      createMyAccountClient(createSpaConfig(), defaultTelemetry);
 
       const constructorOptions = vi.mocked(MyAccountClient).mock.calls[0]![0];
       const fetcher = constructorOptions.fetcher as FetcherSupplier;
@@ -136,7 +156,11 @@ describe('createMyAccountClient', () => {
     });
 
     it('handles undefined authParams', async () => {
-      createMyAccountClient(createSpaConfig());
+      createMyAccountClient(createSpaConfig(), {
+        css: 'tailwind',
+        distribution: 'npm',
+        framework: 'react',
+      });
 
       const constructorOptions = vi.mocked(MyAccountClient).mock.calls[0]![0];
       const fetcher = constructorOptions.fetcher as FetcherSupplier;

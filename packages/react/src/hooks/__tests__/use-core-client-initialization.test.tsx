@@ -1,4 +1,4 @@
-import type { CoreClientInterface } from '@auth0/universal-components-core';
+import type { CoreClientInterface, TelemetryConfig } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -12,10 +12,17 @@ describe('useCoreClientInitialization', () => {
     initialize: vi.fn(),
   } as unknown as CoreClientInterface;
 
+  const defaultTelemetry: TelemetryConfig = {
+    css: 'tailwind',
+    distribution: 'npm',
+    framework: 'react',
+  };
+
   const defaultProps = {
     authDetails: {
       authProxyUrl: '/api/auth',
     },
+    telemetry: defaultTelemetry,
   };
 
   beforeEach(() => {
@@ -39,7 +46,11 @@ describe('useCoreClientInitialization', () => {
       expect(result.current).toBe(mockCoreClient);
     });
 
-    expect(createCoreClient).toHaveBeenCalledWith(defaultProps.authDetails, undefined);
+    expect(createCoreClient).toHaveBeenCalledWith(
+      defaultProps.authDetails,
+      undefined,
+      defaultTelemetry,
+    );
   });
 
   it('should pass i18nOptions to createCoreClient', async () => {
@@ -48,6 +59,11 @@ describe('useCoreClientInitialization', () => {
     const propsWithI18n = {
       authDetails: { authProxyUrl: '/api/auth' },
       i18nOptions: { currentLanguage: 'es', fallbackLanguage: 'en' },
+      telemetry: {
+        css: 'scoped' as const,
+        distribution: 'shadcn' as const,
+        framework: 'react' as const,
+      },
     };
 
     const { result } = renderHook(() => useCoreClientInitialization(propsWithI18n));
@@ -59,6 +75,7 @@ describe('useCoreClientInitialization', () => {
     expect(createCoreClient).toHaveBeenCalledWith(
       propsWithI18n.authDetails,
       propsWithI18n.i18nOptions,
+      propsWithI18n.telemetry,
     );
   });
 
@@ -90,6 +107,7 @@ describe('useCoreClientInitialization', () => {
 
     rerender({
       authDetails: { authProxyUrl: '/api/auth-v2' },
+      telemetry: defaultTelemetry,
     });
 
     await waitFor(() => {
@@ -102,6 +120,7 @@ describe('useCoreClientInitialization', () => {
 
     const propsWithDomain = {
       authDetails: { authProxyUrl: '/api/auth', domain: 'test.auth0.com' },
+      telemetry: defaultTelemetry,
     };
 
     const { result, rerender } = renderHook((props) => useCoreClientInitialization(props), {
@@ -114,6 +133,7 @@ describe('useCoreClientInitialization', () => {
 
     rerender({
       authDetails: { authProxyUrl: '/api/auth', domain: 'new.auth0.com' },
+      telemetry: defaultTelemetry,
     });
 
     expect(createCoreClient).toHaveBeenCalledTimes(1);

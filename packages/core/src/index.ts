@@ -20,6 +20,13 @@ export { createCoreClient } from './auth/core-client';
 
 export { AuthDetails, CoreClientInterface, BasicAuth0ContextInterface } from './auth/auth-types';
 
+export {
+  type CssImplementation,
+  type DistributionChannel,
+  type Framework,
+  type TelemetryConfig,
+} from './api/telemetry';
+
 export * from './schemas';
 
 export * from './theme';

@@ -172,7 +172,7 @@ describe('Auth0ComponentProvider (SPA)', () => {
   });
 
   it('should render fallback when coreClient is not initialized', () => {
-    mockUseCoreClientInitialization.mockReturnValueOnce(null as never);
+    mockUseCoreClientInitialization.mockReturnValue(null as never);
 
     render(
       <Auth0ComponentProvider>
