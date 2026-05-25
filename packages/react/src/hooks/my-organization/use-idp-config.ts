@@ -5,8 +5,8 @@
 
 import {
   hasApiErrorBody,
-  type IdpConfig,
-  type IdpConfigStrategyBase,
+  type GetIdpConfigurationResponseContent,
+  type IdentityProvidersConfigStrategyBase,
   type IdpStrategy,
 } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -22,7 +22,10 @@ export const idpConfigQueryKeys = {
 /**
  * Mapping from IdpStrategy values to the SDK's strategy config keys.
  */
-const STRATEGY_TO_CONFIG_KEY: Record<IdpStrategy, keyof NonNullable<IdpConfig['strategies']>> = {
+const STRATEGY_TO_CONFIG_KEY: Record<
+  IdpStrategy,
+  keyof NonNullable<GetIdpConfigurationResponseContent['strategies']>
+> = {
   adfs: 'adfs',
   'google-apps': 'googleapps',
   oidc: 'oidc',
@@ -40,7 +43,7 @@ export function useIdpConfig(): UseConfigIdpResult {
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
 
-  const idpConfigQuery = useQuery<IdpConfig | null>({
+  const idpConfigQuery = useQuery<GetIdpConfigurationResponseContent | null>({
     queryKey: idpConfigQueryKeys.config(),
     queryFn: async () => {
       try {
@@ -65,7 +68,9 @@ export function useIdpConfig(): UseConfigIdpResult {
   const idpConfig = idpConfigQuery.data ?? null;
   const strategies = idpConfig?.strategies;
 
-  const getStrategyFor = (strategy: IdpStrategy | undefined): IdpConfigStrategyBase | undefined => {
+  const getStrategyFor = (
+    strategy: IdpStrategy | undefined,
+  ): IdentityProvidersConfigStrategyBase | undefined => {
     if (!strategy || !strategies) return undefined;
     const key = STRATEGY_TO_CONFIG_KEY[strategy];
     return strategies[key];

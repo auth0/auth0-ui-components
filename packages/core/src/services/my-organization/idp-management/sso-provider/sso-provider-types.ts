@@ -12,7 +12,7 @@ import type {
 
 export type ListIdentityProvidersResponseContent =
   MyOrganization.ListIdentityProvidersResponseContent;
-export type IdentityProvider = MyOrganization.IdpKnownResponse;
+export type IdpKnownResponse = MyOrganization.IdpKnownResponse;
 export type CreateIdentityProviderRequestContent =
   MyOrganization.CreateIdentityProviderRequestContent;
 export type CreateIdentityProviderResponseContent =
@@ -39,9 +39,9 @@ export type CreateIdpDomainResponseContent = MyOrganization.CreateIdpDomainRespo
 
 export type IdpStrategy = MyOrganization.IdpStrategyEnum;
 
-export type IdentityProviderCreate = Omit<IdentityProvider, 'id'>;
+export type IdentityProviderCreate = Omit<IdpKnownResponse, 'id'>;
 
-export type IdentityProviderAssociatedWithDomain = IdentityProvider & {
+export type IdentityProviderAssociatedWithDomain = IdpKnownResponse & {
   is_associated: boolean;
 };
 
@@ -56,5 +56,5 @@ export type SCIMTokenCreate = MyOrganization.CreateIdpProvisioningScimTokenReque
 
 export type SCIMToken = MyOrganization.IdpScimTokenCreate;
 
-export type IdpUserAttributeMap = MyOrganization.IdpUserAttributeMapItem[];
-export type IdpBaseUserAttributeItem = MyOrganization.BaseUserAttributeMapItem;
+export type IdpUserAttributeMapItem = MyOrganization.IdpUserAttributeMapItem;
+export type BaseUserAttributeMapItem = MyOrganization.BaseUserAttributeMapItem;

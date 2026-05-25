@@ -4,7 +4,7 @@
  * @internal
  */
 
-import type { FetcherSupplier, SpaAuthConfig } from '../auth/auth-types';
+import type { FetcherAuthParams, FetcherSupplier, SpaAuthConfig } from '../auth/auth-types';
 
 import { ContentType, HeaderName } from './http-constants';
 import { buildTelemetryHeader, type TelemetryConfig } from './telemetry';
@@ -16,7 +16,11 @@ export const AUTH0_CLIENT_HEADER = 'Auth0-Client';
  * Configuration for proxy mode fetcher with telemetry.
  */
 export interface ProxyFetcherConfig {
-  customFetcher?: (url: string, init?: RequestInit) => Promise<Response>;
+  customFetcher?: (
+    url: string,
+    init?: RequestInit,
+    authParams?: FetcherAuthParams,
+  ) => Promise<Response>;
   telemetry: TelemetryConfig;
 }
 
@@ -40,7 +44,10 @@ export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier 
       AUTH0_CLIENT_HEADER,
       buildTelemetryHeader(url, { isProxyMode: true, ...config.telemetry }),
     );
-    return fetchFn(url, { ...init, headers });
+    if (fetchFn) {
+      return fetchFn(url, { ...init, headers }, authParams);
+    }
+    return fetch(url, { ...init, headers });
   };
 }
 

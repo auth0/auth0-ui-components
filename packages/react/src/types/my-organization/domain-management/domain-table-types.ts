@@ -5,7 +5,7 @@
 
 import type {
   SharedComponentProps,
-  IdentityProvider,
+  IdpKnownResponse,
   DomainCreateMessages,
   DomainCreateSchemas,
   ComponentAction,
@@ -50,9 +50,9 @@ export interface DomainTableProps
   createAction?: ComponentAction<Domain>;
   verifyAction?: ComponentAction<Domain>;
   deleteAction?: ComponentAction<Domain>;
-  associateToProviderAction?: ComponentAction<Domain, IdentityProvider>;
-  deleteFromProviderAction?: ComponentAction<Domain, IdentityProvider>;
-  onOpenProvider?: (provider: IdentityProvider) => void;
+  associateToProviderAction?: ComponentAction<Domain, IdpKnownResponse>;
+  deleteFromProviderAction?: ComponentAction<Domain, IdpKnownResponse>;
+  onOpenProvider?: (provider: IdpKnownResponse) => void;
   onCreateProvider?: () => void;
 }
 
@@ -95,8 +95,8 @@ export interface UseDomainTableResult extends SharedComponentProps {
   onCreateDomain: (data: CreateOrganizationDomainRequestContent) => Promise<Domain | null>;
   onVerifyDomain: (data: Domain) => Promise<boolean>;
   onDeleteDomain: (domain: Domain) => Promise<void>;
-  onAssociateToProvider: (domain: Domain, provider: IdentityProvider) => Promise<void>;
-  onDeleteFromProvider: (domain: Domain, provider: IdentityProvider) => Promise<void>;
+  onAssociateToProvider: (domain: Domain, provider: IdpKnownResponse) => Promise<void>;
+  onDeleteFromProvider: (domain: Domain, provider: IdpKnownResponse) => Promise<void>;
 }
 
 export interface UseDomainTableLogicOptions {
@@ -129,7 +129,7 @@ export interface UseDomainTableLogicResult {
   handleCreate: (domainUrl: string) => Promise<void>;
   handleVerify: (domain: Domain) => Promise<void>;
   handleDelete: (domain: Domain) => void;
-  handleToggleSwitch: (domain: Domain, provider: IdentityProvider, checked: boolean) => void;
+  handleToggleSwitch: (domain: Domain, provider: IdpKnownResponse, checked: boolean) => void;
   handleCloseVerifyModal: () => void;
   handleCreateClick: () => void;
   handleConfigureClick: (domain: Domain) => void;

@@ -7,7 +7,7 @@ import {
   OrganizationDetailsFactory,
   OrganizationDetailsMappers,
   SsoProviderMappers,
-  type IdentityProvider,
+  type IdpKnownResponse,
   type IdpId,
   type OrganizationPrivate,
   type UpdateIdentityProviderRequestContent,
@@ -15,11 +15,11 @@ import {
   type GetIdPProvisioningConfigResponseContent,
   getStatusCode,
 } from '@auth0/universal-components-core';
+import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
-import { ssoProviderQueryKeys } from '@/hooks/my-organization/use-sso-provider-table';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -70,7 +70,7 @@ export function useSsoProviderEdit(
    */
   const providerQuery = useQuery({
     queryKey: ssoProviderEditQueryKeys.detail(idpId),
-    queryFn: async (): Promise<IdentityProvider> => {
+    queryFn: async (): Promise<IdpKnownResponse> => {
       const response = await coreClient!
         .getMyOrganizationApiClient()
         .organization.identityProviders.get(idpId);
@@ -153,7 +153,7 @@ export function useSsoProviderEdit(
    * Update provider mutation - updates SSO provider configuration.
    */
   const updateProviderMutation = useMutation({
-    mutationFn: async (data: UpdateIdentityProviderRequestContent): Promise<IdentityProvider> => {
+    mutationFn: async (data: UpdateIdentityProviderRequestContent): Promise<IdpKnownResponse> => {
       const provider = providerQuery.data;
       if (!provider) {
         throw new Error('Provider not loaded');
@@ -500,7 +500,7 @@ export function useSsoProviderEdit(
     },
   });
 
-  const fetchProvider = useCallback(async (): Promise<IdentityProvider | null> => {
+  const fetchProvider = useCallback(async (): Promise<IdpKnownResponse | null> => {
     if (!coreClient || !idpId) {
       return null;
     }

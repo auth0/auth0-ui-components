@@ -1,290 +1,238 @@
 /**
- * SSO provider table data and actions hook.
+ * SSO provider table hook.
+ * Single public hook combining data operations and UI logic.
  * @module use-sso-provider-table
  */
 
-import {
-  OrganizationDetailsMappers,
-  SsoProviderMappers,
-  type UpdateIdentityProviderRequestContent,
-  type ComponentAction,
-  type IdentityProvider,
-  type OrganizationPrivate,
-  BusinessError,
-} from '@auth0/universal-components-core';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef } from 'react';
+import type { IdpKnownResponse } from '@auth0/universal-components-core';
+import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
-import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useSsoProviderTableService } from '@/hooks/my-organization/shared/services/use-sso-provider-table-service';
+import { useConfig } from '@/hooks/my-organization/use-config';
+import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { UseSsoProviderTableReturn } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
+import type {
+  UseSsoProviderTableOptions,
+  UseSsoProviderTableReturn,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
-export const ssoProviderQueryKeys = {
-  all: ['sso-providers'] as const,
-  list: () => [...ssoProviderQueryKeys.all, 'list'] as const,
-  organization: ['organization', 'details'] as const,
-};
+export { ssoProviderQueryKeys };
 
 /**
- * Hook for SSO provider table data and CRUD operations.
- * @param deleteAction - Delete action handler.
- * @param removeFromOrg - Remove from org handler.
- * @param enableAction - Enable/disable handler.
- * @param customMessages - Translation overrides.
- * @returns Provider data, mutations, and actions.
+ * Hook for SSO provider table data, CRUD operations, and UI logic.
+ * Consumes the internal service hook and manages modal/UI state.
+ * @param options - Hook options including actions, readOnly mode, and custom messages.
+ * @returns Combined data, loading states, UI state, and handlers.
  */
-export function useSsoProviderTable(
-  deleteAction?: ComponentAction<IdentityProvider, void>,
-  removeFromOrg?: ComponentAction<IdentityProvider, void>,
-  enableAction?: ComponentAction<IdentityProvider>,
+export function useSsoProviderTable({
+  readOnly = false,
   customMessages = {},
-): UseSsoProviderTableReturn {
-  const { t } = useTranslator('idp_management.notifications', customMessages);
-  const { coreClient } = useCoreClient();
-  const queryClient = useQueryClient();
+  createAction,
+  editAction,
+  deleteAction,
+  deleteFromOrganizationAction,
+  enableProviderAction,
+}: UseSsoProviderTableOptions): UseSsoProviderTableReturn {
+  const { t } = useTranslator(
+    'idp_management.notifications',
+    customMessages as Record<string, unknown>,
+  );
   const handleError = useErrorHandler();
-  const hasShownProvidersError = useRef(false);
-  const hasShownOrganizationError = useRef(false);
 
-  const providersQuery = useQuery({
-    queryKey: ssoProviderQueryKeys.list(),
-    queryFn: async () => {
-      const response = await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.identityProviders.list();
-      return (response?.identity_providers ?? []) as IdentityProvider[];
-    },
-    enabled: !!coreClient,
-  });
-
-  const organizationQuery = useQuery({
-    queryKey: ssoProviderQueryKeys.organization,
-    queryFn: async () => {
-      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
-      return OrganizationDetailsMappers.fromAPI(response);
-    },
-    enabled: !!coreClient,
-  });
-
-  useEffect(() => {
-    if (providersQuery.isError && !hasShownProvidersError.current) {
-      handleError(providersQuery.error, { fallbackMessage: t('general_error') });
-      hasShownProvidersError.current = true;
-    }
-
-    if (!providersQuery.isError) {
-      hasShownProvidersError.current = false;
-    }
-  }, [providersQuery.isError, providersQuery.error, t, handleError]);
-
-  useEffect(() => {
-    if (organizationQuery.isError && !hasShownOrganizationError.current) {
-      handleError(organizationQuery.error, { fallbackMessage: t('general_error') });
-      hasShownOrganizationError.current = true;
-    }
-
-    if (!organizationQuery.isError) {
-      hasShownOrganizationError.current = false;
-    }
-  }, [organizationQuery.isError, organizationQuery.error, t, handleError]);
-
-  const enableProviderMutation = useMutation({
-    mutationFn: async ({
-      selectedIdp,
-      enabled,
-    }: {
-      selectedIdp: IdentityProvider;
-      enabled: boolean;
-    }): Promise<IdentityProvider> => {
-      if (!selectedIdp?.id) {
-        throw new Error('Invalid provider');
-      }
-
-      if (enableAction?.onBefore) {
-        const shouldProceed = enableAction.onBefore(selectedIdp);
-        if (!shouldProceed) {
-          throw new BusinessError({ message: t('general_error') });
-        }
-      }
-
-      const apiRequestData: UpdateIdentityProviderRequestContent = SsoProviderMappers.updateToAPI({
-        strategy: selectedIdp.strategy,
-        is_enabled: enabled,
-      });
-
-      const updatedProvider = await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.identityProviders.update(selectedIdp.id, apiRequestData);
-
-      return updatedProvider as IdentityProvider;
-    },
-    onSuccess: async (updatedProvider, { selectedIdp }) => {
-      if (enableAction?.onAfter) {
-        await enableAction.onAfter(selectedIdp);
-      }
-
-      showToast({
-        type: 'success',
-        message: t('update_success', { providerName: selectedIdp.display_name }),
-      });
-
-      // Update the cache optimistically
-      queryClient.setQueryData<IdentityProvider[]>(ssoProviderQueryKeys.list(), (old) => {
-        if (!old) return old;
-        return old.map((provider) =>
-          provider.id === selectedIdp.id ? { ...provider, ...updatedProvider } : provider,
-        );
-      });
-    },
-    onError: (error) => {
-      handleError(error, { fallbackMessage: t('general_error') });
-    },
-  });
-
-  const deleteProviderMutation = useMutation({
-    mutationFn: async (selectedIdp: IdentityProvider): Promise<void> => {
-      if (!selectedIdp?.id) {
-        throw new Error('Invalid provider');
-      }
-
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.identityProviders.delete(selectedIdp.id);
-    },
-    onSuccess: async (_, selectedIdp) => {
-      if (deleteAction?.onAfter) {
-        await deleteAction.onAfter(selectedIdp);
-      }
-
-      showToast({
-        type: 'success',
-        message: t('delete_success', { providerName: selectedIdp.display_name }),
-      });
-
-      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
-    },
-    onError: (error) => {
-      handleError(error, { fallbackMessage: t('general_error') });
-    },
-  });
-
-  const removeProviderMutation = useMutation({
-    mutationFn: async (selectedIdp: IdentityProvider): Promise<void> => {
-      if (!selectedIdp?.id) {
-        throw new Error('Invalid provider');
-      }
-
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.identityProviders.detach(selectedIdp.id);
-    },
-    onSuccess: async (_, selectedIdp) => {
-      if (removeFromOrg?.onAfter) {
-        await removeFromOrg.onAfter(selectedIdp);
-      }
-
-      const organizationData = queryClient.getQueryData<OrganizationPrivate>(
-        ssoProviderQueryKeys.organization,
-      );
-
-      showToast({
-        type: 'success',
-        message: t('remove_success', {
-          providerName: selectedIdp.display_name,
-          organizationName: organizationData?.display_name,
-        }),
-      });
-
-      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
-    },
-    onError: (error) => {
-      handleError(error, { fallbackMessage: t('general_error') });
-    },
-  });
-
-  const onEnableProvider = useCallback(
-    async (selectedIdp: IdentityProvider, enabled: boolean): Promise<boolean> => {
-      if (!selectedIdp || !coreClient || !selectedIdp.id) {
-        return false;
-      }
-
-      try {
-        await enableProviderMutation.mutateAsync({ selectedIdp, enabled });
-        return true;
-      } catch {
-        return false;
-      }
-    },
-    [coreClient, enableProviderMutation],
-  );
-
-  const onDeleteConfirm = useCallback(
-    async (selectedIdp: IdentityProvider): Promise<void> => {
-      if (!selectedIdp || !coreClient || !selectedIdp.id) {
-        return;
-      }
-
-      deleteProviderMutation.mutate(selectedIdp);
-    },
-    [coreClient, deleteProviderMutation],
-  );
-
-  const onRemoveConfirm = useCallback(
-    async (selectedIdp: IdentityProvider): Promise<void> => {
-      if (!selectedIdp || !coreClient || !selectedIdp.id) {
-        return;
-      }
-
-      removeProviderMutation.mutate(selectedIdp);
-    },
-    [coreClient, removeProviderMutation],
-  );
-
-  const fetchProviders = useCallback(async (): Promise<void> => {
-    await queryClient.getQueryData(ssoProviderQueryKeys.list());
-  }, [queryClient]);
-
-  const fetchOrganizationDetails = useCallback(async (): Promise<OrganizationPrivate | null> => {
-    if (!coreClient) {
-      return null;
-    }
-
-    try {
-      const data = await queryClient.ensureQueryData({
-        queryKey: ssoProviderQueryKeys.organization,
-        queryFn: async () => {
-          const response = await coreClient.getMyOrganizationApiClient().organizationDetails.get();
-          return OrganizationDetailsMappers.fromAPI(response);
-        },
-      });
-      return data;
-    } catch (error) {
-      handleError(error, { fallbackMessage: t('general_error') });
-      return null;
-    }
-  }, [coreClient, queryClient, t, handleError]);
-
-  return {
-    // Data from TanStack Query - single source of truth
-    providers: providersQuery.data ?? [],
-    organization: organizationQuery.data ?? null,
-
-    // Loading states - all derived from TanStack Query
-    isLoading: providersQuery.isLoading || organizationQuery.isLoading,
-    isDeleting: deleteProviderMutation.isPending,
-    isRemoving: removeProviderMutation.isPending,
-    isUpdating: enableProviderMutation.isPending,
-    isUpdatingId: enableProviderMutation.isPending
-      ? (enableProviderMutation.variables?.selectedIdp?.id ?? null)
-      : null,
-
-    // Actions
+  const {
+    providers,
+    organization,
+    isLoading,
+    providersError,
+    organizationError,
+    isDeleting,
+    isRemoving,
+    isUpdating,
+    isUpdatingId,
     fetchProviders,
     fetchOrganizationDetails,
     onDeleteConfirm,
     onRemoveConfirm,
     onEnableProvider,
+  } = useSsoProviderTableService(
+    deleteAction,
+    deleteFromOrganizationAction,
+    enableProviderAction,
+    customMessages as Record<string, unknown>,
+  );
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [selectedIdp, setSelectedIdp] = useState<IdpKnownResponse | null>(null);
+  const hasShownProvidersError = useRef(false);
+  const hasShownOrganizationError = useRef(false);
+
+  const { isLoadingConfig, shouldAllowDeletion, isConfigValid } = useConfig();
+  const { isLoadingIdpConfig, isIdpConfigValid } = useIdpConfig();
+  const shouldHideCreate = !isConfigValid || !isIdpConfigValid;
+  const isViewLoading = isLoading || isLoadingConfig || isLoadingIdpConfig;
+
+  useEffect(() => {
+    if (providersError && !hasShownProvidersError.current) {
+      handleError(providersError, { fallbackMessage: t('general_error') });
+      hasShownProvidersError.current = true;
+    }
+
+    if (!providersError) {
+      hasShownProvidersError.current = false;
+    }
+  }, [providersError, t, handleError]);
+
+  useEffect(() => {
+    if (organizationError && !hasShownOrganizationError.current) {
+      handleError(organizationError, { fallbackMessage: t('general_error') });
+      hasShownOrganizationError.current = true;
+    }
+
+    if (!organizationError) {
+      hasShownOrganizationError.current = false;
+    }
+  }, [organizationError, t, handleError]);
+
+  const handleCreate = useCallback(() => {
+    if (createAction?.onAfter) {
+      createAction.onAfter();
+    }
+  }, [createAction]);
+
+  const handleEdit = useCallback(
+    (idp: IdpKnownResponse) => {
+      if (editAction?.onAfter) {
+        editAction.onAfter(idp);
+      }
+    },
+    [editAction],
+  );
+
+  const handleDelete = useCallback(
+    (idp: IdpKnownResponse) => {
+      setSelectedIdp(idp);
+
+      if (deleteAction?.onBefore) {
+        const shouldProceed = deleteAction.onBefore(idp);
+        if (!shouldProceed) return;
+      }
+
+      setShowDeleteModal(true);
+    },
+    [deleteAction],
+  );
+
+  const handleDeleteFromOrganization = useCallback(
+    (idp: IdpKnownResponse) => {
+      setSelectedIdp(idp);
+
+      if (deleteFromOrganizationAction?.onBefore) {
+        const shouldProceed = deleteFromOrganizationAction.onBefore(idp);
+        if (!shouldProceed) return;
+      }
+
+      setShowRemoveModal(true);
+    },
+    [deleteFromOrganizationAction],
+  );
+
+  const handleFetchOrganizationDetails = useCallback(async () => {
+    try {
+      return await fetchOrganizationDetails();
+    } catch (error) {
+      handleError(error, { fallbackMessage: t('general_error') });
+      return null;
+    }
+  }, [fetchOrganizationDetails, handleError, t]);
+
+  const handleToggleEnabled = useCallback(
+    async (idp: IdpKnownResponse, enabled: boolean) => {
+      if (readOnly || !onEnableProvider) return;
+      try {
+        await onEnableProvider(idp, enabled);
+        showToast({
+          type: 'success',
+          message: t('update_success', { providerName: idp.display_name }),
+        });
+      } catch (error) {
+        handleError(error, { fallbackMessage: t('general_error') });
+      }
+    },
+    [readOnly, onEnableProvider, t, handleError],
+  );
+
+  const handleDeleteConfirm = useCallback(
+    async (provider: IdpKnownResponse) => {
+      try {
+        await onDeleteConfirm(provider);
+        showToast({
+          type: 'success',
+          message: t('delete_success', { providerName: provider.display_name }),
+        });
+        setShowDeleteModal(false);
+        setSelectedIdp(null);
+      } catch (error) {
+        handleError(error, { fallbackMessage: t('general_error') });
+      }
+    },
+    [onDeleteConfirm, t, handleError],
+  );
+
+  const handleRemoveConfirm = useCallback(
+    async (provider: IdpKnownResponse) => {
+      try {
+        await onRemoveConfirm(provider);
+        showToast({
+          type: 'success',
+          message: t('remove_success', {
+            providerName: provider.display_name,
+            organizationName: organization?.display_name,
+          }),
+        });
+        setShowRemoveModal(false);
+        setSelectedIdp(null);
+      } catch (error) {
+        handleError(error, { fallbackMessage: t('general_error') });
+      }
+    },
+    [onRemoveConfirm, organization?.display_name, t, handleError],
+  );
+
+  return {
+    providers,
+    organization,
+
+    isLoading,
+    isViewLoading,
+    isDeleting,
+    isRemoving,
+    isUpdating,
+    isUpdatingId,
+
+    shouldAllowDeletion,
+    shouldHideCreate,
+
+    showDeleteModal,
+    showRemoveModal,
+    selectedIdp,
+
+    fetchProviders,
+    fetchOrganizationDetails: handleFetchOrganizationDetails,
+
+    handleCreate,
+    handleEdit,
+    handleDelete,
+    handleDeleteFromOrganization,
+    handleToggleEnabled,
+    handleDeleteConfirm,
+    handleRemoveConfirm,
+
+    setShowDeleteModal,
+    setShowRemoveModal,
+    setSelectedIdp,
   };
 }
