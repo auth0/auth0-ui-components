@@ -122,8 +122,7 @@ export interface MemberRemoveFromOrgModalProps {
   orgName?: string;
   customMessages?: Partial<OrganizationMemberDetailMessages | OrganizationMemberTabMessages>;
   onClose: () => void;
-  onConfirm: (memberUserId?: string, memberName?: string, orgName?: string) => void;
-  className?: string;
+  onConfirm: (userId?: string, memberName?: string, orgName?: string) => void;
 }
 
 export interface OrganizationMemberDetailRolesTabProps {
@@ -154,7 +153,6 @@ export interface OrganizationMemberAssignRolesModalProps {
   assignedRoles: Role[];
   customMessages?: Partial<OrganizationMemberDetailMessages | OrganizationMemberTabMessages>;
   selectedMember?: OrgMember | null;
-  className?: string;
   onClose: () => void;
   onAssign: (roleIds: string[], userId?: string | null) => void;
 }

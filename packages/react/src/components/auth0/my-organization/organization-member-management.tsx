@@ -22,10 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOrganizationMemberManagement } from '@/hooks/my-organization/use-organization-member-management';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import {
-  MEMBER_MANAGEMENT_PAGE_SIZE_OPTIONS,
-  MEMBER_MANAGEMENT_MODAL_CLASSNAME,
-} from '@/lib/constants/my-organization/member-management/member-management-constants';
+import { MEMBER_MANAGEMENT_PAGE_SIZE_OPTIONS } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import type {
   OrganizationMemberManagementProps,
   OrganizationMemberManagementViewProps,
@@ -241,7 +238,6 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           customMessages={customMessages?.member}
           onClose={closeModal}
           onAssign={handleAssignRolesSubmit}
-          className={MEMBER_MANAGEMENT_MODAL_CLASSNAME}
         />
 
         <MemberRemoveFromOrgModal
@@ -253,7 +249,6 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           customMessages={customMessages?.member}
           onClose={closeModal}
           onConfirm={handleRemoveFromOrgConfirm}
-          className={MEMBER_MANAGEMENT_MODAL_CLASSNAME}
         />
       </div>
     </StyledScope>

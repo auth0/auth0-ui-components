@@ -31,7 +31,6 @@ export function OrganizationMemberAssignRolesModal({
   assignedRoles,
   customMessages,
   selectedMember,
-  className,
   onClose,
   onAssign,
 }: OrganizationMemberAssignRolesModalProps): React.JSX.Element {
@@ -73,9 +72,9 @@ export function OrganizationMemberAssignRolesModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className={className}>
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle className="mb-5">{t('member.detail.roles.assign_modal.title')}</DialogTitle>
+          <DialogTitle className="mb-4">{t('member.detail.roles.assign_modal.title')}</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col gap-3 w-full">
@@ -98,7 +97,7 @@ export function OrganizationMemberAssignRolesModal({
           )}
         </div>
 
-        <DialogFooter className="w-full">
+        <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
             {t('member.detail.roles.assign_modal.cancel_button')}
           </Button>

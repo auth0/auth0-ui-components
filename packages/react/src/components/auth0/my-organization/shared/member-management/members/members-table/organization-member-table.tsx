@@ -183,7 +183,7 @@ export function OrganizationMemberTable({
         onSortChange={onSortChange}
       />
 
-      {(members.length > 0 || pagination.hasPreviousPage) && (
+      {!loading && (members.length > 0 || pagination.hasPreviousPage) && (
         <div className="mt-4">
           <DataPagination
             type="checkpoint"

@@ -222,14 +222,18 @@ export function useOrganizationMemberManagement(
   const handlePreviousPage = React.useCallback(() => {
     if (activeTab === 'members') {
       memberGoToPreviousPage();
-    } else invitationGoToPreviousPage();
+    } else {
+      invitationGoToPreviousPage();
+    }
   }, [activeTab, invitationGoToPreviousPage, memberGoToPreviousPage]);
 
   const handlePageSizeChange = React.useCallback(
     (pageSize: number) => {
       if (activeTab === 'members') {
         memberChangePageSize(pageSize);
-      } else invitationChangePageSize(pageSize);
+      } else {
+        invitationChangePageSize(pageSize);
+      }
     },
     [activeTab, invitationChangePageSize, memberChangePageSize],
   );
@@ -238,7 +242,9 @@ export function useOrganizationMemberManagement(
     (sortConfig: MemberManagementSortConfig) => {
       if (activeTab === 'members') {
         memberChangeSortConfig(sortConfig);
-      } else invitationChangeSortConfig(sortConfig);
+      } else {
+        invitationChangeSortConfig(sortConfig);
+      }
     },
     [activeTab, invitationChangeSortConfig, memberChangeSortConfig],
   );
@@ -247,7 +253,9 @@ export function useOrganizationMemberManagement(
     (roleId: string | undefined) => {
       if (activeTab === 'members') {
         memberChangeFilters((prev) => ({ ...prev, roleId }));
-      } else invitationChangeFilters((prev) => ({ ...prev, roleId }));
+      } else {
+        invitationChangeFilters((prev) => ({ ...prev, roleId }));
+      }
     },
     [activeTab, invitationChangeFilters, memberChangeFilters],
   );

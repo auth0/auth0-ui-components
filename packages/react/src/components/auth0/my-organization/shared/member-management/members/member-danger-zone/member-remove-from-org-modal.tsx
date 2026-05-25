@@ -33,7 +33,6 @@ export function MemberRemoveFromOrgModal({
   customMessages,
   onClose,
   onConfirm,
-  className,
 }: MemberRemoveFromOrgModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
@@ -43,9 +42,9 @@ export function MemberRemoveFromOrgModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className={className}>
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle className="mb-9">
+          <DialogTitle className="mb-4">
             {t('member.detail.actions.remove_from_org.modal.title', { orgName })}
           </DialogTitle>
           <DialogDescription>
@@ -59,7 +58,7 @@ export function MemberRemoveFromOrgModal({
             </>
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="w-full">
+        <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
             {t('member.detail.actions.remove_from_org.modal.cancel_button')}
           </Button>

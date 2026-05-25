@@ -169,8 +169,12 @@ export interface UseOrganizationMemberManagementResult {
   handleSortChange: (sortConfig: MemberManagementSortConfig) => void;
   handleRoleFilterChange: (roleId: string | undefined) => void;
   handleViewMemberDetails: (userId: string) => void;
-  handleAssignRolesSubmit: (roleIds: string[]) => void;
-  handleRemoveFromOrgConfirm: (memberUserId?: string) => void;
+  handleAssignRolesSubmit: (roleIds: string[], userId?: string | null) => void;
+  handleRemoveFromOrgConfirm: (
+    userId?: string | null,
+    memberName?: string,
+    orgName?: string,
+  ) => void;
 }
 
 /**
