@@ -22,7 +22,7 @@ import type {
   UseDomainTableServiceReturn,
 } from '@/types/my-organization/domain-management/domain-table-types';
 
-export const domainQueryKeys = {
+const domainQueryKeys = {
   all: ['domains'] as const,
   list: () => [...domainQueryKeys.all, 'list'] as const,
   providers: (domainId: string) => [...domainQueryKeys.all, 'providers', domainId] as const,

@@ -5,7 +5,7 @@
  */
 
 import { type Domain, type IdpKnownResponse } from '@auth0/universal-components-core';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
@@ -42,7 +42,6 @@ export function useDomainTable({
     isVerifying,
     isLoadingProviders,
     fetchProviders,
-    fetchDomains,
     onCreateDomain,
     onVerifyDomain,
     onDeleteDomain,
@@ -233,16 +232,6 @@ export function useDomainTable({
     setSelectedDomain(domain);
     setShowVerifyModal(false);
     setShowDeleteModal(true);
-  }, []);
-
-  useEffect(() => {
-    try {
-      fetchDomains();
-    } catch (error) {
-      handleError(error, {
-        fallbackMessage: t('domain_table.notifications.fetch_domains_error'),
-      });
-    }
   }, []);
 
   return {

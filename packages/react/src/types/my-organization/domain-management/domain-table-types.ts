@@ -67,17 +67,7 @@ export interface DomainTableActionsColumnProps {
   onDelete: (domain: Domain) => void;
 }
 
-/** Options for the internal domain table service hook. */
-export interface UseDomainTableServiceOptions {
-  createAction?: DomainTableProps['createAction'];
-  verifyAction?: DomainTableProps['verifyAction'];
-  deleteAction?: DomainTableProps['deleteAction'];
-  associateToProviderAction?: DomainTableProps['associateToProviderAction'];
-  deleteFromProviderAction?: DomainTableProps['deleteFromProviderAction'];
-  customMessages?: DomainTableProps['customMessages'];
-}
-
-/** Options for the public domain table hook. */
+/** Options for domain table hooks (shared by service and public hook). */
 export interface UseDomainTableOptions {
   createAction?: DomainTableProps['createAction'];
   verifyAction?: DomainTableProps['verifyAction'];
@@ -86,6 +76,9 @@ export interface UseDomainTableOptions {
   deleteFromProviderAction?: DomainTableProps['deleteFromProviderAction'];
   customMessages?: DomainTableProps['customMessages'];
 }
+
+/** @internal */
+export type UseDomainTableServiceOptions = UseDomainTableOptions;
 
 /** Return type for the internal domain table service hook. */
 export interface UseDomainTableServiceReturn {
@@ -136,10 +129,27 @@ export interface UseDomainTableReturn {
   handleCreate: (domainUrl: string) => Promise<void>;
   handleVerify: (domain: Domain) => Promise<void>;
   handleDelete: (domain: Domain) => Promise<void>;
-  handleToggleSwitch: (domain: Domain, provider: IdpKnownResponse, checked: boolean) => void;
+  handleToggleSwitch: (
+    domain: Domain,
+    provider: IdpKnownResponse,
+    checked: boolean,
+  ) => Promise<void>;
   handleCloseVerifyModal: () => void;
   handleCreateClick: () => void;
   handleConfigureClick: (domain: Domain) => void;
   handleVerifyClick: (domain: Domain) => Promise<void>;
   handleDeleteClick: (domain: Domain) => void;
+}
+
+/** Props for the DomainTableView presentational component. @internal */
+export interface DomainTableViewProps {
+  domainTable: UseDomainTableReturn;
+  schema: DomainTableProps['schema'];
+  styling: DomainTableProps['styling'];
+  hideHeader: DomainTableProps['hideHeader'];
+  readOnly: DomainTableProps['readOnly'];
+  customMessages: DomainTableProps['customMessages'];
+  createAction: DomainTableProps['createAction'];
+  onOpenProvider: DomainTableProps['onOpenProvider'];
+  onCreateProvider: DomainTableProps['onCreateProvider'];
 }

@@ -82,32 +82,6 @@ describe('useDomainTable', () => {
     expect(result.current.providers).toEqual([]);
   });
 
-  it('should call fetchDomains on mount', async () => {
-    const mockFetchDomains = vi.fn();
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
-    );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: vi.fn(),
-      fetchDomains: mockFetchDomains,
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: vi.fn(),
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: vi.fn(),
-    });
-
-    renderHook(() => useDomainTable(defaultOptions));
-    expect(mockFetchDomains).toHaveBeenCalledTimes(1);
-  });
-
   it('should show create modal on handleCreateClick', () => {
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 

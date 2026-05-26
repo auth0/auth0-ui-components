@@ -18,7 +18,10 @@ import { useDomainTable } from '@/hooks/my-organization/use-domain-table';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
-import type { DomainTableProps } from '@/types/my-organization/domain-management/domain-table-types';
+import type {
+  DomainTableProps,
+  DomainTableViewProps,
+} from '@/types/my-organization/domain-management/domain-table-types';
 
 /**
  * DomainTable container component.
@@ -84,17 +87,7 @@ function DomainTableView({
   createAction,
   onOpenProvider,
   onCreateProvider,
-}: {
-  domainTable: ReturnType<typeof useDomainTable>;
-  schema: DomainTableProps['schema'];
-  styling: DomainTableProps['styling'];
-  hideHeader: DomainTableProps['hideHeader'];
-  readOnly: DomainTableProps['readOnly'];
-  customMessages: DomainTableProps['customMessages'];
-  createAction: DomainTableProps['createAction'];
-  onOpenProvider: DomainTableProps['onOpenProvider'];
-  onCreateProvider: DomainTableProps['onCreateProvider'];
-}) {
+}: DomainTableViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('domain_management', customMessages);
 
