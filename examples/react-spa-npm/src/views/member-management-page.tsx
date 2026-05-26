@@ -1,6 +1,9 @@
 // import { OrganizationMemberManagement } from '@auth0/universal-components-react';
+// import { useNavigate } from 'react-router-dom';
 
 const MemberManagementPage = () => {
+  // const navigate = useNavigate();
+
   return (
     <div className="p-6 pt-8 space-y-6">
       <p className="text-primary">
@@ -13,7 +16,13 @@ const MemberManagementPage = () => {
         </a>{' '}
         on how to add Member Management component.
       </p>
-      {/* <OrganizationMemberManagement /> */}
+      {/* <OrganizationMemberManagement
+        viewMemberDetailsAction={{
+          onAfter: (userId) => {
+            navigate(`/member-management/${userId}`);
+          },
+        }}
+      /> */}
     </div>
   );
 };

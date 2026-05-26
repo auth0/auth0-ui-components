@@ -1,14 +1,18 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi, describe, it, expect, afterEach } from 'vitest';
+import { vi, describe, it, expect, afterEach, beforeEach } from 'vitest';
 
 import { SearchFilter } from '@/components/auth0/my-organization/shared/member-management/shared/search-filter/search-filter';
 import { renderWithProviders } from '@/tests/utils';
 import { createMockSearchFilterProps } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 
 describe('SearchFilter', () => {
-  afterEach(() => {
+  beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('rendering', () => {
@@ -32,6 +36,16 @@ describe('SearchFilter', () => {
       expect(
         screen.getByRole('button', { name: 'invitation.table.reset_filter' }),
       ).toBeInTheDocument();
+    });
+
+    it('should not render member search input on the invitations tab', () => {
+      renderWithProviders(
+        <SearchFilter {...createMockSearchFilterProps({ activeTab: 'invitations' })} />,
+      );
+
+      expect(
+        screen.queryByPlaceholderText('Search for a member by name or email'),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -97,7 +111,7 @@ describe('SearchFilter', () => {
       );
 
       const filterDiv = container.firstChild as HTMLElement;
-      expect(filterDiv).toHaveClass('mb-4');
+      expect(filterDiv).toHaveClass('mt-8', 'mb-6');
     });
   });
 });

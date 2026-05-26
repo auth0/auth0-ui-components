@@ -16,13 +16,10 @@ import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { useSsoProviderTable } from '@/hooks/my-organization/use-sso-provider-table';
-import { useSsoProviderTableLogic } from '@/hooks/my-organization/use-sso-provider-table-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   SsoProviderTableProps,
-  SsoProviderTableLogicProps,
-  SsoProviderTableHandlerProps,
   SsoProviderTableViewProps,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
@@ -45,6 +42,7 @@ function SsoProviderTable(props: SsoProviderTableProps) {
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     readOnly = false,
+    hideHeader = false,
     createAction,
     editAction,
     deleteAction,
@@ -52,78 +50,26 @@ function SsoProviderTable(props: SsoProviderTableProps) {
     enableProviderAction,
   } = props;
 
-  const ssoProviderTable = useSsoProviderTable(
+  const providerTable = useSsoProviderTable({
+    readOnly,
+    customMessages,
+    createAction,
+    editAction,
     deleteAction,
     deleteFromOrganizationAction,
     enableProviderAction,
-    customMessages,
-  );
-
-  const {
-    providers,
-    organization,
-    isLoading,
-    isDeleting,
-    isRemoving,
-    isUpdating,
-    isUpdatingId,
-    onDeleteConfirm,
-    onRemoveConfirm,
-    onEnableProvider,
-  } = ssoProviderTable;
-
-  const tableLogic = useSsoProviderTableLogic({
-    isLoading,
-    readOnly,
-    createAction,
-    editAction,
-    deleteAction,
-    deleteFromOrganizationAction,
-    onEnableProvider,
-    onDeleteConfirm,
-    onRemoveConfirm,
   });
 
-  const ssoProviderCreateLogicProps: SsoProviderTableLogicProps = {
-    data: providers,
-    styling,
-    customMessages,
-    readOnly,
-    createAction,
-    editAction,
-    organization,
-    isUpdating,
-    isUpdatingId,
-    isDeleting,
-    isRemoving,
-    hideHeader: false,
-    isLoading: tableLogic.isViewLoading,
-    shouldHideCreate: tableLogic.shouldHideCreate,
-    isViewLoading: tableLogic.isViewLoading,
-    selectedIdp: tableLogic.selectedIdp,
-    showDeleteModal: tableLogic.showDeleteModal,
-    showRemoveModal: tableLogic.showRemoveModal,
-    shouldAllowDeletion: tableLogic.shouldAllowDeletion,
-  };
-
-  const ssoProviderCreateHandlerProps: SsoProviderTableHandlerProps = {
-    handleCreate: tableLogic.handleCreate,
-    handleEdit: tableLogic.handleEdit,
-    handleDelete: tableLogic.handleDelete,
-    handleDeleteFromOrganization: tableLogic.handleDeleteFromOrganization,
-    handleToggleEnabled: tableLogic.handleToggleEnabled,
-    handleDeleteConfirm: tableLogic.handleDeleteConfirm,
-    handleRemoveConfirm: tableLogic.handleRemoveConfirm,
-    setShowDeleteModal: tableLogic.setShowDeleteModal,
-    setShowRemoveModal: tableLogic.setShowRemoveModal,
-    setSelectedIdp: tableLogic.setSelectedIdp,
-  };
-
   return (
-    <GateKeeper isLoading={isLoading} styling={styling}>
+    <GateKeeper isLoading={providerTable.isLoading} styling={styling}>
       <SsoProviderTableView
-        logic={ssoProviderCreateLogicProps}
-        handlers={ssoProviderCreateHandlerProps}
+        {...providerTable}
+        styling={styling}
+        customMessages={customMessages}
+        readOnly={readOnly}
+        hideHeader={hideHeader}
+        createAction={createAction}
+        editAction={editAction}
       />
     </GateKeeper>
   );
@@ -132,44 +78,38 @@ function SsoProviderTable(props: SsoProviderTableProps) {
 /**
  * Internal SSO provider table view component
  * @param props - Component props
- * @param props.logic - Component logic props
- * @param props.handlers - Component handler props
  * @internal
  * @returns JSX element
  */
-function SsoProviderTableView({ logic, handlers }: SsoProviderTableViewProps) {
-  const {
-    styling,
-    customMessages,
-    readOnly,
-    data,
-    shouldHideCreate,
-    isViewLoading,
-    createAction,
-    editAction,
-    selectedIdp,
-    showDeleteModal,
-    showRemoveModal,
-    shouldAllowDeletion,
-    organization,
-    isUpdating,
-    isUpdatingId,
-    isDeleting,
-    isRemoving,
-  } = logic;
-
-  const {
-    handleCreate,
-    handleEdit,
-    handleDelete,
-    handleDeleteFromOrganization,
-    handleToggleEnabled,
-    handleDeleteConfirm,
-    handleRemoveConfirm,
-    setShowDeleteModal,
-    setShowRemoveModal,
-  } = handlers;
-
+function SsoProviderTableView({
+  styling,
+  customMessages,
+  readOnly,
+  hideHeader,
+  providers,
+  shouldHideCreate,
+  isViewLoading,
+  createAction,
+  editAction,
+  selectedIdp,
+  showDeleteModal,
+  showRemoveModal,
+  shouldAllowDeletion,
+  organization,
+  isUpdating,
+  isUpdatingId,
+  isDeleting,
+  isRemoving,
+  handleCreate,
+  handleEdit,
+  handleDelete,
+  handleDeleteFromOrganization,
+  handleToggleEnabled,
+  handleDeleteConfirm,
+  handleRemoveConfirm,
+  setShowDeleteModal,
+  setShowRemoveModal,
+}: SsoProviderTableViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('idp_management.sso_provider_table', customMessages);
   const currentStyles = React.useMemo(
@@ -237,27 +177,29 @@ function SsoProviderTableView({ logic, handlers }: SsoProviderTableViewProps) {
 
   return (
     <StyledScope style={currentStyles.variables}>
-      <div className={currentStyles.classes?.['SsoProviderTable-header']}>
-        <Header
-          title={t('header.title')}
-          description={t('header.description')}
-          actions={[
-            {
-              type: 'button',
-              label: t('header.create_button_text'),
-              onClick: () => handleCreate(),
-              icon: Plus,
-              hidden: shouldHideCreate || isViewLoading,
-              disabled: createAction?.disabled || readOnly,
-            },
-          ]}
-        />
-      </div>
+      {!hideHeader && (
+        <div className={currentStyles.classes?.['SsoProviderTable-header']}>
+          <Header
+            title={t('header.title')}
+            description={t('header.description')}
+            actions={[
+              {
+                type: 'button',
+                label: t('header.create_button_text'),
+                onClick: () => handleCreate(),
+                icon: Plus,
+                hidden: shouldHideCreate || isViewLoading,
+                disabled: createAction?.disabled || readOnly,
+              },
+            ]}
+          />
+        </div>
+      )}
 
       <DataTable
         loading={isViewLoading}
         columns={columns}
-        data={data}
+        data={providers}
         emptyState={{ title: t('table.empty_message') }}
         className={currentStyles.classes?.['SsoProviderTable-table']}
       />

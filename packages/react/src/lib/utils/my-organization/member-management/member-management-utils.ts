@@ -4,9 +4,24 @@
  * @internal
  */
 
-import type { MemberInvitation } from '@auth0/universal-components-core';
+import type {
+  EnhancedTranslationFunction,
+  MemberInvitation,
+  OrgMember,
+} from '@auth0/universal-components-core';
 
 import type { InvitationStatus } from '@/types/my-organization/member-management/organization-invitation-table-types';
+
+/**
+ * Resolves the best display name for a member.
+ * @param member - The organization member.
+ * @returns The member display name.
+ */
+export function getMemberDisplayName(member: OrgMember): string {
+  const fullName = `${member.given_name ?? ''} ${member.family_name ?? ''}`.trim();
+
+  return fullName || member.name || member.email || member.user_id || '-';
+}
 
 /**
  * Determines the status of an invitation based on `expires_at`.
@@ -17,6 +32,79 @@ export function getInvitationStatus(invitation: MemberInvitation): InvitationSta
   const isExpired = invitation.expires_at && new Date(invitation.expires_at) < new Date();
 
   return isExpired ? 'expired' : 'pending';
+}
+
+/**
+ * Formats a member's last login time as a label.
+ * @param lastLogin - The member last login timestamp.
+ * @param t - Translator function (namespace: `member_management`).
+ * @returns A human readable relative time label.
+ */
+export function getRelativeLastLoginLabel(
+  lastLogin: string | undefined,
+  t: EnhancedTranslationFunction,
+): string {
+  const never = t('member.table.never', undefined, 'Never');
+  const ago = t('member.table.ago', undefined, 'ago');
+  const justNow = t('member.table.just_now', undefined, 'Just now');
+
+  if (!lastLogin) {
+    return never;
+  }
+
+  const lastLoginDate = new Date(lastLogin);
+
+  if (Number.isNaN(lastLoginDate.getTime())) {
+    return never;
+  }
+
+  const diffInMs = Date.now() - lastLoginDate.getTime();
+
+  if (diffInMs < 60 * 1000) {
+    return justNow;
+  }
+
+  const translateUnit = (
+    count: number,
+    singularKey: string,
+    pluralKey: string,
+    singularFallback: string,
+    pluralFallback: string,
+  ): string => {
+    const unit =
+      count === 1
+        ? t(`member.table.${singularKey}`, undefined, singularFallback)
+        : t(`member.table.${pluralKey}`, undefined, pluralFallback);
+    return `${count} ${unit} ${ago}`;
+  };
+
+  const diffInMinutes = Math.floor(diffInMs / (60 * 1000));
+  if (diffInMinutes < 60) {
+    return translateUnit(diffInMinutes, 'minute', 'minutes', 'minute', 'minutes');
+  }
+
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) {
+    return translateUnit(diffInHours, 'hour', 'hours', 'hour', 'hours');
+  }
+
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays < 7) {
+    return translateUnit(diffInDays, 'day', 'days', 'day', 'days');
+  }
+
+  const diffInWeeks = Math.floor(diffInDays / 7);
+  if (diffInWeeks < 4) {
+    return translateUnit(diffInWeeks, 'week', 'weeks', 'week', 'weeks');
+  }
+
+  const diffInMonths = Math.floor(diffInDays / 30);
+  if (diffInMonths < 12) {
+    return translateUnit(diffInMonths, 'month', 'months', 'month', 'months');
+  }
+
+  const diffInYears = Math.floor(diffInDays / 365);
+  return translateUnit(diffInYears, 'year', 'years', 'year', 'years');
 }
 
 /**

@@ -92,15 +92,29 @@ export function OrganizationInvitationDetailsModal({
   }, [invitation?.identity_provider_id, availableProviders]);
 
   const [copied, setCopied] = React.useState(false);
+  const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   React.useEffect(() => {
     if (isOpen) setCopied(false);
+    cleanUpTimeout();
+    return () => {
+      cleanUpTimeout();
+    };
   }, [isOpen]);
 
-  const handleCopyUrl = React.useCallback(() => {
+  const cleanUpTimeout = () => {
+    if (copyTimeoutRef.current) {
+      clearTimeout(copyTimeoutRef.current);
+      copyTimeoutRef.current = null;
+    }
+  };
+
+  const handleCopyUrlClick = React.useCallback(() => {
     if (invitation) {
       onCopyUrl?.(invitation);
       setCopied(true);
+      cleanUpTimeout();
+      copyTimeoutRef.current = setTimeout(() => setCopied(false), 3000);
     }
   }, [invitation, onCopyUrl]);
 
@@ -199,7 +213,7 @@ export function OrganizationInvitationDetailsModal({
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={handleCopyUrl}
+                    onClick={handleCopyUrlClick}
                     aria-label={
                       copied
                         ? t('invitation.details.copied')

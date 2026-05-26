@@ -10,6 +10,7 @@ import type {
   OrganizationPrivate,
   Role,
   OrganizationMemberDetailMessages,
+  OrganizationMemberTabMessages,
 } from '@auth0/universal-components-core';
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 
@@ -117,10 +118,11 @@ export interface MemberRemoveFromOrgModalProps {
   isOpen: boolean;
   isLoading?: boolean;
   memberName?: string;
+  memberUserId?: string;
   orgName?: string;
-  customMessages?: Partial<OrganizationMemberDetailMessages>;
+  customMessages?: Partial<OrganizationMemberDetailMessages | OrganizationMemberTabMessages>;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (userId?: string, memberName?: string, orgName?: string) => void;
 }
 
 export interface OrganizationMemberDetailRolesTabProps {
@@ -149,9 +151,10 @@ export interface OrganizationMemberAssignRolesModalProps {
   isLoading?: boolean;
   availableRoles: Role[];
   assignedRoles: Role[];
-  customMessages?: Partial<OrganizationMemberDetailMessages>;
+  customMessages?: Partial<OrganizationMemberDetailMessages | OrganizationMemberTabMessages>;
+  selectedMember?: OrgMember | null;
   onClose: () => void;
-  onAssign: (roleIds: string[]) => void;
+  onAssign: (roleIds: string[], userId?: string | null) => void;
 }
 
 export interface RolesTabHeaderProps {

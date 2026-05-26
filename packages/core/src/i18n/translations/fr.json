@@ -1028,13 +1028,40 @@
         "columns": {
           "name": "Nom",
           "email": "E-mail",
-          "roles": "Rôles"
+          "roles": "Rôles",
+          "last_login": "Dernière connexion"
         },
-        "empty_message": "Aucun membre trouvé."
+        "empty_message": "Cette organisation n'a aucun membre.",
+        "search_placeholder": "Rechercher un membre par nom ou e-mail",
+        "filter_by_role": "Filtrer par rôle",
+        "all_roles": "Tous",
+        "reset_filter": "Réinitialiser",
+        "never": "Jamais",
+        "just_now": "À l'instant",
+        "ago": "il y a",
+        "minute": "minute",
+        "minutes": "minutes",
+        "hour": "heure",
+        "hours": "heures",
+        "day": "jour",
+        "days": "jours",
+        "week": "semaine",
+        "weeks": "semaines",
+        "month": "mois",
+        "months": "mois",
+        "year": "an",
+        "years": "ans"
+      },
+      "actions": {
+        "menu_label": "Actions",
+        "view_details": "Afficher les détails",
+        "assign_role": "Attribuer un rôle",
+        "remove_from_org": "Supprimer de l'organisation"
       },
       "error": {
         "fetch_failed": "Échec du chargement des membres. Veuillez réessayer.",
-        "remove_failed": "Échec de la suppression du membre. Veuillez réessayer."
+        "remove_failed": "Échec de la suppression du membre. Veuillez réessayer.",
+        "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer."
       },
       "detail": {
         "back_button": "Retour aux membres",
@@ -1056,9 +1083,10 @@
             "title": "Retirer un membre de l'organisation",
             "description": "Une fois confirmée, cette opération ne peut pas être annulée.",
             "button": "Supprimer",
+            "success": "${memberName} a été retiré de ${orgName}.",
             "modal": {
               "title": "Retirer un membre de ${orgName}",
-              "description": "Êtes-vous sûr de vouloir retirer \"${memberName}\" de cette organisation ? Cette action ne supprimera pas son compte, mais révoquera son accès et l'empêchera de se connecter.",
+              "description": "Êtes-vous sûr de vouloir retirer <bold>\"${memberName}\"</bold> de cette organisation ? Cette action ne supprimera pas son compte, mais révoquera son accès et l'empêchera de se connecter.",
               "cancel_button": "Annuler",
               "confirm_button": "Retirer"
             }

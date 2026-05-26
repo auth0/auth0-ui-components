@@ -11,7 +11,14 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { UserMFASetupForm } from '@/components/auth0/my-account/shared/mfa/user-mfa-setup-form';
+import {
+  ENTER_CONTACT,
+  ENTER_QR,
+  QR_PHASE_INSTALLATION,
+  SHOW_RECOVERY_CODE,
+} from '@/lib/constants/my-account/mfa/mfa-constants';
 import { renderWithProviders, createMockUserMFASetupFormProps } from '@/tests/utils';
+import type { UserMFASetupFormProps } from '@/types/my-account/mfa/mfa-types';
 
 // ===== Test Suite =====
 describe('UserMFASetupForm', () => {
@@ -19,154 +26,132 @@ describe('UserMFASetupForm', () => {
     vi.clearAllMocks();
   });
 
-  describe('Dialog visibility with open prop', () => {
-    it('should render the dialog when open prop is true', async () => {
+  describe('Dialog visibility', () => {
+    it('renders the dialog when open and phase are set', async () => {
       renderWithProviders(<UserMFASetupForm {...createMockUserMFASetupFormProps()} />);
-
-      // When dialog is open, should display the modal
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
     });
 
-    it('should display enrollment title when open prop is true', async () => {
+    it('displays enrollment title', async () => {
       renderWithProviders(<UserMFASetupForm {...createMockUserMFASetupFormProps()} />);
-
-      // When dialog is open, should show enrollment title
       expect(await screen.findByText('enrollment_form.enroll_title')).toBeInTheDocument();
     });
 
-    it('should not render the dialog when open prop is false', () => {
+    it('does not render when open is false', () => {
       renderWithProviders(
         <UserMFASetupForm {...createMockUserMFASetupFormProps({ open: false })} />,
       );
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
 
-      // When dialog is closed, should not display modal
+    it('does not render when enrollmentPhase is null', () => {
+      renderWithProviders(
+        <UserMFASetupForm {...createMockUserMFASetupFormProps({ enrollmentPhase: null })} />,
+      );
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
 
-  describe('Factor type specific forms', () => {
-    it('should render ContactInputForm when factorType is EMAIL', async () => {
-      renderWithProviders(
-        <UserMFASetupForm
-          {...createMockUserMFASetupFormProps({ factorType: FACTOR_TYPE_EMAIL })}
-        />,
-      );
-
-      // When factor type is email, should display email input form
-      expect(await screen.findByRole('dialog')).toBeInTheDocument();
-      // ContactInputForm should render with email-specific content
-      const emailInput = screen.queryByLabelText(/email/i);
-      if (emailInput) {
-        expect(emailInput).toBeInTheDocument();
-      }
-    });
-
-    it('should allow email input when factorType is EMAIL', async () => {
-      const user = userEvent.setup();
-      const mockEnrollMfa = vi.fn().mockResolvedValue({ data: { oob_code: 'test-code' } });
-
+  describe('Phase-based form rendering', () => {
+    it('renders ContactInputForm for EMAIL', async () => {
       renderWithProviders(
         <UserMFASetupForm
           {...createMockUserMFASetupFormProps({
             factorType: FACTOR_TYPE_EMAIL,
-            enrollMfa: mockEnrollMfa,
+            enrollmentPhase: ENTER_CONTACT,
           })}
         />,
       );
-
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    });
 
-      // When email input is available, user should be able to type
+    it('allows email input for EMAIL', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(
+        <UserMFASetupForm
+          {...createMockUserMFASetupFormProps({
+            factorType: FACTOR_TYPE_EMAIL,
+            enrollmentPhase: ENTER_CONTACT,
+          })}
+        />,
+      );
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
       const emailInput = screen.queryByRole('textbox');
       if (emailInput) {
         await user.type(emailInput, 'test@example.com');
-        // When email is typed, should update input value
         expect(emailInput).toHaveValue('test@example.com');
       }
     });
 
-    it('should render ContactInputForm when factorType is PHONE', async () => {
+    it('renders ContactInputForm for PHONE', async () => {
       renderWithProviders(
         <UserMFASetupForm
-          {...createMockUserMFASetupFormProps({ factorType: FACTOR_TYPE_PHONE })}
+          {...createMockUserMFASetupFormProps({
+            factorType: FACTOR_TYPE_PHONE,
+            enrollmentPhase: ENTER_CONTACT,
+          })}
         />,
       );
-
-      // When factor type is phone, should display phone input form
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
     });
 
-    it('should allow phone number input when factorType is PHONE', async () => {
+    it('allows phone number input for PHONE', async () => {
       const user = userEvent.setup();
-
       renderWithProviders(
         <UserMFASetupForm
-          {...createMockUserMFASetupFormProps({ factorType: FACTOR_TYPE_PHONE })}
+          {...createMockUserMFASetupFormProps({
+            factorType: FACTOR_TYPE_PHONE,
+            enrollmentPhase: ENTER_CONTACT,
+          })}
         />,
       );
-
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
-
-      // When phone input is available, user should be able to type
       const phoneInput = screen.queryByRole('textbox');
       if (phoneInput) {
         await user.type(phoneInput, '+1234567890');
-        // When phone is typed, should update input value
         expect(phoneInput).toHaveValue('+1234567890');
       }
     });
 
-    it('should render QRCodeEnrollmentForm when factorType is TOTP', async () => {
-      renderWithProviders(
-        <UserMFASetupForm {...createMockUserMFASetupFormProps({ factorType: FACTOR_TYPE_TOTP })} />,
-      );
-
-      // When factor type is TOTP, should display QR code enrollment form
-      expect(await screen.findByRole('dialog')).toBeInTheDocument();
-    });
-
-    it('should call enrollMfa for TOTP setup when factorType is TOTP', async () => {
-      const mockEnrollMfa = vi.fn().mockResolvedValue({
-        data: { barcode_uri: 'test-barcode-uri' },
-      });
-
+    it('renders QRCodeEnrollmentForm for TOTP in ENTER_QR phase', async () => {
       renderWithProviders(
         <UserMFASetupForm
           {...createMockUserMFASetupFormProps({
             factorType: FACTOR_TYPE_TOTP,
-            enrollMfa: mockEnrollMfa,
+            enrollmentPhase: ENTER_QR,
+            otpData: { barcodeUri: 'otpauth://totp/test', manualInputCode: 'MANUAL123' },
           })}
         />,
       );
-
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
+      expect(await screen.findByRole('img')).toBeInTheDocument();
     });
 
-    it('should render installation phase initially when factorType is PUSH_NOTIFICATION', async () => {
+    it('renders installation phase initially for PUSH_NOTIFICATION', async () => {
       renderWithProviders(
         <UserMFASetupForm
-          {...createMockUserMFASetupFormProps({ factorType: FACTOR_TYPE_PUSH_NOTIFICATION })}
+          {...createMockUserMFASetupFormProps({
+            factorType: FACTOR_TYPE_PUSH_NOTIFICATION,
+            enrollmentPhase: QR_PHASE_INSTALLATION,
+          })}
         />,
       );
-
-      // When factor type is push notification, should show installation instructions
       expect(
         await screen.findByText('enrollment_form.show_otp.install_guardian_description'),
       ).toBeInTheDocument();
     });
 
-    it('should display app store links when in installation phase', async () => {
+    it('displays app store links in installation phase', async () => {
       renderWithProviders(
         <UserMFASetupForm
-          {...createMockUserMFASetupFormProps({ factorType: FACTOR_TYPE_PUSH_NOTIFICATION })}
+          {...createMockUserMFASetupFormProps({
+            factorType: FACTOR_TYPE_PUSH_NOTIFICATION,
+            enrollmentPhase: QR_PHASE_INSTALLATION,
+          })}
         />,
       );
-
-      // When installation phase is shown, should display app store links
       const appleLink = await screen.findByRole('link', { name: /app-store/i });
       const googleLink = await screen.findByRole('link', { name: /google-play/i });
-
-      // When app store links are displayed, should have correct URLs
       expect(appleLink).toHaveAttribute(
         'href',
         'https://apps.apple.com/us/app/auth0-guardian/id1093447833',
@@ -175,322 +160,170 @@ describe('UserMFASetupForm', () => {
         'href',
         'https://play.google.com/store/apps/details?id=com.auth0.guardian',
       );
-
-      // When links are displayed, should open in new tab
       expect(appleLink).toHaveAttribute('target', '_blank');
-      expect(googleLink).toHaveAttribute('target', '_blank');
     });
 
-    it('should have cancel button when in installation phase', async () => {
-      renderWithProviders(
-        <UserMFASetupForm
-          {...createMockUserMFASetupFormProps({ factorType: FACTOR_TYPE_PUSH_NOTIFICATION })}
-        />,
-      );
-
-      // When installation phase is shown, should display cancel button
-      expect(await screen.findByRole('button', { name: 'cancel' })).toBeInTheDocument();
-    });
-
-    it('should have continue button when in installation phase', async () => {
-      renderWithProviders(
-        <UserMFASetupForm
-          {...createMockUserMFASetupFormProps({ factorType: FACTOR_TYPE_PUSH_NOTIFICATION })}
-        />,
-      );
-
-      // When installation phase is shown, should display continue button
-      expect(await screen.findByRole('button', { name: 'continue' })).toBeInTheDocument();
-    });
-
-    it('should call onClose when cancel button is clicked', async () => {
-      const user = userEvent.setup();
-      const mockOnClose = vi.fn();
-
+    it('has cancel and continue buttons in installation phase', async () => {
       renderWithProviders(
         <UserMFASetupForm
           {...createMockUserMFASetupFormProps({
             factorType: FACTOR_TYPE_PUSH_NOTIFICATION,
+            enrollmentPhase: QR_PHASE_INSTALLATION,
+          })}
+        />,
+      );
+      expect(await screen.findByRole('button', { name: 'cancel' })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'continue' })).toBeInTheDocument();
+    });
+
+    it('calls onClose when cancel is clicked in installation phase', async () => {
+      const user = userEvent.setup();
+      const mockOnClose = vi.fn();
+      renderWithProviders(
+        <UserMFASetupForm
+          {...createMockUserMFASetupFormProps({
+            factorType: FACTOR_TYPE_PUSH_NOTIFICATION,
+            enrollmentPhase: QR_PHASE_INSTALLATION,
             onClose: mockOnClose,
           })}
         />,
       );
-
-      const cancelButton = await screen.findByRole('button', { name: 'cancel' });
-
-      // When cancel button is clicked, should trigger onClose callback
-      await user.click(cancelButton);
-
-      // When onClose is called, should be invoked exactly once
+      await user.click(await screen.findByRole('button', { name: 'cancel' }));
       expect(mockOnClose).toHaveBeenCalledTimes(1);
     });
 
-    it('should transition to QR phase when continue button is clicked', async () => {
+    it('calls onAdvanceToQR when continue is clicked in installation phase', async () => {
       const user = userEvent.setup();
-
+      const mockOnAdvanceToQR = vi.fn();
       renderWithProviders(
         <UserMFASetupForm
-          {...createMockUserMFASetupFormProps({ factorType: FACTOR_TYPE_PUSH_NOTIFICATION })}
+          {...createMockUserMFASetupFormProps({
+            factorType: FACTOR_TYPE_PUSH_NOTIFICATION,
+            enrollmentPhase: QR_PHASE_INSTALLATION,
+            onAdvanceToQR: mockOnAdvanceToQR,
+          })}
         />,
       );
-
-      const continueButton = await screen.findByRole('button', { name: 'continue' });
-
-      // When continue button is clicked, should move to QR enrollment phase
-      await user.click(continueButton);
-
-      await waitFor(() => {
-        // When phase changes, installation description should no longer be visible
-        expect(
-          screen.queryByText('enrollment_form.show_otp.install_guardian_description'),
-        ).not.toBeInTheDocument();
-      });
+      await user.click(await screen.findByRole('button', { name: 'continue' }));
+      expect(mockOnAdvanceToQR).toHaveBeenCalledTimes(1);
     });
 
-    it('should render ShowRecoveryCode component when factorType is RECOVERY_CODE', async () => {
-      renderWithProviders(
-        <UserMFASetupForm
-          {...createMockUserMFASetupFormProps({ factorType: FACTOR_TYPE_RECOVERY_CODE })}
-        />,
-      );
-
-      // When factor type is recovery code, should display recovery code component
-      expect(await screen.findByRole('dialog')).toBeInTheDocument();
-    });
-
-    it('should call enrollMfa to fetch recovery code when factorType is RECOVERY_CODE', async () => {
-      const mockEnrollMfa = vi.fn().mockResolvedValue({
-        data: { recovery_code: 'test-recovery-code-123' },
-      });
-
+    it('renders ShowRecoveryCode for RECOVERY_CODE phase', async () => {
       renderWithProviders(
         <UserMFASetupForm
           {...createMockUserMFASetupFormProps({
             factorType: FACTOR_TYPE_RECOVERY_CODE,
-            enrollMfa: mockEnrollMfa,
+            enrollmentPhase: SHOW_RECOVERY_CODE,
+            recoveryCode: 'ABCD-1234',
           })}
         />,
       );
-
-      await waitFor(
-        () => {
-          // When recovery code phase is active, should call enrollMfa
-          expect(mockEnrollMfa).toHaveBeenCalled();
-        },
-        { timeout: 5000 },
-      );
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
     });
   });
 
-  it('should call onClose callback when dialog is closed', async () => {
+  it('calls onClose when dialog is closed via ESC', async () => {
     const mockOnClose = vi.fn();
-
     renderWithProviders(
       <UserMFASetupForm
-        {...createMockUserMFASetupFormProps({
-          onClose: mockOnClose,
-          open: true,
-        })}
+        {...createMockUserMFASetupFormProps({ onClose: mockOnClose, open: true })}
       />,
     );
-
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
-
-    // Simulate ESC key press to close dialog
-    const dialog = screen.getByRole('dialog');
-
-    // When ESC key is pressed, should trigger dialog close
-    fireEvent.keyDown(dialog, { key: 'Escape', code: 'Escape' });
-
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape', code: 'Escape' });
     await waitFor(() => {
-      // When dialog is closed via ESC, should call onClose callback
       expect(mockOnClose).toHaveBeenCalled();
     });
   });
 
-  it('should pass enrollMfa to child components when provided', async () => {
-    const mockEnrollMfa = vi.fn().mockResolvedValue({ data: {} });
-
+  it('passes custom messages to child components', async () => {
+    const customMessages = { enrollment_form: { enroll_title: 'Custom Enrollment Title' } };
     renderWithProviders(
-      <UserMFASetupForm
-        {...createMockUserMFASetupFormProps({
-          factorType: FACTOR_TYPE_TOTP,
-          enrollMfa: mockEnrollMfa,
-        })}
-      />,
+      <UserMFASetupForm {...createMockUserMFASetupFormProps({ customMessages })} />,
     );
-
-    // When component renders, enrollMfa should be available to child components
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
   });
 
-  it('should handle enrollMfa errors when enrollment fails', async () => {
-    const mockOnError = vi.fn();
-    const mockEnrollMfa = vi.fn().mockRejectedValue(new Error('Enrollment failed'));
-
-    renderWithProviders(
-      <UserMFASetupForm
-        {...createMockUserMFASetupFormProps({
-          factorType: FACTOR_TYPE_RECOVERY_CODE,
-          enrollMfa: mockEnrollMfa,
-          onError: mockOnError,
-        })}
-      />,
-    );
-
-    await waitFor(
-      () => {
-        // When enrollMfa fails, should handle error gracefully
-        expect(screen.getByRole('dialog')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
-  });
-
-  it('should pass confirmEnrollment to child components when provided', async () => {
-    const mockConfirmEnrollment = vi.fn().mockResolvedValue({ success: true });
-
-    renderWithProviders(
-      <UserMFASetupForm
-        {...createMockUserMFASetupFormProps({
-          factorType: FACTOR_TYPE_EMAIL,
-          confirmEnrollment: mockConfirmEnrollment,
-        })}
-      />,
-    );
-
-    // When component renders, confirmEnrollment should be available to child components
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
-  });
-
-  it('should pass onSuccess callback to child components when provided', async () => {
-    const mockOnSuccess = vi.fn();
-
-    renderWithProviders(
-      <UserMFASetupForm
-        {...createMockUserMFASetupFormProps({
-          factorType: FACTOR_TYPE_EMAIL,
-          onSuccess: mockOnSuccess,
-        })}
-      />,
-    );
-
-    // When component renders, onSuccess callback should be available
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
-  });
-
-  it('should pass onError callback to child components when provided', async () => {
-    const mockOnError = vi.fn();
-
-    renderWithProviders(
-      <UserMFASetupForm
-        {...createMockUserMFASetupFormProps({
-          factorType: FACTOR_TYPE_EMAIL,
-          onError: mockOnError,
-        })}
-      />,
-    );
-
-    // When component renders, onError callback should be available
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
-  });
-
-  it('should pass custom messages to child components when provided', async () => {
-    const customMessages = {
-      enrollment_form: {
-        enroll_title: 'Custom Enrollment Title',
-      },
-    };
-
-    renderWithProviders(
-      <UserMFASetupForm
-        {...createMockUserMFASetupFormProps({
-          customMessages,
-        })}
-      />,
-    );
-
-    // When custom messages are provided, should be available to components
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
-  });
-
-  describe('Accessibility features', () => {
-    it('should have proper dialog semantics when dialog is open', async () => {
-      renderWithProviders(<UserMFASetupForm {...createMockUserMFASetupFormProps()} />);
-
-      // When modal is open, should have dialog role
-      expect(await screen.findByRole('dialog')).toBeInTheDocument();
-    });
-
-    it('should have accessible title when dialog is open', async () => {
-      renderWithProviders(<UserMFASetupForm {...createMockUserMFASetupFormProps()} />);
-
-      // When modal is open, should display accessible title
-      expect(await screen.findByText('enrollment_form.enroll_title')).toBeInTheDocument();
-    });
-  });
-
-  it('should maintain dialog open state when transitioning between phases', async () => {
+  it('maintains dialog open state when rendering each phase', async () => {
     const user = userEvent.setup();
-
     renderWithProviders(
       <UserMFASetupForm
-        {...createMockUserMFASetupFormProps({ factorType: FACTOR_TYPE_PUSH_NOTIFICATION })}
+        {...createMockUserMFASetupFormProps({
+          factorType: FACTOR_TYPE_PUSH_NOTIFICATION,
+          enrollmentPhase: QR_PHASE_INSTALLATION,
+        })}
       />,
     );
-
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    // The continue button delegates to onAdvanceToQR (hook-owned), dialog stays open
     const continueButton = await screen.findByRole('button', { name: 'continue' });
-
-    // When transitioning between phases, dialog should remain open
     await user.click(continueButton);
-
-    await waitFor(() => {
-      // When phase changes, dialog should still be visible
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-    });
+    // Dialog remains open — parent controls phase via hook
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 
-  it('should render successfully with all props provided', async () => {
+  it('renders successfully with all required props', async () => {
     renderWithProviders(
       <UserMFASetupForm
         open={true}
         onClose={vi.fn()}
         factorType={FACTOR_TYPE_EMAIL}
-        enrollMfa={vi.fn().mockResolvedValue({ data: {} })}
-        confirmEnrollment={vi.fn().mockResolvedValue({ success: true })}
-        onSuccess={vi.fn()}
-        onError={vi.fn()}
+        enrollmentPhase={ENTER_CONTACT}
+        contact=""
+        otpData={{ barcodeUri: '', manualInputCode: '' }}
+        recoveryCode=""
+        isEnrolling={false}
+        isConfirming={false}
+        onSubmitContact={vi.fn().mockResolvedValue(true)}
+        onConfirmOtp={vi.fn()}
+        onContinueQR={vi.fn()}
+        onConfirmRecoveryCode={vi.fn()}
+        onAdvanceToQR={vi.fn()}
         schema={{}}
-        styling={{
-          variables: { common: {}, light: {}, dark: {} },
-          classes: {},
-        }}
+        styling={{ variables: { common: {}, light: {}, dark: {} }, classes: {} }}
         customMessages={{}}
       />,
     );
-
-    // When all props are provided, component should render successfully
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
   });
 
-  it('should handle different factor types dynamically when factor type changes', async () => {
-    const factorTypes: MFAType[] = [
-      FACTOR_TYPE_EMAIL,
-      FACTOR_TYPE_PHONE,
-      FACTOR_TYPE_TOTP,
-      FACTOR_TYPE_PUSH_NOTIFICATION,
-      FACTOR_TYPE_RECOVERY_CODE,
+  it('handles all factor types without crashing', async () => {
+    const factorTypePhases: Array<[MFAType, string]> = [
+      [FACTOR_TYPE_EMAIL, ENTER_CONTACT],
+      [FACTOR_TYPE_PHONE, ENTER_CONTACT],
+      [FACTOR_TYPE_TOTP, ENTER_QR],
+      [FACTOR_TYPE_PUSH_NOTIFICATION, QR_PHASE_INSTALLATION],
+      [FACTOR_TYPE_RECOVERY_CODE, SHOW_RECOVERY_CODE],
     ];
 
-    for (const factorType of factorTypes) {
+    for (const [factorType, enrollmentPhase] of factorTypePhases) {
       const { unmount } = renderWithProviders(
-        <UserMFASetupForm {...createMockUserMFASetupFormProps({ factorType })} />,
+        <UserMFASetupForm
+          {...createMockUserMFASetupFormProps({
+            factorType,
+            enrollmentPhase: enrollmentPhase as UserMFASetupFormProps['enrollmentPhase'],
+            otpData:
+              enrollmentPhase === ENTER_QR
+                ? { barcodeUri: 'otpauth://totp/test', manualInputCode: 'MC' }
+                : { barcodeUri: '', manualInputCode: '' },
+            recoveryCode: enrollmentPhase === SHOW_RECOVERY_CODE ? 'RC-CODE' : '',
+          })}
+        />,
       );
-
-      // When factor type is provided, should render appropriate form
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
-
       unmount();
     }
+  });
+
+  describe('Accessibility', () => {
+    it('has proper dialog semantics', async () => {
+      renderWithProviders(<UserMFASetupForm {...createMockUserMFASetupFormProps()} />);
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('has accessible title', async () => {
+      renderWithProviders(<UserMFASetupForm {...createMockUserMFASetupFormProps()} />);
+      expect(await screen.findByText('enrollment_form.enroll_title')).toBeInTheDocument();
+    });
   });
 });

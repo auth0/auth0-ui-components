@@ -12,6 +12,12 @@ import type {
   Role,
 } from '@auth0/universal-components-core';
 
+import type {
+  MemberManagementFilterState,
+  MemberManagementPaginationState,
+  MemberManagementSortConfig,
+} from '@/types';
+
 /** Invitation status. */
 export type InvitationStatus = 'pending' | 'expired';
 
@@ -34,27 +40,6 @@ export interface CreateInvitationInput {
   identity_provider_id?: string;
   /** Time to live in seconds */
   ttl_sec?: number;
-}
-
-/** Pagination state for invitation table (checkpoint-based). */
-export interface InvitationPaginationState {
-  pageSize: number;
-  currentPage: number;
-  totalItems?: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-}
-
-/** Sort configuration for invitation table. */
-export interface InvitationSortConfig {
-  key: string | null;
-  direction: 'asc' | 'desc';
-}
-
-/** Filter state for invitation table. */
-export interface InvitationFilterState {
-  searchQuery?: string;
-  roleId?: string;
 }
 
 /** CSS classes for OrganizationInvitationTab. */
@@ -96,9 +81,10 @@ export interface OrganizationInvitationTableProps {
   invitations: MemberInvitation[];
   loading?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
-  pagination: InvitationPaginationState;
-  filters?: InvitationFilterState;
-  sortConfig?: InvitationSortConfig;
+  pagination: MemberManagementPaginationState;
+  pageSizeOptions?: number[];
+  filters?: MemberManagementFilterState;
+  sortConfig?: MemberManagementSortConfig;
   availableRoles?: Role[];
   readOnly?: boolean;
   onView?: (invitation: MemberInvitation) => void;
@@ -108,18 +94,20 @@ export interface OrganizationInvitationTableProps {
   onNextPage?: () => void;
   onPreviousPage?: () => void;
   onPageSizeChange?: (pageSize: number) => void;
-  onSortChange?: (sortConfig: InvitationSortConfig) => void;
+  onSortChange?: (sortConfig: MemberManagementSortConfig) => void;
   onRoleFilterChange?: (roleId: string | undefined) => void;
   className?: string;
 }
 
 /** Props for SearchFilter component. */
 export interface SearchFilterProps {
-  filters?: InvitationFilterState;
+  filters?: MemberManagementFilterState;
   availableRoles?: Role[];
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   className?: string;
+  activeTab?: string | undefined;
   onRoleFilterChange?: (roleId: string | undefined) => void;
+  onSearchTermChange?: (searchTerm: string) => void;
 }
 
 /** Props for OrganizationInvitationCreateModal component. */

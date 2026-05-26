@@ -30,11 +30,13 @@ export function OrganizationMemberAssignRolesModal({
   availableRoles,
   assignedRoles,
   customMessages,
+  selectedMember,
   onClose,
   onAssign,
 }: OrganizationMemberAssignRolesModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
+  const userId = selectedMember?.user_id ?? null;
 
   React.useEffect(() => {
     if (!isOpen) {
@@ -64,7 +66,7 @@ export function OrganizationMemberAssignRolesModal({
 
   const handleSubmit = React.useCallback(() => {
     if (selectedRoles.length > 0) {
-      onAssign(selectedRoles);
+      onAssign(selectedRoles, userId);
     }
   }, [selectedRoles, onAssign]);
 
@@ -72,10 +74,10 @@ export function OrganizationMemberAssignRolesModal({
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('member.detail.roles.assign_modal.title')}</DialogTitle>
+          <DialogTitle className="mb-4">{t('member.detail.roles.assign_modal.title')}</DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col gap-3 py-2">
+        <div className="flex flex-col gap-3 w-full">
           {unassignedRoles.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               {t('member.detail.roles.assign_modal.no_roles_available')}

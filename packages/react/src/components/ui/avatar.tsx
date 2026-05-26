@@ -1,3 +1,9 @@
+/**
+ * Avatar components for displaying user profile pictures or fallback initials.
+ * @module avatar
+ * @internal
+ */
+
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
