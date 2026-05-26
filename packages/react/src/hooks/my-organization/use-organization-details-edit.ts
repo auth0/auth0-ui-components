@@ -15,6 +15,7 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { isMutationPending } from '@/lib/utils/tanstack-compat';
 import type {
   UseOrganizationDetailsEditOptions,
   UseOrganizationDetailsEditResult,
@@ -96,8 +97,7 @@ export function useOrganizationDetailsEdit({
   });
 
   const hasData = !!organizationQuery.data;
-  const isActionDisabled =
-    (updateMutation.isPending ?? (updateMutation as any).isLoading) || isInitializing;
+  const isActionDisabled = isMutationPending(updateMutation) || isInitializing;
 
   const fetchOrgDetails = useCallback(async (): Promise<void> => {
     await queryClient.getQueryData(organizationDetailsQueryKeys.details());
@@ -121,7 +121,7 @@ export function useOrganizationDetailsEdit({
 
   const formActions = useMemo(
     (): OrganizationDetailsFormActions => ({
-      isLoading: updateMutation.isPending ?? (updateMutation as any).isLoading,
+      isLoading: isMutationPending(updateMutation),
       previousAction: {
         disabled: cancelAction?.disabled || readOnly || !hasData || isActionDisabled,
         onClick: () => cancelAction?.onAfter?.(organization),
@@ -145,7 +145,7 @@ export function useOrganizationDetailsEdit({
   return {
     organization,
     isFetchLoading: organizationQuery.isFetching,
-    isSaveLoading: updateMutation.isPending ?? (updateMutation as any).isLoading,
+    isSaveLoading: isMutationPending(updateMutation),
     isInitializing,
     formActions,
     fetchOrgDetails,

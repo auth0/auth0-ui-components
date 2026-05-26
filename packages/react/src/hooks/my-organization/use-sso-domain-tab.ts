@@ -13,6 +13,7 @@ import { ssoProviderEditQueryKeys } from '@/hooks/my-organization/use-sso-provid
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { isMutationPending } from '@/lib/utils/tanstack-compat';
 import type {
   UseSsoDomainTabOptions,
   UseSsoDomainTabReturn,
@@ -388,13 +389,13 @@ export function useSsoDomainTab(
   return {
     isLoading,
     domainsList,
-    isCreating: createDomainMutation.isPending ?? (createDomainMutation as any).isLoading,
+    isCreating: isMutationPending(createDomainMutation),
     selectedDomain,
     showVerifyModal,
     showDeleteModal,
-    isVerifying: verifyDomainMutation.isPending ?? (verifyDomainMutation as any).isLoading,
+    isVerifying: isMutationPending(verifyDomainMutation),
     verifyError,
-    isDeleting: deleteDomainMutation.isPending ?? (deleteDomainMutation as any).isLoading,
+    isDeleting: isMutationPending(deleteDomainMutation),
     showCreateModal,
     handleCreate,
     handleCloseVerifyModal,

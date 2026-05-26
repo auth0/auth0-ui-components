@@ -28,6 +28,7 @@ import {
   QR_PHASE_INSTALLATION,
   SHOW_RECOVERY_CODE,
 } from '@/lib/constants/my-account/mfa/mfa-constants';
+import { isMutationPending } from '@/lib/utils/tanstack-compat';
 import type {
   EnrollmentPhase,
   UserMFAOptions,
@@ -182,10 +183,10 @@ export function useUserMFA({
   );
 
   const handleCancelDelete = useCallback(() => {
-    if (deleteMutation.isPending ?? (deleteMutation as any).isLoading) return;
+    if (isMutationPending(deleteMutation)) return;
     setIsDeleteDialogOpen(false);
     setFactorToDelete(null);
-  }, [deleteMutation.isPending ?? (deleteMutation as any).isLoading]);
+  }, [isMutationPending(deleteMutation)]);
 
   const handleCloseEnrollDialog = useCallback(async () => {
     setIsEnrollDialogOpen(false);
@@ -312,9 +313,9 @@ export function useUserMFA({
   return {
     factorsByType,
     isLoadingFactors: factorsQuery.isLoading,
-    isEnrolling: enrollMutation.isPending ?? (enrollMutation as any).isLoading,
-    isDeleting: deleteMutation.isPending ?? (deleteMutation as any).isLoading,
-    isConfirming: verifyMutation.isPending ?? (verifyMutation as any).isLoading,
+    isEnrolling: isMutationPending(enrollMutation),
+    isDeleting: isMutationPending(deleteMutation),
+    isConfirming: isMutationPending(verifyMutation),
     error: factorsQuery.isError ? t('errors.factors_loading_error') : null,
     isEnrollDialogOpen,
     enrollFactor,

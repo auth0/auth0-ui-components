@@ -23,6 +23,7 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { isMutationPending } from '@/lib/utils/tanstack-compat';
 import type {
   UseSsoProviderEditOptions,
   UseSsoProviderEditReturn,
@@ -785,25 +786,17 @@ export function useSsoProviderEdit(
 
     // Loading states - all derived from TanStack Query
     isLoading: providerQuery.isLoading || organizationQuery.isLoading,
-    isUpdating: updateProviderMutation.isPending ?? (updateProviderMutation as any).isLoading,
-    isDeleting: deleteProviderMutation.isPending ?? (deleteProviderMutation as any).isLoading,
-    isRemoving: detachProviderMutation.isPending ?? (detachProviderMutation as any).isLoading,
-    isProvisioningUpdating:
-      createProvisioningMutation.isPending ?? (createProvisioningMutation as any).isLoading,
-    isProvisioningDeleting:
-      deleteProvisioningMutation.isPending ?? (deleteProvisioningMutation as any).isLoading,
+    isUpdating: isMutationPending(updateProviderMutation),
+    isDeleting: isMutationPending(deleteProviderMutation),
+    isRemoving: isMutationPending(detachProviderMutation),
+    isProvisioningUpdating: isMutationPending(createProvisioningMutation),
+    isProvisioningDeleting: isMutationPending(deleteProvisioningMutation),
     isProvisioningLoading: provisioningQuery.isLoading || provisioningQuery.isFetching,
-    isScimTokensLoading:
-      listScimTokensMutation.isPending ?? (listScimTokensMutation as any).isLoading,
-    isScimTokenCreating:
-      createScimTokenMutation.isPending ?? (createScimTokenMutation as any).isLoading,
-    isScimTokenDeleting:
-      deleteScimTokenMutation.isPending ?? (deleteScimTokenMutation as any).isLoading,
-    isSsoAttributesSyncing:
-      syncSsoAttributesMutation.isPending ?? (syncSsoAttributesMutation as any).isLoading,
-    isProvisioningAttributesSyncing:
-      syncProvisioningAttributesMutation.isPending ??
-      (syncProvisioningAttributesMutation as any).isLoading,
+    isScimTokensLoading: isMutationPending(listScimTokensMutation),
+    isScimTokenCreating: isMutationPending(createScimTokenMutation),
+    isScimTokenDeleting: isMutationPending(deleteScimTokenMutation),
+    isSsoAttributesSyncing: isMutationPending(syncSsoAttributesMutation),
+    isProvisioningAttributesSyncing: isMutationPending(syncProvisioningAttributesMutation),
 
     // Warning states
     hasSsoAttributeSyncWarning,
