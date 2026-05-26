@@ -11,13 +11,14 @@ import {
   memberManagementQueryKeys,
   OrganizationDetailsMappers,
 } from '@auth0/universal-components-core';
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { getKeepPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   UseMemberManagementServiceOptions,
@@ -25,10 +26,7 @@ import type {
   MemberManagementSortConfig,
 } from '@/types/my-organization/member-management/organization-member-management-types';
 
-const keepPreviousDataOption =
-  typeof keepPreviousData === 'function'
-    ? { placeholderData: keepPreviousData }
-    : ({ keepPreviousData: true } as object);
+const keepPreviousDataOption = getKeepPreviousDataOption();
 
 const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
   created_at: 'created_at',
@@ -142,7 +140,7 @@ export function useMemberManagementService(
       return { members, next };
     },
     enabled: !!coreClient && !isInvitationsTabActive && !!memberParams,
-    placeholderData: keepPreviousData,
+    ...keepPreviousDataOption,
   });
 
   const organizationQuery = useQuery({

@@ -10,6 +10,7 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { isMutationPending } from '@/lib/utils/tanstack-compat';
 import type {
   CreateInvitationInput,
   IdentityProviderOption,
@@ -270,16 +271,13 @@ export function useOrganizationMemberManagement(
     orgDisplayName: orgDisplayName,
     isInitialLoading: invitationsQuery.isLoading || membersQuery.isLoading,
     isFetchingInvitations: invitationsQuery.isFetching,
-    isCreatingInvitation:
-      createInvitationMutation.isPending ?? (createInvitationMutation as any).isLoading,
-    isRevokingInvitation:
-      revokeInvitationMutation.isPending ?? (revokeInvitationMutation as any).isLoading,
-    isResendingInvitation:
-      resendInvitationMutation.isPending ?? (resendInvitationMutation as any).isLoading,
+    isCreatingInvitation: isMutationPending(createInvitationMutation),
+    isRevokingInvitation: isMutationPending(revokeInvitationMutation),
+    isResendingInvitation: isMutationPending(resendInvitationMutation),
     isFetchingMembers: membersQuery.isFetching,
     isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
-    isRemovingFromOrg: removeFromOrgMutation.isPending ?? (removeFromOrgMutation as any).isLoading,
-    isAssigningRoles: assignRolesMutation.isPending ?? (assignRolesMutation as any).isLoading,
+    isRemovingFromOrg: isMutationPending(removeFromOrgMutation),
+    isAssigningRoles: isMutationPending(assignRolesMutation),
     invitationPagination: {
       pageSize: invitationPageSize,
       currentPage: invitationCurrentPage,
