@@ -269,22 +269,30 @@ export function MembersPage() {
               </tr>
               <tr>
                 <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  removeFromOrgAction
+                  viewMemberDetailsAction
                 </td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  ComponentAction&lt;{'{userId: string}'}&gt;
-                </td>
+                <td className="px-4 py-2 text-sm text-gray-500">ComponentAction&lt;string&gt;</td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">-</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  Lifecycle hooks for member removal from organization
+                  Lifecycle hooks for viewing member details (input is the userId)
                 </td>
               </tr>
               <tr>
                 <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  assignRoleAction
+                  removeFromOrgAction
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-500">ComponentAction&lt;string&gt;</td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">-</td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  Lifecycle hooks for member removal from organization (input is the userId)
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                  assignRolesAction
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  ComponentAction&lt;{'{userId: string; roleId: string}'}&gt;
+                  ComponentAction&lt;{'{userId: string; roleIds: string[]}'}&gt;
                 </td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">-</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
@@ -341,6 +349,9 @@ export function MembersPage() {
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   revokeInvitationAction?: ComponentAction<MemberInvitation>;
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
+  viewMemberDetailsAction?: ComponentAction<string>;
+  assignRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
+  removeFromOrgAction?: ComponentAction<string>;
 }
 
 // Action interface
@@ -417,30 +428,41 @@ interface ComponentAction<T, U = undefined> {
                   </ul>
                 </div>
                 <div>
+                  <strong>viewMemberDetailsAction</strong>
+                  <ul className="ml-4 list-disc mt-1">
+                    <li>
+                      <code>disabled</code> — hide view details button
+                    </li>
+                    <li>
+                      <code>onAfter(userId)</code> — analytics or side effects after navigation
+                    </li>
+                  </ul>
+                </div>
+                <div>
                   <strong>removeFromOrgAction</strong>
                   <ul className="ml-4 list-disc mt-1">
                     <li>
                       <code>disabled</code> — hide remove button
                     </li>
                     <li>
-                      <code>onBefore</code> — confirm before removal
+                      <code>onBefore(userId)</code> — confirm before removal
                     </li>
                     <li>
-                      <code>onAfter</code> — redirect or refresh
+                      <code>onAfter(userId)</code> — redirect or refresh
                     </li>
                   </ul>
                 </div>
                 <div>
-                  <strong>assignRoleAction</strong>
+                  <strong>assignRolesAction</strong>
                   <ul className="ml-4 list-disc mt-1">
                     <li>
                       <code>disabled</code> — hide assign button
                     </li>
                     <li>
-                      <code>onBefore</code> — validate role selection
+                      <code>onBefore({'{userId, roleIds}'})</code> — validate selection
                     </li>
                     <li>
-                      <code>onAfter</code> — audit log or refresh
+                      <code>onAfter({'{userId, roleIds}'})</code> — audit log
                     </li>
                   </ul>
                 </div>
@@ -452,10 +474,10 @@ interface ComponentAction<T, U = undefined> {
   createInvitationAction={{
     onBefore: async (input) => {
       // Return false to cancel
-      return !blocklist.includes(input.email);
+      return !blocklist.includes(input.invitees[0].email);
     },
-    onAfter: (invitation) => {
-      analytics.track('Invitation Sent', { email: invitation.invitee.email });
+    onAfter: (input, createdInvitation) => {
+      analytics.track('Invitation Sent', { email: input.invitees[0].email });
     },
   }}
   revokeInvitationAction={{
@@ -466,17 +488,22 @@ interface ComponentAction<T, U = undefined> {
       toast.success(\`Invitation resent to \${invitation.invitee.email}\`);
     },
   }}
-  removeFromOrgAction={{
-    onBefore: async () => {
-      return await confirmDialog('Remove this member?');
-    },
-    onAfter: () => {
-      auditLog.record({ action: 'member_removed' });
+  viewMemberDetailsAction={{
+    onAfter: (userId) => {
+      analytics.track('Member Details Viewed', { userId });
     },
   }}
-  assignRoleAction={{
-    onAfter: ({ userId, roleId }) => {
-      auditLog.record({ action: 'role_assigned', userId, roleId });
+  removeFromOrgAction={{
+    onBefore: async (userId) => {
+      return await confirmDialog(\`Remove member \${userId} from the organization?\`);
+    },
+    onAfter: (userId) => {
+      auditLog.record({ action: 'member_removed', userId });
+    },
+  }}
+  assignRolesAction={{
+    onAfter: ({ userId, roleIds }) => {
+      auditLog.record({ action: 'roles_assigned', userId, roleIds });
     },
   }}
 />`}

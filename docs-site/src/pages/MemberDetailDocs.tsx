@@ -193,6 +193,15 @@ export function MemberDetailPage({ userId }: { userId: string }) {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
+              {/* Required */}
+              <tr>
+                <td
+                  colSpan={4}
+                  className="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                >
+                  Required
+                </td>
+              </tr>
               <tr>
                 <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                   userId <span className="text-red-500">*</span>
@@ -201,6 +210,15 @@ export function MemberDetailPage({ userId }: { userId: string }) {
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">—</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
                   Auth0 user ID of the member to display (e.g. <code>auth0|64abc...</code>)
+                </td>
+              </tr>
+              {/* Display */}
+              <tr>
+                <td
+                  colSpan={4}
+                  className="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                >
+                  Display
                 </td>
               </tr>
               <tr>
@@ -225,26 +243,19 @@ export function MemberDetailPage({ userId }: { userId: string }) {
               </tr>
               <tr>
                 <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  customMessages
+                  hideHeader
                 </td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  Partial&lt;OrganizationMemberDetailMessages&gt;
-                </td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{'{}'}</td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  Override any default UI text or translations
-                </td>
+                <td className="px-4 py-2 text-sm text-gray-500">boolean</td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">false</td>
+                <td className="px-4 py-2 text-sm text-gray-500">Hides the component header</td>
               </tr>
+              {/* Action */}
               <tr>
-                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  styling
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">ComponentStyling</td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                  {'{ variables: {}, classes: {} }'}
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  CSS variables and class overrides
+                <td
+                  colSpan={4}
+                  className="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                >
+                  Action
                 </td>
               </tr>
               <tr>
@@ -279,6 +290,39 @@ export function MemberDetailPage({ userId }: { userId: string }) {
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">—</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
                   Lifecycle hooks for role removal
+                </td>
+              </tr>
+              {/* Customization */}
+              <tr>
+                <td
+                  colSpan={4}
+                  className="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                >
+                  Customization
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                  customMessages
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  Partial&lt;OrganizationMemberDetailMessages&gt;
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{'{}'}</td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  Override any default UI text or translations
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                  styling
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-500">ComponentStyling</td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                  {'{ variables: {}, classes: {} }'}
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  CSS variables and class overrides
                 </td>
               </tr>
             </tbody>
@@ -440,6 +484,77 @@ interface ComponentAction<T, U = undefined> {
               language="tsx"
               title="Action hook usage"
             />
+
+            <div className="mt-6 space-y-6">
+              <div>
+                <h4 className="text-base font-medium text-gray-900 mb-2">removeFromOrgAction</h4>
+                <p className="text-gray-600 mb-3 text-sm">
+                  Called when a member is removed from the organization. Use <code>onBefore</code>{' '}
+                  to show a confirmation dialog; the userId string is passed to both hooks.
+                </p>
+                <CodeBlock
+                  code={`<OrganizationMemberDetail
+  userId={userId}
+  removeFromOrgAction={{
+    onBefore: async (removedUserId) => {
+      // Return false to cancel the removal
+      return await confirmDialog(\`Remove member \${removedUserId} from the organization?\`);
+    },
+    onAfter: (removedUserId) => {
+      router.push('/members');
+      auditLog.record({ action: 'member_removed', userId: removedUserId });
+    },
+  }}
+/>`}
+                  language="tsx"
+                  title="removeFromOrgAction"
+                />
+              </div>
+
+              <div>
+                <h4 className="text-base font-medium text-gray-900 mb-2">assignRolesAction</h4>
+                <p className="text-gray-600 mb-3 text-sm">
+                  Called after one or more roles are assigned to the member. Receives an object with{' '}
+                  <code>userId</code> and <code>roleIds</code> (array of assigned role IDs).
+                </p>
+                <CodeBlock
+                  code={`<OrganizationMemberDetail
+  userId={userId}
+  assignRolesAction={{
+    onAfter: ({ userId: memberId, roleIds }) => {
+      auditLog.record({ action: 'roles_assigned', userId: memberId, roleIds });
+    },
+  }}
+/>`}
+                  language="tsx"
+                  title="assignRolesAction"
+                />
+              </div>
+
+              <div>
+                <h4 className="text-base font-medium text-gray-900 mb-2">removeRolesAction</h4>
+                <p className="text-gray-600 mb-3 text-sm">
+                  Called after one or more roles are removed from the member. Receives an object
+                  with <code>userId</code> and <code>roleIds</code> (array of removed role IDs).
+                </p>
+                <CodeBlock
+                  code={`<OrganizationMemberDetail
+  userId={userId}
+  removeRolesAction={{
+    onBefore: ({ roleIds }) => {
+      // Return false to cancel
+      return roleIds.length > 0;
+    },
+    onAfter: ({ userId: memberId, roleIds }) => {
+      auditLog.record({ action: 'roles_removed', userId: memberId, roleIds });
+    },
+  }}
+/>`}
+                  language="tsx"
+                  title="removeRolesAction"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Custom Messages */}
