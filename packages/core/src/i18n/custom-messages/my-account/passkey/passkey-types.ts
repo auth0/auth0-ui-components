@@ -41,8 +41,6 @@ export interface PasskeyMessages {
     rename?: string;
     revoke?: string;
   };
-  component_error_title?: string;
-  component_error_description?: string;
   modals?: {
     rename?: PasskeyRenameModalMessages;
     revoke?: PasskeyRevokeModalMessages;

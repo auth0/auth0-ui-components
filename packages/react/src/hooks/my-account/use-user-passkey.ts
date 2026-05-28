@@ -132,7 +132,6 @@ export function useUserPasskey({
     isEnrolling: enrollMutation.isPending,
     isRevoking: revokeMutation.isPending,
     isRenaming: renameMutation.isPending,
-    error: passkeysQuery.error?.message ?? null,
     disableAdd,
     disableRename,
     disableRevoke,

@@ -1209,8 +1209,6 @@
       "rename": "Passkey renamed successfully.",
       "revoke": "Passkey revoked successfully."
     },
-    "component_error_title": "Error loading Passkey component",
-    "component_error_description": "We're having trouble loading your passkeys.\nPlease refresh the page and try again",
     "modals": {
       "rename": {
         "title": "Rename passkey",

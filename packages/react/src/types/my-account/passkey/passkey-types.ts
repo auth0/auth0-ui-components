@@ -24,7 +24,6 @@ export interface PasskeyActionModalProps
   onOpenChange: (open: boolean) => void;
   isPending: boolean;
   onConfirm: (newName?: string) => Promise<void>;
-  onCancel: () => void;
   name?: string;
 }
 
@@ -53,8 +52,6 @@ export interface UserPasskeyMgmtViewProps {
   passkeys: Passkey[];
   isRevoking: boolean;
   isEnrolling: boolean;
-  isRenaming: boolean;
-  error: string | null;
   styling: UserPasskeyMgmtProps['styling'];
   customMessages: UserPasskeyMgmtProps['customMessages'];
   hideHeader: boolean;
@@ -62,15 +59,11 @@ export interface UserPasskeyMgmtViewProps {
   disableRename: boolean;
   disableRevoke: boolean;
   isRevokeModalOpen: boolean;
-  isRenameModalOpen: boolean;
   currentPasskey: Passkey | null;
   handleAddPasskey: () => void;
-  handleRenamePasskey: (passkey: Passkey) => void;
   handleRevokePasskey: (passkey: Passkey) => void;
   handleConfirmRevoke: () => Promise<void>;
-  handleConfirmRename: (newName?: string) => Promise<void>;
   setIsRevokeModalOpen: (open: boolean) => void;
-  setIsRenameModalOpen: (open: boolean) => void;
 }
 
 export interface UseUserPasskeyOptions {
@@ -88,7 +81,6 @@ export interface UseUserPasskeyReturn {
   isEnrolling: boolean;
   isRevoking: boolean;
   isRenaming: boolean;
-  error: string | null;
   disableAdd: boolean;
   disableRename: boolean;
   disableRevoke: boolean;
