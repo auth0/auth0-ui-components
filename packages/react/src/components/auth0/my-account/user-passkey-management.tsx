@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import {
   Card,
   CardAction,
-  CardAdornment,
   CardContent,
   CardDescription,
   CardHeader,
@@ -185,64 +184,63 @@ function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
                 key={passkey.id}
                 className={cn(currentStyles.classes?.['UserPasskeyMgmt-item'])}
               >
-                <CardHeader>
-                  <CardAdornment>
-                    <UserRoundKey className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                  </CardAdornment>
-                  <CardTitle className="text-base text-(length:--font-size-body) font-semibold text-card-foreground">
-                    {passkey.name}
-                  </CardTitle>
-                  {(passkey.deviceInfo || passkey.createdAt || passkey.lastUsedAt) && (
-                    <CardDescription className="col-start-1 flex flex-wrap items-center gap-x-1.5">
-                      {passkey.deviceInfo && <span>{passkey.deviceInfo}</span>}
-                      {passkey.createdAt && (
-                        <>
-                          {passkey.deviceInfo && <span aria-hidden="true">•</span>}
-                          <span>
-                            {t('created_at', {
-                              date: new Date(passkey.createdAt).toLocaleDateString(),
-                            })}
-                          </span>
-                        </>
-                      )}
-                      {passkey.lastUsedAt && (
-                        <>
-                          {(passkey.deviceInfo || passkey.createdAt) && (
-                            <span aria-hidden="true">•</span>
-                          )}
-                          <span>
-                            {t('last_used', {
-                              date: new Date(passkey.lastUsedAt).toLocaleDateString(),
-                            })}
-                          </span>
-                        </>
-                      )}
-                    </CardDescription>
-                  )}
-                  {!disableRevoke && (
-                    <CardAction>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger
-                          aria-label={passkey.name}
-                          className="h-8 w-8 p-0 rounded-xl bg-primary border border-primary/20 shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50"
-                        >
-                          <MoreVertical className="h-4 w-4 text-primary-foreground" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuPortal>
-                          <DropdownMenuContent align="end">
-                            {!disableRevoke && (
-                              <DropdownMenuItem
-                                onClick={() => handleRevokePasskey(passkey)}
-                                className="text-destructive-foreground focus:text-destructive-foreground"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                {t('actions.revoke')}
-                              </DropdownMenuItem>
+                <CardHeader className="flex flex-row items-center gap-3">
+                  <UserRoundKey
+                    className="h-4 w-4 shrink-0 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                    <CardTitle className="text-base text-(length:--font-size-body) font-semibold text-card-foreground">
+                      {passkey.name}
+                    </CardTitle>
+                    {(passkey.deviceInfo || passkey.createdAt || passkey.lastUsedAt) && (
+                      <CardDescription className="flex flex-wrap items-center gap-x-1.5">
+                        {passkey.deviceInfo && <span>{passkey.deviceInfo}</span>}
+                        {passkey.createdAt && (
+                          <>
+                            {passkey.deviceInfo && <span aria-hidden="true">•</span>}
+                            <span>
+                              {t('created_at', {
+                                date: new Date(passkey.createdAt).toLocaleDateString(),
+                              })}
+                            </span>
+                          </>
+                        )}
+                        {passkey.lastUsedAt && (
+                          <>
+                            {(passkey.deviceInfo || passkey.createdAt) && (
+                              <span aria-hidden="true">•</span>
                             )}
-                          </DropdownMenuContent>
-                        </DropdownMenuPortal>
-                      </DropdownMenu>
-                    </CardAction>
+                            <span>
+                              {t('last_used', {
+                                date: new Date(passkey.lastUsedAt).toLocaleDateString(),
+                              })}
+                            </span>
+                          </>
+                        )}
+                      </CardDescription>
+                    )}
+                  </div>
+                  {!disableRevoke && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        aria-label={passkey.name}
+                        className="h-8 w-8 p-0 rounded-xl bg-primary border border-primary/20 shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50 shrink-0"
+                      >
+                        <MoreVertical className="h-4 w-4 text-primary-foreground" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuPortal>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleRevokePasskey(passkey)}
+                            className="text-destructive-foreground focus:text-destructive-foreground"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            {t('actions.revoke')}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenuPortal>
+                    </DropdownMenu>
                   )}
                 </CardHeader>
               </Card>
