@@ -16,6 +16,7 @@ import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
 import { useDomainTable } from '@/hooks/my-organization/use-domain-table';
 import { useDomainTableLogic } from '@/hooks/my-organization/use-domain-table-logic';
+import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
@@ -31,6 +32,8 @@ import type {
  * @internal
  */
 function DomainTable(props: DomainTableProps) {
+  useTelemetry('domain-management');
+
   const {
     schema,
     hideHeader = false,

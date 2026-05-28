@@ -24,6 +24,8 @@ const defaultTelemetry: TelemetryConfig = {
   framework: 'react',
 };
 
+const mockGetComponent = () => 'test-component';
+
 describe('createMyAccountClient', () => {
   const mockFetchWithAuth = vi.fn().mockResolvedValue(new Response());
   const mockCreateFetcher = vi.fn().mockReturnValue({
@@ -47,11 +49,15 @@ describe('createMyAccountClient', () => {
   });
 
   it('creates client with baseUrl in proxy mode', () => {
-    createMyAccountClient(mockProxyConfig, {
-      css: 'tailwind',
-      distribution: 'npm',
-      framework: 'react',
-    });
+    createMyAccountClient(
+      mockProxyConfig,
+      {
+        css: 'tailwind',
+        distribution: 'npm',
+        framework: 'react',
+      },
+      mockGetComponent,
+    );
 
     expect(MyAccountClient).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -62,11 +68,15 @@ describe('createMyAccountClient', () => {
   });
 
   it('creates client with domain in SPA mode', () => {
-    createMyAccountClient(createSpaConfig(), {
-      css: 'scoped',
-      distribution: 'shadcn',
-      framework: 'react',
-    });
+    createMyAccountClient(
+      createSpaConfig(),
+      {
+        css: 'scoped',
+        distribution: 'shadcn',
+        framework: 'react',
+      },
+      mockGetComponent,
+    );
 
     expect(MyAccountClient).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -77,7 +87,7 @@ describe('createMyAccountClient', () => {
   });
 
   it('calls SDK createFetcher with correct dpopNonceId in SPA mode', () => {
-    createMyAccountClient(createSpaConfig(), defaultTelemetry);
+    createMyAccountClient(createSpaConfig(), defaultTelemetry, mockGetComponent);
 
     expect(mockCreateFetcher).toHaveBeenCalledWith({
       dpopNonceId: MY_ACCOUNT_DPOP_NONCE_ID,
@@ -91,11 +101,15 @@ describe('createMyAccountClient', () => {
 
     it('sets auth0-scope header when authParams has scope array', async () => {
       const mockFetch = stubFetch();
-      createMyAccountClient(mockProxyConfig, {
-        css: 'tailwind',
-        distribution: 'npm',
-        framework: 'react',
-      });
+      createMyAccountClient(
+        mockProxyConfig,
+        {
+          css: 'tailwind',
+          distribution: 'npm',
+          framework: 'react',
+        },
+        mockGetComponent,
+      );
 
       const constructorOptions = vi.mocked(MyAccountClient).mock.calls[0]![0];
       const fetcher = constructorOptions.fetcher as FetcherSupplier;
@@ -120,11 +134,15 @@ describe('createMyAccountClient', () => {
 
     it('does not set auth0-scope header when authParams has empty scope array', async () => {
       const mockFetch = stubFetch();
-      createMyAccountClient(mockProxyConfig, {
-        css: 'scoped',
-        distribution: 'shadcn',
-        framework: 'react',
-      });
+      createMyAccountClient(
+        mockProxyConfig,
+        {
+          css: 'scoped',
+          distribution: 'shadcn',
+          framework: 'react',
+        },
+        mockGetComponent,
+      );
 
       const constructorOptions = vi.mocked(MyAccountClient).mock.calls[0]![0];
       const fetcher = constructorOptions.fetcher as FetcherSupplier;
@@ -138,7 +156,7 @@ describe('createMyAccountClient', () => {
 
   describe('SPA mode fetcher', () => {
     it('calls SDK fetchWithAuth with scope and audience', async () => {
-      createMyAccountClient(createSpaConfig(), defaultTelemetry);
+      createMyAccountClient(createSpaConfig(), defaultTelemetry, mockGetComponent);
 
       const constructorOptions = vi.mocked(MyAccountClient).mock.calls[0]![0];
       const fetcher = constructorOptions.fetcher as FetcherSupplier;
@@ -157,11 +175,15 @@ describe('createMyAccountClient', () => {
     });
 
     it('handles undefined authParams', async () => {
-      createMyAccountClient(createSpaConfig(), {
-        css: 'tailwind',
-        distribution: 'npm',
-        framework: 'react',
-      });
+      createMyAccountClient(
+        createSpaConfig(),
+        {
+          css: 'tailwind',
+          distribution: 'npm',
+          framework: 'react',
+        },
+        mockGetComponent,
+      );
 
       const constructorOptions = vi.mocked(MyAccountClient).mock.calls[0]![0];
       const fetcher = constructorOptions.fetcher as FetcherSupplier;

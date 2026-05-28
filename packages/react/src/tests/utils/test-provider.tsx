@@ -7,6 +7,7 @@ import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
 import { GateKeeperContext } from '@/providers/gate-keeper-context';
+import { TelemetryProvider } from '@/providers/telemetry-provider';
 import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
 
 // Create a new QueryClient for each test to avoid shared state
@@ -68,11 +69,16 @@ export const TestProvider: React.FC<TestProviderProps> = ({
     [mockCoreClient],
   );
 
+  // Create a ref for telemetry tracker
+  const componentRef = React.useRef<string>('test-component');
+
   return (
     <QueryClientProvider client={testQueryClient}>
-      <GateKeeperContext.Provider value={{ error: null }}>
-        <CoreClientContext.Provider value={contextValue}>{children}</CoreClientContext.Provider>
-      </GateKeeperContext.Provider>
+      <TelemetryProvider componentRef={componentRef}>
+        <GateKeeperContext.Provider value={{ error: null }}>
+          <CoreClientContext.Provider value={contextValue}>{children}</CoreClientContext.Provider>
+        </GateKeeperContext.Provider>
+      </TelemetryProvider>
     </QueryClientProvider>
   );
 };

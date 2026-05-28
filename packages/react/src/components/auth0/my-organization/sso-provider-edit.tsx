@@ -14,6 +14,7 @@ import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useSsoProviderEditLogic } from '@/hooks/my-organization/use-sso-provider-edit-logic';
+import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
@@ -41,6 +42,8 @@ import type {
  * @returns JSX element
  */
 function SsoProviderEdit(props: SsoProviderEditProps) {
+  useTelemetry('sso-edit-configuration');
+
   const {
     providerId,
     backButton,

@@ -69,10 +69,12 @@ describe('createCoreClient', () => {
     framework: 'react' as const,
   };
 
+  const mockGetComponent = () => 'test-component';
+
   describe('i18n initialization', () => {
     it('initializes i18n with default options when none are provided', async () => {
       const authDetails = createAuthDetails();
-      await createCoreClient(authDetails, undefined, defaultTelemetry);
+      await createCoreClient(authDetails, undefined, defaultTelemetry, mockGetComponent);
 
       expect(createI18nServiceMock).toHaveBeenCalledWith({
         currentLanguage: 'en-US',
@@ -83,14 +85,19 @@ describe('createCoreClient', () => {
     it('initializes i18n with provided language options', async () => {
       const i18nOptions = { currentLanguage: 'es', fallbackLanguage: 'en' };
       const authDetails = createAuthDetails();
-      await createCoreClient(authDetails, i18nOptions, defaultTelemetry);
+      await createCoreClient(authDetails, i18nOptions, defaultTelemetry, mockGetComponent);
 
       expect(createI18nServiceMock).toHaveBeenCalledWith(i18nOptions);
     });
 
     it('exposes i18nService on the client', async () => {
       const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.i18nService).toBe(mockI18nService);
     });
@@ -99,52 +106,71 @@ describe('createCoreClient', () => {
   describe('isProxyMode', () => {
     it('returns false when authProxyUrl is undefined', async () => {
       const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.isProxyMode()).toBe(false);
     });
 
     it('returns true when authProxyUrl is set', async () => {
       const authDetails = createAuthDetails({ authProxyUrl: 'https://proxy.auth0.com' });
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.isProxyMode()).toBe(true);
     });
 
     it('returns false when authProxyUrl is empty string', async () => {
       const authDetails = createAuthDetails({ authProxyUrl: '' });
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.isProxyMode()).toBe(false);
     });
   });
 
   describe('API client initialization', () => {
-    it('initializes MyOrg client with auth details and telemetry config', async () => {
+    it('initializes MyOrg client with auth details, telemetry config, and getComponent', async () => {
       const authDetails = createAuthDetails();
-      await createCoreClient(authDetails, undefined, {
-        css: 'tailwind',
-        distribution: 'npm',
-        framework: 'react',
-      });
+      await createCoreClient(
+        authDetails,
+        undefined,
+        { css: 'tailwind', distribution: 'npm', framework: 'react' },
+        mockGetComponent,
+      );
 
       expect(createMyOrganizationClientMock).toHaveBeenCalledWith(
         expect.objectContaining({ mode: 'spa', domain: TEST_DOMAIN }),
         { css: 'tailwind', distribution: 'npm', framework: 'react' },
+        mockGetComponent,
       );
     });
 
-    it('initializes MyAccount client with auth details and telemetry config', async () => {
+    it('initializes MyAccount client with auth details, telemetry config, and getComponent', async () => {
       const authDetails = createAuthDetails();
-      await createCoreClient(authDetails, undefined, {
-        css: 'scoped',
-        distribution: 'shadcn',
-        framework: 'react',
-      });
+      await createCoreClient(
+        authDetails,
+        undefined,
+        { css: 'scoped', distribution: 'shadcn', framework: 'react' },
+        mockGetComponent,
+      );
 
       expect(createMyAccountClientMock).toHaveBeenCalledWith(
         expect.objectContaining({ mode: 'spa', domain: TEST_DOMAIN }),
         { css: 'scoped', distribution: 'shadcn', framework: 'react' },
+        mockGetComponent,
       );
     });
   });
@@ -152,28 +178,48 @@ describe('createCoreClient', () => {
   describe('API client access', () => {
     it('exposes myAccountApiClient directly on the client', async () => {
       const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.myAccountApiClient).toBe(mockMyAccountClient);
     });
 
     it('exposes myOrganizationApiClient directly on the client', async () => {
       const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.myOrganizationApiClient).toBe(mockMyOrganizationClient);
     });
 
     it('returns myAccountApiClient when available via getter', async () => {
       const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.getMyAccountApiClient()).toBe(mockMyAccountClient);
     });
 
     it('returns myOrganizationApiClient when available via getter', async () => {
       const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.getMyOrganizationApiClient()).toBe(mockMyOrganizationClient);
     });
@@ -182,7 +228,12 @@ describe('createCoreClient', () => {
       createMyAccountClientMock.mockReturnValueOnce(null as unknown as MyAccountClient);
 
       const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(() => client.getMyAccountApiClient()).toThrow(
         'myAccountApiClient is not enabled. Please use it within Auth0ComponentProvider.',
@@ -192,7 +243,12 @@ describe('createCoreClient', () => {
     it('throws when myOrganizationApiClient is not available', async () => {
       createMyOrganizationClientMock.mockReturnValueOnce(null as unknown as MyOrganizationClient);
       const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(() => client.getMyOrganizationApiClient()).toThrow(
         'myOrganizationApiClient is not enabled. Please ensure you are in an Auth0 Organization context.',
@@ -201,7 +257,12 @@ describe('createCoreClient', () => {
 
     it('returns mfaApiClient via getter', async () => {
       const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.getMFAStepUpApiClient()).toBe(mockMfaApiClient);
     });
@@ -210,14 +271,24 @@ describe('createCoreClient', () => {
   describe('client properties', () => {
     it('exposes auth details on the client', async () => {
       const authDetails = createAuthDetails();
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.auth).toEqual(authDetails);
     });
 
     it('preserves authProxyUrl in auth details', async () => {
       const authDetails = createAuthDetails({ authProxyUrl: 'https://custom-proxy.com' });
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.auth.authProxyUrl).toBe('https://custom-proxy.com');
     });
@@ -225,7 +296,12 @@ describe('createCoreClient', () => {
     it('preserves contextInterface in auth details', async () => {
       const customContext = createMockContextInterface();
       const authDetails = createAuthDetails({ contextInterface: customContext });
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.auth.contextInterface).toBe(customContext);
     });
@@ -234,7 +310,12 @@ describe('createCoreClient', () => {
   describe('getDomain', () => {
     it('returns domain in SPA mode', async () => {
       const authDetails = createAuthDetails({ domain: TEST_DOMAIN });
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.getDomain()).toBe(TEST_DOMAIN);
     });
@@ -244,7 +325,12 @@ describe('createCoreClient', () => {
         authProxyUrl: 'https://proxy.auth0.com',
         domain: TEST_DOMAIN,
       });
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.getDomain()).toBe(TEST_DOMAIN);
     });
@@ -254,7 +340,12 @@ describe('createCoreClient', () => {
         authProxyUrl: 'https://proxy.auth0.com',
         domain: undefined,
       });
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.getDomain()).toBeUndefined();
     });
@@ -263,7 +354,12 @@ describe('createCoreClient', () => {
   describe('previewMode', () => {
     it('returns a core client with previewMode and disables API clients', async () => {
       const authDetails = { ...createAuthDetails(), previewMode: true };
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.auth).toEqual({});
       expect(client.myAccountApiClient).toBeUndefined();
@@ -273,35 +369,60 @@ describe('createCoreClient', () => {
 
     it('isProxyMode returns false in previewMode', async () => {
       const authDetails = { ...createAuthDetails(), previewMode: true };
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.isProxyMode()).toBe(false);
     });
 
     it('getMyAccountApiClient throws in previewMode', async () => {
       const authDetails = { ...createAuthDetails(), previewMode: true };
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(() => client.getMyAccountApiClient()).toThrow('Function not implemented.');
     });
 
     it('getMyOrganizationApiClient throws in previewMode', async () => {
       const authDetails = { ...createAuthDetails(), previewMode: true };
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(() => client.getMyOrganizationApiClient()).toThrow('Function not implemented.');
     });
 
     it('getMFAStepUpApiClient throws in previewMode', async () => {
       const authDetails = { ...createAuthDetails(), previewMode: true };
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(() => client.getMFAStepUpApiClient()).toThrow('Function not implemented.');
     });
 
     it('getDomain returns undefined in previewMode', async () => {
       const authDetails = { ...createAuthDetails(), previewMode: true };
-      const client = await createCoreClient(authDetails, undefined, defaultTelemetry);
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       expect(client.getDomain()).toBeUndefined();
     });

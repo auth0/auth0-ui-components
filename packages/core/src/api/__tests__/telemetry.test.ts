@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  buildTelemetryHeader,
-  getComponentFromUrl,
-  PACKAGE_VERSION,
-  TELEMETRY_NAME,
-} from '../telemetry';
+import { buildTelemetryHeader, PACKAGE_VERSION, TELEMETRY_NAME } from '../telemetry';
 
 describe('telemetry', () => {
   describe('constants', () => {
@@ -18,50 +13,11 @@ describe('telemetry', () => {
     });
   });
 
-  describe('getComponentFromUrl', () => {
-    it('should return user-mfa-management for authentication-methods URLs', () => {
-      expect(getComponentFromUrl('https://example.com/me/authentication-methods')).toBe(
-        'user-mfa-management',
-      );
-      expect(getComponentFromUrl('https://example.com/me/authentication-methods/123')).toBe(
-        'user-mfa-management',
-      );
-    });
-
-    it('should return organization-sso-configuration for identity-providers URLs', () => {
-      expect(getComponentFromUrl('https://example.com/my-org/identity-providers')).toBe(
-        'organization-sso-configuration',
-      );
-      expect(getComponentFromUrl('https://example.com/my-org/identity-providers/456/domains')).toBe(
-        'organization-sso-configuration',
-      );
-    });
-
-    it('should return organization-domain-management for domains URLs', () => {
-      expect(getComponentFromUrl('https://example.com/my-org/domains')).toBe(
-        'organization-domain-management',
-      );
-      expect(getComponentFromUrl('https://example.com/my-org/domains/789/verify')).toBe(
-        'organization-domain-management',
-      );
-    });
-
-    it('should return organization-details for configuration URLs', () => {
-      expect(getComponentFromUrl('https://example.com/my-org/configuration')).toBe(
-        'organization-details',
-      );
-    });
-
-    it('should return unknown for unrecognized URLs', () => {
-      expect(getComponentFromUrl('https://example.com/unknown/endpoint')).toBe('unknown');
-      expect(getComponentFromUrl('https://example.com/api/users')).toBe('unknown');
-    });
-  });
-
   describe('buildTelemetryHeader', () => {
     it('should return base64-encoded JSON for proxy mode with full telemetry config', () => {
-      const header = buildTelemetryHeader('https://example.com/me/authentication-methods', {
+      const header = buildTelemetryHeader({
         isProxyMode: true,
+        component: 'user-mfa-management',
         css: 'tailwind',
         distribution: 'npm',
         framework: 'react',
@@ -80,8 +36,9 @@ describe('telemetry', () => {
     });
 
     it('should return base64-encoded JSON for SPA mode with shadcn distribution', () => {
-      const header = buildTelemetryHeader('https://example.com/my-org/identity-providers', {
+      const header = buildTelemetryHeader({
         isProxyMode: false,
+        component: 'organization-sso-configuration',
         css: 'scoped',
         distribution: 'shadcn',
         framework: 'react',
@@ -99,9 +56,10 @@ describe('telemetry', () => {
       });
     });
 
-    it('should set component to unknown for unrecognized URLs', () => {
-      const header = buildTelemetryHeader('https://example.com/unknown', {
+    it('should use provided component value', () => {
+      const header = buildTelemetryHeader({
         isProxyMode: false,
+        component: 'unknown',
         css: 'unknown',
         distribution: 'npm',
         framework: 'react',
@@ -113,8 +71,9 @@ describe('telemetry', () => {
     });
 
     it('should include all required telemetry fields', () => {
-      const header = buildTelemetryHeader('https://example.com/my-org/domains', {
+      const header = buildTelemetryHeader({
         isProxyMode: true,
+        component: 'organization-domain-management',
         css: 'tailwind',
         distribution: 'npm',
         framework: 'react',
@@ -131,8 +90,9 @@ describe('telemetry', () => {
     });
 
     it('should use provided framework value', () => {
-      const header = buildTelemetryHeader('https://example.com/me/authentication-methods', {
+      const header = buildTelemetryHeader({
         isProxyMode: false,
+        component: 'user-mfa-management',
         css: 'tailwind',
         distribution: 'npm',
         framework: 'vue',

@@ -18,11 +18,14 @@ describe('useCoreClientInitialization', () => {
     framework: 'react',
   };
 
+  const mockGetComponent = vi.fn(() => 'test-component');
+
   const defaultProps = {
     authDetails: {
       authProxyUrl: '/api/auth',
     },
     telemetry: defaultTelemetry,
+    getComponent: mockGetComponent,
   };
 
   beforeEach(() => {
@@ -50,6 +53,7 @@ describe('useCoreClientInitialization', () => {
       defaultProps.authDetails,
       undefined,
       defaultTelemetry,
+      mockGetComponent,
     );
   });
 
@@ -64,6 +68,7 @@ describe('useCoreClientInitialization', () => {
         distribution: 'shadcn' as const,
         framework: 'react' as const,
       },
+      getComponent: mockGetComponent,
     };
 
     const { result } = renderHook(() => useCoreClientInitialization(propsWithI18n));
@@ -76,6 +81,7 @@ describe('useCoreClientInitialization', () => {
       propsWithI18n.authDetails,
       propsWithI18n.i18nOptions,
       propsWithI18n.telemetry,
+      mockGetComponent,
     );
   });
 
@@ -108,6 +114,7 @@ describe('useCoreClientInitialization', () => {
     rerender({
       authDetails: { authProxyUrl: '/api/auth-v2' },
       telemetry: defaultTelemetry,
+      getComponent: mockGetComponent,
     });
 
     await waitFor(() => {
@@ -121,6 +128,7 @@ describe('useCoreClientInitialization', () => {
     const propsWithDomain = {
       authDetails: { authProxyUrl: '/api/auth', domain: 'test.auth0.com' },
       telemetry: defaultTelemetry,
+      getComponent: mockGetComponent,
     };
 
     const { result, rerender } = renderHook((props) => useCoreClientInitialization(props), {
@@ -134,6 +142,7 @@ describe('useCoreClientInitialization', () => {
     rerender({
       authDetails: { authProxyUrl: '/api/auth', domain: 'new.auth0.com' },
       telemetry: defaultTelemetry,
+      getComponent: mockGetComponent,
     });
 
     expect(createCoreClient).toHaveBeenCalledTimes(1);

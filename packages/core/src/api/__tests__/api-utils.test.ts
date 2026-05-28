@@ -22,6 +22,8 @@ const defaultTelemetry: TelemetryConfig = {
   framework: 'react',
 };
 
+const mockGetComponent = () => 'test-component';
+
 describe('api-utils', () => {
   describe('createProxyFetcher', () => {
     afterEach(() => {
@@ -30,7 +32,10 @@ describe('api-utils', () => {
 
     it('sets content-type header to application/json', async () => {
       const mockFetch = stubFetch();
-      const fetcher = createProxyFetcher({ telemetry: defaultTelemetry });
+      const fetcher = createProxyFetcher({
+        telemetry: defaultTelemetry,
+        getComponent: mockGetComponent,
+      });
 
       await fetcher('https://example.com/api', { method: 'POST' }, undefined);
 
@@ -40,7 +45,10 @@ describe('api-utils', () => {
 
     it('sets auth0-scope header when scope array is provided', async () => {
       const mockFetch = stubFetch();
-      const fetcher = createProxyFetcher({ telemetry: defaultTelemetry });
+      const fetcher = createProxyFetcher({
+        telemetry: defaultTelemetry,
+        getComponent: mockGetComponent,
+      });
 
       await fetcher(
         'https://example.com/api',
@@ -57,7 +65,10 @@ describe('api-utils', () => {
 
     it('does not set auth0-scope header when scope array is empty', async () => {
       const mockFetch = stubFetch();
-      const fetcher = createProxyFetcher({ telemetry: defaultTelemetry });
+      const fetcher = createProxyFetcher({
+        telemetry: defaultTelemetry,
+        getComponent: mockGetComponent,
+      });
 
       await fetcher('https://example.com/api', { method: 'GET' }, { scope: [] });
 
@@ -67,7 +78,10 @@ describe('api-utils', () => {
 
     it('does not set auth0-scope header when authParams is undefined', async () => {
       const mockFetch = stubFetch();
-      const fetcher = createProxyFetcher({ telemetry: defaultTelemetry });
+      const fetcher = createProxyFetcher({
+        telemetry: defaultTelemetry,
+        getComponent: mockGetComponent,
+      });
 
       await fetcher('https://example.com/api', { method: 'GET' }, undefined);
 
@@ -77,7 +91,10 @@ describe('api-utils', () => {
 
     it('preserves existing headers from init', async () => {
       const mockFetch = stubFetch();
-      const fetcher = createProxyFetcher({ telemetry: defaultTelemetry });
+      const fetcher = createProxyFetcher({
+        telemetry: defaultTelemetry,
+        getComponent: mockGetComponent,
+      });
       const customHeaders = new Headers({ 'X-Custom': 'value' });
 
       await fetcher(
@@ -94,7 +111,10 @@ describe('api-utils', () => {
 
     it('preserves other init options', async () => {
       const mockFetch = stubFetch();
-      const fetcher = createProxyFetcher({ telemetry: defaultTelemetry });
+      const fetcher = createProxyFetcher({
+        telemetry: defaultTelemetry,
+        getComponent: mockGetComponent,
+      });
       const body = JSON.stringify({ data: 'test' });
 
       await fetcher(
@@ -113,6 +133,7 @@ describe('api-utils', () => {
       const mockFetch = stubFetch();
       const fetcher = createProxyFetcher({
         telemetry: { css: 'tailwind', distribution: 'npm', framework: 'react' },
+        getComponent: () => 'user-mfa-management',
       });
 
       await fetcher('https://example.com/me/authentication-methods', { method: 'GET' }, undefined);
@@ -130,10 +151,11 @@ describe('api-utils', () => {
       expect(decoded.framework).toBe('react');
     });
 
-    it('sets correct component based on URL path', async () => {
+    it('uses component from getComponent callback', async () => {
       const mockFetch = stubFetch();
       const fetcher = createProxyFetcher({
         telemetry: { css: 'scoped', distribution: 'shadcn', framework: 'react' },
+        getComponent: () => 'organization-sso-configuration',
       });
 
       await fetcher('https://example.com/my-org/identity-providers', { method: 'GET' }, undefined);
@@ -148,7 +170,11 @@ describe('api-utils', () => {
 
     it('uses custom fetcher when provided', async () => {
       const customFetcher = vi.fn().mockResolvedValue(new Response());
-      const fetcher = createProxyFetcher({ customFetcher, telemetry: defaultTelemetry });
+      const fetcher = createProxyFetcher({
+        customFetcher,
+        telemetry: defaultTelemetry,
+        getComponent: mockGetComponent,
+      });
 
       await fetcher('https://example.com/api', { method: 'GET' }, undefined);
 
@@ -186,14 +212,19 @@ describe('api-utils', () => {
       const config = createSpaConfig();
       const dpopNonceId = '__test_dpop_nonce__';
 
-      createSpaFetcher(config, dpopNonceId, defaultTelemetry);
+      createSpaFetcher(config, dpopNonceId, defaultTelemetry, mockGetComponent);
 
       expect(mockCreateFetcher).toHaveBeenCalledWith({ dpopNonceId });
     });
 
     it('sets Content-Type header to application/json', async () => {
       const config = createSpaConfig();
-      const fetcher = createSpaFetcher(config, '__test_nonce__', defaultTelemetry);
+      const fetcher = createSpaFetcher(
+        config,
+        '__test_nonce__',
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       await fetcher('https://example.com/api', { method: 'POST' }, undefined);
 
@@ -203,7 +234,12 @@ describe('api-utils', () => {
 
     it('preserves existing headers from init when adding Content-Type', async () => {
       const config = createSpaConfig();
-      const fetcher = createSpaFetcher(config, '__test_nonce__', defaultTelemetry);
+      const fetcher = createSpaFetcher(
+        config,
+        '__test_nonce__',
+        defaultTelemetry,
+        mockGetComponent,
+      );
       const customHeaders = new Headers({ 'X-Custom': 'value' });
 
       await fetcher(
@@ -220,7 +256,12 @@ describe('api-utils', () => {
 
     it('preserves other init options when adding Content-Type header', async () => {
       const config = createSpaConfig();
-      const fetcher = createSpaFetcher(config, '__test_nonce__', defaultTelemetry);
+      const fetcher = createSpaFetcher(
+        config,
+        '__test_nonce__',
+        defaultTelemetry,
+        mockGetComponent,
+      );
       const body = JSON.stringify({ data: 'test' });
 
       await fetcher(
@@ -238,7 +279,12 @@ describe('api-utils', () => {
 
     it('delegates to SDK fetchWithAuth with scope and audience', async () => {
       const config = createSpaConfig();
-      const fetcher = createSpaFetcher(config, '__test_nonce__', defaultTelemetry);
+      const fetcher = createSpaFetcher(
+        config,
+        '__test_nonce__',
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       await fetcher(
         'https://example.com/api',
@@ -255,7 +301,12 @@ describe('api-utils', () => {
 
     it('handles undefined authParams', async () => {
       const config = createSpaConfig();
-      const fetcher = createSpaFetcher(config, '__test_nonce__', defaultTelemetry);
+      const fetcher = createSpaFetcher(
+        config,
+        '__test_nonce__',
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       await fetcher('https://example.com/api', { method: 'GET' }, undefined);
 
@@ -268,7 +319,12 @@ describe('api-utils', () => {
 
     it('handles empty scope array', async () => {
       const config = createSpaConfig();
-      const fetcher = createSpaFetcher(config, '__test_nonce__', defaultTelemetry);
+      const fetcher = createSpaFetcher(
+        config,
+        '__test_nonce__',
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       await fetcher('https://example.com/api', { method: 'GET' }, { scope: [] });
 
@@ -281,7 +337,12 @@ describe('api-utils', () => {
 
     it('handles undefined init parameter', async () => {
       const config = createSpaConfig();
-      const fetcher = createSpaFetcher(config, '__test_nonce__', defaultTelemetry);
+      const fetcher = createSpaFetcher(
+        config,
+        '__test_nonce__',
+        defaultTelemetry,
+        mockGetComponent,
+      );
 
       await fetcher('https://example.com/api', undefined, { scope: ['read:users'] });
 
@@ -297,11 +358,12 @@ describe('api-utils', () => {
 
     it('sets Auth0-Client telemetry header with SPA mode', async () => {
       const config = createSpaConfig();
-      const fetcher = createSpaFetcher(config, '__test_nonce__', {
-        css: 'tailwind',
-        distribution: 'npm',
-        framework: 'react',
-      });
+      const fetcher = createSpaFetcher(
+        config,
+        '__test_nonce__',
+        { css: 'tailwind', distribution: 'npm', framework: 'react' },
+        () => 'user-mfa-management',
+      );
 
       await fetcher('https://example.com/me/authentication-methods', { method: 'GET' }, undefined);
 
@@ -318,13 +380,14 @@ describe('api-utils', () => {
       expect(decoded.framework).toBe('react');
     });
 
-    it('sets correct component based on URL path', async () => {
+    it('uses component from getComponent callback', async () => {
       const config = createSpaConfig();
-      const fetcher = createSpaFetcher(config, '__test_nonce__', {
-        css: 'scoped',
-        distribution: 'shadcn',
-        framework: 'react',
-      });
+      const fetcher = createSpaFetcher(
+        config,
+        '__test_nonce__',
+        { css: 'scoped', distribution: 'shadcn', framework: 'react' },
+        () => 'organization-domain-management',
+      );
 
       await fetcher('https://example.com/my-org/domains', { method: 'GET' }, undefined);
 

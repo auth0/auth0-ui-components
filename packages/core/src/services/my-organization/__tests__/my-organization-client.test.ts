@@ -24,6 +24,8 @@ const defaultTelemetry: TelemetryConfig = {
   framework: 'react',
 };
 
+const mockGetComponent = () => 'test-component';
+
 describe('createMyOrganizationClient', () => {
   const mockFetchWithAuth = vi.fn().mockResolvedValue(new Response());
   const mockCreateFetcher = vi.fn().mockReturnValue({
@@ -47,11 +49,15 @@ describe('createMyOrganizationClient', () => {
   });
 
   it('creates client with baseUrl in proxy mode', () => {
-    createMyOrganizationClient(mockProxyConfig, {
-      css: 'tailwind',
-      distribution: 'npm',
-      framework: 'react',
-    });
+    createMyOrganizationClient(
+      mockProxyConfig,
+      {
+        css: 'tailwind',
+        distribution: 'npm',
+        framework: 'react',
+      },
+      mockGetComponent,
+    );
 
     expect(MyOrganizationClient).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -62,11 +68,15 @@ describe('createMyOrganizationClient', () => {
   });
 
   it('creates client with domain in SPA mode', () => {
-    createMyOrganizationClient(createSpaConfig(), {
-      css: 'scoped',
-      distribution: 'shadcn',
-      framework: 'react',
-    });
+    createMyOrganizationClient(
+      createSpaConfig(),
+      {
+        css: 'scoped',
+        distribution: 'shadcn',
+        framework: 'react',
+      },
+      mockGetComponent,
+    );
 
     expect(MyOrganizationClient).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -77,7 +87,7 @@ describe('createMyOrganizationClient', () => {
   });
 
   it('calls SDK createFetcher with correct dpopNonceId in SPA mode', () => {
-    createMyOrganizationClient(createSpaConfig(), defaultTelemetry);
+    createMyOrganizationClient(createSpaConfig(), defaultTelemetry, mockGetComponent);
 
     expect(mockCreateFetcher).toHaveBeenCalledWith({
       dpopNonceId: MY_ORGANIZATION_DPOP_NONCE_ID,
@@ -91,11 +101,15 @@ describe('createMyOrganizationClient', () => {
 
     it('sets auth0-scope header when authParams has scope array', async () => {
       const mockFetch = stubFetch();
-      createMyOrganizationClient(mockProxyConfig, {
-        css: 'tailwind',
-        distribution: 'npm',
-        framework: 'react',
-      });
+      createMyOrganizationClient(
+        mockProxyConfig,
+        {
+          css: 'tailwind',
+          distribution: 'npm',
+          framework: 'react',
+        },
+        mockGetComponent,
+      );
 
       const constructorOptions = vi.mocked(MyOrganizationClient).mock.calls[0]![0];
       const fetcher = constructorOptions.fetcher as FetcherSupplier;
@@ -113,11 +127,15 @@ describe('createMyOrganizationClient', () => {
 
   describe('SPA mode fetcher', () => {
     it('calls SDK fetchWithAuth with scope and audience', async () => {
-      createMyOrganizationClient(createSpaConfig(), {
-        css: 'scoped',
-        distribution: 'shadcn',
-        framework: 'react',
-      });
+      createMyOrganizationClient(
+        createSpaConfig(),
+        {
+          css: 'scoped',
+          distribution: 'shadcn',
+          framework: 'react',
+        },
+        mockGetComponent,
+      );
 
       const constructorOptions = vi.mocked(MyOrganizationClient).mock.calls[0]![0];
       const fetcher = constructorOptions.fetcher as FetcherSupplier;

@@ -9,6 +9,7 @@ import type {
   AuthDetails,
   I18nInitOptions,
   TelemetryConfig,
+  TelemetryComponentGetter,
 } from '@auth0/universal-components-core';
 import { createCoreClient } from '@auth0/universal-components-core';
 import * as React from 'react';
@@ -17,6 +18,7 @@ interface UseCoreClientInitializationProps {
   authDetails: AuthDetails;
   i18nOptions?: I18nInitOptions;
   telemetry: TelemetryConfig;
+  getComponent: TelemetryComponentGetter;
 }
 
 /**
@@ -28,6 +30,7 @@ export const useCoreClientInitialization = ({
   authDetails,
   i18nOptions,
   telemetry,
+  getComponent,
 }: UseCoreClientInitializationProps): CoreClientInterface | null => {
   const { authProxyUrl } = authDetails;
   const [coreClient, setCoreClient] = React.useState<CoreClientInterface | null>(null);
@@ -43,18 +46,19 @@ export const useCoreClientInitialization = ({
 
     const initializeCoreClient = async () => {
       try {
-        const initializedCoreClient = await createCoreClient(authDetails, i18nOptions, {
-          css,
-          distribution,
-          framework,
-        });
+        const initializedCoreClient = await createCoreClient(
+          authDetails,
+          i18nOptions,
+          { css, distribution, framework },
+          getComponent,
+        );
         setCoreClient(initializedCoreClient);
       } catch (error) {
         console.error(error);
       }
     };
     initializeCoreClient();
-  }, [authProxyUrl, i18nOptions, css, distribution, framework]);
+  }, [authProxyUrl, i18nOptions, css, distribution, framework, getComponent]);
 
   return coreClient;
 };
