@@ -21,7 +21,11 @@ export interface MemberDetailServiceResult {
   memberRolesQuery: UseQueryResult<Role[]>;
   rolesQuery: UseQueryResult<Role[]>;
   organizationQuery: UseQueryResult<OrganizationPrivate>;
-  removeFromOrgMutation: UseMutationResult<void, Error, void>;
+  removeFromOrgMutation: UseMutationResult<
+    void,
+    Error,
+    { userId?: string; memberName?: string; orgName?: string }
+  >;
   assignRolesMutation: UseMutationResult<void, Error, string[]>;
   removeRolesMutation: UseMutationResult<void, Error, Role[]>;
 }
@@ -65,7 +69,7 @@ export interface UseOrganizationMemberDetailResult {
   handleBack: () => void;
   openModal: (state: MemberDetailModalState) => void;
   closeModal: () => void;
-  handleRemoveFromOrgConfirm: () => void;
+  handleRemoveFromOrgConfirm: (memberName?: string, orgName?: string) => void;
   handleAssignRolesSubmit: (roleIds: string[]) => void;
   handleRemoveRolesCancel: () => void;
   handleRemoveRolesConfirm: () => void;

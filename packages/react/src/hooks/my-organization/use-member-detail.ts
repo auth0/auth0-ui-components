@@ -68,14 +68,20 @@ export function useOrganizationMemberDetail(
     setModalState({ type: null });
   }, []);
 
-  const handleRemoveFromOrgConfirm = React.useCallback(() => {
-    removeFromOrgMutation.mutate(undefined, {
-      onSuccess: () => {
-        closeModal();
-        onBack?.();
-      },
-    });
-  }, [removeFromOrgMutation, closeModal, onBack]);
+  const handleRemoveFromOrgConfirm = React.useCallback(
+    (userId?: string, memberName?: string, orgName?: string) => {
+      removeFromOrgMutation.mutate(
+        { userId, memberName, orgName },
+        {
+          onSuccess: () => {
+            closeModal();
+            onBack?.();
+          },
+        },
+      );
+    },
+    [removeFromOrgMutation, closeModal, onBack],
+  );
 
   const handleAssignRolesSubmit = React.useCallback(
     (roleIds: string[]) => {

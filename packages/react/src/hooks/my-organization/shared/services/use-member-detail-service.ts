@@ -74,7 +74,7 @@ export function useMemberDetailService(
   });
 
   const removeFromOrgMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (_args: { memberId?: string; memberName?: string; orgName?: string }) => {
       if (!userId) throw new Error('userId is required');
       if (removeFromOrgAction?.onBefore && !removeFromOrgAction.onBefore(userId)) {
         throw new Error('Remove from org cancelled by onBefore');
@@ -83,12 +83,16 @@ export function useMemberDetailService(
         .getMyOrganizationApiClient()
         .organization.memberships.deleteMemberships({ members: [userId] });
     },
-    onSuccess: () => {
+    onSuccess: (_, { memberName, orgName }) => {
       removeFromOrgAction?.onAfter?.(userId);
       showToast({
         type: 'success',
-        message: t('member.detail.actions.remove_from_org.success'),
+        message: t('member.detail.actions.remove_from_org.success', {
+          memberName: memberName ?? '',
+          orgName: orgName ?? '',
+        }),
       });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.members() });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.remove_from_org_failed') });

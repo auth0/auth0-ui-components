@@ -206,7 +206,7 @@ export function useMemberManagementService(
           orgName: orgName ?? '',
         }),
       });
-      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.members() });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.remove_from_org_failed') });
