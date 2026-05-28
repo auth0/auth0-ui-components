@@ -2,7 +2,7 @@ import { passkeyQueryKeys, createPasskeyCredential } from '@auth0/universal-comp
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { useUserPasskeyService } from '@/hooks/my-account/shared/use-user-passkey-service';
+import { useUserPasskeyService } from '@/hooks/my-account/shared/services/use-user-passkey-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { mockCore, setupMockUseCoreClient, createQueryClientWrapper } from '@/tests/utils';
 
