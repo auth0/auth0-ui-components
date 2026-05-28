@@ -109,6 +109,7 @@ describe('createMyAccountClient', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com',
         expect.objectContaining({ method: 'GET' }),
+        { scope: ['read:users', 'write:users'], audience: 'test-audience' },
       );
 
       const [, requestInit] = mockFetch.mock.calls[0]!;

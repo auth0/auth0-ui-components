@@ -155,6 +155,7 @@ describe('api-utils', () => {
       expect(customFetcher).toHaveBeenCalledWith(
         'https://example.com/api',
         expect.objectContaining({ method: 'GET' }),
+        undefined,
       );
     });
   });
