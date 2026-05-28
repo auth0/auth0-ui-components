@@ -172,165 +172,270 @@ export function MemberDetailPage({ userId }: { userId: string }) {
       </section>
 
       {/* Props */}
-      <section className="space-y-6">
+      <section className="space-y-10">
         <h2 className="text-2xl font-semibold text-gray-900">Props</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full border border-gray-200 rounded-lg">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
-                  Prop
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">
-                  Type
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
-                  Default
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Description
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {/* Required */}
-              <tr>
-                <td
-                  colSpan={4}
-                  className="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                >
-                  Required
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  userId <span className="text-red-500">*</span>
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">string</td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">—</td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  Auth0 user ID of the member to display (e.g. <code>auth0|64abc...</code>)
-                </td>
-              </tr>
-              {/* Display */}
-              <tr>
-                <td
-                  colSpan={4}
-                  className="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                >
-                  Display
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  onBack
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">{'() => void'}</td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">—</td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  Called when the user clicks the back button in the header
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  readOnly
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">boolean</td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">false</td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  Disables role management and member removal actions
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  hideHeader
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">boolean</td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">false</td>
-                <td className="px-4 py-2 text-sm text-gray-500">Hides the component header</td>
-              </tr>
-              {/* Action */}
-              <tr>
-                <td
-                  colSpan={4}
-                  className="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                >
-                  Action
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  removeFromOrgAction
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">ComponentAction&lt;string&gt;</td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">—</td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  Lifecycle hooks for member removal (input is the userId)
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  assignRolesAction
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  ComponentAction&lt;{'{ userId: string; roleIds: string[] }'}&gt;
-                </td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">—</td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  Lifecycle hooks for role assignment
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  removeRolesAction
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  ComponentAction&lt;{'{ userId: string; roleIds: string[] }'}&gt;
-                </td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">—</td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  Lifecycle hooks for role removal
-                </td>
-              </tr>
-              {/* Customization */}
-              <tr>
-                <td
-                  colSpan={4}
-                  className="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                >
-                  Customization
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  customMessages
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  Partial&lt;OrganizationMemberDetailMessages&gt;
-                </td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{'{}'}</td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  Override any default UI text or translations
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  styling
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">ComponentStyling</td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                  {'{ variables: {}, classes: {} }'}
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  CSS variables and class overrides
-                </td>
-              </tr>
-            </tbody>
-          </table>
+
+        {/* Required props */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-gray-800">Required props</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full border border-gray-200 rounded-lg">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                    Prop
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Description
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    userId <span className="text-red-500">*</span>
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    <code>string</code>
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    Auth0 user ID of the member to display (e.g. <code>auth0|64abc...</code>)
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-        <p className="text-sm text-gray-500">
-          <span className="text-red-500">*</span> Required
-        </p>
+
+        {/* Display props */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-gray-800">Display props</h3>
+          <p className="text-gray-600">
+            Display props control how the component renders without affecting its behavior. Use
+            these to hide sections or enable read-only mode.
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full border border-gray-200 rounded-lg">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                    Prop
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Description
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    onBack
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    <code>{'() => void'}</code>
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    Called when the user clicks the back button in the header.
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    readOnly
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    <code>boolean</code>
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    Disables role management and member removal actions. Default: <code>false</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    hideHeader
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    <code>boolean</code>
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    Hides the component header. Default: <code>false</code>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Action props */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-gray-800">Action props</h3>
+          <p className="text-gray-600">
+            Action props handle user interactions and define what happens when users perform member
+            operations. Use lifecycle hooks (<code>onBefore</code>, <code>onAfter</code>) to
+            integrate with your application's routing and analytics.
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full border border-gray-200 rounded-lg">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                    Prop
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Description
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    removeFromOrgAction
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    <code>ComponentAction&lt;string&gt;</code>
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    Lifecycle hooks for member removal. Input is the userId.
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    assignRolesAction
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    <code>ComponentAction&lt;{'{ userId: string; roleIds: string[] }'}&gt;</code>
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    Lifecycle hooks for role assignment.
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    removeRolesAction
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    <code>ComponentAction&lt;{'{ userId: string; roleIds: string[] }'}&gt;</code>
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    Lifecycle hooks for role removal.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Per-action examples */}
+          <div className="space-y-6 pt-2">
+            <div>
+              <h4 className="text-base font-medium text-gray-900 mb-2">removeFromOrgAction</h4>
+              <CodeBlock
+                code={`<OrganizationMemberDetail
+  userId={userId}
+  removeFromOrgAction={{
+    onBefore: async (removedUserId) => {
+      // Return false to cancel removal
+      return await confirm(\`Remove this member from the organization?\`);
+    },
+    onAfter: () => navigate('/members'),
+  }}
+/>`}
+                language="tsx"
+                title="removeFromOrgAction"
+              />
+            </div>
+
+            <div>
+              <h4 className="text-base font-medium text-gray-900 mb-2">assignRolesAction</h4>
+              <CodeBlock
+                code={`<OrganizationMemberDetail
+  userId={userId}
+  assignRolesAction={{
+    onAfter: ({ userId: memberId, roleIds }) => {
+      analytics.track('roles_assigned', { memberId, roleIds });
+    },
+  }}
+/>`}
+                language="tsx"
+                title="assignRolesAction"
+              />
+            </div>
+
+            <div>
+              <h4 className="text-base font-medium text-gray-900 mb-2">removeRolesAction</h4>
+              <CodeBlock
+                code={`<OrganizationMemberDetail
+  userId={userId}
+  removeRolesAction={{
+    onAfter: ({ userId: memberId, roleIds }) => {
+      analytics.track('roles_removed', { memberId, roleIds });
+    },
+  }}
+/>`}
+                language="tsx"
+                title="removeRolesAction"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Customization props */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-gray-800">Customization props</h3>
+          <p className="text-gray-600">
+            Customization props let you override default text and apply CSS variables or class names
+            to match your application's design system.
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full border border-gray-200 rounded-lg">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                    Prop
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Description
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    customMessages
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    <code>Partial&lt;OrganizationMemberDetailMessages&gt;</code>
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    Override any default UI text or translations. Default: <code>{'{}'}</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    styling
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    <code>ComponentStyling</code>
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    CSS variables and class overrides. Default:{' '}
+                    <code>{'{ variables: {}, classes: {} }'}</code>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         {/* TypeScript Definitions */}
         <details className="mt-8 border-2 border-blue-200 rounded-lg overflow-hidden shadow-sm bg-blue-50">
