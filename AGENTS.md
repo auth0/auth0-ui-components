@@ -47,12 +47,12 @@
 | `@auth0/universal-components-react`        | components, hooks, types                 |
 | `@auth0/universal-components-react/styles` | CSS stylesheet (`dist/styles.css`)       |
 
-### Available Blocks and Hooks
+### Available Components and Hooks
 
-For the full list of available blocks and hooks, see:
+For the full list of available exports, see:
 
-- **Blocks:** [`packages/react/src/blocks/index.ts`](packages/react/src/blocks/index.ts)
-- **Hooks:** [`packages/react/src/hooks/`](packages/react/src/hooks/)
+- **Components:** [`packages/react/src/components/index.ts`](packages/react/src/components/index.ts)
+- **Hooks:** [`packages/react/src/hooks/index.ts`](packages/react/src/hooks/index.ts)
 
 ---
 
@@ -61,41 +61,127 @@ For the full list of available blocks and hooks, see:
 ```
 auth0-ui-components/
 ├── packages/
-│   ├── core/                 # @auth0/universal-components-core
+│   ├── core/                        # @auth0/universal-components-core
 │   │   └── src/
-│   │       ├── api/          # API utilities
-│   │       ├── auth/         # CoreClient, TokenManager, auth types
-│   │       ├── i18n/         # Internationalization service + translations
-│   │       ├── schemas/      # Zod validation schemas
-│   │       ├── services/     # API service layer
-│   │       │   ├── my-account/    # MFA management APIs
+│   │       ├── api/                 # API utilities
+│   │       │   └── __tests__/
+│   │       ├── auth/                # CoreClient, TokenManager, auth types
+│   │       │   ├── __mocks__/
+│   │       │   └── __tests__/
+│   │       ├── i18n/                # Internationalization service + translations
+│   │       │   ├── __mocks__/
+│   │       │   ├── custom-messages/ # Custom message type definitions
+│   │       │   │   ├── my-account/mfa/
+│   │       │   │   └── my-organization/
+│   │       │   │       ├── domain-management/
+│   │       │   │       ├── idp-management/
+│   │       │   │       │   ├── sso-domain/
+│   │       │   │       │   ├── sso-provider/
+│   │       │   │       │   └── sso-provisioning/
+│   │       │   │       └── organization-management/
+│   │       │   └── translations/    # Base translations (en-US, ja)
+│   │       ├── schemas/             # Zod validation schemas
+│   │       │   ├── common/
+│   │       │   ├── my-account/mfa/
+│   │       │   └── my-organization/
+│   │       │       ├── domain-management/
+│   │       │       ├── idp-management/
+│   │       │       │   ├── sso-provider/
+│   │       │       │   └── sso-provisioning/
+│   │       │       └── organization-management/
+│   │       ├── services/            # API service layer
+│   │       │   ├── mfa-step-up/     # MFA step-up service
+│   │       │   ├── my-account/      # MFA management APIs
+│   │       │   │   └── mfa/
 │   │       │   └── my-organization/ # Org, SSO, Domain APIs
-│   │       ├── theme/        # Theme utilities
-│   │       └── assets/       # Icons, images
+│   │       │       ├── config/
+│   │       │       ├── domain-management/
+│   │       │       ├── idp-management/
+│   │       │       │   ├── sso-provider/
+│   │       │       │   └── sso-provisioning/
+│   │       │       └── organization-management/
+│   │       ├── theme/               # Theme utilities
+│   │       ├── styles/themes/       # Theme CSS variables
+│   │       ├── assets/icons/        # SVG icons
+│   │       └── internals/           # Internal test utilities
 │   │
-│   └── react/                # @auth0/universal-components-react
+│   └── react/                       # @auth0/universal-components-react
 │       └── src/
-│           ├── spa.ts        # SPA entry point
-│           ├── rwa.ts        # RWA/Proxy entry point
-│           ├── providers/    # Auth0ComponentProvider (SPA + Proxy)
-│           ├── blocks/       # High-level feature components
+│           ├── spa.ts               # SPA entry point
+│           ├── rwa.ts               # RWA/Proxy entry point
+│           ├── index.ts             # Unified exports (components, hooks, types)
+│           ├── providers/           # Auth0ComponentProvider (SPA + Proxy)
+│           │   └── __tests__/
+│           ├── components/          # UI & feature components
+│           │   ├── ui/              # Base components (button, dialog, form, etc.)
+│           │   └── auth0/           # Auth0-specific components
+│           │       ├── shared/      # Shared components (gate-keeper, mfa-step-up)
+│           │       │   └── gate-keeper/
+│           │       │       └── mfa-step-up/
+│           │       ├── my-account/  # MFA management components
+│           │       │   └── shared/mfa/
+│           │       └── my-organization/  # Organization management components
+│           │           └── shared/
+│           │               ├── domain-management/
+│           │               │   ├── domain-configure/
+│           │               │   ├── domain-create/
+│           │               │   ├── domain-delete/
+│           │               │   ├── domain-table/
+│           │               │   └── domain-verify/
+│           │               ├── idp-management/
+│           │               │   ├── sso-provider-create/
+│           │               │   │   └── provider-configure/
+│           │               │   ├── sso-provider-delete/
+│           │               │   ├── sso-provider-edit/
+│           │               │   │   └── sso-provisioning/
+│           │               │   │       ├── sso-provisioning-create-token/
+│           │               │   │       └── sso-provisioning-delete-token/
+│           │               │   ├── sso-provider-remove/
+│           │               │   └── sso-provider-table/
+│           │               └── organization-management/
+│           ├── hooks/               # React hooks
+│           │   ├── shared/          # Core hooks (useCoreClient, useTranslator, useTheme)
+│           │   ├── my-account/      # MFA-related hooks
+│           │   └── my-organization/ # Organization-related hooks
+│           │       └── shared/
+│           │           └── services/ # Internal service hooks (not exported)
+│           ├── types/               # TypeScript type definitions
 │           │   ├── my-account/mfa/
 │           │   └── my-organization/
-│           ├── components/   # UI components
-│           │   ├── ui/       # Base components (button, dialog, etc.)
-│           │   ├── my-account/
-│           │   └── my-organization/
-│           ├── hooks/        # React hooks
-│           ├── hoc/          # Higher-order components (withServices)
-│           ├── types/        # TypeScript types
-│           └── styles/       # Tailwind CSS
+│           │       ├── config/
+│           │       ├── domain-management/
+│           │       ├── idp-management/
+│           │       │   ├── sso-domain/
+│           │       │   ├── sso-provider/
+│           │       │   └── sso-provisioning/
+│           │       └── organization-management/
+│           ├── internals/           # Internal test utilities & mocks
+│           │   └── __mocks__/
+│           ├── tests/utils/         # Additional test utilities
+│           │   └── __mocks__/
+│           ├── styles/              # Tailwind CSS
+│           ├── lib/                 # Utility functions
+│           └── assets/              # Static assets
 │
 ├── examples/
-│   ├── react-spa-npm/        # React SPA using npm package
-│   ├── react-spa-shadcn/     # React SPA using shadcn registry
-│   └── next-rwa/             # Next.js with proxy auth
+│   ├── react-spa-npm/               # React SPA using npm package
+│   ├── react-spa-shadcn/            # React SPA using shadcn registry
+│   ├── next-rwa/                    # Next.js with proxy auth
+│   └── scripts/                     # Example setup scripts
 │
-└── docs-site/                # Documentation site (Vite + React)
+├── docs-site/                       # Documentation site (Vite + React)
+│   ├── src/                         # Source files
+│   ├── public/                      # Static assets & shadcn registry output
+│   └── api/                         # API routes
+│
+├── docs-api/                        # API documentation (TypeDoc output)
+│
+└── .github/
+    ├── workflows/                   # CI/CD workflows
+    ├── skills/                      # AI agent skills
+    │   ├── vercel-react-best-practices/
+    │   └── web-design-guidelines/
+    └── PULL_REQUEST_TEMPLATE.md
 ```
 
 ---
@@ -175,6 +261,89 @@ export const OrganizationDetailsEdit = withMyOrganizationService(
 );
 ```
 
+### Hook Architecture (Service & Logic Separation)
+
+Hooks follow a **two-layer architecture** where only the public hook is exported. This balances ease of use with internal modularity.
+
+**Decision:** [RAPID: Hook Architecture Service & Logic Separation](https://oktainc.atlassian.net/wiki/spaces/UCT/pages/806322220)
+
+#### Directory Structure
+
+```
+hooks/my-organization/
+├── shared/
+│   └── services/                    # Internal service hooks (not exported)
+│       └── use-{feature}-service.ts
+├── use-{feature}.ts                 # Public hook (exported)
+└── __tests__/
+```
+
+#### Layer Responsibilities
+
+| Layer            | Location                                   | Responsibility                                                                     |
+| ---------------- | ------------------------------------------ | ---------------------------------------------------------------------------------- |
+| **Service Hook** | `shared/services/use-{feature}-service.ts` | TanStack Query queries/mutations, API calls, cache management                      |
+| **Public Hook**  | `use-{feature}.ts`                         | UI state (modals, selections), event handlers, toast notifications, error handling |
+
+#### Service Hook (Internal)
+
+```tsx
+// hooks/my-organization/shared/services/use-domain-table-service.ts
+// @internal — not exported
+
+function useDomainTableService(options) {
+  const { coreClient } = useCoreClient();
+  const queryClient = useQueryClient();
+
+  const domainsQuery = useQuery({ ... });
+  const createMutation = useMutation({ ... });
+
+  return { domains: domainsQuery.data, createDomain, deleteDomain, ... };
+}
+```
+
+#### Public Hook (Exported)
+
+```tsx
+// hooks/my-organization/use-domain-table.ts
+// Exported to consumers
+
+export function useDomainTable(options) {
+  // Service hook handles all data operations
+  const service = useDomainTableService(options);
+
+  // UI state managed here
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedDomain, setSelectedDomain] = useState(null);
+
+  // Event handlers with toast notifications
+  const handleDelete = useCallback(async (domain) => {
+    await service.deleteDomain(domain);
+    showToast({ type: 'success', message: t('delete_success') });
+    setShowDeleteModal(false);
+  }, [service]);
+
+  return { ...service, showDeleteModal, handleDelete, ... };
+}
+```
+
+#### Consumer Usage
+
+```tsx
+// Simple single-hook API for consumers
+const { domains, isLoading, handleCreate, handleDelete } = useDomainTable({
+  createAction,
+  deleteAction,
+});
+```
+
+#### Key Principles
+
+1. **Single Public Hook:** Consumers interact with exactly one hook per feature
+2. **Internal Separation:** Service hooks handle data; public hooks handle UI orchestration
+3. **Dependency Ownership:** Each hook resolves its own dependencies (no prop drilling)
+4. **Testability:** Service and logic layers can be unit-tested independently
+
 ### Translation System
 
 ```tsx
@@ -204,28 +373,43 @@ packages/core/src/schemas/
 
 ## Component Structure
 
-### Block Component Location
+### Component Locations
 
-| Type                   | Location                                     |
-| ---------------------- | -------------------------------------------- |
-| My Account blocks      | `packages/react/src/blocks/my-account/`      |
-| My Organization blocks | `packages/react/src/blocks/my-organization/` |
+| Type                                 | Location                                               |
+| ------------------------------------ | ------------------------------------------------------ |
+| Base UI (button, dialog, form, etc.) | `packages/react/src/components/ui/`                    |
+| Shared (gate-keeper, mfa-step-up)    | `packages/react/src/components/auth0/shared/`          |
+| My Account (MFA)                     | `packages/react/src/components/auth0/my-account/`      |
+| My Organization (SSO, domains, org)  | `packages/react/src/components/auth0/my-organization/` |
 
-### Block Component Template
+### Public Component Exports
+
+The following components are exported from `@auth0/universal-components-react`:
+
+| Component                 | Export Name                                              |
+| ------------------------- | -------------------------------------------------------- |
+| MFA Management            | `UserMFAMgmt`, `UserMFAMgmtView`                         |
+| SSO Provider Edit         | `SsoProviderEdit`, `SsoProviderEditView`                 |
+| SSO Provider Create       | `SsoProviderCreate`, `SsoProviderCreateView`             |
+| SSO Provider Table        | `SsoProviderTable`, `SsoProviderTableView`               |
+| Domain Table              | `DomainTable`, `DomainTableView`                         |
+| Organization Details Edit | `OrganizationDetailsEdit`, `OrganizationDetailsEditView` |
+
+### Component Template
 
 ```tsx
-// packages/react/src/blocks/my-organization/{feature}/{component}.tsx
+// packages/react/src/components/auth0/my-organization/{feature}/{component}.tsx
 
 import { getComponentStyles, REQUIRED_SCOPES } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { SubComponent } from '../../../components/my-organization/{feature}/sub-component';
-import { Header } from '../../../components/ui/header';
-import { Spinner } from '../../../components/ui/spinner';
+import { SubComponent } from './shared/{feature}/sub-component';
+import { Header } from '../../ui/header';
+import { Spinner } from '../../ui/spinner';
 import { withMyOrganizationService } from '../../../hoc/with-services';
-import { useFeatureHook } from '../../../hooks/my-organization/{feature}/use-feature';
-import { useTheme } from '../../../hooks/use-theme';
-import { useTranslator } from '../../../hooks/use-translator';
+import { useFeatureHook } from '../../../hooks/my-organization/use-feature';
+import { useTheme } from '../../../hooks/shared/use-theme';
+import { useTranslator } from '../../../hooks/shared/use-translator';
 import type { ComponentProps } from '../../../types/my-organization/{feature}/{component}-types';
 
 function ComponentInternal({
@@ -254,14 +438,6 @@ function ComponentInternal({
 
 export const Component = withMyOrganizationService(ComponentInternal, REQUIRED_SCOPES);
 ```
-
-### UI Component Location
-
-| Type                                 | Location                                         |
-| ------------------------------------ | ------------------------------------------------ |
-| Base UI (button, dialog, form, etc.) | `packages/react/src/components/ui/`              |
-| My Account components                | `packages/react/src/components/my-account/`      |
-| My Organization components           | `packages/react/src/components/my-organization/` |
 
 ---
 
@@ -507,11 +683,86 @@ npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-organization/o
 | [`packages/core/src/i18n/i18n-service.ts`](packages/core/src/i18n/i18n-service.ts)                   | i18n service implementation |
 | [`packages/react/src/spa.ts`](packages/react/src/spa.ts)                                             | SPA entry point             |
 | [`packages/react/src/rwa.ts`](packages/react/src/rwa.ts)                                             | RWA entry point             |
+| [`packages/react/src/index.ts`](packages/react/src/index.ts)                                         | Unified exports             |
+| [`packages/react/src/components/index.ts`](packages/react/src/components/index.ts)                   | Component exports           |
+| [`packages/react/src/hooks/index.ts`](packages/react/src/hooks/index.ts)                             | Hook exports                |
 | [`packages/react/src/providers/spa-provider.tsx`](packages/react/src/providers/spa-provider.tsx)     | SPA provider                |
 | [`packages/react/src/providers/proxy-provider.tsx`](packages/react/src/providers/proxy-provider.tsx) | RWA proxy provider          |
-| [`packages/react/src/hoc/with-services.tsx`](packages/react/src/hoc/with-services.tsx)               | Service HOC                 |
-| [`packages/react/src/blocks/index.ts`](packages/react/src/blocks/index.ts)                           | Block exports               |
 | [`packages/react/registry.json`](packages/react/registry.json)                                       | Shadcn registry config      |
+
+---
+
+## Code Style
+
+### Path Aliases
+
+The React package uses `@/*` as a path alias for `src/*`:
+
+```tsx
+// ✅ Use path alias
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import type { DomainTableProps } from '@/types/my-organization/domain-management/domain-table-types';
+
+// ❌ Avoid relative paths for deep imports
+import { useCoreClient } from '../../../hooks/shared/use-core-client';
+```
+
+### Import Order
+
+ESLint enforces import ordering with newlines between groups, alphabetized within each group:
+
+```tsx
+// 1. External packages (node_modules)
+import { BusinessError, ssoProviderQueryKeys } from '@auth0/universal-components-core';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useState } from 'react';
+
+// 2. Internal imports (path alias)
+import { showToast } from '@/components/auth0/shared/toast';
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import type { UseSsoProviderTableOptions } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
+```
+
+### Query Keys
+
+TanStack Query cache keys are defined in the core package and exported for consistent cache management:
+
+```tsx
+// packages/core/src/services/.../sso-provider-query-keys.ts
+export const ssoProviderQueryKeys = {
+  all: ['sso-providers'] as const,
+  list: () => [...ssoProviderQueryKeys.all, 'list'] as const,
+  organization: ['organization', 'details'] as const,
+};
+```
+
+**Available query key exports from core:**
+
+| Export                 | Usage                                    |
+| ---------------------- | ---------------------------------------- |
+| `ssoProviderQueryKeys` | SSO provider list, details, organization |
+| `mfaQueryKeys`         | MFA factors                              |
+| `domainQueryKeys`      | Domain list, providers                   |
+
+### JSDoc Tags
+
+Use these JSDoc tags for documentation:
+
+| Tag         | Purpose                         | Example                           |
+| ----------- | ------------------------------- | --------------------------------- |
+| `@module`   | File/module name                | `@module use-domain-table`        |
+| `@internal` | Mark as internal (not exported) | `@internal`                       |
+| `@param`    | Parameter documentation         | `@param options - Hook options`   |
+| `@returns`  | Return value documentation      | `@returns Hook state and methods` |
+
+```tsx
+/**
+ * Internal SSO provider table service hook.
+ * Handles data fetching and CRUD operations.
+ * @module use-sso-provider-table-service
+ * @internal
+ */
+```
 
 ---
 
