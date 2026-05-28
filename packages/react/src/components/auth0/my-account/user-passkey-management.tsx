@@ -26,6 +26,7 @@ import {
   DropdownMenuPortal,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Spinner } from '@/components/ui/spinner';
 import { useUserPasskey } from '@/hooks/my-account/use-user-passkey';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -167,7 +168,11 @@ function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
                 disabled={isEnrolling}
                 aria-label={t('add_passkey')}
               >
-                {t('add_passkey')}
+                {isEnrolling ? (
+                  <Spinner size="sm" colorScheme="primary" aria-hidden="true" />
+                ) : (
+                  t('add_passkey')
+                )}
               </Button>
             </CardAction>
           )}
