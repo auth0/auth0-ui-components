@@ -4,8 +4,8 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
+import { showToast } from '@/components/auth0/shared/toast';
 import { useUserPasskeyService } from '@/hooks/my-account/shared/services/use-user-passkey-service';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -70,7 +70,7 @@ export function useUserPasskey({
       const enrolled = await enrollMutation.mutateAsync();
       if (!enrolled) return;
       addAction?.onAfter?.();
-      toast.success(t('success.add'), { duration: 2000 });
+      showToast({ type: 'success', message: t('success.add') });
     } catch (err) {
       handleError(err);
       onErrorAction?.(err as Error, 'add');
@@ -91,7 +91,7 @@ export function useUserPasskey({
     try {
       await revokeMutation.mutateAsync(currentPasskey.id);
       revokeAction?.onAfter?.(currentPasskey);
-      toast.success(t('success.revoke'), { duration: 2000 });
+      showToast({ type: 'success', message: t('success.revoke') });
     } catch (err) {
       handleError(err);
       onErrorAction?.(err as Error, 'revoke');
@@ -115,7 +115,7 @@ export function useUserPasskey({
       try {
         await renameMutation.mutateAsync({ id: currentPasskey.id, name: newName });
         renameAction?.onAfter?.(currentPasskey, newName);
-        toast.success(t('success.rename'), { duration: 2000 });
+        showToast({ type: 'success', message: t('success.rename') });
       } catch (err) {
         handleError(err);
         onErrorAction?.(err as Error, 'rename');

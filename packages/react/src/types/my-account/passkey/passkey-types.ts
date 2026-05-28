@@ -74,7 +74,7 @@ export interface UserPasskeyMgmtViewProps {
 }
 
 export interface UseUserPasskeyOptions {
-  customMessages: UserPasskeyMgmtProps['customMessages'];
+  customMessages?: UserPasskeyMgmtProps['customMessages'];
   addAction?: ComponentAction<void>;
   revokeAction?: ComponentAction<Passkey>;
   renameAction?: ComponentAction<Passkey, string>;
