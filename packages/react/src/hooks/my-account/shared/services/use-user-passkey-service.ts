@@ -31,11 +31,11 @@ export function useUserPasskeyService(): UseUserPasskeyServiceResult {
       const response = await client.authenticationMethods.list();
       return response.authentication_methods
         .filter((m) => (m as PasskeyAuthMethodResponse).type === 'passkey')
-        .map((m) => {
+        .map((m, index) => {
           const passkey = m as PasskeyAuthMethodResponse;
           return {
             id: passkey.id,
-            name: passkey.name,
+            name: `Passkey ${index + 1}`,
             createdAt: passkey.created_at,
             lastUsedAt: passkey.last_auth_at,
             deviceInfo: parseUserAgent(passkey.user_agent),
