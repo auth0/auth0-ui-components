@@ -88,8 +88,8 @@ export function useMemberDetailService(
       showToast({
         type: 'success',
         message: t('member.detail.actions.remove_from_org.success', {
-          memberName: memberName ?? '',
-          orgName: orgName ?? '',
+          memberName: memberName,
+          orgName: orgName,
         }),
       });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.members() });
