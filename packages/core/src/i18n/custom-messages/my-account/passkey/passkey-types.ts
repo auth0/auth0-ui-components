@@ -30,6 +30,7 @@ export interface PasskeyMessages {
   section_title?: string;
   enabled?: string;
   created_at?: string;
+  last_used?: string;
   no_passkeys?: string;
   add_passkey?: string;
   actions?: {

@@ -1198,6 +1198,7 @@
     "section_title": "Passkey",
     "enabled": "enabled",
     "created_at": "Created on ${date}",
+    "last_used": "Last used ${date}",
     "no_passkeys": "No passkeys have been added to your account.",
     "add_passkey": "Add passkey",
     "actions": {

@@ -31,6 +31,8 @@ export interface Passkey {
   id: string;
   name?: string;
   createdAt?: string;
+  lastUsedAt?: string;
+  deviceInfo?: string;
 }
 
 export interface UserPasskeyMgmtClasses {

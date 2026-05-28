@@ -192,11 +192,31 @@ function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
                   <CardTitle className="text-base text-(length:--font-size-body) font-semibold text-card-foreground">
                     {passkey.name}
                   </CardTitle>
-                  {passkey.createdAt && (
-                    <CardDescription>
-                      {t('created_at', {
-                        date: new Date(passkey.createdAt).toLocaleDateString(),
-                      })}
+                  {(passkey.deviceInfo || passkey.createdAt || passkey.lastUsedAt) && (
+                    <CardDescription className="col-start-1 flex flex-wrap items-center gap-x-1.5">
+                      {passkey.deviceInfo && <span>{passkey.deviceInfo}</span>}
+                      {passkey.createdAt && (
+                        <>
+                          {passkey.deviceInfo && <span aria-hidden="true">•</span>}
+                          <span>
+                            {t('created_at', {
+                              date: new Date(passkey.createdAt).toLocaleDateString(),
+                            })}
+                          </span>
+                        </>
+                      )}
+                      {passkey.lastUsedAt && (
+                        <>
+                          {(passkey.deviceInfo || passkey.createdAt) && (
+                            <span aria-hidden="true">•</span>
+                          )}
+                          <span>
+                            {t('last_used', {
+                              date: new Date(passkey.lastUsedAt).toLocaleDateString(),
+                            })}
+                          </span>
+                        </>
+                      )}
                     </CardDescription>
                   )}
                   {!disableRevoke && (
