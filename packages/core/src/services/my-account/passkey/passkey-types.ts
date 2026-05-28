@@ -9,9 +9,6 @@ export type PasskeyAuthenticationMethod = MyAccount.AuthenticationMethodPasskey;
 
 export type PasskeyAuthMethodResponse = PasskeyAuthenticationMethod & {
   type?: string;
-  name?: string;
-  last_auth_at?: string;
-  user_agent?: string;
 };
 
 export type ListPasskeysResponse = MyAccount.ListAuthenticationMethodsResponseContent;
