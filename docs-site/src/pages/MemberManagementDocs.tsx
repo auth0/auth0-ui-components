@@ -45,6 +45,43 @@ export default function MemberManagementDocs() {
         </div>
       </div>
 
+      {/* Early Access Notice */}
+      <section className="space-y-2">
+        <div className="bg-amber-50 border-l-4 border-amber-500 rounded-r-lg p-5">
+          <div className="flex items-start">
+            <svg
+              className="w-5 h-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"
+              />
+            </svg>
+            <div className="text-sm text-amber-900">
+              <p className="font-semibold mb-1">Beta</p>
+              <p>
+                This Auth0 Universal Component is in Beta. By using it, you agree to the applicable
+                Free Trial terms in Okta's Master Subscription Agreement. To learn more, read{' '}
+                <a
+                  href="https://docs.auth0.com/docs/release-stages"
+                  className="underline font-medium"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Product Release Stages
+                </a>
+                .
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Component Preview */}
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Component Preview</h2>
@@ -115,9 +152,21 @@ export default function MemberManagementDocs() {
             />
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
               <p className="text-sm text-blue-800">
-                <strong>Note:</strong> This method installs pre-built components from npm and is the
-                recommended approach for most applications.
+                <strong>Note:</strong> One install covers both React (SPA) and Next.js (RWA).
+                Components are always imported from the root entry{' '}
+                <code>@auth0/universal-components-react</code>; only{' '}
+                <code>Auth0ComponentProvider</code> uses a framework-specific subpath:
               </p>
+              <ul className="text-sm text-blue-800 list-disc ml-6 mt-2 space-y-1">
+                <li>
+                  React (Vite, CRA, React Router) →{' '}
+                  <code>{`import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';`}</code>
+                </li>
+                <li>
+                  Next.js (App Router or Pages Router) →{' '}
+                  <code>{`import { Auth0ComponentProvider } from '@auth0/universal-components-react/rwa';`}</code>
+                </li>
+              </ul>
             </div>
           </div>
 
@@ -146,28 +195,57 @@ export default function MemberManagementDocs() {
       {/* Basic Usage */}
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
-        <CodeBlock
-          code={`// For SPA/Next.js/RWA applications:
-import { OrganizationMemberManagement } from '@auth0/universal-components-react';
-
-// For shadcn users:
-// import { OrganizationMemberManagement } from '@/components/auth0/my-organization/organization-member-management';
+        <p className="text-gray-600">
+          The component has no required props — it loads the current organization's members and
+          pending invitations from the My Organization API automatically.
+        </p>
+        <TabbedCodeBlock
+          tabs={[
+            {
+              label: 'React (SPA)',
+              code: `import { OrganizationMemberManagement } from '@auth0/universal-components-react';
 
 export function MembersPage() {
-  return (
-    <div>
-      <OrganizationMemberManagement />
-    </div>
-  );
-}`}
+  return <OrganizationMemberManagement />;
+}`,
+            },
+            {
+              label: 'Next.js (RWA)',
+              code: `// app/members/page.tsx
+'use client';
+
+import { OrganizationMemberManagement } from '@auth0/universal-components-react';
+
+export default function MembersPage() {
+  return <OrganizationMemberManagement />;
+}`,
+            },
+            {
+              label: 'shadcn',
+              code: `import { OrganizationMemberManagement } from '@/components/auth0/my-organization/organization-member-management';
+
+export function MembersPage() {
+  return <OrganizationMemberManagement />;
+}`,
+            },
+          ]}
           language="tsx"
-          title="Basic implementation"
         />
       </section>
 
       {/* Props */}
       <section className="space-y-10">
         <h2 className="text-2xl font-semibold text-gray-900">Props</h2>
+
+        {/* Required props */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-gray-800">Required props</h3>
+          <p className="text-gray-600">
+            <b>OrganizationMemberManagement</b> has no required props. It loads the current
+            organization's members and pending invitations from the My Organization API
+            automatically.
+          </p>
+        </div>
 
         {/* Display props */}
         <div className="space-y-4">
@@ -315,97 +393,295 @@ export function MembersPage() {
             </table>
           </div>
 
-          {/* Per-action examples */}
-          <div className="space-y-6 pt-2">
+          {/* Per-action deep dives */}
+          <div className="space-y-10 pt-4">
+            {/* createInvitationAction */}
             <div>
-              <h4 className="text-base font-medium text-gray-900 mb-2">createInvitationAction</h4>
+              <h4 className="text-base font-semibold text-gray-900 mb-1">createInvitationAction</h4>
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Type:</strong>{' '}
+                <code>ComponentAction&lt;CreateInvitationInput, MemberInvitation&gt;</code>
+              </p>
+              <p className="text-gray-600 mb-3">
+                Controls the invitation-creation flow. Fires when an admin submits the "Invite
+                member" modal. Use <code>onBefore</code> to validate the invitee list (for example,
+                against a blocklist) and <code>onAfter</code> to track analytics or refetch
+                dependent data.
+              </p>
+              <p className="text-sm font-medium text-gray-700 mb-1">Properties:</p>
+              <ul className="text-sm text-gray-600 list-disc ml-5 mb-3 space-y-1">
+                <li>
+                  <code>disabled</code> — hide the "Invite member" button entirely.
+                </li>
+                <li>
+                  <code>onBefore(input)</code> — runs before the invitation is sent. Return{' '}
+                  <code>false</code> to cancel. <code>input.invitees</code> is the array of invitees
+                  being created (one per row in the modal).
+                </li>
+                <li>
+                  <code>onAfter(input, createdInvitation)</code> — runs after the invitation is
+                  successfully created. Receives both the original input and the created invitation
+                  record.
+                </li>
+              </ul>
+              <p className="text-sm font-medium text-gray-700 mb-1">Common Patterns:</p>
               <CodeBlock
-                code={`<OrganizationMemberManagement
-  createInvitationAction={{
-    onBefore: async (input) => {
-      // Return false to cancel — e.g. validate against a blocklist
-      return !blocklist.includes(input.invitees[0].email);
-    },
-    onAfter: (input, createdInvitation) => {
-      analytics.track('Invitation Sent', { email: input.invitees[0].email });
-    },
-  }}
-/>`}
+                code={`// Track analytics after the invite is sent
+createInvitationAction={{
+  onAfter: (input) => {
+    analytics.track('Invitation Sent', {
+      email: input.invitees[0].email,
+    });
+  },
+}}
+
+// Validate against a blocklist before sending
+createInvitationAction={{
+  onBefore: async (input) => {
+    return !blocklist.includes(input.invitees[0].email);
+  },
+}}
+
+// Refetch the org's seat counter after the invite lands
+createInvitationAction={{
+  onAfter: () => refetchSeatUsage(),
+}}`}
                 language="tsx"
                 title="createInvitationAction"
               />
             </div>
 
+            {/* revokeInvitationAction */}
             <div>
-              <h4 className="text-base font-medium text-gray-900 mb-2">revokeInvitationAction</h4>
+              <h4 className="text-base font-semibold text-gray-900 mb-1">revokeInvitationAction</h4>
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Type:</strong> <code>ComponentAction&lt;MemberInvitation&gt;</code>
+              </p>
+              <p className="text-gray-600 mb-3">
+                Controls the invitation-revoke flow. Fires when an admin revokes a pending
+                invitation from the invitation list. Receives the invitation record being revoked.
+              </p>
+              <p className="text-sm font-medium text-gray-700 mb-1">Properties:</p>
+              <ul className="text-sm text-gray-600 list-disc ml-5 mb-3 space-y-1">
+                <li>
+                  <code>disabled</code> — hide the revoke option in the invitation row menu.
+                </li>
+                <li>
+                  <code>onBefore(invitation)</code> — confirm before revoking. Return{' '}
+                  <code>false</code> to cancel.
+                </li>
+                <li>
+                  <code>onAfter(invitation)</code> — runs after the invitation is revoked. Use this
+                  to refresh state outside the component.
+                </li>
+              </ul>
+              <p className="text-sm font-medium text-gray-700 mb-1">Common Patterns:</p>
               <CodeBlock
-                code={`<OrganizationMemberManagement
-  revokeInvitationAction={{
-    onAfter: () => refetchMemberCount(),
-  }}
-/>`}
+                code={`// Refresh the seat counter after revoke
+revokeInvitationAction={{
+  onAfter: () => refetchSeatUsage(),
+}}
+
+// Confirm before revoke
+revokeInvitationAction={{
+  onBefore: (invitation) => confirm(
+    \`Revoke invitation for \${invitation.invitee.email}?\`
+  ),
+}}`}
                 language="tsx"
                 title="revokeInvitationAction"
               />
             </div>
 
+            {/* resendInvitationAction */}
             <div>
-              <h4 className="text-base font-medium text-gray-900 mb-2">resendInvitationAction</h4>
+              <h4 className="text-base font-semibold text-gray-900 mb-1">resendInvitationAction</h4>
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Type:</strong>{' '}
+                <code>ComponentAction&lt;MemberInvitation, MemberInvitation&gt;</code>
+              </p>
+              <p className="text-gray-600 mb-3">
+                Controls the revoke-and-resend flow. The component revokes the original invitation
+                and creates a new one with the same details. <code>onAfter</code> receives both the
+                old and new invitations.
+              </p>
+              <p className="text-sm font-medium text-gray-700 mb-1">Properties:</p>
+              <ul className="text-sm text-gray-600 list-disc ml-5 mb-3 space-y-1">
+                <li>
+                  <code>disabled</code> — hide the resend option in the invitation row menu.
+                </li>
+                <li>
+                  <code>onBefore(invitation)</code> — confirm before resending. Return{' '}
+                  <code>false</code> to cancel.
+                </li>
+                <li>
+                  <code>onAfter(originalInvitation, newInvitation)</code> — runs after the new
+                  invitation is sent.
+                </li>
+              </ul>
+              <p className="text-sm font-medium text-gray-700 mb-1">Common Patterns:</p>
               <CodeBlock
-                code={`<OrganizationMemberManagement
-  resendInvitationAction={{
-    onAfter: (invitation) => {
-      toast.success(\`Invitation resent to \${invitation.invitee.email}\`);
-    },
-  }}
-/>`}
+                code={`// Toast on success
+resendInvitationAction={{
+  onAfter: (_, newInvitation) => {
+    toast.success(\`Invitation resent to \${newInvitation.invitee.email}\`);
+  },
+}}
+
+// Track analytics
+resendInvitationAction={{
+  onAfter: (original) => {
+    analytics.track('Invitation Resent', { email: original.invitee.email });
+  },
+}}`}
                 language="tsx"
                 title="resendInvitationAction"
               />
             </div>
 
+            {/* viewMemberDetailsAction */}
             <div>
-              <h4 className="text-base font-medium text-gray-900 mb-2">viewMemberDetailsAction</h4>
+              <h4 className="text-base font-semibold text-gray-900 mb-1">
+                viewMemberDetailsAction
+              </h4>
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Type:</strong> <code>ComponentAction&lt;string&gt;</code>
+              </p>
+              <p className="text-gray-600 mb-3">
+                Fires when an admin requests the per-member detail view from the member list.
+                Receives the <code>userId</code> string. The standard wiring is to navigate to the
+                route that renders <code>OrganizationMemberDetail</code>; the same{' '}
+                <code>userId</code> flows through to its required <code>userId</code> prop.
+              </p>
+              <p className="text-sm font-medium text-gray-700 mb-1">Properties:</p>
+              <ul className="text-sm text-gray-600 list-disc ml-5 mb-3 space-y-1">
+                <li>
+                  <code>disabled</code> — hide the "View details" entry in the row's actions menu.
+                </li>
+                <li>
+                  <code>onAfter(userId)</code> — runs after the user requests the detail view. Wire
+                  to your router.
+                </li>
+              </ul>
+              <p className="text-sm font-medium text-gray-700 mb-1">Common Patterns:</p>
               <CodeBlock
-                code={`<OrganizationMemberManagement
-  viewMemberDetailsAction={{
-    onAfter: (userId) => {
-      // Navigate to the OrganizationMemberDetail page
-      navigate(\`/members/\${userId}\`);
-    },
-  }}
-/>`}
+                code={`// React Router (SPA)
+viewMemberDetailsAction={{
+  onAfter: (userId) => navigate(\`/members/\${userId}\`),
+}}
+
+// Next.js (RWA)
+viewMemberDetailsAction={{
+  onAfter: (userId) => router.push(\`/members/\${userId}\`),
+}}
+
+// Track analytics in addition to navigation
+viewMemberDetailsAction={{
+  onAfter: (userId) => {
+    analytics.track('Member Details Viewed', { userId });
+    navigate(\`/members/\${userId}\`);
+  },
+}}`}
                 language="tsx"
                 title="viewMemberDetailsAction"
               />
             </div>
 
+            {/* removeFromOrgAction */}
             <div>
-              <h4 className="text-base font-medium text-gray-900 mb-2">removeFromOrgAction</h4>
+              <h4 className="text-base font-semibold text-gray-900 mb-1">removeFromOrgAction</h4>
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Type:</strong> <code>ComponentAction&lt;string&gt;</code>
+              </p>
+              <p className="text-gray-600 mb-3">
+                Controls the remove-from-organization flow on a specific member row. Both lifecycle
+                hooks receive the <code>userId</code> string directly. This action triggers a
+                step-up auth challenge — make sure your <code>Auth0Provider</code> is configured
+                with <code>interactiveErrorHandler="popup"</code>.
+              </p>
+              <p className="text-sm font-medium text-gray-700 mb-1">Properties:</p>
+              <ul className="text-sm text-gray-600 list-disc ml-5 mb-3 space-y-1">
+                <li>
+                  <code>disabled</code> — hide the remove option in the row menu.
+                </li>
+                <li>
+                  <code>onBefore(userId)</code> — confirm before removing. Return <code>false</code>{' '}
+                  to cancel.
+                </li>
+                <li>
+                  <code>onAfter(userId)</code> — runs after the member is removed. Use this to
+                  refresh seat usage or write to an audit log.
+                </li>
+              </ul>
+              <p className="text-sm font-medium text-gray-700 mb-1">Common Patterns:</p>
               <CodeBlock
-                code={`<OrganizationMemberManagement
-  removeFromOrgAction={{
-    onBefore: async (userId) => {
-      return await confirm(\`Remove member \${userId} from the organization?\`);
-    },
-    onAfter: () => navigate('/members'),
-  }}
-/>`}
+                code={`// Confirm before removing
+removeFromOrgAction={{
+  onBefore: async (userId) =>
+    confirmDialog(\`Remove member \${userId} from the organization?\`),
+}}
+
+// Audit log on success
+removeFromOrgAction={{
+  onAfter: (userId) => {
+    auditLog.record({ action: 'member_removed', userId });
+  },
+}}
+
+// Refresh dependent data
+removeFromOrgAction={{
+  onAfter: () => refetchMemberList(),
+}}`}
                 language="tsx"
                 title="removeFromOrgAction"
               />
             </div>
 
+            {/* assignRolesAction */}
             <div>
-              <h4 className="text-base font-medium text-gray-900 mb-2">assignRolesAction</h4>
+              <h4 className="text-base font-semibold text-gray-900 mb-1">assignRolesAction</h4>
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Type:</strong>{' '}
+                <code>ComponentAction&lt;{'{ userId: string; roleIds: string[] }'}&gt;</code>
+              </p>
+              <p className="text-gray-600 mb-3">
+                Fires after an admin assigns one or more roles to a member from the row's role
+                modal. Both lifecycle hooks receive an object with the <code>userId</code> and the
+                array of <code>roleIds</code> being assigned.
+              </p>
+              <p className="text-sm font-medium text-gray-700 mb-1">Properties:</p>
+              <ul className="text-sm text-gray-600 list-disc ml-5 mb-3 space-y-1">
+                <li>
+                  <code>disabled</code> — hide the assign-roles option.
+                </li>
+                <li>
+                  <code>onBefore({'{ userId, roleIds }'})</code> — validate the selection. Return{' '}
+                  <code>false</code> to cancel.
+                </li>
+                <li>
+                  <code>onAfter({'{ userId, roleIds }'})</code> — runs after the roles are assigned.
+                  Use this to write to an audit log or refresh role badges.
+                </li>
+              </ul>
+              <p className="text-sm font-medium text-gray-700 mb-1">Common Patterns:</p>
               <CodeBlock
-                code={`<OrganizationMemberManagement
-  assignRolesAction={{
-    onAfter: ({ userId, roleIds }) => {
-      auditLog.record({ action: 'roles_assigned', userId, roleIds });
-    },
-  }}
-/>`}
+                code={`// Audit log
+assignRolesAction={{
+  onAfter: ({ userId, roleIds }) => {
+    auditLog.record({ action: 'roles_assigned', userId, roleIds });
+  },
+}}
+
+// Validate selection (e.g. forbid combining mutually-exclusive roles)
+assignRolesAction={{
+  onBefore: ({ roleIds }) => {
+    if (roleIds.includes('admin') && roleIds.includes('viewer')) {
+      toast.error('Admin and Viewer cannot be assigned together');
+      return false;
+    }
+    return true;
+  },
+}}`}
                 language="tsx"
                 title="assignRolesAction"
               />
@@ -461,6 +737,217 @@ export function MembersPage() {
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          {/* Per-prop deep dives */}
+          <div className="space-y-10 pt-4">
+            {/* customMessages */}
+            <div>
+              <h4 className="text-base font-semibold text-gray-900 mb-1">customMessages</h4>
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Type:</strong>{' '}
+                <code>Partial&lt;OrganizationMemberManagementMessages&gt;</code>
+              </p>
+              <p className="text-gray-600 mb-3">
+                Customize all text and translations rendered by the component. Every field is
+                optional and falls back to the built-in default. Use this prop to localize the
+                component or to align microcopy with your product voice.
+              </p>
+              <details className="border border-gray-200 rounded-lg overflow-hidden mb-3">
+                <summary className="cursor-pointer bg-gray-50 hover:bg-gray-100 px-4 py-3 text-sm font-medium text-gray-900 transition-colors">
+                  Available Messages
+                </summary>
+                <div className="p-4 bg-white border-t border-gray-200 text-sm text-gray-700 grid md:grid-cols-2 gap-x-6 gap-y-3">
+                  <div>
+                    <strong>header</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>title, description</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>tabs</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>members, invitations</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>member.table</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>columns.name / roles / last_login</li>
+                      <li>empty_message, search_placeholder</li>
+                      <li>filter_by_role, all_roles</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>member.actions</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>assign_roles, remove_from_org, view_details</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>member.assign_roles</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>title, description</li>
+                      <li>roles_label, roles_placeholder</li>
+                      <li>submit_button, cancel_button</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>member.remove_from_org</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>title, description</li>
+                      <li>confirm_button, cancel_button</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>invitation.table</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>columns.email / status / inviter</li>
+                      <li>columns.created_at / expires_at / roles</li>
+                      <li>empty_message, search_placeholder</li>
+                      <li>filter_by_role, all_roles</li>
+                      <li>status_pending, status_expired</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>invitation.create</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>title, description</li>
+                      <li>email_label, email_placeholder</li>
+                      <li>roles_label, provider_label</li>
+                      <li>submit_button, cancel_button</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>invitation.details</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>title, email_label, status_label</li>
+                      <li>roles_label, provider_label</li>
+                      <li>copy_url_button, revoke_button, resend_button</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>invitation.error / success</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>error.fetch_failed, create_failed, revoke_failed</li>
+                      <li>success.url_copied, invitation_resent</li>
+                    </ul>
+                  </div>
+                </div>
+              </details>
+              <p className="text-sm font-medium text-gray-700 mb-1">Example:</p>
+              <CodeBlock
+                code={`<OrganizationMemberManagement
+  customMessages={{
+    header: {
+      title: 'Team Members',
+      description: 'Manage who has access to your organization',
+    },
+    tabs: { members: 'Members', invitations: 'Pending Invites' },
+    member: {
+      table: {
+        empty_message: 'No members yet.',
+        search_placeholder: 'Search by name or email...',
+      },
+      actions: { assign_roles: 'Assign Roles', remove_from_org: 'Remove' },
+    },
+    invitation: {
+      table: { empty_message: 'No pending invitations.' },
+      create: { title: 'Invite a team member', submit_button: 'Send Invite' },
+    },
+  }}
+/>`}
+                language="tsx"
+                title="customMessages"
+              />
+            </div>
+
+            {/* styling */}
+            <div>
+              <h4 className="text-base font-semibold text-gray-900 mb-1">styling</h4>
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Type:</strong> <code>ComponentStyling</code>
+              </p>
+              <p className="text-gray-600 mb-3">
+                Customize appearance with CSS variables and class overrides. Variables are
+                theme-aware (separate <code>light</code>, <code>dark</code>, and <code>common</code>{' '}
+                scopes); class overrides target named slots inside the component tree so you can
+                attach Tailwind utilities or your own design-system classes without forking the
+                source.
+              </p>
+              <details className="border border-gray-200 rounded-lg overflow-hidden mb-3">
+                <summary className="cursor-pointer bg-gray-50 hover:bg-gray-100 px-4 py-3 text-sm font-medium text-gray-900 transition-colors">
+                  Available Styling Options
+                </summary>
+                <div className="p-4 bg-white border-t border-gray-200 text-sm text-gray-700 grid md:grid-cols-2 gap-6">
+                  <div>
+                    <strong>Variables</strong> — CSS custom properties
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>
+                        <code>common</code> — applied to both themes
+                      </li>
+                      <li>
+                        <code>light</code> — light mode only
+                      </li>
+                      <li>
+                        <code>dark</code> — dark mode only
+                      </li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>Classes</strong> — Component class overrides
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>
+                        <code>OrganizationMemberManagement-root</code>
+                      </li>
+                      <li>
+                        <code>OrganizationMemberManagement-header</code>
+                      </li>
+                      <li>
+                        <code>OrganizationMemberManagement-tabs</code>
+                      </li>
+                      <li>
+                        <code>OrganizationMemberTab-table</code>
+                      </li>
+                      <li>
+                        <code>OrganizationInvitationTab-table</code>
+                      </li>
+                      <li>
+                        <code>OrganizationInvitationTab-createModal</code>
+                      </li>
+                      <li>
+                        <code>OrganizationInvitationTab-detailsModal</code>
+                      </li>
+                      <li>
+                        <code>OrganizationInvitationTab-revokeModal</code>
+                      </li>
+                      <li>
+                        <code>OrganizationInvitationTab-revokeResendModal</code>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </details>
+              <p className="text-sm font-medium text-gray-700 mb-1">Example:</p>
+              <CodeBlock
+                code={`<OrganizationMemberManagement
+  styling={{
+    variables: {
+      common: { '--font-size-title': '1.5rem' },
+      light: { '--color-primary': '#4f46e5' },
+      dark: { '--color-primary': '#818cf8' },
+    },
+    classes: {
+      'OrganizationMemberManagement-root': 'rounded-xl border shadow-sm',
+      'OrganizationMemberManagement-header': 'mb-4',
+      'OrganizationInvitationTab-table': 'mt-4',
+    },
+  }}
+/>`}
+                language="tsx"
+                title="styling"
+              />
+            </div>
           </div>
         </div>
 
@@ -530,398 +1017,57 @@ interface ComponentAction<T, U = undefined> {
 
       <hr />
 
-      {/* Advanced Configuration */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold text-gray-900">Advanced Configuration</h2>
-        <div className="space-y-8">
-          {/* Actions */}
-          <div>
-            <h3 className="text-lg font-medium mb-4">Actions</h3>
-            <p className="text-gray-600 mb-4">
-              Intercept invitation lifecycle events with <code>onBefore</code> and{' '}
-              <code>onAfter</code> hooks. All action properties are optional. <code>onBefore</code>{' '}
-              can return <code>false</code> to cancel the operation.
-            </p>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <h4 className="font-medium text-blue-900 mb-2">Available Action Properties</h4>
-              <div className="grid md:grid-cols-3 gap-4 text-sm text-blue-800">
-                <div>
-                  <strong>createInvitationAction</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>
-                      <code>disabled</code> — hide invite button
-                    </li>
-                    <li>
-                      <code>onBefore</code> — validate input
-                    </li>
-                    <li>
-                      <code>onAfter</code> — react to new invitation
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>revokeInvitationAction</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>
-                      <code>disabled</code> — hide revoke option
-                    </li>
-                    <li>
-                      <code>onBefore</code> — confirm before revoke
-                    </li>
-                    <li>
-                      <code>onAfter</code> — react after revoke
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>resendInvitationAction</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>
-                      <code>disabled</code> — hide resend option
-                    </li>
-                    <li>
-                      <code>onBefore</code> — confirm before resend
-                    </li>
-                    <li>
-                      <code>onAfter</code> — react after resend
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>viewMemberDetailsAction</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>
-                      <code>disabled</code> — hide view details button
-                    </li>
-                    <li>
-                      <code>onAfter(userId)</code> — analytics or side effects after navigation
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>removeFromOrgAction</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>
-                      <code>disabled</code> — hide remove button
-                    </li>
-                    <li>
-                      <code>onBefore(userId)</code> — confirm before removal
-                    </li>
-                    <li>
-                      <code>onAfter(userId)</code> — redirect or refresh
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>assignRolesAction</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>
-                      <code>disabled</code> — hide assign button
-                    </li>
-                    <li>
-                      <code>onBefore({'{userId, roleIds}'})</code> — validate selection
-                    </li>
-                    <li>
-                      <code>onAfter({'{userId, roleIds}'})</code> — audit log
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <CodeBlock
-              code={`<OrganizationMemberManagement
-  createInvitationAction={{
-    onBefore: async (input) => {
-      // Return false to cancel
-      return !blocklist.includes(input.invitees[0].email);
-    },
-    onAfter: (input, createdInvitation) => {
-      analytics.track('Invitation Sent', { email: input.invitees[0].email });
-    },
-  }}
-  revokeInvitationAction={{
-    onAfter: () => refetchMemberCount(),
-  }}
-  resendInvitationAction={{
-    onAfter: (invitation) => {
-      toast.success(\`Invitation resent to \${invitation.invitee.email}\`);
-    },
-  }}
-  viewMemberDetailsAction={{
-    onAfter: (userId) => {
-      analytics.track('Member Details Viewed', { userId });
-    },
-  }}
-  removeFromOrgAction={{
-    onBefore: async (userId) => {
-      return await confirmDialog(\`Remove member \${userId} from the organization?\`);
-    },
-    onAfter: (userId) => {
-      auditLog.record({ action: 'member_removed', userId });
-    },
-  }}
-  assignRolesAction={{
-    onAfter: ({ userId, roleIds }) => {
-      auditLog.record({ action: 'roles_assigned', userId, roleIds });
-    },
-  }}
-/>`}
-              language="tsx"
-              title="Action hook usage"
-            />
-          </div>
-
-          {/* Custom Messages */}
-          <div>
-            <h3 className="text-lg font-medium mb-4">Custom Messages</h3>
-            <p className="text-gray-600 mb-4">
-              Override any default text. All fields are optional and fall back to built-in defaults.
-            </p>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <h4 className="font-medium text-blue-900 mb-2">Available Messages</h4>
-              <div className="grid md:grid-cols-3 gap-4 text-sm text-blue-800">
-                <div>
-                  <strong>header</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>title</li>
-                    <li>description</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>tabs</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>members</li>
-                    <li>invitations</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>invitation.table</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>columns.email / status / inviter</li>
-                    <li>columns.created_at / expires_at / roles</li>
-                    <li>empty_message</li>
-                    <li>search_placeholder</li>
-                    <li>filter_by_role / all_roles</li>
-                    <li>status_pending / status_expired</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>invitation.create</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>title / description</li>
-                    <li>email_label / email_placeholder</li>
-                    <li>roles_label / provider_label</li>
-                    <li>submit_button / cancel_button</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>invitation.details</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>title</li>
-                    <li>email_label / status_label</li>
-                    <li>roles_label / provider_label</li>
-                    <li>copy_url_button</li>
-                    <li>revoke_button / resend_button</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>invitation.error / success</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>error.fetch_failed</li>
-                    <li>error.create_failed</li>
-                    <li>error.revoke_failed</li>
-                    <li>success.url_copied</li>
-                    <li>success.invitation_resent</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>member.table</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>columns.name / roles / last_login</li>
-                    <li>empty_message</li>
-                    <li>search_placeholder</li>
-                    <li>filter_by_role / all_roles</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>member.actions</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>assign_roles / remove_from_org</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>member.assign_roles</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>title / description</li>
-                    <li>roles_label / roles_placeholder</li>
-                    <li>submit_button / cancel_button</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>member.remove_from_org</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>title / description</li>
-                    <li>confirm_button / cancel_button</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <CodeBlock
-              code={`<OrganizationMemberManagement
-  customMessages={{
-    header: {
-      title: 'Team Members',
-      description: 'Manage who has access to your organization',
-    },
-    tabs: {
-      members: 'Members',
-      invitations: 'Pending Invites',
-    },
-    member: {
-      table: {
-        empty_message: 'No members yet.',
-        search_placeholder: 'Search by name or email...',
-        filter_by_role: 'Filter by Role',
-      },
-      actions: {
-        assign_roles: 'Assign Roles',
-        remove_from_org: 'Remove',
-      },
-      assign_roles: {
-        title: 'Assign Roles',
-        submit_button: 'Assign',
-      },
-      remove_from_org: {
-        title: 'Remove from Organization',
-        confirm_button: 'Yes, Remove',
-      },
-    },
-    invitation: {
-      table: {
-        empty_message: 'No pending invitations.',
-        search_placeholder: 'Search by email...',
-      },
-      create: {
-        title: 'Invite a team member',
-        submit_button: 'Send Invite',
-      },
-    },
-  }}
-/>`}
-              language="tsx"
-              title="Custom messages example"
-            />
-          </div>
-
-          {/* Custom Styling */}
-          <div>
-            <h3 className="text-lg font-medium mb-4">Custom Styling</h3>
-            <p className="text-gray-600 mb-4">
-              Customize appearance with CSS variables and class overrides. Supports light/dark mode.
-            </p>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <h4 className="font-medium text-blue-900 mb-2">Available Class Overrides</h4>
-              <div className="grid md:grid-cols-2 gap-4 text-sm text-blue-800">
-                <div>
-                  <strong>variables</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>
-                      <code>common</code> — applied to both themes
-                    </li>
-                    <li>
-                      <code>light</code> — light mode only
-                    </li>
-                    <li>
-                      <code>dark</code> — dark mode only
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>classes</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>
-                      <code>OrganizationMemberManagement-root</code>
-                    </li>
-                    <li>
-                      <code>OrganizationMemberManagement-header</code>
-                    </li>
-                    <li>
-                      <code>OrganizationMemberManagement-tabs</code>
-                    </li>
-                    <li>
-                      <code>OrganizationInvitationTab-table</code>
-                    </li>
-                    <li>
-                      <code>OrganizationInvitationTab-createModal</code>
-                    </li>
-                    <li>
-                      <code>OrganizationInvitationTab-detailsModal</code>
-                    </li>
-                    <li>
-                      <code>OrganizationInvitationTab-revokeModal</code>
-                    </li>
-                    <li>
-                      <code>OrganizationInvitationTab-revokeResendModal</code>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <CodeBlock
-              code={`<OrganizationMemberManagement
-  styling={{
-    variables: {
-      light: { '--color-primary': '#4f46e5' },
-      dark: { '--color-primary': '#818cf8' },
-    },
-    classes: {
-      'OrganizationMemberManagement-root': 'rounded-xl border shadow-sm',
-      'OrganizationMemberManagement-header': 'mb-4',
-      'OrganizationInvitationTab-table': 'mt-4',
-    },
-  }}
-/>`}
-              language="tsx"
-              title="Styling example"
-            />
-          </div>
-        </div>
-      </section>
-
       {/* Complete Integration Example */}
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Complete Integration Example</h2>
+        <p className="text-gray-600">
+          The component requires an <code>Auth0Provider</code> and an{' '}
+          <code>Auth0ComponentProvider</code> in the React tree. Set{' '}
+          <code>interactiveErrorHandler="popup"</code> on <code>Auth0Provider</code> so that step-up
+          auth challenges (triggered by sensitive mutations such as removing a member or assigning
+          roles) can be resolved without losing page state.
+        </p>
         <CodeBlock
-          code={`import { OrganizationMemberManagement } from '@auth0/universal-components-react';
+          code={`import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { OrganizationMemberManagement } from '@auth0/universal-components-react';
+import { Auth0Provider } from '@auth0/auth0-react';
+import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
+import { analytics } from './lib/analytics';
+import { auditLog } from './lib/audit-log';
 
-export function MembersPage() {
+function MembersPage() {
+  const navigate = useNavigate();
+
   return (
     <OrganizationMemberManagement
       createInvitationAction={{
-        onBefore: async (input) => {
-          // Validate before submitting to Auth0
-          return !blocklist.includes(input.email);
-        },
-        onAfter: (invitation) => {
-          analytics.track('Invitation Sent', { email: invitation.invitee.email });
+        onBefore: async (input) => !blocklist.includes(input.invitees[0].email),
+        onAfter: (input) => {
+          analytics.track('Invitation Sent', { email: input.invitees[0].email });
         },
       }}
       revokeInvitationAction={{
         onAfter: () => refetchMemberCount(),
       }}
+      viewMemberDetailsAction={{
+        onAfter: (userId) => navigate(\`/members/\${userId}\`),
+      }}
+      removeFromOrgAction={{
+        onBefore: async (userId) =>
+          confirmDialog(\`Remove member \${userId} from the organization?\`),
+        onAfter: (userId) => {
+          auditLog.record({ action: 'member_removed', userId });
+        },
+      }}
+      assignRolesAction={{
+        onAfter: ({ userId, roleIds }) => {
+          auditLog.record({ action: 'roles_assigned', userId, roleIds });
+        },
+      }}
       customMessages={{
         header: { title: 'Team Members' },
         tabs: { invitations: 'Pending Invites' },
-        invitation: {
-          table: { empty_message: 'No pending invitations.' },
-          create: { submit_button: 'Send Invite' },
-        },
       }}
       styling={{
         variables: {
@@ -930,6 +1076,24 @@ export function MembersPage() {
         },
       }}
     />
+  );
+}
+
+export default function App() {
+  const domain = 'YOUR_TENANT.auth0.com';
+  const clientId = 'YOUR_CLIENT_ID';
+
+  return (
+    <Auth0Provider
+      domain={domain}
+      clientId={clientId}
+      authorizationParams={{ redirect_uri: window.location.origin }}
+      interactiveErrorHandler="popup" // resolves step-up auth via popup
+    >
+      <Auth0ComponentProvider domain={domain}>
+        <MembersPage />
+      </Auth0ComponentProvider>
+    </Auth0Provider>
   );
 }`}
           language="tsx"

@@ -43,6 +43,43 @@ export default function MemberDetailDocs() {
         </div>
       </div>
 
+      {/* Early Access Notice */}
+      <section className="space-y-2">
+        <div className="bg-amber-50 border-l-4 border-amber-500 rounded-r-lg p-5">
+          <div className="flex items-start">
+            <svg
+              className="w-5 h-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"
+              />
+            </svg>
+            <div className="text-sm text-amber-900">
+              <p className="font-semibold mb-1">Beta</p>
+              <p>
+                This Auth0 Universal Component is in Beta. By using it, you agree to the applicable
+                Free Trial terms in Okta's Master Subscription Agreement. To learn more, read{' '}
+                <a
+                  href="https://docs.auth0.com/docs/release-stages"
+                  className="underline font-medium"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Product Release Stages
+                </a>
+                .
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Component Preview */}
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Component Preview</h2>
@@ -120,9 +157,21 @@ export default function MemberDetailDocs() {
             />
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
               <p className="text-sm text-blue-800">
-                <strong>Note:</strong> This method installs pre-built components from npm and is the
-                recommended approach for most applications.
+                <strong>Note:</strong> One install covers both React (SPA) and Next.js (RWA).
+                Components are always imported from the root entry{' '}
+                <code>@auth0/universal-components-react</code>; only{' '}
+                <code>Auth0ComponentProvider</code> uses a framework-specific subpath:
               </p>
+              <ul className="text-sm text-blue-800 list-disc ml-6 mt-2 space-y-1">
+                <li>
+                  React (Vite, CRA, React Router) →{' '}
+                  <code>{`import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';`}</code>
+                </li>
+                <li>
+                  Next.js (App Router or Pages Router) →{' '}
+                  <code>{`import { Auth0ComponentProvider } from '@auth0/universal-components-react/rwa';`}</code>
+                </li>
+              </ul>
             </div>
           </div>
 
@@ -151,23 +200,68 @@ export default function MemberDetailDocs() {
       {/* Basic Usage */}
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
-        <CodeBlock
-          code={`// For SPA/Next.js/RWA applications:
+        <p className="text-gray-600">
+          Pass a <code>userId</code> from your route to the component. Wire <code>onBack</code> to
+          your router so the back button returns to the member list.
+        </p>
+        <TabbedCodeBlock
+          tabs={[
+            {
+              label: 'React (SPA)',
+              code: `import { OrganizationMemberDetail } from '@auth0/universal-components-react';
+import { useNavigate, useParams } from 'react-router-dom';
+
+export function MemberDetailPage() {
+  const { userId } = useParams<{ userId: string }>();
+  const navigate = useNavigate();
+
+  return (
+    <OrganizationMemberDetail
+      userId={userId!}
+      onBack={() => navigate('/members')}
+    />
+  );
+}`,
+            },
+            {
+              label: 'Next.js (RWA)',
+              code: `// app/members/[userId]/page.tsx
+'use client';
+
 import { OrganizationMemberDetail } from '@auth0/universal-components-react';
+import { useRouter, useParams } from 'next/navigation';
 
-// For shadcn users:
-// import { OrganizationMemberDetail } from '@/components/auth0/my-organization/organization-member-detail';
+export default function MemberDetailPage() {
+  const { userId } = useParams<{ userId: string }>();
+  const router = useRouter();
 
-export function MemberDetailPage({ userId }: { userId: string }) {
   return (
     <OrganizationMemberDetail
       userId={userId}
-      onBack={() => history.back()}
+      onBack={() => router.push('/members')}
     />
   );
-}`}
+}`,
+            },
+            {
+              label: 'shadcn',
+              code: `import { OrganizationMemberDetail } from '@/components/auth0/my-organization/organization-member-detail';
+import { useNavigate, useParams } from 'react-router-dom';
+
+export function MemberDetailPage() {
+  const { userId } = useParams<{ userId: string }>();
+  const navigate = useNavigate();
+
+  return (
+    <OrganizationMemberDetail
+      userId={userId!}
+      onBack={() => navigate('/members')}
+    />
+  );
+}`,
+            },
+          ]}
           language="tsx"
-          title="Basic implementation"
         />
       </section>
 
@@ -235,17 +329,6 @@ export function MemberDetailPage({ userId }: { userId: string }) {
               <tbody className="bg-white divide-y divide-gray-200">
                 <tr>
                   <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                    onBack
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-500">
-                    <code>{'() => void'}</code>
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-500">
-                    Called when the user clicks the back button in the header.
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                     readOnly
                   </td>
                   <td className="px-4 py-2 text-sm text-gray-500">
@@ -297,13 +380,24 @@ export function MemberDetailPage({ userId }: { userId: string }) {
               <tbody className="bg-white divide-y divide-gray-200">
                 <tr>
                   <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    onBack
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    <code>{'() => void'}</code>
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">
+                    Called when the user clicks the back button in the header. Wire to your router.
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                     removeFromOrgAction
                   </td>
                   <td className="px-4 py-2 text-sm text-gray-500">
                     <code>ComponentAction&lt;string&gt;</code>
                   </td>
                   <td className="px-4 py-2 text-sm text-gray-500">
-                    Lifecycle hooks for member removal. Input is the userId.
+                    Lifecycle hooks for member removal. Input is the <code>userId</code>.
                   </td>
                 </tr>
                 <tr>
@@ -332,53 +426,170 @@ export function MemberDetailPage({ userId }: { userId: string }) {
             </table>
           </div>
 
-          {/* Per-action examples */}
-          <div className="space-y-6 pt-2">
+          {/* Per-action deep dives */}
+          <div className="space-y-10 pt-4">
+            {/* onBack */}
             <div>
-              <h4 className="text-base font-medium text-gray-900 mb-2">removeFromOrgAction</h4>
+              <h4 className="text-base font-semibold text-gray-900 mb-1">onBack</h4>
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Type:</strong> <code>{'() => void'}</code>
+              </p>
+              <p className="text-gray-600 mb-3">
+                Fires when the user clicks the back button in the header. The component does not
+                navigate on its own — wire this callback to your router so it returns to the
+                member-list route (typically the page that rendered{' '}
+                <code>OrganizationMemberManagement</code>).
+              </p>
+              <p className="text-sm font-medium text-gray-700 mb-1">Common Patterns:</p>
               <CodeBlock
-                code={`<OrganizationMemberDetail
+                code={`// React Router (SPA)
+<OrganizationMemberDetail
   userId={userId}
-  removeFromOrgAction={{
-    onBefore: async (removedUserId) => {
-      // Return false to cancel removal
-      return await confirm(\`Remove this member from the organization?\`);
-    },
-    onAfter: () => navigate('/members'),
-  }}
+  onBack={() => navigate('/members')}
+/>
+
+// Next.js (RWA)
+<OrganizationMemberDetail
+  userId={userId}
+  onBack={() => router.push('/members')}
+/>
+
+// Pop the history stack instead of navigating to a fixed URL
+<OrganizationMemberDetail
+  userId={userId}
+  onBack={() => history.back()}
 />`}
+                language="tsx"
+                title="onBack"
+              />
+            </div>
+
+            {/* removeFromOrgAction */}
+            <div>
+              <h4 className="text-base font-semibold text-gray-900 mb-1">removeFromOrgAction</h4>
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Type:</strong> <code>ComponentAction&lt;string&gt;</code>
+              </p>
+              <p className="text-gray-600 mb-3">
+                Controls the remove-from-organization flow on the member's profile tab. Both
+                lifecycle hooks receive the <code>userId</code> string directly. This action
+                triggers a step-up auth challenge — make sure your <code>Auth0Provider</code> is
+                configured with <code>interactiveErrorHandler="popup"</code>.
+              </p>
+              <p className="text-sm font-medium text-gray-700 mb-1">Properties:</p>
+              <ul className="text-sm text-gray-600 list-disc ml-5 mb-3 space-y-1">
+                <li>
+                  <code>disabled</code> — hide the remove button.
+                </li>
+                <li>
+                  <code>onBefore(userId)</code> — confirm before removing. Return <code>false</code>{' '}
+                  to cancel.
+                </li>
+                <li>
+                  <code>onAfter(userId)</code> — runs after the member is removed. Use this to
+                  navigate away or write to an audit log.
+                </li>
+              </ul>
+              <p className="text-sm font-medium text-gray-700 mb-1">Common Patterns:</p>
+              <CodeBlock
+                code={`// Confirm before removing, then navigate back to the list
+removeFromOrgAction={{
+  onBefore: async () =>
+    confirmDialog('Remove this member from the organization?'),
+  onAfter: () => navigate('/members'),
+}}
+
+// Audit log on success
+removeFromOrgAction={{
+  onAfter: (userId) => {
+    auditLog.record({ action: 'member_removed', userId });
+  },
+}}`}
                 language="tsx"
                 title="removeFromOrgAction"
               />
             </div>
 
+            {/* assignRolesAction */}
             <div>
-              <h4 className="text-base font-medium text-gray-900 mb-2">assignRolesAction</h4>
+              <h4 className="text-base font-semibold text-gray-900 mb-1">assignRolesAction</h4>
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Type:</strong>{' '}
+                <code>ComponentAction&lt;{'{ userId: string; roleIds: string[] }'}&gt;</code>
+              </p>
+              <p className="text-gray-600 mb-3">
+                Fires after one or more roles are assigned to the member from the roles tab. Both
+                lifecycle hooks receive an object with the <code>userId</code> and the array of
+                <code>roleIds</code> being assigned.
+              </p>
+              <p className="text-sm font-medium text-gray-700 mb-1">Properties:</p>
+              <ul className="text-sm text-gray-600 list-disc ml-5 mb-3 space-y-1">
+                <li>
+                  <code>disabled</code> — hide the assign-roles button.
+                </li>
+                <li>
+                  <code>onBefore({'{ userId, roleIds }'})</code> — validate the selection. Return{' '}
+                  <code>false</code> to cancel.
+                </li>
+                <li>
+                  <code>onAfter({'{ userId, roleIds }'})</code> — runs after the roles are assigned.
+                </li>
+              </ul>
+              <p className="text-sm font-medium text-gray-700 mb-1">Common Patterns:</p>
               <CodeBlock
-                code={`<OrganizationMemberDetail
-  userId={userId}
-  assignRolesAction={{
-    onAfter: ({ userId: memberId, roleIds }) => {
-      analytics.track('roles_assigned', { memberId, roleIds });
-    },
-  }}
-/>`}
+                code={`// Audit log
+assignRolesAction={{
+  onAfter: ({ userId: memberId, roleIds }) => {
+    auditLog.record({ action: 'roles_assigned', userId: memberId, roleIds });
+  },
+}}
+
+// Track analytics
+assignRolesAction={{
+  onAfter: ({ roleIds }) => {
+    analytics.track('Roles Assigned', { count: roleIds.length });
+  },
+}}`}
                 language="tsx"
                 title="assignRolesAction"
               />
             </div>
 
+            {/* removeRolesAction */}
             <div>
-              <h4 className="text-base font-medium text-gray-900 mb-2">removeRolesAction</h4>
+              <h4 className="text-base font-semibold text-gray-900 mb-1">removeRolesAction</h4>
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Type:</strong>{' '}
+                <code>ComponentAction&lt;{'{ userId: string; roleIds: string[] }'}&gt;</code>
+              </p>
+              <p className="text-gray-600 mb-3">
+                Fires after one or more roles are removed from the member's role table. Both
+                lifecycle hooks receive an object with the <code>userId</code> and the array of
+                <code>roleIds</code> being removed.
+              </p>
+              <p className="text-sm font-medium text-gray-700 mb-1">Properties:</p>
+              <ul className="text-sm text-gray-600 list-disc ml-5 mb-3 space-y-1">
+                <li>
+                  <code>disabled</code> — hide the remove-role buttons in the role table.
+                </li>
+                <li>
+                  <code>onBefore({'{ userId, roleIds }'})</code> — confirm before removing. Return{' '}
+                  <code>false</code> to cancel.
+                </li>
+                <li>
+                  <code>onAfter({'{ userId, roleIds }'})</code> — runs after the roles are removed.
+                </li>
+              </ul>
+              <p className="text-sm font-medium text-gray-700 mb-1">Common Patterns:</p>
               <CodeBlock
-                code={`<OrganizationMemberDetail
-  userId={userId}
-  removeRolesAction={{
-    onAfter: ({ userId: memberId, roleIds }) => {
-      analytics.track('roles_removed', { memberId, roleIds });
-    },
-  }}
-/>`}
+                code={`// Confirm before removing
+removeRolesAction={{
+  onBefore: async ({ roleIds }) =>
+    confirmDialog(\`Remove \${roleIds.length} role(s) from this member?\`),
+  onAfter: ({ userId: memberId, roleIds }) => {
+    auditLog.record({ action: 'roles_removed', userId: memberId, roleIds });
+  },
+}}`}
                 language="tsx"
                 title="removeRolesAction"
               />
@@ -434,6 +645,186 @@ export function MemberDetailPage({ userId }: { userId: string }) {
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          {/* Per-prop deep dives */}
+          <div className="space-y-10 pt-4">
+            {/* customMessages */}
+            <div>
+              <h4 className="text-base font-semibold text-gray-900 mb-1">customMessages</h4>
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Type:</strong> <code>Partial&lt;OrganizationMemberDetailMessages&gt;</code>
+              </p>
+              <p className="text-gray-600 mb-3">
+                Customize all text and translations rendered by the component. Every field is
+                optional and falls back to the built-in default. Use this prop to localize the
+                component or to align microcopy with your product voice.
+              </p>
+              <details className="border border-gray-200 rounded-lg overflow-hidden mb-3">
+                <summary className="cursor-pointer bg-gray-50 hover:bg-gray-100 px-4 py-3 text-sm font-medium text-gray-900 transition-colors">
+                  Available Messages
+                </summary>
+                <div className="p-4 bg-white border-t border-gray-200 text-sm text-gray-700 grid md:grid-cols-2 gap-x-6 gap-y-3">
+                  <div>
+                    <strong>member.detail</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>back_button</li>
+                      <li>tabs.details, tabs.roles</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>member.detail.user_details</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>title</li>
+                      <li>name, email</li>
+                      <li>phone_number, provider</li>
+                      <li>created_at, last_login</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>member.detail.actions.remove_from_org</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>title, description, button</li>
+                      <li>modal.title, modal.description</li>
+                      <li>modal.cancel_button, modal.confirm_button</li>
+                      <li>success</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>member.detail.roles</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>title, description</li>
+                      <li>assign_button</li>
+                      <li>table.name, table.description</li>
+                      <li>table.empty_message</li>
+                      <li>table.remove_button_label</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>member.detail.roles.assign_modal</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>title, description</li>
+                      <li>roles_label, roles_placeholder</li>
+                      <li>submit_button, cancel_button</li>
+                      <li>no_roles_available</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>member.detail.error</strong>
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>fetch_failed, fetch_roles_failed</li>
+                      <li>remove_from_org_failed</li>
+                      <li>assign_role_failed, remove_role_failed</li>
+                    </ul>
+                  </div>
+                </div>
+              </details>
+              <p className="text-sm font-medium text-gray-700 mb-1">Example:</p>
+              <CodeBlock
+                code={`<OrganizationMemberDetail
+  userId={userId}
+  customMessages={{
+    member: {
+      detail: {
+        back_button: 'Back to Members',
+        tabs: { details: 'Profile', roles: 'Permissions' },
+        roles: {
+          assign_button: 'Add Permission',
+          table: { empty_message: 'No permissions assigned yet.' },
+        },
+        actions: {
+          remove_from_org: {
+            title: 'Remove from Organization',
+            button: 'Remove',
+            modal: {
+              title: 'Remove Member',
+              confirm_button: 'Yes, Remove',
+            },
+          },
+        },
+      },
+    },
+  }}
+/>`}
+                language="tsx"
+                title="customMessages"
+              />
+            </div>
+
+            {/* styling */}
+            <div>
+              <h4 className="text-base font-semibold text-gray-900 mb-1">styling</h4>
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Type:</strong> <code>ComponentStyling</code>
+              </p>
+              <p className="text-gray-600 mb-3">
+                Customize appearance with CSS variables and class overrides. Variables are
+                theme-aware (separate <code>light</code>, <code>dark</code>, and <code>common</code>{' '}
+                scopes); class overrides target named slots inside the component tree so you can
+                attach Tailwind utilities or your own design-system classes without forking the
+                source.
+              </p>
+              <details className="border border-gray-200 rounded-lg overflow-hidden mb-3">
+                <summary className="cursor-pointer bg-gray-50 hover:bg-gray-100 px-4 py-3 text-sm font-medium text-gray-900 transition-colors">
+                  Available Styling Options
+                </summary>
+                <div className="p-4 bg-white border-t border-gray-200 text-sm text-gray-700 grid md:grid-cols-2 gap-6">
+                  <div>
+                    <strong>Variables</strong> — CSS custom properties
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>
+                        <code>common</code> — applied to both themes
+                      </li>
+                      <li>
+                        <code>light</code> — light mode only
+                      </li>
+                      <li>
+                        <code>dark</code> — dark mode only
+                      </li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>Classes</strong> — Component class overrides
+                    <ul className="ml-4 list-disc mt-1 text-gray-600">
+                      <li>
+                        <code>OrganizationMemberDetail-root</code>
+                      </li>
+                      <li>
+                        <code>OrganizationMemberDetail-header</code>
+                      </li>
+                      <li>
+                        <code>OrganizationMemberDetail-tabs</code>
+                      </li>
+                      <li>
+                        <code>OrganizationMemberDetail-detailsTab</code>
+                      </li>
+                      <li>
+                        <code>OrganizationMemberDetail-rolesTab</code>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </details>
+              <p className="text-sm font-medium text-gray-700 mb-1">Example:</p>
+              <CodeBlock
+                code={`<OrganizationMemberDetail
+  userId={userId}
+  styling={{
+    variables: {
+      light: { '--color-primary': '#4f46e5' },
+      dark: { '--color-primary': '#818cf8' },
+    },
+    classes: {
+      'OrganizationMemberDetail-root': 'max-w-3xl mx-auto',
+      'OrganizationMemberDetail-header': 'mb-6',
+      'OrganizationMemberDetail-rolesTab': 'mt-4',
+    },
+  }}
+/>`}
+                language="tsx"
+                title="styling"
+              />
+            </div>
           </div>
         </div>
 
@@ -501,343 +892,25 @@ interface ComponentAction<T, U = undefined> {
 
       <hr />
 
-      {/* Advanced Configuration */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold text-gray-900">Advanced Configuration</h2>
-        <div className="space-y-8">
-          {/* Actions */}
-          <div>
-            <h3 className="text-lg font-medium mb-4">Actions</h3>
-            <p className="text-gray-600 mb-4">
-              Intercept member and role lifecycle events with <code>onBefore</code> and{' '}
-              <code>onAfter</code> hooks. <code>onBefore</code> can return <code>false</code> to
-              cancel the operation.
-            </p>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <h4 className="font-medium text-blue-900 mb-2">Available Action Properties</h4>
-              <div className="grid md:grid-cols-3 gap-4 text-sm text-blue-800">
-                <div>
-                  <strong>removeFromOrgAction</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>
-                      <code>disabled</code> — hide remove button
-                    </li>
-                    <li>
-                      <code>onBefore(userId)</code> — confirm before removing
-                    </li>
-                    <li>
-                      <code>onAfter(userId)</code> — navigate away or refresh
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>assignRolesAction</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>
-                      <code>disabled</code> — hide assign button
-                    </li>
-                    <li>
-                      <code>onBefore({'{userId, roleIds}'})</code> — validate selection
-                    </li>
-                    <li>
-                      <code>onAfter({'{userId, roleIds}'})</code> — audit log
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>removeRolesAction</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>
-                      <code>disabled</code> — hide remove role buttons
-                    </li>
-                    <li>
-                      <code>onBefore({'{userId, roleIds}'})</code> — confirm
-                    </li>
-                    <li>
-                      <code>onAfter({'{userId, roleIds}'})</code> — audit log
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <CodeBlock
-              code={`<OrganizationMemberDetail
-  userId={userId}
-  onBack={() => router.push('/members')}
-  removeFromOrgAction={{
-    onBefore: async (removedUserId) => {
-      // Return false to cancel
-      return await confirmDialog(\`Remove this member from the organization?\`);
-    },
-    onAfter: () => {
-      router.push('/members');
-    },
-  }}
-  assignRolesAction={{
-    onAfter: ({ userId, roleIds }) => {
-      auditLog.record({ action: 'roles_assigned', userId, roleIds });
-    },
-  }}
-  removeRolesAction={{
-    onAfter: ({ userId, roleIds }) => {
-      auditLog.record({ action: 'roles_removed', userId, roleIds });
-    },
-  }}
-/>`}
-              language="tsx"
-              title="Action hook usage"
-            />
-
-            <div className="mt-6 space-y-6">
-              <div>
-                <h4 className="text-base font-medium text-gray-900 mb-2">removeFromOrgAction</h4>
-                <p className="text-gray-600 mb-3 text-sm">
-                  Called when a member is removed from the organization. Use <code>onBefore</code>{' '}
-                  to show a confirmation dialog; the userId string is passed to both hooks.
-                </p>
-                <CodeBlock
-                  code={`<OrganizationMemberDetail
-  userId={userId}
-  removeFromOrgAction={{
-    onBefore: async (removedUserId) => {
-      // Return false to cancel the removal
-      return await confirmDialog(\`Remove member \${removedUserId} from the organization?\`);
-    },
-    onAfter: (removedUserId) => {
-      router.push('/members');
-      auditLog.record({ action: 'member_removed', userId: removedUserId });
-    },
-  }}
-/>`}
-                  language="tsx"
-                  title="removeFromOrgAction"
-                />
-              </div>
-
-              <div>
-                <h4 className="text-base font-medium text-gray-900 mb-2">assignRolesAction</h4>
-                <p className="text-gray-600 mb-3 text-sm">
-                  Called after one or more roles are assigned to the member. Receives an object with{' '}
-                  <code>userId</code> and <code>roleIds</code> (array of assigned role IDs).
-                </p>
-                <CodeBlock
-                  code={`<OrganizationMemberDetail
-  userId={userId}
-  assignRolesAction={{
-    onAfter: ({ userId: memberId, roleIds }) => {
-      auditLog.record({ action: 'roles_assigned', userId: memberId, roleIds });
-    },
-  }}
-/>`}
-                  language="tsx"
-                  title="assignRolesAction"
-                />
-              </div>
-
-              <div>
-                <h4 className="text-base font-medium text-gray-900 mb-2">removeRolesAction</h4>
-                <p className="text-gray-600 mb-3 text-sm">
-                  Called after one or more roles are removed from the member. Receives an object
-                  with <code>userId</code> and <code>roleIds</code> (array of removed role IDs).
-                </p>
-                <CodeBlock
-                  code={`<OrganizationMemberDetail
-  userId={userId}
-  removeRolesAction={{
-    onBefore: ({ roleIds }) => {
-      // Return false to cancel
-      return roleIds.length > 0;
-    },
-    onAfter: ({ userId: memberId, roleIds }) => {
-      auditLog.record({ action: 'roles_removed', userId: memberId, roleIds });
-    },
-  }}
-/>`}
-                  language="tsx"
-                  title="removeRolesAction"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Custom Messages */}
-          <div>
-            <h3 className="text-lg font-medium mb-4">Custom Messages</h3>
-            <p className="text-gray-600 mb-4">
-              Override any default text. All fields are optional and fall back to built-in defaults.
-            </p>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <h4 className="font-medium text-blue-900 mb-2">Available Messages</h4>
-              <div className="grid md:grid-cols-3 gap-4 text-sm text-blue-800">
-                <div>
-                  <strong>member.detail</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>back_button</li>
-                    <li>tabs.details</li>
-                    <li>tabs.roles</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>member.detail.user_details</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>title</li>
-                    <li>name / email</li>
-                    <li>phone_number / provider</li>
-                    <li>created_at / last_login</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>member.detail.actions.remove_from_org</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>title / description / button</li>
-                    <li>modal.title / modal.description</li>
-                    <li>modal.cancel_button / modal.confirm_button</li>
-                    <li>success</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>member.detail.roles</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>title / description</li>
-                    <li>assign_button</li>
-                    <li>table.name / table.description</li>
-                    <li>table.empty_message</li>
-                    <li>table.remove_button_label</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>member.detail.roles.assign_modal</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>title / description</li>
-                    <li>roles_label / roles_placeholder</li>
-                    <li>submit_button / cancel_button</li>
-                    <li>no_roles_available</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>member.detail.error</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>fetch_failed</li>
-                    <li>fetch_roles_failed</li>
-                    <li>remove_from_org_failed</li>
-                    <li>assign_role_failed</li>
-                    <li>remove_role_failed</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <CodeBlock
-              code={`<OrganizationMemberDetail
-  userId={userId}
-  customMessages={{
-    member: {
-      detail: {
-        back_button: 'Back to Members',
-        tabs: { details: 'Profile', roles: 'Permissions' },
-        roles: {
-          assign_button: 'Add Permission',
-          table: { empty_message: 'No permissions assigned yet.' },
-        },
-        actions: {
-          remove_from_org: {
-            title: 'Remove from Organization',
-            button: 'Remove',
-            modal: {
-              title: 'Remove Member',
-              confirm_button: 'Yes, Remove',
-            },
-          },
-        },
-      },
-    },
-  }}
-/>`}
-              language="tsx"
-              title="Custom messages example"
-            />
-          </div>
-
-          {/* Custom Styling */}
-          <div>
-            <h3 className="text-lg font-medium mb-4">Custom Styling</h3>
-            <p className="text-gray-600 mb-4">
-              Customize appearance with CSS variables and class overrides. Supports light/dark mode.
-            </p>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <h4 className="font-medium text-blue-900 mb-2">Available Class Overrides</h4>
-              <div className="grid md:grid-cols-2 gap-4 text-sm text-blue-800">
-                <div>
-                  <strong>variables</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>
-                      <code>common</code> — applied to both themes
-                    </li>
-                    <li>
-                      <code>light</code> — light mode only
-                    </li>
-                    <li>
-                      <code>dark</code> — dark mode only
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>classes</strong>
-                  <ul className="ml-4 list-disc mt-1">
-                    <li>
-                      <code>OrganizationMemberDetail-root</code>
-                    </li>
-                    <li>
-                      <code>OrganizationMemberDetail-header</code>
-                    </li>
-                    <li>
-                      <code>OrganizationMemberDetail-tabs</code>
-                    </li>
-                    <li>
-                      <code>OrganizationMemberDetail-detailsTab</code>
-                    </li>
-                    <li>
-                      <code>OrganizationMemberDetail-rolesTab</code>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <CodeBlock
-              code={`<OrganizationMemberDetail
-  userId={userId}
-  styling={{
-    variables: {
-      light: { '--color-primary': '#4f46e5' },
-      dark: { '--color-primary': '#818cf8' },
-    },
-    classes: {
-      'OrganizationMemberDetail-root': 'max-w-3xl mx-auto',
-      'OrganizationMemberDetail-header': 'mb-6',
-      'OrganizationMemberDetail-rolesTab': 'mt-4',
-    },
-  }}
-/>`}
-              language="tsx"
-              title="Styling example"
-            />
-          </div>
-        </div>
-      </section>
-
       {/* Complete Integration Example */}
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Complete Integration Example</h2>
+        <p className="text-gray-600">
+          The component requires an <code>Auth0Provider</code> and an{' '}
+          <code>Auth0ComponentProvider</code> in the React tree. Set{' '}
+          <code>interactiveErrorHandler="popup"</code> on <code>Auth0Provider</code> so step-up auth
+          challenges (triggered by removing the member or mutating roles) can be resolved without
+          losing page state.
+        </p>
         <CodeBlock
-          code={`import { OrganizationMemberDetail } from '@auth0/universal-components-react';
+          code={`import React from 'react';
+import { OrganizationMemberDetail } from '@auth0/universal-components-react';
+import { Auth0Provider } from '@auth0/auth0-react';
+import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
 import { useNavigate, useParams } from 'react-router-dom';
+import { auditLog } from './lib/audit-log';
 
-export function MemberDetailPage() {
+function MemberDetailPage() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
 
@@ -846,16 +919,17 @@ export function MemberDetailPage() {
       userId={userId!}
       onBack={() => navigate('/members')}
       removeFromOrgAction={{
+        onBefore: async () => confirmDialog('Remove this member from the organization?'),
         onAfter: () => navigate('/members'),
       }}
       assignRolesAction={{
-        onAfter: ({ roleIds }) => {
-          console.log(\`Assigned \${roleIds.length} role(s)\`);
+        onAfter: ({ userId: memberId, roleIds }) => {
+          auditLog.record({ action: 'roles_assigned', userId: memberId, roleIds });
         },
       }}
       removeRolesAction={{
-        onAfter: ({ roleIds }) => {
-          console.log(\`Removed \${roleIds.length} role(s)\`);
+        onAfter: ({ userId: memberId, roleIds }) => {
+          auditLog.record({ action: 'roles_removed', userId: memberId, roleIds });
         },
       }}
       customMessages={{
@@ -873,6 +947,24 @@ export function MemberDetailPage() {
         },
       }}
     />
+  );
+}
+
+export default function App() {
+  const domain = 'YOUR_TENANT.auth0.com';
+  const clientId = 'YOUR_CLIENT_ID';
+
+  return (
+    <Auth0Provider
+      domain={domain}
+      clientId={clientId}
+      authorizationParams={{ redirect_uri: window.location.origin }}
+      interactiveErrorHandler="popup"
+    >
+      <Auth0ComponentProvider domain={domain}>
+        <MemberDetailPage />
+      </Auth0ComponentProvider>
+    </Auth0Provider>
   );
 }`}
           language="tsx"
