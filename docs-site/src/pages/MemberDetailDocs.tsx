@@ -85,18 +85,18 @@ export default function MemberDetailDocs() {
         <h2 className="text-2xl font-semibold text-gray-900">Component Preview</h2>
         <div className="max-w-none flex justify-center">
           <img
-            src="/img/my-organization/member-management/member-detail.png"
-            alt="OrganizationMemberDetail"
-            width={700}
-            height={500}
+            src="/img/my-organization/member-management/member-details-tab.png"
+            alt="OrganizationMemberDetail — Details tab"
+            width={900}
+            height={478}
           />
         </div>
         <div className="max-w-none flex justify-center">
           <img
-            src="/img/my-organization/member-management/member-detail-roles.png"
-            alt="OrganizationMemberDetail Roles Tab"
-            width={700}
-            height={500}
+            src="/img/my-organization/member-management/member-roles-tab.png"
+            alt="OrganizationMemberDetail — Roles tab"
+            width={900}
+            height={478}
           />
         </div>
       </section>

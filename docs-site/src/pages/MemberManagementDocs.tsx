@@ -85,13 +85,20 @@ export default function MemberManagementDocs() {
       {/* Component Preview */}
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Component Preview</h2>
-        {/* TODO: add screenshot at /img/my-organization/member-management/member-management.png */}
         <div className="max-w-none flex justify-center">
           <img
-            src="/img/my-organization/member-management/member-management.png"
-            alt="OrganizationMemberManagement"
-            width={700}
-            height={500}
+            src="/img/my-organization/member-management/members-tab.png"
+            alt="OrganizationMemberManagement — Members tab"
+            width={900}
+            height={478}
+          />
+        </div>
+        <div className="max-w-none flex justify-center">
+          <img
+            src="/img/my-organization/member-management/invitations-tab.png"
+            alt="OrganizationMemberManagement — Invitations tab"
+            width={900}
+            height={478}
           />
         </div>
       </section>
