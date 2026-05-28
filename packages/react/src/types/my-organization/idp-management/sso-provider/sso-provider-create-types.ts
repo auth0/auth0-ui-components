@@ -112,18 +112,13 @@ export interface UseSsoProviderCreateOptions {
   customMessages?: SsoProviderCreateProps['customMessages'];
 }
 
-export interface UseSsoProviderCreateLogicOptions {
-  onNext?: SsoProviderCreateProps['onNext'];
-  onPrevious?: SsoProviderCreateProps['onPrevious'];
-  createProvider: (data: CreateIdentityProviderRequestContentPrivate) => Promise<void>;
-}
-
-export interface UseSsoProviderCreateLogicResult {
+export interface UseSsoProviderCreateResult {
   formData: FormState;
   setFormData: React.Dispatch<React.SetStateAction<FormState>>;
   detailsRef: React.RefObject<ProviderDetailsFormHandle | null>;
   configureRef: React.RefObject<ProviderConfigureHandle | null>;
   handleCreate: () => Promise<void>;
+  isCreating: boolean;
   isLoadingConfig: boolean;
   filteredStrategies: IdpStrategy[];
   isLoadingIdpConfig: boolean;

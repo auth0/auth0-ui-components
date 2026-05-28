@@ -12,7 +12,6 @@ import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Wizard } from '@/components/auth0/shared/wizard';
 import type { StepProps } from '@/components/auth0/shared/wizard';
 import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-create';
-import { useSsoProviderCreateLogic } from '@/hooks/my-organization/use-sso-provider-create-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
@@ -48,10 +47,6 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     onPrevious,
   } = props;
 
-  const { createProvider, isCreating } = useSsoProviderCreate({
-    createAction,
-    customMessages,
-  });
   const {
     formData,
     detailsRef,
@@ -59,14 +54,16 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     setFormData,
     handleCreate,
     createStepActions,
+    isCreating,
     isLoadingConfig,
     filteredStrategies,
     isLoadingIdpConfig,
     idpConfig,
-  } = useSsoProviderCreateLogic({
+  } = useSsoProviderCreate({
+    createAction,
+    customMessages,
     onNext,
     onPrevious,
-    createProvider,
   });
 
   const { strategy, details, configure } = formData;

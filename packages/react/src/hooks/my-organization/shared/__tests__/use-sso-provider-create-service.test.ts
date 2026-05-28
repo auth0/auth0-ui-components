@@ -6,7 +6,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 
 import { showToast } from '@/components/auth0/shared/toast';
-import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-create';
+import { useSsoProviderCreateService } from '@/hooks/my-organization/shared/services/use-sso-provider-create-service';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -17,7 +17,7 @@ vi.mock('@/hooks/shared/use-translator');
 vi.mock('@/components/auth0/shared/toast');
 vi.mock('@/hooks/shared/use-error-handler');
 
-describe('useSsoProviderCreate', () => {
+describe('useSsoProviderCreateService', () => {
   const mockCreate = vi.fn();
   let mockHandleError: Mock;
 
@@ -65,13 +65,15 @@ describe('useSsoProviderCreate', () => {
     (useErrorHandler as Mock).mockReturnValue(mockHandleError);
   });
 
-  const renderUseSsoProviderCreate = (...args: Parameters<typeof useSsoProviderCreate>) => {
+  const renderUseSsoProviderCreateService = (
+    ...args: Parameters<typeof useSsoProviderCreateService>
+  ) => {
     const { wrapper } = createTestQueryClientWrapper();
-    return renderHook(() => useSsoProviderCreate(...args), { wrapper });
+    return renderHook(() => useSsoProviderCreateService(...args), { wrapper });
   };
 
   it('should initialize with isCreating as false', () => {
-    const { result } = renderUseSsoProviderCreate();
+    const { result } = renderUseSsoProviderCreateService();
 
     expect(result.current.isCreating).toBe(false);
     expect(typeof result.current.createProvider).toBe('function');
@@ -87,7 +89,7 @@ describe('useSsoProviderCreate', () => {
 
     mockCreate.mockResolvedValue(mockIdentityProvider);
 
-    const { result } = renderUseSsoProviderCreate();
+    const { result } = renderUseSsoProviderCreateService();
 
     await expect(result.current.createProvider(mockProviderData)).resolves.toBeUndefined();
 
@@ -113,7 +115,7 @@ describe('useSsoProviderCreate', () => {
       () => new Promise((resolve) => setTimeout(() => resolve(mockIdentityProvider), 100)),
     );
 
-    const { result } = renderUseSsoProviderCreate();
+    const { result } = renderUseSsoProviderCreateService();
 
     const createPromise = result.current.createProvider(mockProviderData);
 
@@ -145,7 +147,7 @@ describe('useSsoProviderCreate', () => {
 
     mockCreate.mockRejectedValue(error);
 
-    const { result } = renderUseSsoProviderCreate();
+    const { result } = renderUseSsoProviderCreateService();
 
     await expect(result.current.createProvider(mockProviderData)).rejects.toBeDefined();
 
@@ -178,7 +180,7 @@ describe('useSsoProviderCreate', () => {
 
       mockCreate.mockRejectedValue(error);
 
-      const { result } = renderUseSsoProviderCreate();
+      const { result } = renderUseSsoProviderCreateService();
 
       await expect(result.current.createProvider(baseOktaProviderData)).rejects.toBeDefined();
 
@@ -201,7 +203,7 @@ describe('useSsoProviderCreate', () => {
 
       mockCreate.mockRejectedValue(error);
 
-      const { result } = renderUseSsoProviderCreate();
+      const { result } = renderUseSsoProviderCreateService();
 
       await expect(result.current.createProvider(baseOktaProviderData)).rejects.toBeDefined();
 
@@ -223,7 +225,7 @@ describe('useSsoProviderCreate', () => {
 
       mockCreate.mockRejectedValue(error);
 
-      const { result } = renderUseSsoProviderCreate();
+      const { result } = renderUseSsoProviderCreateService();
 
       await expect(result.current.createProvider(baseOktaProviderData)).rejects.toBeDefined();
 
@@ -243,7 +245,7 @@ describe('useSsoProviderCreate', () => {
 
       mockCreate.mockRejectedValue(error);
 
-      const { result } = renderUseSsoProviderCreate();
+      const { result } = renderUseSsoProviderCreateService();
 
       await expect(result.current.createProvider(baseOktaProviderData)).rejects.toBeDefined();
 
@@ -265,7 +267,7 @@ describe('useSsoProviderCreate', () => {
 
     mockCreate.mockRejectedValue(new Error('Network error'));
 
-    const { result } = renderUseSsoProviderCreate();
+    const { result } = renderUseSsoProviderCreateService();
 
     await expect(result.current.createProvider(mockProviderData)).rejects.toBeDefined();
 
@@ -288,7 +290,7 @@ describe('useSsoProviderCreate', () => {
     const onBefore = vi.fn().mockReturnValue(true);
     mockCreate.mockResolvedValue(mockIdentityProvider);
 
-    const { result } = renderUseSsoProviderCreate({
+    const { result } = renderUseSsoProviderCreateService({
       createAction: { onBefore },
     });
 
@@ -310,7 +312,7 @@ describe('useSsoProviderCreate', () => {
 
     const onBefore = vi.fn().mockReturnValue(false);
 
-    const { result } = renderUseSsoProviderCreate({
+    const { result } = renderUseSsoProviderCreateService({
       createAction: { onBefore },
     });
 
@@ -334,7 +336,7 @@ describe('useSsoProviderCreate', () => {
     const onAfter = vi.fn();
     mockCreate.mockResolvedValue(mockIdentityProvider);
 
-    const { result } = renderUseSsoProviderCreate({
+    const { result } = renderUseSsoProviderCreateService({
       createAction: { onAfter },
     });
 
@@ -356,7 +358,7 @@ describe('useSsoProviderCreate', () => {
     const onAfter = vi.fn();
     mockCreate.mockRejectedValue(new Error('Creation failed'));
 
-    const { result } = renderUseSsoProviderCreate({
+    const { result } = renderUseSsoProviderCreateService({
       createAction: { onAfter },
     });
 
@@ -377,7 +379,7 @@ describe('useSsoProviderCreate', () => {
       signingCert: 'cert123',
     };
 
-    const { result } = renderUseSsoProviderCreate();
+    const { result } = renderUseSsoProviderCreateService();
 
     await expect(result.current.createProvider(mockProviderData)).resolves.toBeUndefined();
 

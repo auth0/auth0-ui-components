@@ -1,150 +1,101 @@
 /**
  * SSO provider creation hook.
+ * Single public hook that consumes the internal service hook.
  * @module use-sso-provider-create
  */
 
-import {
-  hasApiErrorBody,
-  SsoProviderMappers,
-  type CreateIdentityProviderRequestContent,
-  type CreateIdentityProviderRequestContentPrivate,
-  type IdpKnownResponse,
-} from '@auth0/universal-components-core';
-import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
-import { showToast } from '@/components/auth0/shared/toast';
-import { useCoreClient } from '@/hooks/shared/use-core-client';
-import { useErrorHandler } from '@/hooks/shared/use-error-handler';
-import { useTranslator } from '@/hooks/shared/use-translator';
-import type { UseSsoProviderCreateOptions } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
+import { useSsoProviderCreateService } from '@/hooks/my-organization/shared/services/use-sso-provider-create-service';
+import { useConfig } from '@/hooks/my-organization/use-config';
+import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
+import type {
+  FormState,
+  ProviderConfigureHandle,
+  ProviderDetailsFormHandle,
+  UseSsoProviderCreateOptions,
+  UseSsoProviderCreateResult,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
-/**
- * Extracts domain from discovery error detail.
- * @param detail - Error detail string.
- * @returns Domain string or null.
- * @internal
- */
-function extractDomainFromDiscoveryError(detail?: string): string | null {
-  if (!detail) return null;
-  const match = detail.match(/discovery failure:\s*(.+)/i);
-  return match?.[1]?.trim() ?? null;
-}
+export type { UseSsoProviderCreateResult };
 
-export interface UseSsoProviderCreateReturn {
-  createProvider: (data: CreateIdentityProviderRequestContentPrivate) => Promise<void>;
-  isCreating: boolean;
+export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOptions {
+  onNext?: (stepId: string, values: Partial<FormState>) => boolean;
+  onPrevious?: (stepId: string, values: Partial<FormState>) => boolean;
 }
 
 /**
- * Hook for creating SSO identity providers.
+ * Hook for SSO provider creation. Manages form state, step navigation,
+ * and API operations through an internal service hook.
  * @param options - Hook options.
- * @param options.createAction - Callback after successful creation.
- * @param options.customMessages - Custom translation messages.
- * @returns Hook state and methods
+ * @returns Form data, step actions, handlers, and loading states.
  */
 export function useSsoProviderCreate({
   createAction,
   customMessages = {},
-}: UseSsoProviderCreateOptions = {}): UseSsoProviderCreateReturn {
-  const { coreClient } = useCoreClient();
-  const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
-  const queryClient = useQueryClient();
-  const handleError = useErrorHandler();
-  const createProviderMutation = useMutation({
-    mutationFn: async (
-      data: CreateIdentityProviderRequestContentPrivate,
-    ): Promise<IdpKnownResponse> => {
-      if (!coreClient) {
-        throw new Error('Core client not available');
-      }
-
-      const { strategy, name, display_name, ...configOptions } = data;
-
-      const formData = {
-        strategy,
-        name,
-        display_name,
-        options: configOptions,
-      };
-
-      const apiRequestData: CreateIdentityProviderRequestContent =
-        SsoProviderMappers.createToAPI(formData);
-
-      const result: IdpKnownResponse = await coreClient
-        .getMyOrganizationApiClient()
-        .organization.identityProviders.create(apiRequestData);
-
-      return result;
-    },
-    onSuccess: (result, data) => {
-      showToast({
-        type: 'success',
-        message: t('notifications.provider_create_success', { providerName: result.name }),
-      });
-
-      createAction?.onAfter?.(data, result);
-
-      // Invalidate the providers list to refetch with the new provider
-      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
-    },
-    onError: (error, data) => {
-      if (
-        hasApiErrorBody(error) &&
-        error.body?.status === 409 &&
-        error.body?.type === 'https://auth0.com/api-errors#A0E-409-0001'
-      ) {
-        showToast({
-          type: 'error',
-          message: t('notifications.provider_create_duplicated_provider_error', {
-            providerName: data.name,
-          }),
-        });
-        return;
-      }
-      // Handle discovery failure error for domain
-      if (hasApiErrorBody(error)) {
-        const domainFromError = extractDomainFromDiscoveryError(error.body?.detail);
-        if (domainFromError) {
-          showToast({
-            type: 'error',
-            message: t('notifications.provider_create_discovery_failure', {
-              domain: domainFromError,
-            }),
-          });
-          return;
-        }
-      }
-
-      handleError(error, { fallbackMessage: t('notifications.general_error') });
-    },
+  onNext,
+  onPrevious,
+}: UseSsoProviderCreateHookOptions = {}): UseSsoProviderCreateResult {
+  const { createProvider, isCreating } = useSsoProviderCreateService({
+    createAction,
+    customMessages,
   });
 
-  const createProvider = useCallback(
-    async (data: CreateIdentityProviderRequestContentPrivate): Promise<void> => {
-      if (!coreClient) {
-        showToast({
-          type: 'error',
-          message: t('notifications.general_error'),
-        });
-        return;
-      }
+  const [formData, setFormData] = useState<FormState>({});
+  const { strategy, details, configure } = formData;
+  const detailsRef = useRef<ProviderDetailsFormHandle>(null);
+  const configureRef = useRef<ProviderConfigureHandle>(null);
+  const { isLoadingConfig, filteredStrategies } = useConfig();
+  const { isLoadingIdpConfig, idpConfig } = useIdpConfig();
 
-      if (createAction?.onBefore) {
-        const canProceed = createAction.onBefore(data);
-        if (!canProceed) {
-          return;
+  const createStepActions = useCallback(
+    (
+      stepId: 'provider_details' | 'provider_configure',
+      ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,
+    ) => {
+      const dataKey = stepId === 'provider_details' ? 'details' : 'configure';
+      const handleAction = async (
+        handler: typeof onNext | typeof onPrevious | undefined,
+        shouldValidate = false,
+      ): Promise<boolean> => {
+        if (shouldValidate) {
+          const isValid = await ref.current?.validate();
+          if (!isValid) return false;
         }
-      }
-
-      await createProviderMutation.mutateAsync(data);
+        const currentData = ref.current?.getData() ?? null;
+        setFormData((prev) => ({ ...prev, [dataKey]: currentData }));
+        if (!handler) return true;
+        const fullPayload = { ...formData, [dataKey]: currentData };
+        return handler(stepId, fullPayload);
+      };
+      return {
+        onNextAction: () => handleAction(onNext, true),
+        onPreviousAction: () => handleAction(onPrevious, false),
+      };
     },
-    [coreClient, createAction, createProviderMutation],
+    [formData, onNext, onPrevious],
   );
 
+  const handleCreate = useCallback(async () => {
+    const finalConfigureData = configureRef.current?.getData();
+    await createProvider({
+      strategy: strategy!,
+      ...details!,
+      ...finalConfigureData,
+    });
+  }, [strategy, details, configure, createProvider]);
+
   return {
-    createProvider,
-    isCreating: createProviderMutation.isPending,
+    formData,
+    setFormData,
+    createStepActions,
+    handleCreate,
+    detailsRef,
+    configureRef,
+    isCreating,
+    isLoadingConfig,
+    filteredStrategies,
+    isLoadingIdpConfig,
+    idpConfig,
   };
 }

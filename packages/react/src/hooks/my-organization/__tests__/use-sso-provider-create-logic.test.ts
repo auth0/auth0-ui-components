@@ -1,9 +1,8 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { useSsoProviderCreateLogic } from '../use-sso-provider-create-logic';
+import { useSsoProviderCreate } from '../use-sso-provider-create';
 
-// Mock useConfig and useIdpConfig to avoid hitting queryClient or network
 vi.mock('@/hooks/my-organization/use-config', () => ({
   useConfig: () => ({
     isLoadingConfig: false,
@@ -16,23 +15,27 @@ vi.mock('@/hooks/my-organization/use-idp-config', () => ({
     idpConfig: {},
   }),
 }));
+vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-create-service', () => ({
+  useSsoProviderCreateService: () => ({
+    createProvider: mockCreateProvider,
+    isCreating: false,
+  }),
+}));
 
-// Minimal local mocks
 const mockCreateProvider = vi.fn();
 const mockOnNext = vi.fn();
 const mockOnPrevious = vi.fn();
 
-describe('useSsoProviderCreateLogic', () => {
+describe('useSsoProviderCreate - logic behavior', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('should initialize formData and refs', () => {
     const { result } = renderHook(() =>
-      useSsoProviderCreateLogic({
+      useSsoProviderCreate({
         onNext: mockOnNext,
         onPrevious: mockOnPrevious,
-        createProvider: mockCreateProvider,
       }),
     );
     expect(result.current.formData).toEqual({});
@@ -42,10 +45,9 @@ describe('useSsoProviderCreateLogic', () => {
 
   it('should update formData via setFormData', () => {
     const { result } = renderHook(() =>
-      useSsoProviderCreateLogic({
+      useSsoProviderCreate({
         onNext: mockOnNext,
         onPrevious: mockOnPrevious,
-        createProvider: mockCreateProvider,
       }),
     );
     act(() => {
@@ -63,10 +65,9 @@ describe('useSsoProviderCreateLogic', () => {
 
   it('should call createProvider with merged data on handleCreate', async () => {
     const { result } = renderHook(() =>
-      useSsoProviderCreateLogic({
+      useSsoProviderCreate({
         onNext: mockOnNext,
         onPrevious: mockOnPrevious,
-        createProvider: mockCreateProvider,
       }),
     );
     act(() => {
@@ -75,7 +76,6 @@ describe('useSsoProviderCreateLogic', () => {
         details: { name: 'test', display_name: 'test provider' },
       });
     });
-    // Mock configureRef.current.getData
     result.current.configureRef.current = {
       validate: vi.fn().mockResolvedValue(true),
       getData: vi
@@ -94,13 +94,11 @@ describe('useSsoProviderCreateLogic', () => {
 
   it('createStepActions calls onNext and onPrevious handlers', async () => {
     const { result } = renderHook(() =>
-      useSsoProviderCreateLogic({
+      useSsoProviderCreate({
         onNext: mockOnNext,
         onPrevious: mockOnPrevious,
-        createProvider: mockCreateProvider,
       }),
     );
-    // Mock ref with validate and getData
     const ref = {
       current: {
         validate: vi.fn().mockResolvedValue(true),
@@ -126,10 +124,9 @@ describe('useSsoProviderCreateLogic', () => {
 
   it('createStepActions returns false if validation fails', async () => {
     const { result } = renderHook(() =>
-      useSsoProviderCreateLogic({
+      useSsoProviderCreate({
         onNext: mockOnNext,
         onPrevious: mockOnPrevious,
-        createProvider: mockCreateProvider,
       }),
     );
     const ref = {
