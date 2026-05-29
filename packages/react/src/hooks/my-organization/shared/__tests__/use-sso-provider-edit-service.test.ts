@@ -7,7 +7,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 
 import { showToast } from '@/components/auth0/shared/toast';
-import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
+import { useSsoProviderEditService } from '@/hooks/my-organization/shared/services/use-sso-provider-edit-service';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -18,7 +18,7 @@ vi.mock('@/hooks/shared/use-translator');
 vi.mock('@/components/auth0/shared/toast');
 vi.mock('@/hooks/shared/use-error-handler');
 
-describe('useSsoProviderEdit', () => {
+describe('useSsoProviderEditService', () => {
   const mockIdpId = 'idp_123';
   let mockHandleError: Mock;
   const mockGet = vi.fn();
@@ -104,9 +104,9 @@ describe('useSsoProviderEdit', () => {
     },
   };
 
-  const renderUseSsoProviderEdit = (...args: Parameters<typeof useSsoProviderEdit>) => {
+  const renderUseSsoProviderEdit = (...args: Parameters<typeof useSsoProviderEditService>) => {
     const { wrapper } = createTestQueryClientWrapper();
-    return renderHook(() => useSsoProviderEdit(...args), { wrapper });
+    return renderHook(() => useSsoProviderEditService(...args), { wrapper });
   };
 
   beforeEach(() => {
@@ -526,9 +526,9 @@ describe('useSsoProviderEdit', () => {
       mockCoreClient.getMyOrganizationApiClient = () => ssoOrgClient;
     });
 
-    const renderUseSsoProviderEdit = (...args: Parameters<typeof useSsoProviderEdit>) => {
+    const renderUseSsoProviderEdit = (...args: Parameters<typeof useSsoProviderEditService>) => {
       const { wrapper } = createTestQueryClientWrapper();
-      return renderHook(() => useSsoProviderEdit(...args), { wrapper });
+      return renderHook(() => useSsoProviderEditService(...args), { wrapper });
     };
 
     it('should sync SSO attributes successfully', async () => {
