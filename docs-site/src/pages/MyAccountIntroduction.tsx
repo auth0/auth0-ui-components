@@ -67,6 +67,28 @@ export default function MyAccountIntroduction() {
               </a>
             </div>
           </div>
+          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:border-blue-300 hover:shadow-md transition-all">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  UserPasskeyMgmt{' '}
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-3">
+                    Available
+                  </span>
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  A passkey management component that lets users enroll, rename, and revoke WebAuthn
+                  passkeys on their account using the browser's built-in authenticator.
+                </p>
+              </div>
+              <a
+                href="/my-account/user-passkey-management"
+                className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
+              >
+                View Docs →
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
