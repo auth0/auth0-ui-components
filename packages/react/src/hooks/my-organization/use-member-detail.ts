@@ -7,7 +7,7 @@ import type { Role } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { useMemberDetailService } from '@/hooks/my-organization/shared/services/use-member-detail-service';
-import { isMutationPending } from '@/lib/utils/tanstack-compat';
+import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   MemberDetailModalState,
   MemberDetailTab,
@@ -125,10 +125,10 @@ export function useOrganizationMemberDetail(
     isFetchingMemberRoles: memberRolesQuery.isLoading,
     isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
     isLoading: memberQuery.isLoading,
-    isRemovingFromOrg: isMutationPending(removeFromOrgMutation),
-    isAssigningRoles: isMutationPending(assignRolesMutation),
-    isRemovingRoles: isMutationPending(removeRolesMutation),
-    removingRoleIds: isMutationPending(removeRolesMutation) ? removingRoles.map((r) => r.id) : [],
+    isRemovingFromOrg: isMutationLoading(removeFromOrgMutation),
+    isAssigningRoles: isMutationLoading(assignRolesMutation),
+    isRemovingRoles: isMutationLoading(removeRolesMutation),
+    removingRoleIds: isMutationLoading(removeRolesMutation) ? removingRoles.map((r) => r.id) : [],
     modalState,
 
     setActiveTab,

@@ -18,7 +18,7 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { getKeepPreviousDataOption } from '@/lib/utils/tanstack-compat';
+import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   UseMemberManagementServiceOptions,
@@ -26,7 +26,7 @@ import type {
   MemberManagementSortConfig,
 } from '@/types/my-organization/member-management/organization-member-management-types';
 
-const keepPreviousDataOption = getKeepPreviousDataOption();
+const keepPreviousDataOption = getPreviousDataOption();
 
 const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
   created_at: 'created_at',
