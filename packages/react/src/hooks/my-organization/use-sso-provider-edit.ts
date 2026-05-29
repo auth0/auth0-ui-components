@@ -23,7 +23,7 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { isMutationPending } from '@/lib/utils/tanstack-compat';
+import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   UseSsoProviderEditOptions,
   UseSsoProviderEditReturn,
@@ -786,17 +786,17 @@ export function useSsoProviderEdit(
 
     // Loading states - all derived from TanStack Query
     isLoading: providerQuery.isLoading || organizationQuery.isLoading,
-    isUpdating: isMutationPending(updateProviderMutation),
-    isDeleting: isMutationPending(deleteProviderMutation),
-    isRemoving: isMutationPending(detachProviderMutation),
-    isProvisioningUpdating: isMutationPending(createProvisioningMutation),
-    isProvisioningDeleting: isMutationPending(deleteProvisioningMutation),
+    isUpdating: isMutationLoading(updateProviderMutation),
+    isDeleting: isMutationLoading(deleteProviderMutation),
+    isRemoving: isMutationLoading(detachProviderMutation),
+    isProvisioningUpdating: isMutationLoading(createProvisioningMutation),
+    isProvisioningDeleting: isMutationLoading(deleteProvisioningMutation),
     isProvisioningLoading: provisioningQuery.isLoading || provisioningQuery.isFetching,
-    isScimTokensLoading: isMutationPending(listScimTokensMutation),
-    isScimTokenCreating: isMutationPending(createScimTokenMutation),
-    isScimTokenDeleting: isMutationPending(deleteScimTokenMutation),
-    isSsoAttributesSyncing: isMutationPending(syncSsoAttributesMutation),
-    isProvisioningAttributesSyncing: isMutationPending(syncProvisioningAttributesMutation),
+    isScimTokensLoading: isMutationLoading(listScimTokensMutation),
+    isScimTokenCreating: isMutationLoading(createScimTokenMutation),
+    isScimTokenDeleting: isMutationLoading(deleteScimTokenMutation),
+    isSsoAttributesSyncing: isMutationLoading(syncSsoAttributesMutation),
+    isProvisioningAttributesSyncing: isMutationLoading(syncProvisioningAttributesMutation),
 
     // Warning states
     hasSsoAttributeSyncWarning,

@@ -15,7 +15,7 @@ import { useState } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { isMutationPending } from '@/lib/utils/tanstack-compat';
+import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   UseDomainTableOptions,
   UseDomainTableResult,
@@ -167,9 +167,9 @@ export function useDomainTable({
     domains: domainsQuery.data ?? [],
     providers: providersQuery.data ?? [],
     isFetching: domainsQuery.isLoading,
-    isCreating: isMutationPending(createDomainMutation),
-    isDeleting: isMutationPending(deleteDomainMutation),
-    isVerifying: isMutationPending(verifyDomainMutation),
+    isCreating: isMutationLoading(createDomainMutation),
+    isDeleting: isMutationLoading(deleteDomainMutation),
+    isVerifying: isMutationLoading(verifyDomainMutation),
     isLoadingProviders: providersQuery.isLoading,
     fetchProviders: async (domain: Domain) => {
       setSelectedDomainId(domain.id);

@@ -18,7 +18,7 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { isMutationPending } from '@/lib/utils/tanstack-compat';
+import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type { UseSsoProviderCreateOptions } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 /**
@@ -146,6 +146,6 @@ export function useSsoProviderCreate({
 
   return {
     createProvider,
-    isCreating: isMutationPending(createProviderMutation),
+    isCreating: isMutationLoading(createProviderMutation),
   };
 }
