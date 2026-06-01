@@ -69,9 +69,12 @@ function Header({
         <div className="flex flex-col gap-1 min-w-0">
           <h1 className="text-2xl font-bold text-primary truncate">{displayName}</h1>
           {userId && (
-            <Badge variant="secondary" className="w-fit font-mono text-xs">
-              {userId}
-            </Badge>
+            <span className="text-sm flex items-center gap-2">
+              {t('member.detail.user_id_label')}
+              <Badge variant="secondary" className="w-fit font-mono text-xs">
+                {userId}
+              </Badge>
+            </span>
           )}
         </div>
       </div>

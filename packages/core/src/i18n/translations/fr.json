@@ -1065,6 +1065,7 @@
       },
       "detail": {
         "back_button": "Retour aux membres",
+        "user_id_label": "ID utilisateur:",
         "tabs": {
           "details": "Détails",
           "roles": "Rôles"
