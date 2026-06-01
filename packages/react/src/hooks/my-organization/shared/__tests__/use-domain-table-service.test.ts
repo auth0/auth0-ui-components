@@ -14,42 +14,12 @@ import {
   createMockDomain,
   createMockIdentityProvider,
   createMockI18nService,
+  createMockDomainTableServiceOptions,
 } from '@/tests/utils';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 import type { UseDomainTableServiceOptions } from '@/types/my-organization/domain-management/domain-table-types';
 
-// ===== Mock packages =====
-
 const { initMockCoreClient } = mockCore();
-
-// ===== Mock Data =====
-
-const createMockOptions = (
-  overrides?: Partial<UseDomainTableServiceOptions>,
-): UseDomainTableServiceOptions => ({
-  createAction: {
-    onBefore: vi.fn().mockReturnValue(true),
-    onAfter: vi.fn(),
-  },
-  deleteAction: {
-    onBefore: vi.fn().mockReturnValue(true),
-    onAfter: vi.fn(),
-  },
-  verifyAction: {
-    onBefore: vi.fn().mockReturnValue(true),
-    onAfter: vi.fn(),
-  },
-  associateToProviderAction: {
-    onBefore: vi.fn().mockReturnValue(true),
-    onAfter: vi.fn(),
-  },
-  deleteFromProviderAction: {
-    onBefore: vi.fn().mockReturnValue(true),
-    onAfter: vi.fn(),
-  },
-  customMessages: {},
-  ...overrides,
-});
 
 const renderUseDomainTable = (options: UseDomainTableServiceOptions) => {
   const { wrapper, queryClient } = createTestQueryClientWrapper();
@@ -58,8 +28,6 @@ const renderUseDomainTable = (options: UseDomainTableServiceOptions) => {
     ...renderHook(() => useDomainTableService(options), { wrapper }),
   };
 };
-
-// ===== Tests =====
 
 describe('useDomainTableService', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;
@@ -70,7 +38,7 @@ describe('useDomainTableService', () => {
     vi.clearAllMocks();
 
     mockCoreClient = initMockCoreClient();
-    mockOptions = createMockOptions();
+    mockOptions = createMockDomainTableServiceOptions();
     mockT = createMockI18nService().translator('my-organization');
 
     vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
@@ -476,7 +444,7 @@ describe('useDomainTableService', () => {
 
     it('should handle onBefore callback returning false', async () => {
       const createData: CreateOrganizationDomainRequestContent = { domain: 'test.com' };
-      const mockOptionsWithFalseBefore = createMockOptions({
+      const mockOptionsWithFalseBefore = createMockDomainTableServiceOptions({
         createAction: {
           onBefore: vi.fn().mockReturnValue(false),
           onAfter: vi.fn(),
@@ -513,7 +481,7 @@ describe('useDomainTableService', () => {
     it('should work without onBefore and onAfter callbacks', async () => {
       const mockDomain = createMockDomain();
       const createData: CreateOrganizationDomainRequestContent = { domain: mockDomain.domain };
-      const mockOptionsWithoutCallbacks = createMockOptions({
+      const mockOptionsWithoutCallbacks = createMockDomainTableServiceOptions({
         createAction: undefined,
       });
 
@@ -570,7 +538,7 @@ describe('useDomainTableService', () => {
 
     it('should handle onBefore callback returning false', async () => {
       const mockDomain = createMockDomain();
-      const mockOptionsWithFalseBefore = createMockOptions({
+      const mockOptionsWithFalseBefore = createMockDomainTableServiceOptions({
         verifyAction: {
           onBefore: vi.fn().mockReturnValue(false),
           onAfter: vi.fn(),
@@ -588,7 +556,7 @@ describe('useDomainTableService', () => {
 
     it('should work without onBefore and onAfter callbacks', async () => {
       const mockDomain = createMockDomain();
-      const mockOptionsWithoutCallbacks = createMockOptions({
+      const mockOptionsWithoutCallbacks = createMockDomainTableServiceOptions({
         verifyAction: undefined,
       });
 
@@ -627,7 +595,7 @@ describe('useDomainTableService', () => {
 
     it('should handle onBefore callback returning false', async () => {
       const mockDomain = createMockDomain();
-      const mockOptionsWithFalseBefore = createMockOptions({
+      const mockOptionsWithFalseBefore = createMockDomainTableServiceOptions({
         deleteAction: {
           onBefore: vi.fn().mockReturnValue(false),
           onAfter: vi.fn(),
@@ -645,7 +613,7 @@ describe('useDomainTableService', () => {
 
     it('should work without onBefore and onAfter callbacks', async () => {
       const mockDomain = createMockDomain();
-      const mockOptionsWithoutCallbacks = createMockOptions({
+      const mockOptionsWithoutCallbacks = createMockDomainTableServiceOptions({
         deleteAction: undefined,
       });
 
@@ -688,7 +656,7 @@ describe('useDomainTableService', () => {
     it('should handle onBefore callback returning false', async () => {
       const mockDomain = createMockDomain();
       const mockProvider = createMockIdentityProvider();
-      const mockOptionsWithFalseBefore = createMockOptions({
+      const mockOptionsWithFalseBefore = createMockDomainTableServiceOptions({
         associateToProviderAction: {
           onBefore: vi.fn().mockReturnValue(false),
           onAfter: vi.fn(),
@@ -709,7 +677,7 @@ describe('useDomainTableService', () => {
     it('should work without onBefore and onAfter callbacks', async () => {
       const mockDomain = createMockDomain();
       const mockProvider = createMockIdentityProvider();
-      const mockOptionsWithoutCallbacks = createMockOptions({
+      const mockOptionsWithoutCallbacks = createMockDomainTableServiceOptions({
         associateToProviderAction: undefined,
       });
 
@@ -752,7 +720,7 @@ describe('useDomainTableService', () => {
     it('should handle onBefore callback returning false', async () => {
       const mockDomain = createMockDomain();
       const mockProvider = createMockIdentityProvider();
-      const mockOptionsWithFalseBefore = createMockOptions({
+      const mockOptionsWithFalseBefore = createMockDomainTableServiceOptions({
         deleteFromProviderAction: {
           onBefore: vi.fn().mockReturnValue(false),
           onAfter: vi.fn(),
@@ -773,7 +741,7 @@ describe('useDomainTableService', () => {
     it('should work without onBefore and onAfter callbacks', async () => {
       const mockDomain = createMockDomain();
       const mockProvider = createMockIdentityProvider();
-      const mockOptionsWithoutCallbacks = createMockOptions({
+      const mockOptionsWithoutCallbacks = createMockDomainTableServiceOptions({
         deleteFromProviderAction: undefined,
       });
 

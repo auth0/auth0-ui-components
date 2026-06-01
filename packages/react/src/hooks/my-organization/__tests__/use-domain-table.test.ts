@@ -3,6 +3,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useDomainTable } from '../use-domain-table';
 
+import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
+import { mockToast, createMockDomainTableServiceReturn } from '@/tests/utils';
+
 const mockHandleError = vi.fn();
 
 vi.mock('@/hooks/shared/use-translator', () => ({
@@ -13,28 +16,13 @@ vi.mock('@/hooks/shared/use-error-handler', () => ({
   useErrorHandler: () => mockHandleError,
 }));
 
-vi.mock('@/components/auth0/shared/toast', () => ({
-  showToast: vi.fn(),
-}));
+mockToast();
 
 vi.mock('@/hooks/my-organization/shared/services/use-domain-table-service', () => ({
-  useDomainTableService: vi.fn(() => ({
-    domains: [],
-    providers: [],
-    isFetching: false,
-    isCreating: false,
-    isDeleting: false,
-    isVerifying: false,
-    isLoadingProviders: false,
-    fetchProviders: vi.fn(),
-    fetchDomains: vi.fn(),
-    onCreateDomain: vi.fn(),
-    onVerifyDomain: vi.fn(),
-    onDeleteDomain: vi.fn(),
-    onAssociateToProvider: vi.fn(),
-    onDeleteFromProvider: vi.fn(),
-  })),
+  useDomainTableService: vi.fn(),
 }));
+
+const mockUseDomainTableService = vi.mocked(useDomainTableService);
 
 describe('useDomainTable', () => {
   const mockDomain = {
@@ -67,6 +55,7 @@ describe('useDomainTable', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseDomainTableService.mockReturnValue(createMockDomainTableServiceReturn());
   });
 
   it('should return correct initial state', () => {
@@ -94,25 +83,9 @@ describe('useDomainTable', () => {
 
   it('should create domain, show toast, and open verify modal on handleCreate', async () => {
     const mockOnCreateDomain = vi.fn().mockResolvedValue(mockDomain);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ onCreateDomain: mockOnCreateDomain }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: vi.fn(),
-      fetchDomains: vi.fn(),
-      onCreateDomain: mockOnCreateDomain,
-      onVerifyDomain: vi.fn(),
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: vi.fn(),
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -129,25 +102,9 @@ describe('useDomainTable', () => {
   it('should handle create error on handleCreate', async () => {
     const error = new Error('Create failed');
     const mockOnCreateDomain = vi.fn().mockRejectedValue(error);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ onCreateDomain: mockOnCreateDomain }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: vi.fn(),
-      fetchDomains: vi.fn(),
-      onCreateDomain: mockOnCreateDomain,
-      onVerifyDomain: vi.fn(),
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: vi.fn(),
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -162,25 +119,9 @@ describe('useDomainTable', () => {
 
   it('should verify domain and close verify modal on handleVerify success', async () => {
     const mockOnVerifyDomain = vi.fn().mockResolvedValue(true);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ onVerifyDomain: mockOnVerifyDomain }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: vi.fn(),
-      fetchDomains: vi.fn(),
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: mockOnVerifyDomain,
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: vi.fn(),
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -194,25 +135,9 @@ describe('useDomainTable', () => {
 
   it('should set verify error on handleVerify failure', async () => {
     const mockOnVerifyDomain = vi.fn().mockResolvedValue(false);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ onVerifyDomain: mockOnVerifyDomain }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: vi.fn(),
-      fetchDomains: vi.fn(),
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: mockOnVerifyDomain,
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: vi.fn(),
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -226,25 +151,9 @@ describe('useDomainTable', () => {
   it('should handle verify error on handleVerify', async () => {
     const error = new Error('Verify failed');
     const mockOnVerifyDomain = vi.fn().mockRejectedValue(error);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ onVerifyDomain: mockOnVerifyDomain }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: vi.fn(),
-      fetchDomains: vi.fn(),
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: mockOnVerifyDomain,
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: vi.fn(),
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -259,25 +168,9 @@ describe('useDomainTable', () => {
 
   it('should delete domain and close modals on handleDelete', async () => {
     const mockOnDeleteDomain = vi.fn().mockResolvedValue(undefined);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ onDeleteDomain: mockOnDeleteDomain }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: vi.fn(),
-      fetchDomains: vi.fn(),
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: vi.fn(),
-      onDeleteDomain: mockOnDeleteDomain,
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: vi.fn(),
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -293,25 +186,9 @@ describe('useDomainTable', () => {
   it('should handle delete error on handleDelete', async () => {
     const error = new Error('Delete failed');
     const mockOnDeleteDomain = vi.fn().mockRejectedValue(error);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ onDeleteDomain: mockOnDeleteDomain }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: vi.fn(),
-      fetchDomains: vi.fn(),
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: vi.fn(),
-      onDeleteDomain: mockOnDeleteDomain,
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: vi.fn(),
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -326,25 +203,9 @@ describe('useDomainTable', () => {
 
   it('should associate domain to provider on handleToggleSwitch with true', async () => {
     const mockOnAssociateToProvider = vi.fn().mockResolvedValue(undefined);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ onAssociateToProvider: mockOnAssociateToProvider }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: vi.fn(),
-      fetchDomains: vi.fn(),
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: vi.fn(),
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: mockOnAssociateToProvider,
-      onDeleteFromProvider: vi.fn(),
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -357,25 +218,9 @@ describe('useDomainTable', () => {
 
   it('should delete domain from provider on handleToggleSwitch with false', async () => {
     const mockOnDeleteFromProvider = vi.fn().mockResolvedValue(undefined);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ onDeleteFromProvider: mockOnDeleteFromProvider }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: vi.fn(),
-      fetchDomains: vi.fn(),
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: vi.fn(),
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: mockOnDeleteFromProvider,
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -389,25 +234,9 @@ describe('useDomainTable', () => {
   it('should handle associate to provider error on handleToggleSwitch', async () => {
     const error = new Error('Associate failed');
     const mockOnAssociateToProvider = vi.fn().mockRejectedValue(error);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ onAssociateToProvider: mockOnAssociateToProvider }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: vi.fn(),
-      fetchDomains: vi.fn(),
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: vi.fn(),
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: mockOnAssociateToProvider,
-      onDeleteFromProvider: vi.fn(),
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -423,25 +252,9 @@ describe('useDomainTable', () => {
   it('should handle delete from provider error on handleToggleSwitch', async () => {
     const error = new Error('Delete from provider failed');
     const mockOnDeleteFromProvider = vi.fn().mockRejectedValue(error);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ onDeleteFromProvider: mockOnDeleteFromProvider }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: vi.fn(),
-      fetchDomains: vi.fn(),
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: vi.fn(),
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: mockOnDeleteFromProvider,
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -456,25 +269,9 @@ describe('useDomainTable', () => {
 
   it('should close verify modal and clear error on handleCloseVerifyModal', async () => {
     const mockOnVerifyDomain = vi.fn().mockResolvedValue(false);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ onVerifyDomain: mockOnVerifyDomain }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: vi.fn(),
-      fetchDomains: vi.fn(),
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: mockOnVerifyDomain,
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: vi.fn(),
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -504,25 +301,9 @@ describe('useDomainTable', () => {
 
   it('should fetch providers and show configure modal for verified domain on handleConfigureClick', async () => {
     const mockFetchProviders = vi.fn().mockResolvedValue(undefined);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ fetchProviders: mockFetchProviders }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: mockFetchProviders,
-      fetchDomains: vi.fn(),
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: vi.fn(),
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: vi.fn(),
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -538,25 +319,9 @@ describe('useDomainTable', () => {
   it('should handle fetchProviders error on handleConfigureClick', async () => {
     const error = new Error('Fetch providers failed');
     const mockFetchProviders = vi.fn().mockRejectedValue(error);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ fetchProviders: mockFetchProviders }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: mockFetchProviders,
-      fetchDomains: vi.fn(),
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: vi.fn(),
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: vi.fn(),
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -572,25 +337,12 @@ describe('useDomainTable', () => {
   it('should verify, fetch providers, and show configure modal on handleVerifyClick success', async () => {
     const mockOnVerifyDomain = vi.fn().mockResolvedValue(true);
     const mockFetchProviders = vi.fn().mockResolvedValue(undefined);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({
+        onVerifyDomain: mockOnVerifyDomain,
+        fetchProviders: mockFetchProviders,
+      }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: mockFetchProviders,
-      fetchDomains: vi.fn(),
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: mockOnVerifyDomain,
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: vi.fn(),
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -606,25 +358,9 @@ describe('useDomainTable', () => {
 
   it('should show error toast on handleVerifyClick failure', async () => {
     const mockOnVerifyDomain = vi.fn().mockResolvedValue(false);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ onVerifyDomain: mockOnVerifyDomain }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: vi.fn(),
-      fetchDomains: vi.fn(),
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: mockOnVerifyDomain,
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: vi.fn(),
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 
@@ -638,25 +374,9 @@ describe('useDomainTable', () => {
   it('should handle error on handleVerifyClick', async () => {
     const error = new Error('Verify click failed');
     const mockOnVerifyDomain = vi.fn().mockRejectedValue(error);
-    const { useDomainTableService } = await import(
-      '@/hooks/my-organization/shared/services/use-domain-table-service'
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ onVerifyDomain: mockOnVerifyDomain }),
     );
-    vi.mocked(useDomainTableService).mockReturnValue({
-      domains: [],
-      providers: [],
-      isFetching: false,
-      isCreating: false,
-      isDeleting: false,
-      isVerifying: false,
-      isLoadingProviders: false,
-      fetchProviders: vi.fn(),
-      fetchDomains: vi.fn(),
-      onCreateDomain: vi.fn(),
-      onVerifyDomain: mockOnVerifyDomain,
-      onDeleteDomain: vi.fn(),
-      onAssociateToProvider: vi.fn(),
-      onDeleteFromProvider: vi.fn(),
-    });
 
     const { result } = renderHook(() => useDomainTable(defaultOptions));
 

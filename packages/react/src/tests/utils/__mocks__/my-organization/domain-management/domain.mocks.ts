@@ -9,6 +9,8 @@ import { vi } from 'vitest';
 import type {
   DomainTableProps,
   UseDomainTableReturn,
+  UseDomainTableServiceOptions,
+  UseDomainTableServiceReturn,
 } from '@/types/my-organization/domain-management/domain-table-types';
 
 export const createMockDomain = (overrides?: Partial<Domain>): Domain => ({
@@ -146,5 +148,52 @@ export const createMockDomainTableReturn = (
   handleConfigureClick: vi.fn(),
   handleVerifyClick: vi.fn(),
   handleDeleteClick: vi.fn(),
+  ...overrides,
+});
+
+export const createMockDomainTableServiceOptions = (
+  overrides?: Partial<UseDomainTableServiceOptions>,
+): UseDomainTableServiceOptions => ({
+  createAction: {
+    onBefore: vi.fn().mockReturnValue(true),
+    onAfter: vi.fn(),
+  },
+  deleteAction: {
+    onBefore: vi.fn().mockReturnValue(true),
+    onAfter: vi.fn(),
+  },
+  verifyAction: {
+    onBefore: vi.fn().mockReturnValue(true),
+    onAfter: vi.fn(),
+  },
+  associateToProviderAction: {
+    onBefore: vi.fn().mockReturnValue(true),
+    onAfter: vi.fn(),
+  },
+  deleteFromProviderAction: {
+    onBefore: vi.fn().mockReturnValue(true),
+    onAfter: vi.fn(),
+  },
+  customMessages: {},
+  ...overrides,
+});
+
+export const createMockDomainTableServiceReturn = (
+  overrides: Partial<UseDomainTableServiceReturn> = {},
+): UseDomainTableServiceReturn => ({
+  domains: [],
+  providers: [],
+  isFetching: false,
+  isCreating: false,
+  isDeleting: false,
+  isVerifying: false,
+  isLoadingProviders: false,
+  fetchProviders: vi.fn(),
+  fetchDomains: vi.fn(),
+  onCreateDomain: vi.fn(),
+  onVerifyDomain: vi.fn(),
+  onDeleteDomain: vi.fn(),
+  onAssociateToProvider: vi.fn(),
+  onDeleteFromProvider: vi.fn(),
   ...overrides,
 });
