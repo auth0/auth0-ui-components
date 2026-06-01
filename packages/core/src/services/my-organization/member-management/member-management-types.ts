@@ -16,16 +16,6 @@ export type OrgMemberId = MyOrganization.OrgMemberId;
 export type OrgMember = MyOrganization.OrgMember;
 
 /**
- * Organization member role.
- */
-export type OrgMemberRole = MyOrganization.OrgMemberRole;
-
-/**
- * Organization member role ID.
- */
-export type OrgMemberRoleId = MyOrganization.OrgMemberRoleId;
-
-/**
  * Response content for listing organization members.
  */
 export type ListOrganizationMembersResponseContent =
@@ -48,18 +38,6 @@ export type ListOrganizationMembersRequestParameters =
  */
 export type GetOrganizationMemberRolesResponseContent =
   MyOrganization.GetOrganizationMemberRolesResponseContent;
-
-/**
- * Request content for assigning a role to an organization member.
- */
-export type AssignOrganizationMemberRoleRequestContent =
-  MyOrganization.AssignOrganizationMemberRoleRequestContent;
-
-/**
- * Response content for assigning a role to an organization member.
- */
-export type AssignOrganizationMemberRoleResponseContent =
-  MyOrganization.AssignOrganizationMemberRoleResponseContent;
 
 /**
  * Invitation ID type.
