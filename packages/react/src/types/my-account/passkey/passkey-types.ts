@@ -58,7 +58,6 @@ export interface UserPasskeyMgmtViewProps {
   customMessages: UserPasskeyMgmtProps['customMessages'];
   hideHeader: boolean;
   disableAdd: boolean;
-  disableRename: boolean;
   disableRevoke: boolean;
   isRevokeModalOpen: boolean;
   currentPasskey: Passkey | null;

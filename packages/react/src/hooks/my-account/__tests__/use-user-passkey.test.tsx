@@ -11,43 +11,13 @@ import {
   setupMockUseErrorHandler,
   createQueryClientWrapper,
 } from '@/tests/utils';
-import type {
-  Passkey,
-  UseUserPasskeyServiceResult,
-} from '@/types/my-account/passkey/passkey-types';
+import {
+  makePasskey,
+  makeMockService,
+  type MockService,
+} from '@/tests/utils/__mocks__/my-account/passkey/use-user-passkey.mocks';
 
 const { mockedShowToast } = mockToast();
-
-const makePasskey = (overrides?: Partial<Passkey>): Passkey => ({
-  id: 'pk-1',
-  name: 'My Passkey',
-  createdAt: '2024-01-01',
-  ...overrides,
-});
-
-type MockService = {
-  passkeysQuery: Pick<
-    UseUserPasskeyServiceResult['passkeysQuery'],
-    'data' | 'isLoading' | 'isSuccess' | 'isError' | 'error'
-  >;
-  enrollMutation: Pick<UseUserPasskeyServiceResult['enrollMutation'], 'mutateAsync' | 'isPending'>;
-  revokeMutation: Pick<UseUserPasskeyServiceResult['revokeMutation'], 'mutateAsync' | 'isPending'>;
-  renameMutation: Pick<UseUserPasskeyServiceResult['renameMutation'], 'mutateAsync' | 'isPending'>;
-};
-
-const makeMockService = (overrides?: Partial<MockService>): MockService => ({
-  passkeysQuery: {
-    data: [makePasskey()],
-    isLoading: false,
-    isSuccess: true,
-    isError: false,
-    error: null,
-  },
-  enrollMutation: { mutateAsync: vi.fn().mockResolvedValue(true), isPending: false },
-  revokeMutation: { mutateAsync: vi.fn().mockResolvedValue(undefined), isPending: false },
-  renameMutation: { mutateAsync: vi.fn().mockResolvedValue({}), isPending: false },
-  ...overrides,
-});
 
 let mockService: MockService;
 let mockHandleError: ReturnType<typeof vi.fn>;
@@ -64,7 +34,9 @@ describe('useUserPasskey', () => {
     mockHandleError = setupMockUseErrorHandler(useErrorHandlerModule);
     mockService = makeMockService();
     vi.spyOn(useUserPasskeyServiceModule, 'useUserPasskeyService').mockReturnValue(
-      mockService as unknown as UseUserPasskeyServiceResult,
+      mockService as unknown as ReturnType<
+        typeof useUserPasskeyServiceModule.useUserPasskeyService
+      >,
     );
   });
 
@@ -83,7 +55,7 @@ describe('useUserPasskey', () => {
       enrollMutation: { ...mockService.enrollMutation, isPending: true },
       revokeMutation: { ...mockService.revokeMutation, isPending: true },
       renameMutation: { ...mockService.renameMutation, isPending: true },
-    } as unknown as UseUserPasskeyServiceResult);
+    } as unknown as ReturnType<typeof useUserPasskeyServiceModule.useUserPasskeyService>);
     const { result } = render();
     expect(result.current.isLoading).toBe(true);
     expect(result.current.isEnrolling).toBe(true);
@@ -101,7 +73,7 @@ describe('useUserPasskey', () => {
     vi.spyOn(useUserPasskeyServiceModule, 'useUserPasskeyService').mockReturnValue({
       ...mockService,
       passkeysQuery: { ...mockService.passkeysQuery, isLoading: true },
-    } as unknown as UseUserPasskeyServiceResult);
+    } as unknown as ReturnType<typeof useUserPasskeyServiceModule.useUserPasskeyService>);
     const { result } = render({
       addAction: { disabled: true },
       revokeAction: { disabled: true },
