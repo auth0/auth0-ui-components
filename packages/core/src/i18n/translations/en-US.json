@@ -1128,6 +1128,7 @@
       },
       "detail": {
         "back_button": "Back to Members",
+        "user_id_label": "User ID:",
         "tabs": {
           "details": "Details",
           "roles": "Roles"

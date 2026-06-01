@@ -1129,6 +1129,7 @@
       },
       "detail": {
         "back_button": "メンバー一覧に戻る",
+        "user_id_label": "ユーザーID:",
         "tabs": {
           "details": "詳細",
           "roles": "ロール"
