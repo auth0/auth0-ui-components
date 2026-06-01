@@ -6,11 +6,7 @@
  * @internal
  */
 
-import {
-  getStatusCode,
-  isMfaRequiredError,
-  isNotifiableError,
-} from '@auth0/universal-components-core';
+import { isMfaRequiredError, isNotifiableError } from '@auth0/universal-components-core';
 import {
   MutationCache,
   type Query,
@@ -49,8 +45,6 @@ const MUTATION_RETRY_CONFIG = {
 } as const;
 
 const DISABLED_CACHE_GC_TIME = 5 * 1000;
-
-const NON_RETRYABLE_STATUS_CODES = new Set([400, 401, 403, 404, 409, 410, 422]);
 
 /**
  * Merges user config with defaults.
@@ -134,16 +128,8 @@ function createQueryClient(
         staleTime: cacheConfig.staleTime,
         gcTime: cacheConfig.gcTime,
         refetchOnWindowFocus: cacheConfig.refetchOnWindowFocus,
-        retry: (failureCount, error) => {
-          if (isMfaRequiredError(error)) {
-            return false;
-          }
-          const status = getStatusCode(error);
-          if (status && NON_RETRYABLE_STATUS_CODES.has(status)) {
-            return false;
-          }
-          return failureCount < QUERY_RETRY_CONFIG.maxRetries;
-        },
+        retry: (failureCount, error) =>
+          !isMfaRequiredError(error) && failureCount < QUERY_RETRY_CONFIG.maxRetries,
         retryDelay: (attemptIndex: number) =>
           Math.min(
             1000 * QUERY_RETRY_CONFIG.backoffMultiplier ** attemptIndex,
