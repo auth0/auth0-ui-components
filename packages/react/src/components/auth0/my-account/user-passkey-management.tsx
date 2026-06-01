@@ -67,7 +67,6 @@ function UserPasskeyMgmt(props: UserPasskeyMgmtProps) {
     isEnrolling,
     isRevoking,
     disableAdd,
-    disableRename,
     disableRevoke,
     isRevokeModalOpen,
     currentPasskey,
@@ -94,7 +93,6 @@ function UserPasskeyMgmt(props: UserPasskeyMgmtProps) {
         customMessages={customMessages}
         hideHeader={hideHeader}
         disableAdd={disableAdd}
-        disableRename={disableRename}
         disableRevoke={disableRevoke}
         isRevokeModalOpen={isRevokeModalOpen}
         currentPasskey={currentPasskey}
@@ -165,6 +163,7 @@ function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
                 className="text-sm w-full sm:w-auto shrink-0"
                 onClick={handleAddPasskey}
                 disabled={isEnrolling}
+                aria-busy={isEnrolling}
                 aria-label={t('add_passkey')}
               >
                 {isEnrolling ? (

@@ -37,7 +37,6 @@ export const createMockUserPasskeyMgmtViewProps = (
   customMessages: {},
   hideHeader: false,
   disableAdd: false,
-  disableRename: false,
   disableRevoke: false,
   isRevokeModalOpen: false,
   currentPasskey: null,
