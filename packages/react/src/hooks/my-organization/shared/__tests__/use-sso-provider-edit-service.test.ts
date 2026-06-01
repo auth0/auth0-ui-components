@@ -1312,5 +1312,114 @@ describe('useSsoProviderEditService', () => {
 
       expect(mockDetach).not.toHaveBeenCalled();
     });
+
+    it('should return early from createScimToken if provider is null', async () => {
+      mockGet.mockResolvedValue(null);
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      const token = await result.current.createScimToken({});
+
+      expect(token).toBeUndefined();
+      expect(mockScimTokensCreate).not.toHaveBeenCalled();
+    });
+
+    it('should return early from deleteScimToken if provider is null', async () => {
+      mockGet.mockResolvedValue(null);
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await result.current.deleteScimToken('token_123');
+
+      expect(mockScimTokensDelete).not.toHaveBeenCalled();
+    });
+
+    it('should return early from fetchProvisioning if idpId is empty', async () => {
+      const { result } = renderUseSsoProviderEdit('');
+
+      const config = await result.current.fetchProvisioning();
+
+      expect(config).toBe(null);
+      expect(mockProvisioningGet).not.toHaveBeenCalled();
+    });
+
+    it('should return early from fetchProvisioning if coreClient is null', async () => {
+      setupMockUseCoreClientNull(useCoreClientModule);
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      const config = await result.current.fetchProvisioning();
+
+      expect(config).toBe(null);
+    });
+
+    it('should return early from syncSsoAttributes if idpId is empty', async () => {
+      const { result } = renderUseSsoProviderEdit('');
+
+      await result.current.syncSsoAttributes();
+
+      // Should not throw or call any API
+    });
+
+    it('should return early from syncProvisioningAttributes if coreClient is null', async () => {
+      setupMockUseCoreClientNull(useCoreClientModule);
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await result.current.syncProvisioningAttributes();
+
+      // Should not throw or call any API
+    });
+  });
+
+  describe('fetchProvider callback', () => {
+    it('should return provider data via fetchProvider', async () => {
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await waitFor(() => {
+        expect(result.current.provider).toEqual(mockProvider);
+      });
+
+      const provider = await result.current.fetchProvider();
+
+      expect(provider).toEqual(mockProvider);
+    });
+
+    it('should handle fetchProvider error and return null', async () => {
+      mockGet.mockRejectedValue(new Error('Network error'));
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      const provider = await result.current.fetchProvider();
+
+      expect(provider).toBe(null);
+      expect(mockHandleError).toHaveBeenCalledWith(expect.any(Error), {
+        fallbackMessage: 'An error occurred',
+      });
+    });
+  });
+
+  describe('fetchOrganizationDetails callback', () => {
+    it('should call fetchOrganizationDetails without error', async () => {
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await waitFor(() => {
+        expect(result.current.provider).toEqual(mockProvider);
+      });
+
+      await result.current.fetchOrganizationDetails();
+
+      expect(result.current.organization).toEqual(mockOrganization);
+    });
+
+    it('should return early from fetchOrganizationDetails if coreClient is null', async () => {
+      setupMockUseCoreClientNull(useCoreClientModule);
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await result.current.fetchOrganizationDetails();
+
+      // Should not throw - early return when coreClient is null
+    });
   });
 });
