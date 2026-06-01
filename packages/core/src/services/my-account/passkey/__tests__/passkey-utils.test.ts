@@ -8,30 +8,7 @@ import {
   createPasskeyCredential,
 } from '../passkey-utils';
 
-const toBuffer = (str: string) => new TextEncoder().encode(str).buffer as ArrayBuffer;
-
-interface MockCredentialOverrides {
-  id?: string;
-  rawId?: ArrayBuffer;
-  authenticatorAttachment?: string | null;
-  response?: {
-    clientDataJSON?: ArrayBuffer;
-    attestationObject?: ArrayBuffer;
-  };
-}
-
-const mockCredential = (overrides: MockCredentialOverrides = {}) =>
-  ({
-    id: overrides.id ?? 'credential-id',
-    rawId: overrides.rawId ?? toBuffer('rawId'),
-    type: 'public-key',
-    authenticatorAttachment:
-      'authenticatorAttachment' in overrides ? overrides.authenticatorAttachment : 'platform',
-    response: {
-      clientDataJSON: overrides.response?.clientDataJSON ?? toBuffer('clientData'),
-      attestationObject: overrides.response?.attestationObject ?? toBuffer('attestation'),
-    },
-  }) as unknown as PublicKeyCredential;
+import { toBuffer, mockCredential } from './__mocks__/passkey-utils.mocks';
 
 describe('passkey-utils', () => {
   describe('base64UrlToUint8Array', () => {
@@ -119,6 +96,11 @@ describe('passkey-utils', () => {
   describe('createPasskeyCredential', () => {
     beforeEach(() => {
       vi.restoreAllMocks();
+      Object.defineProperty(globalThis, 'window', {
+        value: { PublicKeyCredential: true },
+        writable: true,
+        configurable: true,
+      });
       Object.defineProperty(globalThis, 'navigator', {
         value: { credentials: { create: vi.fn() } },
         writable: true,

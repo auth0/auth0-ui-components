@@ -49,6 +49,13 @@ export function parsePublicKeyCreationOptions(
 }
 
 /**
+ * @returns True if the browser supports WebAuthn passkey creation.
+ */
+export function isWebAuthnSupported(): boolean {
+  return !!(window.PublicKeyCredential && navigator.credentials?.create);
+}
+
+/**
  * Runs the WebAuthn credential creation ceremony and returns the attestation response.
  * Returns null if the user cancels or no credential is produced.
  * @param options - PublicKeyCredentialCreationOptions from the server.
@@ -57,6 +64,8 @@ export function parsePublicKeyCreationOptions(
 export async function createPasskeyCredential(
   options: PublicKeyCredentialCreationOptions,
 ): Promise<PasskeyAttestationResponse | null> {
+  if (!isWebAuthnSupported()) return null;
+
   const credential = (await navigator.credentials.create({
     publicKey: options,
   })) as PublicKeyCredential | null;
