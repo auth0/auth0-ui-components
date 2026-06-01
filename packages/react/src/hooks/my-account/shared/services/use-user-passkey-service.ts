@@ -44,7 +44,7 @@ export function useUserPasskeyService(): UseUserPasskeyServiceResult {
 
   const invalidateList = () => queryClient.invalidateQueries({ queryKey: passkeyQueryKeys.list() });
 
-  const enrollMutation = useMutation<void, Error, void>({
+  const enrollMutation = useMutation<boolean, Error, void>({
     mutationFn: async () => {
       const client = coreClient!.getMyAccountApiClient();
 
@@ -56,14 +56,17 @@ export function useUserPasskeyService(): UseUserPasskeyServiceResult {
       const authnResponse = await createPasskeyCredential(
         parsePublicKeyCreationOptions(authn_params_public_key),
       );
-      if (!authnResponse) return;
+      if (!authnResponse) return false;
 
       await client.authenticationMethods.verify(authnResponse.id, {
         auth_session,
         authn_response: authnResponse,
       });
+      return true;
     },
-    onSuccess: invalidateList,
+    onSuccess: (enrolled) => {
+      if (enrolled) invalidateList();
+    },
   });
 
   const revokeMutation = useMutation<void, Error, string>({

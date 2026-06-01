@@ -14,7 +14,7 @@ export interface Passkey {
 
 export interface UseUserPasskeyServiceResult {
   passkeysQuery: UseQueryResult<Passkey[]>;
-  enrollMutation: UseMutationResult<void, Error, void>;
+  enrollMutation: UseMutationResult<boolean, Error, void>;
   revokeMutation: UseMutationResult<void, Error, string>;
   renameMutation: UseMutationResult<UpdatePasskeyResponse, Error, { id: string; name: string }>;
 }
