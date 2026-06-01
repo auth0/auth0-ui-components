@@ -106,6 +106,31 @@ export function OrganizationMemberDetailView(
     [styling, isDarkMode],
   );
 
+  if (props.memberError) {
+    return (
+      <StyledScope style={currentStyles.variables}>
+        <div className={currentStyles.classes?.['OrganizationMemberDetail-root']}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mb-4 -ml-2 text-muted-foreground hover:text-primary"
+            onClick={props.handleBack}
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            {t('member.detail.back_button')}
+          </Button>
+          <div
+            className="flex flex-col items-center justify-center p-8 space-y-2"
+            role="alert"
+            aria-live="assertive"
+          >
+            <p className="text-xl text-center">{props.memberError}</p>
+          </div>
+        </div>
+      </StyledScope>
+    );
+  }
+
   return (
     <StyledScope style={currentStyles.variables}>
       <div className={currentStyles.classes?.['OrganizationMemberDetail-root']}>
