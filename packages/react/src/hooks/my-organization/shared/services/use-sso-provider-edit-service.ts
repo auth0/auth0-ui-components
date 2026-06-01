@@ -184,13 +184,9 @@ export function useSsoProviderEditService(
         type: 'success',
         message: t('update_success', { providerName: provider?.display_name }),
       });
-
-      // Invalidate queries to refetch fresh data
       await queryClient.invalidateQueries({
         queryKey: ssoProviderQueryKeys.list(),
       });
-
-      // Update cache with new data
       queryClient.setQueryData(ssoProviderEditQueryKeys.detail(idpId), result);
 
       if (sso?.updateAction?.onAfter && provider) {
@@ -235,8 +231,6 @@ export function useSsoProviderEditService(
         type: 'success',
         message: t('update_success', { providerName: provider?.display_name }),
       });
-
-      // Invalidate queries to refetch fresh data
       await queryClient.invalidateQueries({
         queryKey: ssoProviderEditQueryKeys.detail(idpId),
       });
@@ -282,8 +276,6 @@ export function useSsoProviderEditService(
         type: 'success',
         message: t('update_success', { providerName: provider?.display_name }),
       });
-
-      // Update cache to reflect deleted provisioning
       queryClient.setQueryData(ssoProviderEditQueryKeys.provisioning(idpId), null);
       await queryClient.invalidateQueries({
         queryKey: ssoProviderEditQueryKeys.detail(idpId),
@@ -331,8 +323,6 @@ export function useSsoProviderEditService(
         type: 'success',
         message: t('scim_token_create_success'),
       });
-
-      // Invalidate SCIM tokens list to refetch
       await queryClient.invalidateQueries({
         queryKey: ssoProviderEditQueryKeys.scimTokens(idpId),
       });
@@ -377,8 +367,6 @@ export function useSsoProviderEditService(
         type: 'success',
         message: t('scim_token_delete_sucess'),
       });
-
-      // Invalidate SCIM tokens list to refetch
       await queryClient.invalidateQueries({
         queryKey: ssoProviderEditQueryKeys.scimTokens(idpId),
       });
@@ -416,8 +404,6 @@ export function useSsoProviderEditService(
         type: 'success',
         message: t('delete_success', { providerName: provider?.display_name }),
       });
-
-      // Remove all related queries from cache
       queryClient.removeQueries({
         queryKey: ssoProviderEditQueryKeys.detail(idpId),
       });
@@ -427,8 +413,6 @@ export function useSsoProviderEditService(
       queryClient.removeQueries({
         queryKey: ssoProviderEditQueryKeys.scimTokens(idpId),
       });
-
-      // Invalidate all queries from cache
       await queryClient.invalidateQueries({
         queryKey: ssoProviderEditQueryKeys.all,
       });
@@ -458,8 +442,6 @@ export function useSsoProviderEditService(
           throw new Error(ACTION_CANCELLED_ERROR);
         }
       }
-
-      // Ensure organization data is fresh before detaching
       await queryClient.ensureQueryData({
         queryKey: ssoProviderEditQueryKeys.organization(),
       });
@@ -479,13 +461,9 @@ export function useSsoProviderEditService(
           organizationName: organization?.display_name,
         }),
       });
-
-      // Remove provider from cache to invalidate details
       queryClient.removeQueries({
         queryKey: ssoProviderEditQueryKeys.detail(idpId),
       });
-
-      // Remove provider from cache to invalidate list
       await queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.list() });
 
       if (sso?.deleteFromOrganizationAction?.onAfter && provider) {
@@ -778,12 +756,9 @@ export function useSsoProviderEditService(
   }, [provisioningQuery.data]);
 
   return {
-    // Data from TanStack Query - single source of truth
     provider: providerQuery.data ?? null,
     organization: organizationQuery.data ?? OrganizationDetailsFactory.create(),
     provisioningConfig: provisioningQuery.data ?? null,
-
-    // Loading states - all derived from TanStack Query
     isLoading: providerQuery.isLoading || organizationQuery.isLoading,
     isUpdating: updateProviderMutation.isPending,
     isDeleting: deleteProviderMutation.isPending,
@@ -796,12 +771,8 @@ export function useSsoProviderEditService(
     isScimTokenDeleting: deleteScimTokenMutation.isPending,
     isSsoAttributesSyncing: syncSsoAttributesMutation.isPending,
     isProvisioningAttributesSyncing: syncProvisioningAttributesMutation.isPending,
-
-    // Warning states
     hasSsoAttributeSyncWarning,
     hasProvisioningAttributeSyncWarning,
-
-    // Actions
     fetchProvider,
     fetchOrganizationDetails,
     fetchProvisioning,

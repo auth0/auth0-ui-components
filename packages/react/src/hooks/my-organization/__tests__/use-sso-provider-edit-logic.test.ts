@@ -3,7 +3,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useSsoProviderEdit } from '../use-sso-provider-edit';
 
-// Mock useConfig and useIdpConfig to avoid network/queryClient
+import * as useSsoProviderEditServiceModule from '@/hooks/my-organization/shared/services/use-sso-provider-edit-service';
+import { createMockSsoProviderEditServiceReturn } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-provider-edit/sso-provider-edit.mocks';
+
 vi.mock('@/hooks/my-organization/use-config', () => ({
   useConfig: () => ({
     shouldAllowDeletion: true,
@@ -18,73 +20,32 @@ vi.mock('@/hooks/my-organization/use-idp-config', () => ({
     isProvisioningMethodEnabled: vi.fn(() => true),
   }),
 }));
-vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-edit-service', () => ({
-  useSsoProviderEditService: () => ({
-    ...mockServiceReturn,
-  }),
-  ssoProviderEditQueryKeys: {
-    all: ['sso-providers'],
-    list: () => ['sso-providers', 'list'],
-    detail: (id: string) => ['sso-providers', 'detail', id],
-    organization: () => ['organization', 'details'],
-    provisioning: (id: string) => ['sso-providers', 'provisioning', id],
-    scimTokens: (id: string) => ['sso-providers', 'scim-tokens', id],
-  },
-}));
+vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-edit-service', async () => {
+  const actual = await vi.importActual(
+    '@/hooks/my-organization/shared/services/use-sso-provider-edit-service',
+  );
+
+  return {
+    ...actual,
+    useSsoProviderEditService: vi.fn(),
+  };
+});
 
 const mockUpdateProvider = vi.fn();
 
-const mockServiceReturn: Record<string, unknown> = {
-  provider: {
-    id: 'test-provider-id',
-    name: 'Test Provider',
-    is_enabled: true,
-    strategy: 'waad' as const,
-    options: {},
-  },
-  organization: {
-    name: 'Org',
-    branding: {
-      colors: {
-        primary: '',
-        page_background: '',
-      },
-      logo_url: undefined,
-    },
-  },
-  provisioningConfig: null,
-  isLoading: false,
-  isUpdating: false,
-  isDeleting: false,
-  isRemoving: false,
-  isProvisioningUpdating: false,
-  isProvisioningDeleting: false,
-  isProvisioningLoading: false,
-  isScimTokensLoading: false,
-  isScimTokenCreating: false,
-  isScimTokenDeleting: false,
-  isSsoAttributesSyncing: false,
-  isProvisioningAttributesSyncing: false,
-  hasSsoAttributeSyncWarning: false,
-  hasProvisioningAttributeSyncWarning: false,
-  fetchProvider: vi.fn(),
-  fetchOrganizationDetails: vi.fn(),
-  fetchProvisioning: vi.fn(),
+let mockServiceReturn = createMockSsoProviderEditServiceReturn({
   updateProvider: mockUpdateProvider,
-  createProvisioning: vi.fn(),
-  deleteProvisioning: vi.fn(),
-  listScimTokens: vi.fn(),
-  createScimToken: vi.fn(),
-  deleteScimToken: vi.fn(),
-  syncSsoAttributes: vi.fn(),
-  syncProvisioningAttributes: vi.fn(),
-  onDeleteConfirm: vi.fn(),
-  onRemoveConfirm: vi.fn(),
-};
+});
 
 describe('useSsoProviderEdit - logic behavior', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockServiceReturn = createMockSsoProviderEditServiceReturn({
+      updateProvider: mockUpdateProvider,
+    });
+    vi.mocked(useSsoProviderEditServiceModule.useSsoProviderEditService).mockReturnValue(
+      mockServiceReturn,
+    );
   });
 
   it('should return correct logic state', () => {
@@ -109,7 +70,14 @@ describe('useSsoProviderEdit - logic behavior', () => {
   });
 
   it('should not call updateProvider if provider.strategy is missing', async () => {
-    mockServiceReturn.provider = null;
+    mockServiceReturn = createMockSsoProviderEditServiceReturn({
+      provider: null,
+      updateProvider: mockUpdateProvider,
+    });
+    vi.mocked(useSsoProviderEditServiceModule.useSsoProviderEditService).mockReturnValue(
+      mockServiceReturn,
+    );
+
     const { result } = renderHook(() => useSsoProviderEdit('test-idp-id'));
     await act(async () => {
       await result.current.handleToggleProvider(true);

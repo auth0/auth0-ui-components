@@ -6,17 +6,16 @@ import type {
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 
-import { showToast } from '@/components/auth0/shared/toast';
 import { useSsoProviderEditService } from '@/hooks/my-organization/shared/services/use-sso-provider-edit-service';
-import { useCoreClient } from '@/hooks/shared/use-core-client';
-import { useErrorHandler } from '@/hooks/shared/use-error-handler';
-import { useTranslator } from '@/hooks/shared/use-translator';
+import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
+import * as useTranslatorModule from '@/hooks/shared/use-translator';
+import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
+import { mockToast } from '@/tests/utils/test-setup';
+import { setupMockUseCoreClient, setupMockUseCoreClientNull } from '@/tests/utils/test-utilities';
 
-vi.mock('@/hooks/shared/use-core-client');
-vi.mock('@/hooks/shared/use-translator');
-vi.mock('@/components/auth0/shared/toast');
-vi.mock('@/hooks/shared/use-error-handler');
+const { mockedShowToast } = mockToast();
 
 describe('useSsoProviderEditService', () => {
   const mockIdpId = 'idp_123';
@@ -55,32 +54,8 @@ describe('useSsoProviderEditService', () => {
     return key;
   });
 
-  const mockOrgClient = {
-    organization: {
-      identityProviders: {
-        get: mockGet,
-        update: mockUpdate,
-        delete: mockDelete,
-        detach: mockDetach,
-        provisioning: {
-          get: mockProvisioningGet,
-          create: mockProvisioningCreate,
-          delete: mockProvisioningDelete,
-          scimTokens: {
-            list: mockScimTokensList,
-            create: mockScimTokensCreate,
-            delete: mockScimTokensDelete,
-          },
-        },
-      },
-    },
-    organizationDetails: {
-      get: mockGetOrgDetails,
-    },
-  };
-  const mockCoreClient = {
-    getMyOrganizationApiClient: () => mockOrgClient,
-  };
+  const mockCoreClient = createMockCoreClient();
+  const mockOrgClient = mockCoreClient.getMyOrganizationApiClient();
 
   const mockProvider: IdpKnownResponse = {
     id: mockIdpId,
@@ -111,13 +86,32 @@ describe('useSsoProviderEditService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useCoreClient as Mock).mockReturnValue({ coreClient: mockCoreClient });
-    (useTranslator as Mock).mockReturnValue({ t: mockT });
+    mockOrgClient.organization.identityProviders.get = mockGet;
+    mockOrgClient.organization.identityProviders.update = mockUpdate;
+    mockOrgClient.organization.identityProviders.delete = mockDelete;
+    mockOrgClient.organization.identityProviders.detach = mockDetach;
+    (
+      mockOrgClient.organization.identityProviders as unknown as Record<string, unknown>
+    ).provisioning = {
+      ...mockOrgClient.organization.identityProviders.provisioning,
+      get: mockProvisioningGet,
+      create: mockProvisioningCreate,
+      delete: mockProvisioningDelete,
+      scimTokens: {
+        list: mockScimTokensList,
+        create: mockScimTokensCreate,
+        delete: mockScimTokensDelete,
+      },
+    };
+    mockOrgClient.organizationDetails.get = mockGetOrgDetails;
+
+    setupMockUseCoreClient(mockCoreClient, useCoreClientModule);
+    vi.spyOn(useTranslatorModule, 'useTranslator').mockReturnValue({ t: mockT } as never);
     mockGet.mockResolvedValue(mockProvider);
     mockGetOrgDetails.mockResolvedValue(mockOrganization);
     mockProvisioningGet.mockResolvedValue({ enabled: false });
     mockHandleError = vi.fn();
-    (useErrorHandler as Mock).mockReturnValue(mockHandleError);
+    vi.spyOn(useErrorHandlerModule, 'useErrorHandler').mockReturnValue(mockHandleError);
   });
 
   it('should initialize with correct default states', () => {
@@ -174,7 +168,7 @@ describe('useSsoProviderEditService', () => {
 
     await waitFor(() => {
       expect(mockDelete).toHaveBeenCalledWith(mockIdpId);
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
         message: 'Provider Test Provider deleted successfully',
       });
@@ -213,7 +207,7 @@ describe('useSsoProviderEditService', () => {
 
     await waitFor(() => {
       expect(mockDetach).toHaveBeenCalledWith(mockIdpId);
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
         message: expect.stringContaining('removed'),
       });
@@ -282,7 +276,7 @@ describe('useSsoProviderEditService', () => {
 
     await waitFor(() => {
       expect(mockProvisioningCreate).toHaveBeenCalledWith(mockIdpId);
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
         message: 'Provider Test Provider updated successfully',
       });
@@ -307,7 +301,7 @@ describe('useSsoProviderEditService', () => {
 
     expect(onBefore).toHaveBeenCalledWith(mockProvider);
     expect(mockProvisioningCreate).not.toHaveBeenCalled();
-    expect(showToast).not.toHaveBeenCalled();
+    expect(mockedShowToast).not.toHaveBeenCalled();
   });
 
   it('should delete provisioning successfully', async () => {
@@ -364,7 +358,7 @@ describe('useSsoProviderEditService', () => {
 
     await waitFor(() => {
       expect(mockScimTokensCreate).toHaveBeenCalledWith(mockIdpId, tokenData);
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
         message: 'SCIM token created successfully',
       });
@@ -408,7 +402,7 @@ describe('useSsoProviderEditService', () => {
 
     await waitFor(() => {
       expect(mockScimTokensDelete).toHaveBeenCalledWith(mockIdpId, tokenId);
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
         message: 'SCIM token deleted successfully',
       });
@@ -417,7 +411,7 @@ describe('useSsoProviderEditService', () => {
   });
 
   it('should return early if coreClient is not available', async () => {
-    (useCoreClient as Mock).mockReturnValue({ coreClient: null });
+    setupMockUseCoreClientNull(useCoreClientModule);
 
     const { result } = renderUseSsoProviderEdit(mockIdpId);
 
@@ -457,7 +451,10 @@ describe('useSsoProviderEditService', () => {
     renderUseSsoProviderEdit(mockIdpId, { customMessages });
 
     await waitFor(() => {
-      expect(useTranslator).toHaveBeenCalledWith('idp_management.notifications', customMessages);
+      expect(useTranslatorModule.useTranslator).toHaveBeenCalledWith(
+        'idp_management.notifications',
+        customMessages,
+      );
     });
   });
 
@@ -485,7 +482,7 @@ describe('useSsoProviderEditService', () => {
 
     await waitFor(() => {
       expect(mockUpdate).toHaveBeenCalledWith(mockIdpId, expect.any(Object));
-      expect(showToast).toHaveBeenCalledWith({
+      expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
         message: 'Provider Test Provider updated successfully',
       });
@@ -523,7 +520,9 @@ describe('useSsoProviderEditService', () => {
           get: mockGetOrgDetails,
         },
       };
-      mockCoreClient.getMyOrganizationApiClient = () => ssoOrgClient;
+      vi.mocked(mockCoreClient.getMyOrganizationApiClient).mockReturnValue(
+        ssoOrgClient as unknown as ReturnType<typeof mockCoreClient.getMyOrganizationApiClient>,
+      );
     });
 
     const renderUseSsoProviderEdit = (...args: Parameters<typeof useSsoProviderEditService>) => {
@@ -544,7 +543,7 @@ describe('useSsoProviderEditService', () => {
 
       await waitFor(() => {
         expect(mockUpdateAttributes).toHaveBeenCalledWith(mockIdpId, {});
-        expect(showToast).toHaveBeenCalledWith({
+        expect(mockedShowToast).toHaveBeenCalledWith({
           type: 'success',
           message: 'sso_attributes_sync_success',
         });
@@ -571,7 +570,7 @@ describe('useSsoProviderEditService', () => {
     });
 
     it('should return early if coreClient is not available', async () => {
-      (useCoreClient as Mock).mockReturnValue({ coreClient: null });
+      setupMockUseCoreClientNull(useCoreClientModule);
 
       const { result } = renderUseSsoProviderEdit(mockIdpId);
 
@@ -610,7 +609,11 @@ describe('useSsoProviderEditService', () => {
           get: mockGetOrgDetails,
         },
       };
-      mockCoreClient.getMyOrganizationApiClient = () => provisioningOrgClient;
+      vi.mocked(mockCoreClient.getMyOrganizationApiClient).mockReturnValue(
+        provisioningOrgClient as unknown as ReturnType<
+          typeof mockCoreClient.getMyOrganizationApiClient
+        >,
+      );
     });
 
     it('should sync provisioning attributes successfully', async () => {
@@ -627,7 +630,7 @@ describe('useSsoProviderEditService', () => {
 
       await waitFor(() => {
         expect(mockProvisioningUpdateAttributes).toHaveBeenCalledWith(mockIdpId, {});
-        expect(showToast).toHaveBeenCalledWith({
+        expect(mockedShowToast).toHaveBeenCalledWith({
           type: 'success',
           message: 'provisioning_attributes_sync_success',
         });
@@ -654,7 +657,7 @@ describe('useSsoProviderEditService', () => {
     });
 
     it('should return early if coreClient is not available', async () => {
-      (useCoreClient as Mock).mockReturnValue({ coreClient: null });
+      setupMockUseCoreClientNull(useCoreClientModule);
 
       const { result } = renderUseSsoProviderEdit(mockIdpId);
 
@@ -831,7 +834,7 @@ describe('useSsoProviderEditService', () => {
 
       expect(onBefore).toHaveBeenCalledWith(mockProvider);
       expect(mockUpdate).not.toHaveBeenCalled();
-      expect(showToast).not.toHaveBeenCalled();
+      expect(mockedShowToast).not.toHaveBeenCalled();
     });
 
     it('should call onBefore callback for provisioning delete and abort when it returns false', async () => {
@@ -851,7 +854,7 @@ describe('useSsoProviderEditService', () => {
 
       expect(onBefore).toHaveBeenCalledWith(mockProvider);
       expect(mockProvisioningDelete).not.toHaveBeenCalled();
-      expect(showToast).not.toHaveBeenCalled();
+      expect(mockedShowToast).not.toHaveBeenCalled();
     });
 
     it('should call onBefore callback for SCIM token delete and abort when it returns false', async () => {
@@ -871,7 +874,7 @@ describe('useSsoProviderEditService', () => {
 
       expect(onBefore).toHaveBeenCalledWith(mockProvider);
       expect(mockScimTokensDelete).not.toHaveBeenCalled();
-      expect(showToast).not.toHaveBeenCalled();
+      expect(mockedShowToast).not.toHaveBeenCalled();
     });
 
     it('should call onBefore callback for remove from org and abort when it returns false', async () => {
@@ -1260,7 +1263,7 @@ describe('useSsoProviderEditService', () => {
     });
 
     it('should return early from listScimTokens if coreClient is null', async () => {
-      (useCoreClient as Mock).mockReturnValue({ coreClient: null });
+      setupMockUseCoreClientNull(useCoreClientModule);
 
       const { result } = renderUseSsoProviderEdit(mockIdpId);
 
@@ -1271,7 +1274,7 @@ describe('useSsoProviderEditService', () => {
     });
 
     it('should return early from createScimToken if coreClient is null', async () => {
-      (useCoreClient as Mock).mockReturnValue({ coreClient: null });
+      setupMockUseCoreClientNull(useCoreClientModule);
 
       const { result } = renderUseSsoProviderEdit(mockIdpId);
 
@@ -1281,7 +1284,7 @@ describe('useSsoProviderEditService', () => {
     });
 
     it('should return early from deleteScimToken if coreClient is null', async () => {
-      (useCoreClient as Mock).mockReturnValue({ coreClient: null });
+      setupMockUseCoreClientNull(useCoreClientModule);
 
       const { result } = renderUseSsoProviderEdit(mockIdpId);
 
