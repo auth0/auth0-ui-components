@@ -9,7 +9,6 @@ import type {
 export const createMockPasskeyActionModalProps = (
   overrides?: Partial<PasskeyActionModalProps>,
 ): PasskeyActionModalProps => ({
-  mode: 'revoke',
   open: true,
   onOpenChange: vi.fn(),
   isPending: false,
@@ -37,7 +36,6 @@ export const createMockUserPasskeyMgmtViewProps = (
   customMessages: {},
   hideHeader: false,
   disableAdd: false,
-  disableRename: false,
   disableRevoke: false,
   isRevokeModalOpen: false,
   currentPasskey: null,

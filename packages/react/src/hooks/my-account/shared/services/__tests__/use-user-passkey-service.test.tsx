@@ -62,7 +62,7 @@ describe('useUserPasskeyService', () => {
       const { result } = await renderAndWait();
 
       expect(result.current.passkeysQuery.data).toEqual([
-        { id: 'pk-1', name: 'My Passkey', createdAt: '2024-01-01' },
+        expect.objectContaining({ id: 'pk-1', name: 'Passkey 1', createdAt: '2024-01-01' }),
       ]);
     });
 
@@ -97,7 +97,7 @@ describe('useUserPasskeyService', () => {
       expect(apiClient.authenticationMethods.create).toHaveBeenCalledWith({ type: 'passkey' });
       expect(createPasskeyCredential).toHaveBeenCalled();
       expect(apiClient.authenticationMethods.verify).toHaveBeenCalledWith(
-        'cred-id',
+        'passkey|new',
         expect.objectContaining({ auth_session: 'session-abc' }),
       );
     });
@@ -138,26 +138,6 @@ describe('useUserPasskeyService', () => {
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
       await act(() => result.current.revokeMutation.mutateAsync('pk-1'));
-
-      expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: passkeyQueryKeys.list() });
-    });
-  });
-
-  describe('renameMutation', () => {
-    it('calls authenticationMethods.update with correct id and name', async () => {
-      const { result } = await renderAndWait();
-      await act(() => result.current.renameMutation.mutateAsync({ id: 'pk-1', name: 'Work Key' }));
-
-      expect(apiClient.authenticationMethods.update).toHaveBeenCalledWith('pk-1', {
-        name: 'Work Key',
-      });
-    });
-
-    it('invalidates passkeys list on success', async () => {
-      const { result, queryClient } = await renderAndWait();
-      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
-
-      await act(() => result.current.renameMutation.mutateAsync({ id: 'pk-1', name: 'Work Key' }));
 
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: passkeyQueryKeys.list() });
     });

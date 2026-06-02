@@ -11,43 +11,13 @@ import {
   setupMockUseErrorHandler,
   createQueryClientWrapper,
 } from '@/tests/utils';
-import type {
-  Passkey,
-  UseUserPasskeyServiceResult,
-} from '@/types/my-account/passkey/passkey-types';
+import {
+  makePasskey,
+  makeMockService,
+  type MockService,
+} from '@/tests/utils/__mocks__/my-account/passkey/use-user-passkey.mocks';
 
 const { mockedShowToast } = mockToast();
-
-const makePasskey = (overrides?: Partial<Passkey>): Passkey => ({
-  id: 'pk-1',
-  name: 'My Passkey',
-  createdAt: '2024-01-01',
-  ...overrides,
-});
-
-type MockService = {
-  passkeysQuery: Pick<
-    UseUserPasskeyServiceResult['passkeysQuery'],
-    'data' | 'isLoading' | 'isSuccess' | 'isError' | 'error'
-  >;
-  enrollMutation: Pick<UseUserPasskeyServiceResult['enrollMutation'], 'mutateAsync' | 'isPending'>;
-  revokeMutation: Pick<UseUserPasskeyServiceResult['revokeMutation'], 'mutateAsync' | 'isPending'>;
-  renameMutation: Pick<UseUserPasskeyServiceResult['renameMutation'], 'mutateAsync' | 'isPending'>;
-};
-
-const makeMockService = (overrides?: Partial<MockService>): MockService => ({
-  passkeysQuery: {
-    data: [makePasskey()],
-    isLoading: false,
-    isSuccess: true,
-    isError: false,
-    error: null,
-  },
-  enrollMutation: { mutateAsync: vi.fn().mockResolvedValue(true), isPending: false },
-  revokeMutation: { mutateAsync: vi.fn().mockResolvedValue(undefined), isPending: false },
-  renameMutation: { mutateAsync: vi.fn().mockResolvedValue({}), isPending: false },
-  ...overrides,
-});
 
 let mockService: MockService;
 let mockHandleError: ReturnType<typeof vi.fn>;
@@ -64,14 +34,15 @@ describe('useUserPasskey', () => {
     mockHandleError = setupMockUseErrorHandler(useErrorHandlerModule);
     mockService = makeMockService();
     vi.spyOn(useUserPasskeyServiceModule, 'useUserPasskeyService').mockReturnValue(
-      mockService as unknown as UseUserPasskeyServiceResult,
+      mockService as unknown as ReturnType<
+        typeof useUserPasskeyServiceModule.useUserPasskeyService
+      >,
     );
   });
 
   it('returns correct initial state', () => {
     const { result } = render();
     expect(result.current.isRevokeModalOpen).toBe(false);
-    expect(result.current.isRenameModalOpen).toBe(false);
     expect(result.current.currentPasskey).toBeNull();
     expect(result.current.passkeys).toEqual([makePasskey()]);
   });
@@ -82,13 +53,11 @@ describe('useUserPasskey', () => {
       passkeysQuery: { ...mockService.passkeysQuery, isLoading: true },
       enrollMutation: { ...mockService.enrollMutation, isPending: true },
       revokeMutation: { ...mockService.revokeMutation, isPending: true },
-      renameMutation: { ...mockService.renameMutation, isPending: true },
-    } as unknown as UseUserPasskeyServiceResult);
+    } as unknown as ReturnType<typeof useUserPasskeyServiceModule.useUserPasskeyService>);
     const { result } = render();
     expect(result.current.isLoading).toBe(true);
     expect(result.current.isEnrolling).toBe(true);
     expect(result.current.isRevoking).toBe(true);
-    expect(result.current.isRenaming).toBe(true);
   });
 
   it('calls onFetch when query succeeds', async () => {
@@ -101,11 +70,10 @@ describe('useUserPasskey', () => {
     vi.spyOn(useUserPasskeyServiceModule, 'useUserPasskeyService').mockReturnValue({
       ...mockService,
       passkeysQuery: { ...mockService.passkeysQuery, isLoading: true },
-    } as unknown as UseUserPasskeyServiceResult);
+    } as unknown as ReturnType<typeof useUserPasskeyServiceModule.useUserPasskeyService>);
     const { result } = render({
       addAction: { disabled: true },
       revokeAction: { disabled: true },
-      renameAction: { disabled: true },
     });
     expect(result.current.readOnly).toBe(false);
   });
@@ -114,7 +82,6 @@ describe('useUserPasskey', () => {
     const { result } = render({
       addAction: { disabled: true },
       revokeAction: { disabled: true },
-      renameAction: { disabled: true },
     });
     expect(result.current.readOnly).toBe(true);
   });
@@ -219,84 +186,12 @@ describe('useUserPasskey', () => {
     });
   });
 
-  describe('handleRenamePasskey', () => {
-    it.each([
-      ['disabled', { renameAction: { disabled: true } }],
-      ['onBefore returns false', { renameAction: { onBefore: vi.fn().mockReturnValue(false) } }],
-    ] as const)('does nothing when %s', (_, opts) => {
-      const { result } = render(opts);
-      act(() => result.current.handleRenamePasskey(makePasskey()));
-      expect(result.current.isRenameModalOpen).toBe(false);
-    });
-
-    it('opens rename modal and sets currentPasskey', async () => {
-      const passkey = makePasskey();
-      const { result } = render();
-      act(() => result.current.handleRenamePasskey(passkey));
-      expect(result.current.isRenameModalOpen).toBe(true);
-      expect(result.current.currentPasskey).toEqual(passkey);
-    });
-  });
-
-  describe('handleConfirmRename', () => {
-    it('does nothing when newName is empty', async () => {
-      const { result } = render();
-      act(() => result.current.handleRenamePasskey(makePasskey()));
-      await act(() => result.current.handleConfirmRename(''));
-      expect(mockService.renameMutation.mutateAsync).not.toHaveBeenCalled();
-    });
-
-    it('calls renameMutation with id and newName', async () => {
-      const passkey = makePasskey();
-      const { result } = render();
-      act(() => result.current.handleRenamePasskey(passkey));
-      await act(() => result.current.handleConfirmRename('Work Key'));
-      expect(mockService.renameMutation.mutateAsync).toHaveBeenCalledWith({
-        id: passkey.id,
-        name: 'Work Key',
-      });
-    });
-
-    it('calls onAfter and shows toast on success', async () => {
-      const onAfter = vi.fn();
-      const passkey = makePasskey();
-      const { result } = render({ renameAction: { onAfter } });
-      act(() => result.current.handleRenamePasskey(passkey));
-      await act(() => result.current.handleConfirmRename('Work Key'));
-      expect(onAfter).toHaveBeenCalledWith(passkey, 'Work Key');
-      expect(mockedShowToast).toHaveBeenCalled();
-    });
-
-    it('closes modal after success', async () => {
-      const { result } = render();
-      act(() => result.current.handleRenamePasskey(makePasskey()));
-      await act(() => result.current.handleConfirmRename('New Name'));
-      expect(result.current.isRenameModalOpen).toBe(false);
-      expect(result.current.currentPasskey).toBeNull();
-    });
-
-    it('calls handleError and onErrorAction on failure and closes modal', async () => {
-      const renameError = new Error('rename failed');
-      vi.mocked(mockService.renameMutation.mutateAsync).mockRejectedValue(renameError);
-      const onErrorAction = vi.fn();
-      const { result } = render({ onErrorAction });
-      act(() => result.current.handleRenamePasskey(makePasskey()));
-      await act(() => result.current.handleConfirmRename('New Name'));
-      expect(mockHandleError).toHaveBeenCalledWith(renameError);
-      expect(onErrorAction).toHaveBeenCalledWith(renameError, 'rename');
-      expect(result.current.isRenameModalOpen).toBe(false);
-    });
-  });
-
   describe('modal close handlers', () => {
-    it.each([
-      ['revoke', 'handleRevokePasskey', 'setIsRevokeModalOpen', 'isRevokeModalOpen'],
-      ['rename', 'handleRenamePasskey', 'setIsRenameModalOpen', 'isRenameModalOpen'],
-    ] as const)('closes %s modal on false', (_, openHandler, closeHandler, openFlag) => {
+    it('closes revoke modal on false', () => {
       const { result } = render();
-      act(() => result.current[openHandler](makePasskey()));
-      act(() => result.current[closeHandler](false));
-      expect(result.current[openFlag]).toBe(false);
+      act(() => result.current.handleRevokePasskey(makePasskey()));
+      act(() => result.current.setIsRevokeModalOpen(false));
+      expect(result.current.isRevokeModalOpen).toBe(false);
     });
   });
 });
