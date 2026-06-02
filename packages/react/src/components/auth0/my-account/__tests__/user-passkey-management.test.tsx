@@ -56,7 +56,7 @@ describe('UserPasskeyMgmt', () => {
       ],
     });
     renderWithProviders(<UserPasskeyMgmt />);
-    await screen.findByText('My Passkey');
+    await screen.findByText('Passkey 1');
     expect(screen.getByText('enabled')).toBeInTheDocument();
   });
 
@@ -91,7 +91,7 @@ describe('UserPasskeyMgmt', () => {
     });
 
     const openRevokeModal = async (user: ReturnType<typeof userEvent.setup>) => {
-      await user.click(await screen.findByRole('button', { name: 'My Passkey' }));
+      await user.click(await screen.findByRole('button', { name: 'Passkey 1' }));
       await user.click(await screen.findByRole('menuitem', { name: /actions\.revoke/i }));
     };
 
@@ -132,8 +132,8 @@ describe('UserPasskeyMgmt', () => {
 
     it('hides revoke dropdown when revokeAction.disabled is true', async () => {
       renderWithProviders(<UserPasskeyMgmt revokeAction={{ disabled: true }} />);
-      await screen.findByText('My Passkey');
-      expect(screen.queryByRole('button', { name: 'My Passkey' })).not.toBeInTheDocument();
+      await screen.findByText('Passkey 1');
+      expect(screen.queryByRole('button', { name: 'Passkey 1' })).not.toBeInTheDocument();
     });
   });
 });

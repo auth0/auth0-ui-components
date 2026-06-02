@@ -43,7 +43,6 @@ import type {
  * @param props.hideHeader - Whether to hide the header
  * @param props.addAction - Configuration for the add passkey action
  * @param props.revokeAction - Configuration for the revoke passkey action
- * @param props.renameAction - Configuration for the rename passkey action
  * @param props.onFetch - Callback after passkeys are loaded
  * @param props.onErrorAction - Callback when an action errors
  * @returns JSX element
@@ -56,7 +55,6 @@ function UserPasskeyMgmt(props: UserPasskeyMgmtProps) {
     hideHeader = false,
     addAction,
     revokeAction,
-    renameAction,
     onFetch,
     onErrorAction,
   } = props;
@@ -78,7 +76,6 @@ function UserPasskeyMgmt(props: UserPasskeyMgmtProps) {
     customMessages,
     addAction,
     revokeAction,
-    renameAction,
     onFetch,
     onErrorAction,
   });
@@ -249,7 +246,6 @@ function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
       </Card>
 
       <PasskeyActionModal
-        mode="revoke"
         open={isRevokeModalOpen}
         onOpenChange={setIsRevokeModalOpen}
         isPending={isRevoking}
@@ -265,7 +261,7 @@ function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
 /**
  * Passkey management component.
  *
- * Displays enrolled passkeys with options to add, rename, and revoke.
+ * Displays enrolled passkeys with options to add and revoke.
  *
  * @param props - {@link UserPasskeyMgmtProps}
  * @param props.customMessages - Custom i18n message overrides
@@ -273,7 +269,6 @@ function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
  * @param props.hideHeader - Hide the header section
  * @param props.addAction - Lifecycle hooks for the add passkey operation
  * @param props.revokeAction - Lifecycle hooks for the revoke passkey operation
- * @param props.renameAction - Lifecycle hooks for the rename passkey operation
  * @param props.onFetch - Callback after passkeys are loaded
  * @param props.onErrorAction - Callback when an action errors
  * @returns Passkey management component
@@ -285,7 +280,6 @@ function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
  * <UserPasskeyMgmt
  *   addAction={{ onAfter: () => console.log('Passkey added') }}
  *   revokeAction={{ onAfter: (passkey) => console.log('Revoked:', passkey.name) }}
- *   renameAction={{ onAfter: (passkey, name) => console.log('Renamed to:', name) }}
  *   onErrorAction={(error, action) => console.error(action, error)}
  * />
  * ```

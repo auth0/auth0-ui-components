@@ -19,7 +19,6 @@ export type MockService = {
   >;
   enrollMutation: Pick<UseUserPasskeyServiceResult['enrollMutation'], 'mutateAsync' | 'isPending'>;
   revokeMutation: Pick<UseUserPasskeyServiceResult['revokeMutation'], 'mutateAsync' | 'isPending'>;
-  renameMutation: Pick<UseUserPasskeyServiceResult['renameMutation'], 'mutateAsync' | 'isPending'>;
 };
 
 export const makeMockService = (overrides?: Partial<MockService>): MockService => ({
@@ -32,6 +31,5 @@ export const makeMockService = (overrides?: Partial<MockService>): MockService =
   },
   enrollMutation: { mutateAsync: vi.fn().mockResolvedValue(true), isPending: false },
   revokeMutation: { mutateAsync: vi.fn().mockResolvedValue(undefined), isPending: false },
-  renameMutation: { mutateAsync: vi.fn().mockResolvedValue({}), isPending: false },
   ...overrides,
 });
