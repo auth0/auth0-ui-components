@@ -9,7 +9,6 @@ import type {
 export const createMockPasskeyActionModalProps = (
   overrides?: Partial<PasskeyActionModalProps>,
 ): PasskeyActionModalProps => ({
-  mode: 'revoke',
   open: true,
   onOpenChange: vi.fn(),
   isPending: false,

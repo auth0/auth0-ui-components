@@ -5,7 +5,6 @@ import {
   parseUserAgent,
   type CreatePasskeyResponse,
   type PasskeyAuthMethodResponse,
-  type UpdatePasskeyResponse,
 } from '@auth0/universal-components-core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -78,11 +77,5 @@ export function useUserPasskeyService(): UseUserPasskeyServiceResult {
     onSuccess: invalidateList,
   });
 
-  const renameMutation = useMutation<UpdatePasskeyResponse, Error, { id: string; name: string }>({
-    mutationFn: ({ id, name }) =>
-      coreClient!.getMyAccountApiClient().authenticationMethods.update(id, { name }),
-    onSuccess: invalidateList,
-  });
-
-  return { passkeysQuery, enrollMutation, revokeMutation, renameMutation };
+  return { passkeysQuery, enrollMutation, revokeMutation };
 }
