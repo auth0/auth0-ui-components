@@ -35,8 +35,8 @@ export default function UserPasskeyMgmtDocs() {
           </div>
           <h1 className="text-4xl font-bold text-gray-900">UserPasskeyMgmt Component</h1>
           <p className="text-xl text-gray-600">
-            A passkey management component that lets users enroll, rename, and revoke WebAuthn
-            passkeys on their account.
+            A passkey management component that lets users enroll and revoke WebAuthn passkeys on
+            their account.
           </p>
         </div>
       </div>
@@ -296,19 +296,6 @@ export function SecurityPage() {
               </tr>
               <tr>
                 <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  renameAction
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  ComponentAction&lt;Passkey, string&gt;
-                </td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">-</td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  Lifecycle hooks for the rename passkey action. Set <code>disabled: true</code> to
-                  hide the rename option
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                   onFetch
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-500">() =&gt; void</td>
@@ -322,7 +309,7 @@ export function SecurityPage() {
                   onErrorAction
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  (error: Error, action: 'add' | 'rename' | 'revoke') =&gt; void
+                  (error: Error, action: 'add' | 'revoke') =&gt; void
                 </td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">-</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
@@ -377,9 +364,8 @@ export function SecurityPage() {
   hideHeader?: boolean;
   addAction?: ComponentAction<void>;
   revokeAction?: ComponentAction<Passkey>;
-  renameAction?: ComponentAction<Passkey, string>;
   onFetch?: () => void;
-  onErrorAction?: (error: Error, action: 'add' | 'rename' | 'revoke') => void;
+  onErrorAction?: (error: Error, action: 'add' | 'revoke') => void;
 }
 
 interface Passkey {
@@ -417,8 +403,8 @@ interface ComponentAction<TResult, TArg = void> {
           <div>
             <h3 className="text-lg font-medium mb-4">Event Callbacks</h3>
             <p className="text-gray-600 mb-4">
-              React to passkey lifecycle events using <code>addAction</code>,{' '}
-              <code>revokeAction</code>, and <code>renameAction</code>:
+              React to passkey lifecycle events using <code>addAction</code> and{' '}
+              <code>revokeAction</code>:
             </p>
             <CodeBlock
               code={`<UserPasskeyMgmt
@@ -427,9 +413,6 @@ interface ComponentAction<TResult, TArg = void> {
   }}
   revokeAction={{
     onAfter: (passkey) => console.log('Revoked:', passkey.name),
-  }}
-  renameAction={{
-    onAfter: (passkey, newName) => console.log('Renamed to:', newName),
   }}
   onFetch={() => console.log('Passkeys loaded')}
   onErrorAction={(error, action) => {
@@ -448,7 +431,7 @@ interface ComponentAction<TResult, TArg = void> {
               controls:
             </p>
             <CodeBlock
-              code={`// Read-only: hide add and revoke, keep rename
+              code={`// Read-only: hide add and revoke
 <UserPasskeyMgmt
   addAction={{ disabled: true }}
   revokeAction={{ disabled: true }}
@@ -500,22 +483,13 @@ interface ComponentAction<TResult, TArg = void> {
                   <strong>Actions & Modals</strong>
                   <ul className="ml-4 list-disc space-y-1 mt-2">
                     <li>
-                      <code>actions.rename</code> - Rename menu item label
-                    </li>
-                    <li>
                       <code>actions.revoke</code> - Revoke menu item label
                     </li>
                     <li>
                       <code>success.add</code> - Success toast after add
                     </li>
                     <li>
-                      <code>success.rename</code> - Success toast after rename
-                    </li>
-                    <li>
                       <code>success.revoke</code> - Success toast after revoke
-                    </li>
-                    <li>
-                      <code>modals.rename.*</code> - Rename modal strings
                     </li>
                     <li>
                       <code>modals.revoke.*</code> - Revoke confirmation strings
@@ -571,7 +545,7 @@ interface ComponentAction<TResult, TArg = void> {
                     <code>UserPasskeyMgmt-item</code> — individual passkey row card
                   </li>
                   <li>
-                    <code>PasskeyActionModal-modalContent</code> — rename / revoke modal content
+                    <code>PasskeyActionModal-modalContent</code> — revoke confirmation modal content
                   </li>
                 </ul>
               </div>
