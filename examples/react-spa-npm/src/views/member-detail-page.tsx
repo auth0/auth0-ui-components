@@ -2,6 +2,8 @@
 // import { useNavigate, useParams } from 'react-router-dom';
 
 const MemberDetailPage = () => {
+  // const navigate = useNavigate();
+  // const { user_id } = useParams<{ user_id: string }>();
   return (
     <div className="p-6 pt-8 space-y-6">
       <p className="text-primary">
