@@ -29,6 +29,7 @@ export interface PasskeyMessages {
   };
   section_title?: string;
   enabled?: string;
+  passkey_name?: string;
   created_at?: string;
   last_used?: string;
   no_passkeys?: string;

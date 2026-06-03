@@ -9,6 +9,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   Passkey,
   UseUserPasskeyServiceResult,
@@ -22,6 +23,7 @@ import type {
 export function useUserPasskeyService(): UseUserPasskeyServiceResult {
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
+  const { t } = useTranslator('passkey');
 
   const passkeysQuery = useQuery<Passkey[]>({
     queryKey: passkeyQueryKeys.list(),
@@ -34,7 +36,7 @@ export function useUserPasskeyService(): UseUserPasskeyServiceResult {
           const passkey = m as PasskeyAuthMethodResponse;
           return {
             id: passkey.id,
-            name: `Passkey ${index + 1}`,
+            name: t('passkey_name', { index: index + 1 }),
             createdAt: passkey.created_at,
             lastUsedAt: passkey.last_auth_at,
             deviceInfo: parseUserAgent(passkey.user_agent),

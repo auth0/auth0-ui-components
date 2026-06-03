@@ -4,7 +4,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useUserPasskeyService } from '@/hooks/my-account/shared/services/use-user-passkey-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import { mockCore, setupMockUseCoreClient, createQueryClientWrapper } from '@/tests/utils';
+import * as useTranslatorModule from '@/hooks/shared/use-translator';
+import {
+  mockCore,
+  setupMockUseCoreClient,
+  setupMockUseTranslator,
+  createQueryClientWrapper,
+} from '@/tests/utils';
 
 vi.mock('@auth0/universal-components-core', async (importOriginal) => {
   const actual = await importOriginal();
@@ -43,6 +49,7 @@ describe('useUserPasskeyService', () => {
     mockCoreClient = initMockCoreClient();
     apiClient = mockCoreClient.getMyAccountApiClient();
     setupMockUseCoreClient(mockCoreClient, useCoreClientModule);
+    setupMockUseTranslator(useTranslatorModule);
   });
 
   describe('passkeysQuery', () => {
@@ -62,7 +69,7 @@ describe('useUserPasskeyService', () => {
       const { result } = await renderAndWait();
 
       expect(result.current.passkeysQuery.data).toEqual([
-        expect.objectContaining({ id: 'pk-1', name: 'Passkey 1', createdAt: '2024-01-01' }),
+        expect.objectContaining({ id: 'pk-1', name: 'passkey_name', createdAt: '2024-01-01' }),
       ]);
     });
 
