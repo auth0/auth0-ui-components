@@ -77,8 +77,8 @@ export default function MyAccountIntroduction() {
                   </span>
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  A passkey management component that lets users enroll, rename, and revoke WebAuthn
-                  passkeys on their account using the browser's built-in authenticator.
+                  A passkey management component that lets users enroll and revoke WebAuthn passkeys
+                  on their account using the browser's built-in authenticator.
                 </p>
               </div>
               <a
