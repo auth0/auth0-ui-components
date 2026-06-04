@@ -4,17 +4,6 @@
  * @internal
  */
 
-/**
- * Interface for passkey messages that can be used in the UI.
- */
-export interface PasskeyRenameModalMessages {
-  title?: string;
-  label?: string;
-  placeholder?: string;
-  cancel?: string;
-  update?: string;
-}
-
 export interface PasskeyRevokeModalMessages {
   title?: string;
   consent?: string;
@@ -33,18 +22,15 @@ export interface PasskeyMessages {
   no_passkeys?: string;
   add_passkey?: string;
   actions?: {
-    rename?: string;
     revoke?: string;
   };
   success?: {
     add?: string;
-    rename?: string;
     revoke?: string;
   };
   component_error_title?: string;
   component_error_description?: string;
   modals?: {
-    rename?: PasskeyRenameModalMessages;
     revoke?: PasskeyRevokeModalMessages;
   };
 }
