@@ -1195,29 +1195,21 @@
       "title": "Log-in methods",
       "description": "Ways you can sign in to your account. You can use one of these or combine them for flexibility."
     },
-    "section_title": "Passkey",
+    "section_title": "Passkeys",
     "enabled": "enabled",
     "created_at": "Created on ${date}",
     "last_used": "Last used ${date}",
+    "passkey_name": "Passkey ${index}",
     "no_passkeys": "No passkeys have been added to your account.",
     "add_passkey": "Add passkey",
     "actions": {
-      "rename": "Rename",
       "revoke": "Revoke"
     },
     "success": {
       "add": "Passkey added successfully.",
-      "rename": "Passkey renamed successfully.",
       "revoke": "Passkey revoked successfully."
     },
     "modals": {
-      "rename": {
-        "title": "Rename passkey",
-        "label": "Passkey name",
-        "placeholder": "Enter passkey name",
-        "cancel": "Cancel",
-        "update": "Update Passkey"
-      },
       "revoke": {
         "title": "Revoke passkey",
         "consent": "This will revoke the passkey - <bold>${name}</bold> from your account.",
