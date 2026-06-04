@@ -19,11 +19,14 @@ import type { CssImplementation } from '@auth0/universal-components-core';
  * - Scoped: `.sr-only` without wrapper has no effect, with wrapper it works
  * - Tailwind: `.sr-only` works globally without needing wrapper
  *
- * @param element - DOM element to use for detection (typically the provider's container)
  * @returns The detected CSS implementation ('scoped' or 'tailwind')
  * @internal
  */
-export function detectCssImplementation(element: HTMLElement): CssImplementation {
+export function detectCssImplementation(): CssImplementation {
+  if (typeof document === 'undefined') {
+    return 'unknown';
+  }
+  const element = document.body;
   // Create probe without .auth0-universal wrapper
   const probeWithoutWrapper = document.createElement('div');
   probeWithoutWrapper.className = 'sr-only';

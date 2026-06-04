@@ -38,7 +38,7 @@ export interface ProxyFetcherConfig {
  * @internal
  */
 export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier {
-  const fetchFn = config.customFetcher ?? fetch;
+  const fetchFn = config.customFetcher;
   return async (url, init, authParams) => {
     const headers = new Headers(init?.headers);
     headers.set(HeaderName.ContentType, ContentType.JSON);

@@ -18,7 +18,7 @@ import { useTelemetryContext } from '@/providers/telemetry-provider';
 export function useTelemetry(componentName: string): void {
   const { componentRef } = useTelemetryContext();
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const previous = componentRef.current;
     componentRef.current = componentName;
     return () => {

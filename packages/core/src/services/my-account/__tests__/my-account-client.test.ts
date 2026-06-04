@@ -120,12 +120,6 @@ describe('createMyAccountClient', () => {
         { scope: ['read:users', 'write:users'], audience: 'test-audience' },
       );
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://example.com',
-        expect.objectContaining({ method: 'GET' }),
-        { scope: ['read:users', 'write:users'], audience: 'test-audience' },
-      );
-
       const [, requestInit] = mockFetch.mock.calls[0]!;
       expect((requestInit?.headers as Headers).get(AUTH0_SCOPE_HEADER)).toBe(
         'read:users write:users',

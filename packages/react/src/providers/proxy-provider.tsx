@@ -8,10 +8,10 @@
 import type {
   AuthDetails,
   CssImplementation,
+  DistributionChannel,
   TelemetryComponentGetter,
   TelemetryConfig,
 } from '@auth0/universal-components-core';
-import type { DistributionChannel } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Toaster } from '@/components/auth0/shared/sonner';
@@ -20,7 +20,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
 import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
 import { useToastProvider } from '@/hooks/shared/use-toast-provider';
-import { detectCssImplementation } from '@/lib/utils/css-detection';
+import { detectCssImplementation } from '@/lib/utils/shared/css-detection';
 import { QueryProvider } from '@/providers/query-provider';
 import { TelemetryProvider } from '@/providers/telemetry-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
@@ -64,19 +64,17 @@ export const Auth0ComponentProvider = ({
   const { baseUrl, fetcher } = proxyConfig;
 
   // CSS detection for telemetry
-  const containerRef = React.useRef<HTMLDivElement>(null);
   const [css, setCss] = React.useState<CssImplementation>('unknown');
 
-  // Component name ref - updated by useTelemetryTracker in block components
+  // Component name ref - updated by useTelemetry in block components
   const componentRef = React.useRef<string>('unknown');
 
   // Stable callback for core package to call
   const getComponent = React.useCallback<TelemetryComponentGetter>(() => componentRef.current, []);
 
+  // useLayoutEffect ensures CSS is detected before paint, avoiding incorrect telemetry on early API calls
   React.useLayoutEffect(() => {
-    if (containerRef.current) {
-      setCss(detectCssImplementation(containerRef.current));
-    }
+    setCss(detectCssImplementation());
   }, []);
 
   const memoizedAuthDetails = React.useMemo<AuthDetails>(
@@ -121,33 +119,31 @@ export const Auth0ComponentProvider = ({
   );
 
   return (
-    <div ref={containerRef}>
-      <TelemetryProvider componentRef={componentRef}>
-        <ThemeProvider
-          themeSettings={{
-            mode: themeSettings.mode,
-            variables: themeSettings.variables,
-            loader,
-            theme: themeSettings.theme,
-          }}
-        >
-          {mergedToastSettings.provider === 'sonner' && (
-            <Toaster
-              position={mergedToastSettings.settings?.position || 'top-right'}
-              closeButton={mergedToastSettings.settings?.closeButton ?? true}
-              className="auth0-universal"
-            />
-          )}
-          {coreClient ? (
-            <CoreClientContext.Provider value={coreClientValue}>
-              <QueryProvider cacheConfig={cacheConfig}>{children}</QueryProvider>
-            </CoreClientContext.Provider>
-          ) : (
-            fallback
-          )}
-        </ThemeProvider>
-      </TelemetryProvider>
-    </div>
+    <TelemetryProvider componentRef={componentRef}>
+      <ThemeProvider
+        themeSettings={{
+          mode: themeSettings.mode,
+          variables: themeSettings.variables,
+          loader,
+          theme: themeSettings.theme,
+        }}
+      >
+        {mergedToastSettings.provider === 'sonner' && (
+          <Toaster
+            position={mergedToastSettings.settings?.position || 'top-right'}
+            closeButton={mergedToastSettings.settings?.closeButton ?? true}
+            className="auth0-universal"
+          />
+        )}
+        {coreClient ? (
+          <CoreClientContext.Provider value={coreClientValue}>
+            <QueryProvider cacheConfig={cacheConfig}>{children}</QueryProvider>
+          </CoreClientContext.Provider>
+        ) : (
+          fallback
+        )}
+      </ThemeProvider>
+    </TelemetryProvider>
   );
 };
 
