@@ -1203,22 +1203,13 @@
     "no_passkeys": "No passkeys have been added to your account.",
     "add_passkey": "Add passkey",
     "actions": {
-      "rename": "Rename",
       "revoke": "Revoke"
     },
     "success": {
       "add": "Passkey added successfully.",
-      "rename": "Passkey renamed successfully.",
       "revoke": "Passkey revoked successfully."
     },
     "modals": {
-      "rename": {
-        "title": "Rename passkey",
-        "label": "Passkey name",
-        "placeholder": "Enter passkey name",
-        "cancel": "Cancel",
-        "update": "Update Passkey"
-      },
       "revoke": {
         "title": "Revoke passkey",
         "consent": "This will revoke the passkey - <bold>${name}</bold> from your account.",
