@@ -18,24 +18,15 @@ export interface PasskeyMessages {
   no_passkeys?: string;
   add_passkey?: string;
   actions?: {
-    rename?: string;
     revoke?: string;
   };
   success?: {
     add?: string;
-    rename?: string;
     revoke?: string;
   };
   component_error_title?: string;
   component_error_description?: string;
   modals?: {
-    rename?: {
-      title?: string;
-      label?: string;
-      placeholder?: string;
-      cancel?: string;
-      update?: string;
-    };
     revoke?: {
       title?: string;
       consent?: string;
