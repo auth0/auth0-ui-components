@@ -45,7 +45,7 @@ import type { OrganizationMemberTableProps } from '@/types/my-organization/membe
  * @param props.className - Optional CSS class name.
  * @returns The member table component.
  */
-export function OrganizationMemberTable({
+function OrganizationMemberTableInner({
   members,
   loading = false,
   pagination,
@@ -206,3 +206,5 @@ export function OrganizationMemberTable({
     </div>
   );
 }
+
+export const OrganizationMemberTable = React.memo(OrganizationMemberTableInner);

@@ -54,7 +54,7 @@ function RemoveMemberFromOrganizationCard({
  * @param props - Component props
  * @returns The rendered details tab element
  */
-export function OrganizationMemberEditDetailsTab(
+function OrganizationMemberEditDetailsTabInner(
   props: OrganizationMemberEditDetailsTabProps,
 ): React.JSX.Element {
   return (
@@ -73,3 +73,5 @@ export function OrganizationMemberEditDetailsTab(
     </div>
   );
 }
+
+export const OrganizationMemberEditDetailsTab = React.memo(OrganizationMemberEditDetailsTabInner);

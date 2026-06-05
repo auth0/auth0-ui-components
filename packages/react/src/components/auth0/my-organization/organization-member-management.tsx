@@ -3,7 +3,11 @@
  * @module organization-member-management
  */
 
-import { getComponentStyles } from '@auth0/universal-components-core';
+import {
+  getComponentStyles,
+  type MemberInvitation,
+  type OrgMember,
+} from '@auth0/universal-components-core';
 import { Plus } from 'lucide-react';
 import * as React from 'react';
 
@@ -95,6 +99,31 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     [styling, isDarkMode],
   );
 
+  const handleAssignRoleClick = React.useCallback(
+    (member: OrgMember) => openModal({ type: 'assignRole', member }),
+    [openModal],
+  );
+
+  const handleRemoveFromOrgClick = React.useCallback(
+    (member: OrgMember) => openModal({ type: 'removeFromOrg', member }),
+    [openModal],
+  );
+
+  const handleViewInvitation = React.useCallback(
+    (invitation: MemberInvitation) => openModal({ type: 'details', invitation }),
+    [openModal],
+  );
+
+  const handleRevokeResendClick = React.useCallback(
+    (invitation: MemberInvitation) => openModal({ type: 'revokeResend', invitation }),
+    [openModal],
+  );
+
+  const handleRevokeClick = React.useCallback(
+    (invitation: MemberInvitation) => openModal({ type: 'revoke', invitation }),
+    [openModal],
+  );
+
   const pageSizeOptions = MEMBER_MANAGEMENT_PAGE_SIZE_OPTIONS;
 
   return (
@@ -142,8 +171,8 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               sortConfig={memberSortConfig}
               className={currentStyles.classes?.['OrganizationMemberTab-table']}
               onView={handleViewMemberDetails}
-              onAssignRole={(member) => openModal({ type: 'assignRole', member })}
-              onRemoveFromOrg={(member) => openModal({ type: 'removeFromOrg', member })}
+              onAssignRole={handleAssignRoleClick}
+              onRemoveFromOrg={handleRemoveFromOrgClick}
               onSortChange={handleSortChange}
               onNextPage={handleNextPage}
               onPreviousPage={handlePreviousPage}
@@ -162,16 +191,10 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               readOnly={readOnly}
               sortConfig={invitationSortConfig}
               onSortChange={handleSortChange}
-              onView={(invitation) => openModal({ type: 'details', invitation })}
+              onView={handleViewInvitation}
               onCopyUrl={handleCopyUrl}
-              onRevokeAndResend={
-                readOnly
-                  ? undefined
-                  : (invitation) => openModal({ type: 'revokeResend', invitation })
-              }
-              onRevoke={
-                readOnly ? undefined : (invitation) => openModal({ type: 'revoke', invitation })
-              }
+              onRevokeAndResend={readOnly ? undefined : handleRevokeResendClick}
+              onRevoke={readOnly ? undefined : handleRevokeClick}
               onNextPage={handleNextPage}
               onPreviousPage={handlePreviousPage}
               onPageSizeChange={handlePageSizeChange}
