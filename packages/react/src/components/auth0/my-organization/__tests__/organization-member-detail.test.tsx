@@ -634,7 +634,7 @@ describe('OrganizationMemberDetail', () => {
     it('when members.get fails without a backend message, should show fallback message', async () => {
       const apiService = mockCoreClient.getMyOrganizationApiClient();
       (apiService.organization.members.get as ReturnType<typeof vi.fn>).mockRejectedValue(
-        new Error(),
+        new Error('member.detail.error.fetch_failed'),
       );
 
       renderWithProviders(
