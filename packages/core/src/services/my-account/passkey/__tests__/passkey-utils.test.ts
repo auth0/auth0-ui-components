@@ -6,6 +6,7 @@ import {
   arrayBufferToBase64Url,
   parsePublicKeyCreationOptions,
   createPasskeyCredential,
+  parseUserAgent,
 } from '../passkey-utils';
 
 import { toBuffer, mockCredential } from './__mocks__/passkey-utils.mocks';
@@ -174,6 +175,95 @@ describe('passkey-utils', () => {
       await expect(
         createPasskeyCredential({} as PublicKeyCredentialCreationOptions),
       ).rejects.toThrow('User cancelled');
+    });
+  });
+
+  describe('parseUserAgent', () => {
+    it('should return empty string for undefined', () => {
+      expect(parseUserAgent(undefined)).toBe('');
+    });
+
+    it('should return empty string for empty string', () => {
+      expect(parseUserAgent('')).toBe('');
+    });
+
+    it('should return empty string for unrecognizable UA', () => {
+      expect(parseUserAgent('UnknownBot/1.0')).toBe('');
+    });
+
+    it('should detect Chrome on macOS', () => {
+      expect(
+        parseUserAgent(
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        ),
+      ).toBe('Chrome on macOS');
+    });
+
+    it('should detect Safari on macOS', () => {
+      expect(
+        parseUserAgent(
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+        ),
+      ).toBe('Safari on macOS');
+    });
+
+    it('should detect Firefox on Windows', () => {
+      expect(
+        parseUserAgent(
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0',
+        ),
+      ).toBe('Firefox on Windows');
+    });
+
+    // Edge UA contains "Chrome" — order dependency: Edge pattern must come before Chrome
+    it('should detect desktop Edge (Edg/) not Chrome', () => {
+      expect(
+        parseUserAgent(
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0',
+        ),
+      ).toBe('Edge on Windows');
+    });
+
+    // Android Edge uses EdgA/ token
+    it('should detect Android Edge (EdgA/)', () => {
+      expect(
+        parseUserAgent(
+          'Mozilla/5.0 (Linux; Android 10; HD1913) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36 EdgA/124.0.0.0',
+        ),
+      ).toBe('Edge on Android');
+    });
+
+    // Opera UA contains "Chrome" — order dependency: Opera pattern must come before Chrome
+    it('should detect Opera (OPR/) not Chrome', () => {
+      expect(
+        parseUserAgent(
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 OPR/110.0.0.0',
+        ),
+      ).toBe('Opera on Windows');
+    });
+
+    it('should detect Chrome on Android', () => {
+      expect(
+        parseUserAgent(
+          'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
+        ),
+      ).toBe('Chrome on Android');
+    });
+
+    it('should detect Safari on iOS', () => {
+      expect(
+        parseUserAgent(
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+        ),
+      ).toBe('Safari on iOS');
+    });
+
+    it('should return browser alone when OS is unrecognized', () => {
+      expect(parseUserAgent('Mozilla/5.0 Firefox/124.0')).toBe('Firefox');
+    });
+
+    it('should return OS alone when browser is unrecognized', () => {
+      expect(parseUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64)')).toBe('Windows');
     });
   });
 });

@@ -8,6 +8,7 @@ export * from './auth-types';
 
 // My Account types
 export * from './my-account/mfa/mfa-types';
+export * from './my-account/passkey/passkey-types';
 
 // My Organization types
 export * from './my-organization/config/config-types';

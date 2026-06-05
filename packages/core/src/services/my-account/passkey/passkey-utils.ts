@@ -1,5 +1,5 @@
 /**
- * Passkey encoding utilities for WebAuthn credential handling.
+ * Passkey utilities for WebAuthn credential handling and display.
  * @module passkey-utils
  */
 
@@ -46,6 +46,38 @@ export function parsePublicKeyCreationOptions(
       id: base64UrlToUint8Array(serverOptions.user.id),
     },
   } as unknown as PublicKeyCredentialCreationOptions;
+}
+
+// Edg/ matches desktop Edge; EdgA/ matches Edge on Android
+const BROWSER_PATTERNS: [RegExp, string][] = [
+  [/EdgA?\//i, 'Edge'],
+  [/OPR\//i, 'Opera'],
+  [/Chrome\//i, 'Chrome'],
+  [/Firefox\//i, 'Firefox'],
+  [/Safari\//i, 'Safari'],
+];
+
+const OS_PATTERNS: [RegExp, string][] = [
+  [/iPhone|iPad|iPod/i, 'iOS'],
+  [/Android/i, 'Android'],
+  [/Windows NT/i, 'Windows'],
+  [/Mac OS X/i, 'macOS'],
+  [/CrOS/i, 'ChromeOS'],
+  [/Linux/i, 'Linux'],
+];
+
+/**
+ * Extracts a human-readable browser + OS label from a user agent string.
+ * Returns an empty string if the UA is absent or unrecognizable.
+ * @param ua - Raw user agent string.
+ * @returns Label like "Chrome on macOS", or empty string.
+ */
+export function parseUserAgent(ua?: string): string {
+  if (!ua) return '';
+  const browser = BROWSER_PATTERNS.find(([re]) => re.test(ua))?.[1];
+  const os = OS_PATTERNS.find(([re]) => re.test(ua))?.[1];
+  if (browser && os) return `${browser} on ${os}`;
+  return browser ?? os ?? '';
 }
 
 /**

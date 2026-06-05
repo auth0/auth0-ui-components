@@ -1195,9 +1195,11 @@
       "title": "Log-in methods",
       "description": "Ways you can sign in to your account. You can use one of these or combine them for flexibility."
     },
-    "section_title": "Passkey",
+    "section_title": "Passkeys",
     "enabled": "enabled",
     "created_at": "Created on ${date}",
+    "last_used": "Last used ${date}",
+    "passkey_name": "Passkey ${index}",
     "no_passkeys": "No passkeys have been added to your account.",
     "add_passkey": "Add passkey",
     "actions": {
@@ -1207,8 +1209,6 @@
       "add": "Passkey added successfully.",
       "revoke": "Passkey revoked successfully."
     },
-    "component_error_title": "Error loading Passkey component",
-    "component_error_description": "We're having trouble loading your passkeys.\nPlease refresh the page and try again",
     "modals": {
       "revoke": {
         "title": "Revoke passkey",

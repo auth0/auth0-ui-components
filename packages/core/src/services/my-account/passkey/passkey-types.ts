@@ -7,6 +7,12 @@ import type { MyAccount } from '@auth0/myaccount-js';
 
 export type PasskeyAuthenticationMethod = MyAccount.AuthenticationMethodPasskey;
 
+export type PasskeyAuthMethodResponse = PasskeyAuthenticationMethod & {
+  type?: string;
+  last_auth_at?: string;
+  user_agent?: string;
+};
+
 export type ListPasskeysResponse = MyAccount.ListAuthenticationMethodsResponseContent;
 
 export type CreatePasskeyResponse = MyAccount.PasskeyCreationResponse;

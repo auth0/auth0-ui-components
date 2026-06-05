@@ -18,7 +18,9 @@ export interface PasskeyMessages {
   };
   section_title?: string;
   enabled?: string;
+  passkey_name?: string;
   created_at?: string;
+  last_used?: string;
   no_passkeys?: string;
   add_passkey?: string;
   actions?: {
@@ -28,8 +30,6 @@ export interface PasskeyMessages {
     add?: string;
     revoke?: string;
   };
-  component_error_title?: string;
-  component_error_description?: string;
   modals?: {
     revoke?: PasskeyRevokeModalMessages;
   };

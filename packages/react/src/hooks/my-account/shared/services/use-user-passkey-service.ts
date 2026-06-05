@@ -2,13 +2,14 @@ import {
   createPasskeyCredential,
   passkeyQueryKeys,
   parsePublicKeyCreationOptions,
+  parseUserAgent,
   type CreatePasskeyResponse,
-  type PasskeyAuthenticationMethod,
-  type UpdatePasskeyResponse,
+  type PasskeyAuthMethodResponse,
 } from '@auth0/universal-components-core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   Passkey,
   UseUserPasskeyServiceResult,
@@ -22,6 +23,7 @@ import type {
 export function useUserPasskeyService(): UseUserPasskeyServiceResult {
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
+  const { t } = useTranslator('passkey');
 
   const passkeysQuery = useQuery<Passkey[]>({
     queryKey: passkeyQueryKeys.list(),
@@ -29,15 +31,17 @@ export function useUserPasskeyService(): UseUserPasskeyServiceResult {
       const client = coreClient!.getMyAccountApiClient();
       const response = await client.authenticationMethods.list();
       return response.authentication_methods
-        .filter(
-          (m): m is PasskeyAuthenticationMethod =>
-            (m as PasskeyAuthenticationMethod & { type?: string }).type === 'passkey',
-        )
-        .map((m) => ({
-          id: m.id,
-          name: (m as PasskeyAuthenticationMethod & { name?: string }).name,
-          createdAt: m.created_at,
-        }));
+        .filter((m) => (m as PasskeyAuthMethodResponse).type === 'passkey')
+        .map((m, index) => {
+          const passkey = m as PasskeyAuthMethodResponse;
+          return {
+            id: passkey.id,
+            name: t('passkey_name', { index: index + 1 }),
+            createdAt: passkey.created_at,
+            lastUsedAt: passkey.last_auth_at,
+            deviceInfo: parseUserAgent(passkey.user_agent),
+          };
+        });
     },
     enabled: !!coreClient,
   });
@@ -52,13 +56,14 @@ export function useUserPasskeyService(): UseUserPasskeyServiceResult {
         type: 'passkey',
       })) as CreatePasskeyResponse;
       const { auth_session, authn_params_public_key } = startResponse;
+      const authenticationMethodId = 'passkey|new';
 
       const authnResponse = await createPasskeyCredential(
         parsePublicKeyCreationOptions(authn_params_public_key),
       );
       if (!authnResponse) return false;
 
-      await client.authenticationMethods.verify(authnResponse.id, {
+      await client.authenticationMethods.verify(authenticationMethodId, {
         auth_session,
         authn_response: authnResponse,
       });
@@ -74,11 +79,5 @@ export function useUserPasskeyService(): UseUserPasskeyServiceResult {
     onSuccess: invalidateList,
   });
 
-  const renameMutation = useMutation<UpdatePasskeyResponse, Error, { id: string; name: string }>({
-    mutationFn: ({ id, name }) =>
-      coreClient!.getMyAccountApiClient().authenticationMethods.update(id, { name }),
-    onSuccess: invalidateList,
-  });
-
-  return { passkeysQuery, enrollMutation, revokeMutation, renameMutation };
+  return { passkeysQuery, enrollMutation, revokeMutation };
 }
