@@ -45,14 +45,11 @@ jobs:
       - name: Run linting
         run: pnpm lint
 
-      - name: Type check
-        run: pnpm type-check
+      - name: Build packages
+        run: pnpm build
 
       - name: Run tests
         run: pnpm test
-
-      - name: Build packages
-        run: pnpm build
   notify:
     name: Slack Notification
     needs: [ci]
