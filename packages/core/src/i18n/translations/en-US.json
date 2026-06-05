@@ -1189,5 +1189,33 @@
         "copy_url_failed": "Failed to copy invitation URL. Please try again."
       }
     }
+  },
+  "passkey": {
+    "header": {
+      "title": "Log-in methods",
+      "description": "Ways you can sign in to your account. You can use one of these or combine them for flexibility."
+    },
+    "section_title": "Passkey",
+    "enabled": "enabled",
+    "created_at": "Created on ${date}",
+    "no_passkeys": "No passkeys have been added to your account.",
+    "add_passkey": "Add passkey",
+    "actions": {
+      "revoke": "Revoke"
+    },
+    "success": {
+      "add": "Passkey added successfully.",
+      "revoke": "Passkey revoked successfully."
+    },
+    "component_error_title": "Error loading Passkey component",
+    "component_error_description": "We're having trouble loading your passkeys.\nPlease refresh the page and try again",
+    "modals": {
+      "revoke": {
+        "title": "Revoke passkey",
+        "consent": "This will revoke the passkey - <bold>${name}</bold> from your account.",
+        "cancel": "Cancel",
+        "confirm": "Revoke Passkey"
+      }
+    }
   }
 }
