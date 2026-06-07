@@ -194,11 +194,11 @@ export function useUserMFA({
     setContact('');
     setOtpData({ barcodeUri: '', manualInputCode: '' });
     setRecoveryCode('');
-    if (enrollFactor === FACTOR_TYPE_PUSH_NOTIFICATION) {
+    if (enrollFactor === FACTOR_TYPE_PUSH_NOTIFICATION && enrollmentSession.authSession) {
       await factorsQuery.refetch();
     }
     setEnrollFactor(null);
-  }, [enrollFactor, factorsQuery]);
+  }, [enrollFactor, enrollmentSession.authSession, factorsQuery]);
 
   const executeDelete = useCallback(
     async (factorId: string) => {
