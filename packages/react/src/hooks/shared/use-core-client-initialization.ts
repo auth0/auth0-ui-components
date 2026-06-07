@@ -36,8 +36,8 @@ export const useCoreClientInitialization = ({
   const [coreClient, setCoreClient] = React.useState<CoreClientInterface | null>(null);
 
   React.useEffect(() => {
-    // Wait for CSS detection to complete before initializing
-    if (telemetry.css === 'unknown') {
+    // Wait for CSS detection to complete before initializing (skip if telemetry disabled)
+    if (telemetry.enabled && telemetry.css === 'unknown') {
       return;
     }
 

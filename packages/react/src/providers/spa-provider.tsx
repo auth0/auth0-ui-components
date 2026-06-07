@@ -77,9 +77,12 @@ export const Auth0ComponentProvider = (
   const getComponent = React.useCallback<TelemetryComponentGetter>(() => componentRef.current, []);
 
   // useLayoutEffect ensures CSS is detected before paint, avoiding incorrect telemetry on early API calls
+  // Skip detection if telemetry is disabled since the value won't be used
   React.useLayoutEffect(() => {
-    setCss(detectCssImplementation());
-  }, []);
+    if (telemetryEnabled) {
+      setCss(detectCssImplementation());
+    }
+  }, [telemetryEnabled]);
 
   const auth0ReactContext = useAuth0();
 
