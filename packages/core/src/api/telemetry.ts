@@ -45,6 +45,7 @@ export interface TelemetryConfig {
   css: CssImplementation;
   distribution: DistributionChannel;
   framework: Framework;
+  enabled?: boolean;
 }
 
 /**

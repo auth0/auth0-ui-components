@@ -35,12 +35,9 @@ export const useCoreClientInitialization = ({
   const { authProxyUrl } = authDetails;
   const [coreClient, setCoreClient] = React.useState<CoreClientInterface | null>(null);
 
-  // Extract primitive values from telemetry to avoid re-runs on object reference changes
-  const { css, distribution, framework } = telemetry;
-
   React.useEffect(() => {
     // Wait for CSS detection to complete before initializing
-    if (css === 'unknown') {
+    if (telemetry.css === 'unknown') {
       return;
     }
 
@@ -49,7 +46,7 @@ export const useCoreClientInitialization = ({
         const initializedCoreClient = await createCoreClient(
           authDetails,
           i18nOptions,
-          { css, distribution, framework },
+          telemetry,
           getComponent,
         );
         setCoreClient(initializedCoreClient);
@@ -58,7 +55,7 @@ export const useCoreClientInitialization = ({
       }
     };
     initializeCoreClient();
-  }, [authProxyUrl, i18nOptions, css, distribution, framework, getComponent]);
+  }, [authProxyUrl, i18nOptions, telemetry, getComponent]);
 
   return coreClient;
 };

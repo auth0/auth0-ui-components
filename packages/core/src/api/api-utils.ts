@@ -45,14 +45,16 @@ export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier 
     if (authParams?.scope?.length) {
       headers.set(HeaderName.Auth0Scope, authParams.scope.join(' '));
     }
-    headers.set(
-      AUTH0_CLIENT_HEADER,
-      buildTelemetryHeader({
-        isProxyMode: true,
-        component: config.getComponent(),
-        ...config.telemetry,
-      }),
-    );
+    if (config.telemetry.enabled) {
+      headers.set(
+        AUTH0_CLIENT_HEADER,
+        buildTelemetryHeader({
+          isProxyMode: true,
+          component: config.getComponent(),
+          ...config.telemetry,
+        }),
+      );
+    }
     if (fetchFn) {
       return fetchFn(url, { ...init, headers }, authParams);
     }
@@ -80,14 +82,16 @@ export function createSpaFetcher(
   return (url, init, authParams) => {
     const headers = new Headers(init?.headers);
     headers.set(HeaderName.ContentType, ContentType.JSON);
-    headers.set(
-      AUTH0_CLIENT_HEADER,
-      buildTelemetryHeader({
-        isProxyMode: false,
-        component: getComponent(),
-        ...telemetry,
-      }),
-    );
+    if (telemetry.enabled) {
+      headers.set(
+        AUTH0_CLIENT_HEADER,
+        buildTelemetryHeader({
+          isProxyMode: false,
+          component: getComponent(),
+          ...telemetry,
+        }),
+      );
+    }
     return sdkFetcher.fetchWithAuth(
       url,
       { ...init, headers },

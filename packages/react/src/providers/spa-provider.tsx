@@ -63,6 +63,7 @@ export const Auth0ComponentProvider = (
     loader,
     children,
     authContext,
+    telemetry: telemetryEnabled = true,
   } = props;
   const mergedToastSettings = useToastProvider(toastSettings);
 
@@ -108,8 +109,9 @@ export const Auth0ComponentProvider = (
       css,
       distribution: DISTRIBUTION,
       framework: FRAMEWORK,
+      enabled: telemetryEnabled,
     }),
-    [css],
+    [css, telemetryEnabled],
   );
 
   const coreClient = useCoreClientInitialization({

@@ -59,6 +59,7 @@ export const Auth0ComponentProvider = ({
   cacheConfig,
   loader,
   children,
+  telemetry: telemetryEnabled = true,
 }: Extract<Auth0ComponentProviderProps, { mode: 'proxy' }> & { children: React.ReactNode }) => {
   const mergedToastSettings = useToastProvider(toastSettings);
   const { baseUrl, fetcher } = proxyConfig;
@@ -92,8 +93,9 @@ export const Auth0ComponentProvider = ({
       css,
       distribution: DISTRIBUTION,
       framework: FRAMEWORK,
+      enabled: telemetryEnabled,
     }),
-    [css],
+    [css, telemetryEnabled],
   );
 
   const coreClient = useCoreClientInitialization({

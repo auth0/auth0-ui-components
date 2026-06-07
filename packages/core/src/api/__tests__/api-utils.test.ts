@@ -184,6 +184,19 @@ describe('api-utils', () => {
         undefined,
       );
     });
+
+    it('does not set Auth0-Client header when telemetry is disabled', async () => {
+      const mockFetch = stubFetch();
+      const fetcher = createProxyFetcher({
+        telemetry: { ...defaultTelemetry, enabled: false },
+        getComponent: mockGetComponent,
+      });
+
+      await fetcher('https://example.com/api', { method: 'GET' }, undefined);
+
+      const [, requestInit] = mockFetch.mock.calls[0]!;
+      expect((requestInit?.headers as Headers).get(AUTH0_CLIENT_HEADER)).toBeNull();
+    });
   });
 
   describe('createSpaFetcher', () => {
@@ -397,6 +410,21 @@ describe('api-utils', () => {
       expect(decoded.component).toBe('organization-domain-management');
       expect(decoded.css).toBe('scoped');
       expect(decoded.distribution).toBe('shadcn');
+    });
+
+    it('does not set Auth0-Client header when telemetry is disabled', async () => {
+      const config = createSpaConfig();
+      const fetcher = createSpaFetcher(
+        config,
+        '__test_nonce__',
+        { ...defaultTelemetry, enabled: false },
+        mockGetComponent,
+      );
+
+      await fetcher('https://example.com/api', { method: 'GET' }, undefined);
+
+      const [, requestInit] = mockFetchWithAuth.mock.calls[0]!;
+      expect((requestInit?.headers as Headers).get(AUTH0_CLIENT_HEADER)).toBeNull();
     });
   });
 });
