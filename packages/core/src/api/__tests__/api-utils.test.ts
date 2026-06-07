@@ -20,6 +20,7 @@ const defaultTelemetry: TelemetryConfig = {
   css: 'unknown',
   distribution: 'npm',
   framework: 'react',
+  enabled: true,
 };
 
 const mockGetComponent = () => 'test-component';
@@ -132,7 +133,7 @@ describe('api-utils', () => {
     it('sets Auth0-Client telemetry header with proxy mode', async () => {
       const mockFetch = stubFetch();
       const fetcher = createProxyFetcher({
-        telemetry: { css: 'tailwind', distribution: 'npm', framework: 'react' },
+        telemetry: { css: 'tailwind', distribution: 'npm', framework: 'react', enabled: true },
         getComponent: () => 'user-mfa-management',
       });
 
@@ -154,7 +155,7 @@ describe('api-utils', () => {
     it('uses component from getComponent callback', async () => {
       const mockFetch = stubFetch();
       const fetcher = createProxyFetcher({
-        telemetry: { css: 'scoped', distribution: 'shadcn', framework: 'react' },
+        telemetry: { css: 'scoped', distribution: 'shadcn', framework: 'react', enabled: true },
         getComponent: () => 'organization-sso-configuration',
       });
 
@@ -374,7 +375,7 @@ describe('api-utils', () => {
       const fetcher = createSpaFetcher(
         config,
         '__test_nonce__',
-        { css: 'tailwind', distribution: 'npm', framework: 'react' },
+        { css: 'tailwind', distribution: 'npm', framework: 'react', enabled: true },
         () => 'user-mfa-management',
       );
 
@@ -398,7 +399,7 @@ describe('api-utils', () => {
       const fetcher = createSpaFetcher(
         config,
         '__test_nonce__',
-        { css: 'scoped', distribution: 'shadcn', framework: 'react' },
+        { css: 'scoped', distribution: 'shadcn', framework: 'react', enabled: true },
         () => 'organization-domain-management',
       );
 
