@@ -29,6 +29,9 @@ const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
   created_at: 'created_at',
 };
 
+const MEMBER_LIST_FIELDS =
+  'user_id,email,name,nickname,given_name,family_name,created_at,updated_at,last_login,phone_number,roles';
+
 /**
  * Builds a sort parameter string for the API.
  * @param sortConfig - The sort configuration.
@@ -131,6 +134,7 @@ export function useMemberManagementService(
       const page = await coreClient!.getMyOrganizationApiClient().organization.members.list({
         take: memberParams!.pageSize,
         from: memberParams!.fromToken,
+        fields: MEMBER_LIST_FIELDS,
       });
       const members: OrgMember[] = page.data;
       const next = members.length < memberParams!.pageSize ? null : page.response.next;
