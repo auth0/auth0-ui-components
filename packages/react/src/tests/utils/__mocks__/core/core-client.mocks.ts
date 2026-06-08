@@ -21,6 +21,7 @@ const createMockMyAccountApiService = (): CoreClientInterface['myAccountApiClien
       create: vi.fn().mockResolvedValue({}),
       delete: vi.fn().mockResolvedValue(undefined),
       verify: vi.fn().mockResolvedValue({}),
+      update: vi.fn().mockResolvedValue({}),
     },
     mfa: {
       fetchFactors: vi.fn().mockResolvedValue([]),

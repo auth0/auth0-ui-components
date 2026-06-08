@@ -1290,5 +1290,33 @@
         "copy_url_failed": "Failed to copy invitation URL. Please try again."
       }
     }
+  },
+  "passkey": {
+    "header": {
+      "title": "Log-in methods",
+      "description": "Ways you can sign in to your account. You can use one of these or combine them for flexibility."
+    },
+    "section_title": "Passkeys",
+    "enabled": "enabled",
+    "created_at": "Created on ${date}",
+    "last_used": "Last used ${date}",
+    "passkey_name": "Passkey ${index}",
+    "no_passkeys": "No passkeys have been added to your account.",
+    "add_passkey": "Add passkey",
+    "actions": {
+      "revoke": "Revoke"
+    },
+    "success": {
+      "add": "Passkey added successfully.",
+      "revoke": "Passkey revoked successfully."
+    },
+    "modals": {
+      "revoke": {
+        "title": "Revoke passkey",
+        "consent": "This will revoke the passkey - <bold>${name}</bold> from your account.",
+        "cancel": "Cancel",
+        "confirm": "Revoke Passkey"
+      }
+    }
   }
 }
