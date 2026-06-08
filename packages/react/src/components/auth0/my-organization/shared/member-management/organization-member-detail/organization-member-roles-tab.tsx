@@ -161,7 +161,7 @@ function OrganizationMemberEditRolesTable({
  * @param props - Component props containing state and handlers
  * @returns The rendered roles tab element
  */
-function OrganizationMemberEditRolesTabInner({
+export function OrganizationMemberEditRolesTab({
   customMessages,
   orgName,
   memberName,
@@ -234,5 +234,3 @@ function OrganizationMemberEditRolesTabInner({
     </>
   );
 }
-
-export const OrganizationMemberEditRolesTab = React.memo(OrganizationMemberEditRolesTabInner);

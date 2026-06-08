@@ -40,7 +40,7 @@ import type { OrganizationInvitationTableProps } from '@/types/my-organization/m
  * @param props.className - Optional CSS class name.
  * @returns The invitation table component.
  */
-function OrganizationInvitationTableInner({
+export function OrganizationInvitationTable({
   invitations,
   loading = false,
   customMessages = {},
@@ -190,5 +190,3 @@ function OrganizationInvitationTableInner({
     </div>
   );
 }
-
-export const OrganizationInvitationTable = React.memo(OrganizationInvitationTableInner);
