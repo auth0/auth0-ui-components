@@ -14,7 +14,8 @@
       "insufficient_scope": "You do not have the required scope permissions to perform this action.",
       "forbidden": "You do not have permissions to perform this action.",
       "not_found": "The requested resource was not found.",
-      "rate_limit": "Too many requests. Please wait a moment and try again."
+      "rate_limit": "Too many requests. Please wait a moment and try again.",
+      "network": "There was an issue connecting to the server. Please try again."
     }
   },
   "gate_keeper": {

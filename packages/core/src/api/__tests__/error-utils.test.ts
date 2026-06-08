@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { isNotifiableError, resolveErrorMessage } from '../error-utils';
+import { isNetworkError, isNotifiableError, resolveErrorMessage } from '../error-utils';
 
 describe('isNotifiableError', () => {
   describe('falsy errors', () => {
@@ -122,5 +122,40 @@ describe('resolveErrorMessage', () => {
     ])('should return fallback for $description', ({ value }) => {
       expect(resolveErrorMessage(value, FALLBACK)).toBe(FALLBACK);
     });
+  });
+});
+
+describe('isNetworkError', () => {
+  describe('network TypeErrors', () => {
+    it.each([
+      'Failed to fetch',
+      'NetworkError when attempting to fetch resource',
+      'Load failed',
+      'network request failed',
+    ])('should return true for "%s"', (message) => {
+      expect(isNetworkError(new TypeError(message))).toBe(true);
+    });
+  });
+
+  describe('non-network errors', () => {
+    it('should return false for a plain Error', () => {
+      expect(isNetworkError(new Error('Failed to fetch'))).toBe(false);
+    });
+
+    it('should return false for a TypeError with an HTTP status code', () => {
+      const err = Object.assign(new TypeError('Failed to fetch'), { status: 400 });
+      expect(isNetworkError(err)).toBe(false);
+    });
+
+    it('should return false for a TypeError with an unrelated message', () => {
+      expect(isNetworkError(new TypeError('Cannot read properties of undefined'))).toBe(false);
+    });
+
+    it.each([null, undefined, 'string error', { message: 'fetch' }])(
+      'should return false for non-Error values',
+      (value) => {
+        expect(isNetworkError(value)).toBe(false);
+      },
+    );
   });
 });

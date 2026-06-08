@@ -8,6 +8,21 @@ import { isMfaRequiredError } from '../services/mfa-step-up/mfa-step-up-api-util
 import { hasApiErrorBody, getStatusCode } from './api-error';
 
 /**
+ * Determines whether an error is a network-level failure thrown by the browser.
+ * These are `TypeError` instances with no HTTP status code, produced when a
+ * fetch is blocked (e.g. offline, CORS, browser-blocked state).
+ *
+ * @param error - The unknown error to evaluate.
+ * @returns `true` if the error is a browser network failure.
+ */
+export function isNetworkError(error: unknown): boolean {
+  if (!(error instanceof TypeError)) return false;
+  if (getStatusCode(error) !== undefined) return false;
+  const message = error.message.toLowerCase();
+  return message.includes('fetch') || message.includes('network') || message === 'load failed';
+}
+
+/**
  * Determines whether an error should be surfaced to the user.
  * Returns `false` for MFA step-up errors and server errors (5xx) as these
  * are handled by a GateKeeper layer.
