@@ -1,4 +1,5 @@
 import type { ComponentAction } from '@auth0/universal-components-core';
+import { memberManagementQueryKeys } from '@auth0/universal-components-core';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -16,7 +17,7 @@ import {
   createMockOrganizationMemberDetailViewProps,
   noModal,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
-import { renderWithProviders } from '@/tests/utils/test-provider';
+import { createTestQueryClient, renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { MemberDetailModalState } from '@/types/my-organization/member-management/organization-member-detail-types';
 
@@ -607,6 +608,101 @@ describe('OrganizationMemberDetail', () => {
 
           expect(apiService.organization.members.roles.unassign).not.toHaveBeenCalled();
         });
+      });
+    });
+  });
+
+  describe('cache invalidation on role mutation', () => {
+    it('should invalidate member list cache after assigning roles', async () => {
+      const user = userEvent.setup();
+      const queryClient = createTestQueryClient();
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      (apiService.organization.members.roles.assign as ReturnType<typeof vi.fn>).mockResolvedValue(
+        {},
+      );
+
+      renderWithProviders(
+        <OrganizationMemberDetail {...createMockOrganizationMemberDetailProps()} />,
+        { queryClient },
+      );
+
+      await waitForComponentToLoad();
+
+      const rolesTab = screen.getByRole('tab', { name: 'member.detail.tabs.roles' });
+      await user.click(rolesTab);
+
+      const assignButton = await screen.findByRole('button', {
+        name: /member.detail.roles.assign_button/i,
+      });
+      await user.click(assignButton);
+
+      await screen.findByText('member.detail.roles.assign_modal.title');
+
+      const comboboxInput = screen.getByPlaceholderText(
+        'member.detail.roles.assign_modal.roles_placeholder',
+      );
+      await user.click(comboboxInput);
+      await user.click(await screen.findByRole('button', { name: /admin/i }));
+
+      await user.click(
+        screen.getByRole('button', {
+          name: /member.detail.roles.assign_modal.submit_button/i,
+        }),
+      );
+
+      await waitFor(() => {
+        expect(apiService.organization.members.roles.assign).toHaveBeenCalled();
+      });
+
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+        queryKey: memberManagementQueryKeys.members(),
+      });
+    });
+
+    it('should invalidate member list cache after removing roles', async () => {
+      const user = userEvent.setup();
+      const queryClient = createTestQueryClient();
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      (apiService.organization.members.get as ReturnType<typeof vi.fn>).mockResolvedValue(
+        createMockMember({ roles: createMockMemberRoles() }),
+      );
+      (apiService.organization.members.roles.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        data: createMockMemberRoles(),
+      });
+      (
+        apiService.organization.members.roles.unassign as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({});
+
+      renderWithProviders(
+        <OrganizationMemberDetail {...createMockOrganizationMemberDetailProps()} />,
+        { queryClient },
+      );
+
+      await waitForComponentToLoad();
+
+      const rolesTab = screen.getByRole('tab', { name: 'member.detail.tabs.roles' });
+      await user.click(rolesTab);
+
+      const removeRoleButtons = await screen.findAllByRole('button', {
+        name: /member.detail.roles.remove_confirm.confirm_button|remove/i,
+      });
+      await user.click(removeRoleButtons[0]!);
+
+      const confirmButton = await screen.findByRole('button', {
+        name: /member.detail.roles.remove_confirm.confirm_button/i,
+      });
+      await user.click(confirmButton);
+
+      await waitFor(() => {
+        expect(apiService.organization.members.roles.unassign).toHaveBeenCalled();
+      });
+
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+        queryKey: memberManagementQueryKeys.members(),
       });
     });
   });

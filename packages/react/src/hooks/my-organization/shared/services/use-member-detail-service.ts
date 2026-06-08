@@ -123,6 +123,7 @@ export function useMemberDetailService(
           : 'member.detail.roles.assign_modal.success_plural';
       showToast({ type: 'success', message: t(assignKey) });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.members() });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.assign_role_failed') });
@@ -154,6 +155,7 @@ export function useMemberDetailService(
           });
       showToast({ type: 'success', message });
       queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.members() });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.remove_role_failed') });
