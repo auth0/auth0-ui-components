@@ -23,6 +23,7 @@ export interface ComboboxProps {
   className?: string;
   notFoundMessage?: string;
   multiple?: boolean;
+  showSelectedCount?: boolean;
 }
 
 export function Combobox({
@@ -35,6 +36,7 @@ export function Combobox({
   className,
   notFoundMessage,
   multiple = false,
+  showSelectedCount = false,
 }: ComboboxProps) {
   const [query, setQuery] = React.useState('');
   const [open, setOpen] = React.useState(false);
@@ -46,6 +48,17 @@ export function Combobox({
   const chipRefs = React.useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const portalContainer = usePortalContainer();
+  // Detect the nearest scroll-locking ancestor (DialogContent)
+  // and portal into it so scroll events propagate correctly.
+  const [popoverContainer, setPopoverContainer] = React.useState<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const dialogContent = containerRef.current?.closest<HTMLElement>(
+      '[data-slot="dialog-content"]',
+    );
+    setPopoverContainer(dialogContent ?? portalContainer);
+  }, [open, portalContainer]);
 
   const selectedValues = React.useMemo(() => {
     if (multiple) {
@@ -221,13 +234,15 @@ export function Combobox({
       case 'ArrowRight':
         if (multiple && selectedOptions.length > 0) {
           event.preventDefault();
-          if (focusedChipIndex > -1 && focusedChipIndex < selectedOptions.length - 1) {
-            const nextIndex = focusedChipIndex + 1;
-            setFocusedChipIndex(nextIndex);
-            chipRefs.current[nextIndex]?.focus();
-          } else if (focusedChipIndex >= selectedOptions.length - 1) {
-            setFocusedChipIndex(-1);
-            inputRef.current?.focus();
+          if (focusedChipIndex !== -1) {
+            if (focusedChipIndex < selectedOptions.length - 1) {
+              const nextIndex = focusedChipIndex + 1;
+              setFocusedChipIndex(nextIndex);
+              chipRefs.current[nextIndex]?.focus();
+            } else {
+              setFocusedChipIndex(-1);
+              inputRef.current?.focus();
+            }
           }
         }
         break;
@@ -334,43 +349,44 @@ export function Combobox({
                         e.preventDefault();
                       }}
                     >
-                      {(isFocused || open ? selectedOptions : selectedOptions.slice(0, 1)).map(
-                        (option, index) => (
-                          <div
-                            key={option.value}
-                            ref={(el) => {
-                              chipRefs.current[index] = el;
-                            }}
-                            tabIndex={-1}
-                            className={cn(
-                              'focus:ring-ring rounded-lg focus:ring-3 focus:outline-none',
-                              focusedChipIndex === index && 'ring-ring ring-3',
-                            )}
-                            onKeyDown={(e) => handleChipKeyDown(e, index)}
-                            onFocus={() => {
-                              setFocusedChipIndex(index);
-                              handleFocus();
-                            }}
-                            onBlur={(e) => {
-                              setFocusedChipIndex(-1);
-                              handleBlur(e);
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                            }}
+                      {(isFocused || open || !showSelectedCount
+                        ? selectedOptions
+                        : selectedOptions.slice(0, 1)
+                      ).map((option, index) => (
+                        <div
+                          key={option.value}
+                          ref={(el) => {
+                            chipRefs.current[index] = el;
+                          }}
+                          tabIndex={-1}
+                          className={cn(
+                            'focus:ring-ring rounded-lg focus:ring-3 focus:outline-none',
+                            focusedChipIndex === index && 'ring-ring ring-3',
+                          )}
+                          onKeyDown={(e) => handleChipKeyDown(e, index)}
+                          onFocus={() => {
+                            setFocusedChipIndex(index);
+                            handleFocus();
+                          }}
+                          onBlur={(e) => {
+                            setFocusedChipIndex(-1);
+                            handleBlur(e);
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          <Chip
+                            variant="secondary"
+                            size="sm"
+                            onDelete={() => handleChipRemove(option.value)}
+                            className="max-w-xs"
                           >
-                            <Chip
-                              variant="secondary"
-                              size="sm"
-                              onDelete={() => handleChipRemove(option.value)}
-                              className="max-w-xs"
-                            >
-                              <span className="truncate">{option.label}</span>
-                            </Chip>
-                          </div>
-                        ),
-                      )}
-                      {!isFocused && !open && selectedOptions.length > 1 && (
+                            <span className="truncate">{option.label}</span>
+                          </Chip>
+                        </div>
+                      ))}
+                      {!isFocused && !open && selectedOptions.length > 1 && showSelectedCount && (
                         <span className="text-muted-foreground border-border flex h-4 items-center self-center border-r px-0.5 pr-1.5 text-xs">
                           +{selectedOptions.length - 1} more
                         </span>
@@ -400,9 +416,9 @@ export function Combobox({
           </PopoverPrimitive.Trigger>
         </div>
 
-        <PopoverPrimitive.Portal container={portalContainer}>
+        <PopoverPrimitive.Portal container={popoverContainer}>
           <PopoverPrimitive.Content
-            className="bg-popover text-popover-foreground shadow-bevel-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 z-[1000] min-w-[var(--radix-popover-trigger-width)] overflow-hidden rounded-3xl ring-0 duration-300 ease-in-out outline-none focus:outline-none"
+            className="bg-popover text-popover-foreground shadow-bevel-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 min-w-[var(--radix-popover-trigger-width)] overflow-hidden rounded-3xl ring-0 duration-300 ease-in-out outline-none focus:outline-none"
             align="start"
             sideOffset={8}
           >

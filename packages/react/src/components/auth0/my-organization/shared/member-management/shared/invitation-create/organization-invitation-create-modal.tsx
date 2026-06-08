@@ -243,6 +243,7 @@ export function OrganizationInvitationCreateModal({
               placeholder={t('invitation.create.roles_placeholder')}
               disabled={isLoading || availableRoles.length === 0}
               multiple
+              showSelectedCount
             />
           </div>
 
