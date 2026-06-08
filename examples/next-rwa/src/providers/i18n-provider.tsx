@@ -22,6 +22,7 @@ i18n.use(initReactI18next).init({
         'profile.mfa-description': 'Manage your authentication factors for enhanced security.',
         'sidebar.my-account': 'My Account',
         'sidebar.mfa': 'Multi-Factor Authentication',
+        'sidebar.passkeys': 'Passkeys',
         'sidebar.my-organization': 'My Organization',
         'sidebar.organization-settings': 'Organization Settings',
         'sidebar.domains': 'Domains',
