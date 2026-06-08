@@ -268,7 +268,7 @@ export function useOrganizationMemberManagement(
     invitations: currentInvitations,
     members: currentMembers,
     orgDisplayName: orgDisplayName,
-    isInitialLoading: invitationsQuery.isLoading || membersQuery.isLoading,
+    isInitialLoading: membersQuery.isLoading,
     isFetchingInvitations: invitationsQuery.isFetching,
     isFetchingMembers: membersQuery.isFetching,
     isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,

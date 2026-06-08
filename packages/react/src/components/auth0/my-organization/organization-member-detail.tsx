@@ -3,7 +3,7 @@
  * @module organization-member-detail
  */
 
-import { getComponentStyles } from '@auth0/universal-components-core';
+import { getComponentStyles, type Role } from '@auth0/universal-components-core';
 import { ArrowLeft } from 'lucide-react';
 import * as React from 'react';
 
@@ -98,6 +98,7 @@ export function OrganizationMemberDetailView(
     isRemovingFromOrg,
     setActiveTab,
     closeModal,
+    openModal,
     handleRemoveFromOrgConfirm,
   } = props;
 
@@ -107,6 +108,21 @@ export function OrganizationMemberDetailView(
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
+  );
+
+  const handleRemoveFromOrgClick = React.useCallback(
+    () => openModal({ type: 'removeFromOrg' }),
+    [openModal],
+  );
+
+  const handleAssignRolesClick = React.useCallback(
+    () => openModal({ type: 'assignRoles' }),
+    [openModal],
+  );
+
+  const handleRemoveRolesClick = React.useCallback(
+    (roles: Role[]) => openModal({ type: 'removeRoles', roles }),
+    [openModal],
   );
 
   if (props.memberError) {
@@ -161,7 +177,7 @@ export function OrganizationMemberDetailView(
               member={props.member}
               customMessages={customMessages}
               isRemovingFromOrg={isRemovingFromOrg}
-              onRemoveFromOrgClick={() => props.openModal({ type: 'removeFromOrg' })}
+              onRemoveFromOrgClick={handleRemoveFromOrgClick}
             />
           </TabsContent>
 
@@ -183,10 +199,10 @@ export function OrganizationMemberDetailView(
               modalState={modalState}
               isAssigningRoles={props.isAssigningRoles}
               onSelectedRolesChange={props.setSelectedRoles}
-              onAssignRolesClick={() => props.openModal({ type: 'assignRoles' })}
+              onAssignRolesClick={handleAssignRolesClick}
               onAssignRolesCancel={closeModal}
               onAssignRolesSubmit={props.handleAssignRolesSubmit}
-              onRemoveRolesClick={(roles) => props.openModal({ type: 'removeRoles', roles })}
+              onRemoveRolesClick={handleRemoveRolesClick}
               onRemoveRolesCancel={props.handleRemoveRolesCancel}
               onRemoveRolesConfirm={props.handleRemoveRolesConfirm}
             />
