@@ -21,14 +21,18 @@ function validateEnvVars() {
 // Validate environment variables on module load
 validateEnvVars();
 
+const isMyAccount = process.env.NEXT_PUBLIC_ENABLE_MY_ACCOUNT === 'true';
+const domain = process.env.AUTH0_DOMAIN?.replace(/\/$/, '');
+
 export const auth0 = new Auth0Client({
   httpTimeout: 20000, // 20 seconds
   authorizationParameters: {
-    scope: process.env.AUTH0_SCOPE || 'openid profile email offline_access',
-
-    ...(process.env.AUTH0_DOMAIN && {
-      audience: `${process.env.AUTH0_DOMAIN.replace(/\/$/, '')}/my-org/`,
+    ...(domain && {
+      audience: isMyAccount ? `${domain}/me/` : `${domain}/my-org/`,
     }),
+    scope: isMyAccount
+      ? 'openid profile email offline_access read:me:factors read:me:authentication_methods create:me:authentication_methods delete:me:authentication_methods'
+      : process.env.AUTH0_SCOPE || 'openid profile email offline_access',
   },
   // Using SDK defaults: rolling: true, absoluteDuration: 3 days, inactivityDuration: 1 day
 });
