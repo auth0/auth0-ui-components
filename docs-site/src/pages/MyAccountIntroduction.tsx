@@ -40,6 +40,52 @@ export default function MyAccountIntroduction() {
         </div>
       </div>
 
+      {/* Self-service vs delegated admin note */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-start">
+          <svg
+            className="w-5 h-5 text-blue-500 mt-0.5 mr-2 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <p className="text-blue-800 text-sm">
+            These components create <strong>end-user self-service</strong> interfaces. For delegated
+            admin interfaces that manage an Auth0 Organization, see{' '}
+            <a href="/my-organization" className="underline font-medium">
+              My Organization Components
+            </a>
+            .
+          </p>
+        </div>
+      </div>
+
+      {/* Rate limits warning */}
+      <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4">
+        <div className="flex items-start">
+          <svg
+            className="w-5 h-5 text-yellow-500 mt-0.5 mr-2 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <p className="text-yellow-800 text-sm">
+            <strong>Rate Limits:</strong> The My Account API currently enforces low rate limits,
+            especially on free-tier tenants. This may cause errors while using these components.
+          </p>
+        </div>
+      </div>
+
       {/* Available Components */}
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Available Components</h2>
@@ -173,29 +219,26 @@ export default function MyAccountIntroduction() {
                 <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium mr-3">
                   4
                 </div>
-                <h4 className="font-semibold text-blue-800">Create Client Grant</h4>
+                <h4 className="font-semibold text-blue-800">
+                  Configure My Account API Permissions
+                </h4>
               </div>
               <div className="ml-9">
                 <p className="text-blue-700 text-sm mb-2">
-                  Create a client grant for the user & client pair to solve access control:
+                  On your SPA application page, select the <strong>API Access</strong> tab, then
+                  select <strong>Edit</strong> for the <strong>Auth0 My Account API</strong>. Add
+                  the following <strong>User-delegated Access</strong> permissions and select{' '}
+                  <strong>Save</strong>:
                 </p>
                 <div className="bg-white rounded-lg p-3">
                   <CodeBlock
-                    code={`POST https://{{auth0_domain}}/api/v2/client-grants
-{
-  "client_id": "{{auth0_client_id}}", // use your app client_id
-  "audience": "https://{{auth0_domain}}/me/", // use your domain
-  "scope": [
-    "read:me:authentication_methods",
-    "delete:me:authentication_methods",
-    "update:me:authentication_methods",
-    "read:me:factors",
-    "create:me:authentication_methods"
-  ],
-  "subject_type": "user"
-}`}
-                    language="json"
-                    title="Client Grant Creation"
+                    code={`create:me:authentication_methods
+read:me:authentication_methods
+update:me:authentication_methods
+delete:me:authentication_methods
+read:me:factors`}
+                    language="text"
+                    title="User-delegated Access Permissions"
                   />
                 </div>
               </div>
@@ -223,6 +266,53 @@ VITE_AUTH0_CLIENT_ID=your-spa-client-id`}
                 </div>
               </div>
             </div>
+
+            {/* Step 6 */}
+            <div>
+              <div className="flex items-center mb-3">
+                <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium mr-3">
+                  6
+                </div>
+                <h4 className="font-semibold text-blue-800">Wire Up Providers</h4>
+              </div>
+              <div className="ml-9">
+                <p className="text-blue-700 text-sm mb-2">
+                  Wrap your app with <code>Auth0Provider</code> and{' '}
+                  <code>Auth0ComponentProvider</code>:
+                </p>
+                <div className="bg-white rounded-lg p-3">
+                  <CodeBlock
+                    code={`import { Auth0Provider } from "@auth0/auth0-react";
+import { Auth0ComponentProvider } from "@auth0/universal-components-react/spa";
+
+const domain = import.meta.env.VITE_AUTH0_DOMAIN;
+const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
+
+export default function App() {
+  return (
+    <Auth0Provider
+      domain={domain}
+      clientId={clientId}
+      authorizationParams={{ redirect_uri: window.location.origin }}
+      interactiveErrorHandler="popup"
+    >
+      <Auth0ComponentProvider domain={domain}>
+        {/* your app */}
+      </Auth0ComponentProvider>
+    </Auth0Provider>
+  );
+}`}
+                    language="tsx"
+                    title="App.tsx"
+                  />
+                </div>
+                <p className="text-blue-700 text-sm mt-2">
+                  Set <code>interactiveErrorHandler="popup"</code> so that MFA enrollment and
+                  deletion step-up challenges are handled in a popup rather than redirecting away
+                  from the page.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -242,11 +332,16 @@ VITE_AUTH0_CLIENT_ID=your-spa-client-id`}
             <div>
               <h4 className="font-medium text-gray-900 mb-1">Quick Notes</h4>
               <ul className="space-y-1 text-gray-700 text-sm">
-                <li>• User must be authenticated before using these components</li>
+                <li>• User must be authenticated before any My Account component is rendered</li>
                 <li>
-                  • MFA configuration may take a few minutes to propagate across Auth0's systems
+                  • Components automatically load the logged-in user's authentication methods from
+                  the My Account API
                 </li>
-                <li>• Test MFA enrollment in a development environment before production</li>
+                <li>
+                  • <code>interactiveErrorHandler="popup"</code> is required on{' '}
+                  <code>Auth0Provider</code> for step-up auth challenges during MFA enrollment and
+                  deletion
+                </li>
               </ul>
             </div>
           </div>
@@ -302,7 +397,7 @@ VITE_AUTH0_CLIENT_ID=your-spa-client-id`}
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-4 -translate-x-4"></div>
           </div>
 
-          <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-slate-600 via-gray-600 to-zinc-700 p-6 text-white shadow-xl">
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 p-6 text-white shadow-xl">
             <div className="relative z-10">
               <div className="mb-3">
                 <svg
@@ -315,26 +410,29 @@ VITE_AUTH0_CLIENT_ID=your-spa-client-id`}
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"
+                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">More Components Coming</h3>
+              <h3 className="text-xl font-semibold mb-2">Passkey Management</h3>
               <p className="text-white/90 mb-4">
-                Additional account management features like profile editing, password changes, and
-                more will be added soon.
+                Let users register and revoke passkeys using the browser's built-in WebAuthn
+                authenticator.
               </p>
-              <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg font-medium text-white/70">
-                Coming Soon
+              <a
+                href="/my-account/user-passkey-management"
+                className="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-medium transition-colors"
+              >
+                Explore UserPasskeyMgmt
                 <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    d="M9 5l7 7-7 7"
                   />
                 </svg>
-              </div>
+              </a>
             </div>
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-8 translate-x-8"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-4 -translate-x-4"></div>
