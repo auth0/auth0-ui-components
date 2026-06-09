@@ -31,19 +31,15 @@ export function isNetworkError(error: unknown): boolean {
 
   const cause = (error as { cause?: unknown }).cause;
 
-  // Direct TypeError from the browser (e.g. fetch blocked, offline)
   if (error instanceof TypeError && isNetworkErrorMessage(error.message)) {
     return true;
   }
 
-  // SDK-wrapped errors: the cause holds the original TypeError
   if (cause instanceof TypeError && isNetworkErrorMessage(cause.message)) {
     return true;
   }
 
-  // SDK-wrapped errors: message was copied from the original TypeError message
-  const matched = isNetworkErrorMessage(error.message);
-  return matched;
+  return isNetworkErrorMessage(error.message);
 }
 
 /**
