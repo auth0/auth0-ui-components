@@ -1,10 +1,16 @@
 import { describe, it, expect, vi } from 'vitest';
 
 import {
+  MAX_ROLES_PER_ASSIGNMENT,
+  MAX_ROLES_PER_MEMBER,
+} from '@/lib/constants/my-organization/member-management/member-management-constants';
+import {
+  ROLE_ASSIGNMENT_ERROR_KEYS,
   getInitials,
   getInvitationStatus,
   getMemberDisplayName,
   getRelativeLastLoginLabel,
+  validateRoleAssignment,
 } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { createMockMember } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
 
@@ -151,5 +157,85 @@ describe('getRelativeLastLoginLabel', () => {
     vi.spyOn(Date, 'now').mockReturnValue(new Date(now).getTime());
 
     expect(getRelativeLastLoginLabel(lastLogin, mockT)).toBe(expected);
+  });
+});
+
+describe('validateRoleAssignment', () => {
+  const makeRoles = (count: number, prefix = 'role'): { id: string; name: string }[] =>
+    Array.from({ length: count }, (_, i) => ({ id: `${prefix}-${i}`, name: `${prefix}-${i}` }));
+
+  it('returns ok for an empty roleIds array', () => {
+    expect(validateRoleAssignment({ roleIds: [], memberRoles: [] })).toEqual({ ok: true });
+  });
+
+  it('returns ok when assigning up to MAX_ROLES_PER_ASSIGNMENT roles', () => {
+    const roleIds = Array.from({ length: MAX_ROLES_PER_ASSIGNMENT }, (_, i) => `r-${i}`);
+    expect(validateRoleAssignment({ roleIds, memberRoles: [] })).toEqual({ ok: true });
+  });
+
+  it('returns too_many_per_assignment when roleIds exceeds MAX_ROLES_PER_ASSIGNMENT', () => {
+    const roleIds = Array.from({ length: MAX_ROLES_PER_ASSIGNMENT + 1 }, (_, i) => `r-${i}`);
+    expect(validateRoleAssignment({ roleIds, memberRoles: [] })).toEqual({
+      ok: false,
+      reason: 'too_many_per_assignment',
+    });
+  });
+
+  it('checks per-assignment limit before per-member limit', () => {
+    // Both limits would be exceeded; per-assignment should win.
+    const roleIds = Array.from({ length: MAX_ROLES_PER_ASSIGNMENT + 1 }, (_, i) => `new-${i}`);
+    const memberRoles = makeRoles(MAX_ROLES_PER_MEMBER, 'existing') as never;
+    expect(validateRoleAssignment({ roleIds, memberRoles })).toEqual({
+      ok: false,
+      reason: 'too_many_per_assignment',
+    });
+  });
+
+  it('returns ok when total stays at the per-member limit', () => {
+    const memberRoles = makeRoles(MAX_ROLES_PER_MEMBER - 1, 'existing') as never;
+    const roleIds = ['new-1'];
+    expect(validateRoleAssignment({ roleIds, memberRoles })).toEqual({ ok: true });
+  });
+
+  it('returns member_limit_exceeded when adding new roles would exceed MAX_ROLES_PER_MEMBER', () => {
+    const memberRoles = makeRoles(MAX_ROLES_PER_MEMBER, 'existing') as never;
+    const roleIds = ['new-1'];
+    expect(validateRoleAssignment({ roleIds, memberRoles })).toEqual({
+      ok: false,
+      reason: 'member_limit_exceeded',
+    });
+  });
+
+  it('ignores role ids the member already holds when counting against the per-member limit', () => {
+    const memberRoles = makeRoles(MAX_ROLES_PER_MEMBER, 'existing') as never;
+    // Re-assigning an existing role should NOT trip the limit.
+    const roleIds = ['existing-0', 'existing-1'];
+    expect(validateRoleAssignment({ roleIds, memberRoles })).toEqual({ ok: true });
+  });
+
+  it('counts only the new (non-duplicate) role ids when checking the per-member limit', () => {
+    const memberRoles = makeRoles(MAX_ROLES_PER_MEMBER - 1, 'existing') as never;
+    // 1 duplicate + 1 new = +1 net, which fits exactly.
+    expect(validateRoleAssignment({ roleIds: ['existing-0', 'new-1'], memberRoles })).toEqual({
+      ok: true,
+    });
+    // 1 duplicate + 2 new = +2 net, which exceeds the limit by 1.
+    expect(
+      validateRoleAssignment({
+        roleIds: ['existing-0', 'new-1', 'new-2'],
+        memberRoles,
+      }),
+    ).toEqual({ ok: false, reason: 'member_limit_exceeded' });
+  });
+});
+
+describe('ROLE_ASSIGNMENT_ERROR_KEYS', () => {
+  it('maps every validation failure reason to a non-empty i18n key', () => {
+    expect(ROLE_ASSIGNMENT_ERROR_KEYS.too_many_per_assignment).toBe(
+      'member.error.too_many_roles_per_assignment',
+    );
+    expect(ROLE_ASSIGNMENT_ERROR_KEYS.member_limit_exceeded).toBe(
+      'member.error.member_role_limit_exceeded',
+    );
   });
 });
