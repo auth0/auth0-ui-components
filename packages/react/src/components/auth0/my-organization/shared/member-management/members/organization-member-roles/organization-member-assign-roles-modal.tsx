@@ -87,7 +87,6 @@ export function OrganizationMemberAssignRolesModal({
               <Label>{t('member.detail.roles.assign_modal.roles_label')}</Label>
               <Combobox
                 multiple
-                showSelectedCount
                 options={unassignedRoles.map((r) => ({ value: r.id, label: r.name }))}
                 value={selectedRoles}
                 onChange={(val) => setSelectedRoles(Array.isArray(val) ? val : [val])}
