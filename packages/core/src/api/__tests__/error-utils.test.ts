@@ -137,9 +137,22 @@ describe('isNetworkError', () => {
     });
   });
 
+  describe('SDK-wrapped network errors', () => {
+    it('should return true for a plain Error with "Failed to fetch" message (SDK-copied message)', () => {
+      expect(isNetworkError(new Error('Failed to fetch'))).toBe(true);
+    });
+
+    it('should return true for an Error whose cause is a network TypeError', () => {
+      const cause = new TypeError('Failed to fetch');
+      const wrapped = Object.assign(new Error(''), { cause });
+      expect(isNetworkError(wrapped)).toBe(true);
+    });
+  });
+
   describe('non-network errors', () => {
-    it('should return false for a plain Error', () => {
-      expect(isNetworkError(new Error('Failed to fetch'))).toBe(false);
+    it('should return false for an Error with an HTTP status code', () => {
+      const err = Object.assign(new Error('Failed to fetch'), { status: 400 });
+      expect(isNetworkError(err)).toBe(false);
     });
 
     it('should return false for a TypeError with an HTTP status code', () => {
@@ -149,6 +162,10 @@ describe('isNetworkError', () => {
 
     it('should return false for a TypeError with an unrelated message', () => {
       expect(isNetworkError(new TypeError('Cannot read properties of undefined'))).toBe(false);
+    });
+
+    it('should return false for a plain Error with an unrelated message', () => {
+      expect(isNetworkError(new Error('Something went wrong'))).toBe(false);
     });
 
     it.each([null, undefined, 'string error', { message: 'fetch' }])(

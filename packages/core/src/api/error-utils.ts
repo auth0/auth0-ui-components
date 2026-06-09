@@ -8,18 +8,42 @@ import { isMfaRequiredError } from '../services/mfa-step-up/mfa-step-up-api-util
 import { hasApiErrorBody, getStatusCode } from './api-error';
 
 /**
+ * Returns true if the given message string looks like a browser network failure.
+ * @param message - The error message string to check.
+ * @returns `true` if the message matches known network failure patterns.
+ */
+function isNetworkErrorMessage(message: string): boolean {
+  const lower = message.toLowerCase();
+  return lower.includes('fetch') || lower.includes('network') || lower === 'load failed';
+}
+
+/**
  * Determines whether an error is a network-level failure thrown by the browser.
- * These are `TypeError` instances with no HTTP status code, produced when a
- * fetch is blocked (e.g. offline, CORS, browser-blocked state).
+ * Handles both raw `TypeError` instances and SDK-wrapped errors that copy the
+ * original `TypeError` message or carry it as `cause`.
  *
  * @param error - The unknown error to evaluate.
  * @returns `true` if the error is a browser network failure.
  */
 export function isNetworkError(error: unknown): boolean {
-  if (!(error instanceof TypeError)) return false;
+  if (!(error instanceof Error)) return false;
   if (getStatusCode(error) !== undefined) return false;
-  const message = error.message.toLowerCase();
-  return message.includes('fetch') || message.includes('network') || message === 'load failed';
+
+  const cause = (error as { cause?: unknown }).cause;
+
+  // Direct TypeError from the browser (e.g. fetch blocked, offline)
+  if (error instanceof TypeError && isNetworkErrorMessage(error.message)) {
+    return true;
+  }
+
+  // SDK-wrapped errors: the cause holds the original TypeError
+  if (cause instanceof TypeError && isNetworkErrorMessage(cause.message)) {
+    return true;
+  }
+
+  // SDK-wrapped errors: message was copied from the original TypeError message
+  const matched = isNetworkErrorMessage(error.message);
+  return matched;
 }
 
 /**
