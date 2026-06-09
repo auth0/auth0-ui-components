@@ -14,7 +14,8 @@
       "insufficient_scope": "Vous n'avez pas les autorisations de portée requises pour effectuer cette action.",
       "forbidden": "Vous n'avez pas les autorisations pour effectuer cette action.",
       "not_found": "La ressource demandée n'a pas été trouvée.",
-      "rate_limit": "Trop de demandes. Veuillez patienter un instant et réessayer."
+      "rate_limit": "Trop de demandes. Veuillez patienter un instant et réessayer.",
+      "network": "Un problème est survenu lors de la connexion au serveur. Veuillez réessayer."
     }
   },
   "gate_keeper": {

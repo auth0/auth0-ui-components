@@ -230,7 +230,7 @@ export function OrganizationInvitationCreateModal({
               onChipRemove={handleEmailChipRemove}
               summarizeChips={false}
             />
-            <p className="text-xs text-muted-foreground">{t('invitation.create.email_helper')}</p>
+            <p className="text-sm text-muted-foreground">{t('invitation.create.email_helper')}</p>
             {emailError && <p className="text-sm text-destructive-foreground">{emailError}</p>}
           </div>
 
