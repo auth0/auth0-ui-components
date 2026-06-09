@@ -11,6 +11,7 @@ import {
   type CreateOrganizationDomainRequestContent,
   type IdentityProviderAssociatedWithDomain,
   BusinessError,
+  domainQueryKeys,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
@@ -21,12 +22,6 @@ import type {
   UseDomainTableServiceOptions,
   UseDomainTableServiceReturn,
 } from '@/types/my-organization/domain-management/domain-table-types';
-
-const domainQueryKeys = {
-  all: ['domains'] as const,
-  list: () => [...domainQueryKeys.all, 'list'] as const,
-  providers: (domainId: string) => [...domainQueryKeys.all, 'providers', domainId] as const,
-};
 
 /**
  * Internal service hook for domain table data and CRUD operations.
