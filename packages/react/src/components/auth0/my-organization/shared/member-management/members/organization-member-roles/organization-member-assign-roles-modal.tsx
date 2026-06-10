@@ -92,6 +92,7 @@ export function OrganizationMemberAssignRolesModal({
                 onChange={(val) => setSelectedRoles(Array.isArray(val) ? val : [val])}
                 placeholder={t('member.detail.roles.assign_modal.roles_placeholder')}
                 disabled={isLoading}
+                showSelectedCount
               />
             </>
           )}
