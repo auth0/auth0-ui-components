@@ -55,6 +55,11 @@ export interface UseOrganizationDetailsEditOptions {
   customMessages?: OrganizationDetailsEditProps['customMessages'];
 }
 
+export interface UseOrganizationDetailsEditServiceOptions {
+  saveAction?: OrganizationDetailsEditProps['saveAction'];
+  customMessages?: OrganizationDetailsEditProps['customMessages'];
+}
+
 export interface UseOrganizationDetailsEditResult {
   organization: OrganizationPrivate;
   isFetchLoading: boolean;
