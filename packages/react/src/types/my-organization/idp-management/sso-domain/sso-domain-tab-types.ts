@@ -5,6 +5,7 @@
 
 import type {
   ComponentAction,
+  CreateOrganizationDomainRequestContent,
   Domain,
   DomainCreateSchemas,
   IdpKnownResponse,
@@ -13,7 +14,7 @@ import type {
 } from '@auth0/universal-components-core';
 import type { UseQueryResult } from '@tanstack/react-query';
 
-interface SsoDomainsQueryData {
+export interface SsoDomainsQueryData {
   domains: Domain[];
   next: string | null;
 }
@@ -82,6 +83,32 @@ export interface SsoDomainTabActionColumn
 export interface UseSsoDomainTabOptions extends SharedComponentProps {
   domains: SsoDomainsTabEditProps;
   provider: IdpKnownResponse | null;
+}
+
+export interface UseSsoDomainTabServiceOptions extends SharedComponentProps {
+  domains: SsoDomainsTabEditProps;
+  provider: IdpKnownResponse | null;
+  pageSize?: number;
+  fromToken?: string;
+}
+
+export interface UseSsoDomainTabServiceReturn {
+  domainsList: Domain[];
+  isLoading: boolean;
+  isRefetchingDomains: boolean;
+  isDomainsStale: boolean;
+  domainsUpdatedAt: number;
+  nextToken: string | null;
+  refetchDomains: RefetchSsoDomains;
+  idpDomains: string[];
+  isCreating: boolean;
+  isVerifying: boolean;
+  isDeleting: boolean;
+  createDomain: (data: CreateOrganizationDomainRequestContent) => Promise<Domain>;
+  verifyDomain: (domain: Domain) => Promise<{ updatedDomain: Domain; isVerified: boolean }>;
+  deleteDomain: (domain: Domain) => Promise<Domain>;
+  associateToProvider: (domain: Domain) => Promise<Domain>;
+  deleteFromProvider: (domain: Domain) => Promise<Domain>;
 }
 
 export interface UseSsoDomainTabReturn {
