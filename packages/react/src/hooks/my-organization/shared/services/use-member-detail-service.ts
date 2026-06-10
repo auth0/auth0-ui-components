@@ -43,7 +43,7 @@ export function useMemberDetailService(
   const handleError = useErrorHandler();
   const queryClient = useQueryClient();
 
-  const isValidUserId = !!userId && /^[^|]+\|[^|]+$/.test(userId);
+  const isValidUserId = !!userId && /^(?=.{1,1024}$).+\\|.+$/.test(userId);
 
   const memberQuery = useQuery({
     queryKey: memberDetailQueryKeys.member(userId),
