@@ -474,6 +474,7 @@ describe('useSsoProviderEdit', () => {
     };
 
     mockUpdate.mockResolvedValue(updatedProvider);
+    mockGet.mockResolvedValueOnce(mockProvider).mockResolvedValueOnce(updatedProvider);
 
     const { result } = renderUseSsoProviderEdit(mockIdpId);
 

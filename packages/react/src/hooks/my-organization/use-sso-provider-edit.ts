@@ -189,9 +189,9 @@ export function useSsoProviderEdit(
       await queryClient.invalidateQueries({
         queryKey: ssoProviderQueryKeys.list(),
       });
-
-      // Update cache with new data
-      queryClient.setQueryData(ssoProviderEditQueryKeys.detail(idpId), result);
+      await queryClient.invalidateQueries({
+        queryKey: ssoProviderEditQueryKeys.detail(idpId),
+      });
 
       if (sso?.updateAction?.onAfter && provider) {
         await sso.updateAction.onAfter(provider, result);

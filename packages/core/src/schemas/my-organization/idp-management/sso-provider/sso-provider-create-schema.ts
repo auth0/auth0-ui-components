@@ -129,6 +129,8 @@ const STRATEGY_BUILDERS = {
           'Please enter a valid metadata location URL',
         ),
         fedMetadataXml: z.string().optional(),
+        show_as_button: z.boolean().optional(),
+        assign_membership_on_login: z.boolean().optional(),
       }),
       z.object({
         meta_data_source: z.literal('meta_data_file'),
@@ -139,6 +141,8 @@ const STRATEGY_BUILDERS = {
         ),
         adfs_server: z.string().optional(),
         meta_data_location_url: z.string().optional(),
+        show_as_button: z.boolean().optional(),
+        assign_membership_on_login: z.boolean().optional(),
       }),
     ]),
 
