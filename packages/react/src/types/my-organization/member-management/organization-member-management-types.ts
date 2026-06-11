@@ -83,7 +83,7 @@ export interface MemberManagementServiceResult {
   assignRolesMutation: UseMutationResult<
     { aborted: boolean },
     Error,
-    { roleIds: string[]; userId?: string | null }
+    { roleIds: string[]; memberRoles: Role[]; userId?: string | null }
   >;
   removeFromOrgMutation: UseMutationResult<
     void,
@@ -169,7 +169,7 @@ export interface UseOrganizationMemberManagementResult {
   handleSortChange: (sortConfig: MemberManagementSortConfig) => void;
   handleRoleFilterChange: (roleId: string | undefined) => void;
   handleViewMemberDetails: (userId: string) => void;
-  handleAssignRolesSubmit: (roleIds: string[], userId?: string | null) => void;
+  handleAssignRolesSubmit: (roleIds: string[], memberRoles: Role[], userId?: string | null) => void;
   handleRemoveFromOrgConfirm: (
     userId?: string | null,
     memberName?: string,

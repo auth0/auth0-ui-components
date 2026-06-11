@@ -102,26 +102,31 @@ export function useOrganizationMemberDetail(
   );
 
   const handleAssignRolesSubmit = React.useCallback(
-    (roleIds: string[]) => {
-      assignRolesMutation.mutate(roleIds, {
-        onSuccess: () => {
-          closeModal();
+    (roleIds: string[], memberRoles: Role[]) => {
+      assignRolesMutation.mutate(
+        { roleIds, memberRoles },
+        {
+          onSuccess: (result) => {
+            if (result?.aborted) return;
+            closeModal();
+          },
         },
-      });
+      );
     },
     [assignRolesMutation, closeModal],
   );
 
   const handleRemoveRolesCancel = React.useCallback(() => {
-    setSelectedRoles([]);
     closeModal();
   }, [closeModal]);
 
   const handleRemoveRolesConfirm = React.useCallback(() => {
     if (modalState.type !== 'removeRoles') return;
     removeRolesMutation.mutate(modalState.roles, {
-      onSuccess: () => {
-        setSelectedRoles([]);
+      onSuccess: (result) => {
+        if (!result?.aborted) {
+          setSelectedRoles([]);
+        }
         closeModal();
       },
     });

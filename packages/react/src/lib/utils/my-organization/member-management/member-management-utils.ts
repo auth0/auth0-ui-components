@@ -4,16 +4,17 @@
  * @internal
  */
 
-import type {
-  EnhancedTranslationFunction,
-  MemberInvitation,
-  OrgMember,
-  Role,
+import {
+  type EnhancedTranslationFunction,
+  type MemberInvitation,
+  type OrgMember,
+  type Role,
 } from '@auth0/universal-components-core';
 
+import { showToast } from '@/components/auth0/shared/toast';
 import {
-  MAX_ROLES_PER_ASSIGNMENT,
   MAX_ROLES_PER_MEMBER,
+  MAX_ROLES_PER_REQUEST,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import type { InvitationStatus } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
@@ -128,46 +129,35 @@ export function getInitials(name?: string): string {
 }
 
 /**
- * Discriminated result of {@link validateRoleAssignment}.
- * - `ok: true` when the request may proceed.
- * - `ok: false` carries a `reason`
+ * Validates a role assign/remove request
+ * @param t - Translator function
+ * @param roleIds - Role ids to assign/remove
+ * @param memberRoles - Current roles of the member
+ * @param assign - `true` for assignment requests
+ * @returns `{ aborted: true }` when validation fails and `null` if the request may proceed.
  */
-export type RoleAssignmentValidationResult =
-  | { ok: true }
-  | { ok: false; reason: 'too_many_per_assignment' | 'member_limit_exceeded' };
+export const validateRequestRoleForMember = (
+  t: EnhancedTranslationFunction,
+  roleIds: string[],
+  memberRoles?: Role[] | null,
+  assign: boolean = false,
+): { aborted: true } | null => {
+  let errorKey: string | null = null;
 
-/**
- * Validates a role-assignment request against client-side limits:
- * - Caps the number of roles assigned in a single request.
- * - Caps the total number of roles a member can hold
- * @param params - Validation inputs.
- * @param params.roleIds - Role ids the caller wants to assign.
- * @param params.memberRoles - Roles the member currently holds.
- * @returns A {@link RoleAssignmentValidationResult}.
- */
-export function validateRoleAssignment(params: {
-  roleIds: string[];
-  memberRoles: Role[];
-}): RoleAssignmentValidationResult {
-  const { roleIds, memberRoles } = params;
-
-  if (roleIds.length > MAX_ROLES_PER_ASSIGNMENT) {
-    return { ok: false, reason: 'too_many_per_assignment' };
+  if (roleIds.length > MAX_ROLES_PER_REQUEST) {
+    errorKey = assign
+      ? 'member.error.too_many_roles_per_assignment'
+      : 'member.error.too_many_roles_per_removal';
+  } else if (assign) {
+    const existingIds = new Set(memberRoles?.map((r) => r.id));
+    const newRoleCount = roleIds.filter((id) => !existingIds.has(id)).length;
+    if ((memberRoles?.length ?? 0) + newRoleCount > MAX_ROLES_PER_MEMBER) {
+      errorKey = 'member.error.member_role_limit_exceeded';
+    }
   }
 
-  const existingIds = new Set(memberRoles.map((r) => r.id));
-  const newRoleCount = roleIds.filter((id) => !existingIds.has(id)).length;
-  if (memberRoles.length + newRoleCount > MAX_ROLES_PER_MEMBER) {
-    return { ok: false, reason: 'member_limit_exceeded' };
-  }
+  if (!errorKey) return null;
 
-  return { ok: true };
-}
-
-export const ROLE_ASSIGNMENT_ERROR_KEYS: Record<
-  Exclude<RoleAssignmentValidationResult, { ok: true }>['reason'],
-  string
-> = {
-  too_many_per_assignment: 'member.error.too_many_roles_per_assignment',
-  member_limit_exceeded: 'member.error.member_role_limit_exceeded',
+  showToast({ type: 'error', message: t(errorKey) });
+  return { aborted: true };
 };

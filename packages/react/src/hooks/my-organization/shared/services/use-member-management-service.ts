@@ -10,6 +10,7 @@ import {
   type ListIdentityProvidersResponseContent,
   memberManagementQueryKeys,
   OrganizationDetailsMappers,
+  memberDetailQueryKeys,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import React from 'react';
@@ -18,10 +19,7 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import {
-  ROLE_ASSIGNMENT_ERROR_KEYS,
-  validateRoleAssignment,
-} from '@/lib/utils/my-organization/member-management/member-management-utils';
+import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   UseMemberManagementServiceOptions,
@@ -158,18 +156,19 @@ export function useMemberManagementService(
   });
 
   const assignRolesMutation = useMutation({
-    mutationFn: async ({ roleIds, userId }: { roleIds: string[]; userId?: string | null }) => {
+    mutationFn: async ({
+      roleIds,
+      memberRoles,
+      userId,
+    }: {
+      roleIds: string[];
+      memberRoles: Role[];
+      userId?: string | null;
+    }) => {
       if (!userId) throw new Error('userId is required');
-
-      const memberRoles =
-        queryClient.getQueryData<Role[]>(memberManagementQueryKeys.memberRoles(userId)) ?? [];
-      const validation = validateRoleAssignment({ roleIds, memberRoles });
-      if (!validation.ok) {
-        showToast({
-          type: 'error',
-          message: t(ROLE_ASSIGNMENT_ERROR_KEYS[validation.reason]),
-        });
-        return { aborted: true } as const;
+      const validationResult = validateRequestRoleForMember(t, roleIds, memberRoles, true);
+      if (validationResult?.aborted) {
+        return validationResult;
       }
 
       if (assignRolesAction?.onBefore && !assignRolesAction.onBefore({ userId, roleIds })) {
@@ -197,6 +196,7 @@ export function useMemberManagementService(
           : 'member.detail.roles.assign_modal.success_plural';
       showToast({ type: 'success', message: t(assignKey) });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.assign_role_failed') });
