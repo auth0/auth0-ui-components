@@ -3,6 +3,7 @@
  * @module use-organization-member-management
  */
 
+import type { Role } from '@auth0/universal-components-core';
 import { type MemberInvitation } from '@auth0/universal-components-core';
 import * as React from 'react';
 
@@ -184,11 +185,12 @@ export function useOrganizationMemberManagement(
   );
 
   const handleAssignRolesSubmit = React.useCallback(
-    (roleIds: string[], userId?: string | null) => {
+    (roleIds: string[], memberRoles: Role[], userId?: string | null) => {
       assignRolesMutation.mutate(
-        { roleIds, userId },
+        { roleIds, memberRoles, userId },
         {
-          onSuccess: () => {
+          onSuccess: (result) => {
+            if (result?.aborted) return;
             closeModal();
           },
         },

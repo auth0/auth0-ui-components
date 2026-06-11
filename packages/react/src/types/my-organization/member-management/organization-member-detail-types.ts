@@ -26,8 +26,12 @@ export interface MemberDetailServiceResult {
     Error,
     { userId?: string; memberName?: string; orgName?: string }
   >;
-  assignRolesMutation: UseMutationResult<{ aborted: boolean }, Error, string[]>;
-  removeRolesMutation: UseMutationResult<void, Error, Role[]>;
+  assignRolesMutation: UseMutationResult<
+    { aborted: boolean },
+    Error,
+    { roleIds: string[]; memberRoles: Role[]; userId?: string | null }
+  >;
+  removeRolesMutation: UseMutationResult<{ aborted: boolean }, Error, Role[]>;
 }
 
 export interface UseOrganizationMemberDetailOptions {
@@ -71,7 +75,7 @@ export interface UseOrganizationMemberDetailResult {
   openModal: (state: MemberDetailModalState) => void;
   closeModal: () => void;
   handleRemoveFromOrgConfirm: (memberName?: string, orgName?: string) => void;
-  handleAssignRolesSubmit: (roleIds: string[]) => void;
+  handleAssignRolesSubmit: (roleIds: string[], memberRoles: Role[]) => void;
   handleRemoveRolesCancel: () => void;
   handleRemoveRolesConfirm: () => void;
 }
@@ -159,7 +163,7 @@ export interface OrganizationMemberAssignRolesModalProps {
   customMessages?: Partial<OrganizationMemberDetailMessages | OrganizationMemberTabMessages>;
   selectedMember?: OrgMember | null;
   onClose: () => void;
-  onAssign: (roleIds: string[], userId?: string | null) => void;
+  onAssign: (roleIds: string[], memberRoles: Role[], userId?: string | null) => void;
 }
 
 export interface RolesTabHeaderProps {
@@ -196,7 +200,7 @@ export interface OrganizationMemberEditRolesTabProps {
   onSelectedRolesChange: (roles: Role[]) => void;
   onAssignRolesClick: () => void;
   onAssignRolesCancel: () => void;
-  onAssignRolesSubmit: (roleIds: string[]) => void;
+  onAssignRolesSubmit: (roleIds: string[], memberRoles: Role[]) => void;
   onRemoveRolesClick: (roles: Role[]) => void;
   onRemoveRolesCancel: () => void;
   onRemoveRolesConfirm: () => void;

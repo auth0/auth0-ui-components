@@ -1064,6 +1064,7 @@
         "remove_failed": "Échec de la suppression du membre. Veuillez réessayer.",
         "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer.",
         "too_many_roles_per_assignment": "Vous ne pouvez attribuer qu'un maximum de 10 rôles à la fois.",
+        "too_many_roles_per_removal": "Vous ne pouvez supprimer qu'un maximum de 10 rôles à la fois.",
         "member_role_limit_exceeded": "Vous avez atteint le maximum de 50 rôles pour ce membre."
       },
       "detail": {

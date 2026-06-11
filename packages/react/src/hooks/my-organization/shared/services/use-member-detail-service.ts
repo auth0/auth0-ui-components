@@ -17,10 +17,7 @@ import { useMemberManagementService } from '@/hooks/my-organization/shared/servi
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import {
-  ROLE_ASSIGNMENT_ERROR_KEYS,
-  validateRoleAssignment,
-} from '@/lib/utils/my-organization/member-management/member-management-utils';
+import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
   MemberDetailServiceResult,
   UseMemberDetailServiceOptions,
@@ -104,18 +101,11 @@ export function useMemberDetailService(
   });
 
   const assignRolesMutation = useMutation({
-    mutationFn: async (roleIds: string[]) => {
+    mutationFn: async ({ roleIds, memberRoles }: { roleIds: string[]; memberRoles: Role[] }) => {
       if (!userId) throw new Error('userId is required');
-
-      const memberRoles =
-        queryClient.getQueryData<Role[]>(memberDetailQueryKeys.memberRoles(userId)) ?? [];
-      const validation = validateRoleAssignment({ roleIds, memberRoles });
-      if (!validation.ok) {
-        showToast({
-          type: 'error',
-          message: t(ROLE_ASSIGNMENT_ERROR_KEYS[validation.reason]),
-        });
-        return { aborted: true } as const;
+      const validationResult = validateRequestRoleForMember(t, roleIds, memberRoles, true);
+      if (validationResult?.aborted) {
+        return validationResult;
       }
 
       if (assignRolesAction?.onBefore && !assignRolesAction.onBefore({ userId, roleIds })) {
@@ -127,7 +117,7 @@ export function useMemberDetailService(
       assignRolesAction?.onAfter?.({ userId, roleIds });
       return { aborted: false } as const;
     },
-    onSuccess: (result, roleIds) => {
+    onSuccess: (result, { roleIds }) => {
       if (result?.aborted) return;
       const allRoles = queryClient.getQueryData<Role[]>(memberManagementQueryKeys.roles()) ?? [];
       const newRoles = allRoles.filter((r) => roleIds.includes(r.id));
@@ -152,6 +142,12 @@ export function useMemberDetailService(
     mutationFn: async (roles: Role[]) => {
       if (!userId) throw new Error('userId is required');
       const roleIds = roles.map((r) => r.id);
+
+      const validationResult = validateRequestRoleForMember(t, roleIds);
+      if (validationResult?.aborted) {
+        return validationResult;
+      }
+
       if (removeRolesAction?.onBefore && !removeRolesAction.onBefore({ userId, roleIds })) {
         throw new Error('Remove roles cancelled by onBefore');
       }
@@ -159,8 +155,10 @@ export function useMemberDetailService(
         .getMyOrganizationApiClient()
         .organization.members.roles.unassign(userId, { role_ids: roleIds });
       removeRolesAction?.onAfter?.({ userId, roleIds });
+      return { aborted: false } as const;
     },
-    onSuccess: (_, roles) => {
+    onSuccess: (result, roles) => {
+      if (result?.aborted) return;
       const removedIds = new Set(roles.map((r) => r.id));
       queryClient.setQueryData<Role[]>(memberDetailQueryKeys.memberRoles(userId), (old) =>
         (old ?? []).filter((r) => !removedIds.has(r.id)),
