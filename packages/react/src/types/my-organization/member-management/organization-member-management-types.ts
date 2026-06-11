@@ -81,7 +81,7 @@ export interface MemberManagementServiceResult {
   }>;
   organizationQuery: UseQueryResult<OrganizationPrivate>;
   assignRolesMutation: UseMutationResult<
-    void,
+    { aborted: boolean },
     Error,
     { roleIds: string[]; userId?: string | null }
   >;

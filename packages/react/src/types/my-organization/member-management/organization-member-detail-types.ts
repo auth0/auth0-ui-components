@@ -26,7 +26,7 @@ export interface MemberDetailServiceResult {
     Error,
     { userId?: string; memberName?: string; orgName?: string }
   >;
-  assignRolesMutation: UseMutationResult<void, Error, string[]>;
+  assignRolesMutation: UseMutationResult<{ aborted: boolean }, Error, string[]>;
   removeRolesMutation: UseMutationResult<void, Error, Role[]>;
 }
 
