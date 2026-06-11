@@ -185,12 +185,10 @@ export function useSsoProviderEdit(
         message: t('update_success', { providerName: provider?.display_name }),
       });
 
-      // Invalidate queries to refetch fresh data
+      // Update detail cache immediately with API response, invalidate list to refetch
+      queryClient.setQueryData(ssoProviderEditQueryKeys.detail(idpId), result);
       await queryClient.invalidateQueries({
         queryKey: ssoProviderQueryKeys.list(),
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ssoProviderEditQueryKeys.detail(idpId),
       });
 
       if (sso?.updateAction?.onAfter && provider) {
