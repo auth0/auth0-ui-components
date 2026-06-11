@@ -18,6 +18,10 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import {
+  ROLE_ASSIGNMENT_ERROR_KEYS,
+  validateRoleAssignment,
+} from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   UseMemberManagementServiceOptions,
@@ -156,15 +160,30 @@ export function useMemberManagementService(
   const assignRolesMutation = useMutation({
     mutationFn: async ({ roleIds, userId }: { roleIds: string[]; userId?: string | null }) => {
       if (!userId) throw new Error('userId is required');
+
+      const memberRoles =
+        queryClient.getQueryData<Role[]>(memberManagementQueryKeys.memberRoles(userId)) ?? [];
+      const validation = validateRoleAssignment({ roleIds, memberRoles });
+      if (!validation.ok) {
+        showToast({
+          type: 'error',
+          message: t(ROLE_ASSIGNMENT_ERROR_KEYS[validation.reason]),
+        });
+        return { aborted: true } as const;
+      }
+
       if (assignRolesAction?.onBefore && !assignRolesAction.onBefore({ userId, roleIds })) {
         throw new Error('Assign roles cancelled by onBefore');
       }
+
       await coreClient!
         .getMyOrganizationApiClient()
         .organization.members.roles.assign(userId, { role_ids: roleIds });
       assignRolesAction?.onAfter?.({ userId, roleIds });
+      return { aborted: false } as const;
     },
-    onSuccess: (_, { roleIds, userId }) => {
+    onSuccess: (result, { roleIds, userId }) => {
+      if (result?.aborted) return;
       if (!userId) return;
       const allRoles = queryClient.getQueryData<Role[]>(memberManagementQueryKeys.roles()) ?? [];
       const newRoles = allRoles.filter((r) => roleIds.includes(r.id));

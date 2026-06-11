@@ -1126,7 +1126,9 @@
       "error": {
         "fetch_failed": "メンバーの読み込みに失敗しました。もう一度お試しください。",
         "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。",
-        "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。"
+        "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。",
+        "too_many_roles_per_assignment": "一度に割り当てられるロールは最大10件までです。",
+        "member_role_limit_exceeded": "このメンバーのロールは最大50件に達しました。"
       },
       "detail": {
         "back_button": "メンバー一覧に戻る",

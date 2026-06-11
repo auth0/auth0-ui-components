@@ -8,8 +8,13 @@ import type {
   EnhancedTranslationFunction,
   MemberInvitation,
   OrgMember,
+  Role,
 } from '@auth0/universal-components-core';
 
+import {
+  MAX_ROLES_PER_ASSIGNMENT,
+  MAX_ROLES_PER_MEMBER,
+} from '@/lib/constants/my-organization/member-management/member-management-constants';
 import type { InvitationStatus } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
@@ -121,3 +126,48 @@ export function getInitials(name?: string): string {
   const last = parts[parts.length - 1] ?? '';
   return (first.charAt(0) + last.charAt(0)).toUpperCase();
 }
+
+/**
+ * Discriminated result of {@link validateRoleAssignment}.
+ * - `ok: true` when the request may proceed.
+ * - `ok: false` carries a `reason`
+ */
+export type RoleAssignmentValidationResult =
+  | { ok: true }
+  | { ok: false; reason: 'too_many_per_assignment' | 'member_limit_exceeded' };
+
+/**
+ * Validates a role-assignment request against client-side limits:
+ * - Caps the number of roles assigned in a single request.
+ * - Caps the total number of roles a member can hold
+ * @param params - Validation inputs.
+ * @param params.roleIds - Role ids the caller wants to assign.
+ * @param params.memberRoles - Roles the member currently holds.
+ * @returns A {@link RoleAssignmentValidationResult}.
+ */
+export function validateRoleAssignment(params: {
+  roleIds: string[];
+  memberRoles: Role[];
+}): RoleAssignmentValidationResult {
+  const { roleIds, memberRoles } = params;
+
+  if (roleIds.length > MAX_ROLES_PER_ASSIGNMENT) {
+    return { ok: false, reason: 'too_many_per_assignment' };
+  }
+
+  const existingIds = new Set(memberRoles.map((r) => r.id));
+  const newRoleCount = roleIds.filter((id) => !existingIds.has(id)).length;
+  if (memberRoles.length + newRoleCount > MAX_ROLES_PER_MEMBER) {
+    return { ok: false, reason: 'member_limit_exceeded' };
+  }
+
+  return { ok: true };
+}
+
+export const ROLE_ASSIGNMENT_ERROR_KEYS: Record<
+  Exclude<RoleAssignmentValidationResult, { ok: true }>['reason'],
+  string
+> = {
+  too_many_per_assignment: 'member.error.too_many_roles_per_assignment',
+  member_limit_exceeded: 'member.error.member_role_limit_exceeded',
+};
