@@ -1,7 +1,7 @@
 import type { Authenticator, MFAType } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import type { UserMFAMgmtViewProps } from '@/types/my-account/mfa/mfa-types';
+import type { UserMFAManagementViewProps } from '@/types/my-account/mfa/mfa-types';
 
 export const createMockAuthenticator = (overrides?: Partial<Authenticator>): Authenticator => ({
   id: 'auth_mock123',
@@ -119,9 +119,9 @@ export const createMockAPIError = (message: string, statusCode?: number) => {
   return error;
 };
 
-export const createMockUserMFAMgmtViewProps = (
-  overrides: Partial<UserMFAMgmtViewProps> = {},
-): UserMFAMgmtViewProps => ({
+export const createMockUserMFAManagementViewProps = (
+  overrides: Partial<UserMFAManagementViewProps> = {},
+): UserMFAManagementViewProps => ({
   isEnrolling: false,
   isDeleting: false,
   isConfirming: false,

@@ -18,7 +18,10 @@ import { useUserMFA } from '@/hooks/my-account/use-user-mfa';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/mfa/mfa-types';
+import type {
+  UserMFAManagementProps,
+  UserMFAManagementViewProps,
+} from '@/types/my-account/mfa/mfa-types';
 
 /**
  * Multi-factor authentication management component.
@@ -26,7 +29,7 @@ import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/
  * Complete MFA management interface for enrolling, viewing, and deleting authentication
  * factors. Supports TOTP authenticators, SMS, Email, Push notifications, and recovery codes.
  *
- * @param props - {@link UserMFAMgmtProps}
+ * @param props - {@link UserMFAManagementProps}
  * @param props.customMessages - Custom i18n message overrides
  * @param props.styling - CSS variables and class overrides
  * @param props.hideHeader - Hide the header section
@@ -43,11 +46,11 @@ import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/
  * @param props.schema - Validation schema overrides
  * @returns MFA management component
  *
- * @see {@link UserMFAMgmtProps} for full props documentation
+ * @see {@link UserMFAManagementProps} for full props documentation
  *
  * @example
  * ```tsx
- * <UserMFAMgmt
+ * <UserMFAManagement
  *   onEnroll={(factor) => console.log('Enrolled:', factor)}
  *   onDelete={(factor) => console.log('Deleted:', factor)}
  *   factorConfig={{
@@ -58,7 +61,7 @@ import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/
  * />
  * ```
  */
-function UserMFAMgmt({
+function UserMFAManagement({
   customMessages = {},
   styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
   hideHeader = false,
@@ -73,7 +76,7 @@ function UserMFAMgmt({
   onErrorAction,
   onBeforeAction,
   schema,
-}: UserMFAMgmtProps) {
+}: UserMFAManagementProps) {
   const {
     factorsByType,
     isLoadingFactors,
@@ -116,7 +119,7 @@ function UserMFAMgmt({
 
   return (
     <GateKeeper styling={styling} isLoading={isLoadingFactors}>
-      <UserMFAMgmtView
+      <UserMFAManagementView
         error={error}
         schema={schema}
         isEnrolling={isEnrolling}
@@ -157,12 +160,12 @@ function UserMFAMgmt({
 }
 
 /**
- * UserMFAMgmtView — Presentational component.
+ * UserMFAManagementView — Presentational component.
  * @param props - All state and handlers passed directly.
  * @returns User Management View element
  * @internal
  */
-function UserMFAMgmtView({
+function UserMFAManagementView({
   error,
   schema,
   isEnrolling,
@@ -197,7 +200,7 @@ function UserMFAMgmtView({
   onContinueQR,
   onConfirmRecoveryCode,
   onAdvanceToQR,
-}: UserMFAMgmtViewProps) {
+}: UserMFAManagementViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('mfa', customMessages);
   const currentStyles = React.useMemo(
@@ -207,7 +210,7 @@ function UserMFAMgmtView({
 
   return (
     <StyledScope style={currentStyles.variables}>
-      <Card className={cn('p-6', currentStyles.classes?.['UserMFAMgmt-card'])}>
+      <Card className={cn('p-6', currentStyles.classes?.['UserMFAManagement-card'])}>
         {error ? (
           <MFAErrorState
             title={t('component_error_title')}
@@ -361,4 +364,4 @@ function UserMFAMgmtView({
   );
 }
 
-export { UserMFAMgmt, UserMFAMgmtView };
+export { UserMFAManagement, UserMFAManagementView };

@@ -2,19 +2,22 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { UserMFAMgmt, UserMFAMgmtView } from '@/components/auth0/my-account/user-mfa-management';
+import {
+  UserMFAManagement,
+  UserMFAManagementView,
+} from '@/components/auth0/my-account/user-mfa-management';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockAPIError,
   createMockAuthenticator,
   createMockAuthenticationMethodsResponse,
   createMockOTPEnrollmentResponse,
-  createMockUserMFAMgmtViewProps,
+  createMockUserMFAManagementViewProps,
 } from '@/tests/utils/__mocks__';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
-import type { UserMFAMgmtProps } from '@/types/my-account/mfa/mfa-types';
-import type { UserMFAMgmtViewProps } from '@/types/my-account/mfa/mfa-types';
+import type { UserMFAManagementProps } from '@/types/my-account/mfa/mfa-types';
+import type { UserMFAManagementViewProps } from '@/types/my-account/mfa/mfa-types';
 
 // ===== Mock packages =====
 
@@ -40,7 +43,9 @@ vi.mock('sonner', () => ({
 
 // ===== Local mock creators =====
 
-const createMockUserMFAMgmtProps = (overrides?: Partial<UserMFAMgmtProps>): UserMFAMgmtProps => ({
+const createMockUserMFAManagementProps = (
+  overrides?: Partial<UserMFAManagementProps>,
+): UserMFAManagementProps => ({
   hideHeader: false,
   showActiveOnly: false,
   disableEnroll: false,
@@ -71,7 +76,7 @@ const setupEnrolledTotpFactor = (
 
 // ===== Tests =====
 
-describe('UserMFAMgmt', () => {
+describe('UserMFAManagement', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;
 
   beforeEach(() => {
@@ -90,7 +95,9 @@ describe('UserMFAMgmt', () => {
   describe('hideHeader', () => {
     describe('when is false', () => {
       it('should render the header with title', async () => {
-        renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ hideHeader: false })} />);
+        renderWithProviders(
+          <UserMFAManagement {...createMockUserMFAManagementProps({ hideHeader: false })} />,
+        );
 
         await waitForComponentToLoad();
 
@@ -102,7 +109,9 @@ describe('UserMFAMgmt', () => {
 
     describe('when is true', () => {
       it('should not render the header', async () => {
-        renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ hideHeader: true })} />);
+        renderWithProviders(
+          <UserMFAManagement {...createMockUserMFAManagementProps({ hideHeader: true })} />,
+        );
 
         await waitFor(() => {
           expect(document.getElementById('mfa-management-title')).not.toBeInTheDocument();
@@ -115,7 +124,7 @@ describe('UserMFAMgmt', () => {
     describe('when is true and has no active factors', () => {
       it('should show empty state message', async () => {
         renderWithProviders(
-          <UserMFAMgmt {...createMockUserMFAMgmtProps({ showActiveOnly: true })} />,
+          <UserMFAManagement {...createMockUserMFAManagementProps({ showActiveOnly: true })} />,
         );
 
         await waitForComponentToLoad();
@@ -129,7 +138,7 @@ describe('UserMFAMgmt', () => {
     describe('when is true', () => {
       it('should disable enroll buttons', async () => {
         renderWithProviders(
-          <UserMFAMgmt {...createMockUserMFAMgmtProps({ disableEnroll: true })} />,
+          <UserMFAManagement {...createMockUserMFAManagementProps({ disableEnroll: true })} />,
         );
 
         await waitFor(() => {
@@ -145,7 +154,7 @@ describe('UserMFAMgmt', () => {
     describe('when is false', () => {
       it('should enable enroll buttons', async () => {
         renderWithProviders(
-          <UserMFAMgmt {...createMockUserMFAMgmtProps({ disableEnroll: false })} />,
+          <UserMFAManagement {...createMockUserMFAManagementProps({ disableEnroll: false })} />,
         );
 
         await waitFor(() => {
@@ -164,7 +173,7 @@ describe('UserMFAMgmt', () => {
     describe('when is true', () => {
       it('should disable delete functionality', async () => {
         renderWithProviders(
-          <UserMFAMgmt {...createMockUserMFAMgmtProps({ disableDelete: true })} />,
+          <UserMFAManagement {...createMockUserMFAManagementProps({ disableDelete: true })} />,
         );
 
         await waitFor(() => {
@@ -180,7 +189,9 @@ describe('UserMFAMgmt', () => {
   describe('readOnly', () => {
     describe('when is true', () => {
       it('should not render action buttons', async () => {
-        renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ readOnly: true })} />);
+        renderWithProviders(
+          <UserMFAManagement {...createMockUserMFAManagementProps({ readOnly: true })} />,
+        );
 
         await waitFor(() => {
           const buttons = screen.queryAllByRole('button', { name: /button-text/i });
@@ -191,7 +202,9 @@ describe('UserMFAMgmt', () => {
 
     describe('when is false', () => {
       it('should render action buttons', async () => {
-        renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ readOnly: false })} />);
+        renderWithProviders(
+          <UserMFAManagement {...createMockUserMFAManagementProps({ readOnly: false })} />,
+        );
 
         await waitFor(() => {
           const buttons = screen.getAllByRole('button');
@@ -210,7 +223,9 @@ describe('UserMFAMgmt', () => {
           },
         };
 
-        renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ factorConfig })} />);
+        renderWithProviders(
+          <UserMFAManagement {...createMockUserMFAManagementProps({ factorConfig })} />,
+        );
 
         await waitFor(() => {
           expect(screen.queryByText(/totp/i)).not.toBeInTheDocument();
@@ -226,7 +241,9 @@ describe('UserMFAMgmt', () => {
           },
         };
 
-        renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ factorConfig })} />);
+        renderWithProviders(
+          <UserMFAManagement {...createMockUserMFAManagementProps({ factorConfig })} />,
+        );
 
         await waitFor(() => {
           const otpSection = screen.getByLabelText(/totp.*title/i);
@@ -248,7 +265,9 @@ describe('UserMFAMgmt', () => {
           .fn()
           .mockResolvedValue(createMockOTPEnrollmentResponse());
 
-        renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ onEnroll })} />);
+        renderWithProviders(
+          <UserMFAManagement {...createMockUserMFAManagementProps({ onEnroll })} />,
+        );
 
         await waitForComponentToLoad();
 
@@ -337,7 +356,9 @@ describe('UserMFAMgmt', () => {
         const apiService = mockCoreClient.getMyAccountApiClient();
         setupEnrolledTotpFactor(apiService);
 
-        renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ onDelete })} />);
+        renderWithProviders(
+          <UserMFAManagement {...createMockUserMFAManagementProps({ onDelete })} />,
+        );
 
         await waitForComponentToLoad();
 
@@ -390,7 +411,9 @@ describe('UserMFAMgmt', () => {
       it('should call onFetch callback', async () => {
         const onFetch = vi.fn();
 
-        renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ onFetch })} />);
+        renderWithProviders(
+          <UserMFAManagement {...createMockUserMFAManagementProps({ onFetch })} />,
+        );
 
         await waitFor(() => {
           expect(onFetch).toHaveBeenCalled();
@@ -410,7 +433,9 @@ describe('UserMFAMgmt', () => {
         const enrollError = createMockAPIError('Failed to enroll factor', 400);
         apiService.authenticationMethods.create = vi.fn().mockRejectedValue(enrollError);
 
-        renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ onErrorAction })} />);
+        renderWithProviders(
+          <UserMFAManagement {...createMockUserMFAManagementProps({ onErrorAction })} />,
+        );
 
         await waitForComponentToLoad();
 
@@ -454,7 +479,9 @@ describe('UserMFAMgmt', () => {
         const deleteError = createMockAPIError('Failed to delete factor', 403);
         apiService.authenticationMethods.delete = vi.fn().mockRejectedValue(deleteError);
 
-        renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ onErrorAction })} />);
+        renderWithProviders(
+          <UserMFAManagement {...createMockUserMFAManagementProps({ onErrorAction })} />,
+        );
 
         await waitForComponentToLoad();
 
@@ -513,7 +540,9 @@ describe('UserMFAMgmt', () => {
         const verifyError = createMockAPIError('Invalid OTP code', 400);
         apiService.authenticationMethods.verify = vi.fn().mockRejectedValue(verifyError);
 
-        renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ onErrorAction })} />);
+        renderWithProviders(
+          <UserMFAManagement {...createMockUserMFAManagementProps({ onErrorAction })} />,
+        );
 
         await waitForComponentToLoad();
 
@@ -593,7 +622,9 @@ describe('UserMFAMgmt', () => {
         const apiService = mockCoreClient.getMyAccountApiClient();
         setupEnrolledTotpFactor(apiService);
 
-        renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ onBeforeAction })} />);
+        renderWithProviders(
+          <UserMFAManagement {...createMockUserMFAManagementProps({ onBeforeAction })} />,
+        );
 
         await waitForComponentToLoad();
 
@@ -636,7 +667,9 @@ describe('UserMFAMgmt', () => {
         const apiService = mockCoreClient.getMyAccountApiClient();
         setupEnrolledTotpFactor(apiService);
 
-        renderWithProviders(<UserMFAMgmt {...createMockUserMFAMgmtProps({ onBeforeAction })} />);
+        renderWithProviders(
+          <UserMFAManagement {...createMockUserMFAManagementProps({ onBeforeAction })} />,
+        );
 
         await waitForComponentToLoad();
 
@@ -675,10 +708,10 @@ describe('UserMFAMgmt', () => {
   });
 });
 
-describe('UserMFAMgmtView', () => {
-  function setupView(overrides: Partial<UserMFAMgmtViewProps> = {}) {
-    const props = createMockUserMFAMgmtViewProps(overrides);
-    renderWithProviders(<UserMFAMgmtView {...props} />);
+describe('UserMFAManagementView', () => {
+  function setupView(overrides: Partial<UserMFAManagementViewProps> = {}) {
+    const props = createMockUserMFAManagementViewProps(overrides);
+    renderWithProviders(<UserMFAManagementView {...props} />);
     return props;
   }
 

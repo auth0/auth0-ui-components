@@ -20,7 +20,7 @@ type ActiveModal = { mode: 'revoke'; passkey: Passkey } | null;
 /**
  * Hook for passkey management UI state and handlers.
  * @param options - UseUserPasskeyOptions
- * @returns State and handlers for UserPasskeyMgmt.
+ * @returns State and handlers for UserPasskeyManagement.
  */
 export function useUserPasskey({
   customMessages,

@@ -65,5 +65,4 @@ export const auth0 = new Auth0Client({
       [`${domain}/my-org/`]: `${BASE_SCOPES} ${MY_ORG_SCOPES.join(' ')}`,
     },
   },
-  // Using SDK defaults: rolling: true, absoluteDuration: 3 days, inactivityDuration: 1 day
 });

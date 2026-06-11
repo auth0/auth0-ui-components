@@ -38,7 +38,7 @@ export interface UserMFAOptions {
   readOnly?: boolean;
   disableDelete?: boolean;
   factorConfig?: FactorConfig;
-  customMessages?: UserMFAMgmtProps['customMessages'];
+  customMessages?: UserMFAManagementProps['customMessages'];
   onFetch?: () => void;
   onEnroll?: () => void;
   onDelete?: () => void;
@@ -107,18 +107,18 @@ export interface FactorConfigOptions {
 /** MFA factor type configuration map. */
 export type FactorConfig = Partial<Record<MFAType, FactorConfigOptions>>;
 
-/** CSS classes for UserMFAMgmt component. */
-export interface UserMFAMgmtClasses {
-  'UserMFAMgmt-card'?: string;
+/** CSS classes for UserMFAManagement component. */
+export interface UserMFAManagementClasses {
+  'UserMFAManagement-card'?: string;
   'UserMFASetupForm-dialogContent'?: string;
   'DeleteFactorConfirmation-dialogContent'?: string;
 }
 
-/** Props for UserMFAMgmt component. */
-export interface UserMFAMgmtProps
+/** Props for UserMFAManagement component. */
+export interface UserMFAManagementProps
   extends SharedComponentProps<
     MFAMessages,
-    UserMFAMgmtClasses,
+    UserMFAManagementClasses,
     { email?: RegExp; phone?: RegExp }
   > {
   /** Hide component header. */
@@ -210,7 +210,7 @@ export interface UserMFAMgmtProps
 export interface ContactInputFormProps
   extends SharedComponentProps<
     MFAMessages,
-    UserMFAMgmtClasses,
+    UserMFAManagementClasses,
     { email?: RegExp; phone?: RegExp }
   > {
   factorType: MFAType;
@@ -223,7 +223,7 @@ export interface ContactInputFormProps
 }
 
 export interface DeleteFactorConfirmationProps
-  extends SharedComponentProps<MFAMessages, UserMFAMgmtClasses> {
+  extends SharedComponentProps<MFAMessages, UserMFAManagementClasses> {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   factorToDelete: {
@@ -236,7 +236,7 @@ export interface DeleteFactorConfirmationProps
 }
 
 export interface OTPVerificationFormProps
-  extends SharedComponentProps<MFAMessages, UserMFAMgmtClasses> {
+  extends SharedComponentProps<MFAMessages, UserMFAManagementClasses> {
   factorType: MFAType;
   contact?: string;
   isConfirming: boolean;
@@ -245,7 +245,7 @@ export interface OTPVerificationFormProps
 }
 
 export interface QRCodeEnrollmentFormProps
-  extends SharedComponentProps<MFAMessages, UserMFAMgmtClasses> {
+  extends SharedComponentProps<MFAMessages, UserMFAManagementClasses> {
   factorType: MFAType;
   barcodeUri: string;
   manualInputCode: string;
@@ -257,7 +257,7 @@ export interface QRCodeEnrollmentFormProps
 }
 
 export interface UserMFASetupFormProps
-  extends SharedComponentProps<MFAMessages, UserMFAMgmtClasses> {
+  extends SharedComponentProps<MFAMessages, UserMFAManagementClasses> {
   open: boolean;
   onClose: () => void;
   factorType: MFAType;
@@ -275,7 +275,7 @@ export interface UserMFASetupFormProps
 }
 
 export interface ShowRecoveryCodeProps
-  extends SharedComponentProps<MFAMessages, UserMFAMgmtClasses> {
+  extends SharedComponentProps<MFAMessages, UserMFAManagementClasses> {
   recoveryCode: string;
   isEnrolling: boolean;
   isConfirming: boolean;
@@ -283,7 +283,8 @@ export interface ShowRecoveryCodeProps
   onClose: () => void;
 }
 
-export interface FactorsListProps extends SharedComponentProps<MFAMessages, UserMFAMgmtClasses> {
+export interface FactorsListProps
+  extends SharedComponentProps<MFAMessages, UserMFAManagementClasses> {
   factors: Authenticator[];
   factorType: MFAType;
   readOnly: boolean;
@@ -293,14 +294,14 @@ export interface FactorsListProps extends SharedComponentProps<MFAMessages, User
   disableDelete: boolean;
 }
 
-export interface UserMFAMgmtViewProps {
+export interface UserMFAManagementViewProps {
   error: string | null;
-  schema: UserMFAMgmtProps['schema'];
+  schema: UserMFAManagementProps['schema'];
   isEnrolling: boolean;
   isDeleting: boolean;
   isConfirming: boolean;
-  styling: UserMFAMgmtProps['styling'];
-  customMessages: UserMFAMgmtProps['customMessages'];
+  styling: UserMFAManagementProps['styling'];
+  customMessages: UserMFAManagementProps['customMessages'];
   hideHeader: boolean;
   showActiveOnly: boolean;
   disableEnroll: boolean;

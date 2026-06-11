@@ -13,7 +13,7 @@ import type {
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 
 export interface PasskeyActionModalProps
-  extends SharedComponentProps<PasskeyRevokeModalMessages, UserPasskeyMgmtClasses> {
+  extends SharedComponentProps<PasskeyRevokeModalMessages, UserPasskeyManagementClasses> {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isPending: boolean;
@@ -29,26 +29,26 @@ export interface Passkey {
   deviceInfo?: string;
 }
 
-export interface UserPasskeyMgmtClasses {
-  'UserPasskeyMgmt-root'?: string;
-  'UserPasskeyMgmt-item'?: string;
+export interface UserPasskeyManagementClasses {
+  'UserPasskeyManagement-root'?: string;
+  'UserPasskeyManagement-item'?: string;
   'PasskeyActionModal-modalContent'?: string;
 }
 
-export interface UserPasskeyMgmtProps
-  extends BlockComponentSharedProps<PasskeyMessages, UserPasskeyMgmtClasses> {
+export interface UserPasskeyManagementProps
+  extends BlockComponentSharedProps<PasskeyMessages, UserPasskeyManagementClasses> {
   addAction?: ComponentAction<void>;
   revokeAction?: ComponentAction<Passkey>;
   onFetch?: () => void;
   onErrorAction?: (error: Error, action: 'add' | 'revoke') => void;
 }
 
-export interface UserPasskeyMgmtViewProps {
+export interface UserPasskeyManagementViewProps {
   passkeys: Passkey[];
   isRevoking: boolean;
   isEnrolling: boolean;
-  styling: UserPasskeyMgmtProps['styling'];
-  customMessages: UserPasskeyMgmtProps['customMessages'];
+  styling: UserPasskeyManagementProps['styling'];
+  customMessages: UserPasskeyManagementProps['customMessages'];
   hideHeader: boolean;
   disableAdd: boolean;
   disableRevoke: boolean;
@@ -61,7 +61,7 @@ export interface UserPasskeyMgmtViewProps {
 }
 
 export interface UseUserPasskeyOptions {
-  customMessages?: UserPasskeyMgmtProps['customMessages'];
+  customMessages?: UserPasskeyManagementProps['customMessages'];
   addAction?: ComponentAction<void>;
   revokeAction?: ComponentAction<Passkey>;
   onFetch?: () => void;
