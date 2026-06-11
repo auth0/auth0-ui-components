@@ -23,7 +23,24 @@ function useIdShim(): string {
 }
 
 /**
+ * Reads `useId` off the React namespace, or returns undefined on React 17.
+ *
+ * The access is intentionally computed (`React[key]`, not `React.useId`): a
+ * static member access makes bundlers like webpack treat it as a named-import
+ * binding and fail ESM linking against React 17 — which has no `useId` export —
+ * with `ESModulesLinkingError`, even though the runtime guard never reaches it.
+ * A computed key the bundler can't resolve statically sidesteps that analysis.
+ * @returns React's native useId on React 18+, otherwise undefined.
+ */
+function getNativeUseId(): (() => string) | undefined {
+  const key = 'useId';
+  return (React as { useId?: () => string })[key];
+}
+
+const nativeUseId = getNativeUseId();
+
+/**
  * Returns a stable, unique ID for a component instance.
  * Uses React.useId natively on React 18+, falls back to a ref-based shim on React 17.
  */
-export const useId: () => string = 'useId' in React ? React.useId : useIdShim;
+export const useId: () => string = typeof nativeUseId === 'function' ? nativeUseId : useIdShim;
