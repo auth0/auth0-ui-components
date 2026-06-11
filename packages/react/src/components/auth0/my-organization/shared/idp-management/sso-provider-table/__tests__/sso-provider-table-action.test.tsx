@@ -60,14 +60,14 @@ describe('SsoProviderTableActionsColumn', () => {
       expect(screen.getByRole('button')).toBeInTheDocument();
     });
 
-    it('should render loading spinner when updating', () => {
+    it('should render disabled switch when updating current provider', () => {
       const props = createMockSsoProviderTableActionsColumnProps({
         isUpdating: true,
         isUpdatingId: 'provider_123',
       });
       renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
-      expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+      expect(screen.getByRole('switch')).toBeDisabled();
     });
 
     it('should render switch when updating different provider', () => {
@@ -80,14 +80,14 @@ describe('SsoProviderTableActionsColumn', () => {
       expect(screen.getByRole('switch')).toBeInTheDocument();
     });
 
-    it('should not render switch when updating current provider', () => {
+    it('should disable switch when updating current provider', () => {
       const props = createMockSsoProviderTableActionsColumnProps({
         isUpdating: true,
         isUpdatingId: 'provider_123',
       });
       renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
-      expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+      expect(screen.getByRole('switch')).toBeDisabled();
     });
   });
 
@@ -136,7 +136,7 @@ describe('SsoProviderTableActionsColumn', () => {
       expect(switchElement).toBeDisabled();
     });
 
-    it('should disable switch when isUpdating is true', () => {
+    it('should not disable switch when updating a different provider', () => {
       const props = createMockSsoProviderTableActionsColumnProps({
         isUpdating: true,
         isUpdatingId: 'other_provider',
@@ -144,7 +144,7 @@ describe('SsoProviderTableActionsColumn', () => {
       renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
       const switchElement = screen.getByRole('switch');
-      expect(switchElement).toBeDisabled();
+      expect(switchElement).not.toBeDisabled();
     });
 
     it('should call onToggleEnabled when switch is toggled', async () => {
@@ -495,15 +495,14 @@ describe('SsoProviderTableActionsColumn', () => {
       });
     });
 
-    it('should not show tooltip when spinner is displayed', () => {
+    it('should show disabled switch when current provider is updating', () => {
       const props = createMockSsoProviderTableActionsColumnProps({
         isUpdating: true,
         isUpdatingId: 'provider_123',
       });
       renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
-      // Switch should not be rendered
-      expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+      expect(screen.getByRole('switch')).toBeDisabled();
     });
   });
 
@@ -599,23 +598,23 @@ describe('SsoProviderTableActionsColumn', () => {
       expect(switchElement).toBeInTheDocument();
     });
 
-    it('should show spinner for correct provider only', () => {
+    it('should disable switch for current provider only', () => {
       const props = createMockSsoProviderTableActionsColumnProps({
         isUpdating: true,
         isUpdatingId: 'provider_123',
       });
       renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
-      expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+      expect(screen.getByRole('switch')).toBeDisabled();
 
-      // Now test with different provider ID
+      // Now test with different provider ID — switch should not be disabled
       const props2 = createMockSsoProviderTableActionsColumnProps({
         isUpdating: true,
         isUpdatingId: 'other_provider',
       });
       const { unmount } = renderWithProviders(<SsoProviderTableActionsColumn {...props2} />);
 
-      expect(screen.getByRole('switch')).toBeInTheDocument();
+      expect(screen.getAllByRole('switch')[1]).not.toBeDisabled();
       unmount();
     });
   });
