@@ -18,6 +18,8 @@ import type {
 
 type CombinedProviderFormValues = ProviderSelectionFormValues &
   ProviderDetailsFormValues & {
+    show_as_button?: boolean;
+    assign_membership_on_login?: boolean;
     options: ProviderConfigureFormValues;
   };
 
@@ -93,7 +95,8 @@ export const SsoProviderMappers = {
    * @returns API request payload for provider creation
    */
   createToAPI(data: CombinedProviderFormValues): CreateIdentityProviderRequestContent {
-    const { strategy, name, display_name, options } = data;
+    const { strategy, name, display_name, show_as_button, assign_membership_on_login, options } =
+      data;
 
     if (!name || name.trim() === '') {
       throw new Error('Provider name is required');
@@ -103,6 +106,8 @@ export const SsoProviderMappers = {
       strategy,
       name: name.trim(),
       display_name,
+      show_as_button,
+      assign_membership_on_login,
       options: getValidOptionsForStrategy(strategy, options),
     } as CreateIdentityProviderRequestContent;
   },
