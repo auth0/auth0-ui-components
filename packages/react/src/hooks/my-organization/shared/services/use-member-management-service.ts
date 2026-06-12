@@ -19,6 +19,7 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
@@ -96,7 +97,7 @@ export function useMemberManagementService(
     queryFn: async () => {
       const response = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.roles.list({ take: 50 });
+        .organization.roles.list({ take: MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT });
       return response.data;
     },
     enabled: !!coreClient,
