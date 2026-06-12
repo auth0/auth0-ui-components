@@ -49,8 +49,8 @@ export default function MyOrganizationIntroduction() {
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   OrganizationDetailsEdit{' '}
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-3">
-                    Available
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-3">
+                    Published
                   </span>
                 </h3>
                 <p className="text-gray-600 mb-4">
@@ -59,10 +59,12 @@ export default function MyOrganizationIntroduction() {
                 </p>
               </div>
               <a
-                href="/my-organization/organization-details-edit"
+                href="https://auth0.com/docs/get-started/universal-components/my-organization/organization-management/edit-organization-details"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
               >
-                View Docs →
+                View Docs ↗
               </a>
             </div>
           </div>
@@ -72,8 +74,8 @@ export default function MyOrganizationIntroduction() {
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   SsoProviderTable{' '}
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-3">
-                    Available
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-3">
+                    Published
                   </span>
                 </h3>
                 <p className="text-gray-600 mb-4">
@@ -83,10 +85,12 @@ export default function MyOrganizationIntroduction() {
                 </p>
               </div>
               <a
-                href="/my-organization/sso-provider-table"
+                href="https://auth0.com/docs/get-started/universal-components/my-organization/idp-management/sso-provider-table"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
               >
-                View Docs →
+                View Docs ↗
               </a>
             </div>
           </div>
@@ -96,8 +100,8 @@ export default function MyOrganizationIntroduction() {
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   SsoProviderCreate{' '}
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-3">
-                    Available
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-3">
+                    Published
                   </span>
                 </h3>
                 <p className="text-gray-600 mb-4">
@@ -107,10 +111,12 @@ export default function MyOrganizationIntroduction() {
                 </p>
               </div>
               <a
-                href="/my-organization/sso-provider-create"
+                href="https://auth0.com/docs/get-started/universal-components/my-organization/idp-management/sso-provider-create"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
               >
-                View Docs →
+                View Docs ↗
               </a>
             </div>
           </div>
@@ -120,8 +126,8 @@ export default function MyOrganizationIntroduction() {
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   SsoProviderEdit{' '}
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-3">
-                    Available
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-3">
+                    Published
                   </span>
                 </h3>
                 <p className="text-gray-600 mb-4">
@@ -131,7 +137,58 @@ export default function MyOrganizationIntroduction() {
                 </p>
               </div>
               <a
-                href="/my-organization/sso-provider-edit"
+                href="https://auth0.com/docs/get-started/universal-components/my-organization/idp-management/sso-provider-edit"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
+              >
+                View Docs ↗
+              </a>
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:border-blue-300 hover:shadow-md transition-all">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  DomainTable{' '}
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-3">
+                    Published
+                  </span>
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Manage organization domains with create, verify, delete, and identity provider
+                  association capabilities in a unified table interface.
+                </p>
+              </div>
+              <a
+                href="https://auth0.com/docs/get-started/universal-components/my-organization/domain-management/configure-org-domains"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
+              >
+                View Docs ↗
+              </a>
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:border-blue-300 hover:shadow-md transition-all">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  OrganizationMemberManagement{' '}
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-3">
+                    Available
+                  </span>
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Manage organization members and invitations in a tabbed interface — view the
+                  member list, invite new members, remove members, assign roles, and manage pending
+                  invitations with full lifecycle controls.
+                </p>
+              </div>
+              <a
+                href="/my-organization/member-management"
                 className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
               >
                 View Docs →
@@ -143,18 +200,18 @@ export default function MyOrganizationIntroduction() {
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  DomainTable{' '}
+                  OrganizationMemberDetail{' '}
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-3">
                     Available
                   </span>
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Manage organization domains with create, verify, delete, and identity provider
-                  association capabilities in a unified table interface.
+                  View and manage an individual organization member — user profile, assigned roles,
+                  and removal — in a two-tab layout with full lifecycle controls.
                 </p>
               </div>
               <a
-                href="/my-organization/domain-table"
+                href="/my-organization/member-detail"
                 className="ml-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors"
               >
                 View Docs →
@@ -173,6 +230,23 @@ export default function MyOrganizationIntroduction() {
           environment:
         </p>
 
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <p className="text-sm text-blue-800">
+            <strong>Note:</strong> For the full setup guide covering SSO, Domain, and Organization
+            Details components, see the{' '}
+            <a
+              href="https://auth0.com/docs/get-started/universal-components/my-organization/build-delegated-admin#create-application"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-700 underline font-medium"
+            >
+              official documentation on auth0.com/docs ↗
+            </a>
+            . The steps below include the additional member management scopes needed for the
+            OrganizationMemberManagement and OrganizationMemberDetail components.
+          </p>
+        </div>
+
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
           <h3 className="text-lg font-medium text-blue-900 mb-4">Auth0 Dashboard Configuration</h3>
 
@@ -183,17 +257,35 @@ export default function MyOrganizationIntroduction() {
                 <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium mr-3">
                   1
                 </div>
-                <h4 className="font-semibold text-blue-800">Enable Feature Flags</h4>
+                <h4 className="font-semibold text-blue-800">Create Application</h4>
               </div>
               <div className="ml-9">
                 <p className="text-blue-700 text-sm mb-2">
-                  Contact support to enable the needed feature flags for your tenant:
+                  Navigate to{' '}
+                  <strong>
+                    Auth0 Dashboard → Applications → Applications → Create Application
+                  </strong>
+                  :
                 </p>
-                <div className="mt-2 bg-yellow-50 border border-yellow-200 rounded p-2">
-                  <p className="text-xs text-yellow-800">
-                    <strong>Note:</strong> These feature flags are required and must be enabled by
-                    Auth0 support before proceeding with the setup.
-                  </p>
+                <div className="bg-white rounded-lg p-3 space-y-2">
+                  <div className="text-xs text-gray-600">
+                    • Choose "Single Page Web Applications" (or "Regular Web Application" for
+                    Next.js)
+                  </div>
+                  <div className="text-xs text-gray-600">
+                    • In the Settings tab, add <code>http://localhost:5173</code> to:
+                  </div>
+                  <div className="ml-4 space-y-1">
+                    <div className="text-xs text-gray-600">- Allowed Callback URLs</div>
+                    <div className="text-xs text-gray-600">- Allowed Logout URLs</div>
+                  </div>
+                  <div className="text-xs text-gray-600">• Under Login Experience, select:</div>
+                  <div className="ml-4 space-y-1">
+                    <div className="text-xs text-gray-600">- Business users</div>
+                    <div className="text-xs text-gray-600">
+                      - Prompt for Organization (optional)
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -204,11 +296,12 @@ export default function MyOrganizationIntroduction() {
                 <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium mr-3">
                   2
                 </div>
-                <h4 className="font-semibold text-blue-800">Enable My Organization API</h4>
+                <h4 className="font-semibold text-blue-800">Enable the My Organization API</h4>
               </div>
               <div className="ml-9">
                 <p className="text-blue-700 text-sm mb-2">
-                  Go to <strong>APIs → My Organization API</strong> and make sure it's enabled.
+                  Navigate to <strong>Dashboard → Applications → APIs</strong>. Select "My
+                  Organization API" and ensure it is enabled for your tenant.
                 </p>
               </div>
             </div>
@@ -219,35 +312,40 @@ export default function MyOrganizationIntroduction() {
                 <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium mr-3">
                   3
                 </div>
-                <h4 className="font-semibold text-blue-800">Create SPA Application</h4>
+                <h4 className="font-semibold text-blue-800">Configure Application Access</h4>
               </div>
               <div className="ml-9">
                 <p className="text-blue-700 text-sm mb-2">
-                  Go to <strong>Applications → Create Application</strong>:
+                  Navigate to the <strong>Application Access</strong> tab of the My Organization API
+                  and select "Edit" for your application. Configure:
                 </p>
                 <div className="bg-white rounded-lg p-3 space-y-2">
                   <div className="text-xs text-gray-600">
-                    • Choose "Single Page Web Applications"
+                    <strong>A. Connection Profile</strong> — Select or create a profile with
+                    connection attribute mappings.
                   </div>
                   <div className="text-xs text-gray-600">
-                    • For development mode, add <code>http://localhost:5173</code> to:
+                    <strong>B. User Attribute Profile</strong> — Select or create a profile with
+                    user attribute mappings.
                   </div>
-                  <div className="ml-4 space-y-1">
-                    <div className="text-xs text-gray-600">- Allowed Callback URLs</div>
-                    <div className="text-xs text-gray-600">- Allowed Logout URLs</div>
+                  <div className="text-xs text-gray-600">
+                    <strong>C. Supported Identity Providers</strong> — Enable which SSO provider
+                    types your organization admins can create (e.g. SAML, OIDC, Okta, Azure AD,
+                    Google Workspace, ADFS, PingFederate).
                   </div>
-                  <div className="text-xs text-gray-600">• Set Login Experience:</div>
-                  <div className="ml-4 space-y-1">
-                    <div className="text-xs text-gray-600">- Business users</div>
-                    <div className="text-xs text-gray-600">
-                      - Prompt for Organization (optional)
-                    </div>
+                  <div className="text-xs text-gray-600">
+                    <strong>D. Connection Deletion Behavior</strong> — Choose "Allow" (always) or
+                    "Allow if Empty" (only if no users are associated).
+                  </div>
+                  <div className="text-xs text-gray-600">
+                    <strong>E. User Access Authorization</strong> — Choose "Authorized" and select
+                    the required permissions (see Step 5 for the full list).
                   </div>
                 </div>
-                <div className="mt-2 bg-blue-50 border border-blue-200 rounded p-2">
-                  <p className="text-xs text-blue-800">
-                    <strong>Note:</strong> This example uses a Single Page Application, but you can
-                    also configure a Regular Web Application (RWA) following similar steps.
+                <div className="mt-2 bg-yellow-50 border border-yellow-200 rounded p-2">
+                  <p className="text-xs text-yellow-800">
+                    <strong>Important:</strong> The user's token will only include permissions that
+                    exist in both their assigned role and the User Access Authorization settings.
                   </p>
                 </div>
               </div>
@@ -263,12 +361,15 @@ export default function MyOrganizationIntroduction() {
               </div>
               <div className="ml-9">
                 <div className="bg-white rounded-lg p-3 space-y-2">
-                  <div className="text-xs text-gray-600">• Create a Database connection</div>
                   <div className="text-xs text-gray-600">
-                    • In Applications tab, enable your new SPA app
+                    • Navigate to <strong>Authentication → Database</strong> to create a database
+                    connection
                   </div>
                   <div className="text-xs text-gray-600">
-                    • Create a user in this database (for testing purposes)
+                    • Select the Applications tab of the connection and enable your new application
+                  </div>
+                  <div className="text-xs text-gray-600">
+                    • Create a test user in this database for initial testing
                   </div>
                 </div>
               </div>
@@ -283,10 +384,11 @@ export default function MyOrganizationIntroduction() {
                 <h4 className="font-semibold text-blue-800">Setup Role</h4>
               </div>
               <div className="ml-9">
+                <p className="text-blue-700 text-sm mb-2">
+                  Create a role (e.g. "Organization Admin") and add the required scopes from the My
+                  Organization API:
+                </p>
                 <div className="bg-white rounded-lg p-3 space-y-2">
-                  <div className="text-xs text-gray-600">
-                    • Create a role or use existing (e.g. "Organization Admin")
-                  </div>
                   <div className="text-xs text-gray-600">• Add required permissions:</div>
                   <div className="ml-4 space-y-1">
                     <div className="text-xs text-gray-600">- read:my_org:details</div>
@@ -318,15 +420,26 @@ export default function MyOrganizationIntroduction() {
                       - delete:my_org:identity_providers_scim_tokens
                     </div>
                     <div className="text-xs text-gray-600">
-                      - create::my_org:identity_providers_provisioning
+                      - create:my_org:identity_providers_provisioning
                     </div>
                     <div className="text-xs text-gray-600">
-                      - read::my_org:identity_providers_provisioning
+                      - read:my_org:identity_providers_provisioning
                     </div>
                     <div className="text-xs text-gray-600">
-                      - delete::my_org:identity_providers_provisioning
+                      - delete:my_org:identity_providers_provisioning
                     </div>
                     <div className="text-xs text-gray-600">- read:my_org:configuration</div>
+                    <div className="text-xs text-gray-600 font-medium mt-2">
+                      Member Management scopes:
+                    </div>
+                    <div className="text-xs text-gray-600">- read:my_org:members</div>
+                    <div className="text-xs text-gray-600">- delete:my_org:memberships</div>
+                    <div className="text-xs text-gray-600">- read:my_org:member_invitations</div>
+                    <div className="text-xs text-gray-600">- create:my_org:member_invitations</div>
+                    <div className="text-xs text-gray-600">- delete:my_org:member_invitations</div>
+                    <div className="text-xs text-gray-600">- read:my_org:member_roles</div>
+                    <div className="text-xs text-gray-600">- create:my_org:member_roles</div>
+                    <div className="text-xs text-gray-600">- delete:my_org:member_roles</div>
                   </div>
                 </div>
               </div>
@@ -342,14 +455,14 @@ export default function MyOrganizationIntroduction() {
               </div>
               <div className="ml-9">
                 <p className="text-blue-700 text-sm mb-2">
-                  Go to <strong>Organizations → Create Organization</strong>:
+                  Navigate to <strong>Organizations → Create Organization</strong>:
                 </p>
                 <div className="bg-white rounded-lg p-3 space-y-2">
                   <div className="text-xs text-gray-600">
-                    • In Members: Add your user and assign the role
+                    • In Members: Add your test user and assign the "Organization Admin" role
                   </div>
                   <div className="text-xs text-gray-600">
-                    • In Connections: Enable your database
+                    • In Connections: Enable your database connection
                   </div>
                 </div>
               </div>
@@ -361,85 +474,27 @@ export default function MyOrganizationIntroduction() {
                 <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium mr-3">
                   7
                 </div>
-                <h4 className="font-semibold text-blue-800">Create Client Grant</h4>
-              </div>
-              <div className="ml-9">
-                <p className="text-blue-700 text-sm mb-2">
-                  Create a client grant for the user & client pair to solve access control:
-                </p>
-                <div className="bg-white rounded-lg p-3">
-                  <CodeBlock
-                    code={`POST https://{{auth0_domain}}/api/v2/client-grants
-{
-  "scope": [
-    "read:my_org:details",
-    "update:my_org:details",
-    "create:my_org:identity_providers",
-    "read:my_org:identity_providers",
-    "update:my_org:identity_providers",
-    "delete:my_org:identity_providers",
-    "update:my_org:identity_providers_detach",
-    "create:my_org:identity_providers_domains",
-    "delete:my_org:identity_providers_domains",
-    "read:my_org:domains",
-    "delete:my_org:domains",
-    "create:my_org:domains",
-    "update:my_org:domains",
-    "read:my_org:identity_providers_scim_tokens",
-    "create:my_org:identity_providers_scim_tokens",
-    "delete:my_org:identity_providers_scim_tokens",
-    "create:my_org:identity_providers_provisioning",
-    "read:my_org:identity_providers_provisioning",
-    "delete:my_org:identity_providers_provisioning",
-    "read:my_org:configuration"
-  ],
-  "client_id": "{{auth0_client_id}}", // use your app client_id
-  "audience": "https://{{auth0_domain}}/my-organization/", // use your domain
-  "subject_type": "user"
-}`}
-                    language="json"
-                    title="Client Grant Creation"
-                  />
-                </div>
-                <div className="mt-2 bg-blue-50 border border-blue-200 rounded p-2">
-                  <p className="text-xs text-blue-800">
-                    <strong>Note:</strong> You need a Management API token to make this request. For
-                    example, you can get one from{' '}
-                    <strong>Applications → APIs → Auth0 Management API → API Explorer</strong>.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Step 8 */}
-            <div>
-              <div className="flex items-center mb-3">
-                <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium mr-3">
-                  8
-                </div>
                 <h4 className="font-semibold text-blue-800">Configure Environment Variables</h4>
               </div>
               <div className="ml-9">
                 <p className="text-blue-700 text-sm mb-2">
-                  Create a <code>.env</code> file in your project with your Auth0 configuration. The
-                  exact variables depend on your application type.
+                  Create a <code>.env</code> file in your project with your Auth0 configuration:
                 </p>
                 <div className="bg-white rounded-lg p-3">
-                  <p className="text-xs font-semibold text-gray-700 mb-2">
-                    Example for Single Page Applications (Vite/React):
-                  </p>
                   <CodeBlock
                     code={`VITE_AUTH0_DOMAIN=your-domain.auth0.com
 VITE_AUTH0_CLIENT_ID=your-spa-client-id`}
                     language="bash"
-                    title=".env"
+                    title=".env (React/Vite)"
                   />
                 </div>
                 <div className="mt-2 bg-blue-50 border border-blue-200 rounded p-2">
                   <p className="text-xs text-blue-800">
-                    <strong>Note:</strong> Environment variable configurations vary by framework and
-                    setup. Check the <code className="bg-blue-100 px-1 rounded">examples/</code>{' '}
-                    directory in the repository for specific implementation examples.
+                    <strong>Note:</strong> For Next.js, use <code>AUTH0_DOMAIN</code>,{' '}
+                    <code>AUTH0_CLIENT_ID</code>, <code>AUTH0_CLIENT_SECRET</code>, and{' '}
+                    <code>AUTH0_SECRET</code>. Check the{' '}
+                    <code className="bg-blue-100 px-1 rounded">examples/</code> directory for
+                    specific implementation examples.
                   </p>
                 </div>
               </div>
