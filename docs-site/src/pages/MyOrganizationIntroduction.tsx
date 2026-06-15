@@ -319,27 +319,40 @@ export default function MyOrganizationIntroduction() {
                   Navigate to the <strong>Application Access</strong> tab of the My Organization API
                   and select "Edit" for your application. Configure:
                 </p>
-                <div className="bg-white rounded-lg p-3 space-y-2">
+                <div className="bg-white rounded-lg p-3 space-y-3">
                   <div className="text-xs text-gray-600">
-                    <strong>A. Connection Profile</strong> — Select or create a profile with
-                    connection attribute mappings.
+                    <strong>Connection Profile</strong> — Select or create a profile with connection
+                    attribute mappings.
                   </div>
                   <div className="text-xs text-gray-600">
-                    <strong>B. User Attribute Profile</strong> — Select or create a profile with
-                    user attribute mappings.
+                    <strong>User Attribute Profile</strong> — Select or create a profile with user
+                    attribute mappings.
                   </div>
                   <div className="text-xs text-gray-600">
-                    <strong>C. Supported Identity Providers</strong> — Enable which SSO provider
-                    types your organization admins can create (e.g. SAML, OIDC, Okta, Azure AD,
-                    Google Workspace, ADFS, PingFederate).
+                    <strong>Supported Identity Providers</strong> — Enable which SSO provider types
+                    your organization admins can create (Okta, ADFS, Entra ID, Google Workspace,
+                    PingFederate, Custom SAML, Custom OIDC).
                   </div>
                   <div className="text-xs text-gray-600">
-                    <strong>D. Connection Deletion Behavior</strong> — Choose "Allow" (always) or
-                    "Allow if Empty" (only if no users are associated).
+                    <strong>Connection Deletion Behavior</strong> — Choose "Allow" or "Allow if the
+                    Connection Has No Users".
                   </div>
                   <div className="text-xs text-gray-600">
-                    <strong>E. User Access Authorization</strong> — Choose "Authorized" and select
-                    the required permissions (see Step 5 for the full list).
+                    <strong>User Access Authorization</strong> — Choose "Authorized" and select the
+                    required permissions (see Step 5 for the full list).
+                  </div>
+                  <div className="text-xs text-gray-600 mt-2 pt-2 border-t border-gray-200">
+                    <strong>Member Management</strong>{' '}
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-yellow-100 text-yellow-800">
+                      BETA
+                    </span>
+                    <br />
+                    <span className="mt-1 block">
+                      <strong>Invitation Landing Client ID</strong> — Set this to your application's
+                      Client ID. This specifies the client ID used for invitation creation and
+                      login. Required for the Invitations flow in the{' '}
+                      <code>OrganizationMemberManagement</code> component.
+                    </span>
                   </div>
                 </div>
                 <div className="mt-2 bg-yellow-50 border border-yellow-200 rounded p-2">
