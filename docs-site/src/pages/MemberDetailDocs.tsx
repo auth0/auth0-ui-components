@@ -677,7 +677,6 @@ removeRolesAction={{
                     <ul className="ml-4 list-disc mt-1 text-gray-600">
                       <li>title</li>
                       <li>name, email</li>
-                      <li>phone_number, provider</li>
                       <li>created_at, last_login</li>
                     </ul>
                   </div>
