@@ -24,7 +24,6 @@ export interface OrgMemberIdentity {
  * Organization member entity.
  */
 export interface OrgMember extends MyOrganization.OrgMember {
-  phone_number?: string;
   identities?: OrgMemberIdentity[];
 }
 
