@@ -72,6 +72,8 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
         type: oidcData?.type || 'back_channel',
         client_id: oidcData?.client_id || '',
         client_secret: oidcData?.client_secret || '',
+        show_as_button: oidcData?.show_as_button ?? false,
+        assign_membership_on_login: oidcData?.assign_membership_on_login ?? false,
       },
     });
 

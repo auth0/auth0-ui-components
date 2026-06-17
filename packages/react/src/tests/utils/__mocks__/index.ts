@@ -22,3 +22,5 @@ export * from './my-account/mfa/user-mfa-setup-form.mocks';
 export * from './my-account/mfa/mfa.mocks';
 
 export * from './shared/mfa-step-up.mocks';
+
+export * from './my-account/passkey/passkey.mocks';

@@ -79,6 +79,8 @@ export const GoogleAppsProviderForm = React.forwardRef<
       client_id: googleAppsData?.client_id || '',
       client_secret: googleAppsData?.client_secret || '',
       callback_url: callbackUrl || '',
+      show_as_button: googleAppsData?.show_as_button ?? false,
+      assign_membership_on_login: googleAppsData?.assign_membership_on_login ?? false,
     },
   });
 
