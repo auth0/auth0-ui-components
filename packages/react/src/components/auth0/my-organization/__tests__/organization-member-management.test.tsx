@@ -48,11 +48,16 @@ vi.mock('@/components/auth0/shared/styled-scope', () => ({
 vi.mock(
   '@/components/auth0/my-organization/shared/member-management/members/members-table/organization-member-table',
   () => ({
-    OrganizationMemberTable: ({ members, onAssignRole, onRemoveFromOrg, className }: any) => (
+    OrganizationMemberTable: ({
+      members,
+      onAssignRole,
+      onRemoveFromOrganization,
+      className,
+    }: any) => (
       <div data-testid="member-table" className={className}>
         <span>members:{members.length}</span>
         <button onClick={() => onAssignRole?.(members[0])}>assign-role</button>
-        <button onClick={() => onRemoveFromOrg?.(members[0])}>remove-from-org</button>
+        <button onClick={() => onRemoveFromOrganization?.(members[0])}>remove-from-org</button>
       </div>
     ),
   }),
@@ -162,9 +167,9 @@ vi.mock(
 );
 
 vi.mock(
-  '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-org-modal',
+  '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-organization-modal',
   () => ({
-    MemberRemoveFromOrgModal: ({
+    MemberRemoveFromOrganizationModal: ({
       isOpen,
       memberName,
       memberUserId,
