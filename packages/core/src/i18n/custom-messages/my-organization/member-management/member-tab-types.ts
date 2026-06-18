@@ -22,7 +22,7 @@ export interface OrganizationMemberTabMessages {
     menu_label?: string;
     view_details?: string;
     assign_roles?: string;
-    remove_from_org?: string;
+    remove_from_organization?: string;
   };
   assign_roles?: {
     title?: string;
@@ -33,19 +33,19 @@ export interface OrganizationMemberTabMessages {
     cancel_button?: string;
     no_roles_available?: string;
   };
-  remove_from_org?: {
+  remove_from_organization?: {
     title?: string;
     description?: string;
     confirm_button?: string;
     cancel_button?: string;
   };
   success?: {
-    removed_from_org?: string;
+    removed_from_organization?: string;
     role_assigned?: string;
   };
   error?: {
     fetch_failed?: string;
     assign_roles_failed?: string;
-    remove_from_org_failed?: string;
+    remove_from_organization_failed?: string;
   };
 }

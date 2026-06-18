@@ -36,7 +36,7 @@ import type { OrganizationMemberTableProps } from '@/types/my-organization/membe
  * @param props.availableRoles - Available roles for filtering.
  * @param props.onView - Callback when viewing member details.
  * @param props.onAssignRole - Callback when assigning a role to a member.
- * @param props.onRemoveFromOrg - Callback when removing a member from the organization.
+ * @param props.onRemoveFromOrganization - Callback when removing a member from the organization.
  * @param props.onNextPage - Callback when navigating to the next page.
  * @param props.onPreviousPage - Callback when navigating to the previous page.
  * @param props.onPageSizeChange - Callback when page size changes.
@@ -58,7 +58,7 @@ export function OrganizationMemberTable({
   onSortChange,
   onView,
   onAssignRole,
-  onRemoveFromOrg,
+  onRemoveFromOrganization,
   onNextPage,
   onPreviousPage,
   onPageSizeChange,
@@ -159,12 +159,12 @@ export function OrganizationMemberTable({
             member={member}
             onViewDetails={onView}
             onAssignRole={onAssignRole}
-            onRemoveFromOrg={onRemoveFromOrg}
+            onRemoveFromOrganization={onRemoveFromOrganization}
           />
         ),
       },
     ],
-    [t, onView, onAssignRole, onRemoveFromOrg, renderName, renderRoles, renderLastLogin],
+    [t, onView, onAssignRole, onRemoveFromOrganization, renderName, renderRoles, renderLastLogin],
   );
 
   return (

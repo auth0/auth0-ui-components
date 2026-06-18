@@ -168,7 +168,7 @@ vi.mock(
       isOpen,
       memberName,
       memberUserId,
-      orgName,
+      organizationName,
       isLoading,
       onConfirm,
       onClose,
@@ -178,7 +178,7 @@ vi.mock(
         <span>open:{String(isOpen)}</span>
         <span>member:{memberUserId ?? 'none'}</span>
         <span>memberName:{memberName ?? 'none'}</span>
-        <span>orgName:{orgName ?? 'none'}</span>
+        <span>organizationName:{organizationName ?? 'none'}</span>
         <span>loading:{String(isLoading)}</span>
         <button onClick={() => onConfirm?.(memberUserId)}>confirm-remove-from-org</button>
         <button onClick={onClose}>close-remove-from-org</button>
@@ -235,7 +235,7 @@ const createMockMemberManagementResult = (
     memberFilters: {},
     memberSortConfig: { key: null, direction: 'asc' },
     modalState: { type: null },
-    isRemovingFromOrg: false,
+    isRemovingFromOrganization: false,
     isAssigningRoles: false,
     setActiveTab: vi.fn(),
     openModal: vi.fn(),
@@ -251,7 +251,7 @@ const createMockMemberManagementResult = (
     handleRoleFilterChange: vi.fn(),
     handleViewMemberDetails: vi.fn(),
     handleAssignRolesSubmit: vi.fn(),
-    handleRemoveFromOrgConfirm: vi.fn(),
+    handleRemoveFromOrganizationConfirm: vi.fn(),
     ...overrides,
   };
 };
@@ -334,7 +334,7 @@ describe('OrganizationMemberManagementView', () => {
     await user.click(screen.getByRole('button', { name: 'remove-from-org' }));
 
     expect(openModal).toHaveBeenNthCalledWith(1, { type: 'assignRole', member });
-    expect(openModal).toHaveBeenNthCalledWith(2, { type: 'removeFromOrg', member });
+    expect(openModal).toHaveBeenNthCalledWith(2, { type: 'removeFromOrganization', member });
   });
 
   it('renders invitation tab content and opens invitation modals from callbacks', async () => {
@@ -458,13 +458,13 @@ describe('OrganizationMemberManagementView', () => {
       expect(modal).toHaveTextContent('member:none');
     });
 
-    it('opens with the selected member info when modalState is removeFromOrg', () => {
+    it('opens with the selected member info when modalState is removeFromOrganization', () => {
       const member = createMockMember();
       renderWithProviders(
         <OrganizationMemberManagementView
           {...createMockViewProps({
-            orgDisplayName: 'Acme Inc',
-            modalState: { type: 'removeFromOrg', member },
+            organizationDisplayName: 'Acme Inc',
+            modalState: { type: 'removeFromOrganization', member },
           })}
         />,
       );
@@ -473,34 +473,36 @@ describe('OrganizationMemberManagementView', () => {
       expect(modal).toHaveTextContent('open:true');
       expect(modal).toHaveTextContent(`member:${member.user_id}`);
       expect(modal).toHaveTextContent(`memberName:${member.name}`);
-      expect(modal).toHaveTextContent('orgName:Acme Inc');
+      expect(modal).toHaveTextContent('organizationName:Acme Inc');
     });
 
-    it('reflects loading state when isRemovingFromOrg is true', () => {
+    it('reflects loading state when isRemovingFromOrganization is true', () => {
       renderWithProviders(
-        <OrganizationMemberManagementView {...createMockViewProps({ isRemovingFromOrg: true })} />,
+        <OrganizationMemberManagementView
+          {...createMockViewProps({ isRemovingFromOrganization: true })}
+        />,
       );
       expect(screen.getByTestId('remove-from-org-modal')).toHaveTextContent('loading:true');
     });
 
-    it('invokes handleRemoveFromOrgConfirm with userId on confirm and closeModal on close', async () => {
+    it('invokes handleRemoveFromOrganizationConfirm with userId on confirm and closeModal on close', async () => {
       const user = userEvent.setup();
       const member = createMockMember();
-      const handleRemoveFromOrgConfirm = vi.fn();
+      const handleRemoveFromOrganizationConfirm = vi.fn();
       const closeModal = vi.fn();
 
       renderWithProviders(
         <OrganizationMemberManagementView
           {...createMockViewProps({
-            modalState: { type: 'removeFromOrg', member },
-            handleRemoveFromOrgConfirm,
+            modalState: { type: 'removeFromOrganization', member },
+            handleRemoveFromOrganizationConfirm,
             closeModal,
           })}
         />,
       );
 
       await user.click(screen.getByRole('button', { name: 'confirm-remove-from-org' }));
-      expect(handleRemoveFromOrgConfirm).toHaveBeenCalledWith(member.user_id);
+      expect(handleRemoveFromOrganizationConfirm).toHaveBeenCalledWith(member.user_id);
 
       await user.click(screen.getByRole('button', { name: 'close-remove-from-org' }));
       expect(closeModal).toHaveBeenCalled();
@@ -533,7 +535,7 @@ describe('OrganizationMemberManagement', () => {
         resendInvitationAction: undefined,
         viewMemberDetailsAction: undefined,
         assignRolesAction: undefined,
-        removeFromOrgAction: undefined,
+        removeFromOrganizationAction: undefined,
       }),
     );
 
