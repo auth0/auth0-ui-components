@@ -1,4 +1,4 @@
-import { User, Building, Settings, Shield, KeyRound } from 'lucide-react';
+import { User, Building, Settings, Shield, Users, KeyRound } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -77,6 +77,15 @@ export const Sidebar: React.FC = () => {
               >
                 <Settings className="h-4 w-4 flex-shrink-0" />
                 <span className="truncate">{t('sidebar.domain-management')}</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/member-management"
+                className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-accent/90 rounded-md dark:text-gray-300 dark:hover:text-white transition-colors cursor-default"
+              >
+                <Users className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{t('sidebar.member-management')}</span>
               </Link>
             </li>
           </ul>

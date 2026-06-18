@@ -26,7 +26,8 @@
     "my-organization": "マイ組織",
     "organization-management": "組織管理",
     "identity-provider-management": "IDプロバイダー管理",
-    "domain-management": "ドメイン管理"
+    "domain-management": "ドメイン管理",
+    "member-management": "メンバー"
   },
   "mfa": {
     "title": "多要素認証"
@@ -39,5 +40,11 @@
   },
   "domain-management": {
     "title": "ドメイン管理"
+  },
+  "member-management": {
+    "title": "メンバー管理"
+  },
+  "member-detail": {
+    "title": "メンバー詳細"
   }
 }

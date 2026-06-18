@@ -5,8 +5,14 @@
     {
       "name": "user-mfa-management",
       "type": "registry:block",
-      "title": "User MFA management container(logic) component",
-      "description": "Handles loading factors, enroll/delete flows, and UI state."
+      "title": "Multi-factor authentication management component.",
+      "description": "Complete MFA management interface for enrolling, viewing, and deleting authentication factors. Supports TOTP authenticators, SMS, Email, Push notifications, and recovery codes."
+    },
+    {
+      "name": "user-passkey-management",
+      "type": "registry:block",
+      "title": "Passkey management component.",
+      "description": "A block component for user passkey mgmt."
     },
     {
       "name": "domain-table",
@@ -19,6 +25,18 @@
       "type": "registry:block",
       "title": "Organization details edit component.",
       "description": "A block component for organization details edit."
+    },
+    {
+      "name": "organization-member-detail",
+      "type": "registry:block",
+      "title": "Organization member detail component.",
+      "description": "A block component for header."
+    },
+    {
+      "name": "organization-member-management",
+      "type": "registry:block",
+      "title": "Organization member management component.",
+      "description": "A block component for organization member management view."
     },
     {
       "name": "sso-provider-create",

@@ -58,6 +58,5 @@ export function useConfig(): UseConfigResult {
     filteredStrategies,
     shouldAllowDeletion,
     isConfigValid,
-    allowedRoles: [],
   };
 }
