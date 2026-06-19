@@ -172,7 +172,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
 
   return (
     <StyledScope style={currentStyles.variables}>
-      <div className="w-full">
+      <div className="w-full overflow-y-auto">
         {!hideHeader && (
           <Header
             title={provider?.display_name || provider?.name || ''}
