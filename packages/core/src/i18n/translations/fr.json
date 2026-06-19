@@ -883,6 +883,8 @@
   "mfa": {
     "title": "Méthodes d'authentification à facteurs multiples",
     "description": "Protection supplémentaire pour votre compte et votre identité",
+    "created_at": "Créé le ${date}",
+    "last_used": "Dernière utilisation ${date}",
     "no_active_mfa": "Aucun facteur MFA actif inscrit.",
     "component_error_title": "Erreur lors du chargement du composant MFA",
     "component_error_description": "Nous rencontrons des difficultés pour charger vos méthodes d'authentification à facteurs multiples.\nVeuillez actualiser la page et réessayer",
@@ -938,18 +940,21 @@
         "invalid_request": "Paramètre requis manquant",
         "too_many_entities": "Vous avez atteint la limite d'entités du type totp pour cet utilisateur.",
         "unsupported_challenge_type": "OTP Verifier est désactivé pour votre tenant. Vous pouvez l'activer depuis le tableau de bord en activant \"Notifications push\" dans la section Guardian MFA (les notifications push incluent OTP).",
-        "invalid_grant": "Code OTP invalide"
+        "invalid_grant": "Code OTP invalide",
+        "invalid_code": "Code invalide"
       },
       "phone": {
         "unsupported_challenge_type": "SMS Verifier est désactivé pour votre tenant. Vous pouvez l'activer depuis le tableau de bord en activant \"SMS\" dans la section Guardian MFA.",
         "bad_gateway": "Le numéro de téléphone est invalide.",
-        "too_many_entities": "Vous avez atteint la limite d'entités du type sms pour cet utilisateur."
+        "too_many_entities": "Vous avez atteint la limite d'entités du type sms pour cet utilisateur.",
+        "invalid_phone_number": "Numéro de téléphone invalide"
       },
       "email": {
         "expired_token": "Le code de vérification est expiré",
         "invalid_grant": "Code invalide",
         "access_denied": "Impossible de trouver l'authentificateur demandé",
-        "too_many_entities": "Vous avez atteint la limite d'entités du type e-mail pour cet utilisateur."
+        "too_many_entities": "Vous avez atteint la limite d'entités du type e-mail pour cet utilisateur.",
+        "invalid_code": "Code invalide"
       }
     },
     "phone": {
@@ -963,7 +968,8 @@
       "button-text": "Ajouter une authentification push"
     },
     "totp": {
-      "title": "Mot de passe à usage unique",
+      "title": "Authenticator",
+      "name": "TOTP (Code à usage unique)",
       "description": "Aucun authentificateur n'a été ajouté.",
       "button-text": "Ajouter une application d'authentification"
     },
@@ -988,6 +994,7 @@
     },
     "recovery-code": {
       "title": "Code de récupération",
+      "name": "Code de récupération ${index}",
       "description": "Utilisez un code de récupération unique pour retrouver l'accès à votre compte.",
       "button-text": "Ajouter un code de récupération"
     },

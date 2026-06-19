@@ -207,7 +207,7 @@ function UserMFAMgmtView({
 
   return (
     <StyledScope style={currentStyles.variables}>
-      <Card className={cn('p-6', currentStyles.classes?.['UserMFAMgmt-card'])}>
+      <Card className={cn(currentStyles.classes?.['UserMFAMgmt-card'])}>
         {error ? (
           <MFAErrorState
             title={t('component_error_title')}
@@ -216,7 +216,7 @@ function UserMFAMgmtView({
         ) : (
           <>
             {!hideHeader && (
-              <>
+              <div className="px-6 pt-6">
                 <CardTitle
                   id="mfa-management-title"
                   className="text-2xl text-(length:--font-size-heading) font-medium text-left"
@@ -229,7 +229,7 @@ function UserMFAMgmtView({
                 >
                   {t('description')}
                 </CardDescription>
-              </>
+              </div>
             )}
             {showActiveOnly && hasNoActiveFactors ? (
               <MFAEmptyState message={t('no_active_mfa')} />
@@ -249,7 +249,7 @@ function UserMFAMgmtView({
                     <ListItem
                       key={factorType}
                       className={cn(
-                        'w-full p-0 m-0 py-6 gap-3',
+                        'w-full p-0 m-0 px-6 py-6 gap-3',
                         !isEnabledFactor && 'opacity-50 pointer-events-none',
                       )}
                       aria-disabled={!isEnabledFactor}

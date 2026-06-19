@@ -122,6 +122,10 @@ function createAuthenticator(
     enrolled,
     name: enrolledFactor ? getFactorDisplayName(type, enrolledFactor) : type,
     created_at,
+    last_auth_at:
+      enrolledFactor && 'last_auth_at' in enrolledFactor
+        ? (enrolledFactor.last_auth_at ?? null)
+        : null,
   };
 }
 

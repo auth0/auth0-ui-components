@@ -54,6 +54,7 @@ export interface Authenticator {
   name?: string;
   confirmed?: boolean;
   created_at: string | null;
+  last_auth_at?: string | null;
 }
 
 /**

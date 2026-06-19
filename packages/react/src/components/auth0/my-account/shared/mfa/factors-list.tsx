@@ -4,9 +4,15 @@
  * @internal
  */
 
-import { FACTOR_TYPE_PHONE, FACTOR_TYPE_EMAIL } from '@auth0/universal-components-core';
+import {
+  FACTOR_TYPE_PHONE,
+  FACTOR_TYPE_EMAIL,
+  FACTOR_TYPE_TOTP,
+  FACTOR_TYPE_PUSH_NOTIFICATION,
+  FACTOR_TYPE_RECOVERY_CODE,
+} from '@auth0/universal-components-core';
 import { getComponentStyles } from '@auth0/universal-components-core';
-import { MoreVertical, Trash2, Mail, Smartphone } from 'lucide-react';
+import { MoreVertical, Trash2, Mail, Smartphone, RectangleEllipsis } from 'lucide-react';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -20,6 +26,8 @@ import type { FactorsListProps } from '@/types/my-account/mfa/mfa-types';
 const FACTOR_ICONS = {
   [FACTOR_TYPE_PHONE]: Smartphone,
   [FACTOR_TYPE_EMAIL]: Mail,
+  [FACTOR_TYPE_TOTP]: RectangleEllipsis,
+  [FACTOR_TYPE_PUSH_NOTIFICATION]: Smartphone,
 } as const;
 
 /**
@@ -65,7 +73,7 @@ export function FactorsList({
 
   return (
     <div className="space-y-2 mt-2" style={currentStyles?.variables}>
-      {factors.map((factor) => (
+      {factors.map((factor, index) => (
         <Card
           key={factor.id}
           className="border border-[color:var(--color-border)] rounded-lg shadow-none bg-transparent p-0 w-full"
@@ -79,14 +87,40 @@ export function FactorsList({
                   aria-hidden="true"
                 />
               )}
-              <span
-                className={cn(
-                  'font-medium text-base text-(length:--font-size-body) text-foreground truncate',
+              <div className="min-w-0 flex flex-col">
+                <span
+                  className={cn(
+                    'font-medium text-base text-(length:--font-size-body) text-foreground truncate',
+                  )}
+                  title={
+                    factorType === FACTOR_TYPE_TOTP
+                      ? t('totp.name')
+                      : factorType === FACTOR_TYPE_RECOVERY_CODE
+                        ? t('recovery-code.name', { index: index + 1 })
+                        : factor.name || factor.id
+                  }
+                >
+                  {factorType === FACTOR_TYPE_TOTP
+                    ? t('totp.name')
+                    : factorType === FACTOR_TYPE_RECOVERY_CODE
+                      ? t('recovery-code.name', { index: index + 1 })
+                      : factor.name || factor.id}
+                </span>
+                {(factor.created_at || factor.last_auth_at) && (
+                  <span className="text-sm font-normal text-muted-foreground">
+                    {[
+                      factor.created_at &&
+                        t('created_at', { date: new Date(factor.created_at).toLocaleDateString() }),
+                      factor.last_auth_at &&
+                        t('last_used', {
+                          date: new Date(factor.last_auth_at).toLocaleDateString(),
+                        }),
+                    ]
+                      .filter(Boolean)
+                      .join(' • ')}
+                  </span>
                 )}
-                title={factor.name || factor.id}
-              >
-                {factor.name || factor.id}
-              </span>
+              </div>
             </div>
             {!readOnly && (
               <div className="shrink-0">

@@ -11,6 +11,13 @@ import type { ApiError } from './api-types';
  */
 export const ERROR_CODES = {
   INSUFFICIENT_SCOPE: 'A0E-403-0002',
+  INVALID_CODE: 'A0E-403-0001',
+  INVALID_PHONE_NUMBER: 'A0E-400-0001',
+};
+
+export const ERROR_CODE_TRANSLATION_KEYS: Record<string, string> = {
+  [ERROR_CODES.INVALID_CODE]: 'invalid_code',
+  [ERROR_CODES.INVALID_PHONE_NUMBER]: 'invalid_phone_number',
 };
 
 /**
@@ -71,7 +78,6 @@ export function normalizeError(
   },
 ): Error {
   if (typeof error === 'string') return new Error(error);
-  if (error instanceof Error) return error;
 
   if (isApiError(error)) {
     const code = error.data?.error;
@@ -81,6 +87,22 @@ export function normalizeError(
     }
     return new Error(error.message ?? options?.fallbackMessage ?? 'Unknown API error');
   }
+
+  if (hasApiErrorBody(error)) {
+    const type = error.body?.type;
+    if (typeof type === 'string' && options?.resolver) {
+      const code = type.split('/').pop();
+      if (code) {
+        const resolved = options.resolver(code);
+        if (resolved) return new Error(resolved);
+      }
+    }
+    if (typeof error.body?.detail === 'string') {
+      return new Error(error.body.detail);
+    }
+  }
+
+  if (error instanceof Error) return error;
 
   return new Error(options?.fallbackMessage ?? 'An unknown error occurred');
 }

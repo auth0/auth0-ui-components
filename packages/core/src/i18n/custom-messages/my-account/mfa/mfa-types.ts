@@ -43,6 +43,8 @@ export interface MFAMessages {
   component_error_description?: string;
   actions?: string;
   remove?: string;
+  created_at?: string;
+  last_used?: string;
   'app-store'?: string;
   'google-play'?: string;
   loading?: string;

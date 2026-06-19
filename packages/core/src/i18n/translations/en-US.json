@@ -937,6 +937,8 @@
   "mfa": {
     "title": "Multi-Factor Authentication methods",
     "description": "Extra protection for your account and your identity",
+    "created_at": "Created on ${date}",
+    "last_used": "Last used ${date}",
     "no_active_mfa": "No active MFA factors enrolled.",
     "component_error_title": "Error loading Multi-Factor Authentication component",
     "component_error_description": "We're having trouble loading your multi-factor authentication methods.\nPlease refresh the page and try again",
@@ -992,18 +994,21 @@
         "invalid_request": "Missing required parameter",
         "too_many_entities": "You reached the limit of entities of the totp type for this user.",
         "unsupported_challenge_type": "OTP Verifier is disabled for your tenant. You can turn it on from dashboard turning on \"Push notifications\" on Guardian MFA section (Push notications include OTP).",
-        "invalid_grant": "Invalid Otp Code"
+        "invalid_grant": "Invalid Otp Code",
+        "invalid_code": "Invalid Otp Code"
       },
       "phone": {
         "unsupported_challenge_type": "SMS Verifier is disabled for your tenant. You can turn it on from dashboard turning on \"SMS\" on Guardian MFA section.",
         "bad_gateway": "The phone number is invalid.",
-        "too_many_entities": "You reached the limit of entities of the sms type for this user."
+        "too_many_entities": "You reached the limit of entities of the sms type for this user.",
+        "invalid_phone_number": "Invalid phone number"
       },
       "email": {
         "expired_token": "Verification code is expired",
         "invalid_grant": "Invalid Code",
         "access_denied": "Could not find the requested authenticator",
-        "too_many_entities": "You reached the limit of entities of the email type for this user."
+        "too_many_entities": "You reached the limit of entities of the email type for this user.",
+        "invalid_code": "Invalid Otp Code"
       }
     },
     "phone": {
@@ -1017,7 +1022,8 @@
       "button-text": "Add Push Authentication"
     },
     "totp": {
-      "title": "One-time Password",
+      "title": "Authenticator",
+      "name": "TOTP (One-time code)",
       "description": "No authenticator has been added.",
       "button-text": "Add Authenticator App"
     },
@@ -1041,7 +1047,8 @@
       "button-text": "Add WebAuthn with FIDO Device Biometrics"
     },
     "recovery-code": {
-      "title": "Recovery Code",
+      "title": "Recovery Codes",
+      "name": "Recovery Code ${index}",
       "description": "Use a unique recovery code to regain account access.",
       "button-text": "Add Recovery Code"
     },

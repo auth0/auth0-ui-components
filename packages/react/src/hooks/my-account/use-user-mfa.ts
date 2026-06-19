@@ -10,6 +10,7 @@ import {
   FACTOR_TYPE_RECOVERY_CODE,
   isNotifiableError,
   normalizeError,
+  ERROR_CODE_TRANSLATION_KEYS,
   type Authenticator,
   type CreateAuthenticationMethodResponseContent,
   type MFAType,
@@ -112,7 +113,11 @@ export function useUserMFA({
       }
       const label = stage === ENROLL ? t('enrollment') : t('confirmation');
       const error = normalizeError(err, {
-        resolver: (code) => t(`errors.${factor}.${code}`, {}, t('errors.unexpected')),
+        resolver: (code) => {
+          const key = ERROR_CODE_TRANSLATION_KEYS[code];
+          if (!key) return undefined;
+          return t(`errors.${factor}.${key}`, {}, undefined);
+        },
       });
       toast.error(`${label} ${t('errors.failed', { message: error.message })}`);
       onErrorAction?.(error, stage);

@@ -994,18 +994,21 @@
         "invalid_request": "必須パラメーターがありません",
         "too_many_entities": "このユーザーのTOTPエンティティの数には上限があります。",
         "unsupported_challenge_type": "OTP Verifier がテナントで無効になっています。ダッシュボードの Guardian MFA セクションで「プッシュ通知」をオンにすると有効にできます（プッシュ通知にはOTPが含まれます）。",
-        "invalid_grant": "OTPコードが無効です"
+        "invalid_grant": "OTPコードが無効です",
+        "invalid_code": "無効なコード"
       },
       "phone": {
         "unsupported_challenge_type": "SMS Verifier がテナントで無効になっています。ダッシュボードの Guardian MFA セクションで「SMS」をオンにすると有効にできます。",
         "bad_gateway": "電話番号が無効です。",
-        "too_many_entities": "このユーザーのSMSエンティティの数には上限があります。"
+        "too_many_entities": "このユーザーのSMSエンティティの数には上限があります。",
+        "invalid_phone_number": "無効な電話番号"
       },
       "email": {
         "expired_token": "確認コードの有効期限が切れました",
         "invalid_grant": "コードが無効です",
         "access_denied": "要求された認証機能が見つかりませんでした",
-        "too_many_entities": "このユーザーのメールエンティティの数には上限があります。"
+        "too_many_entities": "このユーザーのメールエンティティの数には上限があります。",
+        "invalid_code": "無効なコード"
       }
     },
     "phone": {
@@ -1044,6 +1047,7 @@
     },
     "recovery-code": {
       "title": "リカバリーコード",
+      "name": "リカバリーコード ${index}",
       "description": "アカウントへのアクセスを回復するために固有のリカバリーコードを使用します。",
       "button-text": "リカバリーコードを再生成"
     },
