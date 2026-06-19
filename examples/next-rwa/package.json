@@ -23,14 +23,14 @@
     "ora": "^8.0.1",
     "postcss": "^8.5.14",
     "radix-ui": "^1.4.3",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "react-hook-form": "^7.57.0",
     "react-i18next": "^15.5.3",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
-    "@types/react": "^19.1.2"
+    "@types/react": "^19.2.17"
   }
 }
