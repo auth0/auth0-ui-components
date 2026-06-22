@@ -69,12 +69,12 @@ describe('createCoreClient', () => {
     framework: 'react' as const,
   };
 
-  const mockGetComponent = () => 'test-component';
+  const mockComponent = { current: 'test-component' };
 
   describe('i18n initialization', () => {
     it('initializes i18n with default options when none are provided', async () => {
       const authDetails = createAuthDetails();
-      await createCoreClient(authDetails, undefined, defaultTelemetry, mockGetComponent);
+      await createCoreClient(authDetails, undefined, defaultTelemetry, mockComponent);
 
       expect(createI18nServiceMock).toHaveBeenCalledWith({
         currentLanguage: 'en-US',
@@ -85,7 +85,7 @@ describe('createCoreClient', () => {
     it('initializes i18n with provided language options', async () => {
       const i18nOptions = { currentLanguage: 'es', fallbackLanguage: 'en' };
       const authDetails = createAuthDetails();
-      await createCoreClient(authDetails, i18nOptions, defaultTelemetry, mockGetComponent);
+      await createCoreClient(authDetails, i18nOptions, defaultTelemetry, mockComponent);
 
       expect(createI18nServiceMock).toHaveBeenCalledWith(i18nOptions);
     });
@@ -96,7 +96,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.i18nService).toBe(mockI18nService);
@@ -110,7 +110,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.isProxyMode()).toBe(false);
@@ -122,7 +122,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.isProxyMode()).toBe(true);
@@ -134,7 +134,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.isProxyMode()).toBe(false);
@@ -142,35 +142,35 @@ describe('createCoreClient', () => {
   });
 
   describe('API client initialization', () => {
-    it('initializes MyOrg client with auth details, telemetry config, and getComponent', async () => {
+    it('initializes MyOrg client with auth details, telemetry config, and component', async () => {
       const authDetails = createAuthDetails();
       await createCoreClient(
         authDetails,
         undefined,
         { css: 'tailwind', distribution: 'npm', framework: 'react' },
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(createMyOrganizationClientMock).toHaveBeenCalledWith(
         expect.objectContaining({ mode: 'spa', domain: TEST_DOMAIN }),
         { css: 'tailwind', distribution: 'npm', framework: 'react' },
-        mockGetComponent,
+        mockComponent,
       );
     });
 
-    it('initializes MyAccount client with auth details, telemetry config, and getComponent', async () => {
+    it('initializes MyAccount client with auth details, telemetry config, and component', async () => {
       const authDetails = createAuthDetails();
       await createCoreClient(
         authDetails,
         undefined,
         { css: 'scoped', distribution: 'shadcn', framework: 'react' },
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(createMyAccountClientMock).toHaveBeenCalledWith(
         expect.objectContaining({ mode: 'spa', domain: TEST_DOMAIN }),
         { css: 'scoped', distribution: 'shadcn', framework: 'react' },
-        mockGetComponent,
+        mockComponent,
       );
     });
   });
@@ -182,7 +182,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.myAccountApiClient).toBe(mockMyAccountClient);
@@ -194,7 +194,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.myOrganizationApiClient).toBe(mockMyOrganizationClient);
@@ -206,7 +206,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.getMyAccountApiClient()).toBe(mockMyAccountClient);
@@ -218,7 +218,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.getMyOrganizationApiClient()).toBe(mockMyOrganizationClient);
@@ -232,7 +232,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(() => client.getMyAccountApiClient()).toThrow(
@@ -247,7 +247,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(() => client.getMyOrganizationApiClient()).toThrow(
@@ -261,7 +261,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.getMFAStepUpApiClient()).toBe(mockMfaApiClient);
@@ -275,7 +275,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.auth).toEqual(authDetails);
@@ -287,7 +287,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.auth.authProxyUrl).toBe('https://custom-proxy.com');
@@ -300,7 +300,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.auth.contextInterface).toBe(customContext);
@@ -314,7 +314,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.getDomain()).toBe(TEST_DOMAIN);
@@ -329,7 +329,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.getDomain()).toBe(TEST_DOMAIN);
@@ -344,7 +344,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.getDomain()).toBeUndefined();
@@ -358,7 +358,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.auth).toEqual({});
@@ -373,7 +373,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.isProxyMode()).toBe(false);
@@ -385,7 +385,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(() => client.getMyAccountApiClient()).toThrow('Function not implemented.');
@@ -397,7 +397,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(() => client.getMyOrganizationApiClient()).toThrow('Function not implemented.');
@@ -409,7 +409,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(() => client.getMFAStepUpApiClient()).toThrow('Function not implemented.');
@@ -421,7 +421,7 @@ describe('createCoreClient', () => {
         authDetails,
         undefined,
         defaultTelemetry,
-        mockGetComponent,
+        mockComponent,
       );
 
       expect(client.getDomain()).toBeUndefined();

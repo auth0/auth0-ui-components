@@ -24,7 +24,7 @@ const defaultTelemetry: TelemetryConfig = {
   framework: 'react',
 };
 
-const mockGetComponent = () => 'test-component';
+const mockGetComponent = { current: 'test-component' };
 
 describe('createMyAccountClient', () => {
   const mockFetchWithAuth = vi.fn().mockResolvedValue(new Response());

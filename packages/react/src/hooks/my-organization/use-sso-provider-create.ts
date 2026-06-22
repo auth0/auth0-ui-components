@@ -48,7 +48,7 @@ export function useSsoProviderCreate({
   createAction,
   customMessages = {},
 }: UseSsoProviderCreateOptions = {}): UseSsoProviderCreateReturn {
-  const { coreClient } = useCoreClient();
+  const { coreClient } = useCoreClient('sso-create-configuration');
   const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
   const queryClient = useQueryClient();
   const handleError = useErrorHandler();

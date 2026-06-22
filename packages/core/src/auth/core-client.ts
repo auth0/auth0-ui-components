@@ -6,7 +6,7 @@
 
 import { initializeMfaStepUpClient } from '@core/services/mfa-step-up/mfa-step-up-api-service';
 
-import type { TelemetryComponentGetter, TelemetryConfig } from '../api/telemetry';
+import type { TelemetryConfig } from '../api/telemetry';
 import type { I18nInitOptions } from '../i18n';
 import { createI18nService } from '../i18n';
 import { createMyAccountClient } from '../services/my-account/my-account-client';
@@ -22,14 +22,14 @@ import { AuthUtils } from './auth-utils';
  * @param authDetails - Authentication configuration details
  * @param i18nOptions - Internationalization options
  * @param telemetry - Telemetry configuration (css, distribution, framework)
- * @param getComponent - Callback to get current component name from React context
+ * @param activeComponent - Ref holding the current component name for telemetry
  * @returns Promise resolving to the initialized CoreClient
  */
 export async function createCoreClient(
   authDetails: AuthDetails,
   i18nOptions: I18nInitOptions | undefined,
   telemetry: TelemetryConfig,
-  getComponent: TelemetryComponentGetter,
+  activeComponent: { current: string },
 ): Promise<CoreClientInterface> {
   const i18nService = await createI18nService(
     i18nOptions || { currentLanguage: 'en-US', fallbackLanguage: 'en-US' },
@@ -62,8 +62,12 @@ export async function createCoreClient(
 
   const authConfig = AuthUtils.resolveAuthConfig(authDetails);
 
-  const myOrganizationApiClient = createMyOrganizationClient(authConfig, telemetry, getComponent);
-  const myAccountApiClient = createMyAccountClient(authConfig, telemetry, getComponent);
+  const myOrganizationApiClient = createMyOrganizationClient(
+    authConfig,
+    telemetry,
+    activeComponent,
+  );
+  const myAccountApiClient = createMyAccountClient(authConfig, telemetry, activeComponent);
 
   const mfaApiClient = initializeMfaStepUpClient(authConfig);
 

@@ -44,7 +44,7 @@ export function useOrganizationDetailsEdit({
   customMessages = {},
 }: UseOrganizationDetailsEditOptions): UseOrganizationDetailsEditResult {
   const { t } = useTranslator('organization_management.organization_details_edit', customMessages);
-  const { coreClient } = useCoreClient();
+  const { coreClient } = useCoreClient('organization-details');
   const queryClient = useQueryClient();
 
   const isInitializing = !coreClient;

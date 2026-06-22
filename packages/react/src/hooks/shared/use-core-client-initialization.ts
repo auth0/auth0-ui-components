@@ -9,7 +9,6 @@ import type {
   AuthDetails,
   I18nInitOptions,
   TelemetryConfig,
-  TelemetryComponentGetter,
 } from '@auth0/universal-components-core';
 import { createCoreClient } from '@auth0/universal-components-core';
 import * as React from 'react';
@@ -18,7 +17,7 @@ interface UseCoreClientInitializationProps {
   authDetails: AuthDetails;
   i18nOptions?: I18nInitOptions;
   telemetry: TelemetryConfig;
-  getComponent: TelemetryComponentGetter;
+  activeComponent: { current: string };
 }
 
 /**
@@ -30,24 +29,18 @@ export const useCoreClientInitialization = ({
   authDetails,
   i18nOptions,
   telemetry,
-  getComponent,
+  activeComponent,
 }: UseCoreClientInitializationProps): CoreClientInterface | null => {
-  const { authProxyUrl } = authDetails;
   const [coreClient, setCoreClient] = React.useState<CoreClientInterface | null>(null);
 
   React.useEffect(() => {
-    // Wait for CSS detection to complete before initializing (skip if telemetry disabled)
-    if (telemetry.enabled && telemetry.css === 'unknown') {
-      return;
-    }
-
     const initializeCoreClient = async () => {
       try {
         const initializedCoreClient = await createCoreClient(
           authDetails,
           i18nOptions,
           telemetry,
-          getComponent,
+          activeComponent,
         );
         setCoreClient(initializedCoreClient);
       } catch (error) {
@@ -55,7 +48,7 @@ export const useCoreClientInitialization = ({
       }
     };
     initializeCoreClient();
-  }, [authProxyUrl, i18nOptions, telemetry, getComponent]);
+  }, [authDetails.authProxyUrl, i18nOptions, telemetry]);
 
   return coreClient;
 };

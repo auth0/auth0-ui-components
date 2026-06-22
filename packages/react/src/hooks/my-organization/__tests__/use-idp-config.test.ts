@@ -25,9 +25,9 @@ describe('useIdpConfig', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useCoreClient).mockReturnValue({ coreClient: mockCoreClient });
     mockCoreClient.getMyOrganizationApiClient().organization.configuration.identityProviders.get =
       mockGet;
-    vi.mocked(useCoreClient).mockReturnValue({ coreClient: mockCoreClient });
   });
 
   const renderUseIdpConfig = async () => {
@@ -49,8 +49,6 @@ describe('useIdpConfig', () => {
     });
 
     it('does not fetch when coreClient is unavailable', async () => {
-      vi.mocked(useCoreClient).mockReturnValue({ coreClient: null });
-
       const { wrapper } = createTestQueryClientWrapper();
       const { result } = renderHook(() => useIdpConfig(), { wrapper });
 

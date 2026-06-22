@@ -25,7 +25,7 @@ import type { UseUserMFAServiceReturn } from '@/types/my-account/mfa/mfa-types';
  * @internal
  */
 export function useUserMFAService(onlyActive: boolean): UseUserMFAServiceReturn {
-  const { coreClient } = useCoreClient();
+  const { coreClient } = useCoreClient('user-mfa-management');
 
   const factorsQuery = useQuery<Record<MFAType, Authenticator[]>>({
     queryKey: mfaQueryKeys.factors(onlyActive),

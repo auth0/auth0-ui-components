@@ -29,7 +29,6 @@ export {
   type CssImplementation,
   type DistributionChannel,
   type Framework,
-  type TelemetryComponentGetter,
   type TelemetryConfig,
 } from './api/telemetry';
 

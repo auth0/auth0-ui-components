@@ -59,7 +59,7 @@ describe('useSsoProviderCreate', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useCoreClient as Mock).mockReturnValue({ coreClient: mockCoreClient });
+    vi.mocked(useCoreClient).mockReturnValue({ coreClient: mockCoreClient as never });
     (useTranslator as Mock).mockReturnValue({ t: mockT });
     mockHandleError = vi.fn();
     (useErrorHandler as Mock).mockReturnValue(mockHandleError);
@@ -368,8 +368,6 @@ describe('useSsoProviderCreate', () => {
   });
 
   it('should return early if coreClient is not available', async () => {
-    (useCoreClient as Mock).mockReturnValue({ coreClient: null });
-
     const mockProviderData: CreateIdentityProviderRequestContentPrivate = {
       strategy: 'samlp',
       name: 'test-provider',

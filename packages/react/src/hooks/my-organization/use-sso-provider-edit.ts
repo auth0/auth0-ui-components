@@ -56,7 +56,7 @@ export function useSsoProviderEdit(
   idpId: IdpId,
   { sso, provisioning, customMessages = {} }: Partial<UseSsoProviderEditOptions> = {},
 ): UseSsoProviderEditReturn {
-  const { coreClient } = useCoreClient();
+  const { coreClient } = useCoreClient('sso-edit-configuration');
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const queryClient = useQueryClient();
   const handleError = useErrorHandler();

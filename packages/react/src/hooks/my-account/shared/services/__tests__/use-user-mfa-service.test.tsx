@@ -36,8 +36,6 @@ describe('useUserMFAService', () => {
   });
 
   it('does not fetch when coreClient is null', () => {
-    vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({ coreClient: null });
-
     const { wrapper } = createQueryClientWrapper();
     const { result } = renderHook(() => useUserMFAService(false), { wrapper });
 

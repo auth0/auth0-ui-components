@@ -7,11 +7,7 @@
 import type { FetcherAuthParams, FetcherSupplier, SpaAuthConfig } from '../auth/auth-types';
 
 import { ContentType, HeaderName } from './http-constants';
-import {
-  buildTelemetryHeader,
-  type TelemetryComponentGetter,
-  type TelemetryConfig,
-} from './telemetry';
+import { buildTelemetryHeader, type TelemetryConfig } from './telemetry';
 
 export const AUTH0_SCOPE_HEADER = HeaderName.Auth0Scope;
 export const AUTH0_CLIENT_HEADER = 'Auth0-Client';
@@ -26,14 +22,13 @@ export interface ProxyFetcherConfig {
     authParams?: FetcherAuthParams,
   ) => Promise<Response>;
   telemetry: TelemetryConfig;
-  getComponent: TelemetryComponentGetter;
+  activeComponent: { current: string };
 }
 
 /**
  * Creates a fetcher function for proxy mode that injects scopes via auth0-scope header.
  * The proxy will extract scopes from the header and request the appropriate token.
- * Also adds telemetry header with component info from getComponent callback.
- * @param config - Fetcher configuration with optional custom fetcher, telemetry config, and getComponent callback
+ * @param config - Fetcher configuration with optional custom fetcher, telemetry config, and activeComponent ref
  * @returns Fetcher function that sets auth0-scope, content-type, and telemetry headers
  * @internal
  */
@@ -50,7 +45,7 @@ export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier 
         AUTH0_CLIENT_HEADER,
         buildTelemetryHeader({
           isProxyMode: true,
-          component: config.getComponent(),
+          component: config.activeComponent.current,
           ...config.telemetry,
         }),
       );
@@ -64,11 +59,10 @@ export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier 
 
 /**
  * Creates a fetcher function for SPA mode using Auth0 SDK's createFetcher.
- * Also adds telemetry header with component info from getComponent callback.
  * @param config - SPA auth configuration with context interface
  * @param dpopNonceId - Unique identifier for DPoP nonce management
  * @param telemetry - Telemetry configuration
- * @param getComponent - Callback to get current component name
+ * @param activeComponent - Ref holding the current component name for telemetry
  * @returns Fetcher function that delegates to SDK's fetchWithAuth with JSON content-type and telemetry
  * @internal
  */
@@ -76,7 +70,7 @@ export function createSpaFetcher(
   config: SpaAuthConfig,
   dpopNonceId: string,
   telemetry: TelemetryConfig,
-  getComponent: TelemetryComponentGetter,
+  activeComponent: { current: string },
 ): FetcherSupplier {
   const sdkFetcher = config.contextInterface.createFetcher({ dpopNonceId });
   return (url, init, authParams) => {
@@ -87,7 +81,7 @@ export function createSpaFetcher(
         AUTH0_CLIENT_HEADER,
         buildTelemetryHeader({
           isProxyMode: false,
-          component: getComponent(),
+          component: activeComponent.current,
           ...telemetry,
         }),
       );

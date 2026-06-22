@@ -46,7 +46,7 @@ export function useDomainTable({
   customMessages,
 }: UseDomainTableOptions): UseDomainTableResult {
   const { t } = useTranslator('domain_management.domain_table.notifications', customMessages);
-  const { coreClient } = useCoreClient();
+  const { coreClient } = useCoreClient('domain-management');
   const queryClient = useQueryClient();
 
   const [selectedDomainId, setSelectedDomainId] = useState<string | null>(null);

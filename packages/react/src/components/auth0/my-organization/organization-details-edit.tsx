@@ -8,7 +8,6 @@ import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { useOrganizationDetailsEdit } from '@/hooks/my-organization/use-organization-details-edit';
-import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
@@ -31,8 +30,6 @@ import type {
  * @internal
  */
 function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX.Element {
-  useTelemetry('organization-details');
-
   const {
     schema,
     customMessages = {},

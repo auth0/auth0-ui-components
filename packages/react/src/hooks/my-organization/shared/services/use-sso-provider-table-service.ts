@@ -39,7 +39,7 @@ export function useSsoProviderTableService(
   enableAction?: ComponentAction<IdpKnownResponse>,
   customMessages: Record<string, unknown> = {},
 ): UseSsoProviderTableServiceReturn {
-  const { coreClient } = useCoreClient();
+  const { coreClient } = useCoreClient('sso-table-configuration');
   const queryClient = useQueryClient();
   const { t } = useTranslator('idp_management.notifications', customMessages);
 

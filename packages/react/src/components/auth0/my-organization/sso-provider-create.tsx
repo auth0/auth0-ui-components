@@ -13,7 +13,6 @@ import { Wizard } from '@/components/auth0/shared/wizard';
 import type { StepProps } from '@/components/auth0/shared/wizard';
 import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-create';
 import { useSsoProviderCreateLogic } from '@/hooks/my-organization/use-sso-provider-create-logic';
-import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
@@ -37,8 +36,6 @@ import type {
  * @returns JSX element
  */
 function SsoProviderCreate(props: SsoProviderCreateProps) {
-  useTelemetry('sso-create-configuration');
-
   const {
     createAction,
     backButton,

@@ -32,12 +32,6 @@ export type DistributionChannel = 'npm' | 'shadcn';
 export type Framework = 'react' | 'vue' | 'angular';
 
 /**
- * Callback to get current component name from React context.
- * Called by fetchers on each request to get the component that initiated the call.
- */
-export type TelemetryComponentGetter = () => string;
-
-/**
  * Telemetry configuration passed from framework packages.
  * Groups all telemetry-related settings in one object.
  */

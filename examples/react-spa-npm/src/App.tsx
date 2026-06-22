@@ -127,6 +127,7 @@ function App() {
         theme: 'default',
         mode: isDarkMode ? 'dark' : 'light',
       }}
+      telemetry
     >
       <AppContent />
     </Auth0ComponentProvider>

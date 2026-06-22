@@ -111,7 +111,7 @@ describe('useSsoProviderEdit', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useCoreClient as Mock).mockReturnValue({ coreClient: mockCoreClient });
+    vi.mocked(useCoreClient).mockReturnValue({ coreClient: mockCoreClient as never });
     (useTranslator as Mock).mockReturnValue({ t: mockT });
     mockGet.mockResolvedValue(mockProvider);
     mockGetOrgDetails.mockResolvedValue(mockOrganization);
@@ -417,8 +417,6 @@ describe('useSsoProviderEdit', () => {
   });
 
   it('should return early if coreClient is not available', async () => {
-    (useCoreClient as Mock).mockReturnValue({ coreClient: null });
-
     const { result } = renderUseSsoProviderEdit(mockIdpId);
 
     const provider = await result.current.fetchProvider();
@@ -571,8 +569,6 @@ describe('useSsoProviderEdit', () => {
     });
 
     it('should return early if coreClient is not available', async () => {
-      (useCoreClient as Mock).mockReturnValue({ coreClient: null });
-
       const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await result.current.syncSsoAttributes();
@@ -654,8 +650,6 @@ describe('useSsoProviderEdit', () => {
     });
 
     it('should return early if coreClient is not available', async () => {
-      (useCoreClient as Mock).mockReturnValue({ coreClient: null });
-
       const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await result.current.syncProvisioningAttributes();
@@ -1260,8 +1254,6 @@ describe('useSsoProviderEdit', () => {
     });
 
     it('should return early from listScimTokens if coreClient is null', async () => {
-      (useCoreClient as Mock).mockReturnValue({ coreClient: null });
-
       const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       const tokens = await result.current.listScimTokens();
@@ -1271,8 +1263,6 @@ describe('useSsoProviderEdit', () => {
     });
 
     it('should return early from createScimToken if coreClient is null', async () => {
-      (useCoreClient as Mock).mockReturnValue({ coreClient: null });
-
       const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await result.current.createScimToken({});
@@ -1281,8 +1271,6 @@ describe('useSsoProviderEdit', () => {
     });
 
     it('should return early from deleteScimToken if coreClient is null', async () => {
-      (useCoreClient as Mock).mockReturnValue({ coreClient: null });
-
       const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await result.current.deleteScimToken('token_123');

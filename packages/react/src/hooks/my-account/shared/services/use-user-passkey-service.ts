@@ -21,7 +21,7 @@ import type {
  * @internal
  */
 export function useUserPasskeyService(): UseUserPasskeyServiceResult {
-  const { coreClient } = useCoreClient();
+  const { coreClient } = useCoreClient('user-passkey-management');
   const queryClient = useQueryClient();
   const { t } = useTranslator('passkey');
 
