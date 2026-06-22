@@ -1,6 +1,6 @@
 /**
  * Confirmation modal for removing a member from the organization.
- * @module member-remove-from-org-modal
+ * @module member-remove-from-organization-modal
  * @internal
  */
 
@@ -17,39 +17,39 @@ import {
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { MemberRemoveFromOrgModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
+import type { MemberRemoveFromOrganizationModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
  * Renders the remove from organization confirmation dialog.
  * @param props - Component props
  * @returns The rendered confirmation dialog element
  */
-export function MemberRemoveFromOrgModal({
+export function MemberRemoveFromOrganizationModal({
   isOpen,
   isLoading = false,
   memberName,
   memberUserId,
-  orgName,
+  organizationName,
   customMessages,
   onClose,
   onConfirm,
-}: MemberRemoveFromOrgModalProps): React.JSX.Element {
+}: MemberRemoveFromOrganizationModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
   const handleSubmit = React.useCallback(() => {
-    onConfirm(memberUserId, memberName, orgName);
-  }, [onConfirm, memberUserId, memberName, orgName]);
+    onConfirm(memberUserId, memberName, organizationName);
+  }, [onConfirm, memberUserId, memberName, organizationName]);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="mb-4">
-            {t('member.detail.actions.remove_from_org.modal.title', { orgName })}
+            {t('member.detail.actions.remove_from_organization.modal.title', { organizationName })}
           </DialogTitle>
           <DialogDescription>
             <>
-              {t.trans('member.detail.actions.remove_from_org.modal.description', {
+              {t.trans('member.detail.actions.remove_from_organization.modal.description', {
                 components: {
                   bold: (children: string) => <strong key="memberName">{children}</strong>,
                 },
@@ -60,13 +60,13 @@ export function MemberRemoveFromOrgModal({
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            {t('member.detail.actions.remove_from_org.modal.cancel_button')}
+            {t('member.detail.actions.remove_from_organization.modal.cancel_button')}
           </Button>
           <Button variant="destructive" onClick={handleSubmit} disabled={isLoading}>
             {isLoading ? (
               <Spinner size="sm" />
             ) : (
-              t('member.detail.actions.remove_from_org.modal.confirm_button')
+              t('member.detail.actions.remove_from_organization.modal.confirm_button')
             )}
           </Button>
         </DialogFooter>

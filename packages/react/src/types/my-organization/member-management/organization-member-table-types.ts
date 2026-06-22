@@ -21,7 +21,7 @@ export interface OrganizationMemberTableActionsColumnProps {
   customMessages?: Partial<OrganizationMemberTabMessages>;
   onViewDetails?: (userId: string) => void;
   onAssignRole?: (member: OrgMember) => void;
-  onRemoveFromOrg?: (member: OrgMember) => void;
+  onRemoveFromOrganization?: (member: OrgMember) => void;
 }
 
 /** Props for OrganizationMemberTable component. */
@@ -38,7 +38,7 @@ export interface OrganizationMemberTableProps {
   className?: string;
   onView?: (userId: string) => void;
   onAssignRole?: (member: OrgMember) => void;
-  onRemoveFromOrg?: (member: OrgMember) => void;
+  onRemoveFromOrganization?: (member: OrgMember) => void;
   onNextPage?: () => void;
   onPreviousPage?: () => void;
   onPageSizeChange?: (pageSize: number) => void;
