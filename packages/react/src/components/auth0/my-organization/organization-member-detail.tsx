@@ -110,7 +110,7 @@ export function OrganizationMemberDetailView(
     [styling, isDarkMode],
   );
 
-  const handleRemoveFromOrgClick = React.useCallback(
+  const handleRemoveFromOrganizationClick = React.useCallback(
     () => openModal({ type: 'removeFromOrganization' }),
     [openModal],
   );
@@ -177,7 +177,7 @@ export function OrganizationMemberDetailView(
               member={props.member}
               customMessages={customMessages}
               isRemovingFromOrganization={isRemovingFromOrganization}
-              onRemoveFromOrganizationClick={handleRemoveFromOrgClick}
+              onRemoveFromOrganizationClick={handleRemoveFromOrganizationClick}
             />
           </TabsContent>
 

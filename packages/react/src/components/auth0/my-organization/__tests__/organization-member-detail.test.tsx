@@ -933,7 +933,7 @@ describe('OrganizationMemberDetailView', () => {
     });
   });
 
-  describe('MemberRemoveFromOrgModal', () => {
+  describe('MemberRemoveFromOrganizationModal', () => {
     it('when modalState is removeFromOrganization, should render the modal', () => {
       renderWithProviders(
         <OrganizationMemberDetailView
