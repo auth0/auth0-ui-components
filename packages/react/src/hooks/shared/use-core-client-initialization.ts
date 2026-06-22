@@ -34,6 +34,8 @@ export const useCoreClientInitialization = ({
   const [coreClient, setCoreClient] = React.useState<CoreClientInterface | null>(null);
 
   React.useEffect(() => {
+    if (telemetry.enabled && telemetry.css === 'unknown') return;
+
     const initializeCoreClient = async () => {
       try {
         const initializedCoreClient = await createCoreClient(
