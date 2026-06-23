@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
-  "name": "sso-provider-create",
+  "name": "my-organization/sso-provider-create",
   "type": "registry:block",
   "title": "SSO provider creation container component.",
   "description": "A block component for sso provider create.",
