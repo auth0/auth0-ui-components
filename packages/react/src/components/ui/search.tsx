@@ -36,10 +36,8 @@ const searchVariants = cva(
   },
 );
 
-export interface SearchProps extends Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  'size' | 'onChange' | 'defaultValue'
-> {
+export interface SearchProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'onChange' | 'defaultValue'> {
   error?: boolean;
   size?: VariantProps<typeof searchVariants>['size'];
   variant?: VariantProps<typeof searchVariants>['variant'];

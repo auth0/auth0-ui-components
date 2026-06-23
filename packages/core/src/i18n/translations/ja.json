@@ -14,7 +14,8 @@
       "insufficient_scope": "この操作を実行するために必要なスコープ権限がありません。",
       "forbidden": "この操作を実行する権限がありません。",
       "not_found": "リクエストされたリソースが見つかりませんでした。",
-      "rate_limit": "リクエストが多すぎます。しばらくお待ちいただいてから再度お試しください。"
+      "rate_limit": "リクエストが多すぎます。しばらくお待ちいただいてから再度お試しください。",
+      "network": "サーバーへの接続中に問題が発生しました。もう一度お試しください。"
     }
   },
   "gate_keeper": {
@@ -1120,15 +1121,19 @@
         "menu_label": "アクション",
         "view_details": "詳細を表示",
         "assign_role": "ロールを割り当てる",
-        "remove_from_org": "組織から削除"
+        "remove_from_organization": "組織から削除"
       },
       "error": {
         "fetch_failed": "メンバーの読み込みに失敗しました。もう一度お試しください。",
         "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。",
-        "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。"
+        "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。",
+        "too_many_roles_per_assignment": "一度に割り当てられるロールは最大10件までです。",
+        "too_many_roles_per_removal": "一度に削除できるロールは最大10件までです。",
+        "member_role_limit_exceeded": "このメンバーのロールは最大50件に達しました。"
       },
       "detail": {
         "back_button": "メンバー一覧に戻る",
+        "user_id_label": "ユーザーID:",
         "tabs": {
           "details": "詳細",
           "roles": "ロール"
@@ -1143,13 +1148,13 @@
           "last_login": "最終ログイン"
         },
         "actions": {
-          "remove_from_org": {
+          "remove_from_organization": {
             "title": "組織からメンバーを削除",
             "description": "一度確定すると、この操作は元に戻せません。",
             "button": "削除",
-            "success": "${memberName} が ${orgName} から削除されました。",
+            "success": "${memberName} が ${organizationName} から削除されました。",
             "modal": {
-              "title": "${orgName} からメンバーを削除",
+              "title": "${organizationName} からメンバーを削除",
               "description": "<bold>\"${memberName}\"</bold> をこの組織から削除してもよろしいですか？この操作はアカウントを削除しませんが、アクセスを取り消し、サインインできなくなります。",
               "cancel_button": "キャンセル",
               "confirm_button": "削除する"
@@ -1158,7 +1163,7 @@
         },
         "roles": {
           "title": "ロール",
-          "description": "${orgName} にアクセスする際のユーザーのロールと権限を管理します。",
+          "description": "${organizationName} にアクセスする際のユーザーのロールと権限を管理します。",
           "assign_button": "ロールを割り当てる",
           "no_roles_available": "このメンバーに割り当てられるロールはもうありません。",
           "max_roles_reached": "このメンバーの最大登録数 ${max} に達しました。",
@@ -1188,14 +1193,14 @@
             "description": "<bold>\"${memberName}\"</bold> から <bold>${roleName}</bold> ロールを削除します。",
             "confirm_button": "削除",
             "cancel_button": "キャンセル",
-            "success": "<bold>\"${roleName}\"</bold> ロールがメンバーから削除されました。",
-            "success_plural": "${roleNames} ロールがメンバーから削除されました。"
+            "success": "ロール \"${roleName}\" がメンバーから削除されました。",
+            "success_plural": "ロール \"${roleNames}\" がメンバーから削除されました。"
           }
         },
         "error": {
           "fetch_failed": "メンバー詳細の読み込みに失敗しました。もう一度お試しください。",
           "fetch_roles_failed": "メンバーのロールの読み込みに失敗しました。もう一度お試しください。",
-          "remove_from_org_failed": "組織からのメンバーの削除に失敗しました。もう一度お試しください。",
+          "remove_from_organization_failed": "組織からのメンバーの削除に失敗しました。もう一度お試しください。",
           "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。",
           "remove_role_failed": "ロールの削除に失敗しました。もう一度お試しください。"
         }

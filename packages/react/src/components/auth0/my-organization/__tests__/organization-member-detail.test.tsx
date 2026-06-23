@@ -1,4 +1,5 @@
 import type { ComponentAction } from '@auth0/universal-components-core';
+import { memberManagementQueryKeys } from '@auth0/universal-components-core';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -16,7 +17,7 @@ import {
   createMockOrganizationMemberDetailViewProps,
   noModal,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
-import { renderWithProviders } from '@/tests/utils/test-provider';
+import { createTestQueryClient, renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { MemberDetailModalState } from '@/types/my-organization/member-management/organization-member-detail-types';
 
@@ -251,13 +252,13 @@ describe('OrganizationMemberDetail', () => {
     });
   });
 
-  describe('removeFromOrgAction', () => {
-    describe('removeFromOrgAction.onBefore', () => {
+  describe('removeFromOrganizationAction', () => {
+    describe('removeFromOrganizationAction.onBefore', () => {
       describe('when returns true', () => {
         it('should call memberships.deleteMemberships and call onBack', async () => {
           const user = userEvent.setup();
           const onBack = vi.fn();
-          const removeFromOrgAction: ComponentAction<string> = {
+          const removeFromOrganizationAction: ComponentAction<string> = {
             disabled: false,
             onBefore: vi.fn(() => true),
             onAfter: vi.fn(),
@@ -270,19 +271,19 @@ describe('OrganizationMemberDetail', () => {
 
           renderWithProviders(
             <OrganizationMemberDetail
-              {...createMockOrganizationMemberDetailProps({ onBack, removeFromOrgAction })}
+              {...createMockOrganizationMemberDetailProps({ onBack, removeFromOrganizationAction })}
             />,
           );
 
           await waitForComponentToLoad();
 
           const removeButton = screen.getByRole('button', {
-            name: /member.detail.actions.remove_from_org.button/i,
+            name: /member.detail.actions.remove_from_organization.button/i,
           });
           await user.click(removeButton);
 
           const confirmButton = await screen.findByRole('button', {
-            name: /member.detail.actions.remove_from_org.modal.confirm_button/i,
+            name: /member.detail.actions.remove_from_organization.modal.confirm_button/i,
           });
           await user.click(confirmButton);
 
@@ -298,7 +299,7 @@ describe('OrganizationMemberDetail', () => {
       describe('when returns false', () => {
         it('should not call memberships.deleteMemberships', async () => {
           const user = userEvent.setup();
-          const removeFromOrgAction: ComponentAction<string> = {
+          const removeFromOrganizationAction: ComponentAction<string> = {
             disabled: false,
             onBefore: vi.fn(() => false),
             onAfter: vi.fn(),
@@ -311,24 +312,24 @@ describe('OrganizationMemberDetail', () => {
 
           renderWithProviders(
             <OrganizationMemberDetail
-              {...createMockOrganizationMemberDetailProps({ removeFromOrgAction })}
+              {...createMockOrganizationMemberDetailProps({ removeFromOrganizationAction })}
             />,
           );
 
           await waitForComponentToLoad();
 
           const removeButton = screen.getByRole('button', {
-            name: /member.detail.actions.remove_from_org.button/i,
+            name: /member.detail.actions.remove_from_organization.button/i,
           });
           await user.click(removeButton);
 
           const confirmButton = await screen.findByRole('button', {
-            name: /member.detail.actions.remove_from_org.modal.confirm_button/i,
+            name: /member.detail.actions.remove_from_organization.modal.confirm_button/i,
           });
           await user.click(confirmButton);
 
           await waitFor(() => {
-            expect(removeFromOrgAction.onBefore).toHaveBeenCalled();
+            expect(removeFromOrganizationAction.onBefore).toHaveBeenCalled();
           });
 
           expect(apiService.organization.memberships.deleteMemberships).not.toHaveBeenCalled();
@@ -336,10 +337,10 @@ describe('OrganizationMemberDetail', () => {
       });
     });
 
-    describe('removeFromOrgAction.onAfter', () => {
+    describe('removeFromOrganizationAction.onAfter', () => {
       it('when remove from org succeeds, should call onAfter with userId', async () => {
         const user = userEvent.setup();
-        const removeFromOrgAction: ComponentAction<string> = {
+        const removeFromOrganizationAction: ComponentAction<string> = {
           disabled: false,
           onBefore: vi.fn(() => true),
           onAfter: vi.fn(),
@@ -352,24 +353,24 @@ describe('OrganizationMemberDetail', () => {
 
         renderWithProviders(
           <OrganizationMemberDetail
-            {...createMockOrganizationMemberDetailProps({ removeFromOrgAction })}
+            {...createMockOrganizationMemberDetailProps({ removeFromOrganizationAction })}
           />,
         );
 
         await waitForComponentToLoad();
 
         const removeButton = screen.getByRole('button', {
-          name: /member.detail.actions.remove_from_org.button/i,
+          name: /member.detail.actions.remove_from_organization.button/i,
         });
         await user.click(removeButton);
 
         const confirmButton = await screen.findByRole('button', {
-          name: /member.detail.actions.remove_from_org.modal.confirm_button/i,
+          name: /member.detail.actions.remove_from_organization.modal.confirm_button/i,
         });
         await user.click(confirmButton);
 
         await waitFor(() => {
-          expect(removeFromOrgAction.onAfter).toHaveBeenCalledWith('auth0|testuser123');
+          expect(removeFromOrganizationAction.onAfter).toHaveBeenCalledWith('auth0|testuser123');
         });
       });
     });
@@ -611,6 +612,174 @@ describe('OrganizationMemberDetail', () => {
     });
   });
 
+  describe('cache invalidation on role mutation', () => {
+    it('should invalidate member list cache after assigning roles', async () => {
+      const user = userEvent.setup();
+      const queryClient = createTestQueryClient();
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      (apiService.organization.members.roles.assign as ReturnType<typeof vi.fn>).mockResolvedValue(
+        {},
+      );
+
+      renderWithProviders(
+        <OrganizationMemberDetail {...createMockOrganizationMemberDetailProps()} />,
+        { queryClient },
+      );
+
+      await waitForComponentToLoad();
+
+      const rolesTab = screen.getByRole('tab', { name: 'member.detail.tabs.roles' });
+      await user.click(rolesTab);
+
+      const assignButton = await screen.findByRole('button', {
+        name: /member.detail.roles.assign_button/i,
+      });
+      await user.click(assignButton);
+
+      await screen.findByText('member.detail.roles.assign_modal.title');
+
+      const comboboxInput = screen.getByPlaceholderText(
+        'member.detail.roles.assign_modal.roles_placeholder',
+      );
+      await user.click(comboboxInput);
+      await user.click(await screen.findByRole('button', { name: /admin/i }));
+
+      await user.click(
+        screen.getByRole('button', {
+          name: /member.detail.roles.assign_modal.submit_button/i,
+        }),
+      );
+
+      await waitFor(() => {
+        expect(apiService.organization.members.roles.assign).toHaveBeenCalled();
+      });
+
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+        queryKey: memberManagementQueryKeys.members(),
+      });
+    });
+
+    it('should invalidate member list cache after removing roles', async () => {
+      const user = userEvent.setup();
+      const queryClient = createTestQueryClient();
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      (apiService.organization.members.get as ReturnType<typeof vi.fn>).mockResolvedValue(
+        createMockMember({ roles: createMockMemberRoles() }),
+      );
+      (apiService.organization.members.roles.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        data: createMockMemberRoles(),
+      });
+      (
+        apiService.organization.members.roles.unassign as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({});
+
+      renderWithProviders(
+        <OrganizationMemberDetail {...createMockOrganizationMemberDetailProps()} />,
+        { queryClient },
+      );
+
+      await waitForComponentToLoad();
+
+      const rolesTab = screen.getByRole('tab', { name: 'member.detail.tabs.roles' });
+      await user.click(rolesTab);
+
+      const removeRoleButtons = await screen.findAllByRole('button', {
+        name: /member.detail.roles.remove_confirm.confirm_button|remove/i,
+      });
+      await user.click(removeRoleButtons[0]!);
+
+      const confirmButton = await screen.findByRole('button', {
+        name: /member.detail.roles.remove_confirm.confirm_button/i,
+      });
+      await user.click(confirmButton);
+
+      await waitFor(() => {
+        expect(apiService.organization.members.roles.unassign).toHaveBeenCalled();
+      });
+
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+        queryKey: memberManagementQueryKeys.members(),
+      });
+    });
+  });
+
+  describe('member fetch error state', () => {
+    it('when members.get fails with a backend message, should show backend message in place of tabs', async () => {
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      (apiService.organization.members.get as ReturnType<typeof vi.fn>).mockRejectedValue(
+        Object.assign(new Error(), { body: { detail: 'Organization or member not found.' } }),
+      );
+
+      renderWithProviders(
+        <OrganizationMemberDetail {...createMockOrganizationMemberDetailProps()} />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Organization or member not found.')).toBeInTheDocument();
+      });
+
+      expect(
+        screen.queryByRole('tab', { name: 'member.detail.tabs.details' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('when members.get fails without a backend message, should show fallback message', async () => {
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      (apiService.organization.members.get as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('member.detail.error.fetch_failed'),
+      );
+
+      renderWithProviders(
+        <OrganizationMemberDetail {...createMockOrganizationMemberDetailProps()} />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('member.detail.error.fetch_failed')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('error handling', () => {
+    it('when members.get fails, should not call members.roles.list', async () => {
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      (apiService.organization.members.get as ReturnType<typeof vi.fn>).mockRejectedValue(
+        Object.assign(new Error(), {
+          body: { detail: 'User is not a member of this organization.' },
+        }),
+      );
+
+      renderWithProviders(
+        <OrganizationMemberDetail {...createMockOrganizationMemberDetailProps()} />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('User is not a member of this organization.')).toBeInTheDocument();
+      });
+
+      expect(apiService.organization.members.roles.list).not.toHaveBeenCalled();
+    });
+
+    it('when members.roles.list fails, should show a fetch_roles_failed toast', async () => {
+      const { mockedShowToast } = mockToast();
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      (apiService.organization.members.roles.list as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('Network error'),
+      );
+
+      renderWithProviders(
+        <OrganizationMemberDetail {...createMockOrganizationMemberDetailProps()} />,
+      );
+
+      await waitFor(() => {
+        expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));
+      });
+    });
+  });
+
   describe('customMessages', () => {
     it('should override the back button text', async () => {
       renderWithProviders(
@@ -764,18 +933,18 @@ describe('OrganizationMemberDetailView', () => {
     });
   });
 
-  describe('MemberRemoveFromOrgModal', () => {
-    it('when modalState is removeFromOrg, should render the modal', () => {
+  describe('MemberRemoveFromOrganizationModal', () => {
+    it('when modalState is removeFromOrganization, should render the modal', () => {
       renderWithProviders(
         <OrganizationMemberDetailView
           {...createMockOrganizationMemberDetailViewProps({
-            modalState: { type: 'removeFromOrg' } satisfies MemberDetailModalState,
+            modalState: { type: 'removeFromOrganization' } satisfies MemberDetailModalState,
           })}
         />,
       );
 
       expect(
-        screen.getByText('member.detail.actions.remove_from_org.modal.title'),
+        screen.getByText('member.detail.actions.remove_from_organization.modal.title'),
       ).toBeInTheDocument();
     });
 
@@ -787,7 +956,7 @@ describe('OrganizationMemberDetailView', () => {
       );
 
       expect(
-        screen.queryByText('member.detail.actions.remove_from_org.modal.title'),
+        screen.queryByText('member.detail.actions.remove_from_organization.modal.title'),
       ).not.toBeInTheDocument();
     });
 
@@ -798,47 +967,47 @@ describe('OrganizationMemberDetailView', () => {
       renderWithProviders(
         <OrganizationMemberDetailView
           {...createMockOrganizationMemberDetailViewProps({
-            modalState: { type: 'removeFromOrg' } satisfies MemberDetailModalState,
+            modalState: { type: 'removeFromOrganization' } satisfies MemberDetailModalState,
             closeModal,
           })}
         />,
       );
 
       const cancelButton = screen.getByRole('button', {
-        name: 'member.detail.actions.remove_from_org.modal.cancel_button',
+        name: 'member.detail.actions.remove_from_organization.modal.cancel_button',
       });
       await user.click(cancelButton);
 
       expect(closeModal).toHaveBeenCalledTimes(1);
     });
 
-    it('when modal confirm is clicked, should call handleRemoveFromOrgConfirm', async () => {
+    it('when modal confirm is clicked, should call handleRemoveFromOrganizationConfirm', async () => {
       const user = userEvent.setup();
-      const handleRemoveFromOrgConfirm = vi.fn();
+      const handleRemoveFromOrganizationConfirm = vi.fn();
 
       renderWithProviders(
         <OrganizationMemberDetailView
           {...createMockOrganizationMemberDetailViewProps({
-            modalState: { type: 'removeFromOrg' } satisfies MemberDetailModalState,
-            handleRemoveFromOrgConfirm,
+            modalState: { type: 'removeFromOrganization' } satisfies MemberDetailModalState,
+            handleRemoveFromOrganizationConfirm,
           })}
         />,
       );
 
       const confirmButton = screen.getByRole('button', {
-        name: 'member.detail.actions.remove_from_org.modal.confirm_button',
+        name: 'member.detail.actions.remove_from_organization.modal.confirm_button',
       });
       await user.click(confirmButton);
 
-      expect(handleRemoveFromOrgConfirm).toHaveBeenCalledTimes(1);
+      expect(handleRemoveFromOrganizationConfirm).toHaveBeenCalledTimes(1);
     });
 
-    it('when isRemovingFromOrg is true, modal confirm button should show loading indicator', () => {
+    it('when isRemovingFromOrganization is true, modal confirm button should show loading indicator', () => {
       renderWithProviders(
         <OrganizationMemberDetailView
           {...createMockOrganizationMemberDetailViewProps({
-            modalState: { type: 'removeFromOrg' } satisfies MemberDetailModalState,
-            isRemovingFromOrg: true,
+            modalState: { type: 'removeFromOrganization' } satisfies MemberDetailModalState,
+            isRemovingFromOrganization: true,
           })}
         />,
       );
@@ -922,6 +1091,43 @@ describe('OrganizationMemberDetailView', () => {
       expect(screen.getByText('Go Back')).toBeInTheDocument();
       expect(screen.getByRole('tab', { name: 'Info' })).toBeInTheDocument();
       expect(screen.getByRole('tab', { name: 'Permissions' })).toBeInTheDocument();
+    });
+  });
+
+  describe('memberError', () => {
+    it('when memberError is set, should display the error message', () => {
+      renderWithProviders(
+        <OrganizationMemberDetailView
+          {...createMockOrganizationMemberDetailViewProps({ memberError: 'Member not found.' })}
+        />,
+      );
+
+      expect(screen.getByText('Member not found.')).toBeInTheDocument();
+    });
+
+    it('when memberError is set, should not render tabs', () => {
+      renderWithProviders(
+        <OrganizationMemberDetailView
+          {...createMockOrganizationMemberDetailViewProps({ memberError: 'Member not found.' })}
+        />,
+      );
+
+      expect(
+        screen.queryByRole('tab', { name: 'member.detail.tabs.details' }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('tab', { name: 'member.detail.tabs.roles' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('when memberError is set, should still render the back button', () => {
+      renderWithProviders(
+        <OrganizationMemberDetailView
+          {...createMockOrganizationMemberDetailViewProps({ memberError: 'Member not found.' })}
+        />,
+      );
+
+      expect(screen.getByText('member.detail.back_button')).toBeInTheDocument();
     });
   });
 

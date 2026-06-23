@@ -20,7 +20,7 @@ export function createMockSsoProviderTableViewProps(
     showRemoveModal: false,
     organization: null,
     isUpdating: false,
-    isUpdatingId: '',
+    isUpdatingId: null,
     isDeleting: false,
     isRemoving: false,
     createAction: {

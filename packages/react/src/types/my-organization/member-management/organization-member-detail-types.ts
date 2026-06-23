@@ -21,9 +21,17 @@ export interface MemberDetailServiceResult {
   memberRolesQuery: UseQueryResult<Role[]>;
   rolesQuery: UseQueryResult<Role[]>;
   organizationQuery: UseQueryResult<OrganizationPrivate>;
-  removeFromOrgMutation: UseMutationResult<void, Error, void>;
-  assignRolesMutation: UseMutationResult<void, Error, string[]>;
-  removeRolesMutation: UseMutationResult<void, Error, Role[]>;
+  removeFromOrganizationMutation: UseMutationResult<
+    void,
+    Error,
+    { userId?: string; memberName?: string; organizationName?: string }
+  >;
+  assignRolesMutation: UseMutationResult<
+    { aborted: boolean },
+    Error,
+    { roleIds: string[]; memberRoles: Role[]; userId?: string | null }
+  >;
+  removeRolesMutation: UseMutationResult<{ aborted: boolean }, Error, Role[]>;
 }
 
 export interface UseOrganizationMemberDetailOptions {
@@ -31,7 +39,7 @@ export interface UseOrganizationMemberDetailOptions {
   onBack?: () => void;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   readOnly?: boolean;
-  removeFromOrgAction?: ComponentAction<string>;
+  removeFromOrganizationAction?: ComponentAction<string>;
   assignRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
   removeRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
 }
@@ -39,22 +47,23 @@ export interface UseOrganizationMemberDetailOptions {
 /** Discriminated union for member detail modal state. */
 export type MemberDetailModalState =
   | { type: null }
-  | { type: 'removeFromOrg' }
+  | { type: 'removeFromOrganization' }
   | { type: 'assignRoles' }
   | { type: 'removeRoles'; roles: Role[] };
 
 export interface UseOrganizationMemberDetailResult {
   activeTab: MemberDetailTab;
   member: OrgMember | null;
-  orgDisplayName: string;
+  organizationDisplayName: string;
   memberRoles: Role[];
   availableRoles: Role[];
   selectedRoles: Role[];
   isLoading: boolean;
+  memberError: string | null;
   isFetchingMember: boolean;
   isFetchingMemberRoles: boolean;
   isFetchingAvailableRoles: boolean;
-  isRemovingFromOrg: boolean;
+  isRemovingFromOrganization: boolean;
   isAssigningRoles: boolean;
   isRemovingRoles: boolean;
   removingRoleIds: string[];
@@ -65,8 +74,8 @@ export interface UseOrganizationMemberDetailResult {
   handleBack: () => void;
   openModal: (state: MemberDetailModalState) => void;
   closeModal: () => void;
-  handleRemoveFromOrgConfirm: () => void;
-  handleAssignRolesSubmit: (roleIds: string[]) => void;
+  handleRemoveFromOrganizationConfirm: (memberName?: string, organizationName?: string) => void;
+  handleAssignRolesSubmit: (roleIds: string[], memberRoles: Role[]) => void;
   handleRemoveRolesCancel: () => void;
   handleRemoveRolesConfirm: () => void;
 }
@@ -87,15 +96,15 @@ export interface OrganizationMemberUserDetailsProps {
 
 export interface RemoveMemberFromOrganizationCardProps {
   customMessages?: Partial<OrganizationMemberDetailMessages>;
-  isRemovingFromOrg: boolean;
-  onRemoveFromOrgClick: () => void;
+  isRemovingFromOrganization: boolean;
+  onRemoveFromOrganizationClick: () => void;
 }
 
 export interface OrganizationMemberEditDetailsTabProps {
   member: OrgMember | null;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
-  isRemovingFromOrg: boolean;
-  onRemoveFromOrgClick: () => void;
+  isRemovingFromOrganization: boolean;
+  onRemoveFromOrganizationClick: () => void;
 }
 
 export interface MemberDetailDangerCardProps {
@@ -109,20 +118,20 @@ export interface MemberDetailDangerCardProps {
 
 export interface MemberDetailDangerZoneProps {
   readOnly?: boolean;
-  isRemovingFromOrg?: boolean;
+  isRemovingFromOrganization?: boolean;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
-  onRemoveFromOrgClick: () => void;
+  onRemoveFromOrganizationClick: () => void;
 }
 
-export interface MemberRemoveFromOrgModalProps {
+export interface MemberRemoveFromOrganizationModalProps {
   isOpen: boolean;
   isLoading?: boolean;
   memberName?: string;
   memberUserId?: string;
-  orgName?: string;
+  organizationName?: string;
   customMessages?: Partial<OrganizationMemberDetailMessages | OrganizationMemberTabMessages>;
   onClose: () => void;
-  onConfirm: (userId?: string, memberName?: string, orgName?: string) => void;
+  onConfirm: (userId?: string, memberName?: string, organizationName?: string) => void;
 }
 
 export interface OrganizationMemberDetailRolesTabProps {
@@ -154,12 +163,12 @@ export interface OrganizationMemberAssignRolesModalProps {
   customMessages?: Partial<OrganizationMemberDetailMessages | OrganizationMemberTabMessages>;
   selectedMember?: OrgMember | null;
   onClose: () => void;
-  onAssign: (roleIds: string[], userId?: string | null) => void;
+  onAssign: (roleIds: string[], memberRoles: Role[], userId?: string | null) => void;
 }
 
 export interface RolesTabHeaderProps {
   selectedRoles: Role[];
-  orgName?: string;
+  organizationName?: string;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   onAssignRolesClick: () => void;
   onRemoveSelectedRoles: () => void;
@@ -177,7 +186,7 @@ export interface OrganizationMemberEditRolesTableProps {
 
 export interface OrganizationMemberEditRolesTabProps {
   customMessages?: Partial<OrganizationMemberDetailMessages>;
-  orgName?: string;
+  organizationName?: string;
   memberName?: string;
   memberRoles: Role[];
   availableRoles: Role[];
@@ -191,7 +200,7 @@ export interface OrganizationMemberEditRolesTabProps {
   onSelectedRolesChange: (roles: Role[]) => void;
   onAssignRolesClick: () => void;
   onAssignRolesCancel: () => void;
-  onAssignRolesSubmit: (roleIds: string[]) => void;
+  onAssignRolesSubmit: (roleIds: string[], memberRoles: Role[]) => void;
   onRemoveRolesClick: (roles: Role[]) => void;
   onRemoveRolesCancel: () => void;
   onRemoveRolesConfirm: () => void;
@@ -203,7 +212,7 @@ export interface OrganizationMemberDetailProps
   userId: string;
   onBack?: () => void;
   hideHeader?: boolean;
-  removeFromOrgAction?: ComponentAction<string>;
+  removeFromOrganizationAction?: ComponentAction<string>;
   assignRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
   removeRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
 }
@@ -221,5 +230,9 @@ export type MemberDetailHeaderProps = Pick<
 
 export type UseMemberDetailServiceOptions = Pick<
   UseOrganizationMemberDetailOptions,
-  'userId' | 'customMessages' | 'removeFromOrgAction' | 'assignRolesAction' | 'removeRolesAction'
+  | 'userId'
+  | 'customMessages'
+  | 'removeFromOrganizationAction'
+  | 'assignRolesAction'
+  | 'removeRolesAction'
 >;

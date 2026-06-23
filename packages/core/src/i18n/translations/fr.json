@@ -14,7 +14,8 @@
       "insufficient_scope": "Vous n'avez pas les autorisations de portée requises pour effectuer cette action.",
       "forbidden": "Vous n'avez pas les autorisations pour effectuer cette action.",
       "not_found": "La ressource demandée n'a pas été trouvée.",
-      "rate_limit": "Trop de demandes. Veuillez patienter un instant et réessayer."
+      "rate_limit": "Trop de demandes. Veuillez patienter un instant et réessayer.",
+      "network": "Un problème est survenu lors de la connexion au serveur. Veuillez réessayer."
     }
   },
   "gate_keeper": {
@@ -1056,15 +1057,19 @@
         "menu_label": "Actions",
         "view_details": "Afficher les détails",
         "assign_role": "Attribuer un rôle",
-        "remove_from_org": "Supprimer de l'organisation"
+        "remove_from_organization": "Supprimer de l'organisation"
       },
       "error": {
         "fetch_failed": "Échec du chargement des membres. Veuillez réessayer.",
         "remove_failed": "Échec de la suppression du membre. Veuillez réessayer.",
-        "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer."
+        "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer.",
+        "too_many_roles_per_assignment": "Vous ne pouvez attribuer qu'un maximum de 10 rôles à la fois.",
+        "too_many_roles_per_removal": "Vous ne pouvez supprimer qu'un maximum de 10 rôles à la fois.",
+        "member_role_limit_exceeded": "Vous avez atteint le maximum de 50 rôles pour ce membre."
       },
       "detail": {
         "back_button": "Retour aux membres",
+        "user_id_label": "ID utilisateur:",
         "tabs": {
           "details": "Détails",
           "roles": "Rôles"
@@ -1079,13 +1084,13 @@
           "last_login": "Dernière connexion"
         },
         "actions": {
-          "remove_from_org": {
+          "remove_from_organization": {
             "title": "Retirer un membre de l'organisation",
             "description": "Une fois confirmée, cette opération ne peut pas être annulée.",
             "button": "Supprimer",
-            "success": "${memberName} a été retiré de ${orgName}.",
+            "success": "${memberName} a été retiré de ${organizationName}.",
             "modal": {
-              "title": "Retirer un membre de ${orgName}",
+              "title": "Retirer un membre de ${organizationName}",
               "description": "Êtes-vous sûr de vouloir retirer <bold>\"${memberName}\"</bold> de cette organisation ? Cette action ne supprimera pas son compte, mais révoquera son accès et l'empêchera de se connecter.",
               "cancel_button": "Annuler",
               "confirm_button": "Retirer"
@@ -1094,7 +1099,7 @@
         },
         "roles": {
           "title": "Rôles",
-          "description": "Gérez les rôles et autorisations de l'utilisateur pour l'accès à ${orgName}.",
+          "description": "Gérez les rôles et autorisations de l'utilisateur pour l'accès à ${organizationName}.",
           "assign_button": "Attribuer des rôles",
           "no_roles_available": "Il n'y a plus de rôles disponibles à attribuer à ce membre.",
           "max_roles_reached": "Vous avez atteint le nombre maximum de ${max} rôles pour ce membre.",
@@ -1124,14 +1129,14 @@
             "description": "Cela retirera le rôle <bold>${roleName}</bold> de <bold>\"${memberName}\"</bold>.",
             "confirm_button": "Retirer",
             "cancel_button": "Annuler",
-            "success": "Le rôle <bold>\"${roleName}\"</bold> a été retiré du membre.",
-            "success_plural": "${roleNames} rôles ont été retirés du membre."
+            "success": "Le rôle \"${roleName}\" a été retiré du membre.",
+            "success_plural": "Les rôles \"${roleNames}\" ont été retirés du membre."
           }
         },
         "error": {
           "fetch_failed": "Échec du chargement des détails du membre. Veuillez réessayer.",
           "fetch_roles_failed": "Échec du chargement des rôles du membre. Veuillez réessayer.",
-          "remove_from_org_failed": "Échec du retrait du membre de l'organisation. Veuillez réessayer.",
+          "remove_from_organization_failed": "Échec du retrait du membre de l'organisation. Veuillez réessayer.",
           "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer.",
           "remove_role_failed": "Échec du retrait du rôle. Veuillez réessayer."
         }

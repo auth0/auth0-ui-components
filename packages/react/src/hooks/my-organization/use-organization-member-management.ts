@@ -3,6 +3,7 @@
  * @module use-organization-member-management
  */
 
+import type { Role } from '@auth0/universal-components-core';
 import { type MemberInvitation } from '@auth0/universal-components-core';
 import * as React from 'react';
 
@@ -40,7 +41,7 @@ export function useOrganizationMemberManagement(
     resendInvitationAction,
     viewMemberDetailsAction,
     assignRolesAction,
-    removeFromOrgAction,
+    removeFromOrganizationAction,
   } = options;
 
   const { t } = useTranslator('member_management', customMessages);
@@ -90,7 +91,7 @@ export function useOrganizationMemberManagement(
     revokeInvitationMutation,
     resendInvitationMutation,
     assignRolesMutation,
-    removeFromOrgMutation,
+    removeFromOrganizationMutation,
     fetchInvitationDetails,
   } = useMemberManagementService({
     customMessages,
@@ -111,7 +112,7 @@ export function useOrganizationMemberManagement(
       filters: memberFilters,
     },
     assignRolesAction,
-    removeFromOrgAction,
+    removeFromOrganizationAction,
   });
 
   const availableProviders: IdentityProviderOption[] = providersQuery.data ?? [];
@@ -120,7 +121,7 @@ export function useOrganizationMemberManagement(
   const currentMembers = membersQuery.data?.members ?? [];
   const invitationNextToken = invitationsQuery.data?.next ?? null;
   const memberNextToken = membersQuery.data?.next ?? null;
-  const orgDisplayName = organizationQuery.data?.display_name ?? '';
+  const organizationDisplayName = organizationQuery.data?.display_name ?? '';
 
   const openModal = React.useCallback(
     async (state: MemberManagementModalState) => {
@@ -185,11 +186,12 @@ export function useOrganizationMemberManagement(
   );
 
   const handleAssignRolesSubmit = React.useCallback(
-    (roleIds: string[], userId?: string | null) => {
+    (roleIds: string[], memberRoles: Role[], userId?: string | null) => {
       assignRolesMutation.mutate(
-        { roleIds, userId },
+        { roleIds, memberRoles, userId },
         {
-          onSuccess: () => {
+          onSuccess: (result) => {
+            if (result?.aborted) return;
             closeModal();
           },
         },
@@ -198,10 +200,10 @@ export function useOrganizationMemberManagement(
     [assignRolesMutation, closeModal],
   );
 
-  const handleRemoveFromOrgConfirm = React.useCallback(
-    (userId?: string | null, memberName?: string, orgName?: string) => {
-      removeFromOrgMutation.mutate(
-        { userId, memberName, orgName },
+  const handleRemoveFromOrganizationConfirm = React.useCallback(
+    (userId?: string | null, memberName?: string, organizationName?: string) => {
+      removeFromOrganizationMutation.mutate(
+        { userId, memberName, organizationName },
         {
           onSuccess: () => {
             closeModal();
@@ -209,7 +211,7 @@ export function useOrganizationMemberManagement(
         },
       );
     },
-    [removeFromOrgMutation, closeModal],
+    [removeFromOrganizationMutation, closeModal],
   );
 
   const handleNextPage = React.useCallback(() => {
@@ -268,16 +270,16 @@ export function useOrganizationMemberManagement(
 
     invitations: currentInvitations,
     members: currentMembers,
-    orgDisplayName: orgDisplayName,
-    isInitialLoading: invitationsQuery.isLoading || membersQuery.isLoading,
+    organizationDisplayName: organizationDisplayName,
+    isInitialLoading: membersQuery.isLoading,
     isFetchingInvitations: invitationsQuery.isFetching,
+    isFetchingMembers: membersQuery.isFetching,
+    isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
+    isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),
+    isAssigningRoles: isMutationLoading(assignRolesMutation),
     isCreatingInvitation: isMutationLoading(createInvitationMutation),
     isRevokingInvitation: isMutationLoading(revokeInvitationMutation),
     isResendingInvitation: isMutationLoading(resendInvitationMutation),
-    isFetchingMembers: membersQuery.isFetching,
-    isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
-    isRemovingFromOrg: isMutationLoading(removeFromOrgMutation),
-    isAssigningRoles: isMutationLoading(assignRolesMutation),
     invitationPagination: {
       pageSize: invitationPageSize,
       currentPage: invitationCurrentPage,
@@ -310,6 +312,6 @@ export function useOrganizationMemberManagement(
     handleRoleFilterChange,
     handleViewMemberDetails,
     handleAssignRolesSubmit,
-    handleRemoveFromOrgConfirm,
+    handleRemoveFromOrganizationConfirm,
   };
 }

@@ -60,12 +60,21 @@ export function useSsoProviderCreate({
         throw new Error('Core client not available');
       }
 
-      const { strategy, name, display_name, ...configOptions } = data;
+      const {
+        strategy,
+        name,
+        display_name,
+        show_as_button,
+        assign_membership_on_login,
+        ...configOptions
+      } = data;
 
       const formData = {
         strategy,
         name,
         display_name,
+        show_as_button,
+        assign_membership_on_login,
         options: configOptions,
       };
 

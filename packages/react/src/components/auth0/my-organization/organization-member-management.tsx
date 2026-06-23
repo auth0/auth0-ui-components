@@ -3,7 +3,11 @@
  * @module organization-member-management
  */
 
-import { getComponentStyles } from '@auth0/universal-components-core';
+import {
+  getComponentStyles,
+  type MemberInvitation,
+  type OrgMember,
+} from '@auth0/universal-components-core';
 import { Plus } from 'lucide-react';
 import * as React from 'react';
 
@@ -12,7 +16,7 @@ import { GateKeeper } from '../shared/gate-keeper/gate-keeper';
 import { OrganizationInvitationDetailsModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal';
 import { OrganizationInvitationRevokeModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-revoke-modal';
 import { OrganizationInvitationTable } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-table/organization-invitation-table';
-import { MemberRemoveFromOrgModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-org-modal';
+import { MemberRemoveFromOrganizationModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-organization-modal';
 import { OrganizationMemberTable } from '@/components/auth0/my-organization/shared/member-management/members/members-table/organization-member-table';
 import { OrganizationMemberAssignRolesModal } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-roles/organization-member-assign-roles-modal';
 import { OrganizationInvitationCreateModal } from '@/components/auth0/my-organization/shared/member-management/shared/invitation-create/organization-invitation-create-modal';
@@ -42,7 +46,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     activeTab,
     members,
     invitations,
-    orgDisplayName,
+    organizationDisplayName,
     isFetchingInvitations,
     isFetchingMembers,
     isFetchingAvailableRoles,
@@ -54,7 +58,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     invitationSortConfig,
     memberSortConfig,
     isAssigningRoles,
-    isRemovingFromOrg,
+    isRemovingFromOrganization,
     availableRoles,
     availableProviders,
     modalState,
@@ -72,7 +76,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     handleRoleFilterChange,
     handleViewMemberDetails,
     handleAssignRolesSubmit,
-    handleRemoveFromOrgConfirm,
+    handleRemoveFromOrganizationConfirm,
   } = props;
 
   const selectedInvitation =
@@ -83,7 +87,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
       : null;
 
   const selectedMember =
-    modalState.type === 'removeFromOrg' || modalState.type === 'assignRole'
+    modalState.type === 'removeFromOrganization' || modalState.type === 'assignRole'
       ? modalState.member
       : null;
 
@@ -93,6 +97,31 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
+  );
+
+  const handleAssignRoleClick = React.useCallback(
+    (member: OrgMember) => openModal({ type: 'assignRole', member }),
+    [openModal],
+  );
+
+  const handleRemoveFromOrganizationClick = React.useCallback(
+    (member: OrgMember) => openModal({ type: 'removeFromOrganization', member }),
+    [openModal],
+  );
+
+  const handleViewInvitation = React.useCallback(
+    (invitation: MemberInvitation) => openModal({ type: 'details', invitation }),
+    [openModal],
+  );
+
+  const handleRevokeResendClick = React.useCallback(
+    (invitation: MemberInvitation) => openModal({ type: 'revokeResend', invitation }),
+    [openModal],
+  );
+
+  const handleRevokeClick = React.useCallback(
+    (invitation: MemberInvitation) => openModal({ type: 'revoke', invitation }),
+    [openModal],
   );
 
   const pageSizeOptions = MEMBER_MANAGEMENT_PAGE_SIZE_OPTIONS;
@@ -142,8 +171,8 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               sortConfig={memberSortConfig}
               className={currentStyles.classes?.['OrganizationMemberTab-table']}
               onView={handleViewMemberDetails}
-              onAssignRole={(member) => openModal({ type: 'assignRole', member })}
-              onRemoveFromOrg={(member) => openModal({ type: 'removeFromOrg', member })}
+              onAssignRole={handleAssignRoleClick}
+              onRemoveFromOrganization={handleRemoveFromOrganizationClick}
               onSortChange={handleSortChange}
               onNextPage={handleNextPage}
               onPreviousPage={handlePreviousPage}
@@ -162,16 +191,10 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               readOnly={readOnly}
               sortConfig={invitationSortConfig}
               onSortChange={handleSortChange}
-              onView={(invitation) => openModal({ type: 'details', invitation })}
+              onView={handleViewInvitation}
               onCopyUrl={handleCopyUrl}
-              onRevokeAndResend={
-                readOnly
-                  ? undefined
-                  : (invitation) => openModal({ type: 'revokeResend', invitation })
-              }
-              onRevoke={
-                readOnly ? undefined : (invitation) => openModal({ type: 'revoke', invitation })
-              }
+              onRevokeAndResend={readOnly ? undefined : handleRevokeResendClick}
+              onRevoke={readOnly ? undefined : handleRevokeClick}
               onNextPage={handleNextPage}
               onPreviousPage={handlePreviousPage}
               onPageSizeChange={handlePageSizeChange}
@@ -240,15 +263,15 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           onAssign={handleAssignRolesSubmit}
         />
 
-        <MemberRemoveFromOrgModal
+        <MemberRemoveFromOrganizationModal
           memberName={selectedMember?.name}
           memberUserId={selectedMember?.user_id}
-          isOpen={modalState.type === 'removeFromOrg'}
-          isLoading={isRemovingFromOrg}
-          orgName={orgDisplayName}
+          isOpen={modalState.type === 'removeFromOrganization'}
+          isLoading={isRemovingFromOrganization}
+          organizationName={organizationDisplayName}
           customMessages={customMessages?.member}
           onClose={closeModal}
-          onConfirm={handleRemoveFromOrgConfirm}
+          onConfirm={handleRemoveFromOrganizationConfirm}
         />
       </div>
     </StyledScope>
@@ -271,7 +294,7 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
     resendInvitationAction,
     viewMemberDetailsAction,
     assignRolesAction,
-    removeFromOrgAction,
+    removeFromOrganizationAction,
   } = props;
 
   const memberManagement = useOrganizationMemberManagement({
@@ -282,7 +305,7 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
     resendInvitationAction,
     viewMemberDetailsAction,
     assignRolesAction,
-    removeFromOrgAction,
+    removeFromOrganizationAction,
   });
 
   return (

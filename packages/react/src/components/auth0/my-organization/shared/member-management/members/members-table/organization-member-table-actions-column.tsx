@@ -24,7 +24,7 @@ import type { OrganizationMemberTableActionsColumnProps } from '@/types/my-organ
  * @param props.member - The member to show actions for.
  * @param props.customMessages - Custom translation messages to override defaults.
  * @param props.onAssignRole - Callback fired when assign role action is triggered.
- * @param props.onRemoveFromOrg - Callback fired when remove from organization action is triggered.
+ * @param props.onRemoveFromOrganization - Callback fired when remove from organization action is triggered.
  * @returns JSX element.
  */
 export function OrganizationMemberTableActionsColumn({
@@ -32,7 +32,7 @@ export function OrganizationMemberTableActionsColumn({
   customMessages = {},
   onViewDetails,
   onAssignRole,
-  onRemoveFromOrg,
+  onRemoveFromOrganization,
 }: OrganizationMemberTableActionsColumnProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
@@ -44,9 +44,9 @@ export function OrganizationMemberTableActionsColumn({
     onAssignRole?.(member);
   }, [member, onAssignRole]);
 
-  const handleRemoveFromOrg = React.useCallback(() => {
-    onRemoveFromOrg?.(member);
-  }, [member, onRemoveFromOrg]);
+  const handleRemoveFromOrganization = React.useCallback(() => {
+    onRemoveFromOrganization?.(member);
+  }, [member, onRemoveFromOrganization]);
 
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
@@ -69,11 +69,11 @@ export function OrganizationMemberTableActionsColumn({
               {t('member.actions.assign_role')}
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={handleRemoveFromOrg}
+              onClick={handleRemoveFromOrganization}
               className="text-destructive-foreground focus:text-destructive-foreground"
             >
               <Trash2 className="mr-2 h-4 w-4 text-destructive-foreground" />
-              {t('member.actions.remove_from_org')}
+              {t('member.actions.remove_from_organization')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenuPortal>

@@ -133,8 +133,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       lucide-react:
-        specifier: ^0.462.0
-        version: 0.462.0(react@19.2.1)
+        specifier: ^1.16.0
+        version: 1.16.0(react@19.2.1)
       next-themes:
         specifier: ^0.2.1
         version: 0.2.1(next@16.1.5(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -212,8 +212,8 @@ importers:
         specifier: ^25.2.1
         version: 25.6.3(typescript@5.9.3)
       lucide-react:
-        specifier: ^0.511.0
-        version: 0.511.0(react@19.2.1)
+        specifier: ^1.16.0
+        version: 1.16.0(react@19.2.1)
       next:
         specifier: 16.1.5
         version: 16.1.5(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -270,8 +270,8 @@ importers:
         specifier: ^25.2.1
         version: 25.6.3(typescript@5.8.3)
       lucide-react:
-        specifier: ^0.511.0
-        version: 0.511.0(react@19.2.1)
+        specifier: ^1.16.0
+        version: 1.16.0(react@19.2.1)
       radix-ui:
         specifier: ^1.4.3
         version: 1.4.3(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -448,8 +448,8 @@ importers:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       lucide-react:
-        specifier: ^0.462.0
-        version: 0.462.0(react@19.2.1)
+        specifier: ^1.16.0
+        version: 1.16.0(react@19.2.1)
       next-themes:
         specifier: ^0.3.0
         version: 0.3.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -548,8 +548,8 @@ importers:
         specifier: 1.0.0-beta.0
         version: 1.0.0-beta.0
       '@auth0/myorganization-js':
-        specifier: file:../../auth0-myorganization-js-1.0.1.tgz
-        version: file:auth0-myorganization-js-1.0.1.tgz
+        specifier: 1.1.0
+        version: 1.1.0
       zod:
         specifier: ^3.22.4
         version: 3.25.76
@@ -630,8 +630,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       lucide-react:
-        specifier: ^0.511.0
-        version: 0.511.0(react@19.2.1)
+        specifier: ^1.16.0
+        version: 1.16.0(react@19.2.1)
       postcss-prefix-selector:
         specifier: ^2.1.1
         version: 2.1.1(postcss@8.5.14)
@@ -733,9 +733,8 @@ packages:
     resolution: {integrity: sha512-slj0RtNfieNk1BC1ERrCQw65qMUVKU5qacbTc8BFH8R316CUpsOhZ2MIiV9l3VEkaqY1hmCZm03+ZI6ym+3PZg==}
     engines: {node: '>=18.0.0'}
 
-  '@auth0/myorganization-js@file:auth0-myorganization-js-1.0.1.tgz':
-    resolution: {integrity: sha512-ERWuwJ+YFmdGR736o7p22fl3p3madZlvPIqiD9RXrh3zEWNXb4rR+g0Ssv5D7sbRi7KedTM1Ah3okZ2U4pc1Hw==, tarball: file:auth0-myorganization-js-1.0.1.tgz}
-    version: 1.0.1
+  '@auth0/myorganization-js@1.1.0':
+    resolution: {integrity: sha512-DG3/PDDPB2ayuXRrNZOdBTPdqT1O6GKahW3U+i75UQn27rJGIkIVvonx/IEOUxFdo+gJs9zwlpUt/kdD0ICEiA==}
     engines: {node: '>=20.0.0'}
 
   '@auth0/nextjs-auth0@4.20.0':
@@ -5601,13 +5600,8 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  lucide-react@0.462.0:
-    resolution: {integrity: sha512-NTL7EbAao9IFtuSivSZgrAh4fZd09Lr+6MTkqIxuHaH2nnYiYIzXPo06cOxHg9wKLdj6LL8TByG4qpePqwgx/g==}
-    peerDependencies:
-      react: 19.2.1
-
-  lucide-react@0.511.0:
-    resolution: {integrity: sha512-VK5a2ydJ7xm8GvBeKLS9mu1pVK6ucef9780JVUjw6bAjJL/QXnd4Y0p7SPeOUMC27YhzNCZvm5d/QX0Tp3rc0w==}
+  lucide-react@1.16.0:
+    resolution: {integrity: sha512-dYwyPzb4MEKpGUmNYk3WKWPnMrHs3FKM+q94kAnJrcDIqqn1hq2xY8scaS2ovsOCM5D51ey2gaRG3PBb1vgoYQ==}
     peerDependencies:
       react: 19.2.1
 
@@ -7540,7 +7534,7 @@ snapshots:
 
   '@auth0/myaccount-js@1.0.0-beta.0': {}
 
-  '@auth0/myorganization-js@file:auth0-myorganization-js-1.0.1.tgz':
+  '@auth0/myorganization-js@1.1.0':
     dependencies:
       '@auth0/auth0-auth-js': 1.5.0
 
@@ -12547,11 +12541,7 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lucide-react@0.462.0(react@19.2.1):
-    dependencies:
-      react: 19.2.1
-
-  lucide-react@0.511.0(react@19.2.1):
+  lucide-react@1.16.0(react@19.2.1):
     dependencies:
       react: 19.2.1
 

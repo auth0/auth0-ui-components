@@ -9,7 +9,7 @@ import type {
   OrganizationMemberDetailRolesTabProps,
   OrganizationMemberDetailViewProps,
   OrganizationMemberUserDetailsProps,
-  MemberRemoveFromOrgModalProps,
+  MemberRemoveFromOrganizationModalProps,
   OrganizationMemberRemoveRoleModalProps,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
 import type {
@@ -51,7 +51,7 @@ export const createMockMemberActionsColumnProps = (
   member: createMockMember(),
   onViewDetails: vi.fn(),
   onAssignRole: vi.fn(),
-  onRemoveFromOrg: vi.fn(),
+  onRemoveFromOrganization: vi.fn(),
   ...overrides,
 });
 
@@ -72,7 +72,7 @@ export const createMockMemberTableProps = (
   availableRoles: [],
   onView: vi.fn(),
   onAssignRole: vi.fn(),
-  onRemoveFromOrg: vi.fn(),
+  onRemoveFromOrganization: vi.fn(),
   onNextPage: vi.fn(),
   onPreviousPage: vi.fn(),
   onPageSizeChange: vi.fn(),
@@ -124,14 +124,14 @@ export const createMockDangerZoneProps = (
   overrides: Partial<MemberDetailDangerZoneProps> = {},
 ): MemberDetailDangerZoneProps => ({
   readOnly: false,
-  isRemovingFromOrg: false,
-  onRemoveFromOrgClick: vi.fn(),
+  isRemovingFromOrganization: false,
+  onRemoveFromOrganizationClick: vi.fn(),
   ...overrides,
 });
 
 export const createMockRemoveFromOrgModalProps = (
-  overrides: Partial<MemberRemoveFromOrgModalProps> = {},
-): MemberRemoveFromOrgModalProps => ({
+  overrides: Partial<MemberRemoveFromOrganizationModalProps> = {},
+): MemberRemoveFromOrganizationModalProps => ({
   isOpen: true,
   isLoading: false,
   onClose: vi.fn(),
@@ -187,7 +187,7 @@ export const createMockOrganizationMemberDetailProps = (
     variables: { common: {}, light: {}, dark: {} },
     classes: {},
   },
-  removeFromOrgAction: undefined,
+  removeFromOrganizationAction: undefined,
   assignRolesAction: undefined,
   removeRolesAction: undefined,
   ...overrides,
@@ -203,7 +203,7 @@ export const createMockOrganizationMemberDetailViewProps = (
   customMessages: {},
   activeTab: 'details',
   member: createMockMember(),
-  orgDisplayName: 'Test Org',
+  organizationDisplayName: 'Test Org',
   memberRoles: createMockMemberRoles(),
   availableRoles: createMockAvailableRoles(),
   selectedRoles: [],
@@ -211,7 +211,8 @@ export const createMockOrganizationMemberDetailViewProps = (
   isFetchingMemberRoles: false,
   isFetchingAvailableRoles: false,
   isLoading: false,
-  isRemovingFromOrg: false,
+  memberError: null,
+  isRemovingFromOrganization: false,
   isAssigningRoles: false,
   isRemovingRoles: false,
   removingRoleIds: [],
@@ -221,7 +222,7 @@ export const createMockOrganizationMemberDetailViewProps = (
   handleBack: vi.fn(),
   openModal: vi.fn(),
   closeModal: vi.fn(),
-  handleRemoveFromOrgConfirm: vi.fn(),
+  handleRemoveFromOrganizationConfirm: vi.fn(),
   handleAssignRolesSubmit: vi.fn(),
   handleRemoveRolesCancel: vi.fn(),
   handleRemoveRolesConfirm: vi.fn(),

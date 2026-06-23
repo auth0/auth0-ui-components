@@ -3,13 +3,13 @@
  * @module organization-member-detail
  */
 
-import { getComponentStyles } from '@auth0/universal-components-core';
+import { getComponentStyles, type Role } from '@auth0/universal-components-core';
 import { ArrowLeft } from 'lucide-react';
 import * as React from 'react';
 
 import { GateKeeper } from '../shared/gate-keeper/gate-keeper';
 
-import { MemberRemoveFromOrgModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-org-modal';
+import { MemberRemoveFromOrganizationModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-organization-modal';
 import { OrganizationMemberEditDetailsTab } from '@/components/auth0/my-organization/shared/member-management/organization-member-detail/organization-member-details-tab';
 import { OrganizationMemberEditRolesTab } from '@/components/auth0/my-organization/shared/member-management/organization-member-detail/organization-member-roles-tab';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
@@ -69,9 +69,12 @@ function Header({
         <div className="flex flex-col gap-1 min-w-0">
           <h1 className="text-2xl font-bold text-primary truncate">{displayName}</h1>
           {userId && (
-            <Badge variant="secondary" className="w-fit font-mono text-xs">
-              {userId}
-            </Badge>
+            <span className="text-sm flex items-center gap-2">
+              {t('member.detail.user_id_label')}
+              <Badge variant="secondary" className="w-fit font-mono text-xs">
+                {userId}
+              </Badge>
+            </span>
           )}
         </div>
       </div>
@@ -92,10 +95,11 @@ export function OrganizationMemberDetailView(
     customMessages,
     activeTab,
     modalState,
-    isRemovingFromOrg,
+    isRemovingFromOrganization,
     setActiveTab,
     closeModal,
-    handleRemoveFromOrgConfirm,
+    openModal,
+    handleRemoveFromOrganizationConfirm,
   } = props;
 
   const { isDarkMode } = useTheme();
@@ -105,6 +109,46 @@ export function OrganizationMemberDetailView(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
   );
+
+  const handleRemoveFromOrganizationClick = React.useCallback(
+    () => openModal({ type: 'removeFromOrganization' }),
+    [openModal],
+  );
+
+  const handleAssignRolesClick = React.useCallback(
+    () => openModal({ type: 'assignRoles' }),
+    [openModal],
+  );
+
+  const handleRemoveRolesClick = React.useCallback(
+    (roles: Role[]) => openModal({ type: 'removeRoles', roles }),
+    [openModal],
+  );
+
+  if (props.memberError) {
+    return (
+      <StyledScope style={currentStyles.variables}>
+        <div className={currentStyles.classes?.['OrganizationMemberDetail-root']}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mb-4 -ml-2 text-muted-foreground hover:text-primary"
+            onClick={props.handleBack}
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            {t('member.detail.back_button')}
+          </Button>
+          <div
+            className="flex flex-col items-center justify-center p-8 space-y-2"
+            role="alert"
+            aria-live="assertive"
+          >
+            <p className="text-xl text-center">{props.memberError}</p>
+          </div>
+        </div>
+      </StyledScope>
+    );
+  }
 
   return (
     <StyledScope style={currentStyles.variables}>
@@ -132,8 +176,8 @@ export function OrganizationMemberDetailView(
             <OrganizationMemberEditDetailsTab
               member={props.member}
               customMessages={customMessages}
-              isRemovingFromOrg={isRemovingFromOrg}
-              onRemoveFromOrgClick={() => props.openModal({ type: 'removeFromOrg' })}
+              isRemovingFromOrganization={isRemovingFromOrganization}
+              onRemoveFromOrganizationClick={handleRemoveFromOrganizationClick}
             />
           </TabsContent>
 
@@ -143,7 +187,7 @@ export function OrganizationMemberDetailView(
           >
             <OrganizationMemberEditRolesTab
               customMessages={customMessages}
-              orgName={props.orgDisplayName}
+              organizationName={props.organizationDisplayName}
               memberName={props.member?.name}
               memberRoles={props.memberRoles}
               availableRoles={props.availableRoles}
@@ -155,24 +199,24 @@ export function OrganizationMemberDetailView(
               modalState={modalState}
               isAssigningRoles={props.isAssigningRoles}
               onSelectedRolesChange={props.setSelectedRoles}
-              onAssignRolesClick={() => props.openModal({ type: 'assignRoles' })}
+              onAssignRolesClick={handleAssignRolesClick}
               onAssignRolesCancel={closeModal}
               onAssignRolesSubmit={props.handleAssignRolesSubmit}
-              onRemoveRolesClick={(roles) => props.openModal({ type: 'removeRoles', roles })}
+              onRemoveRolesClick={handleRemoveRolesClick}
               onRemoveRolesCancel={props.handleRemoveRolesCancel}
               onRemoveRolesConfirm={props.handleRemoveRolesConfirm}
             />
           </TabsContent>
         </Tabs>
 
-        <MemberRemoveFromOrgModal
-          isOpen={modalState.type === 'removeFromOrg'}
-          isLoading={isRemovingFromOrg}
+        <MemberRemoveFromOrganizationModal
+          isOpen={modalState.type === 'removeFromOrganization'}
+          isLoading={isRemovingFromOrganization}
           memberName={props.member?.name}
-          orgName={props.orgDisplayName}
+          organizationName={props.organizationDisplayName}
           customMessages={customMessages}
           onClose={closeModal}
-          onConfirm={handleRemoveFromOrgConfirm}
+          onConfirm={handleRemoveFromOrganizationConfirm}
         />
       </div>
     </StyledScope>
@@ -190,7 +234,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     onBack,
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
-    removeFromOrgAction,
+    removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,
   } = props;
@@ -199,7 +243,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     userId,
     onBack,
     customMessages,
-    removeFromOrgAction,
+    removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,
   });

@@ -60,21 +60,21 @@ function DangerCard({
  */
 export function MemberDetailDangerZone({
   readOnly = false,
-  isRemovingFromOrg = false,
+  isRemovingFromOrganization = false,
   customMessages,
-  onRemoveFromOrgClick,
+  onRemoveFromOrganizationClick,
 }: MemberDetailDangerZoneProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
   return (
     <div className="flex flex-col gap-4 mt-4">
       <DangerCard
-        title={t('member.detail.actions.remove_from_org.title')}
-        description={t('member.detail.actions.remove_from_org.description')}
-        buttonLabel={t('member.detail.actions.remove_from_org.button')}
-        isLoading={isRemovingFromOrg}
+        title={t('member.detail.actions.remove_from_organization.title')}
+        description={t('member.detail.actions.remove_from_organization.description')}
+        buttonLabel={t('member.detail.actions.remove_from_organization.button')}
+        isLoading={isRemovingFromOrganization}
         disabled={readOnly}
-        onClick={onRemoveFromOrgClick}
+        onClick={onRemoveFromOrganizationClick}
       />
     </div>
   );

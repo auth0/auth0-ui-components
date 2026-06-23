@@ -10,6 +10,7 @@ import {
   type ListIdentityProvidersResponseContent,
   memberManagementQueryKeys,
   OrganizationDetailsMappers,
+  memberDetailQueryKeys,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
@@ -18,6 +19,8 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
@@ -31,6 +34,9 @@ const keepPreviousDataOption = getPreviousDataOption();
 const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
   created_at: 'created_at',
 };
+
+const MEMBER_LIST_FIELDS =
+  'user_id,email,name,nickname,given_name,family_name,created_at,updated_at,last_login,phone_number,roles';
 
 /**
  * Builds a sort parameter string for the API.
@@ -62,7 +68,7 @@ export function useMemberManagementService(
     invitationParams,
     memberParams,
     assignRolesAction,
-    removeFromOrgAction,
+    removeFromOrganizationAction,
   } = options;
 
   const isInvitationsTabActive = activeTab === 'invitations';
@@ -94,7 +100,7 @@ export function useMemberManagementService(
     queryFn: async () => {
       const response = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.roles.list({ take: 50 });
+        .organization.roles.list({ take: MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT });
       return response.data;
     },
     enabled: !!coreClient,
@@ -134,6 +140,7 @@ export function useMemberManagementService(
       const page = await coreClient!.getMyOrganizationApiClient().organization.members.list({
         take: memberParams!.pageSize,
         from: memberParams!.fromToken,
+        fields: MEMBER_LIST_FIELDS,
       });
       const members: OrgMember[] = page.data;
       const next = members.length < memberParams!.pageSize ? null : page.response.next;
@@ -153,17 +160,33 @@ export function useMemberManagementService(
   });
 
   const assignRolesMutation = useMutation({
-    mutationFn: async ({ roleIds, userId }: { roleIds: string[]; userId?: string | null }) => {
+    mutationFn: async ({
+      roleIds,
+      memberRoles,
+      userId,
+    }: {
+      roleIds: string[];
+      memberRoles: Role[];
+      userId?: string | null;
+    }) => {
       if (!userId) throw new Error('userId is required');
+      const validationResult = validateRequestRoleForMember(t, roleIds, memberRoles, true);
+      if (validationResult?.aborted) {
+        return validationResult;
+      }
+
       if (assignRolesAction?.onBefore && !assignRolesAction.onBefore({ userId, roleIds })) {
         throw new Error('Assign roles cancelled by onBefore');
       }
+
       await coreClient!
         .getMyOrganizationApiClient()
         .organization.members.roles.assign(userId, { role_ids: roleIds });
       assignRolesAction?.onAfter?.({ userId, roleIds });
+      return { aborted: false } as const;
     },
-    onSuccess: (_, { roleIds, userId }) => {
+    onSuccess: (result, { roleIds, userId }) => {
+      if (result?.aborted) return;
       if (!userId) return;
       const allRoles = queryClient.getQueryData<Role[]>(memberManagementQueryKeys.roles()) ?? [];
       const newRoles = allRoles.filter((r) => roleIds.includes(r.id));
@@ -177,42 +200,48 @@ export function useMemberManagementService(
           : 'member.detail.roles.assign_modal.success_plural';
       showToast({ type: 'success', message: t(assignKey) });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.assign_role_failed') });
     },
   });
 
-  const removeFromOrgMutation = useMutation({
+  const removeFromOrganizationMutation = useMutation({
     mutationFn: async ({
       userId,
     }: {
       userId?: string | null;
       memberName?: string;
-      orgName?: string;
+      organizationName?: string;
     }) => {
       if (!userId) throw new Error('userId is required');
-      if (removeFromOrgAction?.onBefore && !removeFromOrgAction.onBefore(userId)) {
+      if (
+        removeFromOrganizationAction?.onBefore &&
+        !removeFromOrganizationAction.onBefore(userId)
+      ) {
         throw new Error('Remove from org cancelled by onBefore');
       }
       await coreClient!
         .getMyOrganizationApiClient()
         .organization.memberships.deleteMemberships({ members: [userId] });
     },
-    onSuccess: (_, { userId, memberName, orgName }) => {
+    onSuccess: (_, { userId, memberName, organizationName }) => {
       if (!userId) return;
-      removeFromOrgAction?.onAfter?.(userId);
+      removeFromOrganizationAction?.onAfter?.(userId);
       showToast({
         type: 'success',
-        message: t('member.detail.actions.remove_from_org.success', {
+        message: t('member.detail.actions.remove_from_organization.success', {
           memberName: memberName ?? '',
-          orgName: orgName ?? '',
+          organizationName: organizationName ?? '',
         }),
       });
-      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.members() });
     },
     onError: (error) => {
-      handleError(error, { fallbackMessage: t('member.detail.error.remove_from_org_failed') });
+      handleError(error, {
+        fallbackMessage: t('member.detail.error.remove_from_organization_failed'),
+      });
     },
   });
 
@@ -318,7 +347,7 @@ export function useMemberManagementService(
     organizationQuery,
     membersQuery,
     assignRolesMutation,
-    removeFromOrgMutation,
+    removeFromOrganizationMutation,
     createInvitationMutation,
     revokeInvitationMutation,
     resendInvitationMutation,

@@ -37,6 +37,7 @@ export function OrganizationMemberAssignRolesModal({
   const { t } = useTranslator('member_management', customMessages);
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
   const userId = selectedMember?.user_id ?? null;
+  const memberRoles = selectedMember?.roles ?? assignedRoles ?? [];
 
   React.useEffect(() => {
     if (!isOpen) {
@@ -66,9 +67,9 @@ export function OrganizationMemberAssignRolesModal({
 
   const handleSubmit = React.useCallback(() => {
     if (selectedRoles.length > 0) {
-      onAssign(selectedRoles, userId);
+      onAssign(selectedRoles, memberRoles, userId);
     }
-  }, [selectedRoles, onAssign]);
+  }, [selectedRoles, onAssign, memberRoles, userId]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -92,6 +93,7 @@ export function OrganizationMemberAssignRolesModal({
                 onChange={(val) => setSelectedRoles(Array.isArray(val) ? val : [val])}
                 placeholder={t('member.detail.roles.assign_modal.roles_placeholder')}
                 disabled={isLoading}
+                showSelectedCount
               />
             </>
           )}

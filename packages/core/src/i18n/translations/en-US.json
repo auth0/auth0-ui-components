@@ -14,7 +14,8 @@
       "insufficient_scope": "You do not have the required scope permissions to perform this action.",
       "forbidden": "You do not have permissions to perform this action.",
       "not_found": "The requested resource was not found.",
-      "rate_limit": "Too many requests. Please wait a moment and try again."
+      "rate_limit": "Too many requests. Please wait a moment and try again.",
+      "network": "There was an issue connecting to the server. Please try again."
     }
   },
   "gate_keeper": {
@@ -1119,15 +1120,19 @@
         "menu_label": "Actions",
         "view_details": "View Details",
         "assign_role": "Assign Role",
-        "remove_from_org": "Remove from Organization"
+        "remove_from_organization": "Remove from Organization"
       },
       "error": {
         "fetch_failed": "Failed to load members. Please try again.",
         "remove_failed": "Failed to remove member. Please try again.",
-        "assign_role_failed": "Failed to assign role. Please try again."
+        "assign_role_failed": "Failed to assign role. Please try again.",
+        "too_many_roles_per_assignment": "You can only assign a maximum of 10 roles at a time.",
+        "too_many_roles_per_removal": "You can only remove a maximum of 10 roles at a time.",
+        "member_role_limit_exceeded": "You have reached the maximum of 50 roles for this member."
       },
       "detail": {
         "back_button": "Back to Members",
+        "user_id_label": "User ID:",
         "tabs": {
           "details": "Details",
           "roles": "Roles"
@@ -1142,13 +1147,13 @@
           "last_login": "Last Login"
         },
         "actions": {
-          "remove_from_org": {
+          "remove_from_organization": {
             "title": "Remove Member from Organization",
             "description": "Once confirmed, this operation cannot be undone.",
             "button": "Delete",
-            "success": "${memberName} has been removed from the ${orgName}.",
+            "success": "${memberName} has been removed from the ${organizationName}.",
             "modal": {
-              "title": "Remove Member from ${orgName}",
+              "title": "Remove Member from ${organizationName}",
               "description": "Are you sure you want to remove <bold>\"${memberName}\"</bold> from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
               "cancel_button": "Cancel",
               "confirm_button": "Remove"
@@ -1157,7 +1162,7 @@
         },
         "roles": {
           "title": "Roles",
-          "description": "Manage user roles and permissions when accessing ${orgName}.",
+          "description": "Manage user roles and permissions when accessing ${organizationName}.",
           "assign_button": "Assign Roles",
           "no_roles_available": "There are no more roles available to assign to this member.",
           "max_roles_reached": "You have reached the maximum of ${max} roles for this member.",
@@ -1187,14 +1192,14 @@
             "description": "This will remove the <bold>${roleName}</bold> role from <bold>\"${memberName}\"</bold>.",
             "confirm_button": "Remove",
             "cancel_button": "Cancel",
-            "success": "<bold>\"${roleName}\"</bold> role has been removed from member.",
-            "success_plural": "${roleNames} roles have been removed from member."
+            "success": "\"${roleName}\" role has been removed from member.",
+            "success_plural": "\"${roleNames}\" roles have been removed from member."
           }
         },
         "error": {
           "fetch_failed": "Failed to load member details. Please try again.",
           "fetch_roles_failed": "Failed to load member roles. Please try again.",
-          "remove_from_org_failed": "Failed to remove member from organization. Please try again.",
+          "remove_from_organization_failed": "Failed to remove member from organization. Please try again.",
           "assign_role_failed": "Failed to assign role. Please try again.",
           "remove_role_failed": "Failed to remove role. Please try again."
         }
@@ -1287,6 +1292,34 @@
         "resend_failed": "Failed to resend invitation. Please try again.",
         "revoke_resend_failed": "Failed to revoke and resend invitation. Please try again.",
         "copy_url_failed": "Failed to copy invitation URL. Please try again."
+      }
+    }
+  },
+  "passkey": {
+    "header": {
+      "title": "Log-in methods",
+      "description": "Ways you can sign in to your account. You can use one of these or combine them for flexibility."
+    },
+    "section_title": "Passkeys",
+    "enabled": "enabled",
+    "created_at": "Created on ${date}",
+    "last_used": "Last used ${date}",
+    "passkey_name": "Passkey ${index}",
+    "no_passkeys": "No passkeys have been added to your account.",
+    "add_passkey": "Add passkey",
+    "actions": {
+      "revoke": "Revoke"
+    },
+    "success": {
+      "add": "Passkey added successfully.",
+      "revoke": "Passkey revoked successfully."
+    },
+    "modals": {
+      "revoke": {
+        "title": "Revoke passkey",
+        "consent": "This will revoke the passkey - <bold>${name}</bold> from your account.",
+        "cancel": "Cancel",
+        "confirm": "Revoke Passkey"
       }
     }
   }

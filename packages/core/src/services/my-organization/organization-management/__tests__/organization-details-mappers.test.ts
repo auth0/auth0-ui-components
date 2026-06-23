@@ -13,7 +13,7 @@ describe('OrganizationDetailsMappers', () => {
       const apiResponse: GetOrganizationDetailsResponseContent = {
         id: 'organization_123',
         name: 'test-organization',
-        display_name: 'Test Organizationanization',
+        display_name: 'Test Organization',
         branding: {
           logo_url: 'https://example.com/logo.png',
           colors: {
@@ -28,7 +28,7 @@ describe('OrganizationDetailsMappers', () => {
       expect(result).toEqual({
         id: 'organization_123',
         name: 'test-organization',
-        display_name: 'Test Organizationanization',
+        display_name: 'Test Organization',
         branding: {
           logo_url: 'https://example.com/logo.png',
           colors: {
@@ -174,7 +174,7 @@ describe('OrganizationDetailsMappers', () => {
       const formValues: OrganizationPrivate = {
         id: 'organization_123',
         name: 'test-organization',
-        display_name: 'Test Organizationanization',
+        display_name: 'Test Organization',
         branding: {
           logo_url: 'https://example.com/logo.png',
           colors: { primary: '#ff0000', page_background: '#ffffff' },
@@ -185,7 +185,7 @@ describe('OrganizationDetailsMappers', () => {
 
       expect(result).toEqual({
         name: 'test-organization',
-        display_name: 'Test Organizationanization',
+        display_name: 'Test Organization',
         branding: {
           logo_url: 'https://example.com/logo.png',
           colors: { primary: '#ff0000', page_background: '#ffffff' },
@@ -289,7 +289,7 @@ describe('OrganizationDetailsMappers', () => {
       const original: GetOrganizationDetailsResponseContent = {
         id: 'organization_123',
         name: 'test-organization',
-        display_name: 'Test Organizationanization',
+        display_name: 'Test Organization',
         branding: {
           logo_url: 'https://example.com/logo.png',
           colors: { primary: '#ff0000', page_background: '#ffffff' },
@@ -309,7 +309,7 @@ describe('OrganizationDetailsMappers', () => {
       const original = {
         id: 'organization_123',
         name: 'test-organization',
-        display_name: 'Test Organizationanization',
+        display_name: 'Test Organization',
       } as GetOrganizationDetailsResponseContent;
 
       const mapped = OrganizationDetailsMappers.fromAPI(original);

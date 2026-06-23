@@ -1,6 +1,6 @@
 {
   "name": "@auth0/universal-components-react",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Auth0 Universal Components for React - pre-built UI components for organization management, SSO configuration, and MFA enrollment",
   "private": false,
   "keywords": [
@@ -89,7 +89,7 @@
     "@uiw/react-color": "^2.9.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^0.511.0",
+    "lucide-react": "^1.16.0",
     "postcss-prefix-selector": "^2.1.1",
     "qrcode": "^1.5.4",
     "shadcn": "^3.5.0",

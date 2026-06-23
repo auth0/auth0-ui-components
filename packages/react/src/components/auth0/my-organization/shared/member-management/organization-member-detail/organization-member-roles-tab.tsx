@@ -29,7 +29,7 @@ import type {
  */
 function RolesTabHeader({
   selectedRoles,
-  orgName,
+  organizationName,
   customMessages,
   onAssignRolesClick,
   onRemoveSelectedRoles,
@@ -41,7 +41,7 @@ function RolesTabHeader({
       <div className="flex flex-col gap-1">
         <h3 className="text-base font-semibold text-primary">{t('member.detail.roles.title')}</h3>
         <p className="text-sm text-muted-foreground">
-          {t('member.detail.roles.description', { orgName })}
+          {t('member.detail.roles.description', { organizationName })}
         </p>
       </div>
       <div className="flex items-center gap-2">
@@ -163,7 +163,7 @@ function OrganizationMemberEditRolesTable({
  */
 export function OrganizationMemberEditRolesTab({
   customMessages,
-  orgName,
+  organizationName,
   memberName,
   memberRoles,
   availableRoles,
@@ -195,7 +195,7 @@ export function OrganizationMemberEditRolesTab({
       <div className="flex flex-col gap-4">
         <RolesTabHeader
           selectedRoles={selectedRoles}
-          orgName={orgName}
+          organizationName={organizationName}
           customMessages={customMessages}
           onAssignRolesClick={onAssignRolesClick}
           onRemoveSelectedRoles={handleRemoveSelectedRoles}
