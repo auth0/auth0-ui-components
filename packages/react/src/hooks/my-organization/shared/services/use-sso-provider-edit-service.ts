@@ -551,34 +551,36 @@ export function useSsoProviderEditService(
   }, [coreClient, deleteProvisioningMutation, idpId, providerQuery.data]);
 
   /**
-   * List SCIM tokens mutation - fetches SCIM tokens for provisioning.
-   * Note: This uses imperative fetching rather than a query because tokens
-   * are typically fetched on-demand and the response includes sensitive data
-   * that shouldn't be automatically cached.
+   * SCIM tokens query - fetches SCIM tokens for provisioning on demand.
+   * Uses enabled:false with manual refetch since tokens contain sensitive data
+   * and should only be fetched when explicitly requested.
    */
-  const listScimTokensMutation = useMutation({
-    mutationFn: async () => {
-      if (!coreClient || !idpId) {
-        return null;
-      }
-
-      const result = await coreClient
+  const scimTokensQuery = useQuery({
+    queryKey: ssoProviderQueryKeys.scimTokens(idpId),
+    queryFn: async () => {
+      const result = await coreClient!
         .getMyOrganizationApiClient()
         .organization.identityProviders.provisioning.scimTokens.list(idpId);
       return result;
     },
-    onError: (error) => {
-      handleError(error, { fallbackMessage: t('general_error') });
-    },
+    enabled: false,
+    gcTime: 0,
   });
 
   const listScimTokens = useCallback(async () => {
-    try {
-      return await listScimTokensMutation.mutateAsync();
-    } catch (error) {
+    if (!coreClient || !idpId) {
       return null;
     }
-  }, [listScimTokensMutation]);
+
+    const { data, error } = await scimTokensQuery.refetch();
+
+    if (error) {
+      handleError(error, { fallbackMessage: t('general_error') });
+      return null;
+    }
+
+    return data ?? null;
+  }, [coreClient, idpId, scimTokensQuery, handleError, t]);
 
   const createScimToken = useCallback(
     async (data: CreateIdpProvisioningScimTokenRequestContent) => {
@@ -726,7 +728,7 @@ export function useSsoProviderEditService(
     isProvisioningUpdating: createProvisioningMutation.isPending,
     isProvisioningDeleting: deleteProvisioningMutation.isPending,
     isProvisioningLoading: provisioningQuery.isLoading || provisioningQuery.isFetching,
-    isScimTokensLoading: listScimTokensMutation.isPending,
+    isScimTokensLoading: scimTokensQuery.isFetching,
     isScimTokenCreating: createScimTokenMutation.isPending,
     isScimTokenDeleting: deleteScimTokenMutation.isPending,
     isSsoAttributesSyncing: syncSsoAttributesMutation.isPending,
