@@ -8,8 +8,9 @@ import { vi } from 'vitest';
 
 import type {
   DomainTableProps,
-  UseDomainTableLogicOptions,
-  UseDomainTableResult,
+  UseDomainTableReturn,
+  UseDomainTableServiceOptions,
+  UseDomainTableServiceReturn,
 } from '@/types/my-organization/domain-management/domain-table-types';
 
 export const createMockDomain = (overrides?: Partial<Domain>): Domain => ({
@@ -68,7 +69,6 @@ export const createMockIdentityProviderAssociatedWithDomain = (
 export const createMockIdentityProviderWithoutProvisioning = (
   overrides: Partial<IdpKnownResponse> = {},
 ): IdpKnownResponse => {
-  // Use a strategy that doesn't have provisioning enabled by default
   const baseProvider = {
     id: 'con_abc123xyz456',
     name: 'mock-provider-no-provisioning',
@@ -119,9 +119,9 @@ export const createMockDeleteAction = (): ComponentAction<Domain> => ({
   onAfter: vi.fn(),
 });
 
-export const createMockLogic = (
-  overrides: Partial<UseDomainTableResult & DomainTableProps> = {},
-) => ({
+export const createMockDomainTableReturn = (
+  overrides: Partial<UseDomainTableReturn> = {},
+): UseDomainTableReturn => ({
   domains: [createMockDomain(), createMockVerifiedDomain()],
   providers: [],
   isCreating: false,
@@ -129,25 +129,6 @@ export const createMockLogic = (
   isFetching: false,
   isLoadingProviders: false,
   isDeleting: false,
-  schema: undefined,
-  styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
-  hideHeader: false,
-  readOnly: false,
-  customMessages: {},
-  createAction: undefined,
-  onOpenProvider: undefined,
-  onCreateProvider: undefined,
-  fetchProviders: vi.fn(),
-  fetchDomains: vi.fn(),
-  onCreateDomain: vi.fn(),
-  onVerifyDomain: vi.fn(),
-  onDeleteDomain: vi.fn(),
-  onAssociateToProvider: vi.fn(),
-  onDeleteFromProvider: vi.fn(),
-  ...overrides,
-});
-
-export const createMockApi = (overrides: Partial<UseDomainTableLogicOptions> = {}) => ({
   showCreateModal: false,
   showConfigureModal: false,
   showVerifyModal: false,
@@ -156,8 +137,8 @@ export const createMockApi = (overrides: Partial<UseDomainTableLogicOptions> = {
   selectedDomain: null,
   setShowCreateModal: vi.fn(),
   setShowConfigureModal: vi.fn(),
-  setShowDeleteModal: vi.fn(),
   setShowVerifyModal: vi.fn(),
+  setShowDeleteModal: vi.fn(),
   handleCreate: vi.fn(),
   handleVerify: vi.fn(),
   handleDelete: vi.fn(),
@@ -167,5 +148,52 @@ export const createMockApi = (overrides: Partial<UseDomainTableLogicOptions> = {
   handleConfigureClick: vi.fn(),
   handleVerifyClick: vi.fn(),
   handleDeleteClick: vi.fn(),
+  ...overrides,
+});
+
+export const createMockDomainTableServiceOptions = (
+  overrides?: Partial<UseDomainTableServiceOptions>,
+): UseDomainTableServiceOptions => ({
+  createAction: {
+    onBefore: vi.fn().mockReturnValue(true),
+    onAfter: vi.fn(),
+  },
+  deleteAction: {
+    onBefore: vi.fn().mockReturnValue(true),
+    onAfter: vi.fn(),
+  },
+  verifyAction: {
+    onBefore: vi.fn().mockReturnValue(true),
+    onAfter: vi.fn(),
+  },
+  associateToProviderAction: {
+    onBefore: vi.fn().mockReturnValue(true),
+    onAfter: vi.fn(),
+  },
+  deleteFromProviderAction: {
+    onBefore: vi.fn().mockReturnValue(true),
+    onAfter: vi.fn(),
+  },
+  customMessages: {},
+  ...overrides,
+});
+
+export const createMockDomainTableServiceReturn = (
+  overrides: Partial<UseDomainTableServiceReturn> = {},
+): UseDomainTableServiceReturn => ({
+  domains: [],
+  providers: [],
+  isFetching: false,
+  isCreating: false,
+  isDeleting: false,
+  isVerifying: false,
+  isLoadingProviders: false,
+  fetchProviders: vi.fn(),
+  fetchDomains: vi.fn(),
+  onCreateDomain: vi.fn(),
+  onVerifyDomain: vi.fn(),
+  onDeleteDomain: vi.fn(),
+  onAssociateToProvider: vi.fn(),
+  onDeleteFromProvider: vi.fn(),
   ...overrides,
 });

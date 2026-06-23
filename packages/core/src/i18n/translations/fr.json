@@ -2,6 +2,11 @@
   "common": {
     "copy": "Copier",
     "copied": "Copié!",
+    "copy_failed": "Échec de la copie",
+    "data_table": {
+      "select_all": "Sélectionner toutes les lignes",
+      "select_row": "Sélectionner la ligne"
+    },
     "error": {
       "generic": "Un problème est survenu lors du traitement de votre demande. Veuillez réessayer ou contacter le support si le problème persiste.",
       "bad_request": "La demande est invalide. Veuillez vérifier votre saisie et réessayer.",
@@ -9,7 +14,8 @@
       "insufficient_scope": "Vous n'avez pas les autorisations de portée requises pour effectuer cette action.",
       "forbidden": "Vous n'avez pas les autorisations pour effectuer cette action.",
       "not_found": "La ressource demandée n'a pas été trouvée.",
-      "rate_limit": "Trop de demandes. Veuillez patienter un instant et réessayer."
+      "rate_limit": "Trop de demandes. Veuillez patienter un instant et réessayer.",
+      "network": "Un problème est survenu lors de la connexion au serveur. Veuillez réessayer."
     }
   },
   "gate_keeper": {
@@ -1014,6 +1020,126 @@
         "enter_verify_code": "Entrez le code à 6 chiffres que nous avons envoyé à ${verifier}",
         "enter_opt_code": "Entrez le code de votre authentificateur",
         "install_guardian_description": "Pour continuer, installez l'application Auth0 Guardian via l'app store depuis votre appareil mobile"
+      }
+    }
+  },
+  "member_management": {
+    "member": {
+      "table": {
+        "columns": {
+          "name": "Nom",
+          "email": "E-mail",
+          "roles": "Rôles",
+          "last_login": "Dernière connexion"
+        },
+        "empty_message": "Cette organisation n'a aucun membre.",
+        "search_placeholder": "Rechercher un membre par nom ou e-mail",
+        "filter_by_role": "Filtrer par rôle",
+        "all_roles": "Tous",
+        "reset_filter": "Réinitialiser",
+        "never": "Jamais",
+        "just_now": "À l'instant",
+        "ago": "il y a",
+        "minute": "minute",
+        "minutes": "minutes",
+        "hour": "heure",
+        "hours": "heures",
+        "day": "jour",
+        "days": "jours",
+        "week": "semaine",
+        "weeks": "semaines",
+        "month": "mois",
+        "months": "mois",
+        "year": "an",
+        "years": "ans"
+      },
+      "actions": {
+        "menu_label": "Actions",
+        "view_details": "Afficher les détails",
+        "assign_role": "Attribuer un rôle",
+        "remove_from_organization": "Supprimer de l'organisation"
+      },
+      "error": {
+        "fetch_failed": "Échec du chargement des membres. Veuillez réessayer.",
+        "remove_failed": "Échec de la suppression du membre. Veuillez réessayer.",
+        "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer.",
+        "too_many_roles_per_assignment": "Vous ne pouvez attribuer qu'un maximum de 10 rôles à la fois.",
+        "too_many_roles_per_removal": "Vous ne pouvez supprimer qu'un maximum de 10 rôles à la fois.",
+        "member_role_limit_exceeded": "Vous avez atteint le maximum de 50 rôles pour ce membre."
+      },
+      "detail": {
+        "back_button": "Retour aux membres",
+        "user_id_label": "ID utilisateur:",
+        "tabs": {
+          "details": "Détails",
+          "roles": "Rôles"
+        },
+        "user_details": {
+          "title": "Détails de l'utilisateur",
+          "name": "Nom",
+          "email": "E-mail",
+          "phone_number": "Numéro de téléphone",
+          "provider": "Fournisseur",
+          "created_at": "Créé le",
+          "last_login": "Dernière connexion"
+        },
+        "actions": {
+          "remove_from_organization": {
+            "title": "Retirer un membre de l'organisation",
+            "description": "Une fois confirmée, cette opération ne peut pas être annulée.",
+            "button": "Supprimer",
+            "success": "${memberName} a été retiré de ${organizationName}.",
+            "modal": {
+              "title": "Retirer un membre de ${organizationName}",
+              "description": "Êtes-vous sûr de vouloir retirer <bold>\"${memberName}\"</bold> de cette organisation ? Cette action ne supprimera pas son compte, mais révoquera son accès et l'empêchera de se connecter.",
+              "cancel_button": "Annuler",
+              "confirm_button": "Retirer"
+            }
+          }
+        },
+        "roles": {
+          "title": "Rôles",
+          "description": "Gérez les rôles et autorisations de l'utilisateur pour l'accès à ${organizationName}.",
+          "assign_button": "Attribuer des rôles",
+          "no_roles_available": "Il n'y a plus de rôles disponibles à attribuer à ce membre.",
+          "max_roles_reached": "Vous avez atteint le nombre maximum de ${max} rôles pour ce membre.",
+          "remove_button": "Supprimer le rôle",
+          "remove_button_plural": "Supprimer les rôles",
+          "roles_selected": "${count} rôle sélectionné",
+          "roles_selected_plural": "${count} rôles sélectionnés",
+          "table": {
+            "name": "Nom",
+            "description": "Description",
+            "empty_message": "Aucun rôle attribué.",
+            "remove_button_label": "Supprimer le rôle ${roleName}"
+          },
+          "assign_modal": {
+            "title": "Attribuer des rôles",
+            "roles_label": "Rôles",
+            "roles_placeholder": "Sélectionner un ou des rôles",
+            "submit_button": "Attribuer le(s) rôle(s)",
+            "cancel_button": "Annuler",
+            "no_roles_available": "Tous les rôles disponibles sont déjà attribués.",
+            "success": "Le rôle a été attribué.",
+            "success_plural": "Les rôles ont été attribués."
+          },
+          "remove_confirm": {
+            "title": "Retirer le rôle du membre ?",
+            "title_plural": "Retirer les rôles du membre ?",
+            "description": "Cela retirera le rôle <bold>${roleName}</bold> de <bold>\"${memberName}\"</bold>.",
+            "confirm_button": "Retirer",
+            "cancel_button": "Annuler",
+            "success": "Le rôle \"${roleName}\" a été retiré du membre.",
+            "success_plural": "Les rôles \"${roleNames}\" ont été retirés du membre."
+          }
+        },
+        "error": {
+          "fetch_failed": "Échec du chargement des détails du membre. Veuillez réessayer.",
+          "fetch_roles_failed": "Échec du chargement des rôles du membre. Veuillez réessayer.",
+          "remove_from_organization_failed": "Échec du retrait du membre de l'organisation. Veuillez réessayer.",
+          "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer.",
+          "remove_role_failed": "Échec du retrait du rôle. Veuillez réessayer."
+        }
       }
     }
   }

@@ -77,6 +77,8 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
         client_id: waadData?.client_id || '',
         client_secret: waadData?.client_secret || '',
         callback_url: waadData?.callback_url || callbackUrl,
+        show_as_button: waadData?.show_as_button ?? false,
+        assign_membership_on_login: waadData?.assign_membership_on_login ?? false,
       },
     });
 
