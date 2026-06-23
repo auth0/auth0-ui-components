@@ -19,9 +19,11 @@
   "sidebar": {
     "my-account": "My Account",
     "multi-factor-authentication": "Multi-Factor Authentication",
+    "passkeys": "Passkeys",
     "my-organization": "My Organization",
     "organization-management": "Organization Management",
     "sso-provider": "SSO Provider",
-    "domain-management": "Domain Management"
+    "domain-management": "Domain Management",
+    "member-management": "Members"
   }
 }

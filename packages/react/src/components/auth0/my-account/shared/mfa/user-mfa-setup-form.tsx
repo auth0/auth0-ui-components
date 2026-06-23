@@ -190,7 +190,7 @@ export function UserMFASetupForm({
         style={currentStyles.variables}
         aria-describedby="mfa-setup-form"
         className={cn(
-          'w-[400px] max-h-[90vh]',
+          'w-[600px] max-h-[90vh]',
           currentStyles.classes?.['UserMFASetupForm-dialogContent'],
         )}
       >

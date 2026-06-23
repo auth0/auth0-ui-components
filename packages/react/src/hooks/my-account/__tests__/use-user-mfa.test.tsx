@@ -217,11 +217,20 @@ describe('useUserMFA', () => {
     expect(result.current.recoveryCode).toBe('');
   });
 
-  it('refetches when closing dialog for push notification', async () => {
+  it('refetches when closing dialog for push notification after QR phase was reached', async () => {
+    mockEnrollWith({ auth_session: 'push-sess', barcode_uri: 'push-uri' });
+    const { result } = render();
+    await act(() => result.current.handleEnroll(FACTOR_TYPE_PUSH_NOTIFICATION));
+    await act(() => result.current.handleEnterQRPhase());
+    await act(() => result.current.handleCloseEnrollDialog());
+    expect(mockService.factorsQuery.refetch).toHaveBeenCalled();
+  });
+
+  it('does not refetch when closing dialog for push notification at installation phase', async () => {
     const { result } = render();
     await act(() => result.current.handleEnroll(FACTOR_TYPE_PUSH_NOTIFICATION));
     await act(() => result.current.handleCloseEnrollDialog());
-    expect(mockService.factorsQuery.refetch).toHaveBeenCalled();
+    expect(mockService.factorsQuery.refetch).not.toHaveBeenCalled();
   });
 
   it('does not refetch when closing dialog for non-push factor', async () => {

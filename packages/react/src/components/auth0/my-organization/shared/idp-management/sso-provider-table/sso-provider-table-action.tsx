@@ -14,7 +14,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
-import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -73,26 +72,22 @@ export function SsoProviderTableActionsColumn({
 
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
-      {isUpdating && isUpdatingId === provider.id ? (
-        <Spinner size="sm" className="m-auto" />
-      ) : (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="flex items-center">
-              <Switch
-                checked={provider.is_enabled ?? false}
-                onCheckedChange={handleToggleEnabled}
-                disabled={readOnly || isUpdating}
-              />
-            </span>
-          </TooltipTrigger>
-          <TooltipContent>
-            {provider.is_enabled
-              ? t('table.actions.enabled_tooltip')
-              : t('table.actions.disabled_tooltip')}
-          </TooltipContent>
-        </Tooltip>
-      )}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="flex items-center">
+            <Switch
+              checked={provider.is_enabled ?? false}
+              onCheckedChange={handleToggleEnabled}
+              disabled={readOnly || (isUpdating && isUpdatingId === provider.id)}
+            />
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>
+          {provider.is_enabled
+            ? t('table.actions.enabled_tooltip')
+            : t('table.actions.disabled_tooltip')}
+        </TooltipContent>
+      </Tooltip>
 
       <DropdownMenu>
         <DropdownMenuTrigger className="h-8 w-8 p-0 rounded-xl bg-primary border border-primary/20 shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50">

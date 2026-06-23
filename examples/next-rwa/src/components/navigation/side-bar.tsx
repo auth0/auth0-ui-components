@@ -1,7 +1,7 @@
 'use client';
 
 import { useUser } from '@auth0/nextjs-auth0';
-import { Building, Settings, Shield, User } from 'lucide-react';
+import { Building, KeyRound, Settings, Shield, User, Users } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -32,6 +32,15 @@ export const Sidebar: React.FC = () => {
                   >
                     <Shield className="h-4 w-4 flex-shrink-0" />
                     <span className="truncate">{t('sidebar.mfa')}</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/passkeys"
+                    className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-accent/60 rounded-md dark:text-gray-300 dark:hover:text-white transition-colors cursor-default"
+                  >
+                    <KeyRound className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">{t('sidebar.passkeys')}</span>
                   </Link>
                 </li>
               </ul>
@@ -72,6 +81,15 @@ export const Sidebar: React.FC = () => {
                 >
                   <Settings className="h-4 w-4 flex-shrink-0" />
                   <span className="truncate">{t('sidebar.identity-providers')}</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/member-management"
+                  className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800 transition-colors"
+                >
+                  <Users className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{t('sidebar.member-management')}</span>
                 </Link>
               </li>
             </ul>
