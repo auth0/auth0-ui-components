@@ -111,7 +111,6 @@ export function useUserMFA({
         handleError(err);
         return;
       }
-      const label = stage === ENROLL ? t('enrollment') : t('confirmation');
       const error = normalizeError(err, {
         resolver: (code) => {
           const key = ERROR_CODE_TRANSLATION_KEYS[code];
@@ -119,7 +118,7 @@ export function useUserMFA({
           return t(`errors.${factor}.${key}`, {}, undefined);
         },
       });
-      toast.error(`${label} ${t('errors.failed', { message: error.message })}`);
+      toast.error(error.message);
       onErrorAction?.(error, stage);
     },
     [handleError, onErrorAction, t],

@@ -1007,7 +1007,8 @@
         "unsupported_challenge_type": "SMS Verifier is disabled for your tenant. You can turn it on from dashboard turning on \"SMS\" on Guardian MFA section.",
         "bad_gateway": "The phone number is invalid.",
         "too_many_entities": "You reached the limit of entities of the sms type for this user.",
-        "invalid_phone_number": "Invalid phone number"
+        "invalid_phone_number": "Invalid phone number",
+        "invalid_code": "Invalid Otp Code"
       },
       "email": {
         "expired_token": "Verification code is expired",

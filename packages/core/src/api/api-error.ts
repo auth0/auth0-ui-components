@@ -11,13 +11,11 @@ import type { ApiError } from './api-types';
  */
 export const ERROR_CODES = {
   INSUFFICIENT_SCOPE: 'A0E-403-0002',
-  INVALID_CODE: 'A0E-403-0001',
-  INVALID_PHONE_NUMBER: 'A0E-400-0001',
 };
 
 export const ERROR_CODE_TRANSLATION_KEYS: Record<string, string> = {
-  [ERROR_CODES.INVALID_CODE]: 'invalid_code',
-  [ERROR_CODES.INVALID_PHONE_NUMBER]: 'invalid_phone_number',
+  invalid_phone_number: 'invalid_phone_number',
+  invalid_code: 'invalid_code',
 };
 
 /**
@@ -98,6 +96,12 @@ export function normalizeError(
       }
     }
     if (typeof error.body?.detail === 'string') {
+      if (options?.resolver) {
+        // Normalize spaces→underscores so "invalid code" (403) and "invalid_phone_number" (400) use the same key space.
+        const normalizedDetail = error.body.detail.replaceAll(' ', '_');
+        const resolved = options.resolver(normalizedDetail);
+        if (resolved) return new Error(resolved);
+      }
       return new Error(error.body.detail);
     }
   }
