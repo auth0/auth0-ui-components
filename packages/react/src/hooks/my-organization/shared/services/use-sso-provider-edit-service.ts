@@ -9,6 +9,7 @@ import {
   OrganizationDetailsFactory,
   OrganizationDetailsMappers,
   SsoProviderMappers,
+  ssoProviderQueryKeys,
   type IdpKnownResponse,
   type IdpId,
   type OrganizationPrivate,
@@ -17,13 +18,13 @@ import {
   type GetIdPProvisioningConfigResponseContent,
   getStatusCode,
 } from '@auth0/universal-components-core';
-import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseSsoProviderEditOptions,
@@ -34,15 +35,6 @@ const ACTION_CANCELLED_ERROR = 'ACTION_CANCELLED';
 
 const isActionCancelledError = (error: unknown): boolean => {
   return error instanceof Error && error.message === ACTION_CANCELLED_ERROR;
-};
-
-export const ssoProviderEditQueryKeys = {
-  all: ['sso-providers'] as const,
-  list: () => [...ssoProviderEditQueryKeys.all, 'list'] as const,
-  detail: (idpId: IdpId) => [...ssoProviderEditQueryKeys.all, 'detail', idpId] as const,
-  organization: () => ['organization', 'details'] as const,
-  provisioning: (idpId: IdpId) => [...ssoProviderEditQueryKeys.all, 'provisioning', idpId] as const,
-  scimTokens: (idpId: IdpId) => [...ssoProviderEditQueryKeys.all, 'scim-tokens', idpId] as const,
 };
 
 /**
@@ -60,16 +52,13 @@ export function useSsoProviderEditService(
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const queryClient = useQueryClient();
   const handleError = useErrorHandler();
-  const hasShownProviderError = useRef(false);
-  const hasShownProvisioningError = useRef(false);
-  const hasShownOrganizationError = useRef(false);
 
   /**
    * Provider query - fetches the identity provider details.
    * TanStack Query handles caching, loading states, and refetching.
    */
   const providerQuery = useQuery({
-    queryKey: ssoProviderEditQueryKeys.detail(idpId),
+    queryKey: ssoProviderQueryKeys.detail(idpId),
     queryFn: async (): Promise<IdpKnownResponse> => {
       const response = await coreClient!
         .getMyOrganizationApiClient()
@@ -84,7 +73,7 @@ export function useSsoProviderEditService(
    * Shared across the application, so it uses a common query key.
    */
   const organizationQuery = useQuery({
-    queryKey: ssoProviderEditQueryKeys.organization(),
+    queryKey: ssoProviderQueryKeys.organization(),
     queryFn: async (): Promise<OrganizationPrivate> => {
       const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
       return OrganizationDetailsMappers.fromAPI(response);
@@ -98,7 +87,7 @@ export function useSsoProviderEditService(
    * Returns null if provisioning is not configured (404).
    */
   const provisioningQuery = useQuery({
-    queryKey: ssoProviderEditQueryKeys.provisioning(idpId),
+    queryKey: ssoProviderQueryKeys.provisioning(idpId),
     queryFn: async (): Promise<GetIdPProvisioningConfigResponseContent | null> => {
       try {
         const result = await coreClient!
@@ -116,38 +105,9 @@ export function useSsoProviderEditService(
     enabled: !!coreClient && !!idpId,
   });
 
-  useEffect(() => {
-    if (providerQuery.isError && !hasShownProviderError.current) {
-      handleError(providerQuery.error, { fallbackMessage: t('general_error') });
-      hasShownProviderError.current = true;
-    }
-
-    if (!providerQuery.isError) {
-      hasShownProviderError.current = false;
-    }
-  }, [providerQuery.isError, providerQuery.error, t, handleError]);
-
-  useEffect(() => {
-    if (organizationQuery.isError && !hasShownOrganizationError.current) {
-      handleError(organizationQuery.error, { fallbackMessage: t('general_error') });
-      hasShownOrganizationError.current = true;
-    }
-
-    if (!organizationQuery.isError) {
-      hasShownOrganizationError.current = false;
-    }
-  }, [organizationQuery.error, organizationQuery.isError, t, handleError]);
-
-  useEffect(() => {
-    if (provisioningQuery.isError && !hasShownProvisioningError.current) {
-      handleError(provisioningQuery.error, { fallbackMessage: t('general_error') });
-      hasShownProvisioningError.current = true;
-    }
-
-    if (!provisioningQuery.isError) {
-      hasShownProvisioningError.current = false;
-    }
-  }, [provisioningQuery.isError, provisioningQuery.error, t, handleError]);
+  useQueryErrorToast(providerQuery, t('general_error'));
+  useQueryErrorToast(organizationQuery, t('general_error'));
+  useQueryErrorToast(provisioningQuery, t('general_error'));
 
   /**
    * Update provider mutation - updates SSO provider configuration.
@@ -187,7 +147,7 @@ export function useSsoProviderEditService(
       await queryClient.invalidateQueries({
         queryKey: ssoProviderQueryKeys.list(),
       });
-      queryClient.setQueryData(ssoProviderEditQueryKeys.detail(idpId), result);
+      queryClient.setQueryData(ssoProviderQueryKeys.detail(idpId), result);
 
       if (sso?.updateAction?.onAfter && provider) {
         await sso.updateAction.onAfter(provider, result);
@@ -232,9 +192,9 @@ export function useSsoProviderEditService(
         message: t('update_success', { providerName: provider?.display_name }),
       });
       await queryClient.invalidateQueries({
-        queryKey: ssoProviderEditQueryKeys.detail(idpId),
+        queryKey: ssoProviderQueryKeys.detail(idpId),
       });
-      queryClient.setQueryData(ssoProviderEditQueryKeys.provisioning(idpId), result);
+      queryClient.setQueryData(ssoProviderQueryKeys.provisioning(idpId), result);
 
       if (provisioning?.createAction?.onAfter && provider) {
         await provisioning.createAction.onAfter(provider, result);
@@ -276,9 +236,9 @@ export function useSsoProviderEditService(
         type: 'success',
         message: t('update_success', { providerName: provider?.display_name }),
       });
-      queryClient.setQueryData(ssoProviderEditQueryKeys.provisioning(idpId), null);
+      queryClient.setQueryData(ssoProviderQueryKeys.provisioning(idpId), null);
       await queryClient.invalidateQueries({
-        queryKey: ssoProviderEditQueryKeys.detail(idpId),
+        queryKey: ssoProviderQueryKeys.detail(idpId),
       });
 
       if (provisioning?.deleteAction?.onAfter && provider) {
@@ -324,7 +284,7 @@ export function useSsoProviderEditService(
         message: t('scim_token_create_success'),
       });
       await queryClient.invalidateQueries({
-        queryKey: ssoProviderEditQueryKeys.scimTokens(idpId),
+        queryKey: ssoProviderQueryKeys.scimTokens(idpId),
       });
 
       if (provisioning?.createScimTokenAction?.onAfter && provider) {
@@ -365,10 +325,10 @@ export function useSsoProviderEditService(
 
       showToast({
         type: 'success',
-        message: t('scim_token_delete_sucess'),
+        message: t('scim_token_delete_success'),
       });
       await queryClient.invalidateQueries({
-        queryKey: ssoProviderEditQueryKeys.scimTokens(idpId),
+        queryKey: ssoProviderQueryKeys.scimTokens(idpId),
       });
 
       if (provisioning?.deleteScimTokenAction?.onAfter && provider) {
@@ -405,16 +365,16 @@ export function useSsoProviderEditService(
         message: t('delete_success', { providerName: provider?.display_name }),
       });
       queryClient.removeQueries({
-        queryKey: ssoProviderEditQueryKeys.detail(idpId),
+        queryKey: ssoProviderQueryKeys.detail(idpId),
       });
       queryClient.removeQueries({
-        queryKey: ssoProviderEditQueryKeys.provisioning(idpId),
+        queryKey: ssoProviderQueryKeys.provisioning(idpId),
       });
       queryClient.removeQueries({
-        queryKey: ssoProviderEditQueryKeys.scimTokens(idpId),
+        queryKey: ssoProviderQueryKeys.scimTokens(idpId),
       });
       await queryClient.invalidateQueries({
-        queryKey: ssoProviderEditQueryKeys.all,
+        queryKey: ssoProviderQueryKeys.all,
       });
 
       if (sso?.deleteAction?.onAfter && provider) {
@@ -443,7 +403,7 @@ export function useSsoProviderEditService(
         }
       }
       await queryClient.ensureQueryData({
-        queryKey: ssoProviderEditQueryKeys.organization(),
+        queryKey: ssoProviderQueryKeys.organization(),
       });
 
       await coreClient!
@@ -462,9 +422,9 @@ export function useSsoProviderEditService(
         }),
       });
       queryClient.removeQueries({
-        queryKey: ssoProviderEditQueryKeys.detail(idpId),
+        queryKey: ssoProviderQueryKeys.detail(idpId),
       });
-      await queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.list() });
+      await queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
 
       if (sso?.deleteFromOrganizationAction?.onAfter && provider) {
         await sso.deleteFromOrganizationAction.onAfter(provider);
@@ -485,7 +445,7 @@ export function useSsoProviderEditService(
 
     try {
       const data = await queryClient.ensureQueryData({
-        queryKey: ssoProviderEditQueryKeys.detail(idpId),
+        queryKey: ssoProviderQueryKeys.detail(idpId),
         queryFn: async () => {
           const response = await coreClient
             .getMyOrganizationApiClient()
@@ -505,7 +465,7 @@ export function useSsoProviderEditService(
       return;
     }
 
-    await queryClient.getQueryData(ssoProviderEditQueryKeys.organization());
+    await queryClient.getQueryData(ssoProviderQueryKeys.organization());
   }, [coreClient, queryClient]);
 
   const fetchProvisioning =
@@ -516,7 +476,7 @@ export function useSsoProviderEditService(
 
       try {
         const data = await queryClient.fetchQuery({
-          queryKey: ssoProviderEditQueryKeys.provisioning(idpId),
+          queryKey: ssoProviderQueryKeys.provisioning(idpId),
           queryFn: async () => {
             try {
               const result = await coreClient
@@ -665,7 +625,7 @@ export function useSsoProviderEditService(
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ssoProviderEditQueryKeys.detail(idpId),
+        queryKey: ssoProviderQueryKeys.detail(idpId),
       });
       showToast({
         type: 'success',
@@ -693,7 +653,7 @@ export function useSsoProviderEditService(
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ssoProviderEditQueryKeys.provisioning(idpId),
+        queryKey: ssoProviderQueryKeys.provisioning(idpId),
       });
       showToast({
         type: 'success',

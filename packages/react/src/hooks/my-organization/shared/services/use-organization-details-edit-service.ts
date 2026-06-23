@@ -8,21 +8,18 @@
 import {
   OrganizationDetailsFactory,
   OrganizationDetailsMappers,
+  organizationDetailsQueryKeys,
   type OrganizationPrivate,
 } from '@auth0/universal-components-core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { UseOrganizationDetailsEditServiceOptions } from '@/types/my-organization/organization-management/organization-details-edit-types';
-
-export const organizationDetailsQueryKeys = {
-  all: ['organization-details'] as const,
-  details: () => [...organizationDetailsQueryKeys.all, 'details'] as const,
-};
 
 const EMPTY_ORGANIZATION = OrganizationDetailsFactory.create();
 
@@ -52,13 +49,7 @@ export function useOrganizationDetailsEditService({
     enabled: !!coreClient,
   });
 
-  useEffect(() => {
-    if (organizationQuery.error) {
-      handleError(organizationQuery.error, {
-        fallbackMessage: t('organization_changes_error_message_generic'),
-      });
-    }
-  }, [organizationQuery.error, t, handleError]);
+  useQueryErrorToast(organizationQuery, t('organization_changes_error_message_generic'));
 
   const organization = organizationQuery.data ?? EMPTY_ORGANIZATION;
 

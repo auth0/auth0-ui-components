@@ -7,18 +7,13 @@
 import type { IdpId } from '@auth0/universal-components-core';
 import { useCallback } from 'react';
 
-import {
-  useSsoProviderEditService,
-  ssoProviderEditQueryKeys,
-} from '@/hooks/my-organization/shared/services/use-sso-provider-edit-service';
+import { useSsoProviderEditService } from '@/hooks/my-organization/shared/services/use-sso-provider-edit-service';
 import { useConfig } from '@/hooks/my-organization/use-config';
 import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import type {
   UseSsoProviderEditOptions,
   UseSsoProviderEditReturn,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
-
-export { ssoProviderEditQueryKeys };
 
 /**
  * Hook for editing SSO provider settings and provisioning.

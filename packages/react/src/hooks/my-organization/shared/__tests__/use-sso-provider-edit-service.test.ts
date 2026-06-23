@@ -45,7 +45,7 @@ describe('useSsoProviderEditService', () => {
     if (key === 'scim_token_create_success') {
       return 'SCIM token created successfully';
     }
-    if (key === 'scim_token_delete_sucess') {
+    if (key === 'scim_token_delete_success') {
       return 'SCIM token deleted successfully';
     }
     if (key === 'general_error') {
@@ -1358,7 +1358,7 @@ describe('useSsoProviderEditService', () => {
 
       await result.current.syncSsoAttributes();
 
-      // Should not throw or call any API
+      expect(mockUpdate).not.toHaveBeenCalled();
     });
 
     it('should return early from syncProvisioningAttributes if coreClient is null', async () => {
@@ -1368,7 +1368,7 @@ describe('useSsoProviderEditService', () => {
 
       await result.current.syncProvisioningAttributes();
 
-      // Should not throw or call any API
+      expect(mockUpdate).not.toHaveBeenCalled();
     });
   });
 
@@ -1419,7 +1419,7 @@ describe('useSsoProviderEditService', () => {
 
       await result.current.fetchOrganizationDetails();
 
-      // Should not throw - early return when coreClient is null
+      expect(mockGetOrgDetails).not.toHaveBeenCalled();
     });
   });
 });
