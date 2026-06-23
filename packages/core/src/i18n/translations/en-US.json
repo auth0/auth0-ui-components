@@ -2,6 +2,11 @@
   "common": {
     "copy": "Copy",
     "copied": "Copied!",
+    "copy_failed": "Failed to copy",
+    "data_table": {
+      "select_all": "Select all rows",
+      "select_row": "Select row"
+    },
     "error": {
       "generic": "There was an issue processing your request. Please try again or contact support if the issue persists.",
       "bad_request": "The request is invalid. Please check your input and try again.",
@@ -9,7 +14,8 @@
       "insufficient_scope": "You do not have the required scope permissions to perform this action.",
       "forbidden": "You do not have permissions to perform this action.",
       "not_found": "The requested resource was not found.",
-      "rate_limit": "Too many requests. Please wait a moment and try again."
+      "rate_limit": "Too many requests. Please wait a moment and try again.",
+      "network": "There was an issue connecting to the server. Please try again."
     }
   },
   "gate_keeper": {
@@ -502,8 +508,8 @@
               "title": "Advanced Settings",
               "sign_request": {
                 "label": "Sign Request",
-                "helper_text_metadata_file": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature. This needs to be enabled first in the SAMLP. Once enabled, share the metadata URL for integration.",
-                "helper_text_metadata_url": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature."
+                "helper_text_metadata_file": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature. This needs to be enabled first in the SAMLP. Once enabled, share the metadata URL for integration.",
+                "helper_text_metadata_url": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature."
               },
               "request_protocol_binding": {
                 "label": "Request Protocol Binding",
@@ -580,7 +586,7 @@
               "title": "Advanced Settings",
               "sign_request": {
                 "label": "Sign Request",
-                "helper_text": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature. This needs to be enabled first in the SAMLP. Once enabled, share the metadata URL for integration.",
+                "helper_text": "When enabled, the SAML authentication request will be signed. Download the <link>certificate</link> and provide it to the SAMLP that will receive the signed assertion to validate the signature. This needs to be enabled first in the SAMLP. Once enabled, share the metadata URL for integration.",
                 "error": "Please select an option"
               },
               "sign_request_algorithm": {
@@ -1093,20 +1099,117 @@
         "columns": {
           "name": "Name",
           "email": "Email",
-          "roles": "Roles"
+          "roles": "Roles",
+          "last_login": "Last Login"
         },
-        "empty_message": "No members found."
+        "empty_message": "This organization does not have any members.",
+        "search_placeholder": "Search for a member by name or email",
+        "filter_by_role": "Filter By Role",
+        "all_roles": "All",
+        "reset_filter": "Reset",
+        "never": "Never",
+        "just_now": "Just now",
+        "ago": "ago",
+        "minute": "minute",
+        "minutes": "minutes",
+        "hour": "hour",
+        "hours": "hours",
+        "day": "day",
+        "days": "days",
+        "week": "week",
+        "weeks": "weeks",
+        "month": "month",
+        "months": "months",
+        "year": "year",
+        "years": "years"
       },
-      "remove": {
-        "title": "Remove Member",
-        "description": "Are you sure you want to remove ${name} from this organization?",
-        "confirm_button": "Remove",
-        "cancel_button": "Cancel",
-        "success": "${name} has been removed from the organization."
+      "actions": {
+        "menu_label": "Actions",
+        "view_details": "View Details",
+        "assign_role": "Assign Role",
+        "remove_from_organization": "Remove from Organization"
       },
       "error": {
         "fetch_failed": "Failed to load members. Please try again.",
-        "remove_failed": "Failed to remove member. Please try again."
+        "remove_failed": "Failed to remove member. Please try again.",
+        "assign_role_failed": "Failed to assign role. Please try again.",
+        "too_many_roles_per_assignment": "You can only assign a maximum of 10 roles at a time.",
+        "too_many_roles_per_removal": "You can only remove a maximum of 10 roles at a time.",
+        "member_role_limit_exceeded": "You have reached the maximum of 50 roles for this member."
+      },
+      "detail": {
+        "back_button": "Back to Members",
+        "user_id_label": "User ID:",
+        "tabs": {
+          "details": "Details",
+          "roles": "Roles"
+        },
+        "user_details": {
+          "title": "User Details",
+          "name": "Name",
+          "email": "Email",
+          "phone_number": "Phone Number",
+          "provider": "Provider",
+          "created_at": "Created At",
+          "last_login": "Last Login"
+        },
+        "actions": {
+          "remove_from_organization": {
+            "title": "Remove Member from Organization",
+            "description": "Once confirmed, this operation cannot be undone.",
+            "button": "Delete",
+            "success": "${memberName} has been removed from the ${organizationName}.",
+            "modal": {
+              "title": "Remove Member from ${organizationName}",
+              "description": "Are you sure you want to remove <bold>\"${memberName}\"</bold> from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
+              "cancel_button": "Cancel",
+              "confirm_button": "Remove"
+            }
+          }
+        },
+        "roles": {
+          "title": "Roles",
+          "description": "Manage user roles and permissions when accessing ${organizationName}.",
+          "assign_button": "Assign Roles",
+          "no_roles_available": "There are no more roles available to assign to this member.",
+          "max_roles_reached": "You have reached the maximum of ${max} roles for this member.",
+          "remove_button": "Remove Role",
+          "remove_button_plural": "Remove Roles",
+          "roles_selected": "${count} role selected",
+          "roles_selected_plural": "${count} roles selected",
+          "table": {
+            "name": "Name",
+            "description": "Description",
+            "empty_message": "No roles assigned.",
+            "remove_button_label": "Remove role ${roleName}"
+          },
+          "assign_modal": {
+            "title": "Assign Roles",
+            "roles_label": "Roles",
+            "roles_placeholder": "Select role(s)",
+            "submit_button": "Assign Role(s)",
+            "cancel_button": "Cancel",
+            "no_roles_available": "All available roles are already assigned.",
+            "success": "The role has been assigned.",
+            "success_plural": "The roles have been assigned."
+          },
+          "remove_confirm": {
+            "title": "Remove Role from Member?",
+            "title_plural": "Remove Roles from Member?",
+            "description": "This will remove the <bold>${roleName}</bold> role from <bold>\"${memberName}\"</bold>.",
+            "confirm_button": "Remove",
+            "cancel_button": "Cancel",
+            "success": "\"${roleName}\" role has been removed from member.",
+            "success_plural": "\"${roleNames}\" roles have been removed from member."
+          }
+        },
+        "error": {
+          "fetch_failed": "Failed to load member details. Please try again.",
+          "fetch_roles_failed": "Failed to load member roles. Please try again.",
+          "remove_from_organization_failed": "Failed to remove member from organization. Please try again.",
+          "assign_role_failed": "Failed to assign role. Please try again.",
+          "remove_role_failed": "Failed to remove role. Please try again."
+        }
       }
     },
     "invitation": {
@@ -1132,6 +1235,7 @@
         "menu_label": "Actions",
         "view_details": "View Details",
         "copy_url": "Copy Invitation URL",
+        "copied": "Copied!",
         "revoke_and_resend": "Revoke and Resend",
         "revoke": "Revoke Invitation"
       },
@@ -1153,7 +1257,8 @@
         "submit_button": "Send Invite",
         "creating": "Creating...",
         "cancel_button": "Cancel",
-        "success": "Invitation sent to ${email}."
+        "success": "Invitation has been sent to ${email}.",
+        "success_bulk": "Invitations have been sent."
       },
       "details": {
         "title": "Invitation Details",
@@ -1185,7 +1290,7 @@
       },
       "success": {
         "url_copied": "Invitation URL copied to clipboard.",
-        "invitation_resent": "Invitation resent to ${email}."
+        "invitation_resent": "Previous invite revoked. A new invitation has been sent to ${email}."
       },
       "error": {
         "fetch_failed": "Failed to load invitations. Please try again.",

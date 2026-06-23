@@ -23,6 +23,7 @@
     "my-organization": "マイ組織",
     "organization-management": "組織管理",
     "sso-provider": "SSOプロバイダー",
-    "domain-management": "ドメイン管理"
+    "domain-management": "ドメイン管理",
+    "member-management": "メンバー"
   }
 }
