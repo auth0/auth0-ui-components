@@ -550,37 +550,30 @@ export function useSsoProviderEditService(
     }
   }, [coreClient, deleteProvisioningMutation, idpId, providerQuery.data]);
 
-  /**
-   * SCIM tokens query - fetches SCIM tokens for provisioning on demand.
-   * Uses enabled:false with manual refetch since tokens contain sensitive data
-   * and should only be fetched when explicitly requested.
-   */
-  const scimTokensQuery = useQuery({
-    queryKey: ssoProviderQueryKeys.scimTokens(idpId),
-    queryFn: async () => {
-      const result = await coreClient!
+  /** Fetches SCIM tokens on demand; uses mutation to avoid caching sensitive data. */
+  const listScimTokensMutation = useMutation({
+    mutationFn: async () => {
+      if (!coreClient || !idpId) {
+        return null;
+      }
+
+      const result = await coreClient
         .getMyOrganizationApiClient()
         .organization.identityProviders.provisioning.scimTokens.list(idpId);
       return result;
     },
-    enabled: false,
-    gcTime: 0,
+    onError: (error) => {
+      handleError(error, { fallbackMessage: t('general_error') });
+    },
   });
 
   const listScimTokens = useCallback(async () => {
-    if (!coreClient || !idpId) {
+    try {
+      return await listScimTokensMutation.mutateAsync();
+    } catch (error) {
       return null;
     }
-
-    const { data, error } = await scimTokensQuery.refetch();
-
-    if (error) {
-      handleError(error, { fallbackMessage: t('general_error') });
-      return null;
-    }
-
-    return data ?? null;
-  }, [coreClient, idpId, scimTokensQuery, handleError, t]);
+  }, [listScimTokensMutation]);
 
   const createScimToken = useCallback(
     async (data: CreateIdpProvisioningScimTokenRequestContent) => {
@@ -728,7 +721,7 @@ export function useSsoProviderEditService(
     isProvisioningUpdating: createProvisioningMutation.isPending,
     isProvisioningDeleting: deleteProvisioningMutation.isPending,
     isProvisioningLoading: provisioningQuery.isLoading || provisioningQuery.isFetching,
-    isScimTokensLoading: scimTokensQuery.isFetching,
+    isScimTokensLoading: listScimTokensMutation.isPending,
     isScimTokenCreating: createScimTokenMutation.isPending,
     isScimTokenDeleting: deleteScimTokenMutation.isPending,
     isSsoAttributesSyncing: syncSsoAttributesMutation.isPending,
