@@ -52,7 +52,7 @@ describe('OrganizationMemberTableActionsColumn', () => {
         screen.getByRole('menuitem', { name: 'member.actions.assign_role' }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('menuitem', { name: 'member.actions.remove_from_org' }),
+        screen.getByRole('menuitem', { name: 'member.actions.remove_from_organization' }),
       ).toBeInTheDocument();
     });
 
@@ -105,18 +105,20 @@ describe('OrganizationMemberTableActionsColumn', () => {
       expect(onAssignRole).toHaveBeenCalledWith(member);
     });
 
-    it('should call onRemoveFromOrg when Remove from Org is clicked', async () => {
+    it('should call onRemoveFromOrganization when Remove from Organization is clicked', async () => {
       const user = userEvent.setup();
-      const onRemoveFromOrg = vi.fn();
+      const onRemoveFromOrganization = vi.fn();
       const member = createMockMember();
-      const props = createMockMemberActionsColumnProps({ member, onRemoveFromOrg });
+      const props = createMockMemberActionsColumnProps({ member, onRemoveFromOrganization });
       renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
 
       await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
-      await user.click(screen.getByRole('menuitem', { name: 'member.actions.remove_from_org' }));
+      await user.click(
+        screen.getByRole('menuitem', { name: 'member.actions.remove_from_organization' }),
+      );
 
-      expect(onRemoveFromOrg).toHaveBeenCalledTimes(1);
-      expect(onRemoveFromOrg).toHaveBeenCalledWith(member);
+      expect(onRemoveFromOrganization).toHaveBeenCalledTimes(1);
+      expect(onRemoveFromOrganization).toHaveBeenCalledWith(member);
     });
   });
 });

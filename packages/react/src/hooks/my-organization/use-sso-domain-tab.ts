@@ -3,8 +3,13 @@
  * @module use-sso-domain-tab
  */
 
-import type { CreateOrganizationDomainRequestContent } from '@auth0/universal-components-core';
-import { BusinessError, type Domain, type IdpId } from '@auth0/universal-components-core';
+import {
+  type CreateOrganizationDomainRequestContent,
+  BusinessError,
+  ssoDomainQueryKeys,
+  type Domain,
+  type IdpId,
+} from '@auth0/universal-components-core';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useCallback, useState, useMemo, useEffect } from 'react';
 
@@ -18,12 +23,6 @@ import type {
   UseSsoDomainTabOptions,
   UseSsoDomainTabReturn,
 } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
-
-const domainQueryKeys = {
-  all: ['sso-domains'] as const,
-  lists: () => [...domainQueryKeys.all, 'list'] as const,
-  list: (idpId: IdpId) => [...domainQueryKeys.lists(), idpId] as const,
-};
 
 /**
  * Hook for SSO domain tab domain operations and state.
@@ -53,7 +52,7 @@ export function useSsoDomainTab(
 
   // Fetch domains list using TanStack Query
   const domainsQuery = useQuery({
-    queryKey: domainQueryKeys.list(idpId),
+    queryKey: ssoDomainQueryKeys.list(idpId),
     queryFn: async () => {
       const { response } = await coreClient!
         .getMyOrganizationApiClient()
@@ -102,7 +101,7 @@ export function useSsoDomainTab(
       return result;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: domainQueryKeys.list(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoDomainQueryKeys.list(idpId) });
       queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
     },
   });
@@ -128,7 +127,7 @@ export function useSsoDomainTab(
     },
     onSuccess: ({ updatedDomain, isVerified }, domain) => {
       if (isVerified) {
-        queryClient.setQueryData<Domain[]>(domainQueryKeys.list(idpId), (oldDomains) => {
+        queryClient.setQueryData<Domain[]>(ssoDomainQueryKeys.list(idpId), (oldDomains) => {
           if (!oldDomains) return oldDomains;
           return oldDomains.map((d) => (d.id === domain.id ? { ...d, ...updatedDomain } : d));
         });
@@ -158,7 +157,7 @@ export function useSsoDomainTab(
       return domain;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: domainQueryKeys.list(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoDomainQueryKeys.list(idpId) });
       queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
     },
   });

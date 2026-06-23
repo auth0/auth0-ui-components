@@ -13,8 +13,8 @@ mockToast();
 const createProps = (overrides = {}) => ({
   member: createMockMember(),
   customMessages: {},
-  isRemovingFromOrg: false,
-  onRemoveFromOrgClick: vi.fn(),
+  isRemovingFromOrganization: false,
+  onRemoveFromOrganizationClick: vi.fn(),
   ...overrides,
 });
 
@@ -32,15 +32,24 @@ describe('OrganizationMemberEditDetailsTab', () => {
       expect(screen.queryByText('member.detail.user_details.title')).not.toBeInTheDocument();
     });
 
+    it('does not render remove-from-org card when member is null', () => {
+      renderWithProviders(<OrganizationMemberEditDetailsTab {...createProps({ member: null })} />);
+      expect(
+        screen.queryByText('member.detail.actions.remove_from_organization.title'),
+      ).not.toBeInTheDocument();
+    });
+
     it('renders the remove-from-org card title', () => {
       renderWithProviders(<OrganizationMemberEditDetailsTab {...createProps()} />);
-      expect(screen.getByText('member.detail.actions.remove_from_org.title')).toBeInTheDocument();
+      expect(
+        screen.getByText('member.detail.actions.remove_from_organization.title'),
+      ).toBeInTheDocument();
     });
 
     it('renders the remove-from-org card description', () => {
       renderWithProviders(<OrganizationMemberEditDetailsTab {...createProps()} />);
       expect(
-        screen.getByText('member.detail.actions.remove_from_org.description'),
+        screen.getByText('member.detail.actions.remove_from_organization.description'),
       ).toBeInTheDocument();
     });
 
@@ -48,47 +57,49 @@ describe('OrganizationMemberEditDetailsTab', () => {
       renderWithProviders(<OrganizationMemberEditDetailsTab {...createProps()} />);
       expect(
         screen.getByRole('button', {
-          name: /member.detail.actions.remove_from_org.button/i,
+          name: /member.detail.actions.remove_from_organization.button/i,
         }),
       ).toBeInTheDocument();
     });
   });
 
-  describe('onRemoveFromOrgClick', () => {
+  describe('onRemoveFromOrganizationClick', () => {
     it('calls handler when remove button is clicked', async () => {
       const user = userEvent.setup();
-      const onRemoveFromOrgClick = vi.fn();
+      const onRemoveFromOrganizationClick = vi.fn();
       renderWithProviders(
-        <OrganizationMemberEditDetailsTab {...createProps({ onRemoveFromOrgClick })} />,
+        <OrganizationMemberEditDetailsTab {...createProps({ onRemoveFromOrganizationClick })} />,
       );
       await user.click(
         screen.getByRole('button', {
-          name: /member.detail.actions.remove_from_org.button/i,
+          name: /member.detail.actions.remove_from_organization.button/i,
         }),
       );
-      expect(onRemoveFromOrgClick).toHaveBeenCalledTimes(1);
+      expect(onRemoveFromOrganizationClick).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('isRemovingFromOrg', () => {
+  describe('isRemovingFromOrganization', () => {
     it('remove button is disabled when true', () => {
       renderWithProviders(
-        <OrganizationMemberEditDetailsTab {...createProps({ isRemovingFromOrg: true })} />,
+        <OrganizationMemberEditDetailsTab {...createProps({ isRemovingFromOrganization: true })} />,
       );
       expect(
         screen.getByRole('button', {
-          name: /member.detail.actions.remove_from_org.button/i,
+          name: /member.detail.actions.remove_from_organization.button/i,
         }),
       ).toBeDisabled();
     });
 
     it('remove button is enabled when false', () => {
       renderWithProviders(
-        <OrganizationMemberEditDetailsTab {...createProps({ isRemovingFromOrg: false })} />,
+        <OrganizationMemberEditDetailsTab
+          {...createProps({ isRemovingFromOrganization: false })}
+        />,
       );
       expect(
         screen.getByRole('button', {
-          name: /member.detail.actions.remove_from_org.button/i,
+          name: /member.detail.actions.remove_from_organization.button/i,
         }),
       ).not.toBeDisabled();
     });
@@ -101,7 +112,7 @@ describe('OrganizationMemberEditDetailsTab', () => {
           {...createProps({
             customMessages: {
               member: {
-                detail: { actions: { remove_from_org: { button: 'Custom Button' } } },
+                detail: { actions: { remove_from_organization: { button: 'Custom Button' } } },
               },
             },
           })}
@@ -115,7 +126,9 @@ describe('OrganizationMemberEditDetailsTab', () => {
         <OrganizationMemberEditDetailsTab
           {...createProps({
             customMessages: {
-              member: { detail: { actions: { remove_from_org: { title: 'Custom Title' } } } },
+              member: {
+                detail: { actions: { remove_from_organization: { title: 'Custom Title' } } },
+              },
             },
           })}
         />,

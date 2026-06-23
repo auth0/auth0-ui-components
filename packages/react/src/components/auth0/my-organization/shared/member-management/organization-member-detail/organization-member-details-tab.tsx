@@ -21,8 +21,8 @@ import type {
  */
 function RemoveMemberFromOrganizationCard({
   customMessages,
-  isRemovingFromOrg,
-  onRemoveFromOrgClick,
+  isRemovingFromOrganization,
+  onRemoveFromOrganizationClick,
 }: RemoveMemberFromOrganizationCardProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
@@ -30,20 +30,20 @@ function RemoveMemberFromOrganizationCard({
     <Card className="flex flex-row items-center justify-between gap-4 p-6">
       <div className="flex flex-col gap-1">
         <span className="text-sm font-medium text-primary">
-          {t('member.detail.actions.remove_from_org.title')}
+          {t('member.detail.actions.remove_from_organization.title')}
         </span>
         <span className="text-sm text-muted-foreground">
-          {t('member.detail.actions.remove_from_org.description')}
+          {t('member.detail.actions.remove_from_organization.description')}
         </span>
       </div>
       <Button
         variant="destructive"
         size="sm"
-        onClick={onRemoveFromOrgClick}
-        disabled={isRemovingFromOrg}
+        onClick={onRemoveFromOrganizationClick}
+        disabled={isRemovingFromOrganization}
         className="shrink-0"
       >
-        {t('member.detail.actions.remove_from_org.button')}
+        {t('member.detail.actions.remove_from_organization.button')}
       </Button>
     </Card>
   );
@@ -57,18 +57,17 @@ function RemoveMemberFromOrganizationCard({
 export function OrganizationMemberEditDetailsTab(
   props: OrganizationMemberEditDetailsTabProps,
 ): React.JSX.Element {
+  if (!props.member) {
+    return <div className="flex flex-col gap-10" />;
+  }
+
   return (
     <div className="flex flex-col gap-10">
-      {props.member && (
-        <OrganizationMemberUserDetails
-          member={props.member}
-          customMessages={props.customMessages}
-        />
-      )}
+      <OrganizationMemberUserDetails member={props.member} customMessages={props.customMessages} />
       <RemoveMemberFromOrganizationCard
         customMessages={props.customMessages}
-        isRemovingFromOrg={props.isRemovingFromOrg}
-        onRemoveFromOrgClick={props.onRemoveFromOrgClick}
+        isRemovingFromOrganization={props.isRemovingFromOrganization}
+        onRemoveFromOrganizationClick={props.onRemoveFromOrganizationClick}
       />
     </div>
   );
