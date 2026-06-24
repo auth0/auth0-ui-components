@@ -14,7 +14,6 @@ import {
 } from './telemetry';
 
 export const AUTH0_SCOPE_HEADER = HeaderName.Auth0Scope;
-export const AUTH0_CLIENT_HEADER = 'Auth0-Client';
 
 /**
  * Configuration for proxy mode fetcher with telemetry.
@@ -47,7 +46,7 @@ export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier 
     }
     if (config.telemetry.enabled) {
       headers.set(
-        AUTH0_CLIENT_HEADER,
+        HeaderName.Auth0Client,
         buildTelemetryHeader({
           isProxyMode: true,
           component: config.getComponent(),
@@ -84,7 +83,7 @@ export function createSpaFetcher(
     headers.set(HeaderName.ContentType, ContentType.JSON);
     if (telemetry.enabled) {
       headers.set(
-        AUTH0_CLIENT_HEADER,
+        HeaderName.Auth0Client,
         buildTelemetryHeader({
           isProxyMode: false,
           component: getComponent(),

@@ -12,6 +12,7 @@ export enum HeaderName {
   ContentType = 'Content-Type',
   Authorization = 'Authorization',
   Auth0Scope = 'auth0-scope',
+  Auth0Client = 'Auth0-Client',
 }
 
 /**

@@ -5,12 +5,7 @@ import {
   createMockContextInterface,
   TEST_DOMAIN,
 } from '../../internals/__mocks__/shared/api-service.mocks';
-import {
-  AUTH0_CLIENT_HEADER,
-  AUTH0_SCOPE_HEADER,
-  createProxyFetcher,
-  createSpaFetcher,
-} from '../api-utils';
+import { AUTH0_SCOPE_HEADER, createProxyFetcher, createSpaFetcher } from '../api-utils';
 import { ContentType, HeaderName } from '../http-constants';
 import type { TelemetryConfig } from '../telemetry';
 
@@ -140,7 +135,7 @@ describe('api-utils', () => {
       await fetcher('https://example.com/me/authentication-methods', { method: 'GET' }, undefined);
 
       const [, requestInit] = mockFetch.mock.calls[0]!;
-      const header = (requestInit?.headers as Headers).get(AUTH0_CLIENT_HEADER);
+      const header = (requestInit?.headers as Headers).get(HeaderName.Auth0Client);
       expect(header).toBeTruthy();
 
       const decoded = JSON.parse(atob(header!));
@@ -162,7 +157,7 @@ describe('api-utils', () => {
       await fetcher('https://example.com/my-org/identity-providers', { method: 'GET' }, undefined);
 
       const [, requestInit] = mockFetch.mock.calls[0]!;
-      const header = (requestInit?.headers as Headers).get(AUTH0_CLIENT_HEADER);
+      const header = (requestInit?.headers as Headers).get(HeaderName.Auth0Client);
       const decoded = JSON.parse(atob(header!));
       expect(decoded.component).toBe('organization-sso-configuration');
       expect(decoded.css).toBe('scoped');
@@ -196,7 +191,7 @@ describe('api-utils', () => {
       await fetcher('https://example.com/api', { method: 'GET' }, undefined);
 
       const [, requestInit] = mockFetch.mock.calls[0]!;
-      expect((requestInit?.headers as Headers).get(AUTH0_CLIENT_HEADER)).toBeNull();
+      expect((requestInit?.headers as Headers).get(HeaderName.Auth0Client)).toBeNull();
     });
   });
 
@@ -382,7 +377,7 @@ describe('api-utils', () => {
       await fetcher('https://example.com/me/authentication-methods', { method: 'GET' }, undefined);
 
       const [, requestInit] = mockFetchWithAuth.mock.calls[0]!;
-      const header = (requestInit?.headers as Headers).get(AUTH0_CLIENT_HEADER);
+      const header = (requestInit?.headers as Headers).get(HeaderName.Auth0Client);
       expect(header).toBeTruthy();
 
       const decoded = JSON.parse(atob(header!));
@@ -406,7 +401,7 @@ describe('api-utils', () => {
       await fetcher('https://example.com/my-org/domains', { method: 'GET' }, undefined);
 
       const [, requestInit] = mockFetchWithAuth.mock.calls[0]!;
-      const header = (requestInit?.headers as Headers).get(AUTH0_CLIENT_HEADER);
+      const header = (requestInit?.headers as Headers).get(HeaderName.Auth0Client);
       const decoded = JSON.parse(atob(header!));
       expect(decoded.component).toBe('organization-domain-management');
       expect(decoded.css).toBe('scoped');
@@ -425,7 +420,7 @@ describe('api-utils', () => {
       await fetcher('https://example.com/api', { method: 'GET' }, undefined);
 
       const [, requestInit] = mockFetchWithAuth.mock.calls[0]!;
-      expect((requestInit?.headers as Headers).get(AUTH0_CLIENT_HEADER)).toBeNull();
+      expect((requestInit?.headers as Headers).get(HeaderName.Auth0Client)).toBeNull();
     });
   });
 });
