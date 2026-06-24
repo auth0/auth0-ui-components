@@ -104,6 +104,8 @@ export const SamlpProviderForm = React.forwardRef<
       signatureAlgorithm: samlpData?.signatureAlgorithm || 'rsa-sha256',
       digestAlgorithm: samlpData?.digestAlgorithm || 'sha256',
       bindingMethod: samlpData?.bindingMethod || 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+      show_as_button: samlpData?.show_as_button ?? false,
+      assign_membership_on_login: samlpData?.assign_membership_on_login ?? false,
     },
   });
 

@@ -2,6 +2,11 @@
   "common": {
     "copy": "コピー",
     "copied": "コピーしました",
+    "copy_failed": "コピーに失敗しました",
+    "data_table": {
+      "select_all": "すべての行を選択",
+      "select_row": "行を選択"
+    },
     "error": {
       "generic": "リクエストの処理中に問題が発生しました。もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
       "bad_request": "リクエストが無効です。入力内容を確認してもう一度お試しください。",
@@ -9,7 +14,8 @@
       "insufficient_scope": "この操作を実行するために必要なスコープ権限がありません。",
       "forbidden": "この操作を実行する権限がありません。",
       "not_found": "リクエストされたリソースが見つかりませんでした。",
-      "rate_limit": "リクエストが多すぎます。しばらくお待ちいただいてから再度お試しください。"
+      "rate_limit": "リクエストが多すぎます。しばらくお待ちいただいてから再度お試しください。",
+      "network": "サーバーへの接続中に問題が発生しました。もう一度お試しください。"
     }
   },
   "gate_keeper": {
@@ -883,7 +889,6 @@
       "modal": {
         "title": "${organizationName}から${providerName}を削除",
         "description": "この操作により、この組織のすべてのユーザーの<bold>${providerName}</bold>へのアクセスが取り消されます。ユーザーは削除されませんが、このプロバイダーを使用してサインインできなくなります",
-
         "content": {
           "description": "確認のためプロバイダー名を入力してください。",
           "field": {
@@ -930,6 +935,7 @@
       },
       "provisioning_disabled_success": "プロビジョニングが無効になりました。",
       "scim_token_delete_sucess": "トークンが削除されました。",
+      "scim_token_delete_success": "トークンが削除されました。",
       "scim_token_create_success": "トークンが正常に生成されました",
       "sso_attributes_sync_success": "プロバイダーマッピングが更新されました。",
       "provisioning_attributes_sync_success": "プロビジョニングマッピングが更新されました。"
@@ -1088,20 +1094,117 @@
         "columns": {
           "name": "名前",
           "email": "メール",
-          "roles": "ロール"
+          "roles": "ロール",
+          "last_login": "最終ログイン"
         },
-        "empty_message": "メンバーが見つかりません。"
+        "empty_message": "この組織にはメンバーがいません。",
+        "search_placeholder": "名前またはメールでメンバーを検索",
+        "filter_by_role": "ロールでフィルター",
+        "all_roles": "すべて",
+        "reset_filter": "リセット",
+        "never": "一度もない",
+        "just_now": "たった今",
+        "ago": "前",
+        "minute": "分",
+        "minutes": "分",
+        "hour": "時間",
+        "hours": "時間",
+        "day": "日",
+        "days": "日",
+        "week": "週間",
+        "weeks": "週間",
+        "month": "か月",
+        "months": "か月",
+        "year": "年",
+        "years": "年"
       },
-      "remove": {
-        "title": "メンバーを削除",
-        "description": "この組織から${name}を削除してもよろしいですか？",
-        "confirm_button": "削除",
-        "cancel_button": "キャンセル",
-        "success": "${name}が組織から削除されました。"
+      "actions": {
+        "menu_label": "アクション",
+        "view_details": "詳細を表示",
+        "assign_role": "ロールを割り当てる",
+        "remove_from_organization": "組織から削除"
       },
       "error": {
         "fetch_failed": "メンバーの読み込みに失敗しました。もう一度お試しください。",
-        "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。"
+        "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。",
+        "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。",
+        "too_many_roles_per_assignment": "一度に割り当てられるロールは最大10件までです。",
+        "too_many_roles_per_removal": "一度に削除できるロールは最大10件までです。",
+        "member_role_limit_exceeded": "このメンバーのロールは最大50件に達しました。"
+      },
+      "detail": {
+        "back_button": "メンバー一覧に戻る",
+        "user_id_label": "ユーザーID:",
+        "tabs": {
+          "details": "詳細",
+          "roles": "ロール"
+        },
+        "user_details": {
+          "title": "ユーザー詳細",
+          "name": "名前",
+          "email": "メール",
+          "phone_number": "電話番号",
+          "provider": "プロバイダー",
+          "created_at": "作成日",
+          "last_login": "最終ログイン"
+        },
+        "actions": {
+          "remove_from_organization": {
+            "title": "組織からメンバーを削除",
+            "description": "一度確定すると、この操作は元に戻せません。",
+            "button": "削除",
+            "success": "${memberName} が ${organizationName} から削除されました。",
+            "modal": {
+              "title": "${organizationName} からメンバーを削除",
+              "description": "<bold>\"${memberName}\"</bold> をこの組織から削除してもよろしいですか？この操作はアカウントを削除しませんが、アクセスを取り消し、サインインできなくなります。",
+              "cancel_button": "キャンセル",
+              "confirm_button": "削除する"
+            }
+          }
+        },
+        "roles": {
+          "title": "ロール",
+          "description": "${organizationName} にアクセスする際のユーザーのロールと権限を管理します。",
+          "assign_button": "ロールを割り当てる",
+          "no_roles_available": "このメンバーに割り当てられるロールはもうありません。",
+          "max_roles_reached": "このメンバーの最大登録数 ${max} に達しました。",
+          "remove_button": "ロールを削除",
+          "remove_button_plural": "ロールを削除",
+          "roles_selected": "${count}件のロールが選択されています",
+          "roles_selected_plural": "${count}件のロールが選択されています",
+          "table": {
+            "name": "名前",
+            "description": "説明",
+            "empty_message": "割り当てられたロールはありません。",
+            "remove_button_label": "ロール ${roleName} を削除する"
+          },
+          "assign_modal": {
+            "title": "ロールを割り当てる",
+            "roles_label": "ロール",
+            "roles_placeholder": "ロールを選択",
+            "submit_button": "割り当て",
+            "cancel_button": "キャンセル",
+            "no_roles_available": "利用可能なすべてのロールがすでに割り当てられています。",
+            "success": "ロールが割り当てられました。",
+            "success_plural": "ロールが割り当てられました。"
+          },
+          "remove_confirm": {
+            "title": "メンバーからロールを削除しますか？",
+            "title_plural": "メンバーからロールを削除しますか？",
+            "description": "<bold>\"${memberName}\"</bold> から <bold>${roleName}</bold> ロールを削除します。",
+            "confirm_button": "削除",
+            "cancel_button": "キャンセル",
+            "success": "ロール \"${roleName}\" がメンバーから削除されました。",
+            "success_plural": "ロール \"${roleNames}\" がメンバーから削除されました。"
+          }
+        },
+        "error": {
+          "fetch_failed": "メンバー詳細の読み込みに失敗しました。もう一度お試しください。",
+          "fetch_roles_failed": "メンバーのロールの読み込みに失敗しました。もう一度お試しください。",
+          "remove_from_organization_failed": "組織からのメンバーの削除に失敗しました。もう一度お試しください。",
+          "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。",
+          "remove_role_failed": "ロールの削除に失敗しました。もう一度お試しください。"
+        }
       }
     },
     "invitation": {
@@ -1127,6 +1230,7 @@
         "menu_label": "アクション",
         "view_details": "詳細を表示",
         "copy_url": "招待URLをコピー",
+        "copied": "コピーしました！",
         "revoke_and_resend": "取り消して再送信",
         "revoke": "招待を取り消す"
       },
@@ -1148,7 +1252,8 @@
         "submit_button": "招待を送信",
         "creating": "作成中...",
         "cancel_button": "キャンセル",
-        "success": "${email}に招待を送信しました。"
+        "success": "${email}に招待が送信されました。",
+        "success_bulk": "招待が送信されました。"
       },
       "details": {
         "title": "招待の詳細",
@@ -1180,7 +1285,7 @@
       },
       "success": {
         "url_copied": "招待URLをクリップボードにコピーしました。",
-        "invitation_resent": "${email}に招待を再送信しました。"
+        "invitation_resent": "以前の招待が取り消されました。${email}に新しい招待が送信されました。"
       },
       "error": {
         "fetch_failed": "招待の読み込みに失敗しました。もう一度お試しください。",

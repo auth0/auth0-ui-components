@@ -20,7 +20,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { SsoProviderAttributeMappingsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
-type AttributeItem = BaseUserAttributeMapItem & { provisioning_field?: string };
+type AttributeItem = BaseUserAttributeMapItem & {
+  provisioning_field?: string;
+  sso_field?: string[];
+};
 
 const SCIM_NAMESPACE = 'urn:ietf:params:scim:schemas:core:2.0:User';
 
@@ -146,10 +149,14 @@ export function SsoProviderAttributeMappings({
         render: (item) => <AttributeNameCell item={item} section={section} t={t} />,
       },
       {
-        accessorKey: isProvisioning ? 'provisioning_field' : 'user_attribute',
-        type: 'copy',
+        accessorKey: isProvisioning ? 'provisioning_field' : 'sso_field',
+        type: 'custom',
         width: '70%',
         title: t(`mappings.${section}.table.columns.external_field_label`),
+        render: (item: AttributeItem) => {
+          const value = isProvisioning ? item.provisioning_field : item.sso_field?.join(', ');
+          return <CopyableTextField value={value ?? ''} />;
+        },
       },
     ],
     [t, isProvisioning],
