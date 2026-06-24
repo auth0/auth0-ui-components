@@ -1,36 +1,21 @@
 /**
  * Organization details edit hook.
+ * Single public hook that consumes the internal service hook.
  * @module use-organization-details-edit
  */
 
-import {
-  OrganizationDetailsFactory,
-  OrganizationDetailsMappers,
-  type OrganizationPrivate,
-} from '@auth0/universal-components-core';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 
-import { showToast } from '@/components/auth0/shared/toast';
-import { useCoreClient } from '@/hooks/shared/use-core-client';
-import { useErrorHandler } from '@/hooks/shared/use-error-handler';
-import { useTranslator } from '@/hooks/shared/use-translator';
-import { isMutationLoading } from '@/lib/utils/tanstack-compat';
+import { useOrganizationDetailsEditService } from '@/hooks/my-organization/shared/services/use-organization-details-edit-service';
 import type {
   UseOrganizationDetailsEditOptions,
   UseOrganizationDetailsEditResult,
 } from '@/types/my-organization/organization-management/organization-details-edit-types';
 import type { OrganizationDetailsFormActions } from '@/types/my-organization/organization-management/organization-details-types';
 
-const organizationDetailsQueryKeys = {
-  all: ['organization-details'] as const,
-  details: () => [...organizationDetailsQueryKeys.all, 'details'] as const,
-};
-
-const EMPTY_ORGANIZATION = OrganizationDetailsFactory.create();
-
 /**
  * Hook for fetching and updating organization details.
+ * Manages UI state and delegates data operations to the internal service hook.
  * @param props - Component props.
  * @param props.saveAction - Configuration for the save action
  * @param props.cancelAction - Configuration for the cancel action
@@ -44,111 +29,42 @@ export function useOrganizationDetailsEdit({
   readOnly = false,
   customMessages = {},
 }: UseOrganizationDetailsEditOptions): UseOrganizationDetailsEditResult {
-  const { t } = useTranslator('organization_management.organization_details_edit', customMessages);
-  const { coreClient } = useCoreClient();
-  const queryClient = useQueryClient();
+  const service = useOrganizationDetailsEditService({ saveAction, customMessages });
 
-  const isInitializing = !coreClient;
-  const handleError = useErrorHandler();
-
-  const organizationQuery = useQuery({
-    queryKey: organizationDetailsQueryKeys.details(),
-    queryFn: async () => {
-      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
-      return OrganizationDetailsMappers.fromAPI(response);
-    },
-    enabled: !!coreClient,
-  });
-
-  useEffect(() => {
-    if (organizationQuery.error) {
-      handleError(organizationQuery.error, {
-        fallbackMessage: t('organization_changes_error_message_generic'),
-      });
-    }
-  }, [organizationQuery.error, t, handleError]);
-
-  const organization = organizationQuery.data ?? EMPTY_ORGANIZATION;
-
-  const updateMutation = useMutation({
-    mutationFn: async (data: OrganizationPrivate) => {
-      const updateData = OrganizationDetailsMappers.toAPI(data);
-      const response = await coreClient!
-        .getMyOrganizationApiClient()
-        .organizationDetails.update(updateData);
-
-      return OrganizationDetailsMappers.fromAPI(response);
-    },
-    onSuccess: (updatedOrg, variables) => {
-      queryClient.setQueryData(organizationDetailsQueryKeys.details(), updatedOrg);
-
-      showToast({
-        type: 'success',
-        message: t('save_organization_changes_message', {
-          organizationName: variables.display_name || variables.name,
-        }),
-      });
-
-      saveAction?.onAfter?.(variables);
-    },
-    onError: (error) => {
-      handleError(error, { fallbackMessage: t('organization_changes_error_message_generic') });
-    },
-  });
-
-  const hasData = !!organizationQuery.data;
-  const isActionDisabled = isMutationLoading(updateMutation) || isInitializing;
-
-  const fetchOrgDetails = useCallback(async (): Promise<void> => {
-    await queryClient.getQueryData(organizationDetailsQueryKeys.details());
-  }, [queryClient]);
-
-  const updateOrgDetails = useCallback(
-    async (data: OrganizationPrivate): Promise<boolean> => {
-      if (saveAction?.onBefore && !saveAction.onBefore(data)) {
-        return false;
-      }
-
-      try {
-        await updateMutation.mutateAsync(data);
-        return true;
-      } catch {
-        return false;
-      }
-    },
-    [updateMutation, saveAction],
-  );
+  const hasData = !!service.organization.name;
+  const isActionDisabled = service.isSaveLoading || service.isInitializing;
 
   const formActions = useMemo(
     (): OrganizationDetailsFormActions => ({
-      isLoading: isMutationLoading(updateMutation),
+      isLoading: service.isSaveLoading,
       previousAction: {
         disabled: cancelAction?.disabled || readOnly || !hasData || isActionDisabled,
-        onClick: () => cancelAction?.onAfter?.(organization),
+        onClick: () => cancelAction?.onAfter?.(service.organization),
       },
       nextAction: {
         disabled: saveAction?.disabled || readOnly || !hasData || isActionDisabled,
-        onClick: updateOrgDetails,
+        onClick: service.updateOrgDetails,
       },
     }),
     [
-      updateOrgDetails,
+      service.updateOrgDetails,
+      service.isSaveLoading,
+      service.organization,
       readOnly,
       cancelAction,
       saveAction?.disabled,
       hasData,
       isActionDisabled,
-      organization,
     ],
   );
 
   return {
-    organization,
-    isFetchLoading: organizationQuery.isFetching,
-    isSaveLoading: isMutationLoading(updateMutation),
-    isInitializing,
+    organization: service.organization,
+    isFetchLoading: service.isFetchLoading,
+    isSaveLoading: service.isSaveLoading,
+    isInitializing: service.isInitializing,
     formActions,
-    fetchOrgDetails,
-    updateOrgDetails,
+    fetchOrgDetails: service.fetchOrgDetails,
+    updateOrgDetails: service.updateOrgDetails,
   };
 }

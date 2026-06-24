@@ -13,7 +13,6 @@ import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
-import { useSsoProviderEditLogic } from '@/hooks/my-organization/use-sso-provider-edit-logic';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
@@ -64,13 +63,11 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     customMessages,
   });
 
-  const ssoProviderEditLogic = useSsoProviderEditLogic(ssoProviderEdit);
-
   const ssoProviderCreateLogicProps: Omit<SsoProviderEditLogicProps, 'handleToggleProvider'> = {
     ...ssoProviderEdit,
-    shouldAllowDeletion: ssoProviderEditLogic.shouldAllowDeletion,
-    idpConfig: ssoProviderEditLogic.idpConfig,
-    showProvisioningTab: ssoProviderEditLogic.showProvisioningTab,
+    shouldAllowDeletion: ssoProviderEdit.shouldAllowDeletion,
+    idpConfig: ssoProviderEdit.idpConfig,
+    showProvisioningTab: ssoProviderEdit.showProvisioningTab,
     styling,
     customMessages,
     backButton,
@@ -82,7 +79,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
   };
 
   const ssoProviderCreateHandlerProps: SsoProviderEditHandlerProps = {
-    handleToggleProvider: ssoProviderEditLogic.handleToggleProvider,
+    handleToggleProvider: ssoProviderEdit.handleToggleProvider,
     updateProvider: ssoProviderEdit.updateProvider,
     listScimTokens: ssoProviderEdit.listScimTokens,
     syncSsoAttributes: ssoProviderEdit.syncSsoAttributes,
@@ -97,8 +94,8 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
 
   const isLoading =
     ssoProviderEdit.isLoading ||
-    ssoProviderEditLogic.isLoadingConfig ||
-    ssoProviderEditLogic.isLoadingIdpConfig;
+    ssoProviderEdit.isLoadingConfig ||
+    ssoProviderEdit.isLoadingIdpConfig;
 
   return (
     <GateKeeper isLoading={isLoading} styling={styling}>
