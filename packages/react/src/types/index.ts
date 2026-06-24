@@ -8,6 +8,7 @@ export * from './auth-types';
 
 // My Account types
 export * from './my-account/mfa/mfa-types';
+export * from './my-account/passkey/passkey-types';
 
 // My Organization types
 export * from './my-organization/config/config-types';
@@ -28,3 +29,7 @@ export * from './my-organization/idp-management/sso-provisioning/provisioning-to
 export * from './my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
 export * from './my-organization/organization-management/organization-details-edit-types';
 export * from './my-organization/organization-management/organization-details-types';
+export * from './my-organization/member-management/organization-invitation-table-types';
+export * from './my-organization/member-management/organization-member-management-types';
+export * from './my-organization/member-management/organization-member-detail-types';
+export * from './my-organization/member-management/organization-member-table-types';

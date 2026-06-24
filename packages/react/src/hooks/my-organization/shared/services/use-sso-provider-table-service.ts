@@ -27,7 +27,7 @@ export { ssoProviderQueryKeys };
 /**
  * Internal service hook for SSO provider table data and CRUD operations.
  * @param deleteAction - Delete action handler.
- * @param removeFromOrg - Remove from org handler.
+ * @param removeFromOrganization - Remove from org handler.
  * @param enableAction - Enable/disable handler.
  * @param customMessages - Custom translation messages.
  * @returns Provider data, mutations, and actions.
@@ -35,7 +35,7 @@ export { ssoProviderQueryKeys };
  */
 export function useSsoProviderTableService(
   deleteAction?: ComponentAction<IdpKnownResponse, void>,
-  removeFromOrg?: ComponentAction<IdpKnownResponse, void>,
+  removeFromOrganization?: ComponentAction<IdpKnownResponse, void>,
   enableAction?: ComponentAction<IdpKnownResponse>,
   customMessages: Record<string, unknown> = {},
 ): UseSsoProviderTableServiceReturn {
@@ -55,7 +55,7 @@ export function useSsoProviderTableService(
   });
 
   const organizationQuery = useQuery({
-    queryKey: ssoProviderQueryKeys.organization,
+    queryKey: ssoProviderQueryKeys.organization(),
     queryFn: async () => {
       const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
       return OrganizationDetailsMappers.fromAPI(response);
@@ -137,8 +137,8 @@ export function useSsoProviderTableService(
         .organization.identityProviders.detach(selectedIdp.id);
     },
     onSuccess: async (_, selectedIdp) => {
-      if (removeFromOrg?.onAfter) {
-        await removeFromOrg.onAfter(selectedIdp);
+      if (removeFromOrganization?.onAfter) {
+        await removeFromOrganization.onAfter(selectedIdp);
       }
 
       queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
@@ -188,7 +188,7 @@ export function useSsoProviderTableService(
     }
 
     const data = await queryClient.ensureQueryData({
-      queryKey: ssoProviderQueryKeys.organization,
+      queryKey: ssoProviderQueryKeys.organization(),
       queryFn: async () => {
         const response = await coreClient.getMyOrganizationApiClient().organizationDetails.get();
         return OrganizationDetailsMappers.fromAPI(response);

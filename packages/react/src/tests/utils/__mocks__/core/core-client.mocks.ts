@@ -8,6 +8,7 @@ import {
   createMockEmptyAuthenticationMethods,
 } from '@/tests/utils/__mocks__/my-account/mfa/mfa.mocks';
 import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import { createMockInvitation } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 
 const createMockMyAccountApiService = (): CoreClientInterface['myAccountApiClient'] => {
@@ -20,6 +21,7 @@ const createMockMyAccountApiService = (): CoreClientInterface['myAccountApiClien
       create: vi.fn().mockResolvedValue({}),
       delete: vi.fn().mockResolvedValue(undefined),
       verify: vi.fn().mockResolvedValue({}),
+      update: vi.fn().mockResolvedValue({}),
     },
     mfa: {
       fetchFactors: vi.fn().mockResolvedValue([]),
@@ -54,6 +56,21 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
           create: vi.fn().mockResolvedValue({}),
           delete: vi.fn().mockResolvedValue(undefined),
         },
+      },
+      invitations: {
+        list: vi.fn().mockResolvedValue({
+          data: [createMockInvitation()],
+          response: { next: null },
+        }),
+        get: vi.fn().mockResolvedValue(createMockInvitation()),
+        create: vi.fn().mockResolvedValue([createMockInvitation()]),
+        delete: vi.fn().mockResolvedValue(undefined),
+      },
+      roles: {
+        list: vi.fn().mockResolvedValue({
+          data: [{ id: 'rol_admin', name: 'admin', description: 'Admin role' }],
+          response: { next: null },
+        }),
       },
       domains: {
         list: vi.fn().mockResolvedValue([]),
@@ -94,6 +111,24 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
             },
           }),
         },
+      },
+      members: {
+        list: vi.fn().mockResolvedValue({ data: [], response: { next: null, total: 0 } }),
+        get: vi.fn().mockResolvedValue({
+          user_id: 'auth0|123234235',
+          name: 'Test User',
+          email: 'test@example.com',
+          created_at: '2025-01-01T00:00:00.000Z',
+          last_login: '2025-01-01T00:00:00.000Z',
+        }),
+        roles: {
+          list: vi.fn().mockResolvedValue({ roles: [] }),
+          assign: vi.fn().mockResolvedValue({}),
+          unassign: vi.fn().mockResolvedValue({}),
+        },
+      },
+      memberships: {
+        deleteMemberships: vi.fn().mockResolvedValue(undefined),
       },
     },
   } as unknown as NonNullable<CoreClientInterface['myOrganizationApiClient']>;

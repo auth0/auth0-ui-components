@@ -8,6 +8,41 @@ import { isMfaRequiredError } from '../services/mfa-step-up/mfa-step-up-api-util
 import { hasApiErrorBody, getStatusCode } from './api-error';
 
 /**
+ * Returns true if the given message string looks like a browser network failure.
+ * @param message - The error message string to check.
+ * @returns `true` if the message matches known network failure patterns.
+ */
+function isNetworkErrorMessage(message: string): boolean {
+  const lower = message.toLowerCase();
+  return lower.includes('fetch') || lower.includes('network') || lower === 'load failed';
+}
+
+/**
+ * Determines whether an error is a network-level failure thrown by the browser.
+ * Handles both raw `TypeError` instances and SDK-wrapped errors that copy the
+ * original `TypeError` message or carry it as `cause`.
+ *
+ * @param error - The unknown error to evaluate.
+ * @returns `true` if the error is a browser network failure.
+ */
+export function isNetworkError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  if (getStatusCode(error) !== undefined) return false;
+
+  const cause = (error as { cause?: unknown }).cause;
+
+  if (error instanceof TypeError && isNetworkErrorMessage(error.message)) {
+    return true;
+  }
+
+  if (cause instanceof TypeError && isNetworkErrorMessage(cause.message)) {
+    return true;
+  }
+
+  return isNetworkErrorMessage(error.message);
+}
+
+/**
  * Determines whether an error should be surfaced to the user.
  * Returns `false` for MFA step-up errors and server errors (5xx) as these
  * are handled by a GateKeeper layer.

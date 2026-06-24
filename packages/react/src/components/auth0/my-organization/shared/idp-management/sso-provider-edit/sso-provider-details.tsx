@@ -124,7 +124,7 @@ export function SsoProviderDetails({
         <ProviderConfigureFields
           ref={providerConfigureRef}
           strategy={provider.strategy}
-          initialData={provider.options}
+          initialData={{ ...provider, ...provider.options }}
           readOnly={readOnly}
           idpConfig={idpConfig}
           mode="edit"

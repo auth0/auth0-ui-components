@@ -95,6 +95,8 @@ export default function Layout({ children }: LayoutProps) {
         { name: 'SsoProviderCreate', href: '/my-organization/sso-provider-create' },
         { name: 'SsoProviderEdit', href: '/my-organization/sso-provider-edit' },
         { name: 'DomainTable', href: '/my-organization/domain-table' },
+        { name: 'OrganizationMemberManagement', href: '/my-organization/member-management' },
+        { name: 'OrganizationMemberDetail', href: '/my-organization/member-detail' },
       ],
     },
   ];

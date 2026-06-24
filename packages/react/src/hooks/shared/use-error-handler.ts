@@ -4,6 +4,7 @@
  */
 
 import {
+  isNetworkError,
   isNotifiableError,
   resolveErrorMessage,
   getStatusCode,
@@ -43,6 +44,7 @@ export function useErrorHandler() {
       if (!isNotifiableError(error)) return;
 
       const getCustomErrorMessage = (err: unknown): string | undefined => {
+        if (isNetworkError(err)) return t('error.network');
         const status = getStatusCode(err);
         switch (status) {
           case 400:
