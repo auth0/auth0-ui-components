@@ -10,7 +10,6 @@ import type {
   AuthDetails,
   BasicAuth0ContextInterface,
   CssImplementation,
-  DistributionChannel,
   TelemetryComponentGetter,
   TelemetryConfig,
 } from '@auth0/universal-components-core';
@@ -22,21 +21,12 @@ import { Spinner } from '@/components/ui/spinner';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
 import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
 import { useToastProvider } from '@/hooks/shared/use-toast-provider';
+import { DISTRIBUTION, FRAMEWORK } from '@/lib/constants/telemetry-constants';
 import { detectCssImplementation } from '@/lib/utils/shared/css-detection';
 import { QueryProvider } from '@/providers/query-provider';
 import { TelemetryProvider } from '@/providers/telemetry-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
 import type { Auth0ComponentProviderProps } from '@/types/auth-types';
-
-/**
- * Build-time constant for distribution channel.
- * - npm build: tsup replaces __DISTRIBUTION__ with 'npm'
- * - shadcn copy: __DISTRIBUTION__ undefined, falls back to 'shadcn'
- */
-declare const __DISTRIBUTION__: DistributionChannel;
-const DISTRIBUTION: DistributionChannel =
-  typeof __DISTRIBUTION__ !== 'undefined' ? __DISTRIBUTION__ : 'shadcn';
-const FRAMEWORK = 'react' as const;
 
 /**
  * Auth0 provider for SPAs. Wraps components with required contexts.
@@ -67,17 +57,10 @@ export const Auth0ComponentProvider = (
   } = props;
   const mergedToastSettings = useToastProvider(toastSettings);
 
-  // CSS detection for telemetry
   const [css, setCss] = React.useState<CssImplementation>('unknown');
-
-  // Component name ref - updated by useTelemetry in block components
   const componentRef = React.useRef<string>('unknown');
-
-  // Stable callback for core package to call
   const getComponent = React.useCallback<TelemetryComponentGetter>(() => componentRef.current, []);
 
-  // useLayoutEffect ensures CSS is detected before paint, avoiding incorrect telemetry on early API calls
-  // Skip detection if telemetry is disabled since the value won't be used
   React.useLayoutEffect(() => {
     if (telemetryEnabled) {
       setCss(detectCssImplementation());
