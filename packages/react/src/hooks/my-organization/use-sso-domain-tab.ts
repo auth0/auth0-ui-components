@@ -7,6 +7,7 @@ import {
   type CreateOrganizationDomainRequestContent,
   BusinessError,
   ssoDomainQueryKeys,
+  ssoProviderQueryKeys,
   type Domain,
   type IdpId,
 } from '@auth0/universal-components-core';
@@ -14,7 +15,6 @@ import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useCallback, useState, useMemo, useEffect } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
-import { ssoProviderEditQueryKeys } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -101,7 +101,7 @@ export function useSsoDomainTab(
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ssoDomainQueryKeys.list(idpId) });
-      queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
     },
   });
 
@@ -157,7 +157,7 @@ export function useSsoDomainTab(
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ssoDomainQueryKeys.list(idpId) });
-      queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
     },
   });
 
@@ -183,7 +183,7 @@ export function useSsoDomainTab(
       return domain;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
     },
   });
 
@@ -211,7 +211,7 @@ export function useSsoDomainTab(
       return domain;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
     },
   });
 

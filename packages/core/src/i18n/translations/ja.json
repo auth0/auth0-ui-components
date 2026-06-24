@@ -935,6 +935,7 @@
       },
       "provisioning_disabled_success": "プロビジョニングが無効になりました。",
       "scim_token_delete_sucess": "トークンが削除されました。",
+      "scim_token_delete_success": "トークンが削除されました。",
       "scim_token_create_success": "トークンが正常に生成されました",
       "sso_attributes_sync_success": "プロバイダーマッピングが更新されました。",
       "provisioning_attributes_sync_success": "プロビジョニングマッピングが更新されました。"
