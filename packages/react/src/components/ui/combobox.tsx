@@ -44,23 +44,17 @@ export function Combobox({
   const [hasTyped, setHasTyped] = React.useState(false);
   const [focusedChipIndex, setFocusedChipIndex] = React.useState(-1);
   const [isFocused, setIsFocused] = React.useState(false);
+  const [visibleChipCount, setVisibleChipCount] = React.useState(1);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const chipRefs = React.useRef<(HTMLDivElement | null)[]>([]);
+  const measureRefs = React.useRef<(HTMLDivElement | null)[]>([]);
+  const measureBadgeRef = React.useRef<HTMLSpanElement>(null);
+  const chipsContainerRef = React.useRef<HTMLDivElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   const portalContainer = usePortalContainer();
   const reactId = React.useId();
   const inputId = `combobox-input-${reactId}`;
-
-  const [popoverContainer, setPopoverContainer] = React.useState<HTMLElement | null>(null);
-
-  React.useEffect(() => {
-    if (!open) return;
-    const dialogContent = containerRef.current?.closest<HTMLElement>(
-      '[data-slot="dialog-content"]',
-    );
-    setPopoverContainer(dialogContent ?? portalContainer);
-  }, [open, portalContainer]);
 
   const selectedValues = React.useMemo(() => {
     if (multiple) {
@@ -114,12 +108,15 @@ export function Combobox({
     }
   };
 
-  const handleChipRemove = (valueToRemove: string) => {
+  const handleChipRemove = (valueToRemove: string, refocusInput = true) => {
     if (disabled) return;
 
     if (multiple) {
       const newValues = selectedValues.filter((v) => v !== valueToRemove);
       onChange?.(newValues as string[]);
+      if (refocusInput) {
+        requestAnimationFrame(() => inputRef.current?.focus());
+      }
     }
   };
 
@@ -150,7 +147,7 @@ export function Combobox({
       case 'Backspace':
         event.preventDefault();
         if (selectedOptions[chipIndex]) {
-          handleChipRemove(selectedOptions[chipIndex].value);
+          handleChipRemove(selectedOptions[chipIndex].value, false);
         }
         if (selectedOptions.length > 1) {
           if (chipIndex === 0) {
@@ -307,6 +304,59 @@ export function Combobox({
     chipRefs.current = chipRefs.current.slice(0, selectedOptions.length);
   }, [selectedOptions.length]);
 
+  const showAllChips = isFocused || open || !showSelectedCount;
+
+  React.useLayoutEffect(() => {
+    if (!multiple || showAllChips) return;
+    if (!containerRef.current || selectedOptions.length === 0) {
+      setVisibleChipCount(1);
+      return;
+    }
+
+    const measureVisible = () => {
+      // Every dimension is read from the live DOM so nothing drifts from the styles.
+      const textFieldEl = inputRef.current?.closest('.group') as HTMLElement | null;
+      if (!textFieldEl) return;
+
+      const fieldStyles = window.getComputedStyle(textFieldEl);
+      const paddingX = parseFloat(fieldStyles.paddingLeft) + parseFloat(fieldStyles.paddingRight);
+      const inputMinWidth = inputRef.current
+        ? parseFloat(window.getComputedStyle(inputRef.current).minWidth) || 0
+        : 0;
+      const gap = chipsContainerRef.current
+        ? parseFloat(window.getComputedStyle(chipsContainerRef.current).columnGap) || 0
+        : 0;
+
+      // Space the chips can occupy on the row, leaving room for the input and one gap before it.
+      const availableWidth = textFieldEl.clientWidth - paddingX - inputMinWidth - gap;
+      const chips = measureRefs.current.filter(Boolean) as HTMLDivElement[];
+      const badgeWidth = measureBadgeRef.current?.offsetWidth ?? 0;
+
+      let usedWidth = 0;
+      let count = 0;
+
+      for (let i = 0; i < chips.length; i++) {
+        const chipWidth = (chips[i]?.offsetWidth ?? 0) + (i > 0 ? gap : 0);
+        const isLastChip = i === chips.length - 1;
+        const needsBadge = !isLastChip && chips.length - (count + 1) > 0;
+        const requiredWidth = usedWidth + chipWidth + (needsBadge ? gap + badgeWidth : 0);
+
+        if (requiredWidth > availableWidth && count > 0) break;
+
+        usedWidth += chipWidth;
+        count++;
+      }
+
+      setVisibleChipCount(Math.max(1, count));
+    };
+
+    measureVisible();
+
+    const observer = new ResizeObserver(measureVisible);
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [selectedOptions, isFocused, open, showSelectedCount, multiple]);
+
   const displayValue =
     !multiple && selectedOptions.length > 0 && selectedOptions[0]
       ? selectedOptions[0].label
@@ -333,10 +383,13 @@ export function Combobox({
                 placeholder={multiple && selectedOptions.length > 0 ? 'Add more...' : placeholder}
                 className={cn(
                   className,
-                  multiple && selectedOptions.length > 0 && 'h-auto min-h-10 py-0.5 pl-1.5',
                   multiple &&
                     selectedOptions.length > 0 &&
-                    '[&_input]:min-w-[104px] [&_input]:flex-shrink-0',
+                    'relative h-auto min-h-10 justify-start py-0.5 pr-10 pl-3 [&_input]:min-w-[104px] [&>div:last-child]:absolute [&>div:last-child]:top-1.5 [&>div:last-child]:right-1.5',
+                  multiple &&
+                    selectedOptions.length > 0 &&
+                    showAllChips &&
+                    'flex-wrap items-center gap-1 [&>div:first-child]:contents',
                 )}
                 disabled={disabled}
                 autoComplete="off"
@@ -344,15 +397,21 @@ export function Combobox({
                   multiple &&
                   selectedOptions.length > 0 && (
                     <div
-                      className="mr-0.5 flex shrink flex-wrap gap-1 py-0.5"
+                      ref={chipsContainerRef}
+                      className={cn(
+                        'shrink',
+                        showAllChips
+                          ? 'contents'
+                          : 'mr-0.5 flex flex-nowrap gap-1 overflow-hidden py-0.5',
+                      )}
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
                       }}
                     >
-                      {(isFocused || open || !showSelectedCount
+                      {(showAllChips
                         ? selectedOptions
-                        : selectedOptions.slice(0, 1)
+                        : selectedOptions.slice(0, visibleChipCount)
                       ).map((option, index) => (
                         <div
                           key={option.value}
@@ -387,10 +446,45 @@ export function Combobox({
                           </Chip>
                         </div>
                       ))}
-                      {!isFocused && !open && selectedOptions.length > 1 && showSelectedCount && (
-                        <span className="text-muted-foreground border-border flex h-4 items-center self-center border-r px-0.5 pr-1.5 text-xs">
-                          +{selectedOptions.length - 1} more
-                        </span>
+                      {!isFocused &&
+                        !open &&
+                        selectedOptions.length > visibleChipCount &&
+                        showSelectedCount && (
+                          <span className="text-muted-foreground border-border flex h-4 items-center self-center border-r px-0.5 pr-1.5 text-xs">
+                            +{selectedOptions.length - visibleChipCount} more
+                          </span>
+                        )}
+                      {/* Hidden measurement row — always renders all chips to measure real widths */}
+                      {showSelectedCount && !isFocused && !open && (
+                        <div
+                          className="pointer-events-none invisible absolute flex gap-1"
+                          aria-hidden="true"
+                        >
+                          {selectedOptions.map((option, index) => (
+                            <div
+                              key={option.value}
+                              ref={(el) => {
+                                measureRefs.current[index] = el;
+                              }}
+                            >
+                              <Chip
+                                variant="secondary"
+                                size="sm"
+                                onDelete={() => {}}
+                                className="max-w-xs"
+                              >
+                                <span className="truncate">{option.label}</span>
+                              </Chip>
+                            </div>
+                          ))}
+                          {/* Widest possible badge ("+N more"), measured so its real width is reserved */}
+                          <span
+                            ref={measureBadgeRef}
+                            className="text-muted-foreground border-border flex h-4 items-center self-center border-r px-0.5 pr-1.5 text-xs"
+                          >
+                            +{Math.max(1, selectedOptions.length - 1)} more
+                          </span>
+                        </div>
                       )}
                     </div>
                   )
@@ -417,9 +511,9 @@ export function Combobox({
           </PopoverPrimitive.Trigger>
         </div>
 
-        <PopoverPrimitive.Portal container={popoverContainer}>
+        <PopoverPrimitive.Portal container={portalContainer}>
           <PopoverPrimitive.Content
-            className="bg-popover text-popover-foreground shadow-bevel-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 z-1000 min-w-[var(--radix-popover-trigger-width)] overflow-hidden rounded-3xl ring-0 duration-300 ease-in-out outline-none focus:outline-none"
+            className="bg-popover text-popover-foreground shadow-bevel-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 min-w-[var(--radix-popover-trigger-width)] overflow-hidden rounded-3xl ring-0 duration-300 ease-in-out outline-none focus:outline-none"
             align="start"
             sideOffset={8}
           >
