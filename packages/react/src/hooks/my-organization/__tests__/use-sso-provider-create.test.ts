@@ -15,14 +15,14 @@ vi.mock('@/hooks/my-organization/use-idp-config', () => ({
     idpConfig: {},
   }),
 }));
+const mockCreateProvider = vi.fn();
+
 vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-create-service', () => ({
   useSsoProviderCreateService: () => ({
     createProvider: mockCreateProvider,
     isCreating: false,
   }),
 }));
-
-const mockCreateProvider = vi.fn();
 const mockOnNext = vi.fn();
 const mockOnPrevious = vi.fn();
 

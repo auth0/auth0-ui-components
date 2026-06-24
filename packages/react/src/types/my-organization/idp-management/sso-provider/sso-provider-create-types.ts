@@ -112,6 +112,16 @@ export interface UseSsoProviderCreateOptions {
   customMessages?: SsoProviderCreateProps['customMessages'];
 }
 
+export interface UseSsoProviderCreateServiceReturn {
+  createProvider: (data: CreateIdentityProviderRequestContentPrivate) => Promise<void>;
+  isCreating: boolean;
+}
+
+export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOptions {
+  onNext?: (stepId: string, values: Partial<FormState>) => boolean;
+  onPrevious?: (stepId: string, values: Partial<FormState>) => boolean;
+}
+
 export interface UseSsoProviderCreateResult {
   formData: FormState;
   setFormData: React.Dispatch<React.SetStateAction<FormState>>;

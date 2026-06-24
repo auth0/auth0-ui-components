@@ -13,16 +13,11 @@ import type {
   FormState,
   ProviderConfigureHandle,
   ProviderDetailsFormHandle,
-  UseSsoProviderCreateOptions,
+  UseSsoProviderCreateHookOptions,
   UseSsoProviderCreateResult,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 export type { UseSsoProviderCreateResult };
-
-export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOptions {
-  onNext?: (stepId: string, values: Partial<FormState>) => boolean;
-  onPrevious?: (stepId: string, values: Partial<FormState>) => boolean;
-}
 
 /**
  * Hook for SSO provider creation. Manages form state, step navigation,
