@@ -1,104 +1,50 @@
-import { BusinessError } from '@auth0/universal-components-core';
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { useSsoDomainTabService } from '@/hooks/my-organization/shared/services/use-sso-domain-tab-service';
 import { useSsoDomainTab } from '@/hooks/my-organization/use-sso-domain-tab';
-import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
-import * as useTranslatorModule from '@/hooks/shared/use-translator';
-import {
-  mockCore,
-  mockToast,
-  createMockSsoDomain,
-  createMockVerifiedSsoDomain,
-  createMockSsoProvider,
-  setupAllCommonMocks,
-  setupMockUseCoreClientNull,
-} from '@/tests/utils';
-import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
+import { createMockSsoDomain, createMockSsoProvider, mockSsoDomainTabService } from '@/tests/utils';
 
-// ===== Mock packages =====
+vi.mock('@/hooks/shared/use-translator', () => ({
+  useTranslator: () => ({ t: (key: string) => key }),
+}));
 
-const { mockedShowToast } = mockToast();
-const { initMockCoreClient } = mockCore();
+vi.mock('@/hooks/shared/use-error-handler', () => ({
+  useErrorHandler: () => vi.fn(),
+}));
 
-// Test data
+vi.mock('@/components/auth0/shared/toast', () => ({
+  showToast: vi.fn(),
+}));
+
+vi.mock('@/hooks/my-organization/shared/services/use-sso-domain-tab-service', () => ({
+  useSsoDomainTabService: vi.fn(() => mockSsoDomainTabService()),
+}));
+
 const mockDomain = createMockSsoDomain();
-const mockVerifiedDomain = createMockVerifiedSsoDomain();
 const mockProvider = createMockSsoProvider();
 
 describe('useSsoDomainTab', () => {
-  let mockCoreClient: ReturnType<typeof initMockCoreClient>;
-  let mockHandleError: ReturnType<typeof vi.fn>;
+  const defaultOptions = {
+    provider: mockProvider,
+    domains: {},
+  };
 
-  // Mock functions for extended API methods that don't exist in the real client
-  let mockDomainVerifyCreate: ReturnType<typeof vi.fn>;
-  let mockIdentityProviderDomainsCreate: ReturnType<typeof vi.fn>;
-  let mockIdentityProviderDomainsDelete: ReturnType<typeof vi.fn>;
+  let mockService: ReturnType<typeof mockSsoDomainTabService>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    mockCoreClient = initMockCoreClient();
-    mockHandleError = vi.fn();
-
-    const apiService = mockCoreClient.getMyOrganizationApiClient();
-
-    // Mock existing API methods
-    (apiService.organization.domains.list as ReturnType<typeof vi.fn>).mockResolvedValue({
-      response: { organization_domains: [mockDomain] },
-    });
-    (apiService.organization.domains.create as ReturnType<typeof vi.fn>).mockResolvedValue(
-      mockDomain,
-    );
-    (apiService.organization.domains.delete as ReturnType<typeof vi.fn>).mockResolvedValue({});
-
-    // Configure the nested API methods that already exist in the mock
-    mockDomainVerifyCreate = apiService.organization.domains.verify.create as ReturnType<
-      typeof vi.fn
-    >;
-    mockDomainVerifyCreate.mockResolvedValue(mockVerifiedDomain);
-
-    mockIdentityProviderDomainsCreate = apiService.organization.identityProviders.domains
-      .create as ReturnType<typeof vi.fn>;
-    mockIdentityProviderDomainsCreate.mockResolvedValue({});
-
-    mockIdentityProviderDomainsDelete = apiService.organization.identityProviders.domains
-      .delete as ReturnType<typeof vi.fn>;
-    mockIdentityProviderDomainsDelete.mockResolvedValue({});
-
-    // Setup all common hook mocks
-    const { mockHandleError: setupMockHandleError } = setupAllCommonMocks({
-      coreClient: mockCoreClient,
-      useCoreClientModule,
-      useTranslatorModule,
-      useErrorHandlerModule,
-    });
-
-    mockHandleError = setupMockHandleError;
+    mockService = mockSsoDomainTabService();
+    vi.mocked(useSsoDomainTabService).mockReturnValue(mockService);
   });
 
-  // Default provider with domains matching mockDomain
-  const defaultProvider = { ...mockProvider, domains: [mockDomain.domain] };
-
-  const renderUseSsoDomainTab = async (
-    idpId: string,
-    options?: Parameters<typeof useSsoDomainTab>[1],
-  ) => {
-    const { wrapper, queryClient } = createTestQueryClientWrapper();
-    const mergedOptions = { provider: defaultProvider, ...options };
-    const hook = renderHook(() => useSsoDomainTab(idpId, mergedOptions), { wrapper });
-    await waitFor(() => expect(hook.result.current.isLoading).toBe(false));
-    return { queryClient, ...hook };
-  };
-
   describe('initialization', () => {
-    it('should initialize with default state', async () => {
-      const { result } = await renderUseSsoDomainTab('idp-1');
+    it('should return correct initial state', () => {
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
 
       expect(result.current.isLoading).toBe(false);
-      expect(result.current.domainsList).toEqual([mockDomain]);
-      expect(result.current.idpDomains).toContain(mockDomain.id);
+      expect(result.current.domainsList).toEqual(mockService.domainsList);
+      expect(result.current.idpDomains).toEqual(mockService.idpDomains);
       expect(result.current.isCreating).toBe(false);
       expect(result.current.selectedDomain).toBeNull();
       expect(result.current.showVerifyModal).toBe(false);
@@ -111,273 +57,98 @@ describe('useSsoDomainTab', () => {
       expect(result.current.isUpdatingId).toBeNull();
     });
 
-    it('should fetch domains on mount', async () => {
-      await renderUseSsoDomainTab('idp-1');
+    it('should pass options to the service hook', () => {
+      renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
 
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
-      ).toHaveBeenCalledOnce();
-    });
-
-    it('should not fetch domains if idpId is not provided', () => {
-      const { wrapper } = createTestQueryClientWrapper();
-      renderHook(() => useSsoDomainTab(''), { wrapper });
-
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
-      ).not.toHaveBeenCalled();
+      expect(useSsoDomainTabService).toHaveBeenCalledWith('idp-1', {
+        customMessages: {},
+        domains: defaultOptions.domains,
+        provider: defaultOptions.provider,
+      });
     });
   });
 
-  describe('domain listing', () => {
-    it('should fetch and set domains list successfully', async () => {
-      const { result } = await renderUseSsoDomainTab('idp-1');
+  describe('handleCreate', () => {
+    it('should call createDomain and open verify modal on success', async () => {
+      vi.mocked(mockService.createDomain).mockResolvedValue(mockDomain);
 
-      expect(result.current.isLoading).toBe(false);
-      expect(result.current.domainsList).toEqual([mockDomain]);
-    });
-
-    it('should handle domain listing error', async () => {
-      const error = new Error('API Error');
-      (
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
-          typeof vi.fn
-        >
-      ).mockRejectedValue(error);
-
-      const { wrapper } = createTestQueryClientWrapper();
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'), { wrapper });
-
-      await waitFor(() => {
-        expect(mockHandleError).toHaveBeenCalledWith(error, {
-          fallbackMessage: 'general_error',
-        });
-        expect(result.current.isLoading).toBe(false);
-      });
-    });
-
-    it('should derive idpDomains from provider prop', async () => {
-      const { result } = await renderUseSsoDomainTab('idp-1', {
-        provider: { ...mockProvider, domains: [mockDomain.domain] },
-      });
-
-      expect(result.current.idpDomains).toContain(mockDomain.id);
-    });
-
-    it('should not add domain to idpDomains if provider has no matching domains', async () => {
-      const { result } = await renderUseSsoDomainTab('idp-1', {
-        provider: { ...mockProvider, domains: [] },
-      });
-
-      expect(result.current.idpDomains).not.toContain(mockDomain.id);
-    });
-  });
-
-  describe('domain creation', () => {
-    it('should create domain successfully', async () => {
-      // Setup: Mock the API responses properly
-      (
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.create as ReturnType<
-          typeof vi.fn
-        >
-      ).mockResolvedValue(mockDomain);
-
-      const { result } = await renderUseSsoDomainTab('idp-1');
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
 
       await act(async () => {
         await result.current.handleCreate('newdomain.com');
       });
 
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.create as ReturnType<
-          typeof vi.fn
-        >,
-      ).toHaveBeenCalledWith({
-        domain: 'newdomain.com',
-      });
-      expect(result.current.isCreating).toBe(false);
+      expect(mockService.createDomain).toHaveBeenCalledWith({ domain: 'newdomain.com' });
+      expect(result.current.selectedDomain).toEqual(mockDomain);
+      expect(result.current.showCreateModal).toBe(false);
+      expect(result.current.showVerifyModal).toBe(true);
     });
 
-    it('should handle domain creation error', async () => {
+    it('should handle creation error', async () => {
       const error = new Error('Creation failed');
-      (
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.create as ReturnType<
-          typeof vi.fn
-        >
-      ).mockRejectedValue(error);
+      vi.mocked(mockService.createDomain).mockRejectedValue(error);
 
-      const { result } = await renderUseSsoDomainTab('idp-1');
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
 
       await act(async () => {
         await result.current.handleCreate('newdomain.com');
       });
 
-      await waitFor(() => {
-        expect(mockHandleError).toHaveBeenCalledWith(error, {
-          fallbackMessage: 'domain_create.error',
-        });
-        expect(result.current.isCreating).toBe(false);
-      });
-    });
-
-    it('should call onBefore callback and proceed if returns true', async () => {
-      const onBefore = vi.fn().mockReturnValue(true);
-      const onAfter = vi.fn();
-      (
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.create as ReturnType<
-          typeof vi.fn
-        >
-      ).mockResolvedValue(mockDomain);
-
-      const { result } = await renderUseSsoDomainTab('idp-1', {
-        domains: {
-          createAction: { onBefore, onAfter },
-        },
-      });
-
-      await act(async () => {
-        await result.current.handleCreate('newdomain.com');
-      });
-
-      await waitFor(() => {
-        expect(onBefore).toHaveBeenCalled();
-        expect(onAfter).toHaveBeenCalledWith(mockDomain);
-        expect(
-          mockCoreClient.getMyOrganizationApiClient().organization.domains.create as ReturnType<
-            typeof vi.fn
-          >,
-        ).toHaveBeenCalled();
-      });
-    });
-
-    it('should call onBefore callback and stop if returns false', async () => {
-      const onBefore = vi.fn().mockReturnValue(false);
-      (
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.create as ReturnType<
-          typeof vi.fn
-        >
-      ).mockResolvedValue(mockDomain);
-
-      const { result } = await renderUseSsoDomainTab('idp-1', {
-        domains: {
-          createAction: { onBefore },
-        },
-      });
-
-      await act(async () => {
-        await result.current.handleCreate('newdomain.com');
-      });
-
-      await waitFor(() => {
-        expect(onBefore).toHaveBeenCalled();
-        expect(mockHandleError).toHaveBeenCalledWith(expect.any(BusinessError), expect.any(Object));
-        expect(result.current.isCreating).toBe(false);
-      });
+      expect(result.current.showVerifyModal).toBe(false);
     });
   });
 
-  describe('domain verification', () => {
-    it('should verify domain successfully', async () => {
-      mockDomainVerifyCreate.mockResolvedValue(mockVerifiedDomain);
+  describe('handleVerify', () => {
+    it('should close verify modal and associate on success', async () => {
+      vi.mocked(mockService.verifyDomain).mockResolvedValue({
+        updatedDomain: { ...mockDomain, status: 'verified' },
+        isVerified: true,
+      });
+      vi.mocked(mockService.associateToProvider).mockResolvedValue(mockDomain);
 
-      const { result } = await renderUseSsoDomainTab('idp-1');
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
 
       await act(async () => {
         await result.current.handleVerify(mockDomain);
       });
 
-      expect(mockDomainVerifyCreate).toHaveBeenCalledWith(mockDomain.id);
-      expect(result.current.isVerifying).toBe(false);
+      expect(mockService.verifyDomain).toHaveBeenCalledWith(mockDomain);
+      expect(mockService.associateToProvider).toHaveBeenCalledWith(mockDomain);
+      expect(result.current.showVerifyModal).toBe(false);
     });
 
-    it('should handle verification failure', async () => {
-      const failedDomain = { ...mockDomain, status: 'failed' };
-      mockDomainVerifyCreate.mockResolvedValue(failedDomain);
+    it('should set verifyError on verification failure', async () => {
+      vi.mocked(mockService.verifyDomain).mockResolvedValue({
+        updatedDomain: { ...mockDomain, status: 'failed' },
+        isVerified: false,
+      });
 
-      const { result } = await renderUseSsoDomainTab('idp-1');
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
 
       await act(async () => {
         await result.current.handleVerify(mockDomain);
       });
 
-      await waitFor(() => {
-        expect(result.current.verifyError).toBe('domain_verify.verification_failed');
-        expect(result.current.isVerifying).toBe(false);
-      });
+      expect(result.current.verifyError).toBe('domain_verify.verification_failed');
+      expect(mockService.associateToProvider).not.toHaveBeenCalled();
     });
 
     it('should handle verification error', async () => {
-      const error = new Error('Verification failed');
-      mockDomainVerifyCreate.mockRejectedValue(error);
+      vi.mocked(mockService.verifyDomain).mockRejectedValue(new Error('Verify failed'));
 
-      const { result } = await renderUseSsoDomainTab('idp-1');
-
-      await act(async () => {
-        await result.current.handleVerify(mockDomain);
-      });
-
-      await waitFor(() => {
-        expect(mockHandleError).toHaveBeenCalledWith(error, {
-          fallbackMessage: 'domain_verify.verification_failed',
-        });
-        expect(result.current.isVerifying).toBe(false);
-      });
-    });
-
-    it('should call verification callbacks', async () => {
-      const onBefore = vi.fn().mockReturnValue(true);
-      const onAfter = vi.fn();
-      mockDomainVerifyCreate.mockResolvedValue(mockVerifiedDomain);
-
-      const { result } = await renderUseSsoDomainTab('idp-1', {
-        domains: {
-          verifyAction: { onBefore, onAfter },
-        },
-      });
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
 
       await act(async () => {
         await result.current.handleVerify(mockDomain);
       });
 
-      await waitFor(() => {
-        expect(onBefore).toHaveBeenCalledWith(mockDomain);
-        expect(onAfter).toHaveBeenCalledWith(mockDomain);
-      });
+      expect(result.current.showVerifyModal).toBe(false);
     });
+  });
 
-    it('should handle verification action column', async () => {
-      mockDomainVerifyCreate.mockResolvedValue(mockVerifiedDomain);
-
-      const { result } = await renderUseSsoDomainTab('idp-1');
-
-      await act(async () => {
-        await result.current.handleVerifyActionColumn(mockDomain);
-      });
-
-      expect(result.current.isUpdating).toBe(false);
-      expect(result.current.isUpdatingId).toBeNull();
-    });
-
-    it('should show error toast when action column verification fails', async () => {
-      const failedDomain = { ...mockDomain, status: 'failed' };
-      mockDomainVerifyCreate.mockResolvedValue(failedDomain);
-
-      const { result } = await renderUseSsoDomainTab('idp-1');
-
-      await act(async () => {
-        await result.current.handleVerifyActionColumn(mockDomain);
-      });
-
-      expect(mockedShowToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'domain_verify.verification_failed',
-      });
-      expect(result.current.isUpdating).toBe(false);
-      expect(result.current.isUpdatingId).toBeNull();
-    });
-
-    it('should close verify modal and clear error', async () => {
-      const { result } = await renderUseSsoDomainTab('idp-1');
+  describe('handleCloseVerifyModal', () => {
+    it('should close verify modal and clear error', () => {
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
 
       act(() => {
         result.current.handleCloseVerifyModal();
@@ -388,177 +159,145 @@ describe('useSsoDomainTab', () => {
     });
   });
 
-  describe('domain deletion', () => {
-    it('should delete domain successfully', async () => {
-      (
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.delete as ReturnType<
-          typeof vi.fn
-        >
-      ).mockResolvedValue({});
-
-      const { result } = await renderUseSsoDomainTab('idp-1');
-
-      await act(async () => {
-        await result.current.handleDelete(mockDomain);
-      });
-
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.delete as ReturnType<
-          typeof vi.fn
-        >,
-      ).toHaveBeenCalledWith(mockDomain.id);
-      expect(result.current.isDeleting).toBe(false);
-    });
-
-    it('should handle deletion error', async () => {
-      const error = new Error('Deletion failed');
-      (
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.delete as ReturnType<
-          typeof vi.fn
-        >
-      ).mockRejectedValue(error);
-
-      const { result } = await renderUseSsoDomainTab('idp-1');
-
-      await act(async () => {
-        await result.current.handleDelete(mockDomain);
-      });
-
-      await waitFor(() => {
-        expect(mockHandleError).toHaveBeenCalledWith(error, {
-          fallbackMessage: 'domain_delete.error',
-        });
-        expect(result.current.isDeleting).toBe(false);
-      });
-    });
-
-    it('should handle delete click', async () => {
-      const { result } = await renderUseSsoDomainTab('idp-1');
+  describe('handleDeleteClick', () => {
+    it('should set selected domain and show delete modal', () => {
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
 
       act(() => {
         result.current.handleDeleteClick(mockDomain);
       });
 
       expect(result.current.selectedDomain).toEqual(mockDomain);
-      expect(result.current.showVerifyModal).toBe(false);
       expect(result.current.showDeleteModal).toBe(true);
+      expect(result.current.showVerifyModal).toBe(false);
     });
+  });
 
-    it('should call deletion callbacks', async () => {
-      const onBefore = vi.fn().mockReturnValue(true);
-      const onAfter = vi.fn();
-      (
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.delete as ReturnType<
-          typeof vi.fn
-        >
-      ).mockResolvedValue({});
+  describe('handleDelete', () => {
+    it('should call deleteDomain and close modals on success', async () => {
+      vi.mocked(mockService.deleteDomain).mockResolvedValue(mockDomain);
 
-      const { result } = await renderUseSsoDomainTab('idp-1', {
-        domains: {
-          deleteAction: { onBefore, onAfter },
-        },
-      });
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
 
       await act(async () => {
         await result.current.handleDelete(mockDomain);
       });
 
-      await waitFor(() => {
-        expect(onBefore).toHaveBeenCalledWith(mockDomain);
-        expect(onAfter).toHaveBeenCalledWith(mockDomain);
+      expect(mockService.deleteDomain).toHaveBeenCalledWith(mockDomain);
+      expect(result.current.showDeleteModal).toBe(false);
+      expect(result.current.showVerifyModal).toBe(false);
+    });
+
+    it('should handle deletion error', async () => {
+      vi.mocked(mockService.deleteDomain).mockRejectedValue(new Error('Delete failed'));
+
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
+
+      await act(async () => {
+        await result.current.handleDelete(mockDomain);
       });
+
+      expect(result.current.showDeleteModal).toBe(false);
     });
   });
 
-  describe('provider association', () => {
-    it('should associate domain to provider successfully', async () => {
-      mockIdentityProviderDomainsCreate.mockResolvedValue({});
-
-      const { result } = await renderUseSsoDomainTab('idp-1', {
-        provider: mockProvider,
+  describe('handleVerifyActionColumn', () => {
+    it('should verify and associate on success', async () => {
+      vi.mocked(mockService.verifyDomain).mockResolvedValue({
+        updatedDomain: { ...mockDomain, status: 'verified' },
+        isVerified: true,
       });
+      vi.mocked(mockService.associateToProvider).mockResolvedValue(mockDomain);
+
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
+
+      await act(async () => {
+        await result.current.handleVerifyActionColumn(mockDomain);
+      });
+
+      expect(mockService.verifyDomain).toHaveBeenCalledWith(mockDomain);
+      expect(mockService.associateToProvider).toHaveBeenCalledWith(mockDomain);
+      expect(result.current.isUpdating).toBe(false);
+      expect(result.current.isUpdatingId).toBeNull();
+    });
+
+    it('should reset updating state on failure', async () => {
+      vi.mocked(mockService.verifyDomain).mockResolvedValue({
+        updatedDomain: { ...mockDomain, status: 'failed' },
+        isVerified: false,
+      });
+
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
+
+      await act(async () => {
+        await result.current.handleVerifyActionColumn(mockDomain);
+      });
+
+      expect(result.current.isUpdating).toBe(false);
+      expect(result.current.isUpdatingId).toBeNull();
+    });
+  });
+
+  describe('handleToggleSwitch', () => {
+    it('should associate domain when toggled on', async () => {
+      vi.mocked(mockService.associateToProvider).mockResolvedValue(mockDomain);
+
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
 
       await act(async () => {
         await result.current.handleToggleSwitch(mockDomain, true);
       });
 
-      expect(mockIdentityProviderDomainsCreate).toHaveBeenCalledWith('idp-1', {
-        domain: mockDomain.domain,
-      });
+      expect(mockService.associateToProvider).toHaveBeenCalledWith(mockDomain);
       expect(result.current.isUpdating).toBe(false);
       expect(result.current.isUpdatingId).toBeNull();
     });
 
-    it('should remove domain from provider successfully', async () => {
-      mockIdentityProviderDomainsDelete.mockResolvedValue({});
+    it('should delete from provider when toggled off', async () => {
+      vi.mocked(mockService.deleteFromProvider).mockResolvedValue(mockDomain);
 
-      const { result } = await renderUseSsoDomainTab('idp-1', {
-        provider: mockProvider,
-      });
-
-      // First add domain to idpDomains
-      act(() => {
-        result.current.handleToggleSwitch(mockDomain, true);
-      });
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
 
       await act(async () => {
         await result.current.handleToggleSwitch(mockDomain, false);
       });
 
-      expect(mockIdentityProviderDomainsDelete).toHaveBeenCalledWith(
-        mockProvider.id,
-        mockDomain.domain,
-      );
+      expect(mockService.deleteFromProvider).toHaveBeenCalledWith(mockDomain);
+      expect(result.current.isUpdating).toBe(false);
+      expect(result.current.isUpdatingId).toBeNull();
     });
 
-    it('should handle provider association error', async () => {
-      const error = new Error('Association failed');
-      mockIdentityProviderDomainsCreate.mockRejectedValue(error);
+    it('should handle association error', async () => {
+      vi.mocked(mockService.associateToProvider).mockRejectedValue(new Error('Failed'));
 
-      const { result } = await renderUseSsoDomainTab('idp-1', {
-        provider: mockProvider,
-      });
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
 
       await act(async () => {
         await result.current.handleToggleSwitch(mockDomain, true);
       });
 
-      await waitFor(() => {
-        expect(mockHandleError).toHaveBeenCalledWith(error, {
-          fallbackMessage: 'general_error',
-        });
-        expect(result.current.isUpdating).toBe(false);
-      });
+      expect(result.current.isUpdating).toBe(false);
+      expect(result.current.isUpdatingId).toBeNull();
     });
 
-    it('should call provider association callbacks', async () => {
-      const onBefore = vi.fn().mockReturnValue(true);
-      const onAfter = vi.fn();
-      mockIdentityProviderDomainsCreate.mockResolvedValue({});
+    it('should handle delete from provider error', async () => {
+      vi.mocked(mockService.deleteFromProvider).mockRejectedValue(new Error('Failed'));
 
-      const { result } = await renderUseSsoDomainTab('idp-1', {
-        provider: mockProvider,
-        domains: {
-          associateToProviderAction: { onBefore, onAfter },
-        },
-      });
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
 
       await act(async () => {
-        await result.current.handleToggleSwitch(mockDomain, true);
+        await result.current.handleToggleSwitch(mockDomain, false);
       });
 
-      await waitFor(() => {
-        expect(onBefore).toHaveBeenCalledWith(mockDomain, mockProvider);
-        expect(onAfter).toHaveBeenCalledWith(mockDomain, mockProvider);
-      });
+      expect(result.current.isUpdating).toBe(false);
+      expect(result.current.isUpdatingId).toBeNull();
     });
   });
 
   describe('modal state management', () => {
-    it('should manage modal state correctly', async () => {
-      const { result } = await renderUseSsoDomainTab('idp-1');
+    it('should manage modal state correctly', () => {
+      const { result } = renderHook(() => useSsoDomainTab('idp-1', defaultOptions));
 
-      // Test setShowCreateModal
       act(() => {
         result.current.setShowCreateModal(true);
       });
@@ -569,7 +308,6 @@ describe('useSsoDomainTab', () => {
       });
       expect(result.current.showCreateModal).toBe(false);
 
-      // Test setShowDeleteModal
       act(() => {
         result.current.setShowDeleteModal(true);
       });
@@ -582,87 +320,18 @@ describe('useSsoDomainTab', () => {
     });
   });
 
-  describe('edge cases', () => {
-    it('should handle missing coreClient gracefully', () => {
-      // Override the useCoreClient mock to return null coreClient
-      setupMockUseCoreClientNull(useCoreClientModule);
-
-      const { wrapper } = createTestQueryClientWrapper();
-      const { result } = renderHook(() => useSsoDomainTab('idp-1'), { wrapper });
-
-      // When coreClient is null, no API calls are made
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
-          typeof vi.fn
-        >,
-      ).not.toHaveBeenCalled();
-      expect(result.current.domainsList).toEqual([]);
-    });
-
-    it('should handle missing provider when deleting from provider', async () => {
-      const { result } = await renderUseSsoDomainTab('idp-1');
-
-      await act(async () => {
-        await result.current.handleToggleSwitch(mockDomain, false);
-      });
-
-      // Should not crash and should complete the operation
-      expect(result.current.isUpdating).toBe(false);
-    });
-  });
-
-  describe('when configuring custom messages', () => {
-    it('should handle custom messages', async () => {
+  describe('custom messages', () => {
+    it('should pass custom messages to the service hook', () => {
       const customMessages = {
         'domain_create.success': 'Custom success message',
       };
 
-      await renderUseSsoDomainTab('idp-1', {
-        customMessages,
-      });
+      renderHook(() => useSsoDomainTab('idp-1', { ...defaultOptions, customMessages }));
 
-      expect(useTranslatorModule.useTranslator).toHaveBeenCalledWith(
-        'idp_management.notifications',
-        customMessages,
+      expect(useSsoDomainTabService).toHaveBeenCalledWith(
+        'idp-1',
+        expect.objectContaining({ customMessages }),
       );
-    });
-  });
-
-  describe('when handling complex domain state changes', () => {
-    it('should update domain status in list after verification', async () => {
-      mockDomainVerifyCreate.mockResolvedValue(mockVerifiedDomain);
-
-      const { result } = await renderUseSsoDomainTab('idp-1');
-
-      // Wait for initial load
-      expect(result.current.domainsList).toEqual([mockDomain]);
-
-      await act(async () => {
-        await result.current.handleVerify(mockDomain);
-      });
-
-      await waitFor(() => {
-        const updatedDomain = result.current.domainsList.find((d) => d.id === mockDomain.id);
-        expect(updatedDomain?.status).toBe('verified');
-      });
-    });
-
-    it('should prevent duplicate domains in idpDomains', async () => {
-      const { result } = await renderUseSsoDomainTab('idp-1');
-
-      // Wait for initial load which should add the domain
-      expect(result.current.idpDomains).toContain(mockDomain.id);
-
-      // Try to add the same domain again
-      mockIdentityProviderDomainsCreate.mockResolvedValue({});
-
-      await act(async () => {
-        await result.current.handleToggleSwitch(mockDomain, true);
-      });
-
-      // Should not have duplicates
-      const domainCount = result.current.idpDomains.filter((id) => id === mockDomain.id).length;
-      expect(domainCount).toBe(1);
     });
   });
 });

@@ -5,6 +5,7 @@
 
 import type {
   ComponentAction,
+  CreateOrganizationDomainRequestContent,
   Domain,
   DomainCreateSchemas,
   IdpKnownResponse,
@@ -65,6 +66,25 @@ export interface SsoDomainTabActionColumn
 export interface UseSsoDomainTabOptions extends SharedComponentProps {
   domains: SsoDomainsTabEditProps;
   provider: IdpKnownResponse | null;
+}
+
+export interface UseSsoDomainTabServiceOptions extends SharedComponentProps {
+  domains: SsoDomainsTabEditProps;
+  provider: IdpKnownResponse | null;
+}
+
+export interface UseSsoDomainTabServiceReturn {
+  domainsList: Domain[];
+  isLoading: boolean;
+  idpDomains: string[];
+  isCreating: boolean;
+  isVerifying: boolean;
+  isDeleting: boolean;
+  createDomain: (data: CreateOrganizationDomainRequestContent) => Promise<Domain>;
+  verifyDomain: (domain: Domain) => Promise<{ updatedDomain: Domain; isVerified: boolean }>;
+  deleteDomain: (domain: Domain) => Promise<Domain>;
+  associateToProvider: (domain: Domain) => Promise<Domain>;
+  deleteFromProvider: (domain: Domain) => Promise<Domain>;
 }
 
 export interface UseSsoDomainTabReturn {

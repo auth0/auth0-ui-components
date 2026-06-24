@@ -1,0 +1,218 @@
+/**
+ * Internal SSO domain tab service hook.
+ * Handles data fetching and CRUD operations for SSO domains.
+ * @module use-sso-domain-tab-service
+ * @internal
+ */
+
+import {
+  BusinessError,
+  ssoDomainQueryKeys,
+  ssoProviderQueryKeys,
+  type CreateOrganizationDomainRequestContent,
+  type Domain,
+  type IdpId,
+} from '@auth0/universal-components-core';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useEffect, useMemo } from 'react';
+
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { useTranslator } from '@/hooks/shared/use-translator';
+import type {
+  UseSsoDomainTabServiceOptions,
+  UseSsoDomainTabServiceReturn,
+} from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
+
+/**
+ * Internal service hook for SSO domain tab data and CRUD operations.
+ * @param idpId - Identity provider ID.
+ * @param options - Service options including actions and custom messages.
+ * @returns Domain data, loading states, and mutation methods.
+ * @internal
+ */
+export function useSsoDomainTabService(
+  idpId: IdpId,
+  { customMessages = {}, domains, provider }: Partial<UseSsoDomainTabServiceOptions> = {},
+): UseSsoDomainTabServiceReturn {
+  const { coreClient } = useCoreClient();
+  const { t } = useTranslator('idp_management.notifications', customMessages);
+  const handleError = useErrorHandler();
+  const queryClient = useQueryClient();
+
+  const domainsQuery = useQuery({
+    queryKey: ssoDomainQueryKeys.list(idpId),
+    queryFn: async () => {
+      const { response } = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.domains.list();
+      return response.organization_domains;
+    },
+    enabled: !!coreClient && !!idpId,
+  });
+
+  const domainsList = domainsQuery.data ?? [];
+  const isLoading = domainsQuery.isLoading;
+
+  useEffect(() => {
+    if (domainsQuery.error) {
+      handleError(domainsQuery.error, {
+        fallbackMessage: t('general_error'),
+      });
+    }
+  }, [domainsQuery.error, handleError, t]);
+
+  const idpDomains = useMemo(() => {
+    const idpDomainNames = provider?.domains ?? [];
+    return domainsList
+      .filter((domain) => idpDomainNames.includes(domain.domain))
+      .map((domain) => domain.id);
+  }, [provider?.domains, domainsList]);
+
+  const createDomainMutation = useMutation({
+    mutationFn: async (data: CreateOrganizationDomainRequestContent) => {
+      if (domains?.createAction?.onBefore) {
+        const canProceed = domains.createAction.onBefore(data as Domain);
+        if (!canProceed) {
+          throw new BusinessError({ message: t('domain_create.on_before') });
+        }
+      }
+
+      const result: Domain = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.domains.create(data);
+
+      domains?.createAction?.onAfter?.(result);
+
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ssoDomainQueryKeys.list(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
+    },
+  });
+
+  const verifyDomainMutation = useMutation({
+    mutationFn: async (domain: Domain) => {
+      if (domains?.verifyAction?.onBefore) {
+        const canProceed = domains.verifyAction.onBefore(domain);
+        if (!canProceed) {
+          throw new BusinessError({ message: t('domain_verify.on_before') });
+        }
+      }
+
+      const updatedDomain = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.domains.verify.create(domain.id);
+
+      if (domains?.verifyAction?.onAfter) {
+        await domains.verifyAction.onAfter(domain);
+      }
+
+      return { updatedDomain, isVerified: updatedDomain.status === 'verified' };
+    },
+    onSuccess: ({ updatedDomain, isVerified }, domain) => {
+      if (isVerified) {
+        queryClient.setQueryData<Domain[]>(ssoDomainQueryKeys.list(idpId), (oldDomains) => {
+          if (!oldDomains) return oldDomains;
+          return oldDomains.map((d) => (d.id === domain.id ? { ...d, ...updatedDomain } : d));
+        });
+      }
+    },
+  });
+
+  const deleteDomainMutation = useMutation({
+    mutationFn: async (domain: Domain) => {
+      if (!coreClient) {
+        return domain;
+      }
+
+      if (domains?.deleteAction?.onBefore) {
+        const canProceed = domains.deleteAction.onBefore(domain);
+        if (!canProceed) {
+          throw new BusinessError({ message: t('domain_delete.on_before') });
+        }
+      }
+
+      await coreClient.getMyOrganizationApiClient().organization.domains.delete(domain.id);
+
+      if (domains?.deleteAction?.onAfter) {
+        await domains.deleteAction.onAfter(domain);
+      }
+
+      return domain;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ssoDomainQueryKeys.list(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
+    },
+  });
+
+  const associateToProviderMutation = useMutation({
+    mutationFn: async (domain: Domain) => {
+      if (domains?.associateToProviderAction?.onBefore) {
+        const canProceed = domains.associateToProviderAction.onBefore(domain, provider);
+        if (!canProceed) {
+          throw new BusinessError({ message: t('domain_associate_provider.on_before') });
+        }
+      }
+
+      await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.identityProviders.domains.create(idpId, {
+          domain: domain.domain,
+        });
+
+      if (domains?.associateToProviderAction?.onAfter) {
+        await domains.associateToProviderAction.onAfter(domain, provider);
+      }
+
+      return domain;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
+    },
+  });
+
+  const deleteFromProviderMutation = useMutation({
+    mutationFn: async (domain: Domain) => {
+      if (!provider?.id) {
+        return domain;
+      }
+
+      if (domains?.deleteFromProviderAction?.onBefore) {
+        const canProceed = domains.deleteFromProviderAction.onBefore(domain, provider);
+        if (!canProceed) {
+          throw new BusinessError({ message: t('domain_delete_provider.on_before') });
+        }
+      }
+
+      await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.identityProviders.domains.delete(provider.id, domain.domain);
+
+      if (domains?.deleteFromProviderAction?.onAfter) {
+        await domains.deleteFromProviderAction.onAfter(domain);
+      }
+
+      return domain;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
+    },
+  });
+
+  return {
+    domainsList,
+    isLoading,
+    idpDomains,
+    isCreating: createDomainMutation.isPending,
+    isVerifying: verifyDomainMutation.isPending,
+    isDeleting: deleteDomainMutation.isPending,
+    createDomain: createDomainMutation.mutateAsync,
+    verifyDomain: verifyDomainMutation.mutateAsync,
+    deleteDomain: deleteDomainMutation.mutateAsync,
+    associateToProvider: associateToProviderMutation.mutateAsync,
+    deleteFromProvider: deleteFromProviderMutation.mutateAsync,
+  };
+}
