@@ -8,6 +8,7 @@
 import {
   BusinessError,
   ssoDomainQueryKeys,
+  ssoProviderQueryKeys,
   type CreateOrganizationDomainRequestContent,
   type Domain,
   type IdpId,
@@ -15,7 +16,6 @@ import {
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 
-import { ssoProviderEditQueryKeys } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -108,7 +108,7 @@ export function useSsoDomainTabService(
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ssoDomainQueryKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
     },
   });
 
@@ -172,7 +172,7 @@ export function useSsoDomainTabService(
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ssoDomainQueryKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
     },
   });
 
@@ -198,7 +198,7 @@ export function useSsoDomainTabService(
       return domain;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
     },
   });
 
@@ -226,7 +226,7 @@ export function useSsoDomainTabService(
       return domain;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ssoProviderEditQueryKeys.detail(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
     },
   });
 
