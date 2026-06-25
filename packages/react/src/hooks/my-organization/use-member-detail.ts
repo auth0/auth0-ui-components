@@ -9,6 +9,7 @@ import * as React from 'react';
 import { useMemberDetailService } from '@/hooks/my-organization/shared/services/use-member-detail-service';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   MemberDetailModalState,
   MemberDetailTab,
@@ -158,10 +159,10 @@ export function useOrganizationMemberDetail(
     isFetchingMemberRoles: memberRolesQuery.isLoading,
     isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
     isLoading: memberQuery.isLoading,
-    isRemovingFromOrganization: removeFromOrganizationMutation.isPending,
-    isAssigningRoles: assignRolesMutation.isPending,
-    isRemovingRoles: removeRolesMutation.isPending,
-    removingRoleIds: removeRolesMutation.isPending ? removingRoles.map((r) => r.id) : [],
+    isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),
+    isAssigningRoles: isMutationLoading(assignRolesMutation),
+    isRemovingRoles: isMutationLoading(removeRolesMutation),
+    removingRoleIds: isMutationLoading(removeRolesMutation) ? removingRoles.map((r) => r.id) : [],
     modalState,
 
     setActiveTab,
