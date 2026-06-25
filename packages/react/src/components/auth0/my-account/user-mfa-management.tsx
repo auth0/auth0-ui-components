@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import { List, ListItem } from '@/components/ui/list';
 import { useUserMFA } from '@/hooks/my-account/use-user-mfa';
+import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
@@ -74,6 +75,8 @@ function UserMFAMgmt({
   onBeforeAction,
   schema,
 }: UserMFAMgmtProps) {
+  useTelemetry('user-mfa-management');
+
   const {
     factorsByType,
     isLoadingFactors,
