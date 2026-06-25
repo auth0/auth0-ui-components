@@ -56,6 +56,16 @@ export function Combobox({
   const reactId = React.useId();
   const inputId = `combobox-input-${reactId}`;
 
+  const [popoverContainer, setPopoverContainer] = React.useState<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const dialogContent = containerRef.current?.closest<HTMLElement>(
+      '[data-slot="dialog-content"]',
+    );
+    setPopoverContainer(dialogContent ?? portalContainer);
+  }, [open, portalContainer]);
+
   const selectedValues = React.useMemo(() => {
     if (multiple) {
       return Array.isArray(value) ? value : value ? [value] : [];
@@ -511,7 +521,7 @@ export function Combobox({
           </PopoverPrimitive.Trigger>
         </div>
 
-        <PopoverPrimitive.Portal container={portalContainer}>
+        <PopoverPrimitive.Portal container={popoverContainer}>
           <PopoverPrimitive.Content
             className="bg-popover text-popover-foreground shadow-bevel-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 min-w-[var(--radix-popover-trigger-width)] overflow-hidden rounded-3xl ring-0 duration-300 ease-in-out outline-none focus:outline-none"
             align="start"
