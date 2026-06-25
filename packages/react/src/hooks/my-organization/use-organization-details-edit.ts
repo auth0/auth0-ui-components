@@ -15,6 +15,7 @@ import type { OrganizationDetailsFormActions } from '@/types/my-organization/org
 
 /**
  * Hook for fetching and updating organization details.
+ * Manages UI state and delegates data operations to the internal service hook.
  * @param props - Component props.
  * @param props.saveAction - Configuration for the save action
  * @param props.cancelAction - Configuration for the cancel action
@@ -28,52 +29,42 @@ export function useOrganizationDetailsEdit({
   readOnly = false,
   customMessages = {},
 }: UseOrganizationDetailsEditOptions): UseOrganizationDetailsEditResult {
-  const {
-    organization,
-    isFetchLoading,
-    isSaveLoading,
-    isInitializing,
-    hasData,
-    fetchOrgDetails,
-    updateOrgDetails,
-  } = useOrganizationDetailsEditService({
-    saveAction,
-    customMessages,
-  });
+  const service = useOrganizationDetailsEditService({ saveAction, customMessages });
 
-  const isActionDisabled = isSaveLoading || isInitializing;
+  const hasData = !!service.organization.name;
+  const isActionDisabled = service.isSaveLoading || service.isInitializing;
 
   const formActions = useMemo(
     (): OrganizationDetailsFormActions => ({
-      isLoading: isSaveLoading,
+      isLoading: service.isSaveLoading,
       previousAction: {
         disabled: cancelAction?.disabled || readOnly || !hasData || isActionDisabled,
-        onClick: () => cancelAction?.onAfter?.(organization),
+        onClick: () => cancelAction?.onAfter?.(service.organization),
       },
       nextAction: {
         disabled: saveAction?.disabled || readOnly || !hasData || isActionDisabled,
-        onClick: updateOrgDetails,
+        onClick: service.updateOrgDetails,
       },
     }),
     [
-      updateOrgDetails,
+      service.updateOrgDetails,
+      service.isSaveLoading,
+      service.organization,
       readOnly,
       cancelAction,
       saveAction?.disabled,
       hasData,
       isActionDisabled,
-      isSaveLoading,
-      organization,
     ],
   );
 
   return {
-    organization,
-    isFetchLoading,
-    isSaveLoading,
-    isInitializing,
+    organization: service.organization,
+    isFetchLoading: service.isFetchLoading,
+    isSaveLoading: service.isSaveLoading,
+    isInitializing: service.isInitializing,
     formActions,
-    fetchOrgDetails,
-    updateOrgDetails,
+    fetchOrgDetails: service.fetchOrgDetails,
+    updateOrgDetails: service.updateOrgDetails,
   };
 }

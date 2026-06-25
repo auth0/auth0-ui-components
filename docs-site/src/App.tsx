@@ -4,6 +4,8 @@ import Layout from './components/Layout';
 import { TechProvider } from './contexts/TechContext';
 import DomainTableDocs from './pages/DomainTableDocs';
 import GettingStarted from './pages/GettingStarted';
+import MemberDetailDocs from './pages/MemberDetailDocs';
+import MemberManagementDocs from './pages/MemberManagementDocs';
 import MyAccountIntroduction from './pages/MyAccountIntroduction';
 import MyOrganizationIntroduction from './pages/MyOrganizationIntroduction';
 import OrganizationDetailsEditDocs from './pages/OrganizationDetailsEditDocs';
@@ -31,6 +33,8 @@ function AppContent() {
         <Route path="/my-organization/sso-provider-table" element={<SsoProviderTableDocs />} />
         <Route path="/my-organization/sso-provider-create" element={<SsoProviderCreateDocs />} />
         <Route path="/my-organization/sso-provider-edit" element={<SsoProviderEditDocs />} />
+        <Route path="/my-organization/member-management" element={<MemberManagementDocs />} />
+        <Route path="/my-organization/member-detail" element={<MemberDetailDocs />} />
       </Routes>
     </Layout>
   );

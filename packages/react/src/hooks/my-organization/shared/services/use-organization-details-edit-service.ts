@@ -1,6 +1,6 @@
 /**
  * Internal organization details edit service hook.
- * Handles data fetching and mutation logic for organization details.
+ * Handles data fetching, mutations, and cache management.
  * @module use-organization-details-edit-service
  * @internal
  */
@@ -12,36 +12,27 @@ import {
   type OrganizationPrivate,
 } from '@auth0/universal-components-core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { UseOrganizationDetailsEditServiceOptions } from '@/types/my-organization/organization-management/organization-details-edit-types';
 
 const EMPTY_ORGANIZATION = OrganizationDetailsFactory.create();
 
-export interface UseOrganizationDetailsEditServiceReturn {
-  organization: OrganizationPrivate;
-  isFetchLoading: boolean;
-  isSaveLoading: boolean;
-  isInitializing: boolean;
-  hasData: boolean;
-  fetchOrgDetails: () => Promise<void>;
-  updateOrgDetails: (data: OrganizationPrivate) => Promise<boolean>;
-}
-
 /**
- * Internal service hook for organization details data operations.
- * @param options - Service options including actions and custom messages.
- * @returns Organization data, loading states, and mutation methods.
+ * Internal service hook for organization details edit API operations.
+ * @param options - Service hook options.
+ * @returns Service state and methods.
  * @internal
  */
 export function useOrganizationDetailsEditService({
   saveAction,
   customMessages = {},
-}: UseOrganizationDetailsEditServiceOptions): UseOrganizationDetailsEditServiceReturn {
+}: UseOrganizationDetailsEditServiceOptions) {
   const { t } = useTranslator('organization_management.organization_details_edit', customMessages);
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
@@ -58,13 +49,7 @@ export function useOrganizationDetailsEditService({
     enabled: !!coreClient,
   });
 
-  useEffect(() => {
-    if (organizationQuery.error) {
-      handleError(organizationQuery.error, {
-        fallbackMessage: t('organization_changes_error_message_generic'),
-      });
-    }
-  }, [organizationQuery.error, t, handleError]);
+  useQueryErrorToast(organizationQuery, t('organization_changes_error_message_generic'));
 
   const organization = organizationQuery.data ?? EMPTY_ORGANIZATION;
 
@@ -94,8 +79,6 @@ export function useOrganizationDetailsEditService({
     },
   });
 
-  const hasData = !!organizationQuery.data;
-
   const fetchOrgDetails = useCallback(async (): Promise<void> => {
     await queryClient.getQueryData(organizationDetailsQueryKeys.details());
   }, [queryClient]);
@@ -121,7 +104,6 @@ export function useOrganizationDetailsEditService({
     isFetchLoading: organizationQuery.isFetching,
     isSaveLoading: updateMutation.isPending,
     isInitializing,
-    hasData,
     fetchOrgDetails,
     updateOrgDetails,
   };

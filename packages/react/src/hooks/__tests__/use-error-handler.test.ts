@@ -6,15 +6,22 @@ import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
 
-const { mockIsNotifiableError, mockResolveErrorMessage, mockGetStatusCode, mockHasApiErrorBody } =
-  vi.hoisted(() => ({
-    mockIsNotifiableError: vi.fn(),
-    mockResolveErrorMessage: vi.fn(),
-    mockGetStatusCode: vi.fn(),
-    mockHasApiErrorBody: vi.fn(),
-  }));
+const {
+  mockIsNetworkError,
+  mockIsNotifiableError,
+  mockResolveErrorMessage,
+  mockGetStatusCode,
+  mockHasApiErrorBody,
+} = vi.hoisted(() => ({
+  mockIsNetworkError: vi.fn(),
+  mockIsNotifiableError: vi.fn(),
+  mockResolveErrorMessage: vi.fn(),
+  mockGetStatusCode: vi.fn(),
+  mockHasApiErrorBody: vi.fn(),
+}));
 
 vi.mock('@auth0/universal-components-core', () => ({
+  isNetworkError: mockIsNetworkError,
   isNotifiableError: mockIsNotifiableError,
   resolveErrorMessage: mockResolveErrorMessage,
   getStatusCode: mockGetStatusCode,
@@ -37,6 +44,7 @@ describe('useErrorHandler', () => {
       currentLanguage: 'en',
       fallbackLanguage: undefined,
     });
+    mockIsNetworkError.mockReturnValue(false);
     mockResolveErrorMessage.mockReturnValue('resolved error message');
     const { result } = renderHook(() => useErrorHandler());
     handleError = result.current;
@@ -55,6 +63,19 @@ describe('useErrorHandler', () => {
   describe('when error is notifiable', () => {
     beforeEach(() => {
       mockIsNotifiableError.mockReturnValue(true);
+    });
+
+    describe('network error', () => {
+      it('should show error.network toast for browser network failures', () => {
+        mockIsNetworkError.mockReturnValue(true);
+
+        handleError(new TypeError('Failed to fetch'));
+
+        expect(showToast).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'error.network',
+        });
+      });
     });
 
     it.each([

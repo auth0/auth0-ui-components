@@ -55,10 +55,10 @@ export interface UseOrganizationDetailsEditOptions {
   customMessages?: OrganizationDetailsEditProps['customMessages'];
 }
 
-export interface UseOrganizationDetailsEditServiceOptions {
-  saveAction?: OrganizationDetailsEditProps['saveAction'];
-  customMessages?: OrganizationDetailsEditProps['customMessages'];
-}
+export type UseOrganizationDetailsEditServiceOptions = Pick<
+  UseOrganizationDetailsEditOptions,
+  'saveAction' | 'customMessages'
+>;
 
 export interface UseOrganizationDetailsEditResult {
   organization: OrganizationPrivate;

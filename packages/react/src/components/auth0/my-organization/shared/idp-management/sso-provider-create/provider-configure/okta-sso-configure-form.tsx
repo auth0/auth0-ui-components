@@ -85,6 +85,8 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
         client_secret: oktaData?.client_secret || '',
         icon_url: oktaData?.icon_url || '',
         callback_url: oktaData?.callback_url || callbackUrl,
+        show_as_button: oktaData?.show_as_button ?? false,
+        assign_membership_on_login: oktaData?.assign_membership_on_login ?? false,
       },
     });
 

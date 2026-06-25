@@ -26,7 +26,8 @@
     "my-organization": "My Organization",
     "organization-management": "Organization Management",
     "identity-provider-management": "Identity Provider Management",
-    "domain-management": "Domain Management"
+    "domain-management": "Domain Management",
+    "member-management": "Members"
   },
   "mfa": {
     "title": "Multi-Factor Authentication"
@@ -39,5 +40,11 @@
   },
   "domain-management": {
     "title": "Domain Management"
+  },
+  "member-management": {
+    "title": "Member Management"
+  },
+  "member-detail": {
+    "title": "Member Detail"
   }
 }
