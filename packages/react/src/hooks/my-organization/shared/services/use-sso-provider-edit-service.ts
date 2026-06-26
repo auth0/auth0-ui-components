@@ -26,6 +26,7 @@ import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   UseSsoProviderEditOptions,
   UseSsoProviderEditServiceReturn,
@@ -715,17 +716,17 @@ export function useSsoProviderEditService(
     organization: organizationQuery.data ?? OrganizationDetailsFactory.create(),
     provisioningConfig: provisioningQuery.data ?? null,
     isLoading: providerQuery.isLoading || organizationQuery.isLoading,
-    isUpdating: updateProviderMutation.isPending,
-    isDeleting: deleteProviderMutation.isPending,
-    isRemoving: detachProviderMutation.isPending,
-    isProvisioningUpdating: createProvisioningMutation.isPending,
-    isProvisioningDeleting: deleteProvisioningMutation.isPending,
+    isUpdating: isMutationLoading(updateProviderMutation),
+    isDeleting: isMutationLoading(deleteProviderMutation),
+    isRemoving: isMutationLoading(detachProviderMutation),
+    isProvisioningUpdating: isMutationLoading(createProvisioningMutation),
+    isProvisioningDeleting: isMutationLoading(deleteProvisioningMutation),
     isProvisioningLoading: provisioningQuery.isLoading || provisioningQuery.isFetching,
-    isScimTokensLoading: listScimTokensMutation.isPending,
-    isScimTokenCreating: createScimTokenMutation.isPending,
-    isScimTokenDeleting: deleteScimTokenMutation.isPending,
-    isSsoAttributesSyncing: syncSsoAttributesMutation.isPending,
-    isProvisioningAttributesSyncing: syncProvisioningAttributesMutation.isPending,
+    isScimTokensLoading: isMutationLoading(listScimTokensMutation),
+    isScimTokenCreating: isMutationLoading(createScimTokenMutation),
+    isScimTokenDeleting: isMutationLoading(deleteScimTokenMutation),
+    isSsoAttributesSyncing: isMutationLoading(syncSsoAttributesMutation),
+    isProvisioningAttributesSyncing: isMutationLoading(syncProvisioningAttributesMutation),
     hasSsoAttributeSyncWarning,
     hasProvisioningAttributeSyncWarning,
     fetchProvider,

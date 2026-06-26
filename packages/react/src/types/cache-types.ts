@@ -8,5 +8,6 @@ export interface QueryCacheConfig {
   enabled?: boolean;
   staleTime?: number;
   gcTime?: number;
+  cacheTime?: number;
   refetchOnWindowFocus?: boolean | 'always';
 }

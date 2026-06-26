@@ -20,6 +20,7 @@ import { useCallback } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type { UseSsoProviderTableServiceReturn } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
 export { ssoProviderQueryKeys };
@@ -203,10 +204,10 @@ export function useSsoProviderTableService(
     isLoading: providersQuery.isLoading || organizationQuery.isLoading,
     providersError: providersQuery.error,
     organizationError: organizationQuery.error,
-    isDeleting: deleteProviderMutation.isPending,
-    isRemoving: removeProviderMutation.isPending,
-    isUpdating: enableProviderMutation.isPending,
-    isUpdatingId: enableProviderMutation.isPending
+    isDeleting: isMutationLoading(deleteProviderMutation),
+    isRemoving: isMutationLoading(removeProviderMutation),
+    isUpdating: isMutationLoading(enableProviderMutation),
+    isUpdatingId: isMutationLoading(enableProviderMutation)
       ? (enableProviderMutation.variables?.selectedIdp?.id ?? null)
       : null,
 
