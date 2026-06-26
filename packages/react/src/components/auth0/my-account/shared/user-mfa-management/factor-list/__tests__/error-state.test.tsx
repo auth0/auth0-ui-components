@@ -1,8 +1,15 @@
 import { screen } from '@testing-library/react';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
-import { MFAErrorState } from '@/components/auth0/my-account/shared/mfa/error-state';
-import { renderWithProviders, createMockMFAErrorStateProps } from '@/tests/utils';
+import { MFAErrorState } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/error-state';
+import { renderWithProviders } from '@/tests/utils';
+
+const createMockMFAErrorStateProps = (overrides = {}) => ({
+  title: 'Something went wrong',
+  description: 'An error occurred while processing your request',
+  className: '',
+  ...overrides,
+});
 
 // ===== Test Suite =====
 describe('MFAMFAErrorState', () => {
