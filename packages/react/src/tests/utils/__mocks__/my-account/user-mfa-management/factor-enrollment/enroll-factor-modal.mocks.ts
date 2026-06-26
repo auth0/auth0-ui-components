@@ -1,12 +1,12 @@
 import { FACTOR_TYPE_EMAIL } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import { ENTER_CONTACT } from '@/lib/constants/my-account/mfa/mfa-constants';
-import type { UserMFASetupFormProps } from '@/types/my-account/mfa/mfa-types';
+import { ENTER_CONTACT } from '@/lib/constants/my-account/user-mfa-management/user-mfa-constants';
+import type { EnrollFactorModalProps } from '@/types/my-account/user-mfa-management/factor-enrollment-types';
 
-export const createMockUserMFASetupFormProps = (
-  overrides: Partial<UserMFASetupFormProps> = {},
-): UserMFASetupFormProps => ({
+export const createMockEnrollFactorModalProps = (
+  overrides: Partial<EnrollFactorModalProps> = {},
+): EnrollFactorModalProps => ({
   open: true,
   onClose: vi.fn(),
   factorType: FACTOR_TYPE_EMAIL,
@@ -17,10 +17,11 @@ export const createMockUserMFASetupFormProps = (
   isEnrolling: false,
   isConfirming: false,
   onSubmitContact: vi.fn().mockResolvedValue(true),
+  onResendCode: vi.fn(),
   onConfirmOtp: vi.fn(),
-  onContinueQR: vi.fn(),
+  onContinueQRScan: vi.fn(),
   onConfirmRecoveryCode: vi.fn(),
-  onAdvanceToQR: vi.fn(),
+  onStartQREnrollment: vi.fn(),
   schema: {},
   styling: {
     variables: {

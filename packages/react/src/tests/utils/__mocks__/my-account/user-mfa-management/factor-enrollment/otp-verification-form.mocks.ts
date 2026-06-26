@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-import type { OTPVerificationFormProps } from '@/types/my-account/mfa/mfa-types';
+import type { OTPVerificationFormProps } from '@/types/my-account/user-mfa-management/factor-enrollment-types';
 
 export const createMockOTPVerificationFormProps = (
   overrides: Partial<OTPVerificationFormProps> = {},

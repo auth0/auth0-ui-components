@@ -1,10 +1,10 @@
 import { vi } from 'vitest';
 
-import type { DeleteFactorConfirmationProps } from '@/types';
+import type { FactorDeleteModalProps } from '@/types';
 
-export const createMockDeleteFactorConfirmationProps = (
-  overrides: Partial<DeleteFactorConfirmationProps> = {},
-): DeleteFactorConfirmationProps => ({
+export const createMockFactorDeleteModalProps = (
+  overrides: Partial<FactorDeleteModalProps> = {},
+): FactorDeleteModalProps => ({
   open: true,
   onOpenChange: vi.fn(),
   factorToDelete: {

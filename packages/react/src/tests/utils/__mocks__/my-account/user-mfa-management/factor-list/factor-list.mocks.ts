@@ -1,7 +1,7 @@
 import { FACTOR_TYPE_EMAIL } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import type { FactorsListProps } from '@/types/my-account/mfa/mfa-types';
+import type { FactorsListProps } from '@/types/my-account/user-mfa-management/factors-list-types';
 
 export const createMockFactorsListProps = (
   overrides: Partial<FactorsListProps> = {},
