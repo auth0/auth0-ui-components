@@ -11,7 +11,7 @@ export * from './my-account/user-mfa-management/user-mfa-management-types';
 export * from './my-account/user-mfa-management/factor-enrollment-types';
 export * from './my-account/user-mfa-management/factors-list-types';
 export * from './my-account/user-mfa-management/factor-delete-modal-types';
-export * from './my-account/passkey/passkey-types';
+export * from './my-account/user-passkey-management/user-passkey-management-types';
 
 // My Organization types
 export * from './my-organization/config/config-types';

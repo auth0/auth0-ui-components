@@ -3,8 +3,8 @@ import { vi } from 'vitest';
 import type {
   Passkey,
   PasskeyActionModalProps,
-  UserPasskeyMgmtViewProps,
-} from '@/types/my-account/passkey/passkey-types';
+  UserPasskeyManagementViewProps,
+} from '@/types/my-account/user-passkey-management/user-passkey-management-types';
 
 export const createMockPasskeyActionModalProps = (
   overrides?: Partial<PasskeyActionModalProps>,
@@ -26,9 +26,9 @@ export const createMockPasskey = (overrides?: Partial<Passkey>): Passkey => ({
   ...overrides,
 });
 
-export const createMockUserPasskeyMgmtViewProps = (
-  overrides: Partial<UserPasskeyMgmtViewProps> = {},
-): UserPasskeyMgmtViewProps => ({
+export const createMockUserPasskeyManagementViewProps = (
+  overrides: Partial<UserPasskeyManagementViewProps> = {},
+): UserPasskeyManagementViewProps => ({
   passkeys: [createMockPasskey()],
   isEnrolling: false,
   isRevoking: false,

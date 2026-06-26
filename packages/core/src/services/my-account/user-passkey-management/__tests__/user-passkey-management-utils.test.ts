@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import type { PasskeyPublicKeyCredentialCreationOptions } from '../passkey-types';
+import type { PasskeyPublicKeyCredentialCreationOptions } from '../user-passkey-management-types';
 import {
   base64UrlToUint8Array,
   arrayBufferToBase64Url,
   parsePublicKeyCreationOptions,
   createPasskeyCredential,
   parseUserAgent,
-} from '../passkey-utils';
+} from '../user-passkey-management-utils';
 
-import { toBuffer, mockCredential } from './__mocks__/passkey-utils.mocks';
+import { toBuffer, mockCredential } from './__mocks__/user-passkey-management-utils.mocks';
 
 describe('passkey-utils', () => {
   describe('base64UrlToUint8Array', () => {

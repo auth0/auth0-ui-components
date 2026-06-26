@@ -24,4 +24,4 @@ export * from './my-account/user-mfa-management/factor-list/factor-list.mocks';
 
 export * from './shared/mfa-step-up.mocks';
 
-export * from './my-account/passkey/passkey.mocks';
+export * from './my-account/user-passkey-management/user-passkey-management.mocks';
