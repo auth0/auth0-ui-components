@@ -9,17 +9,18 @@ import * as React from 'react';
 
 import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { DialogFooter } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { ShowRecoveryCodeProps } from '@/types/my-account/mfa/mfa-types';
+import type { ShowRecoveryCodeProps } from '@/types/my-account/user-mfa-management/factor-enrollment-types';
 
 /**
  *
  * @param props - Component props.
  * @param props.recoveryCode - Recovery code to display
- * @param props.isEnrolling - Whether enrollment (code fetch) is in progress
- * @param props.isConfirming - Whether confirmation is in progress
+ * @param props.isLoading - Whether an async operation is in progress
  * @param props.onConfirmRecoveryCode - Called when the user confirms they've saved the code
  * @param props.onClose - Callback fired when the component should close
  * @param props.styling - Custom styling configuration with variables and classes
@@ -28,8 +29,7 @@ import type { ShowRecoveryCodeProps } from '@/types/my-account/mfa/mfa-types';
  */
 export function ShowRecoveryCode({
   recoveryCode,
-  isEnrolling,
-  isConfirming,
+  isLoading,
   onConfirmRecoveryCode,
   onClose,
   styling = {
@@ -42,7 +42,12 @@ export function ShowRecoveryCode({
   },
   customMessages = {},
 }: ShowRecoveryCodeProps) {
-  const { t } = useTranslator('mfa', customMessages);
+  const [confirmed, setConfirmed] = React.useState(false);
+
+  React.useEffect(() => {
+    setConfirmed(false);
+  }, [recoveryCode]);
+  const { t } = useTranslator('user_mfa_management', customMessages);
   const { isDarkMode } = useTheme();
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -50,8 +55,8 @@ export function ShowRecoveryCode({
   );
 
   return (
-    <div style={currentStyles.variables} className="w-full max-w-sm mx-auto text-center">
-      {isEnrolling || isConfirming ? (
+    <div style={currentStyles.variables} className="w-full">
+      {isLoading ? (
         <div className="flex items-center justify-center py-16">
           <Spinner />
         </div>
@@ -59,21 +64,34 @@ export function ShowRecoveryCode({
         <div className="space-y-6">
           <div>
             <p className="font-normal block text-sm text-center mb-4 text-primary">
-              {t('enrollment_form.recovery_code_description')}
+              {t('enrollment.recovery_code.description')}
             </p>
             <CopyableTextField value={recoveryCode} />
           </div>
 
-          <div className="flex flex-row justify-end gap-3 mt-6 mb-6">
+          <div className="flex items-center gap-4">
+            <Checkbox
+              id="recovery-code-confirmed"
+              checked={confirmed}
+              onCheckedChange={(checked) => setConfirmed(checked === true)}
+            />
+            <label
+              htmlFor="recovery-code-confirmed"
+              className="text-sm text-primary cursor-pointer"
+            >
+              {t('enrollment.recovery_code.confirmed')}
+            </label>
+          </div>
+
+          <DialogFooter>
             <Button
               type="button"
               className="text-sm"
               variant="outline"
               size="default"
               onClick={onClose}
-              aria-label={t('back')}
             >
-              {t('back')}
+              {t('actions.back_button_label')}
             </Button>
 
             <Button
@@ -81,11 +99,11 @@ export function ShowRecoveryCode({
               className="text-sm"
               size="default"
               onClick={onConfirmRecoveryCode}
-              aria-label={t('submit')}
+              disabled={!confirmed}
             >
-              {t('submit')}
+              {t('actions.submit_button_label')}
             </Button>
-          </div>
+          </DialogFooter>
         </div>
       )}
     </div>

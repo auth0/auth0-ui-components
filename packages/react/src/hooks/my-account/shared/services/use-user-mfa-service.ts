@@ -15,7 +15,7 @@ import {
 import { useQuery, useMutation } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
-import type { UseUserMFAServiceReturn } from '@/types/my-account/mfa/mfa-types';
+import type { UseUserMFAServiceReturn } from '@/types/my-account/user-mfa-management/user-mfa-management-types';
 
 /**
  * Internal service hook for MFA operations backed by TanStack Query.

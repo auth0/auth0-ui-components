@@ -1048,6 +1048,7 @@
       },
       "recovery-code": {
         "title": "Recovery Codes",
+        "item_label": "Recovery Code",
         "name": "Recovery Code ${index}",
         "description": "Use a unique recovery code to regain account access.",
         "button_text": "Add Recovery Code"
@@ -1082,6 +1083,7 @@
         "scan_description": "Complete the setup by scanning this code with your Guardian App. If you can't scan the code, copy the url below.",
         "qr_alt": "Enrollment QR code",
         "download_hint": "You can download the Auth0 Guardian app from the",
+        "download_hint_or": "or",
         "download_hint_apple": "Apple App Store",
         "download_hint_google": "Google Play Store"
       },

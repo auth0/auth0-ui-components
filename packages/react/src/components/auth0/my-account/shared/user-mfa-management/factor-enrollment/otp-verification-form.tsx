@@ -15,19 +15,13 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from '@/components/ui/form';
+import { DialogFooter } from '@/components/ui/dialog';
+import { Form, FormField, FormItem, FormControl, FormMessage } from '@/components/ui/form';
 import { OTPField } from '@/components/ui/otp-field';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
-import type { OTPVerificationFormProps } from '@/types/my-account/mfa/mfa-types';
+import type { OTPVerificationFormProps } from '@/types/my-account/user-mfa-management/factor-enrollment-types';
 
 type OtpForm = {
   userOtp: string;
@@ -65,13 +59,14 @@ export function OTPVerificationForm({
   isConfirming,
   onConfirmOtp,
   onBack,
+  onResend,
   styling = {
     variables: { common: {}, light: {}, dark: {} },
     classes: {},
   },
   customMessages = {},
 }: OTPVerificationFormProps) {
-  const { t } = useTranslator('mfa', customMessages);
+  const { t } = useTranslator('user_mfa_management', customMessages);
   const { isDarkMode } = useTheme();
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -90,7 +85,7 @@ export function OTPVerificationForm({
   const maskedContact = contact ? maskContact(contact, factorType) : '';
 
   return (
-    <div style={currentStyles.variables} className="w-full max-w-sm mx-auto text-center">
+    <div style={currentStyles.variables} className="w-full">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit((data) => onConfirmOtp(data.userOtp))}
@@ -103,8 +98,10 @@ export function OTPVerificationForm({
             className="text-sm text-primary font-normal text-center text-(length:--font-size-paragraph)"
           >
             {[FACTOR_TYPE_PUSH_NOTIFICATION, FACTOR_TYPE_TOTP].includes(factorType)
-              ? t('enrollment_form.show_otp.enter_opt_code')
-              : t('enrollment_form.show_otp.enter_verify_code', { verifier: maskedContact })}
+              ? t('enrollment.verify.totp.description')
+              : factorType === FACTOR_TYPE_EMAIL
+                ? t('enrollment.verify.email.description', { name: maskedContact })
+                : t('enrollment.verify.phone.description', { name: maskedContact })}
           </p>
 
           <FormField
@@ -112,12 +109,6 @@ export function OTPVerificationForm({
             name="userOtp"
             render={({ field }) => (
               <FormItem>
-                <FormLabel
-                  className="text-sm font-medium text-(length:--font-size-label)"
-                  htmlFor="otp-input"
-                >
-                  {t('enrollment_form.show_otp.one_time_passcode')}
-                </FormLabel>
                 <FormControl>
                   <OTPField
                     id="otp-input"
@@ -138,16 +129,29 @@ export function OTPVerificationForm({
             )}
           />
 
-          <div className="flex flex-row justify-end gap-3 mt-6 mb-6">
+          {onResend && (
+            <p className="text-sm text-muted-foreground text-center">
+              {t('enrollment.verify.resend_prompt')}
+              <Button
+                type="button"
+                variant="link"
+                className="text-sm ms-1 h-auto p-0"
+                onClick={onResend}
+              >
+                {t('enrollment.verify.resend')}
+              </Button>
+            </p>
+          )}
+
+          <DialogFooter>
             <Button
               type="button"
               className="text-sm"
               variant="outline"
               size="default"
               onClick={onBack}
-              aria-label={t('back')}
             >
-              {t('back')}
+              {t('actions.back_button_label')}
             </Button>
 
             <Button
@@ -155,11 +159,12 @@ export function OTPVerificationForm({
               className="text-sm"
               size="default"
               disabled={userOtp?.length !== 6 || isConfirming}
-              aria-label={isConfirming ? t('enrollment_form.show_otp.verifying') : t('submit')}
             >
-              {isConfirming ? t('enrollment_form.show_otp.verifying') : t('submit')}
+              {isConfirming
+                ? t('enrollment.verify.verifying_text')
+                : t('actions.verify_button_label')}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </Form>
     </div>

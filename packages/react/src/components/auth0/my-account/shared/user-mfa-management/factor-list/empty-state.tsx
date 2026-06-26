@@ -6,7 +6,8 @@
 
 import { cn } from '@/lib/utils';
 
-interface MFAEmptyStateProps {
+/** Props for MFAEmptyState component. */
+export interface MFAEmptyStateProps {
   message: string;
   className?: string;
 }
