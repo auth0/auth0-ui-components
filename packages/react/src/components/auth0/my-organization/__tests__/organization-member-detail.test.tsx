@@ -655,10 +655,6 @@ describe('OrganizationMemberDetail', () => {
       await waitFor(() => {
         expect(apiService.organization.members.roles.assign).toHaveBeenCalled();
       });
-
-      // The detail page reuses the shared management assign-roles mutation, which
-      // invalidates the entire member-management cache (a superset of the member list)
-      // plus the member's detail roles.
       expect(invalidateQueriesSpy).toHaveBeenCalledWith({
         queryKey: memberManagementQueryKeys.all,
       });

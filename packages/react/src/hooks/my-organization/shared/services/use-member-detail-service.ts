@@ -63,9 +63,6 @@ export function useMemberDetailService(
     enabled: !!coreClient && isValidUserId && memberQuery.isSuccess,
   });
 
-  // Reuse the shared assign-roles and remove-from-organization mutations from the
-  // member management service. Both receive `userId` via mutation variables (passed
-  // from the component layer), keeping the data flow consistent across the feature.
   const { rolesQuery, assignRolesMutation, removeFromOrganizationMutation } =
     useMemberManagementService({
       assignRolesAction,
