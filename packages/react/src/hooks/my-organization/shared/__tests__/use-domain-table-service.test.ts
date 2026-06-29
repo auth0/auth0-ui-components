@@ -9,14 +9,14 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
+import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
 import {
-  mockCore,
   createMockDomain,
   createMockIdentityProvider,
-  createMockI18nService,
   createMockDomainTableServiceOptions,
-} from '@/tests/utils';
+} from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
+import { mockCore } from '@/tests/utils/test-setup';
 import type { UseDomainTableServiceOptions } from '@/types/my-organization/domain-management/domain-table-types';
 
 const { initMockCoreClient } = mockCore();

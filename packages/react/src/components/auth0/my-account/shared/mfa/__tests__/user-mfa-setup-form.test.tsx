@@ -17,7 +17,8 @@ import {
   QR_PHASE_INSTALLATION,
   SHOW_RECOVERY_CODE,
 } from '@/lib/constants/my-account/mfa/mfa-constants';
-import { renderWithProviders, createMockUserMFASetupFormProps } from '@/tests/utils';
+import { createMockUserMFASetupFormProps } from '@/tests/utils/__mocks__/my-account/mfa/user-mfa-setup-form.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { UserMFASetupFormProps } from '@/types/my-account/mfa/mfa-types';
 
 // ===== Test Suite =====

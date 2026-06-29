@@ -10,7 +10,7 @@ import {
   createMockAuthenticationMethodsResponse,
   createMockOTPEnrollmentResponse,
   createMockUserMFAMgmtViewProps,
-} from '@/tests/utils/__mocks__';
+} from '@/tests/utils/__mocks__/my-account/mfa/mfa.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { UserMFAMgmtProps } from '@/types/my-account/mfa/mfa-types';

@@ -3,7 +3,11 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
 import { AuthenticatorsList } from '@/components/auth0/shared/gate-keeper/mfa-step-up/authenticators-list';
-import { renderWithProviders, mockMfaRequiredError, mockUseMfaRequirements } from '@/tests/utils';
+import {
+  mockMfaRequiredError,
+  mockUseMfaRequirements,
+} from '@/tests/utils/__mocks__/shared/mfa-step-up.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 vi.mock('@/hooks/shared/use-mfa-requirements');
 

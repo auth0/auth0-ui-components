@@ -3,11 +3,11 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { OrganizationMemberTableActionsColumn } from '@/components/auth0/my-organization/shared/member-management/members/members-table/organization-member-table-actions-column';
-import { renderWithProviders } from '@/tests/utils';
 import {
   createMockMember,
   createMockMemberActionsColumnProps,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('OrganizationMemberTableActionsColumn', () => {
   beforeEach(() => {

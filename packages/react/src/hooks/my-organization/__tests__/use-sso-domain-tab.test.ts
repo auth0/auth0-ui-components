@@ -7,15 +7,13 @@ import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import {
-  mockCore,
-  mockToast,
   createMockSsoDomain,
   createMockVerifiedSsoDomain,
   createMockSsoProvider,
-  setupAllCommonMocks,
-  setupMockUseCoreClientNull,
-} from '@/tests/utils';
+} from '@/tests/utils/__mocks__/my-organization/idp-management/sso-domain.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
+import { mockCore, mockToast } from '@/tests/utils/test-setup';
+import { setupAllCommonMocks, setupMockUseCoreClientNull } from '@/tests/utils/test-utilities';
 
 // ===== Mock packages =====
 

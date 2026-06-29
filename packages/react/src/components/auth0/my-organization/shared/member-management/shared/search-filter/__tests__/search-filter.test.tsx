@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach, beforeEach } from 'vitest';
 
 import { SearchFilter } from '@/components/auth0/my-organization/shared/member-management/shared/search-filter/search-filter';
-import { renderWithProviders } from '@/tests/utils';
 import { createMockSearchFilterProps } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('SearchFilter', () => {
   beforeEach(() => {

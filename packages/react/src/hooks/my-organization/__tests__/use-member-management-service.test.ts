@@ -5,9 +5,10 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
-import { mockCore, mockToast, createMockI18nService } from '@/tests/utils';
+import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
 import { createMockInvitation } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
+import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { UseMemberManagementServiceOptions } from '@/types/my-organization/member-management/organization-member-management-types';
 
 const { mockedShowToast } = mockToast();

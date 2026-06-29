@@ -3,7 +3,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
-import { mockCreateCoreClient } from '@/tests/utils';
+import { mockCreateCoreClient } from '@/tests/utils/test-setup';
 
 const { createCoreClient } = mockCreateCoreClient();
 

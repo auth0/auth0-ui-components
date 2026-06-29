@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { FactorsList } from '@/components/auth0/my-account/shared/mfa/factors-list';
-import { renderWithProviders, createMockFactorsListProps } from '@/tests/utils';
+import { createMockFactorsListProps } from '@/tests/utils/__mocks__/my-account/mfa/factor-list.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 // ===== Test Suite =====
 describe('FactorsList', () => {
