@@ -1,5 +1,5 @@
 import type { ComponentAction } from '@auth0/universal-components-core';
-import { memberManagementQueryKeys } from '@auth0/universal-components-core';
+import { memberManagementQueryKeys, memberDetailQueryKeys } from '@auth0/universal-components-core';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -656,8 +656,14 @@ describe('OrganizationMemberDetail', () => {
         expect(apiService.organization.members.roles.assign).toHaveBeenCalled();
       });
 
+      // The detail page reuses the shared management assign-roles mutation, which
+      // invalidates the entire member-management cache (a superset of the member list)
+      // plus the member's detail roles.
       expect(invalidateQueriesSpy).toHaveBeenCalledWith({
-        queryKey: memberManagementQueryKeys.members(),
+        queryKey: memberManagementQueryKeys.all,
+      });
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+        queryKey: memberDetailQueryKeys.memberRoles(mockMember.user_id ?? ''),
       });
     });
 

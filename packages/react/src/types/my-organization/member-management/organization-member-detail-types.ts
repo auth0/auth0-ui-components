@@ -24,7 +24,7 @@ export interface MemberDetailServiceResult {
   removeFromOrganizationMutation: UseMutationResult<
     void,
     Error,
-    { userId?: string; memberName?: string; organizationName?: string }
+    { userId?: string | null; memberName?: string; organizationName?: string }
   >;
   assignRolesMutation: UseMutationResult<
     { aborted: boolean },
@@ -74,8 +74,12 @@ export interface UseOrganizationMemberDetailResult {
   handleBack: () => void;
   openModal: (state: MemberDetailModalState) => void;
   closeModal: () => void;
-  handleRemoveFromOrganizationConfirm: (memberName?: string, organizationName?: string) => void;
-  handleAssignRolesSubmit: (roleIds: string[], memberRoles: Role[]) => void;
+  handleRemoveFromOrganizationConfirm: (
+    userId?: string | null,
+    memberName?: string,
+    organizationName?: string,
+  ) => void;
+  handleAssignRolesSubmit: (roleIds: string[], memberRoles: Role[], userId?: string | null) => void;
   handleRemoveRolesCancel: () => void;
   handleRemoveRolesConfirm: () => void;
 }
@@ -188,6 +192,7 @@ export interface OrganizationMemberEditRolesTabProps {
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   organizationName?: string;
   memberName?: string;
+  selectedMember?: OrgMember | null;
   memberRoles: Role[];
   availableRoles: Role[];
   selectedRoles: Role[];
@@ -200,7 +205,7 @@ export interface OrganizationMemberEditRolesTabProps {
   onSelectedRolesChange: (roles: Role[]) => void;
   onAssignRolesClick: () => void;
   onAssignRolesCancel: () => void;
-  onAssignRolesSubmit: (roleIds: string[], memberRoles: Role[]) => void;
+  onAssignRolesSubmit: (roleIds: string[], memberRoles: Role[], userId?: string | null) => void;
   onRemoveRolesClick: (roles: Role[]) => void;
   onRemoveRolesCancel: () => void;
   onRemoveRolesConfirm: () => void;
