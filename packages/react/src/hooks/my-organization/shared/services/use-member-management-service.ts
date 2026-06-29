@@ -247,6 +247,14 @@ export function useMemberManagementService(
 
   const createInvitationMutation = useMutation({
     mutationFn: async (data: CreateInvitationInput) => {
+      const roleIds = [...new Set(data.invitees.flatMap((i) => i.roles ?? []))];
+      if (roleIds.length > 0) {
+        const validationResult = validateRequestRoleForMember(t, roleIds, [], true);
+        if (validationResult?.aborted) {
+          return validationResult;
+        }
+      }
+
       if (createInvitationAction?.onBefore && !createInvitationAction.onBefore(data)) {
         throw new Error('Create action cancelled by onBefore');
       }
@@ -261,7 +269,8 @@ export function useMemberManagementService(
       return Array.isArray(response) ? response[0] : response;
     },
     onSuccess: (result, data) => {
-      createInvitationAction?.onAfter?.(data, result);
+      if (result && 'aborted' in result) return;
+      createInvitationAction?.onAfter?.(data, result as MemberInvitation | undefined);
       const isBulk = data.invitees.length > 1;
       const message = isBulk
         ? t('invitation.create.success_bulk')
