@@ -165,6 +165,7 @@ export function OrganizationMemberEditRolesTab({
   customMessages,
   organizationName,
   memberName,
+  selectedMember,
   memberRoles,
   availableRoles,
   selectedRoles,
@@ -218,6 +219,7 @@ export function OrganizationMemberEditRolesTab({
         isLoading={isAssigningRoles || isFetchingAvailableRoles}
         availableRoles={availableRoles}
         assignedRoles={memberRoles}
+        selectedMember={selectedMember}
         customMessages={customMessages}
         styling={{
           variables: styling?.variables,

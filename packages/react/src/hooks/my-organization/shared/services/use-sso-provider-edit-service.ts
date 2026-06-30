@@ -726,7 +726,7 @@ export function useSsoProviderEditService(
     isScimTokenCreating: isMutationLoading(createScimTokenMutation),
     isScimTokenDeleting: isMutationLoading(deleteScimTokenMutation),
     isSsoAttributesSyncing: isMutationLoading(syncSsoAttributesMutation),
-    isProvisioningAttributesSyncing: syncProvisioningAttributesMutation.isPending,
+    isProvisioningAttributesSyncing: isMutationLoading(syncProvisioningAttributesMutation),
     hasSsoAttributeSyncWarning,
     hasProvisioningAttributeSyncWarning,
     fetchProvider,

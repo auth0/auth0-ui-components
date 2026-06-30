@@ -189,6 +189,7 @@ export function OrganizationMemberDetailView(
               customMessages={customMessages}
               organizationName={props.organizationDisplayName}
               memberName={props.member?.name}
+              selectedMember={props.member}
               memberRoles={props.memberRoles}
               availableRoles={props.availableRoles}
               selectedRoles={props.selectedRoles}
@@ -222,6 +223,7 @@ export function OrganizationMemberDetailView(
           isOpen={modalState.type === 'removeFromOrganization'}
           isLoading={isRemovingFromOrganization}
           memberName={props.member?.name}
+          memberUserId={props.member?.user_id}
           organizationName={props.organizationDisplayName}
           customMessages={customMessages}
           styling={{
