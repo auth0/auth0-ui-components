@@ -37,6 +37,7 @@ export interface SsoProvisioningTabClasses {
   'SsoProvisioning-attributeMapping'?: string;
   'SsoProvisioningDetails-formActions'?: string;
   'SsoProviderAttributeSyncAlert-root'?: string;
+  'SsoProviderAttributeSyncAlert-dialogContent'?: string;
 }
 
 /** Props for SsoProvisioningTab component. */

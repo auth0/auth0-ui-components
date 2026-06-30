@@ -115,6 +115,13 @@ export function SsoProvisioningTab({
           isSyncing={isSyncingAttributes}
           customMessages={customMessages.attribute_sync_alert}
           className={currentStyles.classes?.['SsoProviderAttributeSyncAlert-root']}
+          styling={{
+            variables: styling?.variables,
+            classes: {
+              'SsoProviderAttributeSyncAlert-dialogContent':
+                currentStyles.classes?.['SsoProviderAttributeSyncAlert-dialogContent'],
+            },
+          }}
         />
       )}
 

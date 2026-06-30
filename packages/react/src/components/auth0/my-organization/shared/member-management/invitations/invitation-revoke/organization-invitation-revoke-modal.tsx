@@ -3,6 +3,7 @@
  * @module organization-invitation-revoke-modal
  */
 
+import { getComponentStyles } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
+import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
 import type { OrganizationInvitationRevokeModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
@@ -29,6 +32,7 @@ import type { OrganizationInvitationRevokeModalProps } from '@/types/my-organiza
  * @param props.onClose - Callback when modal is closed.
  * @param props.onConfirm - Callback when action is confirmed.
  * @param props.className - Optional CSS class name.
+ * @param props.styling - Custom styling configuration with variables and classes.
  * @returns The modal component.
  */
 export function OrganizationInvitationRevokeModal({
@@ -40,8 +44,14 @@ export function OrganizationInvitationRevokeModal({
   onClose,
   onConfirm,
   className,
+  styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
 }: OrganizationInvitationRevokeModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
+  const { isDarkMode } = useTheme();
+  const currentStyles = React.useMemo(
+    () => getComponentStyles(styling, isDarkMode),
+    [styling, isDarkMode],
+  );
 
   const namespace = isRevokeAndResend ? 'invitation.revoke_resend' : 'invitation.revoke';
 
@@ -53,7 +63,13 @@ export function OrganizationInvitationRevokeModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={className}>
+      <DialogContent
+        style={currentStyles.variables}
+        className={cn(
+          className,
+          currentStyles.classes?.['OrganizationInvitationRevokeModal-dialogContent'],
+        )}
+      >
         <DialogHeader>
           <DialogTitle>{t(`${namespace}.title`)}</DialogTitle>
         </DialogHeader>
