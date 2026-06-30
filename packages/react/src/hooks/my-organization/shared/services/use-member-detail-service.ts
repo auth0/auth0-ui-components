@@ -34,7 +34,7 @@ export function useMemberDetailService(
   const {
     userId,
     customMessages = {},
-    removeFromOrgAction,
+    removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,
   } = options;
@@ -74,29 +74,38 @@ export function useMemberDetailService(
     enabled: !!coreClient,
   });
 
-  const removeFromOrgMutation = useMutation({
-    mutationFn: async (_args: { memberId?: string; memberName?: string; orgName?: string }) => {
+  const removeFromOrganizationMutation = useMutation({
+    mutationFn: async (_args: {
+      memberId?: string;
+      memberName?: string;
+      organizationName?: string;
+    }) => {
       if (!userId) throw new Error('userId is required');
-      if (removeFromOrgAction?.onBefore && !removeFromOrgAction.onBefore(userId)) {
+      if (
+        removeFromOrganizationAction?.onBefore &&
+        !removeFromOrganizationAction.onBefore(userId)
+      ) {
         throw new Error('Remove from org cancelled by onBefore');
       }
       await coreClient!
         .getMyOrganizationApiClient()
         .organization.memberships.deleteMemberships({ members: [userId] });
     },
-    onSuccess: (_, { memberName, orgName }) => {
-      removeFromOrgAction?.onAfter?.(userId);
+    onSuccess: (_, { memberName, organizationName }) => {
+      removeFromOrganizationAction?.onAfter?.(userId);
       showToast({
         type: 'success',
-        message: t('member.detail.actions.remove_from_org.success', {
+        message: t('member.detail.actions.remove_from_organization.success', {
           memberName: memberName,
-          orgName: orgName,
+          organizationName: organizationName,
         }),
       });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.members() });
     },
     onError: (error) => {
-      handleError(error, { fallbackMessage: t('member.detail.error.remove_from_org_failed') });
+      handleError(error, {
+        fallbackMessage: t('member.detail.error.remove_from_organization_failed'),
+      });
     },
   });
 
@@ -183,7 +192,7 @@ export function useMemberDetailService(
     memberRolesQuery,
     rolesQuery,
     organizationQuery,
-    removeFromOrgMutation,
+    removeFromOrganizationMutation,
     assignRolesMutation,
     removeRolesMutation,
   };

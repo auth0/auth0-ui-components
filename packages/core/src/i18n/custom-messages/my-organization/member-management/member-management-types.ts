@@ -38,7 +38,7 @@ export interface OrganizationMemberDetailMessages {
         last_login?: string;
       };
       actions?: {
-        remove_from_org?: {
+        remove_from_organization?: {
           title?: string;
           description?: string;
           button?: string;
@@ -84,7 +84,7 @@ export interface OrganizationMemberDetailMessages {
       error?: {
         fetch_failed?: string;
         fetch_roles_failed?: string;
-        remove_from_org_failed?: string;
+        remove_from_organization_failed?: string;
         assign_role_failed?: string;
         remove_role_failed?: string;
       };

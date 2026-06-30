@@ -38,4 +38,5 @@ export type Auth0ComponentProviderProps = (
   /** TanStack Query cache config. Use `{ enabled: false }` to disable. */
   cacheConfig?: QueryCacheConfig;
   previewMode?: boolean;
+  telemetry?: boolean;
 };

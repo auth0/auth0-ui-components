@@ -21,4 +21,7 @@ export default defineConfig({
   banner: {
     js: '"use client";',
   },
+  define: {
+    __DISTRIBUTION__: JSON.stringify('npm'),
+  },
 });

@@ -391,7 +391,7 @@ export function MemberDetailPage() {
                 </tr>
                 <tr>
                   <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                    removeFromOrgAction
+                    removeFromOrganizationAction
                   </td>
                   <td className="px-4 py-2 text-sm text-gray-500">
                     <code>ComponentAction&lt;string&gt;</code>
@@ -464,9 +464,11 @@ export function MemberDetailPage() {
               />
             </div>
 
-            {/* removeFromOrgAction */}
+            {/* removeFromOrganizationAction */}
             <div>
-              <h4 className="text-base font-semibold text-gray-900 mb-1">removeFromOrgAction</h4>
+              <h4 className="text-base font-semibold text-gray-900 mb-1">
+                removeFromOrganizationAction
+              </h4>
               <p className="text-sm text-gray-700 mb-2">
                 <strong>Type:</strong> <code>ComponentAction&lt;string&gt;</code>
               </p>
@@ -493,20 +495,20 @@ export function MemberDetailPage() {
               <p className="text-sm font-medium text-gray-700 mb-1">Common Patterns:</p>
               <CodeBlock
                 code={`// Confirm before removing, then navigate back to the list
-removeFromOrgAction={{
+removeFromOrganizationAction={{
   onBefore: async () =>
     confirmDialog('Remove this member from the organization?'),
   onAfter: () => navigate('/members'),
 }}
 
 // Audit log on success
-removeFromOrgAction={{
+removeFromOrganizationAction={{
   onAfter: (userId) => {
     auditLog.record({ action: 'member_removed', userId });
   },
 }}`}
                 language="tsx"
-                title="removeFromOrgAction"
+                title="removeFromOrganizationAction"
               />
             </div>
 
@@ -681,7 +683,7 @@ removeRolesAction={{
                     </ul>
                   </div>
                   <div>
-                    <strong>member.detail.actions.remove_from_org</strong>
+                    <strong>member.detail.actions.remove_from_organization</strong>
                     <ul className="ml-4 list-disc mt-1 text-gray-600">
                       <li>title, description, button</li>
                       <li>modal.title, modal.description</li>
@@ -712,7 +714,7 @@ removeRolesAction={{
                     <strong>member.detail.error</strong>
                     <ul className="ml-4 list-disc mt-1 text-gray-600">
                       <li>fetch_failed, fetch_roles_failed</li>
-                      <li>remove_from_org_failed</li>
+                      <li>remove_from_organization_failed</li>
                       <li>assign_role_failed, remove_role_failed</li>
                     </ul>
                   </div>
@@ -732,7 +734,7 @@ removeRolesAction={{
           table: { empty_message: 'No permissions assigned yet.' },
         },
         actions: {
-          remove_from_org: {
+          remove_from_organization: {
             title: 'Remove from Organization',
             button: 'Remove',
             modal: {
@@ -871,7 +873,7 @@ removeRolesAction={{
   readOnly?: boolean;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   styling?: ComponentStyling;
-  removeFromOrgAction?: ComponentAction<string>;
+  removeFromOrganizationAction?: ComponentAction<string>;
   assignRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
   removeRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
 }
@@ -917,7 +919,7 @@ function MemberDetailPage() {
     <OrganizationMemberDetail
       userId={userId!}
       onBack={() => navigate('/members')}
-      removeFromOrgAction={{
+      removeFromOrganizationAction={{
         onBefore: async () => confirmDialog('Remove this member from the organization?'),
         onAfter: () => navigate('/members'),
       }}

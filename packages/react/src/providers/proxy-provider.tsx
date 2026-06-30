@@ -5,7 +5,12 @@
 
 'use client';
 
-import type { AuthDetails } from '@auth0/universal-components-core';
+import type {
+  AuthDetails,
+  CssImplementation,
+  TelemetryComponentGetter,
+  TelemetryConfig,
+} from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Toaster } from '@/components/auth0/shared/sonner';
@@ -14,7 +19,10 @@ import { Spinner } from '@/components/ui/spinner';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
 import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
 import { useToastProvider } from '@/hooks/shared/use-toast-provider';
+import { DISTRIBUTION, FRAMEWORK } from '@/lib/constants/telemetry-constants';
+import { detectCssImplementation } from '@/lib/utils/shared/css-detection';
 import { QueryProvider } from '@/providers/query-provider';
+import { TelemetryProvider } from '@/providers/telemetry-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
 import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 
@@ -41,9 +49,20 @@ export const Auth0ComponentProvider = ({
   cacheConfig,
   loader,
   children,
+  telemetry: telemetryEnabled = true,
 }: Extract<Auth0ComponentProviderProps, { mode: 'proxy' }> & { children: React.ReactNode }) => {
   const mergedToastSettings = useToastProvider(toastSettings);
   const { baseUrl, fetcher } = proxyConfig;
+
+  const [css, setCss] = React.useState<CssImplementation>('unknown');
+  const componentRef = React.useRef<string>('unknown');
+  const getComponent = React.useCallback<TelemetryComponentGetter>(() => componentRef.current, []);
+
+  React.useLayoutEffect(() => {
+    if (telemetryEnabled) {
+      setCss(detectCssImplementation());
+    }
+  }, [telemetryEnabled]);
 
   const memoizedAuthDetails = React.useMemo<AuthDetails>(
     () => ({
@@ -55,9 +74,21 @@ export const Auth0ComponentProvider = ({
     [domain, baseUrl, fetcher, previewMode],
   );
 
+  const telemetry = React.useMemo<TelemetryConfig>(
+    () => ({
+      css,
+      distribution: DISTRIBUTION,
+      framework: FRAMEWORK,
+      enabled: telemetryEnabled,
+    }),
+    [css, telemetryEnabled],
+  );
+
   const coreClient = useCoreClientInitialization({
     authDetails: memoizedAuthDetails,
     i18nOptions: i18n,
+    telemetry,
+    getComponent,
   });
 
   const coreClientValue = React.useMemo(
@@ -76,29 +107,31 @@ export const Auth0ComponentProvider = ({
   );
 
   return (
-    <ThemeProvider
-      themeSettings={{
-        mode: themeSettings.mode,
-        variables: themeSettings.variables,
-        loader,
-        theme: themeSettings.theme,
-      }}
-    >
-      {mergedToastSettings.provider === 'sonner' && (
-        <Toaster
-          position={mergedToastSettings.settings?.position || 'top-right'}
-          closeButton={mergedToastSettings.settings?.closeButton ?? true}
-          className="auth0-universal"
-        />
-      )}
-      {coreClient ? (
-        <CoreClientContext.Provider value={coreClientValue}>
-          <QueryProvider cacheConfig={cacheConfig}>{children}</QueryProvider>
-        </CoreClientContext.Provider>
-      ) : (
-        fallback
-      )}
-    </ThemeProvider>
+    <TelemetryProvider componentRef={componentRef}>
+      <ThemeProvider
+        themeSettings={{
+          mode: themeSettings.mode,
+          variables: themeSettings.variables,
+          loader,
+          theme: themeSettings.theme,
+        }}
+      >
+        {mergedToastSettings.provider === 'sonner' && (
+          <Toaster
+            position={mergedToastSettings.settings?.position || 'top-right'}
+            closeButton={mergedToastSettings.settings?.closeButton ?? true}
+            className="auth0-universal"
+          />
+        )}
+        {coreClient ? (
+          <CoreClientContext.Provider value={coreClientValue}>
+            <QueryProvider cacheConfig={cacheConfig}>{children}</QueryProvider>
+          </CoreClientContext.Provider>
+        ) : (
+          fallback
+        )}
+      </ThemeProvider>
+    </TelemetryProvider>
   );
 };
 

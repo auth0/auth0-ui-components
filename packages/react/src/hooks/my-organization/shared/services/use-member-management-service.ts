@@ -12,7 +12,7 @@ import {
   OrganizationDetailsMappers,
   memberDetailQueryKeys,
 } from '@auth0/universal-components-core';
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
@@ -21,12 +21,15 @@ import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
+import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   UseMemberManagementServiceOptions,
   MemberManagementServiceResult,
   MemberManagementSortConfig,
 } from '@/types/my-organization/member-management/organization-member-management-types';
+
+const keepPreviousDataOption = getPreviousDataOption();
 
 const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
   created_at: 'created_at',
@@ -65,7 +68,7 @@ export function useMemberManagementService(
     invitationParams,
     memberParams,
     assignRolesAction,
-    removeFromOrgAction,
+    removeFromOrganizationAction,
   } = options;
 
   const isInvitationsTabActive = activeTab === 'invitations';
@@ -124,7 +127,7 @@ export function useMemberManagementService(
       return { invitations, next };
     },
     enabled: !!coreClient && isInvitationsTabActive && !!invitationParams,
-    placeholderData: keepPreviousData,
+    ...keepPreviousDataOption,
   });
 
   const membersQuery = useQuery({
@@ -144,7 +147,7 @@ export function useMemberManagementService(
       return { members, next };
     },
     enabled: !!coreClient && !isInvitationsTabActive && !!memberParams,
-    placeholderData: keepPreviousData,
+    ...keepPreviousDataOption,
   });
 
   const organizationQuery = useQuery({
@@ -204,36 +207,41 @@ export function useMemberManagementService(
     },
   });
 
-  const removeFromOrgMutation = useMutation({
+  const removeFromOrganizationMutation = useMutation({
     mutationFn: async ({
       userId,
     }: {
       userId?: string | null;
       memberName?: string;
-      orgName?: string;
+      organizationName?: string;
     }) => {
       if (!userId) throw new Error('userId is required');
-      if (removeFromOrgAction?.onBefore && !removeFromOrgAction.onBefore(userId)) {
+      if (
+        removeFromOrganizationAction?.onBefore &&
+        !removeFromOrganizationAction.onBefore(userId)
+      ) {
         throw new Error('Remove from org cancelled by onBefore');
       }
       await coreClient!
         .getMyOrganizationApiClient()
         .organization.memberships.deleteMemberships({ members: [userId] });
     },
-    onSuccess: (_, { userId, memberName, orgName }) => {
+    onSuccess: (_, { userId, memberName, organizationName }) => {
       if (!userId) return;
-      removeFromOrgAction?.onAfter?.(userId);
+      removeFromOrganizationAction?.onAfter?.(userId);
       showToast({
         type: 'success',
-        message: t('member.detail.actions.remove_from_org.success', {
+        message: t('member.detail.actions.remove_from_organization.success', {
           memberName: memberName ?? '',
-          orgName: orgName ?? '',
+          organizationName: organizationName ?? '',
         }),
       });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.members() });
     },
     onError: (error) => {
-      handleError(error, { fallbackMessage: t('member.detail.error.remove_from_org_failed') });
+      handleError(error, {
+        fallbackMessage: t('member.detail.error.remove_from_organization_failed'),
+      });
     },
   });
 
@@ -339,7 +347,7 @@ export function useMemberManagementService(
     organizationQuery,
     membersQuery,
     assignRolesMutation,
-    removeFromOrgMutation,
+    removeFromOrganizationMutation,
     createInvitationMutation,
     revokeInvitationMutation,
     resendInvitationMutation,

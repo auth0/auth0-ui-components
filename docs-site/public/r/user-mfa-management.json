@@ -5,7 +5,7 @@
   "title": "Multi-factor authentication management component.",
   "description": "Complete MFA management interface for enrolling, viewing, and deleting authentication factors. Supports TOTP authenticators, SMS, Email, Push notifications, and recovery codes.",
   "dependencies": [
-    "@auth0/universal-components-core@2.1.0",
+    "@auth0/universal-components-core@2.1.1",
     "@auth0/auth0-react@^2.15.1",
     "@hookform/resolvers@^5.1.0",
     "@radix-ui/react-dialog@^1.1.14",
@@ -361,6 +361,6 @@
     }
   ],
   "meta": {
-    "coreVersion": "2.1.0"
+    "coreVersion": "2.1.1"
   }
 }

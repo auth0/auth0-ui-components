@@ -15,14 +15,18 @@ describe('MemberDetailDangerZone', () => {
     it('should render the remove from org card', () => {
       renderWithProviders(<MemberDetailDangerZone {...createMockDangerZoneProps()} />);
 
-      expect(screen.getByText('member.detail.actions.remove_from_org.title')).toBeInTheDocument();
+      expect(
+        screen.getByText('member.detail.actions.remove_from_organization.title'),
+      ).toBeInTheDocument();
     });
 
     it('should render the remove from org button', () => {
       renderWithProviders(<MemberDetailDangerZone {...createMockDangerZoneProps()} />);
 
       expect(
-        screen.getByRole('button', { name: 'member.detail.actions.remove_from_org.button' }),
+        screen.getByRole('button', {
+          name: 'member.detail.actions.remove_from_organization.button',
+        }),
       ).toBeInTheDocument();
     });
   });
@@ -34,7 +38,9 @@ describe('MemberDetailDangerZone', () => {
       );
 
       expect(
-        screen.getByRole('button', { name: 'member.detail.actions.remove_from_org.button' }),
+        screen.getByRole('button', {
+          name: 'member.detail.actions.remove_from_organization.button',
+        }),
       ).toBeDisabled();
     });
 
@@ -44,23 +50,29 @@ describe('MemberDetailDangerZone', () => {
       );
 
       expect(
-        screen.getByRole('button', { name: 'member.detail.actions.remove_from_org.button' }),
+        screen.getByRole('button', {
+          name: 'member.detail.actions.remove_from_organization.button',
+        }),
       ).toBeEnabled();
     });
   });
 
   describe('loading states', () => {
-    it('should disable button when isRemovingFromOrg is true', () => {
+    it('should disable button when isRemovingFromOrganization is true', () => {
       renderWithProviders(
-        <MemberDetailDangerZone {...createMockDangerZoneProps({ isRemovingFromOrg: true })} />,
+        <MemberDetailDangerZone
+          {...createMockDangerZoneProps({ isRemovingFromOrganization: true })}
+        />,
       );
 
       expect(screen.getByRole('button', { name: 'Loading...' })).toBeDisabled();
     });
 
-    it('should show spinner when isRemovingFromOrg is true', () => {
+    it('should show spinner when isRemovingFromOrganization is true', () => {
       renderWithProviders(
-        <MemberDetailDangerZone {...createMockDangerZoneProps({ isRemovingFromOrg: true })} />,
+        <MemberDetailDangerZone
+          {...createMockDangerZoneProps({ isRemovingFromOrganization: true })}
+        />,
       );
 
       expect(screen.getByRole('button', { name: 'Loading...' })).toBeInTheDocument();
@@ -68,19 +80,23 @@ describe('MemberDetailDangerZone', () => {
   });
 
   describe('callbacks', () => {
-    it('should call onRemoveFromOrgClick when remove button is clicked', async () => {
+    it('should call onRemoveFromOrganizationClick when remove button is clicked', async () => {
       const user = userEvent.setup();
-      const onRemoveFromOrgClick = vi.fn();
+      const onRemoveFromOrganizationClick = vi.fn();
 
       renderWithProviders(
-        <MemberDetailDangerZone {...createMockDangerZoneProps({ onRemoveFromOrgClick })} />,
+        <MemberDetailDangerZone
+          {...createMockDangerZoneProps({ onRemoveFromOrganizationClick })}
+        />,
       );
 
       await user.click(
-        screen.getByRole('button', { name: 'member.detail.actions.remove_from_org.button' }),
+        screen.getByRole('button', {
+          name: 'member.detail.actions.remove_from_organization.button',
+        }),
       );
 
-      expect(onRemoveFromOrgClick).toHaveBeenCalledTimes(1);
+      expect(onRemoveFromOrganizationClick).toHaveBeenCalledTimes(1);
     });
   });
 });

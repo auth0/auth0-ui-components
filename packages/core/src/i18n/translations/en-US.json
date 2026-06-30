@@ -935,6 +935,7 @@
       },
       "provisioning_disabled_success": "Provisioning has been disabled.",
       "scim_token_delete_sucess": "Token has been deleted.",
+      "scim_token_delete_success": "Token has been deleted.",
       "scim_token_create_success": "Token generated successfully",
       "sso_attributes_sync_success": "The provider mappings have been updated.",
       "provisioning_attributes_sync_success": "The provisioning mappings have been updated."
@@ -1120,7 +1121,7 @@
         "menu_label": "Actions",
         "view_details": "View Details",
         "assign_role": "Assign Role",
-        "remove_from_org": "Remove from Organization"
+        "remove_from_organization": "Remove from Organization"
       },
       "error": {
         "fetch_failed": "Failed to load members. Please try again.",
@@ -1147,13 +1148,13 @@
           "last_login": "Last Login"
         },
         "actions": {
-          "remove_from_org": {
+          "remove_from_organization": {
             "title": "Remove Member from Organization",
             "description": "Once confirmed, this operation cannot be undone.",
             "button": "Delete",
-            "success": "${memberName} has been removed from the ${orgName}.",
+            "success": "${memberName} has been removed from the ${organizationName}.",
             "modal": {
-              "title": "Remove Member from ${orgName}",
+              "title": "Remove Member from ${organizationName}",
               "description": "Are you sure you want to remove <bold>\"${memberName}\"</bold> from this organization? This action will not delete their account but it will revoke their access and prevent them from signing in.",
               "cancel_button": "Cancel",
               "confirm_button": "Remove"
@@ -1162,7 +1163,7 @@
         },
         "roles": {
           "title": "Roles",
-          "description": "Manage user roles and permissions when accessing ${orgName}.",
+          "description": "Manage user roles and permissions when accessing ${organizationName}.",
           "assign_button": "Assign Roles",
           "no_roles_available": "There are no more roles available to assign to this member.",
           "max_roles_reached": "You have reached the maximum of ${max} roles for this member.",
@@ -1199,7 +1200,7 @@
         "error": {
           "fetch_failed": "Failed to load member details. Please try again.",
           "fetch_roles_failed": "Failed to load member roles. Please try again.",
-          "remove_from_org_failed": "Failed to remove member from organization. Please try again.",
+          "remove_from_organization_failed": "Failed to remove member from organization. Please try again.",
           "assign_role_failed": "Failed to assign role. Please try again.",
           "remove_role_failed": "Failed to remove role. Please try again."
         }

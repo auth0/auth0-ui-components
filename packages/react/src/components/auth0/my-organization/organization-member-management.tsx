@@ -16,7 +16,7 @@ import { GateKeeper } from '../shared/gate-keeper/gate-keeper';
 import { OrganizationInvitationDetailsModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal';
 import { OrganizationInvitationRevokeModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-revoke-modal';
 import { OrganizationInvitationTable } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-table/organization-invitation-table';
-import { MemberRemoveFromOrgModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-org-modal';
+import { MemberRemoveFromOrganizationModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-organization-modal';
 import { OrganizationMemberTable } from '@/components/auth0/my-organization/shared/member-management/members/members-table/organization-member-table';
 import { OrganizationMemberAssignRolesModal } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-roles/organization-member-assign-roles-modal';
 import { OrganizationInvitationCreateModal } from '@/components/auth0/my-organization/shared/member-management/shared/invitation-create/organization-invitation-create-modal';
@@ -46,7 +46,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     activeTab,
     members,
     invitations,
-    orgDisplayName,
+    organizationDisplayName,
     isFetchingInvitations,
     isFetchingMembers,
     isFetchingAvailableRoles,
@@ -58,7 +58,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     invitationSortConfig,
     memberSortConfig,
     isAssigningRoles,
-    isRemovingFromOrg,
+    isRemovingFromOrganization,
     availableRoles,
     availableProviders,
     modalState,
@@ -76,7 +76,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     handleRoleFilterChange,
     handleViewMemberDetails,
     handleAssignRolesSubmit,
-    handleRemoveFromOrgConfirm,
+    handleRemoveFromOrganizationConfirm,
   } = props;
 
   const selectedInvitation =
@@ -87,7 +87,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
       : null;
 
   const selectedMember =
-    modalState.type === 'removeFromOrg' || modalState.type === 'assignRole'
+    modalState.type === 'removeFromOrganization' || modalState.type === 'assignRole'
       ? modalState.member
       : null;
 
@@ -104,8 +104,8 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     [openModal],
   );
 
-  const handleRemoveFromOrgClick = React.useCallback(
-    (member: OrgMember) => openModal({ type: 'removeFromOrg', member }),
+  const handleRemoveFromOrganizationClick = React.useCallback(
+    (member: OrgMember) => openModal({ type: 'removeFromOrganization', member }),
     [openModal],
   );
 
@@ -172,7 +172,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               className={currentStyles.classes?.['OrganizationMemberTab-table']}
               onView={handleViewMemberDetails}
               onAssignRole={handleAssignRoleClick}
-              onRemoveFromOrg={handleRemoveFromOrgClick}
+              onRemoveFromOrganization={handleRemoveFromOrganizationClick}
               onSortChange={handleSortChange}
               onNextPage={handleNextPage}
               onPreviousPage={handlePreviousPage}
@@ -291,15 +291,15 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           onAssign={handleAssignRolesSubmit}
         />
 
-        <MemberRemoveFromOrgModal
+        <MemberRemoveFromOrganizationModal
           memberName={selectedMember?.name}
           memberUserId={selectedMember?.user_id}
-          isOpen={modalState.type === 'removeFromOrg'}
-          isLoading={isRemovingFromOrg}
-          orgName={orgDisplayName}
+          isOpen={modalState.type === 'removeFromOrganization'}
+          isLoading={isRemovingFromOrganization}
+          organizationName={organizationDisplayName}
           customMessages={customMessages?.member}
           onClose={closeModal}
-          onConfirm={handleRemoveFromOrgConfirm}
+          onConfirm={handleRemoveFromOrganizationConfirm}
         />
       </div>
     </StyledScope>
@@ -322,7 +322,7 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
     resendInvitationAction,
     viewMemberDetailsAction,
     assignRolesAction,
-    removeFromOrgAction,
+    removeFromOrganizationAction,
   } = props;
 
   const memberManagement = useOrganizationMemberManagement({
@@ -333,7 +333,7 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
     resendInvitationAction,
     viewMemberDetailsAction,
     assignRolesAction,
-    removeFromOrgAction,
+    removeFromOrganizationAction,
   });
 
   return (

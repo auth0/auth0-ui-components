@@ -9,7 +9,7 @@ import * as React from 'react';
 
 import { GateKeeper } from '../shared/gate-keeper/gate-keeper';
 
-import { MemberRemoveFromOrgModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-org-modal';
+import { MemberRemoveFromOrganizationModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-organization-modal';
 import { OrganizationMemberEditDetailsTab } from '@/components/auth0/my-organization/shared/member-management/organization-member-detail/organization-member-details-tab';
 import { OrganizationMemberEditRolesTab } from '@/components/auth0/my-organization/shared/member-management/organization-member-detail/organization-member-roles-tab';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
@@ -95,11 +95,11 @@ export function OrganizationMemberDetailView(
     customMessages,
     activeTab,
     modalState,
-    isRemovingFromOrg,
+    isRemovingFromOrganization,
     setActiveTab,
     closeModal,
     openModal,
-    handleRemoveFromOrgConfirm,
+    handleRemoveFromOrganizationConfirm,
   } = props;
 
   const { isDarkMode } = useTheme();
@@ -110,8 +110,8 @@ export function OrganizationMemberDetailView(
     [styling, isDarkMode],
   );
 
-  const handleRemoveFromOrgClick = React.useCallback(
-    () => openModal({ type: 'removeFromOrg' }),
+  const handleRemoveFromOrganizationClick = React.useCallback(
+    () => openModal({ type: 'removeFromOrganization' }),
     [openModal],
   );
 
@@ -176,8 +176,8 @@ export function OrganizationMemberDetailView(
             <OrganizationMemberEditDetailsTab
               member={props.member}
               customMessages={customMessages}
-              isRemovingFromOrg={isRemovingFromOrg}
-              onRemoveFromOrgClick={handleRemoveFromOrgClick}
+              isRemovingFromOrganization={isRemovingFromOrganization}
+              onRemoveFromOrganizationClick={handleRemoveFromOrganizationClick}
             />
           </TabsContent>
 
@@ -187,7 +187,7 @@ export function OrganizationMemberDetailView(
           >
             <OrganizationMemberEditRolesTab
               customMessages={customMessages}
-              orgName={props.orgDisplayName}
+              organizationName={props.organizationDisplayName}
               memberName={props.member?.name}
               memberRoles={props.memberRoles}
               availableRoles={props.availableRoles}
@@ -218,11 +218,11 @@ export function OrganizationMemberDetailView(
           </TabsContent>
         </Tabs>
 
-        <MemberRemoveFromOrgModal
-          isOpen={modalState.type === 'removeFromOrg'}
-          isLoading={isRemovingFromOrg}
+        <MemberRemoveFromOrganizationModal
+          isOpen={modalState.type === 'removeFromOrganization'}
+          isLoading={isRemovingFromOrganization}
           memberName={props.member?.name}
-          orgName={props.orgDisplayName}
+          organizationName={props.organizationDisplayName}
           customMessages={customMessages}
           styling={{
             variables: styling?.variables,
@@ -232,7 +232,7 @@ export function OrganizationMemberDetailView(
             },
           }}
           onClose={closeModal}
-          onConfirm={handleRemoveFromOrgConfirm}
+          onConfirm={handleRemoveFromOrganizationConfirm}
         />
       </div>
     </StyledScope>
@@ -250,7 +250,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     onBack,
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
-    removeFromOrgAction,
+    removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,
   } = props;
@@ -259,7 +259,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     userId,
     onBack,
     customMessages,
-    removeFromOrgAction,
+    removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,
   });

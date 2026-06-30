@@ -13,8 +13,7 @@ import {
   createMockCreateAction,
   createMockVerifyAction,
   createMockDeleteAction,
-  createMockLogic,
-  createMockApi,
+  createMockDomainTableReturn,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
@@ -681,27 +680,32 @@ describe('DomainTable', () => {
 });
 
 describe('DomainTableView', () => {
-  // Provide all required handlers and properties for UseDomainTableResult & DomainTableProps
-  const logic = createMockLogic();
-  const handlers = createMockApi();
+  const mockDomainTable = createMockDomainTableReturn();
+  const defaultViewProps = {
+    domainTable: mockDomainTable,
+    schema: undefined,
+    styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
+    hideHeader: false,
+    readOnly: false,
+    customMessages: {},
+    createAction: undefined,
+    onOpenProvider: undefined,
+    onCreateProvider: undefined,
+  };
 
   it('renders the table and header', () => {
-    renderWithProviders(<DomainTableView logic={logic} handlers={handlers} />);
+    renderWithProviders(<DomainTableView {...defaultViewProps} />);
     expect(screen.getByRole('table')).toBeInTheDocument();
     expect(screen.getByText(/header.title/i)).toBeInTheDocument();
   });
 
   it('does not render header if hideHeader is true', () => {
-    renderWithProviders(
-      <DomainTableView logic={{ ...logic, hideHeader: true }} handlers={handlers} />,
-    );
+    renderWithProviders(<DomainTableView {...defaultViewProps} hideHeader={true} />);
     expect(screen.queryByText(/header.title/i)).not.toBeInTheDocument();
   });
 
   it('disables create button if readOnly is true', () => {
-    renderWithProviders(
-      <DomainTableView logic={{ ...logic, readOnly: true }} handlers={handlers} />,
-    );
+    renderWithProviders(<DomainTableView {...defaultViewProps} readOnly={true} />);
     expect(screen.getByRole('button', { name: /create/i })).toBeDisabled();
   });
 });

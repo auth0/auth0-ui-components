@@ -9,6 +9,7 @@ import * as React from 'react';
 import { useMemberDetailService } from '@/hooks/my-organization/shared/services/use-member-detail-service';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   MemberDetailModalState,
   MemberDetailTab,
@@ -29,7 +30,7 @@ export function useOrganizationMemberDetail(
     onBack,
     customMessages = {},
     readOnly = false,
-    removeFromOrgAction,
+    removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,
   } = options;
@@ -39,13 +40,13 @@ export function useOrganizationMemberDetail(
     memberRolesQuery,
     rolesQuery,
     organizationQuery,
-    removeFromOrgMutation,
+    removeFromOrganizationMutation,
     assignRolesMutation,
     removeRolesMutation,
   } = useMemberDetailService({
     userId,
     customMessages,
-    removeFromOrgAction,
+    removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,
   });
@@ -86,10 +87,10 @@ export function useOrganizationMemberDetail(
     setModalState({ type: null });
   }, []);
 
-  const handleRemoveFromOrgConfirm = React.useCallback(
-    (userId?: string, memberName?: string, orgName?: string) => {
-      removeFromOrgMutation.mutate(
-        { userId, memberName, orgName },
+  const handleRemoveFromOrganizationConfirm = React.useCallback(
+    (userId?: string, memberName?: string, organizationName?: string) => {
+      removeFromOrganizationMutation.mutate(
+        { userId, memberName, organizationName },
         {
           onSuccess: () => {
             closeModal();
@@ -98,7 +99,7 @@ export function useOrganizationMemberDetail(
         },
       );
     },
-    [removeFromOrgMutation, closeModal, onBack],
+    [removeFromOrganizationMutation, closeModal, onBack],
   );
 
   const handleAssignRolesSubmit = React.useCallback(
@@ -133,7 +134,7 @@ export function useOrganizationMemberDetail(
   }, [modalState, removeRolesMutation, closeModal]);
 
   const member = memberQuery.data ?? null;
-  const orgDisplayName = organizationQuery.data?.display_name ?? '';
+  const organizationDisplayName = organizationQuery.data?.display_name ?? '';
   const memberRoles: Role[] = memberRolesQuery.data ?? [];
   const availableRoles: Role[] = React.useMemo(() => {
     const assignedIds = new Set(memberRoles.map((r) => r.id));
@@ -149,7 +150,7 @@ export function useOrganizationMemberDetail(
   return {
     activeTab,
     member,
-    orgDisplayName,
+    organizationDisplayName,
     memberRoles,
     availableRoles,
     selectedRoles,
@@ -158,10 +159,10 @@ export function useOrganizationMemberDetail(
     isFetchingMemberRoles: memberRolesQuery.isLoading,
     isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
     isLoading: memberQuery.isLoading,
-    isRemovingFromOrg: removeFromOrgMutation.isPending,
-    isAssigningRoles: assignRolesMutation.isPending,
-    isRemovingRoles: removeRolesMutation.isPending,
-    removingRoleIds: removeRolesMutation.isPending ? removingRoles.map((r) => r.id) : [],
+    isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),
+    isAssigningRoles: isMutationLoading(assignRolesMutation),
+    isRemovingRoles: isMutationLoading(removeRolesMutation),
+    removingRoleIds: isMutationLoading(removeRolesMutation) ? removingRoles.map((r) => r.id) : [],
     modalState,
 
     setActiveTab,
@@ -169,7 +170,7 @@ export function useOrganizationMemberDetail(
     handleBack,
     openModal,
     closeModal,
-    handleRemoveFromOrgConfirm,
+    handleRemoveFromOrganizationConfirm,
     handleAssignRolesSubmit,
     handleRemoveRolesCancel,
     handleRemoveRolesConfirm,
