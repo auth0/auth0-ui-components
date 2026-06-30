@@ -4,6 +4,7 @@
  */
 
 import type {
+  ComponentStyling,
   SharedComponentProps,
   ComponentAction,
   MemberInvitation,
@@ -53,6 +54,9 @@ export interface OrganizationInvitationTabClasses {
   'OrganizationInvitationTab-searchInput'?: string;
   'OrganizationInvitationTab-filterDropdown'?: string;
   'OrganizationInvitationTab-pagination'?: string;
+  'OrganizationInvitationCreateModal-dialogContent'?: string;
+  'OrganizationInvitationDetailsModal-dialogContent'?: string;
+  'OrganizationInvitationRevokeModal-dialogContent'?: string;
 }
 
 /** Props for OrganizationInvitationTab component. */
@@ -119,6 +123,9 @@ export interface OrganizationInvitationCreateModalProps {
   availableProviders?: IdentityProviderOption[];
   inviterName?: string;
   schema?: InvitationCreateSchemas;
+  styling?: ComponentStyling<
+    Pick<OrganizationInvitationTabClasses, 'OrganizationInvitationCreateModal-dialogContent'>
+  >;
   onClose: () => void;
   onCreate: (data: CreateInvitationInput) => void;
   className?: string;
@@ -134,6 +141,9 @@ export interface OrganizationInvitationDetailsModalProps {
   availableRoles?: Role[];
   availableProviders?: IdentityProviderOption[];
   readOnly?: boolean;
+  styling?: ComponentStyling<
+    Pick<OrganizationInvitationTabClasses, 'OrganizationInvitationDetailsModal-dialogContent'>
+  >;
   onClose: () => void;
   onCopyUrl?: (invitation: MemberInvitation) => void;
   onRevoke?: (invitation?: MemberInvitation) => void;
@@ -148,6 +158,9 @@ export interface OrganizationInvitationRevokeModalProps {
   isLoading?: boolean;
   isRevokeAndResend?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
+  styling?: ComponentStyling<
+    Pick<OrganizationInvitationTabClasses, 'OrganizationInvitationRevokeModal-dialogContent'>
+  >;
   onClose: () => void;
   onConfirm: (invitation: MemberInvitation) => void;
   className?: string;

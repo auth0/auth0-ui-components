@@ -3,6 +3,7 @@
  * @module organization-invitation-details-modal
  */
 
+import { getComponentStyles } from '@auth0/universal-components-core';
 import { Link, Copy, Check } from 'lucide-react';
 import * as React from 'react';
 
@@ -20,7 +21,9 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { TextField } from '@/components/ui/text-field';
 import { TextFieldGroup } from '@/components/ui/text-field-group';
+import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
 import { getInvitationStatus } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
   InvitationStatus,
@@ -52,6 +55,7 @@ function getStatusBadgeVariant(status: InvitationStatus): 'warning' | 'destructi
  * @param props.onRevoke - Callback when revoke is clicked.
  * @param props.onResend - Callback when revoke and resend is clicked.
  * @param props.className - Optional CSS class name.
+ * @param props.styling - Custom styling configuration with variables and classes.
  * @returns The modal component.
  */
 export function OrganizationInvitationDetailsModal({
@@ -68,8 +72,14 @@ export function OrganizationInvitationDetailsModal({
   onRevoke,
   onResend,
   className,
+  styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
 }: OrganizationInvitationDetailsModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
+  const { isDarkMode } = useTheme();
+  const currentStyles = React.useMemo(
+    () => getComponentStyles(styling, isDarkMode),
+    [styling, isDarkMode],
+  );
 
   const status = invitation ? getInvitationStatus(invitation) : 'pending';
   const isPending = status === 'pending';
@@ -132,7 +142,13 @@ export function OrganizationInvitationDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={className}>
+      <DialogContent
+        style={currentStyles.variables}
+        className={cn(
+          className,
+          currentStyles.classes?.['OrganizationInvitationDetailsModal-dialogContent'],
+        )}
+      >
         <DialogHeader>
           <div className="flex items-center gap-2">
             <DialogTitle>{t('invitation.details.title')}</DialogTitle>

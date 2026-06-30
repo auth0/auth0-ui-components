@@ -210,6 +210,13 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           customMessages={customMessages?.invitation}
           availableRoles={availableRoles}
           availableProviders={availableProviders}
+          styling={{
+            variables: styling?.variables,
+            classes: {
+              'OrganizationInvitationCreateModal-dialogContent':
+                styling?.classes?.['OrganizationInvitationCreateModal-dialogContent'],
+            },
+          }}
           onClose={closeModal}
           onCreate={handleCreateSubmit}
           className={currentStyles.classes?.['OrganizationInvitationTab-createModal']}
@@ -224,6 +231,13 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           availableRoles={availableRoles}
           availableProviders={availableProviders}
           readOnly={readOnly}
+          styling={{
+            variables: styling?.variables,
+            classes: {
+              'OrganizationInvitationDetailsModal-dialogContent':
+                styling?.classes?.['OrganizationInvitationDetailsModal-dialogContent'],
+            },
+          }}
           onClose={closeModal}
           onCopyUrl={handleCopyUrl}
           onRevoke={(invitation) => invitation && openModal({ type: 'revoke', invitation })}
@@ -236,6 +250,13 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isOpen={modalState.type === 'revoke'}
           isLoading={isRevokingInvitation}
           customMessages={customMessages?.invitation}
+          styling={{
+            variables: styling?.variables,
+            classes: {
+              'OrganizationInvitationRevokeModal-dialogContent':
+                styling?.classes?.['OrganizationInvitationRevokeModal-dialogContent'],
+            },
+          }}
           onClose={closeModal}
           onConfirm={handleRevokeConfirm}
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeModal']}
@@ -247,6 +268,13 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isLoading={isResendingInvitation}
           isRevokeAndResend
           customMessages={customMessages?.invitation}
+          styling={{
+            variables: styling?.variables,
+            classes: {
+              'OrganizationInvitationRevokeModal-dialogContent':
+                styling?.classes?.['OrganizationInvitationRevokeModal-dialogContent'],
+            },
+          }}
           onClose={closeModal}
           onConfirm={handleRevokeResendConfirm}
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeResendModal']}

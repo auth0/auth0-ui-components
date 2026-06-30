@@ -3,7 +3,7 @@
  * @module organization-invitation-create-modal
  */
 
-import { createInvitationCreateSchema } from '@auth0/universal-components-core';
+import { createInvitationCreateSchema, getComponentStyles } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,9 @@ import {
 } from '@/components/ui/select';
 import { TextFieldGroup } from '@/components/ui/text-field-group';
 import type { ChipItem } from '@/components/ui/text-field-group';
+import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
 import type { OrganizationInvitationCreateModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
@@ -45,6 +47,7 @@ import type { OrganizationInvitationCreateModalProps } from '@/types/my-organiza
  * @param props.onClose - Callback when modal is closed.
  * @param props.onCreate - Callback when invitation is created.
  * @param props.className - Optional CSS class name.
+ * @param props.styling - Custom styling configuration with variables and classes.
  * @returns The modal component.
  */
 export function OrganizationInvitationCreateModal({
@@ -58,8 +61,14 @@ export function OrganizationInvitationCreateModal({
   onClose,
   onCreate,
   className,
+  styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
 }: OrganizationInvitationCreateModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
+  const { isDarkMode } = useTheme();
+  const currentStyles = React.useMemo(
+    () => getComponentStyles(styling, isDarkMode),
+    [styling, isDarkMode],
+  );
 
   const validationConfig = React.useMemo(
     () => createInvitationCreateSchema(schema, t('invitation.create.email_invalid_error')),
@@ -209,7 +218,13 @@ export function OrganizationInvitationCreateModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className={className}>
+      <DialogContent
+        style={currentStyles.variables}
+        className={cn(
+          className,
+          currentStyles.classes?.['OrganizationInvitationCreateModal-dialogContent'],
+        )}
+      >
         <DialogHeader>
           <DialogTitle>{t('invitation.create.title')}</DialogTitle>
           <DialogDescription>{t('invitation.create.description')}</DialogDescription>

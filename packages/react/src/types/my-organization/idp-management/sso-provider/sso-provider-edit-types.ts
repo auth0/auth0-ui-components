@@ -21,6 +21,7 @@ import type {
   IdpStrategy,
   AttributeSyncAlertMessages,
   GetIdpConfigurationResponseContent,
+  ComponentStyling,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
@@ -47,11 +48,17 @@ export interface SsoProviderEditBackButton extends Omit<BackButton, 'onClick'> {
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
+/** CSS classes for SsoProviderAttributeSyncAlert. */
+export interface SsoProviderAttributeSyncAlertClasses {
+  'SsoProviderAttributeSyncAlert-dialogContent'?: string;
+}
+
 /** CSS classes for SsoProviderEdit. */
 export interface SsoProviderEditClasses
   extends SsoProviderTabClasses,
     SsoProvisioningTabClasses,
-    SsoDomainTabClasses {
+    SsoDomainTabClasses,
+    SsoProviderAttributeSyncAlertClasses {
   'SsoProviderEdit-header'?: string;
   'SsoProviderEdit-tabs'?: string;
 }
@@ -131,6 +138,7 @@ export interface SsoProviderAttributeMappingsProps
 export interface SsoProviderAttributeSyncAlertProps {
   translatorKey?: string;
   className?: string;
+  styling?: ComponentStyling<SsoProviderAttributeSyncAlertClasses>;
   onSync?: () => void | Promise<void>;
   isSyncing?: boolean;
   customMessages?: Partial<AttributeSyncAlertMessages>;
