@@ -13,14 +13,15 @@ export * from './my-organization/idp-management/sso-provider-edit/sso-provisioni
 export * from './my-organization/idp-management/sso-provider-edit/sso-provider-edit.mocks';
 export * from './my-organization/idp-management/sso-provider-table/sso-provider-table-mocks';
 
-export * from './my-account/mfa/delete-factor-confirmation.mocks';
-export * from './my-account/mfa/empty-state.mocks';
-export * from './my-account/mfa/error-state.mocks';
-export * from './my-account/mfa/factor-list.mocks';
-export * from './my-account/mfa/otp-verification-form.mocks';
-export * from './my-account/mfa/user-mfa-setup-form.mocks';
-export * from './my-account/mfa/mfa.mocks';
+export * from './my-account/user-mfa-management/user-mfa-management.mocks';
+export * from './my-account/user-mfa-management/factor-enrollment/contact-input-form.mocks';
+export * from './my-account/user-mfa-management/factor-enrollment/enroll-factor-modal.mocks';
+export * from './my-account/user-mfa-management/factor-enrollment/otp-verification-form.mocks';
+export * from './my-account/user-mfa-management/factor-enrollment/qr-code-enrollment-form.mocks';
+export * from './my-account/user-mfa-management/factor-enrollment/show-recovery-code.mocks';
+export * from './my-account/user-mfa-management/factor-delete/factor-delete-modal.mocks';
+export * from './my-account/user-mfa-management/factor-list/factor-list.mocks';
 
 export * from './shared/mfa-step-up.mocks';
 
-export * from './my-account/passkey/passkey.mocks';
+export * from './my-account/user-passkey-management/user-passkey-management.mocks';

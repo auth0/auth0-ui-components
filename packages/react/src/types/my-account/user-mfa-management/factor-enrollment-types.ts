@@ -42,6 +42,7 @@ export interface OTPVerificationFormProps extends SharedComponentProps<UserMfaMa
   factorType: MFAType;
   contact?: string;
   isConfirming: boolean;
+  isEnrolling?: boolean;
   onConfirmOtp: (otpCode: string) => Promise<void>;
   onBack?: () => void;
   onResend?: () => Promise<void>;
@@ -81,6 +82,13 @@ export interface EnrollFactorModalProps
   onConfirmOtp: (otpCode: string) => Promise<void>;
   onContinueQRScan: () => Promise<void>;
   onConfirmRecoveryCode: () => Promise<void>;
+  onStartQREnrollment: () => Promise<void>;
+}
+
+/** Props for InstallationPhase component. */
+export interface InstallationPhaseProps
+  extends SharedComponentProps<UserMfaManagementMessages, UserMFAManagementClasses> {
+  onClose: () => void;
   onStartQREnrollment: () => Promise<void>;
 }
 
