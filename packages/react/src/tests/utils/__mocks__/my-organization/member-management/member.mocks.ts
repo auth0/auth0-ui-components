@@ -6,7 +6,6 @@ import type {
   MemberDetailModalState,
   OrganizationMemberAssignRolesModalProps,
   OrganizationMemberDetailProps,
-  OrganizationMemberDetailRolesTabProps,
   OrganizationMemberDetailViewProps,
   OrganizationMemberUserDetailsProps,
   MemberRemoveFromOrganizationModalProps,
@@ -136,19 +135,6 @@ export const createMockRemoveFromOrgModalProps = (
   isLoading: false,
   onClose: vi.fn(),
   onConfirm: vi.fn(),
-  ...overrides,
-});
-
-export const createMockRolesTabProps = (
-  overrides: Partial<OrganizationMemberDetailRolesTabProps> = {},
-): OrganizationMemberDetailRolesTabProps => ({
-  memberRoles: createMockMemberRoles(),
-  availableRoles: createMockAvailableRoles(),
-  isLoading: false,
-  removingRoleIds: [],
-  readOnly: false,
-  onAssignRolesClick: vi.fn(),
-  onRemoveRoles: vi.fn(),
   ...overrides,
 });
 

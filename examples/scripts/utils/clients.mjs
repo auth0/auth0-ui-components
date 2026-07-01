@@ -92,7 +92,9 @@ export async function checkDashboardClientChanges(
     clientToCheck.my_organization_configuration.connection_profile_id !==
       connectionProfileId ||
     clientToCheck.my_organization_configuration.user_attribute_profile_id !==
-      userAttributeProfileId
+      userAttributeProfileId ||
+    clientToCheck.my_organization_configuration.invitation_landing_client_id !==
+      clientToCheck.client_id
   )
 
   // Organization settings only needed if MyOrg is enabled
@@ -415,6 +417,27 @@ export async function applyDashboardClientChanges(
       const { stdout } = await $`auth0 ${createClientArgs}`
       const client = JSON.parse(stdout)
 
+      // Update the client to set invitation_landing_client_id to itself (only if MyOrg is enabled)
+      if (effectiveFeatureConfig.enableMyOrg) {
+        await auth0ApiCall("patch", `clients/${client.client_id}`, {
+          my_organization_configuration: {
+            connection_profile_id: connectionProfileId,
+            user_attribute_profile_id: userAttributeProfileId,
+            connection_deletion_behavior: "allow_if_empty",
+            invitation_landing_client_id: client.client_id,
+            allowed_strategies: [
+              "pingfederate",
+              "adfs",
+              "waad",
+              "google-apps",
+              "okta",
+              "oidc",
+              "samlp",
+            ],
+          },
+        })
+      }
+
       // Fetch full client details including client_secret
       const { stdout: fullClientStdout } =
         await $`auth0 api get clients/${client.client_id}?fields=client_id,name,client_secret,app_type,callbacks,allowed_logout_urls,my_organization_configuration,organization_require_behavior,organization_usage,refresh_token`
@@ -476,6 +499,7 @@ export async function applyDashboardClientChanges(
           connection_profile_id: connectionProfileId,
           user_attribute_profile_id: userAttributeProfileId,
           connection_deletion_behavior: "allow_if_empty",
+          invitation_landing_client_id: existing.client_id,
           allowed_strategies: [
             "pingfederate",
             "adfs",

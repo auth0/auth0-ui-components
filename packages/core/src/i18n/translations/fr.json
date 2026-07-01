@@ -881,6 +881,7 @@
       },
       "provisioning_disabled_success": "Le provisionnement a été désactivé.",
       "scim_token_delete_sucess": "Le jeton a été supprimé.",
+      "scim_token_delete_success": "Le jeton a été supprimé.",
       "scim_token_create_success": "Jeton généré avec succès",
       "sso_attributes_sync_success": "Les mappages du fournisseur ont été mis à jour.",
       "provisioning_attributes_sync_success": "Les mappages de provisionnement ont été mis à jour."

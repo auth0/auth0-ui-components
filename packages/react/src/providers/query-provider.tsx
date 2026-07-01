@@ -17,20 +17,14 @@ import {
 import { useMemo, useState, type ReactElement, type ReactNode } from 'react';
 
 import { GateKeeperContext } from '@/providers/gate-keeper-context';
-
-/** Query cache configuration. */
-export interface QueryCacheConfig {
-  enabled?: boolean;
-  staleTime?: number;
-  gcTime?: number;
-  refetchOnWindowFocus?: boolean | 'always';
-}
+import type { QueryCacheConfig } from '@/types/cache-types';
 
 /** Default cache configuration. */
 export const DEFAULT_CACHE_CONFIG: Readonly<Required<QueryCacheConfig>> = {
   enabled: true,
   staleTime: 2 * 60 * 1000,
   gcTime: 5 * 60 * 1000,
+  cacheTime: 5 * 60 * 1000,
   refetchOnWindowFocus: false,
 };
 
@@ -63,6 +57,7 @@ export function resolveCacheConfig(userConfig?: QueryCacheConfig): Required<Quer
       ...merged,
       staleTime: 0,
       gcTime: DISABLED_CACHE_GC_TIME,
+      cacheTime: DISABLED_CACHE_GC_TIME,
     };
   }
 
@@ -127,6 +122,7 @@ function createQueryClient(
       queries: {
         staleTime: cacheConfig.staleTime,
         gcTime: cacheConfig.gcTime,
+        ...({ cacheTime: cacheConfig.cacheTime } as object),
         refetchOnWindowFocus: cacheConfig.refetchOnWindowFocus,
         retry: (failureCount, error) =>
           !isMfaRequiredError(error) && failureCount < QUERY_RETRY_CONFIG.maxRetries,
