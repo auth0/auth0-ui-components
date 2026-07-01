@@ -4,7 +4,7 @@ import { getComponentStyles } from '@auth0/universal-components-core';
 import { MoreVertical, Trash2, UserRoundKey } from 'lucide-react';
 import * as React from 'react';
 
-import { PasskeyActionModal } from '@/components/auth0/my-account/shared/passkey/passkey-action-modal';
+import { PasskeyActionModal } from '@/components/auth0/my-account/shared/user-passkey-management/passkey-action-modal';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
@@ -31,9 +31,9 @@ import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type {
-  UserPasskeyMgmtViewProps,
-  UserPasskeyMgmtProps,
-} from '@/types/my-account/passkey/passkey-types';
+  UserPasskeyManagementViewProps,
+  UserPasskeyManagementProps,
+} from '@/types/my-account/user-passkey-management/user-passkey-management-types';
 
 /**
  * Passkey management component.
@@ -44,11 +44,10 @@ import type {
  * @param props.addAction - Configuration for the add passkey action
  * @param props.revokeAction - Configuration for the revoke passkey action
  * @param props.onFetch - Callback after passkeys are loaded
- * @param props.onErrorAction - Callback when an action errors
  * @returns JSX element
  * @internal
  */
-function UserPasskeyMgmt(props: UserPasskeyMgmtProps) {
+function UserPasskeyManagement(props: UserPasskeyManagementProps) {
   const {
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
@@ -56,7 +55,6 @@ function UserPasskeyMgmt(props: UserPasskeyMgmtProps) {
     addAction,
     revokeAction,
     onFetch,
-    onErrorAction,
   } = props;
 
   const {
@@ -77,12 +75,11 @@ function UserPasskeyMgmt(props: UserPasskeyMgmtProps) {
     addAction,
     revokeAction,
     onFetch,
-    onErrorAction,
   });
 
   return (
     <GateKeeper isLoading={isLoading} styling={styling}>
-      <UserPasskeyMgmtView
+      <UserPasskeyManagementView
         passkeys={passkeys}
         isEnrolling={isEnrolling}
         isRevoking={isRevoking}
@@ -103,12 +100,12 @@ function UserPasskeyMgmt(props: UserPasskeyMgmtProps) {
 }
 
 /**
- * UserPasskeyMgmtView — presentational component.
+ * UserPasskeyManagementView — presentational component.
  * @internal
- * @param props - {@link UserPasskeyMgmtViewProps}
+ * @param props - {@link UserPasskeyManagementViewProps}
  * @returns View component
  */
-function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
+function UserPasskeyManagementView(props: UserPasskeyManagementViewProps) {
   const {
     passkeys,
     isEnrolling,
@@ -139,7 +136,7 @@ function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
     <StyledScope style={currentStyles.variables}>
       {!hideHeader && <Header title={t('header.title')} description={t('header.description')} />}
 
-      <Card className={cn(currentStyles.classes?.['UserPasskeyMgmt-root'])}>
+      <Card className={cn(currentStyles.classes?.['UserPasskeyManagement-root'])}>
         <CardHeader>
           <CardTitle className="flex flex-wrap items-center gap-2 sm:gap-3">
             <span className="text-base text-(length:--font-size-body) font-semibold text-card-foreground">
@@ -178,7 +175,7 @@ function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
             {passkeys.map((passkey) => (
               <Card
                 key={passkey.id}
-                className={cn(currentStyles.classes?.['UserPasskeyMgmt-item'])}
+                className={cn(currentStyles.classes?.['UserPasskeyManagement-item'])}
               >
                 <CardHeader className="flex flex-row items-center gap-3">
                   <UserRoundKey
@@ -263,25 +260,23 @@ function UserPasskeyMgmtView(props: UserPasskeyMgmtViewProps) {
  *
  * Displays enrolled passkeys with options to add and revoke.
  *
- * @param props - {@link UserPasskeyMgmtProps}
+ * @param props - {@link UserPasskeyManagementProps}
  * @param props.customMessages - Custom i18n message overrides
  * @param props.styling - CSS variables and class overrides
  * @param props.hideHeader - Hide the header section
  * @param props.addAction - Lifecycle hooks for the add passkey operation
  * @param props.revokeAction - Lifecycle hooks for the revoke passkey operation
  * @param props.onFetch - Callback after passkeys are loaded
- * @param props.onErrorAction - Callback when an action errors
  * @returns Passkey management component
  *
- * @see {@link UserPasskeyMgmtProps} for full props documentation
+ * @see {@link UserPasskeyManagementProps} for full props documentation
  *
  * @example
  * ```tsx
- * <UserPasskeyMgmt
+ * <UserPasskeyManagement
  *   addAction={{ onAfter: () => console.log('Passkey added') }}
  *   revokeAction={{ onAfter: (passkey) => console.log('Revoked:', passkey.name) }}
- *   onErrorAction={(error, action) => console.error(action, error)}
  * />
  * ```
  */
-export { UserPasskeyMgmt, UserPasskeyMgmtView };
+export { UserPasskeyManagement, UserPasskeyManagementView };

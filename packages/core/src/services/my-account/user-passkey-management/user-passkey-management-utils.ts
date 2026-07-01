@@ -6,7 +6,7 @@
 import type {
   PasskeyAttestationResponse,
   PasskeyPublicKeyCredentialCreationOptions,
-} from './passkey-types';
+} from './user-passkey-management-types';
 
 /**
  * @param base64Url - Base64url-encoded string to decode.

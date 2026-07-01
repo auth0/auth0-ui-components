@@ -4,7 +4,10 @@
  */
 
 export { UserMFAManagement, UserMFAManagementView } from './auth0/my-account/user-mfa-management';
-export { UserPasskeyMgmt, UserPasskeyMgmtView } from './auth0/my-account/user-passkey-management';
+export {
+  UserPasskeyManagement,
+  UserPasskeyManagementView,
+} from './auth0/my-account/user-passkey-management';
 
 export { SsoProviderEdit, SsoProviderEditView } from './auth0/my-organization/sso-provider-edit';
 export {

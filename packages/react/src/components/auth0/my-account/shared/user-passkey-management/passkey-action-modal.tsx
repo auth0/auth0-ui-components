@@ -11,7 +11,7 @@ import { Modal } from '@/components/ui/modal';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import type { PasskeyActionModalProps } from '@/types/my-account/passkey/passkey-types';
+import type { PasskeyActionModalProps } from '@/types/my-account/user-passkey-management/user-passkey-management-types';
 
 const DEFAULT_STYLING: PasskeyActionModalProps['styling'] = {
   variables: { common: {}, light: {}, dark: {} },
