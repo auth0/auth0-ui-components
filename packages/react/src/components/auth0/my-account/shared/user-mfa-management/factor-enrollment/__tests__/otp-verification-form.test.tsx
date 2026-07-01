@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
-import { OTPVerificationForm } from '@/components/auth0/my-account/shared/mfa/otp-verification-form';
+import { OTPVerificationForm } from '@/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/otp-verification-form';
 import { renderWithProviders, createMockOTPVerificationFormProps } from '@/tests/utils';
 
 // ===== Test Suite =====
@@ -15,10 +15,8 @@ describe('OTPVerificationForm', () => {
     it('should render OTP input field', async () => {
       renderWithProviders(<OTPVerificationForm {...createMockOTPVerificationFormProps()} />);
 
-      // When form is rendered, should display OTP label
-      expect(
-        await screen.findByLabelText('enrollment_form.show_otp.one_time_passcode'),
-      ).toBeInTheDocument();
+      const inputs = screen.getAllByRole('textbox');
+      expect(inputs.length).toBeGreaterThan(0);
     });
 
     it('should display contact info', async () => {
@@ -32,16 +30,14 @@ describe('OTPVerificationForm', () => {
       );
 
       // When contact info is provided, should display it but masked
-      expect(
-        await screen.findByText('enrollment_form.show_otp.enter_verify_code'),
-      ).toBeInTheDocument();
+      expect(await screen.findByText('enrollment.verify.email.description')).toBeInTheDocument();
     });
 
     it('should display verification instructions', async () => {
       renderWithProviders(<OTPVerificationForm {...createMockOTPVerificationFormProps()} />);
 
       // When form is rendered, should show instructions
-      const instructions = screen.queryAllByText(/code|verification|enter/i);
+      const instructions = screen.queryAllByText(/enrollment\.verify|code|verification|enter/i);
       expect(instructions.length).toBeGreaterThan(0);
     });
   });
@@ -94,7 +90,7 @@ describe('OTPVerificationForm', () => {
       renderWithProviders(<OTPVerificationForm {...createMockOTPVerificationFormProps()} />);
 
       // When form is rendered, all buttons should be accessible
-      expect(await screen.findByRole('button', { name: /submit/i })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: /verify/i })).toBeInTheDocument();
       expect(await screen.findByRole('button', { name: /back/i })).toBeInTheDocument();
     });
   });

@@ -1,8 +1,14 @@
 import { screen } from '@testing-library/react';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
-import { MFAEmptyState } from '@/components/auth0/my-account/shared/mfa/empty-state';
-import { renderWithProviders, createMockMFAEmptyStateProps } from '@/tests/utils';
+import { MFAEmptyState } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/empty-state';
+import { renderWithProviders } from '@/tests/utils';
+
+const createMockMFAEmptyStateProps = (overrides = {}) => ({
+  message: 'Test Message',
+  className: '',
+  ...overrides,
+});
 
 // ===== Test Suite =====
 describe('MFAEmptyState', () => {

@@ -3,7 +3,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
-import { FactorsList } from '@/components/auth0/my-account/shared/mfa/factors-list';
+import { FactorsList } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/factors-list';
 import { renderWithProviders, createMockFactorsListProps } from '@/tests/utils';
 
 // ===== Test Suite =====
@@ -266,7 +266,7 @@ describe('FactorsList', () => {
   it('should render with custom messages when custom messages are provided', async () => {
     const user = userEvent.setup();
     const customMessages = {
-      remove: 'Delete Factor',
+      actions: { remove_button_label: 'Delete Factor' },
     };
 
     renderWithProviders(
