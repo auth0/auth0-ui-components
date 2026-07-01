@@ -5,4 +5,4 @@
  */
 
 export * from './user-mfa-management/user-mfa-types';
-export * from './passkey/passkey-types';
+export * from './user-passkey-management/user-passkey-management-types';
