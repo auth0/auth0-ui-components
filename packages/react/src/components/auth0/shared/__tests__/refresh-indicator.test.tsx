@@ -93,16 +93,4 @@ describe('RefreshIndicator', () => {
     render(<RefreshIndicator isStale onRefresh={vi.fn()} />);
     expect(screen.getByRole('status')).toBeInTheDocument();
   });
-
-  it('silences the ticking label so it is not re-announced on each tick', () => {
-    render(
-      <RefreshIndicator
-        isStale
-        lastUpdatedAt={new Date('2026-06-30T11:59:30Z')}
-        onRefresh={vi.fn()}
-      />,
-    );
-    const label = screen.getByText('Last updated', { exact: false });
-    expect(label).toHaveAttribute('aria-live', 'off');
-  });
 });

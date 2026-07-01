@@ -1,7 +1,5 @@
 /**
- * Formats the elapsed time between two timestamps as a compound relative-time
- * label, keeping the two most significant units (e.g. "1 min 30 sec ago",
- * "2 hr 5 min ago"). The smaller unit is omitted when it is zero.
+ * Formats the elapsed time between two timestamps
  * @param from - Reference timestamp (ms).
  * @param now - Current timestamp (ms).
  * @returns A relative-time label.

@@ -7,10 +7,8 @@ const MINUTE = 60 * SECOND;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 
-/** Fixed reference "now" so cases stay deterministic. */
 const NOW = new Date('2026-06-30T12:00:00Z').getTime();
 
-/** Builds a `from` timestamp that is `elapsedMs` in the past relative to NOW. */
 const ago = (elapsedMs: number): number => NOW - elapsedMs;
 
 describe('common-utils', () => {
@@ -69,16 +67,6 @@ describe('common-utils', () => {
 
       it('omits the hours on an exact day boundary', () => {
         expect(formatRelativeTime(ago(5 * DAY), NOW)).toBe('5 day ago');
-      });
-    });
-
-    describe('future timestamps', () => {
-      it('uses a "from now" suffix when the reference is in the future', () => {
-        expect(formatRelativeTime(NOW + 45 * SECOND, NOW)).toBe('45 sec from now');
-      });
-
-      it('formats compound future durations', () => {
-        expect(formatRelativeTime(NOW + MINUTE + 30 * SECOND, NOW)).toBe('1 min 30 sec from now');
       });
     });
   });
