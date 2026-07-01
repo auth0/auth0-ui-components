@@ -123,6 +123,7 @@ export function ContactInputForm({
         factorType={factorType}
         contact={contact}
         isConfirming={isConfirming}
+        isEnrolling={isEnrolling}
         onConfirmOtp={onConfirmOtp}
         onBack={handleBack}
         onResend={onResendCode}

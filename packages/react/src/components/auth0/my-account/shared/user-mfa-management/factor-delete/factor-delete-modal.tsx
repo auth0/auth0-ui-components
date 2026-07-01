@@ -78,7 +78,7 @@ export function FactorDeleteModal({
         </DialogHeader>
         <Separator />
         <p className="text-center text-(length:--font-size-paragraph) font-normal text-primary">
-          {t(`remove_factor_dialog.consent.${factorToDelete?.type}`)}
+          {factorToDelete?.type && t(`remove_factor_dialog.consent.${factorToDelete.type}`)}
         </p>
 
         <DialogFooter className="mt-6">

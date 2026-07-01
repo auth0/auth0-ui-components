@@ -64,6 +64,7 @@ export function OTPVerificationForm({
   factorType,
   contact,
   isConfirming,
+  isEnrolling = false,
   onConfirmOtp,
   onBack,
   onResend,
@@ -147,6 +148,7 @@ export function OTPVerificationForm({
                 variant="link"
                 className="text-sm ms-1 h-auto p-0"
                 onClick={onResend}
+                disabled={isEnrolling}
               >
                 {t('enrollment.verify.resend')}
               </Button>

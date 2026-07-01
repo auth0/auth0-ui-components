@@ -42,6 +42,7 @@ export interface OTPVerificationFormProps extends SharedComponentProps<UserMfaMa
   factorType: MFAType;
   contact?: string;
   isConfirming: boolean;
+  isEnrolling?: boolean;
   onConfirmOtp: (otpCode: string) => Promise<void>;
   onBack?: () => void;
   onResend?: () => Promise<void>;
