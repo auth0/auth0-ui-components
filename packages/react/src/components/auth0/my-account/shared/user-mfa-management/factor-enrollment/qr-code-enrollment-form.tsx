@@ -164,6 +164,7 @@ export function QRCodeEnrollmentForm({
               variant="outline"
               size="default"
               onClick={onClose}
+              aria-label={t('actions.cancel_button_label')}
             >
               {t('actions.cancel_button_label')}
             </Button>
@@ -173,6 +174,7 @@ export function QRCodeEnrollmentForm({
               size="default"
               onClick={handleContinue}
               disabled={isConfirming}
+              aria-label={t('actions.continue_button_label')}
             >
               {t('actions.continue_button_label')}
             </Button>

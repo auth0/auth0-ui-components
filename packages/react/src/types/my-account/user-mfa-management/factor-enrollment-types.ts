@@ -84,6 +84,13 @@ export interface EnrollFactorModalProps
   onStartQREnrollment: () => Promise<void>;
 }
 
+/** Props for InstallationPhase component. */
+export interface InstallationPhaseProps
+  extends SharedComponentProps<UserMfaManagementMessages, UserMFAManagementClasses> {
+  onClose: () => void;
+  onStartQREnrollment: () => Promise<void>;
+}
+
 /** Props for ShowRecoveryCode component. */
 export interface ShowRecoveryCodeProps extends SharedComponentProps<UserMfaManagementMessages> {
   recoveryCode: string;

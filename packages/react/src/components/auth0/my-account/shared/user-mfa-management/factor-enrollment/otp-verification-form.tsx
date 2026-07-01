@@ -16,7 +16,14 @@ import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
-import { Form, FormField, FormItem, FormControl, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormControl,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { OTPField } from '@/components/ui/otp-field';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -109,6 +116,9 @@ export function OTPVerificationForm({
             name="userOtp"
             render={({ field }) => (
               <FormItem>
+                <FormLabel className="sr-only" htmlFor="otp-input">
+                  {t('enrollment_form.show_otp.one_time_passcode')}
+                </FormLabel>
                 <FormControl>
                   <OTPField
                     id="otp-input"
@@ -159,6 +169,11 @@ export function OTPVerificationForm({
               className="text-sm"
               size="default"
               disabled={userOtp?.length !== 6 || isConfirming}
+              aria-label={
+                isConfirming
+                  ? t('enrollment.verify.verifying_text')
+                  : t('actions.verify_button_label')
+              }
             >
               {isConfirming
                 ? t('enrollment.verify.verifying_text')

@@ -48,6 +48,7 @@ import type {
   ContactPhase,
   QRPhase,
   EnrollFactorModalProps,
+  InstallationPhaseProps,
 } from '@/types/my-account/user-mfa-management/factor-enrollment-types';
 
 const DEFAULT_STYLING: EnrollFactorModalProps['styling'] = {
@@ -83,26 +84,24 @@ function getEnrollTitleKey(
   return (factorType && ENROLL_TITLE_KEYS[factorType]) ?? 'enrollment.push.install_title';
 }
 
-/** Props for InstallationPhase component. */
-interface InstallationPhaseProps {
-  variables: React.CSSProperties | undefined;
-  onClose: () => void;
-  onStartQREnrollment: () => Promise<void>;
-  t: (key: string) => string;
-}
-
 /**
  * @param props - Component props
- * @param props.variables - CSS custom properties to apply
  * @param props.onClose - Called when the user cancels
  * @param props.onStartQREnrollment - Called when the user continues to QR scan
- * @param props.t - Translation function
+ * @param props.styling - Custom styling configuration with variables and classes
+ * @param props.customMessages - Custom translation messages to override defaults
  * @returns Installation phase UI with app store links and continue button
  */
 function InstallationPhase(props: InstallationPhaseProps) {
-  const { variables, onClose, onStartQREnrollment, t } = props;
+  const { onClose, onStartQREnrollment, styling = DEFAULT_STYLING, customMessages = {} } = props;
+  const { t } = useTranslator('user_mfa_management', customMessages);
+  const { isDarkMode } = useTheme();
+  const currentStyles = React.useMemo(
+    () => getComponentStyles(styling, isDarkMode),
+    [styling, isDarkMode],
+  );
   return (
-    <div style={variables} className="w-full">
+    <div style={currentStyles.variables} className="w-full">
       <div className="flex flex-col items-stretch flex-1 space-y-10">
         <p className="text-center text-primary text-sm text-(length:--font-size-paragraph) font-normal">
           {t('enrollment.push.install_description')}
@@ -142,10 +141,17 @@ function InstallationPhase(props: InstallationPhaseProps) {
             variant="outline"
             size="default"
             onClick={onClose}
+            aria-label={t('actions.cancel_button_label')}
           >
             {t('actions.cancel_button_label')}
           </Button>
-          <Button type="button" className="text-sm" size="default" onClick={onStartQREnrollment}>
+          <Button
+            type="button"
+            className="text-sm"
+            size="default"
+            onClick={onStartQREnrollment}
+            aria-label={t('actions.continue_button_label')}
+          >
             {t('actions.continue_button_label')}
           </Button>
         </DialogFooter>
@@ -221,10 +227,10 @@ export function EnrollFactorModal(props: EnrollFactorModalProps) {
       case QR_PHASE_INSTALLATION:
         return (
           <InstallationPhase
-            variables={currentStyles.variables}
             onClose={onClose}
             onStartQREnrollment={onStartQREnrollment}
-            t={t}
+            styling={styling}
+            customMessages={customMessages}
           />
         );
       case ENTER_CONTACT:

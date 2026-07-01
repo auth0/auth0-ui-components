@@ -90,6 +90,7 @@ export function ShowRecoveryCode({
               variant="outline"
               size="default"
               onClick={onClose}
+              aria-label={t('actions.back_button_label')}
             >
               {t('actions.back_button_label')}
             </Button>
@@ -100,6 +101,7 @@ export function ShowRecoveryCode({
               size="default"
               onClick={onConfirmRecoveryCode}
               disabled={!confirmed}
+              aria-label={t('actions.submit_button_label')}
             >
               {t('actions.submit_button_label')}
             </Button>
