@@ -3,6 +3,17 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
 
+const TRANSLATIONS: Record<string, string> = {
+  last_updated: 'Last updated',
+  refresh: 'Refresh',
+};
+
+vi.mock('@/hooks/shared/use-translator', () => ({
+  useTranslator: () => ({
+    t: (key: string) => TRANSLATIONS[key] ?? key,
+  }),
+}));
+
 describe('RefreshIndicator', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -60,19 +71,6 @@ describe('RefreshIndicator', () => {
     expect(screen.queryByText('Last updated', { exact: false })).not.toBeInTheDocument();
   });
 
-  it('supports label overrides', () => {
-    render(
-      <RefreshIndicator
-        isStale
-        labels={{ refresh: 'Reload', lastUpdated: 'Updated' }}
-        lastUpdatedAt={new Date('2026-06-30T11:59:30Z')}
-        onRefresh={vi.fn()}
-      />,
-    );
-    expect(screen.getByRole('button', { name: 'Reload' })).toBeInTheDocument();
-    expect(screen.getByText('Updated', { exact: false })).toBeInTheDocument();
-  });
-
   it('re-renders the relative time on the configured tick interval', () => {
     render(
       <RefreshIndicator
@@ -96,10 +94,15 @@ describe('RefreshIndicator', () => {
     expect(screen.getByRole('status')).toBeInTheDocument();
   });
 
-  it('does not mark the ticking label as a live region', () => {
-    // The relative time updates on an interval; a live region would re-announce
-    // it on every tick, which is undesirable noise for screen readers.
-    render(<RefreshIndicator isStale onRefresh={vi.fn()} />);
-    expect(screen.getByRole('status')).not.toHaveAttribute('aria-live');
+  it('silences the ticking label so it is not re-announced on each tick', () => {
+    render(
+      <RefreshIndicator
+        isStale
+        lastUpdatedAt={new Date('2026-06-30T11:59:30Z')}
+        onRefresh={vi.fn()}
+      />,
+    );
+    const label = screen.getByText('Last updated', { exact: false });
+    expect(label).toHaveAttribute('aria-live', 'off');
   });
 });

@@ -3,6 +3,8 @@
     "copy": "Copier",
     "copied": "Copié!",
     "copy_failed": "Échec de la copie",
+    "last_updated": "Dernière mise à jour",
+    "refresh": "Rafraîchir",
     "data_table": {
       "select_all": "Sélectionner toutes les lignes",
       "select_row": "Sélectionner la ligne"

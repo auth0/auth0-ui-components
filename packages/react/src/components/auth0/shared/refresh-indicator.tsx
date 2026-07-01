@@ -12,26 +12,16 @@ import { RefreshCw } from 'lucide-react';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-
-export interface RefreshIndicatorLabels {
-  lastUpdated: string;
-  refresh: string;
-}
-
-export const defaultRefreshIndicatorLabels: RefreshIndicatorLabels = {
-  lastUpdated: 'Last updated',
-  refresh: 'Refresh',
-};
 
 export interface RefreshIndicatorProps {
   lastUpdatedAt?: Date | number | string | null;
   isStale?: boolean;
   isFetching?: boolean;
-  onRefresh: () => void;
-  labels?: Partial<RefreshIndicatorLabels>;
-  tickIntervalMs?: number;
   className?: string;
+  tickIntervalMs?: number;
+  onRefresh: () => void;
 }
 
 /**
@@ -41,14 +31,13 @@ export interface RefreshIndicatorProps {
  */
 export function RefreshIndicator({
   lastUpdatedAt,
-  isStale = true,
+  isStale = false,
   isFetching = false,
-  onRefresh,
-  labels,
-  tickIntervalMs = DEFAULT_REFRESH_INDICATOR_TICK_MS,
   className,
+  onRefresh,
+  tickIntervalMs = DEFAULT_REFRESH_INDICATOR_TICK_MS,
 }: RefreshIndicatorProps): React.JSX.Element | null {
-  const resolvedLabels = { ...defaultRefreshIndicatorLabels, ...labels };
+  const { t } = useTranslator('common');
   const visible = isStale && !isFetching;
   const timestampMs = lastUpdatedAt == null ? null : new Date(lastUpdatedAt).getTime();
   const hasValidTimestamp = timestampMs != null && !Number.isNaN(timestampMs);
@@ -70,15 +59,15 @@ export function RefreshIndicator({
       role="status"
     >
       {hasValidTimestamp && (
-        <span>
-          {resolvedLabels.lastUpdated}
+        <span aria-live="off">
+          {t('last_updated')}
           {': '}
           {formatRelativeTime(timestampMs, Date.now())}
         </span>
       )}
       <Button type="button" variant="outline" size="default" onClick={onRefresh}>
         <RefreshCw aria-hidden="true" />
-        {resolvedLabels.refresh}
+        {t('refresh')}
       </Button>
     </div>
   );
