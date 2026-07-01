@@ -1007,7 +1007,8 @@
         "unsupported_challenge_type": "SMS Verifier がテナントで無効になっています。ダッシュボードの Guardian MFA セクションで「SMS」をオンにすると有効にできます。",
         "bad_gateway": "電話番号が無効です。",
         "too_many_entities": "このユーザーのSMSエンティティの数には上限があります。",
-        "invalid_phone_number": "無効な電話番号"
+        "invalid_phone_number": "無効な電話番号",
+        "invalid_code": "無効なコード"
       },
       "email": {
         "expired_token": "確認コードの有効期限が切れました",

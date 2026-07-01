@@ -954,7 +954,8 @@
         "unsupported_challenge_type": "SMS Verifier est désactivé pour votre tenant. Vous pouvez l'activer depuis le tableau de bord en activant \"SMS\" dans la section Guardian MFA.",
         "bad_gateway": "Le numéro de téléphone est invalide.",
         "too_many_entities": "Vous avez atteint la limite d'entités du type sms pour cet utilisateur.",
-        "invalid_phone_number": "Numéro de téléphone invalide"
+        "invalid_phone_number": "Numéro de téléphone invalide",
+        "invalid_code": "Code invalide"
       },
       "email": {
         "expired_token": "Le code de vérification est expiré",
@@ -975,7 +976,7 @@
       "button-text": "Ajouter une authentification push"
     },
     "totp": {
-      "title": "Authenticator",
+      "title": "Authentificateur",
       "name": "TOTP (Code à usage unique)",
       "description": "Aucun authentificateur n'a été ajouté.",
       "button-text": "Ajouter une application d'authentification"
