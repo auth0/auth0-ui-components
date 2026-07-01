@@ -1,4 +1,9 @@
-import { FACTOR_TYPE_EMAIL, FACTOR_TYPE_PHONE } from '@auth0/universal-components-core';
+import {
+  FACTOR_TYPE_EMAIL,
+  FACTOR_TYPE_PHONE,
+  FACTOR_TYPE_TOTP,
+  FACTOR_TYPE_RECOVERY_CODE,
+} from '@auth0/universal-components-core';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
@@ -76,6 +81,71 @@ describe('FactorsList', () => {
 
       // When no factors are provided, list should be empty
       expect(screen.queryByText('test@example.com')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('getFactorLabel', () => {
+    it('should use translation key for TOTP factors', async () => {
+      renderWithProviders(
+        <FactorsList
+          {...createMockFactorsListProps({
+            factorType: FACTOR_TYPE_TOTP,
+            factors: [
+              {
+                id: 'totp-1',
+                name: 'My Authenticator',
+                type: 'totp',
+                enrolled: true,
+                created_at: null,
+              },
+            ],
+          })}
+        />,
+      );
+
+      expect(await screen.findByText('factors.totp.title')).toBeInTheDocument();
+    });
+
+    it('should use translation key for recovery-code factors', async () => {
+      renderWithProviders(
+        <FactorsList
+          {...createMockFactorsListProps({
+            factorType: FACTOR_TYPE_RECOVERY_CODE,
+            factors: [
+              {
+                id: 'rc-1',
+                name: 'Recovery Code',
+                type: 'recovery-code',
+                enrolled: true,
+                created_at: null,
+              },
+            ],
+          })}
+        />,
+      );
+
+      expect(await screen.findByText('factors.recovery-code.item_label')).toBeInTheDocument();
+    });
+
+    it('should fall back to factor.id when name is absent', async () => {
+      renderWithProviders(
+        <FactorsList
+          {...createMockFactorsListProps({
+            factorType: FACTOR_TYPE_EMAIL,
+            factors: [
+              {
+                id: 'fallback-id',
+                name: undefined,
+                type: 'email',
+                enrolled: false,
+                created_at: null,
+              },
+            ],
+          })}
+        />,
+      );
+
+      expect(await screen.findByText('fallback-id')).toBeInTheDocument();
     });
   });
 
