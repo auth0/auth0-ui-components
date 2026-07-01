@@ -4,14 +4,14 @@
  * @internal
  */
 
-export interface PasskeyRevokeModalMessages {
+export interface UserPasskeyManagementRevokeModalMessages {
   title?: string;
   consent?: string;
   cancel?: string;
   confirm?: string;
 }
 
-export interface PasskeyMessages {
+export interface UserPasskeyManagementMessages {
   header?: {
     title?: string;
     description?: string;
@@ -31,6 +31,6 @@ export interface PasskeyMessages {
     revoke?: string;
   };
   modals?: {
-    revoke?: PasskeyRevokeModalMessages;
+    revoke?: UserPasskeyManagementRevokeModalMessages;
   };
 }

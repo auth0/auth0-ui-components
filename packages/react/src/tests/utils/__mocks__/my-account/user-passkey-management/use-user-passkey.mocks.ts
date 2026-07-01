@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import type {
   Passkey,
   UseUserPasskeyServiceResult,
-} from '@/types/my-account/passkey/passkey-types';
+} from '@/types/my-account/user-passkey-management/user-passkey-management-types';
 
 export const makePasskey = (overrides?: Partial<Passkey>): Passkey => ({
   id: 'pk-1',

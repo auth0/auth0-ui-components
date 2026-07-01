@@ -33,7 +33,7 @@ export default function UserMFA() {
               BETA
             </span>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900">UserMFAMgmt Component</h1>
+          <h1 className="text-4xl font-bold text-gray-900">UserMFAManagement Component</h1>
           <p className="text-xl text-gray-600">
             A comprehensive Multi-Factor Authentication (MFA) management component for Auth0
             applications.
@@ -46,8 +46,8 @@ export default function UserMFA() {
         <h2 className="text-2xl font-semibold text-gray-900">Component preview</h2>
         <div className="max-w-none flex justify-center">
           <img
-            src="/img/my-account/UserMFAMgmt.png"
-            alt="UserMFAMgmt Component"
+            src="/img/my-account/UserMFAManagement.png"
+            alt="UserMFAManagement Component"
             width={700}
             height={500}
           />
@@ -77,8 +77,8 @@ export default function UserMFA() {
                 Auth0 Configuration Required
               </h3>
               <p className="text-blue-800 mb-4">
-                Before using the <b>UserMFAMgmt</b> component, you need to configure your Auth0
-                tenant with the proper applications, MFA settings, and permissions.
+                Before using the <b>UserMFAManagement</b> component, you need to configure your
+                Auth0 tenant with the proper applications, MFA settings, and permissions.
               </p>
               <p className="text-blue-800 mb-4">
                 <strong>Complete setup guide:</strong>{' '}
@@ -139,7 +139,8 @@ export default function UserMFA() {
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-3">Option 2: Shadcn CLI</h3>
             <p className="text-gray-600 mb-4">
-              If you're using Shadcn, you can add the UserMFAMgmt block directly to your project:
+              If you're using Shadcn, you can add the UserMFAManagement block directly to your
+              project:
             </p>
             <CodeBlock
               code="npx shadcn@latest add @auth0/user-mfa-management"
@@ -162,16 +163,16 @@ export default function UserMFA() {
         <h2 className="text-2xl font-semibold text-gray-900">Basic Usage</h2>
         <CodeBlock
           code={`// For SPA/Next.js/RWA applications:
-import { UserMFAMgmt } from '@auth0/universal-components-react';
+import { UserMFAManagement } from '@auth0/universal-components-react';
 
 // For shadcn users:
-// import { UserMFAMgmt } from '@/components/auth0/my-account/user-mfa-management';
+// import { UserMFAManagement } from '@/components/auth0/my-account/user-mfa-management';
 
 export function SecurityPage() {
   return (
     <div>
       <h1>Security Settings</h1>
-      <UserMFAMgmt />
+      <UserMFAManagement />
     </div>
   );
 }`}
@@ -229,7 +230,7 @@ export function SecurityPage() {
                   styling
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  {'{'}variables?: CSSProperties; classes?: UserMFAMgmtClasses{'}'}
+                  {'{'}variables?: CSSProperties; classes?: UserMFAManagementClasses{'}'}
                 </td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">-</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
@@ -291,66 +292,43 @@ export function SecurityPage() {
                   factorConfig
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  Record&lt;string, {'{'}visible?: boolean; enabled?: boolean{'}'}&gt;
+                  {'{ [K in MFAType]?: { visible?: boolean; enabled?: boolean } }'}
                 </td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">-</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  Configuration for individual MFA factors (phone-message, One-Time Password, email,
-                  duo, webauthn-platform, webauthn-roaming, recovery-code)
+                  Per-factor visibility and enabled configuration. Keys are MFA factor types (totp,
+                  phone, email, push-notification, webauthn-roaming, webauthn-platform,
+                  recovery-code).
                 </td>
               </tr>
               <tr>
                 <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  onEnroll
+                  enrollAction
                 </td>
-                <td className="px-4 py-2 text-sm text-gray-500">() =&gt; void</td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  {
+                    '{ onBefore?: (factor: MFAType) => boolean; onAfter?: (factor: MFAType) => void }'
+                  }
+                </td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">-</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  Callback function called when a factor is successfully enrolled
+                  Lifecycle hooks for enrollment. Return <code>false</code> from{' '}
+                  <code>onBefore</code> to cancel; <code>onAfter</code> fires on success.
                 </td>
               </tr>
               <tr>
                 <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  onDelete
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">() =&gt; void</td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">-</td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  Callback function called when a factor is successfully deleted
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  onFetch
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">() =&gt; void</td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">-</td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  Callback function called when factors are successfully fetched
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  onErrorAction
+                  deleteAction
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  (error: Error, action: string) =&gt; void
+                  {
+                    '{ onBefore?: (factor: MFAType) => boolean; onAfter?: (factor: MFAType) => void }'
+                  }
                 </td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">-</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  Callback function called when an error occurs during any action
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                  onBeforeAction
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  (action: string, factorType?: string) =&gt; boolean
-                </td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">-</td>
-                <td className="px-4 py-2 text-sm text-gray-500">
-                  Callback function called before any action. Return false to cancel the action
+                  Lifecycle hooks for deletion. Return <code>false</code> from <code>onBefore</code>{' '}
+                  to cancel; <code>onAfter</code> fires on success.
                 </td>
               </tr>
             </tbody>
@@ -396,34 +374,41 @@ export function SecurityPage() {
             </p>
             <CodeBlock
               code={`// Main component props interface
-interface UserMFAMgmtProps {
+interface UserMFAManagementProps {
   schema?: {
     email?: RegExp;
     phone?: RegExp;
   };
-  customMessages?: Partial<MFAMessages>;
-  styling?: ComponentStyling<UserMFAMgmtClasses>;
+  customMessages?: Partial<UserMfaManagementMessages>;
+  styling?: ComponentStyling<UserMFAManagementClasses>;
   readOnly?: boolean;
   hideHeader?: boolean;
   showActiveOnly?: boolean;
   disableEnroll?: boolean;
   disableDelete?: boolean;
-  factorConfig?: Record<string, {
-    visible?: boolean;
-    enabled?: boolean;
-  }>;
-  onEnroll?: () => void;
-  onDelete?: () => void;
-  onFetch?: () => void;
-  onErrorAction?: (error: Error, action: string) => void;
-  onBeforeAction?: (action: string, factorType?: string) => boolean;
+  factorConfig?: { [K in MFAType]?: FactorConfigOptions };
+  enrollAction?: ComponentAction<MFAType>;
+  deleteAction?: ComponentAction<MFAType>;
+}
+
+// Per-factor configuration
+interface FactorConfigOptions {
+  visible?: boolean;
+  enabled?: boolean;
+}
+
+// Lifecycle action hooks
+interface ComponentAction<T> {
+  onBefore?: (arg: T) => boolean; // return false to cancel
+  onAfter?: (arg: T) => void;
 }
 
 // Custom styling classes
-interface UserMFAMgmtClasses {
-  'UserMFAMgmt-card'?: string;
-  'UserMFASetupForm-dialogContent'?: string;
-  'DeleteFactorConfirmation-dialogContent'?: string;
+interface UserMFAManagementClasses {
+  'UserMFAManagement-card'?: string;
+  'UserMFAManagement-header'?: string;
+  'EnrollFactorModal-dialogContent'?: string;
+  'FactorDeleteModal-dialogContent'?: string;
 }`}
               language="typescript"
               title="Complete TypeScript definitions"
@@ -444,7 +429,7 @@ interface UserMFAMgmtClasses {
               prop:
             </p>
             <CodeBlock
-              code={`<UserMFAMgmt
+              code={`<UserMFAManagement
   factorConfig={{
     sms: { visible: true, enabled: true },
     totp: { visible: true, enabled: true },
@@ -460,19 +445,28 @@ interface UserMFAMgmtClasses {
           <div>
             <h3 className="text-lg font-medium mb-4">Event Callbacks</h3>
             <p className="text-gray-600 mb-4">
-              React to component events by defining callback functions:
+              React to component events using <code>enrollAction</code> and{' '}
+              <code>deleteAction</code> lifecycle hooks:
             </p>
             <CodeBlock
-              code={`<UserMFAMgmt
-  onEnroll={() => console.log('Factor enrolled')}
-  onDelete={() => console.log('Factor deleted')}
-  onFetch={() => console.log('Factors fetched')}
-  onErrorAction={(error, action) => {
-    console.error(\`Error during \${action}:\`, error);
+              code={`<UserMFAManagement
+  enrollAction={{
+    onBefore: (factor) => {
+      // Return false to cancel enrollment
+      return confirm(\`Enroll \${factor}?\`);
+    },
+    onAfter: (factor) => {
+      console.log('Enrolled:', factor);
+    },
   }}
-  onBeforeAction={(action, factorType) => {
-    // Return false to cancel the action
-    return confirm(\`Are you sure you want to \${action} \${factorType}?\`);
+  deleteAction={{
+    onBefore: (factor) => {
+      // Return false to cancel deletion
+      return confirm(\`Remove \${factor}?\`);
+    },
+    onAfter: (factor) => {
+      console.log('Deleted:', factor);
+    },
   }}
 />`}
               language="tsx"
@@ -581,7 +575,7 @@ interface UserMFAMgmtClasses {
             </div>
 
             <CodeBlock
-              code={`<UserMFAMgmt
+              code={`<UserMFAManagement
   customMessages={{
     title: 'Manage Multi-Factor Authentication',
     description: 'Add extra layers of security to protect your account',
@@ -634,14 +628,16 @@ interface UserMFAMgmtClasses {
                   <strong>CSS Classes (styling.classes)</strong>
                   <ul className="ml-4 list-disc space-y-1 mt-2">
                     <li>
-                      <code>UserMFAMgmt-card</code> - Main component card container
+                      <code>UserMFAManagement-card</code> - Main component card container
                     </li>
                     <li>
-                      <code>UserMFASetupForm-dialogContent</code> - Enrollment dialog content
+                      <code>UserMFAManagement-header</code> - Header title and description wrapper
                     </li>
                     <li>
-                      <code>DeleteFactorConfirmation-dialogContent</code> - Delete confirmation
-                      dialog
+                      <code>EnrollFactorModal-dialogContent</code> - Enrollment dialog content
+                    </li>
+                    <li>
+                      <code>FactorDeleteModal-dialogContent</code> - Delete confirmation dialog
                     </li>
                   </ul>
                 </div>
@@ -649,7 +645,7 @@ interface UserMFAMgmtClasses {
             </div>
 
             <CodeBlock
-              code={`<UserMFAMgmt
+              code={`<UserMFAManagement
   styling={{
     variables: {
       common: {
@@ -665,9 +661,10 @@ interface UserMFAMgmtClasses {
       }
     },
     classes: {
-      'UserMFAMgmt-card': 'shadow-2xl rounded-2xl border-2 p-8',
-      'UserMFASetupForm-dialogContent': 'max-w-2xl',
-      'DeleteFactorConfirmation-dialogContent': 'max-w-md'
+      'UserMFAManagement-card': 'shadow-2xl rounded-2xl border-2 p-8',
+      'UserMFAManagement-header': 'pb-4 border-b',
+      'EnrollFactorModal-dialogContent': 'max-w-2xl',
+      'FactorDeleteModal-dialogContent': 'max-w-md'
     }
   }}
 />`}
@@ -711,7 +708,7 @@ interface UserMFAMgmtClasses {
             </div>
 
             <CodeBlock
-              code={`<UserMFAMgmt
+              code={`<UserMFAManagement
   schema={{
     // Custom email validation (more restrictive)
     email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/,
@@ -739,24 +736,19 @@ interface UserMFAMgmtClasses {
         <h2 className="text-2xl font-semibold text-gray-900">Complete Integration Example</h2>
         <CodeBlock
           code={`import React from 'react';
-import { UserMFAMgmt } from '@auth0/universal-components-react';
+import { UserMFAManagement } from '@auth0/universal-components-react';
 import { Auth0ComponentProvider } from '@auth0/universal-components-react/spa';
 import { Auth0Provider } from '@auth0/auth0-react';
 
 function SecurityPage() {
-  const handleMFAEnroll = () => {
+  const handleMFAEnroll = (factor) => {
     // Handle successful enrollment
-    console.log('MFA factor enrolled successfully');
+    console.log('MFA factor enrolled successfully:', factor);
   };
 
-  const handleMFADelete = () => {
+  const handleMFADelete = (factor) => {
     // Handle successful deletion
-    console.log('MFA factor deleted successfully');
-  };
-
-  const handleError = (error, action) => {
-    // Handle errors
-    console.error(\`MFA \${action} error:\`, error);
+    console.log('MFA factor deleted successfully:', factor);
   };
 
   return (
@@ -767,13 +759,16 @@ function SecurityPage() {
           Manage your multi-factor authentication settings
         </p>
       </div>
-      
-      <UserMFAMgmt
-        onEnroll={handleMFAEnroll}
-        onDelete={handleMFADelete}
-        onErrorAction={handleError}
+
+      <UserMFAManagement
+        enrollAction={{
+          onAfter: handleMFAEnroll,
+        }}
+        deleteAction={{
+          onAfter: handleMFADelete,
+        }}
         factorConfig={{
-          sms: { visible: true, enabled: true },
+          phone: { visible: true, enabled: true },
           totp: { visible: true, enabled: true },
           'webauthn-platform': { visible: true, enabled: true }
         }}

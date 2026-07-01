@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { PasskeyActionModal } from '@/components/auth0/my-account/shared/passkey/passkey-action-modal';
+import { PasskeyActionModal } from '@/components/auth0/my-account/shared/user-passkey-management/passkey-action-modal';
 import { renderWithProviders, createMockPasskeyActionModalProps } from '@/tests/utils';
 import { mockToast } from '@/tests/utils/test-setup';
 
