@@ -135,7 +135,7 @@ describe('Auth0ComponentProvider', () => {
   });
 
   it('should render fallback when coreClient is not initialized', () => {
-    mockUseCoreClientInitialization.mockReturnValueOnce(null as never);
+    mockUseCoreClientInitialization.mockReturnValue(null as never);
 
     render(
       <Auth0ComponentProvider

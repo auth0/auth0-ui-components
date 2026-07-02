@@ -5,7 +5,7 @@
   "title": "SSO provider creation container component.",
   "description": "A block component for sso provider create.",
   "dependencies": [
-    "@auth0/universal-components-core@2.1.0",
+    "@auth0/universal-components-core@2.1.1",
     "@auth0/auth0-react@^2.15.1",
     "@hookform/resolvers@^5.1.0",
     "@radix-ui/react-accordion@^1.2.0",
@@ -483,6 +483,6 @@
     }
   ],
   "meta": {
-    "coreVersion": "2.1.0"
+    "coreVersion": "2.1.1"
   }
 }

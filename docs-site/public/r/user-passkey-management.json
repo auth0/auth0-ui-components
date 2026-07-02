@@ -5,7 +5,7 @@
   "title": "Passkey management component.",
   "description": "A block component for user passkey mgmt.",
   "dependencies": [
-    "@auth0/universal-components-core@2.1.0",
+    "@auth0/universal-components-core@2.1.1",
     "@auth0/auth0-react@^2.15.1",
     "@radix-ui/react-dialog@^1.1.14",
     "@radix-ui/react-dropdown-menu@^2.1.1",
@@ -262,6 +262,6 @@
     }
   ],
   "meta": {
-    "coreVersion": "2.1.0"
+    "coreVersion": "2.1.1"
   }
 }

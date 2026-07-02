@@ -188,8 +188,8 @@ importers:
   examples/next-rwa:
     dependencies:
       '@auth0/nextjs-auth0':
-        specifier: ^4.20.0
-        version: 4.20.0(next@16.1.5(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        specifier: ^4.21.0
+        version: 4.21.0(next@16.1.5(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@auth0/universal-components-react':
         specifier: workspace:*
         version: link:../../packages/react
@@ -609,7 +609,7 @@ importers:
         specifier: ^1.2.7
         version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@tanstack/react-query':
-        specifier: ^5.56.2
+        specifier: ^4.0.0 || ^5.0.0
         version: 5.90.11(react@19.2.1)
       '@tanstack/react-table':
         specifier: ^8.21.3
@@ -737,8 +737,8 @@ packages:
     resolution: {integrity: sha512-DG3/PDDPB2ayuXRrNZOdBTPdqT1O6GKahW3U+i75UQn27rJGIkIVvonx/IEOUxFdo+gJs9zwlpUt/kdD0ICEiA==}
     engines: {node: '>=20.0.0'}
 
-  '@auth0/nextjs-auth0@4.20.0':
-    resolution: {integrity: sha512-F6kpRKcLUqtxE622+oazsXTbay+19G+jhIN8IamiGHGLjNdFgaDwgHCaWnZNuHQrhvlqoGLpJ+5bjfGh4v38cw==}
+  '@auth0/nextjs-auth0@4.21.0':
+    resolution: {integrity: sha512-J8EM8nixcCWx7hlGVlV4HzsYI67wrDwWhaW1HYr+7AY2e+XMBJCcKmj/JAh8l0akUf/XwDyCPnqBQIMRZjvVyw==}
     peerDependencies:
       next: ^14.2.35 || ~15.0.7 || ~15.1.11 || ~15.2.8 || ~15.3.8 || ~15.4.10 || ~15.5.9 || ^16.0.10
       react: 19.2.1
@@ -5336,12 +5336,6 @@ packages:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
     hasBin: true
 
-  jose@6.1.2:
-    resolution: {integrity: sha512-MpcPtHLE5EmztuFIqB0vzHAWJPpmN1E6L4oo+kze56LIs3MyXIj9ZHMDxqOvkP38gBR7K1v3jqd4WU2+nrfONQ==}
-
-  jose@6.1.3:
-    resolution: {integrity: sha512-0TpaTfihd4QMNwrz/ob2Bp7X04yuxJkjRGi4aKmOqwhov54i6u79oCv7T+C7lo70MKH6BesI3vscD1yb/yzKXQ==}
-
   jose@6.2.1:
     resolution: {integrity: sha512-jUaKr1yrbfaImV7R2TN/b3IcZzsw38/chqMpo2XJ7i2F8AfM/lA4G1goC3JVEwg0H7UldTmSt3P68nt31W7/mw==}
 
@@ -5850,9 +5844,6 @@ packages:
   nwsapi@2.2.22:
     resolution: {integrity: sha512-ujSMe1OWVn55euT1ihwCI1ZcAaAU3nxUiDwfDQldc51ZXaB9m2AyOn6/jh1BLe2t/G8xd6uKG1UBF2aZJeg2SQ==}
 
-  oauth4webapi@3.8.3:
-    resolution: {integrity: sha512-pQ5BsX3QRTgnt5HxgHwgunIRaDXBdkT23tf8dfzmtTIL2LTpdmxgbpbBm0VgFWAIDlezQvQCTgnVIUmHupXHxw==}
-
   oauth4webapi@3.8.5:
     resolution: {integrity: sha512-A8jmyUckVhRJj5lspguklcl90Ydqk61H3dcU0oLhH3Yv13KpAliKTt5hknpGGPZSSfOwGyraNEFmofDYH+1kSg==}
 
@@ -5913,9 +5904,6 @@ packages:
   onetime@7.0.0:
     resolution: {integrity: sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ==}
     engines: {node: '>=18'}
-
-  openid-client@6.8.1:
-    resolution: {integrity: sha512-VoYT6enBo6Vj2j3Q5Ec0AezS+9YGzQo1f5Xc42lreMGlfP4ljiXPKVDvCADh+XHCV/bqPu/wWSiCVXbJKvrODw==}
 
   openid-client@6.8.2:
     resolution: {integrity: sha512-uOvTCndr4udZsKihJ68H9bUICrriHdUVJ6Az+4Ns6cW55rwM5h0bjVIzDz2SxgOI84LKjFyjOFvERLzdTUROGA==}
@@ -7538,14 +7526,14 @@ snapshots:
     dependencies:
       '@auth0/auth0-auth-js': 1.5.0
 
-  '@auth0/nextjs-auth0@4.20.0(next@16.1.5(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
+  '@auth0/nextjs-auth0@4.21.0(next@16.1.5(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
     dependencies:
       '@edge-runtime/cookies': 5.0.2
       '@panva/hkdf': 1.2.1
-      jose: 6.1.3
+      jose: 6.2.1
       next: 16.1.5(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      oauth4webapi: 3.8.3
-      openid-client: 6.8.1
+      oauth4webapi: 3.8.5
+      openid-client: 6.8.2
       react: 19.2.1
       react-dom: 19.2.1(react@19.2.1)
       swr: 2.3.7(react@19.2.1)
@@ -12291,10 +12279,6 @@ snapshots:
 
   jiti@2.6.1: {}
 
-  jose@6.1.2: {}
-
-  jose@6.1.3: {}
-
   jose@6.2.1: {}
 
   joycon@3.1.1: {}
@@ -12780,8 +12764,6 @@ snapshots:
 
   nwsapi@2.2.22: {}
 
-  oauth4webapi@3.8.3: {}
-
   oauth4webapi@3.8.5: {}
 
   object-assign@4.1.1: {}
@@ -12849,11 +12831,6 @@ snapshots:
   onetime@7.0.0:
     dependencies:
       mimic-function: 5.0.1
-
-  openid-client@6.8.1:
-    dependencies:
-      jose: 6.1.2
-      oauth4webapi: 3.8.3
 
   openid-client@6.8.2:
     dependencies:

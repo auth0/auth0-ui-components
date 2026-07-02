@@ -286,7 +286,7 @@ function TextFieldGroup(
             ))}
             <input
               className={cn(
-                'min-w-[104px] flex-1 shrink-0 bg-transparent py-2 outline-none file:border-0 file:bg-transparent file:text-sm file:font-medium',
+                'placeholder:text-muted-foreground min-w-[104px] flex-1 shrink-0 bg-transparent py-2 outline-none file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:opacity-50',
                 isDisabled && 'cursor-not-allowed opacity-50',
                 !hasChips && 'px-2',
                 startAdornment && 'pl-0',
@@ -362,7 +362,7 @@ function TextFieldGroup(
         )}
         <input
           className={cn(
-            'w-full flex-1 bg-transparent px-3 py-2 outline-none file:border-0 file:bg-transparent file:text-sm file:font-medium',
+            'placeholder:text-muted-foreground w-full flex-1 bg-transparent px-3 py-2 outline-none file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:opacity-50',
             isDisabled && 'cursor-not-allowed opacity-50',
             hasChips && 'pl-0',
             hasChips && 'min-w-[104px]',

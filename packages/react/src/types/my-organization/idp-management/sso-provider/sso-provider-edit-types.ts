@@ -85,7 +85,7 @@ export interface UseSsoProviderEditOptions extends SharedComponentProps {
   domains?: SsoDomainsTabEditProps;
 }
 
-export interface UseSsoProviderEditReturn {
+export interface UseSsoProviderEditServiceReturn {
   provider: IdpKnownResponse | null;
   organization: OrganizationPrivate | null;
   provisioningConfig: GetIdPProvisioningConfigResponseContent | null;
@@ -118,6 +118,15 @@ export interface UseSsoProviderEditReturn {
   syncProvisioningAttributes: () => Promise<void>;
   onDeleteConfirm: () => Promise<void>;
   onRemoveConfirm: () => Promise<void>;
+}
+
+export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceReturn {
+  shouldAllowDeletion: boolean;
+  isLoadingConfig: boolean;
+  idpConfig: GetIdpConfigurationResponseContent | null;
+  isLoadingIdpConfig: boolean;
+  showProvisioningTab: boolean;
+  handleToggleProvider: (enabled: boolean) => Promise<void>;
 }
 
 export interface SsoProviderAttributeMappingsProps

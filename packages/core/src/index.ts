@@ -25,6 +25,14 @@ export {
   FetcherAuthParams,
 } from './auth/auth-types';
 
+export {
+  type CssImplementation,
+  type DistributionChannel,
+  type Framework,
+  type TelemetryComponentGetter,
+  type TelemetryConfig,
+} from './api/telemetry';
+
 export * from './schemas';
 
 export * from './theme';

@@ -18,6 +18,7 @@ import { useCallback, useState } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   UseDomainTableServiceOptions,
   UseDomainTableServiceReturn,
@@ -201,9 +202,9 @@ export function useDomainTableService({
     domains: domainsQuery.data ?? [],
     providers: providersQuery.data ?? [],
     isFetching: domainsQuery.isLoading,
-    isCreating: createDomainMutation.isPending,
-    isDeleting: deleteDomainMutation.isPending,
-    isVerifying: verifyDomainMutation.isPending,
+    isCreating: isMutationLoading(createDomainMutation),
+    isDeleting: isMutationLoading(deleteDomainMutation),
+    isVerifying: isMutationLoading(verifyDomainMutation),
     isLoadingProviders: providersQuery.isLoading,
 
     fetchProviders,
