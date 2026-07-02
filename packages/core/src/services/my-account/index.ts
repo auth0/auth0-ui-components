@@ -4,5 +4,5 @@
  * @internal
  */
 
-export * from './mfa';
+export * from './user-mfa-management';
 export * from './user-passkey-management';

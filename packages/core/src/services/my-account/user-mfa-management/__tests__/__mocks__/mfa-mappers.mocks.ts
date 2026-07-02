@@ -8,14 +8,14 @@ import {
   createMockWebAuthnRoamingAuthMethod,
   createMockWebAuthnPlatformAuthMethod,
   createMockPushNotificationAuthMethod,
-} from '../../../../../internals/__mocks__/my-account/mfa/mfa.mocks';
+} from '../../../../../internals/__mocks__/my-account/user-mfa-management/user-mfa-management.mocks';
 import type {
   ConfirmEnrollmentOptions,
   EnrollOptions,
   ListAuthenticationMethodsResponseContent,
   ListFactorsResponseContent,
   VerifyAuthenticationMethodRequestContent,
-} from '../../mfa-types';
+} from '../../user-mfa-management-types';
 
 /**
  * Mock data for testing MFA mappers

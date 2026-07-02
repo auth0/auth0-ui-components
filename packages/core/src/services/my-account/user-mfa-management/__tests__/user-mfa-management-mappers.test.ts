@@ -8,7 +8,7 @@ import {
   createMockPhoneAuthMethod,
   createEmptyEnrolledFactors,
   createEmptyAvailableFactors,
-} from '../../../../internals/__mocks__/my-account/mfa/mfa.mocks';
+} from '../../../../internals/__mocks__/my-account/user-mfa-management/user-mfa-management.mocks';
 import {
   FACTOR_TYPE_EMAIL,
   FACTOR_TYPE_PHONE,
@@ -17,15 +17,15 @@ import {
   FACTOR_TYPE_WEBAUTHN_ROAMING,
   FACTOR_TYPE_WEBAUTHN_PLATFORM,
   FACTOR_TYPE_PUSH_NOTIFICATION,
-} from '../mfa-constants';
-import { MFAMappers } from '../mfa-mappers';
+} from '../user-mfa-management-constants';
+import { MFAMappers } from '../user-mfa-management-mappers';
 import type {
   MFAType,
   Authenticator,
   EnrollOptions,
   ConfirmEnrollmentOptions,
   VerifyAuthenticationMethodRequestContent,
-} from '../mfa-types';
+} from '../user-mfa-management-types';
 
 import {
   mockAvailableFactorsResponse,

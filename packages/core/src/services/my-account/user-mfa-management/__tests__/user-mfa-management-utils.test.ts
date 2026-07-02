@@ -13,7 +13,7 @@ import {
   createEmptyEnrolledFactors,
   createEmptyAvailableFactors,
   createMockAvailableFactor,
-} from '../../../../internals/__mocks__/my-account/mfa/mfa.mocks';
+} from '../../../../internals/__mocks__/my-account/user-mfa-management/user-mfa-management.mocks';
 import {
   FACTOR_TYPE_EMAIL,
   FACTOR_TYPE_PHONE,
@@ -22,9 +22,9 @@ import {
   FACTOR_TYPE_TOTP,
   FACTOR_TYPE_WEBAUTHN_PLATFORM,
   FACTOR_TYPE_WEBAUTHN_ROAMING,
-} from '../mfa-constants';
-import type { MFAType, EnrollOptions } from '../mfa-types';
-import { buildEnrollParams, transformMyAccountFactors } from '../mfa-utils';
+} from '../user-mfa-management-constants';
+import type { MFAType, EnrollOptions } from '../user-mfa-management-types';
+import { buildEnrollParams, transformMyAccountFactors } from '../user-mfa-management-utils';
 
 describe('mfa-utils', () => {
   describe('buildEnrollParams', () => {

@@ -12,7 +12,7 @@ import {
   FACTOR_TYPE_TOTP,
   FACTOR_TYPE_WEBAUTHN_PLATFORM,
   FACTOR_TYPE_WEBAUTHN_ROAMING,
-} from './mfa-constants';
+} from './user-mfa-management-constants';
 import type {
   MFAType,
   EnrollOptions,
@@ -21,7 +21,7 @@ import type {
   ListAuthenticationMethodsResponseContent,
   CreateAuthenticationMethodRequestContent,
   EnrolledFactor,
-} from './mfa-types';
+} from './user-mfa-management-types';
 
 /**
  * Builds enrollment parameters for a given MFA factor type.

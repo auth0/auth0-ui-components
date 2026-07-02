@@ -211,7 +211,7 @@ function UserMFAManagementView({
 
   return (
     <StyledScope style={currentStyles.variables}>
-      <Card className={cn(currentStyles.classes?.['UserMFAManagement-card'])}>
+      <Card className={cn('p-6 gap-4', currentStyles.classes?.['UserMFAManagement-card'])}>
         {error ? (
           <MFAErrorState
             title={t('component_error.title')}
@@ -220,7 +220,7 @@ function UserMFAManagementView({
         ) : (
           <>
             {!hideHeader && (
-              <div className={cn('px-6 pt-6', currentStyles.classes?.['UserMFAManagement-header'])}>
+              <div className={cn(currentStyles.classes?.['UserMFAManagement-header'])}>
                 <CardTitle
                   id="mfa-management-title"
                   className="text-2xl text-(length:--font-size-heading) font-medium text-left"
@@ -253,7 +253,7 @@ function UserMFAManagementView({
                     <ListItem
                       key={factorType}
                       className={cn(
-                        'w-full p-0 m-0 px-6 py-6 gap-3',
+                        'w-full p-0 m-0 py-6 first:pt-0 last:pb-0 gap-3',
                         !isEnabledFactor && 'opacity-50 pointer-events-none',
                       )}
                       aria-disabled={!isEnabledFactor}

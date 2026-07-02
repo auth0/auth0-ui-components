@@ -12,8 +12,8 @@ import type {
   EnrollOptions,
   ListFactorsResponseContent,
   ListAuthenticationMethodsResponseContent,
-} from './mfa-types';
-import { transformMyAccountFactors, buildEnrollParams } from './mfa-utils';
+} from './user-mfa-management-types';
+import { transformMyAccountFactors, buildEnrollParams } from './user-mfa-management-utils';
 
 /**
  * MFA data mappers for API transformations.
