@@ -5,4 +5,4 @@
  */
 
 export * from './mfa';
-export * from './passkey';
+export * from './user-passkey-management';

@@ -206,8 +206,8 @@ describe('api-error', () => {
         });
       });
 
-      it('should use ApiError message over fallbackMessage when available', () => {
-        const result = normalizeError(baseApiError, { fallbackMessage: 'Fallback' });
+      it('should use ApiError message over defaultMessage when available', () => {
+        const result = normalizeError(baseApiError, { defaultMessage: 'Fallback' });
         expect(result.message).toBe('API request failed');
       });
     });
@@ -222,14 +222,14 @@ describe('api-error', () => {
         { value: {}, description: 'empty object' },
         { value: () => {}, description: 'function' },
       ])('when error is $description', ({ value }) => {
-        it('should return Error with default message', () => {
+        it('should return Error with empty message when no defaultMessage provided', () => {
           const result = normalizeError(value);
           expect(result).toBeInstanceOf(Error);
-          expect(result.message).toBe('An unknown error occurred');
+          expect(result.message).toBe('');
         });
 
-        it('should use fallbackMessage when provided', () => {
-          const result = normalizeError(value, { fallbackMessage: 'Custom fallback' });
+        it('should use defaultMessage when provided', () => {
+          const result = normalizeError(value, { defaultMessage: 'Custom fallback' });
           expect(result.message).toBe('Custom fallback');
         });
       });
@@ -242,8 +242,8 @@ describe('api-error', () => {
       });
 
       it('should handle various option combinations', () => {
-        expect(normalizeError({}, {}).message).toBe('An unknown error occurred');
-        expect(normalizeError({}, undefined).message).toBe('An unknown error occurred');
+        expect(normalizeError({}, {}).message).toBe('');
+        expect(normalizeError({}, undefined).message).toBe('');
         expect(normalizeError('error', { resolver: () => 'r' }).message).toBe('error');
       });
     });

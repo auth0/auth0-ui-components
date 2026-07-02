@@ -3,11 +3,11 @@
 import { getComponentStyles } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { DeleteFactorConfirmation } from '@/components/auth0/my-account/shared/mfa/delete-factor-confirmation';
-import { MFAEmptyState } from '@/components/auth0/my-account/shared/mfa/empty-state';
-import { MFAErrorState } from '@/components/auth0/my-account/shared/mfa/error-state';
-import { FactorsList } from '@/components/auth0/my-account/shared/mfa/factors-list';
-import { UserMFASetupForm } from '@/components/auth0/my-account/shared/mfa/user-mfa-setup-form';
+import { FactorDeleteModal } from '@/components/auth0/my-account/shared/user-mfa-management/factor-delete/factor-delete-modal';
+import { EnrollFactorModal } from '@/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/enroll-factor-modal';
+import { MFAEmptyState } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/empty-state';
+import { MFAErrorState } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/error-state';
+import { FactorsList } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/factors-list';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +19,15 @@ import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/mfa/mfa-types';
+import type {
+  UserMFAManagementProps,
+  UserMFAManagementViewProps,
+} from '@/types/my-account/user-mfa-management/user-mfa-management-types';
+
+const DEFAULT_STYLING: UserMFAManagementProps['styling'] = {
+  variables: { common: {}, light: {}, dark: {} },
+  classes: {},
+};
 
 /**
  * Multi-factor authentication management component.
@@ -27,7 +35,7 @@ import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/
  * Complete MFA management interface for enrolling, viewing, and deleting authentication
  * factors. Supports TOTP authenticators, SMS, Email, Push notifications, and recovery codes.
  *
- * @param props - {@link UserMFAMgmtProps}
+ * @param props - {@link UserMFAManagementProps}
  * @param props.customMessages - Custom i18n message overrides
  * @param props.styling - CSS variables and class overrides
  * @param props.hideHeader - Hide the header section
@@ -36,21 +44,18 @@ import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/
  * @param props.disableDelete - Disable delete actions
  * @param props.readOnly - Render in read-only mode
  * @param props.factorConfig - Per-factor visibility/enabled configuration
- * @param props.onEnroll - Callback after successful enrollment
- * @param props.onDelete - Callback after successful deletion
- * @param props.onFetch - Callback after factors are loaded
- * @param props.onErrorAction - Callback when actions error
- * @param props.onBeforeAction - Callback before actions; return false to cancel
+ * @param props.enrollAction - Lifecycle hooks for enrollment; onBefore to cancel, onAfter on success
+ * @param props.deleteAction - Lifecycle hooks for deletion; onBefore to cancel, onAfter on success
  * @param props.schema - Validation schema overrides
  * @returns MFA management component
  *
- * @see {@link UserMFAMgmtProps} for full props documentation
+ * @see {@link UserMFAManagementProps} for full props documentation
  *
  * @example
  * ```tsx
- * <UserMFAMgmt
- *   onEnroll={(factor) => console.log('Enrolled:', factor)}
- *   onDelete={(factor) => console.log('Deleted:', factor)}
+ * <UserMFAManagement
+ *   enrollAction={{ onAfter: (factor) => console.log('Enrolled:', factor) }}
+ *   deleteAction={{ onAfter: (factor) => console.log('Deleted:', factor) }}
  *   factorConfig={{
  *     otp: { enabled: true },
  *     sms: { enabled: true },
@@ -59,24 +64,20 @@ import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/
  * />
  * ```
  */
-function UserMFAMgmt({
+function UserMFAManagement({
   customMessages = {},
-  styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
+  styling = DEFAULT_STYLING,
   hideHeader = false,
   showActiveOnly = false,
   disableEnroll = false,
   disableDelete = false,
   readOnly = false,
   factorConfig = {},
-  onEnroll,
-  onDelete,
-  onFetch,
-  onErrorAction,
-  onBeforeAction,
+  enrollAction,
+  deleteAction,
   schema,
-}: UserMFAMgmtProps) {
+}: UserMFAManagementProps) {
   useTelemetry('user-mfa-management');
-
   const {
     factorsByType,
     isLoadingFactors,
@@ -100,6 +101,7 @@ function UserMFAMgmt({
     handleConfirmDelete,
     handleCancelDelete,
     handleSendCode,
+    handleResendCode,
     handleConfirmOtp,
     handleConfirmPush,
     handleConfirmRecoveryCode,
@@ -110,16 +112,13 @@ function UserMFAMgmt({
     disableDelete,
     factorConfig,
     customMessages,
-    onFetch,
-    onEnroll,
-    onDelete,
-    onErrorAction,
-    onBeforeAction,
+    enrollAction,
+    deleteAction,
   });
 
   return (
     <GateKeeper styling={styling} isLoading={isLoadingFactors}>
-      <UserMFAMgmtView
+      <UserMFAManagementView
         error={error}
         schema={schema}
         isEnrolling={isEnrolling}
@@ -150,22 +149,23 @@ function UserMFAMgmt({
         onConfirmDelete={handleConfirmDelete}
         onCancelDelete={handleCancelDelete}
         onSubmitContact={handleSendCode}
+        onResendCode={handleResendCode}
         onConfirmOtp={handleConfirmOtp}
-        onContinueQR={handleConfirmPush}
+        onContinueQRScan={handleConfirmPush}
         onConfirmRecoveryCode={handleConfirmRecoveryCode}
-        onAdvanceToQR={handleEnterQRPhase}
+        onStartQREnrollment={handleEnterQRPhase}
       />
     </GateKeeper>
   );
 }
 
 /**
- * UserMFAMgmtView — Presentational component.
+ * UserMFAManagementView — Presentational component.
  * @param props - All state and handlers passed directly.
  * @returns User Management View element
  * @internal
  */
-function UserMFAMgmtView({
+function UserMFAManagementView({
   error,
   schema,
   isEnrolling,
@@ -196,13 +196,14 @@ function UserMFAMgmtView({
   onConfirmDelete,
   onCancelDelete,
   onSubmitContact,
+  onResendCode,
   onConfirmOtp,
-  onContinueQR,
+  onContinueQRScan,
   onConfirmRecoveryCode,
-  onAdvanceToQR,
-}: UserMFAMgmtViewProps) {
+  onStartQREnrollment,
+}: UserMFAManagementViewProps) {
   const { isDarkMode } = useTheme();
-  const { t } = useTranslator('mfa', customMessages);
+  const { t } = useTranslator('user_mfa_management', customMessages);
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
@@ -210,27 +211,27 @@ function UserMFAMgmtView({
 
   return (
     <StyledScope style={currentStyles.variables}>
-      <Card className={cn(currentStyles.classes?.['UserMFAMgmt-card'])}>
+      <Card className={cn(currentStyles.classes?.['UserMFAManagement-card'])}>
         {error ? (
           <MFAErrorState
-            title={t('component_error_title')}
-            description={t('component_error_description')}
+            title={t('component_error.title')}
+            description={t('component_error.description')}
           />
         ) : (
           <>
             {!hideHeader && (
-              <div className="px-6 pt-6">
+              <div className={cn('px-6 pt-6', currentStyles.classes?.['UserMFAManagement-header'])}>
                 <CardTitle
                   id="mfa-management-title"
                   className="text-2xl text-(length:--font-size-heading) font-medium text-left"
                 >
-                  {t('title')}
+                  {t('header.title')}
                 </CardTitle>
                 <CardDescription
                   id="mfa-management-desc"
                   className="text-sm text-(length:--font-size-paragraph) text-muted-foreground text-left"
                 >
-                  {t('description')}
+                  {t('header.description')}
                 </CardDescription>
               </div>
             )}
@@ -257,7 +258,7 @@ function UserMFAMgmtView({
                       )}
                       aria-disabled={!isEnabledFactor}
                       tabIndex={0}
-                      aria-label={t(`${factorType}.title`)}
+                      aria-label={t(`factors.${factorType}.title`)}
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -267,7 +268,7 @@ function UserMFAMgmtView({
                             )}
                             id={`factor-title-${factorType}`}
                           >
-                            {t(`${factorType}.title`)}
+                            {t(`factors.${factorType}.title`)}
                           </span>
 
                           {hasActiveFactors && (
@@ -275,9 +276,9 @@ function UserMFAMgmtView({
                               variant="success"
                               size="sm"
                               className="shrink-0"
-                              aria-label={t('enabled')}
+                              aria-label={t('factors.meta.enabled')}
                             >
-                              {t('enabled')}
+                              {t('factors.meta.enabled')}
                             </Badge>
                           )}
                         </div>
@@ -289,10 +290,10 @@ function UserMFAMgmtView({
                             className="text-sm w-full sm:w-auto shrink-0"
                             onClick={() => onEnrollFactor(factorType)}
                             disabled={disableEnroll || !isEnabledFactor}
-                            aria-label={t(`${factorType}.button-text`)}
+                            aria-label={t(`factors.${factorType}.button_text`)}
                             aria-describedby={`factor-title-${factorType}`}
                           >
-                            {t(`${factorType}.button-text`)}
+                            {t(`factors.${factorType}.button_text`)}
                           </Button>
                         )}
                       </div>
@@ -304,7 +305,7 @@ function UserMFAMgmtView({
                           )}
                           id={`factor-desc-${factorType}`}
                         >
-                          {t(`${factorType}.description`)}
+                          {t(`factors.${factorType}.description`)}
                         </p>
                       )}
 
@@ -330,7 +331,7 @@ function UserMFAMgmtView({
         )}
       </Card>
       {enrollFactor && (
-        <UserMFASetupForm
+        <EnrollFactorModal
           open={isEnrollDialogOpen}
           onClose={onCloseEnrollDialog}
           factorType={enrollFactor}
@@ -341,18 +342,19 @@ function UserMFAMgmtView({
           isEnrolling={isEnrolling}
           isConfirming={isConfirming}
           onSubmitContact={onSubmitContact}
+          onResendCode={onResendCode}
           onConfirmOtp={onConfirmOtp}
-          onContinueQR={onContinueQR}
+          onContinueQRScan={onContinueQRScan}
           onConfirmRecoveryCode={onConfirmRecoveryCode}
-          onAdvanceToQR={onAdvanceToQR}
+          onStartQREnrollment={onStartQREnrollment}
           schema={schema}
           styling={styling}
           customMessages={customMessages}
         />
       )}
-      <DeleteFactorConfirmation
+      <FactorDeleteModal
         open={isDeleteDialogOpen}
-        onOpenChange={(open) => !open && !isDeleting && onCancelDelete()}
+        onOpenChange={(open) => !open && onCancelDelete()}
         factorToDelete={factorToDelete}
         isDeletingFactor={isDeleting}
         onConfirm={onConfirmDelete}
@@ -364,4 +366,4 @@ function UserMFAMgmtView({
   );
 }
 
-export { UserMFAMgmt, UserMFAMgmtView };
+export { UserMFAManagement, UserMFAManagementView };

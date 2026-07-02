@@ -941,55 +941,36 @@
       "provisioning_attributes_sync_success": "プロビジョニングマッピングが更新されました。"
     }
   },
-  "mfa": {
-    "title": "多要素認証方法",
-    "description": "あなたのアカウントと身元をさらに保護します",
+  "user_mfa_management": {
+    "header": {
+      "title": "多要素認証方法",
+      "description": "あなたのアカウントと身元をさらに保護します"
+    },
     "no_active_mfa": "登録されている多要素認証はありません。",
-    "component_error_title": "多要素認証コンポーネントの読み込みエラー",
-    "component_error_description": "多要素認証方法の読み込みに問題が発生しました。ページを再読み込みして、もう一度お試しください",
-    "loading": "読み込み中...",
-    "delete": "削除",
-    "enroll": "登録",
-    "submit": "送信",
-    "update": "更新",
-    "remove": "削除",
-    "enrolling": "登録中...",
-    "enrolled": "登録済み",
-    "enabled": "有効",
-    "enrollment": "登録",
-    "confirmation": "確認",
-    "remove_factor": "登録を正常に削除しました。",
-    "enroll_factor": "正常に登録されました。",
-    "enroll_totp_mfa": "ワンタイムパスワードの登録",
-    "delete_factor": "${factorName}の認証要素を削除",
-    "delete_mfa_title": "既存の認証システムを削除",
-    "delete_mfa_phone_consent": "この電話番号をSMS MFAから削除してもよろしいですか？",
-    "delete_mfa_email_consent": "このEメールアドレスを削除してもよろしいですか？",
-    "delete_mfa_totp_consent": "この認証アプリを削除しますか？",
-    "delete_mfa_push-notification_consent": "プッシュ通知による認証を削除しますか？",
-    "delete_mfa_recovery-code_consent": "このリカバリーコードを削除しますか？",
-    "cancel": "キャンセル",
-    "close": "閉じる",
-    "next": "次へ",
-    "back": "戻る",
-    "yes-remove": "はい、削除します",
-    "app-store": "App Store",
-    "google-play": "Google Play",
-    "ok": "はい",
-    "confirm": "確認",
-    "continue": "続行",
-    "confirm_delete": "削除",
-    "deleting": "削除中...",
+    "loading_text": "読み込み中...",
+    "enrolling_text": "登録中...",
+    "remove_factor_dialog": {
+      "title": "既存の認証システムを削除",
+      "consent": {
+        "phone": "この電話番号をSMS MFAから削除してもよろしいですか？",
+        "email": "このEメールアドレスを削除してもよろしいですか？",
+        "totp": "この認証アプリを削除しますか？",
+        "push-notification": "プッシュ通知による認証を削除しますか？",
+        "recovery-code": "このリカバリーコードを削除しますか？"
+      }
+    },
+    "actions": {
+      "remove_button_label": "削除",
+      "cancel_button_label": "キャンセル",
+      "confirm_button_label": "確認",
+      "continue_button_label": "続行",
+      "submit_button_label": "送信",
+      "back_button_label": "戻る",
+      "deleting_button_text": "削除中...",
+      "verify_button_label": "Verify",
+      "menu_aria_label": "アクション"
+    },
     "errors": {
-      "factors_loading_error": "多要素認証の読み込みエラー！",
-      "unknown_error": "不明なエラーが発生しました",
-      "delete_factor": "認証器の削除に失敗しました",
-      "failed": "失敗しました: ${message}",
-      "phone_number_required": "SMS登録には電話番号が必要です。",
-      "email_required": "メール登録にはメールアドレスが必要です。",
-      "invalid_email": "無効なメールアドレス",
-      "invalid_phone_number": "無効な電話番号",
-      "unsupported_mfa_type": "未対応のMFAタイプです: ${factorName}",
       "push-notification": {
         "too_many_entities": "このユーザーのプッシュ通知エンティティの数には上限があります。",
         "unsupported_challenge_type": "Auth0 Verifier がテナントで無効になっています。ダッシュボードの Guardian MFA セクションで「プッシュ通知」をオンにすると有効にできます。",
@@ -1008,7 +989,7 @@
         "bad_gateway": "電話番号が無効です。",
         "too_many_entities": "このユーザーのSMSエンティティの数には上限があります。",
         "invalid_phone_number": "無効な電話番号",
-        "invalid_code": "無効なコード"
+        "invalid_code": "Invalid Otp Code"
       },
       "email": {
         "expired_token": "確認コードの有効期限が切れました",
@@ -1018,70 +999,118 @@
         "invalid_code": "無効なコード"
       }
     },
-    "phone": {
-      "title": "電話メッセージ ",
-      "description": "電話番号が追加されていません。",
-      "button-text": "SMS用電話番号を追加"
-    },
-    "push-notification": {
-      "title": "Auth0 Guardian プッシュ通知",
-      "description": "プッシュ認証が追加されていません。",
-      "button-text": "プッシュ認証を追加"
-    },
-    "totp": {
-      "title": "ワンタイムパスワード",
-      "description": "認証システムが追加されていません。",
-      "button-text": "認証アプリを追加"
-    },
-    "email": {
-      "title": "メール",
-      "description": "メールアドレスが追加されていません。",
-      "button-text": "メールアドレスを追加"
-    },
-    "duo": {
-      "title": "Duoセキュリティ",
-      "description": "多要素認証にDuoアカウントを使用します。"
-    },
-    "webauthn-roaming": {
-      "title": "FIDOセキュリティキーによるWebAuthn",
-      "description": "二要素認証としてWebAuthn対応のセキュリティキー（FIDO2など）を使用します。",
-      "button-text": "FIDO セキュリティキーでWebAuthnを追加"
-    },
-    "webauthn-platform": {
-      "title": "デバイス生体認証によるWebAuthn",
-      "description": "二要素認証としてWebAuthn対応のデバイス生体認証を使用します。",
-      "button-text": "FIDOデバイス生体認証でWebAuthnを追加"
-    },
-    "recovery-code": {
-      "title": "リカバリーコード",
-      "name": "リカバリーコード ${index}",
-      "description": "アカウントへのアクセスを回復するために固有のリカバリーコードを使用します。",
-      "button-text": "リカバリーコードを再生成"
-    },
-    "enrollment_form": {
-      "email_address": "メールアドレス",
-      "phone_number": "電話番号 (SMS)",
-      "send_code": "コードを送信",
-      "sending": "送信中...",
-      "enroll_title": "本人確認",
-      "enroll_email_placeholder": "メールアドレスを入力",
-      "enroll_email_description": "認証コードを受信するためにあなたのメールアドレスを入力してください",
-      "enroll_sms_placeholder": "電話番号を入力",
-      "enroll_sms_description": "認証コードを受信するためにあなたの電話番号を入力してください",
-      "show_auth0_guardian_title": "このQRコードをAuth0 Guardianアプリでスキャンするか、URLをコピーして、この認証方法を登録してください",
-      "recovery_code_description": "このリカバリーコードをコピーして、安全な場所に保管してください。デバイスなしでログインする必要がある場合に使用します。",
-      "show_otp": {
-        "title": "この QR コードを Authenticator アプリでスキャンして、この認証方法を登録するか、コードをコピーしてください。",
-        "save_recovery": "これらのリカバリーコードを保存してください！",
-        "enter_code": "認証アプリのコードを入力してください",
-        "one_time_passcode": "ワンタイムパスコード",
-        "verify_code": "コードを確認",
-        "copy_as_code": "コードとしてコピー",
-        "verifying": "確認中...",
-        "enter_verify_code": "${verifier}に送信された6桁のコードを入力してください",
-        "enter_opt_code": "認証アプリのコードを入力してください",
-        "install_guardian_description": "続行するには、お使いのモバイルデバイスからアプリストア経由でAuth0 Guardianアプリをインストールしてください。"
+    "factors": {
+      "meta": {
+        "enabled": "有効",
+        "created_at": "作成日: ${date}",
+        "last_used": "最終使用: ${date}"
+      },
+      "phone": {
+        "title": "電話メッセージ ",
+        "description": "電話番号が追加されていません。",
+        "button_text": "SMS用電話番号を追加"
+      },
+      "push-notification": {
+        "title": "Auth0 Guardian プッシュ通知",
+        "description": "プッシュ認証が追加されていません。",
+        "button_text": "プッシュ認証を追加"
+      },
+      "totp": {
+        "title": "ワンタイムパスワード",
+        "description": "認証システムが追加されていません。",
+        "button_text": "認証アプリを追加",
+        "name": "TOTP (One-time code)"
+      },
+      "email": {
+        "title": "メール",
+        "description": "メールアドレスが追加されていません。",
+        "button_text": "メールアドレスを追加"
+      },
+      "duo": {
+        "title": "Duoセキュリティ",
+        "description": "多要素認証にDuoアカウントを使用します。"
+      },
+      "webauthn-roaming": {
+        "title": "FIDOセキュリティキーによるWebAuthn",
+        "description": "二要素認証としてWebAuthn対応のセキュリティキー（FIDO2など）を使用します。",
+        "button_text": "FIDO セキュリティキーでWebAuthnを追加"
+      },
+      "webauthn-platform": {
+        "title": "デバイス生体認証によるWebAuthn",
+        "description": "二要素認証としてWebAuthn対応のデバイス生体認証を使用します。",
+        "button_text": "FIDOデバイス生体認証でWebAuthnを追加"
+      },
+      "recovery-code": {
+        "title": "リカバリーコード",
+        "name": "リカバリーコード ${index}",
+        "description": "アカウントへのアクセスを回復するために固有のリカバリーコードを使用します。",
+        "button_text": "リカバリーコードを再生成"
       }
+    },
+    "enrollment": {
+      "phone": {
+        "title": "SMS OTP用の電話番号を入力してください",
+        "label": "電話番号",
+        "description": "この番号に確認コードをお送りします。",
+        "placeholder": "電話番号を入力",
+        "invalid": "無効な電話番号"
+      },
+      "email": {
+        "title": "メールOTP用のメールアドレスを入力してください",
+        "label": "メールアドレス",
+        "description": "認証コードを受信するためにあなたのメールアドレスを入力してください",
+        "placeholder": "メールアドレスを入力",
+        "invalid": "無効なメールアドレス"
+      },
+      "totp": {
+        "scan_title": "AuthenticatorアプリでQRコードをスキャンしてください",
+        "scan_description": "このコードをAuthenticatorでスキャンしてセットアップを完了してください。スキャンできない場合は、以下にコードを手動で入力してください。",
+        "qr_alt": "登録QRコード"
+      },
+      "push": {
+        "install_title": "Authenticatorを設定する",
+        "install_description": "続行するには、お使いのモバイルデバイスからアプリストア経由でAuth0 Guardianアプリをインストールしてください。",
+        "app_store": "App Store",
+        "google_play": "Google Play",
+        "scan_title": "Guardianアプリでこのコードをスキャンしてください",
+        "scan_description": "このQRコードをAuth0 Guardianアプリでスキャンするか、URLをコピーして、この認証方法を登録してください",
+        "qr_alt": "登録QRコード",
+        "download_hint": "Auth0 Guardianアプリは",
+        "download_hint_apple": "Apple App Store",
+        "download_hint_google": "Google Play Store"
+      },
+      "recovery_code": {
+        "title": "リカバリーコードを生成する",
+        "description": "このリカバリーコードをコピーして、安全な場所に保管してください。デバイスなしでログインする必要がある場合に使用します。",
+        "confirmed": "これらのコードを安全に記録しました"
+      },
+      "verify": {
+        "verifying_text": "確認中...",
+        "resend_prompt": "コードを受け取っていませんか？",
+        "resend": "再送信",
+        "totp": {
+          "description": "認証アプリに表示されているワンタイムコードを入力してください。",
+          "title": "認証アプリを確認してください"
+        },
+        "phone": {
+          "description": "今${name}に送信したワンタイムコードを入力してください。",
+          "title": "電話番号を確認してください"
+        },
+        "email": {
+          "description": "今${name}に送信したワンタイムコードを入力してください。",
+          "title": "メールアドレスを確認してください"
+        }
+      }
+    },
+    "component_error": {
+      "title": "Error loading Multi-Factor Authentication component",
+      "description": "We're having trouble loading your multi-factor authentication methods.\nPlease refresh the page and try again"
+    },
+    "notifications": {
+      "factor_enroll_success": "Factor enrolled successfully.",
+      "factor_remove_success": "Factor removed successfully.",
+      "fetch_factors_error": "多要素認証の読み込みエラー！",
+      "factor_delete_error": "認証器の削除に失敗しました"
     }
   },
   "member_management": {

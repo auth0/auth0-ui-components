@@ -81,7 +81,7 @@ export default function Layout({ children }: LayoutProps) {
       color: 'text-blue-500',
       items: [
         { name: 'Overview', href: '/my-account' },
-        { name: 'UserMFAMgmt', href: '/my-account/user-mfa-management' },
+        { name: 'UserMFAManagement', href: '/my-account/user-mfa-management' },
       ],
     },
     {

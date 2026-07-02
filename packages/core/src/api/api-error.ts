@@ -55,60 +55,51 @@ export function hasApiErrorBody(
 }
 
 /**
- * Normalizes an unknown error into a standard JavaScript Error instance.
+ * Normalizes an unknown thrown value into a standard Error.
  * @internal
  *
- * This function tries to extract meaningful information from API errors,
- * strings, or other unknown error shapes. You can provide a custom resolver
- * function to map API error codes to user-friendly messages.
+ * Tries to resolve a user-friendly message via `resolver` before falling back.
+ * Pass `defaultMessage` to show a UI-focused message when no code can be resolved —
+ * it replaces the raw API message so the user never sees internal error details.
  *
- * @param error - The unknown error object or value to normalize.
- * @param options - Optional settings for error normalization.
- * @param options.resolver - A function that maps error codes to user-friendly messages.
- * @param options.fallbackMessage - A default message used when the error cannot be mapped.
- * @returns A standard Error object with an appropriate message.
+ * @param error - The unknown value to normalize.
+ * @param options - Normalization options.
+ * @param options.resolver - Maps an error code to a user-facing message.
+ * @param options.defaultMessage - UI-friendly message shown when no code resolves.
+ * @returns A standard Error with an appropriate message.
  */
 export function normalizeError(
   error: unknown,
   options?: {
     resolver?: (code: string) => string | undefined | null;
-    fallbackMessage?: string;
+    defaultMessage?: string;
   },
 ): Error {
+  const { defaultMessage, resolver: resolve } = options ?? {};
+
   if (typeof error === 'string') return new Error(error);
 
   if (isApiError(error)) {
     const code = error.data?.error;
-    if (typeof code === 'string' && options?.resolver) {
-      const resolved = options.resolver(code);
-      if (resolved) return new Error(resolved);
-    }
-    return new Error(error.message ?? options?.fallbackMessage ?? 'Unknown API error');
+    const resolved = typeof code === 'string' ? resolve?.(code) : undefined;
+    return new Error(resolved ?? error.message ?? defaultMessage);
   }
 
   if (hasApiErrorBody(error)) {
-    const type = error.body?.type;
-    if (typeof type === 'string' && options?.resolver) {
-      const code = type.split('/').pop();
-      if (code) {
-        const resolved = options.resolver(code);
-        if (resolved) return new Error(resolved);
-      }
-    }
-    if (typeof error.body?.detail === 'string') {
-      if (options?.resolver) {
-        // Normalize spaces→underscores so "invalid code" (403) and "invalid_phone_number" (400) use the same key space.
-        const normalizedDetail = error.body.detail.replaceAll(' ', '_');
-        const resolved = options.resolver(normalizedDetail);
-        if (resolved) return new Error(resolved);
-      }
-      return new Error(error.body.detail);
-    }
+    const body = error.body as { error?: string; detail?: string } | undefined;
+    const resolved = [body?.error, body?.detail]
+      .filter((c): c is string => !!c)
+      .map((c) => resolve?.(c))
+      .find(Boolean);
+    const detail = body?.detail;
+    return new Error(
+      resolved ?? (detail && detail.charAt(0).toUpperCase() + detail.slice(1)) ?? defaultMessage,
+    );
   }
 
   if (error instanceof Error) return error;
 
-  return new Error(options?.fallbackMessage ?? 'An unknown error occurred');
+  return new Error(defaultMessage);
 }
 
 /**
