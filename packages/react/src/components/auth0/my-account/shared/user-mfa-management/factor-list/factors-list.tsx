@@ -114,14 +114,17 @@ export function FactorsList({
                   </span>
                   {(factor.created_at || factor.last_auth_at) && (
                     <span className="text-sm font-normal text-muted-foreground">
-                      {[
-                        factor.created_at &&
-                          t('factors.meta.created_at', { date: formatDate(factor.created_at) }),
-                        factor.last_auth_at &&
-                          t('factors.meta.last_used', { date: formatDate(factor.last_auth_at) }),
-                      ]
-                        .filter(Boolean)
-                        .join(' • ')}
+                      {factor.created_at && (
+                        <time dateTime={factor.created_at}>
+                          {t('factors.meta.created_at', { date: formatDate(factor.created_at) })}
+                        </time>
+                      )}
+                      {factor.created_at && factor.last_auth_at && ' • '}
+                      {factor.last_auth_at && (
+                        <time dateTime={factor.last_auth_at}>
+                          {t('factors.meta.last_used', { date: formatDate(factor.last_auth_at) })}
+                        </time>
+                      )}
                     </span>
                   )}
                 </div>
