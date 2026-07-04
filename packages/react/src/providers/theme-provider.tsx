@@ -49,7 +49,7 @@ export const ThemeProvider: React.FC<{
     [themeSettings],
   );
 
-  const portalClass = themeSettings?.classes?.['portal-class'];
+  const overlayRootClass = themeSettings?.classes?.['Overlay-root'];
 
   const [portalContainer, setPortalContainer] = React.useState<HTMLElement | null>(null);
 
@@ -62,7 +62,7 @@ export const ThemeProvider: React.FC<{
       <PortalContext.Provider value={portalContainer}>
         {children}
         <div
-          className={cn('auth0-universal', portalClass)}
+          className={cn('auth0-universal', overlayRootClass)}
           data-theme={theme}
           ref={setPortalContainer}
         />
