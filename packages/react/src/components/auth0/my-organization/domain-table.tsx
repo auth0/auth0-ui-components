@@ -203,7 +203,7 @@ function DomainTableView({
         className={currentStyles.classes?.['DomainTable-table']}
       />
 
-      {!isFetching && domains.length > 0 && (
+      {domains.length > 0 && (
         <div className="mt-4">
           <DataPagination
             type="checkpoint"
