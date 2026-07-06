@@ -138,17 +138,6 @@ export interface MemberRemoveFromOrganizationModalProps {
   onConfirm: (userId?: string, memberName?: string, organizationName?: string) => void;
 }
 
-export interface OrganizationMemberDetailRolesTabProps {
-  memberRoles: Role[];
-  availableRoles: Role[];
-  isLoading?: boolean;
-  removingRoleIds?: string[];
-  readOnly?: boolean;
-  customMessages?: Partial<OrganizationMemberDetailMessages>;
-  onAssignRolesClick: () => void;
-  onRemoveRoles: (roles: Role[]) => void;
-}
-
 export interface OrganizationMemberRemoveRoleModalProps {
   isOpen: boolean;
   isLoading?: boolean;
