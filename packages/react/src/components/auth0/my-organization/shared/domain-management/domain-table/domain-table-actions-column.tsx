@@ -41,7 +41,7 @@ export function DomainTableActionsColumn({
   const { t } = useTranslator('domain_management.domain_table', customMessages);
 
   const handleView = React.useCallback(() => {
-    onView(domain);
+    onConfigure(domain);
   }, [domain, onView]);
 
   const handleConfigure = React.useCallback(() => {

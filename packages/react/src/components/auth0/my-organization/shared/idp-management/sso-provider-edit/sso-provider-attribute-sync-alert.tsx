@@ -84,10 +84,7 @@ export function SsoProviderAttributeSyncAlert({
       <Dialog open={isSyncModalOpen} onOpenChange={setIsSyncModalOpen}>
         <DialogContent
           style={currentStyles.variables}
-          className={cn(
-            className,
-            currentStyles.classes?.['SsoProviderAttributeSyncAlert-dialogContent'],
-          )}
+          className={currentStyles.classes?.['SsoProviderAttributeSyncAlert-dialogContent']}
         >
           <DialogHeader>
             <DialogTitle>{t('sync_modal.title')}</DialogTitle>
