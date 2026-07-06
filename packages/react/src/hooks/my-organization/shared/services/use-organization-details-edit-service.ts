@@ -19,6 +19,7 @@ import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type { UseOrganizationDetailsEditServiceOptions } from '@/types/my-organization/organization-management/organization-details-edit-types';
 
 const EMPTY_ORGANIZATION = OrganizationDetailsFactory.create();
@@ -102,7 +103,7 @@ export function useOrganizationDetailsEditService({
   return {
     organization,
     isFetchLoading: organizationQuery.isFetching,
-    isSaveLoading: updateMutation.isPending,
+    isSaveLoading: isMutationLoading(updateMutation),
     isInitializing,
     fetchOrgDetails,
     updateOrgDetails,

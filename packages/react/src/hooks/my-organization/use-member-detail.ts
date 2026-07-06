@@ -88,7 +88,7 @@ export function useOrganizationMemberDetail(
   }, []);
 
   const handleRemoveFromOrganizationConfirm = React.useCallback(
-    (userId?: string, memberName?: string, organizationName?: string) => {
+    (userId?: string | null, memberName?: string, organizationName?: string) => {
       removeFromOrganizationMutation.mutate(
         { userId, memberName, organizationName },
         {
@@ -103,9 +103,9 @@ export function useOrganizationMemberDetail(
   );
 
   const handleAssignRolesSubmit = React.useCallback(
-    (roleIds: string[], memberRoles: Role[]) => {
+    (roleIds: string[], memberRoles: Role[], userId?: string | null) => {
       assignRolesMutation.mutate(
-        { roleIds, memberRoles },
+        { roleIds, memberRoles, userId },
         {
           onSuccess: (result) => {
             if (result?.aborted) return;

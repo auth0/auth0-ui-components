@@ -112,6 +112,7 @@ function MyPage() {
 
 - **React** >= 16.11.0
 - **React DOM** >= 16.11.0
+- **@tanstack/react-query** >= 4.0.0 (supports v4 and v5)
 - **react-hook-form** >= 7.0.0
 - **Tailwind CSS** >= 3.0.0 || >= 4.0.0 (recommended)
 - **@auth0/auth0-react** >= 2.0.0 (required for `/spa` entry point only)

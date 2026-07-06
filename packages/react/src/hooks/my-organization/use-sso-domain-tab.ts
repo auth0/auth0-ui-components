@@ -18,6 +18,7 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   UseSsoDomainTabOptions,
   UseSsoDomainTabReturn,
@@ -387,13 +388,13 @@ export function useSsoDomainTab(
   return {
     isLoading,
     domainsList,
-    isCreating: createDomainMutation.isPending,
+    isCreating: isMutationLoading(createDomainMutation),
     selectedDomain,
     showVerifyModal,
     showDeleteModal,
-    isVerifying: verifyDomainMutation.isPending,
+    isVerifying: isMutationLoading(verifyDomainMutation),
     verifyError,
-    isDeleting: deleteDomainMutation.isPending,
+    isDeleting: isMutationLoading(deleteDomainMutation),
     showCreateModal,
     handleCreate,
     handleCloseVerifyModal,

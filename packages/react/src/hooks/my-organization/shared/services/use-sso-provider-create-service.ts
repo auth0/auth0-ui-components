@@ -20,6 +20,7 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   UseSsoProviderCreateOptions,
   UseSsoProviderCreateServiceReturn,
@@ -144,6 +145,6 @@ export function useSsoProviderCreateService({
 
   return {
     createProvider,
-    isCreating: createProviderMutation.isPending,
+    isCreating: isMutationLoading(createProviderMutation),
   };
 }
