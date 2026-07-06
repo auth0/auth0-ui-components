@@ -759,6 +759,113 @@ describe('useDomainTableService', () => {
     });
   });
 
+  describe('Pagination', () => {
+    it('should pass pagination params to API call', async () => {
+      const optionsWithPagination = {
+        ...mockOptions,
+        paginationParams: {
+          pageSize: 25,
+          fromToken: 'cursor-token-123',
+        },
+      };
+
+      const { result } = renderUseDomainTable(optionsWithPagination);
+
+      await waitFor(() => {
+        expect(result.current.isFetching).toBe(false);
+      });
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
+      ).toHaveBeenCalledWith({
+        take: 25,
+        from: 'cursor-token-123',
+      });
+    });
+
+    it('should return nextToken from API response', async () => {
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.list = vi
+        .fn()
+        .mockResolvedValue({
+          response: {
+            organization_domains: [createMockDomain()],
+            next: 'next-cursor-token',
+          },
+        });
+
+      const { result } = renderUseDomainTable(mockOptions);
+
+      await waitFor(() => {
+        expect(result.current.isFetching).toBe(false);
+      });
+
+      expect(result.current.nextToken).toBe('next-cursor-token');
+    });
+
+    it('should return null nextToken when no more pages', async () => {
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.list = vi
+        .fn()
+        .mockResolvedValue({
+          response: {
+            organization_domains: [createMockDomain()],
+            next: null,
+          },
+        });
+
+      const { result } = renderUseDomainTable(mockOptions);
+
+      await waitFor(() => {
+        expect(result.current.isFetching).toBe(false);
+      });
+
+      expect(result.current.nextToken).toBeNull();
+    });
+
+    it('should use correct query key with pagination params', async () => {
+      const optionsWithPagination = {
+        ...mockOptions,
+        paginationParams: {
+          pageSize: 50,
+          fromToken: 'page-2-token',
+        },
+      };
+
+      const { result, queryClient } = renderUseDomainTable(optionsWithPagination);
+
+      await waitFor(() => {
+        expect(result.current.isFetching).toBe(false);
+      });
+
+      const queryState = queryClient.getQueryState([
+        'domains',
+        'list',
+        { pageSize: 50, fromToken: 'page-2-token' },
+      ]);
+
+      expect(queryState).toBeDefined();
+    });
+
+    it('should handle undefined pagination params', async () => {
+      const optionsWithoutPagination = {
+        ...mockOptions,
+        paginationParams: undefined,
+      };
+
+      const { result } = renderUseDomainTable(optionsWithoutPagination);
+
+      await waitFor(() => {
+        expect(result.current.isFetching).toBe(false);
+      });
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
+      ).toHaveBeenCalledWith({
+        take: undefined,
+        from: undefined,
+      });
+    });
+  });
+
   describe('Edge Cases and Integration', () => {
     it('should handle provider with undefined id in onAssociateToProvider', async () => {
       const mockDomain = createMockDomain();

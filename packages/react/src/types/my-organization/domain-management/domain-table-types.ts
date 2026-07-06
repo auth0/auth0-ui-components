@@ -30,6 +30,14 @@ export interface DomainTableClasses {
   'DomainTable-deleteModal'?: string;
 }
 
+/** Domain table pagination state. */
+export interface DomainTablePaginationState {
+  pageSize: number;
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
 /** DomainTable translation messages. */
 export interface DomainTableMainMessages extends DomainTableMessages {
   create: DomainCreateMessages;
@@ -67,6 +75,12 @@ export interface DomainTableActionsColumnProps {
   onDelete: (domain: Domain) => void;
 }
 
+/** Parameters for domain pagination API calls. */
+export interface DomainPaginationParams {
+  pageSize: number;
+  fromToken?: string;
+}
+
 /** Options for domain table hooks (shared by service and public hook). */
 export interface UseDomainTableOptions {
   createAction?: DomainTableProps['createAction'];
@@ -78,12 +92,15 @@ export interface UseDomainTableOptions {
 }
 
 /** @internal */
-export type UseDomainTableServiceOptions = UseDomainTableOptions;
+export interface UseDomainTableServiceOptions extends UseDomainTableOptions {
+  paginationParams?: DomainPaginationParams;
+}
 
 /** Return type for the internal domain table service hook. */
 export interface UseDomainTableServiceReturn {
   domains: Domain[];
   providers: IdentityProviderAssociatedWithDomain[];
+  nextToken: string | null;
   isFetching: boolean;
   isLoadingProviders: boolean;
   isCreating: boolean;
@@ -110,6 +127,9 @@ export interface UseDomainTableReturn {
   isDeleting: boolean;
   isVerifying: boolean;
   isLoadingProviders: boolean;
+
+  // Pagination
+  pagination: DomainTablePaginationState;
 
   // Modal state
   showCreateModal: boolean;
@@ -139,6 +159,9 @@ export interface UseDomainTableReturn {
   handleConfigureClick: (domain: Domain) => void;
   handleVerifyClick: (domain: Domain) => Promise<void>;
   handleDeleteClick: (domain: Domain) => void;
+  handleNextPage: () => void;
+  handlePreviousPage: () => void;
+  handlePageSizeChange: (pageSize: number) => void;
 }
 
 /** Props for the DomainTableView presentational component. @internal */
