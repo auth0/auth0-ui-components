@@ -204,7 +204,7 @@ describe('DomainTableActionsColumn', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('should call onView when View menu item is clicked', async () => {
+    it('should call onConfigure when View menu item is clicked', async () => {
       const user = userEvent.setup();
       const onConfigure = vi.fn();
       const onView = vi.fn();
@@ -221,13 +221,40 @@ describe('DomainTableActionsColumn', () => {
 
       const viewMenuItem = screen.getByRole('menuitem', { name: 'table.actions.view_button_text' });
 
-      // When View menu item is clicked, should call onView with the pending domain
+      // When View menu item is clicked, should call onConfigure (not onView)
       await user.click(viewMenuItem);
 
-      expect(onView).toHaveBeenCalledTimes(1);
-      expect(onView).toHaveBeenCalledWith(pendingDomain);
-      // The View action must not trigger the unrelated Configure callback
-      expect(onConfigure).not.toHaveBeenCalled();
+      // When View action is triggered, should call onConfigure with pending domain
+      expect(onConfigure).toHaveBeenCalledTimes(1);
+      expect(onConfigure).toHaveBeenCalledWith(pendingDomain);
+      // When View uses onConfigure, onView should not be called
+      expect(onView).not.toHaveBeenCalled();
+    });
+
+    it('should not call onView callback as View action uses onConfigure', async () => {
+      const user = userEvent.setup();
+      const onConfigure = vi.fn();
+      const onView = vi.fn();
+      const pendingDomain = createMockDomain({ status: 'pending' });
+      const props = createMockDomainTableActionsColumnProps({
+        domain: pendingDomain,
+        onConfigure,
+        onView,
+      });
+      renderWithProviders(<DomainTableActionsColumn {...props} />);
+
+      const trigger = screen.getByRole('button');
+      await user.click(trigger);
+
+      const viewMenuItem = screen.getByRole('menuitem', { name: 'table.actions.view_button_text' });
+
+      // When View menu item is clicked, should use onConfigure instead of onView
+      await user.click(viewMenuItem);
+
+      // When View action is executed, onView should never be called since View uses onConfigure
+      expect(onView).not.toHaveBeenCalled();
+      // When View action is executed, onConfigure should be called with the domain
+      expect(onConfigure).toHaveBeenCalledWith(pendingDomain);
     });
 
     it('should call onVerify when Verify menu item is clicked', async () => {
@@ -410,7 +437,6 @@ describe('DomainTableActionsColumn', () => {
     it('should call correct callback functions', async () => {
       const user = userEvent.setup();
       const onConfigure = vi.fn();
-      const onView = vi.fn();
       const onVerify = vi.fn();
       const onDelete = vi.fn();
 
@@ -419,7 +445,6 @@ describe('DomainTableActionsColumn', () => {
       const pendingProps = createMockDomainTableActionsColumnProps({
         domain: pendingDomain,
         onConfigure,
-        onView,
         onVerify,
         onDelete,
       });
@@ -431,7 +456,7 @@ describe('DomainTableActionsColumn', () => {
 
       const viewMenuItem = screen.getByRole('menuitem', { name: 'table.actions.view_button_text' });
       await user.click(viewMenuItem);
-      expect(onView).toHaveBeenCalledWith(pendingDomain);
+      expect(onConfigure).toHaveBeenCalledWith(pendingDomain);
 
       await user.click(trigger); // Reopen the menu
       const verifyMenuItem = screen.getByRole('menuitem', {
