@@ -5,6 +5,23 @@
     "copy_failed": "Échec de la copie",
     "last_updated": "Dernière mise à jour",
     "refresh": "Rafraîchir",
+    "time": {
+      "never": "Jamais",
+      "just_now": "À l'instant",
+      "ago": "il y a",
+      "minute": "minute",
+      "minutes": "minutes",
+      "hour": "heure",
+      "hours": "heures",
+      "day": "jour",
+      "days": "jours",
+      "week": "semaine",
+      "weeks": "semaines",
+      "month": "mois",
+      "months": "mois",
+      "year": "an",
+      "years": "ans"
+    },
     "data_table": {
       "select_all": "Sélectionner toutes les lignes",
       "select_row": "Sélectionner la ligne"

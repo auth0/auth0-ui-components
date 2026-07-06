@@ -66,5 +66,3 @@ export type {
 } from './services/mfa-step-up/mfa-step-up-api-types';
 
 export * from './assets/icons';
-
-export * from './services/common';

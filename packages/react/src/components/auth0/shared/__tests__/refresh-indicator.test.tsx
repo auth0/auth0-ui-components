@@ -10,7 +10,9 @@ const TRANSLATIONS: Record<string, string> = {
 
 vi.mock('@/hooks/shared/use-translator', () => ({
   useTranslator: () => ({
-    t: (key: string) => TRANSLATIONS[key] ?? key,
+    // Mirror the real translator signature: (key, vars?, fallback?).
+    t: (key: string, _vars?: Record<string, unknown>, fallback?: string) =>
+      TRANSLATIONS[key] ?? fallback ?? key,
   }),
 }));
 
@@ -48,16 +50,16 @@ describe('RefreshIndicator', () => {
   });
 
   it('renders a relative "last updated" label', () => {
-    const lastUpdatedAt = new Date('2026-06-30T11:59:30Z'); // 30s ago
+    const lastUpdatedAt = new Date('2026-06-30T11:59:30Z'); // 30s ago -> under a minute
     render(<RefreshIndicator isStale lastUpdatedAt={lastUpdatedAt} onRefresh={vi.fn()} />);
     expect(screen.getByText('Last updated', { exact: false })).toBeInTheDocument();
-    expect(screen.getByText(/30 sec ago/i)).toBeInTheDocument();
+    expect(screen.getByText(/just now/i)).toBeInTheDocument();
   });
 
-  it('keeps the seconds when a minute has already elapsed', () => {
+  it('renders a minute-granular label once a minute has elapsed', () => {
     const lastUpdatedAt = new Date('2026-06-30T11:58:30Z'); // 1 min 30 sec ago
     render(<RefreshIndicator isStale lastUpdatedAt={lastUpdatedAt} onRefresh={vi.fn()} />);
-    expect(screen.getByText(/1 min 30 sec ago/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 minute 30 sec ago/i)).toBeInTheDocument();
   });
 
   it('omits the timestamp label when lastUpdatedAt is missing', () => {
@@ -75,18 +77,18 @@ describe('RefreshIndicator', () => {
     render(
       <RefreshIndicator
         isStale
-        lastUpdatedAt={new Date('2026-06-30T11:59:55Z')} // 5s ago
+        lastUpdatedAt={new Date('2026-06-30T11:59:10Z')} // 50s ago -> under a minute
         tickIntervalMs={1000}
         onRefresh={vi.fn()}
       />,
     );
-    expect(screen.getByText(/5 sec ago/i)).toBeInTheDocument();
+    expect(screen.getByText(/just now/i)).toBeInTheDocument();
 
-    // Advance real elapsed time and fire the tick so the label recomputes.
+    // Advance elapsed time past the minute boundary and fire the tick so the label recomputes.
     act(() => {
-      vi.advanceTimersByTime(10_000);
+      vi.advanceTimersByTime(15_000); // now 1 min 5 sec ago
     });
-    expect(screen.getByText(/15 sec ago/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 minute 5 sec ago/i)).toBeInTheDocument();
   });
 
   it('exposes a status role for assistive tech', () => {

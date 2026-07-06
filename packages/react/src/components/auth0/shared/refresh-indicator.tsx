@@ -4,16 +4,14 @@
  * @internal
  */
 
-import {
-  formatRelativeTime,
-  DEFAULT_REFRESH_INDICATOR_TICK_MS,
-} from '@auth0/universal-components-core';
 import { RefreshCw } from 'lucide-react';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { DEFAULT_REFRESH_INDICATOR_TICK_MS } from '@/lib/constants/common-constants';
 import { cn } from '@/lib/utils';
+import { getRelativeTimeLabel } from '@/lib/utils/shared/helper-utils';
 
 export interface RefreshIndicatorProps {
   lastUpdatedAt?: Date | number | string | null;
@@ -62,7 +60,7 @@ export function RefreshIndicator({
         <span aria-live="off">
           {t('last_updated')}
           {': '}
-          {formatRelativeTime(timestampMs, Date.now())}
+          {getRelativeTimeLabel(timestampMs, t)}
         </span>
       )}
       <Button type="button" variant="outline" size="default" onClick={onRefresh}>
