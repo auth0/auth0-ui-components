@@ -142,6 +142,12 @@ export interface UseOrganizationMemberManagementResult {
   isInitialLoading: boolean;
   isFetchingInvitations: boolean;
   isFetchingMembers: boolean;
+  isMembersStale: boolean;
+  isInvitationsStale: boolean;
+  membersUpdatedAt: number;
+  invitationsUpdatedAt: number;
+  refetchMembers: MemberManagementServiceResult['membersQuery']['refetch'];
+  refetchInvitations: MemberManagementServiceResult['invitationsQuery']['refetch'];
   isFetchingAvailableRoles: boolean;
   isCreatingInvitation: boolean;
   isRevokingInvitation: boolean;
