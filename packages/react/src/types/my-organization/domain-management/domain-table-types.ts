@@ -17,9 +17,13 @@ import type {
   CreateOrganizationDomainRequestContent,
   IdentityProviderAssociatedWithDomain,
 } from '@auth0/universal-components-core';
+import type { UseQueryResult } from '@tanstack/react-query';
 import type React from 'react';
 
 export type { Domain };
+
+/** Refetch handler for the domains query. */
+export type RefetchDomains = UseQueryResult<Domain[]>['refetch'];
 
 /** CSS classes for DomainTable. */
 export interface DomainTableClasses {
@@ -85,10 +89,14 @@ export interface UseDomainTableServiceReturn {
   domains: Domain[];
   providers: IdentityProviderAssociatedWithDomain[];
   isFetching: boolean;
+  isRefetchingDomains: boolean;
+  isDomainsStale: boolean;
+  domainsUpdatedAt: number;
   isLoadingProviders: boolean;
   isCreating: boolean;
   isDeleting: boolean;
   isVerifying: boolean;
+  refetchDomains: RefetchDomains;
   fetchProviders: (domain: Domain) => Promise<void>;
   fetchDomains: () => Promise<void>;
   onCreateDomain: (data: CreateOrganizationDomainRequestContent) => Promise<Domain>;
@@ -106,10 +114,16 @@ export interface UseDomainTableReturn {
 
   // Loading states
   isFetching: boolean;
+  isRefetchingDomains: boolean;
+  isDomainsStale: boolean;
+  domainsUpdatedAt: number;
   isCreating: boolean;
   isDeleting: boolean;
   isVerifying: boolean;
   isLoadingProviders: boolean;
+
+  // Refresh
+  refetchDomains: RefetchDomains;
 
   // Modal state
   showCreateModal: boolean;

@@ -37,10 +37,14 @@ export function useDomainTable({
     domains,
     providers,
     isFetching,
+    isRefetchingDomains,
+    isDomainsStale,
+    domainsUpdatedAt,
     isCreating,
     isDeleting,
     isVerifying,
     isLoadingProviders,
+    refetchDomains,
     fetchProviders,
     onCreateDomain,
     onVerifyDomain,
@@ -241,10 +245,16 @@ export function useDomainTable({
 
     // Loading states
     isFetching,
+    isRefetchingDomains,
+    isDomainsStale,
+    domainsUpdatedAt,
     isCreating,
     isDeleting,
     isVerifying,
     isLoadingProviders,
+
+    // Refresh
+    refetchDomains,
 
     // Modal state
     showCreateModal,
