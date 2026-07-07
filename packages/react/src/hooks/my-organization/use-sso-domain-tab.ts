@@ -436,6 +436,10 @@ export function useSsoDomainTab(
 
   return {
     isLoading,
+    isRefetchingDomains: domainsQuery.isFetching,
+    isDomainsStale: domainsQuery.isStale,
+    domainsUpdatedAt: domainsQuery.dataUpdatedAt,
+    refetchDomains: domainsQuery.refetch,
     domainsList,
     isCreating: isMutationLoading(createDomainMutation),
     selectedDomain,

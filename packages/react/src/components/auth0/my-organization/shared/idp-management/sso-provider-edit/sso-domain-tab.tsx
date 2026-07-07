@@ -16,6 +16,7 @@ import { SsoDomainTabActionsColumn } from '@/components/auth0/my-organization/sh
 import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Header } from '@/components/auth0/shared/header';
+import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
 import { Badge } from '@/components/ui/badge';
 import { useSsoDomainTab } from '@/hooks/my-organization/use-sso-domain-tab';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -71,6 +72,10 @@ export function SsoDomainTab({
     handleVerify,
     handleDeleteClick,
     isLoading,
+    isRefetchingDomains,
+    isDomainsStale,
+    domainsUpdatedAt,
+    refetchDomains,
     isDeleting,
     setShowDeleteModal,
     handleDelete,
@@ -150,6 +155,15 @@ export function SsoDomainTab({
           ]}
         />
       </div>
+      <div className="flex items-center justify-end">
+        <RefreshIndicator
+          isStale={isDomainsStale}
+          isFetching={isRefetchingDomains}
+          lastUpdatedAt={domainsUpdatedAt}
+          onRefresh={refetchDomains}
+        />
+      </div>
+
       <DataTable
         columns={columns}
         data={domainsList}
