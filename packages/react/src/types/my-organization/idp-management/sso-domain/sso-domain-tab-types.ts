@@ -11,6 +11,10 @@ import type {
   SharedComponentProps,
   SsoDomainTabMessages,
 } from '@auth0/universal-components-core';
+import type { UseQueryResult } from '@tanstack/react-query';
+
+/** Refetch handler for the SSO domains query. */
+export type RefetchSsoDomains = UseQueryResult<Domain[]>['refetch'];
 
 /** SSO domains tab edit action props. */
 export interface SsoDomainsTabEditProps {
@@ -70,6 +74,10 @@ export interface UseSsoDomainTabOptions extends SharedComponentProps {
 export interface UseSsoDomainTabReturn {
   domainsList: Domain[];
   isLoading: boolean;
+  isRefetchingDomains: boolean;
+  isDomainsStale: boolean;
+  domainsUpdatedAt: number;
+  refetchDomains: RefetchSsoDomains;
   showCreateModal: boolean;
   isCreating: boolean;
   selectedDomain: Domain | null;
