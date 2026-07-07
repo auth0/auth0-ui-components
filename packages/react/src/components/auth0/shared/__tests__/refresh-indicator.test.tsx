@@ -10,9 +10,11 @@ const TRANSLATIONS: Record<string, string> = {
 
 vi.mock('@/hooks/shared/use-translator', () => ({
   useTranslator: () => ({
-    // Mirror the real translator signature: (key, vars?, fallback?).
-    t: (key: string, _vars?: Record<string, unknown>, fallback?: string) =>
-      TRANSLATIONS[key] ?? fallback ?? key,
+    t: (key: string, vars?: Record<string, unknown>, fallback?: string) => {
+      const template = TRANSLATIONS[key] ?? fallback ?? key;
+      if (!vars) return template;
+      return template.replace(/\$\{(\w+)\}/g, (_, name) => String(vars[name] ?? ''));
+    },
   }),
 }));
 

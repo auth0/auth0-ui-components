@@ -8,7 +8,9 @@
     "time": {
       "never": "Never",
       "just_now": "Just now",
-      "ago": "ago",
+      "ago_template": "${value} ago",
+      "second": "second",
+      "seconds": "seconds",
       "minute": "minute",
       "minutes": "minutes",
       "hour": "hour",

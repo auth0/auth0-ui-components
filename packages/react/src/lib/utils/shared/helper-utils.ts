@@ -8,7 +8,6 @@ import type { EnhancedTranslationFunction } from '@auth0/universal-components-co
  */
 export function getRelativeTimeLabel(fromTime: number, t: EnhancedTranslationFunction): string {
   const never = t('time.never', undefined, 'Never');
-  const ago = t('time.ago', undefined, 'ago');
   const justNow = t('time.just_now', undefined, 'Just now');
 
   if (!fromTime || Number.isNaN(fromTime)) {
@@ -35,9 +34,10 @@ export function getRelativeTimeLabel(fromTime: number, t: EnhancedTranslationFun
     return `${count} ${unit}`;
   };
 
-  // Combine the two largest non-zero units, e.g. "5 min 30 sec ago".
-  const join = (primary: string, secondary?: string): string =>
-    secondary ? `${primary} ${secondary} ${ago}` : `${primary} ${ago}`;
+  const join = (primary: string, secondary?: string): string => {
+    const value = secondary ? `${primary} ${secondary}` : primary;
+    return t('time.ago_template', { value }, '${value} ago');
+  };
 
   const totalSeconds = Math.floor(diffInMs / 1000);
   const totalMinutes = Math.floor(totalSeconds / 60);
@@ -69,12 +69,12 @@ export function getRelativeTimeLabel(fromTime: number, t: EnhancedTranslationFun
   }
 
   const diffInWeeks = Math.floor(totalDays / 7);
-  if (diffInWeeks < 4) {
+  if (totalDays < 30) {
     return join(unitLabel(diffInWeeks, 'week', 'weeks', 'week', 'weeks'));
   }
 
   const diffInMonths = Math.floor(totalDays / 30);
-  if (diffInMonths < 12) {
+  if (totalDays < 365) {
     return join(unitLabel(diffInMonths, 'month', 'months', 'month', 'months'));
   }
 

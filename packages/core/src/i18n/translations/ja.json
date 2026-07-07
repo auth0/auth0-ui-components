@@ -8,7 +8,9 @@
     "time": {
       "never": "一度もない",
       "just_now": "たった今",
-      "ago": "前",
+      "ago_template": "${value}前",
+      "second": "2番",
+      "seconds": "秒",
       "minute": "分",
       "minutes": "分",
       "hour": "時間",

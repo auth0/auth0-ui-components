@@ -121,6 +121,11 @@ describe('helper-utils', () => {
       it('uses the plural unit for multiple weeks', () => {
         expect(getRelativeTimeLabel(ago(2 * WEEK), mockT)).toBe('2 weeks ago');
       });
+
+      it('stays in weeks through the 28-29 day gap rather than showing "0 months"', () => {
+        expect(getRelativeTimeLabel(ago(28 * DAY), mockT)).toBe('4 weeks ago');
+        expect(getRelativeTimeLabel(ago(29 * DAY), mockT)).toBe('4 weeks ago');
+      });
     });
 
     describe('months', () => {
@@ -130,6 +135,11 @@ describe('helper-utils', () => {
 
       it('uses the plural unit for multiple months', () => {
         expect(getRelativeTimeLabel(ago(90 * DAY), mockT)).toBe('3 months ago');
+      });
+
+      it('stays in months through the 360-364 day gap rather than showing "0 years"', () => {
+        expect(getRelativeTimeLabel(ago(360 * DAY), mockT)).toBe('12 months ago');
+        expect(getRelativeTimeLabel(ago(364 * DAY), mockT)).toBe('12 months ago');
       });
     });
 
@@ -146,17 +156,19 @@ describe('helper-utils', () => {
     it('reads unit labels from the translator rather than the fallback', () => {
       const translate = ((
         key: string,
-        _vars?: Record<string, unknown>,
+        vars?: Record<string, unknown>,
         fallback?: string,
       ): string => {
         const overrides: Record<string, string> = {
-          'time.ago': 'il y a',
+          'time.ago_template': 'il y a ${value}',
           'time.hours': 'heures',
         };
-        return overrides[key] ?? fallback ?? '';
+        const template = overrides[key] ?? fallback ?? '';
+        if (!vars) return template;
+        return template.replace(/\$\{(\w+)\}/g, (_, name) => String(vars[name] ?? ''));
       }) as unknown as typeof mockT;
 
-      expect(getRelativeTimeLabel(ago(3 * HOUR), translate)).toBe('3 heures il y a');
+      expect(getRelativeTimeLabel(ago(3 * HOUR), translate)).toBe('il y a 3 heures');
     });
   });
 });
