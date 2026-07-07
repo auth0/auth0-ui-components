@@ -13,6 +13,7 @@ import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
+import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
 import { useDomainTable } from '@/hooks/my-organization/use-domain-table';
@@ -102,9 +103,13 @@ function DomainTableView({
     isCreating,
     isVerifying,
     isFetching,
+    isRefetchingDomains,
+    isDomainsStale,
+    domainsUpdatedAt,
     isLoadingProviders,
     isDeleting,
     pagination,
+    refetchDomains,
     showCreateModal,
     showConfigureModal,
     showVerifyModal,
@@ -194,6 +199,15 @@ function DomainTableView({
           />
         </div>
       )}
+
+      <div className="flex items-center justify-end mb-8">
+        <RefreshIndicator
+          isStale={isDomainsStale}
+          isFetching={isRefetchingDomains}
+          lastUpdatedAt={domainsUpdatedAt}
+          onRefresh={refetchDomains}
+        />
+      </div>
 
       <DataTable
         columns={columns}
