@@ -14,6 +14,7 @@ import { SsoProviderTableActionsColumn } from '@/components/auth0/my-organizatio
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
+import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { useSsoProviderTable } from '@/hooks/my-organization/use-sso-provider-table';
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
@@ -92,6 +93,9 @@ function SsoProviderTableView({
   providers,
   shouldHideCreate,
   isViewLoading,
+  isRefetchingProviders,
+  isProvidersStale,
+  providersUpdatedAt,
   createAction,
   editAction,
   selectedIdp,
@@ -103,6 +107,7 @@ function SsoProviderTableView({
   isUpdatingId,
   isDeleting,
   isRemoving,
+  refetchProviders,
   handleCreate,
   handleEdit,
   handleDelete,
@@ -198,6 +203,15 @@ function SsoProviderTableView({
           />
         </div>
       )}
+
+      <div className="flex items-center justify-end mb-8">
+        <RefreshIndicator
+          isStale={isProvidersStale}
+          isFetching={isRefetchingProviders}
+          lastUpdatedAt={providersUpdatedAt}
+          onRefresh={refetchProviders}
+        />
+      </div>
 
       <DataTable
         loading={isViewLoading}
