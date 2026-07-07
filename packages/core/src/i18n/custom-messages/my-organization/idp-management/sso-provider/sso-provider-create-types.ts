@@ -28,9 +28,9 @@ export interface ProviderDetailsMessages {
 }
 
 /**
- * Interface for provider configuration field messages
+ * Interface for provider-specific field messages (used inside ProviderConfigureFieldsMessages.fields)
  */
-export interface ProviderConfigureFieldsMessages {
+export interface ProviderFieldsMessages {
   common?: {
     show_as_button?: {
       label?: string;
@@ -308,13 +308,20 @@ export interface ProviderConfigureFieldsMessages {
 }
 
 /**
+ * Provider configuration field messages for strategy forms.
+ */
+export interface ProviderConfigureFieldsMessages {
+  fields?: ProviderFieldsMessages;
+}
+
+/**
  * Interface for provider configuration messages
  */
 export interface ProviderConfigureMessages {
   title?: string;
   description?: string;
   guided_setup_button_text?: string;
-  fields?: ProviderConfigureFieldsMessages;
+  fields?: ProviderFieldsMessages;
 }
 
 export interface SsoProviderCreateMessages {

@@ -64,7 +64,7 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
             strategy={strategy}
             initialData={initialData}
             readOnly={readOnly}
-            customMessages={customMessages.fields}
+            customMessages={{ fields: customMessages.fields }}
             idpConfig={idpConfig}
           />
         </Section>
