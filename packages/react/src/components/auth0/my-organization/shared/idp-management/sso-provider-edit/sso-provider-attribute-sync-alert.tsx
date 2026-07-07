@@ -4,7 +4,6 @@
  * @internal
  */
 
-import { getComponentStyles } from '@auth0/universal-components-core';
 import { AlertTriangle } from 'lucide-react';
 import * as React from 'react';
 
@@ -18,7 +17,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { SsoProviderAttributeSyncAlertProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
@@ -29,7 +27,8 @@ import type { SsoProviderAttributeSyncAlertProps } from '@/types/my-organization
  * @param props - Component props.
  * @param props.translatorKey - i18n translation key namespace.
  * @param props.className - Additional CSS class names.
- * @param props.styling - CSS variables and class overrides.
+ * @param props.style - CSS variables computed by the parent.
+ * @param props.dialogContentClassName - Class name for the confirmation dialog content.
  * @param props.customMessages - Custom i18n message overrides.
  * @param props.onSync - Callback when sync is triggered.
  * @param props.isSyncing - Whether sync is in progress.
@@ -39,19 +38,15 @@ import type { SsoProviderAttributeSyncAlertProps } from '@/types/my-organization
 export function SsoProviderAttributeSyncAlert({
   translatorKey = 'idp_management.edit_sso_provider.tabs.sso.content.attribute_sync_alert',
   className,
+  style,
+  dialogContentClassName,
   customMessages,
   onSync,
   isSyncing = false,
-  styling,
 }: SsoProviderAttributeSyncAlertProps) {
   const [isSyncModalOpen, setIsSyncModalOpen] = React.useState(false);
 
   const { t } = useTranslator(translatorKey, customMessages);
-  const { isDarkMode } = useTheme();
-  const currentStyles = React.useMemo(
-    () => getComponentStyles(styling, isDarkMode),
-    [styling, isDarkMode],
-  );
 
   const handleSyncClick = () => {
     setIsSyncModalOpen(true);
@@ -82,10 +77,7 @@ export function SsoProviderAttributeSyncAlert({
       </Alert>
 
       <Dialog open={isSyncModalOpen} onOpenChange={setIsSyncModalOpen}>
-        <DialogContent
-          style={currentStyles.variables}
-          className={currentStyles.classes?.['SsoProviderAttributeSyncAlert-dialogContent']}
-        >
+        <DialogContent style={style} className={dialogContentClassName}>
           <DialogHeader>
             <DialogTitle>{t('sync_modal.title')}</DialogTitle>
             <DialogDescription>{t('sync_modal.description')}</DialogDescription>

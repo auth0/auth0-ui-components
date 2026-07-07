@@ -21,7 +21,6 @@ import type {
   IdpStrategy,
   AttributeSyncAlertMessages,
   GetIdpConfigurationResponseContent,
-  ComponentStyling,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
@@ -147,7 +146,8 @@ export interface SsoProviderAttributeMappingsProps
 export interface SsoProviderAttributeSyncAlertProps {
   translatorKey?: string;
   className?: string;
-  styling?: ComponentStyling<SsoProviderAttributeSyncAlertClasses>;
+  style?: React.CSSProperties;
+  dialogContentClassName?: string;
   onSync?: () => void | Promise<void>;
   isSyncing?: boolean;
   customMessages?: Partial<AttributeSyncAlertMessages>;
