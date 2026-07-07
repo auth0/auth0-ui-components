@@ -308,13 +308,6 @@ export interface ProviderFieldsMessages {
 }
 
 /**
- * Provider configuration field messages for strategy forms.
- */
-export interface ProviderConfigureFieldsMessages {
-  fields?: ProviderFieldsMessages;
-}
-
-/**
  * Interface for provider configuration messages
  */
 export interface ProviderConfigureMessages {
@@ -323,6 +316,11 @@ export interface ProviderConfigureMessages {
   guided_setup_button_text?: string;
   fields?: ProviderFieldsMessages;
 }
+
+/**
+ * Provider configuration field messages for strategy forms.
+ */
+export type ProviderConfigureFieldsMessages = Pick<ProviderConfigureMessages, 'fields'>;
 
 export interface SsoProviderCreateMessages {
   header?: {
