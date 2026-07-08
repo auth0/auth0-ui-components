@@ -22,6 +22,7 @@ import { useSsoDomainTab } from '@/hooks/my-organization/use-sso-domain-tab';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
+import { cn } from '@/lib/utils';
 import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import type { SsoDomainsTabProps } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
@@ -155,7 +156,12 @@ export function SsoDomainTab({
           ]}
         />
       </div>
-      <div className="flex items-center justify-end">
+      <div
+        className={cn(
+          'flex justify-end mb-8',
+          currentStyles.classes?.['SsoDomainsTab-tableHeader'],
+        )}
+      >
         <RefreshIndicator
           isStale={isDomainsStale}
           isFetching={isRefetchingDomains}
