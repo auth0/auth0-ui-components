@@ -732,20 +732,21 @@ describe('DomainTable', () => {
 
   describe('pagination', () => {
     describe('when domains are paginated', () => {
-      it('should show pagination controls when domains exist', async () => {
+      it('should render table with domain data', async () => {
         renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
 
         await waitForComponentToLoad();
 
         const table = screen.getByRole('table');
         expect(table).toBeInTheDocument();
+        expect(screen.getAllByText(mockDomain.domain).length).toBeGreaterThan(0);
       });
     });
   });
 
   describe('customMessages', () => {
-    describe('when custom message is provided', () => {
-      it('should pass customMessages to component', async () => {
+    describe('when custom header title is provided', () => {
+      it('should render component with customMessages prop', async () => {
         renderWithProviders(
           <DomainTable
             {...createMockDomainTableProps({
@@ -760,8 +761,8 @@ describe('DomainTable', () => {
 
         await waitForComponentToLoad();
 
-        // Component renders with customMessages prop
         expect(screen.getByRole('table')).toBeInTheDocument();
+        expect(screen.getByText(/header\.title|Custom Domain Title/i)).toBeInTheDocument();
       });
     });
   });
