@@ -582,6 +582,183 @@ describe('useSsoDomainTab', () => {
     });
   });
 
+  describe('pagination', () => {
+    it('should initialize with default pagination state', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1');
+
+      expect(result.current.pagination).toEqual({
+        pageSize: 10,
+        currentPage: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      });
+    });
+
+    it('should pass pagination params to API call', async () => {
+      await renderUseSsoDomainTab('idp-1');
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
+      ).toHaveBeenCalledWith({
+        take: 10,
+        from: undefined,
+      });
+    });
+
+    it('should update hasNextPage when API returns next token', async () => {
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue({
+        response: {
+          organization_domains: [mockDomain],
+          next: 'next-cursor-token',
+        },
+      });
+
+      const { result } = await renderUseSsoDomainTab('idp-1');
+
+      expect(result.current.pagination.hasNextPage).toBe(true);
+    });
+
+    it('should handle next page navigation', async () => {
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue({
+        response: {
+          organization_domains: [mockDomain],
+          next: 'next-cursor-token',
+        },
+      });
+
+      const { result } = await renderUseSsoDomainTab('idp-1');
+
+      act(() => {
+        result.current.handleNextPage();
+      });
+
+      await waitFor(() => {
+        expect(result.current.pagination.currentPage).toBe(2);
+        expect(result.current.pagination.hasPreviousPage).toBe(true);
+      });
+    });
+
+    it('should handle previous page navigation', async () => {
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue({
+        response: {
+          organization_domains: [mockDomain],
+          next: 'next-cursor-token',
+        },
+      });
+
+      const { result } = await renderUseSsoDomainTab('idp-1');
+
+      // Navigate to page 2
+      act(() => {
+        result.current.handleNextPage();
+      });
+
+      await waitFor(() => {
+        expect(result.current.pagination.currentPage).toBe(2);
+      });
+
+      // Navigate back to page 1
+      act(() => {
+        result.current.handlePreviousPage();
+      });
+
+      await waitFor(() => {
+        expect(result.current.pagination.currentPage).toBe(1);
+        expect(result.current.pagination.hasPreviousPage).toBe(false);
+      });
+    });
+
+    it('should handle page size change', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1');
+
+      act(() => {
+        result.current.handlePageSizeChange(25);
+      });
+
+      await waitFor(() => {
+        expect(result.current.pagination.pageSize).toBe(25);
+        expect(result.current.pagination.currentPage).toBe(1);
+      });
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
+      ).toHaveBeenCalledWith({
+        take: 25,
+        from: undefined,
+      });
+    });
+
+    it('should reset pagination when page size changes', async () => {
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue({
+        response: {
+          organization_domains: [mockDomain],
+          next: 'next-cursor-token',
+        },
+      });
+
+      const { result } = await renderUseSsoDomainTab('idp-1');
+
+      // Navigate to page 2
+      act(() => {
+        result.current.handleNextPage();
+      });
+
+      await waitFor(() => {
+        expect(result.current.pagination.currentPage).toBe(2);
+      });
+
+      // Change page size - should reset to page 1
+      act(() => {
+        result.current.handlePageSizeChange(50);
+      });
+
+      await waitFor(() => {
+        expect(result.current.pagination.currentPage).toBe(1);
+        expect(result.current.pagination.hasPreviousPage).toBe(false);
+      });
+    });
+
+    it('should not navigate to next page if no next token', async () => {
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue({
+        response: {
+          organization_domains: [mockDomain],
+          next: null,
+        },
+      });
+
+      const { result } = await renderUseSsoDomainTab('idp-1');
+
+      const initialPage = result.current.pagination.currentPage;
+
+      act(() => {
+        result.current.handleNextPage();
+      });
+
+      // Page should not change since there's no next token
+      expect(result.current.pagination.currentPage).toBe(initialPage);
+    });
+  });
+
   describe('edge cases', () => {
     it('should handle missing coreClient gracefully', () => {
       // Override the useCoreClient mock to return null coreClient
