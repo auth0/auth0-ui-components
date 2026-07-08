@@ -50,6 +50,9 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     provisioning,
     domains,
     hideHeader = false,
+    hideProvisioningTab = false,
+    hideDeleteProvider = false,
+    hideRemoveFromOrganization = false,
     customMessages = {},
     styling = {
       variables: { common: {}, light: {}, dark: {} },
@@ -70,7 +73,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     ...ssoProviderEdit,
     shouldAllowDeletion: ssoProviderEdit.shouldAllowDeletion,
     idpConfig: ssoProviderEdit.idpConfig,
-    showProvisioningTab: ssoProviderEdit.showProvisioningTab,
+    showProvisioningTab: ssoProviderEdit.showProvisioningTab && !hideProvisioningTab,
     styling,
     customMessages,
     backButton,
@@ -79,6 +82,9 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     providerId,
     domains,
     hideHeader,
+    hideProvisioningTab,
+    hideDeleteProvider,
+    hideRemoveFromOrganization,
   };
 
   const ssoProviderCreateHandlerProps: SsoProviderEditHandlerProps = {
@@ -126,6 +132,8 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
     providerId,
     domains,
     hideHeader,
+    hideDeleteProvider,
+    hideRemoveFromOrganization,
     provider,
     organization,
     isLoading,
@@ -231,6 +239,8 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
               isRemoving={isRemoving}
               idpConfig={idpConfig}
               shouldAllowDeletion={shouldAllowDeletion}
+              hideDeleteProvider={hideDeleteProvider}
+              hideRemoveFromOrganization={hideRemoveFromOrganization}
               hasSsoAttributeSyncWarning={hasSsoAttributeSyncWarning}
               onAttributeSync={syncSsoAttributes}
               isSyncingAttributes={isSsoAttributesSyncing}

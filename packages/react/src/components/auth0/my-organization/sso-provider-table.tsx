@@ -46,6 +46,8 @@ function SsoProviderTable(props: SsoProviderTableProps) {
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     readOnly = false,
     hideHeader = false,
+    hideDeleteProvider = false,
+    hideRemoveFromOrganization = false,
     createAction,
     editAction,
     deleteAction,
@@ -71,6 +73,8 @@ function SsoProviderTable(props: SsoProviderTableProps) {
         customMessages={customMessages}
         readOnly={readOnly}
         hideHeader={hideHeader}
+        hideDeleteProvider={hideDeleteProvider}
+        hideRemoveFromOrganization={hideRemoveFromOrganization}
         createAction={createAction}
         editAction={editAction}
       />
@@ -89,6 +93,8 @@ function SsoProviderTableView({
   customMessages,
   readOnly,
   hideHeader,
+  hideDeleteProvider,
+  hideRemoveFromOrganization,
   providers,
   shouldHideCreate,
   isViewLoading,
@@ -153,6 +159,8 @@ function SsoProviderTableView({
           <SsoProviderTableActionsColumn
             provider={idp}
             shouldAllowDeletion={shouldAllowDeletion}
+            hideDeleteProvider={hideDeleteProvider}
+            hideRemoveFromOrganization={hideRemoveFromOrganization}
             readOnly={readOnly}
             isUpdating={isUpdating}
             isUpdatingId={isUpdatingId}
