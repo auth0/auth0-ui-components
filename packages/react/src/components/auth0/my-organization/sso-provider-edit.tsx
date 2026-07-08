@@ -33,6 +33,9 @@ import type {
  * @param props.provisioning - Provisioning configuration
  * @param props.domains - Array of domains
  * @param props.hideHeader - Whether to hide the header
+ * @param props.hideProvisioningTab - Whether to hide the provisioning tab
+ * @param props.hideDeleteProvider - Whether to hide the delete provider action
+ * @param props.hideRemoveFromOrganization - Whether to hide the remove from organization action
  * @param props.customMessages - Custom translation messages to override defaults
  * @param props.styling - Custom styling configuration with variables and classes
  * @param props.schema - Zod validation schema

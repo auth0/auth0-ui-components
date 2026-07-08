@@ -366,6 +366,100 @@ describe('SsoProviderEdit', () => {
     });
   });
 
+  describe('hideProvisioningTab', () => {
+    describe('when is true', () => {
+      it('should not display provisioning tab', async () => {
+        renderWithProviders(
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ hideProvisioningTab: true })} />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.queryByText(/tabs.provisioning.name/i)).not.toBeInTheDocument();
+      });
+    });
+
+    describe('when is false', () => {
+      it('should display provisioning tab when enabled for strategy', async () => {
+        renderWithProviders(
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ hideProvisioningTab: false })} />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.queryByText(/tabs.provisioning.name/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('hideDeleteProvider', () => {
+    describe('when is true', () => {
+      it('should not display delete provider button', async () => {
+        renderWithProviders(
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ hideDeleteProvider: true })} />,
+        );
+
+        await waitForComponentToLoad();
+
+        const deleteButtons = screen.queryAllByRole('button', {
+          name: /delete_button_label/i,
+        });
+        expect(deleteButtons.length).toBe(0);
+      });
+    });
+
+    describe('when is false', () => {
+      it('should display delete provider button', async () => {
+        renderWithProviders(
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ hideDeleteProvider: false })} />,
+        );
+
+        await waitForComponentToLoad();
+
+        const deleteButtons = screen.queryAllByRole('button', {
+          name: /delete_button_label/i,
+        });
+        expect(deleteButtons.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('hideRemoveFromOrganization', () => {
+    describe('when is true', () => {
+      it('should not display remove from organization button', async () => {
+        renderWithProviders(
+          <SsoProviderEdit
+            {...createMockSsoProviderEditProps({ hideRemoveFromOrganization: true })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+
+        const removeButtons = screen.queryAllByRole('button', {
+          name: /remove_button_label/i,
+        });
+        expect(removeButtons.length).toBe(0);
+      });
+    });
+
+    describe('when is false', () => {
+      it('should display remove from organization button', async () => {
+        renderWithProviders(
+          <SsoProviderEdit
+            {...createMockSsoProviderEditProps({ hideRemoveFromOrganization: false })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+
+        const removeButtons = screen.queryAllByRole('button', {
+          name: /remove_button_label/i,
+        });
+        expect(removeButtons.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
   describe('sso action props', () => {
     describe('when sso.updateAction is provided', () => {
       it('should call onBefore when toggling provider', async () => {
