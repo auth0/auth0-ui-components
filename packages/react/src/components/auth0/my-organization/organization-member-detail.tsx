@@ -199,6 +199,8 @@ export function OrganizationMemberDetailView(
               isRemovingRoles={props.isRemovingRoles}
               modalState={modalState}
               isAssigningRoles={props.isAssigningRoles}
+              classes={currentStyles.classes}
+              style={currentStyles.variables}
               onSelectedRolesChange={props.setSelectedRoles}
               onAssignRolesClick={handleAssignRolesClick}
               onAssignRolesCancel={closeModal}
@@ -217,6 +219,8 @@ export function OrganizationMemberDetailView(
           memberUserId={props.member?.user_id}
           organizationName={props.organizationDisplayName}
           customMessages={customMessages}
+          classes={currentStyles.classes}
+          style={currentStyles.variables}
           onClose={closeModal}
           onConfirm={handleRemoveFromOrganizationConfirm}
         />

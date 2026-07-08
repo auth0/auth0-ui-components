@@ -44,6 +44,7 @@ import type { OrganizationInvitationCreateModalProps } from '@/types/my-organiza
  * @param props.schema - Schema overrides for validation (email regex, maxEmails, error messages).
  * @param props.onClose - Callback when modal is closed.
  * @param props.onCreate - Callback when invitation is created.
+ * @param props.style - CSS variables computed by the parent.
  * @param props.className - Optional CSS class name.
  * @returns The modal component.
  */
@@ -57,6 +58,7 @@ export function OrganizationInvitationCreateModal({
   schema,
   onClose,
   onCreate,
+  style,
   className,
 }: OrganizationInvitationCreateModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
@@ -209,7 +211,7 @@ export function OrganizationInvitationCreateModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className={className}>
+      <DialogContent style={style} className={className}>
         <DialogHeader>
           <DialogTitle>{t('invitation.create.title')}</DialogTitle>
           <DialogDescription>{t('invitation.create.description')}</DialogDescription>

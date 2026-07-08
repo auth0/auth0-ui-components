@@ -22,6 +22,8 @@ import type { OrganizationMemberRemoveRoleModalProps } from '@/types/my-organiza
 /**
  * Renders the remove role confirmation dialog.
  * @param props - Component props
+ * @param props.classes - Custom CSS class overrides
+ * @param props.style - CSS variables computed by the parent
  * @returns The rendered confirmation dialog element
  */
 export function OrganizationMemberRemoveRoleModal({
@@ -30,6 +32,8 @@ export function OrganizationMemberRemoveRoleModal({
   roles,
   memberName,
   customMessages,
+  classes,
+  style,
   onClose,
   onConfirm,
 }: OrganizationMemberRemoveRoleModalProps): React.JSX.Element {
@@ -38,7 +42,10 @@ export function OrganizationMemberRemoveRoleModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
+      <DialogContent
+        style={style}
+        className={classes?.['OrganizationMemberRemoveRoleModal-dialogContent']}
+      >
         <DialogHeader>
           <DialogTitle>
             {t(
