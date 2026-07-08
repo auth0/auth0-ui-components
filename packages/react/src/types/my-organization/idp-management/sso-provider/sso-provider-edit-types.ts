@@ -49,6 +49,7 @@ export interface SsoProviderEditBackButton extends Omit<BackButton, 'onClick'> {
 
 /** CSS classes for SsoProviderAttributeSyncAlert. */
 export interface SsoProviderAttributeSyncAlertClasses {
+  'SsoProviderAttributeSyncAlert-root'?: string;
   'SsoProviderAttributeSyncAlert-dialogContent'?: string;
 }
 
@@ -145,9 +146,8 @@ export interface SsoProviderAttributeMappingsProps
 
 export interface SsoProviderAttributeSyncAlertProps {
   translatorKey?: string;
-  className?: string;
+  classes?: SsoProviderAttributeSyncAlertClasses;
   style?: React.CSSProperties;
-  dialogContentClassName?: string;
   onSync?: () => void | Promise<void>;
   isSyncing?: boolean;
   customMessages?: Partial<AttributeSyncAlertMessages>;

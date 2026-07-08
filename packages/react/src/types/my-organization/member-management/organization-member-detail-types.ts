@@ -5,7 +5,6 @@
 
 import type {
   ComponentAction,
-  ComponentStyling,
   SharedComponentProps,
   OrgMember,
   OrganizationPrivate,
@@ -14,6 +13,7 @@ import type {
   OrganizationMemberTabMessages,
 } from '@auth0/universal-components-core';
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
+import type React from 'react';
 
 export type MemberDetailTab = 'details' | 'roles';
 
@@ -137,11 +137,9 @@ export interface MemberRemoveFromOrganizationModalProps {
   memberName?: string;
   memberUserId?: string;
   organizationName?: string;
-  className?: string;
   customMessages?: Partial<OrganizationMemberDetailMessages | OrganizationMemberTabMessages>;
-  styling?: ComponentStyling<
-    Pick<OrganizationMemberDetailClasses, 'MemberRemoveFromOrgModal-dialogContent'>
-  >;
+  classes?: Pick<OrganizationMemberDetailClasses, 'MemberRemoveFromOrgModal-dialogContent'>;
+  style?: React.CSSProperties;
   onClose: () => void;
   onConfirm: (userId?: string, memberName?: string, organizationName?: string) => void;
 }
@@ -162,11 +160,12 @@ export interface OrganizationMemberRemoveRoleModalProps {
   isLoading?: boolean;
   roles: Role[];
   memberName?: string;
-  className?: string;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
-  styling?: ComponentStyling<
-    Pick<OrganizationMemberDetailClasses, 'OrganizationMemberRemoveRoleModal-dialogContent'>
+  classes?: Pick<
+    OrganizationMemberDetailClasses,
+    'OrganizationMemberRemoveRoleModal-dialogContent'
   >;
+  style?: React.CSSProperties;
   onClose: () => void;
   onConfirm: () => void;
 }
@@ -176,12 +175,13 @@ export interface OrganizationMemberAssignRolesModalProps {
   isLoading?: boolean;
   availableRoles: Role[];
   assignedRoles: Role[];
-  className?: string;
   customMessages?: Partial<OrganizationMemberDetailMessages | OrganizationMemberTabMessages>;
   selectedMember?: OrgMember | null;
-  styling?: ComponentStyling<
-    Pick<OrganizationMemberDetailClasses, 'OrganizationMemberAssignRolesModal-dialogContent'>
+  classes?: Pick<
+    OrganizationMemberDetailClasses,
+    'OrganizationMemberAssignRolesModal-dialogContent'
   >;
+  style?: React.CSSProperties;
   onClose: () => void;
   onAssign: (roleIds: string[], memberRoles: Role[], userId?: string | null) => void;
 }
@@ -218,13 +218,12 @@ export interface OrganizationMemberEditRolesTabProps {
   isAssigningRoles?: boolean;
   isRemovingRoles?: boolean;
   modalState: MemberDetailModalState;
-  styling?: ComponentStyling<
-    Pick<
-      OrganizationMemberDetailClasses,
-      | 'OrganizationMemberAssignRolesModal-dialogContent'
-      | 'OrganizationMemberRemoveRoleModal-dialogContent'
-    >
+  classes?: Pick<
+    OrganizationMemberDetailClasses,
+    | 'OrganizationMemberAssignRolesModal-dialogContent'
+    | 'OrganizationMemberRemoveRoleModal-dialogContent'
   >;
+  style?: React.CSSProperties;
   onSelectedRolesChange: (roles: Role[]) => void;
   onAssignRolesClick: () => void;
   onAssignRolesCancel: () => void;

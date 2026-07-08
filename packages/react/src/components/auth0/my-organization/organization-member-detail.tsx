@@ -199,15 +199,8 @@ export function OrganizationMemberDetailView(
               isRemovingRoles={props.isRemovingRoles}
               modalState={modalState}
               isAssigningRoles={props.isAssigningRoles}
-              styling={{
-                variables: styling?.variables,
-                classes: {
-                  'OrganizationMemberAssignRolesModal-dialogContent':
-                    styling?.classes?.['OrganizationMemberAssignRolesModal-dialogContent'],
-                  'OrganizationMemberRemoveRoleModal-dialogContent':
-                    styling?.classes?.['OrganizationMemberRemoveRoleModal-dialogContent'],
-                },
-              }}
+              classes={currentStyles.classes}
+              style={currentStyles.variables}
               onSelectedRolesChange={props.setSelectedRoles}
               onAssignRolesClick={handleAssignRolesClick}
               onAssignRolesCancel={closeModal}
@@ -226,13 +219,8 @@ export function OrganizationMemberDetailView(
           memberUserId={props.member?.user_id}
           organizationName={props.organizationDisplayName}
           customMessages={customMessages}
-          styling={{
-            variables: styling?.variables,
-            classes: {
-              'MemberRemoveFromOrgModal-dialogContent':
-                styling?.classes?.['MemberRemoveFromOrgModal-dialogContent'],
-            },
-          }}
+          classes={currentStyles.classes}
+          style={currentStyles.variables}
           onClose={closeModal}
           onConfirm={handleRemoveFromOrganizationConfirm}
         />
