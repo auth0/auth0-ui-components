@@ -35,6 +35,7 @@ export interface SsoProviderTabClasses
     SsoProviderDeleteClasses,
     SsoProviderRemoveClasses {
   'SsoProviderAttributeSyncAlert-root'?: string;
+  'SsoProviderAttributeSyncAlert-dialogContent'?: string;
 }
 
 /** Form actions for SSO provider details. */

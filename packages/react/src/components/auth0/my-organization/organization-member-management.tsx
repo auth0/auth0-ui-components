@@ -210,6 +210,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           customMessages={customMessages?.invitation}
           availableRoles={availableRoles}
           availableProviders={availableProviders}
+          style={currentStyles.variables}
           onClose={closeModal}
           onCreate={handleCreateSubmit}
           className={currentStyles.classes?.['OrganizationInvitationTab-createModal']}
@@ -224,6 +225,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           availableRoles={availableRoles}
           availableProviders={availableProviders}
           readOnly={readOnly}
+          style={currentStyles.variables}
           onClose={closeModal}
           onCopyUrl={handleCopyUrl}
           onRevoke={(invitation) => invitation && openModal({ type: 'revoke', invitation })}
@@ -236,6 +238,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isOpen={modalState.type === 'revoke'}
           isLoading={isRevokingInvitation}
           customMessages={customMessages?.invitation}
+          style={currentStyles.variables}
           onClose={closeModal}
           onConfirm={handleRevokeConfirm}
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeModal']}
@@ -247,6 +250,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isLoading={isResendingInvitation}
           isRevokeAndResend
           customMessages={customMessages?.invitation}
+          style={currentStyles.variables}
           onClose={closeModal}
           onConfirm={handleRevokeResendConfirm}
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeResendModal']}
