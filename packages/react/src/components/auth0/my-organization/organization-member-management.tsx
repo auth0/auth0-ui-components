@@ -28,6 +28,7 @@ import { useOrganizationMemberManagement } from '@/hooks/my-organization/use-org
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { MEMBER_MANAGEMENT_PAGE_SIZE_OPTIONS } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import { cn } from '@/lib/utils';
 import type {
   OrganizationMemberManagementProps,
   OrganizationMemberManagementViewProps,
@@ -178,7 +179,12 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           onValueChange={(value: string) => setActiveTab(value as 'members' | 'invitations')}
           className={currentStyles.classes?.['OrganizationMemberManagement-tabs']}
         >
-          <div className="flex items-center justify-between mb-8">
+          <div
+            className={cn(
+              'flex justify-between mb-8',
+              currentStyles.classes?.['OrganizationMemberManagement-tabsHeader'],
+            )}
+          >
             <TabsList>
               <TabsTrigger value="members">{t('tabs.members')}</TabsTrigger>
               <TabsTrigger value="invitations">{t('tabs.invitations')}</TabsTrigger>
