@@ -28,6 +28,7 @@ interface SsoProviderTableSchema {
 interface SsoProviderTableClasses {
   'SsoProviderTable-header'?: string;
   'SsoProviderTable-table'?: string;
+  'SsoProviderTable-tableHeader'?: string;
   'SsoProviderTable-deleteProviderModal'?: string;
   'SsoProviderTable-deleteProviderFromOrganizationModal'?: string;
 }

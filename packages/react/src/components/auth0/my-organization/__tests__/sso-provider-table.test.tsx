@@ -864,4 +864,37 @@ describe('SsoProviderTableView', () => {
     );
     expect(document.querySelector('.custom-table')).toBeInTheDocument();
   });
+
+  describe('refresh indicator', () => {
+    it('renders the refresh control when providers data is stale, and refetches providers on click', async () => {
+      const user = userEvent.setup();
+      const refetchProviders = vi.fn();
+
+      renderWithProviders(
+        <SsoProviderTableView
+          {...createMockSsoProviderTableViewProps({
+            isProvidersStale: true,
+            isRefetchingProviders: false,
+            refetchProviders,
+          })}
+        />,
+      );
+
+      const refreshButton = screen.getByRole('button', { name: 'refresh' });
+      expect(refreshButton).toBeInTheDocument();
+
+      await user.click(refreshButton);
+      expect(refetchProviders).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not render the refresh control when providers data is not stale', () => {
+      renderWithProviders(
+        <SsoProviderTableView
+          {...createMockSsoProviderTableViewProps({ isProvidersStale: false })}
+        />,
+      );
+
+      expect(screen.queryByRole('button', { name: 'refresh' })).not.toBeInTheDocument();
+    });
+  });
 });

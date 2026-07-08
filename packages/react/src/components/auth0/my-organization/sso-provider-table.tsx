@@ -20,6 +20,7 @@ import { useSsoProviderTable } from '@/hooks/my-organization/use-sso-provider-ta
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
 import type {
   SsoProviderTableProps,
   SsoProviderTableViewProps,
@@ -204,7 +205,12 @@ function SsoProviderTableView({
         </div>
       )}
 
-      <div className="flex items-center justify-end mb-8">
+      <div
+        className={cn(
+          'flex justify-end mb-8',
+          currentStyles.classes?.['SsoProviderTable-tableHeader'],
+        )}
+      >
         <RefreshIndicator
           isStale={isProvidersStale}
           isFetching={isRefetchingProviders}
