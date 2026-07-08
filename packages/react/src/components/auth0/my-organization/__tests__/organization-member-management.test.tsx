@@ -783,4 +783,40 @@ describe('OrganizationMemberManagement', () => {
       expect(document.querySelector('.custom-root-class')).toBeInTheDocument();
     });
   });
+
+  describe('refresh indicator', () => {
+    it('renders the members refresh control when members data is stale, and refetches members on click', async () => {
+      const user = userEvent.setup();
+      const refetchMembers = vi.fn();
+      mockedUseOrganizationMemberManagement.mockReturnValue(
+        createMockMemberManagementResult({
+          activeTab: 'members',
+          isMembersStale: true,
+          isFetchingMembers: false,
+          refetchMembers,
+        }),
+      );
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      const refreshButton = screen.getByRole('button', { name: 'refresh' });
+      expect(refreshButton).toBeInTheDocument();
+
+      await user.click(refreshButton);
+      expect(refetchMembers).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not render the refresh control when the active tab data is not stale', () => {
+      mockedUseOrganizationMemberManagement.mockReturnValue(
+        createMockMemberManagementResult({
+          activeTab: 'invitations',
+          isInvitationsStale: false,
+        }),
+      );
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      expect(screen.queryByRole('button', { name: 'refresh' })).not.toBeInTheDocument();
+    });
+  });
 });
