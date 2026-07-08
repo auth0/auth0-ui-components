@@ -22,13 +22,20 @@ import type React from 'react';
 
 export type { Domain };
 
+/** Data shape returned by the paginated domains query. */
+export interface DomainsQueryData {
+  domains: Domain[];
+  next: string | null;
+}
+
 /** Refetch handler for the domains query. */
-export type RefetchDomains = UseQueryResult<Domain[]>['refetch'];
+export type RefetchDomains = UseQueryResult<DomainsQueryData>['refetch'];
 
 /** CSS classes for DomainTable. */
 export interface DomainTableClasses {
   'DomainTable-header'?: string;
   'DomainTable-table'?: string;
+  'DomainTable-tableHeader'?: string;
   'DomainTable-createModal'?: string;
   'DomainTable-configureModal'?: string;
   'DomainTable-deleteModal'?: string;
