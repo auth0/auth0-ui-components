@@ -245,7 +245,9 @@ describe('EnrollFactorModal', () => {
     renderWithProviders(
       <EnrollFactorModal {...createMockEnrollFactorModalProps({ customMessages })} />,
     );
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Custom Enrollment Title' }),
+    ).toBeInTheDocument();
   });
 
   it('maintains dialog open state when rendering each phase', async () => {

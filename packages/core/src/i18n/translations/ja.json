@@ -967,7 +967,7 @@
       "submit_button_label": "送信",
       "back_button_label": "戻る",
       "deleting_button_text": "削除中...",
-      "verify_button_label": "Verify",
+      "verify_button_label": "確認",
       "menu_aria_label": "アクション"
     },
     "errors": {
@@ -989,7 +989,7 @@
         "bad_gateway": "電話番号が無効です。",
         "too_many_entities": "このユーザーのSMSエンティティの数には上限があります。",
         "invalid_phone_number": "無効な電話番号",
-        "invalid_code": "Invalid Otp Code"
+        "invalid_code": "無効なコード"
       },
       "email": {
         "expired_token": "確認コードの有効期限が切れました",
@@ -1019,7 +1019,7 @@
         "title": "ワンタイムパスワード",
         "description": "認証システムが追加されていません。",
         "button_text": "認証アプリを追加",
-        "name": "TOTP (One-time code)"
+        "name": "TOTP (ワンタイムコード)"
       },
       "email": {
         "title": "メール",
@@ -1076,6 +1076,7 @@
         "scan_description": "このQRコードをAuth0 Guardianアプリでスキャンするか、URLをコピーして、この認証方法を登録してください",
         "qr_alt": "登録QRコード",
         "download_hint": "Auth0 Guardianアプリは",
+        "download_hint_or": "または",
         "download_hint_apple": "Apple App Store",
         "download_hint_google": "Google Play Store"
       },
@@ -1103,12 +1104,12 @@
       }
     },
     "component_error": {
-      "title": "Error loading Multi-Factor Authentication component",
-      "description": "We're having trouble loading your multi-factor authentication methods.\nPlease refresh the page and try again"
+      "title": "多要素認証コンポーネントの読み込みエラー",
+      "description": "多要素認証方法の読み込み中に問題が発生しました。\nページを再読み込みしてもう一度お試しください"
     },
     "notifications": {
-      "factor_enroll_success": "Factor enrolled successfully.",
-      "factor_remove_success": "Factor removed successfully.",
+      "factor_enroll_success": "認証方法が正常に登録されました。",
+      "factor_remove_success": "認証方法が正常に削除されました。",
       "fetch_factors_error": "多要素認証の読み込みエラー！",
       "factor_delete_error": "認証器の削除に失敗しました"
     }

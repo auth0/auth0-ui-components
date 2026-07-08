@@ -77,7 +77,7 @@ export function FactorsList({
   },
   customMessages = {},
 }: FactorsListProps) {
-  const { t } = useTranslator('user_mfa_management', customMessages);
+  const { t, currentLanguage } = useTranslator('user_mfa_management', customMessages);
   const { isDarkMode } = useTheme();
   const IconComponent = FACTOR_ICONS[factorType as keyof typeof FACTOR_ICONS];
 
@@ -121,13 +121,17 @@ export function FactorsList({
                     <span className="text-sm font-normal text-muted-foreground">
                       {factor.created_at && (
                         <time dateTime={factor.created_at}>
-                          {t('factors.meta.created_at', { date: formatDate(factor.created_at) })}
+                          {t('factors.meta.created_at', {
+                            date: formatDate(factor.created_at, currentLanguage),
+                          })}
                         </time>
                       )}
                       {factor.created_at && factor.last_auth_at && ' • '}
                       {factor.last_auth_at && (
                         <time dateTime={factor.last_auth_at}>
-                          {t('factors.meta.last_used', { date: formatDate(factor.last_auth_at) })}
+                          {t('factors.meta.last_used', {
+                            date: formatDate(factor.last_auth_at, currentLanguage),
+                          })}
                         </time>
                       )}
                     </span>

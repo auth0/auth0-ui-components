@@ -206,9 +206,9 @@ describe('api-error', () => {
         });
       });
 
-      it('should use ApiError message over defaultMessage when available', () => {
+      it('should use defaultMessage over the raw ApiError message when available', () => {
         const result = normalizeError(baseApiError, { defaultMessage: 'Fallback' });
-        expect(result.message).toBe('API request failed');
+        expect(result.message).toBe('Fallback');
       });
     });
 

@@ -472,6 +472,41 @@ describe('mfa-utils', () => {
         expect(placeholder?.created_at).toBeNull();
         expect(placeholder?.enrolled).toBe(false);
       });
+
+      it('should surface last_auth_at when the enrolled factor has been used', () => {
+        const availableFactors = createMockAvailableFactors();
+        const lastAuthAt = '2024-02-20T08:15:00.000Z';
+        const enrolledFactors = createMockEnrolledFactors([
+          createMockTotpAuthMethod('MyApp', { last_auth_at: lastAuthAt }),
+        ]);
+
+        const result = transformMyAccountFactors(availableFactors, enrolledFactors, true);
+        const totpFactors = result[FACTOR_TYPE_TOTP as MFAType];
+
+        expect(totpFactors?.[0]?.last_auth_at).toBe(lastAuthAt);
+      });
+
+      it('should default last_auth_at to null when the enrolled factor has never been used', () => {
+        const availableFactors = createMockAvailableFactors();
+        const enrolledFactors = createMockEnrolledFactors([createMockTotpAuthMethod('MyApp')]);
+
+        const result = transformMyAccountFactors(availableFactors, enrolledFactors, true);
+        const totpFactors = result[FACTOR_TYPE_TOTP as MFAType];
+
+        expect(totpFactors?.[0]?.last_auth_at).toBeNull();
+      });
+
+      it('should default last_auth_at to null for unenrolled placeholders', () => {
+        const availableFactors = createMockAvailableFactors([
+          createMockAvailableFactor(FACTOR_TYPE_EMAIL as MFAType),
+        ]);
+        const enrolledFactors = createEmptyEnrolledFactors();
+
+        const result = transformMyAccountFactors(availableFactors, enrolledFactors, false);
+        const placeholder = result[FACTOR_TYPE_EMAIL as MFAType]?.[0];
+
+        expect(placeholder?.last_auth_at).toBeNull();
+      });
     });
 
     describe('edge cases and error scenarios', () => {

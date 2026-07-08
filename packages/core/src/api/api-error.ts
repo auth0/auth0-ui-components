@@ -82,7 +82,7 @@ export function normalizeError(
   if (isApiError(error)) {
     const code = error.data?.error;
     const resolved = typeof code === 'string' ? resolve?.(code) : undefined;
-    return new Error(resolved ?? error.message ?? defaultMessage);
+    return new Error(resolved ?? defaultMessage ?? error.message);
   }
 
   if (hasApiErrorBody(error)) {
@@ -93,7 +93,7 @@ export function normalizeError(
       .find(Boolean);
     const detail = body?.detail;
     return new Error(
-      resolved ?? (detail && detail.charAt(0).toUpperCase() + detail.slice(1)) ?? defaultMessage,
+      resolved ?? defaultMessage ?? (detail && detail.charAt(0).toUpperCase() + detail.slice(1)),
     );
   }
 

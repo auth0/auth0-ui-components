@@ -913,7 +913,7 @@
       "submit_button_label": "Soumettre",
       "back_button_label": "Retour",
       "deleting_button_text": "Suppression...",
-      "verify_button_label": "Verify",
+      "verify_button_label": "Vérifier",
       "menu_aria_label": "Actions"
     },
     "errors": {
@@ -935,7 +935,7 @@
         "bad_gateway": "Le numéro de téléphone est invalide.",
         "too_many_entities": "Vous avez atteint la limite d'entités du type sms pour cet utilisateur.",
         "invalid_phone_number": "Numéro de téléphone invalide",
-        "invalid_code": "Invalid Otp Code"
+        "invalid_code": "Code invalide"
       },
       "email": {
         "expired_token": "Le code de vérification est expiré",
@@ -1022,6 +1022,7 @@
         "scan_description": "Scannez ce code QR avec votre application Auth0 Guardian pour enregistrer cette méthode d'authentification ou copiez l'URL.",
         "qr_alt": "Code QR d'enregistrement",
         "download_hint": "Vous pouvez télécharger l'application Auth0 Guardian depuis le",
+        "download_hint_or": "ou",
         "download_hint_apple": "Apple App Store",
         "download_hint_google": "Google Play Store"
       },
@@ -1049,12 +1050,12 @@
       }
     },
     "component_error": {
-      "title": "Error loading Multi-Factor Authentication component",
-      "description": "We're having trouble loading your multi-factor authentication methods.\nPlease refresh the page and try again"
+      "title": "Erreur lors du chargement du composant d'authentification multifacteur",
+      "description": "Nous rencontrons des difficultés pour charger vos méthodes d'authentification multifacteur.\nVeuillez actualiser la page et réessayer"
     },
     "notifications": {
-      "factor_enroll_success": "Factor enrolled successfully.",
-      "factor_remove_success": "Factor removed successfully.",
+      "factor_enroll_success": "Le facteur a été inscrit avec succès.",
+      "factor_remove_success": "Le facteur a été retiré avec succès.",
       "fetch_factors_error": "Erreur lors du chargement des facteurs MFA !",
       "factor_delete_error": "Échec de la suppression de l'authentificateur"
     }

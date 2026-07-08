@@ -29,6 +29,7 @@ const createBaseAuthMethod = () => ({
   created_at: '2024-01-01T00:00:00.000Z',
   confirmed: true,
   usage: DEFAULT_USAGE,
+  last_auth_at: null,
 });
 
 /**
