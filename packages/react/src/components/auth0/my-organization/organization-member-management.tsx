@@ -27,7 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOrganizationMemberManagement } from '@/hooks/my-organization/use-organization-member-management';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { MEMBER_MANAGEMENT_PAGE_SIZE_OPTIONS } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import { cn } from '@/lib/utils';
 import type {
   OrganizationMemberManagementProps,
@@ -132,7 +132,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     [openModal],
   );
 
-  const pageSizeOptions = MEMBER_MANAGEMENT_PAGE_SIZE_OPTIONS;
+  const pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
   const refreshState =
     activeTab === 'members'

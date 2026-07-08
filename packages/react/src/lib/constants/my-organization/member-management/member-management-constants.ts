@@ -3,8 +3,6 @@
  * @internal
  */
 
-export const MEMBER_MANAGEMENT_PAGE_SIZE_OPTIONS = [10, 25, 50];
-
 /**
  * Maximum number of roles that can be assigned to a member in a single
  * assign/remove request.
