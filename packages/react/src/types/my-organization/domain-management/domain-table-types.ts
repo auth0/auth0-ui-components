@@ -21,15 +21,12 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import type React from 'react';
 
 export type { Domain };
-
-/** Data shape returned by the paginated domains query. */
-export interface DomainsQueryData {
+interface DomainsQueryData {
   domains: Domain[];
   next: string | null;
 }
 
-/** Refetch handler for the domains query. */
-export type RefetchDomains = UseQueryResult<DomainsQueryData>['refetch'];
+type RefetchDomains = UseQueryResult<DomainsQueryData>['refetch'];
 
 /** CSS classes for DomainTable. */
 export interface DomainTableClasses {
