@@ -21,6 +21,7 @@ import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
+import { cn } from '@/lib/utils';
 import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import type {
   DomainTableProps,
@@ -200,7 +201,9 @@ function DomainTableView({
         </div>
       )}
 
-      <div className="flex items-center justify-end mb-8">
+      <div
+        className={cn('flex justify-end mb-8', currentStyles.classes?.['DomainTable-tableHeader'])}
+      >
         <RefreshIndicator
           isStale={isDomainsStale}
           isFetching={isRefetchingDomains}

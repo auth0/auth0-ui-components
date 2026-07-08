@@ -708,4 +708,39 @@ describe('DomainTableView', () => {
     renderWithProviders(<DomainTableView {...defaultViewProps} readOnly={true} />);
     expect(screen.getByRole('button', { name: /create/i })).toBeDisabled();
   });
+
+  describe('refresh indicator', () => {
+    it('renders the refresh control when domains data is stale, and refetches domains on click', async () => {
+      const user = userEvent.setup();
+      const refetchDomains = vi.fn();
+
+      renderWithProviders(
+        <DomainTableView
+          {...defaultViewProps}
+          domainTable={createMockDomainTableReturn({
+            isDomainsStale: true,
+            isRefetchingDomains: false,
+            refetchDomains,
+          })}
+        />,
+      );
+
+      const refreshButton = screen.getByRole('button', { name: 'refresh' });
+      expect(refreshButton).toBeInTheDocument();
+
+      await user.click(refreshButton);
+      expect(refetchDomains).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not render the refresh control when domains data is not stale', () => {
+      renderWithProviders(
+        <DomainTableView
+          {...defaultViewProps}
+          domainTable={createMockDomainTableReturn({ isDomainsStale: false })}
+        />,
+      );
+
+      expect(screen.queryByRole('button', { name: 'refresh' })).not.toBeInTheDocument();
+    });
+  });
 });
