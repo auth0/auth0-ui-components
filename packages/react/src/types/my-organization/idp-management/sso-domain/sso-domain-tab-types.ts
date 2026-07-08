@@ -35,6 +35,14 @@ export interface SsoProviderEditDomainsTabSchema {
   create: DomainCreateSchemas;
 }
 
+/** SSO domain tab pagination state. */
+export interface SsoDomainTabPaginationState {
+  pageSize: number;
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
 /** Props for SsoDomainsTab component. */
 export interface SsoDomainsTabProps
   extends SharedComponentProps<
@@ -81,6 +89,7 @@ export interface UseSsoDomainTabReturn {
   idpDomains: string[];
   isUpdating: boolean;
   isUpdatingId: string | null;
+  pagination: SsoDomainTabPaginationState;
   setShowCreateModal: (show: boolean) => void;
   handleCreate: (domainUrl: string) => Promise<void>;
   handleCloseVerifyModal: () => void;
@@ -90,4 +99,7 @@ export interface UseSsoDomainTabReturn {
   handleDelete: (domain: Domain) => void;
   handleVerifyActionColumn: (domain: Domain) => Promise<void>;
   handleToggleSwitch: (domain: Domain, newCheckedValue: boolean) => Promise<void>;
+  handleNextPage: () => void;
+  handlePreviousPage: () => void;
+  handlePageSizeChange: (pageSize: number) => void;
 }

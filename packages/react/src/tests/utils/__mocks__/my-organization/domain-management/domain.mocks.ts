@@ -132,7 +132,12 @@ export const createMockDomainTableReturn = (
   domainsUpdatedAt: 0,
   isLoadingProviders: false,
   isDeleting: false,
-  refetchDomains: vi.fn(),
+  pagination: {
+    pageSize: 10,
+    currentPage: 1,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  },
   showCreateModal: false,
   showConfigureModal: false,
   showVerifyModal: false,
@@ -143,6 +148,7 @@ export const createMockDomainTableReturn = (
   setShowConfigureModal: vi.fn(),
   setShowVerifyModal: vi.fn(),
   setShowDeleteModal: vi.fn(),
+  refetchDomains: vi.fn(),
   handleCreate: vi.fn(),
   handleVerify: vi.fn(),
   handleDelete: vi.fn(),
@@ -152,6 +158,9 @@ export const createMockDomainTableReturn = (
   handleConfigureClick: vi.fn(),
   handleVerifyClick: vi.fn(),
   handleDeleteClick: vi.fn(),
+  handleNextPage: vi.fn(),
+  handlePreviousPage: vi.fn(),
+  handlePageSizeChange: vi.fn(),
   ...overrides,
 });
 
@@ -187,6 +196,7 @@ export const createMockDomainTableServiceReturn = (
 ): UseDomainTableServiceReturn => ({
   domains: [],
   providers: [],
+  nextToken: null,
   isFetching: false,
   isRefetchingDomains: false,
   isDomainsStale: false,

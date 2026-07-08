@@ -9,8 +9,10 @@ import { useCallback, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
+import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import type {
   UseDomainTableOptions,
   UseDomainTableReturn,
@@ -34,8 +36,21 @@ export function useDomainTable({
   const handleError = useErrorHandler();
 
   const {
+    pageSize,
+    currentPage,
+    fromToken,
+    hasPreviousPage,
+    goToNextPage,
+    goToPreviousPage,
+    changePageSize,
+  } = useCheckpointPagination({
+    defaultPageSize: DEFAULT_PAGE_SIZE_OPTIONS[0],
+  });
+
+  const {
     domains,
     providers,
+    nextToken,
     isFetching,
     isRefetchingDomains,
     isDomainsStale,
@@ -58,6 +73,10 @@ export function useDomainTable({
     associateToProviderAction,
     deleteFromProviderAction,
     customMessages,
+    paginationParams: {
+      pageSize,
+      fromToken,
+    },
   });
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -238,6 +257,23 @@ export function useDomainTable({
     setShowDeleteModal(true);
   }, []);
 
+  const handleNextPage = useCallback(() => {
+    if (nextToken) {
+      goToNextPage(nextToken);
+    }
+  }, [nextToken, goToNextPage]);
+
+  const handlePreviousPage = useCallback(() => {
+    goToPreviousPage();
+  }, [goToPreviousPage]);
+
+  const handlePageSizeChange = useCallback(
+    (newPageSize: number) => {
+      changePageSize(newPageSize);
+    },
+    [changePageSize],
+  );
+
   return {
     // Data
     domains,
@@ -252,9 +288,13 @@ export function useDomainTable({
     isDeleting,
     isVerifying,
     isLoadingProviders,
-
-    // Refresh
-    refetchDomains,
+    // Pagination
+    pagination: {
+      pageSize,
+      currentPage,
+      hasNextPage: !!nextToken,
+      hasPreviousPage,
+    },
 
     // Modal state
     showCreateModal,
@@ -271,6 +311,7 @@ export function useDomainTable({
     setShowDeleteModal,
 
     // Handlers
+    refetchDomains,
     handleCreate,
     handleVerify,
     handleDelete,
@@ -280,5 +321,8 @@ export function useDomainTable({
     handleConfigureClick,
     handleVerifyClick,
     handleDeleteClick,
+    handleNextPage,
+    handlePreviousPage,
+    handlePageSizeChange,
   };
 }

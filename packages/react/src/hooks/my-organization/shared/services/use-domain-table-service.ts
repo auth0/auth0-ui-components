@@ -18,15 +18,24 @@ import { useCallback, useState } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { isMutationLoading } from '@/lib/utils/tanstack-compat';
+import { getPreviousDataOption, isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   UseDomainTableServiceOptions,
   UseDomainTableServiceReturn,
 } from '@/types/my-organization/domain-management/domain-table-types';
 
+const keepPreviousDataOption = getPreviousDataOption();
+
 /**
  * Internal service hook for domain table data and CRUD operations.
- * @param options - Service options including actions and custom messages.
+ * @param props - Service options including actions and custom messages.
+ * @param props.createAction - Create action callbacks.
+ * @param props.deleteAction - Delete action callbacks.
+ * @param props.verifyAction - Verify action callbacks.
+ * @param props.associateToProviderAction - Associate to provider action callbacks.
+ * @param props.deleteFromProviderAction - Delete from provider action callbacks.
+ * @param props.customMessages - Custom translation messages.
+ * @param props.paginationParams - Pagination parameters.
  * @returns Domain data, mutations, and actions.
  * @internal
  */
@@ -37,6 +46,7 @@ export function useDomainTableService({
   associateToProviderAction,
   deleteFromProviderAction,
   customMessages,
+  paginationParams,
 }: UseDomainTableServiceOptions): UseDomainTableServiceReturn {
   const { t } = useTranslator('domain_management.domain_table.notifications', customMessages);
   const { coreClient } = useCoreClient();
@@ -60,14 +70,24 @@ export function useDomainTableService({
   };
 
   const domainsQuery = useQuery({
-    queryKey: domainQueryKeys.list(),
+    queryKey: domainQueryKeys.list({
+      pageSize: paginationParams?.pageSize,
+      fromToken: paginationParams?.fromToken,
+    }),
     queryFn: async () => {
       const { response } = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.domains.list();
-      return response?.organization_domains ?? [];
+        .organization.domains.list({
+          take: paginationParams?.pageSize,
+          from: paginationParams?.fromToken,
+        });
+      return {
+        domains: response?.organization_domains ?? [],
+        next: response?.next ?? null,
+      };
     },
     enabled: !!coreClient,
+    ...keepPreviousDataOption,
   });
 
   const providersQuery = useQuery({
@@ -85,7 +105,7 @@ export function useDomainTableService({
     },
     onSuccess: (result) => {
       createAction?.onAfter?.(result);
-      queryClient.invalidateQueries({ queryKey: domainQueryKeys.list() });
+      queryClient.invalidateQueries({ queryKey: domainQueryKeys.lists() });
     },
   });
 
@@ -101,7 +121,7 @@ export function useDomainTableService({
     },
     onSuccess: (_, domain) => {
       verifyAction?.onAfter?.(domain);
-      queryClient.invalidateQueries({ queryKey: domainQueryKeys.list() });
+      queryClient.invalidateQueries({ queryKey: domainQueryKeys.lists() });
     },
   });
 
@@ -114,7 +134,7 @@ export function useDomainTableService({
     },
     onSuccess: (_, domain) => {
       deleteAction?.onAfter?.(domain);
-      queryClient.invalidateQueries({ queryKey: domainQueryKeys.list() });
+      queryClient.invalidateQueries({ queryKey: domainQueryKeys.lists() });
       queryClient.removeQueries({ queryKey: domainQueryKeys.providers(domain.id) });
     },
   });
@@ -195,12 +215,13 @@ export function useDomainTableService({
   );
 
   const fetchDomains = useCallback(async () => {
-    await queryClient.getQueryData(domainQueryKeys.list());
+    await queryClient.getQueryData(domainQueryKeys.lists());
   }, [queryClient]);
 
   return {
-    domains: domainsQuery.data ?? [],
+    domains: domainsQuery.data?.domains ?? [],
     providers: providersQuery.data ?? [],
+    nextToken: domainsQuery.data?.next ?? null,
     isFetching: domainsQuery.isLoading,
     isRefetchingDomains: domainsQuery.isFetching,
     isDomainsStale: domainsQuery.isStale,
