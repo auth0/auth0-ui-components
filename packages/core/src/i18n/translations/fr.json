@@ -889,7 +889,7 @@
   },
   "user_mfa_management": {
     "header": {
-      "title": "Méthodes d'authentification à facteurs multiples",
+      "title": "Méthodes de vérification supplémentaires",
       "description": "Protection supplémentaire pour votre compte et votre identité"
     },
     "no_active_mfa": "Aucun facteur MFA actif inscrit.",
@@ -952,8 +952,8 @@
         "last_used": "Dernière utilisation ${date}"
       },
       "phone": {
-        "title": "Message téléphonique",
-        "description": "Aucun numéro de téléphone n'a été ajouté.",
+        "title": "SMS",
+        "description": "Aucun numéro de téléphone n'a été ajouté pour les SMS.",
         "button_text": "Ajouter un téléphone pour SMS"
       },
       "push-notification": {

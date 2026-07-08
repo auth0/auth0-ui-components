@@ -64,7 +64,7 @@ export function FactorDeleteModal({
       <DialogContent
         style={currentStyles?.variables}
         className={cn(
-          'w-[600px] max-h-[90vh] gap-4',
+          'w-[600px] min-h-44 max-h-[90vh] gap-4',
           currentStyles.classes?.['FactorDeleteModal-dialogContent'],
         )}
       >

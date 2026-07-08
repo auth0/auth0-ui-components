@@ -943,7 +943,7 @@
   },
   "user_mfa_management": {
     "header": {
-      "title": "多要素認証方法",
+      "title": "追加の確認方法",
       "description": "あなたのアカウントと身元をさらに保護します"
     },
     "no_active_mfa": "登録されている多要素認証はありません。",
@@ -1006,8 +1006,8 @@
         "last_used": "最終使用: ${date}"
       },
       "phone": {
-        "title": "電話メッセージ ",
-        "description": "電話番号が追加されていません。",
+        "title": "SMS",
+        "description": "SMS用の電話番号が追加されていません。",
         "button_text": "SMS用電話番号を追加"
       },
       "push-notification": {

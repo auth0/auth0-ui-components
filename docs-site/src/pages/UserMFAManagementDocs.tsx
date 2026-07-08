@@ -405,8 +405,7 @@ interface ComponentAction<T> {
 
 // Custom styling classes
 interface UserMFAManagementClasses {
-  'UserMFAManagement-card'?: string;
-  'UserMFAManagement-header'?: string;
+  'UserMFAManagement-item'?: string;
   'EnrollFactorModal-dialogContent'?: string;
   'FactorDeleteModal-dialogContent'?: string;
 }`}
@@ -628,10 +627,7 @@ interface UserMFAManagementClasses {
                   <strong>CSS Classes (styling.classes)</strong>
                   <ul className="ml-4 list-disc space-y-1 mt-2">
                     <li>
-                      <code>UserMFAManagement-card</code> - Main component card container
-                    </li>
-                    <li>
-                      <code>UserMFAManagement-header</code> - Header title and description wrapper
+                      <code>UserMFAManagement-item</code> - Each factor-type card container
                     </li>
                     <li>
                       <code>EnrollFactorModal-dialogContent</code> - Enrollment dialog content
@@ -661,8 +657,7 @@ interface UserMFAManagementClasses {
       }
     },
     classes: {
-      'UserMFAManagement-card': 'shadow-2xl rounded-2xl border-2 p-8',
-      'UserMFAManagement-header': 'pb-4 border-b',
+      'UserMFAManagement-item': 'shadow-2xl rounded-2xl border-2 p-8',
       'EnrollFactorModal-dialogContent': 'max-w-2xl',
       'FactorDeleteModal-dialogContent': 'max-w-md'
     }

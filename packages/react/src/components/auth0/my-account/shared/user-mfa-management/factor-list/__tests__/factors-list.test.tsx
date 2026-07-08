@@ -266,7 +266,7 @@ describe('FactorsList', () => {
 
       const deleteButton = await screen.findByRole('menuitem', { name: /remove/i });
       // When deleting, delete button should be disabled
-      expect(deleteButton).toBeDisabled();
+      expect(deleteButton).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should enable delete button when isDeletingFactor is false', async () => {
@@ -287,7 +287,7 @@ describe('FactorsList', () => {
 
       const deleteButton = await screen.findByRole('menuitem', { name: /remove/i });
       // When not deleting, delete button should be enabled
-      expect(deleteButton).not.toBeDisabled();
+      expect(deleteButton).not.toHaveAttribute('aria-disabled', 'true');
     });
   });
 
@@ -309,7 +309,7 @@ describe('FactorsList', () => {
 
     const deleteButton = await screen.findByRole('menuitem', { name: /remove/i });
     // When delete is disabled, button should be disabled
-    expect(deleteButton).toBeDisabled();
+    expect(deleteButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('should disable delete button when isEnabledFactor is false', async () => {
@@ -330,7 +330,7 @@ describe('FactorsList', () => {
 
     const deleteButton = await screen.findByRole('menuitem', { name: /remove/i });
     // When factor is not enabled, button should be disabled
-    expect(deleteButton).toBeDisabled();
+    expect(deleteButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('should render with custom messages when custom messages are provided', async () => {

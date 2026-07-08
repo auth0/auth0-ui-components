@@ -943,7 +943,7 @@
   },
   "user_mfa_management": {
     "header": {
-      "title": "Multi-Factor Authentication methods",
+      "title": "Additional verification methods",
       "description": "Extra protection for your account and your identity"
     },
     "no_active_mfa": "No active MFA factors enrolled.",
@@ -1013,8 +1013,8 @@
         "last_used": "Last used ${date}"
       },
       "phone": {
-        "title": "Phone Message",
-        "description": "No phone number has been added.",
+        "title": "SMS",
+        "description": "No phone has been added for SMS.",
         "button_text": "Add Phone for SMS"
       },
       "push-notification": {

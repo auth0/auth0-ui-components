@@ -102,7 +102,7 @@ describe('UserMFAManagement', () => {
         await waitForComponentToLoad();
 
         await waitFor(() => {
-          expect(document.getElementById('mfa-management-title')).toBeInTheDocument();
+          expect(screen.getByText('header.title')).toBeInTheDocument();
         });
       });
     });
@@ -114,7 +114,7 @@ describe('UserMFAManagement', () => {
         );
 
         await waitFor(() => {
-          expect(document.getElementById('mfa-management-title')).not.toBeInTheDocument();
+          expect(screen.queryByText('header.title')).not.toBeInTheDocument();
         });
       });
     });

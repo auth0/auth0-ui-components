@@ -98,11 +98,7 @@ export function QRCodeEnrollmentForm({
   return (
     <div style={currentStyles.variables} className="w-full">
       {isEnrolling ? (
-        <div
-          className="absolute inset-0 flex items-center justify-center"
-          role="status"
-          aria-live="polite"
-        >
+        <div className="flex items-center justify-center w-full" role="status" aria-live="polite">
           <Spinner aria-label={t('loading_text')} />
         </div>
       ) : (
@@ -125,7 +121,7 @@ export function QRCodeEnrollmentForm({
           </p>
           <p
             id="qr-description"
-            className="font-normal block text-sm text-center text-(length:--font-size-paragraph) text-primary"
+            className="font-normal block text-sm text-left text-(length:--font-size-paragraph) text-primary"
           >
             {factorType === FACTOR_TYPE_TOTP
               ? t('enrollment.totp.scan_description')

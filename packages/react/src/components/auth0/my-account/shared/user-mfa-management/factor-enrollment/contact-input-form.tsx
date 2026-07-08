@@ -137,11 +137,7 @@ export function ContactInputForm({
     <div style={currentStyles.variables} className="w-full">
       <div className="flex flex-col items-center justify-center flex-1 space-y-10">
         {isEnrolling ? (
-          <div
-            className="absolute inset-0 flex items-center justify-center"
-            role="status"
-            aria-live="polite"
-          >
+          <div className="flex items-center justify-center w-full" role="status" aria-live="polite">
             <Spinner aria-label={t('loading_text')} />
           </div>
         ) : (

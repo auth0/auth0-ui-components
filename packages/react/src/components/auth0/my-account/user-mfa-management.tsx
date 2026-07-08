@@ -9,11 +9,18 @@ import { MFAEmptyState } from '@/components/auth0/my-account/shared/user-mfa-man
 import { MFAErrorState } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/error-state';
 import { FactorsList } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/factors-list';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
+import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardTitle } from '@/components/ui/card';
-import { List, ListItem } from '@/components/ui/list';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardAction,
+  CardContent,
+} from '@/components/ui/card';
 import { useUserMFA } from '@/hooks/my-account/use-user-mfa';
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -211,125 +218,104 @@ function UserMFAManagementView({
 
   return (
     <StyledScope style={currentStyles.variables}>
-      <Card className={cn('p-6 gap-4', currentStyles.classes?.['UserMFAManagement-card'])}>
-        {error ? (
+      {!hideHeader && <Header title={t('header.title')} description={t('header.description')} />}
+
+      {error ? (
+        <Card className={cn(currentStyles.classes?.['UserMFAManagement-item'])}>
           <MFAErrorState
             title={t('component_error.title')}
             description={t('component_error.description')}
           />
-        ) : (
-          <>
-            {!hideHeader && (
-              <div className={cn(currentStyles.classes?.['UserMFAManagement-header'])}>
-                <CardTitle
-                  id="mfa-management-title"
-                  className="text-2xl text-(length:--font-size-heading) font-medium text-left"
-                >
-                  {t('header.title')}
-                </CardTitle>
-                <CardDescription
-                  id="mfa-management-desc"
-                  className="text-sm text-(length:--font-size-paragraph) text-muted-foreground text-left"
-                >
-                  {t('header.description')}
-                </CardDescription>
-              </div>
-            )}
-            {showActiveOnly && hasNoActiveFactors ? (
-              <MFAEmptyState message={t('no_active_mfa')} />
-            ) : (
-              <List
-                className="flex flex-col gap-0 w-full"
-                aria-labelledby="mfa-management-title"
-                aria-describedby="mfa-management-desc"
+        </Card>
+      ) : showActiveOnly && hasNoActiveFactors ? (
+        <Card className={cn(currentStyles.classes?.['UserMFAManagement-item'])}>
+          <MFAEmptyState message={t('no_active_mfa')} />
+        </Card>
+      ) : (
+        <div className="flex flex-col gap-4 w-full">
+          {visibleFactorTypes.map((factorType) => {
+            const factors = factorsByType[factorType] || [];
+            const activeFactors = factors.filter((f) => f.enrolled);
+            const isEnabledFactor = factorConfig?.[factorType]?.enabled !== false;
+            const hasActiveFactors = activeFactors.length > 0;
+
+            return (
+              <Card
+                key={factorType}
+                className={cn(
+                  !isEnabledFactor && 'opacity-50 pointer-events-none',
+                  currentStyles.classes?.['UserMFAManagement-item'],
+                )}
+                aria-disabled={!isEnabledFactor}
+                aria-label={t(`factors.${factorType}.title`)}
               >
-                {visibleFactorTypes.map((factorType) => {
-                  const factors = factorsByType[factorType] || [];
-                  const activeFactors = factors.filter((f) => f.enrolled);
-                  const isEnabledFactor = factorConfig?.[factorType]?.enabled !== false;
-                  const hasActiveFactors = activeFactors.length > 0;
-
-                  return (
-                    <ListItem
-                      key={factorType}
-                      className={cn(
-                        'w-full p-0 m-0 py-6 first:pt-0 last:pb-0 gap-3',
-                        !isEnabledFactor && 'opacity-50 pointer-events-none',
-                      )}
-                      aria-disabled={!isEnabledFactor}
-                      tabIndex={0}
-                      aria-label={t(`factors.${factorType}.title`)}
+                <CardHeader>
+                  <CardTitle className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <span
+                      className="break-words text-card-foreground whitespace-normal text-base text-(length:--font-size-body) font-medium"
+                      id={`factor-title-${factorType}`}
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                          <span
-                            className={cn(
-                              'break-words text-card-foreground whitespace-normal text-base text-(length:--font-size-body) font-medium',
-                            )}
-                            id={`factor-title-${factorType}`}
-                          >
-                            {t(`factors.${factorType}.title`)}
-                          </span>
+                      {t(`factors.${factorType}.title`)}
+                    </span>
 
-                          {hasActiveFactors && (
-                            <Badge
-                              variant="success"
-                              size="sm"
-                              className="shrink-0"
-                              aria-label={t('factors.meta.enabled')}
-                            >
-                              {t('factors.meta.enabled')}
-                            </Badge>
-                          )}
-                        </div>
+                    {hasActiveFactors && (
+                      <Badge
+                        variant="success"
+                        size="sm"
+                        className="shrink-0"
+                        aria-label={t('factors.meta.enabled')}
+                      >
+                        {t('factors.meta.enabled')}
+                      </Badge>
+                    )}
+                  </CardTitle>
 
-                        {!readOnly && (
-                          <Button
-                            size="default"
-                            variant="outline"
-                            className="text-sm w-full sm:w-auto shrink-0"
-                            onClick={() => onEnrollFactor(factorType)}
-                            disabled={disableEnroll || !isEnabledFactor}
-                            aria-label={t(`factors.${factorType}.button_text`)}
-                            aria-describedby={`factor-title-${factorType}`}
-                          >
-                            {t(`factors.${factorType}.button_text`)}
-                          </Button>
-                        )}
-                      </div>
+                  {!hasActiveFactors && (
+                    <CardDescription
+                      className="font-normal text-sm text-(length:--font-size-paragraph) break-words"
+                      id={`factor-desc-${factorType}`}
+                    >
+                      {t(`factors.${factorType}.description`)}
+                    </CardDescription>
+                  )}
 
-                      {!hasActiveFactors && (
-                        <p
-                          className={cn(
-                            'font-normal text-sm text-(length:--font-size-paragraph) text-muted-foreground text-left break-words',
-                          )}
-                          id={`factor-desc-${factorType}`}
-                        >
-                          {t(`factors.${factorType}.description`)}
-                        </p>
-                      )}
+                  {!readOnly && (
+                    <CardAction>
+                      <Button
+                        size="default"
+                        variant="outline"
+                        className="text-sm w-full sm:w-auto shrink-0"
+                        onClick={() => onEnrollFactor(factorType)}
+                        disabled={disableEnroll || !isEnabledFactor}
+                        aria-label={t(`factors.${factorType}.button_text`)}
+                        aria-describedby={`factor-title-${factorType}`}
+                      >
+                        {t(`factors.${factorType}.button_text`)}
+                      </Button>
+                    </CardAction>
+                  )}
+                </CardHeader>
 
-                      {hasActiveFactors && (
-                        <FactorsList
-                          factors={activeFactors}
-                          factorType={factorType}
-                          readOnly={readOnly}
-                          isEnabledFactor={isEnabledFactor}
-                          onDeleteFactor={onDeleteFactor}
-                          isDeletingFactor={isDeleting}
-                          disableDelete={disableDelete}
-                          styling={styling}
-                          customMessages={customMessages}
-                        />
-                      )}
-                    </ListItem>
-                  );
-                })}
-              </List>
-            )}
-          </>
-        )}
-      </Card>
+                {hasActiveFactors && (
+                  <CardContent>
+                    <FactorsList
+                      factors={activeFactors}
+                      factorType={factorType}
+                      readOnly={readOnly}
+                      isEnabledFactor={isEnabledFactor}
+                      onDeleteFactor={onDeleteFactor}
+                      isDeletingFactor={isDeleting}
+                      disableDelete={disableDelete}
+                      styling={styling}
+                      customMessages={customMessages}
+                    />
+                  </CardContent>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+      )}
       {enrollFactor && (
         <EnrollFactorModal
           open={isEnrollDialogOpen}

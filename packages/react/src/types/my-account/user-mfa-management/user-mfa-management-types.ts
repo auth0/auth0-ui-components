@@ -32,8 +32,7 @@ export type FactorConfig = { [K in MFAType]?: FactorConfigOptions };
 
 /** CSS classes for UserMFAManagement component. */
 export interface UserMFAManagementClasses {
-  'UserMFAManagement-card'?: string;
-  'UserMFAManagement-header'?: string;
+  'UserMFAManagement-item'?: string;
   'EnrollFactorModal-dialogContent'?: string;
   'FactorDeleteModal-dialogContent'?: string;
 }

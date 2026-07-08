@@ -22,9 +22,14 @@ import {
 } from 'lucide-react';
 import * as React from 'react';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { formatDate } from '@/lib/utils/date';
@@ -88,13 +93,13 @@ export function FactorsList({
   );
 
   return (
-    <div className="space-y-2 mt-2" style={currentStyles?.variables}>
+    <div className="space-y-2" style={currentStyles?.variables}>
       {factors.map((factor) => {
         const label = getFactorLabel(factor);
         return (
           <Card
             key={factor.id}
-            className="border border-[color:var(--color-border)] rounded-lg shadow-none bg-transparent p-0 w-full"
+            className="border border-[color:var(--color-border)] rounded-lg  bg-transparent p-0 w-full"
             aria-label={label}
           >
             <CardContent className="flex flex-row items-center justify-between gap-3 p-3">
@@ -131,32 +136,29 @@ export function FactorsList({
               </div>
               {!readOnly && (
                 <div className="shrink-0">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label={t('actions.menu_aria_label')}
-                        className="p-2"
-                      >
-                        <MoreVertical className="w-5 h-5" aria-hidden="true" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-30 p-2" role="menu">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="flex items-center justify-center px-4 py-2 gap-2 text-red-600 font-normal text-sm w-full"
-                        onClick={() => onDeleteFactor(factor.id, factorType)}
-                        disabled={disableDelete || isDeletingFactor || !isEnabledFactor}
-                        aria-label={t('actions.remove_button_label')}
-                        role="menuitem"
-                      >
-                        <Trash2 className="w-4 h-4" aria-hidden="true" />
-                        <span>{t('actions.remove_button_label')}</span>
-                      </Button>
-                    </PopoverContent>
-                  </Popover>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t('actions.menu_aria_label')}
+                      className="p-2"
+                    >
+                      <MoreVertical className="w-5 h-5" aria-hidden="true" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => onDeleteFactor(factor.id, factorType)}
+                          disabled={disableDelete || isDeletingFactor || !isEnabledFactor}
+                          aria-label={t('actions.remove_button_label')}
+                          className="text-destructive-foreground focus:text-destructive-foreground"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
+                          {t('actions.remove_button_label')}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenu>
                 </div>
               )}
             </CardContent>
