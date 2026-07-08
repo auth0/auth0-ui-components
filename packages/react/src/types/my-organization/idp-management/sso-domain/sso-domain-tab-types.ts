@@ -13,14 +13,12 @@ import type {
 } from '@auth0/universal-components-core';
 import type { UseQueryResult } from '@tanstack/react-query';
 
-/** Data shape returned by the paginated domains query. */
-export interface SsoDomainsQueryData {
+interface SsoDomainsQueryData {
   domains: Domain[];
   next: string | null;
 }
 
-/** Refetch handler for the SSO domains query. */
-export type RefetchSsoDomains = UseQueryResult<SsoDomainsQueryData>['refetch'];
+type RefetchSsoDomains = UseQueryResult<SsoDomainsQueryData>['refetch'];
 
 /** SSO domains tab edit action props. */
 export interface SsoDomainsTabEditProps {
