@@ -51,6 +51,7 @@ function getStatusBadgeVariant(status: InvitationStatus): 'warning' | 'destructi
  * @param props.onCopyUrl - Callback when copy URL is clicked.
  * @param props.onRevoke - Callback when revoke is clicked.
  * @param props.onResend - Callback when revoke and resend is clicked.
+ * @param props.style - CSS variables computed by the parent.
  * @param props.className - Optional CSS class name.
  * @returns The modal component.
  */
@@ -67,6 +68,7 @@ export function OrganizationInvitationDetailsModal({
   onCopyUrl,
   onRevoke,
   onResend,
+  style,
   className,
 }: OrganizationInvitationDetailsModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
@@ -132,7 +134,7 @@ export function OrganizationInvitationDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={className}>
+      <DialogContent style={style} className={className}>
         <DialogHeader>
           <div className="flex items-center gap-2">
             <DialogTitle>{t('invitation.details.title')}</DialogTitle>

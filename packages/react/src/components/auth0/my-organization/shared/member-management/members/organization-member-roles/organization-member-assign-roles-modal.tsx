@@ -22,6 +22,8 @@ import type { OrganizationMemberAssignRolesModalProps } from '@/types/my-organiz
 /**
  * Renders the assign roles dialog for selecting and assigning roles to a member.
  * @param props - Component props
+ * @param props.classes - Custom CSS class overrides
+ * @param props.style - CSS variables computed by the parent
  * @returns The rendered assign roles dialog element
  */
 export function OrganizationMemberAssignRolesModal({
@@ -31,6 +33,8 @@ export function OrganizationMemberAssignRolesModal({
   assignedRoles,
   customMessages,
   selectedMember,
+  classes,
+  style,
   onClose,
   onAssign,
 }: OrganizationMemberAssignRolesModalProps): React.JSX.Element {
@@ -73,7 +77,10 @@ export function OrganizationMemberAssignRolesModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent>
+      <DialogContent
+        style={style}
+        className={classes?.['OrganizationMemberAssignRolesModal-dialogContent']}
+      >
         <DialogHeader>
           <DialogTitle className="mb-4">{t('member.detail.roles.assign_modal.title')}</DialogTitle>
         </DialogHeader>
