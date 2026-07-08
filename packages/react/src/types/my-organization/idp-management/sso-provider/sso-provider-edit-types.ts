@@ -71,6 +71,9 @@ export interface SsoProviderEditProps
     SsoProviderEditSchema
   > {
   hideHeader?: boolean;
+  hideProvisioningTab?: boolean;
+  hideDeleteProvider?: boolean;
+  hideRemoveFromOrganization?: boolean;
   providerId: IdpId;
   sso?: SsoProviderTabEditProps;
   provisioning?: SsoProvisioningTabEditProps;
