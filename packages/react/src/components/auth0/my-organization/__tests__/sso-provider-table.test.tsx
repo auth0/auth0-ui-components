@@ -809,6 +809,40 @@ describe('SsoProviderTable', () => {
       });
     });
   });
+
+  describe('refresh indicator', () => {
+    it('should render the refresh control once providers data is loaded and stale', async () => {
+      renderTable();
+
+      await waitForComponentToLoad();
+      await screen.findByText(mockProvider.name!);
+
+      expect(screen.getByRole('button', { name: 'refresh' })).toBeInTheDocument();
+    });
+
+    it('should refetch providers when the refresh button is clicked', async () => {
+      const user = userEvent.setup();
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      const listProviders = apiService.organization.identityProviders.list as ReturnType<
+        typeof vi.fn
+      >;
+
+      renderTable();
+
+      await waitForComponentToLoad();
+      await screen.findByText(mockProvider.name!);
+
+      // Initial load fetches the providers list once.
+      expect(listProviders).toHaveBeenCalledTimes(1);
+
+      await user.click(screen.getByRole('button', { name: 'refresh' }));
+
+      // Clicking refresh triggers a refetch of the providers list.
+      await waitFor(() => {
+        expect(listProviders).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
 });
 
 describe('SsoProviderTableView', () => {
@@ -863,38 +897,5 @@ describe('SsoProviderTableView', () => {
       />,
     );
     expect(document.querySelector('.custom-table')).toBeInTheDocument();
-  });
-
-  describe('refresh indicator', () => {
-    it('renders the refresh control when providers data is stale, and refetches providers on click', async () => {
-      const user = userEvent.setup();
-      const refetchProviders = vi.fn();
-
-      renderWithProviders(
-        <SsoProviderTableView
-          {...createMockSsoProviderTableViewProps({
-            isProvidersStale: true,
-            isRefetchingProviders: false,
-            refetchProviders,
-          })}
-        />,
-      );
-
-      const refreshButton = screen.getByRole('button', { name: 'refresh' });
-      expect(refreshButton).toBeInTheDocument();
-
-      await user.click(refreshButton);
-      expect(refetchProviders).toHaveBeenCalledTimes(1);
-    });
-
-    it('does not render the refresh control when providers data is not stale', () => {
-      renderWithProviders(
-        <SsoProviderTableView
-          {...createMockSsoProviderTableViewProps({ isProvidersStale: false })}
-        />,
-      );
-
-      expect(screen.queryByRole('button', { name: 'refresh' })).not.toBeInTheDocument();
-    });
   });
 });

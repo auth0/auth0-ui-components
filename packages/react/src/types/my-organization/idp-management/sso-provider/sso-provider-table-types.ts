@@ -15,8 +15,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 
 export type { IdpKnownResponse };
 
-/** Refetch handler for the SSO providers query. */
-export type RefetchProviders = UseQueryResult<IdpKnownResponse[]>['refetch'];
+type RefetchProviders = UseQueryResult<IdpKnownResponse[]>['refetch'];
 
 /** SSO provider table schema. */
 interface SsoProviderTableSchema {
