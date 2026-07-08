@@ -13,8 +13,14 @@ import type {
 } from '@auth0/universal-components-core';
 import type { UseQueryResult } from '@tanstack/react-query';
 
+/** Data shape returned by the paginated domains query. */
+export interface SsoDomainsQueryData {
+  domains: Domain[];
+  next: string | null;
+}
+
 /** Refetch handler for the SSO domains query. */
-export type RefetchSsoDomains = UseQueryResult<Domain[]>['refetch'];
+export type RefetchSsoDomains = UseQueryResult<SsoDomainsQueryData>['refetch'];
 
 /** SSO domains tab edit action props. */
 export interface SsoDomainsTabEditProps {
@@ -29,6 +35,7 @@ export interface SsoDomainsTabEditProps {
 export interface SsoDomainTabClasses {
   'SsoDomainsTab-header'?: string;
   'SsoDomainsTab-table'?: string;
+  'SsoDomainsTab-tableHeader'?: string;
   'SsoDomainsTab-createModal'?: string;
   'SsoDomainsTab-verifyModal'?: string;
   'SsoDomainsTab-deleteModal'?: string;
@@ -85,7 +92,6 @@ export interface UseSsoDomainTabReturn {
   isRefetchingDomains: boolean;
   isDomainsStale: boolean;
   domainsUpdatedAt: number;
-  refetchDomains: RefetchSsoDomains;
   showCreateModal: boolean;
   isCreating: boolean;
   selectedDomain: Domain | null;
@@ -99,6 +105,7 @@ export interface UseSsoDomainTabReturn {
   isUpdatingId: string | null;
   pagination: SsoDomainTabPaginationState;
   setShowCreateModal: (show: boolean) => void;
+  refetchDomains: RefetchSsoDomains;
   handleCreate: (domainUrl: string) => Promise<void>;
   handleCloseVerifyModal: () => void;
   handleVerify: (domain: Domain) => Promise<void>;
