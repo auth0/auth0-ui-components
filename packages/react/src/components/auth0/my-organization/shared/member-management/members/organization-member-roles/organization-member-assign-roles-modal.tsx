@@ -4,7 +4,6 @@
  * @internal
  */
 
-import { getComponentStyles } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -17,15 +16,14 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { cn } from '@/lib/utils';
 import type { OrganizationMemberAssignRolesModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
  * Renders the assign roles dialog for selecting and assigning roles to a member.
  * @param props - Component props
- * @param props.styling - Custom styling configuration with variables and classes
+ * @param props.classes - Custom CSS class overrides
+ * @param props.style - CSS variables computed by the parent
  * @returns The rendered assign roles dialog element
  */
 export function OrganizationMemberAssignRolesModal({
@@ -35,17 +33,12 @@ export function OrganizationMemberAssignRolesModal({
   assignedRoles,
   customMessages,
   selectedMember,
-  className,
-  styling,
+  classes,
+  style,
   onClose,
   onAssign,
 }: OrganizationMemberAssignRolesModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
-  const { isDarkMode } = useTheme();
-  const currentStyles = React.useMemo(
-    () => getComponentStyles(styling, isDarkMode),
-    [styling, isDarkMode],
-  );
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
   const userId = selectedMember?.user_id ?? null;
   const memberRoles = selectedMember?.roles ?? assignedRoles ?? [];
@@ -85,11 +78,8 @@ export function OrganizationMemberAssignRolesModal({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent
-        style={currentStyles.variables}
-        className={cn(
-          className,
-          currentStyles.classes?.['OrganizationMemberAssignRolesModal-dialogContent'],
-        )}
+        style={style}
+        className={classes?.['OrganizationMemberAssignRolesModal-dialogContent']}
       >
         <DialogHeader>
           <DialogTitle className="mb-4">{t('member.detail.roles.assign_modal.title')}</DialogTitle>

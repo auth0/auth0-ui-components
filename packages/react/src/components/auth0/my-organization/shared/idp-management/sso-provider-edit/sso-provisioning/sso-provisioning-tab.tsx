@@ -114,11 +114,8 @@ export function SsoProvisioningTab({
           onSync={onAttributeSync}
           isSyncing={isSyncingAttributes}
           customMessages={customMessages.attribute_sync_alert}
-          className={currentStyles.classes?.['SsoProviderAttributeSyncAlert-root']}
+          classes={currentStyles.classes}
           style={currentStyles.variables}
-          dialogContentClassName={
-            currentStyles.classes?.['SsoProviderAttributeSyncAlert-dialogContent']
-          }
         />
       )}
 

@@ -4,7 +4,6 @@
  */
 
 import type {
-  ComponentStyling,
   SharedComponentProps,
   ComponentAction,
   MemberInvitation,
@@ -12,6 +11,7 @@ import type {
   OrganizationInvitationTabMessages,
   Role,
 } from '@auth0/universal-components-core';
+import type React from 'react';
 
 import type {
   MemberManagementFilterState,
@@ -54,9 +54,6 @@ export interface OrganizationInvitationTabClasses {
   'OrganizationInvitationTab-searchInput'?: string;
   'OrganizationInvitationTab-filterDropdown'?: string;
   'OrganizationInvitationTab-pagination'?: string;
-  'OrganizationInvitationCreateModal-dialogContent'?: string;
-  'OrganizationInvitationDetailsModal-dialogContent'?: string;
-  'OrganizationInvitationRevokeModal-dialogContent'?: string;
 }
 
 /** Props for OrganizationInvitationTab component. */
@@ -123,9 +120,7 @@ export interface OrganizationInvitationCreateModalProps {
   availableProviders?: IdentityProviderOption[];
   inviterName?: string;
   schema?: InvitationCreateSchemas;
-  styling?: ComponentStyling<
-    Pick<OrganizationInvitationTabClasses, 'OrganizationInvitationCreateModal-dialogContent'>
-  >;
+  style?: React.CSSProperties;
   onClose: () => void;
   onCreate: (data: CreateInvitationInput) => void;
   className?: string;
@@ -141,9 +136,7 @@ export interface OrganizationInvitationDetailsModalProps {
   availableRoles?: Role[];
   availableProviders?: IdentityProviderOption[];
   readOnly?: boolean;
-  styling?: ComponentStyling<
-    Pick<OrganizationInvitationTabClasses, 'OrganizationInvitationDetailsModal-dialogContent'>
-  >;
+  style?: React.CSSProperties;
   onClose: () => void;
   onCopyUrl?: (invitation: MemberInvitation) => void;
   onRevoke?: (invitation?: MemberInvitation) => void;
@@ -158,9 +151,7 @@ export interface OrganizationInvitationRevokeModalProps {
   isLoading?: boolean;
   isRevokeAndResend?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
-  styling?: ComponentStyling<
-    Pick<OrganizationInvitationTabClasses, 'OrganizationInvitationRevokeModal-dialogContent'>
-  >;
+  style?: React.CSSProperties;
   onClose: () => void;
   onConfirm: (invitation: MemberInvitation) => void;
   className?: string;

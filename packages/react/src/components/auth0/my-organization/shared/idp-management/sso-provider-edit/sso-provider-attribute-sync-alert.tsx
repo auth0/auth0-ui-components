@@ -26,9 +26,8 @@ import type { SsoProviderAttributeSyncAlertProps } from '@/types/my-organization
  *
  * @param props - Component props.
  * @param props.translatorKey - i18n translation key namespace.
- * @param props.className - Additional CSS class names.
+ * @param props.classes - CSS class overrides for sub-elements.
  * @param props.style - CSS variables computed by the parent.
- * @param props.dialogContentClassName - Class name for the confirmation dialog content.
  * @param props.customMessages - Custom i18n message overrides.
  * @param props.onSync - Callback when sync is triggered.
  * @param props.isSyncing - Whether sync is in progress.
@@ -37,9 +36,8 @@ import type { SsoProviderAttributeSyncAlertProps } from '@/types/my-organization
  */
 export function SsoProviderAttributeSyncAlert({
   translatorKey = 'idp_management.edit_sso_provider.tabs.sso.content.attribute_sync_alert',
-  className,
+  classes,
   style,
-  dialogContentClassName,
   customMessages,
   onSync,
   isSyncing = false,
@@ -61,7 +59,13 @@ export function SsoProviderAttributeSyncAlert({
 
   return (
     <>
-      <Alert variant="warning" className={cn('flex items-center justify-between', className)}>
+      <Alert
+        variant="warning"
+        className={cn(
+          'flex items-center justify-between',
+          classes?.['SsoProviderAttributeSyncAlert-root'],
+        )}
+      >
         <div className="flex items-start gap-2">
           <AlertTriangle className="h-4 w-4 mt-0.5" />
           <div>
@@ -77,7 +81,10 @@ export function SsoProviderAttributeSyncAlert({
       </Alert>
 
       <Dialog open={isSyncModalOpen} onOpenChange={setIsSyncModalOpen}>
-        <DialogContent style={style} className={dialogContentClassName}>
+        <DialogContent
+          style={style}
+          className={classes?.['SsoProviderAttributeSyncAlert-dialogContent']}
+        >
           <DialogHeader>
             <DialogTitle>{t('sync_modal.title')}</DialogTitle>
             <DialogDescription>{t('sync_modal.description')}</DialogDescription>
