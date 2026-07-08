@@ -9,6 +9,7 @@ import { DomainCreateModal } from '@/components/auth0/my-organization/shared/dom
 import { DomainDeleteModal } from '@/components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal';
 import { DomainTableActionsColumn } from '@/components/auth0/my-organization/shared/domain-management/domain-table/domain-table-actions-column';
 import { DomainVerifyModal } from '@/components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal';
+import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
@@ -18,6 +19,7 @@ import { useDomainTable } from '@/hooks/my-organization/use-domain-table';
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import type {
   DomainTableProps,
@@ -102,6 +104,7 @@ function DomainTableView({
     isFetching,
     isLoadingProviders,
     isDeleting,
+    pagination,
     showCreateModal,
     showConfigureModal,
     showVerifyModal,
@@ -120,6 +123,9 @@ function DomainTableView({
     handleConfigureClick,
     handleVerifyClick,
     handleDeleteClick,
+    handleNextPage,
+    handlePreviousPage,
+    handlePageSizeChange,
   } = domainTable;
 
   const currentStyles = React.useMemo(
@@ -196,6 +202,25 @@ function DomainTableView({
         emptyState={{ title: t('domain_table.table.empty_message') }}
         className={currentStyles.classes?.['DomainTable-table']}
       />
+
+      {domains.length > 0 && (
+        <div className="mt-4">
+          <DataPagination
+            type="checkpoint"
+            paginationState={{
+              pageSize: pagination.pageSize,
+              currentPage: pagination.currentPage,
+              hasNextPage: pagination.hasNextPage,
+              hasPreviousPage: pagination.hasPreviousPage,
+            }}
+            pageSizeOptions={DEFAULT_PAGE_SIZE_OPTIONS}
+            showPageSizeSelector
+            onNextPage={handleNextPage}
+            onPreviousPage={handlePreviousPage}
+            onPageSizeChange={handlePageSizeChange}
+          />
+        </div>
+      )}
 
       <DomainCreateModal
         className={currentStyles.classes?.['DomainTable-createModal']}

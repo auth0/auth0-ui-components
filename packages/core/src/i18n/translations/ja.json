@@ -3,6 +3,27 @@
     "copy": "コピー",
     "copied": "コピーしました",
     "copy_failed": "コピーに失敗しました",
+    "last_updated": "最終更新日",
+    "refresh": "更新",
+    "time": {
+      "never": "一度もない",
+      "just_now": "たった今",
+      "ago_template": "${value}前",
+      "second": "2番",
+      "seconds": "秒",
+      "minute": "分",
+      "minutes": "分",
+      "hour": "時間",
+      "hours": "時間",
+      "day": "日",
+      "days": "日",
+      "week": "週間",
+      "weeks": "週間",
+      "month": "か月",
+      "months": "か月",
+      "year": "年",
+      "years": "年"
+    },
     "data_table": {
       "select_all": "すべての行を選択",
       "select_row": "行を選択"

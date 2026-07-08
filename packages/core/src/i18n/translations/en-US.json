@@ -3,6 +3,27 @@
     "copy": "Copy",
     "copied": "Copied!",
     "copy_failed": "Failed to copy",
+    "last_updated": "Last updated",
+    "refresh": "Refresh",
+    "time": {
+      "never": "Never",
+      "just_now": "Just now",
+      "ago_template": "${value} ago",
+      "second": "second",
+      "seconds": "seconds",
+      "minute": "minute",
+      "minutes": "minutes",
+      "hour": "hour",
+      "hours": "hours",
+      "day": "day",
+      "days": "days",
+      "week": "week",
+      "weeks": "weeks",
+      "month": "month",
+      "months": "months",
+      "year": "year",
+      "years": "years"
+    },
     "data_table": {
       "select_all": "Select all rows",
       "select_row": "Select row"
