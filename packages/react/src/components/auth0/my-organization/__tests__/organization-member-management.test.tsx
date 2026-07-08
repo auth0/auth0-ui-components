@@ -460,6 +460,43 @@ describe('OrganizationMemberManagementView', () => {
     });
   });
 
+  describe('refresh indicator', () => {
+    it('renders the members refresh control when members data is stale, and refetches members on click', async () => {
+      const user = userEvent.setup();
+      const refetchMembers = vi.fn();
+
+      renderWithProviders(
+        <OrganizationMemberManagementView
+          {...createMockViewProps({
+            activeTab: 'members',
+            isMembersStale: true,
+            isFetchingMembers: false,
+            refetchMembers,
+          })}
+        />,
+      );
+
+      const refreshButton = screen.getByRole('button', { name: 'refresh' });
+      expect(refreshButton).toBeInTheDocument();
+
+      await user.click(refreshButton);
+      expect(refetchMembers).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not render the refresh control when the active tab data is not stale', () => {
+      renderWithProviders(
+        <OrganizationMemberManagementView
+          {...createMockViewProps({
+            activeTab: 'invitations',
+            isInvitationsStale: false,
+          })}
+        />,
+      );
+
+      expect(screen.queryByRole('button', { name: 'refresh' })).not.toBeInTheDocument();
+    });
+  });
+
   describe('remove from org modal', () => {
     it('is closed by default with no selected member', () => {
       renderWithProviders(<OrganizationMemberManagementView {...createMockViewProps()} />);
