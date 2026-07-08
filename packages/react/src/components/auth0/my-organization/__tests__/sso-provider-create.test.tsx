@@ -9,29 +9,18 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import {
-  SsoProviderCreate,
-  SsoProviderCreateView,
-} from '@/components/auth0/my-organization/sso-provider-create';
+import { SsoProviderCreate } from '@/components/auth0/my-organization/sso-provider-create';
 import * as useConfigModule from '@/hooks/my-organization/use-config';
 import * as useIdpConfigModule from '@/hooks/my-organization/use-idp-config';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import {
-  createMockSsoProviderCreateHandler,
-  createMockSsoProviderCreateLogic,
-} from '@/tests/utils';
 import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
 import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import { createTestQueryClient, renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { SsoProviderCreateProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
-// ===== Mock packages =====
-
 mockToast();
 const { initMockCoreClient } = mockCore();
-
-// ===== Local mock creators =====
 
 const createMockSsoProviderCreateProps = (
   overrides?: Partial<SsoProviderCreateProps>,
@@ -66,8 +55,6 @@ const createMockBackButton = () => ({
   onClick: vi.fn(),
 });
 
-// ===== Local utils =====
-
 const waitForComponentToLoad = async () => {
   await screen.findByTestId('sso-provider-create-content');
 
@@ -94,8 +81,6 @@ const createMockIdpConfig = () => ({
   },
   strategies: AVAILABLE_STRATEGY_LIST,
 });
-
-// ===== Tests =====
 
 describe('SsoProviderCreate', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;
@@ -699,77 +684,69 @@ describe('SsoProviderCreate', () => {
       });
     });
   });
-});
 
-describe('SsoProviderCreateView', () => {
-  const logic = createMockSsoProviderCreateLogic();
-  const handlers = createMockSsoProviderCreateHandler();
+  describe('header rendering', () => {
+    describe('when component loads', () => {
+      it('should render header with title', async () => {
+        renderCreate();
 
-  it('renders the wizard and header', () => {
-    renderWithProviders(<SsoProviderCreateView logic={logic} handlers={handlers} />);
-    expect(screen.getByRole('banner')).toBeInTheDocument();
-    expect(screen.getByTestId('sso-provider-create-content')).toBeInTheDocument();
+        await waitForComponentToLoad();
+
+        expect(screen.getByText(/header.title/i)).toBeInTheDocument();
+      });
+
+      it('should display step indicators', async () => {
+        renderCreate();
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByText(/steps.one/i)).toBeInTheDocument();
+      });
+    });
   });
 
-  it('renders custom header class if provided', () => {
-    renderWithProviders(
-      <SsoProviderCreateView
-        logic={{
-          ...logic,
-          styling: {
-            ...logic.styling,
-            classes: {
-              ...logic?.styling?.classes,
-              'SsoProviderCreate-header': 'custom-header',
-            },
-            variables: logic?.styling?.variables ?? {},
-          },
-        }}
-        handlers={handlers}
-      />,
-    );
-    expect(document.querySelector('.custom-header')).toBeInTheDocument();
+  describe('strategy selection', () => {
+    describe('when strategies are available', () => {
+      it('should display available strategy options', async () => {
+        renderCreate();
+
+        await waitForComponentToLoad();
+
+        const strategyButtons = await waitForStrategyButtons();
+        expect(strategyButtons.length).toBeGreaterThan(0);
+      });
+    });
   });
 
-  it('renders custom wizard class if provided', () => {
-    renderWithProviders(
-      <SsoProviderCreateView
-        logic={{
-          ...logic,
-          styling: {
-            ...logic.styling,
-            classes: {
-              ...logic?.styling?.classes,
-              'SsoProviderCreate-wizard': 'custom-wizard',
-            },
-            variables: logic?.styling?.variables ?? {},
-          },
-        }}
-        handlers={handlers}
-      />,
-    );
-    expect(document.querySelector('.custom-wizard')).toBeInTheDocument();
-  });
+  describe('form validation', () => {
+    describe('when provider name is empty', () => {
+      it('should show validation when trying to proceed without name', async () => {
+        const user = userEvent.setup();
 
-  it('does not render header if backButton is undefined', () => {
-    renderWithProviders(
-      <SsoProviderCreateView logic={{ ...logic, backButton: undefined }} handlers={handlers} />,
-    );
-    expect(screen.getByRole('banner')).toBeInTheDocument();
-  });
+        renderCreate();
 
-  it('renders with customMessages', () => {
-    renderWithProviders(
-      <SsoProviderCreateView
-        logic={{
-          ...logic,
-          customMessages: {
-            header: { title: 'Custom Title', back_button_text: 'Back' },
-          },
-        }}
-        handlers={handlers}
-      />,
-    );
-    expect(screen.getByText(/custom title/i)).toBeInTheDocument();
+        await waitForComponentToLoad();
+
+        const strategyCards = await waitForStrategyButtons();
+        const firstStrategyButton = strategyCards[0];
+        expect(firstStrategyButton).toBeDefined();
+        await user.click(firstStrategyButton!);
+
+        await waitFor(() => {
+          expect(screen.getByRole('button', { name: /nextbuttonlabel/i })).toBeInTheDocument();
+        });
+
+        // Try to click next without filling name
+        const nextButton = screen.getByRole('button', { name: /nextbuttonlabel/i });
+        await user.click(nextButton);
+
+        // Should still show name input (not proceed without name)
+        expect(
+          screen.getByRole('textbox', {
+            name: /fields\.name\.label/i,
+          }),
+        ).toBeInTheDocument();
+      });
+    });
   });
 });

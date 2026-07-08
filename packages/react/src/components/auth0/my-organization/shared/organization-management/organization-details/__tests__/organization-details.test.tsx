@@ -15,11 +15,7 @@ import type {
   OrganizationDetailsProps,
 } from '@/types/my-organization/organization-management/organization-details-types';
 
-// ===== Mock packages =====
-
 const { initMockCoreClient } = mockCore();
-
-// ===== Local mock creators =====
 
 const createMockOrganizationDetailsProps = (
   overrides?: Partial<OrganizationDetailsProps>,
@@ -65,8 +61,6 @@ const createMockFormActions = (
   },
   ...overrides,
 });
-
-// ===== Tests =====
 
 describe('OrganizationDetails', () => {
   beforeEach(() => {

@@ -7,7 +7,6 @@ import { renderWithProviders } from '@/tests/utils';
 import { createMockDomain } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import type { DomainDeleteModalProps } from '@/types/my-organization/domain-management/domain-delete-types';
 
-// ===== Test Data Setup =====
 const createMockDomainDeleteModalProps = (
   overrides: Partial<DomainDeleteModalProps> = {},
 ): DomainDeleteModalProps => ({
@@ -28,7 +27,6 @@ const waitForComponentToLoad = async () => {
   );
 };
 
-// ===== Test Suite =====
 describe('DomainDeleteModal', () => {
   afterEach(() => {
     vi.clearAllMocks();

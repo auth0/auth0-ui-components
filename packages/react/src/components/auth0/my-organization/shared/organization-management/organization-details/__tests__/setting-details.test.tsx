@@ -9,10 +9,8 @@ import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { mockCore, renderWithFormProvider } from '@/tests/utils';
 import type { SettingsDetailsProps } from '@/types/my-organization/organization-management/organization-details-types';
 
-// ===== Mock packages =====
 const { initMockCoreClient } = mockCore();
 
-// ===== Local mock creators =====
 const createMockSettingDetails = (
   overrides?: Partial<SettingsDetailsProps>,
 ): SettingsDetailsProps => {
@@ -24,7 +22,6 @@ const createMockSettingDetails = (
   };
 };
 
-// ===== Tests =====
 describe('SettingsDetails', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;
 

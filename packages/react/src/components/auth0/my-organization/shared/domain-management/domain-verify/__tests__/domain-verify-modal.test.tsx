@@ -7,11 +7,7 @@ import { mockToast, renderWithProviders } from '@/tests/utils';
 import { createMockDomain } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import type { DomainVerifyModalProps } from '@/types/my-organization/domain-management/domain-verify-types';
 
-// ===== Mock packages =====
-
 mockToast();
-
-// ===== Local mock creators =====
 
 const createMockDomainVerifyModalProps = (
   overrides?: Partial<DomainVerifyModalProps>,
@@ -29,13 +25,9 @@ const createMockDomainVerifyModalProps = (
   ...overrides,
 });
 
-// ===== Local utils =====
-
 const waitForComponentToLoad = async () => {
   return await screen.findByDisplayValue('_auth0-challenge.example.auth0.com');
 };
-
-// ===== Tests =====
 
 describe('DomainVerifyModal', () => {
   const mockDomain = createMockDomain();

@@ -17,8 +17,6 @@ import {
 } from '@/tests/utils';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 
-// ===== Mock packages =====
-
 const { mockedShowToast } = mockToast();
 const { initMockCoreClient } = mockCore();
 

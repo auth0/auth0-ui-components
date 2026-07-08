@@ -6,7 +6,6 @@ import { vi, describe, it, expect, afterEach } from 'vitest';
 import { FactorsList } from '@/components/auth0/my-account/shared/mfa/factors-list';
 import { renderWithProviders, createMockFactorsListProps } from '@/tests/utils';
 
-// ===== Test Suite =====
 describe('FactorsList', () => {
   afterEach(() => {
     vi.clearAllMocks();

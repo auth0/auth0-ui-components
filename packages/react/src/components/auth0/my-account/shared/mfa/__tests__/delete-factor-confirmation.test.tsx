@@ -5,7 +5,6 @@ import { vi, describe, it, expect, afterEach } from 'vitest';
 import { DeleteFactorConfirmation } from '@/components/auth0/my-account/shared/mfa/delete-factor-confirmation';
 import { renderWithProviders, createMockDeleteFactorConfirmationProps } from '@/tests/utils';
 
-// ===== Test Suite =====
 describe('DeleteFactorConfirmation', () => {
   afterEach(() => {
     vi.clearAllMocks();

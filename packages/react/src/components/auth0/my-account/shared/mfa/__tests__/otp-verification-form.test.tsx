@@ -5,7 +5,6 @@ import { vi, describe, it, expect, afterEach } from 'vitest';
 import { OTPVerificationForm } from '@/components/auth0/my-account/shared/mfa/otp-verification-form';
 import { renderWithProviders, createMockOTPVerificationFormProps } from '@/tests/utils';
 
-// ===== Test Suite =====
 describe('OTPVerificationForm', () => {
   afterEach(() => {
     vi.clearAllMocks();

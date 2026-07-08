@@ -7,11 +7,8 @@ import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { createMockSsoProvider, mockCore, renderWithProviders } from '@/tests/utils';
 import type { SsoProviderDeleteModalProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-delete-types';
 
-// ===== Mock packages =====
-
 const { initMockCoreClient } = mockCore();
 
-// ===== Local mock creators =====
 const createMockDeleteModal = (
   overrides?: Partial<SsoProviderDeleteModalProps>,
 ): SsoProviderDeleteModalProps => ({
@@ -23,8 +20,6 @@ const createMockDeleteModal = (
   onClose: vi.fn(),
   ...overrides,
 });
-
-// ===== Tests =====
 
 describe('SsoProviderDeleteModal', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;

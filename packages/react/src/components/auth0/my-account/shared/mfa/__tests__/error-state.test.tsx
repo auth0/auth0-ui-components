@@ -4,7 +4,6 @@ import { vi, describe, it, expect, afterEach } from 'vitest';
 import { MFAErrorState } from '@/components/auth0/my-account/shared/mfa/error-state';
 import { renderWithProviders, createMockMFAErrorStateProps } from '@/tests/utils';
 
-// ===== Test Suite =====
 describe('MFAMFAErrorState', () => {
   afterEach(() => {
     vi.clearAllMocks();

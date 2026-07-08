@@ -6,7 +6,6 @@ import { DomainCreateModal } from '@/components/auth0/my-organization/shared/dom
 import { renderWithProviders } from '@/tests/utils';
 import type { DomainCreateModalProps } from '@/types/my-organization/domain-management/domain-create-types';
 
-// ===== Test Data Setup =====
 const createMockDomainCreateModalProps = (
   overrides: Partial<DomainCreateModalProps> = {},
 ): DomainCreateModalProps => ({
@@ -26,7 +25,6 @@ const waitForComponentToLoad = async () => {
   );
 };
 
-// ===== Test Suite =====
 describe('DomainCreateModal', () => {
   afterEach(() => {
     vi.clearAllMocks();

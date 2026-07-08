@@ -20,7 +20,6 @@ import {
 import { renderWithProviders, createMockUserMFASetupFormProps } from '@/tests/utils';
 import type { UserMFASetupFormProps } from '@/types/my-account/mfa/mfa-types';
 
-// ===== Test Suite =====
 describe('UserMFASetupForm', () => {
   afterEach(() => {
     vi.clearAllMocks();

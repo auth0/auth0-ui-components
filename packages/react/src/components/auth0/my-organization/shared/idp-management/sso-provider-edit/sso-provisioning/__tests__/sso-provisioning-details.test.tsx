@@ -6,7 +6,6 @@ import { SsoProvisioningDetails } from '@/components/auth0/my-organization/share
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { mockCore, mockProps, renderWithProviders } from '@/tests/utils';
 
-// ===== Mock packages =====
 const { initMockCoreClient } = mockCore();
 
 vi.mock('@/hooks/shared/use-theme', () => ({
