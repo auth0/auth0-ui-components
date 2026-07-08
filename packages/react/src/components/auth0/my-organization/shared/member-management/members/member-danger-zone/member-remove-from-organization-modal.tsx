@@ -22,6 +22,8 @@ import type { MemberRemoveFromOrganizationModalProps } from '@/types/my-organiza
 /**
  * Renders the remove from organization confirmation dialog.
  * @param props - Component props
+ * @param props.classes - Custom CSS class overrides
+ * @param props.style - CSS variables computed by the parent
  * @returns The rendered confirmation dialog element
  */
 export function MemberRemoveFromOrganizationModal({
@@ -31,6 +33,8 @@ export function MemberRemoveFromOrganizationModal({
   memberUserId,
   organizationName,
   customMessages,
+  classes,
+  style,
   onClose,
   onConfirm,
 }: MemberRemoveFromOrganizationModalProps): React.JSX.Element {
@@ -42,7 +46,7 @@ export function MemberRemoveFromOrganizationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
+      <DialogContent style={style} className={classes?.['MemberRemoveFromOrgModal-dialogContent']}>
         <DialogHeader>
           <DialogTitle className="mb-4">
             {t('member.detail.actions.remove_from_organization.modal.title', { organizationName })}

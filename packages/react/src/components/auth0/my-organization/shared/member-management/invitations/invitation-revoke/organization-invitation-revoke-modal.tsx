@@ -28,6 +28,7 @@ import type { OrganizationInvitationRevokeModalProps } from '@/types/my-organiza
  * @param props.customMessages - Custom translation messages.
  * @param props.onClose - Callback when modal is closed.
  * @param props.onConfirm - Callback when action is confirmed.
+ * @param props.style - CSS variables computed by the parent.
  * @param props.className - Optional CSS class name.
  * @returns The modal component.
  */
@@ -39,6 +40,7 @@ export function OrganizationInvitationRevokeModal({
   customMessages = {},
   onClose,
   onConfirm,
+  style,
   className,
 }: OrganizationInvitationRevokeModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
@@ -53,7 +55,7 @@ export function OrganizationInvitationRevokeModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={className}>
+      <DialogContent style={style} className={className}>
         <DialogHeader>
           <DialogTitle>{t(`${namespace}.title`)}</DialogTitle>
         </DialogHeader>
