@@ -404,4 +404,100 @@ describe('useDomainTable', () => {
     expect(result.current.showVerifyModal).toBe(false);
     expect(result.current.showDeleteModal).toBe(true);
   });
+
+  describe('pagination', () => {
+    it('should return correct initial pagination state', () => {
+      const { result } = renderHook(() => useDomainTable(defaultOptions));
+
+      expect(result.current.pagination).toEqual({
+        pageSize: 10,
+        currentPage: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      });
+    });
+
+    it('should navigate to next page when handleNextPage is called with nextToken', () => {
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ nextToken: 'next-token-123' }),
+      );
+
+      const { result } = renderHook(() => useDomainTable(defaultOptions));
+
+      act(() => {
+        result.current.handleNextPage();
+      });
+
+      expect(result.current.pagination.currentPage).toBe(2);
+      expect(result.current.pagination.hasPreviousPage).toBe(true);
+    });
+
+    it('should not navigate to next page when nextToken is null', () => {
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ nextToken: null }),
+      );
+
+      const { result } = renderHook(() => useDomainTable(defaultOptions));
+
+      act(() => {
+        result.current.handleNextPage();
+      });
+
+      expect(result.current.pagination.currentPage).toBe(1);
+      expect(result.current.pagination.hasPreviousPage).toBe(false);
+    });
+
+    it('should navigate to previous page when handlePreviousPage is called', () => {
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ nextToken: 'next-token-123' }),
+      );
+
+      const { result } = renderHook(() => useDomainTable(defaultOptions));
+
+      act(() => {
+        result.current.handleNextPage();
+      });
+
+      expect(result.current.pagination.currentPage).toBe(2);
+
+      act(() => {
+        result.current.handlePreviousPage();
+      });
+
+      expect(result.current.pagination.currentPage).toBe(1);
+      expect(result.current.pagination.hasPreviousPage).toBe(false);
+    });
+
+    it('should reset pagination when page size changes', () => {
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ nextToken: 'next-token-123' }),
+      );
+
+      const { result } = renderHook(() => useDomainTable(defaultOptions));
+
+      act(() => {
+        result.current.handleNextPage();
+      });
+
+      expect(result.current.pagination.currentPage).toBe(2);
+
+      act(() => {
+        result.current.handlePageSizeChange(25);
+      });
+
+      expect(result.current.pagination.pageSize).toBe(25);
+      expect(result.current.pagination.currentPage).toBe(1);
+      expect(result.current.pagination.hasPreviousPage).toBe(false);
+    });
+
+    it('should update hasNextPage based on nextToken from service', () => {
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ nextToken: 'some-token' }),
+      );
+
+      const { result } = renderHook(() => useDomainTable(defaultOptions));
+
+      expect(result.current.pagination.hasNextPage).toBe(true);
+    });
+  });
 });
