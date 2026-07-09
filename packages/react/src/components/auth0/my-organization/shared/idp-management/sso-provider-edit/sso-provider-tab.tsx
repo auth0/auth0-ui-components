@@ -55,6 +55,7 @@ export function SsoProviderTab({
   shouldAllowDeletion,
   hideDeleteProvider = false,
   hideRemoveFromOrganization = false,
+  hideAttributeMappings = false,
   formActions,
   hasSsoAttributeSyncWarning,
   onAttributeSync,
@@ -94,6 +95,7 @@ export function SsoProviderTab({
             <SsoProviderDetails
               provider={provider}
               readOnly={readOnly}
+              hideAttributeMappings={hideAttributeMappings}
               formActions={formActions}
               customMessages={customMessages.details}
               styling={styling}

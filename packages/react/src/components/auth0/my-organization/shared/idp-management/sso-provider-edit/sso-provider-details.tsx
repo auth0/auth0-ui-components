@@ -38,6 +38,7 @@ import type { SsoProviderDetailsProps } from '@/types/my-organization/idp-manage
 export function SsoProviderDetails({
   provider,
   readOnly = false,
+  hideAttributeMappings = false,
   idpConfig,
   formActions,
   customMessages = {},
@@ -134,15 +135,19 @@ export function SsoProviderDetails({
         />
       </div>
 
-      <Separator />
-      <div className="space-y-4">
-        <SsoProviderAttributeMappings
-          strategy={provider?.strategy || null}
-          userAttributeMap={attributes}
-          customMessages={customMessages.mappings}
-          className={currentStyles.classes?.['SsoProvider-attributeMapping']}
-        />
-      </div>
+      {!hideAttributeMappings && (
+        <>
+          <Separator />
+          <div className="space-y-4">
+            <SsoProviderAttributeMappings
+              strategy={provider?.strategy || null}
+              userAttributeMap={attributes}
+              customMessages={customMessages.mappings}
+              className={currentStyles.classes?.['SsoProvider-attributeMapping']}
+            />
+          </div>
+        </>
+      )}
 
       {formActions && (
         <FormActions
