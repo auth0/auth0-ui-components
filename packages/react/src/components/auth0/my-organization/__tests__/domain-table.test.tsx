@@ -768,10 +768,7 @@ describe('DomainTable', () => {
 
     it('should show the last updated label once domains data is loaded', async () => {
       renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
-
       await waitForComponentToLoad();
-
-      // Data has just loaded, so the indicator surfaces a relative "last updated" label.
       expect(screen.getByText('last_updated', { exact: false })).toBeInTheDocument();
     });
 
@@ -787,7 +784,6 @@ describe('DomainTable', () => {
       const refreshButton = screen.getByRole('button', { name: 'refresh' });
       expect(refreshButton).toBeEnabled();
 
-      // Hold the refetch open so we can observe the pending (disabled) state.
       let resolveRefetch: (value: unknown) => void = () => {};
       listDomains.mockImplementationOnce(
         () =>
@@ -798,7 +794,6 @@ describe('DomainTable', () => {
 
       await user.click(refreshButton);
 
-      // While the refetch is pending, the button is disabled to prevent duplicate requests.
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'refresh' })).toBeDisabled();
       });
@@ -807,7 +802,6 @@ describe('DomainTable', () => {
         response: { organization_domains: [mockDomain, mockVerifiedDomain] },
       });
 
-      // Once the refetch settles, the button becomes actionable again.
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'refresh' })).toBeEnabled();
       });

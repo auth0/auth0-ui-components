@@ -105,16 +105,15 @@ describe('RefreshIndicator', () => {
     render(
       <RefreshIndicator
         isStale
-        lastUpdatedAt={new Date('2026-06-30T11:59:10Z')} // 50s ago -> under a minute
+        lastUpdatedAt={new Date('2026-06-30T11:59:10Z')}
         tickIntervalMs={1000}
         onRefresh={vi.fn()}
       />,
     );
     expect(screen.getByText(/just now/i)).toBeInTheDocument();
 
-    // Advance elapsed time past the minute boundary and fire the tick so the label recomputes.
     act(() => {
-      vi.advanceTimersByTime(15_000); // now 1 min 5 sec ago
+      vi.advanceTimersByTime(15_000);
     });
     expect(screen.getByText(/1 minute 5 sec ago/i)).toBeInTheDocument();
   });
