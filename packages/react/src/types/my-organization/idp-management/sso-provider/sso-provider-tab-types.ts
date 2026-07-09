@@ -61,6 +61,7 @@ export interface SsoProviderTabProps
   shouldAllowDeletion: boolean;
   hideDeleteProvider?: boolean;
   hideRemoveFromOrganization?: boolean;
+  hideAttributeMappings?: boolean;
   provider: IdpKnownResponse | null;
   onDelete: (provider: IdpKnownResponse) => Promise<void>;
   onRemove: (provider: IdpKnownResponse) => Promise<void>;
@@ -97,5 +98,6 @@ export interface SsoProviderDetailsProps
   provider: IdpKnownResponse;
   idpConfig: GetIdpConfigurationResponseContent | null;
   readOnly?: boolean;
+  hideAttributeMappings?: boolean;
   formActions?: SsoProviderDetailsFormActions;
 }
