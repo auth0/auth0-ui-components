@@ -33,7 +33,7 @@ export interface SsoDomainsTabEditProps {
 export interface SsoDomainTabClasses {
   'SsoDomainsTab-header'?: string;
   'SsoDomainsTab-table'?: string;
-  'SsoDomainsTab-tableHeader'?: string;
+  'SsoDomainsTab-tableActions'?: string;
   'SsoDomainsTab-createModal'?: string;
   'SsoDomainsTab-verifyModal'?: string;
   'SsoDomainsTab-deleteModal'?: string;
