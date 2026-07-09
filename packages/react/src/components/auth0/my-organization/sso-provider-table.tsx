@@ -226,7 +226,7 @@ function SsoProviderTableView({
         <RefreshIndicator
           isStale={isProvidersStale}
           isFetching={isRefetchingProviders}
-          lastUpdatedAt={providersUpdatedAt}
+          lastUpdatedAt={providersUpdatedAt || undefined}
           onRefresh={refetchProviders}
         />
       </div>
