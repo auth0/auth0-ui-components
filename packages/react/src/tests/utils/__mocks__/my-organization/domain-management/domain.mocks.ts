@@ -8,7 +8,6 @@ import { vi } from 'vitest';
 
 import type {
   DomainTableProps,
-  UseDomainTableReturn,
   UseDomainTableServiceOptions,
   UseDomainTableServiceReturn,
 } from '@/types/my-organization/domain-management/domain-table-types';
@@ -117,47 +116,6 @@ export const createMockDeleteAction = (): ComponentAction<Domain> => ({
   disabled: false,
   onBefore: vi.fn(() => true),
   onAfter: vi.fn(),
-});
-
-export const createMockDomainTableReturn = (
-  overrides: Partial<UseDomainTableReturn> = {},
-): UseDomainTableReturn => ({
-  domains: [createMockDomain(), createMockVerifiedDomain()],
-  providers: [],
-  isCreating: false,
-  isVerifying: false,
-  isFetching: false,
-  isLoadingProviders: false,
-  isDeleting: false,
-  pagination: {
-    pageSize: 10,
-    currentPage: 1,
-    hasNextPage: false,
-    hasPreviousPage: false,
-  },
-  showCreateModal: false,
-  showConfigureModal: false,
-  showVerifyModal: false,
-  showDeleteModal: false,
-  verifyError: undefined,
-  selectedDomain: null,
-  setShowCreateModal: vi.fn(),
-  setShowConfigureModal: vi.fn(),
-  setShowVerifyModal: vi.fn(),
-  setShowDeleteModal: vi.fn(),
-  handleCreate: vi.fn(),
-  handleVerify: vi.fn(),
-  handleDelete: vi.fn(),
-  handleToggleSwitch: vi.fn(),
-  handleCloseVerifyModal: vi.fn(),
-  handleCreateClick: vi.fn(),
-  handleConfigureClick: vi.fn(),
-  handleVerifyClick: vi.fn(),
-  handleDeleteClick: vi.fn(),
-  handleNextPage: vi.fn(),
-  handlePreviousPage: vi.fn(),
-  handlePageSizeChange: vi.fn(),
-  ...overrides,
 });
 
 export const createMockDomainTableServiceOptions = (
