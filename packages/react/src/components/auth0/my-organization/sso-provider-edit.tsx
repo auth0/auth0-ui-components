@@ -56,6 +56,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     hideProvisioningTab = false,
     hideDeleteProvider = false,
     hideRemoveFromOrganization = false,
+    hideAttributeMappings = false,
     customMessages = {},
     styling = {
       variables: { common: {}, light: {}, dark: {} },
@@ -88,6 +89,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     hideProvisioningTab,
     hideDeleteProvider,
     hideRemoveFromOrganization,
+    hideAttributeMappings,
   };
 
   const ssoProviderCreateHandlerProps: SsoProviderEditHandlerProps = {
@@ -137,6 +139,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
     hideHeader,
     hideDeleteProvider,
     hideRemoveFromOrganization,
+    hideAttributeMappings,
     provider,
     organization,
     isLoading,
@@ -244,6 +247,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
               shouldAllowDeletion={shouldAllowDeletion}
               hideDeleteProvider={hideDeleteProvider}
               hideRemoveFromOrganization={hideRemoveFromOrganization}
+              hideAttributeMappings={hideAttributeMappings}
               hasSsoAttributeSyncWarning={hasSsoAttributeSyncWarning}
               onAttributeSync={syncSsoAttributes}
               isSyncingAttributes={isSsoAttributesSyncing}
@@ -269,6 +273,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
                 isScimTokensLoading={isScimTokensLoading}
                 isScimTokenCreating={isScimTokenCreating}
                 isScimTokenDeleting={isScimTokenDeleting}
+                hideAttributeMappings={hideAttributeMappings}
                 hasProvisioningAttributeSyncWarning={hasProvisioningAttributeSyncWarning}
                 onAttributeSync={syncProvisioningAttributes}
                 isSyncingAttributes={isProvisioningAttributesSyncing}

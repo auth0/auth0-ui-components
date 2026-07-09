@@ -142,6 +142,12 @@ export interface UseOrganizationMemberManagementResult {
   isInitialLoading: boolean;
   isFetchingInvitations: boolean;
   isFetchingMembers: boolean;
+  isMembersStale: boolean;
+  isInvitationsStale: boolean;
+  membersUpdatedAt: number;
+  invitationsUpdatedAt: number;
+  refetchMembers: MemberManagementServiceResult['membersQuery']['refetch'];
+  refetchInvitations: MemberManagementServiceResult['invitationsQuery']['refetch'];
   isFetchingAvailableRoles: boolean;
   isCreatingInvitation: boolean;
   isRevokingInvitation: boolean;
@@ -193,6 +199,7 @@ export interface OrganizationMemberManagementClasses extends OrganizationInvitat
   'OrganizationMemberManagement-root'?: string;
   'OrganizationMemberManagement-header'?: string;
   'OrganizationMemberManagement-tabs'?: string;
+  'OrganizationMemberManagement-tableActions'?: string;
 }
 
 /** Props for OrganizationMemberManagement component. */
