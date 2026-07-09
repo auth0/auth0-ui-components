@@ -32,6 +32,8 @@ import type {
  * @param props.customMessages - Custom translation messages to override defaults
  * @param props.styling - Custom styling configuration with variables and classes
  * @param props.readOnly - Whether the component is in read-only mode
+ * @param props.hideDeleteProvider - Whether to hide the delete provider action
+ * @param props.hideRemoveFromOrganization - Whether to hide the remove from organization action
  * @param props.createAction - Configuration for the create action
  * @param props.editAction - Configuration for the edit action
  * @param props.deleteAction - Configuration for the delete action
@@ -48,6 +50,8 @@ function SsoProviderTable(props: SsoProviderTableProps) {
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     readOnly = false,
     hideHeader = false,
+    hideDeleteProvider = false,
+    hideRemoveFromOrganization = false,
     createAction,
     editAction,
     deleteAction,
@@ -73,6 +77,8 @@ function SsoProviderTable(props: SsoProviderTableProps) {
         customMessages={customMessages}
         readOnly={readOnly}
         hideHeader={hideHeader}
+        hideDeleteProvider={hideDeleteProvider}
+        hideRemoveFromOrganization={hideRemoveFromOrganization}
         createAction={createAction}
         editAction={editAction}
       />
@@ -91,6 +97,8 @@ function SsoProviderTableView({
   customMessages,
   readOnly,
   hideHeader,
+  hideDeleteProvider,
+  hideRemoveFromOrganization,
   providers,
   shouldHideCreate,
   isViewLoading,
@@ -159,6 +167,8 @@ function SsoProviderTableView({
           <SsoProviderTableActionsColumn
             provider={idp}
             shouldAllowDeletion={shouldAllowDeletion}
+            hideDeleteProvider={hideDeleteProvider}
+            hideRemoveFromOrganization={hideRemoveFromOrganization}
             readOnly={readOnly}
             isUpdating={isUpdating}
             isUpdatingId={isUpdatingId}
@@ -177,6 +187,8 @@ function SsoProviderTableView({
       readOnly,
       editAction,
       isUpdating,
+      hideDeleteProvider,
+      hideRemoveFromOrganization,
       handleEdit,
       handleDelete,
       handleDeleteFromOrganization,
