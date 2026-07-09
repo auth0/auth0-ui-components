@@ -63,9 +63,6 @@ jobs:
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Upgrade npm to latest version
-        run: npm install -g npm@latest
-
       - name: Pre-flight version and registry check
         env:
           DRY_RUN: ${{ github.event.inputs.dry_run }}
