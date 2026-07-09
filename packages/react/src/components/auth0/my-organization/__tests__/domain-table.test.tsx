@@ -677,6 +677,73 @@ describe('DomainTable', () => {
       });
     });
   });
+
+  describe('refresh indicator', () => {
+    it('should render the refresh control once domains data is loaded and stale', async () => {
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+      await waitForComponentToLoad();
+
+      expect(screen.getByRole('button', { name: 'refresh' })).toBeInTheDocument();
+    });
+
+    it('should refetch domains when the refresh button is clicked', async () => {
+      const user = userEvent.setup();
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      const listDomains = apiService.organization.domains.list as ReturnType<typeof vi.fn>;
+
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+      await waitForComponentToLoad();
+      expect(listDomains).toHaveBeenCalledTimes(1);
+      await user.click(screen.getByRole('button', { name: 'refresh' }));
+
+      await waitFor(() => {
+        expect(listDomains).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    it('should show the last updated label once domains data is loaded', async () => {
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+      expect(screen.getByText('last_updated', { exact: false })).toBeInTheDocument();
+    });
+
+    it('should disable the refresh button while a refetch is in flight, then re-enable it', async () => {
+      const user = userEvent.setup();
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      const listDomains = apiService.organization.domains.list as ReturnType<typeof vi.fn>;
+
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+      await waitForComponentToLoad();
+
+      const refreshButton = screen.getByRole('button', { name: 'refresh' });
+      expect(refreshButton).toBeEnabled();
+
+      let resolveRefetch: (value: unknown) => void = () => {};
+      listDomains.mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveRefetch = resolve;
+          }),
+      );
+
+      await user.click(refreshButton);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'refresh' })).toBeDisabled();
+      });
+
+      resolveRefetch({
+        response: { organization_domains: [mockDomain, mockVerifiedDomain] },
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'refresh' })).toBeEnabled();
+      });
+    });
+  });
 });
 
 describe('DomainTableView', () => {
