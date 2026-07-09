@@ -474,27 +474,56 @@ describe('SsoProviderEdit', () => {
   });
 
   describe('hideAttributeMappings', () => {
-    describe('when is true', () => {
-      it('should not display attribute mappings section', async () => {
-        renderWithProviders(
-          <SsoProviderEdit {...createMockSsoProviderEditProps({ hideAttributeMappings: true })} />,
-        );
+    describe('on SSO tab', () => {
+      describe('when is true', () => {
+        it('should not display attribute mappings section', async () => {
+          renderWithProviders(
+            <SsoProviderEdit
+              {...createMockSsoProviderEditProps({ hideAttributeMappings: true })}
+            />,
+          );
 
-        await waitForComponentToLoad();
+          await waitForComponentToLoad();
 
-        expect(screen.queryByText(/mappings.title/i)).not.toBeInTheDocument();
+          expect(screen.queryByText(/mappings.title/i)).not.toBeInTheDocument();
+        });
+      });
+
+      describe('when is false', () => {
+        it('should display attribute mappings section', async () => {
+          renderWithProviders(
+            <SsoProviderEdit
+              {...createMockSsoProviderEditProps({ hideAttributeMappings: false })}
+            />,
+          );
+
+          await waitForComponentToLoad();
+
+          expect(screen.queryByText(/mappings.title/i)).toBeInTheDocument();
+        });
       });
     });
 
-    describe('when is false', () => {
-      it('should display attribute mappings section', async () => {
-        renderWithProviders(
-          <SsoProviderEdit {...createMockSsoProviderEditProps({ hideAttributeMappings: false })} />,
-        );
+    describe('on Provisioning tab', () => {
+      describe('when is true', () => {
+        it('should not display attribute mappings section', async () => {
+          const user = userEvent.setup();
 
-        await waitForComponentToLoad();
+          renderWithProviders(
+            <SsoProviderEdit
+              {...createMockSsoProviderEditProps({ hideAttributeMappings: true })}
+            />,
+          );
 
-        expect(screen.queryByText(/mappings.title/i)).toBeInTheDocument();
+          await waitForComponentToLoad();
+
+          const provisioningTab = screen.getByText(/tabs.provisioning.name/i);
+          await user.click(provisioningTab);
+
+          await waitFor(() => {
+            expect(screen.queryByText(/mappings.title/i)).not.toBeInTheDocument();
+          });
+        });
       });
     });
   });
