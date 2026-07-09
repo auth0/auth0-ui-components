@@ -831,7 +831,7 @@ describe('OrganizationMemberManagement', () => {
       expect(refetchMembers).not.toHaveBeenCalled();
     });
 
-    it('does not render the refresh control when the active tab data is not stale', () => {
+    it('renders a disabled refresh control when the active tab data is not stale', () => {
       mockedUseOrganizationMemberManagement.mockReturnValue(
         createMockMemberManagementResult({
           activeTab: 'invitations',
@@ -841,7 +841,7 @@ describe('OrganizationMemberManagement', () => {
 
       renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
 
-      expect(screen.queryByRole('button', { name: 'refresh' })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'refresh' })).toBeDisabled();
     });
   });
 });
