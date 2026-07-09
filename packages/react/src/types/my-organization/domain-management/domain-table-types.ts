@@ -32,7 +32,7 @@ type RefetchDomains = UseQueryResult<DomainsQueryData>['refetch'];
 export interface DomainTableClasses {
   'DomainTable-header'?: string;
   'DomainTable-table'?: string;
-  'DomainTable-tableHeader'?: string;
+  'DomainTable-tableActions'?: string;
   'DomainTable-createModal'?: string;
   'DomainTable-configureModal'?: string;
   'DomainTable-deleteModal'?: string;

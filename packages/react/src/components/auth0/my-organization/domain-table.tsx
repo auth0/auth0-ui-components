@@ -202,7 +202,7 @@ function DomainTableView({
       )}
 
       <div
-        className={cn('flex justify-end mb-8', currentStyles.classes?.['DomainTable-tableHeader'])}
+        className={cn('flex justify-end mb-8', currentStyles.classes?.['DomainTable-tableActions'])}
       >
         <RefreshIndicator
           isStale={isDomainsStale}
