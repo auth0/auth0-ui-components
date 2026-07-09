@@ -139,13 +139,13 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
       ? {
           isStale: isMembersStale,
           isFetching: isFetchingMembers,
-          lastUpdatedAt: membersUpdatedAt,
+          lastUpdatedAt: membersUpdatedAt || undefined,
           onRefresh: refetchMembers,
         }
       : {
           isStale: isInvitationsStale,
           isFetching: isFetchingInvitations,
-          lastUpdatedAt: invitationsUpdatedAt,
+          lastUpdatedAt: invitationsUpdatedAt || undefined,
           onRefresh: refetchInvitations,
         };
 
