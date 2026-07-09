@@ -36,6 +36,8 @@ export interface SsoProviderTableProps
     SsoProviderTableSchema
   > {
   hideHeader?: boolean;
+  hideDeleteProvider?: boolean;
+  hideRemoveFromOrganization?: boolean;
   createAction: ComponentAction<void>;
   editAction: ComponentAction<IdpKnownResponse>;
   deleteAction?: ComponentAction<IdpKnownResponse>;
@@ -116,6 +118,8 @@ export interface SsoProviderTableActionsColumnProps
   > {
   provider: IdpKnownResponse;
   shouldAllowDeletion: boolean;
+  hideDeleteProvider?: boolean;
+  hideRemoveFromOrganization?: boolean;
   isUpdating?: boolean;
   isUpdatingId?: string | null;
   edit?: {
@@ -131,6 +135,8 @@ export interface SsoProviderTableViewProps extends UseSsoProviderTableReturn {
   customMessages: SsoProviderTableProps['customMessages'];
   readOnly: boolean;
   hideHeader: boolean;
+  hideDeleteProvider?: boolean;
+  hideRemoveFromOrganization?: boolean;
   createAction: SsoProviderTableProps['createAction'];
   editAction: SsoProviderTableProps['editAction'];
 }
