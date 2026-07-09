@@ -81,6 +81,7 @@ export interface SsoProviderEditProps
   hideProvisioningTab?: boolean;
   hideDeleteProvider?: boolean;
   hideRemoveFromOrganization?: boolean;
+  hideAttributeMappings?: boolean;
   providerId: IdpId;
   sso?: SsoProviderTabEditProps;
   provisioning?: SsoProvisioningTabEditProps;
