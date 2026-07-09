@@ -33,6 +33,9 @@ import type {
  * @param props.provisioning - Provisioning configuration
  * @param props.domains - Array of domains
  * @param props.hideHeader - Whether to hide the header
+ * @param props.hideProvisioningTab - Whether to hide the provisioning tab
+ * @param props.hideDeleteProvider - Whether to hide the delete provider action
+ * @param props.hideRemoveFromOrganization - Whether to hide the remove from organization action
  * @param props.customMessages - Custom translation messages to override defaults
  * @param props.styling - Custom styling configuration with variables and classes
  * @param props.schema - Zod validation schema
@@ -50,6 +53,9 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     provisioning,
     domains,
     hideHeader = false,
+    hideProvisioningTab = false,
+    hideDeleteProvider = false,
+    hideRemoveFromOrganization = false,
     customMessages = {},
     styling = {
       variables: { common: {}, light: {}, dark: {} },
@@ -70,7 +76,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     ...ssoProviderEdit,
     shouldAllowDeletion: ssoProviderEdit.shouldAllowDeletion,
     idpConfig: ssoProviderEdit.idpConfig,
-    showProvisioningTab: ssoProviderEdit.showProvisioningTab,
+    showProvisioningTab: ssoProviderEdit.showProvisioningTab && !hideProvisioningTab,
     styling,
     customMessages,
     backButton,
@@ -79,6 +85,9 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     providerId,
     domains,
     hideHeader,
+    hideProvisioningTab,
+    hideDeleteProvider,
+    hideRemoveFromOrganization,
   };
 
   const ssoProviderCreateHandlerProps: SsoProviderEditHandlerProps = {
@@ -126,6 +135,8 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
     providerId,
     domains,
     hideHeader,
+    hideDeleteProvider,
+    hideRemoveFromOrganization,
     provider,
     organization,
     isLoading,
@@ -231,6 +242,8 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
               isRemoving={isRemoving}
               idpConfig={idpConfig}
               shouldAllowDeletion={shouldAllowDeletion}
+              hideDeleteProvider={hideDeleteProvider}
+              hideRemoveFromOrganization={hideRemoveFromOrganization}
               hasSsoAttributeSyncWarning={hasSsoAttributeSyncWarning}
               onAttributeSync={syncSsoAttributes}
               isSyncingAttributes={isSsoAttributesSyncing}
