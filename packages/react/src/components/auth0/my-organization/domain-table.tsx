@@ -207,7 +207,7 @@ function DomainTableView({
         <RefreshIndicator
           isStale={isDomainsStale}
           isFetching={isRefetchingDomains}
-          lastUpdatedAt={domainsUpdatedAt}
+          lastUpdatedAt={domainsUpdatedAt || undefined}
           onRefresh={refetchDomains}
         />
       </div>
