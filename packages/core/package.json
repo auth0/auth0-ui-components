@@ -1,6 +1,6 @@
 {
   "name": "@auth0/universal-components-core",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Core utilities for Auth0 Universal Components",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
