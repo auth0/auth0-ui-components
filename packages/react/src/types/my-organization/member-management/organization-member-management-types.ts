@@ -199,7 +199,7 @@ export interface OrganizationMemberManagementClasses extends OrganizationInvitat
   'OrganizationMemberManagement-root'?: string;
   'OrganizationMemberManagement-header'?: string;
   'OrganizationMemberManagement-tabs'?: string;
-  'OrganizationMemberManagement-tabsHeader'?: string;
+  'OrganizationMemberManagement-tableActions'?: string;
 }
 
 /** Props for OrganizationMemberManagement component. */

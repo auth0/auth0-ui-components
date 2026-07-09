@@ -182,7 +182,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           <div
             className={cn(
               'flex justify-between mb-8',
-              currentStyles.classes?.['OrganizationMemberManagement-tabsHeader'],
+              currentStyles.classes?.['OrganizationMemberManagement-tableActions'],
             )}
           >
             <TabsList>
