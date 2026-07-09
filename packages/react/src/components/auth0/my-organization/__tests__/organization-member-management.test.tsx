@@ -217,6 +217,12 @@ const createMockMemberManagementResult = (
     isFetchingInvitations: false,
     isInitialLoading: false,
     isFetchingMembers: false,
+    isMembersStale: false,
+    isInvitationsStale: false,
+    membersUpdatedAt: 0,
+    invitationsUpdatedAt: 0,
+    refetchMembers: vi.fn(),
+    refetchInvitations: vi.fn(),
     isFetchingAvailableRoles: false,
     isCreatingInvitation: false,
     isRevokingInvitation: false,
@@ -555,5 +561,66 @@ describe('OrganizationMemberManagement', () => {
     expect(screen.getByText('header.title')).toBeInTheDocument();
     expect(screen.getByTestId('member-table')).toBeInTheDocument();
     expect(screen.getByTestId('create-modal')).toBeInTheDocument();
+  });
+
+  describe('refresh indicator', () => {
+    it('renders the members refresh control when members data is stale, and refetches members on click', async () => {
+      const user = userEvent.setup();
+      const refetchMembers = vi.fn();
+      mockedUseOrganizationMemberManagement.mockReturnValue(
+        createMockMemberManagementResult({
+          activeTab: 'members',
+          isMembersStale: true,
+          isFetchingMembers: false,
+          refetchMembers,
+        }),
+      );
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      const refreshButton = screen.getByRole('button', { name: 'refresh' });
+      expect(refreshButton).toBeInTheDocument();
+
+      await user.click(refreshButton);
+      expect(refetchMembers).toHaveBeenCalledTimes(1);
+    });
+
+    it('renders the invitations refresh control when invitations data is stale, and refetches invitations on click', async () => {
+      const user = userEvent.setup();
+      const refetchInvitations = vi.fn();
+      const refetchMembers = vi.fn();
+      mockedUseOrganizationMemberManagement.mockReturnValue(
+        createMockMemberManagementResult({
+          activeTab: 'invitations',
+          isInvitationsStale: true,
+          isFetchingInvitations: false,
+          isMembersStale: true,
+          refetchInvitations,
+          refetchMembers,
+        }),
+      );
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      const refreshButton = screen.getByRole('button', { name: 'refresh' });
+      expect(refreshButton).toBeInTheDocument();
+
+      await user.click(refreshButton);
+      expect(refetchInvitations).toHaveBeenCalledTimes(1);
+      expect(refetchMembers).not.toHaveBeenCalled();
+    });
+
+    it('does not render the refresh control when the active tab data is not stale', () => {
+      mockedUseOrganizationMemberManagement.mockReturnValue(
+        createMockMemberManagementResult({
+          activeTab: 'invitations',
+          isInvitationsStale: false,
+        }),
+      );
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      expect(screen.queryByRole('button', { name: 'refresh' })).not.toBeInTheDocument();
+    });
   });
 });
