@@ -159,7 +159,7 @@ export function SsoDomainTab({
       <div
         className={cn(
           'flex justify-end mb-8',
-          currentStyles.classes?.['SsoDomainsTab-tableHeader'],
+          currentStyles.classes?.['SsoDomainsTab-tableActions'],
         )}
       >
         <RefreshIndicator
