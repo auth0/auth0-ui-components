@@ -220,7 +220,7 @@ function SsoProviderTableView({
       <div
         className={cn(
           'flex justify-end mb-8',
-          currentStyles.classes?.['SsoProviderTable-tableHeader'],
+          currentStyles.classes?.['SsoProviderTable-tableActions'],
         )}
       >
         <RefreshIndicator
