@@ -59,9 +59,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: "22"
+          node-version: "24"
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
+
+      - name: Upgrade npm to latest version
+        run: npm install -g npm@latest
 
       - name: Pre-flight version and registry check
         env:
@@ -210,6 +213,7 @@ jobs:
         working-directory: ./packages/core
         env:
           DRY_RUN: ${{ github.event.inputs.dry_run }}
+          NODE_AUTH_TOKEN: ""
         run: |
           echo "Publishing @auth0/universal-components-core@$VERSION with tag: $NPM_TAG"
 
@@ -228,6 +232,7 @@ jobs:
         working-directory: ./packages/react
         env:
           DRY_RUN: ${{ github.event.inputs.dry_run }}
+          NODE_AUTH_TOKEN: ""
         run: |
           echo "Publishing @auth0/universal-components-react@$VERSION with tag: $NPM_TAG"
 
