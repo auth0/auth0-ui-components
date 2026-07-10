@@ -810,6 +810,36 @@ describe('SsoProviderTable', () => {
     });
   });
 
+  describe('refresh indicator', () => {
+    it('should render the refresh control once providers data is loaded and stale', async () => {
+      renderTable();
+      await waitForComponentToLoad();
+      expect(screen.getByRole('button', { name: 'refresh' })).toBeInTheDocument();
+    });
+
+    it('should refetch providers when the refresh button is clicked', async () => {
+      const user = userEvent.setup();
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      const listProviders = apiService.organization.identityProviders.list as ReturnType<
+        typeof vi.fn
+      >;
+
+      renderTable();
+
+      await waitForComponentToLoad();
+
+      // Initial load fetches the providers list once.
+      expect(listProviders).toHaveBeenCalledTimes(1);
+
+      await user.click(screen.getByRole('button', { name: 'refresh' }));
+
+      // Clicking refresh triggers a refetch of the providers list.
+      await waitFor(() => {
+        expect(listProviders).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
+
   describe('hideDeleteProvider', () => {
     describe('when is true', () => {
       it('should not render delete action in dropdown menu', async () => {
