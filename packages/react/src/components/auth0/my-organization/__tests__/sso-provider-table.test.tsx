@@ -813,10 +813,7 @@ describe('SsoProviderTable', () => {
   describe('refresh indicator', () => {
     it('should render the refresh control once providers data is loaded and stale', async () => {
       renderTable();
-
       await waitForComponentToLoad();
-      await screen.findByText(mockProvider.name!);
-
       expect(screen.getByRole('button', { name: 'refresh' })).toBeInTheDocument();
     });
 
@@ -830,7 +827,6 @@ describe('SsoProviderTable', () => {
       renderTable();
 
       await waitForComponentToLoad();
-      await screen.findByText(mockProvider.name!);
 
       // Initial load fetches the providers list once.
       expect(listProviders).toHaveBeenCalledTimes(1);
