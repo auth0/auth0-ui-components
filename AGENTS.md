@@ -780,6 +780,7 @@ Use these JSDoc tags for documentation:
 - ❌ Type casting (`as`) unless there is no other option
 - ❌ Using linter/tsc skip annotations (`// @ts-ignore`, `// eslint-disable`) unless there is no other option
 - ❌ Defining custom types for API request/response shapes when the SDK already exports them — always re-export SDK types via `type Alias = SDK.Type`
+- ❌ Writing tests for View components directly — test the main public block component (Container) instead, which exercises both the logic/hook layer and the View layer together as consumers actually use it
 
 ---
 

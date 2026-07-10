@@ -57,13 +57,9 @@ const createMockSsoActions = () => ({
 });
 
 const waitForComponentToLoad = async () => {
-  return await waitFor(
-    () => {
-      // Wait for the loading spinner to disappear
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    },
-    { timeout: 3000 },
-  );
+  return await waitFor(() => {
+    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+  });
 };
 
 describe('SsoProviderEdit', () => {
@@ -880,12 +876,9 @@ describe('SsoProviderEdit', () => {
 
         renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
 
-        await waitFor(
-          () => {
-            expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-          },
-          { timeout: 3000 },
-        );
+        await waitFor(() => {
+          expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+        });
       });
     });
   });
