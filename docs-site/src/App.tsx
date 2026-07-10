@@ -14,6 +14,7 @@ import SsoProviderEditDocs from './pages/SsoProviderEditDocs';
 import SsoProviderTableDocs from './pages/SsoProviderTableDocs';
 import Styling from './pages/Styling';
 import UserMFAMgmtDocs from './pages/UserMFAMgmtDocs';
+import UserPasskeyMgmtDocs from './pages/UserPasskeyMgmtDocs';
 
 function AppContent() {
   return (
@@ -24,6 +25,7 @@ function AppContent() {
         <Route path="/styling" element={<Styling />} />
         <Route path="/my-account" element={<MyAccountIntroduction />} />
         <Route path="/my-account/user-mfa-management" element={<UserMFAMgmtDocs />} />
+        <Route path="/my-account/user-passkey-management" element={<UserPasskeyMgmtDocs />} />
         <Route path="/my-organization" element={<MyOrganizationIntroduction />} />
         <Route
           path="/my-organization/organization-details-edit"
