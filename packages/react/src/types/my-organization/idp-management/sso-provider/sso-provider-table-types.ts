@@ -11,8 +11,11 @@ import type {
   IdpKnownResponse,
   OrganizationPrivate,
 } from '@auth0/universal-components-core';
+import type { UseQueryResult } from '@tanstack/react-query';
 
 export type { IdpKnownResponse };
+
+type RefetchProviders = UseQueryResult<IdpKnownResponse[]>['refetch'];
 
 /** SSO provider table schema. */
 interface SsoProviderTableSchema {
@@ -24,6 +27,7 @@ interface SsoProviderTableSchema {
 interface SsoProviderTableClasses {
   'SsoProviderTable-header'?: string;
   'SsoProviderTable-table'?: string;
+  'SsoProviderTable-tableActions'?: string;
   'SsoProviderTable-deleteProviderModal'?: string;
   'SsoProviderTable-deleteProviderFromOrganizationModal'?: string;
 }
@@ -50,8 +54,12 @@ export interface UseSsoProviderTableServiceReturn extends SharedComponentProps {
   providers: IdpKnownResponse[];
   organization: OrganizationPrivate | null;
   isLoading: boolean;
+  isRefetchingProviders: boolean;
+  isProvidersStale: boolean;
+  providersUpdatedAt: number;
   providersError: unknown;
   organizationError: unknown;
+  refetchProviders: RefetchProviders;
   isDeleting: boolean;
   isRemoving: boolean;
   isUpdating: boolean;
@@ -81,6 +89,9 @@ export interface UseSsoProviderTableReturn {
 
   isLoading: boolean;
   isViewLoading: boolean;
+  isRefetchingProviders: boolean;
+  isProvidersStale: boolean;
+  providersUpdatedAt: number;
   isDeleting: boolean;
   isRemoving: boolean;
   isUpdating: boolean;
@@ -93,6 +104,7 @@ export interface UseSsoProviderTableReturn {
   showRemoveModal: boolean;
   selectedIdp: IdpKnownResponse | null;
 
+  refetchProviders: RefetchProviders;
   fetchProviders: () => Promise<void>;
   fetchOrganizationDetails: () => Promise<OrganizationPrivate | null>;
 

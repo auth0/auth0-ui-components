@@ -44,6 +44,7 @@ export function SsoProvisioningTab({
   provider,
   styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
   customMessages = {},
+  hideAttributeMappings = false,
   hasProvisioningAttributeSyncWarning,
   onAttributeSync,
   isSyncingAttributes = false,
@@ -164,6 +165,7 @@ export function SsoProvisioningTab({
               isScimTokensLoading={isScimTokensLoading}
               isScimTokenCreating={isScimTokenCreating}
               isScimTokenDeleting={isScimTokenDeleting}
+              hideAttributeMappings={hideAttributeMappings}
               onListScimTokens={listScimTokens}
               onCreateScimToken={createScimToken}
               onDeleteScimToken={deleteScimToken}
