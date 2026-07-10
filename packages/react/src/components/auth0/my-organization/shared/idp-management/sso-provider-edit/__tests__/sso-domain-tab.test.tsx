@@ -62,14 +62,14 @@ describe('SsoDomainTab', () => {
       expect(refetchDomains).toHaveBeenCalledTimes(1);
     });
 
-    it('does not render the refresh control when domains data is not stale', () => {
+    it('does render the refresh button as disabled when domains data is not stale', () => {
       mockedUseSsoDomainTab.mockReturnValue(
         createMockSsoDomainTabReturn({ isDomainsStale: false }),
       );
 
       renderWithProviders(<SsoDomainTab {...mockProps} />);
 
-      expect(screen.queryByRole('button', { name: 'refresh' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'refresh' })).toBeDisabled();
     });
   });
 });
