@@ -1,9 +1,6 @@
 import { vi } from 'vitest';
 
-import type {
-  SsoProviderTableViewProps,
-  UseSsoProviderTableServiceReturn,
-} from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
+import type { UseSsoProviderTableServiceReturn } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
 export function createMockSsoProviderTableServiceReturn(
   overrides: Partial<UseSsoProviderTableServiceReturn> = {},
