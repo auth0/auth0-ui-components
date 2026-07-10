@@ -1,6 +1,7 @@
 import type { Domain, IdpKnownResponse } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
+import type { UseSsoDomainTabReturn } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 import type {
   SsoProviderCreateHandlerProps,
   SsoProviderCreateLogicProps,
@@ -70,6 +71,49 @@ export function createMockSsoProviderCreateHandler(
       onNextAction: vi.fn(),
       onPreviousAction: vi.fn(),
     }),
+    ...overrides,
+  };
+}
+
+export function createMockSsoDomainTabReturn(
+  overrides: Partial<UseSsoDomainTabReturn> = {},
+): UseSsoDomainTabReturn {
+  return {
+    domainsList: [],
+    isLoading: false,
+    isRefetchingDomains: false,
+    isDomainsStale: false,
+    domainsUpdatedAt: 0,
+    showCreateModal: false,
+    isCreating: false,
+    selectedDomain: null,
+    showVerifyModal: false,
+    showDeleteModal: false,
+    isVerifying: false,
+    verifyError: undefined,
+    isDeleting: false,
+    idpDomains: [],
+    isUpdating: false,
+    isUpdatingId: null,
+    pagination: {
+      pageSize: 10,
+      currentPage: 1,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    },
+    setShowCreateModal: vi.fn(),
+    refetchDomains: vi.fn(),
+    handleCreate: vi.fn(),
+    handleCloseVerifyModal: vi.fn(),
+    handleVerify: vi.fn(),
+    handleDeleteClick: vi.fn(),
+    setShowDeleteModal: vi.fn(),
+    handleDelete: vi.fn(),
+    handleVerifyActionColumn: vi.fn(),
+    handleToggleSwitch: vi.fn(),
+    handleNextPage: vi.fn(),
+    handlePreviousPage: vi.fn(),
+    handlePageSizeChange: vi.fn(),
     ...overrides,
   };
 }

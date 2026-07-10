@@ -11,6 +11,14 @@ import type {
   SharedComponentProps,
   SsoDomainTabMessages,
 } from '@auth0/universal-components-core';
+import type { UseQueryResult } from '@tanstack/react-query';
+
+interface SsoDomainsQueryData {
+  domains: Domain[];
+  next: string | null;
+}
+
+type RefetchSsoDomains = UseQueryResult<SsoDomainsQueryData>['refetch'];
 
 /** SSO domains tab edit action props. */
 export interface SsoDomainsTabEditProps {
@@ -25,6 +33,7 @@ export interface SsoDomainsTabEditProps {
 export interface SsoDomainTabClasses {
   'SsoDomainsTab-header'?: string;
   'SsoDomainsTab-table'?: string;
+  'SsoDomainsTab-tableActions'?: string;
   'SsoDomainsTab-createModal'?: string;
   'SsoDomainsTab-verifyModal'?: string;
   'SsoDomainsTab-deleteModal'?: string;
@@ -78,6 +87,9 @@ export interface UseSsoDomainTabOptions extends SharedComponentProps {
 export interface UseSsoDomainTabReturn {
   domainsList: Domain[];
   isLoading: boolean;
+  isRefetchingDomains: boolean;
+  isDomainsStale: boolean;
+  domainsUpdatedAt: number;
   showCreateModal: boolean;
   isCreating: boolean;
   selectedDomain: Domain | null;
@@ -91,6 +103,7 @@ export interface UseSsoDomainTabReturn {
   isUpdatingId: string | null;
   pagination: SsoDomainTabPaginationState;
   setShowCreateModal: (show: boolean) => void;
+  refetchDomains: RefetchSsoDomains;
   handleCreate: (domainUrl: string) => Promise<void>;
   handleCloseVerifyModal: () => void;
   handleVerify: (domain: Domain) => Promise<void>;
