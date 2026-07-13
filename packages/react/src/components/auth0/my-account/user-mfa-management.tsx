@@ -252,7 +252,7 @@ function UserMFAManagementView({
                 <CardHeader>
                   <CardTitle className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <span
-                      className="break-words text-card-foreground whitespace-normal text-base text-(length:--font-size-body) font-medium"
+                      className="break-words text-card-foreground whitespace-normal text-body font-medium"
                       id={`factor-title-${factorType}`}
                     >
                       {t(`factors.${factorType}.title`)}
@@ -272,7 +272,7 @@ function UserMFAManagementView({
 
                   {!hasActiveFactors && (
                     <CardDescription
-                      className="font-normal text-sm text-(length:--font-size-paragraph) break-words"
+                      className="font-normal text-paragraph break-words"
                       id={`factor-desc-${factorType}`}
                     >
                       {t(`factors.${factorType}.description`)}

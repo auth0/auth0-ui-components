@@ -121,7 +121,7 @@ export function QRCodeEnrollmentForm({
           </p>
           <p
             id="qr-description"
-            className="font-normal block text-sm text-left text-(length:--font-size-paragraph) text-primary"
+            className="font-normal block text-left text-paragraph text-primary"
           >
             {factorType === FACTOR_TYPE_TOTP
               ? t('enrollment.totp.scan_description')
@@ -131,7 +131,7 @@ export function QRCodeEnrollmentForm({
             <CopyableTextField value={manualInputCode || barcodeUri} />
           </div>
           {factorType === FACTOR_TYPE_PUSH_NOTIFICATION && (
-            <p className="text-sm text-(length:--font-size-paragraph) text-muted-foreground">
+            <p className="text-paragraph text-muted-foreground">
               {t('enrollment.push.download_hint')}{' '}
               <Link
                 href={GUARDIAN_APP_STORE_URL}

@@ -69,7 +69,7 @@ export function FactorDeleteModal({
         )}
       >
         <DialogHeader>
-          <DialogTitle className="text-left text-(length:--font-size-title) font-medium">
+          <DialogTitle className="text-left text-title font-medium">
             {t('remove_factor_dialog.title')}
           </DialogTitle>
           <DialogDescription className="sr-only">
@@ -77,7 +77,7 @@ export function FactorDeleteModal({
           </DialogDescription>
         </DialogHeader>
         <Separator />
-        <p className="text-center text-(length:--font-size-paragraph) font-normal text-primary">
+        <p className="text-center text-paragraph font-normal text-primary">
           {factorToDelete?.type && t(`remove_factor_dialog.consent.${factorToDelete.type}`)}
         </p>
 

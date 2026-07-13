@@ -113,7 +113,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
           name="domain"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+              <FormLabel className="text-label font-medium">
                 {t('fields.google-apps.domain.label')}
               </FormLabel>
               <FormControl>
@@ -125,10 +125,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
                   {...field}
                 />
               </FormControl>
-              <FormMessage
-                role="alert"
-                className="text-sm text-left text-(length:--font-size-paragraph)"
-              />
+              <FormMessage role="alert" className="text-left text-paragraph" />
             </FormItem>
           )}
         />
@@ -138,7 +135,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
           name="client_id"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+              <FormLabel className="text-label font-medium">
                 {t('fields.google-apps.client_id.label')}
               </FormLabel>
               <FormControl>
@@ -151,11 +148,8 @@ export const GoogleAppsProviderForm = React.forwardRef<
                   {...field}
                 />
               </FormControl>
-              <FormMessage
-                role="alert"
-                className="text-sm text-left text-(length:--font-size-paragraph)"
-              />
-              <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+              <FormMessage role="alert" className="text-left text-paragraph" />
+              <FormDescription className="text-paragraph font-normal text-left">
                 {t('fields.google-apps.client_id.helper_text')}
               </FormDescription>
             </FormItem>
@@ -167,7 +161,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
           name="client_secret"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+              <FormLabel className="text-label font-medium">
                 {t('fields.google-apps.client_secret.label')}
               </FormLabel>
               <FormControl>
@@ -180,11 +174,8 @@ export const GoogleAppsProviderForm = React.forwardRef<
                   {...field}
                 />
               </FormControl>
-              <FormMessage
-                role="alert"
-                className="text-sm text-left text-(length:--font-size-paragraph)"
-              />
-              <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+              <FormMessage role="alert" className="text-left text-paragraph" />
+              <FormDescription className="text-paragraph font-normal text-left">
                 {t('fields.google-apps.client_secret.helper_text')}
               </FormDescription>
             </FormItem>
@@ -196,7 +187,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
           name="callback_url"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+              <FormLabel className="text-label font-medium">
                 {t('fields.google-apps.callback_url.label')}
               </FormLabel>
               <FormControl>
@@ -208,11 +199,8 @@ export const GoogleAppsProviderForm = React.forwardRef<
                   {...field}
                 />
               </FormControl>
-              <FormMessage
-                role="alert"
-                className="text-sm text-left text-(length:--font-size-paragraph)"
-              />
-              <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+              <FormMessage role="alert" className="text-left text-paragraph" />
+              <FormDescription className="text-paragraph font-normal text-left">
                 {t('fields.google-apps.callback_url.helper_text')}
               </FormDescription>
             </FormItem>
