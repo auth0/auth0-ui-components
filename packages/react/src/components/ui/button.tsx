@@ -47,16 +47,16 @@ export interface ButtonProps
   as?: boolean;
 }
 
-function Button({
-  className,
-  variant,
-  size,
-  as,
-  ...props
-}: React.ComponentProps<'button'> & ButtonProps) {
-  const Comp = as ? Slot : 'button';
+const Button = React.forwardRef<HTMLButtonElement, React.ComponentProps<'button'> & ButtonProps>(
+  function Button({ className, variant, size, as, ...props }, ref) {
+    const Comp = as ? Slot : 'button';
 
-  return <Comp className={cn(buttonVariants({ variant, size }), className)} {...props} />;
-}
+    return (
+      <Comp ref={ref} className={cn(buttonVariants({ variant, size }), className)} {...props} />
+    );
+  },
+);
+
+Button.displayName = 'Button';
 
 export { Button, buttonVariants };

@@ -29,19 +29,36 @@ describe('RefreshIndicator', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders the refresh button when data is stale', () => {
+  it('enables the refresh button when data is stale', () => {
     render(<RefreshIndicator isStale onRefresh={vi.fn()} />);
-    expect(screen.getByRole('button', { name: 'Refresh' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Refresh' })).toBeEnabled();
   });
 
-  it('hides the indicator while fetching', () => {
+  it('disables the refresh button while a refetch is in flight', () => {
+    render(<RefreshIndicator isStale isFetching lastUpdatedAt={new Date()} onRefresh={vi.fn()} />);
+    expect(screen.getByRole('button', { name: 'Refresh' })).toBeDisabled();
+  });
+
+  it('hides the indicator during an initial load, before any data has been fetched', () => {
     render(<RefreshIndicator isStale isFetching onRefresh={vi.fn()} />);
     expect(screen.queryByRole('button', { name: 'Refresh' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
-  it('hides the indicator when data is not stale', () => {
-    render(<RefreshIndicator isStale={false} onRefresh={vi.fn()} />);
-    expect(screen.queryByRole('button', { name: 'Refresh' })).not.toBeInTheDocument();
+  it('shows "Just now" instead of the stale time while a refetch is in flight', () => {
+    const lastUpdatedAt = new Date('2026-06-30T11:55:00Z'); // 5 min ago
+    render(
+      <RefreshIndicator isStale isFetching lastUpdatedAt={lastUpdatedAt} onRefresh={vi.fn()} />,
+    );
+    expect(screen.getByText(/just now/i)).toBeInTheDocument();
+    expect(screen.queryByText(/ago/i)).not.toBeInTheDocument();
+  });
+
+  it('shows a disabled button and a "Just now" label when data is fresh', () => {
+    render(<RefreshIndicator isStale={false} lastUpdatedAt={new Date()} onRefresh={vi.fn()} />);
+    expect(screen.getByRole('button', { name: 'Refresh' })).toBeDisabled();
+    expect(screen.getByText('Last updated', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText(/just now/i)).toBeInTheDocument();
   });
 
   it('calls onRefresh when the button is clicked', () => {
@@ -49,6 +66,15 @@ describe('RefreshIndicator', () => {
     render(<RefreshIndicator isStale onRefresh={onRefresh} />);
     fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
     expect(onRefresh).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call onRefresh when the button is disabled', () => {
+    const onRefresh = vi.fn();
+    render(
+      <RefreshIndicator isStale isFetching lastUpdatedAt={new Date()} onRefresh={onRefresh} />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
+    expect(onRefresh).not.toHaveBeenCalled();
   });
 
   it('renders a relative "last updated" label', () => {
@@ -79,16 +105,15 @@ describe('RefreshIndicator', () => {
     render(
       <RefreshIndicator
         isStale
-        lastUpdatedAt={new Date('2026-06-30T11:59:10Z')} // 50s ago -> under a minute
+        lastUpdatedAt={new Date('2026-06-30T11:59:10Z')}
         tickIntervalMs={1000}
         onRefresh={vi.fn()}
       />,
     );
     expect(screen.getByText(/just now/i)).toBeInTheDocument();
 
-    // Advance elapsed time past the minute boundary and fire the tick so the label recomputes.
     act(() => {
-      vi.advanceTimersByTime(15_000); // now 1 min 5 sec ago
+      vi.advanceTimersByTime(15_000);
     });
     expect(screen.getByText(/1 minute 5 sec ago/i)).toBeInTheDocument();
   });

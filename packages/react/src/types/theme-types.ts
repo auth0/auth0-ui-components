@@ -11,6 +11,7 @@ export interface ThemeSettings {
   theme?: 'default' | 'minimal' | 'rounded';
   mode?: 'light' | 'dark';
   variables?: StylingVariables;
+  classes?: Record<string, string | undefined>;
 }
 
 /** Theme input for ThemeProvider. */
@@ -19,6 +20,7 @@ export type ThemeInput = {
   mode?: 'light' | 'dark';
   variables?: StylingVariables;
   loader?: React.ReactNode;
+  classes?: Record<string, string | undefined>;
 };
 
 /** Theme context value. */

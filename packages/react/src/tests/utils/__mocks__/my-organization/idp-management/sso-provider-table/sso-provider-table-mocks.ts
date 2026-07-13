@@ -1,6 +1,35 @@
 import { vi } from 'vitest';
 
-import type { SsoProviderTableViewProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
+import type {
+  SsoProviderTableViewProps,
+  UseSsoProviderTableServiceReturn,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
+
+export function createMockSsoProviderTableServiceReturn(
+  overrides: Partial<UseSsoProviderTableServiceReturn> = {},
+): UseSsoProviderTableServiceReturn {
+  return {
+    providers: [],
+    organization: null,
+    isLoading: false,
+    isRefetchingProviders: false,
+    isProvidersStale: false,
+    providersUpdatedAt: 0,
+    providersError: null,
+    organizationError: null,
+    refetchProviders: vi.fn(),
+    isDeleting: false,
+    isRemoving: false,
+    isUpdating: false,
+    isUpdatingId: null,
+    fetchProviders: vi.fn(),
+    fetchOrganizationDetails: vi.fn(),
+    onDeleteConfirm: vi.fn(),
+    onRemoveConfirm: vi.fn(),
+    onEnableProvider: vi.fn(),
+    ...overrides,
+  };
+}
 
 export function createMockSsoProviderTableViewProps(
   overrides: Partial<SsoProviderTableViewProps> = {},
@@ -14,6 +43,9 @@ export function createMockSsoProviderTableViewProps(
     isLoading: false,
     shouldHideCreate: false,
     isViewLoading: false,
+    isRefetchingProviders: false,
+    isProvidersStale: false,
+    providersUpdatedAt: 0,
     selectedIdp: null,
     shouldAllowDeletion: false,
     showDeleteModal: false,
@@ -43,6 +75,7 @@ export function createMockSsoProviderTableViewProps(
     setShowDeleteModal: vi.fn(),
     setShowRemoveModal: vi.fn(),
     setSelectedIdp: vi.fn(),
+    refetchProviders: vi.fn(),
     fetchProviders: vi.fn(async () => undefined),
     fetchOrganizationDetails: vi.fn(async () => null),
     ...overrides,

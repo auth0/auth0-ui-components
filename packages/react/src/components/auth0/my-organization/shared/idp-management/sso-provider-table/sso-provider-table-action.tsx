@@ -39,6 +39,8 @@ import type { SsoProviderTableActionsColumnProps } from '@/types/my-organization
 export function SsoProviderTableActionsColumn({
   provider,
   shouldAllowDeletion,
+  hideDeleteProvider = false,
+  hideRemoveFromOrganization = false,
   readOnly = false,
   isUpdating = false,
   isUpdatingId,
@@ -99,7 +101,7 @@ export function SsoProviderTableActionsColumn({
               <Edit className="mr-2 h-4 w-4" />
               {t('table.actions.edit_button_text')}
             </DropdownMenuItem>
-            {shouldAllowDeletion && (
+            {shouldAllowDeletion && !hideDeleteProvider && (
               <DropdownMenuItem
                 onClick={handleDelete}
                 className="text-destructive-foreground focus:text-destructive-foreground"
@@ -109,14 +111,16 @@ export function SsoProviderTableActionsColumn({
                 {t('table.actions.delete_button_text')}
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem
-              onClick={handleRemoveFromOrganization}
-              className="text-destructive-foreground focus:text-destructive-foreground"
-              disabled={readOnly}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              {t('table.actions.remove_button_text')}
-            </DropdownMenuItem>
+            {!hideRemoveFromOrganization && (
+              <DropdownMenuItem
+                onClick={handleRemoveFromOrganization}
+                className="text-destructive-foreground focus:text-destructive-foreground"
+                disabled={readOnly}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                {t('table.actions.remove_button_text')}
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenuPortal>
       </DropdownMenu>

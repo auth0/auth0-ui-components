@@ -809,6 +809,132 @@ describe('SsoProviderTable', () => {
       });
     });
   });
+
+  describe('refresh indicator', () => {
+    it('should render the refresh control once providers data is loaded and stale', async () => {
+      renderTable();
+      await waitForComponentToLoad();
+      expect(screen.getByRole('button', { name: 'refresh' })).toBeInTheDocument();
+    });
+
+    it('should refetch providers when the refresh button is clicked', async () => {
+      const user = userEvent.setup();
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      const listProviders = apiService.organization.identityProviders.list as ReturnType<
+        typeof vi.fn
+      >;
+
+      renderTable();
+
+      await waitForComponentToLoad();
+
+      // Initial load fetches the providers list once.
+      expect(listProviders).toHaveBeenCalledTimes(1);
+
+      await user.click(screen.getByRole('button', { name: 'refresh' }));
+
+      // Clicking refresh triggers a refetch of the providers list.
+      await waitFor(() => {
+        expect(listProviders).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
+
+  describe('hideDeleteProvider', () => {
+    describe('when is true', () => {
+      it('should not render delete action in dropdown menu', async () => {
+        const user = userEvent.setup();
+
+        renderTable({ hideDeleteProvider: true });
+
+        await waitForComponentToLoad();
+        await screen.findByText(mockProvider.name!);
+
+        const actionButtons = screen.getAllByRole('button');
+        const rowActionButton = actionButtons.find(
+          (btn) =>
+            btn.querySelector('svg.lucide-more-horizontal') || btn.className.includes('rounded-xl'),
+        );
+        expect(rowActionButton).toBeDefined();
+        await user.click(rowActionButton!);
+
+        expect(
+          screen.queryByRole('menuitem', { name: /table.actions.delete_button_text/i }),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    describe('when is false', () => {
+      it('should render delete action in dropdown menu', async () => {
+        const user = userEvent.setup();
+
+        renderTable({ hideDeleteProvider: false });
+
+        await waitForComponentToLoad();
+        await screen.findByText(mockProvider.name!);
+
+        const actionButtons = screen.getAllByRole('button');
+        const rowActionButton = actionButtons.find(
+          (btn) =>
+            btn.querySelector('svg.lucide-more-horizontal') || btn.className.includes('rounded-xl'),
+        );
+        expect(rowActionButton).toBeDefined();
+        await user.click(rowActionButton!);
+
+        expect(
+          screen.queryByRole('menuitem', { name: /table.actions.delete_button_text/i }),
+        ).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('hideRemoveFromOrganization', () => {
+    describe('when is true', () => {
+      it('should not render remove from organization action in dropdown menu', async () => {
+        const user = userEvent.setup();
+
+        renderTable({ hideRemoveFromOrganization: true });
+
+        await waitForComponentToLoad();
+        await screen.findByText(mockProvider.name!);
+
+        const actionButtons = screen.getAllByRole('button');
+        const rowActionButton = actionButtons.find(
+          (btn) =>
+            btn.querySelector('svg.lucide-more-horizontal') || btn.className.includes('rounded-xl'),
+        );
+        expect(rowActionButton).toBeDefined();
+        await user.click(rowActionButton!);
+
+        expect(
+          screen.queryByRole('menuitem', { name: /table.actions.remove_button_text/i }),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    describe('when is false', () => {
+      it('should render remove from organization action in dropdown menu', async () => {
+        const user = userEvent.setup();
+
+        renderTable({ hideRemoveFromOrganization: false });
+
+        await waitForComponentToLoad();
+        await screen.findByText(mockProvider.name!);
+
+        const actionButtons = screen.getAllByRole('button');
+        const rowActionButton = actionButtons.find(
+          (btn) =>
+            btn.querySelector('svg.lucide-more-horizontal') || btn.className.includes('rounded-xl'),
+        );
+        expect(rowActionButton).toBeDefined();
+        await user.click(rowActionButton!);
+
+        expect(
+          screen.queryByRole('menuitem', { name: /table.actions.remove_button_text/i }),
+        ).toBeInTheDocument();
+      });
+    });
+  });
 });
 
 describe('SsoProviderTableView', () => {

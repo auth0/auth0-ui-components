@@ -44,6 +44,7 @@ export const Auth0ComponentProvider = ({
       light: {},
       dark: {},
     },
+    classes: {},
   },
   toastSettings,
   cacheConfig,
@@ -114,6 +115,7 @@ export const Auth0ComponentProvider = ({
           variables: themeSettings.variables,
           loader,
           theme: themeSettings.theme,
+          classes: themeSettings.classes,
         }}
       >
         {mergedToastSettings.provider === 'sonner' && (
