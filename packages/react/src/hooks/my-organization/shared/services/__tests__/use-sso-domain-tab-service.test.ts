@@ -16,11 +16,8 @@ import {
 } from '@/tests/utils';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 
-// ===== Mock packages =====
-
 const { initMockCoreClient } = mockCore();
 
-// Test data
 const mockDomain = createMockSsoDomain();
 const mockVerifiedDomain = createMockVerifiedSsoDomain();
 const mockProvider = createMockSsoProvider();

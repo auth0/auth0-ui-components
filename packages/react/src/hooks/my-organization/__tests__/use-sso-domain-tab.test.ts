@@ -11,7 +11,6 @@ import {
 
 const { mockedShowToast } = mockToast();
 
-// Test data
 const mockDomain = createMockSsoDomain();
 const mockVerifiedDomain = createMockVerifiedSsoDomain();
 const mockProvider = createMockSsoProvider();
