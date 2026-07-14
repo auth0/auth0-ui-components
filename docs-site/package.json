@@ -23,7 +23,7 @@
     "@vitejs/plugin-react": "^5.1.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^1.16.0",
+    "lucide-react": "^1.24.0",
     "next-themes": "^0.2.1",
     "postcss": "^8.5.14",
     "prismjs": "^1.30.0",
