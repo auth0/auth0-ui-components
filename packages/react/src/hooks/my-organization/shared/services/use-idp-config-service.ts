@@ -1,6 +1,6 @@
 /**
  * Identity provider configuration hook.
- * @module use-idp-config
+ * @module use-idp-config-service
  */
 
 import {

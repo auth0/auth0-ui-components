@@ -1,6 +1,6 @@
 /**
  * Organization configuration hook.
- * @module use-config
+ * @module use-config-service
  */
 
 import {

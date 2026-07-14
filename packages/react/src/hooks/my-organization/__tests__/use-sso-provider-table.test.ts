@@ -41,14 +41,14 @@ vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-table-service'
   },
 }));
 
-vi.mock('@/hooks/my-organization/use-config', () => ({
+vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
   useConfig: () => ({
     isLoadingConfig: false,
     shouldAllowDeletion: true,
     isConfigValid: true,
   }),
 }));
-vi.mock('@/hooks/my-organization/use-idp-config', () => ({
+vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
   useIdpConfig: () => ({
     isLoadingIdpConfig: false,
     isIdpConfigValid: true,

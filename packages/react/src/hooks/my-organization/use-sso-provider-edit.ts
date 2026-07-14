@@ -7,9 +7,9 @@
 import type { IdpId } from '@auth0/universal-components-core';
 import { useCallback } from 'react';
 
+import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
+import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useSsoProviderEditService } from '@/hooks/my-organization/shared/services/use-sso-provider-edit-service';
-import { useConfig } from '@/hooks/my-organization/use-config';
-import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import type {
   UseSsoProviderEditOptions,
   UseSsoProviderEditReturn,

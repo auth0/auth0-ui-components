@@ -6,13 +6,13 @@ import { useSsoProviderEdit } from '../use-sso-provider-edit';
 import * as useSsoProviderEditServiceModule from '@/hooks/my-organization/shared/services/use-sso-provider-edit-service';
 import { createMockSsoProviderEditServiceReturn } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-provider-edit/sso-provider-edit.mocks';
 
-vi.mock('@/hooks/my-organization/use-config', () => ({
+vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
   useConfig: () => ({
     shouldAllowDeletion: true,
     isLoadingConfig: false,
   }),
 }));
-vi.mock('@/hooks/my-organization/use-idp-config', () => ({
+vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
   useIdpConfig: () => ({
     idpConfig: {},
     isLoadingIdpConfig: false,

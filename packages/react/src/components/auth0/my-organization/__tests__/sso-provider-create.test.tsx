@@ -13,8 +13,8 @@ import {
   SsoProviderCreate,
   SsoProviderCreateView,
 } from '@/components/auth0/my-organization/sso-provider-create';
-import * as useConfigModule from '@/hooks/my-organization/use-config';
-import * as useIdpConfigModule from '@/hooks/my-organization/use-idp-config';
+import * as useConfigModule from '@/hooks/my-organization/shared/services/use-config-service';
+import * as useIdpConfigModule from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockSsoProviderCreateHandler,
