@@ -92,7 +92,6 @@
     "lucide-react": "^1.16.0",
     "postcss-prefix-selector": "^2.1.1",
     "qrcode": "^1.5.4",
-    "shadcn": "^3.5.0",
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.0",
     "zod": "^3.25.56"
@@ -117,6 +116,7 @@
     "postcss-cli": "^11.0.1",
     "react-hook-form": "^7.57.0",
     "rimraf": "^5.0.0",
+    "shadcn": "^3.5.0",
     "tailwindcss": "^4.1.17"
   }
 }
