@@ -76,6 +76,9 @@ function sendJson(res: VercelResponse, content: string): void {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.setHeader('Deprecation', 'true');
+  res.setHeader('Sunset', 'Sat, 31 Dec 2026 23:59:59 GMT');
+  res.setHeader('Link', '<https://github.com/auth0/auth0-ui-components>; rel="successor-version"');
   res.send(content);
 }
 
