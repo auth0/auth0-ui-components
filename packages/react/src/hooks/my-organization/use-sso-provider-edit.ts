@@ -25,9 +25,19 @@ import type {
  */
 export function useSsoProviderEdit(
   idpId: IdpId,
-  { sso, provisioning, customMessages = {} }: Partial<UseSsoProviderEditOptions> = {},
+  {
+    sso,
+    provisioning,
+    customMessages = {},
+    skipProvisioningFetch = false,
+  }: Partial<UseSsoProviderEditOptions> = {},
 ): UseSsoProviderEditReturn {
-  const service = useSsoProviderEditService(idpId, { sso, provisioning, customMessages });
+  const service = useSsoProviderEditService(idpId, {
+    sso,
+    provisioning,
+    customMessages,
+    skipProvisioningFetch,
+  });
 
   const { shouldAllowDeletion, isLoadingConfig } = useConfig();
   const { idpConfig, isLoadingIdpConfig, isProvisioningEnabled, isProvisioningMethodEnabled } =
