@@ -94,6 +94,7 @@ export interface UseSsoProviderEditOptions extends SharedComponentProps {
   sso?: SsoProviderTabEditProps;
   provisioning?: SsoProvisioningTabEditProps;
   domains?: SsoDomainsTabEditProps;
+  skipProvisioningFetch?: boolean;
 }
 
 export interface UseSsoProviderEditServiceReturn {
