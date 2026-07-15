@@ -15,14 +15,18 @@ import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useCallback, useState, useMemo, useEffect } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { isMutationLoading } from '@/lib/utils/tanstack-compat';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
+import { getPreviousDataOption, isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   UseSsoDomainTabOptions,
   UseSsoDomainTabReturn,
 } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
+
+const keepPreviousDataOption = getPreviousDataOption();
 
 /**
  * Hook for SSO domain tab domain operations and state.
@@ -42,6 +46,18 @@ export function useSsoDomainTab(
   const handleError = useErrorHandler();
   const queryClient = useQueryClient();
 
+  const {
+    pageSize,
+    currentPage,
+    fromToken,
+    hasPreviousPage,
+    goToNextPage,
+    goToPreviousPage,
+    changePageSize,
+  } = useCheckpointPagination({
+    defaultPageSize: DEFAULT_PAGE_SIZE_OPTIONS[0],
+  });
+
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -52,17 +68,25 @@ export function useSsoDomainTab(
 
   // Fetch domains list using TanStack Query
   const domainsQuery = useQuery({
-    queryKey: ssoDomainQueryKeys.list(idpId),
+    queryKey: ssoDomainQueryKeys.list(idpId, { pageSize, fromToken }),
     queryFn: async () => {
       const { response } = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.domains.list();
-      return response.organization_domains;
+        .organization.domains.list({
+          take: pageSize,
+          from: fromToken,
+        });
+      return {
+        domains: response?.organization_domains ?? [],
+        next: response?.next ?? null,
+      };
     },
     enabled: !!coreClient && !!idpId,
+    ...keepPreviousDataOption,
   });
 
-  const domainsList = domainsQuery.data ?? [];
+  const domainsList = domainsQuery.data?.domains ?? [];
+  const nextToken = domainsQuery.data?.next ?? null;
   const isLoading = domainsQuery.isLoading;
 
   // Handle errors from domains query
@@ -101,7 +125,7 @@ export function useSsoDomainTab(
       return result;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ssoDomainQueryKeys.list(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoDomainQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
     },
   });
@@ -127,10 +151,18 @@ export function useSsoDomainTab(
     },
     onSuccess: ({ updatedDomain, isVerified }, domain) => {
       if (isVerified) {
-        queryClient.setQueryData<Domain[]>(ssoDomainQueryKeys.list(idpId), (oldDomains) => {
-          if (!oldDomains) return oldDomains;
-          return oldDomains.map((d) => (d.id === domain.id ? { ...d, ...updatedDomain } : d));
-        });
+        queryClient.setQueryData<{ domains: Domain[]; next: string | null }>(
+          ssoDomainQueryKeys.list(idpId, { pageSize, fromToken }),
+          (oldData) => {
+            if (!oldData) return oldData;
+            return {
+              ...oldData,
+              domains: oldData.domains.map((d) =>
+                d.id === domain.id ? { ...d, ...updatedDomain } : d,
+              ),
+            };
+          },
+        );
       }
     },
   });
@@ -157,7 +189,7 @@ export function useSsoDomainTab(
       return domain;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ssoDomainQueryKeys.list(idpId) });
+      queryClient.invalidateQueries({ queryKey: ssoDomainQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
     },
   });
@@ -385,8 +417,28 @@ export function useSsoDomainTab(
     [associateToProviderMutation, t, provider, handleError, deleteFromProviderMutation],
   );
 
+  const handleNextPage = useCallback(() => {
+    if (nextToken) {
+      goToNextPage(nextToken);
+    }
+  }, [nextToken, goToNextPage]);
+
+  const handlePreviousPage = useCallback(() => {
+    goToPreviousPage();
+  }, [goToPreviousPage]);
+
+  const handlePageSizeChange = useCallback(
+    (newPageSize: number) => {
+      changePageSize(newPageSize);
+    },
+    [changePageSize],
+  );
+
   return {
     isLoading,
+    isRefetchingDomains: domainsQuery.isFetching,
+    isDomainsStale: domainsQuery.isStale,
+    domainsUpdatedAt: domainsQuery.dataUpdatedAt,
     domainsList,
     isCreating: isMutationLoading(createDomainMutation),
     selectedDomain,
@@ -396,6 +448,13 @@ export function useSsoDomainTab(
     verifyError,
     isDeleting: isMutationLoading(deleteDomainMutation),
     showCreateModal,
+    pagination: {
+      pageSize,
+      currentPage,
+      hasNextPage: !!nextToken,
+      hasPreviousPage,
+    },
+    refetchDomains: domainsQuery.refetch,
     handleCreate,
     handleCloseVerifyModal,
     handleVerify,
@@ -408,5 +467,8 @@ export function useSsoDomainTab(
     isUpdating,
     isUpdatingId,
     handleToggleSwitch,
+    handleNextPage,
+    handlePreviousPage,
+    handlePageSizeChange,
   };
 }

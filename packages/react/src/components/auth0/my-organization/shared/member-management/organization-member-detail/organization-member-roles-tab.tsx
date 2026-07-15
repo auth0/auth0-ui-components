@@ -175,6 +175,8 @@ export function OrganizationMemberEditRolesTab({
   isAssigningRoles,
   isRemovingRoles = false,
   modalState,
+  classes,
+  style,
   onSelectedRolesChange,
   onAssignRolesClick,
   onAssignRolesCancel,
@@ -220,6 +222,8 @@ export function OrganizationMemberEditRolesTab({
         assignedRoles={memberRoles}
         selectedMember={selectedMember}
         customMessages={customMessages}
+        classes={classes}
+        style={style}
         onClose={onAssignRolesCancel}
         onAssign={onAssignRolesSubmit}
       />
@@ -230,6 +234,8 @@ export function OrganizationMemberEditRolesTab({
         roles={rolesToRemove}
         memberName={memberName}
         customMessages={customMessages}
+        classes={classes}
+        style={style}
         onClose={onRemoveRolesCancel}
         onConfirm={onRemoveRolesConfirm}
       />

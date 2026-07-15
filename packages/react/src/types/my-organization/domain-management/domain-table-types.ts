@@ -17,17 +17,33 @@ import type {
   CreateOrganizationDomainRequestContent,
   IdentityProviderAssociatedWithDomain,
 } from '@auth0/universal-components-core';
+import type { UseQueryResult } from '@tanstack/react-query';
 import type React from 'react';
 
 export type { Domain };
+interface DomainsQueryData {
+  domains: Domain[];
+  next: string | null;
+}
+
+type RefetchDomains = UseQueryResult<DomainsQueryData>['refetch'];
 
 /** CSS classes for DomainTable. */
 export interface DomainTableClasses {
   'DomainTable-header'?: string;
   'DomainTable-table'?: string;
+  'DomainTable-tableActions'?: string;
   'DomainTable-createModal'?: string;
   'DomainTable-configureModal'?: string;
   'DomainTable-deleteModal'?: string;
+}
+
+/** Domain table pagination state. */
+export interface DomainTablePaginationState {
+  pageSize: number;
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
 }
 
 /** DomainTable translation messages. */
@@ -67,6 +83,12 @@ export interface DomainTableActionsColumnProps {
   onDelete: (domain: Domain) => void;
 }
 
+/** Parameters for domain pagination API calls. */
+export interface DomainPaginationParams {
+  pageSize: number;
+  fromToken?: string;
+}
+
 /** Options for domain table hooks (shared by service and public hook). */
 export interface UseDomainTableOptions {
   createAction?: DomainTableProps['createAction'];
@@ -78,17 +100,24 @@ export interface UseDomainTableOptions {
 }
 
 /** @internal */
-export type UseDomainTableServiceOptions = UseDomainTableOptions;
+export interface UseDomainTableServiceOptions extends UseDomainTableOptions {
+  paginationParams?: DomainPaginationParams;
+}
 
 /** Return type for the internal domain table service hook. */
 export interface UseDomainTableServiceReturn {
   domains: Domain[];
   providers: IdentityProviderAssociatedWithDomain[];
+  nextToken: string | null;
   isFetching: boolean;
+  isRefetchingDomains: boolean;
+  isDomainsStale: boolean;
+  domainsUpdatedAt: number;
   isLoadingProviders: boolean;
   isCreating: boolean;
   isDeleting: boolean;
   isVerifying: boolean;
+  refetchDomains: RefetchDomains;
   fetchProviders: (domain: Domain) => Promise<void>;
   fetchDomains: () => Promise<void>;
   onCreateDomain: (data: CreateOrganizationDomainRequestContent) => Promise<Domain>;
@@ -106,10 +135,15 @@ export interface UseDomainTableReturn {
 
   // Loading states
   isFetching: boolean;
+  isRefetchingDomains: boolean;
+  isDomainsStale: boolean;
+  domainsUpdatedAt: number;
   isCreating: boolean;
   isDeleting: boolean;
   isVerifying: boolean;
   isLoadingProviders: boolean;
+  // Pagination
+  pagination: DomainTablePaginationState;
 
   // Modal state
   showCreateModal: boolean;
@@ -126,6 +160,7 @@ export interface UseDomainTableReturn {
   setShowDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
 
   // Handlers
+  refetchDomains: RefetchDomains;
   handleCreate: (domainUrl: string) => Promise<void>;
   handleVerify: (domain: Domain) => Promise<void>;
   handleDelete: (domain: Domain) => Promise<void>;
@@ -139,6 +174,9 @@ export interface UseDomainTableReturn {
   handleConfigureClick: (domain: Domain) => void;
   handleVerifyClick: (domain: Domain) => Promise<void>;
   handleDeleteClick: (domain: Domain) => void;
+  handleNextPage: () => void;
+  handlePreviousPage: () => void;
+  handlePageSizeChange: (pageSize: number) => void;
 }
 
 /** Props for the DomainTableView presentational component. @internal */

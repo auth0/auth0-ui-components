@@ -13,12 +13,16 @@ import { DomainCreateModal } from '@/components/auth0/my-organization/shared/dom
 import { DomainDeleteModal } from '@/components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal';
 import { DomainVerifyModal } from '@/components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal';
 import { SsoDomainTabActionsColumn } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab-action-column';
+import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Header } from '@/components/auth0/shared/header';
+import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
 import { Badge } from '@/components/ui/badge';
 import { useSsoDomainTab } from '@/hooks/my-organization/use-sso-domain-tab';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
+import { cn } from '@/lib/utils';
 import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import type { SsoDomainsTabProps } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
@@ -69,6 +73,10 @@ export function SsoDomainTab({
     handleVerify,
     handleDeleteClick,
     isLoading,
+    isRefetchingDomains,
+    isDomainsStale,
+    domainsUpdatedAt,
+    refetchDomains,
     isDeleting,
     setShowDeleteModal,
     handleDelete,
@@ -80,6 +88,10 @@ export function SsoDomainTab({
     isUpdating,
     isUpdatingId,
     handleToggleSwitch,
+    pagination,
+    handleNextPage,
+    handlePreviousPage,
+    handlePageSizeChange,
   } = useSsoDomainTab(idpId, {
     customMessages,
     domains,
@@ -144,6 +156,20 @@ export function SsoDomainTab({
           ]}
         />
       </div>
+      <div
+        className={cn(
+          'flex justify-end mb-8',
+          currentStyles.classes?.['SsoDomainsTab-tableActions'],
+        )}
+      >
+        <RefreshIndicator
+          isStale={isDomainsStale}
+          isFetching={isRefetchingDomains}
+          lastUpdatedAt={domainsUpdatedAt || undefined}
+          onRefresh={refetchDomains}
+        />
+      </div>
+
       <DataTable
         columns={columns}
         data={domainsList}
@@ -151,6 +177,25 @@ export function SsoDomainTab({
         emptyState={{ title: t('table.empty_message') }}
         className={currentStyles.classes?.['SsoDomainsTab-table']}
       />
+
+      {!isLoading && domainsList.length > 0 && (
+        <div className="mt-4">
+          <DataPagination
+            type="checkpoint"
+            paginationState={{
+              pageSize: pagination.pageSize,
+              currentPage: pagination.currentPage,
+              hasNextPage: pagination.hasNextPage,
+              hasPreviousPage: pagination.hasPreviousPage,
+            }}
+            pageSizeOptions={DEFAULT_PAGE_SIZE_OPTIONS}
+            showPageSizeSelector
+            onNextPage={handleNextPage}
+            onPreviousPage={handlePreviousPage}
+            onPageSizeChange={handlePageSizeChange}
+          />
+        </div>
+      )}
 
       <DomainCreateModal
         translatorKey="idp_management.edit_sso_provider.tabs.domains.content.domain_create.modal"

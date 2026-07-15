@@ -47,11 +47,18 @@ export interface SsoProviderEditBackButton extends Omit<BackButton, 'onClick'> {
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
+/** CSS classes for SsoProviderAttributeSyncAlert. */
+export interface SsoProviderAttributeSyncAlertClasses {
+  'SsoProviderAttributeSyncAlert-root'?: string;
+  'SsoProviderAttributeSyncAlert-dialogContent'?: string;
+}
+
 /** CSS classes for SsoProviderEdit. */
 export interface SsoProviderEditClasses
   extends SsoProviderTabClasses,
     SsoProvisioningTabClasses,
-    SsoDomainTabClasses {
+    SsoDomainTabClasses,
+    SsoProviderAttributeSyncAlertClasses {
   'SsoProviderEdit-header'?: string;
   'SsoProviderEdit-tabs'?: string;
 }
@@ -71,6 +78,10 @@ export interface SsoProviderEditProps
     SsoProviderEditSchema
   > {
   hideHeader?: boolean;
+  hideProvisioningTab?: boolean;
+  hideDeleteProvider?: boolean;
+  hideRemoveFromOrganization?: boolean;
+  hideAttributeMappings?: boolean;
   providerId: IdpId;
   sso?: SsoProviderTabEditProps;
   provisioning?: SsoProvisioningTabEditProps;
@@ -139,7 +150,8 @@ export interface SsoProviderAttributeMappingsProps
 
 export interface SsoProviderAttributeSyncAlertProps {
   translatorKey?: string;
-  className?: string;
+  classes?: SsoProviderAttributeSyncAlertClasses;
+  style?: React.CSSProperties;
   onSync?: () => void | Promise<void>;
   isSyncing?: boolean;
   customMessages?: Partial<AttributeSyncAlertMessages>;
