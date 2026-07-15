@@ -8,7 +8,7 @@ import {
   createFieldSchema,
   DOMAIN_REGEX,
   COMMON_FIELD_CONFIGS,
-} from '../index';
+} from '../common-schemas';
 
 describe('Common Schemas', () => {
   describe('createStringSchema', () => {

@@ -4,7 +4,7 @@
  * @internal
  */
 
-import { createStringSchema, createLogoSchema } from '@core/schemas/common';
+import { createStringSchema, createLogoSchema } from '@core/schemas/common/common-schemas';
 import { z } from 'zod';
 
 import { type OrganizationDetailsSchemas } from './organization-details-schema-types';

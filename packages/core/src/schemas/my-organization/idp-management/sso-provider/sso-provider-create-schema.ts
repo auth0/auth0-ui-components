@@ -10,7 +10,7 @@ import {
   COMMON_FIELD_CONFIGS,
   type FieldOptions,
   type BooleanFieldOptions,
-} from '@core/schemas/common';
+} from '@core/schemas/common/common-schemas';
 import { AVAILABLE_STRATEGY_LIST } from '@core/services/my-organization/idp-management/sso-provider/sso-provider-constants';
 import type { IdpStrategy } from '@core/services/my-organization/idp-management/sso-provider/sso-provider-types';
 import { z } from 'zod';

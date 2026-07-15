@@ -93,7 +93,7 @@ export * from './schemas/my-organization/member-management/invitations/invitatio
 export * from './schemas/my-organization/member-management/invitations/invitation-create-schema';
 export * from './schemas/my-organization/member-management/invitations/invitation-create-schema-types';
 
-export * from './schemas/common';
+export * from './schemas/common/common-schemas';
 
 // Theme
 export * from './theme/theme-utils';
@@ -157,4 +157,4 @@ export type {
 } from './services/mfa-step-up/mfa-step-up-api-types';
 
 // Icons
-export * from './assets/icons';
+export * from './assets/icons/icons';

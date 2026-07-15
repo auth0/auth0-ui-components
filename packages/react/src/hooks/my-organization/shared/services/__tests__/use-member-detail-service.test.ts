@@ -4,17 +4,14 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useMemberDetailService } from '@/hooks/my-organization/shared/services/use-member-detail-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
-import {
-  mockCore,
-  mockToast,
-  createMockI18nService,
-  createQueryClientWrapper,
-} from '@/tests/utils';
+import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
 import {
   createMockMember,
   createMockMemberRoles,
   createMockMemberRole,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import { createQueryClientWrapper } from '@/tests/utils/test-provider';
+import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { UseMemberDetailServiceOptions } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 const { mockedShowToast } = mockToast();

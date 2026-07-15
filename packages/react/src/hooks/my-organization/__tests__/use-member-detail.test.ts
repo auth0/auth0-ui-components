@@ -6,11 +6,6 @@ import { useOrganizationMemberDetail } from '@/hooks/my-organization/use-member-
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import {
-  setupMockUseTranslator,
-  setupMockUseErrorHandler,
-  createQueryClientWrapper,
-} from '@/tests/utils';
-import {
   createMockMember,
   createMockMemberRole,
   createMockMemberRoles,
@@ -19,6 +14,8 @@ import {
   type MockService,
   makeMockService,
 } from '@/tests/utils/__mocks__/my-organization/member-management/use-member-detail.mocks';
+import { createQueryClientWrapper } from '@/tests/utils/test-provider';
+import { setupMockUseTranslator, setupMockUseErrorHandler } from '@/tests/utils/test-utilities';
 import type {
   MemberDetailServiceResult,
   UseOrganizationMemberDetailOptions,
