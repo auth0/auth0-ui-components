@@ -273,6 +273,7 @@ function DomainTableView({
         onVerify={handleVerify}
         onDelete={handleDeleteClick}
         customMessages={customMessages?.verify}
+        classes={currentStyles.classes}
       />
 
       <DomainDeleteModal

@@ -41,6 +41,7 @@ export function DomainVerifyModal({
   isLoading,
   domain,
   error,
+  classes,
   onClose,
   onVerify,
   onDelete,
@@ -63,7 +64,7 @@ export function DomainVerifyModal({
     <Modal
       open={isOpen}
       onOpenChange={(open) => !open && onClose()}
-      className="p-10 break-all"
+      className={cn('p-10 break-al', classes?.['DomainTableVerifyModal-dialogContent'])}
       title={t('title', { domainName: domain?.domain })}
       content={
         <div className={cn('space-y-4', className)}>
