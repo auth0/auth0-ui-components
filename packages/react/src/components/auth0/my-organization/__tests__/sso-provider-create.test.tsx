@@ -1,5 +1,6 @@
 import {
   AVAILABLE_STRATEGY_LIST,
+  idpConfigQueryKeys,
   type ComponentAction,
   type IdpKnownResponse,
   type CreateIdentityProviderRequestContentPrivate,
@@ -110,7 +111,7 @@ describe('SsoProviderCreate', () => {
     vi.clearAllMocks();
     mockCoreClient = initMockCoreClient();
     queryClient = createTestQueryClient();
-    queryClient.setQueryData(useIdpConfigModule.idpConfigQueryKeys.config(), createMockIdpConfig());
+    queryClient.setQueryData(idpConfigQueryKeys.config(), createMockIdpConfig());
 
     vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
       coreClient: mockCoreClient,

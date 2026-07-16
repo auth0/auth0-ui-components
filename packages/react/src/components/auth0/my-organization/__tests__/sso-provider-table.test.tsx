@@ -1,4 +1,8 @@
-import type { ComponentAction, IdpKnownResponse } from '@auth0/universal-components-core';
+import {
+  idpConfigQueryKeys,
+  type ComponentAction,
+  type IdpKnownResponse,
+} from '@auth0/universal-components-core';
 import type { QueryClient } from '@tanstack/react-query';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -106,7 +110,7 @@ describe('SsoProviderTable', () => {
 
     mockCoreClient = initMockCoreClient();
     queryClient = createTestQueryClient();
-    queryClient.setQueryData(useIdpConfigModule.idpConfigQueryKeys.config(), createMockIdpConfig());
+    queryClient.setQueryData(idpConfigQueryKeys.config(), createMockIdpConfig());
 
     const apiService = mockCoreClient.getMyOrganizationApiClient();
     (apiService.organization.identityProviders.list as ReturnType<typeof vi.fn>).mockResolvedValue({

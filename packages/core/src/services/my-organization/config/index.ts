@@ -4,3 +4,4 @@
  * @internal
  */
 export * from './config-types';
+export * from './config-query-keys';
