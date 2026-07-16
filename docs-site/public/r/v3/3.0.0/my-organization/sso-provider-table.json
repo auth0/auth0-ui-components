@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
-  "name": "sso-provider-table",
+  "name": "my-organization/sso-provider-table",
   "type": "registry:block",
   "title": "SSO provider table container component.",
   "description": "A block component for sso provider table.",
