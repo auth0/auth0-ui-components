@@ -84,6 +84,8 @@ export function useOrganizationMemberManagement(
   const {
     providersQuery,
     rolesQuery,
+    rolesSearchQuery,
+    setRoleSearchTerm,
     invitationsQuery,
     membersQuery,
     organizationQuery,
@@ -117,6 +119,7 @@ export function useOrganizationMemberManagement(
 
   const availableProviders: IdentityProviderOption[] = providersQuery.data ?? [];
   const availableRoles = rolesQuery.data ?? [];
+  const searchedRoles = rolesSearchQuery.data ?? [];
   const currentInvitations = invitationsQuery.data?.invitations ?? [];
   const currentMembers = membersQuery.data?.members ?? [];
   const invitationNextToken = invitationsQuery.data?.next ?? null;
@@ -266,6 +269,8 @@ export function useOrganizationMemberManagement(
   return {
     activeTab,
     availableRoles,
+    searchedRoles,
+    onRoleSearch: setRoleSearchTerm,
     availableProviders,
 
     invitations: currentInvitations,
@@ -281,6 +286,7 @@ export function useOrganizationMemberManagement(
     refetchMembers: membersQuery.refetch,
     refetchInvitations: invitationsQuery.refetch,
     isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
+    isSearchingRoles: rolesSearchQuery.isLoading || rolesSearchQuery.isFetching,
     isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),
     isAssigningRoles: isMutationLoading(assignRolesMutation),
     isCreatingInvitation: isMutationLoading(createInvitationMutation),

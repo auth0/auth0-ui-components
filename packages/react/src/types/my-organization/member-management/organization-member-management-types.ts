@@ -71,6 +71,8 @@ export interface UseMemberManagementServiceOptions {
 export interface MemberManagementServiceResult {
   providersQuery: UseQueryResult<IdentityProviderOption[]>;
   rolesQuery: UseQueryResult<Role[]>;
+  rolesSearchQuery: UseQueryResult<Role[]>;
+  setRoleSearchTerm: (term: string) => void;
   invitationsQuery: UseQueryResult<{
     invitations: MemberInvitation[];
     next: string | null;
@@ -134,6 +136,8 @@ export type MemberManagementModalState =
 export interface UseOrganizationMemberManagementResult {
   activeTab: ActiveTab;
   availableRoles: Role[];
+  searchedRoles: Role[];
+  onRoleSearch: (term: string) => void;
   availableProviders: IdentityProviderOption[];
   members: OrgMember[];
 
@@ -149,6 +153,8 @@ export interface UseOrganizationMemberManagementResult {
   refetchMembers: MemberManagementServiceResult['membersQuery']['refetch'];
   refetchInvitations: MemberManagementServiceResult['invitationsQuery']['refetch'];
   isFetchingAvailableRoles: boolean;
+  /** Whether the server-side role search query is in flight. */
+  isSearchingRoles: boolean;
   isCreatingInvitation: boolean;
   isRevokingInvitation: boolean;
   isResendingInvitation: boolean;

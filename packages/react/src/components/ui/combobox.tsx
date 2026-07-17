@@ -24,6 +24,7 @@ export interface ComboboxProps {
   notFoundMessage?: string;
   multiple?: boolean;
   showSelectedCount?: boolean;
+  filterLocally?: boolean;
 }
 
 export function Combobox({
@@ -37,13 +38,13 @@ export function Combobox({
   notFoundMessage,
   multiple = false,
   showSelectedCount = false,
+  filterLocally = true,
 }: ComboboxProps) {
   const [query, setQuery] = React.useState('');
   const [open, setOpen] = React.useState(false);
   const [focusedIndex, setFocusedIndex] = React.useState(-1);
   const [hasTyped, setHasTyped] = React.useState(false);
   const [focusedChipIndex, setFocusedChipIndex] = React.useState(-1);
-  const [isFocused, setIsFocused] = React.useState(false);
   const [visibleChipCount, setVisibleChipCount] = React.useState(1);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const chipRefs = React.useRef<(HTMLDivElement | null)[]>([]);
@@ -56,6 +57,9 @@ export function Combobox({
   const reactId = React.useId();
   const inputId = `combobox-input-${reactId}`;
 
+  const onInputChangeRef = React.useRef(onInputChange);
+  onInputChangeRef.current = onInputChange;
+
   const [popoverContainer, setPopoverContainer] = React.useState<HTMLElement | null>(null);
 
   React.useEffect(() => {
@@ -66,22 +70,39 @@ export function Combobox({
     setPopoverContainer(dialogContent ?? portalContainer);
   }, [open, portalContainer]);
 
-  const selectedValues = React.useMemo(() => {
+  const selectedValues = React.useMemo<string[]>(() => {
     if (multiple) {
       return Array.isArray(value) ? value : value ? [value] : [];
     }
-    return value ? [value] : [];
+    return typeof value === 'string' ? [value] : [];
   }, [value, multiple]);
 
-  const selectedOptions = React.useMemo(
-    () => options.filter((opt) => selectedValues.includes(opt.value)),
-    [options, selectedValues],
-  );
+  // Cache of currently selected options, keyed by value. Lets chips keep their
+  // label even after `options` narrows to a server-filtered subset that no longer
+  // contains them. Bounded to selectedValues so it can't grow across searches.
+  const selectedOptionsCacheRef = React.useRef(new Map<string, ComboboxOption>());
+
+  const selectedOptions = React.useMemo(() => {
+    // Maintain the cache inside the memo, keyed on both `selectedValues` and `options`,
+    // so an in-place label change (same value, new label) re-derives instead of going
+    // stale, and the O(N) prune/refresh runs only when selection or options change —
+    // not on every unrelated re-render (hover, resize, chip focus).
+    const cache = selectedOptionsCacheRef.current;
+    for (const key of cache.keys()) {
+      if (!selectedValues.includes(key)) cache.delete(key);
+    }
+    for (const option of options) {
+      if (selectedValues.includes(option.value)) cache.set(option.value, option);
+    }
+    return selectedValues
+      .map((val) => cache.get(val))
+      .filter((opt): opt is ComboboxOption => opt !== undefined);
+  }, [selectedValues, options]);
 
   const filteredOptions = React.useMemo(() => {
-    if (!hasTyped || query === '') return options;
+    if (!filterLocally || !hasTyped || query === '') return options;
     return options.filter((option) => option.label.toLowerCase().includes(query.toLowerCase()));
-  }, [options, query, hasTyped]);
+  }, [options, query, hasTyped, filterLocally]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (disabled) return;
@@ -195,15 +216,10 @@ export function Combobox({
     setOpen(!open);
   };
 
-  const handleFocus = () => {
-    setIsFocused(true);
-  };
-
   const handleBlur = (event: React.FocusEvent) => {
     if (containerRef.current && containerRef.current.contains(event.relatedTarget as Node)) {
       return;
     }
-    setIsFocused(false);
     setFocusedChipIndex(-1);
   };
 
@@ -294,9 +310,12 @@ export function Combobox({
     if (!multiple && selectedOptions.length > 0 && selectedOptions[0]) {
       setQuery(selectedOptions[0].label);
     } else if (multiple || selectedOptions.length === 0) {
-      setQuery('');
+      if (query !== '') {
+        setQuery('');
+        onInputChangeRef.current?.('');
+      }
     }
-  }, [selectedOptions, multiple]);
+  }, [selectedValues, multiple]);
 
   React.useEffect(() => {
     setFocusedIndex(-1);
@@ -314,7 +333,7 @@ export function Combobox({
     chipRefs.current = chipRefs.current.slice(0, selectedOptions.length);
   }, [selectedOptions.length]);
 
-  const showAllChips = isFocused || open || !showSelectedCount;
+  const showAllChips = open || !showSelectedCount;
 
   React.useLayoutEffect(() => {
     if (!multiple || showAllChips) return;
@@ -365,7 +384,7 @@ export function Combobox({
     const observer = new ResizeObserver(measureVisible);
     if (containerRef.current) observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, [selectedOptions, isFocused, open, showSelectedCount, multiple]);
+  }, [selectedOptions, open, showSelectedCount, multiple]);
 
   const displayValue =
     !multiple && selectedOptions.length > 0 && selectedOptions[0]
@@ -386,7 +405,6 @@ export function Combobox({
                 onClick={handleInputClick}
                 onFocus={() => {
                   setFocusedChipIndex(-1);
-                  handleFocus();
                 }}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
@@ -436,7 +454,6 @@ export function Combobox({
                           onKeyDown={(e) => handleChipKeyDown(e, index)}
                           onFocus={() => {
                             setFocusedChipIndex(index);
-                            handleFocus();
                           }}
                           onBlur={(e) => {
                             setFocusedChipIndex(-1);
@@ -456,16 +473,13 @@ export function Combobox({
                           </Chip>
                         </div>
                       ))}
-                      {!isFocused &&
-                        !open &&
-                        selectedOptions.length > visibleChipCount &&
-                        showSelectedCount && (
-                          <span className="text-muted-foreground border-border flex h-4 items-center self-center border-r px-0.5 pr-1.5 text-xs">
-                            +{selectedOptions.length - visibleChipCount} more
-                          </span>
-                        )}
+                      {!open && selectedOptions.length > visibleChipCount && showSelectedCount && (
+                        <span className="text-muted-foreground border-border flex h-4 items-center self-center border-r px-0.5 pr-1.5 text-xs">
+                          +{selectedOptions.length - visibleChipCount} more
+                        </span>
+                      )}
                       {/* Hidden measurement row — always renders all chips to measure real widths */}
-                      {showSelectedCount && !isFocused && !open && (
+                      {showSelectedCount && !open && (
                         <div
                           className="pointer-events-none invisible absolute flex gap-1"
                           aria-hidden="true"

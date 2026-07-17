@@ -63,11 +63,16 @@ export function useMemberDetailService(
     enabled: !!coreClient && isValidUserId && memberQuery.isSuccess,
   });
 
-  const { rolesQuery, assignRolesMutation, removeFromOrganizationMutation } =
-    useMemberManagementService({
-      assignRolesAction,
-      removeFromOrganizationAction,
-    });
+  const {
+    rolesQuery,
+    rolesSearchQuery,
+    setRoleSearchTerm,
+    assignRolesMutation,
+    removeFromOrganizationMutation,
+  } = useMemberManagementService({
+    assignRolesAction,
+    removeFromOrganizationAction,
+  });
 
   const organizationQuery = useQuery({
     queryKey: memberDetailQueryKeys.organization,
@@ -122,6 +127,8 @@ export function useMemberDetailService(
     memberQuery,
     memberRolesQuery,
     rolesQuery,
+    rolesSearchQuery,
+    setRoleSearchTerm,
     organizationQuery,
     removeFromOrganizationMutation,
     assignRolesMutation,

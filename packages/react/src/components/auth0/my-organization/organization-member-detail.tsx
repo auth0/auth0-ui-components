@@ -192,6 +192,8 @@ export function OrganizationMemberDetailView(
               selectedMember={props.member}
               memberRoles={props.memberRoles}
               availableRoles={props.availableRoles}
+              searchedRoles={props.searchedRoles}
+              onRoleSearch={props.onRoleSearch}
               selectedRoles={props.selectedRoles}
               isFetchingMemberRoles={props.isFetchingMemberRoles}
               isFetchingAvailableRoles={props.isFetchingAvailableRoles}

@@ -167,10 +167,10 @@ export function OrganizationMemberEditRolesTab({
   memberName,
   selectedMember,
   memberRoles,
-  availableRoles,
+  searchedRoles,
+  onRoleSearch,
   selectedRoles,
   isFetchingMemberRoles,
-  isFetchingAvailableRoles,
   removingRoleIds,
   isAssigningRoles,
   isRemovingRoles = false,
@@ -217,8 +217,8 @@ export function OrganizationMemberEditRolesTab({
 
       <OrganizationMemberAssignRolesModal
         isOpen={isAssignRolesModal}
-        isLoading={isAssigningRoles || isFetchingAvailableRoles}
-        availableRoles={availableRoles}
+        isLoading={isAssigningRoles}
+        availableRoles={searchedRoles}
         assignedRoles={memberRoles}
         selectedMember={selectedMember}
         customMessages={customMessages}
@@ -226,6 +226,7 @@ export function OrganizationMemberEditRolesTab({
         style={style}
         onClose={onAssignRolesCancel}
         onAssign={onAssignRolesSubmit}
+        onRoleSearch={onRoleSearch}
       />
 
       <OrganizationMemberRemoveRoleModal

@@ -211,6 +211,8 @@ const createMockMemberManagementResult = (
   return {
     activeTab: 'members',
     availableRoles: createMockRoleOptions(),
+    searchedRoles: createMockRoleOptions(),
+    onRoleSearch: vi.fn(),
     availableProviders: [],
     members: [member],
     invitations: [invitation],
@@ -224,6 +226,7 @@ const createMockMemberManagementResult = (
     refetchMembers: vi.fn(),
     refetchInvitations: vi.fn(),
     isFetchingAvailableRoles: false,
+    isSearchingRoles: false,
     isCreatingInvitation: false,
     isRevokingInvitation: false,
     isResendingInvitation: false,
@@ -421,13 +424,11 @@ describe('OrganizationMemberManagementView', () => {
       expect(modal).toHaveTextContent(`assigned:${(member.roles ?? []).length}`);
     });
 
-    it('reflects loading state when either fetching roles or assigning', () => {
+    it('reflects loading state when assigning but not while searching roles', () => {
       const { unmount } = renderWithProviders(
-        <OrganizationMemberManagementView
-          {...createMockViewProps({ isFetchingAvailableRoles: true })}
-        />,
+        <OrganizationMemberManagementView {...createMockViewProps({ isSearchingRoles: true })} />,
       );
-      expect(screen.getByTestId('assign-role-modal')).toHaveTextContent('loading:true');
+      expect(screen.getByTestId('assign-role-modal')).toHaveTextContent('loading:false');
       unmount();
 
       renderWithProviders(

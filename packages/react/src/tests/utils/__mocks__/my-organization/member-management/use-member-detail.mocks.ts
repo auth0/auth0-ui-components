@@ -17,6 +17,11 @@ export type MockService = {
     'data' | 'isLoading' | 'isFetching' | 'isError' | 'error'
   >;
   rolesQuery: Pick<MemberDetailServiceResult['rolesQuery'], 'data' | 'isLoading' | 'isFetching'>;
+  rolesSearchQuery: Pick<
+    MemberDetailServiceResult['rolesSearchQuery'],
+    'data' | 'isLoading' | 'isFetching'
+  >;
+  setRoleSearchTerm: MemberDetailServiceResult['setRoleSearchTerm'];
   organizationQuery: Pick<MemberDetailServiceResult['organizationQuery'], 'data'>;
   removeFromOrganizationMutation: Pick<
     MemberDetailServiceResult['removeFromOrganizationMutation'],
@@ -53,6 +58,12 @@ export const makeMockService = (overrides?: Partial<MockService>): MockService =
     isLoading: false,
     isFetching: false,
   },
+  rolesSearchQuery: {
+    data: createMockAvailableRoles(),
+    isLoading: false,
+    isFetching: false,
+  },
+  setRoleSearchTerm: vi.fn(),
   organizationQuery: {
     data: { display_name: 'Test Org' } as MemberDetailServiceResult['organizationQuery']['data'],
   },

@@ -39,6 +39,8 @@ export function useOrganizationMemberDetail(
     memberQuery,
     memberRolesQuery,
     rolesQuery,
+    rolesSearchQuery,
+    setRoleSearchTerm,
     organizationQuery,
     removeFromOrganizationMutation,
     assignRolesMutation,
@@ -136,10 +138,17 @@ export function useOrganizationMemberDetail(
   const member = memberQuery.data ?? null;
   const organizationDisplayName = organizationQuery.data?.display_name ?? '';
   const memberRoles: Role[] = memberRolesQuery.data ?? [];
-  const availableRoles: Role[] = React.useMemo(() => {
-    const assignedIds = new Set(memberRoles.map((r) => r.id));
-    return (rolesQuery.data ?? []).filter((r) => !assignedIds.has(r.id));
-  }, [rolesQuery.data, memberRoles]);
+  const assignedRoleIds = React.useMemo(() => new Set(memberRoles.map((r) => r.id)), [memberRoles]);
+
+  const availableRoles: Role[] = React.useMemo(
+    () => (rolesQuery.data ?? []).filter((r) => !assignedRoleIds.has(r.id)),
+    [rolesQuery.data, assignedRoleIds],
+  );
+
+  const searchedRoles: Role[] = React.useMemo(
+    () => (rolesSearchQuery.data ?? []).filter((r) => !assignedRoleIds.has(r.id)),
+    [rolesSearchQuery.data, assignedRoleIds],
+  );
 
   const removingRoles = modalState.type === 'removeRoles' ? modalState.roles : [];
 
@@ -153,11 +162,14 @@ export function useOrganizationMemberDetail(
     organizationDisplayName,
     memberRoles,
     availableRoles,
+    searchedRoles,
+    onRoleSearch: setRoleSearchTerm,
     selectedRoles,
     memberError: memberErrorMessage,
     isFetchingMember: memberQuery.isLoading || memberQuery.isFetching,
     isFetchingMemberRoles: memberRolesQuery.isLoading,
     isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
+    isSearchingRoles: rolesSearchQuery.isLoading || rolesSearchQuery.isFetching,
     isLoading: memberQuery.isLoading,
     isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),
     isAssigningRoles: isMutationLoading(assignRolesMutation),

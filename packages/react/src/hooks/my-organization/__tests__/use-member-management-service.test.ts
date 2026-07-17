@@ -135,6 +135,51 @@ describe('useMemberManagementService', () => {
     });
   });
 
+  describe('rolesSearchQuery', () => {
+    const rolesListMock = () => mockCoreClient.getMyOrganizationApiClient().organization.roles.list;
+
+    it('should fetch the default page of roles with no name filter', async () => {
+      const { result } = renderService(createDefaultOptions());
+
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
+      });
+
+      expect(rolesListMock()).toHaveBeenCalledWith({ take: 10 });
+    });
+
+    it('should pass the debounced search term as the name filter', async () => {
+      const { result } = renderService(createDefaultOptions());
+
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
+      });
+
+      act(() => {
+        result.current.setRoleSearchTerm('admin');
+      });
+
+      await waitFor(() => {
+        expect(rolesListMock()).toHaveBeenCalledWith({ take: 10, name: 'admin' });
+      });
+    });
+
+    it('should key the query by the search term', async () => {
+      const { result } = renderService(createDefaultOptions());
+
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
+      });
+
+      expect(memberManagementQueryKeys.rolesSearch('admin')).toEqual([
+        'member-management',
+        'roles',
+        'search',
+        'admin',
+      ]);
+    });
+  });
+
   describe('invitationsQuery', () => {
     it('should fetch invitations when invitations tab is active', async () => {
       const options = createDefaultOptions({ activeTab: 'invitations' });

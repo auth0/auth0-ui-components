@@ -21,6 +21,8 @@ export interface MemberDetailServiceResult {
   memberQuery: UseQueryResult<OrgMember>;
   memberRolesQuery: UseQueryResult<Role[]>;
   rolesQuery: UseQueryResult<Role[]>;
+  rolesSearchQuery: UseQueryResult<Role[]>;
+  setRoleSearchTerm: (term: string) => void;
   organizationQuery: UseQueryResult<OrganizationPrivate>;
   removeFromOrganizationMutation: UseMutationResult<
     void,
@@ -58,12 +60,15 @@ export interface UseOrganizationMemberDetailResult {
   organizationDisplayName: string;
   memberRoles: Role[];
   availableRoles: Role[];
+  searchedRoles: Role[];
+  onRoleSearch: (term: string) => void;
   selectedRoles: Role[];
   isLoading: boolean;
   memberError: string | null;
   isFetchingMember: boolean;
   isFetchingMemberRoles: boolean;
   isFetchingAvailableRoles: boolean;
+  isSearchingRoles: boolean;
   isRemovingFromOrganization: boolean;
   isAssigningRoles: boolean;
   isRemovingRoles: boolean;
@@ -173,6 +178,7 @@ export interface OrganizationMemberAssignRolesModalProps {
   style?: React.CSSProperties;
   onClose: () => void;
   onAssign: (roleIds: string[], memberRoles: Role[], userId?: string | null) => void;
+  onRoleSearch?: (value: string) => void;
 }
 
 export interface RolesTabHeaderProps {
@@ -200,6 +206,8 @@ export interface OrganizationMemberEditRolesTabProps {
   selectedMember?: OrgMember | null;
   memberRoles: Role[];
   availableRoles: Role[];
+  searchedRoles: Role[];
+  onRoleSearch: (term: string) => void;
   selectedRoles: Role[];
   isFetchingMemberRoles?: boolean;
   isFetchingAvailableRoles?: boolean;

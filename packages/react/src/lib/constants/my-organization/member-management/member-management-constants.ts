@@ -19,3 +19,10 @@ export const MAX_ROLES_PER_MEMBER = 50;
  * This is used to limit the number of roles fetched and displayed in the UI when assigning roles to members.
  */
 export const MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT = 100;
+
+/**
+ * Default number of roles fetched for the role selector when no search term is
+ * active. Typing in the selector triggers a server-side `name` search instead of
+ * relying on this initial page.
+ */
+export const DEFAULT_ROLES_PAGE_SIZE = 10;

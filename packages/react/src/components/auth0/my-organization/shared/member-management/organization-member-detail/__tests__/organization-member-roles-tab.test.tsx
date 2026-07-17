@@ -21,6 +21,8 @@ const createProps = (overrides = {}) => ({
   customMessages: {},
   memberRoles: createMockMemberRoles(),
   availableRoles: createMockAvailableRoles(),
+  searchedRoles: createMockAvailableRoles(),
+  onRoleSearch: vi.fn(),
   selectedRoles: [],
   isFetchingMemberRoles: false,
   removingRoleIds: [],

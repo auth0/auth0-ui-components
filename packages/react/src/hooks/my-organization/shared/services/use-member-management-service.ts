@@ -17,9 +17,13 @@ import React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useDebouncedValue } from '@/hooks/shared/use-debounced-value';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import {
+  DEFAULT_ROLES_PAGE_SIZE,
+  MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT,
+} from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
@@ -104,6 +108,22 @@ export function useMemberManagementService(
       return response.data;
     },
     enabled: !!coreClient,
+  });
+
+  const [roleSearchTerm, setRoleSearchTerm] = React.useState('');
+  const debouncedRoleSearchTerm = useDebouncedValue(roleSearchTerm);
+
+  const rolesSearchQuery = useQuery({
+    queryKey: memberManagementQueryKeys.rolesSearch(debouncedRoleSearchTerm),
+    queryFn: async () => {
+      const response = await coreClient!.getMyOrganizationApiClient().organization.roles.list({
+        take: DEFAULT_ROLES_PAGE_SIZE,
+        ...(debouncedRoleSearchTerm ? { name: debouncedRoleSearchTerm } : {}),
+      });
+      return response.data;
+    },
+    enabled: !!coreClient,
+    ...keepPreviousDataOption,
   });
 
   const invitationsQuery = useQuery({
@@ -343,6 +363,8 @@ export function useMemberManagementService(
   return {
     providersQuery,
     rolesQuery,
+    rolesSearchQuery,
+    setRoleSearchTerm,
     invitationsQuery,
     organizationQuery,
     membersQuery,
