@@ -86,6 +86,7 @@ export function useOrganizationMemberManagement(
     rolesQuery,
     rolesSearchQuery,
     setRoleSearchTerm,
+    enableRoleSearch,
     invitationsQuery,
     membersQuery,
     organizationQuery,
@@ -115,7 +116,14 @@ export function useOrganizationMemberManagement(
     },
     assignRolesAction,
     removeFromOrganizationAction,
+    deferRoleSearch: true,
   });
+
+  React.useEffect(() => {
+    if (modalState.type === 'create' || modalState.type === 'assignRole') {
+      enableRoleSearch();
+    }
+  }, [modalState.type, enableRoleSearch]);
 
   const availableProviders: IdentityProviderOption[] = providersQuery.data ?? [];
   const availableRoles = rolesQuery.data ?? [];
