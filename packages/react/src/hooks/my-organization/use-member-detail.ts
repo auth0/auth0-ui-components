@@ -38,9 +38,9 @@ export function useOrganizationMemberDetail(
   const {
     memberQuery,
     memberRolesQuery,
-    rolesQuery,
     rolesSearchQuery,
     setRoleSearchTerm,
+    enableRoleSearch,
     organizationQuery,
     removeFromOrganizationMutation,
     assignRolesMutation,
@@ -72,6 +72,12 @@ export function useOrganizationMemberDetail(
   const [activeTab, setActiveTab] = React.useState<MemberDetailTab>('details');
   const [modalState, setModalState] = React.useState<MemberDetailModalState>({ type: null });
   const [selectedRoles, setSelectedRoles] = React.useState<Role[]>([]);
+
+  React.useEffect(() => {
+    if (modalState.type === 'assignRoles') {
+      enableRoleSearch();
+    }
+  }, [modalState.type, enableRoleSearch]);
 
   const handleBack = React.useCallback(() => {
     onBack?.();
@@ -140,11 +146,6 @@ export function useOrganizationMemberDetail(
   const memberRoles: Role[] = memberRolesQuery.data ?? [];
   const assignedRoleIds = React.useMemo(() => new Set(memberRoles.map((r) => r.id)), [memberRoles]);
 
-  const availableRoles: Role[] = React.useMemo(
-    () => (rolesQuery.data ?? []).filter((r) => !assignedRoleIds.has(r.id)),
-    [rolesQuery.data, assignedRoleIds],
-  );
-
   const searchedRoles: Role[] = React.useMemo(
     () => (rolesSearchQuery.data ?? []).filter((r) => !assignedRoleIds.has(r.id)),
     [rolesSearchQuery.data, assignedRoleIds],
@@ -161,14 +162,12 @@ export function useOrganizationMemberDetail(
     member,
     organizationDisplayName,
     memberRoles,
-    availableRoles,
     searchedRoles,
     onRoleSearch: setRoleSearchTerm,
     selectedRoles,
     memberError: memberErrorMessage,
     isFetchingMember: memberQuery.isLoading || memberQuery.isFetching,
     isFetchingMemberRoles: memberRolesQuery.isLoading,
-    isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
     isSearchingRoles: rolesSearchQuery.isLoading || rolesSearchQuery.isFetching,
     isLoading: memberQuery.isLoading,
     isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),

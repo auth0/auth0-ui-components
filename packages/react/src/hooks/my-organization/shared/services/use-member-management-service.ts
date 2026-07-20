@@ -73,6 +73,8 @@ export function useMemberManagementService(
     memberParams,
     assignRolesAction,
     removeFromOrganizationAction,
+    enableRolesList = true,
+    deferRoleSearch = false,
   } = options;
 
   const isInvitationsTabActive = activeTab === 'invitations';
@@ -107,11 +109,13 @@ export function useMemberManagementService(
         .organization.roles.list({ take: MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT });
       return response.data;
     },
-    enabled: !!coreClient,
+    enabled: !!coreClient && enableRolesList,
   });
 
   const [roleSearchTerm, setRoleSearchTerm] = React.useState('');
   const debouncedRoleSearchTerm = useDebouncedValue(roleSearchTerm);
+  const [roleSearchActive, setRoleSearchActive] = React.useState(!deferRoleSearch);
+  const enableRoleSearch = React.useCallback(() => setRoleSearchActive(true), []);
 
   const rolesSearchQuery = useQuery({
     queryKey: memberManagementQueryKeys.rolesSearch(debouncedRoleSearchTerm),
@@ -122,7 +126,7 @@ export function useMemberManagementService(
       });
       return response.data;
     },
-    enabled: !!coreClient,
+    enabled: !!coreClient && roleSearchActive,
     ...keepPreviousDataOption,
   });
 
@@ -365,6 +369,7 @@ export function useMemberManagementService(
     rolesQuery,
     rolesSearchQuery,
     setRoleSearchTerm,
+    enableRoleSearch,
     invitationsQuery,
     organizationQuery,
     membersQuery,

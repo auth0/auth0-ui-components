@@ -20,9 +20,9 @@ export type MemberDetailTab = 'details' | 'roles';
 export interface MemberDetailServiceResult {
   memberQuery: UseQueryResult<OrgMember>;
   memberRolesQuery: UseQueryResult<Role[]>;
-  rolesQuery: UseQueryResult<Role[]>;
   rolesSearchQuery: UseQueryResult<Role[]>;
   setRoleSearchTerm: (term: string) => void;
+  enableRoleSearch: () => void;
   organizationQuery: UseQueryResult<OrganizationPrivate>;
   removeFromOrganizationMutation: UseMutationResult<
     void,
@@ -59,7 +59,6 @@ export interface UseOrganizationMemberDetailResult {
   member: OrgMember | null;
   organizationDisplayName: string;
   memberRoles: Role[];
-  availableRoles: Role[];
   searchedRoles: Role[];
   onRoleSearch: (term: string) => void;
   selectedRoles: Role[];
@@ -67,7 +66,6 @@ export interface UseOrganizationMemberDetailResult {
   memberError: string | null;
   isFetchingMember: boolean;
   isFetchingMemberRoles: boolean;
-  isFetchingAvailableRoles: boolean;
   isSearchingRoles: boolean;
   isRemovingFromOrganization: boolean;
   isAssigningRoles: boolean;
@@ -205,12 +203,10 @@ export interface OrganizationMemberEditRolesTabProps {
   memberName?: string;
   selectedMember?: OrgMember | null;
   memberRoles: Role[];
-  availableRoles: Role[];
   searchedRoles: Role[];
   onRoleSearch: (term: string) => void;
   selectedRoles: Role[];
   isFetchingMemberRoles?: boolean;
-  isFetchingAvailableRoles?: boolean;
   removingRoleIds?: string[];
   isAssigningRoles?: boolean;
   isRemovingRoles?: boolean;

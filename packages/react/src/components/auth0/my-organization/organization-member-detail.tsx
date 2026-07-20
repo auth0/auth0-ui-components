@@ -191,12 +191,10 @@ export function OrganizationMemberDetailView(
               memberName={props.member?.name}
               selectedMember={props.member}
               memberRoles={props.memberRoles}
-              availableRoles={props.availableRoles}
               searchedRoles={props.searchedRoles}
               onRoleSearch={props.onRoleSearch}
               selectedRoles={props.selectedRoles}
               isFetchingMemberRoles={props.isFetchingMemberRoles}
-              isFetchingAvailableRoles={props.isFetchingAvailableRoles}
               removingRoleIds={props.removingRoleIds}
               isRemovingRoles={props.isRemovingRoles}
               modalState={modalState}

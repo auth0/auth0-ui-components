@@ -133,6 +133,19 @@ describe('useMemberManagementService', () => {
 
       expect(result.current.rolesQuery.data).toBeDefined();
     });
+
+    it('should not fetch roles when enableRolesList is false', async () => {
+      const options = createDefaultOptions({ enableRolesList: false });
+      const { result } = renderService(options);
+
+      // Let the search query settle so we know queries have had a chance to run.
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.rolesQuery.fetchStatus).toBe('idle');
+      expect(result.current.rolesQuery.data).toBeUndefined();
+    });
   });
 
   describe('rolesSearchQuery', () => {
@@ -145,6 +158,27 @@ describe('useMemberManagementService', () => {
         expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
       });
 
+      expect(rolesListMock()).toHaveBeenCalledWith({ take: 10 });
+    });
+
+    it('should stay disabled until enableRoleSearch is called when deferRoleSearch is true', async () => {
+      const { result } = renderService(
+        createDefaultOptions({ deferRoleSearch: true, enableRolesList: false }),
+      );
+
+      // The search query should not run on mount.
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.fetchStatus).toBe('idle');
+      });
+      expect(rolesListMock()).not.toHaveBeenCalled();
+
+      act(() => {
+        result.current.enableRoleSearch();
+      });
+
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
+      });
       expect(rolesListMock()).toHaveBeenCalledWith({ take: 10 });
     });
 

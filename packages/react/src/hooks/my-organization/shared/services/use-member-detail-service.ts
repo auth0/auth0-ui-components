@@ -64,14 +64,16 @@ export function useMemberDetailService(
   });
 
   const {
-    rolesQuery,
     rolesSearchQuery,
     setRoleSearchTerm,
+    enableRoleSearch,
     assignRolesMutation,
     removeFromOrganizationMutation,
   } = useMemberManagementService({
     assignRolesAction,
     removeFromOrganizationAction,
+    enableRolesList: false,
+    deferRoleSearch: true,
   });
 
   const organizationQuery = useQuery({
@@ -126,9 +128,9 @@ export function useMemberDetailService(
   return {
     memberQuery,
     memberRolesQuery,
-    rolesQuery,
     rolesSearchQuery,
     setRoleSearchTerm,
+    enableRoleSearch,
     organizationQuery,
     removeFromOrganizationMutation,
     assignRolesMutation,

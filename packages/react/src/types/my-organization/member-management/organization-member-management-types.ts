@@ -66,6 +66,8 @@ export interface UseMemberManagementServiceOptions {
   viewMemberDetailsAction?: ComponentAction<string>;
   assignRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
   removeFromOrganizationAction?: ComponentAction<string>;
+  enableRolesList?: boolean;
+  deferRoleSearch?: boolean;
 }
 
 export interface MemberManagementServiceResult {
@@ -73,6 +75,7 @@ export interface MemberManagementServiceResult {
   rolesQuery: UseQueryResult<Role[]>;
   rolesSearchQuery: UseQueryResult<Role[]>;
   setRoleSearchTerm: (term: string) => void;
+  enableRoleSearch: () => void;
   invitationsQuery: UseQueryResult<{
     invitations: MemberInvitation[];
     next: string | null;
