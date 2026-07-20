@@ -548,8 +548,8 @@ importers:
         specifier: 1.0.0-beta.0
         version: 1.0.0-beta.0
       '@auth0/myorganization-js':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: ../../auth0-myorganization-js-1.1.0.tgz
+        version: file:auth0-myorganization-js-1.1.0.tgz
       zod:
         specifier: ^3.22.4
         version: 3.25.76
@@ -733,8 +733,9 @@ packages:
     resolution: {integrity: sha512-slj0RtNfieNk1BC1ERrCQw65qMUVKU5qacbTc8BFH8R316CUpsOhZ2MIiV9l3VEkaqY1hmCZm03+ZI6ym+3PZg==}
     engines: {node: '>=18.0.0'}
 
-  '@auth0/myorganization-js@1.1.0':
-    resolution: {integrity: sha512-DG3/PDDPB2ayuXRrNZOdBTPdqT1O6GKahW3U+i75UQn27rJGIkIVvonx/IEOUxFdo+gJs9zwlpUt/kdD0ICEiA==}
+  '@auth0/myorganization-js@file:auth0-myorganization-js-1.1.0.tgz':
+    resolution: {integrity: sha512-qqv3QdzchKFtcucFSpTUtPXuznW5udoaGkwRURv4tkUSD6lo6gJviefEErOei5JqIkRDy1itqOE4dBL6vJbPDw==, tarball: file:auth0-myorganization-js-1.1.0.tgz}
+    version: 1.1.0
     engines: {node: '>=20.0.0'}
 
   '@auth0/nextjs-auth0@4.21.0':
@@ -7522,7 +7523,7 @@ snapshots:
 
   '@auth0/myaccount-js@1.0.0-beta.0': {}
 
-  '@auth0/myorganization-js@1.1.0':
+  '@auth0/myorganization-js@file:auth0-myorganization-js-1.1.0.tgz':
     dependencies:
       '@auth0/auth0-auth-js': 1.5.0
 
