@@ -38,7 +38,16 @@ export function useConfig(): UseConfigResult {
     },
   });
 
-  const config = configQuery.data;
+  // TODO: Remove mock once API returns third_party_client_access
+  const config = configQuery.data
+    ? {
+        ...configQuery.data,
+        third_party_client_access: {
+          default_value: 'block' as const,
+          allowed_values: ['allow' as const, 'block' as const],
+        },
+      }
+    : configQuery.data;
   const allowedStrategies = config?.allowed_strategies;
 
   const filteredStrategies: IdpStrategy[] = allowedStrategies
@@ -51,6 +60,13 @@ export function useConfig(): UseConfigResult {
 
   const isConfigValid = !!allowedStrategies?.length;
 
+  const showThirdPartyAccess = config?.third_party_client_access !== undefined;
+  const isThirdPartyAccessReadOnly =
+    (config?.third_party_client_access?.allowed_values?.length ?? 0) <= 1;
+  const thirdPartyAccessDefaultValue = isThirdPartyAccessReadOnly
+    ? config?.third_party_client_access?.allowed_values?.[0]
+    : config?.third_party_client_access?.default_value;
+
   return {
     config: config ?? null,
     isLoadingConfig: configQuery.isLoading,
@@ -58,5 +74,8 @@ export function useConfig(): UseConfigResult {
     filteredStrategies,
     shouldAllowDeletion,
     isConfigValid,
+    showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
+    thirdPartyAccessDefaultValue,
   };
 }

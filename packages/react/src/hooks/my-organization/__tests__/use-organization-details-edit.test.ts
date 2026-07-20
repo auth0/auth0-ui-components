@@ -2,7 +2,7 @@ import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { useOrganizationDetailsEdit } from '@/hooks/my-organization/use-organization-details-edit';
-import { createMockOrganization } from '@/tests/utils';
+import { createMockOrganization, createMockUseConfig } from '@/tests/utils';
 
 const mockOrganization = createMockOrganization();
 const mockUpdateOrgDetails = vi.fn().mockResolvedValue(true);
@@ -18,6 +18,10 @@ vi.mock('@/hooks/my-organization/shared/services/use-organization-details-edit-s
     fetchOrgDetails: mockFetchOrgDetails,
     updateOrgDetails: mockUpdateOrgDetails,
   }),
+}));
+
+vi.mock('@/hooks/my-organization/use-config', () => ({
+  useConfig: () => createMockUseConfig(),
 }));
 
 describe('useOrganizationDetailsEdit', () => {

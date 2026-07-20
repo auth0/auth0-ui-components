@@ -42,7 +42,14 @@ describe('useConfig', () => {
 
       const { result } = await renderUseConfig();
 
-      expect(result.current.config).toEqual(mockConfig);
+      // TODO: Remove third_party_client_access expectation once API returns the field
+      expect(result.current.config).toEqual({
+        ...mockConfig,
+        third_party_client_access: {
+          default_value: 'block',
+          allowed_values: ['allow', 'block'],
+        },
+      });
       expect(result.current.isConfigValid).toBe(true);
     });
 
