@@ -84,4 +84,30 @@ describe('useSsoProviderEdit - logic behavior', () => {
     });
     expect(mockUpdateProvider).not.toHaveBeenCalled();
   });
+
+  it('should pass skipProvisioningFetch option to useSsoProviderEditService', () => {
+    renderHook(() =>
+      useSsoProviderEdit('test-idp-id', {
+        skipProvisioningFetch: true,
+      }),
+    );
+
+    expect(useSsoProviderEditServiceModule.useSsoProviderEditService).toHaveBeenCalledWith(
+      'test-idp-id',
+      expect.objectContaining({
+        skipProvisioningFetch: true,
+      }),
+    );
+  });
+
+  it('should pass skipProvisioningFetch as false by default', () => {
+    renderHook(() => useSsoProviderEdit('test-idp-id'));
+
+    expect(useSsoProviderEditServiceModule.useSsoProviderEditService).toHaveBeenCalledWith(
+      'test-idp-id',
+      expect.objectContaining({
+        skipProvisioningFetch: false,
+      }),
+    );
+  });
 });

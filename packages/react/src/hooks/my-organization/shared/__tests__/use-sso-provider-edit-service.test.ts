@@ -1422,4 +1422,48 @@ describe('useSsoProviderEditService', () => {
       expect(mockGetOrgDetails).not.toHaveBeenCalled();
     });
   });
+
+  describe('skipProvisioningFetch option', () => {
+    it('should skip provisioning fetch when skipProvisioningFetch is true', async () => {
+      const { result } = renderUseSsoProviderEdit(mockIdpId, {
+        skipProvisioningFetch: true,
+      });
+
+      await waitFor(() => {
+        expect(result.current.provider).toEqual(mockProvider);
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(mockProvisioningGet).not.toHaveBeenCalled();
+      expect(result.current.isProvisioningLoading).toBe(false);
+    });
+
+    it('should fetch provisioning when skipProvisioningFetch is false', async () => {
+      const { result } = renderUseSsoProviderEdit(mockIdpId, {
+        skipProvisioningFetch: false,
+      });
+
+      await waitFor(() => {
+        expect(result.current.provider).toEqual(mockProvider);
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      await waitFor(() => {
+        expect(mockProvisioningGet).toHaveBeenCalledWith(mockIdpId);
+      });
+    });
+
+    it('should fetch provisioning by default when skipProvisioningFetch is not provided', async () => {
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await waitFor(() => {
+        expect(result.current.provider).toEqual(mockProvider);
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      await waitFor(() => {
+        expect(mockProvisioningGet).toHaveBeenCalledWith(mockIdpId);
+      });
+    });
+  });
 });

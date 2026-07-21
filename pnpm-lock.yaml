@@ -644,9 +644,6 @@ importers:
       react-dom:
         specifier: 19.2.1
         version: 19.2.1(react@19.2.1)
-      shadcn:
-        specifier: ^3.5.0
-        version: 3.5.0(@types/node@22.19.1)(typescript@5.9.3)
       sonner:
         specifier: ^2.0.5
         version: 2.0.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -693,6 +690,9 @@ importers:
       rimraf:
         specifier: ^5.0.0
         version: 5.0.10
+      shadcn:
+        specifier: ^3.5.0
+        version: 3.5.0(@types/node@22.19.1)(typescript@5.9.3)
       tailwindcss:
         specifier: ^4.1.17
         version: 4.1.17
