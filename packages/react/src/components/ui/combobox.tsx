@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
 import { TextField } from '@/components/ui/text-field';
 import { cn } from '@/lib/utils';
+import { useId } from '@/lib/utils/use-id-compat';
 import { usePortalContainer } from '@/providers/portal-context';
 
 export interface ComboboxOption {
@@ -53,7 +54,7 @@ export function Combobox({
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   const portalContainer = usePortalContainer();
-  const reactId = React.useId();
+  const reactId = useId();
   const inputId = `combobox-input-${reactId}`;
 
   const [popoverContainer, setPopoverContainer] = React.useState<HTMLElement | null>(null);
