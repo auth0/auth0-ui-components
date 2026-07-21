@@ -40,6 +40,10 @@ export * from './theme';
 export * from './types';
 
 export * from './services/my-organization';
+export {
+  configQueryKeys,
+  idpConfigQueryKeys,
+} from './services/my-organization/config/config-query-keys';
 
 export * from './services/my-account';
 
