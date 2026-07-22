@@ -1,41 +1,30 @@
-'use client';
-
 /**
- * Permission context and provider.
- *
- * Implements the eager (app-init) permissions gating
+ * Permission context and provider (eager, app-init gating).
  * @module permission-context
  * @internal
  */
+
+'use client';
 
 import { PERMISSION_MANIFEST, permissionQueryKeys } from '@auth0/universal-components-core';
 import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
-
-export const PERMISSION_STALE_TIME_MS = 5 * 60 * 1000;
-
-export interface PermissionContextValue {
-  permissions: string[];
-  isLoading: boolean;
-  refetch: () => void;
-}
+import { PERMISSION_STALE_TIME_MS } from '@/lib/constants/common-constants';
+import type {
+  PermissionContextValue,
+  PermissionProviderProps,
+} from '@/types/my-organization/permissions/permissions-types';
 
 /**
- * Context holding the current user's MyOrganization permissions.
- * `null` when no provider is present
+ * Current user's MyOrganization permissions; `null` outside a provider.
  * @internal
  */
 export const PermissionContext = React.createContext<PermissionContextValue | null>(null);
 
-/** Props for {@link PermissionProvider}. */
-export interface PermissionProviderProps {
-  children: React.ReactNode;
-}
-
 /**
- * Fetches the user's MyOrganization permissions
+ * Fetches the user's MyOrganization permissions and provides them to descendants.
  * @param props - Provider props.
  * @param props.children - Subtree that can consume the permission context.
  * @returns The context provider element.

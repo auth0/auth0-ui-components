@@ -1,6 +1,7 @@
 /**
- * Hook for reading and checking the current user's MyOrganization permissions.
- * @module use-permissions
+ * Internal service hook for reading and checking MyOrganization permissions.
+ * @module use-permissions-service
+ * @internal
  */
 
 import {
@@ -18,10 +19,12 @@ import type { UsePermissionsResult } from '@/types/my-organization/permissions/p
 const ADMIN_FALLBACK_PERMISSIONS: string[] = [...PERMISSION_MANIFEST];
 
 /**
- * Reads the current user's permissions
- * @returns Permission state and check helpers
+ * Reads the current user's permissions from context and exposes check helpers.
+ * Falls back to admin-level access when used outside a provider.
+ * @returns Permission state and check helpers.
+ * @internal
  */
-export function usePermissions(): UsePermissionsResult {
+export function usePermissionsService(): UsePermissionsResult {
   const context = React.useContext(PermissionContext);
 
   const permissions = context?.permissions ?? ADMIN_FALLBACK_PERMISSIONS;

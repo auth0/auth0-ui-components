@@ -4,9 +4,10 @@ import { renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { usePermissions } from '@/hooks/my-organization/shared/services/use-permissions';
+import { usePermissions } from '@/hooks/my-organization/use-permissions';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
-import { PERMISSION_STALE_TIME_MS, PermissionProvider } from '@/providers/permission-context';
+import { PERMISSION_STALE_TIME_MS } from '@/lib/constants/common-constants';
+import { PermissionProvider } from '@/providers/permission-context';
 import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
 import { createTestQueryClient } from '@/tests/utils/test-provider';
 

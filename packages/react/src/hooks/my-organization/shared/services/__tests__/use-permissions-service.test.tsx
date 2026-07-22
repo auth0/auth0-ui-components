@@ -3,8 +3,9 @@ import { renderHook } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { usePermissions } from '@/hooks/my-organization/shared/services/use-permissions';
-import { PermissionContext, type PermissionContextValue } from '@/providers/permission-context';
+import { usePermissionsService } from '@/hooks/my-organization/shared/services/use-permissions-service';
+import { PermissionContext } from '@/providers/permission-context';
+import type { PermissionContextValue } from '@/types/my-organization/permissions/permissions-types';
 
 const createWrapper = (value: PermissionContextValue) => {
   return ({ children }: React.PropsWithChildren) => (
@@ -12,7 +13,7 @@ const createWrapper = (value: PermissionContextValue) => {
   );
 };
 
-describe('usePermissions', () => {
+describe('usePermissionsService', () => {
   describe('inside a provider', () => {
     it('exposes the provider permissions and resolves checks against them', () => {
       const refetch = vi.fn();
@@ -22,7 +23,7 @@ describe('usePermissions', () => {
         refetch,
       });
 
-      const { result } = renderHook(() => usePermissions(), { wrapper });
+      const { result } = renderHook(() => usePermissionsService(), { wrapper });
 
       expect(result.current.hasProvider).toBe(true);
       expect(result.current.isLoading).toBe(false);
@@ -45,7 +46,7 @@ describe('usePermissions', () => {
       const refetch = vi.fn();
       const wrapper = createWrapper({ permissions: [], isLoading: true, refetch });
 
-      const { result } = renderHook(() => usePermissions(), { wrapper });
+      const { result } = renderHook(() => usePermissionsService(), { wrapper });
 
       expect(result.current.isLoading).toBe(true);
 
@@ -56,7 +57,7 @@ describe('usePermissions', () => {
 
   describe('outside a provider (admin fallback)', () => {
     it('falls back to the full manifest so gated components keep working', () => {
-      const { result } = renderHook(() => usePermissions());
+      const { result } = renderHook(() => usePermissionsService());
 
       expect(result.current.hasProvider).toBe(false);
       expect(result.current.isLoading).toBe(false);
@@ -66,7 +67,7 @@ describe('usePermissions', () => {
     });
 
     it('treats refetch as a no-op without throwing', () => {
-      const { result } = renderHook(() => usePermissions());
+      const { result } = renderHook(() => usePermissionsService());
 
       expect(() => result.current.refetch()).not.toThrow();
     });
