@@ -343,13 +343,13 @@ export async function createI18nService(
   const currentLanguage = options.currentLanguage ?? 'en-US';
   const fallbackLanguage = options.fallbackLanguage ?? 'en-US';
   const cache = new Map<string, LangTranslations | null>();
+  const userTranslations = options.translations;
 
-  // Load initial translations
-  const translations = await I18nUtils.loadTranslationsWithFallback(
-    currentLanguage,
-    fallbackLanguage,
-    cache,
-  );
+  // Load initial translations - check user-provided first, then fall back to bundled
+  const translations =
+    userTranslations?.[currentLanguage] ??
+    userTranslations?.[fallbackLanguage] ??
+    (await I18nUtils.loadTranslationsWithFallback(currentLanguage, fallbackLanguage, cache));
 
   // State management through closure
   let _currentLanguage = currentLanguage;
@@ -392,11 +392,15 @@ export async function createI18nService(
         _currentLanguage = language;
         _fallbackLanguage = newFallbackLanguage ?? _fallbackLanguage;
 
-        _translations = await I18nUtils.loadTranslationsWithFallback(
-          _currentLanguage,
-          _fallbackLanguage,
-          cache,
-        );
+        // Check user-provided translations first, then fall back to bundled
+        _translations =
+          userTranslations?.[_currentLanguage] ??
+          userTranslations?.[_fallbackLanguage] ??
+          (await I18nUtils.loadTranslationsWithFallback(
+            _currentLanguage,
+            _fallbackLanguage,
+            cache,
+          ));
       } catch (error) {
         throw new Error(
           `Failed to change language to '${language}': ${error instanceof Error ? error.message : 'Unknown error'}`,
