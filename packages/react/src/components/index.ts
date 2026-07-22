@@ -22,3 +22,6 @@ export {
   OrganizationDetailsEdit,
   OrganizationDetailsEditView,
 } from './auth0/my-organization/organization-details-edit';
+
+export { PermissionDeniedTooltip } from './auth0/shared/permission-denied-tooltip';
+export type { PermissionDeniedTooltipProps } from './auth0/shared/permission-denied-tooltip';

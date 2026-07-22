@@ -25,3 +25,7 @@ export { useSsoProviderTable } from './my-organization/use-sso-provider-table';
 // Member Management hooks
 export { useOrganizationMemberManagement } from './my-organization/use-organization-member-management';
 export { useOrganizationMemberDetail } from './my-organization/use-member-detail';
+
+// Permissions
+export { usePermissions } from './my-organization/use-permissions';
+export type { UsePermissionsResult } from './my-organization/use-permissions';
