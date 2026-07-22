@@ -44,6 +44,20 @@ export {
   configQueryKeys,
   idpConfigQueryKeys,
 } from './services/my-organization/config/config-query-keys';
+export { PERMISSION_MANIFEST } from './services/my-organization/permissions/permission-manifest';
+export { permissionQueryKeys } from './services/my-organization/permissions/permission-query-keys';
+export {
+  hasPermission,
+  hasAnyPermission,
+  hasAllPermissions,
+  getUserTier,
+} from './services/my-organization/permissions/permission-utils';
+export type { OauthScope } from './services/my-organization/permissions/permission-manifest';
+export type {
+  PermissionTier,
+  GetUserPermissionsRequestParameters,
+  GetUserPermissionsResponseContent,
+} from './services/my-organization/permissions/permission-types';
 
 export * from './services/my-account';
 

@@ -1,10 +1,10 @@
 /**
  * Permission checks for MyOrganization UI gating.
- * Pure helpers over the flat permission list from `GET /my-org/user-permissions`.
  * @module permission-utils
  * @internal
  */
-import type { MyOrgPermission, PermissionTier } from '@auth0/universal-components-core';
+import type { OauthScope } from './permission-manifest';
+import type { PermissionTier } from './permission-types';
 
 /**
  * Whether the user holds `required`.
@@ -13,10 +13,7 @@ import type { MyOrgPermission, PermissionTier } from '@auth0/universal-component
  * @returns `true` if present.
  * @internal
  */
-export function hasPermission(
-  userPermissions: readonly string[],
-  required: MyOrgPermission,
-): boolean {
+export function hasPermission(userPermissions: readonly string[], required: OauthScope): boolean {
   return userPermissions.includes(required);
 }
 
@@ -29,7 +26,7 @@ export function hasPermission(
  */
 export function hasAnyPermission(
   userPermissions: readonly string[],
-  required: readonly MyOrgPermission[],
+  required: readonly OauthScope[],
 ): boolean {
   if (required.length === 0) {
     return true;
@@ -47,7 +44,7 @@ export function hasAnyPermission(
  */
 export function hasAllPermissions(
   userPermissions: readonly string[],
-  required: readonly MyOrgPermission[],
+  required: readonly OauthScope[],
 ): boolean {
   if (required.length === 0) {
     return true;
