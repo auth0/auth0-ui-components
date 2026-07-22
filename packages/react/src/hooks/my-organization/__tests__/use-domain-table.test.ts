@@ -4,7 +4,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useDomainTable } from '../use-domain-table';
 
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
-import { mockToast, createMockDomainTableServiceReturn } from '@/tests/utils';
+import { createMockDomainTableServiceReturn } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import { mockToast } from '@/tests/utils/test-setup';
 
 const mockHandleError = vi.fn();
 

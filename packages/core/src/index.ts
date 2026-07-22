@@ -12,10 +12,56 @@
  * @internal
  */
 
-export * from './i18n';
+// i18n
+export { createI18nService, I18nUtils } from './i18n/i18n-service';
+export type {
+  LangTranslations,
+  I18nInitOptions,
+  TranslationFunction,
+  TFactory,
+  I18nServiceInterface,
+  EnhancedTranslationFunction,
+} from './i18n/i18n-types';
 
-export * from './api';
+// i18n custom messages - my-account
+export * from './i18n/custom-messages/my-account/mfa/mfa-types';
+export * from './i18n/custom-messages/my-account/passkey/passkey-types';
 
+// i18n custom messages - my-organization idp-management
+export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/provisioning-token-types';
+export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
+export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
+export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-create-types';
+export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-delete-types';
+export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-edit-types';
+export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-table-types';
+export * from './i18n/custom-messages/my-organization/idp-management/sso-domain/sso-domain-tab-types';
+
+// i18n custom messages - my-organization organization-management
+export * from './i18n/custom-messages/my-organization/organization-management/organization-details-types';
+export * from './i18n/custom-messages/my-organization/organization-management/organization-details-edit-types';
+export * from './i18n/custom-messages/my-organization/organization-management/organization-delete-types';
+
+// i18n custom messages - my-organization domain-management
+export * from './i18n/custom-messages/my-organization/domain-management/domain-create-types';
+export * from './i18n/custom-messages/my-organization/domain-management/domain-delete-types';
+export * from './i18n/custom-messages/my-organization/domain-management/domain-configure-types';
+export * from './i18n/custom-messages/my-organization/domain-management/domain-verify-types';
+export * from './i18n/custom-messages/my-organization/domain-management/domain-table-types';
+
+// i18n custom messages - my-organization member-management
+export * from './i18n/custom-messages/my-organization/member-management/invitation-tab-types';
+export * from './i18n/custom-messages/my-organization/member-management/member-management-types';
+export * from './i18n/custom-messages/my-organization/member-management/member-tab-types';
+
+// API
+export * from './api/api-error';
+export * from './api/business-error';
+export * from './api/error-utils';
+export * from './api/http-constants';
+export * from './api/telemetry';
+
+// Auth
 export { createCoreClient } from './auth/core-client';
 
 export {
@@ -25,28 +71,74 @@ export {
   FetcherAuthParams,
 } from './auth/auth-types';
 
-export {
-  type CssImplementation,
-  type DistributionChannel,
-  type Framework,
-  type TelemetryComponentGetter,
-  type TelemetryConfig,
-} from './api/telemetry';
+// Schemas
+export * from './schemas/my-account/mfa/email-schema';
+export * from './schemas/my-account/mfa/sms-schema';
 
-export * from './schemas';
+export * from './schemas/my-organization/organization-management/organization-details-schema';
+export * from './schemas/my-organization/organization-management/organization-details-schema-types';
 
-export * from './theme';
+export * from './schemas/my-organization/idp-management/sso-provider/sso-provider-create-schema';
+export * from './schemas/my-organization/idp-management/sso-provider/sso-provider-delete-schema';
+export * from './schemas/my-organization/idp-management/sso-provisioning/sso-provisioning-edit-schema';
+export * from './schemas/my-organization/idp-management/sso-provider/sso-provider-create-schema-types';
+export * from './schemas/my-organization/idp-management/sso-provider/sso-provider-delete-schema-types';
+export * from './schemas/my-organization/idp-management/sso-provisioning/sso-provisioning-edit-schema-types';
+export * from './schemas/my-organization/idp-management/sso-provider-edit-schema-types';
 
+export * from './schemas/my-organization/domain-management/domain-create-schema';
+export * from './schemas/my-organization/domain-management/domain-create-schema-types';
+
+export * from './schemas/my-organization/member-management/invitations/invitation-schema';
+export * from './schemas/my-organization/member-management/invitations/invitation-create-schema';
+export * from './schemas/my-organization/member-management/invitations/invitation-create-schema-types';
+
+export * from './schemas/common/common-schemas';
+
+// Theme
+export * from './theme/theme-utils';
+export * from './theme/theme-types';
+
+// Types
 export * from './types';
 
-export * from './services/my-organization';
 export {
   configQueryKeys,
   idpConfigQueryKeys,
 } from './services/my-organization/config/config-query-keys';
 
-export * from './services/my-account';
+// My Organization services
+export * from './services/my-organization/organization-management/organization-details-types';
+export * from './services/my-organization/organization-management/organization-details-factory';
+export * from './services/my-organization/organization-management/organization-details-mappers';
+export * from './services/my-organization/organization-management/organization-details-constants';
+export * from './services/my-organization/organization-management/organization-details-query-keys';
 
+export * from './services/my-organization/idp-management/sso-provider/sso-provider-types';
+export * from './services/my-organization/idp-management/sso-provisioning/sso-provisioning-types';
+export * from './services/my-organization/idp-management/sso-provider/sso-provider-constants';
+export * from './services/my-organization/idp-management/sso-provider/sso-provider-mappers';
+export * from './services/my-organization/idp-management/sso-provider/sso-provider-query-keys';
+
+export * from './services/my-organization/domain-management/domain-types';
+export * from './services/my-organization/domain-management/domain-query-keys';
+
+export * from './services/my-organization/member-management/member-management-types';
+export * from './services/my-organization/member-management/member-management-constants';
+
+export * from './services/my-organization/config/config-types';
+
+// My Account services
+export * from './services/my-account/mfa/mfa-types';
+export * from './services/my-account/mfa/mfa-constants';
+export * from './services/my-account/mfa/mfa-utils';
+export * from './services/my-account/mfa/mfa-mappers';
+
+export * from './services/my-account/passkey/passkey-constants';
+export * from './services/my-account/passkey/passkey-types';
+export * from './services/my-account/passkey/passkey-utils';
+
+// MFA Step-Up services
 export {
   isMfaRequiredError,
   normalizeMfaRequiredError,
@@ -69,4 +161,5 @@ export type {
   VerifyParams,
 } from './services/mfa-step-up/mfa-step-up-api-types';
 
-export * from './assets/icons';
+// Icons
+export * from './assets/icons/icons';

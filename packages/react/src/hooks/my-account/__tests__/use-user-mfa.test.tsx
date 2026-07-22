@@ -18,11 +18,8 @@ import {
   QR_PHASE_INSTALLATION,
   SHOW_RECOVERY_CODE,
 } from '@/lib/constants/my-account/mfa/mfa-constants';
-import {
-  setupMockUseTranslator,
-  setupMockUseErrorHandler,
-  createQueryClientWrapper,
-} from '@/tests/utils';
+import { createQueryClientWrapper } from '@/tests/utils/test-provider';
+import { setupMockUseTranslator, setupMockUseErrorHandler } from '@/tests/utils/test-utilities';
 import type { UseUserMFAServiceReturn } from '@/types/my-account/mfa/mfa-types';
 
 vi.mock('sonner', () => ({

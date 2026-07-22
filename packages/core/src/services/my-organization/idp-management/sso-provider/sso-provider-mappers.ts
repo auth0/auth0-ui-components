@@ -7,7 +7,7 @@ import type {
   ProviderDetailsFormValues,
   ProviderSelectionFormValues,
   ProviderConfigureFormValues,
-} from '@core/schemas';
+} from '@core/schemas/my-organization/idp-management/sso-provider/sso-provider-create-schema';
 
 import { STRATEGIES } from './sso-provider-constants';
 import type { IdpStrategy } from './sso-provider-types';

@@ -17,7 +17,7 @@ import type {
   MemberManagementFilterState,
   MemberManagementPaginationState,
   MemberManagementSortConfig,
-} from '@/types';
+} from './organization-member-management-types';
 
 /** Invitation status. */
 export type InvitationStatus = 'pending' | 'expired';

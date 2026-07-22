@@ -9,6 +9,5 @@ export { Auth0ComponentProvider as SpaAuth0ComponentProvider } from './providers
 /** Provider for RWAs using backend proxy auth. */
 export { Auth0ComponentProvider as RwaAuth0ComponentProvider } from './providers/proxy-provider';
 
-export * from './components';
-export * from './hooks';
-export * from './types';
+/** Components, hooks, and types re-exported from the package entry point. */
+export * from './index';
