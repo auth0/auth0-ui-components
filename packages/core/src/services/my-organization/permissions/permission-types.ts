@@ -14,3 +14,11 @@ export type GetUserPermissionsRequestParameters =
 
 /** Behavior tier a user falls into for a given resource, derived from their permissions. */
 export type PermissionTier = 'admin' | 'editor' | 'viewer';
+
+/** A MyOrganization permission scope string (e.g. `delete:my_org:members`), sourced from the SDK. */
+export type OauthScope = MyOrganization.OauthScope;
+
+/** The resource segment of a scope (e.g. `members`, `domains`), inferred from {@link OauthScope}. */
+export type MyOrgResource = OauthScope extends `${string}:${string}:${infer Resource}`
+  ? Resource
+  : never;
