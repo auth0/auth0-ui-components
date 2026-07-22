@@ -251,6 +251,7 @@ function DomainTableView({
 
       <DomainConfigureProvidersModal
         className={currentStyles.classes?.['DomainTable-configureModal']}
+        classes={currentStyles.classes}
         domain={selectedDomain}
         providers={providers}
         isOpen={showConfigureModal}

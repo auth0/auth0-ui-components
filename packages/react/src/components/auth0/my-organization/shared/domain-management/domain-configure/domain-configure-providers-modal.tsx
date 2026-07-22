@@ -34,6 +34,7 @@ import type { DomainConfigureProvidersModalProps } from '@/types/my-organization
  */
 export function DomainConfigureProvidersModal({
   className,
+  classes,
   customMessages,
   domain,
   providers,
@@ -88,7 +89,7 @@ export function DomainConfigureProvidersModal({
                 {t('table.actions.view_provider_button_text')}
               </Button>
             )}
-            <Tooltip>
+            <Tooltip delayDuration={300}>
               <TooltipTrigger asChild>
                 <span>
                   <Switch
@@ -115,7 +116,7 @@ export function DomainConfigureProvidersModal({
     <Modal
       open={isOpen}
       onOpenChange={(open) => !open && onClose()}
-      className="p-10"
+      className={cn('p-10', classes?.['DomainTableConfigureModal-dialogContent'])}
       title={t('title', { domain: domain?.domain ?? '' })}
       content={
         domain && (
@@ -123,21 +124,23 @@ export function DomainConfigureProvidersModal({
             <p className="text-sm text-muted-foreground text-(length:--font-size-paragraph)">
               {t('description', { domain: domain?.domain ?? '' })}
             </p>
-            <DataTable
-              columns={columns}
-              data={providers}
-              loading={isLoading}
-              emptyState={{
-                title: t('table.empty_message'),
-                action: onCreateProvider
-                  ? {
-                      label: t('table.actions.add_provider_button_text'),
-                      variant: 'outline',
-                      onClick: onCreateProvider,
-                    }
-                  : undefined,
-              }}
-            />
+            <div className="max-h-[400px] overflow-y-auto">
+              <DataTable
+                columns={columns}
+                data={providers}
+                loading={isLoading}
+                emptyState={{
+                  title: t('table.empty_message'),
+                  action: onCreateProvider
+                    ? {
+                        label: t('table.actions.add_provider_button_text'),
+                        variant: 'outline',
+                        onClick: onCreateProvider,
+                      }
+                    : undefined,
+                }}
+              />
+            </div>
           </div>
         )
       }

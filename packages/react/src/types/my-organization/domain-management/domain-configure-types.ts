@@ -12,6 +12,7 @@ import type {
 /** Props for DomainConfigureProvidersModal. */
 export interface DomainConfigureProvidersModalProps {
   className?: string;
+  classes?: Record<string, string | undefined>;
   customMessages?: Partial<DomainConfigureMessages>;
   isOpen: boolean;
   isLoading: boolean;
