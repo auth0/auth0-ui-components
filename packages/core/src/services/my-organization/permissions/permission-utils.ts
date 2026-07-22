@@ -1,10 +1,9 @@
 /**
  * Permission checks for MyOrganization UI gating.
- * Pure helpers over the flat permission list from `GET /my-org/user-permissions`.
  * @module permission-utils
  * @internal
  */
-import type { MyOrgPermission, PermissionTier } from '@auth0/universal-components-core';
+import type { MyOrgResource, OauthScope, PermissionTier } from './permission-types';
 
 /**
  * Whether the user holds `required`.
@@ -13,10 +12,7 @@ import type { MyOrgPermission, PermissionTier } from '@auth0/universal-component
  * @returns `true` if present.
  * @internal
  */
-export function hasPermission(
-  userPermissions: readonly string[],
-  required: MyOrgPermission,
-): boolean {
+export function hasPermission(userPermissions: readonly string[], required: OauthScope): boolean {
   return userPermissions.includes(required);
 }
 
@@ -29,7 +25,7 @@ export function hasPermission(
  */
 export function hasAnyPermission(
   userPermissions: readonly string[],
-  required: readonly MyOrgPermission[],
+  required: readonly OauthScope[],
 ): boolean {
   if (required.length === 0) {
     return true;
@@ -47,7 +43,7 @@ export function hasAnyPermission(
  */
 export function hasAllPermissions(
   userPermissions: readonly string[],
-  required: readonly MyOrgPermission[],
+  required: readonly OauthScope[],
 ): boolean {
   if (required.length === 0) {
     return true;
@@ -62,7 +58,10 @@ export function hasAllPermissions(
  * @param resource - Resource segment (e.g. `members`, `domains`).
  * @returns The distinct verbs for that resource.
  */
-function getResourceVerbs(userPermissions: readonly string[], resource: string): Set<string> {
+function getResourceVerbs(
+  userPermissions: readonly string[],
+  resource: MyOrgResource,
+): Set<string> {
   const verbs = new Set<string>();
   for (const permission of userPermissions) {
     const [verb, , resourceSegment] = permission.split(':');
@@ -80,7 +79,10 @@ function getResourceVerbs(userPermissions: readonly string[], resource: string):
  * @returns The {@link PermissionTier}.
  * @internal
  */
-export function getUserTier(userPermissions: readonly string[], resource: string): PermissionTier {
+export function getUserTier(
+  userPermissions: readonly string[],
+  resource: MyOrgResource,
+): PermissionTier {
   const verbs = getResourceVerbs(userPermissions, resource);
 
   if (verbs.has('delete')) {

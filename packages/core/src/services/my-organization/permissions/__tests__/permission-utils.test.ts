@@ -5,18 +5,21 @@ import {
   hasAllPermissions,
   hasAnyPermission,
   hasPermission,
-} from '@/lib/utils/my-organization/permission-utils';
+} from '../permission-utils';
 
 describe('permission-utils', () => {
   describe('hasPermission', () => {
     it('returns true when the permission is present', () => {
       expect(
-        hasPermission(['read:my_org:members', 'delete:my_org:members'], 'delete:my_org:members'),
+        hasPermission(
+          ['read:my_org:members', 'delete:my_org:memberships'],
+          'delete:my_org:memberships',
+        ),
       ).toBe(true);
     });
 
     it('returns false when the permission is absent', () => {
-      expect(hasPermission(['read:my_org:members'], 'delete:my_org:members')).toBe(false);
+      expect(hasPermission(['read:my_org:members'], 'delete:my_org:memberships')).toBe(false);
     });
 
     it('returns false for an empty permission list', () => {
@@ -27,7 +30,10 @@ describe('permission-utils', () => {
   describe('hasAnyPermission', () => {
     it('returns true when at least one permission is present', () => {
       expect(
-        hasAnyPermission(['read:my_org:members'], ['delete:my_org:members', 'read:my_org:members']),
+        hasAnyPermission(
+          ['read:my_org:members'],
+          ['delete:my_org:memberships', 'read:my_org:members'],
+        ),
       ).toBe(true);
     });
 
@@ -35,7 +41,7 @@ describe('permission-utils', () => {
       expect(
         hasAnyPermission(
           ['read:my_org:members'],
-          ['delete:my_org:members', 'create:my_org:member_roles'],
+          ['delete:my_org:memberships', 'create:my_org:member_roles'],
         ),
       ).toBe(false);
     });
@@ -49,8 +55,8 @@ describe('permission-utils', () => {
     it('returns true only when every required permission is present', () => {
       expect(
         hasAllPermissions(
-          ['read:my_org:members', 'delete:my_org:members'],
-          ['read:my_org:members', 'delete:my_org:members'],
+          ['read:my_org:members', 'delete:my_org:memberships'],
+          ['read:my_org:members', 'delete:my_org:memberships'],
         ),
       ).toBe(true);
     });
@@ -59,7 +65,7 @@ describe('permission-utils', () => {
       expect(
         hasAllPermissions(
           ['read:my_org:members'],
-          ['read:my_org:members', 'delete:my_org:members'],
+          ['read:my_org:members', 'delete:my_org:memberships'],
         ),
       ).toBe(false);
     });
@@ -71,7 +77,7 @@ describe('permission-utils', () => {
 
   describe('getUserTier', () => {
     it('returns "admin" when the user can delete the resource', () => {
-      expect(getUserTier(['read:my_org:members', 'delete:my_org:members'], 'members')).toBe(
+      expect(getUserTier(['read:my_org:domains', 'delete:my_org:domains'], 'domains')).toBe(
         'admin',
       );
     });

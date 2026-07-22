@@ -11,11 +11,6 @@ export { Auth0ComponentProvider as RwaAuth0ComponentProvider } from './providers
 
 /** Provider that eagerly fetches and caches the user's MyOrganization permissions. */
 export { PermissionProvider } from './providers/permission-context';
-export type {
-  PermissionProviderProps,
-  PermissionContextValue,
-} from './providers/permission-context';
 
-export * from './components';
-export * from './hooks';
-export * from './types';
+/** Components, hooks, and types re-exported from the package entry point. */
+export * from './index';

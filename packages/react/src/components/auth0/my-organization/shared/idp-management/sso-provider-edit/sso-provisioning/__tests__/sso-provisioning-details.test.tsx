@@ -4,7 +4,9 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import { SsoProvisioningDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import { mockCore, mockProps, renderWithProviders } from '@/tests/utils';
+import { mockProps } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
+import { mockCore } from '@/tests/utils/test-setup';
 
 // ===== Mock packages =====
 const { initMockCoreClient } = mockCore();

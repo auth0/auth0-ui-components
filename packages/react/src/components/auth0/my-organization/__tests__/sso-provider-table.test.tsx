@@ -13,10 +13,10 @@ import { SsoProviderTableView } from '@/components/auth0/my-organization/sso-pro
 import * as useConfigModule from '@/hooks/my-organization/shared/services/use-config-service';
 import * as useIdpConfigModule from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import { createMockSsoProviderTableViewProps } from '@/tests/utils';
 import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
 import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
+import { createMockSsoProviderTableViewProps } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-provider-table/sso-provider-table-mocks';
 import { createTestQueryClient, renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { SsoProviderTableProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';

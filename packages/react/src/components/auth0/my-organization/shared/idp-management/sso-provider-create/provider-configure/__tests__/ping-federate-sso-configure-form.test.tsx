@@ -5,7 +5,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { PingFederateConfigureFormHandle } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form';
 import { PingFederateProviderForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form';
-import { createMockI18nService, renderWithProviders } from '@/tests/utils';
+import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('PingFederateProviderForm', () => {
   beforeEach(() => {

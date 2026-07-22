@@ -3,4 +3,5 @@
  * @module rwa
  */
 
-export * from './providers/proxy-provider';
+export { Auth0ComponentProvider } from './providers/proxy-provider';
+export { default } from './providers/proxy-provider';

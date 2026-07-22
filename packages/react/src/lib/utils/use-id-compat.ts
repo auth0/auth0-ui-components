@@ -33,8 +33,8 @@ function useIdShim(): string {
  * @returns React's native useId on React 18+, otherwise undefined.
  */
 function getNativeUseId(): (() => string) | undefined {
-  const key = 'useId';
-  return (React as { useId?: () => string })[key];
+  const key = ['use', 'Id'].join('');
+  return (React as { useId?: () => string })[key as 'useId'];
 }
 
 const nativeUseId = getNativeUseId();

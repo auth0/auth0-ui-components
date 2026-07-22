@@ -4,8 +4,8 @@
  * @internal
  */
 
-import type { UseMutationResult } from '@tanstack/react-query';
-import { keepPreviousData } from '@tanstack/react-query';
+import type { UseMutationResult, keepPreviousData } from '@tanstack/react-query';
+import * as ReactQuery from '@tanstack/react-query';
 
 /**
  * Returns whether a mutation is in a pending/loading state, compatible with both v4 and v5.
@@ -24,11 +24,21 @@ type LegacyKeepPreviousOption = { keepPreviousData: true };
 type PreviousDataOption = PlaceholderDataOption | LegacyKeepPreviousOption;
 
 /**
+ * Reads `keepPreviousData` off the TanStack Query namespace, or returns undefined on v4.
+ * @returns v5's native keepPreviousData, otherwise undefined.
+ */
+function getNativeKeepPreviousData(): typeof keepPreviousData | undefined {
+  const key = ['keep', 'Previous', 'Data'].join('');
+  return (ReactQuery as Record<string, unknown>)[key] as typeof keepPreviousData | undefined;
+}
+
+/**
  * Returns the correct query option for keeping previous data, compatible with both v4 and v5.
  * In v5, `keepPreviousData` boolean option was replaced by `placeholderData: keepPreviousData`.
  * @returns The appropriate option object to spread into a query config.
  */
 export function getPreviousDataOption(): PreviousDataOption {
+  const keepPreviousData = getNativeKeepPreviousData();
   if (typeof keepPreviousData === 'function') {
     return { placeholderData: keepPreviousData };
   }

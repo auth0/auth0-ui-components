@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-import type { DeleteFactorConfirmationProps } from '@/types';
+import type { DeleteFactorConfirmationProps } from '@/types/my-account/mfa/mfa-types';
 
 export const createMockDeleteFactorConfirmationProps = (
   overrides: Partial<DeleteFactorConfirmationProps> = {},
