@@ -66,7 +66,6 @@ export interface UseOrganizationMemberDetailResult {
   memberError: string | null;
   isFetchingMember: boolean;
   isFetchingMemberRoles: boolean;
-  isSearchingRoles: boolean;
   isRemovingFromOrganization: boolean;
   isAssigningRoles: boolean;
   isRemovingRoles: boolean;

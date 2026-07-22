@@ -196,7 +196,6 @@ export const createMockOrganizationMemberDetailViewProps = (
   selectedRoles: [],
   isFetchingMember: false,
   isFetchingMemberRoles: false,
-  isSearchingRoles: false,
   isLoading: false,
   memberError: null,
   isRemovingFromOrganization: false,

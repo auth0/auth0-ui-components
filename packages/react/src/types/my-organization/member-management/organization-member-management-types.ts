@@ -156,8 +156,6 @@ export interface UseOrganizationMemberManagementResult {
   refetchMembers: MemberManagementServiceResult['membersQuery']['refetch'];
   refetchInvitations: MemberManagementServiceResult['invitationsQuery']['refetch'];
   isFetchingAvailableRoles: boolean;
-  /** Whether the server-side role search query is in flight. */
-  isSearchingRoles: boolean;
   isCreatingInvitation: boolean;
   isRevokingInvitation: boolean;
   isResendingInvitation: boolean;

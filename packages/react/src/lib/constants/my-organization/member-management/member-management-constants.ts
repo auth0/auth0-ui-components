@@ -21,8 +21,6 @@ export const MAX_ROLES_PER_MEMBER = 50;
 export const MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT = 100;
 
 /**
- * Default number of roles fetched for the role selector when no search term is
- * active. Typing in the selector triggers a server-side `name` search instead of
- * relying on this initial page.
+ * Default page size for the role selector when no search term is active.
  */
 export const DEFAULT_ROLES_PAGE_SIZE = 10;
