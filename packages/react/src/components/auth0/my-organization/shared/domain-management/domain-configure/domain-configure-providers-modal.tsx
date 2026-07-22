@@ -89,8 +89,8 @@ export function DomainConfigureProvidersModal({
                 {t('table.actions.view_provider_button_text')}
               </Button>
             )}
-            <Tooltip delayDuration={300}>
-              <TooltipTrigger asChild>
+            <Tooltip disableHoverableContent>
+              <TooltipTrigger asChild onFocus={(e) => e.preventDefault()}>
                 <span>
                   <Switch
                     checked={provider.is_associated ?? false}
