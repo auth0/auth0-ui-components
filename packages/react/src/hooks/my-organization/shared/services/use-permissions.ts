@@ -1,8 +1,5 @@
 /**
  * Hook for reading and checking the current user's MyOrganization permissions.
- *
- * Consumes {@link PermissionContext}. When used outside a `PermissionProvider`
- * it falls back to admin-level access (the full {@link PERMISSION_MANIFEST})
  * @module use-permissions
  */
 
@@ -21,8 +18,8 @@ import type { UsePermissionsResult } from '@/types/my-organization/permissions/p
 const ADMIN_FALLBACK_PERMISSIONS: string[] = [...PERMISSION_MANIFEST];
 
 /**
- * Reads the current user's permissions and exposes type-safe check helpers.
- * @returns Permission state and check helpers. See {@link UsePermissionsResult}.
+ * Reads the current user's permissions
+ * @returns Permission state and check helpers
  */
 export function usePermissions(): UsePermissionsResult {
   const context = React.useContext(PermissionContext);
