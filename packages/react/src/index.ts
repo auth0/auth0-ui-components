@@ -51,6 +51,7 @@ export { useSsoDomainTab } from './hooks/my-organization/use-sso-domain-tab';
 export { useSsoProviderCreate } from './hooks/my-organization/use-sso-provider-create';
 export { useSsoProviderEdit } from './hooks/my-organization/use-sso-provider-edit';
 export { useSsoProviderTable } from './hooks/my-organization/use-sso-provider-table';
+export { usePermissions } from './hooks/my-organization/shared/services/use-permissions';
 
 // Member Management hooks
 export { useOrganizationMemberManagement } from './hooks/my-organization/use-organization-member-management';
@@ -86,3 +87,4 @@ export * from './types/my-organization/member-management/organization-invitation
 export * from './types/my-organization/member-management/organization-member-management-types';
 export * from './types/my-organization/member-management/organization-member-detail-types';
 export * from './types/my-organization/member-management/organization-member-table-types';
+export * from './types/my-organization/permissions/permissions-types';

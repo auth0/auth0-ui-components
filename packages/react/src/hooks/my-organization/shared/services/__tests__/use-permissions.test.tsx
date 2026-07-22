@@ -3,7 +3,7 @@ import { renderHook } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { usePermissions } from '@/hooks/my-organization/use-permissions';
+import { usePermissions } from '@/hooks/my-organization/shared/services/use-permissions';
 import { PermissionContext, type PermissionContextValue } from '@/providers/permission-context';
 
 const createWrapper = (value: PermissionContextValue) => {
@@ -17,7 +17,7 @@ describe('usePermissions', () => {
     it('exposes the provider permissions and resolves checks against them', () => {
       const refetch = vi.fn();
       const wrapper = createWrapper({
-        permissions: ['read:my_org:members', 'delete:my_org:members'],
+        permissions: ['read:my_org:members', 'delete:my_org:memberships'],
         isLoading: false,
         refetch,
       });
@@ -26,16 +26,19 @@ describe('usePermissions', () => {
 
       expect(result.current.hasProvider).toBe(true);
       expect(result.current.isLoading).toBe(false);
-      expect(result.current.permissions).toEqual(['read:my_org:members', 'delete:my_org:members']);
-      expect(result.current.hasPermission('delete:my_org:members')).toBe(true);
+      expect(result.current.permissions).toEqual([
+        'read:my_org:members',
+        'delete:my_org:memberships',
+      ]);
+      expect(result.current.hasPermission('delete:my_org:memberships')).toBe(true);
       expect(result.current.hasPermission('update:my_org:domains')).toBe(false);
       expect(
         result.current.hasAnyPermission(['update:my_org:domains', 'read:my_org:members']),
       ).toBe(true);
       expect(
-        result.current.hasAllPermissions(['read:my_org:members', 'delete:my_org:members']),
+        result.current.hasAllPermissions(['read:my_org:members', 'delete:my_org:memberships']),
       ).toBe(true);
-      expect(result.current.getUserTier('members')).toBe('admin');
+      expect(result.current.getUserTier('memberships')).toBe('admin');
     });
 
     it('surfaces the loading state and forwards refetch to the context', () => {
@@ -58,8 +61,8 @@ describe('usePermissions', () => {
       expect(result.current.hasProvider).toBe(false);
       expect(result.current.isLoading).toBe(false);
       expect(result.current.permissions).toEqual([...PERMISSION_MANIFEST]);
-      expect(result.current.hasPermission('delete:my_org:members')).toBe(true);
-      expect(result.current.getUserTier('members')).toBe('admin');
+      expect(result.current.hasPermission('delete:my_org:memberships')).toBe(true);
+      expect(result.current.getUserTier('domains')).toBe('admin');
     });
 
     it('treats refetch as a no-op without throwing', () => {

@@ -3,9 +3,7 @@
 /**
  * Permission context and provider.
  *
- * Implements the eager (app-init) permission model: on mount it requests the
- * full {@link PERMISSION_MANIFEST} from `GET /my-org/user-permissions` and caches
- * the granted subset for 5 minutes via React Query.
+ * Implements the eager (app-init) permissions gating
  * @module permission-context
  * @internal
  */

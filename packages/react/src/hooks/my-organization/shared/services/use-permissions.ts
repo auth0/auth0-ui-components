@@ -7,30 +7,16 @@
  */
 
 import {
-  PERMISSION_MANIFEST,
-  type MyOrgPermission,
-  type PermissionTier,
-} from '@auth0/universal-components-core';
-import * as React from 'react';
-
-import {
   getUserTier,
   hasAllPermissions,
   hasAnyPermission,
   hasPermission,
-} from '@/lib/utils/my-organization/permission-utils';
-import { PermissionContext } from '@/providers/permission-context';
+  PERMISSION_MANIFEST,
+} from '@auth0/universal-components-core';
+import * as React from 'react';
 
-export interface UsePermissionsResult {
-  permissions: string[];
-  isLoading: boolean;
-  hasProvider: boolean;
-  hasPermission: (required: MyOrgPermission) => boolean;
-  hasAnyPermission: (required: readonly MyOrgPermission[]) => boolean;
-  hasAllPermissions: (required: readonly MyOrgPermission[]) => boolean;
-  getUserTier: (resource: string) => PermissionTier;
-  refetch: () => void;
-}
+import { PermissionContext } from '@/providers/permission-context';
+import type { UsePermissionsResult } from '@/types/my-organization/permissions/permissions-types';
 
 const ADMIN_FALLBACK_PERMISSIONS: string[] = [...PERMISSION_MANIFEST];
 
