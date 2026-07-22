@@ -1,4 +1,8 @@
-import type { ComponentAction, IdpKnownResponse } from '@auth0/universal-components-core';
+import {
+  idpConfigQueryKeys,
+  type ComponentAction,
+  type IdpKnownResponse,
+} from '@auth0/universal-components-core';
 import type { QueryClient } from '@tanstack/react-query';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -6,8 +10,8 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import { SsoProviderTable } from '@/components/auth0/my-organization/sso-provider-table';
 import { SsoProviderTableView } from '@/components/auth0/my-organization/sso-provider-table';
-import * as useConfigModule from '@/hooks/my-organization/use-config';
-import * as useIdpConfigModule from '@/hooks/my-organization/use-idp-config';
+import * as useConfigModule from '@/hooks/my-organization/shared/services/use-config-service';
+import * as useIdpConfigModule from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { createMockSsoProviderTableViewProps } from '@/tests/utils';
 import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
@@ -106,7 +110,7 @@ describe('SsoProviderTable', () => {
 
     mockCoreClient = initMockCoreClient();
     queryClient = createTestQueryClient();
-    queryClient.setQueryData(useIdpConfigModule.idpConfigQueryKeys.config(), createMockIdpConfig());
+    queryClient.setQueryData(idpConfigQueryKeys.config(), createMockIdpConfig());
 
     const apiService = mockCoreClient.getMyOrganizationApiClient();
     (apiService.organization.identityProviders.list as ReturnType<typeof vi.fn>).mockResolvedValue({
