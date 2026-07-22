@@ -42,6 +42,8 @@ export { useErrorHandler } from './hooks/shared/use-error-handler';
 export { useUserMFA } from './hooks/my-account/use-user-mfa';
 
 // My Organization hooks
+export { useConfig } from './hooks/my-organization/shared/services/use-config-service';
+export { useIdpConfig } from './hooks/my-organization/shared/services/use-idp-config-service';
 export { useOrganizationDetailsEdit } from './hooks/my-organization/use-organization-details-edit';
 export { useDomainTable } from './hooks/my-organization/use-domain-table';
 export { useProviderFormMode } from './hooks/my-organization/use-provider-form-mode';
