@@ -102,6 +102,11 @@ export * from './theme/theme-types';
 // Types
 export * from './types';
 
+export {
+  configQueryKeys,
+  idpConfigQueryKeys,
+} from './services/my-organization/config/config-query-keys';
+
 // My Organization services
 export * from './services/my-organization/organization-management/organization-details-types';
 export * from './services/my-organization/organization-management/organization-details-factory';

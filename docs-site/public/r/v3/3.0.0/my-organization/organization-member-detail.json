@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
-  "name": "organization-member-detail",
+  "name": "my-organization/organization-member-detail",
   "type": "registry:block",
   "title": "Organization member detail component.",
   "description": "A block component for header.",

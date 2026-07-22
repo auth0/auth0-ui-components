@@ -36,6 +36,7 @@ import type {
  * @param props.hideProvisioningTab - Whether to hide the provisioning tab
  * @param props.hideDeleteProvider - Whether to hide the delete provider action
  * @param props.hideRemoveFromOrganization - Whether to hide the remove from organization action
+ * @param props.hideAttributeMappings - Whether to hide the attribute mappings section
  * @param props.customMessages - Custom translation messages to override defaults
  * @param props.styling - Custom styling configuration with variables and classes
  * @param props.schema - Zod validation schema
@@ -71,6 +72,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     provisioning,
     domains,
     customMessages,
+    skipProvisioningFetch: hideProvisioningTab && hideAttributeMappings,
   });
 
   const ssoProviderCreateLogicProps: Omit<SsoProviderEditLogicProps, 'handleToggleProvider'> = {

@@ -36,6 +36,7 @@ export interface DomainTableClasses {
   'DomainTable-createModal'?: string;
   'DomainTable-configureModal'?: string;
   'DomainTable-deleteModal'?: string;
+  'DomainTableVerifyModal-dialogContent'?: string;
 }
 
 /** Domain table pagination state. */

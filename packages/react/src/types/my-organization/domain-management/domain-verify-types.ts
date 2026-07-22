@@ -16,5 +16,6 @@ export interface DomainVerifyModalProps {
   onVerify: (domain: Domain) => void;
   onDelete: (domain: Domain) => void;
   className?: string;
+  classes?: Record<string, string | undefined>;
   customMessages?: Partial<DomainVerifyMessages>;
 }

@@ -391,4 +391,72 @@ describe('useSsoProviderCreateService', () => {
       });
     });
   });
+
+  describe('show_as_button and assign_membership_on_login fields', () => {
+    const baseProviderData: CreateIdentityProviderRequestContentPrivate = {
+      strategy: 'samlp',
+      name: 'test-provider',
+      display_name: 'Test Provider',
+      signingCert: 'cert123',
+    };
+
+    it('should pass show_as_button at top level, not in options', async () => {
+      mockCreate.mockResolvedValue(mockIdentityProvider);
+
+      const { result } = renderUseSsoProviderCreateService();
+
+      await result.current.createProvider({ ...baseProviderData, show_as_button: true });
+
+      await waitFor(() => {
+        expect(mockCreate).toHaveBeenCalledTimes(1);
+        expect(mockCreate).toHaveBeenCalledWith(
+          expect.objectContaining({
+            show_as_button: true,
+          }),
+        );
+      });
+    });
+
+    it('should pass assign_membership_on_login at top level, not in options', async () => {
+      mockCreate.mockResolvedValue(mockIdentityProvider);
+
+      const { result } = renderUseSsoProviderCreateService();
+
+      await result.current.createProvider({
+        ...baseProviderData,
+        assign_membership_on_login: true,
+      });
+
+      await waitFor(() => {
+        expect(mockCreate).toHaveBeenCalledTimes(1);
+        expect(mockCreate).toHaveBeenCalledWith(
+          expect.objectContaining({
+            assign_membership_on_login: true,
+          }),
+        );
+      });
+    });
+
+    it('should pass both show_as_button and assign_membership_on_login at top level', async () => {
+      mockCreate.mockResolvedValue(mockIdentityProvider);
+
+      const { result } = renderUseSsoProviderCreateService();
+
+      await result.current.createProvider({
+        ...baseProviderData,
+        show_as_button: false,
+        assign_membership_on_login: true,
+      });
+
+      await waitFor(() => {
+        expect(mockCreate).toHaveBeenCalledTimes(1);
+        expect(mockCreate).toHaveBeenCalledWith(
+          expect.objectContaining({
+            show_as_button: false,
+            assign_membership_on_login: true,
+          }),
+        );
+      });
+    });
+  });
 });
