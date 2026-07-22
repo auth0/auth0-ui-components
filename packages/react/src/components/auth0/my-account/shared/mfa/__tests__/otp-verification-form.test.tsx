@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { OTPVerificationForm } from '@/components/auth0/my-account/shared/mfa/otp-verification-form';
-import { renderWithProviders, createMockOTPVerificationFormProps } from '@/tests/utils';
+import { createMockOTPVerificationFormProps } from '@/tests/utils/__mocks__/my-account/mfa/otp-verification-form.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 // ===== Test Suite =====
 describe('OTPVerificationForm', () => {

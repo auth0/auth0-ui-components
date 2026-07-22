@@ -9,11 +9,11 @@ import {
   mockOnCreateProvisioning,
   mockOnDeleteProvisioning,
   mockOnListScimTokens,
-  renderWithProviders,
   mockOnCreateScimToken,
   mockOnDeleteScimToken,
   mockFetchProvisioning,
-} from '@/tests/utils';
+} from '@/tests/utils/__mocks__/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 const createMockSsoProviderEditReturn = (overrides = {}) => ({
   provisioningConfig: null,

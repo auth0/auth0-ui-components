@@ -60,6 +60,7 @@ export function OrganizationInvitationCreateModal({
   onCreate,
   style,
   className,
+  onRoleSearch,
 }: OrganizationInvitationCreateModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
@@ -80,7 +81,8 @@ export function OrganizationInvitationCreateModal({
     setSelectedRoles([]);
     setSelectedProvider(undefined);
     setEmailError(undefined);
-  }, []);
+    onRoleSearch?.('');
+  }, [onRoleSearch]);
 
   React.useEffect(() => {
     if (!isOpen) {
@@ -241,9 +243,11 @@ export function OrganizationInvitationCreateModal({
             <Combobox
               value={selectedRoles}
               onChange={handleRoleChange}
+              onInputChange={onRoleSearch}
+              filterLocally={!onRoleSearch}
               options={roleOptions}
               placeholder={t('invitation.create.roles_placeholder')}
-              disabled={isLoading || availableRoles.length === 0}
+              disabled={isLoading || (!onRoleSearch && availableRoles.length === 0)}
               multiple
               showSelectedCount
             />

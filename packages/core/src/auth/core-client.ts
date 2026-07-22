@@ -7,8 +7,8 @@
 import { initializeMfaStepUpClient } from '@core/services/mfa-step-up/mfa-step-up-api-service';
 
 import type { TelemetryComponentGetter, TelemetryConfig } from '../api/telemetry';
-import type { I18nInitOptions } from '../i18n';
-import { createI18nService } from '../i18n';
+import { createI18nService } from '../i18n/i18n-service';
+import type { I18nInitOptions } from '../i18n/i18n-types';
 import { createMyAccountClient } from '../services/my-account/my-account-client';
 import { createMyOrganizationClient } from '../services/my-organization/my-organization-client';
 

@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
 import { OtpCodeForm } from '@/components/auth0/shared/gate-keeper/mfa-step-up/otp-code-form';
-import { renderWithProviders } from '@/tests/utils';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 const defaultProps = {
   onSubmit: vi.fn().mockResolvedValue(undefined),

@@ -3,11 +3,11 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { OrganizationMemberTable } from '@/components/auth0/my-organization/shared/member-management/members/members-table/organization-member-table';
-import { renderWithProviders } from '@/tests/utils';
 import {
   createMockMember,
   createMockMemberTableProps,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('OrganizationMemberTable', () => {
   beforeEach(() => {

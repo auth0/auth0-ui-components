@@ -5,11 +5,11 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { MfaWizard } from '@/components/auth0/shared/gate-keeper/mfa-step-up/mfa-wizard';
 import { Dialog } from '@/components/ui/dialog';
 import {
-  renderWithProviders,
   mockMfaRequiredError,
   mockUseMfaRequirements,
   mockUseMfaStepUp,
-} from '@/tests/utils';
+} from '@/tests/utils/__mocks__/shared/mfa-step-up.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 const render = (ui: React.ReactElement) => renderWithProviders(<Dialog open>{ui}</Dialog>);
 
