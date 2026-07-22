@@ -124,6 +124,7 @@ export interface OrganizationInvitationCreateModalProps {
   onClose: () => void;
   onCreate: (data: CreateInvitationInput) => void;
   className?: string;
+  onRoleSearch?: (value: string) => void;
 }
 
 /** Props for OrganizationInvitationDetailsModal component. */

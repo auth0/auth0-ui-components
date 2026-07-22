@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
@@ -176,6 +176,36 @@ describe('OrganizationInvitationCreateModal', () => {
         );
 
         expect(screen.getByText('invitation.create.roles_label')).toBeInTheDocument();
+      });
+    });
+
+    describe('server-side search', () => {
+      it('should call onRoleSearch when typing in the role selector', () => {
+        const onRoleSearch = vi.fn();
+
+        renderWithProviders(
+          <OrganizationInvitationCreateModal
+            {...createMockCreateModalProps({ availableRoles: createMockRoles(), onRoleSearch })}
+          />,
+        );
+
+        fireEvent.change(screen.getByPlaceholderText('invitation.create.roles_placeholder'), {
+          target: { value: 'adm' },
+        });
+
+        expect(onRoleSearch).toHaveBeenCalledWith('adm');
+      });
+
+      it('should keep the role selector enabled with no roles when searching', () => {
+        renderWithProviders(
+          <OrganizationInvitationCreateModal
+            {...createMockCreateModalProps({ availableRoles: [], onRoleSearch: vi.fn() })}
+          />,
+        );
+
+        expect(
+          screen.getByPlaceholderText('invitation.create.roles_placeholder'),
+        ).not.toBeDisabled();
       });
     });
   });
