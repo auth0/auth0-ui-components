@@ -50,7 +50,7 @@ describe('tanstack-compat', () => {
       const { isMutationLoading } = await import('../tanstack-compat');
 
       expect(isMutationLoading({ isPending: true })).toBe(true);
-      expect(isMutationLoading({ isPending: false })).toBe(false);
+      expect(isMutationLoading({ isPending: false, isLoading: true })).toBe(false);
     });
 
     it('falls back to isLoading when isPending is undefined (v4)', async () => {
