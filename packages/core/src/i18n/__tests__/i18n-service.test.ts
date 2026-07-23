@@ -24,6 +24,23 @@ describe('createI18nService', () => {
       expect(t('copy')).toBe('User Copy');
     });
 
+    it('should merge user translations with bundled translations (partial override)', async () => {
+      const userTranslations = {
+        'en-US': {
+          common: { copy: 'User Copy Override' },
+        },
+      };
+
+      const service = await createI18nService({
+        currentLanguage: 'en-US',
+        translations: userTranslations,
+      });
+
+      const t = service.translator('common');
+      expect(t('copy')).toBe('User Copy Override');
+      expect(t('copied')).toBe('Copied!');
+    });
+
     it('should fall back to user translations for fallbackLanguage', async () => {
       const userTranslations = {
         'es-ES': {
@@ -90,6 +107,26 @@ describe('createI18nService', () => {
       expect(service.translator('common')('copy')).toBe('Copiar ES');
     });
 
+    it('should merge user translations with bundled after changeLanguage (partial override)', async () => {
+      const userTranslations = {
+        'es-ES': {
+          common: { copy: 'Copiar Override' },
+        },
+      };
+
+      const service = await createI18nService({
+        currentLanguage: 'en-US',
+        translations: userTranslations,
+      });
+
+      expect(service.translator('common')('copy')).toBe('Copy');
+      expect(service.translator('common')('copied')).toBe('Copied!');
+
+      await service.changeLanguage('es-ES');
+      expect(service.translator('common')('copy')).toBe('Copiar Override');
+      expect(service.translator('common')('copied')).toBe('Copied!');
+    });
+
     it('should fall back to user fallback language translations if user translations missing for new language', async () => {
       const userTranslations = {
         'en-US': {
@@ -105,7 +142,6 @@ describe('createI18nService', () => {
 
       expect(service.translator('common')('copy')).toBe('User Copy EN');
 
-      // Change to fr-FR (no user translations) - falls back to user's en-US (fallbackLanguage)
       await service.changeLanguage('fr-FR');
       expect(service.translator('common')('copy')).toBe('User Copy EN');
     });
@@ -125,7 +161,6 @@ describe('createI18nService', () => {
 
       expect(service.translator('common')('copy')).toBe('Kopieren');
 
-      // Change to fr-FR with fallback to es-ES - neither has user translations, falls back to bundled
       await service.changeLanguage('fr-FR', 'es-ES');
       expect(service.translator('common')('copy')).toBe('Copy');
     });
@@ -143,7 +178,6 @@ describe('I18nUtils', () => {
 
     it('should fall back to en-US if current language not available', async () => {
       const cache = new Map();
-      // fr-FR doesn't exist, should fall back to en-US
       const result = await I18nUtils.loadTranslationsWithFallback('fr-FR', 'en-US', cache);
       expect(result).toBeDefined();
       expect((result as Record<string, Record<string, string>>)?.common?.copy).toBe('Copy');
@@ -154,6 +188,42 @@ describe('I18nUtils', () => {
       const result = await I18nUtils.loadTranslationsWithFallback('fr-FR', 'de-DE', cache);
       expect(result).toBeDefined();
       expect((result as Record<string, Record<string, string>>)?.common?.copy).toBe('Copy');
+    });
+  });
+
+  describe('deepMerge', () => {
+    it('should return target when source is null/undefined', () => {
+      const target = { common: { copy: 'Copy' } };
+      expect(I18nUtils.deepMerge(target, null)).toBe(target);
+      expect(I18nUtils.deepMerge(target, undefined)).toBe(target);
+    });
+
+    it('should return source when target is null', () => {
+      const source = { common: { copy: 'User Copy' } };
+      expect(I18nUtils.deepMerge(null, source)).toBe(source);
+    });
+
+    it('should deep merge nested objects', () => {
+      const target = {
+        common: { copy: 'Copy', copied: 'Copied!', refresh: 'Refresh' },
+        mfa: { title: 'MFA' },
+      };
+      const source = {
+        common: { copy: 'User Copy' },
+      };
+      const result = I18nUtils.deepMerge(target, source) as Record<string, Record<string, string>>;
+      expect(result?.common?.copy).toBe('User Copy');
+      expect(result?.common?.copied).toBe('Copied!');
+      expect(result?.common?.refresh).toBe('Refresh');
+      expect(result?.mfa?.title).toBe('MFA');
+    });
+
+    it('should not mutate original objects', () => {
+      const target = { common: { copy: 'Copy' } };
+      const source = { common: { copy: 'User Copy' } };
+      const result = I18nUtils.deepMerge(target, source) as Record<string, Record<string, string>>;
+      expect(target.common.copy).toBe('Copy');
+      expect(result?.common?.copy).toBe('User Copy');
     });
   });
 });

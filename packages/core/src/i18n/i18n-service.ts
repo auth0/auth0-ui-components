@@ -272,20 +272,44 @@ export const I18nUtils = {
     }
   },
 
-  /**
-   * Loads translations with automatic fallback support for missing languages.
-   *
-   * @param currentLanguage - The primary language to load
-   * @param fallbackLanguage - Optional fallback language if primary fails
-   * @param cache - Optional cache map to store loaded translations
-   * @returns Promise resolving to translation data with fallback support
-   */
+  deepMerge(
+    target: LangTranslations | null,
+    source: LangTranslations | null | undefined,
+  ): LangTranslations | null {
+    if (!source) return target;
+    if (!target) return source;
+
+    const result: Record<string, unknown> = { ...target };
+
+    for (const key of Object.keys(source)) {
+      const sourceVal = source[key as keyof LangTranslations];
+      const targetVal = result[key];
+
+      if (
+        sourceVal &&
+        typeof sourceVal === 'object' &&
+        !Array.isArray(sourceVal) &&
+        targetVal &&
+        typeof targetVal === 'object' &&
+        !Array.isArray(targetVal)
+      ) {
+        result[key] = I18nUtils.deepMerge(
+          targetVal as LangTranslations,
+          sourceVal as LangTranslations,
+        );
+      } else {
+        result[key] = sourceVal;
+      }
+    }
+
+    return result as LangTranslations;
+  },
+
   async loadTranslationsWithFallback(
     currentLanguage: string,
     fallbackLanguage?: string,
     cache?: Map<string, LangTranslations | null>,
   ): Promise<LangTranslations | null> {
-    // Try to load current language first
     let result = await I18nUtils.loadTranslations(currentLanguage, cache);
     if (result) return result;
 
@@ -345,11 +369,13 @@ export async function createI18nService(
   const cache = new Map<string, LangTranslations | null>();
   const userTranslations = options.translations;
 
-  // Load initial translations - check user-provided first, then fall back to bundled
-  const translations =
-    userTranslations?.[currentLanguage] ??
-    userTranslations?.[fallbackLanguage] ??
-    (await I18nUtils.loadTranslationsWithFallback(currentLanguage, fallbackLanguage, cache));
+  const bundled = await I18nUtils.loadTranslationsWithFallback(
+    currentLanguage,
+    fallbackLanguage,
+    cache,
+  );
+  const user = userTranslations?.[currentLanguage] ?? userTranslations?.[fallbackLanguage];
+  const translations = I18nUtils.deepMerge(bundled, user);
 
   // State management through closure
   let _currentLanguage = currentLanguage;
@@ -392,15 +418,13 @@ export async function createI18nService(
         _currentLanguage = language;
         _fallbackLanguage = newFallbackLanguage ?? _fallbackLanguage;
 
-        // Check user-provided translations first, then fall back to bundled
-        _translations =
-          userTranslations?.[_currentLanguage] ??
-          userTranslations?.[_fallbackLanguage] ??
-          (await I18nUtils.loadTranslationsWithFallback(
-            _currentLanguage,
-            _fallbackLanguage,
-            cache,
-          ));
+        const bundled = await I18nUtils.loadTranslationsWithFallback(
+          _currentLanguage,
+          _fallbackLanguage,
+          cache,
+        );
+        const user = userTranslations?.[_currentLanguage] ?? userTranslations?.[_fallbackLanguage];
+        _translations = I18nUtils.deepMerge(bundled, user);
       } catch (error) {
         throw new Error(
           `Failed to change language to '${language}': ${error instanceof Error ? error.message : 'Unknown error'}`,
