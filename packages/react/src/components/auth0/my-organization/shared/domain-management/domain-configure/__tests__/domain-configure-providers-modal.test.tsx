@@ -804,7 +804,6 @@ describe('DomainConfigureProvidersModal', () => {
         expect(switches[0]!).toHaveFocus();
       });
 
-      // Tooltip should NOT show on focus - only on hover
       expect(screen.queryByText('table.actions.disable_provider_tooltip')).not.toBeInTheDocument();
     });
 
@@ -813,9 +812,7 @@ describe('DomainConfigureProvidersModal', () => {
       renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
       const switches = screen.getAllByRole('switch');
-      // First switch is associated (enabled) - should have disable label
       expect(switches[0]).toHaveAttribute('aria-label', 'table.actions.disable_provider_tooltip');
-      // Second switch is not associated (disabled) - should have enable label
       expect(switches[1]).toHaveAttribute('aria-label', 'table.actions.enable_provider_tooltip');
     });
 
