@@ -5,9 +5,10 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
-import { mockCore, mockToast, createMockI18nService } from '@/tests/utils';
+import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
 import { createMockInvitation } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
+import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { UseMemberManagementServiceOptions } from '@/types/my-organization/member-management/organization-member-management-types';
 
 const { mockedShowToast } = mockToast();
@@ -132,6 +133,85 @@ describe('useMemberManagementService', () => {
       });
 
       expect(result.current.rolesQuery.data).toBeDefined();
+    });
+
+    it('should not fetch roles when enableRolesList is false', async () => {
+      const options = createDefaultOptions({ enableRolesList: false });
+      const { result } = renderService(options);
+
+      // Let the search query settle so we know queries have had a chance to run.
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.rolesQuery.fetchStatus).toBe('idle');
+      expect(result.current.rolesQuery.data).toBeUndefined();
+    });
+  });
+
+  describe('rolesSearchQuery', () => {
+    const rolesListMock = () => mockCoreClient.getMyOrganizationApiClient().organization.roles.list;
+
+    it('should fetch the default page of roles with no name filter', async () => {
+      const { result } = renderService(createDefaultOptions());
+
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
+      });
+
+      expect(rolesListMock()).toHaveBeenCalledWith({ take: 10 });
+    });
+
+    it('should stay disabled until enableRoleSearch is called when deferRoleSearch is true', async () => {
+      const { result } = renderService(
+        createDefaultOptions({ deferRoleSearch: true, enableRolesList: false }),
+      );
+
+      // The search query should not run on mount.
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.fetchStatus).toBe('idle');
+      });
+      expect(rolesListMock()).not.toHaveBeenCalled();
+
+      act(() => {
+        result.current.enableRoleSearch();
+      });
+
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
+      });
+      expect(rolesListMock()).toHaveBeenCalledWith({ take: 10 });
+    });
+
+    it('should pass the debounced search term as the name filter', async () => {
+      const { result } = renderService(createDefaultOptions());
+
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
+      });
+
+      act(() => {
+        result.current.setRoleSearchTerm('admin');
+      });
+
+      await waitFor(() => {
+        expect(rolesListMock()).toHaveBeenCalledWith({ take: 10, name: 'admin' });
+      });
+    });
+
+    it('should key the query by the search term', async () => {
+      const { result } = renderService(createDefaultOptions());
+
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
+      });
+
+      expect(memberManagementQueryKeys.rolesSearch('admin')).toEqual([
+        'member-management',
+        'roles',
+        'search',
+        'admin',
+      ]);
     });
   });
 

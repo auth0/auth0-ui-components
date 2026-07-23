@@ -10,9 +10,11 @@ import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockIdentityProvider,
   createMockIdentityProviderWithoutProvisioning,
+} from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import {
   createMockSsoProviderEditHandler,
   createMockSsoProviderEditLogic,
-} from '@/tests/utils/__mocks__';
+} from '@/tests/utils/__mocks__/my-organization/idp-management/sso-provider-edit/sso-provider-edit.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { SsoProviderEditProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';

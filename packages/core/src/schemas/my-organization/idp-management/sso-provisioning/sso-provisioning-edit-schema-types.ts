@@ -4,7 +4,7 @@
  * @internal
  */
 
-import type { FieldOptions } from '@core/schemas/common';
+import type { FieldOptions } from '@core/schemas/common/common-schemas';
 
 /**
  * Schema configuration for Provisioning Details.

@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import { SsoProviderTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-tab';
-import { renderWithProviders } from '@/tests/utils';
 import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { SsoProviderTabProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 
 // Mock hooks

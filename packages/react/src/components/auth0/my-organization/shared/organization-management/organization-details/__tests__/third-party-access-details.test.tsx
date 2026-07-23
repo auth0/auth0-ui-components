@@ -7,7 +7,8 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import { ThirdPartyAccessDetails } from '@/components/auth0/my-organization/shared/organization-management/organization-details/third-party-access-details';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import { mockCore, renderWithFormProvider } from '@/tests/utils';
+import { renderWithFormProvider } from '@/tests/utils/test-provider';
+import { mockCore } from '@/tests/utils/test-setup';
 import type { ThirdPartyAccessDetailsProps } from '@/types/my-organization/organization-management/organization-details-types';
 
 const { initMockCoreClient } = mockCore();

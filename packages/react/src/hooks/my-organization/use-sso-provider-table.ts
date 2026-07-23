@@ -9,9 +9,9 @@ import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
+import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useSsoProviderTableService } from '@/hooks/my-organization/shared/services/use-sso-provider-table-service';
-import { useConfig } from '@/hooks/my-organization/use-config';
-import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {

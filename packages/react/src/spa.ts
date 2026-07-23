@@ -3,4 +3,5 @@
  * @module spa
  */
 
-export * from './providers/spa-provider';
+export { Auth0ComponentProvider } from './providers/spa-provider';
+export { default } from './providers/spa-provider';

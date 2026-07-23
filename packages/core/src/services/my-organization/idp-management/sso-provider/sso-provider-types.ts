@@ -8,7 +8,7 @@ import type {
   ProviderDetailsFormValues,
   ProviderConfigureFormValues,
   ProviderSelectionFormValues,
-} from '@core/schemas';
+} from '@core/schemas/my-organization/idp-management/sso-provider/sso-provider-create-schema';
 
 export type ListIdentityProvidersResponseContent =
   MyOrganization.ListIdentityProvidersResponseContent;

@@ -13,7 +13,7 @@ import type {
   MemberManagementFilterState,
   MemberManagementPaginationState,
   MemberManagementSortConfig,
-} from '@/types';
+} from './organization-member-management-types';
 
 /** Props for OrganizationMemberTableActionsColumn component. */
 export interface OrganizationMemberTableActionsColumnProps {

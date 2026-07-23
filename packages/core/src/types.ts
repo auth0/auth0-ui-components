@@ -4,7 +4,7 @@
  * @internal
  */
 
-import type { StylingVariables } from './theme';
+import type { StylingVariables } from './theme/theme-types';
 
 /**
  * Generic object type for arbitrary key-value pairs.

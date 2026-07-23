@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { OrganizationInvitationDetailsModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal';
-import { renderWithProviders, TestProvider } from '@/tests/utils';
 import {
   createMockDetailsModalProps,
   createMockInvitation,
@@ -12,6 +11,7 @@ import {
   createMockRoles,
   createMockProviders,
 } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
+import { renderWithProviders, TestProvider } from '@/tests/utils/test-provider';
 
 describe('OrganizationInvitationDetailsModal', () => {
   const invitationUrl = 'https://example.auth0.com/invite?ticket=abc';

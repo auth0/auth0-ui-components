@@ -6,9 +6,9 @@
 
 import { useCallback, useRef, useState } from 'react';
 
+import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
+import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useSsoProviderCreateService } from '@/hooks/my-organization/shared/services/use-sso-provider-create-service';
-import { useConfig } from '@/hooks/my-organization/use-config';
-import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import type {
   FormState,
   ProviderConfigureHandle,

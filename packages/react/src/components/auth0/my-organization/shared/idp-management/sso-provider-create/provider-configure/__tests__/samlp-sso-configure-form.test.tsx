@@ -5,7 +5,8 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import type { SamlpConfigureFormHandle } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form';
 import { SamlpProviderForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form';
-import { createMockI18nService, renderWithProviders } from '@/tests/utils';
+import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('SamlpProviderForm', () => {
   beforeEach(() => {

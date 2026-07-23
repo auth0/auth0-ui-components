@@ -6,8 +6,8 @@
 
 import { useMemo } from 'react';
 
+import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useOrganizationDetailsEditService } from '@/hooks/my-organization/shared/services/use-organization-details-edit-service';
-import { useConfig } from '@/hooks/my-organization/use-config';
 import type {
   UseOrganizationDetailsEditOptions,
   UseOrganizationDetailsEditResult,

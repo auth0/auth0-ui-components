@@ -123,3 +123,5 @@ export function renderWithFormProvider<T extends FieldValues>(
 ) {
   return renderWithProviders(<Form {...form}>{component}</Form>);
 }
+
+export const createQueryClientWrapper = createTestQueryClientWrapper;
