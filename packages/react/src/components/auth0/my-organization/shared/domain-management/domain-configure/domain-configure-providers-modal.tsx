@@ -96,6 +96,11 @@ export function DomainConfigureProvidersModal({
                     checked={provider.is_associated ?? false}
                     onCheckedChange={(checked) => handleToggleSwitch(provider, checked)}
                     disabled={isLoadingSwitch}
+                    aria-label={
+                      provider.is_associated
+                        ? t('table.actions.disable_provider_tooltip')
+                        : t('table.actions.enable_provider_tooltip')
+                    }
                   />
                 </span>
               </TooltipTrigger>

@@ -792,7 +792,7 @@ describe('DomainConfigureProvidersModal', () => {
       });
     });
 
-    it('should show tooltip on keyboard focus', async () => {
+    it('should not show tooltip on keyboard focus (prevents auto-trigger on modal open)', async () => {
       const user = userEvent.setup();
       const props = createMockDomainConfigureProvidersModalProps();
       renderWithProviders(<DomainConfigureProvidersModal {...props} />);
@@ -804,10 +804,19 @@ describe('DomainConfigureProvidersModal', () => {
         expect(switches[0]!).toHaveFocus();
       });
 
-      await waitFor(() => {
-        const tooltips = screen.getAllByText('table.actions.disable_provider_tooltip');
-        expect(tooltips.length).toBeGreaterThan(0);
-      });
+      // Tooltip should NOT show on focus - only on hover
+      expect(screen.queryByText('table.actions.disable_provider_tooltip')).not.toBeInTheDocument();
+    });
+
+    it('should have accessible aria-label on switch for screen readers', () => {
+      const props = createMockDomainConfigureProvidersModalProps();
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const switches = screen.getAllByRole('switch');
+      // First switch is associated (enabled) - should have disable label
+      expect(switches[0]).toHaveAttribute('aria-label', 'table.actions.disable_provider_tooltip');
+      // Second switch is not associated (disabled) - should have enable label
+      expect(switches[1]).toHaveAttribute('aria-label', 'table.actions.enable_provider_tooltip');
     });
 
     it('should show tooltip even when switch is disabled', async () => {
