@@ -138,6 +138,7 @@ export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceRetur
   idpConfig: GetIdpConfigurationResponseContent | null;
   isLoadingIdpConfig: boolean;
   showProvisioningTab: boolean;
+  showThirdPartyAccess: boolean;
   handleToggleProvider: (enabled: boolean) => Promise<void>;
 }
 
@@ -210,5 +211,6 @@ export interface UseSsoProviderEditLogicResult {
   idpConfig: GetIdpConfigurationResponseContent | null;
   isLoadingIdpConfig: boolean;
   showProvisioningTab: boolean;
+  showThirdPartyAccess: boolean;
   handleToggleProvider: (enabled: boolean) => Promise<void>;
 }

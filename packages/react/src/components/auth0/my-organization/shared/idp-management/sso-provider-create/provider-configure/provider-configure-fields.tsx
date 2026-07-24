@@ -50,7 +50,7 @@ export type ProviderConfigureFormHandle =
 export const ProviderConfigureFields = React.forwardRef<
   ProviderConfigureFormHandle,
   ProviderConfigureFieldsProps
->(function ProviderConfigureFields({ strategy, className, ...props }, ref) {
+>(function ProviderConfigureFields({ strategy, className, showThirdPartyAccess, ...props }, ref) {
   const renderProviderForm = () => {
     switch (strategy) {
       case STRATEGIES.OKTA:
@@ -81,11 +81,19 @@ export const ProviderConfigureFields = React.forwardRef<
         );
       case STRATEGIES.SAMLP:
         return (
-          <SamlpProviderForm ref={ref as React.ForwardedRef<SamlpConfigureFormHandle>} {...props} />
+          <SamlpProviderForm
+            ref={ref as React.ForwardedRef<SamlpConfigureFormHandle>}
+            {...props}
+            showThirdPartyAccess={showThirdPartyAccess}
+          />
         );
       case STRATEGIES.OIDC:
         return (
-          <OidcProviderForm ref={ref as React.ForwardedRef<OidcConfigureFormHandle>} {...props} />
+          <OidcProviderForm
+            ref={ref as React.ForwardedRef<OidcConfigureFormHandle>}
+            {...props}
+            showThirdPartyAccess={showThirdPartyAccess}
+          />
         );
       default:
         return null;

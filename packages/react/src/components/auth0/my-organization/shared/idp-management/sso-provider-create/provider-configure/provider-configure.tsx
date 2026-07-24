@@ -29,6 +29,7 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
       className,
       idpConfig,
       isLoading,
+      showThirdPartyAccess = false,
     },
     ref,
   ) {
@@ -66,6 +67,7 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
             readOnly={readOnly}
             customMessages={{ fields: customMessages.fields }}
             idpConfig={idpConfig}
+            showThirdPartyAccess={showThirdPartyAccess}
           />
         </Section>
       </div>

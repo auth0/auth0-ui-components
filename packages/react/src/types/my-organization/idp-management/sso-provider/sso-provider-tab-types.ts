@@ -13,6 +13,7 @@ import type {
   SsoProviderDetailsSchema,
   ComponentAction,
   GetIdpConfigurationResponseContent,
+  ThirdPartyAccessMessages,
 } from '@auth0/universal-components-core';
 
 import type { FormActionsProps } from '@/components/auth0/shared/form-actions';
@@ -71,6 +72,7 @@ export interface SsoProviderTabProps
   hasSsoAttributeSyncWarning?: boolean;
   onAttributeSync?: () => void | Promise<void>;
   isSyncingAttributes?: boolean;
+  showThirdPartyAccess?: boolean;
 }
 
 export interface ProviderDetailsClasses
@@ -91,6 +93,7 @@ export interface SsoProviderDetailsClasses {
   'ProviderConfigure-root'?: string;
   'SsoProvider-attributeMapping'?: string;
   'SsoProviderDetails-FormActions'?: string;
+  'SsoProviderDetails-ThirdPartyAccess'?: string;
 }
 
 export interface SsoProviderDetailsProps
@@ -100,4 +103,13 @@ export interface SsoProviderDetailsProps
   readOnly?: boolean;
   hideAttributeMappings?: boolean;
   formActions?: SsoProviderDetailsFormActions;
+  showThirdPartyAccess?: boolean;
+}
+
+export interface ThirdPartyAccessSectionProps {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  readOnly?: boolean;
+  customMessages?: ThirdPartyAccessMessages;
+  className?: string;
 }

@@ -34,16 +34,7 @@ export function useConfig(): UseConfigResult {
     },
   });
 
-  // TODO: Remove mock once API returns third_party_client_access
-  const config = configQuery.data
-    ? {
-        ...configQuery.data,
-        third_party_client_access: {
-          default_value: 'block' as const,
-          allowed_values: ['allow' as const, 'block' as const],
-        },
-      }
-    : configQuery.data;
+  const config = configQuery.data;
   const allowedStrategies = config?.allowed_strategies;
 
   const filteredStrategies: IdpStrategy[] = allowedStrategies

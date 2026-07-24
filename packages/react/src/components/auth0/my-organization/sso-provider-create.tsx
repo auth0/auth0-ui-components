@@ -62,6 +62,7 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     filteredStrategies,
     isLoadingIdpConfig,
     idpConfig,
+    showThirdPartyAccess,
   } = useSsoProviderCreate({
     createAction,
     customMessages,
@@ -81,6 +82,7 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     filteredStrategies,
     isLoadingIdpConfig,
     idpConfig,
+    showThirdPartyAccess,
     styling,
     customMessages,
     backButton,
@@ -127,6 +129,7 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
     filteredStrategies,
     isLoadingIdpConfig,
     idpConfig,
+    showThirdPartyAccess,
   }: SsoProviderCreateLogicProps = logic;
 
   const { isDarkMode } = useTheme();
@@ -199,6 +202,7 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
               customMessages={customMessages?.provider_configure}
               idpConfig={idpConfig ?? null}
               className={currentStyles?.classes?.['ProviderConfigure-root']}
+              showThirdPartyAccess={showThirdPartyAccess}
             />
           ) : null,
         actions: createStepActions('provider_configure', configureRef),

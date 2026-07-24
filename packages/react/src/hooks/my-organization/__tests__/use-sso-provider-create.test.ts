@@ -3,11 +3,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useSsoProviderCreate } from '../use-sso-provider-create';
 
+const mockUseConfig = vi.fn(() => ({
+  isLoadingConfig: false,
+  filteredStrategies: ['samlp', 'oidc'],
+  showThirdPartyAccess: false,
+}));
+
 vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
-  useConfig: () => ({
-    isLoadingConfig: false,
-    filteredStrategies: ['samlp', 'oidc'],
-  }),
+  useConfig: () => mockUseConfig(),
 }));
 vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
   useIdpConfig: () => ({
@@ -29,6 +32,11 @@ const mockOnPrevious = vi.fn();
 describe('useSsoProviderCreate - logic behavior', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseConfig.mockReturnValue({
+      isLoadingConfig: false,
+      filteredStrategies: ['samlp', 'oidc'],
+      showThirdPartyAccess: false,
+    });
   });
 
   it('should initialize formData and refs', () => {
@@ -143,5 +151,41 @@ describe('useSsoProviderCreate - logic behavior', () => {
     expect(nextResult).toBe(false);
     expect(ref.current.validate).toHaveBeenCalled();
     expect(mockOnNext).not.toHaveBeenCalled();
+  });
+
+  describe('showThirdPartyAccess', () => {
+    it('should return showThirdPartyAccess as false when config returns false', () => {
+      mockUseConfig.mockReturnValue({
+        isLoadingConfig: false,
+        filteredStrategies: ['samlp', 'oidc'],
+        showThirdPartyAccess: false,
+      });
+
+      const { result } = renderHook(() =>
+        useSsoProviderCreate({
+          onNext: mockOnNext,
+          onPrevious: mockOnPrevious,
+        }),
+      );
+
+      expect(result.current.showThirdPartyAccess).toBe(false);
+    });
+
+    it('should return showThirdPartyAccess as true when config returns true', () => {
+      mockUseConfig.mockReturnValue({
+        isLoadingConfig: false,
+        filteredStrategies: ['samlp', 'oidc'],
+        showThirdPartyAccess: true,
+      });
+
+      const { result } = renderHook(() =>
+        useSsoProviderCreate({
+          onNext: mockOnNext,
+          onPrevious: mockOnPrevious,
+        }),
+      );
+
+      expect(result.current.showThirdPartyAccess).toBe(true);
+    });
   });
 });

@@ -39,7 +39,7 @@ export function useSsoProviderEdit(
     skipProvisioningFetch,
   });
 
-  const { shouldAllowDeletion, isLoadingConfig } = useConfig();
+  const { shouldAllowDeletion, isLoadingConfig, showThirdPartyAccess } = useConfig();
   const { idpConfig, isLoadingIdpConfig, isProvisioningEnabled, isProvisioningMethodEnabled } =
     useIdpConfig();
 
@@ -66,5 +66,6 @@ export function useSsoProviderEdit(
     isLoadingIdpConfig,
     showProvisioningTab,
     handleToggleProvider,
+    showThirdPartyAccess,
   };
 }

@@ -73,6 +73,7 @@ export function createMockSsoProviderEditLogic(
     backButton: undefined,
     shouldAllowDeletion: true,
     showProvisioningTab: true,
+    showThirdPartyAccess: false,
     isProvisioningUpdating: false,
     isProvisioningDeleting: false,
     isScimTokensLoading: false,

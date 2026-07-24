@@ -13,6 +13,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
+import { ThirdPartyAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/third-party-access-section';
 import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import {
   Form,
@@ -51,6 +52,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
       onFormDirty,
       idpConfig,
       mode = 'create',
+      showThirdPartyAccess = false,
     },
     ref,
   ) {
@@ -74,6 +76,9 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
         client_secret: oidcData?.client_secret || '',
         show_as_button: oidcData?.show_as_button ?? false,
         assign_membership_on_login: oidcData?.assign_membership_on_login ?? false,
+        use_for_third_party_client_access:
+          (oidcData as { use_for_third_party_client_access?: boolean })
+            ?.use_for_third_party_client_access ?? false,
       },
     });
 
@@ -251,6 +256,20 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
             readOnly={readOnly}
             customMessages={customMessages}
           />
+
+          {showThirdPartyAccess && (
+            <FormField
+              control={form.control}
+              name="use_for_third_party_client_access"
+              render={({ field }) => (
+                <ThirdPartyAccessSection
+                  checked={field.value ?? false}
+                  onChange={field.onChange}
+                  readOnly={readOnly}
+                />
+              )}
+            />
+          )}
         </div>
       </Form>
     );

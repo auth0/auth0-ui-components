@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
+import { ThirdPartyAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/third-party-access-section';
 import {
   Accordion,
   AccordionContent,
@@ -79,7 +80,15 @@ export const SamlpProviderForm = React.forwardRef<
   SamlpConfigureFormHandle,
   SamlpConfigureFormProps
 >(function SamlpProviderForm(
-  { initialData, readOnly = false, customMessages = {}, className, onFormDirty, idpConfig },
+  {
+    initialData,
+    readOnly = false,
+    customMessages = {},
+    className,
+    onFormDirty,
+    idpConfig,
+    showThirdPartyAccess = false,
+  },
   ref,
 ) {
   const { t } = useTranslator(
@@ -106,6 +115,9 @@ export const SamlpProviderForm = React.forwardRef<
       bindingMethod: samlpData?.bindingMethod || 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
       show_as_button: samlpData?.show_as_button ?? false,
       assign_membership_on_login: samlpData?.assign_membership_on_login ?? false,
+      use_for_third_party_client_access:
+        (samlpData as { use_for_third_party_client_access?: boolean })
+          ?.use_for_third_party_client_access ?? false,
     },
   });
 
@@ -447,6 +459,20 @@ export const SamlpProviderForm = React.forwardRef<
           readOnly={readOnly}
           customMessages={customMessages}
         />
+
+        {showThirdPartyAccess && (
+          <FormField
+            control={form.control}
+            name="use_for_third_party_client_access"
+            render={({ field }) => (
+              <ThirdPartyAccessSection
+                checked={field.value ?? false}
+                onChange={field.onChange}
+                readOnly={readOnly}
+              />
+            )}
+          />
+        )}
       </div>
     </Form>
   );

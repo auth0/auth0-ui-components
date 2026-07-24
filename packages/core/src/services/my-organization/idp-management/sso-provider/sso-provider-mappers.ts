@@ -20,6 +20,7 @@ type CombinedProviderFormValues = ProviderSelectionFormValues &
   ProviderDetailsFormValues & {
     show_as_button?: boolean;
     assign_membership_on_login?: boolean;
+    use_for_third_party_client_access?: boolean;
     options: ProviderConfigureFormValues;
   };
 
@@ -29,6 +30,7 @@ type UpdateProviderFormValues = Partial<ProviderDetailsFormValues> & {
   is_enabled?: boolean;
   show_as_button?: boolean;
   assign_membership_on_login?: boolean;
+  use_for_third_party_client_access?: boolean;
 };
 
 const STRATEGY_FIELD_MAPPINGS = {
@@ -95,8 +97,15 @@ export const SsoProviderMappers = {
    * @returns API request payload for provider creation
    */
   createToAPI(data: CombinedProviderFormValues): CreateIdentityProviderRequestContent {
-    const { strategy, name, display_name, show_as_button, assign_membership_on_login, options } =
-      data;
+    const {
+      strategy,
+      name,
+      display_name,
+      show_as_button,
+      assign_membership_on_login,
+      use_for_third_party_client_access,
+      options,
+    } = data;
 
     if (!name || name.trim() === '') {
       throw new Error('Provider name is required');
@@ -108,6 +117,7 @@ export const SsoProviderMappers = {
       display_name,
       show_as_button,
       assign_membership_on_login,
+      use_for_third_party_client_access,
       options: getValidOptionsForStrategy(strategy, options),
     } as CreateIdentityProviderRequestContent;
   },
@@ -125,6 +135,7 @@ export const SsoProviderMappers = {
       is_enabled,
       show_as_button,
       assign_membership_on_login,
+      use_for_third_party_client_access,
       ...configOptions
     } = data;
 
@@ -142,6 +153,9 @@ export const SsoProviderMappers = {
     }
     if (assign_membership_on_login !== undefined) {
       updateRequest.assign_membership_on_login = assign_membership_on_login;
+    }
+    if (use_for_third_party_client_access !== undefined) {
+      updateRequest.use_for_third_party_client_access = use_for_third_party_client_access;
     }
 
     // Add filtered options if strategy exists and config options are provided

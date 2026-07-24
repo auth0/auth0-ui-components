@@ -59,12 +59,19 @@ export interface AttributeSyncAlertMessages {
   };
 }
 
+export interface ThirdPartyAccessMessages {
+  title?: string;
+  label?: string;
+  helper_text?: string;
+}
+
 export interface SsoProviderDetailsMessages {
   submit_button_label?: string;
   unsaved_changes_text?: string;
   details_fields?: ProviderDetailsMessages;
   configure_fields?: ProviderConfigureFieldsMessages;
   mappings?: SsoProviderAttributeMappingsMessages;
+  third_party_access?: ThirdPartyAccessMessages;
 }
 
 export interface SsoProviderNotificationMessages {

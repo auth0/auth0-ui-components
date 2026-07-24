@@ -80,6 +80,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     shouldAllowDeletion: ssoProviderEdit.shouldAllowDeletion,
     idpConfig: ssoProviderEdit.idpConfig,
     showProvisioningTab: ssoProviderEdit.showProvisioningTab && !hideProvisioningTab,
+    showThirdPartyAccess: ssoProviderEdit.showThirdPartyAccess,
     styling,
     customMessages,
     backButton,
@@ -153,6 +154,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
     backButton,
     shouldAllowDeletion,
     showProvisioningTab,
+    showThirdPartyAccess,
     isProvisioningUpdating,
     isProvisioningDeleting,
     isScimTokensLoading,
@@ -263,6 +265,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
                 },
               }}
               readOnly={readOnly}
+              showThirdPartyAccess={showThirdPartyAccess}
             />
           </TabsContent>
 

@@ -234,6 +234,60 @@ describe('SsoProviderMappers', () => {
         expect(result.options).toEqual({});
       });
     });
+
+    describe('use_for_third_party_client_access', () => {
+      it('should include use_for_third_party_client_access when true', () => {
+        const formData = {
+          strategy: STRATEGIES.OIDC as IdpStrategy,
+          name: 'Provider',
+          display_name: 'Display',
+          options: {
+            client_id: 'id',
+            client_secret: 'secret',
+            discovery_url: 'https://example.com',
+          },
+          use_for_third_party_client_access: true,
+        };
+
+        const result = SsoProviderMappers.createToAPI(formData);
+
+        expect(result.use_for_third_party_client_access).toBe(true);
+      });
+
+      it('should include use_for_third_party_client_access when false', () => {
+        const formData = {
+          strategy: STRATEGIES.SAMLP as IdpStrategy,
+          name: 'Provider',
+          display_name: 'Display',
+          options: {
+            meta_data_source: 'meta_data_url' as const,
+            metadataUrl: 'https://metadata.url',
+          },
+          use_for_third_party_client_access: false,
+        };
+
+        const result = SsoProviderMappers.createToAPI(formData);
+
+        expect(result.use_for_third_party_client_access).toBe(false);
+      });
+
+      it('should include use_for_third_party_client_access as undefined when not provided', () => {
+        const formData = {
+          strategy: STRATEGIES.OIDC as IdpStrategy,
+          name: 'Provider',
+          display_name: 'Display',
+          options: {
+            client_id: 'id',
+            client_secret: 'secret',
+            discovery_url: 'https://example.com',
+          },
+        };
+
+        const result = SsoProviderMappers.createToAPI(formData);
+
+        expect(result.use_for_third_party_client_access).toBeUndefined();
+      });
+    });
   });
 
   describe('updateToAPI', () => {
@@ -396,6 +450,41 @@ describe('SsoProviderMappers', () => {
         const result = SsoProviderMappers.updateToAPI(updateData);
 
         expect(result).toEqual({ display_name: '' });
+      });
+    });
+
+    describe('use_for_third_party_client_access', () => {
+      it('should include use_for_third_party_client_access when true', () => {
+        const updateData = {
+          strategy: STRATEGIES.OIDC as IdpStrategy,
+          use_for_third_party_client_access: true,
+        };
+
+        const result = SsoProviderMappers.updateToAPI(updateData);
+
+        expect(result.use_for_third_party_client_access).toBe(true);
+      });
+
+      it('should include use_for_third_party_client_access when false', () => {
+        const updateData = {
+          strategy: STRATEGIES.SAMLP as IdpStrategy,
+          use_for_third_party_client_access: false,
+        };
+
+        const result = SsoProviderMappers.updateToAPI(updateData);
+
+        expect(result.use_for_third_party_client_access).toBe(false);
+      });
+
+      it('should not include use_for_third_party_client_access when undefined', () => {
+        const updateData = {
+          strategy: STRATEGIES.OIDC as IdpStrategy,
+          display_name: 'Updated Display',
+        };
+
+        const result = SsoProviderMappers.updateToAPI(updateData);
+
+        expect(result).not.toHaveProperty('use_for_third_party_client_access');
       });
     });
   });

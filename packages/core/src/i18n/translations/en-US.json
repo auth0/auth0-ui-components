@@ -898,7 +898,12 @@
     },
     "sso_provider_details": {
       "unsaved_changes_text": "Unsaved changes",
-      "submit_button_label": "Save"
+      "submit_button_label": "Save",
+      "third_party_access": {
+        "title": "Third party Application Access",
+        "label": "Allow this provider to be used by third-party applications",
+        "helper_text": "Applications outside the official platform can authenticate users through this provider."
+      }
     },
     "delete_sso_provider": {
       "title": "Delete this provider",

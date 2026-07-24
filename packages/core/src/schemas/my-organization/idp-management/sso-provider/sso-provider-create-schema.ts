@@ -112,6 +112,7 @@ const STRATEGY_BUILDERS = {
       }),
       show_as_button: z.boolean().optional(),
       assign_membership_on_login: z.boolean().optional(),
+      use_for_third_party_client_access: z.boolean().optional(),
     }),
 
   adfs: (options: AdfsOptions = {}) =>
@@ -131,6 +132,7 @@ const STRATEGY_BUILDERS = {
         fedMetadataXml: z.string().optional(),
         show_as_button: z.boolean().optional(),
         assign_membership_on_login: z.boolean().optional(),
+        use_for_third_party_client_access: z.boolean().optional(),
       }),
       z.object({
         meta_data_source: z.literal('meta_data_file'),
@@ -143,6 +145,7 @@ const STRATEGY_BUILDERS = {
         meta_data_location_url: z.string().optional(),
         show_as_button: z.boolean().optional(),
         assign_membership_on_login: z.boolean().optional(),
+        use_for_third_party_client_access: z.boolean().optional(),
       }),
     ]),
 
@@ -171,6 +174,7 @@ const STRATEGY_BUILDERS = {
       }),
       show_as_button: z.boolean().optional(),
       assign_membership_on_login: z.boolean().optional(),
+      use_for_third_party_client_access: z.boolean().optional(),
     }),
 
   oidc: (options: OidcOptions = {}) => {
@@ -186,6 +190,7 @@ const STRATEGY_BUILDERS = {
       ),
       show_as_button: z.boolean().optional(),
       assign_membership_on_login: z.boolean().optional(),
+      use_for_third_party_client_access: z.boolean().optional(),
     };
 
     return z.discriminatedUnion('type', [
@@ -256,6 +261,7 @@ const STRATEGY_BUILDERS = {
       }),
       show_as_button: z.boolean().optional(),
       assign_membership_on_login: z.boolean().optional(),
+      use_for_third_party_client_access: z.boolean().optional(),
     }),
 
   samlp: (options: SamlpOptions = {}) => {
@@ -299,6 +305,7 @@ const STRATEGY_BUILDERS = {
       }),
       show_as_button: z.boolean().optional(),
       assign_membership_on_login: z.boolean().optional(),
+      use_for_third_party_client_access: z.boolean().optional(),
     };
 
     return z.discriminatedUnion('meta_data_source', [
@@ -359,6 +366,7 @@ const STRATEGY_BUILDERS = {
       }),
       show_as_button: z.boolean().optional(),
       assign_membership_on_login: z.boolean().optional(),
+      use_for_third_party_client_access: z.boolean().optional(),
     }),
 } as const;
 

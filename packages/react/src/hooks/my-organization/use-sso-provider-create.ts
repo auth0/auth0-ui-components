@@ -40,7 +40,7 @@ export function useSsoProviderCreate({
   const { strategy, details, configure } = formData;
   const detailsRef = useRef<ProviderDetailsFormHandle>(null);
   const configureRef = useRef<ProviderConfigureHandle>(null);
-  const { isLoadingConfig, filteredStrategies } = useConfig();
+  const { isLoadingConfig, filteredStrategies, showThirdPartyAccess } = useConfig();
   const { isLoadingIdpConfig, idpConfig } = useIdpConfig();
 
   const createStepActions = useCallback(
@@ -92,5 +92,6 @@ export function useSsoProviderCreate({
     filteredStrategies,
     isLoadingIdpConfig,
     idpConfig,
+    showThirdPartyAccess,
   };
 }
