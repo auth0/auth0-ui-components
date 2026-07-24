@@ -405,6 +405,10 @@ export async function applyDashboardClientChanges(
             "oidc",
             "samlp",
           ],
+          third_party_client_access: {                                                          
+            default_value: "block",                                                             
+            allowed_values: ["block", "allow"]                                                           
+          }
         }
       }
 
@@ -434,6 +438,10 @@ export async function applyDashboardClientChanges(
               "oidc",
               "samlp",
             ],
+            third_party_client_access: {                                                          
+              default_value: "block",                                                             
+              allowed_values: ["block", "allow"]                                                           
+            }
           },
         })
       }
