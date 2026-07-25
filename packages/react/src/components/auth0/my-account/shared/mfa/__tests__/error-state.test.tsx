@@ -5,7 +5,6 @@ import { MFAErrorState } from '@/components/auth0/my-account/shared/mfa/error-st
 import { createMockMFAErrorStateProps } from '@/tests/utils/__mocks__/my-account/mfa/error-state.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
-// ===== Test Suite =====
 describe('MFAMFAErrorState', () => {
   afterEach(() => {
     vi.clearAllMocks();

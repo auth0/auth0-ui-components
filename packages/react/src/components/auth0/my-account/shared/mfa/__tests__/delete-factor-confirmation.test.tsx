@@ -6,7 +6,6 @@ import { DeleteFactorConfirmation } from '@/components/auth0/my-account/shared/m
 import { createMockDeleteFactorConfirmationProps } from '@/tests/utils/__mocks__/my-account/mfa/delete-factor-confirmation.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
-// ===== Test Suite =====
 describe('DeleteFactorConfirmation', () => {
   afterEach(() => {
     vi.clearAllMocks();

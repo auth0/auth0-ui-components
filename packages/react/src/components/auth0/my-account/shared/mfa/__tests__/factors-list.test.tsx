@@ -7,7 +7,6 @@ import { FactorsList } from '@/components/auth0/my-account/shared/mfa/factors-li
 import { createMockFactorsListProps } from '@/tests/utils/__mocks__/my-account/mfa/factor-list.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
-// ===== Test Suite =====
 describe('FactorsList', () => {
   afterEach(() => {
     vi.clearAllMocks();

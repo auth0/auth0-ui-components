@@ -16,8 +16,6 @@ import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { UserMFAMgmtProps } from '@/types/my-account/mfa/mfa-types';
 import type { UserMFAMgmtViewProps } from '@/types/my-account/mfa/mfa-types';
 
-// ===== Mock packages =====
-
 mockToast();
 const { initMockCoreClient } = mockCore();
 
@@ -37,8 +35,6 @@ vi.mock('sonner', () => ({
   },
   Toaster: () => null,
 }));
-
-// ===== Local mock creators =====
 
 const createMockUserMFAMgmtProps = (overrides?: Partial<UserMFAMgmtProps>): UserMFAMgmtProps => ({
   hideHeader: false,
@@ -68,8 +64,6 @@ const setupEnrolledTotpFactor = (
     ]),
   );
 };
-
-// ===== Tests =====
 
 describe('UserMFAMgmt', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;
