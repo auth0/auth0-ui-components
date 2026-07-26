@@ -94,16 +94,13 @@ describe('DomainConfigureProvidersModal', () => {
 
     it('should render with custom messages', () => {
       const customMessages = {
-        modal: {
-          title: 'Custom Title - {domain}',
-          description: 'Custom description for {domain}',
-        },
+        title: 'Custom Title - {domain}',
+        description: 'Custom description for {domain}',
       };
       const props = createMockDomainConfigureProvidersModalProps({ customMessages });
       renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
-      // The title should still use the mocked translator
-      expect(screen.getByText('title')).toBeInTheDocument();
+      expect(screen.getByText(/Custom Title/)).toBeInTheDocument();
     });
   });
 
