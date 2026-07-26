@@ -94,13 +94,14 @@ describe('DomainConfigureProvidersModal', () => {
 
     it('should render with custom messages', () => {
       const customMessages = {
-        title: 'Custom Title - {domain}',
-        description: 'Custom description for {domain}',
+        title: 'Custom Title',
+        description: 'Custom description',
       };
       const props = createMockDomainConfigureProvidersModalProps({ customMessages });
       renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
-      expect(screen.getByText(/Custom Title/)).toBeInTheDocument();
+      expect(screen.getByText('Custom Title')).toBeInTheDocument();
+      expect(screen.getByText('Custom description')).toBeInTheDocument();
     });
   });
 
