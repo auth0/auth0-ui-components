@@ -17,7 +17,6 @@ import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 import type {
   ConnectionOption,
   CreateInvitationInput,
-  IdentityProviderOption,
   OrganizationInvitationTabClasses,
 } from './organization-invitation-table-types';
 
@@ -72,7 +71,7 @@ export interface UseMemberManagementServiceOptions {
 }
 
 export interface MemberManagementServiceResult {
-  providersQuery: UseQueryResult<IdentityProviderOption[]>;
+  providersQuery: UseQueryResult<ConnectionOption[]>;
   userStoresQuery: UseQueryResult<ConnectionOption[]>;
   rolesQuery: UseQueryResult<Role[]>;
   rolesSearchQuery: UseQueryResult<Role[]>;
@@ -143,7 +142,6 @@ export interface UseOrganizationMemberManagementResult {
   availableRoles: Role[];
   searchedRoles: Role[];
   onRoleSearch: (term: string) => void;
-  availableProviders: IdentityProviderOption[];
   availableConnections: ConnectionOption[];
   members: OrgMember[];
 

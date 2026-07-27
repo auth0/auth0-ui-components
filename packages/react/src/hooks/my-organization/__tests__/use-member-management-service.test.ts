@@ -97,6 +97,31 @@ describe('useMemberManagementService', () => {
 
       expect(result.current.providersQuery.fetchStatus).toBe('idle');
     });
+
+    it('should map identity providers to connection options tagged as identity_provider', async () => {
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
+        .fn()
+        .mockResolvedValue({
+          identity_providers: [
+            { id: 'con_1', display_name: 'Google', name: 'google', strategy: 'social' },
+            { id: 'con_2', name: 'okta', strategy: 'enterprise' },
+            // Missing id — should be filtered out.
+            { name: 'no-id', strategy: 'social' },
+          ],
+        });
+
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.providersQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.providersQuery.data).toEqual([
+        { id: 'con_1', name: 'Google', type: 'identity_provider' },
+        { id: 'con_2', name: 'okta', type: 'identity_provider' },
+      ]);
+    });
   });
 
   describe('userStoresQuery', () => {

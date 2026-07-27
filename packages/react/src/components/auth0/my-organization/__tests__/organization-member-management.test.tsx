@@ -213,7 +213,6 @@ const createMockMemberManagementResult = (
     availableRoles: createMockRoleOptions(),
     searchedRoles: createMockRoleOptions(),
     onRoleSearch: vi.fn(),
-    availableProviders: [],
     availableConnections: [],
     members: [member],
     invitations: [invitation],

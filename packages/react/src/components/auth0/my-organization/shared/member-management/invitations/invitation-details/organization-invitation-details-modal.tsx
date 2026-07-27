@@ -45,7 +45,7 @@ function getStatusBadgeVariant(status: InvitationStatus): 'warning' | 'destructi
  * @param props.isResending - Whether a resend action is in progress.
  * @param props.customMessages - Custom translation messages.
  * @param props.availableRoles - Available roles for display.
- * @param props.availableProviders - Available providers for display.
+ * @param props.availableConnections - Merged identity providers + user stores for resolving the connection name.
  * @param props.readOnly - Whether in read-only mode.
  * @param props.onClose - Callback when modal is closed.
  * @param props.onCopyUrl - Callback when copy URL is clicked.
@@ -62,7 +62,7 @@ export function OrganizationInvitationDetailsModal({
   isResending = false,
   customMessages = {},
   availableRoles = [],
-  availableProviders = [],
+  availableConnections = [],
   readOnly = false,
   onClose,
   onCopyUrl,
@@ -87,11 +87,12 @@ export function OrganizationInvitationDetailsModal({
       .filter(Boolean);
   }, [invitation?.roles, availableRoles]);
 
-  const providerName = React.useMemo(() => {
-    if (!invitation?.identity_provider_id) return null;
-    const provider = availableProviders.find((p) => p.id === invitation.identity_provider_id);
-    return provider?.name ?? invitation.identity_provider_id;
-  }, [invitation?.identity_provider_id, availableProviders]);
+  const connectionName = React.useMemo(() => {
+    const connectionId = invitation?.identity_provider_id ?? invitation?.user_store_id;
+    if (!connectionId) return null;
+    const connection = availableConnections.find((c) => c.id === connectionId);
+    return connection?.name ?? connectionId;
+  }, [invitation?.identity_provider_id, invitation?.user_store_id, availableConnections]);
 
   const [copied, setCopied] = React.useState(false);
   const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -255,13 +256,13 @@ export function OrganizationInvitationDetailsModal({
             <TextField value={invitation?.inviter?.name ?? '-'} readOnly />
           </div>
 
-          {/* Identity Provider */}
-          {providerName && (
+          {/* Connection (identity provider or user directory) */}
+          {connectionName && (
             <div className="space-y-2">
               <Label className="text-sm font-medium text-muted-foreground">
                 {t('invitation.details.provider_label')}
               </Label>
-              <TextField value={providerName} readOnly />
+              <TextField value={connectionName} readOnly />
             </div>
           )}
         </div>

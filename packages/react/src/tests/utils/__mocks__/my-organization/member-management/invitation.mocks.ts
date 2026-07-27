@@ -8,7 +8,6 @@ import { vi } from 'vitest';
 
 import type {
   ConnectionOption,
-  IdentityProviderOption,
   OrganizationInvitationCreateModalProps,
   OrganizationInvitationDetailsModalProps,
   OrganizationInvitationRevokeModalProps,
@@ -62,11 +61,6 @@ export const createMockRoles = (): Role[] => [
   { id: 'role_admin', name: 'Admin', description: 'Administrator role' },
   { id: 'role_member', name: 'Member', description: 'Member role' },
   { id: 'role_viewer', name: 'Viewer', description: 'Viewer role' },
-];
-
-export const createMockProviders = (): IdentityProviderOption[] => [
-  { id: 'con_provider1', name: 'Google', type: 'social' },
-  { id: 'con_provider2', name: 'Okta', type: 'enterprise' },
 ];
 
 export const createMockConnections = (): ConnectionOption[] => [

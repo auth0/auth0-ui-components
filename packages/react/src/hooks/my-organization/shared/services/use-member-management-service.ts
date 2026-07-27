@@ -88,18 +88,20 @@ export function useMemberManagementService(
   const handleError = useErrorHandler();
   const queryClient = useQueryClient();
 
-  const providersQuery = useQuery({
+  const providersQuery = useQuery<ConnectionOption[]>({
     queryKey: memberManagementQueryKeys.identityProviders(),
     queryFn: async () => {
       const response: ListIdentityProvidersResponseContent = await coreClient!
         .getMyOrganizationApiClient()
         .organization.identityProviders.list();
       const providers = response.identity_providers ?? [];
-      return providers.map((p) => ({
-        id: p.id!,
-        name: p.display_name ?? p.name ?? '',
-        type: p.strategy,
-      }));
+      return providers
+        .filter((p) => !!p.id)
+        .map((p) => ({
+          id: p.id!,
+          name: p.display_name ?? p.name ?? '',
+          type: 'identity_provider' as const,
+        }));
     },
     enabled: !!coreClient && isActiveTabProvided,
   });
@@ -111,11 +113,13 @@ export function useMemberManagementService(
         .getMyOrganizationApiClient()
         .organization.userStores.get({ is_enabled: true });
       const userStores = page.data ?? [];
-      return userStores.map((store) => ({
-        id: store.id!,
-        name: store.display_name ?? store.name ?? '',
-        type: 'user_store' as const,
-      }));
+      return userStores
+        .filter((store) => !!store.id)
+        .map((store) => ({
+          id: store.id!,
+          name: store.display_name ?? store.name ?? '',
+          type: 'user_store' as const,
+        }));
     },
     enabled: !!coreClient && isActiveTabProvided,
   });

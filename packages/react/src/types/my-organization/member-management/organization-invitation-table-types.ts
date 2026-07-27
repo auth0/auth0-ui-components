@@ -22,13 +22,6 @@ import type {
 /** Invitation status. */
 export type InvitationStatus = 'pending' | 'expired';
 
-/** Identity provider option for invitation. */
-export interface IdentityProviderOption {
-  id: string;
-  name: string;
-  type?: string;
-}
-
 /** Source that a connection option originates from. */
 export type ConnectionOptionType = 'identity_provider' | 'user_store';
 
@@ -146,7 +139,7 @@ export interface OrganizationInvitationDetailsModalProps {
   isResending?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   availableRoles?: Role[];
-  availableProviders?: IdentityProviderOption[];
+  availableConnections?: ConnectionOption[];
   readOnly?: boolean;
   style?: React.CSSProperties;
   onClose: () => void;

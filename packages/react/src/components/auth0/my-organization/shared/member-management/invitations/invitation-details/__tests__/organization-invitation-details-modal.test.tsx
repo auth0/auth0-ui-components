@@ -9,7 +9,7 @@ import {
   createMockPendingInvitation,
   createMockExpiredInvitation,
   createMockRoles,
-  createMockProviders,
+  createMockConnections,
 } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import { renderWithProviders, TestProvider } from '@/tests/utils/test-provider';
 
@@ -195,34 +195,57 @@ describe('OrganizationInvitationDetailsModal', () => {
     });
   });
 
-  describe('identity provider', () => {
-    it('should display provider name when resolved', () => {
+  describe('connection', () => {
+    it('should display identity provider name when resolved', () => {
       const invitation = createMockInvitation({ identity_provider_id: 'con_provider1' });
-      const availableProviders = createMockProviders();
 
       renderWithProviders(
         <OrganizationInvitationDetailsModal
-          {...createMockDetailsModalProps({ invitation, availableProviders })}
+          {...createMockDetailsModalProps({
+            invitation,
+            availableConnections: createMockConnections(),
+          })}
         />,
       );
 
       expect(screen.getByDisplayValue('Google')).toBeInTheDocument();
     });
 
-    it('should show provider ID as fallback when provider not found', () => {
+    it('should display user store name when resolved', () => {
+      const invitation = createMockInvitation({
+        identity_provider_id: undefined,
+        user_store_id: 'us_store1',
+      });
+
+      renderWithProviders(
+        <OrganizationInvitationDetailsModal
+          {...createMockDetailsModalProps({
+            invitation,
+            availableConnections: createMockConnections(),
+          })}
+        />,
+      );
+
+      expect(screen.getByDisplayValue('Acme Directory')).toBeInTheDocument();
+    });
+
+    it('should show connection ID as fallback when connection not found', () => {
       const invitation = createMockInvitation({ identity_provider_id: 'con_unknown' });
 
       renderWithProviders(
         <OrganizationInvitationDetailsModal
-          {...createMockDetailsModalProps({ invitation, availableProviders: [] })}
+          {...createMockDetailsModalProps({ invitation, availableConnections: [] })}
         />,
       );
 
       expect(screen.getByDisplayValue('con_unknown')).toBeInTheDocument();
     });
 
-    it('should not display provider section when no provider assigned', () => {
-      const invitation = createMockInvitation({ identity_provider_id: undefined });
+    it('should not display connection section when no connection assigned', () => {
+      const invitation = createMockInvitation({
+        identity_provider_id: undefined,
+        user_store_id: undefined,
+      });
 
       renderWithProviders(
         <OrganizationInvitationDetailsModal {...createMockDetailsModalProps({ invitation })} />,
