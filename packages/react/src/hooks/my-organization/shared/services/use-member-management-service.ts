@@ -99,7 +99,7 @@ export function useMemberManagementService(
         .filter((p) => !!p.id)
         .map((p) => ({
           id: p.id!,
-          name: p.display_name ?? p.name ?? '',
+          name: p.display_name ?? p.name ?? p.id!,
           type: 'identity_provider' as const,
         }));
     },
@@ -117,7 +117,7 @@ export function useMemberManagementService(
         .filter((store) => !!store.id)
         .map((store) => ({
           id: store.id!,
-          name: store.display_name ?? store.name ?? '',
+          name: store.display_name ?? store.name ?? store.id!,
           type: 'user_store' as const,
         }));
     },

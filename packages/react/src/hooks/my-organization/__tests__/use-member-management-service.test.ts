@@ -157,6 +157,8 @@ describe('useMemberManagementService', () => {
           data: [
             { id: 'us_1', display_name: 'Acme Directory', name: 'acme' },
             { id: 'us_2', name: 'okta-store' },
+            // No display_name or name — should fall back to the id.
+            { id: 'us_3' },
           ],
           response: { next: null },
         });
@@ -171,6 +173,7 @@ describe('useMemberManagementService', () => {
       expect(result.current.userStoresQuery.data).toEqual([
         { id: 'us_1', name: 'Acme Directory', type: 'user_store' },
         { id: 'us_2', name: 'okta-store', type: 'user_store' },
+        { id: 'us_3', name: 'us_3', type: 'user_store' },
       ]);
     });
   });
