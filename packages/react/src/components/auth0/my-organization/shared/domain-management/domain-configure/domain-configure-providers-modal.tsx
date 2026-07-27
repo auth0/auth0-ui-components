@@ -19,7 +19,7 @@ import type { DomainConfigureProvidersModalProps } from '@/types/my-organization
 /**
  * Modal for configuring domain providers.
  * @param props - Component props.
- * @param props.className - Optional CSS class name for styling
+ * @param props.styling - Optional styling configuration with CSS classes
  * @param props.customMessages - Custom translation messages to override defaults
  * @param props.domain - Domain object or domain name
  * @param props.providers - Array of SSO providers
@@ -33,8 +33,7 @@ import type { DomainConfigureProvidersModalProps } from '@/types/my-organization
  * @returns JSX element
  */
 export function DomainConfigureProvidersModal({
-  className,
-  classes,
+  styling,
   customMessages,
   domain,
   providers,
@@ -121,11 +120,11 @@ export function DomainConfigureProvidersModal({
     <Modal
       open={isOpen}
       onOpenChange={(open) => !open && onClose()}
-      className={cn('p-10', classes?.['DomainTableConfigureModal-dialogContent'])}
+      className={cn('p-10', styling?.classes?.['DomainTableConfigureModal-dialogContent'])}
       title={t('title', { domain: domain?.domain ?? '' })}
       content={
         domain && (
-          <div className={cn('space-y-6', className)}>
+          <div className={cn('space-y-6', styling?.classes?.['DomainTable-configureModal'])}>
             <p className="text-sm text-muted-foreground text-(length:--font-size-paragraph)">
               {t('description', { domain: domain?.domain ?? '' })}
             </p>

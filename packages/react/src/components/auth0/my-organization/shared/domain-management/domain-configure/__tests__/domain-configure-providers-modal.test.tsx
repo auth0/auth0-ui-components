@@ -82,9 +82,9 @@ describe('DomainConfigureProvidersModal', () => {
       });
     });
 
-    it('should apply custom className', () => {
+    it('should apply custom styling classes', () => {
       const props = createMockDomainConfigureProvidersModalProps({
-        className: 'custom-class',
+        styling: { classes: { 'DomainTable-configureModal': 'custom-class' } },
       });
       renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
