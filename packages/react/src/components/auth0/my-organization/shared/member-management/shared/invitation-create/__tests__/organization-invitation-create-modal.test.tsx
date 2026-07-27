@@ -306,7 +306,41 @@ describe('OrganizationInvitationCreateModal', () => {
         />,
       );
 
-      expect(screen.getByText('invitation.create.provider_label')).toBeInTheDocument();
+      expect(screen.getByText(/invitation\.create\.provider_label/)).toBeInTheDocument();
+    });
+
+    it('should keep submit disabled until a connection is selected', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableConnections: createMockConnections() })}
+        />,
+      );
+
+      const emailInput = screen.getByPlaceholderText('invitation.create.email_placeholder');
+      fireEvent.change(emailInput, { target: { value: 'new@example.com' } });
+      fireEvent.keyDown(emailInput, { key: 'Enter' });
+
+      const submitButton = screen.getByRole('button', {
+        name: 'invitation.create.submit_button',
+      });
+      expect(submitButton).toBeDisabled();
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getByText('Google'));
+
+      expect(submitButton).toBeEnabled();
+    });
+
+    it('should render the provider label as required', () => {
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableConnections: createMockConnections() })}
+        />,
+      );
+
+      expect(screen.getByText(/invitation\.create\.provider_label/)).toBeInTheDocument();
     });
   });
 

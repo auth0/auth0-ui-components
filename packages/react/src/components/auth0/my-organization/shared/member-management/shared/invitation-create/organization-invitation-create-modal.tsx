@@ -87,6 +87,7 @@ export function OrganizationInvitationCreateModal({
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
   const [selectedConnectionId, setSelectedConnectionId] = React.useState<string | undefined>();
   const [emailError, setEmailError] = React.useState<string | undefined>();
+  const [connectionError, setConnectionError] = React.useState<string | undefined>();
 
   const resetForm = React.useCallback(() => {
     setEmailInput('');
@@ -94,6 +95,7 @@ export function OrganizationInvitationCreateModal({
     setSelectedRoles([]);
     setSelectedConnectionId(undefined);
     setEmailError(undefined);
+    setConnectionError(undefined);
     onRoleSearch?.('');
   }, [onRoleSearch]);
 
@@ -163,6 +165,7 @@ export function OrganizationInvitationCreateModal({
 
   const handleConnectionChange = React.useCallback((value: string) => {
     setSelectedConnectionId(value || undefined);
+    setConnectionError(undefined);
   }, []);
 
   const handleSubmit = React.useCallback(() => {
@@ -188,16 +191,19 @@ export function OrganizationInvitationCreateModal({
 
     const selectedConnection = availableConnections.find((c) => c.id === selectedConnectionId);
 
+    if (!selectedConnection) {
+      setConnectionError(t('invitation.create.provider_required_error'));
+      return;
+    }
+
     onCreate({
       invitees: finalEmails.map((email) => ({
         email,
         roles: selectedRoles.length > 0 ? selectedRoles : undefined,
       })),
-      ...(selectedConnection?.type === 'user_store'
+      ...(selectedConnection.type === 'user_store'
         ? { user_store_id: selectedConnection.id }
-        : selectedConnection
-          ? { identity_provider_id: selectedConnection.id }
-          : {}),
+        : { identity_provider_id: selectedConnection.id }),
       ...(inviterName && { inviter: { name: inviterName } }),
     });
   }, [
@@ -220,10 +226,11 @@ export function OrganizationInvitationCreateModal({
   const canSubmit = React.useMemo(
     () =>
       !hasInvalidChips &&
+      !!selectedConnectionId &&
       (emailChips.length > 0 ||
         (emailInput.trim() !== '' &&
           validationConfig.emailSchema.safeParse(emailInput.trim()).success)),
-    [emailChips.length, emailInput, validationConfig, hasInvalidChips],
+    [emailChips.length, emailInput, validationConfig, hasInvalidChips, selectedConnectionId],
   );
 
   const roleOptions = React.useMemo(
@@ -274,13 +281,13 @@ export function OrganizationInvitationCreateModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="provider">{t('invitation.create.provider_label')}</Label>
+            <Label htmlFor="provider">{t('invitation.create.provider_label')}*</Label>
             <Select
               value={selectedConnectionId ?? ''}
               onValueChange={handleConnectionChange}
               disabled={isLoading || availableConnections.length === 0}
             >
-              <SelectTrigger id="provider">
+              <SelectTrigger id="provider" aria-invalid={connectionError ? true : undefined}>
                 <SelectValue placeholder={t('invitation.create.provider_placeholder')} />
               </SelectTrigger>
               <SelectContent>
@@ -311,6 +318,9 @@ export function OrganizationInvitationCreateModal({
             <p className="text-xs text-muted-foreground">
               {t('invitation.create.provider_helper')}
             </p>
+            {connectionError && (
+              <p className="text-sm text-destructive-foreground">{connectionError}</p>
+            )}
           </div>
         </div>
 
