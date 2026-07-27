@@ -10,6 +10,8 @@ jobs:
   ci:
     name: 🔄 Continuous Integration
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
         with:
@@ -63,7 +65,7 @@ jobs:
           fi
 
       - name: Validate shadcn registry
-        run: pnpm dlx shadcn@latest registry validate
+        run: pnpm dlx shadcn@4.15.0 registry validate
   notify:
     name: Slack Notification
     needs: [ci]
