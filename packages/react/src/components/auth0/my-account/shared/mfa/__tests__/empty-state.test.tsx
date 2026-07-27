@@ -5,7 +5,6 @@ import { MFAEmptyState } from '@/components/auth0/my-account/shared/mfa/empty-st
 import { createMockMFAEmptyStateProps } from '@/tests/utils/__mocks__/my-account/mfa/empty-state.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
-// ===== Test Suite =====
 describe('MFAEmptyState', () => {
   afterEach(() => {
     vi.clearAllMocks();
