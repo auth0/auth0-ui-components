@@ -2,7 +2,8 @@ import { screen } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import { SsoProviderAttributeMappings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-mappings';
-import { mockCore, renderWithProviders } from '@/tests/utils';
+import { renderWithProviders } from '@/tests/utils/test-provider';
+import { mockCore } from '@/tests/utils/test-setup';
 import type { SsoProviderAttributeMappingsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
 const { initMockCoreClient } = mockCore();

@@ -1,10 +1,11 @@
 /**
  * Identity provider configuration hook.
- * @module use-idp-config
+ * @module use-idp-config-service
  */
 
 import {
   hasApiErrorBody,
+  idpConfigQueryKeys,
   type GetIdpConfigurationResponseContent,
   type IdentityProvidersConfigStrategyBase,
   type IdpStrategy,
@@ -13,11 +14,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import type { UseConfigIdpResult } from '@/types/my-organization/config/config-idp-types';
-
-export const idpConfigQueryKeys = {
-  all: ['idp-config'] as const,
-  config: () => [...idpConfigQueryKeys.all, 'config'] as const,
-};
 
 /**
  * Mapping from IdpStrategy values to the SDK's strategy config keys.

@@ -5,12 +5,12 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import * as gateKeeperContextModule from '@/providers/gate-keeper-context';
+import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
 import {
-  renderWithProviders,
   mockMfaRequiredError,
   mock5xxError,
-  createMockCoreClient,
-} from '@/tests/utils';
+} from '@/tests/utils/__mocks__/shared/mfa-step-up.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 vi.mock('@/providers/gate-keeper-context');
 

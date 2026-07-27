@@ -2,9 +2,9 @@ import { screen } from '@testing-library/react';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { MFAEmptyState } from '@/components/auth0/my-account/shared/mfa/empty-state';
-import { renderWithProviders, createMockMFAEmptyStateProps } from '@/tests/utils';
+import { createMockMFAEmptyStateProps } from '@/tests/utils/__mocks__/my-account/mfa/empty-state.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
-// ===== Test Suite =====
 describe('MFAEmptyState', () => {
   afterEach(() => {
     vi.clearAllMocks();

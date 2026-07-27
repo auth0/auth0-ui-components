@@ -3,11 +3,11 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
 import { OrganizationMemberRemoveRoleModal } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-roles/organization-member-remove-role-modal';
-import { renderWithProviders } from '@/tests/utils';
 import {
   createMockRemoveRoleModalProps,
   createMockMemberRole,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('OrganizationMemberRemoveRoleModal', () => {
   afterEach(() => {

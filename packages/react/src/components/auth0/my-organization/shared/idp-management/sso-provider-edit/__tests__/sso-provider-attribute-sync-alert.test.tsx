@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import { SsoProviderAttributeSyncAlert } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-sync-alert';
-import { renderWithProviders } from '@/tests/utils';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { SsoProviderAttributeSyncAlertProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
 vi.mock('@/hooks/shared/use-translator', () => ({

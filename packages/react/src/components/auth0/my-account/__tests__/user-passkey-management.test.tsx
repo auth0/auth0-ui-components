@@ -10,8 +10,8 @@ import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockPasskey,
   createMockUserPasskeyMgmtViewProps,
-  renderWithProviders,
-} from '@/tests/utils';
+} from '@/tests/utils/__mocks__/my-account/passkey/passkey.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 
 mockToast();

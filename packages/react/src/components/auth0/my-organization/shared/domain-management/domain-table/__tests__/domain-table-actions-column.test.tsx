@@ -4,11 +4,11 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DomainTableActionsColumn } from '@/components/auth0/my-organization/shared/domain-management/domain-table/domain-table-actions-column';
-import { renderWithProviders } from '@/tests/utils';
 import {
   createMockDomain,
   createMockVerifiedDomain,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { DomainTableActionsColumnProps } from '@/types/my-organization/domain-management/domain-table-types';
 
 // Create mock props helper

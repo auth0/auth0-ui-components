@@ -1,15 +1,17 @@
-import type { ComponentAction, IdpKnownResponse } from '@auth0/universal-components-core';
+import {
+  idpConfigQueryKeys,
+  type ComponentAction,
+  type IdpKnownResponse,
+} from '@auth0/universal-components-core';
 import type { QueryClient } from '@tanstack/react-query';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import { SsoProviderTable } from '@/components/auth0/my-organization/sso-provider-table';
-import { SsoProviderTableView } from '@/components/auth0/my-organization/sso-provider-table';
-import * as useConfigModule from '@/hooks/my-organization/use-config';
-import * as useIdpConfigModule from '@/hooks/my-organization/use-idp-config';
+import * as useConfigModule from '@/hooks/my-organization/shared/services/use-config-service';
+import * as useIdpConfigModule from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import { createMockSsoProviderTableViewProps } from '@/tests/utils';
 import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
 import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
@@ -106,7 +108,7 @@ describe('SsoProviderTable', () => {
 
     mockCoreClient = initMockCoreClient();
     queryClient = createTestQueryClient();
-    queryClient.setQueryData(useIdpConfigModule.idpConfigQueryKeys.config(), createMockIdpConfig());
+    queryClient.setQueryData(idpConfigQueryKeys.config(), createMockIdpConfig());
 
     const apiService = mockCoreClient.getMyOrganizationApiClient();
     (apiService.organization.identityProviders.list as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -790,6 +792,24 @@ describe('SsoProviderTable', () => {
           expect(screen.getByText(mockProvider.name!)).toBeInTheDocument();
         });
       });
+
+      it('should display provider display name', async () => {
+        renderTable();
+
+        await waitForComponentToLoad();
+
+        await waitFor(() => {
+          expect(screen.getByText(mockProvider.display_name!)).toBeInTheDocument();
+        });
+      });
+
+      it('should display provider in a table', async () => {
+        renderTable();
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByRole('table')).toBeInTheDocument();
+      });
     });
 
     describe('when no providers exist', () => {
@@ -807,35 +827,50 @@ describe('SsoProviderTable', () => {
 
         expect(screen.getByText(/table.empty_message/i)).toBeInTheDocument();
       });
+
+      it('should still display header when no providers exist', async () => {
+        const apiService = mockCoreClient.getMyOrganizationApiClient();
+        (
+          apiService.organization.identityProviders.list as ReturnType<typeof vi.fn>
+        ).mockResolvedValue({
+          identity_providers: [],
+        });
+
+        renderTable();
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByText(/header.title/i)).toBeInTheDocument();
+      });
     });
   });
 
-  describe('refresh indicator', () => {
-    it('should render the refresh control once providers data is loaded and stale', async () => {
-      renderTable();
-      await waitForComponentToLoad();
-      expect(screen.getByRole('button', { name: 'refresh' })).toBeInTheDocument();
+  describe('hideHeader', () => {
+    describe('when is false', () => {
+      it('should render the header', async () => {
+        renderTable();
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByText(/header.title/i)).toBeInTheDocument();
+      });
     });
+  });
 
-    it('should refetch providers when the refresh button is clicked', async () => {
-      const user = userEvent.setup();
-      const apiService = mockCoreClient.getMyOrganizationApiClient();
-      const listProviders = apiService.organization.identityProviders.list as ReturnType<
-        typeof vi.fn
-      >;
+  describe('error handling', () => {
+    describe('when API fails to load providers', () => {
+      it('should handle error gracefully', async () => {
+        const apiService = mockCoreClient.getMyOrganizationApiClient();
+        (
+          apiService.organization.identityProviders.list as ReturnType<typeof vi.fn>
+        ).mockRejectedValue(new Error('Failed to load providers'));
 
-      renderTable();
+        renderTable();
 
-      await waitForComponentToLoad();
+        await waitForComponentToLoad();
 
-      // Initial load fetches the providers list once.
-      expect(listProviders).toHaveBeenCalledTimes(1);
-
-      await user.click(screen.getByRole('button', { name: 'refresh' }));
-
-      // Clicking refresh triggers a refetch of the providers list.
-      await waitFor(() => {
-        expect(listProviders).toHaveBeenCalledTimes(2);
+        // Component should still render despite error
+        expect(screen.getByRole('button', { name: /create/i })).toBeInTheDocument();
       });
     });
   });
@@ -934,60 +969,5 @@ describe('SsoProviderTable', () => {
         ).toBeInTheDocument();
       });
     });
-  });
-});
-
-describe('SsoProviderTableView', () => {
-  const viewProps = createMockSsoProviderTableViewProps();
-
-  it('renders the table and header', () => {
-    renderWithProviders(<SsoProviderTableView {...viewProps} />);
-    expect(screen.getByRole('table')).toBeInTheDocument();
-    expect(screen.getByRole('banner')).toBeInTheDocument();
-  });
-
-  it('renders empty state when data is empty', () => {
-    renderWithProviders(<SsoProviderTableView {...viewProps} providers={[]} />);
-    expect(screen.getByText(/empty/i)).toBeInTheDocument();
-  });
-
-  it('disables create button when readOnly is true', () => {
-    renderWithProviders(<SsoProviderTableView {...viewProps} readOnly={true} />);
-    const createButton = screen.getByRole('button', { name: /create/i });
-    expect(createButton).toBeDisabled();
-  });
-
-  it('renders loading state when isViewLoading is true', () => {
-    renderWithProviders(<SsoProviderTableView {...viewProps} isViewLoading={true} />);
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
-  });
-
-  it('renders custom header class if provided', () => {
-    renderWithProviders(
-      <SsoProviderTableView
-        {...viewProps}
-        styling={{
-          ...viewProps.styling,
-          classes: {
-            ...viewProps?.styling?.classes,
-            'SsoProviderTable-header': 'custom-header',
-          },
-        }}
-      />,
-    );
-    expect(document.querySelector('.custom-header')).toBeInTheDocument();
-  });
-
-  it('renders custom table class if provided', () => {
-    renderWithProviders(
-      <SsoProviderTableView
-        {...viewProps}
-        styling={{
-          ...viewProps.styling,
-          classes: { ...viewProps?.styling?.classes, 'SsoProviderTable-table': 'custom-table' },
-        }}
-      />,
-    );
-    expect(document.querySelector('.custom-table')).toBeInTheDocument();
   });
 });

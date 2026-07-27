@@ -3,8 +3,8 @@ import type { MyOrganizationClient } from '@auth0/myorganization-js';
 import { initializeMfaStepUpClient } from '@core/services/mfa-step-up/mfa-step-up-api-service';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createI18nService } from '../../i18n';
 import { createMockI18nService } from '../../i18n/__mocks__/i18n-service.mocks';
+import { createI18nService } from '../../i18n/i18n-service';
 import {
   createMockContextInterface,
   TEST_DOMAIN,
@@ -15,7 +15,7 @@ import type { AuthDetails } from '../auth-types';
 import { createCoreClient } from '../core-client';
 
 // Mock the modules
-vi.mock('@core/i18n');
+vi.mock('@core/i18n/i18n-service');
 vi.mock('@core/services/mfa-step-up/mfa-step-up-api-service');
 vi.mock('../../services/my-account/my-account-client');
 vi.mock('../../services/my-organization/my-organization-client');

@@ -17,7 +17,7 @@ import type {
   MemberManagementFilterState,
   MemberManagementPaginationState,
   MemberManagementSortConfig,
-} from '@/types';
+} from './organization-member-management-types';
 
 /** Invitation status. */
 export type InvitationStatus = 'pending' | 'expired';
@@ -124,6 +124,7 @@ export interface OrganizationInvitationCreateModalProps {
   onClose: () => void;
   onCreate: (data: CreateInvitationInput) => void;
   className?: string;
+  onRoleSearch?: (value: string) => void;
 }
 
 /** Props for OrganizationInvitationDetailsModal component. */

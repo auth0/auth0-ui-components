@@ -7,13 +7,12 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import { BrandingDetails } from '@/components/auth0/my-organization/shared/organization-management/organization-details/branding-details';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import { mockCore, renderWithFormProvider } from '@/tests/utils';
+import { renderWithFormProvider } from '@/tests/utils/test-provider';
+import { mockCore } from '@/tests/utils/test-setup';
 import type { BrandingDetailsProps } from '@/types/my-organization/organization-management/organization-details-types';
 
-// ===== Mock packages =====
 const { initMockCoreClient } = mockCore();
 
-// ===== Local mock creators =====
 const createMockBrandingDetails = (
   overrides?: Partial<BrandingDetailsProps>,
 ): BrandingDetailsProps => {
@@ -25,7 +24,6 @@ const createMockBrandingDetails = (
   };
 };
 
-// ===== Tests =====
 describe('BrandingDetails', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;
 

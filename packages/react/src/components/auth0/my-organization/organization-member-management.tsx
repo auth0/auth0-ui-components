@@ -53,7 +53,6 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     isFetchingMembers,
     isMembersStale,
     isInvitationsStale,
-    isFetchingAvailableRoles,
     isCreatingInvitation,
     isRevokingInvitation,
     isResendingInvitation,
@@ -64,6 +63,8 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     isAssigningRoles,
     isRemovingFromOrganization,
     availableRoles,
+    searchedRoles,
+    onRoleSearch,
     availableProviders,
     modalState,
     membersUpdatedAt,
@@ -244,11 +245,12 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isOpen={modalState.type === 'create'}
           isLoading={isCreatingInvitation}
           customMessages={customMessages?.invitation}
-          availableRoles={availableRoles}
+          availableRoles={searchedRoles}
           availableProviders={availableProviders}
           style={currentStyles.variables}
           onClose={closeModal}
           onCreate={handleCreateSubmit}
+          onRoleSearch={onRoleSearch}
           className={currentStyles.classes?.['OrganizationInvitationTab-createModal']}
         />
 
@@ -295,12 +297,13 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
         <OrganizationMemberAssignRolesModal
           selectedMember={selectedMember}
           isOpen={modalState.type === 'assignRole'}
-          isLoading={isFetchingAvailableRoles || isAssigningRoles}
-          availableRoles={availableRoles}
+          isLoading={isAssigningRoles}
+          availableRoles={searchedRoles}
           assignedRoles={selectedMember?.roles || []}
           customMessages={customMessages?.member}
           onClose={closeModal}
           onAssign={handleAssignRolesSubmit}
+          onRoleSearch={onRoleSearch}
         />
 
         <MemberRemoveFromOrganizationModal

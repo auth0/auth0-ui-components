@@ -3,11 +3,11 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { OrganizationInvitationRevokeModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-revoke-modal';
-import { renderWithProviders } from '@/tests/utils';
 import {
   createMockRevokeModalProps,
   createMockPendingInvitation,
 } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('OrganizationInvitationRevokeModal', () => {
   afterEach(() => {

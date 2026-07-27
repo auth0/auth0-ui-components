@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
 import { MemberRemoveFromOrganizationModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-organization-modal';
-import { renderWithProviders } from '@/tests/utils';
 import { createMockRemoveFromOrgModalProps } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('MemberRemoveFromOrganizationModal', () => {
   afterEach(() => {

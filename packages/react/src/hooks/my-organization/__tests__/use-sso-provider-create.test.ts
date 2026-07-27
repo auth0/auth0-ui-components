@@ -3,13 +3,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useSsoProviderCreate } from '../use-sso-provider-create';
 
-vi.mock('@/hooks/my-organization/use-config', () => ({
+vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
   useConfig: () => ({
     isLoadingConfig: false,
     filteredStrategies: ['samlp', 'oidc'],
   }),
 }));
-vi.mock('@/hooks/my-organization/use-idp-config', () => ({
+vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
   useIdpConfig: () => ({
     isLoadingIdpConfig: false,
     idpConfig: {},

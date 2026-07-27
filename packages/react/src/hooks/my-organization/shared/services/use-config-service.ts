@@ -1,10 +1,11 @@
 /**
  * Organization configuration hook.
- * @module use-config
+ * @module use-config-service
  */
 
 import {
   AVAILABLE_STRATEGY_LIST,
+  configQueryKeys,
   hasApiErrorBody,
   type IdpStrategy,
 } from '@auth0/universal-components-core';
@@ -12,11 +13,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import type { UseConfigResult } from '@/types/my-organization/config/config-types';
-
-const configQueryKeys = {
-  all: ['config'] as const,
-  details: () => [...configQueryKeys.all, 'details'] as const,
-};
 
 /**
  * Hook for fetching organization configuration.

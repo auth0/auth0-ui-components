@@ -6,8 +6,10 @@ import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import { useMfaRequirements } from '@/hooks/shared/use-mfa-requirements';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
-import { setupAllCommonMocks, createQueryClientWrapper, mockMfaRequiredError } from '@/tests/utils';
 import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
+import { mockMfaRequiredError } from '@/tests/utils/__mocks__/shared/mfa-step-up.mocks';
+import { createQueryClientWrapper } from '@/tests/utils/test-provider';
+import { setupAllCommonMocks } from '@/tests/utils/test-utilities';
 
 const mockError = {
   ...mockMfaRequiredError,

@@ -4,10 +4,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DomainConfigureProvidersModal } from '@/components/auth0/my-organization/shared/domain-management/domain-configure/domain-configure-providers-modal';
 import {
-  renderWithProviders,
   createMockDomain,
   createMockIdentityProviderAssociatedWithDomain,
-} from '@/tests/utils';
+} from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { DomainConfigureProvidersModalProps } from '@/types/my-organization/domain-management/domain-configure-types';
 
 // Create mock props helper
