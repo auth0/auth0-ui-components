@@ -1,7 +1,13 @@
-import type { MemberInvitation, Role } from '@auth0/universal-components-core';
+import type {
+  ListUserStoresResponseContent,
+  MemberInvitation,
+  Role,
+  UserStore,
+} from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 import type {
+  ConnectionOption,
   IdentityProviderOption,
   OrganizationInvitationCreateModalProps,
   OrganizationInvitationDetailsModalProps,
@@ -38,6 +44,20 @@ export const createMockExpiredInvitation = (
     ...overrides,
   });
 
+export const createMockUserStore = (overrides?: Partial<UserStore>): UserStore => ({
+  id: 'us_store1',
+  name: 'acme-directory',
+  display_name: 'Acme Directory',
+  ...overrides,
+});
+
+export const createMockListUserStoresResponse = (
+  stores: UserStore[] = [createMockUserStore()],
+): { data: UserStore[]; response: ListUserStoresResponseContent } => ({
+  data: stores,
+  response: { user_stores: stores, next: undefined },
+});
+
 export const createMockRoles = (): Role[] => [
   { id: 'role_admin', name: 'Admin', description: 'Administrator role' },
   { id: 'role_member', name: 'Member', description: 'Member role' },
@@ -47,6 +67,11 @@ export const createMockRoles = (): Role[] => [
 export const createMockProviders = (): IdentityProviderOption[] => [
   { id: 'con_provider1', name: 'Google', type: 'social' },
   { id: 'con_provider2', name: 'Okta', type: 'enterprise' },
+];
+
+export const createMockConnections = (): ConnectionOption[] => [
+  { id: 'con_provider1', name: 'Google', type: 'identity_provider' },
+  { id: 'us_store1', name: 'Acme Directory', type: 'user_store' },
 ];
 
 export const createMockCreateModalProps = (

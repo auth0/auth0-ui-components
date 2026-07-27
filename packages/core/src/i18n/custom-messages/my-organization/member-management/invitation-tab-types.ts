@@ -44,6 +44,9 @@ export interface OrganizationInvitationTabMessages {
     roles_placeholder?: string;
     provider_label?: string;
     provider_placeholder?: string;
+    provider_helper?: string;
+    provider_group_user_store?: string;
+    provider_group_identity_provider?: string;
     submit_button?: string;
     creating?: string;
     cancel_button?: string;

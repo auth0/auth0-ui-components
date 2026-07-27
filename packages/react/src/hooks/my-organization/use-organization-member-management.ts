@@ -13,6 +13,7 @@ import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-paginatio
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
+  ConnectionOption,
   CreateInvitationInput,
   IdentityProviderOption,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
@@ -83,6 +84,7 @@ export function useOrganizationMemberManagement(
 
   const {
     providersQuery,
+    userStoresQuery,
     rolesQuery,
     rolesSearchQuery,
     setRoleSearchTerm,
@@ -126,6 +128,17 @@ export function useOrganizationMemberManagement(
   }, [modalState.type, enableRoleSearch]);
 
   const availableProviders: IdentityProviderOption[] = providersQuery.data ?? [];
+  const availableConnections: ConnectionOption[] = React.useMemo(
+    () => [
+      ...(providersQuery.data ?? []).map((p) => ({
+        id: p.id,
+        name: p.name,
+        type: 'identity_provider' as const,
+      })),
+      ...(userStoresQuery.data ?? []),
+    ],
+    [providersQuery.data, userStoresQuery.data],
+  );
   const availableRoles = rolesQuery.data ?? [];
   const searchedRoles = rolesSearchQuery.data ?? [];
   const currentInvitations = invitationsQuery.data?.invitations ?? [];
@@ -280,6 +293,7 @@ export function useOrganizationMemberManagement(
     searchedRoles,
     onRoleSearch: setRoleSearchTerm,
     availableProviders,
+    availableConnections,
 
     invitations: currentInvitations,
     members: currentMembers,

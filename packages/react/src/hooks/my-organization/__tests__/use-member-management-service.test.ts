@@ -99,6 +99,57 @@ describe('useMemberManagementService', () => {
     });
   });
 
+  describe('userStoresQuery', () => {
+    const userStoresGetMock = () =>
+      mockCoreClient.getMyOrganizationApiClient().organization.userStores.get;
+
+    it('should fetch user stores when a tab is active', async () => {
+      const options = createDefaultOptions({ activeTab: 'invitations' });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.userStoresQuery.isSuccess).toBe(true);
+      });
+
+      expect(userStoresGetMock()).toHaveBeenCalled();
+    });
+
+    it('should not fetch user stores when no active tab is provided', async () => {
+      const options = createDefaultOptions({ activeTab: undefined });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.rolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.userStoresQuery.fetchStatus).toBe('idle');
+    });
+
+    it('should map user stores to connection options tagged as user_store', async () => {
+      mockCoreClient.getMyOrganizationApiClient().organization.userStores.get = vi
+        .fn()
+        .mockResolvedValue({
+          data: [
+            { id: 'us_1', display_name: 'Acme Directory', name: 'acme' },
+            { id: 'us_2', name: 'okta-store' },
+          ],
+          response: { next: null },
+        });
+
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.userStoresQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.userStoresQuery.data).toEqual([
+        { id: 'us_1', name: 'Acme Directory', type: 'user_store' },
+        { id: 'us_2', name: 'okta-store', type: 'user_store' },
+      ]);
+    });
+  });
+
   describe('rolesQuery', () => {
     it('should fetch roles when coreClient is available', async () => {
       const options = createDefaultOptions();
@@ -332,6 +383,26 @@ describe('useMemberManagementService', () => {
         mockCoreClient.getMyOrganizationApiClient().organization.invitations.create,
       ).toHaveBeenCalled();
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'success' }));
+    });
+
+    it('should forward user_store_id to the create request', async () => {
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await act(async () => {
+        result.current.createInvitationMutation.mutate({
+          invitees: [{ email: 'new@example.com' }],
+          user_store_id: 'us_1',
+        });
+      });
+
+      await waitFor(() => {
+        expect(result.current.createInvitationMutation.isSuccess).toBe(true);
+      });
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.create,
+      ).toHaveBeenCalledWith(expect.objectContaining({ user_store_id: 'us_1' }));
     });
 
     it('should call onBefore action and cancel if it returns false', async () => {

@@ -29,6 +29,16 @@ export interface IdentityProviderOption {
   type?: string;
 }
 
+/** Source that a connection option originates from. */
+export type ConnectionOptionType = 'identity_provider' | 'user_store';
+
+/** A selectable connection in the invitation picker. */
+export interface ConnectionOption {
+  id: string;
+  name: string;
+  type: ConnectionOptionType;
+}
+
 /** Input for creating invitation(s). Supports bulk invite via invitees array. */
 export interface CreateInvitationInput {
   invitees: Array<{
@@ -39,6 +49,7 @@ export interface CreateInvitationInput {
     name?: string;
   };
   identity_provider_id?: string;
+  user_store_id?: string;
   /** Time to live in seconds */
   ttl_sec?: number;
 }
@@ -117,7 +128,7 @@ export interface OrganizationInvitationCreateModalProps {
   isLoading?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   availableRoles?: Role[];
-  availableProviders?: IdentityProviderOption[];
+  availableConnections?: ConnectionOption[];
   inviterName?: string;
   schema?: InvitationCreateSchemas;
   style?: React.CSSProperties;

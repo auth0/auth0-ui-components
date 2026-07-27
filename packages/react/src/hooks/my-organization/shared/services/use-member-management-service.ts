@@ -26,7 +26,10 @@ import {
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
-import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type {
+  ConnectionOption,
+  CreateInvitationInput,
+} from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   UseMemberManagementServiceOptions,
   MemberManagementServiceResult,
@@ -86,7 +89,7 @@ export function useMemberManagementService(
   const queryClient = useQueryClient();
 
   const providersQuery = useQuery({
-    queryKey: [...memberManagementQueryKeys.all, 'identity-providers'],
+    queryKey: memberManagementQueryKeys.identityProviders(),
     queryFn: async () => {
       const response: ListIdentityProvidersResponseContent = await coreClient!
         .getMyOrganizationApiClient()
@@ -96,6 +99,22 @@ export function useMemberManagementService(
         id: p.id!,
         name: p.display_name ?? p.name ?? '',
         type: p.strategy,
+      }));
+    },
+    enabled: !!coreClient && isActiveTabProvided,
+  });
+
+  const userStoresQuery = useQuery<ConnectionOption[]>({
+    queryKey: memberManagementQueryKeys.userStores(),
+    queryFn: async () => {
+      const page = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.userStores.get({ is_enabled: true });
+      const userStores = page.data ?? [];
+      return userStores.map((store) => ({
+        id: store.id!,
+        name: store.display_name ?? store.name ?? '',
+        type: 'user_store' as const,
       }));
     },
     enabled: !!coreClient && isActiveTabProvided,
@@ -280,6 +299,7 @@ export function useMemberManagementService(
           invitees: data.invitees,
           inviter: data.inviter,
           identity_provider_id: data.identity_provider_id,
+          user_store_id: data.user_store_id,
           ttl_sec: data.ttl_sec,
         });
       return Array.isArray(response) ? response[0] : response;
@@ -366,6 +386,7 @@ export function useMemberManagementService(
 
   return {
     providersQuery,
+    userStoresQuery,
     rolesQuery,
     rolesSearchQuery,
     setRoleSearchTerm,

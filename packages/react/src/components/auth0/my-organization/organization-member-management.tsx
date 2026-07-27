@@ -66,6 +66,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     searchedRoles,
     onRoleSearch,
     availableProviders,
+    availableConnections,
     modalState,
     membersUpdatedAt,
     invitationsUpdatedAt,
@@ -246,7 +247,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isLoading={isCreatingInvitation}
           customMessages={customMessages?.invitation}
           availableRoles={searchedRoles}
-          availableProviders={availableProviders}
+          availableConnections={availableConnections}
           style={currentStyles.variables}
           onClose={closeModal}
           onCreate={handleCreateSubmit}

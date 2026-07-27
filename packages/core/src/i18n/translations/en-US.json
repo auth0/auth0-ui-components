@@ -1269,6 +1269,8 @@
         "provider_label": "Provider",
         "provider_placeholder": "Select provider (optional)",
         "provider_helper": "If none is selected, the member can log in with any provider.",
+        "provider_group_user_store": "User Directory",
+        "provider_group_identity_provider": "Enterprise SSO",
         "submit_button": "Send Invite",
         "creating": "Creating...",
         "cancel_button": "Cancel",
