@@ -9,7 +9,7 @@
       "title": "Multi-factor authentication management component.",
       "description": "Complete MFA management interface for enrolling, viewing, and deleting authentication factors. Supports TOTP authenticators, SMS, Email, Push notifications, and recovery codes.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.1",
+        "@auth0/universal-components-core@3.0.2",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-dialog@1.1.14",
@@ -339,7 +339,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.1"
+        "coreVersion": "3.0.2"
       }
     },
     {
@@ -348,7 +348,7 @@
       "title": "Passkey management component.",
       "description": "A block component for user passkey mgmt.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.1",
+        "@auth0/universal-components-core@3.0.2",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-dialog@1.1.14",
         "@radix-ui/react-dropdown-menu@2.1.1",
@@ -580,7 +580,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.1"
+        "coreVersion": "3.0.2"
       }
     },
     {
@@ -589,7 +589,7 @@
       "title": "DomainTable container component.",
       "description": "A block component for domain table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.1",
+        "@auth0/universal-components-core@3.0.2",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-checkbox@1.1.1",
@@ -982,7 +982,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.1"
+        "coreVersion": "3.0.2"
       }
     },
     {
@@ -991,7 +991,7 @@
       "title": "Organization details edit component.",
       "description": "A block component for organization details edit.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.1",
+        "@auth0/universal-components-core@3.0.2",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-label@2.1.7",
@@ -1298,7 +1298,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.1"
+        "coreVersion": "3.0.2"
       }
     },
     {
@@ -1307,7 +1307,7 @@
       "title": "Organization member detail component.",
       "description": "A block component for header.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.1",
+        "@auth0/universal-components-core@3.0.2",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -1505,6 +1505,11 @@
           "target": "hooks/shared/use-core-client.ts"
         },
         {
+          "path": "src/hooks/shared/use-debounced-value.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-debounced-value.ts"
+        },
+        {
           "path": "src/hooks/shared/use-error-handler.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-error-handler.ts"
@@ -1575,11 +1580,6 @@
           "target": "types/i18n-types.ts"
         },
         {
-          "path": "src/types/index.ts",
-          "type": "registry:component",
-          "target": "types/index.ts"
-        },
-        {
           "path": "src/types/my-organization/member-management/organization-invitation-table-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/member-management/organization-invitation-table-types.ts"
@@ -1635,6 +1635,11 @@
           "target": "lib/utils/tanstack-compat.ts"
         },
         {
+          "path": "src/lib/utils/use-id-compat.ts",
+          "type": "registry:component",
+          "target": "lib/utils/use-id-compat.ts"
+        },
+        {
           "path": "src/styles/globals.css",
           "type": "registry:component",
           "target": "styles/globals.css"
@@ -1647,7 +1652,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.1"
+        "coreVersion": "3.0.2"
       }
     },
     {
@@ -1656,7 +1661,7 @@
       "title": "Organization member management component.",
       "description": "A block component for organization member management view.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.1",
+        "@auth0/universal-components-core@3.0.2",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -1911,6 +1916,11 @@
           "target": "hooks/shared/use-core-client.ts"
         },
         {
+          "path": "src/hooks/shared/use-debounced-value.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-debounced-value.ts"
+        },
+        {
           "path": "src/hooks/shared/use-error-handler.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-error-handler.ts"
@@ -1979,11 +1989,6 @@
           "path": "src/types/i18n-types.ts",
           "type": "registry:component",
           "target": "types/i18n-types.ts"
-        },
-        {
-          "path": "src/types/index.ts",
-          "type": "registry:component",
-          "target": "types/index.ts"
         },
         {
           "path": "src/types/my-organization/member-management/organization-invitation-table-types.ts",
@@ -2061,6 +2066,11 @@
           "target": "lib/utils/tanstack-compat.ts"
         },
         {
+          "path": "src/lib/utils/use-id-compat.ts",
+          "type": "registry:component",
+          "target": "lib/utils/use-id-compat.ts"
+        },
+        {
           "path": "src/styles/globals.css",
           "type": "registry:component",
           "target": "styles/globals.css"
@@ -2073,7 +2083,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.1"
+        "coreVersion": "3.0.2"
       }
     },
     {
@@ -2082,7 +2092,7 @@
       "title": "SSO provider creation container component.",
       "description": "A block component for sso provider create.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.1",
+        "@auth0/universal-components-core@3.0.2",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-accordion@1.2.0",
@@ -2302,19 +2312,19 @@
           "target": "components/ui/tooltip.tsx"
         },
         {
+          "path": "src/hooks/my-organization/shared/services/use-config-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-config-service.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/shared/services/use-idp-config-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-idp-config-service.ts"
+        },
+        {
           "path": "src/hooks/my-organization/shared/services/use-sso-provider-create-service.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/shared/services/use-sso-provider-create-service.ts"
-        },
-        {
-          "path": "src/hooks/my-organization/use-config.ts",
-          "type": "registry:component",
-          "target": "hooks/my-organization/use-config.ts"
-        },
-        {
-          "path": "src/hooks/my-organization/use-idp-config.ts",
-          "type": "registry:component",
-          "target": "hooks/my-organization/use-idp-config.ts"
         },
         {
           "path": "src/hooks/my-organization/use-provider-form-mode.ts",
@@ -2514,7 +2524,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.1"
+        "coreVersion": "3.0.2"
       }
     },
     {
@@ -2523,7 +2533,7 @@
       "title": "SSO provider edit container component.",
       "description": "A block component for sso provider edit.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.1",
+        "@auth0/universal-components-core@3.0.2",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-accordion@1.2.0",
@@ -2896,19 +2906,19 @@
           "target": "components/ui/tooltip.tsx"
         },
         {
+          "path": "src/hooks/my-organization/shared/services/use-config-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-config-service.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/shared/services/use-idp-config-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-idp-config-service.ts"
+        },
+        {
           "path": "src/hooks/my-organization/shared/services/use-sso-provider-edit-service.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/shared/services/use-sso-provider-edit-service.ts"
-        },
-        {
-          "path": "src/hooks/my-organization/use-config.ts",
-          "type": "registry:component",
-          "target": "hooks/my-organization/use-config.ts"
-        },
-        {
-          "path": "src/hooks/my-organization/use-idp-config.ts",
-          "type": "registry:component",
-          "target": "hooks/my-organization/use-idp-config.ts"
         },
         {
           "path": "src/hooks/my-organization/use-provider-form-mode.ts",
@@ -3163,7 +3173,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.1"
+        "coreVersion": "3.0.2"
       }
     },
     {
@@ -3172,7 +3182,7 @@
       "title": "SSO provider table container component.",
       "description": "A block component for sso provider table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.1",
+        "@auth0/universal-components-core@3.0.2",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -3329,19 +3339,19 @@
           "target": "components/ui/tooltip.tsx"
         },
         {
+          "path": "src/hooks/my-organization/shared/services/use-config-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-config-service.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/shared/services/use-idp-config-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-idp-config-service.ts"
+        },
+        {
           "path": "src/hooks/my-organization/shared/services/use-sso-provider-table-service.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/shared/services/use-sso-provider-table-service.ts"
-        },
-        {
-          "path": "src/hooks/my-organization/use-config.ts",
-          "type": "registry:component",
-          "target": "hooks/my-organization/use-config.ts"
-        },
-        {
-          "path": "src/hooks/my-organization/use-idp-config.ts",
-          "type": "registry:component",
-          "target": "hooks/my-organization/use-idp-config.ts"
         },
         {
           "path": "src/hooks/my-organization/use-sso-provider-table.ts",
@@ -3506,7 +3516,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.1"
+        "coreVersion": "3.0.2"
       }
     }
   ]
