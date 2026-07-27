@@ -586,20 +586,25 @@ async function generateBlockItem(blockFilePath) {
   const allDeclaredDeps = getNpmDependencies();
   const dependencies = Array.from(npmDeps)
     .filter((dep) => !peerDeps.has(dep) && !buildTools.has(dep))
-    .map((dep) => (allDeclaredDeps[dep] ? `${dep}@${allDeclaredDeps[dep]}` : dep))
+    .map((dep) => {
+      if (!allDeclaredDeps[dep]) return dep;
+      const version = allDeclaredDeps[dep].replace(/^[\^~]/, '');
+      return `${dep}@${version}`;
+    })
     .sort();
 
   // Add @auth0/universal-components-core with version at the front
   dependencies.unshift(`@auth0/universal-components-core@${coreVersion}`);
 
   return {
-    name: blockName,
+    name: `react/${blockName}`,
     type: 'registry:block',
     title,
     description,
     dependencies,
     files,
     meta: {
+      framework: 'react',
       coreVersion,
     },
   };

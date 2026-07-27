@@ -305,6 +305,23 @@ jobs:
             echo "Created tag: $TAG_NAME"
           done
 
+          # Unified version tag for GitHub Registry consumers (npx shadcn add org/repo/item#v2.1.0)
+          UNIFIED_TAG="v${VERSION}"
+
+          if git rev-parse "$UNIFIED_TAG" >/dev/null 2>&1; then
+            echo "Tag $UNIFIED_TAG exists locally, deleting..."
+            git tag -d "$UNIFIED_TAG"
+          fi
+
+          if git ls-remote --tags origin | grep -q "refs/tags/$UNIFIED_TAG"; then
+            echo "Tag $UNIFIED_TAG exists remotely, deleting..."
+            git push origin ":refs/tags/$UNIFIED_TAG" || true
+          fi
+
+          git tag -a "$UNIFIED_TAG" -m "Release v${VERSION} — GitHub Registry ref"
+          git push origin "$UNIFIED_TAG"
+          echo "Created unified tag: $UNIFIED_TAG"
+
       - name: Create GitHub Release for Core
         if: github.event.inputs.dry_run != 'true'
         uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
