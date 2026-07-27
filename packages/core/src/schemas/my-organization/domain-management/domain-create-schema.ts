@@ -4,7 +4,7 @@
  * @internal
  */
 
-import { createDomainSchema } from '@core/schemas/common';
+import { createDomainSchema } from '@core/schemas/common/common-schemas';
 import { z } from 'zod';
 
 import { type DomainCreateSchemas } from './domain-create-schema-types';

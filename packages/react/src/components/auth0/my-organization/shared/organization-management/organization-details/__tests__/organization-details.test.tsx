@@ -3,13 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import { OrganizationDetails } from '@/components/auth0/my-organization/shared/organization-management/organization-details/organization-details';
-import {
-  createMockOrganization,
-  mockCore,
-  renderWithProviders,
-  createMockCoreClient,
-  TestProvider,
-} from '@/tests/utils';
+import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
+import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
+import { renderWithProviders, TestProvider } from '@/tests/utils/test-provider';
+import { mockCore } from '@/tests/utils/test-setup';
 import type {
   OrganizationDetailsFormActions,
   OrganizationDetailsProps,

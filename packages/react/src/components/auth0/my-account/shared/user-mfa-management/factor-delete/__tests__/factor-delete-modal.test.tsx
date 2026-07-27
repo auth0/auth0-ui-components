@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { FactorDeleteModal } from '@/components/auth0/my-account/shared/user-mfa-management/factor-delete/factor-delete-modal';
-import { renderWithProviders, createMockFactorDeleteModalProps } from '@/tests/utils';
+import { createMockFactorDeleteModalProps } from '@/tests/utils/__mocks__/my-account/user-mfa-management/factor-delete/factor-delete-modal.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 // ===== Test Suite =====
 describe('FactorDeleteModal', () => {

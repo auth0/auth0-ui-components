@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { PasskeyActionModal } from '@/components/auth0/my-account/shared/user-passkey-management/passkey-action-modal';
-import { renderWithProviders, createMockPasskeyActionModalProps } from '@/tests/utils';
+import { createMockPasskeyActionModalProps } from '@/tests/utils/__mocks__/my-account/user-passkey-management/user-passkey-management.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
 
 mockToast();

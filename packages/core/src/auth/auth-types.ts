@@ -7,7 +7,7 @@
 import type { MyAccountClient } from '@auth0/myaccount-js';
 import type { MyOrganizationClient } from '@auth0/myorganization-js';
 
-import type { I18nServiceInterface } from '../i18n';
+import type { I18nServiceInterface } from '../i18n/i18n-types';
 import type { MfaApiClient } from '../services/mfa-step-up/mfa-step-up-api-types';
 
 /**

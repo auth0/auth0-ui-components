@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { ContactInputForm } from '@/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/contact-input-form';
-import { renderWithProviders, createMockContactInputFormProps } from '@/tests/utils';
+import { createMockContactInputFormProps } from '@/tests/utils/__mocks__/my-account/user-mfa-management/factor-enrollment/contact-input-form.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('ContactInputForm', () => {
   afterEach(() => {

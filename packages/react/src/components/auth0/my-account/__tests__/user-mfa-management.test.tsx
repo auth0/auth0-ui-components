@@ -13,7 +13,7 @@ import {
   createMockAuthenticationMethodsResponse,
   createMockOTPEnrollmentResponse,
   createMockUserMFAManagementViewProps,
-} from '@/tests/utils/__mocks__';
+} from '@/tests/utils/__mocks__/my-account/user-mfa-management/user-mfa-management.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { UserMFAManagementProps } from '@/types/my-account/user-mfa-management/user-mfa-management-types';
@@ -21,25 +21,8 @@ import type { UserMFAManagementViewProps } from '@/types/my-account/user-mfa-man
 
 // ===== Mock packages =====
 
-mockToast();
+const { mockedShowToast } = mockToast();
 const { initMockCoreClient } = mockCore();
-
-// Mock sonner toast to capture and trigger callbacks
-vi.mock('sonner', () => ({
-  toast: {
-    success: vi.fn((_message, options) => {
-      // Trigger the onAutoClose callback immediately for testing purposes
-      if (options?.onAutoClose) {
-        setTimeout(() => {
-          options.onAutoClose();
-        }, 0);
-      }
-    }),
-    error: vi.fn(),
-    dismiss: vi.fn(),
-  },
-  Toaster: () => null,
-}));
 
 // ===== Local mock creators =====
 
@@ -85,6 +68,16 @@ describe('UserMFAManagement', () => {
 
     vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
       coreClient: mockCoreClient,
+    });
+
+    // Trigger the onAutoClose callback immediately for testing purposes,
+    // mirroring how the real showToast passes it through to the toast provider.
+    mockedShowToast.mockImplementation(({ data }: { data?: { onAutoClose?: () => void } }) => {
+      if (data?.onAutoClose) {
+        setTimeout(() => {
+          data.onAutoClose!();
+        }, 0);
+      }
     });
   });
 

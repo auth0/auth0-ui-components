@@ -7,9 +7,9 @@
 import type { IdpId } from '@auth0/universal-components-core';
 import { useCallback } from 'react';
 
+import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
+import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useSsoProviderEditService } from '@/hooks/my-organization/shared/services/use-sso-provider-edit-service';
-import { useConfig } from '@/hooks/my-organization/use-config';
-import { useIdpConfig } from '@/hooks/my-organization/use-idp-config';
 import type {
   UseSsoProviderEditOptions,
   UseSsoProviderEditReturn,
@@ -25,9 +25,19 @@ import type {
  */
 export function useSsoProviderEdit(
   idpId: IdpId,
-  { sso, provisioning, customMessages = {} }: Partial<UseSsoProviderEditOptions> = {},
+  {
+    sso,
+    provisioning,
+    customMessages = {},
+    skipProvisioningFetch = false,
+  }: Partial<UseSsoProviderEditOptions> = {},
 ): UseSsoProviderEditReturn {
-  const service = useSsoProviderEditService(idpId, { sso, provisioning, customMessages });
+  const service = useSsoProviderEditService(idpId, {
+    sso,
+    provisioning,
+    customMessages,
+    skipProvisioningFetch,
+  });
 
   const { shouldAllowDeletion, isLoadingConfig } = useConfig();
   const { idpConfig, isLoadingIdpConfig, isProvisioningEnabled, isProvisioningMethodEnabled } =

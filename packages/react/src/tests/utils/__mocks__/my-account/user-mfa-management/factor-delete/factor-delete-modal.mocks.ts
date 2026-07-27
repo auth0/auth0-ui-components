@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-import type { FactorDeleteModalProps } from '@/types';
+import type { FactorDeleteModalProps } from '@/types/my-account/user-mfa-management/factor-delete-modal-types';
 
 export const createMockFactorDeleteModalProps = (
   overrides: Partial<FactorDeleteModalProps> = {},

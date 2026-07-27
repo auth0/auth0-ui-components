@@ -16,8 +16,8 @@ import {
   type MFAType,
 } from '@auth0/universal-components-core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { toast } from 'sonner';
 
+import { showToast } from '@/components/auth0/shared/toast';
 import { useUserMFAService } from '@/hooks/my-account/shared/services/use-user-mfa-service';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -112,15 +112,19 @@ export function useUserMFA({
           return t(`errors.${factor}.${key}`, {}, undefined);
         },
       });
-      toast.error(error.message);
+      showToast({ type: 'error', message: error.message });
     },
     [handleError, t],
   );
 
   const handleEnrollSuccess = useCallback(async () => {
-    toast.success(t('notifications.factor_enroll_success'), {
-      duration: 2000,
-      onAutoClose: () => enrollAction?.onAfter?.(enrollFactor!),
+    showToast({
+      type: 'success',
+      message: t('notifications.factor_enroll_success'),
+      data: {
+        duration: 2000,
+        onAutoClose: () => enrollAction?.onAfter?.(enrollFactor!),
+      },
     });
     setIsEnrollDialogOpen(false);
     setEnrollFactor(null);
@@ -203,9 +207,13 @@ export function useUserMFA({
       try {
         await deleteMutation.mutateAsync(factorId);
         await factorsQuery.refetch();
-        toast.success(t('notifications.factor_remove_success'), {
-          duration: 2000,
-          onAutoClose: () => deleteAction?.onAfter?.(factorToDelete!.type),
+        showToast({
+          type: 'success',
+          message: t('notifications.factor_remove_success'),
+          data: {
+            duration: 2000,
+            onAutoClose: () => deleteAction?.onAfter?.(factorToDelete!.type),
+          },
         });
       } catch (err) {
         handleError(err, { fallbackMessage: t('notifications.factor_delete_error') });

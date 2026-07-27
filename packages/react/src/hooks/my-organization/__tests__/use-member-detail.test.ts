@@ -6,11 +6,6 @@ import { useOrganizationMemberDetail } from '@/hooks/my-organization/use-member-
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import {
-  setupMockUseTranslator,
-  setupMockUseErrorHandler,
-  createQueryClientWrapper,
-} from '@/tests/utils';
-import {
   createMockMember,
   createMockMemberRole,
   createMockMemberRoles,
@@ -19,6 +14,8 @@ import {
   type MockService,
   makeMockService,
 } from '@/tests/utils/__mocks__/my-organization/member-management/use-member-detail.mocks';
+import { createQueryClientWrapper } from '@/tests/utils/test-provider';
+import { setupMockUseTranslator, setupMockUseErrorHandler } from '@/tests/utils/test-utilities';
 import type {
   MemberDetailServiceResult,
   UseOrganizationMemberDetailOptions,
@@ -111,18 +108,18 @@ describe('useOrganizationMemberDetail', () => {
       expect(result.current.modalState).toEqual({ type: null });
     });
 
-    it('should compute availableRoles by filtering out assigned roles', () => {
+    it('should compute searchedRoles by filtering out assigned roles', () => {
       const memberRoles = [createMockMemberRole({ id: 'rol_admin' })];
-      const allRoles = [...memberRoles, createMockMemberRole({ id: 'rol_member' })];
+      const searchResults = [...memberRoles, createMockMemberRole({ id: 'rol_member' })];
       vi.mocked(useMemberDetailServiceModule.useMemberDetailService).mockReturnValue({
         ...mockService,
         memberRolesQuery: { ...mockService.memberRolesQuery, data: memberRoles },
-        rolesQuery: { ...mockService.rolesQuery, data: allRoles },
+        rolesSearchQuery: { ...mockService.rolesSearchQuery, data: searchResults },
       } as unknown as MemberDetailServiceResult);
 
       const { result } = render();
 
-      expect(result.current.availableRoles).toEqual([createMockMemberRole({ id: 'rol_member' })]);
+      expect(result.current.searchedRoles).toEqual([createMockMemberRole({ id: 'rol_member' })]);
     });
   });
 
@@ -157,6 +154,18 @@ describe('useOrganizationMemberDetail', () => {
       });
 
       expect(result.current.modalState).toEqual({ type: 'assignRoles' });
+    });
+
+    it('should enable role search when the assignRoles modal opens', () => {
+      const { result } = render();
+
+      expect(mockService.enableRoleSearch).not.toHaveBeenCalled();
+
+      act(() => {
+        result.current.openModal({ type: 'assignRoles' });
+      });
+
+      expect(mockService.enableRoleSearch).toHaveBeenCalled();
     });
 
     it('should open removeRoles modal with roles', () => {

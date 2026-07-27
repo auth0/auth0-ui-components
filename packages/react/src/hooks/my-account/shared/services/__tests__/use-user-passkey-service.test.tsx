@@ -5,12 +5,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useUserPasskeyService } from '@/hooks/my-account/shared/services/use-user-passkey-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
-import {
-  mockCore,
-  setupMockUseCoreClient,
-  setupMockUseTranslator,
-  createQueryClientWrapper,
-} from '@/tests/utils';
+import { createQueryClientWrapper } from '@/tests/utils/test-provider';
+import { mockCore } from '@/tests/utils/test-setup';
+import { setupMockUseCoreClient, setupMockUseTranslator } from '@/tests/utils/test-utilities';
 
 vi.mock('@auth0/universal-components-core', async (importOriginal) => {
   const actual = await importOriginal();

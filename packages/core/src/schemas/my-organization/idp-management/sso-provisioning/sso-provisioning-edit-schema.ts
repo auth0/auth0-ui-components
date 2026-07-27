@@ -4,7 +4,7 @@
  * @internal
  */
 
-import { createFieldSchema, COMMON_FIELD_CONFIGS } from '@core/schemas/common';
+import { createFieldSchema, COMMON_FIELD_CONFIGS } from '@core/schemas/common/common-schemas';
 import { z } from 'zod';
 
 import type {

@@ -1,5 +1,6 @@
 import {
   AVAILABLE_STRATEGY_LIST,
+  idpConfigQueryKeys,
   type ComponentAction,
   type IdpKnownResponse,
   type CreateIdentityProviderRequestContentPrivate,
@@ -13,15 +14,15 @@ import {
   SsoProviderCreate,
   SsoProviderCreateView,
 } from '@/components/auth0/my-organization/sso-provider-create';
-import * as useConfigModule from '@/hooks/my-organization/use-config';
-import * as useIdpConfigModule from '@/hooks/my-organization/use-idp-config';
+import * as useConfigModule from '@/hooks/my-organization/shared/services/use-config-service';
+import * as useIdpConfigModule from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
+import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import {
   createMockSsoProviderCreateHandler,
   createMockSsoProviderCreateLogic,
-} from '@/tests/utils';
-import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
-import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
+} from '@/tests/utils/__mocks__/my-organization/idp-management/sso-domain.mocks';
 import { createTestQueryClient, renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { SsoProviderCreateProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
@@ -110,7 +111,7 @@ describe('SsoProviderCreate', () => {
     vi.clearAllMocks();
     mockCoreClient = initMockCoreClient();
     queryClient = createTestQueryClient();
-    queryClient.setQueryData(useIdpConfigModule.idpConfigQueryKeys.config(), createMockIdpConfig());
+    queryClient.setQueryData(idpConfigQueryKeys.config(), createMockIdpConfig());
 
     vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
       coreClient: mockCoreClient,

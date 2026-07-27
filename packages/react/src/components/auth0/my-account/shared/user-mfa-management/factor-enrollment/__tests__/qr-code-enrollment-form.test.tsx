@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { QRCodeEnrollmentForm } from '@/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/qr-code-enrollment-form';
-import { renderWithProviders, createMockQRCodeEnrollmentFormProps } from '@/tests/utils';
+import { createMockQRCodeEnrollmentFormProps } from '@/tests/utils/__mocks__/my-account/user-mfa-management/factor-enrollment/qr-code-enrollment-form.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('QRCodeEnrollmentForm', () => {
   afterEach(() => {

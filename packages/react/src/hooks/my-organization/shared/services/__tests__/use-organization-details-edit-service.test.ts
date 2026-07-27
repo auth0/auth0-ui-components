@@ -3,12 +3,9 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { useOrganizationDetailsEditService } from '@/hooks/my-organization/shared/services/use-organization-details-edit-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import {
-  createMockOrganization,
-  createQueryClientWrapper,
-  mockCore,
-  mockToast,
-} from '@/tests/utils';
+import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
+import { createQueryClientWrapper } from '@/tests/utils/test-provider';
+import { mockCore, mockToast } from '@/tests/utils/test-setup';
 
 const { mockedShowToast } = mockToast();
 const { initMockCoreClient } = mockCore();
