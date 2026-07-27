@@ -10,7 +10,6 @@ const createMockMFAEmptyStateProps = (overrides = {}) => ({
   ...overrides,
 });
 
-// ===== Test Suite =====
 describe('MFAEmptyState', () => {
   afterEach(() => {
     vi.clearAllMocks();

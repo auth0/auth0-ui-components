@@ -21,7 +21,6 @@ import { createMockEnrollFactorModalProps } from '@/tests/utils/__mocks__/my-acc
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { EnrollFactorModalProps } from '@/types/my-account/user-mfa-management/factor-enrollment-types';
 
-// ===== Test Suite =====
 describe('EnrollFactorModal', () => {
   afterEach(() => {
     vi.clearAllMocks();

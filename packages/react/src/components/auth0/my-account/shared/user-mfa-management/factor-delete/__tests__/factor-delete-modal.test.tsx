@@ -6,7 +6,6 @@ import { FactorDeleteModal } from '@/components/auth0/my-account/shared/user-mfa
 import { createMockFactorDeleteModalProps } from '@/tests/utils/__mocks__/my-account/user-mfa-management/factor-delete/factor-delete-modal.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
-// ===== Test Suite =====
 describe('FactorDeleteModal', () => {
   afterEach(() => {
     vi.clearAllMocks();

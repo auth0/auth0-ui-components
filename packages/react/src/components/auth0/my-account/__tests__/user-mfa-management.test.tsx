@@ -19,12 +19,8 @@ import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { UserMFAManagementProps } from '@/types/my-account/user-mfa-management/user-mfa-management-types';
 import type { UserMFAManagementViewProps } from '@/types/my-account/user-mfa-management/user-mfa-management-types';
 
-// ===== Mock packages =====
-
 const { mockedShowToast } = mockToast();
 const { initMockCoreClient } = mockCore();
-
-// ===== Local mock creators =====
 
 const createMockUserMFAManagementProps = (
   overrides?: Partial<UserMFAManagementProps>,
@@ -56,8 +52,6 @@ const setupEnrolledTotpFactor = (
     ]),
   );
 };
-
-// ===== Tests =====
 
 describe('UserMFAManagement', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;

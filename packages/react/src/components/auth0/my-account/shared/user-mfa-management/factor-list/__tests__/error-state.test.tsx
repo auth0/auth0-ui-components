@@ -11,7 +11,6 @@ const createMockMFAErrorStateProps = (overrides = {}) => ({
   ...overrides,
 });
 
-// ===== Test Suite =====
 describe('MFAMFAErrorState', () => {
   afterEach(() => {
     vi.clearAllMocks();

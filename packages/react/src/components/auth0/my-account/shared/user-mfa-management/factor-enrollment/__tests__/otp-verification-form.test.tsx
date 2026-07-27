@@ -6,7 +6,6 @@ import { OTPVerificationForm } from '@/components/auth0/my-account/shared/user-m
 import { createMockOTPVerificationFormProps } from '@/tests/utils/__mocks__/my-account/user-mfa-management/factor-enrollment/otp-verification-form.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
-// ===== Test Suite =====
 describe('OTPVerificationForm', () => {
   afterEach(() => {
     vi.clearAllMocks();
