@@ -60,6 +60,7 @@ export interface UseMemberManagementServiceOptions {
   activeTab?: ActiveTab;
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   revokeInvitationAction?: ComponentAction<MemberInvitation>;
+  deleteInvitationsAction?: ComponentAction<MemberInvitation[]>;
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
   invitationParams?: TableQueryParams<MemberManagementSortConfig, MemberManagementFilterState>;
   memberParams?: TableQueryParams<MemberManagementSortConfig, MemberManagementFilterState>;
@@ -117,6 +118,8 @@ export interface UseOrganizationMemberManagementOptions {
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   /** Action hooks for invitation revocation (onBefore/onAfter) */
   revokeInvitationAction?: ComponentAction<MemberInvitation>;
+  /** Action hooks for bulk invitation deletion (onBefore/onAfter) */
+  deleteInvitationsAction?: ComponentAction<MemberInvitation[]>;
   /** Action hooks for invitation revoke-and-resend (onBefore/onAfter) */
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
   /** Action hooks for viewing member details (onBefore/onAfter) */
@@ -227,6 +230,8 @@ export interface OrganizationMemberManagementProps
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   /** Action hooks for invitation revocation (onBefore/onAfter) */
   revokeInvitationAction?: ComponentAction<MemberInvitation>;
+  /** Action hooks for bulk invitation deletion (onBefore/onAfter) */
+  deleteInvitationsAction?: ComponentAction<MemberInvitation[]>;
   /** Action hooks for invitation revoke-and-resend (onBefore/onAfter) */
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
   /** Action hooks for viewing member details (onBefore/onAfter) */

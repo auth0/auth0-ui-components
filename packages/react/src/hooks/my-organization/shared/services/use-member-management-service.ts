@@ -68,6 +68,7 @@ export function useMemberManagementService(
     activeTab,
     createInvitationAction,
     revokeInvitationAction,
+    deleteInvitationsAction,
     resendInvitationAction,
     invitationParams,
     memberParams,
@@ -323,6 +324,9 @@ export function useMemberManagementService(
 
   const deleteInvitationsMutation = useMutation({
     mutationFn: async (invitations: MemberInvitation[]) => {
+      if (deleteInvitationsAction?.onBefore && !deleteInvitationsAction.onBefore(invitations)) {
+        throw new Error('Delete invitations cancelled by onBefore');
+      }
       const ids = invitations.map((invitation) => invitation.id).filter((id): id is string => !!id);
       await coreClient!
         .getMyOrganizationApiClient()
@@ -330,6 +334,7 @@ export function useMemberManagementService(
       return invitations;
     },
     onSuccess: (invitations) => {
+      deleteInvitationsAction?.onAfter?.(invitations);
       showToast({
         type: 'success',
         message:

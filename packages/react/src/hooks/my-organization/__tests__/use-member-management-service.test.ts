@@ -530,6 +530,48 @@ describe('useMemberManagementService', () => {
       ).toHaveBeenCalledWith({ invitations: ['inv_1'] });
     });
 
+    it('should call onBefore action and cancel if it returns false', async () => {
+      const onBefore = vi.fn().mockReturnValue(false);
+      const invitations = [createMockInvitation({ id: 'inv_1' })];
+      const options = createDefaultOptions({
+        deleteInvitationsAction: { onBefore },
+      });
+      const { result } = renderService(options);
+
+      await act(async () => {
+        result.current.deleteInvitationsMutation.mutate(invitations);
+      });
+
+      await waitFor(() => {
+        expect(result.current.deleteInvitationsMutation.isError).toBe(true);
+      });
+
+      expect(onBefore).toHaveBeenCalledWith(invitations);
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations
+          .deleteMemberInvitations,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should call onAfter action on success', async () => {
+      const onAfter = vi.fn();
+      const invitations = [createMockInvitation({ id: 'inv_1' })];
+      const options = createDefaultOptions({
+        deleteInvitationsAction: { onAfter },
+      });
+      const { result } = renderService(options);
+
+      await act(async () => {
+        result.current.deleteInvitationsMutation.mutate(invitations);
+      });
+
+      await waitFor(() => {
+        expect(result.current.deleteInvitationsMutation.isSuccess).toBe(true);
+      });
+
+      expect(onAfter).toHaveBeenCalledWith(invitations);
+    });
+
     it('should show error toast on failure', async () => {
       mockCoreClient.getMyOrganizationApiClient().organization.invitations.deleteMemberInvitations =
         vi.fn().mockRejectedValue(new Error('Bulk delete failed'));

@@ -38,6 +38,7 @@ export function useOrganizationMemberManagement(
     readOnly = false,
     createInvitationAction,
     revokeInvitationAction,
+    deleteInvitationsAction,
     resendInvitationAction,
     viewMemberDetailsAction,
     assignRolesAction,
@@ -103,6 +104,7 @@ export function useOrganizationMemberManagement(
     activeTab,
     createInvitationAction,
     revokeInvitationAction,
+    deleteInvitationsAction,
     resendInvitationAction,
     invitationParams: {
       pageSize: invitationPageSize,
