@@ -589,6 +589,27 @@ describe('useMemberManagementService', () => {
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'success' }));
     });
 
+    it('should not delete a legacy invitation lacking both connection identifiers', async () => {
+      const invitation = createMockInvitation();
+      const orgApi = mockCoreClient.getMyOrganizationApiClient().organization;
+      orgApi.invitations.get = vi.fn().mockResolvedValue(invitation);
+
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await act(async () => {
+        result.current.resendInvitationMutation.mutate(invitation);
+      });
+
+      await waitFor(() => {
+        expect(result.current.resendInvitationMutation.isError).toBe(true);
+      });
+
+      expect(orgApi.invitations.delete).not.toHaveBeenCalled();
+      expect(orgApi.invitations.create).not.toHaveBeenCalled();
+      expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));
+    });
+
     it('should call onBefore action and cancel if it returns false', async () => {
       const onBefore = vi.fn().mockReturnValue(false);
       const invitation = createMockInvitation();

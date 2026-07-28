@@ -89,6 +89,7 @@ export interface OrganizationInvitationTabMessages {
     revoke_failed?: string;
     resend_failed?: string;
     revoke_resend_failed?: string;
+    connection_required?: string;
     copy_url_failed?: string;
   };
 }

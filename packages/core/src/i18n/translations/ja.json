@@ -1317,6 +1317,7 @@
         "revoke_failed": "招待の取り消しに失敗しました。もう一度お試しください。",
         "resend_failed": "招待の再送信に失敗しました。もう一度お試しください。",
         "revoke_resend_failed": "招待の取り消しと再送信に失敗しました。もう一度お試しください。",
+        "connection_required": "identity_provider_id または user_store_id のいずれか一方を指定する必要があります。",
         "copy_url_failed": "招待URLのコピーに失敗しました。もう一度お試しください。"
       }
     }

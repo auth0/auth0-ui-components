@@ -353,14 +353,18 @@ export function useMemberManagementService(
       const freshInvitation = await coreClient!
         .getMyOrganizationApiClient()
         .organization.invitations.get(invitation.id!);
+      const identityProviderId =
+        freshInvitation.identity_provider_id ?? invitation.identity_provider_id;
+      const userStoreId = freshInvitation.user_store_id ?? invitation.user_store_id;
+
+      if (!identityProviderId && !userStoreId) {
+        throw new Error(t('invitation.error.connection_required'));
+      }
       await coreClient!
         .getMyOrganizationApiClient()
         .organization.invitations.delete(freshInvitation.id ?? invitation.id!);
       const email = freshInvitation.invitee?.email ?? invitation.invitee?.email ?? '';
       const roles = freshInvitation.roles ?? invitation.roles;
-      const identityProviderId =
-        freshInvitation.identity_provider_id ?? invitation.identity_provider_id;
-      const userStoreId = freshInvitation.user_store_id ?? invitation.user_store_id;
       const response = await coreClient!
         .getMyOrganizationApiClient()
         .organization.invitations.create({

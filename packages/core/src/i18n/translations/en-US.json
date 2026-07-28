@@ -1316,6 +1316,7 @@
         "revoke_failed": "Failed to revoke invitation. Please try again.",
         "resend_failed": "Failed to resend invitation. Please try again.",
         "revoke_resend_failed": "Failed to revoke and resend invitation. Please try again.",
+        "connection_required": "At least one of identity_provider_id or user_store_id must be provided.",
         "copy_url_failed": "Failed to copy invitation URL. Please try again."
       }
     }
