@@ -479,10 +479,8 @@ describe('DomainCreateModal', () => {
             translatorKey="custom.domain.create.modal"
             className="test-class"
             customMessages={{
-              modal: {
-                title: 'Custom Title',
-                field: { label: 'Custom Label' },
-              },
+              title: 'Custom Title',
+              field: { label: 'Custom Label' },
             }}
             schema={{
               domainUrl: {
