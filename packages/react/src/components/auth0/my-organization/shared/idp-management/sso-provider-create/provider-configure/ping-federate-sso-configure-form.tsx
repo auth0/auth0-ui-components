@@ -42,6 +42,7 @@ import {
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
+import { ALLOWED_CERT_EXTENSIONS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
@@ -58,8 +59,6 @@ const DIGEST_ALGORITHMS = [
   { value: 'sha1', label: 'SHA1' },
   { value: 'sha256', label: 'SHA256' },
 ] as const;
-
-const ALLOWED_CERT_EXTENSIONS = ['.pem', '.cer', '.crt'] as const;
 
 export interface PingFederateConfigureFormHandle {
   validate: () => Promise<boolean>;

@@ -44,6 +44,7 @@ import {
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
+import { ALLOWED_CERT_EXTENSIONS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
@@ -261,7 +262,7 @@ export const SamlpProviderForm = React.forwardRef<
                   <FormControl>
                     <div className="space-y-3">
                       <FileUpload
-                        accept=".pem"
+                        accept={ALLOWED_CERT_EXTENSIONS.join(',')}
                         onChange={handleFileUpload}
                         value={uploadedFiles}
                         maxFiles={1}
