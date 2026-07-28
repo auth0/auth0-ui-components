@@ -21,12 +21,14 @@ import { OrganizationMemberTable } from '@/components/auth0/my-organization/shar
 import { OrganizationMemberAssignRolesModal } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-roles/organization-member-assign-roles-modal';
 import { OrganizationInvitationCreateModal } from '@/components/auth0/my-organization/shared/member-management/shared/invitation-create/organization-invitation-create-modal';
 import { Header } from '@/components/auth0/shared/header';
+import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOrganizationMemberManagement } from '@/hooks/my-organization/use-organization-member-management';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
+import { cn } from '@/lib/utils';
 import type {
   OrganizationMemberManagementProps,
   OrganizationMemberManagementViewProps,
@@ -49,7 +51,8 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     organizationDisplayName,
     isFetchingInvitations,
     isFetchingMembers,
-    isFetchingAvailableRoles,
+    isMembersStale,
+    isInvitationsStale,
     isCreatingInvitation,
     isRevokingInvitation,
     isResendingInvitation,
@@ -60,8 +63,14 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     isAssigningRoles,
     isRemovingFromOrganization,
     availableRoles,
+    searchedRoles,
+    onRoleSearch,
     availableProviders,
     modalState,
+    membersUpdatedAt,
+    invitationsUpdatedAt,
+    refetchMembers,
+    refetchInvitations,
     setActiveTab,
     openModal,
     closeModal,
@@ -126,6 +135,21 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
 
   const pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
+  const refreshState =
+    activeTab === 'members'
+      ? {
+          isStale: isMembersStale,
+          isFetching: isFetchingMembers,
+          lastUpdatedAt: membersUpdatedAt || undefined,
+          onRefresh: refetchMembers,
+        }
+      : {
+          isStale: isInvitationsStale,
+          isFetching: isFetchingInvitations,
+          lastUpdatedAt: invitationsUpdatedAt || undefined,
+          onRefresh: refetchInvitations,
+        };
+
   return (
     <StyledScope style={currentStyles.variables}>
       <div className={currentStyles.classes?.['OrganizationMemberManagement-root']}>
@@ -156,10 +180,23 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           onValueChange={(value: string) => setActiveTab(value as 'members' | 'invitations')}
           className={currentStyles.classes?.['OrganizationMemberManagement-tabs']}
         >
-          <TabsList className="mb-8">
-            <TabsTrigger value="members">{t('tabs.members')}</TabsTrigger>
-            <TabsTrigger value="invitations">{t('tabs.invitations')}</TabsTrigger>
-          </TabsList>
+          <div
+            className={cn(
+              'flex justify-between mb-8',
+              currentStyles.classes?.['OrganizationMemberManagement-tableActions'],
+            )}
+          >
+            <TabsList>
+              <TabsTrigger value="members">{t('tabs.members')}</TabsTrigger>
+              <TabsTrigger value="invitations">{t('tabs.invitations')}</TabsTrigger>
+            </TabsList>
+            <RefreshIndicator
+              isStale={refreshState.isStale}
+              isFetching={refreshState.isFetching}
+              lastUpdatedAt={refreshState.lastUpdatedAt}
+              onRefresh={refreshState.onRefresh}
+            />
+          </div>
 
           <TabsContent value="members">
             <OrganizationMemberTable
@@ -208,10 +245,12 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isOpen={modalState.type === 'create'}
           isLoading={isCreatingInvitation}
           customMessages={customMessages?.invitation}
-          availableRoles={availableRoles}
+          availableRoles={searchedRoles}
           availableProviders={availableProviders}
+          style={currentStyles.variables}
           onClose={closeModal}
           onCreate={handleCreateSubmit}
+          onRoleSearch={onRoleSearch}
           className={currentStyles.classes?.['OrganizationInvitationTab-createModal']}
         />
 
@@ -224,6 +263,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           availableRoles={availableRoles}
           availableProviders={availableProviders}
           readOnly={readOnly}
+          style={currentStyles.variables}
           onClose={closeModal}
           onCopyUrl={handleCopyUrl}
           onRevoke={(invitation) => invitation && openModal({ type: 'revoke', invitation })}
@@ -236,6 +276,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isOpen={modalState.type === 'revoke'}
           isLoading={isRevokingInvitation}
           customMessages={customMessages?.invitation}
+          style={currentStyles.variables}
           onClose={closeModal}
           onConfirm={handleRevokeConfirm}
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeModal']}
@@ -247,6 +288,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isLoading={isResendingInvitation}
           isRevokeAndResend
           customMessages={customMessages?.invitation}
+          style={currentStyles.variables}
           onClose={closeModal}
           onConfirm={handleRevokeResendConfirm}
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeResendModal']}
@@ -255,12 +297,13 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
         <OrganizationMemberAssignRolesModal
           selectedMember={selectedMember}
           isOpen={modalState.type === 'assignRole'}
-          isLoading={isFetchingAvailableRoles || isAssigningRoles}
-          availableRoles={availableRoles}
+          isLoading={isAssigningRoles}
+          availableRoles={searchedRoles}
           assignedRoles={selectedMember?.roles || []}
           customMessages={customMessages?.member}
           onClose={closeModal}
           onAssign={handleAssignRolesSubmit}
+          onRoleSearch={onRoleSearch}
         />
 
         <MemberRemoveFromOrganizationModal

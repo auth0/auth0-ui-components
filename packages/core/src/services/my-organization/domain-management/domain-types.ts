@@ -4,7 +4,7 @@
  * @internal
  */
 import type { MyOrganization } from '@auth0/myorganization-js';
-import type { InternalDomainCreateFormValues } from '@core/schemas';
+import type { InternalDomainCreateFormValues } from '@core/schemas/my-organization/domain-management/domain-create-schema';
 
 export type GetOrganizationDomainResponseContent =
   MyOrganization.GetOrganizationDomainResponseContent;

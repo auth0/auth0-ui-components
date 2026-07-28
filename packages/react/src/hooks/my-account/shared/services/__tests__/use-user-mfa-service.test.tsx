@@ -4,7 +4,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useUserMFAService } from '@/hooks/my-account/shared/services/use-user-mfa-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import { mockCore, setupMockUseCoreClient, createQueryClientWrapper } from '@/tests/utils';
+import { createQueryClientWrapper } from '@/tests/utils/test-provider';
+import { mockCore } from '@/tests/utils/test-setup';
+import { setupMockUseCoreClient } from '@/tests/utils/test-utilities';
 
 const { initMockCoreClient } = mockCore();
 let mockCoreClient: ReturnType<typeof initMockCoreClient>;

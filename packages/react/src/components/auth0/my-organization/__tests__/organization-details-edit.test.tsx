@@ -3,15 +3,9 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import {
-  OrganizationDetailsEdit,
-  OrganizationDetailsEditView,
-} from '@/components/auth0/my-organization/organization-details-edit';
+import { OrganizationDetailsEdit } from '@/components/auth0/my-organization/organization-details-edit';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import {
-  createMockOrganization,
-  createMockOrganizationDetailsEditView,
-} from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
+import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type {
@@ -19,12 +13,8 @@ import type {
   OrganizationEditBackButton,
 } from '@/types/my-organization/organization-management/organization-details-edit-types';
 
-// ===== Mock packages =====
-
 mockToast();
 const { initMockCoreClient } = mockCore();
-
-// ===== Local mock creators =====
 
 const createMockOrganizationDetailsEditProps = (
   overrides?: Partial<OrganizationDetailsEditProps>,
@@ -58,13 +48,9 @@ const createMockCancelAction = (): Omit<ComponentAction<OrganizationPrivate>, 'o
   onAfter: vi.fn(),
 });
 
-// ===== Local utils =====
-
 const waitForComponentToLoad = async () => {
   return await screen.findByDisplayValue('Auth0 Corporation');
 };
-
-// ===== Tests =====
 
 describe('OrganizationDetailsEdit', () => {
   const mockOrganization = createMockOrganization();
@@ -535,47 +521,97 @@ describe('OrganizationDetailsEdit', () => {
       });
     });
   });
-});
 
-describe('OrganizationDetailsEditView', () => {
-  const viewProps = createMockOrganizationDetailsEditView();
+  describe('form rendering', () => {
+    describe('when component loads', () => {
+      it('should display organization display name input', async () => {
+        renderWithProviders(
+          <OrganizationDetailsEdit {...createMockOrganizationDetailsEditProps()} />,
+        );
 
-  it('renders the header and organization details form', () => {
-    renderWithProviders(<OrganizationDetailsEditView {...viewProps} />);
-    expect(screen.getByRole('banner')).toBeInTheDocument();
-    expect(screen.getByTestId('organization-details-card')).toBeInTheDocument();
+        const displayNameInput = await waitForComponentToLoad();
+        expect(displayNameInput).toBeInTheDocument();
+      });
+
+      it('should pre-populate display name from organization data', async () => {
+        renderWithProviders(
+          <OrganizationDetailsEdit {...createMockOrganizationDetailsEditProps()} />,
+        );
+
+        const displayNameInput = await waitForComponentToLoad();
+        expect(displayNameInput).toHaveValue('Auth0 Corporation');
+      });
+
+      it('should render save button', async () => {
+        renderWithProviders(
+          <OrganizationDetailsEdit {...createMockOrganizationDetailsEditProps()} />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByRole('button', { name: /submit_button_label/i })).toBeInTheDocument();
+      });
+
+      it('should render cancel button after form changes', async () => {
+        const user = userEvent.setup();
+
+        renderWithProviders(
+          <OrganizationDetailsEdit {...createMockOrganizationDetailsEditProps()} />,
+        );
+
+        const displayNameInput = await waitForComponentToLoad();
+        await user.clear(displayNameInput);
+        await user.type(displayNameInput, 'Modified Value');
+
+        expect(screen.getByRole('button', { name: /cancel_button_label/i })).toBeInTheDocument();
+      });
+    });
   });
 
-  it('renders custom card class if provided', () => {
-    renderWithProviders(
-      <OrganizationDetailsEditView
-        {...viewProps}
-        styling={{
-          ...viewProps.styling,
-          classes: { ...viewProps.styling.classes, OrganizationDetails_Card: 'custom-card-class' },
-        }}
-      />,
-    );
-    expect(document.querySelector('.custom-card-class')).toBeInTheDocument();
-  });
+  describe('error handling', () => {
+    describe('when organization details fail to load', () => {
+      it('should handle error gracefully', async () => {
+        const apiService = mockCoreClient.getMyOrganizationApiClient();
+        (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockRejectedValue(
+          new Error('Organization not found'),
+        );
 
-  it('does not render header if hideHeader is true', () => {
-    renderWithProviders(<OrganizationDetailsEditView {...viewProps} hideHeader={true} />);
-    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
-  });
+        renderWithProviders(
+          <OrganizationDetailsEdit {...createMockOrganizationDetailsEditProps()} />,
+        );
 
-  it('renders with customMessages', () => {
-    renderWithProviders(
-      <OrganizationDetailsEditView
-        {...viewProps}
-        customMessages={{ header: { title: 'Custom Title', back_button_text: 'Back' } }}
-      />,
-    );
-    expect(screen.getByText(/custom title/i)).toBeInTheDocument();
-  });
+        await waitFor(() => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        });
+      });
+    });
 
-  it('renders loading state when isLoading is true', () => {
-    renderWithProviders(<OrganizationDetailsEdit {...viewProps} isLoading={true} />);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    describe('when save fails', () => {
+      it('should handle error and not reset form', async () => {
+        const user = userEvent.setup();
+        const apiService = mockCoreClient.getMyOrganizationApiClient();
+        (apiService.organizationDetails.update as ReturnType<typeof vi.fn>).mockRejectedValue(
+          new Error('Failed to save'),
+        );
+
+        renderWithProviders(
+          <OrganizationDetailsEdit {...createMockOrganizationDetailsEditProps()} />,
+        );
+
+        const displayNameInput = await waitForComponentToLoad();
+        await user.clear(displayNameInput);
+        await user.type(displayNameInput, 'New Name');
+
+        const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
+        await user.click(saveButton);
+
+        await waitFor(() => {
+          expect(apiService.organizationDetails.update).toHaveBeenCalled();
+        });
+
+        // Form should still have the modified value
+        expect(displayNameInput).toHaveValue('New Name');
+      });
+    });
   });
 });

@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
 import { MemberDetailDangerZone } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-detail-danger-zone';
-import { renderWithProviders } from '@/tests/utils';
 import { createMockDangerZoneProps } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('MemberDetailDangerZone', () => {
   afterEach(() => {

@@ -4,8 +4,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useToastProvider } from '@/hooks/shared/use-toast-provider';
 import { DEFAULT_TOAST_SETTINGS, type ToastSettings } from '@/types/toast-types';
 
-// ===== Mock packages =====
-
 const { mockSetGlobalToastSettings } = vi.hoisted(() => ({
   mockSetGlobalToastSettings: vi.fn(),
 }));
@@ -13,8 +11,6 @@ const { mockSetGlobalToastSettings } = vi.hoisted(() => ({
 vi.mock('@/components/auth0/shared/toast', () => ({
   setGlobalToastSettings: mockSetGlobalToastSettings,
 }));
-
-// ===== Tests =====
 
 describe('useToastProvider', () => {
   beforeEach(() => {

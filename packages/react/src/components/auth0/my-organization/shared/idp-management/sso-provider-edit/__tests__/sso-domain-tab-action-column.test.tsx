@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SsoDomainTabActionsColumn } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab-action-column';
-import { renderWithProviders, createMockDomain } from '@/tests/utils';
+import { createMockDomain } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { SsoDomainTabActionColumn } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
 // Mock hooks

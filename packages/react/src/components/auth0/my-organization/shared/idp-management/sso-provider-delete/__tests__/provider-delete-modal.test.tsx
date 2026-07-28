@@ -4,14 +4,13 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import { SsoProviderDeleteModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete-modal';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
-import { createMockSsoProvider, mockCore, renderWithProviders } from '@/tests/utils';
+import { createMockSsoProvider } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-domain.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
+import { mockCore } from '@/tests/utils/test-setup';
 import type { SsoProviderDeleteModalProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-delete-types';
-
-// ===== Mock packages =====
 
 const { initMockCoreClient } = mockCore();
 
-// ===== Local mock creators =====
 const createMockDeleteModal = (
   overrides?: Partial<SsoProviderDeleteModalProps>,
 ): SsoProviderDeleteModalProps => ({
@@ -23,8 +22,6 @@ const createMockDeleteModal = (
   onClose: vi.fn(),
   ...overrides,
 });
-
-// ===== Tests =====
 
 describe('SsoProviderDeleteModal', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;

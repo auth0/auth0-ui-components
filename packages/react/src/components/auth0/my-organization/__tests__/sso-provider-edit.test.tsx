@@ -2,27 +2,18 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import {
-  SsoProviderEdit,
-  SsoProviderEditView,
-} from '@/components/auth0/my-organization/sso-provider-edit';
+import { SsoProviderEdit } from '@/components/auth0/my-organization/sso-provider-edit';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockIdentityProvider,
   createMockIdentityProviderWithoutProvisioning,
-  createMockSsoProviderEditHandler,
-  createMockSsoProviderEditLogic,
-} from '@/tests/utils/__mocks__';
+} from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { SsoProviderEditProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
-// ===== Mock packages =====
-
 mockToast();
 const { initMockCoreClient } = mockCore();
-
-// ===== Local mock creators =====
 
 const createMockSsoProviderEditProps = (
   overrides?: Partial<SsoProviderEditProps>,
@@ -65,19 +56,11 @@ const createMockSsoActions = () => ({
   },
 });
 
-// ===== Local utils =====
-
 const waitForComponentToLoad = async () => {
-  return await waitFor(
-    () => {
-      // Wait for the loading spinner to disappear
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    },
-    { timeout: 3000 },
-  );
+  return await waitFor(() => {
+    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+  });
 };
-
-// ===== Tests =====
 
 describe('SsoProviderEdit', () => {
   const mockProvider = createMockIdentityProvider();
@@ -375,6 +358,155 @@ describe('SsoProviderEdit', () => {
         await waitForComponentToLoad();
 
         expect(screen.getByText(/tabs.domains.name/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('hideProvisioningTab', () => {
+    describe('when is true', () => {
+      it('should not display provisioning tab', async () => {
+        renderWithProviders(
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ hideProvisioningTab: true })} />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.queryByText(/tabs.provisioning.name/i)).not.toBeInTheDocument();
+      });
+    });
+
+    describe('when is false', () => {
+      it('should display provisioning tab when enabled for strategy', async () => {
+        renderWithProviders(
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ hideProvisioningTab: false })} />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.queryByText(/tabs.provisioning.name/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('hideDeleteProvider', () => {
+    describe('when is true', () => {
+      it('should not display delete provider button', async () => {
+        renderWithProviders(
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ hideDeleteProvider: true })} />,
+        );
+
+        await waitForComponentToLoad();
+
+        const deleteButtons = screen.queryAllByRole('button', {
+          name: /delete_button_label/i,
+        });
+        expect(deleteButtons.length).toBe(0);
+      });
+    });
+
+    describe('when is false', () => {
+      it('should display delete provider button', async () => {
+        renderWithProviders(
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ hideDeleteProvider: false })} />,
+        );
+
+        await waitForComponentToLoad();
+
+        const deleteButtons = screen.queryAllByRole('button', {
+          name: /delete_button_label/i,
+        });
+        expect(deleteButtons.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('hideRemoveFromOrganization', () => {
+    describe('when is true', () => {
+      it('should not display remove from organization button', async () => {
+        renderWithProviders(
+          <SsoProviderEdit
+            {...createMockSsoProviderEditProps({ hideRemoveFromOrganization: true })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+
+        const removeButtons = screen.queryAllByRole('button', {
+          name: /remove_button_label/i,
+        });
+        expect(removeButtons.length).toBe(0);
+      });
+    });
+
+    describe('when is false', () => {
+      it('should display remove from organization button', async () => {
+        renderWithProviders(
+          <SsoProviderEdit
+            {...createMockSsoProviderEditProps({ hideRemoveFromOrganization: false })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+
+        const removeButtons = screen.queryAllByRole('button', {
+          name: /remove_button_label/i,
+        });
+        expect(removeButtons.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('hideAttributeMappings', () => {
+    describe('on SSO tab', () => {
+      describe('when is true', () => {
+        it('should not display attribute mappings section', async () => {
+          renderWithProviders(
+            <SsoProviderEdit
+              {...createMockSsoProviderEditProps({ hideAttributeMappings: true })}
+            />,
+          );
+
+          await waitForComponentToLoad();
+
+          expect(screen.queryByText(/mappings.title/i)).not.toBeInTheDocument();
+        });
+      });
+
+      describe('when is false', () => {
+        it('should display attribute mappings section', async () => {
+          renderWithProviders(
+            <SsoProviderEdit
+              {...createMockSsoProviderEditProps({ hideAttributeMappings: false })}
+            />,
+          );
+
+          await waitForComponentToLoad();
+
+          expect(screen.queryByText(/mappings.title/i)).toBeInTheDocument();
+        });
+      });
+    });
+
+    describe('on Provisioning tab', () => {
+      describe('when is true', () => {
+        it('should not display attribute mappings section', async () => {
+          const user = userEvent.setup();
+
+          renderWithProviders(
+            <SsoProviderEdit
+              {...createMockSsoProviderEditProps({ hideAttributeMappings: true })}
+            />,
+          );
+
+          await waitForComponentToLoad();
+
+          const provisioningTab = screen.getByText(/tabs.provisioning.name/i);
+          await user.click(provisioningTab);
+
+          await waitFor(() => {
+            expect(screen.queryByText(/mappings.title/i)).not.toBeInTheDocument();
+          });
+        });
       });
     });
   });
@@ -712,90 +844,69 @@ describe('SsoProviderEdit', () => {
       });
     });
   });
-});
 
-describe('SsoProviderEditView', () => {
-  const logic = createMockSsoProviderEditLogic();
-  const handlers = createMockSsoProviderEditHandler();
+  describe('header rendering', () => {
+    describe('when provider is loaded', () => {
+      it('should render provider display name in header', async () => {
+        renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
 
-  it('renders the header and tabs', () => {
-    renderWithProviders(<SsoProviderEditView logic={logic} handlers={handlers} />);
-    expect(screen.getByRole('banner')).toBeInTheDocument();
-    expect(screen.getByText(/tabs.sso.name/i)).toBeInTheDocument();
-    expect(screen.getByText(/tabs.provisioning.name/i)).toBeInTheDocument();
-    expect(screen.getByText(/tabs.domains.name/i)).toBeInTheDocument();
+        await waitForComponentToLoad();
+
+        expect(screen.getByText(mockProvider.display_name!)).toBeInTheDocument();
+      });
+
+      it('should render all available tabs', async () => {
+        renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByText(/tabs.sso.name/i)).toBeInTheDocument();
+        expect(screen.getByText(/tabs.domains.name/i)).toBeInTheDocument();
+      });
+    });
   });
 
-  it('renders the switch in header', () => {
-    renderWithProviders(<SsoProviderEditView logic={logic} handlers={handlers} />);
-    expect(screen.getByRole('switch')).toBeInTheDocument();
+  describe('error handling', () => {
+    describe('when provider fails to load', () => {
+      it('should handle error gracefully', async () => {
+        const apiService = mockCoreClient.getMyOrganizationApiClient().organization;
+        apiService.identityProviders.get = vi
+          .fn()
+          .mockRejectedValue(new Error('Provider not found'));
+
+        renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+
+        await waitFor(() => {
+          expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+        });
+      });
+    });
   });
 
-  it('renders custom header class if provided', () => {
-    renderWithProviders(
-      <SsoProviderEditView
-        logic={{
-          ...logic,
-          styling: {
-            ...logic.styling,
-            classes: { ...logic?.styling?.classes, 'SsoProviderEdit-header': 'custom-header' },
-          },
-        }}
-        handlers={handlers}
-      />,
-    );
-    expect(document.querySelector('.custom-header')).toBeInTheDocument();
-  });
+  describe('form interaction', () => {
+    describe('when form inputs are modified', () => {
+      it('should allow toggling provider switches', async () => {
+        const user = userEvent.setup();
 
-  it('renders custom tabs class if provided', () => {
-    renderWithProviders(
-      <SsoProviderEditView
-        logic={{
-          ...logic,
-          styling: {
-            ...logic.styling,
-            classes: { ...logic?.styling?.classes, 'SsoProviderEdit-tabs': 'custom-tabs' },
-          },
-        }}
-        handlers={handlers}
-      />,
-    );
-    expect(document.querySelector('.custom-tabs')).toBeInTheDocument();
-  });
+        renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
 
-  it('does not render header if hideHeader is true', () => {
-    renderWithProviders(
-      <SsoProviderEditView logic={{ ...logic, hideHeader: true }} handlers={handlers} />,
-    );
-    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
-  });
+        await waitForComponentToLoad();
 
-  it('renders with customMessages', () => {
-    renderWithProviders(
-      <SsoProviderEditView
-        logic={{
-          ...logic,
-          customMessages: {
-            header: { back_button_text: 'Back' },
-          },
-        }}
-        handlers={handlers}
-      />,
-    );
-  });
+        const switches = screen.getAllByRole('switch');
+        expect(switches.length).toBeGreaterThan(0);
 
-  it('renders tabs and switches between them', async () => {
-    const user = userEvent.setup();
-    renderWithProviders(<SsoProviderEditView logic={logic} handlers={handlers} />);
-    // SSO tab is present
-    expect(screen.getByText(/tabs.sso.name/i)).toBeInTheDocument();
-    // Switch to domains tab
-    const domainTab = screen.getByText(/tabs.domains.name/i);
-    await user.click(domainTab);
-    expect(domainTab).toBeInTheDocument();
-    // Switch to provisioning tab
-    const provisioningTab = screen.getByText(/tabs.provisioning.name/i);
-    await user.click(provisioningTab);
-    expect(provisioningTab).toBeInTheDocument();
+        const firstSwitch = switches[0];
+        expect(firstSwitch).toBeDefined();
+        expect(firstSwitch).not.toBeDisabled();
+
+        await user.click(firstSwitch!);
+
+        await waitFor(() => {
+          expect(
+            mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.update,
+          ).toHaveBeenCalled();
+        });
+      });
+    });
   });
 });

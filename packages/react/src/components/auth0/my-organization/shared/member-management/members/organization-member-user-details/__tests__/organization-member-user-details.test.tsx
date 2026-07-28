@@ -2,11 +2,11 @@ import { screen } from '@testing-library/react';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
 import { OrganizationMemberUserDetails } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-user-details/organization-member-user-details';
-import { renderWithProviders } from '@/tests/utils';
 import {
   createMockUserDetailsProps,
   createMockMember,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('OrganizationMemberUserDetails', () => {
   afterEach(() => {

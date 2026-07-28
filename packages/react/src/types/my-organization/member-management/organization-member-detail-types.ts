@@ -13,13 +13,16 @@ import type {
   OrganizationMemberTabMessages,
 } from '@auth0/universal-components-core';
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
+import type React from 'react';
 
 export type MemberDetailTab = 'details' | 'roles';
 
 export interface MemberDetailServiceResult {
   memberQuery: UseQueryResult<OrgMember>;
   memberRolesQuery: UseQueryResult<Role[]>;
-  rolesQuery: UseQueryResult<Role[]>;
+  rolesSearchQuery: UseQueryResult<Role[]>;
+  setRoleSearchTerm: (term: string) => void;
+  enableRoleSearch: () => void;
   organizationQuery: UseQueryResult<OrganizationPrivate>;
   removeFromOrganizationMutation: UseMutationResult<
     void,
@@ -56,13 +59,13 @@ export interface UseOrganizationMemberDetailResult {
   member: OrgMember | null;
   organizationDisplayName: string;
   memberRoles: Role[];
-  availableRoles: Role[];
+  searchedRoles: Role[];
+  onRoleSearch: (term: string) => void;
   selectedRoles: Role[];
   isLoading: boolean;
   memberError: string | null;
   isFetchingMember: boolean;
   isFetchingMemberRoles: boolean;
-  isFetchingAvailableRoles: boolean;
   isRemovingFromOrganization: boolean;
   isAssigningRoles: boolean;
   isRemovingRoles: boolean;
@@ -91,6 +94,9 @@ export interface OrganizationMemberDetailClasses {
   'OrganizationMemberDetail-tabs'?: string;
   'OrganizationMemberDetail-detailsTab'?: string;
   'OrganizationMemberDetail-rolesTab'?: string;
+  'MemberRemoveFromOrgModal-dialogContent'?: string;
+  'OrganizationMemberRemoveRoleModal-dialogContent'?: string;
+  'OrganizationMemberAssignRolesModal-dialogContent'?: string;
 }
 
 export interface OrganizationMemberUserDetailsProps {
@@ -134,6 +140,8 @@ export interface MemberRemoveFromOrganizationModalProps {
   memberUserId?: string;
   organizationName?: string;
   customMessages?: Partial<OrganizationMemberDetailMessages | OrganizationMemberTabMessages>;
+  classes?: Pick<OrganizationMemberDetailClasses, 'MemberRemoveFromOrgModal-dialogContent'>;
+  style?: React.CSSProperties;
   onClose: () => void;
   onConfirm: (userId?: string, memberName?: string, organizationName?: string) => void;
 }
@@ -144,6 +152,11 @@ export interface OrganizationMemberRemoveRoleModalProps {
   roles: Role[];
   memberName?: string;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
+  classes?: Pick<
+    OrganizationMemberDetailClasses,
+    'OrganizationMemberRemoveRoleModal-dialogContent'
+  >;
+  style?: React.CSSProperties;
   onClose: () => void;
   onConfirm: () => void;
 }
@@ -155,8 +168,14 @@ export interface OrganizationMemberAssignRolesModalProps {
   assignedRoles: Role[];
   customMessages?: Partial<OrganizationMemberDetailMessages | OrganizationMemberTabMessages>;
   selectedMember?: OrgMember | null;
+  classes?: Pick<
+    OrganizationMemberDetailClasses,
+    'OrganizationMemberAssignRolesModal-dialogContent'
+  >;
+  style?: React.CSSProperties;
   onClose: () => void;
   onAssign: (roleIds: string[], memberRoles: Role[], userId?: string | null) => void;
+  onRoleSearch?: (value: string) => void;
 }
 
 export interface RolesTabHeaderProps {
@@ -183,14 +202,20 @@ export interface OrganizationMemberEditRolesTabProps {
   memberName?: string;
   selectedMember?: OrgMember | null;
   memberRoles: Role[];
-  availableRoles: Role[];
+  searchedRoles: Role[];
+  onRoleSearch: (term: string) => void;
   selectedRoles: Role[];
   isFetchingMemberRoles?: boolean;
-  isFetchingAvailableRoles?: boolean;
   removingRoleIds?: string[];
   isAssigningRoles?: boolean;
   isRemovingRoles?: boolean;
   modalState: MemberDetailModalState;
+  classes?: Pick<
+    OrganizationMemberDetailClasses,
+    | 'OrganizationMemberAssignRolesModal-dialogContent'
+    | 'OrganizationMemberRemoveRoleModal-dialogContent'
+  >;
+  style?: React.CSSProperties;
   onSelectedRolesChange: (roles: Role[]) => void;
   onAssignRolesClick: () => void;
   onAssignRolesCancel: () => void;

@@ -17,10 +17,10 @@ import {
   QR_PHASE_INSTALLATION,
   SHOW_RECOVERY_CODE,
 } from '@/lib/constants/my-account/user-mfa-management/user-mfa-constants';
-import { renderWithProviders, createMockEnrollFactorModalProps } from '@/tests/utils';
+import { createMockEnrollFactorModalProps } from '@/tests/utils/__mocks__/my-account/user-mfa-management/factor-enrollment/enroll-factor-modal.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { EnrollFactorModalProps } from '@/types/my-account/user-mfa-management/factor-enrollment-types';
 
-// ===== Test Suite =====
 describe('EnrollFactorModal', () => {
   afterEach(() => {
     vi.clearAllMocks();

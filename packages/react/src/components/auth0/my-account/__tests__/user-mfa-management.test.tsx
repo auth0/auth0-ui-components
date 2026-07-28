@@ -13,35 +13,14 @@ import {
   createMockAuthenticationMethodsResponse,
   createMockOTPEnrollmentResponse,
   createMockUserMFAManagementViewProps,
-} from '@/tests/utils/__mocks__';
+} from '@/tests/utils/__mocks__/my-account/user-mfa-management/user-mfa-management.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { UserMFAManagementProps } from '@/types/my-account/user-mfa-management/user-mfa-management-types';
 import type { UserMFAManagementViewProps } from '@/types/my-account/user-mfa-management/user-mfa-management-types';
 
-// ===== Mock packages =====
-
 mockToast();
 const { initMockCoreClient } = mockCore();
-
-// Mock sonner toast to capture and trigger callbacks
-vi.mock('sonner', () => ({
-  toast: {
-    success: vi.fn((_message, options) => {
-      // Trigger the onAutoClose callback immediately for testing purposes
-      if (options?.onAutoClose) {
-        setTimeout(() => {
-          options.onAutoClose();
-        }, 0);
-      }
-    }),
-    error: vi.fn(),
-    dismiss: vi.fn(),
-  },
-  Toaster: () => null,
-}));
-
-// ===== Local mock creators =====
 
 const createMockUserMFAManagementProps = (
   overrides?: Partial<UserMFAManagementProps>,
@@ -73,8 +52,6 @@ const setupEnrolledTotpFactor = (
     ]),
   );
 };
-
-// ===== Tests =====
 
 describe('UserMFAManagement', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;

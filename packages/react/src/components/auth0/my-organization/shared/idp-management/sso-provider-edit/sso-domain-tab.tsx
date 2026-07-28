@@ -16,11 +16,13 @@ import { SsoDomainTabActionsColumn } from '@/components/auth0/my-organization/sh
 import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Header } from '@/components/auth0/shared/header';
+import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
 import { Badge } from '@/components/ui/badge';
 import { useSsoDomainTab } from '@/hooks/my-organization/use-sso-domain-tab';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
+import { cn } from '@/lib/utils';
 import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import type { SsoDomainsTabProps } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
@@ -71,6 +73,10 @@ export function SsoDomainTab({
     handleVerify,
     handleDeleteClick,
     isLoading,
+    isRefetchingDomains,
+    isDomainsStale,
+    domainsUpdatedAt,
+    refetchDomains,
     isDeleting,
     setShowDeleteModal,
     handleDelete,
@@ -150,6 +156,20 @@ export function SsoDomainTab({
           ]}
         />
       </div>
+      <div
+        className={cn(
+          'flex justify-end mb-8',
+          currentStyles.classes?.['SsoDomainsTab-tableActions'],
+        )}
+      >
+        <RefreshIndicator
+          isStale={isDomainsStale}
+          isFetching={isRefetchingDomains}
+          lastUpdatedAt={domainsUpdatedAt || undefined}
+          onRefresh={refetchDomains}
+        />
+      </div>
+
       <DataTable
         columns={columns}
         data={domainsList}

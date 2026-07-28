@@ -66,11 +66,16 @@ export interface UseMemberManagementServiceOptions {
   viewMemberDetailsAction?: ComponentAction<string>;
   assignRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
   removeFromOrganizationAction?: ComponentAction<string>;
+  enableRolesList?: boolean;
+  deferRoleSearch?: boolean;
 }
 
 export interface MemberManagementServiceResult {
   providersQuery: UseQueryResult<IdentityProviderOption[]>;
   rolesQuery: UseQueryResult<Role[]>;
+  rolesSearchQuery: UseQueryResult<Role[]>;
+  setRoleSearchTerm: (term: string) => void;
+  enableRoleSearch: () => void;
   invitationsQuery: UseQueryResult<{
     invitations: MemberInvitation[];
     next: string | null;
@@ -134,6 +139,8 @@ export type MemberManagementModalState =
 export interface UseOrganizationMemberManagementResult {
   activeTab: ActiveTab;
   availableRoles: Role[];
+  searchedRoles: Role[];
+  onRoleSearch: (term: string) => void;
   availableProviders: IdentityProviderOption[];
   members: OrgMember[];
 
@@ -142,6 +149,12 @@ export interface UseOrganizationMemberManagementResult {
   isInitialLoading: boolean;
   isFetchingInvitations: boolean;
   isFetchingMembers: boolean;
+  isMembersStale: boolean;
+  isInvitationsStale: boolean;
+  membersUpdatedAt: number;
+  invitationsUpdatedAt: number;
+  refetchMembers: MemberManagementServiceResult['membersQuery']['refetch'];
+  refetchInvitations: MemberManagementServiceResult['invitationsQuery']['refetch'];
   isFetchingAvailableRoles: boolean;
   isCreatingInvitation: boolean;
   isRevokingInvitation: boolean;
@@ -193,6 +206,7 @@ export interface OrganizationMemberManagementClasses extends OrganizationInvitat
   'OrganizationMemberManagement-root'?: string;
   'OrganizationMemberManagement-header'?: string;
   'OrganizationMemberManagement-tabs'?: string;
+  'OrganizationMemberManagement-tableActions'?: string;
 }
 
 /** Props for OrganizationMemberManagement component. */

@@ -59,6 +59,7 @@ export function SsoProvisioningDetails({
   isScimTokensLoading,
   isScimTokenCreating,
   isScimTokenDeleting,
+  hideAttributeMappings = false,
   onListScimTokens,
   onCreateScimToken,
   onDeleteScimToken,
@@ -149,14 +150,18 @@ export function SsoProvisioningDetails({
           />
         </form>
       </Form>
-      <Separator />
-      <SsoProviderAttributeMappings
-        strategy={provisioningConfig?.strategy || null}
-        isProvisioning
-        userAttributeMap={provisioningConfig?.attributes || null}
-        customMessages={customMessages.mappings}
-        className={currentStyles.classes?.['SsoProvisioning-attributeMapping']}
-      />
+      {!hideAttributeMappings && (
+        <>
+          <Separator />
+          <SsoProviderAttributeMappings
+            strategy={provisioningConfig?.strategy || null}
+            isProvisioning
+            userAttributeMap={provisioningConfig?.attributes || null}
+            customMessages={customMessages.mappings}
+            className={currentStyles.classes?.['SsoProvisioning-attributeMapping']}
+          />
+        </>
+      )}
     </div>
   );
 }

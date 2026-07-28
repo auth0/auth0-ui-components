@@ -47,7 +47,12 @@ const isActionCancelledError = (error: unknown): boolean => {
  */
 export function useSsoProviderEditService(
   idpId: IdpId,
-  { sso, provisioning, customMessages = {} }: Partial<UseSsoProviderEditOptions> = {},
+  {
+    sso,
+    provisioning,
+    customMessages = {},
+    skipProvisioningFetch = false,
+  }: Partial<UseSsoProviderEditOptions> = {},
 ): UseSsoProviderEditServiceReturn {
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.notifications', customMessages);
@@ -103,7 +108,7 @@ export function useSsoProviderEditService(
         throw error;
       }
     },
-    enabled: !!coreClient && !!idpId,
+    enabled: !!coreClient && !!idpId && !skipProvisioningFetch,
   });
 
   useQueryErrorToast(providerQuery, t('general_error'));

@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { DomainTable, DomainTableView } from '@/components/auth0/my-organization/domain-table';
+import { DomainTable } from '@/components/auth0/my-organization/domain-table';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockDomain,
@@ -13,25 +13,18 @@ import {
   createMockCreateAction,
   createMockVerifyAction,
   createMockDeleteAction,
-  createMockDomainTableReturn,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 
-// ===== Mock packages =====
-
 mockToast();
 const { initMockCoreClient } = mockCore();
-
-// ===== Local utils =====
 
 const waitForComponentToLoad = async () => {
   return await waitFor(() => {
     expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
   });
 };
-
-// ===== Tests =====
 
 describe('DomainTable', () => {
   const mockDomain = createMockDomain();
@@ -677,35 +670,141 @@ describe('DomainTable', () => {
       });
     });
   });
-});
 
-describe('DomainTableView', () => {
-  const mockDomainTable = createMockDomainTableReturn();
-  const defaultViewProps = {
-    domainTable: mockDomainTable,
-    schema: undefined,
-    styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
-    hideHeader: false,
-    readOnly: false,
-    customMessages: {},
-    createAction: undefined,
-    onOpenProvider: undefined,
-    onCreateProvider: undefined,
-  };
+  describe('table rendering', () => {
+    describe('when domains are loaded', () => {
+      it('should display domain column', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
 
-  it('renders the table and header', () => {
-    renderWithProviders(<DomainTableView {...defaultViewProps} />);
-    expect(screen.getByRole('table')).toBeInTheDocument();
-    expect(screen.getByText(/header.title/i)).toBeInTheDocument();
+        await waitForComponentToLoad();
+
+        expect(screen.getByText(/table.columns.domain/i)).toBeInTheDocument();
+      });
+
+      it('should display status column', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByText(/table.columns.status/i)).toBeInTheDocument();
+      });
+
+      it('should display domain name in table row', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+        await waitForComponentToLoad();
+
+        expect(screen.getAllByText(mockDomain.domain).length).toBeGreaterThan(0);
+      });
+
+      it('should display verified domain with verified badge', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByText(/shared\.domain_statuses\.verified/i)).toBeInTheDocument();
+      });
+
+      it('should display pending domain with pending badge', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByText(/shared\.domain_statuses\.pending/i)).toBeInTheDocument();
+      });
+    });
+
+    describe('when no domains exist', () => {
+      it('should display empty message', async () => {
+        const apiService = mockCoreClient.getMyOrganizationApiClient();
+        (apiService.organization.domains.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+          response: { organization_domains: [] },
+        });
+
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByText(/table.empty_message/i)).toBeInTheDocument();
+      });
+    });
   });
 
-  it('does not render header if hideHeader is true', () => {
-    renderWithProviders(<DomainTableView {...defaultViewProps} hideHeader={true} />);
-    expect(screen.queryByText(/header.title/i)).not.toBeInTheDocument();
+  describe('pagination', () => {
+    describe('when domains are paginated', () => {
+      it('should render table with domain data', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+        await waitForComponentToLoad();
+
+        const table = screen.getByRole('table');
+        expect(table).toBeInTheDocument();
+        expect(screen.getAllByText(mockDomain.domain).length).toBeGreaterThan(0);
+      });
+    });
   });
 
-  it('disables create button if readOnly is true', () => {
-    renderWithProviders(<DomainTableView {...defaultViewProps} readOnly={true} />);
-    expect(screen.getByRole('button', { name: /create/i })).toBeDisabled();
+  describe('customMessages', () => {
+    describe('when custom header title is provided', () => {
+      it('should render component with customMessages prop', async () => {
+        renderWithProviders(
+          <DomainTable
+            {...createMockDomainTableProps({
+              customMessages: {
+                header: {
+                  title: 'Custom Domain Title',
+                },
+              },
+            })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByRole('table')).toBeInTheDocument();
+        expect(screen.getByText(/header\.title|Custom Domain Title/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should show the last updated label once domains data is loaded', async () => {
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+      expect(screen.getByText('last_updated', { exact: false })).toBeInTheDocument();
+    });
+
+    it('should disable the refresh button while a refetch is in flight, then re-enable it', async () => {
+      const user = userEvent.setup();
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      const listDomains = apiService.organization.domains.list as ReturnType<typeof vi.fn>;
+
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+      await waitForComponentToLoad();
+
+      const refreshButton = screen.getByRole('button', { name: 'refresh' });
+      expect(refreshButton).toBeEnabled();
+
+      let resolveRefetch: (value: unknown) => void = () => {};
+      listDomains.mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveRefetch = resolve;
+          }),
+      );
+
+      await user.click(refreshButton);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'refresh' })).toBeDisabled();
+      });
+
+      resolveRefetch({
+        response: { organization_domains: [mockDomain, mockVerifiedDomain] },
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'refresh' })).toBeEnabled();
+      });
+    });
   });
 });

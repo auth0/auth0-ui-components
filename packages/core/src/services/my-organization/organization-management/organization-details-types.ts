@@ -4,7 +4,7 @@
  * @internal
  */
 import type { MyOrganization } from '@auth0/myorganization-js';
-import type { InternalOrganizationDetailsFormValues as FormValues } from '@core/schemas';
+import type { InternalOrganizationDetailsFormValues as FormValues } from '@core/schemas/my-organization/organization-management/organization-details-schema';
 
 // Get Organization Details
 export type GetOrganizationDetailsResponseContent =

@@ -6,16 +6,13 @@ import { useUserPasskey } from '@/hooks/my-account/use-user-passkey';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import {
-  mockToast,
-  setupMockUseTranslator,
-  setupMockUseErrorHandler,
-  createQueryClientWrapper,
-} from '@/tests/utils';
-import {
   makePasskey,
   makeMockService,
   type MockService,
 } from '@/tests/utils/__mocks__/my-account/user-passkey-management/use-user-passkey.mocks';
+import { createQueryClientWrapper } from '@/tests/utils/test-provider';
+import { mockToast } from '@/tests/utils/test-setup';
+import { setupMockUseTranslator, setupMockUseErrorHandler } from '@/tests/utils/test-utilities';
 
 const { mockedShowToast } = mockToast();
 

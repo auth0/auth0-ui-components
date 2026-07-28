@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { MFAErrorState } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/error-state';
-import { renderWithProviders } from '@/tests/utils';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 const createMockMFAErrorStateProps = (overrides = {}) => ({
   title: 'Something went wrong',
@@ -11,7 +11,6 @@ const createMockMFAErrorStateProps = (overrides = {}) => ({
   ...overrides,
 });
 
-// ===== Test Suite =====
 describe('MFAMFAErrorState', () => {
   afterEach(() => {
     vi.clearAllMocks();

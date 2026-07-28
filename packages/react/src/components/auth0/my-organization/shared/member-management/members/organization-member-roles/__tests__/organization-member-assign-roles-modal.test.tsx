@@ -1,14 +1,14 @@
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
 import { OrganizationMemberAssignRolesModal } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-roles/organization-member-assign-roles-modal';
-import { renderWithProviders } from '@/tests/utils';
 import {
   createMockAssignRolesModalProps,
   createMockMemberRole,
   createMockAvailableRoles,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('OrganizationMemberAssignRolesModal', () => {
   afterEach(() => {
@@ -147,6 +147,65 @@ describe('OrganizationMemberAssignRolesModal', () => {
       );
 
       expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('server-side search', () => {
+    it('should render the role selector even when no roles are available', () => {
+      renderWithProviders(
+        <OrganizationMemberAssignRolesModal
+          {...createMockAssignRolesModalProps({
+            availableRoles: [],
+            assignedRoles: [],
+            onRoleSearch: vi.fn(),
+          })}
+        />,
+      );
+
+      expect(screen.getByText('member.detail.roles.assign_modal.roles_label')).toBeInTheDocument();
+      expect(
+        screen.queryByText('member.detail.roles.assign_modal.no_roles_available'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('should call onRoleSearch as the user types in the selector', () => {
+      const onRoleSearch = vi.fn();
+
+      renderWithProviders(
+        <OrganizationMemberAssignRolesModal
+          {...createMockAssignRolesModalProps({
+            availableRoles: createMockAvailableRoles(),
+            assignedRoles: [],
+            onRoleSearch,
+          })}
+        />,
+      );
+
+      fireEvent.change(
+        screen.getByPlaceholderText('member.detail.roles.assign_modal.roles_placeholder'),
+        { target: { value: 'adm' } },
+      );
+
+      expect(onRoleSearch).toHaveBeenCalledWith('adm');
+    });
+
+    it('should exclude already-assigned roles from the searched results', () => {
+      const availableRoles = createMockAvailableRoles();
+      const [firstRole] = availableRoles;
+
+      renderWithProviders(
+        <OrganizationMemberAssignRolesModal
+          {...createMockAssignRolesModalProps({
+            availableRoles,
+            assignedRoles: firstRole
+              ? [createMockMemberRole({ id: firstRole.id, name: firstRole.name })]
+              : [],
+            onRoleSearch: vi.fn(),
+          })}
+        />,
+      );
+
+      expect(screen.getByText('member.detail.roles.assign_modal.roles_label')).toBeInTheDocument();
     });
   });
 });

@@ -23,9 +23,9 @@ export interface RefreshIndicatorProps {
 }
 
 /**
- * Renders a stale-data indicator with a manual refresh button.
+ * Renders a last-updated indicator with a manual refresh button.
  * @param props - {@link RefreshIndicatorProps}
- * @returns The rendered indicator, or `null` when it should be hidden.
+ * @returns The rendered indicator
  */
 export function RefreshIndicator({
   lastUpdatedAt,
@@ -36,18 +36,26 @@ export function RefreshIndicator({
   tickIntervalMs = DEFAULT_REFRESH_INDICATOR_TICK_MS,
 }: RefreshIndicatorProps): React.JSX.Element | null {
   const { t } = useTranslator('common');
-  const visible = isStale && !isFetching;
   const timestampMs = lastUpdatedAt == null ? null : new Date(lastUpdatedAt).getTime();
   const hasValidTimestamp = timestampMs != null && !Number.isNaN(timestampMs);
+  const isInitialLoad = isFetching && !hasValidTimestamp;
 
+  const showStaleLabel = isStale && !isFetching;
+  const label = showStaleLabel
+    ? hasValidTimestamp
+      ? getRelativeTimeLabel(timestampMs, t)
+      : null
+    : t('time.just_now', undefined, 'Just now');
+
+  const shouldTick = showStaleLabel && hasValidTimestamp;
   const [, forceTick] = React.useReducer((n: number) => n + 1, 0);
   React.useEffect(() => {
-    if (!visible || !hasValidTimestamp || tickIntervalMs <= 0) return;
+    if (!shouldTick || tickIntervalMs <= 0) return;
     const id = setInterval(forceTick, tickIntervalMs);
     return () => clearInterval(id);
-  }, [visible, hasValidTimestamp, timestampMs, tickIntervalMs]);
+  }, [shouldTick, timestampMs, tickIntervalMs]);
 
-  if (!visible) {
+  if (isInitialLoad) {
     return null;
   }
 
@@ -56,14 +64,20 @@ export function RefreshIndicator({
       className={cn('flex items-center gap-3 text-sm text-muted-foreground', className)}
       role="status"
     >
-      {hasValidTimestamp && (
+      {label != null && (
         <span aria-live="off">
           {t('last_updated')}
           {': '}
-          {getRelativeTimeLabel(timestampMs, t)}
+          {label}
         </span>
       )}
-      <Button type="button" variant="outline" size="default" onClick={onRefresh}>
+      <Button
+        type="button"
+        variant="outline"
+        size="default"
+        disabled={!isStale || isFetching}
+        onClick={onRefresh}
+      >
         <RefreshCw aria-hidden="true" />
         {t('refresh')}
       </Button>

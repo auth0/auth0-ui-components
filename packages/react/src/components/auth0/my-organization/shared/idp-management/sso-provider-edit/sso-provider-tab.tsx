@@ -53,6 +53,9 @@ export function SsoProviderTab({
   isRemoving,
   idpConfig,
   shouldAllowDeletion,
+  hideDeleteProvider = false,
+  hideRemoveFromOrganization = false,
+  hideAttributeMappings = false,
   formActions,
   hasSsoAttributeSyncWarning,
   onAttributeSync,
@@ -73,7 +76,8 @@ export function SsoProviderTab({
           onSync={onAttributeSync}
           isSyncing={isSyncingAttributes}
           customMessages={customMessages.attribute_sync_alert}
-          className={currentStyles.classes?.['SsoProviderAttributeSyncAlert-root']}
+          classes={currentStyles.classes}
+          style={currentStyles.variables}
         />
       )}
 
@@ -91,6 +95,7 @@ export function SsoProviderTab({
             <SsoProviderDetails
               provider={provider}
               readOnly={readOnly}
+              hideAttributeMappings={hideAttributeMappings}
               formActions={formActions}
               customMessages={customMessages.details}
               styling={styling}
@@ -101,7 +106,7 @@ export function SsoProviderTab({
       </Card>
 
       <div className="space-y-4">
-        {provider && organization && (
+        {provider && organization && !hideRemoveFromOrganization && (
           <SsoProviderRemoveFromOrganization
             provider={provider}
             organizationName={organization?.name}
@@ -112,7 +117,7 @@ export function SsoProviderTab({
           />
         )}
 
-        {provider && shouldAllowDeletion && (
+        {provider && shouldAllowDeletion && !hideDeleteProvider && (
           <SsoProviderDelete
             provider={provider}
             onDelete={onDelete}

@@ -22,6 +22,8 @@ import type { OrganizationMemberAssignRolesModalProps } from '@/types/my-organiz
 /**
  * Renders the assign roles dialog for selecting and assigning roles to a member.
  * @param props - Component props
+ * @param props.classes - Custom CSS class overrides
+ * @param props.style - CSS variables computed by the parent
  * @returns The rendered assign roles dialog element
  */
 export function OrganizationMemberAssignRolesModal({
@@ -31,8 +33,11 @@ export function OrganizationMemberAssignRolesModal({
   assignedRoles,
   customMessages,
   selectedMember,
+  classes,
+  style,
   onClose,
   onAssign,
+  onRoleSearch,
 }: OrganizationMemberAssignRolesModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
@@ -42,8 +47,9 @@ export function OrganizationMemberAssignRolesModal({
   React.useEffect(() => {
     if (!isOpen) {
       setSelectedRoles([]);
+      onRoleSearch?.('');
     }
-  }, [isOpen]);
+  }, [isOpen, onRoleSearch]);
 
   const assignedRoleIds = React.useMemo(
     () => new Set(assignedRoles.map((r) => r.id)),
@@ -73,13 +79,16 @@ export function OrganizationMemberAssignRolesModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent>
+      <DialogContent
+        style={style}
+        className={classes?.['OrganizationMemberAssignRolesModal-dialogContent']}
+      >
         <DialogHeader>
           <DialogTitle className="mb-4">{t('member.detail.roles.assign_modal.title')}</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col gap-3 w-full">
-          {unassignedRoles.length === 0 ? (
+          {!onRoleSearch && unassignedRoles.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               {t('member.detail.roles.assign_modal.no_roles_available')}
             </p>
@@ -91,7 +100,10 @@ export function OrganizationMemberAssignRolesModal({
                 options={unassignedRoles.map((r) => ({ value: r.id, label: r.name }))}
                 value={selectedRoles}
                 onChange={(val) => setSelectedRoles(Array.isArray(val) ? val : [val])}
+                onInputChange={onRoleSearch}
+                filterLocally={!onRoleSearch}
                 placeholder={t('member.detail.roles.assign_modal.roles_placeholder')}
+                notFoundMessage={t('member.detail.roles.assign_modal.no_roles_available')}
                 disabled={isLoading}
                 showSelectedCount
               />
@@ -103,10 +115,7 @@ export function OrganizationMemberAssignRolesModal({
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
             {t('member.detail.roles.assign_modal.cancel_button')}
           </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={isLoading || selectedRoles.length === 0 || unassignedRoles.length === 0}
-          >
+          <Button onClick={handleSubmit} disabled={isLoading || selectedRoles.length === 0}>
             {t('member.detail.roles.assign_modal.submit_button')}
           </Button>
         </DialogFooter>

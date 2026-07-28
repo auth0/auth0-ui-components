@@ -44,6 +44,7 @@ import type { OrganizationInvitationCreateModalProps } from '@/types/my-organiza
  * @param props.schema - Schema overrides for validation (email regex, maxEmails, error messages).
  * @param props.onClose - Callback when modal is closed.
  * @param props.onCreate - Callback when invitation is created.
+ * @param props.style - CSS variables computed by the parent.
  * @param props.className - Optional CSS class name.
  * @returns The modal component.
  */
@@ -57,7 +58,9 @@ export function OrganizationInvitationCreateModal({
   schema,
   onClose,
   onCreate,
+  style,
   className,
+  onRoleSearch,
 }: OrganizationInvitationCreateModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
@@ -78,7 +81,8 @@ export function OrganizationInvitationCreateModal({
     setSelectedRoles([]);
     setSelectedProvider(undefined);
     setEmailError(undefined);
-  }, []);
+    onRoleSearch?.('');
+  }, [onRoleSearch]);
 
   React.useEffect(() => {
     if (!isOpen) {
@@ -209,7 +213,7 @@ export function OrganizationInvitationCreateModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className={className}>
+      <DialogContent style={style} className={className}>
         <DialogHeader>
           <DialogTitle>{t('invitation.create.title')}</DialogTitle>
           <DialogDescription>{t('invitation.create.description')}</DialogDescription>
@@ -239,9 +243,11 @@ export function OrganizationInvitationCreateModal({
             <Combobox
               value={selectedRoles}
               onChange={handleRoleChange}
+              onInputChange={onRoleSearch}
+              filterLocally={!onRoleSearch}
               options={roleOptions}
               placeholder={t('invitation.create.roles_placeholder')}
-              disabled={isLoading || availableRoles.length === 0}
+              disabled={isLoading || (!onRoleSearch && availableRoles.length === 0)}
               multiple
               showSelectedCount
             />

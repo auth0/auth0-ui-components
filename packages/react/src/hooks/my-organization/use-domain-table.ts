@@ -52,10 +52,14 @@ export function useDomainTable({
     providers,
     nextToken,
     isFetching,
+    isRefetchingDomains,
+    isDomainsStale,
+    domainsUpdatedAt,
     isCreating,
     isDeleting,
     isVerifying,
     isLoadingProviders,
+    refetchDomains,
     fetchProviders,
     onCreateDomain,
     onVerifyDomain,
@@ -277,11 +281,13 @@ export function useDomainTable({
 
     // Loading states
     isFetching,
+    isRefetchingDomains,
+    isDomainsStale,
+    domainsUpdatedAt,
     isCreating,
     isDeleting,
     isVerifying,
     isLoadingProviders,
-
     // Pagination
     pagination: {
       pageSize,
@@ -305,6 +311,7 @@ export function useDomainTable({
     setShowDeleteModal,
 
     // Handlers
+    refetchDomains,
     handleCreate,
     handleVerify,
     handleDelete,

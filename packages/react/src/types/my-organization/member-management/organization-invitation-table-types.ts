@@ -11,12 +11,13 @@ import type {
   OrganizationInvitationTabMessages,
   Role,
 } from '@auth0/universal-components-core';
+import type React from 'react';
 
 import type {
   MemberManagementFilterState,
   MemberManagementPaginationState,
   MemberManagementSortConfig,
-} from '@/types';
+} from './organization-member-management-types';
 
 /** Invitation status. */
 export type InvitationStatus = 'pending' | 'expired';
@@ -119,9 +120,11 @@ export interface OrganizationInvitationCreateModalProps {
   availableProviders?: IdentityProviderOption[];
   inviterName?: string;
   schema?: InvitationCreateSchemas;
+  style?: React.CSSProperties;
   onClose: () => void;
   onCreate: (data: CreateInvitationInput) => void;
   className?: string;
+  onRoleSearch?: (value: string) => void;
 }
 
 /** Props for OrganizationInvitationDetailsModal component. */
@@ -134,6 +137,7 @@ export interface OrganizationInvitationDetailsModalProps {
   availableRoles?: Role[];
   availableProviders?: IdentityProviderOption[];
   readOnly?: boolean;
+  style?: React.CSSProperties;
   onClose: () => void;
   onCopyUrl?: (invitation: MemberInvitation) => void;
   onRevoke?: (invitation?: MemberInvitation) => void;
@@ -148,6 +152,7 @@ export interface OrganizationInvitationRevokeModalProps {
   isLoading?: boolean;
   isRevokeAndResend?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
+  style?: React.CSSProperties;
   onClose: () => void;
   onConfirm: (invitation: MemberInvitation) => void;
   className?: string;

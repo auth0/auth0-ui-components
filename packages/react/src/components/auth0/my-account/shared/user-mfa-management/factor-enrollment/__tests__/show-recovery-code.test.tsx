@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { ShowRecoveryCode } from '@/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/show-recovery-code';
-import { renderWithProviders, createMockShowRecoveryCodeProps, TestProvider } from '@/tests/utils';
+import { createMockShowRecoveryCodeProps } from '@/tests/utils/__mocks__/my-account/user-mfa-management/factor-enrollment/show-recovery-code.mocks';
+import { renderWithProviders, TestProvider } from '@/tests/utils/test-provider';
 
 describe('ShowRecoveryCode', () => {
   afterEach(() => {

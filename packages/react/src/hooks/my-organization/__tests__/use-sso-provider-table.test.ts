@@ -3,6 +3,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useSsoProviderTable } from '../use-sso-provider-table';
 
+import { createMockSsoProviderTableServiceReturn } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-provider-table/sso-provider-table-mocks';
+
 vi.mock('@/hooks/shared/use-translator', () => ({
   useTranslator: () => ({ t: (key: string) => key }),
 }));
@@ -39,14 +41,14 @@ vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-table-service'
   },
 }));
 
-vi.mock('@/hooks/my-organization/use-config', () => ({
+vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
   useConfig: () => ({
     isLoadingConfig: false,
     shouldAllowDeletion: true,
     isConfigValid: true,
   }),
 }));
-vi.mock('@/hooks/my-organization/use-idp-config', () => ({
+vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
   useIdpConfig: () => ({
     isLoadingIdpConfig: false,
     isIdpConfigValid: true,
@@ -127,22 +129,9 @@ describe('useSsoProviderTable', () => {
     const { useSsoProviderTableService } = await import(
       '@/hooks/my-organization/shared/services/use-sso-provider-table-service'
     );
-    vi.mocked(useSsoProviderTableService).mockReturnValue({
-      providers: [],
-      organization: null,
-      isLoading: false,
-      providersError: null,
-      organizationError: null,
-      isDeleting: false,
-      isRemoving: false,
-      isUpdating: false,
-      isUpdatingId: null,
-      fetchProviders: vi.fn(),
-      fetchOrganizationDetails: vi.fn(),
-      onDeleteConfirm: vi.fn(),
-      onRemoveConfirm: vi.fn(),
-      onEnableProvider: mockOnEnableProvider,
-    });
+    vi.mocked(useSsoProviderTableService).mockReturnValue(
+      createMockSsoProviderTableServiceReturn({ onEnableProvider: mockOnEnableProvider }),
+    );
 
     const { result } = renderHook(() => useSsoProviderTable(defaultOptions));
 
@@ -157,22 +146,9 @@ describe('useSsoProviderTable', () => {
     const { useSsoProviderTableService } = await import(
       '@/hooks/my-organization/shared/services/use-sso-provider-table-service'
     );
-    vi.mocked(useSsoProviderTableService).mockReturnValue({
-      providers: [],
-      organization: null,
-      isLoading: false,
-      providersError: null,
-      organizationError: null,
-      isDeleting: false,
-      isRemoving: false,
-      isUpdating: false,
-      isUpdatingId: null,
-      fetchProviders: vi.fn(),
-      fetchOrganizationDetails: vi.fn(),
-      onDeleteConfirm: vi.fn(),
-      onRemoveConfirm: vi.fn(),
-      onEnableProvider: mockOnEnableProvider,
-    });
+    vi.mocked(useSsoProviderTableService).mockReturnValue(
+      createMockSsoProviderTableServiceReturn({ onEnableProvider: mockOnEnableProvider }),
+    );
 
     const { result } = renderHook(() => useSsoProviderTable({ ...defaultOptions, readOnly: true }));
 
@@ -187,22 +163,9 @@ describe('useSsoProviderTable', () => {
     const { useSsoProviderTableService } = await import(
       '@/hooks/my-organization/shared/services/use-sso-provider-table-service'
     );
-    vi.mocked(useSsoProviderTableService).mockReturnValue({
-      providers: [],
-      organization: null,
-      isLoading: false,
-      providersError: null,
-      organizationError: null,
-      isDeleting: false,
-      isRemoving: false,
-      isUpdating: false,
-      isUpdatingId: null,
-      fetchProviders: vi.fn(),
-      fetchOrganizationDetails: vi.fn(),
-      onDeleteConfirm: mockOnDeleteConfirm,
-      onRemoveConfirm: vi.fn(),
-      onEnableProvider: vi.fn(),
-    });
+    vi.mocked(useSsoProviderTableService).mockReturnValue(
+      createMockSsoProviderTableServiceReturn({ onDeleteConfirm: mockOnDeleteConfirm }),
+    );
 
     const { result } = renderHook(() => useSsoProviderTable(defaultOptions));
 
@@ -223,22 +186,9 @@ describe('useSsoProviderTable', () => {
     const { useSsoProviderTableService } = await import(
       '@/hooks/my-organization/shared/services/use-sso-provider-table-service'
     );
-    vi.mocked(useSsoProviderTableService).mockReturnValue({
-      providers: [],
-      organization: null,
-      isLoading: false,
-      providersError: null,
-      organizationError: null,
-      isDeleting: false,
-      isRemoving: false,
-      isUpdating: false,
-      isUpdatingId: null,
-      fetchProviders: vi.fn(),
-      fetchOrganizationDetails: vi.fn(),
-      onDeleteConfirm: vi.fn(),
-      onRemoveConfirm: mockOnRemoveConfirm,
-      onEnableProvider: vi.fn(),
-    });
+    vi.mocked(useSsoProviderTableService).mockReturnValue(
+      createMockSsoProviderTableServiceReturn({ onRemoveConfirm: mockOnRemoveConfirm }),
+    );
 
     const { result } = renderHook(() => useSsoProviderTable(defaultOptions));
 

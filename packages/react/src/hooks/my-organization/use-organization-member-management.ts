@@ -84,6 +84,9 @@ export function useOrganizationMemberManagement(
   const {
     providersQuery,
     rolesQuery,
+    rolesSearchQuery,
+    setRoleSearchTerm,
+    enableRoleSearch,
     invitationsQuery,
     membersQuery,
     organizationQuery,
@@ -113,10 +116,18 @@ export function useOrganizationMemberManagement(
     },
     assignRolesAction,
     removeFromOrganizationAction,
+    deferRoleSearch: true,
   });
+
+  React.useEffect(() => {
+    if (modalState.type === 'create' || modalState.type === 'assignRole') {
+      enableRoleSearch();
+    }
+  }, [modalState.type, enableRoleSearch]);
 
   const availableProviders: IdentityProviderOption[] = providersQuery.data ?? [];
   const availableRoles = rolesQuery.data ?? [];
+  const searchedRoles = rolesSearchQuery.data ?? [];
   const currentInvitations = invitationsQuery.data?.invitations ?? [];
   const currentMembers = membersQuery.data?.members ?? [];
   const invitationNextToken = invitationsQuery.data?.next ?? null;
@@ -266,6 +277,8 @@ export function useOrganizationMemberManagement(
   return {
     activeTab,
     availableRoles,
+    searchedRoles,
+    onRoleSearch: setRoleSearchTerm,
     availableProviders,
 
     invitations: currentInvitations,
@@ -274,6 +287,12 @@ export function useOrganizationMemberManagement(
     isInitialLoading: membersQuery.isLoading,
     isFetchingInvitations: invitationsQuery.isFetching,
     isFetchingMembers: membersQuery.isFetching,
+    isMembersStale: membersQuery.isStale,
+    isInvitationsStale: invitationsQuery.isStale,
+    membersUpdatedAt: membersQuery.dataUpdatedAt,
+    invitationsUpdatedAt: invitationsQuery.dataUpdatedAt,
+    refetchMembers: membersQuery.refetch,
+    refetchInvitations: invitationsQuery.refetch,
     isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
     isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),
     isAssigningRoles: isMutationLoading(assignRolesMutation),

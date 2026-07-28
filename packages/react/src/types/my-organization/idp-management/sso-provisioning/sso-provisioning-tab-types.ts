@@ -37,6 +37,7 @@ export interface SsoProvisioningTabClasses {
   'SsoProvisioning-attributeMapping'?: string;
   'SsoProvisioningDetails-formActions'?: string;
   'SsoProviderAttributeSyncAlert-root'?: string;
+  'SsoProviderAttributeSyncAlert-dialogContent'?: string;
 }
 
 /** Props for SsoProvisioningTab component. */
@@ -48,6 +49,7 @@ export interface SsoProvisioningTabProps
   isScimTokensLoading: boolean;
   isScimTokenCreating: boolean;
   isScimTokenDeleting: boolean;
+  hideAttributeMappings?: boolean;
   onCreateProvisioning: () => Promise<void>;
   onDeleteProvisioning: () => Promise<void>;
   onListScimTokens: () => Promise<ListIdpProvisioningScimTokensResponseContent | null>;
@@ -87,6 +89,7 @@ export interface SsoProvisioningDetailsProps
   isScimTokensLoading: boolean;
   isScimTokenCreating: boolean;
   isScimTokenDeleting: boolean;
+  hideAttributeMappings?: boolean;
   onListScimTokens: () => Promise<ListIdpProvisioningScimTokensResponseContent | null>;
   onCreateScimToken: (
     data: CreateIdpProvisioningScimTokenRequestContent,

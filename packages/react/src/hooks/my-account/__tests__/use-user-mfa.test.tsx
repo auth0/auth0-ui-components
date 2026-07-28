@@ -18,21 +18,10 @@ import {
   QR_PHASE_INSTALLATION,
   SHOW_RECOVERY_CODE,
 } from '@/lib/constants/my-account/user-mfa-management/user-mfa-constants';
-import {
-  setupMockUseTranslator,
-  setupMockUseErrorHandler,
-  createQueryClientWrapper,
-} from '@/tests/utils';
+import { createQueryClientWrapper } from '@/tests/utils/test-provider';
+import { mockToast } from '@/tests/utils/test-setup';
+import { setupMockUseTranslator, setupMockUseErrorHandler } from '@/tests/utils/test-utilities';
 import type { UseUserMFAServiceReturn } from '@/types/my-account/user-mfa-management/user-mfa-management-types';
-
-vi.mock('sonner', () => ({
-  toast: {
-    success: vi.fn((_msg, opts) => {
-      if (opts?.onAutoClose) setTimeout(() => opts.onAutoClose(), 0);
-    }),
-    error: vi.fn(),
-  },
-}));
 
 type MockService = {
   factorsQuery: Pick<
@@ -110,6 +99,7 @@ describe('useUserMFA', () => {
     vi.spyOn(useUserMFAServiceModule, 'useUserMFAService').mockReturnValue(
       mockService as unknown as UseUserMFAServiceReturn,
     );
+    mockToast();
   });
 
   it('returns correct initial state', () => {

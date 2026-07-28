@@ -191,14 +191,16 @@ export function OrganizationMemberDetailView(
               memberName={props.member?.name}
               selectedMember={props.member}
               memberRoles={props.memberRoles}
-              availableRoles={props.availableRoles}
+              searchedRoles={props.searchedRoles}
+              onRoleSearch={props.onRoleSearch}
               selectedRoles={props.selectedRoles}
               isFetchingMemberRoles={props.isFetchingMemberRoles}
-              isFetchingAvailableRoles={props.isFetchingAvailableRoles}
               removingRoleIds={props.removingRoleIds}
               isRemovingRoles={props.isRemovingRoles}
               modalState={modalState}
               isAssigningRoles={props.isAssigningRoles}
+              classes={currentStyles.classes}
+              style={currentStyles.variables}
               onSelectedRolesChange={props.setSelectedRoles}
               onAssignRolesClick={handleAssignRolesClick}
               onAssignRolesCancel={closeModal}
@@ -217,6 +219,8 @@ export function OrganizationMemberDetailView(
           memberUserId={props.member?.user_id}
           organizationName={props.organizationDisplayName}
           customMessages={customMessages}
+          classes={currentStyles.classes}
+          style={currentStyles.variables}
           onClose={closeModal}
           onConfirm={handleRemoveFromOrganizationConfirm}
         />

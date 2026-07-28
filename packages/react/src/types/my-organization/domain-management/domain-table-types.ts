@@ -17,17 +17,26 @@ import type {
   CreateOrganizationDomainRequestContent,
   IdentityProviderAssociatedWithDomain,
 } from '@auth0/universal-components-core';
+import type { UseQueryResult } from '@tanstack/react-query';
 import type React from 'react';
 
 export type { Domain };
+interface DomainsQueryData {
+  domains: Domain[];
+  next: string | null;
+}
+
+type RefetchDomains = UseQueryResult<DomainsQueryData>['refetch'];
 
 /** CSS classes for DomainTable. */
 export interface DomainTableClasses {
   'DomainTable-header'?: string;
   'DomainTable-table'?: string;
+  'DomainTable-tableActions'?: string;
   'DomainTable-createModal'?: string;
   'DomainTable-configureModal'?: string;
   'DomainTable-deleteModal'?: string;
+  'DomainTableVerifyModal-dialogContent'?: string;
 }
 
 /** Domain table pagination state. */
@@ -102,10 +111,14 @@ export interface UseDomainTableServiceReturn {
   providers: IdentityProviderAssociatedWithDomain[];
   nextToken: string | null;
   isFetching: boolean;
+  isRefetchingDomains: boolean;
+  isDomainsStale: boolean;
+  domainsUpdatedAt: number;
   isLoadingProviders: boolean;
   isCreating: boolean;
   isDeleting: boolean;
   isVerifying: boolean;
+  refetchDomains: RefetchDomains;
   fetchProviders: (domain: Domain) => Promise<void>;
   fetchDomains: () => Promise<void>;
   onCreateDomain: (data: CreateOrganizationDomainRequestContent) => Promise<Domain>;
@@ -123,11 +136,13 @@ export interface UseDomainTableReturn {
 
   // Loading states
   isFetching: boolean;
+  isRefetchingDomains: boolean;
+  isDomainsStale: boolean;
+  domainsUpdatedAt: number;
   isCreating: boolean;
   isDeleting: boolean;
   isVerifying: boolean;
   isLoadingProviders: boolean;
-
   // Pagination
   pagination: DomainTablePaginationState;
 
@@ -146,6 +161,7 @@ export interface UseDomainTableReturn {
   setShowDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
 
   // Handlers
+  refetchDomains: RefetchDomains;
   handleCreate: (domainUrl: string) => Promise<void>;
   handleVerify: (domain: Domain) => Promise<void>;
   handleDelete: (domain: Domain) => Promise<void>;

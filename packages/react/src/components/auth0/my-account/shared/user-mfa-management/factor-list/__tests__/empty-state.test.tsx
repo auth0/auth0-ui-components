@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { MFAEmptyState } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/empty-state';
-import { renderWithProviders } from '@/tests/utils';
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 const createMockMFAEmptyStateProps = (overrides = {}) => ({
   message: 'Test Message',
@@ -10,7 +10,6 @@ const createMockMFAEmptyStateProps = (overrides = {}) => ({
   ...overrides,
 });
 
-// ===== Test Suite =====
 describe('MFAEmptyState', () => {
   afterEach(() => {
     vi.clearAllMocks();
