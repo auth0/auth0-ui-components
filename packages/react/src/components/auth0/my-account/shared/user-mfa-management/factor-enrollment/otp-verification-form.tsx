@@ -103,7 +103,7 @@ export function OTPVerificationForm({
         >
           <p
             id="otp-description"
-            className="text-sm text-primary font-normal text-center text-(length:--font-size-paragraph)"
+            className="text-sm text-primary font-normal text-center break-words text-(length:--font-size-paragraph)"
           >
             {[FACTOR_TYPE_PUSH_NOTIFICATION, FACTOR_TYPE_TOTP].includes(factorType)
               ? t('enrollment.verify.totp.description')
