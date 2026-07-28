@@ -154,13 +154,13 @@ describe('useMemberManagementService', () => {
       mockCoreClient.getMyOrganizationApiClient().organization.userStores.get = vi
         .fn()
         .mockResolvedValue({
-          data: [
+          user_stores: [
             { id: 'us_1', display_name: 'Acme Directory', name: 'acme' },
             { id: 'us_2', name: 'okta-store' },
             // No display_name or name — should fall back to the id.
             { id: 'us_3' },
           ],
-          response: { next: null },
+          next: null,
         });
 
       const options = createDefaultOptions();
@@ -562,8 +562,11 @@ describe('useMemberManagementService', () => {
   });
 
   describe('resendInvitationMutation', () => {
-    it('should revoke and resend an invitation', async () => {
-      const invitation = createMockInvitation();
+    it('should revoke and resend an invitation, preserving the connection', async () => {
+      const invitation = createMockInvitation({ identity_provider_id: 'con_provider1' });
+      const orgApi = mockCoreClient.getMyOrganizationApiClient().organization;
+      orgApi.invitations.get = vi.fn().mockResolvedValue(invitation);
+
       const options = createDefaultOptions();
       const { result } = renderService(options);
 
@@ -575,10 +578,14 @@ describe('useMemberManagementService', () => {
         expect(result.current.resendInvitationMutation.isSuccess).toBe(true);
       });
 
-      const orgApi = mockCoreClient.getMyOrganizationApiClient().organization;
       expect(orgApi.invitations.get).toHaveBeenCalledWith(invitation.id);
       expect(orgApi.invitations.delete).toHaveBeenCalled();
-      expect(orgApi.invitations.create).toHaveBeenCalled();
+      expect(orgApi.invitations.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          identity_provider_id: 'con_provider1',
+          user_store_id: undefined,
+        }),
+      );
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'success' }));
     });
 

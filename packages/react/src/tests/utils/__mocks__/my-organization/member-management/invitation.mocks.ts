@@ -52,9 +52,9 @@ export const createMockUserStore = (overrides?: Partial<UserStore>): UserStore =
 
 export const createMockListUserStoresResponse = (
   stores: UserStore[] = [createMockUserStore()],
-): { data: UserStore[]; response: ListUserStoresResponseContent } => ({
-  data: stores,
-  response: { user_stores: stores, next: undefined },
+): ListUserStoresResponseContent => ({
+  user_stores: stores,
+  next: undefined,
 });
 
 export const createMockRoles = (): Role[] => [

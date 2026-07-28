@@ -112,7 +112,7 @@ export function useMemberManagementService(
       const page = await coreClient!
         .getMyOrganizationApiClient()
         .organization.userStores.get({ is_enabled: true });
-      const userStores = page.data ?? [];
+      const userStores = page.user_stores ?? [];
       return userStores
         .filter((store) => !!store.id)
         .map((store) => ({
@@ -358,10 +358,15 @@ export function useMemberManagementService(
         .organization.invitations.delete(freshInvitation.id ?? invitation.id!);
       const email = freshInvitation.invitee?.email ?? invitation.invitee?.email ?? '';
       const roles = freshInvitation.roles ?? invitation.roles;
+      const identityProviderId =
+        freshInvitation.identity_provider_id ?? invitation.identity_provider_id;
+      const userStoreId = freshInvitation.user_store_id ?? invitation.user_store_id;
       const response = await coreClient!
         .getMyOrganizationApiClient()
         .organization.invitations.create({
           invitees: [{ email, roles }],
+          identity_provider_id: identityProviderId,
+          user_store_id: userStoreId,
         });
       return Array.isArray(response) ? response[0] : response;
     },

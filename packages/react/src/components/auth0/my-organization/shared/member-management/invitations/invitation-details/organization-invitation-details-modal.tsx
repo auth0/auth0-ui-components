@@ -260,7 +260,7 @@ export function OrganizationInvitationDetailsModal({
           {connectionName && (
             <div className="space-y-2">
               <Label className="text-sm font-medium text-muted-foreground">
-                {t('invitation.details.provider_label')}
+                {t('invitation.details.connection_label')}
               </Label>
               <TextField value={connectionName} readOnly />
             </div>

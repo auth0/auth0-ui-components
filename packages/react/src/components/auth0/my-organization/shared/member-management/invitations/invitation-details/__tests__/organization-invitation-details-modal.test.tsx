@@ -251,7 +251,7 @@ describe('OrganizationInvitationDetailsModal', () => {
         <OrganizationInvitationDetailsModal {...createMockDetailsModalProps({ invitation })} />,
       );
 
-      expect(screen.queryByText('invitation.details.provider_label')).not.toBeInTheDocument();
+      expect(screen.queryByText('invitation.details.connection_label')).not.toBeInTheDocument();
     });
   });
 

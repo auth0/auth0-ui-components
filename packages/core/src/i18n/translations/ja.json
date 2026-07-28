@@ -1284,7 +1284,7 @@
         "email_label": "メール",
         "status_label": "ステータス",
         "roles_label": "ロール",
-        "provider_label": "IDプロバイダー",
+        "connection_label": "接続",
         "created_at_label": "作成日",
         "expires_at_label": "有効期限",
         "invited_by_label": "招待者",

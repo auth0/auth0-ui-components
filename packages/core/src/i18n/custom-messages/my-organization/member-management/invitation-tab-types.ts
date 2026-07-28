@@ -57,7 +57,7 @@ export interface OrganizationInvitationTabMessages {
     email_label?: string;
     status_label?: string;
     roles_label?: string;
-    provider_label?: string;
+    connection_label?: string;
     created_at_label?: string;
     expires_at_label?: string;
     invited_by_label?: string;

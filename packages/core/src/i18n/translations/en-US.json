@@ -1283,7 +1283,7 @@
         "email_label": "Email",
         "status_label": "Status",
         "roles_label": "Roles",
-        "provider_label": "Identity Provider",
+        "connection_label": "Connection",
         "created_at_label": "Created",
         "expires_at_label": "Expires",
         "invited_by_label": "Invited By",
