@@ -19,7 +19,7 @@ import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { UserMFAManagementProps } from '@/types/my-account/user-mfa-management/user-mfa-management-types';
 import type { UserMFAManagementViewProps } from '@/types/my-account/user-mfa-management/user-mfa-management-types';
 
-const { mockedShowToast } = mockToast();
+mockToast();
 const { initMockCoreClient } = mockCore();
 
 const createMockUserMFAManagementProps = (
@@ -62,16 +62,6 @@ describe('UserMFAManagement', () => {
 
     vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
       coreClient: mockCoreClient,
-    });
-
-    // Trigger the onAutoClose callback immediately for testing purposes,
-    // mirroring how the real showToast passes it through to the toast provider.
-    mockedShowToast.mockImplementation(({ data }: { data?: { onAutoClose?: () => void } }) => {
-      if (data?.onAutoClose) {
-        setTimeout(() => {
-          data.onAutoClose!();
-        }, 0);
-      }
     });
   });
 

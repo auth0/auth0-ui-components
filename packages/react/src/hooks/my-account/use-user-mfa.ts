@@ -118,14 +118,8 @@ export function useUserMFA({
   );
 
   const handleEnrollSuccess = useCallback(async () => {
-    showToast({
-      type: 'success',
-      message: t('notifications.factor_enroll_success'),
-      data: {
-        duration: 2000,
-        onAutoClose: () => enrollAction?.onAfter?.(enrollFactor!),
-      },
-    });
+    showToast({ type: 'success', message: t('notifications.factor_enroll_success') });
+    await enrollAction?.onAfter?.(enrollFactor!);
     setIsEnrollDialogOpen(false);
     setEnrollFactor(null);
     setEnrollmentPhase(null);
@@ -207,14 +201,8 @@ export function useUserMFA({
       try {
         await deleteMutation.mutateAsync(factorId);
         await factorsQuery.refetch();
-        showToast({
-          type: 'success',
-          message: t('notifications.factor_remove_success'),
-          data: {
-            duration: 2000,
-            onAutoClose: () => deleteAction?.onAfter?.(factorToDelete!.type),
-          },
-        });
+        showToast({ type: 'success', message: t('notifications.factor_remove_success') });
+        await deleteAction?.onAfter?.(factorToDelete!.type);
       } catch (err) {
         handleError(err, { fallbackMessage: t('notifications.factor_delete_error') });
       } finally {

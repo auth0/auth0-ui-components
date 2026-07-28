@@ -99,11 +99,7 @@ describe('useUserMFA', () => {
     vi.spyOn(useUserMFAServiceModule, 'useUserMFAService').mockReturnValue(
       mockService as unknown as UseUserMFAServiceReturn,
     );
-
-    const { mockedShowToast } = mockToast();
-    mockedShowToast.mockImplementation(({ data }: { data?: { onAutoClose?: () => void } }) => {
-      if (data?.onAutoClose) setTimeout(() => data.onAutoClose!(), 0);
-    });
+    mockToast();
   });
 
   it('returns correct initial state', () => {
