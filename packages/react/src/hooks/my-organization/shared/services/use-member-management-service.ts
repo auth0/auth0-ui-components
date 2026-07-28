@@ -305,7 +305,7 @@ export function useMemberManagementService(
       }
       await coreClient!
         .getMyOrganizationApiClient()
-        .organization.invitations.delete(invitation.id!);
+        .organization.invitations.deleteMemberInvitations({ invitations: [invitation.id!] });
       return invitation;
     },
     onSuccess: (invitation) => {
@@ -318,6 +318,29 @@ export function useMemberManagementService(
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('invitation.error.revoke_failed') });
+    },
+  });
+
+  const deleteInvitationsMutation = useMutation({
+    mutationFn: async (invitations: MemberInvitation[]) => {
+      const ids = invitations.map((invitation) => invitation.id).filter((id): id is string => !!id);
+      await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.invitations.deleteMemberInvitations({ invitations: ids });
+      return invitations;
+    },
+    onSuccess: (invitations) => {
+      showToast({
+        type: 'success',
+        message:
+          invitations.length === 1
+            ? t('invitation.revoke.success', { email: invitations[0]?.invitee?.email ?? '' })
+            : t('invitation.delete_selected.success', { count: invitations.length }),
+      });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
+    },
+    onError: (error) => {
+      handleError(error, { fallbackMessage: t('invitation.error.delete_selected_failed') });
     },
   });
 
@@ -377,6 +400,7 @@ export function useMemberManagementService(
     removeFromOrganizationMutation,
     createInvitationMutation,
     revokeInvitationMutation,
+    deleteInvitationsMutation,
     resendInvitationMutation,
     fetchInvitationDetails,
   };

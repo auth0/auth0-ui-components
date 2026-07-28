@@ -1303,6 +1303,22 @@
         "confirm_button": "Proceed",
         "cancel_button": "Cancel"
       },
+      "delete_selected": {
+        "button": "Delete Invitation",
+        "button_plural": "Delete Invitations",
+        "count": "${count} selected",
+        "count_plural": "${count} selected",
+        "success": "${count} invitations have been revoked.",
+        "confirm": {
+          "title": "Delete 1 pending invitation?",
+          "title_plural": "Delete ${count} pending invitations?",
+          "description": "This invited member will no longer be able to join your team using their original invitation link. This action cannot be undone.",
+          "description_plural": "These invited members will no longer be able to join your team using their original invitation links. This action cannot be undone.",
+          "confirm_button": "Delete Invitation",
+          "confirm_button_plural": "Delete Invitations",
+          "cancel_button": "Cancel"
+        }
+      },
       "success": {
         "url_copied": "Invitation URL copied to clipboard.",
         "invitation_resent": "Previous invite revoked. A new invitation has been sent to ${email}."
@@ -1313,6 +1329,7 @@
         "revoke_failed": "Failed to revoke invitation. Please try again.",
         "resend_failed": "Failed to resend invitation. Please try again.",
         "revoke_resend_failed": "Failed to revoke and resend invitation. Please try again.",
+        "delete_selected_failed": "Failed to revoke the selected invitations. Please try again.",
         "copy_url_failed": "Failed to copy invitation URL. Please try again."
       }
     }

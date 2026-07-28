@@ -101,6 +101,7 @@ export interface MemberManagementServiceResult {
     CreateInvitationInput
   >;
   revokeInvitationMutation: UseMutationResult<MemberInvitation, Error, MemberInvitation>;
+  deleteInvitationsMutation: UseMutationResult<MemberInvitation[], Error, MemberInvitation[]>;
   resendInvitationMutation: UseMutationResult<
     MemberInvitation | undefined,
     Error,
@@ -133,6 +134,7 @@ export type MemberManagementModalState =
   | { type: 'details'; invitation: MemberInvitation }
   | { type: 'revoke'; invitation: MemberInvitation }
   | { type: 'revokeResend'; invitation: MemberInvitation }
+  | { type: 'deleteInvitations'; invitations: MemberInvitation[] }
   | { type: 'assignRole'; member: OrgMember }
   | { type: 'removeFromOrganization'; member: OrgMember };
 
@@ -158,7 +160,9 @@ export interface UseOrganizationMemberManagementResult {
   isFetchingAvailableRoles: boolean;
   isCreatingInvitation: boolean;
   isRevokingInvitation: boolean;
+  isDeletingInvitations: boolean;
   isResendingInvitation: boolean;
+  selectedInvitations: MemberInvitation[];
   invitationPagination: MemberManagementPaginationState;
   memberPagination: MemberManagementPaginationState;
   invitationFilters?: MemberManagementFilterState;
@@ -172,9 +176,12 @@ export interface UseOrganizationMemberManagementResult {
   setActiveTab: (tab: ActiveTab) => void;
   openModal: (state: MemberManagementModalState) => void;
   closeModal: () => void;
+  onSelectedInvitationsChange: (invitations: MemberInvitation[]) => void;
   handleCreateSubmit: (data: CreateInvitationInput) => void;
   handleRevokeConfirm: () => void;
   handleRevokeResendConfirm: () => void;
+  handleDeleteInvitationsClick: (invitations: MemberInvitation[]) => void;
+  handleDeleteInvitationsConfirm: () => void;
   handleCopyUrl: (invitation: MemberInvitation) => Promise<void>;
   handleNextPage: () => void;
   handlePreviousPage: () => void;

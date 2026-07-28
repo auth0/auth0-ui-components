@@ -88,10 +88,13 @@ export interface OrganizationInvitationTableProps {
   sortConfig?: MemberManagementSortConfig;
   availableRoles?: Role[];
   readOnly?: boolean;
+  selectedInvitations?: MemberInvitation[];
   onView?: (invitation: MemberInvitation) => void;
   onCopyUrl?: (invitation: MemberInvitation) => void;
   onRevokeAndResend?: (invitation: MemberInvitation) => void;
   onRevoke?: (invitation: MemberInvitation) => void;
+  onSelectedInvitationsChange?: (invitations: MemberInvitation[]) => void;
+  onDeleteSelected?: (invitations: MemberInvitation[]) => void;
   onNextPage?: () => void;
   onPreviousPage?: () => void;
   onPageSizeChange?: (pageSize: number) => void;
@@ -155,5 +158,17 @@ export interface OrganizationInvitationRevokeModalProps {
   style?: React.CSSProperties;
   onClose: () => void;
   onConfirm: (invitation: MemberInvitation) => void;
+  className?: string;
+}
+
+/** Props for OrganizationInvitationDeleteModal component. */
+export interface OrganizationInvitationDeleteModalProps {
+  invitations: MemberInvitation[];
+  isOpen: boolean;
+  isLoading?: boolean;
+  customMessages?: Partial<OrganizationInvitationTabMessages>;
+  style?: React.CSSProperties;
+  onClose: () => void;
+  onConfirm: () => void;
   className?: string;
 }

@@ -79,6 +79,7 @@ export function useOrganizationMemberManagement(
   } = useCheckpointPagination<MemberManagementFilterState>();
 
   const [modalState, setModalState] = React.useState<MemberManagementModalState>({ type: null });
+  const [selectedInvitations, setSelectedInvitations] = React.useState<MemberInvitation[]>([]);
   const detailsRequestIdRef = React.useRef(0);
 
   const {
@@ -92,6 +93,7 @@ export function useOrganizationMemberManagement(
     organizationQuery,
     createInvitationMutation,
     revokeInvitationMutation,
+    deleteInvitationsMutation,
     resendInvitationMutation,
     assignRolesMutation,
     removeFromOrganizationMutation,
@@ -138,6 +140,7 @@ export function useOrganizationMemberManagement(
     async (state: MemberManagementModalState) => {
       if (state.type === 'create' && readOnly) return;
       if ((state.type === 'revoke' || state.type === 'revokeResend') && readOnly) return;
+      if (state.type === 'deleteInvitations' && readOnly) return;
       setModalState(state);
 
       if (state.type === 'details') {
@@ -183,6 +186,24 @@ export function useOrganizationMemberManagement(
       onSuccess: () => closeModal(),
     });
   }, [modalState, resendInvitationMutation, closeModal]);
+
+  const handleDeleteInvitationsClick = React.useCallback(
+    (invitations: MemberInvitation[]) => {
+      if (readOnly || invitations.length === 0) return;
+      openModal({ type: 'deleteInvitations', invitations });
+    },
+    [readOnly, openModal],
+  );
+
+  const handleDeleteInvitationsConfirm = React.useCallback(() => {
+    if (modalState.type !== 'deleteInvitations') return;
+    deleteInvitationsMutation.mutate(modalState.invitations, {
+      onSuccess: () => {
+        setSelectedInvitations([]);
+        closeModal();
+      },
+    });
+  }, [modalState, deleteInvitationsMutation, closeModal]);
 
   const handleCopyUrl = React.useCallback(async (invitation: MemberInvitation) => {
     if (!invitation.invitation_url) return;
@@ -298,7 +319,9 @@ export function useOrganizationMemberManagement(
     isAssigningRoles: isMutationLoading(assignRolesMutation),
     isCreatingInvitation: isMutationLoading(createInvitationMutation),
     isRevokingInvitation: isMutationLoading(revokeInvitationMutation),
+    isDeletingInvitations: isMutationLoading(deleteInvitationsMutation),
     isResendingInvitation: isMutationLoading(resendInvitationMutation),
+    selectedInvitations,
     invitationPagination: {
       pageSize: invitationPageSize,
       currentPage: invitationCurrentPage,
@@ -320,9 +343,12 @@ export function useOrganizationMemberManagement(
     setActiveTab,
     openModal,
     closeModal,
+    onSelectedInvitationsChange: setSelectedInvitations,
     handleCreateSubmit,
     handleRevokeConfirm,
     handleRevokeResendConfirm,
+    handleDeleteInvitationsClick,
+    handleDeleteInvitationsConfirm,
     handleCopyUrl,
     handleNextPage,
     handlePreviousPage,

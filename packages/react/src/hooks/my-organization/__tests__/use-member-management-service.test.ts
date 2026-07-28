@@ -414,8 +414,9 @@ describe('useMemberManagementService', () => {
       });
 
       expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete,
-      ).toHaveBeenCalledWith(invitation.id);
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations
+          .deleteMemberInvitations,
+      ).toHaveBeenCalledWith({ invitations: [invitation.id] });
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'success' }));
     });
 
@@ -437,14 +438,14 @@ describe('useMemberManagementService', () => {
 
       expect(onBefore).toHaveBeenCalledWith(invitation);
       expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete,
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations
+          .deleteMemberInvitations,
       ).not.toHaveBeenCalled();
     });
 
     it('should show error toast on failure', async () => {
-      mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete = vi
-        .fn()
-        .mockRejectedValue(new Error('Revoke failed'));
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.deleteMemberInvitations =
+        vi.fn().mockRejectedValue(new Error('Revoke failed'));
 
       const invitation = createMockInvitation();
       const options = createDefaultOptions();
@@ -456,6 +457,92 @@ describe('useMemberManagementService', () => {
 
       await waitFor(() => {
         expect(result.current.revokeInvitationMutation.isError).toBe(true);
+      });
+
+      expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));
+    });
+  });
+
+  describe('deleteInvitationsMutation', () => {
+    it('should delete multiple invitations with a single bulk call and show success toast', async () => {
+      const invitations = [
+        createMockInvitation({ id: 'inv_1' }),
+        createMockInvitation({ id: 'inv_2' }),
+        createMockInvitation({ id: 'inv_3' }),
+      ];
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await act(async () => {
+        result.current.deleteInvitationsMutation.mutate(invitations);
+      });
+
+      await waitFor(() => {
+        expect(result.current.deleteInvitationsMutation.isSuccess).toBe(true);
+      });
+
+      const deleteMock =
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations
+          .deleteMemberInvitations;
+      expect(deleteMock).toHaveBeenCalledTimes(1);
+      expect(deleteMock).toHaveBeenCalledWith({ invitations: ['inv_1', 'inv_2', 'inv_3'] });
+      expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'success' }));
+    });
+
+    it('should send a single-element array when only one invitation is selected', async () => {
+      const invitation = createMockInvitation({ id: 'inv_solo' });
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await act(async () => {
+        result.current.deleteInvitationsMutation.mutate([invitation]);
+      });
+
+      await waitFor(() => {
+        expect(result.current.deleteInvitationsMutation.isSuccess).toBe(true);
+      });
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations
+          .deleteMemberInvitations,
+      ).toHaveBeenCalledWith({ invitations: ['inv_solo'] });
+    });
+
+    it('should filter out invitations without an id', async () => {
+      const invitations = [
+        createMockInvitation({ id: 'inv_1' }),
+        createMockInvitation({ id: undefined }),
+      ];
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await act(async () => {
+        result.current.deleteInvitationsMutation.mutate(invitations);
+      });
+
+      await waitFor(() => {
+        expect(result.current.deleteInvitationsMutation.isSuccess).toBe(true);
+      });
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations
+          .deleteMemberInvitations,
+      ).toHaveBeenCalledWith({ invitations: ['inv_1'] });
+    });
+
+    it('should show error toast on failure', async () => {
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.deleteMemberInvitations =
+        vi.fn().mockRejectedValue(new Error('Bulk delete failed'));
+
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await act(async () => {
+        result.current.deleteInvitationsMutation.mutate([createMockInvitation({ id: 'inv_1' })]);
+      });
+
+      await waitFor(() => {
+        expect(result.current.deleteInvitationsMutation.isError).toBe(true);
       });
 
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));

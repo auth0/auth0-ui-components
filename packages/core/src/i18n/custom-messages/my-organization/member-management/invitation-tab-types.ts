@@ -75,6 +75,22 @@ export interface OrganizationInvitationTabMessages {
     confirm_button?: string;
     cancel_button?: string;
   };
+  delete_selected?: {
+    button?: string;
+    button_plural?: string;
+    count?: string;
+    count_plural?: string;
+    success?: string;
+    confirm?: {
+      title?: string;
+      title_plural?: string;
+      description?: string;
+      description_plural?: string;
+      confirm_button?: string;
+      confirm_button_plural?: string;
+      cancel_button?: string;
+    };
+  };
   success?: {
     url_copied?: string;
     invitation_resent?: string;
@@ -85,6 +101,7 @@ export interface OrganizationInvitationTabMessages {
     revoke_failed?: string;
     resend_failed?: string;
     revoke_resend_failed?: string;
+    delete_selected_failed?: string;
     copy_url_failed?: string;
   };
 }

@@ -14,6 +14,7 @@ import * as React from 'react';
 import { GateKeeper } from '../shared/gate-keeper/gate-keeper';
 
 import { OrganizationInvitationDetailsModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal';
+import { OrganizationInvitationDeleteModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-delete-modal';
 import { OrganizationInvitationRevokeModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-revoke-modal';
 import { OrganizationInvitationTable } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-table/organization-invitation-table';
 import { MemberRemoveFromOrganizationModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-organization-modal';
@@ -55,7 +56,9 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     isInvitationsStale,
     isCreatingInvitation,
     isRevokingInvitation,
+    isDeletingInvitations,
     isResendingInvitation,
+    selectedInvitations,
     invitationPagination,
     memberPagination,
     invitationSortConfig,
@@ -74,9 +77,12 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     setActiveTab,
     openModal,
     closeModal,
+    onSelectedInvitationsChange,
     handleCreateSubmit,
     handleRevokeConfirm,
     handleRevokeResendConfirm,
+    handleDeleteInvitationsClick,
+    handleDeleteInvitationsConfirm,
     handleCopyUrl,
     handleSortChange,
     handleNextPage,
@@ -99,6 +105,8 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     modalState.type === 'removeFromOrganization' || modalState.type === 'assignRole'
       ? modalState.member
       : null;
+
+  const invitationsToDelete = modalState.type === 'deleteInvitations' ? modalState.invitations : [];
 
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('member_management', customMessages);
@@ -226,12 +234,15 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               pagination={invitationPagination}
               pageSizeOptions={pageSizeOptions}
               readOnly={readOnly}
+              selectedInvitations={selectedInvitations}
               sortConfig={invitationSortConfig}
               onSortChange={handleSortChange}
               onView={handleViewInvitation}
               onCopyUrl={handleCopyUrl}
               onRevokeAndResend={readOnly ? undefined : handleRevokeResendClick}
               onRevoke={readOnly ? undefined : handleRevokeClick}
+              onSelectedInvitationsChange={readOnly ? undefined : onSelectedInvitationsChange}
+              onDeleteSelected={readOnly ? undefined : handleDeleteInvitationsClick}
               onNextPage={handleNextPage}
               onPreviousPage={handlePreviousPage}
               onPageSizeChange={handlePageSizeChange}
@@ -292,6 +303,17 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           onClose={closeModal}
           onConfirm={handleRevokeResendConfirm}
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeResendModal']}
+        />
+
+        <OrganizationInvitationDeleteModal
+          invitations={invitationsToDelete}
+          isOpen={modalState.type === 'deleteInvitations'}
+          isLoading={isDeletingInvitations}
+          customMessages={customMessages?.invitation}
+          style={currentStyles.variables}
+          onClose={closeModal}
+          onConfirm={handleDeleteInvitationsConfirm}
+          className={currentStyles.classes?.['OrganizationInvitationTab-revokeModal']}
         />
 
         <OrganizationMemberAssignRolesModal
