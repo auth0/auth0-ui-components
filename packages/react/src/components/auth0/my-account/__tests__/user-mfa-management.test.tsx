@@ -562,12 +562,6 @@ describe('UserMFAManagementView', () => {
     return props;
   }
 
-  it('renders error state', () => {
-    setupView({ error: 'Some error' });
-    expect(screen.getByText(/component_error\.title/i)).toBeInTheDocument();
-    expect(screen.getByText(/component_error\.description/i)).toBeInTheDocument();
-  });
-
   it('renders empty state if showActiveOnly and hasNoActiveFactors', () => {
     setupView({ showActiveOnly: true, hasNoActiveFactors: true });
     expect(screen.getByText(/no_active_mfa/i)).toBeInTheDocument();

@@ -162,7 +162,7 @@ export const Header = React.forwardRef<
           {title && (
             <h1
               className={cn(
-                'text-primary font-bold leading-tight break-words text-left text-page-header mb-0',
+                'text-primary-foreground font-bold leading-tight break-words text-left text-page-header mb-0',
               )}
             >
               {title}

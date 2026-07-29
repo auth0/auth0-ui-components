@@ -6,7 +6,6 @@ import * as React from 'react';
 import { FactorDeleteModal } from '@/components/auth0/my-account/shared/user-mfa-management/factor-delete/factor-delete-modal';
 import { EnrollFactorModal } from '@/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/enroll-factor-modal';
 import { MFAEmptyState } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/empty-state';
-import { MFAErrorState } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/error-state';
 import { FactorsList } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/factors-list';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
@@ -91,7 +90,6 @@ function UserMFAManagement({
     isEnrolling,
     isDeleting,
     isConfirming,
-    error,
     isEnrollDialogOpen,
     enrollFactor,
     enrollmentPhase,
@@ -126,7 +124,6 @@ function UserMFAManagement({
   return (
     <GateKeeper styling={styling} isLoading={isLoadingFactors}>
       <UserMFAManagementView
-        error={error}
         schema={schema}
         isEnrolling={isEnrolling}
         isDeleting={isDeleting}
@@ -173,7 +170,6 @@ function UserMFAManagement({
  * @internal
  */
 function UserMFAManagementView({
-  error,
   schema,
   isEnrolling,
   isDeleting,
@@ -220,14 +216,7 @@ function UserMFAManagementView({
     <StyledScope style={currentStyles.variables}>
       {!hideHeader && <Header title={t('header.title')} description={t('header.description')} />}
 
-      {error ? (
-        <Card className={cn(currentStyles.classes?.['UserMFAManagement-item'])}>
-          <MFAErrorState
-            title={t('component_error.title')}
-            description={t('component_error.description')}
-          />
-        </Card>
-      ) : showActiveOnly && hasNoActiveFactors ? (
+      {showActiveOnly && hasNoActiveFactors ? (
         <Card className={cn(currentStyles.classes?.['UserMFAManagement-item'])}>
           <MFAEmptyState message={t('no_active_mfa')} />
         </Card>

@@ -56,7 +56,6 @@ export interface UserMFAManagementProps
 
 /** Props for UserMFAManagementView component. */
 export interface UserMFAManagementViewProps {
-  error: string | null;
   schema: UserMFAManagementProps['schema'];
   isEnrolling: boolean;
   isDeleting: boolean;
@@ -111,7 +110,6 @@ export interface UseUserMFAReturn {
   isEnrolling: boolean;
   isDeleting: boolean;
   isConfirming: boolean;
-  error: string | null;
   isEnrollDialogOpen: boolean;
   enrollFactor: MFAType | null;
   enrollmentPhase: EnrollmentPhase;

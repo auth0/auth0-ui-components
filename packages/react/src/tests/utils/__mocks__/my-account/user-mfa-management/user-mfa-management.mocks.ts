@@ -132,7 +132,6 @@ export const createMockUserMFAManagementViewProps = (
   disableDelete: false,
   readOnly: false,
   factorConfig: {},
-  error: null,
   schema: undefined,
   isEnrollDialogOpen: false,
   enrollFactor: null,

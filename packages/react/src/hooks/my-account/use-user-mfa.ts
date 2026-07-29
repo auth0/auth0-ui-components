@@ -309,7 +309,6 @@ export function useUserMFA({
     isEnrolling: isMutationLoading(enrollMutation),
     isDeleting: isMutationLoading(deleteMutation),
     isConfirming: isMutationLoading(verifyMutation),
-    error: factorsQuery.isError ? t('errors.factors_loading_error') : null,
     isEnrollDialogOpen,
     enrollFactor,
     enrollmentPhase,
