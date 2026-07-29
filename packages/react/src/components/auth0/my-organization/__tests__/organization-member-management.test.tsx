@@ -68,6 +68,7 @@ vi.mock(
   () => ({
     OrganizationInvitationTable: ({
       invitations,
+      loading,
       onView,
       onCopyUrl,
       onRevoke,
@@ -76,6 +77,7 @@ vi.mock(
     }: any) => (
       <div data-testid="invitation-table" className={className}>
         <span>invitations:{invitations.length}</span>
+        <span>loading:{String(loading)}</span>
         <button onClick={() => onView?.(invitations[0])}>view-invitation</button>
         <button onClick={() => onCopyUrl?.(invitations[0])}>copy-url</button>
         <button onClick={() => onRevoke?.(invitations[0])}>revoke</button>
@@ -217,6 +219,7 @@ const createMockMemberManagementResult = (
     members: [member],
     invitations: [invitation],
     isFetchingInvitations: false,
+    isLoadingInvitations: false,
     isInitialLoading: false,
     isFetchingMembers: false,
     isMembersStale: false,
@@ -384,6 +387,36 @@ describe('OrganizationMemberManagementView', () => {
     expect(openModal).toHaveBeenCalledWith({ type: 'details', invitation });
     expect(openModal).toHaveBeenCalledWith({ type: 'revoke', invitation });
     expect(openModal).toHaveBeenCalledWith({ type: 'revokeResend', invitation });
+  });
+
+  it('keeps the invitation table mounted during a background refetch (paging/page-size)', () => {
+    renderWithProviders(
+      <OrganizationMemberManagementView
+        {...createMockViewProps({
+          activeTab: 'invitations',
+          invitations: [createMockPendingInvitation()],
+          isFetchingInvitations: true,
+          isLoadingInvitations: false,
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId('invitation-table')).toHaveTextContent('loading:false');
+  });
+
+  it('shows the invitation table loading state on initial cold load', () => {
+    renderWithProviders(
+      <OrganizationMemberManagementView
+        {...createMockViewProps({
+          activeTab: 'invitations',
+          invitations: [],
+          isFetchingInvitations: true,
+          isLoadingInvitations: true,
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId('invitation-table')).toHaveTextContent('loading:true');
   });
 
   it('omits destructive invitation callbacks in read-only mode', async () => {

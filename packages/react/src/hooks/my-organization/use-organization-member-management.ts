@@ -129,6 +129,10 @@ export function useOrganizationMemberManagement(
     }
   }, [modalState.type, enableRoleSearch]);
 
+  React.useEffect(() => {
+    setSelectedInvitations([]);
+  }, [activeTab, invitationFilters, invitationSortConfig]);
+
   const availableProviders: IdentityProviderOption[] = providersQuery.data ?? [];
   const availableRoles = rolesQuery.data ?? [];
   const searchedRoles = rolesSearchQuery.data ?? [];
@@ -309,6 +313,7 @@ export function useOrganizationMemberManagement(
     organizationDisplayName: organizationDisplayName,
     isInitialLoading: membersQuery.isLoading,
     isFetchingInvitations: invitationsQuery.isFetching,
+    isLoadingInvitations: invitationsQuery.isLoading,
     isFetchingMembers: membersQuery.isFetching,
     isMembersStale: membersQuery.isStale,
     isInvitationsStale: invitationsQuery.isStale,

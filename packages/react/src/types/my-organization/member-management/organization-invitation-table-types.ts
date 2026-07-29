@@ -50,6 +50,7 @@ export interface OrganizationInvitationTabClasses {
   'OrganizationInvitationTab-createModal'?: string;
   'OrganizationInvitationTab-detailsModal'?: string;
   'OrganizationInvitationTab-revokeModal'?: string;
+  'OrganizationInvitationTab-deleteModal'?: string;
   'OrganizationInvitationTab-revokeResendModal'?: string;
   'OrganizationInvitationTab-searchInput'?: string;
   'OrganizationInvitationTab-filterDropdown'?: string;

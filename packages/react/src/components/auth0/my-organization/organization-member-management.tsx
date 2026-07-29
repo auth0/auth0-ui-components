@@ -51,6 +51,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     invitations,
     organizationDisplayName,
     isFetchingInvitations,
+    isLoadingInvitations,
     isFetchingMembers,
     isMembersStale,
     isInvitationsStale,
@@ -229,7 +230,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           <TabsContent value="invitations">
             <OrganizationInvitationTable
               invitations={invitations}
-              loading={isFetchingInvitations}
+              loading={isLoadingInvitations}
               customMessages={customMessages?.invitation}
               pagination={invitationPagination}
               pageSizeOptions={pageSizeOptions}
@@ -313,7 +314,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           style={currentStyles.variables}
           onClose={closeModal}
           onConfirm={handleDeleteInvitationsConfirm}
-          className={currentStyles.classes?.['OrganizationInvitationTab-revokeModal']}
+          className={currentStyles.classes?.['OrganizationInvitationTab-deleteModal']}
         />
 
         <OrganizationMemberAssignRolesModal
