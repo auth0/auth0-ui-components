@@ -49,7 +49,7 @@ export function PasskeyActionModal(props: PasskeyActionModalProps) {
   );
 
   const content = (
-    <p className="text-(length:--font-size-paragraph) font-normal text-primary">
+    <p className="text-paragraph font-normal text-primary">
       <>
         {t.trans('consent', {
           components: {

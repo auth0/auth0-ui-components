@@ -67,7 +67,7 @@ function Header({
           <AvatarFallback className="text-xl font-semibold">{initials}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col gap-1 min-w-0">
-          <h1 className="text-2xl font-bold text-primary truncate">{displayName}</h1>
+          <h1 className="text-heading font-bold text-primary truncate">{displayName}</h1>
           {userId && (
             <span className="text-sm flex items-center gap-2">
               {t('member.detail.user_id_label')}

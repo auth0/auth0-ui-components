@@ -18,10 +18,6 @@ export interface UserMfaManagementMessages {
   };
   no_active_mfa?: string;
   loading_text?: string;
-  component_error?: {
-    title?: string;
-    description?: string;
-  };
 
   actions?: {
     remove_button_label?: string;

@@ -111,10 +111,7 @@ export function FactorsList({
                   />
                 )}
                 <div className="min-w-0 flex flex-col">
-                  <span
-                    className="font-medium text-base text-(length:--font-size-body) text-foreground truncate"
-                    title={label}
-                  >
+                  <span className="font-medium text-body text-foreground truncate" title={label}>
                     {label}
                   </span>
                   {(factor.created_at || factor.last_auth_at) && (

@@ -103,7 +103,7 @@ function InstallationPhase(props: InstallationPhaseProps) {
   return (
     <div style={currentStyles.variables} className="w-full">
       <div className="flex flex-col items-stretch flex-1 space-y-10">
-        <p className="text-center text-primary text-sm text-(length:--font-size-paragraph) font-normal">
+        <p className="text-center text-primary text-paragraph font-normal">
           {t('enrollment.push.install_description')}
         </p>
         <div className="flex gap-4 w-full">
@@ -115,9 +115,7 @@ function InstallationPhase(props: InstallationPhaseProps) {
           >
             <Card className="flex flex-col items-center gap-1 min-w-24 p-6 h-full">
               <AppleLogo className="w-8 h-8" />
-              <span className="text-sm text-(length:--font-size-paragraph) text-center">
-                {t('enrollment.push.app_store')}
-              </span>
+              <span className="text-paragraph text-center">{t('enrollment.push.app_store')}</span>
             </Card>
           </a>
           <a
@@ -128,9 +126,7 @@ function InstallationPhase(props: InstallationPhaseProps) {
           >
             <Card className="flex flex-col items-center gap-1 min-w-24 p-6 h-full">
               <GoogleLogo className="w-8 h-8" />
-              <span className="text-sm text-(length:--font-size-paragraph) text-center">
-                {t('enrollment.push.google_play')}
-              </span>
+              <span className="text-paragraph text-center">{t('enrollment.push.google_play')}</span>
             </Card>
           </a>
         </div>
@@ -293,9 +289,7 @@ export function EnrollFactorModal(props: EnrollFactorModalProps) {
         )}
       >
         <DialogHeader>
-          <DialogTitle className="text-left font-medium text-xl text-(length:--font-size-title)">
-            {enrollTitle}
-          </DialogTitle>
+          <DialogTitle className="text-left font-medium text-title">{enrollTitle}</DialogTitle>
           <DialogDescription className="sr-only">{enrollTitle}</DialogDescription>
         </DialogHeader>
         <Separator />

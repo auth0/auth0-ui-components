@@ -49,7 +49,7 @@ export function BrandingDetails({
           name="branding.logo_url"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm text-(length:--font-size-label) font-medium">
+              <FormLabel className="text-label font-medium">
                 {t('sections.branding.fields.logo.label')}
               </FormLabel>
               <FormControl>
@@ -78,11 +78,8 @@ export function BrandingDetails({
                   }
                 />
               </FormControl>
-              <FormMessage
-                className="text-left text-sm text-(length:--font-size-paragraph)"
-                role="alert"
-              />
-              <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+              <FormMessage className="text-left text-paragraph" role="alert" />
+              <FormDescription className="text-paragraph font-normal text-left">
                 {t('sections.branding.fields.logo.helper_text')}
               </FormDescription>
             </FormItem>
@@ -94,20 +91,14 @@ export function BrandingDetails({
           name="branding.colors.primary"
           render={({ field }) => (
             <FormItem>
-              <FormLabel
-                className="text-sm text-(length:--font-size-label) font-medium"
-                htmlFor="primary-color"
-              >
+              <FormLabel className="text-label font-medium" htmlFor="primary-color">
                 {t('sections.branding.fields.primary_color.label')}
               </FormLabel>
               <FormControl>
                 <ColorPickerInput {...field} disabled={readOnly} />
               </FormControl>
-              <FormMessage
-                className="text-left text-sm text-(length:--font-size-paragraph)"
-                role="alert"
-              />
-              <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+              <FormMessage className="text-left text-paragraph" role="alert" />
+              <FormDescription className="text-paragraph font-normal text-left">
                 {t('sections.branding.fields.primary_color.helper_text')}
               </FormDescription>
             </FormItem>
@@ -119,20 +110,14 @@ export function BrandingDetails({
           name="branding.colors.page_background"
           render={({ field }) => (
             <FormItem>
-              <FormLabel
-                className="text-sm text-(length:--font-size-label) font-medium"
-                htmlFor="page-background-color"
-              >
+              <FormLabel className="text-label font-medium" htmlFor="page-background-color">
                 {t('sections.branding.fields.page_background_color.label')}
               </FormLabel>
               <FormControl>
                 <ColorPickerInput {...field} disabled={readOnly} />
               </FormControl>
-              <FormMessage
-                className="text-left text-sm text-(length:--font-size-paragraph)"
-                role="alert"
-              />
-              <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+              <FormMessage className="text-left text-paragraph" role="alert" />
+              <FormDescription className="text-paragraph font-normal text-left">
                 {t('sections.branding.fields.page_background_color.helper_text')}
               </FormDescription>
             </FormItem>

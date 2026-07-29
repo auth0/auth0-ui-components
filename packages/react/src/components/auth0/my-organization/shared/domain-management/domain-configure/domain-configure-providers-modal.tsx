@@ -120,7 +120,7 @@ export function DomainConfigureProvidersModal({
       content={
         domain && (
           <div className={cn('space-y-6', className)}>
-            <p className="text-sm text-muted-foreground text-(length:--font-size-paragraph)">
+            <p className="text-muted-foreground text-paragraph">
               {t('description', { domain: domain?.domain ?? '' })}
             </p>
             <DataTable

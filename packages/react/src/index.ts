@@ -43,6 +43,7 @@ export { useErrorHandler } from './hooks/shared/use-error-handler';
 
 // My Account hooks
 export { useUserMFA } from './hooks/my-account/use-user-mfa';
+export { useUserPasskey } from './hooks/my-account/use-user-passkey';
 
 // My Organization hooks
 export { useConfig } from './hooks/my-organization/shared/services/use-config-service';

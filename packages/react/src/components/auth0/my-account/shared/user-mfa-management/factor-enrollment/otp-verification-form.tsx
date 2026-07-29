@@ -103,7 +103,7 @@ export function OTPVerificationForm({
         >
           <p
             id="otp-description"
-            className="text-sm text-primary font-normal text-center break-words text-(length:--font-size-paragraph)"
+            className="text-primary font-normal text-center break-words text-paragraph"
           >
             {[FACTOR_TYPE_PUSH_NOTIFICATION, FACTOR_TYPE_TOTP].includes(factorType)
               ? t('enrollment.verify.totp.description')
@@ -131,11 +131,7 @@ export function OTPVerificationForm({
                     value={field.value || ''}
                   />
                 </FormControl>
-                <FormMessage
-                  className="text-sm text-left text-(length:--font-size-paragraph)"
-                  id="otp-error"
-                  role="alert"
-                />
+                <FormMessage className="text-left text-paragraph" id="otp-error" role="alert" />
               </FormItem>
             )}
           />

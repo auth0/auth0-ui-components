@@ -154,7 +154,7 @@ export function ContactInputForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel
-                        className="text-left text-sm text-(length:--font-size-paragraph) font-medium"
+                        className="text-left text-paragraph font-medium"
                         htmlFor="contact-input"
                       >
                         {factorType === FACTOR_TYPE_EMAIL
@@ -181,13 +181,13 @@ export function ContactInputForm({
                           {...field}
                         />
                       </FormControl>
-                      <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                      <FormDescription className="text-paragraph font-normal text-left">
                         {factorType === FACTOR_TYPE_EMAIL
                           ? t('enrollment.email.description')
                           : t('enrollment.phone.description')}
                       </FormDescription>
                       <FormMessage
-                        className="text-left text-sm text-(length:--font-size-paragraph)"
+                        className="text-left text-paragraph"
                         id="contact-error"
                         role="alert"
                       />

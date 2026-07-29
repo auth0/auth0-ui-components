@@ -139,7 +139,7 @@ function UserPasskeyManagementView(props: UserPasskeyManagementViewProps) {
       <Card className={cn(currentStyles.classes?.['UserPasskeyManagement-root'])}>
         <CardHeader>
           <CardTitle className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <span className="text-base text-(length:--font-size-body) font-semibold text-card-foreground">
+            <span className="text-body font-semibold text-card-foreground">
               {t('section_title')}
             </span>
             {hasPasskeys && (
@@ -183,7 +183,7 @@ function UserPasskeyManagementView(props: UserPasskeyManagementViewProps) {
                     aria-hidden="true"
                   />
                   <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                    <CardTitle className="text-base text-(length:--font-size-body) font-semibold text-card-foreground">
+                    <CardTitle className="text-body font-semibold text-card-foreground">
                       {passkey.name}
                     </CardTitle>
                     {(passkey.deviceInfo || passkey.createdAt || passkey.lastUsedAt) && (

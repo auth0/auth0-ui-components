@@ -162,7 +162,7 @@ export const Header = React.forwardRef<
           {title && (
             <h1
               className={cn(
-                'text-xl sm:text-2xl text-primary md:text-4xl font-bold leading-tight break-words text-left text-(length:--font-size-page-header) mb-0',
+                'text-primary font-bold leading-tight break-words text-left text-page-header mb-0',
               )}
             >
               {title}
@@ -171,7 +171,7 @@ export const Header = React.forwardRef<
           {description && (
             <p
               className={cn(
-                'text-base text-muted-foreground leading-relaxed break-words text-left text-(length:--font-size-page-description) mt-2',
+                'text-muted-foreground leading-relaxed break-words text-left text-page-description mt-2',
               )}
             >
               {description}

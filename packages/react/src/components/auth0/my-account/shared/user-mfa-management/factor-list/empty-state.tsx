@@ -21,13 +21,6 @@ export interface MFAEmptyStateProps {
  */
 export function MFAEmptyState({ message, className }: MFAEmptyStateProps) {
   return (
-    <p
-      className={cn(
-        'text-sm text-(length:--font-size-paragraph) text-center text-muted-foreground',
-        className,
-      )}
-    >
-      {message}
-    </p>
+    <p className={cn('text-paragraph text-center text-muted-foreground', className)}>{message}</p>
   );
 }
