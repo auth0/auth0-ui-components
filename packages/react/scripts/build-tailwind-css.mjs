@@ -11,7 +11,7 @@
  * ahead of time instead.
  */
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import fs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
@@ -36,14 +36,18 @@ const mergedPath = path.join(DIST_DIR, 'tailwind.src.css');
 const tmpPath = path.join(DIST_DIR, 'tailwind.tmp.css');
 const outPath = path.join(DIST_DIR, 'tailwind.css');
 
+const tailwindBin = path.join(PACKAGE_DIR, 'node_modules/.bin/tailwindcss');
+const postcssBin = path.join(PACKAGE_DIR, 'node_modules/.bin/postcss');
+
+fs.mkdirSync(DIST_DIR, { recursive: true });
 fs.writeFileSync(mergedPath, `${fontSizes}\n${tailwindEntry}`);
 
 try {
-  execSync(`npx @tailwindcss/cli -i ${mergedPath} -o ${tmpPath}`, {
+  execFileSync(tailwindBin, ['-i', mergedPath, '-o', tmpPath], {
     cwd: PACKAGE_DIR,
     stdio: 'inherit',
   });
-  execSync(`pnpm exec postcss ${tmpPath} -o ${outPath} --no-map`, {
+  execFileSync(postcssBin, [tmpPath, '-o', outPath, '--no-map'], {
     cwd: PACKAGE_DIR,
     stdio: 'inherit',
   });
