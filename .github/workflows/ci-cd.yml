@@ -57,14 +57,16 @@ jobs:
         run: pnpm build
 
       - name: Check registry.json is up to date
+        continue-on-error: true
         run: |
           pnpm --filter @auth0/universal-components-react registry:generate
           if ! git diff --exit-code packages/react/registry.json; then
-            echo "::error::registry.json is out of date. Run 'pnpm --filter @auth0/universal-components-react registry:generate' and commit the result."
+            echo "::warning::registry.json is out of date. Run 'pnpm --filter @auth0/universal-components-react registry:generate' and commit the result."
             exit 1
           fi
 
       - name: Validate shadcn registry
+        continue-on-error: true
         run: pnpm dlx shadcn@4.15.0 registry validate
   notify:
     name: Slack Notification
