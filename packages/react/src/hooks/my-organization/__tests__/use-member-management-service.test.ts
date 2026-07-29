@@ -105,7 +105,6 @@ describe('useMemberManagementService', () => {
           identity_providers: [
             { id: 'con_1', display_name: 'Google', name: 'google', strategy: 'social' },
             { id: 'con_2', name: 'okta', strategy: 'enterprise' },
-            // Missing id — should be filtered out.
             { name: 'no-id', strategy: 'social' },
           ],
         });
@@ -157,7 +156,6 @@ describe('useMemberManagementService', () => {
           user_stores: [
             { id: 'us_1', display_name: 'Acme Directory', name: 'acme' },
             { id: 'us_2', name: 'okta-store' },
-            // No display_name or name — should fall back to the id.
             { id: 'us_3' },
           ],
           next: null,

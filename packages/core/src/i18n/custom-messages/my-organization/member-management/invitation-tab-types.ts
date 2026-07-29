@@ -45,7 +45,6 @@ export interface OrganizationInvitationTabMessages {
     provider_label?: string;
     provider_placeholder?: string;
     provider_helper?: string;
-    provider_required_error?: string;
     provider_group_user_store?: string;
     provider_group_identity_provider?: string;
     submit_button?: string;

@@ -1269,7 +1269,6 @@
         "provider_label": "Provider",
         "provider_placeholder": "Select provider",
         "provider_helper": "Select the connection the member will use to log in.",
-        "provider_required_error": "Please select a provider.",
         "provider_group_user_store": "User Directory",
         "provider_group_identity_provider": "Enterprise SSO",
         "submit_button": "Send Invite",

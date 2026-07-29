@@ -1270,7 +1270,6 @@
         "provider_label": "プロバイダー",
         "provider_placeholder": "プロバイダーを選択",
         "provider_helper": "メンバーがログインに使用する接続を選択してください。",
-        "provider_required_error": "プロバイダーを選択してください。",
         "provider_group_user_store": "ユーザーディレクトリ",
         "provider_group_identity_provider": "エンタープライズSSO",
         "submit_button": "招待を送信",

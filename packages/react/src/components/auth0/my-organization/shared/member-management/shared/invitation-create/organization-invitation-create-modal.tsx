@@ -66,7 +66,6 @@ export function OrganizationInvitationCreateModal({
 }: OrganizationInvitationCreateModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
-  /** Connections split by source so each renders under its own group header. */
   const { userStoreConnections, identityProviderConnections } = React.useMemo(
     () => ({
       userStoreConnections: availableConnections.filter((c) => c.type === 'user_store'),
@@ -87,7 +86,6 @@ export function OrganizationInvitationCreateModal({
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
   const [selectedConnectionId, setSelectedConnectionId] = React.useState<string | undefined>();
   const [emailError, setEmailError] = React.useState<string | undefined>();
-  const [connectionError, setConnectionError] = React.useState<string | undefined>();
 
   const resetForm = React.useCallback(() => {
     setEmailInput('');
@@ -95,7 +93,6 @@ export function OrganizationInvitationCreateModal({
     setSelectedRoles([]);
     setSelectedConnectionId(undefined);
     setEmailError(undefined);
-    setConnectionError(undefined);
     onRoleSearch?.('');
   }, [onRoleSearch]);
 
@@ -165,7 +162,6 @@ export function OrganizationInvitationCreateModal({
 
   const handleConnectionChange = React.useCallback((value: string) => {
     setSelectedConnectionId(value || undefined);
-    setConnectionError(undefined);
   }, []);
 
   const handleSubmit = React.useCallback(() => {
@@ -192,18 +188,21 @@ export function OrganizationInvitationCreateModal({
     const selectedConnection = availableConnections.find((c) => c.id === selectedConnectionId);
 
     if (!selectedConnection) {
-      setConnectionError(t('invitation.create.provider_required_error'));
       return;
     }
+
+    const user_store_id =
+      selectedConnection.type === 'user_store' ? selectedConnection.id : undefined;
+    const identity_provider_id =
+      selectedConnection.type === 'identity_provider' ? selectedConnection.id : undefined;
 
     onCreate({
       invitees: finalEmails.map((email) => ({
         email,
         roles: selectedRoles.length > 0 ? selectedRoles : undefined,
       })),
-      ...(selectedConnection.type === 'user_store'
-        ? { user_store_id: selectedConnection.id }
-        : { identity_provider_id: selectedConnection.id }),
+      user_store_id,
+      identity_provider_id,
       ...(inviterName && { inviter: { name: inviterName } }),
     });
   }, [
@@ -287,7 +286,7 @@ export function OrganizationInvitationCreateModal({
               onValueChange={handleConnectionChange}
               disabled={isLoading || availableConnections.length === 0}
             >
-              <SelectTrigger id="provider" aria-invalid={connectionError ? true : undefined}>
+              <SelectTrigger id="provider" aria-required="true">
                 <SelectValue placeholder={t('invitation.create.provider_placeholder')} />
               </SelectTrigger>
               <SelectContent>
@@ -315,12 +314,9 @@ export function OrganizationInvitationCreateModal({
                 )}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {t('invitation.create.provider_helper')}
             </p>
-            {connectionError && (
-              <p className="text-sm text-destructive-foreground">{connectionError}</p>
-            )}
           </div>
         </div>
 
