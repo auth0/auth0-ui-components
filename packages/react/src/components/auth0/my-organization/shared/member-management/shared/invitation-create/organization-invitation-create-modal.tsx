@@ -280,19 +280,19 @@ export function OrganizationInvitationCreateModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="provider">{t('invitation.create.provider_label')}*</Label>
+            <Label htmlFor="connection">{t('invitation.create.connection_label')}*</Label>
             <Select
               value={selectedConnectionId ?? ''}
               onValueChange={handleConnectionChange}
               disabled={isLoading || availableConnections.length === 0}
             >
-              <SelectTrigger id="provider" aria-required="true">
-                <SelectValue placeholder={t('invitation.create.provider_placeholder')} />
+              <SelectTrigger id="connection" aria-required="true">
+                <SelectValue placeholder={t('invitation.create.connection_placeholder')} />
               </SelectTrigger>
               <SelectContent>
                 {userStoreConnections.length > 0 && (
                   <SelectGroup>
-                    <SelectLabel>{t('invitation.create.provider_group_user_store')}</SelectLabel>
+                    <SelectLabel>{t('invitation.create.connection_group_user_store')}</SelectLabel>
                     {userStoreConnections.map((connection) => (
                       <SelectItem key={connection.id} value={connection.id}>
                         {connection.name}
@@ -303,7 +303,7 @@ export function OrganizationInvitationCreateModal({
                 {identityProviderConnections.length > 0 && (
                   <SelectGroup>
                     <SelectLabel>
-                      {t('invitation.create.provider_group_identity_provider')}
+                      {t('invitation.create.connection_group_identity_provider')}
                     </SelectLabel>
                     {identityProviderConnections.map((connection) => (
                       <SelectItem key={connection.id} value={connection.id}>
@@ -315,7 +315,7 @@ export function OrganizationInvitationCreateModal({
               </SelectContent>
             </Select>
             <p className="text-sm text-muted-foreground">
-              {t('invitation.create.provider_helper')}
+              {t('invitation.create.connection_helper')}
             </p>
           </div>
         </div>

@@ -251,9 +251,9 @@ describe('OrganizationInvitationCreateModal', () => {
 
       await user.click(screen.getByRole('combobox'));
 
-      expect(screen.getByText('invitation.create.provider_group_user_store')).toBeInTheDocument();
+      expect(screen.getByText('invitation.create.connection_group_user_store')).toBeInTheDocument();
       expect(
-        screen.getByText('invitation.create.provider_group_identity_provider'),
+        screen.getByText('invitation.create.connection_group_identity_provider'),
       ).toBeInTheDocument();
     });
 
@@ -299,14 +299,14 @@ describe('OrganizationInvitationCreateModal', () => {
       expect(payload.identity_provider_id).toBeUndefined();
     });
 
-    it('should still render the provider section when no connections are provided', () => {
+    it('should still render the connection section when no connections are provided', () => {
       renderWithProviders(
         <OrganizationInvitationCreateModal
           {...createMockCreateModalProps({ availableConnections: [] })}
         />,
       );
 
-      expect(screen.getByText(/invitation\.create\.provider_label/)).toBeInTheDocument();
+      expect(screen.getByText(/invitation\.create\.connection_label/)).toBeInTheDocument();
     });
 
     it('should keep submit disabled until a connection is selected', async () => {
@@ -333,14 +333,14 @@ describe('OrganizationInvitationCreateModal', () => {
       expect(submitButton).toBeEnabled();
     });
 
-    it('should render the provider label as required', () => {
+    it('should render the connection label as required', () => {
       renderWithProviders(
         <OrganizationInvitationCreateModal
           {...createMockCreateModalProps({ availableConnections: createMockConnections() })}
         />,
       );
 
-      expect(screen.getByText(/invitation\.create\.provider_label/)).toBeInTheDocument();
+      expect(screen.getByText(/invitation\.create\.connection_label/)).toBeInTheDocument();
     });
   });
 
