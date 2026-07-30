@@ -68,6 +68,7 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
         get: vi.fn().mockResolvedValue(createMockInvitation()),
         create: vi.fn().mockResolvedValue([createMockInvitation()]),
         delete: vi.fn().mockResolvedValue(undefined),
+        deleteMemberInvitations: vi.fn().mockResolvedValue(undefined),
       },
       userStores: {
         get: vi.fn().mockResolvedValue(createMockListUserStoresResponse()),

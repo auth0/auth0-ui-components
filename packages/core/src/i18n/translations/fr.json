@@ -26,7 +26,7 @@
     },
     "data_table": {
       "select_all": "Sélectionner toutes les lignes",
-      "select_row": "Sélectionner la ligne"
+      "select_row": "Sélectionner la ligne ${index}"
     },
     "error": {
       "generic": "Un problème est survenu lors du traitement de votre demande. Veuillez réessayer ou contacter le support si le problème persiste.",

@@ -8,10 +8,12 @@ import { vi } from 'vitest';
 
 import type {
   ConnectionOption,
+  OrganizationInvitationBulkRevokeModalProps,
   OrganizationInvitationCreateModalProps,
   OrganizationInvitationDetailsModalProps,
   OrganizationInvitationRevokeModalProps,
   OrganizationInvitationTableActionsColumnProps,
+  OrganizationInvitationTableProps,
   SearchFilterProps,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
@@ -122,5 +124,42 @@ export const createMockSearchFilterProps = (
   filters: {},
   availableRoles: createMockRoles(),
   onRoleFilterChange: vi.fn(),
+  ...overrides,
+});
+
+export const createMockInvitations = (): MemberInvitation[] => [
+  createMockInvitation({ id: 'inv_1', invitee: { email: 'a@example.com' } }),
+  createMockInvitation({ id: 'inv_2', invitee: { email: 'b@example.com' } }),
+];
+
+export const createMockTableProps = (
+  overrides: Partial<OrganizationInvitationTableProps> = {},
+): OrganizationInvitationTableProps => {
+  const invitations = overrides.invitations ?? createMockInvitations();
+
+  return {
+    invitations,
+    loading: false,
+    customMessages: {},
+    pagination: {
+      pageSize: 10,
+      currentPage: 1,
+      totalItems: invitations.length,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    },
+    ...overrides,
+  };
+};
+
+export const createMockBulkRevokeModalProps = (
+  overrides: Partial<OrganizationInvitationBulkRevokeModalProps> = {},
+): OrganizationInvitationBulkRevokeModalProps => ({
+  invitations: createMockInvitations(),
+  isOpen: true,
+  isLoading: false,
+  customMessages: {},
+  onClose: vi.fn(),
+  onConfirm: vi.fn(),
   ...overrides,
 });

@@ -13,6 +13,7 @@ import {
   createMockRoleOptions,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
+import type { OrganizationInvitationBulkRevokeModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   OrganizationMemberManagementProps,
   OrganizationMemberManagementViewProps,
@@ -68,18 +69,22 @@ vi.mock(
   () => ({
     OrganizationInvitationTable: ({
       invitations,
+      loading,
       onView,
       onCopyUrl,
       onRevoke,
       onRevokeAndResend,
+      onBulkRevoke,
       className,
     }: any) => (
       <div data-testid="invitation-table" className={className}>
         <span>invitations:{invitations.length}</span>
+        <span>loading:{String(loading)}</span>
         <button onClick={() => onView?.(invitations[0])}>view-invitation</button>
         <button onClick={() => onCopyUrl?.(invitations[0])}>copy-url</button>
         <button onClick={() => onRevoke?.(invitations[0])}>revoke</button>
         <button onClick={() => onRevokeAndResend?.(invitations[0])}>revoke-resend</button>
+        <button onClick={() => onBulkRevoke?.(invitations)}>bulk-revoke</button>
       </div>
     ),
   }),
@@ -133,6 +138,27 @@ vi.mock(
         <button onClick={onClose}>
           {isRevokeAndResend ? 'close-revoke-resend' : 'close-revoke'}
         </button>
+      </div>
+    ),
+  }),
+);
+
+vi.mock(
+  '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-bulk-revoke-modal',
+  () => ({
+    OrganizationInvitationBulkRevokeModal: ({
+      isOpen,
+      isLoading,
+      invitations,
+      onConfirm,
+      onClose,
+    }: OrganizationInvitationBulkRevokeModalProps) => (
+      <div data-testid="bulk-revoke-modal">
+        open:{String(isOpen)}
+        <span>to-revoke:{invitations.length}</span>
+        <span>loading:{String(isLoading)}</span>
+        <button onClick={onConfirm}>confirm-bulk-revoke</button>
+        <button onClick={onClose}>close-bulk-revoke</button>
       </div>
     ),
   }),
@@ -217,6 +243,7 @@ const createMockMemberManagementResult = (
     members: [member],
     invitations: [invitation],
     isFetchingInvitations: false,
+    isLoadingInvitations: false,
     isInitialLoading: false,
     isFetchingMembers: false,
     isMembersStale: false,
@@ -229,6 +256,7 @@ const createMockMemberManagementResult = (
     isCreatingInvitation: false,
     isRevokingInvitation: false,
     isResendingInvitation: false,
+    selectedInvitations: [],
     invitationPagination: {
       pageSize: 10,
       currentPage: 1,
@@ -253,9 +281,11 @@ const createMockMemberManagementResult = (
     setActiveTab: vi.fn(),
     openModal: vi.fn(),
     closeModal: vi.fn(),
+    onSelectedInvitationsChange: vi.fn(),
     handleCreateSubmit: vi.fn(),
     handleRevokeConfirm: vi.fn(),
     handleRevokeResendConfirm: vi.fn(),
+    handleBulkRevokeClick: vi.fn(),
     handleCopyUrl: vi.fn(),
     handleNextPage: vi.fn(),
     handlePreviousPage: vi.fn(),
@@ -381,6 +411,36 @@ describe('OrganizationMemberManagementView', () => {
     expect(openModal).toHaveBeenCalledWith({ type: 'revokeResend', invitation });
   });
 
+  it('keeps the invitation table mounted during a background refetch (paging/page-size)', () => {
+    renderWithProviders(
+      <OrganizationMemberManagementView
+        {...createMockViewProps({
+          activeTab: 'invitations',
+          invitations: [createMockPendingInvitation()],
+          isFetchingInvitations: true,
+          isLoadingInvitations: false,
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId('invitation-table')).toHaveTextContent('loading:false');
+  });
+
+  it('shows the invitation table loading state on initial cold load', () => {
+    renderWithProviders(
+      <OrganizationMemberManagementView
+        {...createMockViewProps({
+          activeTab: 'invitations',
+          invitations: [],
+          isFetchingInvitations: true,
+          isLoadingInvitations: true,
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId('invitation-table')).toHaveTextContent('loading:true');
+  });
+
   it('omits destructive invitation callbacks in read-only mode', async () => {
     const user = userEvent.setup();
     const openModal = vi.fn();
@@ -395,6 +455,102 @@ describe('OrganizationMemberManagementView', () => {
     await user.click(screen.getByRole('button', { name: 'revoke-resend' }));
 
     expect(openModal).not.toHaveBeenCalled();
+  });
+
+  describe('invitation revoke flows', () => {
+    it('opens the bulk revoke modal from the table bulk action', async () => {
+      const user = userEvent.setup();
+      const handleBulkRevokeClick = vi.fn();
+      const invitation = createMockPendingInvitation();
+
+      renderWithProviders(
+        <OrganizationMemberManagementView
+          {...createMockViewProps({
+            activeTab: 'invitations',
+            invitations: [invitation],
+            handleBulkRevokeClick,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'bulk-revoke' }));
+
+      expect(handleBulkRevokeClick).toHaveBeenCalledWith([invitation]);
+    });
+
+    it('renders the bulk revoke modal open with the invitations from modal state', () => {
+      const invitations = [createMockPendingInvitation(), createMockPendingInvitation()];
+
+      renderWithProviders(
+        <OrganizationMemberManagementView
+          {...createMockViewProps({
+            activeTab: 'invitations',
+            modalState: { type: 'bulkRevoke', invitations },
+          })}
+        />,
+      );
+
+      expect(screen.getByTestId('bulk-revoke-modal')).toHaveTextContent('open:true');
+      expect(screen.getByText('to-revoke:2')).toBeInTheDocument();
+    });
+
+    it('routes the single revoke modal to handleRevokeConfirm', async () => {
+      const user = userEvent.setup();
+      const handleRevokeConfirm = vi.fn();
+      const invitation = createMockPendingInvitation();
+
+      renderWithProviders(
+        <OrganizationMemberManagementView
+          {...createMockViewProps({
+            activeTab: 'invitations',
+            modalState: { type: 'revoke', invitation },
+            handleRevokeConfirm,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'confirm-revoke' }));
+
+      expect(handleRevokeConfirm).toHaveBeenCalledTimes(1);
+    });
+
+    it('routes the bulk revoke modal to handleRevokeConfirm with all selected invitations mounted', async () => {
+      const user = userEvent.setup();
+      const handleRevokeConfirm = vi.fn();
+      const invitations = [createMockPendingInvitation(), createMockPendingInvitation()];
+
+      renderWithProviders(
+        <OrganizationMemberManagementView
+          {...createMockViewProps({
+            activeTab: 'invitations',
+            modalState: { type: 'bulkRevoke', invitations },
+            handleRevokeConfirm,
+          })}
+        />,
+      );
+
+      expect(screen.getByTestId('bulk-revoke-modal')).toHaveTextContent('to-revoke:2');
+
+      await user.click(screen.getByRole('button', { name: 'confirm-bulk-revoke' }));
+
+      expect(handleRevokeConfirm).toHaveBeenCalledTimes(1);
+    });
+
+    it('shares the isRevokingInvitation loading flag with the bulk revoke modal', () => {
+      const invitations = [createMockPendingInvitation()];
+
+      renderWithProviders(
+        <OrganizationMemberManagementView
+          {...createMockViewProps({
+            activeTab: 'invitations',
+            modalState: { type: 'bulkRevoke', invitations },
+            isRevokingInvitation: true,
+          })}
+        />,
+      );
+
+      expect(screen.getByTestId('bulk-revoke-modal')).toHaveTextContent('loading:true');
+    });
   });
 
   describe('assign role modal', () => {

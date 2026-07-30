@@ -147,7 +147,7 @@ function OrganizationMemberEditRolesTable({
       selectable
       selectionLabels={{
         selectAll: t('data_table.select_all'),
-        selectRow: (index) => `${t('data_table.select_row')} ${index + 1}`,
+        selectRow: (index) => t('data_table.select_row', { index: index + 1 }),
       }}
       selectedRows={selectedRoles}
       onSelectedRowsChange={onSelectedRolesChange}

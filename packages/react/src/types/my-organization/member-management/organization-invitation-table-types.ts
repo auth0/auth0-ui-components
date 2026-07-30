@@ -54,6 +54,7 @@ export interface OrganizationInvitationTabClasses {
   'OrganizationInvitationTab-createModal'?: string;
   'OrganizationInvitationTab-detailsModal'?: string;
   'OrganizationInvitationTab-revokeModal'?: string;
+  'OrganizationInvitationTab-bulkRevokeModal'?: string;
   'OrganizationInvitationTab-revokeResendModal'?: string;
   'OrganizationInvitationTab-searchInput'?: string;
   'OrganizationInvitationTab-filterDropdown'?: string;
@@ -92,10 +93,13 @@ export interface OrganizationInvitationTableProps {
   sortConfig?: MemberManagementSortConfig;
   availableRoles?: Role[];
   readOnly?: boolean;
+  selectedInvitations?: MemberInvitation[];
   onView?: (invitation: MemberInvitation) => void;
   onCopyUrl?: (invitation: MemberInvitation) => void;
   onRevokeAndResend?: (invitation: MemberInvitation) => void;
   onRevoke?: (invitation: MemberInvitation) => void;
+  onSelectedInvitationsChange?: (invitations: MemberInvitation[]) => void;
+  onBulkRevoke?: (invitations: MemberInvitation[]) => void;
   onNextPage?: () => void;
   onPreviousPage?: () => void;
   onPageSizeChange?: (pageSize: number) => void;
@@ -159,5 +163,17 @@ export interface OrganizationInvitationRevokeModalProps {
   style?: React.CSSProperties;
   onClose: () => void;
   onConfirm: (invitation: MemberInvitation) => void;
+  className?: string;
+}
+
+/** Props for OrganizationInvitationBulkRevokeModal component. */
+export interface OrganizationInvitationBulkRevokeModalProps {
+  invitations: MemberInvitation[];
+  isOpen: boolean;
+  isLoading?: boolean;
+  customMessages?: Partial<OrganizationInvitationTabMessages>;
+  style?: React.CSSProperties;
+  onClose: () => void;
+  onConfirm: () => void;
   className?: string;
 }

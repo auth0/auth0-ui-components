@@ -323,25 +323,34 @@ export function useMemberManagementService(
   });
 
   const revokeInvitationMutation = useMutation({
-    mutationFn: async (invitation: MemberInvitation) => {
-      if (revokeInvitationAction?.onBefore && !revokeInvitationAction.onBefore(invitation)) {
+    mutationFn: async (invitations: MemberInvitation[]) => {
+      if (revokeInvitationAction?.onBefore && !revokeInvitationAction.onBefore(invitations)) {
         throw new Error('Revoke action cancelled by onBefore');
       }
+      const ids = invitations.map((invitation) => invitation.id).filter((id): id is string => !!id);
       await coreClient!
         .getMyOrganizationApiClient()
-        .organization.invitations.delete(invitation.id!);
-      return invitation;
+        .organization.invitations.deleteMemberInvitations({ invitations: ids });
+      return invitations;
     },
-    onSuccess: (invitation) => {
-      revokeInvitationAction?.onAfter?.(invitation);
+    onSuccess: (invitations) => {
+      revokeInvitationAction?.onAfter?.(invitations);
       showToast({
         type: 'success',
-        message: t('invitation.revoke.success', { email: invitation.invitee?.email ?? '' }),
+        message:
+          invitations.length === 1
+            ? t('invitation.revoke.success', { email: invitations[0]?.invitee?.email ?? '' })
+            : t('invitation.bulk_revoke.success', { count: invitations.length }),
       });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
     },
-    onError: (error) => {
-      handleError(error, { fallbackMessage: t('invitation.error.revoke_failed') });
+    onError: (error, invitations) => {
+      handleError(error, {
+        fallbackMessage:
+          invitations.length === 1
+            ? t('invitation.error.revoke_failed')
+            : t('invitation.error.bulk_revoke_failed'),
+      });
     },
   });
 
@@ -362,7 +371,9 @@ export function useMemberManagementService(
       }
       await coreClient!
         .getMyOrganizationApiClient()
-        .organization.invitations.delete(freshInvitation.id ?? invitation.id!);
+        .organization.invitations.deleteMemberInvitations({
+          invitations: [freshInvitation.id ?? invitation.id!],
+        });
       const email = freshInvitation.invitee?.email ?? invitation.invitee?.email ?? '';
       const roles = freshInvitation.roles ?? invitation.roles;
       const response = await coreClient!
