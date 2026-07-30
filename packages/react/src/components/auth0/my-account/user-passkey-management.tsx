@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Spinner } from '@/components/ui/spinner';
 import { useUserPasskey } from '@/hooks/my-account/use-user-passkey';
+import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
@@ -48,6 +49,7 @@ import type {
  * @internal
  */
 function UserPasskeyManagement(props: UserPasskeyManagementProps) {
+  useTelemetry('user-passkey-management');
   const {
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
