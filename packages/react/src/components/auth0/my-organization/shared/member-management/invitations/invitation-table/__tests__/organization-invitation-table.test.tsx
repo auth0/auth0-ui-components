@@ -3,47 +3,36 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { OrganizationInvitationTable } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-table/organization-invitation-table';
-import { createMockInvitation } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
+import {
+  createMockInvitations,
+  createMockTableProps,
+} from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
-import type { OrganizationInvitationTableProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 mockToast();
 
-const invitations = [
-  createMockInvitation({ id: 'inv_1', invitee: { email: 'a@example.com' } }),
-  createMockInvitation({ id: 'inv_2', invitee: { email: 'b@example.com' } }),
-];
-
-const createProps = (
-  overrides: Partial<OrganizationInvitationTableProps> = {},
-): OrganizationInvitationTableProps => ({
-  invitations,
-  loading: false,
-  customMessages: {},
-  pagination: {
-    pageSize: 10,
-    currentPage: 1,
-    totalItems: invitations.length,
-    hasNextPage: false,
-    hasPreviousPage: false,
-  },
-  ...overrides,
-});
+const invitations = createMockInvitations();
 
 afterEach(() => vi.clearAllMocks());
 
 describe('OrganizationInvitationTable', () => {
   describe('selection UI', () => {
     it('does not render selection checkboxes when onSelectedInvitationsChange is not provided', () => {
-      renderWithProviders(<OrganizationInvitationTable {...createProps()} />);
+      renderWithProviders(
+        <OrganizationInvitationTable {...createMockTableProps({ invitations })} />,
+      );
       expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
     });
 
     it('does not render selection checkboxes in read-only mode', () => {
       renderWithProviders(
         <OrganizationInvitationTable
-          {...createProps({ readOnly: true, onSelectedInvitationsChange: vi.fn() })}
+          {...createMockTableProps({
+            invitations,
+            readOnly: true,
+            onSelectedInvitationsChange: vi.fn(),
+          })}
         />,
       );
       expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
@@ -51,7 +40,9 @@ describe('OrganizationInvitationTable', () => {
 
     it('renders selection checkboxes when selection is enabled', () => {
       renderWithProviders(
-        <OrganizationInvitationTable {...createProps({ onSelectedInvitationsChange: vi.fn() })} />,
+        <OrganizationInvitationTable
+          {...createMockTableProps({ invitations, onSelectedInvitationsChange: vi.fn() })}
+        />,
       );
       expect(screen.getAllByRole('checkbox').length).toBeGreaterThan(0);
     });
@@ -60,7 +51,9 @@ describe('OrganizationInvitationTable', () => {
       const user = userEvent.setup();
       const onSelectedInvitationsChange = vi.fn();
       renderWithProviders(
-        <OrganizationInvitationTable {...createProps({ onSelectedInvitationsChange })} />,
+        <OrganizationInvitationTable
+          {...createMockTableProps({ invitations, onSelectedInvitationsChange })}
+        />,
       );
       await user.click(screen.getAllByRole('checkbox', { name: 'data_table.select_row' })[0]!);
       expect(onSelectedInvitationsChange).toHaveBeenCalled();
@@ -71,7 +64,11 @@ describe('OrganizationInvitationTable', () => {
     it('is hidden when no invitations are selected', () => {
       renderWithProviders(
         <OrganizationInvitationTable
-          {...createProps({ onSelectedInvitationsChange: vi.fn(), selectedInvitations: [] })}
+          {...createMockTableProps({
+            invitations,
+            onSelectedInvitationsChange: vi.fn(),
+            selectedInvitations: [],
+          })}
         />,
       );
       expect(
@@ -82,7 +79,8 @@ describe('OrganizationInvitationTable', () => {
     it('shows the singular count label when 1 invitation is selected', () => {
       renderWithProviders(
         <OrganizationInvitationTable
-          {...createProps({
+          {...createMockTableProps({
+            invitations,
             onSelectedInvitationsChange: vi.fn(),
             selectedInvitations: [invitations[0]!],
           })}
@@ -97,7 +95,8 @@ describe('OrganizationInvitationTable', () => {
     it('shows the plural count label when multiple invitations are selected', () => {
       renderWithProviders(
         <OrganizationInvitationTable
-          {...createProps({
+          {...createMockTableProps({
+            invitations,
             onSelectedInvitationsChange: vi.fn(),
             selectedInvitations: invitations,
           })}
@@ -114,7 +113,8 @@ describe('OrganizationInvitationTable', () => {
       const onBulkRevoke = vi.fn();
       renderWithProviders(
         <OrganizationInvitationTable
-          {...createProps({
+          {...createMockTableProps({
+            invitations,
             onSelectedInvitationsChange: vi.fn(),
             selectedInvitations: invitations,
             onBulkRevoke,
