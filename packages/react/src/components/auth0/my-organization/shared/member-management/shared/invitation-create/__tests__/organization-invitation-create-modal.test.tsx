@@ -6,7 +6,7 @@ import { OrganizationInvitationCreateModal } from '@/components/auth0/my-organiz
 import {
   createMockCreateModalProps,
   createMockRoles,
-  createMockProviders,
+  createMockConnections,
 } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
@@ -210,31 +210,138 @@ describe('OrganizationInvitationCreateModal', () => {
     });
   });
 
-  describe('availableProviders', () => {
-    describe('when providers are provided', () => {
-      it('should render provider dropdown', () => {
-        renderWithProviders(
-          <OrganizationInvitationCreateModal
-            {...createMockCreateModalProps({
-              availableProviders: createMockProviders(),
-            })}
-          />,
-        );
+  describe('availableConnections', () => {
+    const addEmailAndSubmit = async (onCreate: ReturnType<typeof vi.fn>) => {
+      const emailInput = screen.getByPlaceholderText('invitation.create.email_placeholder');
+      fireEvent.change(emailInput, { target: { value: 'new@example.com' } });
+      fireEvent.keyDown(emailInput, { key: 'Enter' });
 
-        expect(screen.getByText('invitation.create.provider_label')).toBeInTheDocument();
+      const submitButton = screen.getByRole('button', {
+        name: 'invitation.create.submit_button',
       });
+      await userEvent.click(submitButton);
+
+      expect(onCreate).toHaveBeenCalledTimes(1);
+      return onCreate.mock.calls[0]![0];
+    };
+
+    it('should render both identity providers and user stores in the picker', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableConnections: createMockConnections() })}
+        />,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+
+      expect(screen.getByText('Google')).toBeInTheDocument();
+      expect(screen.getByText('Acme Directory')).toBeInTheDocument();
     });
 
-    describe('when no providers are provided', () => {
-      it('should still render provider section', () => {
-        renderWithProviders(
-          <OrganizationInvitationCreateModal
-            {...createMockCreateModalProps({ availableProviders: [] })}
-          />,
-        );
+    it('should render user store and identity provider group headers', async () => {
+      const user = userEvent.setup();
 
-        expect(screen.getByText('invitation.create.provider_label')).toBeInTheDocument();
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableConnections: createMockConnections() })}
+        />,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+
+      expect(screen.getByText('invitation.create.connection_group_user_store')).toBeInTheDocument();
+      expect(
+        screen.getByText('invitation.create.connection_group_identity_provider'),
+      ).toBeInTheDocument();
+    });
+
+    it('should submit identity_provider_id when an identity provider is selected', async () => {
+      const user = userEvent.setup();
+      const onCreate = vi.fn();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            availableConnections: createMockConnections(),
+            onCreate,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getByText('Google'));
+
+      const payload = await addEmailAndSubmit(onCreate);
+      expect(payload.identity_provider_id).toBe('con_provider1');
+      expect(payload.user_store_id).toBeUndefined();
+    });
+
+    it('should submit user_store_id when a user store is selected', async () => {
+      const user = userEvent.setup();
+      const onCreate = vi.fn();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            availableConnections: createMockConnections(),
+            onCreate,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getByText('Acme Directory'));
+
+      const payload = await addEmailAndSubmit(onCreate);
+      expect(payload.user_store_id).toBe('us_store1');
+      expect(payload.identity_provider_id).toBeUndefined();
+    });
+
+    it('should still render the connection section when no connections are provided', () => {
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableConnections: [] })}
+        />,
+      );
+
+      expect(screen.getByText(/invitation\.create\.connection_label/)).toBeInTheDocument();
+    });
+
+    it('should keep submit disabled until a connection is selected', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableConnections: createMockConnections() })}
+        />,
+      );
+
+      const emailInput = screen.getByPlaceholderText('invitation.create.email_placeholder');
+      fireEvent.change(emailInput, { target: { value: 'new@example.com' } });
+      fireEvent.keyDown(emailInput, { key: 'Enter' });
+
+      const submitButton = screen.getByRole('button', {
+        name: 'invitation.create.submit_button',
       });
+      expect(submitButton).toBeDisabled();
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getByText('Google'));
+
+      expect(submitButton).toBeEnabled();
+    });
+
+    it('should render the connection label as required', () => {
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableConnections: createMockConnections() })}
+        />,
+      );
+
+      expect(screen.getByText(/invitation\.create\.connection_label/)).toBeInTheDocument();
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-required', 'true');
     });
   });
 

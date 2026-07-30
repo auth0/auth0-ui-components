@@ -1267,9 +1267,11 @@
         "email_required_error": "メールアドレスを1つ以上入力してください。",
         "roles_label": "ロール",
         "roles_placeholder": "ロールを選択（任意）",
-        "provider_label": "プロバイダー",
-        "provider_placeholder": "プロバイダーを選択（任意）",
-        "provider_helper": "選択しない場合、メンバーは任意のプロバイダーでログインできます。",
+        "connection_label": "接続",
+        "connection_placeholder": "接続を選択",
+        "connection_helper": "メンバーがログインに使用する接続を選択してください。",
+        "connection_group_user_store": "ユーザーディレクトリ",
+        "connection_group_identity_provider": "エンタープライズSSO",
         "submit_button": "招待を送信",
         "creating": "作成中...",
         "cancel_button": "キャンセル",
@@ -1281,7 +1283,7 @@
         "email_label": "メール",
         "status_label": "ステータス",
         "roles_label": "ロール",
-        "provider_label": "IDプロバイダー",
+        "connection_label": "接続",
         "created_at_label": "作成日",
         "expires_at_label": "有効期限",
         "invited_by_label": "招待者",
@@ -1314,6 +1316,7 @@
         "revoke_failed": "招待の取り消しに失敗しました。もう一度お試しください。",
         "resend_failed": "招待の再送信に失敗しました。もう一度お試しください。",
         "revoke_resend_failed": "招待の取り消しと再送信に失敗しました。もう一度お試しください。",
+        "connection_required": "identity_provider_id または user_store_id のいずれか一方を指定する必要があります。",
         "copy_url_failed": "招待URLのコピーに失敗しました。もう一度お試しください。"
       }
     }

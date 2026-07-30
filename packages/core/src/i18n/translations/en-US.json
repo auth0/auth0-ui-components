@@ -1266,9 +1266,11 @@
         "email_required_error": "Please enter at least one email address.",
         "roles_label": "Roles",
         "roles_placeholder": "Select roles (optional)",
-        "provider_label": "Provider",
-        "provider_placeholder": "Select provider (optional)",
-        "provider_helper": "If none is selected, the member can log in with any provider.",
+        "connection_label": "Connection",
+        "connection_placeholder": "Select connection",
+        "connection_helper": "Select the connection the member will use to log in.",
+        "connection_group_user_store": "User Directory",
+        "connection_group_identity_provider": "Enterprise SSO",
         "submit_button": "Send Invite",
         "creating": "Creating...",
         "cancel_button": "Cancel",
@@ -1280,7 +1282,7 @@
         "email_label": "Email",
         "status_label": "Status",
         "roles_label": "Roles",
-        "provider_label": "Identity Provider",
+        "connection_label": "Connection",
         "created_at_label": "Created",
         "expires_at_label": "Expires",
         "invited_by_label": "Invited By",
@@ -1313,6 +1315,7 @@
         "revoke_failed": "Failed to revoke invitation. Please try again.",
         "resend_failed": "Failed to resend invitation. Please try again.",
         "revoke_resend_failed": "Failed to revoke and resend invitation. Please try again.",
+        "connection_required": "At least one of identity_provider_id or user_store_id must be provided.",
         "copy_url_failed": "Failed to copy invitation URL. Please try again."
       }
     }
