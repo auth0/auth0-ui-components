@@ -76,7 +76,7 @@ describe('OrganizationInvitationTable', () => {
         />,
       );
       expect(
-        screen.queryByRole('button', { name: 'invitation.delete_selected.button' }),
+        screen.queryByRole('button', { name: 'invitation.bulk_revoke.button' }),
       ).not.toBeInTheDocument();
     });
 
@@ -89,9 +89,9 @@ describe('OrganizationInvitationTable', () => {
           })}
         />,
       );
-      expect(screen.getByText('invitation.delete_selected.count')).toBeInTheDocument();
+      expect(screen.getByText('invitation.bulk_revoke.count')).toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: 'invitation.delete_selected.button' }),
+        screen.getByRole('button', { name: 'invitation.bulk_revoke.button' }),
       ).toBeInTheDocument();
     });
 
@@ -104,9 +104,9 @@ describe('OrganizationInvitationTable', () => {
           })}
         />,
       );
-      expect(screen.getByText('invitation.delete_selected.count_plural')).toBeInTheDocument();
+      expect(screen.getByText('invitation.bulk_revoke.count_plural')).toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: 'invitation.delete_selected.button_plural' }),
+        screen.getByRole('button', { name: 'invitation.bulk_revoke.button_plural' }),
       ).toBeInTheDocument();
     });
 
@@ -123,7 +123,7 @@ describe('OrganizationInvitationTable', () => {
         />,
       );
       await user.click(
-        screen.getByRole('button', { name: 'invitation.delete_selected.button_plural' }),
+        screen.getByRole('button', { name: 'invitation.bulk_revoke.button_plural' }),
       );
       expect(onDeleteSelected).toHaveBeenCalledWith(invitations);
     });

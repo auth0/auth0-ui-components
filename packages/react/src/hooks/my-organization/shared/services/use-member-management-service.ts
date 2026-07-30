@@ -68,7 +68,6 @@ export function useMemberManagementService(
     activeTab,
     createInvitationAction,
     revokeInvitationAction,
-    deleteInvitationsAction,
     resendInvitationAction,
     invitationParams,
     memberParams,
@@ -300,32 +299,9 @@ export function useMemberManagementService(
   });
 
   const revokeInvitationMutation = useMutation({
-    mutationFn: async (invitation: MemberInvitation) => {
-      if (revokeInvitationAction?.onBefore && !revokeInvitationAction.onBefore(invitation)) {
-        throw new Error('Revoke action cancelled by onBefore');
-      }
-      await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.invitations.deleteMemberInvitations({ invitations: [invitation.id!] });
-      return invitation;
-    },
-    onSuccess: (invitation) => {
-      revokeInvitationAction?.onAfter?.(invitation);
-      showToast({
-        type: 'success',
-        message: t('invitation.revoke.success', { email: invitation.invitee?.email ?? '' }),
-      });
-      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
-    },
-    onError: (error) => {
-      handleError(error, { fallbackMessage: t('invitation.error.revoke_failed') });
-    },
-  });
-
-  const deleteInvitationsMutation = useMutation({
     mutationFn: async (invitations: MemberInvitation[]) => {
-      if (deleteInvitationsAction?.onBefore && !deleteInvitationsAction.onBefore(invitations)) {
-        throw new Error('Delete invitations cancelled by onBefore');
+      if (revokeInvitationAction?.onBefore && !revokeInvitationAction.onBefore(invitations)) {
+        throw new Error('Revoke action cancelled by onBefore');
       }
       const ids = invitations.map((invitation) => invitation.id).filter((id): id is string => !!id);
       await coreClient!
@@ -334,18 +310,23 @@ export function useMemberManagementService(
       return invitations;
     },
     onSuccess: (invitations) => {
-      deleteInvitationsAction?.onAfter?.(invitations);
+      revokeInvitationAction?.onAfter?.(invitations);
       showToast({
         type: 'success',
         message:
           invitations.length === 1
             ? t('invitation.revoke.success', { email: invitations[0]?.invitee?.email ?? '' })
-            : t('invitation.delete_selected.success', { count: invitations.length }),
+            : t('invitation.bulk_revoke.success', { count: invitations.length }),
       });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
     },
-    onError: (error) => {
-      handleError(error, { fallbackMessage: t('invitation.error.delete_selected_failed') });
+    onError: (error, invitations) => {
+      handleError(error, {
+        fallbackMessage:
+          invitations.length === 1
+            ? t('invitation.error.revoke_failed')
+            : t('invitation.error.bulk_revoke_failed'),
+      });
     },
   });
 
@@ -405,7 +386,6 @@ export function useMemberManagementService(
     removeFromOrganizationMutation,
     createInvitationMutation,
     revokeInvitationMutation,
-    deleteInvitationsMutation,
     resendInvitationMutation,
     fetchInvitationDetails,
   };

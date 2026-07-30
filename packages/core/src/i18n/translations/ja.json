@@ -1304,7 +1304,7 @@
         "confirm_button": "続行",
         "cancel_button": "キャンセル"
       },
-      "delete_selected": {
+      "bulk_revoke": {
         "button": "選択項目を削除",
         "button_plural": "選択項目を削除",
         "count": "${count}件を選択中",
@@ -1330,7 +1330,7 @@
         "revoke_failed": "招待の取り消しに失敗しました。もう一度お試しください。",
         "resend_failed": "招待の再送信に失敗しました。もう一度お試しください。",
         "revoke_resend_failed": "招待の取り消しと再送信に失敗しました。もう一度お試しください。",
-        "delete_selected_failed": "選択した招待の取り消しに失敗しました。もう一度お試しください。",
+        "bulk_revoke_failed": "選択した招待の取り消しに失敗しました。もう一度お試しください。",
         "copy_url_failed": "招待URLのコピーに失敗しました。もう一度お試しください。"
       }
     }

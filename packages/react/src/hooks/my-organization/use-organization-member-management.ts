@@ -38,7 +38,6 @@ export function useOrganizationMemberManagement(
     readOnly = false,
     createInvitationAction,
     revokeInvitationAction,
-    deleteInvitationsAction,
     resendInvitationAction,
     viewMemberDetailsAction,
     assignRolesAction,
@@ -94,7 +93,6 @@ export function useOrganizationMemberManagement(
     organizationQuery,
     createInvitationMutation,
     revokeInvitationMutation,
-    deleteInvitationsMutation,
     resendInvitationMutation,
     assignRolesMutation,
     removeFromOrganizationMutation,
@@ -104,7 +102,6 @@ export function useOrganizationMemberManagement(
     activeTab,
     createInvitationAction,
     revokeInvitationAction,
-    deleteInvitationsAction,
     resendInvitationAction,
     invitationParams: {
       pageSize: invitationPageSize,
@@ -146,7 +143,7 @@ export function useOrganizationMemberManagement(
     async (state: MemberManagementModalState) => {
       if (state.type === 'create' && readOnly) return;
       if ((state.type === 'revoke' || state.type === 'revokeResend') && readOnly) return;
-      if (state.type === 'deleteInvitations' && readOnly) return;
+      if (state.type === 'bulkRevoke' && readOnly) return;
       setModalState(state);
 
       if (state.type === 'details') {
@@ -180,9 +177,18 @@ export function useOrganizationMemberManagement(
   );
 
   const handleRevokeConfirm = React.useCallback(() => {
-    if (modalState.type !== 'revoke') return;
-    revokeInvitationMutation.mutate(modalState.invitation, {
-      onSuccess: () => closeModal(),
+    const invitations =
+      modalState.type === 'revoke'
+        ? [modalState.invitation]
+        : modalState.type === 'bulkRevoke'
+          ? modalState.invitations
+          : [];
+    if (invitations.length === 0) return;
+    revokeInvitationMutation.mutate(invitations, {
+      onSuccess: () => {
+        setSelectedInvitations([]);
+        closeModal();
+      },
     });
   }, [modalState, revokeInvitationMutation, closeModal]);
 
@@ -193,23 +199,13 @@ export function useOrganizationMemberManagement(
     });
   }, [modalState, resendInvitationMutation, closeModal]);
 
-  const handleDeleteInvitationsClick = React.useCallback(
+  const handleBulkRevokeClick = React.useCallback(
     (invitations: MemberInvitation[]) => {
       if (readOnly || invitations.length === 0) return;
-      openModal({ type: 'deleteInvitations', invitations });
+      openModal({ type: 'bulkRevoke', invitations });
     },
     [readOnly, openModal],
   );
-
-  const handleDeleteInvitationsConfirm = React.useCallback(() => {
-    if (modalState.type !== 'deleteInvitations') return;
-    deleteInvitationsMutation.mutate(modalState.invitations, {
-      onSuccess: () => {
-        setSelectedInvitations([]);
-        closeModal();
-      },
-    });
-  }, [modalState, deleteInvitationsMutation, closeModal]);
 
   const handleCopyUrl = React.useCallback(async (invitation: MemberInvitation) => {
     if (!invitation.invitation_url) return;
@@ -326,7 +322,6 @@ export function useOrganizationMemberManagement(
     isAssigningRoles: isMutationLoading(assignRolesMutation),
     isCreatingInvitation: isMutationLoading(createInvitationMutation),
     isRevokingInvitation: isMutationLoading(revokeInvitationMutation),
-    isDeletingInvitations: isMutationLoading(deleteInvitationsMutation),
     isResendingInvitation: isMutationLoading(resendInvitationMutation),
     selectedInvitations,
     invitationPagination: {
@@ -354,8 +349,7 @@ export function useOrganizationMemberManagement(
     handleCreateSubmit,
     handleRevokeConfirm,
     handleRevokeResendConfirm,
-    handleDeleteInvitationsClick,
-    handleDeleteInvitationsConfirm,
+    handleBulkRevokeClick,
     handleCopyUrl,
     handleNextPage,
     handlePreviousPage,

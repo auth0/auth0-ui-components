@@ -59,8 +59,7 @@ export interface UseMemberManagementServiceOptions {
   customMessages?: Partial<OrganizationMemberManagementMessages>;
   activeTab?: ActiveTab;
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
-  revokeInvitationAction?: ComponentAction<MemberInvitation>;
-  deleteInvitationsAction?: ComponentAction<MemberInvitation[]>;
+  revokeInvitationAction?: ComponentAction<MemberInvitation[]>;
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
   invitationParams?: TableQueryParams<MemberManagementSortConfig, MemberManagementFilterState>;
   memberParams?: TableQueryParams<MemberManagementSortConfig, MemberManagementFilterState>;
@@ -101,8 +100,7 @@ export interface MemberManagementServiceResult {
     Error,
     CreateInvitationInput
   >;
-  revokeInvitationMutation: UseMutationResult<MemberInvitation, Error, MemberInvitation>;
-  deleteInvitationsMutation: UseMutationResult<MemberInvitation[], Error, MemberInvitation[]>;
+  revokeInvitationMutation: UseMutationResult<MemberInvitation[], Error, MemberInvitation[]>;
   resendInvitationMutation: UseMutationResult<
     MemberInvitation | undefined,
     Error,
@@ -117,9 +115,7 @@ export interface UseOrganizationMemberManagementOptions {
   /** Action hooks for invitation creation (onBefore/onAfter) */
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   /** Action hooks for invitation revocation (onBefore/onAfter) */
-  revokeInvitationAction?: ComponentAction<MemberInvitation>;
-  /** Action hooks for bulk invitation deletion (onBefore/onAfter) */
-  deleteInvitationsAction?: ComponentAction<MemberInvitation[]>;
+  revokeInvitationAction?: ComponentAction<MemberInvitation[]>;
   /** Action hooks for invitation revoke-and-resend (onBefore/onAfter) */
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
   /** Action hooks for viewing member details (onBefore/onAfter) */
@@ -137,7 +133,7 @@ export type MemberManagementModalState =
   | { type: 'details'; invitation: MemberInvitation }
   | { type: 'revoke'; invitation: MemberInvitation }
   | { type: 'revokeResend'; invitation: MemberInvitation }
-  | { type: 'deleteInvitations'; invitations: MemberInvitation[] }
+  | { type: 'bulkRevoke'; invitations: MemberInvitation[] }
   | { type: 'assignRole'; member: OrgMember }
   | { type: 'removeFromOrganization'; member: OrgMember };
 
@@ -164,7 +160,6 @@ export interface UseOrganizationMemberManagementResult {
   isFetchingAvailableRoles: boolean;
   isCreatingInvitation: boolean;
   isRevokingInvitation: boolean;
-  isDeletingInvitations: boolean;
   isResendingInvitation: boolean;
   selectedInvitations: MemberInvitation[];
   invitationPagination: MemberManagementPaginationState;
@@ -184,8 +179,7 @@ export interface UseOrganizationMemberManagementResult {
   handleCreateSubmit: (data: CreateInvitationInput) => void;
   handleRevokeConfirm: () => void;
   handleRevokeResendConfirm: () => void;
-  handleDeleteInvitationsClick: (invitations: MemberInvitation[]) => void;
-  handleDeleteInvitationsConfirm: () => void;
+  handleBulkRevokeClick: (invitations: MemberInvitation[]) => void;
   handleCopyUrl: (invitation: MemberInvitation) => Promise<void>;
   handleNextPage: () => void;
   handlePreviousPage: () => void;
@@ -229,10 +223,8 @@ export interface OrganizationMemberManagementProps
   hideHeader?: boolean;
   /** Action hooks for invitation creation (onBefore/onAfter) */
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
-  /** Action hooks for invitation revocation (onBefore/onAfter) */
-  revokeInvitationAction?: ComponentAction<MemberInvitation>;
-  /** Action hooks for bulk invitation deletion (onBefore/onAfter) */
-  deleteInvitationsAction?: ComponentAction<MemberInvitation[]>;
+  /** Action hooks for invitation revocation, single or bulk (onBefore/onAfter) */
+  revokeInvitationAction?: ComponentAction<MemberInvitation[]>;
   /** Action hooks for invitation revoke-and-resend (onBefore/onAfter) */
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
   /** Action hooks for viewing member details (onBefore/onAfter) */

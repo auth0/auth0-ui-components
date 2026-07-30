@@ -1303,7 +1303,7 @@
         "confirm_button": "Proceed",
         "cancel_button": "Cancel"
       },
-      "delete_selected": {
+      "bulk_revoke": {
         "button": "Delete Invitation",
         "button_plural": "Delete Invitations",
         "count": "${count} selected",
@@ -1329,7 +1329,7 @@
         "revoke_failed": "Failed to revoke invitation. Please try again.",
         "resend_failed": "Failed to resend invitation. Please try again.",
         "revoke_resend_failed": "Failed to revoke and resend invitation. Please try again.",
-        "delete_selected_failed": "Failed to revoke the selected invitations. Please try again.",
+        "bulk_revoke_failed": "Failed to revoke the selected invitations. Please try again.",
         "copy_url_failed": "Failed to copy invitation URL. Please try again."
       }
     }

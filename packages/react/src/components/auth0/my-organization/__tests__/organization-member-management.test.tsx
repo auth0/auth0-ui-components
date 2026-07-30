@@ -13,6 +13,7 @@ import {
   createMockRoleOptions,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
+import type { OrganizationInvitationDeleteModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   OrganizationMemberManagementProps,
   OrganizationMemberManagementViewProps,
@@ -73,6 +74,7 @@ vi.mock(
       onCopyUrl,
       onRevoke,
       onRevokeAndResend,
+      onDeleteSelected,
       className,
     }: any) => (
       <div data-testid="invitation-table" className={className}>
@@ -82,6 +84,7 @@ vi.mock(
         <button onClick={() => onCopyUrl?.(invitations[0])}>copy-url</button>
         <button onClick={() => onRevoke?.(invitations[0])}>revoke</button>
         <button onClick={() => onRevokeAndResend?.(invitations[0])}>revoke-resend</button>
+        <button onClick={() => onDeleteSelected?.(invitations)}>delete-selected</button>
       </div>
     ),
   }),
@@ -135,6 +138,27 @@ vi.mock(
         <button onClick={onClose}>
           {isRevokeAndResend ? 'close-revoke-resend' : 'close-revoke'}
         </button>
+      </div>
+    ),
+  }),
+);
+
+vi.mock(
+  '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-delete-modal',
+  () => ({
+    OrganizationInvitationDeleteModal: ({
+      isOpen,
+      isLoading,
+      invitations,
+      onConfirm,
+      onClose,
+    }: OrganizationInvitationDeleteModalProps) => (
+      <div data-testid="delete-modal">
+        open:{String(isOpen)}
+        <span>to-delete:{invitations.length}</span>
+        <span>loading:{String(isLoading)}</span>
+        <button onClick={onConfirm}>confirm-delete</button>
+        <button onClick={onClose}>close-delete</button>
       </div>
     ),
   }),
@@ -231,7 +255,6 @@ const createMockMemberManagementResult = (
     isFetchingAvailableRoles: false,
     isCreatingInvitation: false,
     isRevokingInvitation: false,
-    isDeletingInvitations: false,
     isResendingInvitation: false,
     selectedInvitations: [],
     invitationPagination: {
@@ -262,8 +285,7 @@ const createMockMemberManagementResult = (
     handleCreateSubmit: vi.fn(),
     handleRevokeConfirm: vi.fn(),
     handleRevokeResendConfirm: vi.fn(),
-    handleDeleteInvitationsClick: vi.fn(),
-    handleDeleteInvitationsConfirm: vi.fn(),
+    handleBulkRevokeClick: vi.fn(),
     handleCopyUrl: vi.fn(),
     handleNextPage: vi.fn(),
     handlePreviousPage: vi.fn(),
@@ -433,6 +455,102 @@ describe('OrganizationMemberManagementView', () => {
     await user.click(screen.getByRole('button', { name: 'revoke-resend' }));
 
     expect(openModal).not.toHaveBeenCalled();
+  });
+
+  describe('invitation revoke flows', () => {
+    it('opens the bulk revoke modal from the table bulk action', async () => {
+      const user = userEvent.setup();
+      const handleBulkRevokeClick = vi.fn();
+      const invitation = createMockPendingInvitation();
+
+      renderWithProviders(
+        <OrganizationMemberManagementView
+          {...createMockViewProps({
+            activeTab: 'invitations',
+            invitations: [invitation],
+            handleBulkRevokeClick,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'delete-selected' }));
+
+      expect(handleBulkRevokeClick).toHaveBeenCalledWith([invitation]);
+    });
+
+    it('renders the bulk revoke modal open with the invitations from modal state', () => {
+      const invitations = [createMockPendingInvitation(), createMockPendingInvitation()];
+
+      renderWithProviders(
+        <OrganizationMemberManagementView
+          {...createMockViewProps({
+            activeTab: 'invitations',
+            modalState: { type: 'bulkRevoke', invitations },
+          })}
+        />,
+      );
+
+      expect(screen.getByTestId('delete-modal')).toHaveTextContent('open:true');
+      expect(screen.getByText('to-delete:2')).toBeInTheDocument();
+    });
+
+    it('routes the single revoke modal to handleRevokeConfirm', async () => {
+      const user = userEvent.setup();
+      const handleRevokeConfirm = vi.fn();
+      const invitation = createMockPendingInvitation();
+
+      renderWithProviders(
+        <OrganizationMemberManagementView
+          {...createMockViewProps({
+            activeTab: 'invitations',
+            modalState: { type: 'revoke', invitation },
+            handleRevokeConfirm,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'confirm-revoke' }));
+
+      expect(handleRevokeConfirm).toHaveBeenCalledTimes(1);
+    });
+
+    it('routes the bulk revoke modal to handleRevokeConfirm with all selected invitations mounted', async () => {
+      const user = userEvent.setup();
+      const handleRevokeConfirm = vi.fn();
+      const invitations = [createMockPendingInvitation(), createMockPendingInvitation()];
+
+      renderWithProviders(
+        <OrganizationMemberManagementView
+          {...createMockViewProps({
+            activeTab: 'invitations',
+            modalState: { type: 'bulkRevoke', invitations },
+            handleRevokeConfirm,
+          })}
+        />,
+      );
+
+      expect(screen.getByTestId('delete-modal')).toHaveTextContent('to-delete:2');
+
+      await user.click(screen.getByRole('button', { name: 'confirm-delete' }));
+
+      expect(handleRevokeConfirm).toHaveBeenCalledTimes(1);
+    });
+
+    it('shares the isRevokingInvitation loading flag with the bulk revoke modal', () => {
+      const invitations = [createMockPendingInvitation()];
+
+      renderWithProviders(
+        <OrganizationMemberManagementView
+          {...createMockViewProps({
+            activeTab: 'invitations',
+            modalState: { type: 'bulkRevoke', invitations },
+            isRevokingInvitation: true,
+          })}
+        />,
+      );
+
+      expect(screen.getByTestId('delete-modal')).toHaveTextContent('loading:true');
+    });
   });
 
   describe('assign role modal', () => {

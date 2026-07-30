@@ -31,7 +31,7 @@ describe('OrganizationInvitationDeleteModal', () => {
   it('does not render content when closed', () => {
     renderWithProviders(<OrganizationInvitationDeleteModal {...createProps({ isOpen: false })} />);
     expect(
-      screen.queryByText('invitation.delete_selected.confirm.title_plural'),
+      screen.queryByText('invitation.bulk_revoke.confirm.title_plural'),
     ).not.toBeInTheDocument();
   });
 
@@ -39,12 +39,12 @@ describe('OrganizationInvitationDeleteModal', () => {
     renderWithProviders(
       <OrganizationInvitationDeleteModal {...createProps({ invitations: [invitations[0]!] })} />,
     );
-    expect(screen.getByText('invitation.delete_selected.confirm.title')).toBeInTheDocument();
+    expect(screen.getByText('invitation.bulk_revoke.confirm.title')).toBeInTheDocument();
   });
 
   it('renders the plural title when multiple invitations are selected', () => {
     renderWithProviders(<OrganizationInvitationDeleteModal {...createProps()} />);
-    expect(screen.getByText('invitation.delete_selected.confirm.title_plural')).toBeInTheDocument();
+    expect(screen.getByText('invitation.bulk_revoke.confirm.title_plural')).toBeInTheDocument();
   });
 
   it('calls onConfirm when the confirm button is clicked', async () => {
@@ -53,7 +53,7 @@ describe('OrganizationInvitationDeleteModal', () => {
     renderWithProviders(<OrganizationInvitationDeleteModal {...createProps({ onConfirm })} />);
     await user.click(
       screen.getByRole('button', {
-        name: 'invitation.delete_selected.confirm.confirm_button_plural',
+        name: 'invitation.bulk_revoke.confirm.confirm_button_plural',
       }),
     );
     expect(onConfirm).toHaveBeenCalledTimes(1);
@@ -64,7 +64,7 @@ describe('OrganizationInvitationDeleteModal', () => {
     const onClose = vi.fn();
     renderWithProviders(<OrganizationInvitationDeleteModal {...createProps({ onClose })} />);
     await user.click(
-      screen.getByRole('button', { name: 'invitation.delete_selected.confirm.cancel_button' }),
+      screen.getByRole('button', { name: 'invitation.bulk_revoke.confirm.cancel_button' }),
     );
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -74,7 +74,7 @@ describe('OrganizationInvitationDeleteModal', () => {
       <OrganizationInvitationDeleteModal {...createProps({ isLoading: true })} />,
     );
     expect(
-      screen.getByRole('button', { name: 'invitation.delete_selected.confirm.cancel_button' }),
+      screen.getByRole('button', { name: 'invitation.bulk_revoke.confirm.cancel_button' }),
     ).toBeDisabled();
   });
 });

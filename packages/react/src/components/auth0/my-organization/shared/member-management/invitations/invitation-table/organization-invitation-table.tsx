@@ -173,8 +173,8 @@ export function OrganizationInvitationTable({
           <span className="text-sm text-muted-foreground shrink-0">
             {t(
               selectedCount === 1
-                ? 'invitation.delete_selected.count'
-                : 'invitation.delete_selected.count_plural',
+                ? 'invitation.bulk_revoke.count'
+                : 'invitation.bulk_revoke.count_plural',
               { count: selectedCount },
             )}
           </span>
@@ -185,8 +185,8 @@ export function OrganizationInvitationTable({
           >
             {t(
               selectedCount === 1
-                ? 'invitation.delete_selected.button'
-                : 'invitation.delete_selected.button_plural',
+                ? 'invitation.bulk_revoke.button'
+                : 'invitation.bulk_revoke.button_plural',
             )}
           </Button>
         </div>

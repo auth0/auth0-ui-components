@@ -52,8 +52,8 @@ export function OrganizationInvitationDeleteModal({
           <DialogTitle>
             {t(
               isPlural
-                ? 'invitation.delete_selected.confirm.title_plural'
-                : 'invitation.delete_selected.confirm.title',
+                ? 'invitation.bulk_revoke.confirm.title_plural'
+                : 'invitation.bulk_revoke.confirm.title',
               { count },
             )}
           </DialogTitle>
@@ -61,21 +61,21 @@ export function OrganizationInvitationDeleteModal({
         <DialogDescription className="py-2">
           {t(
             isPlural
-              ? 'invitation.delete_selected.confirm.description_plural'
-              : 'invitation.delete_selected.confirm.description',
+              ? 'invitation.bulk_revoke.confirm.description_plural'
+              : 'invitation.bulk_revoke.confirm.description',
             { count, email: invitations[0]?.invitee?.email ?? '' },
           )}
         </DialogDescription>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            {t('invitation.delete_selected.confirm.cancel_button')}
+            {t('invitation.bulk_revoke.confirm.cancel_button')}
           </Button>
           <Button variant="destructive" onClick={onConfirm} disabled={isLoading}>
             {isLoading ? <Spinner size="sm" /> : null}
             {t(
               isPlural
-                ? 'invitation.delete_selected.confirm.confirm_button_plural'
-                : 'invitation.delete_selected.confirm.confirm_button',
+                ? 'invitation.bulk_revoke.confirm.confirm_button_plural'
+                : 'invitation.bulk_revoke.confirm.confirm_button',
             )}
           </Button>
         </DialogFooter>

@@ -75,7 +75,7 @@ export interface OrganizationInvitationTabMessages {
     confirm_button?: string;
     cancel_button?: string;
   };
-  delete_selected?: {
+  bulk_revoke?: {
     button?: string;
     button_plural?: string;
     count?: string;
@@ -101,7 +101,7 @@ export interface OrganizationInvitationTabMessages {
     revoke_failed?: string;
     resend_failed?: string;
     revoke_resend_failed?: string;
-    delete_selected_failed?: string;
+    bulk_revoke_failed?: string;
     copy_url_failed?: string;
   };
 }

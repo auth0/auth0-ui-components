@@ -57,7 +57,6 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     isInvitationsStale,
     isCreatingInvitation,
     isRevokingInvitation,
-    isDeletingInvitations,
     isResendingInvitation,
     selectedInvitations,
     invitationPagination,
@@ -82,8 +81,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     handleCreateSubmit,
     handleRevokeConfirm,
     handleRevokeResendConfirm,
-    handleDeleteInvitationsClick,
-    handleDeleteInvitationsConfirm,
+    handleBulkRevokeClick,
     handleCopyUrl,
     handleSortChange,
     handleNextPage,
@@ -107,7 +105,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
       ? modalState.member
       : null;
 
-  const invitationsToDelete = modalState.type === 'deleteInvitations' ? modalState.invitations : [];
+  const invitationsToDelete = modalState.type === 'bulkRevoke' ? modalState.invitations : [];
 
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('member_management', customMessages);
@@ -243,7 +241,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               onRevokeAndResend={readOnly ? undefined : handleRevokeResendClick}
               onRevoke={readOnly ? undefined : handleRevokeClick}
               onSelectedInvitationsChange={readOnly ? undefined : onSelectedInvitationsChange}
-              onDeleteSelected={readOnly ? undefined : handleDeleteInvitationsClick}
+              onDeleteSelected={readOnly ? undefined : handleBulkRevokeClick}
               onNextPage={handleNextPage}
               onPreviousPage={handlePreviousPage}
               onPageSizeChange={handlePageSizeChange}
@@ -308,12 +306,12 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
 
         <OrganizationInvitationDeleteModal
           invitations={invitationsToDelete}
-          isOpen={modalState.type === 'deleteInvitations'}
-          isLoading={isDeletingInvitations}
+          isOpen={modalState.type === 'bulkRevoke'}
+          isLoading={isRevokingInvitation}
           customMessages={customMessages?.invitation}
           style={currentStyles.variables}
           onClose={closeModal}
-          onConfirm={handleDeleteInvitationsConfirm}
+          onConfirm={handleRevokeConfirm}
           className={currentStyles.classes?.['OrganizationInvitationTab-deleteModal']}
         />
 
@@ -357,7 +355,6 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
     readOnly = false,
     createInvitationAction,
     revokeInvitationAction,
-    deleteInvitationsAction,
     resendInvitationAction,
     viewMemberDetailsAction,
     assignRolesAction,
@@ -369,7 +366,6 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
     readOnly,
     createInvitationAction,
     revokeInvitationAction,
-    deleteInvitationsAction,
     resendInvitationAction,
     viewMemberDetailsAction,
     assignRolesAction,
