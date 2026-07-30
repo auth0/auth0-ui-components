@@ -7,8 +7,6 @@ import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockDomain,
   createMockVerifiedDomain,
-  createMockIdentityProvider,
-  createMockIdentityProviderAssociatedWithDomain,
   createMockDomainTableProps,
   createMockCreateAction,
   createMockVerifyAction,
