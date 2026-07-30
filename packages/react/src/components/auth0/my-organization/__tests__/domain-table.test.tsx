@@ -16,6 +16,7 @@ import {
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
+import type { DomainTableProps } from '@/types/my-organization/domain-management/domain-table-types';
 
 mockToast();
 const { initMockCoreClient } = mockCore();
@@ -746,23 +747,20 @@ describe('DomainTable', () => {
 
   describe('customMessages', () => {
     describe('when custom header title is provided', () => {
-      it('should render component with customMessages prop', async () => {
-        renderWithProviders(
-          <DomainTable
-            {...createMockDomainTableProps({
-              customMessages: {
-                header: {
-                  title: 'Custom Domain Title',
-                },
-              },
-            })}
-          />,
-        );
+      it('should override header title', async () => {
+        const customMessages: DomainTableProps['customMessages'] = {
+          domain_table: {
+            header: {
+              title: 'Custom Domain Title',
+            },
+          },
+        };
+
+        renderWithProviders(<DomainTable {...createMockDomainTableProps({ customMessages })} />);
 
         await waitForComponentToLoad();
 
-        expect(screen.getByRole('table')).toBeInTheDocument();
-        expect(screen.getByText(/header\.title|Custom Domain Title/i)).toBeInTheDocument();
+        expect(screen.getByText('Custom Domain Title')).toBeInTheDocument();
       });
     });
 
