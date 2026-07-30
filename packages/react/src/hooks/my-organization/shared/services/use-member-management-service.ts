@@ -9,6 +9,7 @@ import {
   type MemberInvitation,
   type ListIdentityProvidersResponseContent,
   memberManagementQueryKeys,
+  organizationDetailsQueryKeys,
   OrganizationDetailsMappers,
   memberDetailQueryKeys,
 } from '@auth0/universal-components-core';
@@ -173,7 +174,7 @@ export function useMemberManagementService(
   });
 
   const organizationQuery = useQuery({
-    queryKey: memberManagementQueryKeys.organization,
+    queryKey: organizationDetailsQueryKeys.details(),
     queryFn: async () => {
       const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
       return OrganizationDetailsMappers.fromAPI(response);

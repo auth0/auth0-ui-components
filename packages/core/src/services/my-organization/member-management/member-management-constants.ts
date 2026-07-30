@@ -24,12 +24,10 @@ export const memberManagementQueryKeys = {
   memberList: (params: Pick<MemberManagementListParams, 'pageSize' | 'fromToken'>) =>
     [...memberManagementQueryKeys.members(), params] as const,
   memberRoles: (id: string) => [...memberManagementQueryKeys.all, 'member-roles', id] as const,
-  organization: ['organization', 'details'] as const,
 };
 
 export const memberDetailQueryKeys = {
   all: ['member-detail'] as const,
   member: (id: string) => [...memberDetailQueryKeys.all, 'member', id] as const,
   memberRoles: (id: string) => [...memberDetailQueryKeys.all, 'member-roles', id] as const,
-  organization: ['organization', 'details'] as const,
 };
