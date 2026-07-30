@@ -26,7 +26,10 @@ import {
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
-import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type {
+  ConnectionOption,
+  CreateInvitationInput,
+} from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   UseMemberManagementServiceOptions,
   MemberManagementServiceResult,
@@ -85,18 +88,38 @@ export function useMemberManagementService(
   const handleError = useErrorHandler();
   const queryClient = useQueryClient();
 
-  const providersQuery = useQuery({
-    queryKey: [...memberManagementQueryKeys.all, 'identity-providers'],
+  const providersQuery = useQuery<ConnectionOption[]>({
+    queryKey: memberManagementQueryKeys.identityProviders(),
     queryFn: async () => {
       const response: ListIdentityProvidersResponseContent = await coreClient!
         .getMyOrganizationApiClient()
         .organization.identityProviders.list();
       const providers = response.identity_providers ?? [];
-      return providers.map((p) => ({
-        id: p.id!,
-        name: p.display_name ?? p.name ?? '',
-        type: p.strategy,
-      }));
+      return providers
+        .filter((p) => !!p.id)
+        .map((p) => ({
+          id: p.id!,
+          name: p.display_name ?? p.name ?? p.id!,
+          type: 'identity_provider' as const,
+        }));
+    },
+    enabled: !!coreClient && isActiveTabProvided,
+  });
+
+  const userStoresQuery = useQuery<ConnectionOption[]>({
+    queryKey: memberManagementQueryKeys.userStores(),
+    queryFn: async () => {
+      const page = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.userStores.get({ is_enabled: true });
+      const userStores = page.user_stores ?? [];
+      return userStores
+        .filter((store) => !!store.id)
+        .map((store) => ({
+          id: store.id!,
+          name: store.display_name ?? store.name ?? store.id!,
+          type: 'user_store' as const,
+        }));
     },
     enabled: !!coreClient && isActiveTabProvided,
   });
@@ -280,6 +303,7 @@ export function useMemberManagementService(
           invitees: data.invitees,
           inviter: data.inviter,
           identity_provider_id: data.identity_provider_id,
+          user_store_id: data.user_store_id,
           ttl_sec: data.ttl_sec,
         });
       return Array.isArray(response) ? response[0] : response;
@@ -338,6 +362,13 @@ export function useMemberManagementService(
       const freshInvitation = await coreClient!
         .getMyOrganizationApiClient()
         .organization.invitations.get(invitation.id!);
+      const identityProviderId =
+        freshInvitation.identity_provider_id ?? invitation.identity_provider_id;
+      const userStoreId = freshInvitation.user_store_id ?? invitation.user_store_id;
+
+      if (!identityProviderId && !userStoreId) {
+        throw new Error(t('invitation.error.connection_required'));
+      }
       await coreClient!
         .getMyOrganizationApiClient()
         .organization.invitations.deleteMemberInvitations({
@@ -349,6 +380,8 @@ export function useMemberManagementService(
         .getMyOrganizationApiClient()
         .organization.invitations.create({
           invitees: [{ email, roles }],
+          identity_provider_id: identityProviderId,
+          user_store_id: userStoreId,
         });
       return Array.isArray(response) ? response[0] : response;
     },
@@ -377,6 +410,7 @@ export function useMemberManagementService(
 
   return {
     providersQuery,
+    userStoresQuery,
     rolesQuery,
     rolesSearchQuery,
     setRoleSearchTerm,

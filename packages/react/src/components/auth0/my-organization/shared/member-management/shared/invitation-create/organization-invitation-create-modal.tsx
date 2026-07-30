@@ -20,7 +20,9 @@ import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -39,7 +41,7 @@ import type { OrganizationInvitationCreateModalProps } from '@/types/my-organiza
  * @param props.isLoading - Whether the form is loading.
  * @param props.customMessages - Custom translation messages.
  * @param props.availableRoles - Available roles for selection.
- * @param props.availableProviders - Available identity providers.
+ * @param props.availableConnections - Merged identity providers + user stores for the picker.
  * @param props.inviterName - Name of the person sending the invitation.
  * @param props.schema - Schema overrides for validation (email regex, maxEmails, error messages).
  * @param props.onClose - Callback when modal is closed.
@@ -53,7 +55,7 @@ export function OrganizationInvitationCreateModal({
   isLoading = false,
   customMessages = {},
   availableRoles = [],
-  availableProviders = [],
+  availableConnections = [],
   inviterName,
   schema,
   onClose,
@@ -64,6 +66,16 @@ export function OrganizationInvitationCreateModal({
 }: OrganizationInvitationCreateModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
+  const { userStoreConnections, identityProviderConnections } = React.useMemo(
+    () => ({
+      userStoreConnections: availableConnections.filter((c) => c.type === 'user_store'),
+      identityProviderConnections: availableConnections.filter(
+        (c) => c.type === 'identity_provider',
+      ),
+    }),
+    [availableConnections],
+  );
+
   const validationConfig = React.useMemo(
     () => createInvitationCreateSchema(schema, t('invitation.create.email_invalid_error')),
     [schema, t],
@@ -72,14 +84,14 @@ export function OrganizationInvitationCreateModal({
   const [emailInput, setEmailInput] = React.useState('');
   const [emailChips, setEmailChips] = React.useState<ChipItem[]>([]);
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
-  const [selectedProvider, setSelectedProvider] = React.useState<string | undefined>();
+  const [selectedConnectionId, setSelectedConnectionId] = React.useState<string | undefined>();
   const [emailError, setEmailError] = React.useState<string | undefined>();
 
   const resetForm = React.useCallback(() => {
     setEmailInput('');
     setEmailChips([]);
     setSelectedRoles([]);
-    setSelectedProvider(undefined);
+    setSelectedConnectionId(undefined);
     setEmailError(undefined);
     onRoleSearch?.('');
   }, [onRoleSearch]);
@@ -148,8 +160,8 @@ export function OrganizationInvitationCreateModal({
     setSelectedRoles(Array.isArray(value) ? value : value ? [value] : []);
   }, []);
 
-  const handleProviderChange = React.useCallback((value: string) => {
-    setSelectedProvider(value || undefined);
+  const handleConnectionChange = React.useCallback((value: string) => {
+    setSelectedConnectionId(value || undefined);
   }, []);
 
   const handleSubmit = React.useCallback(() => {
@@ -173,12 +185,24 @@ export function OrganizationInvitationCreateModal({
       return;
     }
 
+    const selectedConnection = availableConnections.find((c) => c.id === selectedConnectionId);
+
+    if (!selectedConnection) {
+      return;
+    }
+
+    const user_store_id =
+      selectedConnection.type === 'user_store' ? selectedConnection.id : undefined;
+    const identity_provider_id =
+      selectedConnection.type === 'identity_provider' ? selectedConnection.id : undefined;
+
     onCreate({
       invitees: finalEmails.map((email) => ({
         email,
         roles: selectedRoles.length > 0 ? selectedRoles : undefined,
       })),
-      identity_provider_id: selectedProvider,
+      user_store_id,
+      identity_provider_id,
       ...(inviterName && { inviter: { name: inviterName } }),
     });
   }, [
@@ -186,7 +210,8 @@ export function OrganizationInvitationCreateModal({
     emailInput,
     validationConfig,
     selectedRoles,
-    selectedProvider,
+    selectedConnectionId,
+    availableConnections,
     inviterName,
     onCreate,
     t,
@@ -200,10 +225,11 @@ export function OrganizationInvitationCreateModal({
   const canSubmit = React.useMemo(
     () =>
       !hasInvalidChips &&
+      !!selectedConnectionId &&
       (emailChips.length > 0 ||
         (emailInput.trim() !== '' &&
           validationConfig.emailSchema.safeParse(emailInput.trim()).success)),
-    [emailChips.length, emailInput, validationConfig, hasInvalidChips],
+    [emailChips.length, emailInput, validationConfig, hasInvalidChips, selectedConnectionId],
   );
 
   const roleOptions = React.useMemo(
@@ -254,25 +280,42 @@ export function OrganizationInvitationCreateModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="provider">{t('invitation.create.provider_label')}</Label>
+            <Label htmlFor="connection">{t('invitation.create.connection_label')}*</Label>
             <Select
-              value={selectedProvider ?? ''}
-              onValueChange={handleProviderChange}
-              disabled={isLoading || availableProviders.length === 0}
+              value={selectedConnectionId ?? ''}
+              onValueChange={handleConnectionChange}
+              disabled={isLoading || availableConnections.length === 0}
             >
-              <SelectTrigger id="provider">
-                <SelectValue placeholder={t('invitation.create.provider_placeholder')} />
+              <SelectTrigger id="connection" aria-required="true">
+                <SelectValue placeholder={t('invitation.create.connection_placeholder')} />
               </SelectTrigger>
               <SelectContent>
-                {availableProviders.map((provider) => (
-                  <SelectItem key={provider.id} value={provider.id}>
-                    {provider.name}
-                  </SelectItem>
-                ))}
+                {userStoreConnections.length > 0 && (
+                  <SelectGroup>
+                    <SelectLabel>{t('invitation.create.connection_group_user_store')}</SelectLabel>
+                    {userStoreConnections.map((connection) => (
+                      <SelectItem key={connection.id} value={connection.id}>
+                        {connection.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                )}
+                {identityProviderConnections.length > 0 && (
+                  <SelectGroup>
+                    <SelectLabel>
+                      {t('invitation.create.connection_group_identity_provider')}
+                    </SelectLabel>
+                    {identityProviderConnections.map((connection) => (
+                      <SelectItem key={connection.id} value={connection.id}>
+                        {connection.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                )}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
-              {t('invitation.create.provider_helper')}
+            <p className="text-sm text-muted-foreground">
+              {t('invitation.create.connection_helper')}
             </p>
           </div>
         </div>

@@ -8,7 +8,10 @@ import {
   createMockEmptyAuthenticationMethods,
 } from '@/tests/utils/__mocks__/my-account/mfa/mfa.mocks';
 import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
-import { createMockInvitation } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
+import {
+  createMockInvitation,
+  createMockListUserStoresResponse,
+} from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 
 const createMockMyAccountApiService = (): CoreClientInterface['myAccountApiClient'] => {
@@ -66,6 +69,9 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
         create: vi.fn().mockResolvedValue([createMockInvitation()]),
         delete: vi.fn().mockResolvedValue(undefined),
         deleteMemberInvitations: vi.fn().mockResolvedValue(undefined),
+      },
+      userStores: {
+        get: vi.fn().mockResolvedValue(createMockListUserStoresResponse()),
       },
       roles: {
         list: vi.fn().mockResolvedValue({

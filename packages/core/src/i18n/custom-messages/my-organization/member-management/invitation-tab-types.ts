@@ -42,8 +42,11 @@ export interface OrganizationInvitationTabMessages {
     email_required_error?: string;
     roles_label?: string;
     roles_placeholder?: string;
-    provider_label?: string;
-    provider_placeholder?: string;
+    connection_label?: string;
+    connection_placeholder?: string;
+    connection_helper?: string;
+    connection_group_user_store?: string;
+    connection_group_identity_provider?: string;
     submit_button?: string;
     creating?: string;
     cancel_button?: string;
@@ -53,7 +56,7 @@ export interface OrganizationInvitationTabMessages {
     email_label?: string;
     status_label?: string;
     roles_label?: string;
-    provider_label?: string;
+    connection_label?: string;
     created_at_label?: string;
     expires_at_label?: string;
     invited_by_label?: string;
@@ -102,6 +105,7 @@ export interface OrganizationInvitationTabMessages {
     resend_failed?: string;
     revoke_resend_failed?: string;
     bulk_revoke_failed?: string;
+    connection_required?: string;
     copy_url_failed?: string;
   };
 }
