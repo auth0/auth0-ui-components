@@ -1131,6 +1131,10 @@
           "title": "Verify your email"
         }
       }
+    },
+    "component_error": {
+      "title": "Error loading Multi-Factor Authentication component",
+      "description": "We're having trouble loading your multi-factor authentication methods.\nPlease refresh the page and try again"
     }
   },
   "member_management": {

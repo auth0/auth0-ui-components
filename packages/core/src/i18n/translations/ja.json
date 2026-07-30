@@ -1124,6 +1124,10 @@
         }
       }
     },
+    "component_error": {
+      "title": "多要素認証コンポーネントの読み込みエラー",
+      "description": "多要素認証方法の読み込み中に問題が発生しました。\nページを再読み込みしてもう一度お試しください"
+    },
     "notifications": {
       "factor_enroll_success": "認証方法が正常に登録されました。",
       "factor_remove_success": "認証方法が正常に削除されました。",

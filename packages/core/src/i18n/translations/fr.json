@@ -1070,6 +1070,10 @@
         }
       }
     },
+    "component_error": {
+      "title": "Erreur lors du chargement du composant d'authentification multifacteur",
+      "description": "Nous rencontrons des difficultés pour charger vos méthodes d'authentification multifacteur.\nVeuillez actualiser la page et réessayer"
+    },
     "notifications": {
       "factor_enroll_success": "Le facteur a été inscrit avec succès.",
       "factor_remove_success": "Le facteur a été retiré avec succès.",

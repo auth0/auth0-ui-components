@@ -122,6 +122,7 @@ export const createMockAPIError = (message: string, statusCode?: number) => {
 export const createMockUserMFAManagementViewProps = (
   overrides: Partial<UserMFAManagementViewProps> = {},
 ): UserMFAManagementViewProps => ({
+  isRateLimitError: false,
   isEnrolling: false,
   isDeleting: false,
   isConfirming: false,
