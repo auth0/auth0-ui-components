@@ -2,8 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { OrganizationInvitationTable } from '../organization-invitation-table';
-
+import { OrganizationInvitationTable } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-table/organization-invitation-table';
 import { createMockInvitation } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
@@ -63,12 +62,12 @@ describe('OrganizationInvitationTable', () => {
       renderWithProviders(
         <OrganizationInvitationTable {...createProps({ onSelectedInvitationsChange })} />,
       );
-      await user.click(screen.getByRole('checkbox', { name: 'data_table.select_row 1' }));
+      await user.click(screen.getAllByRole('checkbox', { name: 'data_table.select_row' })[0]!);
       expect(onSelectedInvitationsChange).toHaveBeenCalled();
     });
   });
 
-  describe('delete selected button', () => {
+  describe('bulk revoke button', () => {
     it('is hidden when no invitations are selected', () => {
       renderWithProviders(
         <OrganizationInvitationTable
@@ -110,22 +109,22 @@ describe('OrganizationInvitationTable', () => {
       ).toBeInTheDocument();
     });
 
-    it('calls onDeleteSelected with the selected invitations when clicked', async () => {
+    it('calls onBulkRevoke with the selected invitations when clicked', async () => {
       const user = userEvent.setup();
-      const onDeleteSelected = vi.fn();
+      const onBulkRevoke = vi.fn();
       renderWithProviders(
         <OrganizationInvitationTable
           {...createProps({
             onSelectedInvitationsChange: vi.fn(),
             selectedInvitations: invitations,
-            onDeleteSelected,
+            onBulkRevoke,
           })}
         />,
       );
       await user.click(
         screen.getByRole('button', { name: 'invitation.bulk_revoke.button_plural' }),
       );
-      expect(onDeleteSelected).toHaveBeenCalledWith(invitations);
+      expect(onBulkRevoke).toHaveBeenCalledWith(invitations);
     });
   });
 });

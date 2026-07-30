@@ -586,7 +586,9 @@ describe('useMemberManagementService', () => {
 
       const orgApi = mockCoreClient.getMyOrganizationApiClient().organization;
       expect(orgApi.invitations.get).toHaveBeenCalledWith(invitation.id);
-      expect(orgApi.invitations.delete).toHaveBeenCalled();
+      expect(orgApi.invitations.deleteMemberInvitations).toHaveBeenCalledWith({
+        invitations: [invitation.id],
+      });
       expect(orgApi.invitations.create).toHaveBeenCalled();
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'success' }));
     });

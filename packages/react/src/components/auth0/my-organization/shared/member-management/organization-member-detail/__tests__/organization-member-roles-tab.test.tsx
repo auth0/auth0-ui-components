@@ -116,7 +116,7 @@ describe('OrganizationMemberEditRolesTab', () => {
       renderWithProviders(
         <OrganizationMemberEditRolesTab {...createProps({ onSelectedRolesChange })} />,
       );
-      await user.click(screen.getByRole('checkbox', { name: 'data_table.select_row 1' }));
+      await user.click(screen.getAllByRole('checkbox', { name: 'data_table.select_row' })[0]!);
       expect(onSelectedRolesChange).toHaveBeenCalled();
     });
   });

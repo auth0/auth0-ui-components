@@ -50,7 +50,7 @@ export interface OrganizationInvitationTabClasses {
   'OrganizationInvitationTab-createModal'?: string;
   'OrganizationInvitationTab-detailsModal'?: string;
   'OrganizationInvitationTab-revokeModal'?: string;
-  'OrganizationInvitationTab-deleteModal'?: string;
+  'OrganizationInvitationTab-bulkRevokeModal'?: string;
   'OrganizationInvitationTab-revokeResendModal'?: string;
   'OrganizationInvitationTab-searchInput'?: string;
   'OrganizationInvitationTab-filterDropdown'?: string;
@@ -95,7 +95,7 @@ export interface OrganizationInvitationTableProps {
   onRevokeAndResend?: (invitation: MemberInvitation) => void;
   onRevoke?: (invitation: MemberInvitation) => void;
   onSelectedInvitationsChange?: (invitations: MemberInvitation[]) => void;
-  onDeleteSelected?: (invitations: MemberInvitation[]) => void;
+  onBulkRevoke?: (invitations: MemberInvitation[]) => void;
   onNextPage?: () => void;
   onPreviousPage?: () => void;
   onPageSizeChange?: (pageSize: number) => void;
@@ -162,8 +162,8 @@ export interface OrganizationInvitationRevokeModalProps {
   className?: string;
 }
 
-/** Props for OrganizationInvitationDeleteModal component. */
-export interface OrganizationInvitationDeleteModalProps {
+/** Props for OrganizationInvitationBulkRevokeModal component. */
+export interface OrganizationInvitationBulkRevokeModalProps {
   invitations: MemberInvitation[];
   isOpen: boolean;
   isLoading?: boolean;

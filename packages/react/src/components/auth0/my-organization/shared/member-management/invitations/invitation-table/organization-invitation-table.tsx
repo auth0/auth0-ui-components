@@ -37,7 +37,7 @@ import type { OrganizationInvitationTableProps } from '@/types/my-organization/m
  * @param props.onRevokeAndResend - Callback when revoking and resending invitation.
  * @param props.onRevoke - Callback when revoking invitation.
  * @param props.onSelectedInvitationsChange - Callback when row selection changes.
- * @param props.onDeleteSelected - Callback when deleting the selected invitations.
+ * @param props.onBulkRevoke - Callback when revoking the selected invitations.
  * @param props.onPageChange - Callback when page changes.
  * @param props.onPageSizeChange - Callback when page size changes.
  * @param props.onRoleFilterChange - Callback when role filter changes.
@@ -61,7 +61,7 @@ export function OrganizationInvitationTable({
   onRevokeAndResend,
   onRevoke,
   onSelectedInvitationsChange,
-  onDeleteSelected,
+  onBulkRevoke,
   onNextPage,
   onPreviousPage,
   onPageSizeChange,
@@ -181,7 +181,7 @@ export function OrganizationInvitationTable({
           <Button
             variant="destructive"
             size="sm"
-            onClick={() => onDeleteSelected?.(selectedInvitations ?? [])}
+            onClick={() => onBulkRevoke?.(selectedInvitations ?? [])}
           >
             {t(
               selectedCount === 1
@@ -204,7 +204,7 @@ export function OrganizationInvitationTable({
               selectable: true as const,
               selectionLabels: {
                 selectAll: t('data_table.select_all'),
-                selectRow: (index: number) => `${t('data_table.select_row')} ${index + 1}`,
+                selectRow: (index: number) => t('data_table.select_row', { index: index + 1 }),
               },
               selectedRows: selectedInvitations,
               onSelectedRowsChange: onSelectedInvitationsChange,

@@ -14,7 +14,7 @@ import * as React from 'react';
 import { GateKeeper } from '../shared/gate-keeper/gate-keeper';
 
 import { OrganizationInvitationDetailsModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal';
-import { OrganizationInvitationDeleteModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-delete-modal';
+import { OrganizationInvitationBulkRevokeModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-bulk-revoke-modal';
 import { OrganizationInvitationRevokeModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-revoke-modal';
 import { OrganizationInvitationTable } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-table/organization-invitation-table';
 import { MemberRemoveFromOrganizationModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-organization-modal';
@@ -105,7 +105,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
       ? modalState.member
       : null;
 
-  const invitationsToDelete = modalState.type === 'bulkRevoke' ? modalState.invitations : [];
+  const invitationsToBulkRevoke = modalState.type === 'bulkRevoke' ? modalState.invitations : [];
 
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('member_management', customMessages);
@@ -241,7 +241,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               onRevokeAndResend={readOnly ? undefined : handleRevokeResendClick}
               onRevoke={readOnly ? undefined : handleRevokeClick}
               onSelectedInvitationsChange={readOnly ? undefined : onSelectedInvitationsChange}
-              onDeleteSelected={readOnly ? undefined : handleBulkRevokeClick}
+              onBulkRevoke={readOnly ? undefined : handleBulkRevokeClick}
               onNextPage={handleNextPage}
               onPreviousPage={handlePreviousPage}
               onPageSizeChange={handlePageSizeChange}
@@ -304,15 +304,15 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeResendModal']}
         />
 
-        <OrganizationInvitationDeleteModal
-          invitations={invitationsToDelete}
+        <OrganizationInvitationBulkRevokeModal
+          invitations={invitationsToBulkRevoke}
           isOpen={modalState.type === 'bulkRevoke'}
           isLoading={isRevokingInvitation}
           customMessages={customMessages?.invitation}
           style={currentStyles.variables}
           onClose={closeModal}
           onConfirm={handleRevokeConfirm}
-          className={currentStyles.classes?.['OrganizationInvitationTab-deleteModal']}
+          className={currentStyles.classes?.['OrganizationInvitationTab-bulkRevokeModal']}
         />
 
         <OrganizationMemberAssignRolesModal

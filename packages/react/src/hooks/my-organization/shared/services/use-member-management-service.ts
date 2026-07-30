@@ -340,7 +340,9 @@ export function useMemberManagementService(
         .organization.invitations.get(invitation.id!);
       await coreClient!
         .getMyOrganizationApiClient()
-        .organization.invitations.delete(freshInvitation.id ?? invitation.id!);
+        .organization.invitations.deleteMemberInvitations({
+          invitations: [freshInvitation.id ?? invitation.id!],
+        });
       const email = freshInvitation.invitee?.email ?? invitation.invitee?.email ?? '';
       const roles = freshInvitation.roles ?? invitation.roles;
       const response = await coreClient!

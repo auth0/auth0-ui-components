@@ -1,6 +1,6 @@
 /**
- * Organization invitation bulk delete modal component.
- * @module organization-invitation-delete-modal
+ * Organization invitation bulk revoke modal component.
+ * @module organization-invitation-bulk-revoke-modal
  */
 
 import * as React from 'react';
@@ -16,22 +16,22 @@ import {
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { OrganizationInvitationDeleteModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type { OrganizationInvitationBulkRevokeModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
- * Modal for confirming bulk deletion of selected invitations.
+ * Modal for confirming bulk revocation of selected invitations.
  * @param props - The component props.
- * @param props.invitations - The invitations to delete.
+ * @param props.invitations - The invitations to revoke.
  * @param props.isOpen - Whether the modal is open.
  * @param props.isLoading - Whether the action is in progress.
  * @param props.customMessages - Custom translation messages.
  * @param props.onClose - Callback when modal is closed.
- * @param props.onConfirm - Callback when deletion is confirmed.
+ * @param props.onConfirm - Callback when revocation is confirmed.
  * @param props.style - CSS variables computed by the parent.
  * @param props.className - Optional CSS class name.
  * @returns The modal component.
  */
-export function OrganizationInvitationDeleteModal({
+export function OrganizationInvitationBulkRevokeModal({
   invitations,
   isOpen,
   isLoading = false,
@@ -40,7 +40,7 @@ export function OrganizationInvitationDeleteModal({
   onConfirm,
   style,
   className,
-}: OrganizationInvitationDeleteModalProps): React.JSX.Element {
+}: OrganizationInvitationBulkRevokeModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
   const count = invitations.length;
   const isPlural = count > 1;

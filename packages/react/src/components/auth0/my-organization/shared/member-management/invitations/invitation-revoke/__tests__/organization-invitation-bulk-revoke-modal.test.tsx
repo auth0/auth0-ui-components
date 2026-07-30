@@ -2,8 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { OrganizationInvitationDeleteModal } from '../organization-invitation-delete-modal';
-
+import { OrganizationInvitationBulkRevokeModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-bulk-revoke-modal';
 import { createMockInvitation } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
@@ -27,9 +26,11 @@ const createProps = (overrides = {}) => ({
 
 afterEach(() => vi.clearAllMocks());
 
-describe('OrganizationInvitationDeleteModal', () => {
+describe('OrganizationInvitationBulkRevokeModal', () => {
   it('does not render content when closed', () => {
-    renderWithProviders(<OrganizationInvitationDeleteModal {...createProps({ isOpen: false })} />);
+    renderWithProviders(
+      <OrganizationInvitationBulkRevokeModal {...createProps({ isOpen: false })} />,
+    );
     expect(
       screen.queryByText('invitation.bulk_revoke.confirm.title_plural'),
     ).not.toBeInTheDocument();
@@ -37,20 +38,22 @@ describe('OrganizationInvitationDeleteModal', () => {
 
   it('renders the singular title when a single invitation is selected', () => {
     renderWithProviders(
-      <OrganizationInvitationDeleteModal {...createProps({ invitations: [invitations[0]!] })} />,
+      <OrganizationInvitationBulkRevokeModal
+        {...createProps({ invitations: [invitations[0]!] })}
+      />,
     );
     expect(screen.getByText('invitation.bulk_revoke.confirm.title')).toBeInTheDocument();
   });
 
   it('renders the plural title when multiple invitations are selected', () => {
-    renderWithProviders(<OrganizationInvitationDeleteModal {...createProps()} />);
+    renderWithProviders(<OrganizationInvitationBulkRevokeModal {...createProps()} />);
     expect(screen.getByText('invitation.bulk_revoke.confirm.title_plural')).toBeInTheDocument();
   });
 
   it('calls onConfirm when the confirm button is clicked', async () => {
     const user = userEvent.setup();
     const onConfirm = vi.fn();
-    renderWithProviders(<OrganizationInvitationDeleteModal {...createProps({ onConfirm })} />);
+    renderWithProviders(<OrganizationInvitationBulkRevokeModal {...createProps({ onConfirm })} />);
     await user.click(
       screen.getByRole('button', {
         name: 'invitation.bulk_revoke.confirm.confirm_button_plural',
@@ -62,7 +65,7 @@ describe('OrganizationInvitationDeleteModal', () => {
   it('calls onClose when the cancel button is clicked', async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
-    renderWithProviders(<OrganizationInvitationDeleteModal {...createProps({ onClose })} />);
+    renderWithProviders(<OrganizationInvitationBulkRevokeModal {...createProps({ onClose })} />);
     await user.click(
       screen.getByRole('button', { name: 'invitation.bulk_revoke.confirm.cancel_button' }),
     );
@@ -71,7 +74,7 @@ describe('OrganizationInvitationDeleteModal', () => {
 
   it('disables the cancel button while loading', () => {
     renderWithProviders(
-      <OrganizationInvitationDeleteModal {...createProps({ isLoading: true })} />,
+      <OrganizationInvitationBulkRevokeModal {...createProps({ isLoading: true })} />,
     );
     expect(
       screen.getByRole('button', { name: 'invitation.bulk_revoke.confirm.cancel_button' }),

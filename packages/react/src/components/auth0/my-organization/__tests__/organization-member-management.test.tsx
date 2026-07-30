@@ -13,7 +13,7 @@ import {
   createMockRoleOptions,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
-import type { OrganizationInvitationDeleteModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type { OrganizationInvitationBulkRevokeModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   OrganizationMemberManagementProps,
   OrganizationMemberManagementViewProps,
@@ -74,7 +74,7 @@ vi.mock(
       onCopyUrl,
       onRevoke,
       onRevokeAndResend,
-      onDeleteSelected,
+      onBulkRevoke,
       className,
     }: any) => (
       <div data-testid="invitation-table" className={className}>
@@ -84,7 +84,7 @@ vi.mock(
         <button onClick={() => onCopyUrl?.(invitations[0])}>copy-url</button>
         <button onClick={() => onRevoke?.(invitations[0])}>revoke</button>
         <button onClick={() => onRevokeAndResend?.(invitations[0])}>revoke-resend</button>
-        <button onClick={() => onDeleteSelected?.(invitations)}>delete-selected</button>
+        <button onClick={() => onBulkRevoke?.(invitations)}>bulk-revoke</button>
       </div>
     ),
   }),
@@ -144,21 +144,21 @@ vi.mock(
 );
 
 vi.mock(
-  '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-delete-modal',
+  '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-bulk-revoke-modal',
   () => ({
-    OrganizationInvitationDeleteModal: ({
+    OrganizationInvitationBulkRevokeModal: ({
       isOpen,
       isLoading,
       invitations,
       onConfirm,
       onClose,
-    }: OrganizationInvitationDeleteModalProps) => (
-      <div data-testid="delete-modal">
+    }: OrganizationInvitationBulkRevokeModalProps) => (
+      <div data-testid="bulk-revoke-modal">
         open:{String(isOpen)}
-        <span>to-delete:{invitations.length}</span>
+        <span>to-revoke:{invitations.length}</span>
         <span>loading:{String(isLoading)}</span>
-        <button onClick={onConfirm}>confirm-delete</button>
-        <button onClick={onClose}>close-delete</button>
+        <button onClick={onConfirm}>confirm-bulk-revoke</button>
+        <button onClick={onClose}>close-bulk-revoke</button>
       </div>
     ),
   }),
@@ -473,7 +473,7 @@ describe('OrganizationMemberManagementView', () => {
         />,
       );
 
-      await user.click(screen.getByRole('button', { name: 'delete-selected' }));
+      await user.click(screen.getByRole('button', { name: 'bulk-revoke' }));
 
       expect(handleBulkRevokeClick).toHaveBeenCalledWith([invitation]);
     });
@@ -490,8 +490,8 @@ describe('OrganizationMemberManagementView', () => {
         />,
       );
 
-      expect(screen.getByTestId('delete-modal')).toHaveTextContent('open:true');
-      expect(screen.getByText('to-delete:2')).toBeInTheDocument();
+      expect(screen.getByTestId('bulk-revoke-modal')).toHaveTextContent('open:true');
+      expect(screen.getByText('to-revoke:2')).toBeInTheDocument();
     });
 
     it('routes the single revoke modal to handleRevokeConfirm', async () => {
@@ -529,9 +529,9 @@ describe('OrganizationMemberManagementView', () => {
         />,
       );
 
-      expect(screen.getByTestId('delete-modal')).toHaveTextContent('to-delete:2');
+      expect(screen.getByTestId('bulk-revoke-modal')).toHaveTextContent('to-revoke:2');
 
-      await user.click(screen.getByRole('button', { name: 'confirm-delete' }));
+      await user.click(screen.getByRole('button', { name: 'confirm-bulk-revoke' }));
 
       expect(handleRevokeConfirm).toHaveBeenCalledTimes(1);
     });
@@ -549,7 +549,7 @@ describe('OrganizationMemberManagementView', () => {
         />,
       );
 
-      expect(screen.getByTestId('delete-modal')).toHaveTextContent('loading:true');
+      expect(screen.getByTestId('bulk-revoke-modal')).toHaveTextContent('loading:true');
     });
   });
 
