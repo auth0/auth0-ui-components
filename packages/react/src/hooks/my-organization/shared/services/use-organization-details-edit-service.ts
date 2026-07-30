@@ -11,10 +11,11 @@ import {
   organizationDetailsQueryKeys,
   type OrganizationPrivate,
 } from '@auth0/universal-components-core';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useOrganizationDetailsQuery } from '@/hooks/my-organization/shared/services/use-organization-details-query';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
@@ -41,14 +42,7 @@ export function useOrganizationDetailsEditService({
   const isInitializing = !coreClient;
   const handleError = useErrorHandler();
 
-  const organizationQuery = useQuery({
-    queryKey: organizationDetailsQueryKeys.details(),
-    queryFn: async () => {
-      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
-      return OrganizationDetailsMappers.fromAPI(response);
-    },
-    enabled: !!coreClient,
-  });
+  const organizationQuery = useOrganizationDetailsQuery();
 
   useQueryErrorToast(organizationQuery, t('organization_changes_error_message_generic'));
 

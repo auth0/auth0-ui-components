@@ -9,14 +9,13 @@ import {
   type MemberInvitation,
   type ListIdentityProvidersResponseContent,
   memberManagementQueryKeys,
-  organizationDetailsQueryKeys,
-  OrganizationDetailsMappers,
   memberDetailQueryKeys,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useOrganizationDetailsQuery } from '@/hooks/my-organization/shared/services/use-organization-details-query';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useDebouncedValue } from '@/hooks/shared/use-debounced-value';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
@@ -173,14 +172,7 @@ export function useMemberManagementService(
     ...keepPreviousDataOption,
   });
 
-  const organizationQuery = useQuery({
-    queryKey: organizationDetailsQueryKeys.details(),
-    queryFn: async () => {
-      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
-      return OrganizationDetailsMappers.fromAPI(response);
-    },
-    enabled: !!coreClient,
-  });
+  const organizationQuery = useOrganizationDetailsQuery();
 
   const assignRolesMutation = useMutation({
     mutationFn: async ({
