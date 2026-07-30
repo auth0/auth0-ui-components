@@ -341,6 +341,7 @@ describe('OrganizationInvitationCreateModal', () => {
       );
 
       expect(screen.getByText(/invitation\.create\.connection_label/)).toBeInTheDocument();
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-required', 'true');
     });
   });
 
