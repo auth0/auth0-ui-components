@@ -2,7 +2,7 @@ import type {
   CreateOrganizationDomainRequestContent,
   EnhancedTranslationFunction,
 } from '@auth0/universal-components-core';
-import { BusinessError } from '@auth0/universal-components-core';
+import { BusinessError, domainQueryKeys } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
@@ -163,7 +163,7 @@ describe('useDomainTableService', () => {
       ).mock.calls.length;
 
       // Invalidate the query
-      await queryClient.invalidateQueries({ queryKey: ['domains', 'list'] });
+      await queryClient.invalidateQueries({ queryKey: domainQueryKeys.lists() });
 
       // Call fetchDomains
       await result.current.fetchDomains();

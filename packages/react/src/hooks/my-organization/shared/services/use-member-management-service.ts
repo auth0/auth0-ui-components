@@ -86,7 +86,7 @@ export function useMemberManagementService(
   const queryClient = useQueryClient();
 
   const providersQuery = useQuery({
-    queryKey: [...memberManagementQueryKeys.all, 'identity-providers'],
+    queryKey: memberManagementQueryKeys.identityProviders(),
     queryFn: async () => {
       const response: ListIdentityProvidersResponseContent = await coreClient!
         .getMyOrganizationApiClient()
@@ -131,13 +131,12 @@ export function useMemberManagementService(
   });
 
   const invitationsQuery = useQuery({
-    queryKey: [
-      ...memberManagementQueryKeys.invitations(),
-      invitationParams?.pageSize,
-      invitationParams?.fromToken,
-      invitationParams?.filters,
-      invitationParams?.sortConfig,
-    ],
+    queryKey: memberManagementQueryKeys.invitationList({
+      pageSize: invitationParams?.pageSize,
+      fromToken: invitationParams?.fromToken,
+      filters: invitationParams?.filters,
+      sortConfig: invitationParams?.sortConfig,
+    }),
     queryFn: async () => {
       const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list({
         take: invitationParams!.pageSize,
@@ -155,11 +154,10 @@ export function useMemberManagementService(
   });
 
   const membersQuery = useQuery({
-    queryKey: [
-      ...memberManagementQueryKeys.members(),
-      memberParams?.pageSize,
-      memberParams?.fromToken,
-    ],
+    queryKey: memberManagementQueryKeys.memberList({
+      pageSize: memberParams?.pageSize,
+      fromToken: memberParams?.fromToken,
+    }),
     queryFn: async () => {
       const page = await coreClient!.getMyOrganizationApiClient().organization.members.list({
         take: memberParams!.pageSize,
