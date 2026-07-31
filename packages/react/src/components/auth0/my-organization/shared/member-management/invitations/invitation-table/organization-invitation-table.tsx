@@ -134,9 +134,10 @@ export function OrganizationInvitationTable({
         type: 'text',
         accessorKey: 'inviter',
         title: t('invitation.table.columns.inviter'),
+        width: '20%',
         enableSorting: false,
         render: (invitation) => (
-          <span className="text-primary">{invitation.inviter?.name ?? '-'}</span>
+          <div className="text-primary truncate">{invitation.inviter?.name ?? '-'}</div>
         ),
       },
       {
