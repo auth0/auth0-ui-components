@@ -136,7 +136,16 @@ export function SsoDomainTab({
         ),
       },
     ],
-    [t],
+    [
+      t,
+      idpDomains,
+      readOnly,
+      isUpdating,
+      isUpdatingId,
+      customMessages,
+      handleToggleSwitch,
+      handleVerifyActionColumn,
+    ],
   );
 
   return (
