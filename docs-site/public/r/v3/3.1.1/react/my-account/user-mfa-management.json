@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
-  "name": "user-mfa-management",
+  "name": "react/my-account/user-mfa-management",
   "type": "registry:block",
   "title": "Multi-factor authentication management component.",
   "description": "Complete MFA management interface for enrolling, viewing, and deleting authentication factors. Supports TOTP authenticators, SMS, Email, Push notifications, and recovery codes.",

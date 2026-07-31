@@ -1,6 +1,6 @@
 {
   "name": "auth0-ui-components",
-  "latest": "3.1.0",
+  "latest": "3.1.1",
   "majorVersions": {
     "v1": {
       "latest": "1.0.0"
@@ -9,7 +9,7 @@
       "latest": "2.1.1"
     },
     "v3": {
-      "latest": "3.1.0"
+      "latest": "3.1.1"
     }
   },
   "versions": {
@@ -50,6 +50,10 @@
       "major": "3"
     },
     "3.1.0": {
+      "status": "stable",
+      "major": "3"
+    },
+    "3.1.1": {
       "status": "stable",
       "major": "3"
     }
