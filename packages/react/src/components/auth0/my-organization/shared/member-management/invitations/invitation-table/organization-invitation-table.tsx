@@ -91,7 +91,7 @@ export function OrganizationInvitationTable({
         type: 'text',
         accessorKey: 'invitee',
         title: t('invitation.table.columns.email'),
-        width: '25%',
+        width: '24%',
         enableSorting: false,
         render: (invitation) => (
           <div className="font-medium text-primary truncate">{invitation.invitee?.email}</div>
@@ -118,6 +118,7 @@ export function OrganizationInvitationTable({
         type: 'date',
         accessorKey: 'created_at',
         title: t('invitation.table.columns.created_at'),
+        width: '16%',
         enableSorting: true,
         format: 'medium',
         render: renderDate,
@@ -126,6 +127,7 @@ export function OrganizationInvitationTable({
         type: 'date',
         accessorKey: 'expires_at',
         title: t('invitation.table.columns.expires_at'),
+        width: '16%',
         enableSorting: false,
         format: 'medium',
         render: renderDate,
@@ -134,7 +136,7 @@ export function OrganizationInvitationTable({
         type: 'text',
         accessorKey: 'inviter',
         title: t('invitation.table.columns.inviter'),
-        width: '20%',
+        width: '26%',
         enableSorting: false,
         render: (invitation) => (
           <div className="text-primary truncate">{invitation.inviter?.name ?? '-'}</div>
@@ -143,6 +145,7 @@ export function OrganizationInvitationTable({
       {
         type: 'actions',
         title: '',
+        width: '64px',
         enableSorting: false,
         render: (invitation) => (
           <OrganizationInvitationTableActionsColumn
