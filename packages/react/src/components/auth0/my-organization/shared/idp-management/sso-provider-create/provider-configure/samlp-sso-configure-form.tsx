@@ -91,15 +91,18 @@ export const SamlpProviderForm = React.forwardRef<
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const samlpData = initialData as SamlpConfigureFormValues | undefined;
+  const hasSignInEndpoint = Boolean(
+    samlpData && 'signInEndpoint' in samlpData && samlpData.signInEndpoint,
+  );
+  const defaultMetaDataSource =
+    samlpData?.meta_data_source ?? (hasSignInEndpoint ? 'meta_data_file' : 'meta_data_url');
 
   const form = useForm<SamlpConfigureFormValues>({
     resolver: zodResolver(createProviderConfigureSchema('samlp')),
     mode: FORM_VALIDATION_MODE,
     reValidateMode: FORM_REVALIDATE_MODE,
     defaultValues: {
-      meta_data_source:
-        samlpData?.meta_data_source ||
-        (samlpData?.signInEndpoint ? 'meta_data_file' : 'meta_data_url'),
+      meta_data_source: defaultMetaDataSource,
       metadataUrl: samlpData?.metadataUrl || '',
       signInEndpoint: samlpData?.signInEndpoint || '',
       cert: samlpData?.cert || '',

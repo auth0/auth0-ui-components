@@ -552,7 +552,7 @@ describe('SSO Provider Create Schema', () => {
     describe('SAMLP strategy', () => {
       const validSamlConfig: SamlpConfigureFormValues = {
         meta_data_source: 'meta_data_url',
-        single_sign_on_login_url: 'https://idp.example.com/sso',
+        signInEndpoint: 'https://idp.example.com/sso',
         signatureAlgorithm: 'rsa-sha256',
         digestAlgorithm: 'sha256',
         protocolBinding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
@@ -602,7 +602,7 @@ describe('SSO Provider Create Schema', () => {
         const schema = createProviderConfigureSchema('samlp');
         const fileConfig = {
           meta_data_source: 'meta_data_file' as const,
-          single_sign_on_login_url: 'https://idp.example.com/sso',
+          signInEndpoint: 'https://idp.example.com/sso',
           signatureAlgorithm: 'rsa-sha256',
           digestAlgorithm: 'sha256',
           protocolBinding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
