@@ -97,9 +97,11 @@ export const SamlpProviderForm = React.forwardRef<
     mode: FORM_VALIDATION_MODE,
     reValidateMode: FORM_REVALIDATE_MODE,
     defaultValues: {
-      meta_data_source: samlpData?.meta_data_source || 'meta_data_url',
+      meta_data_source:
+        samlpData?.meta_data_source ||
+        (samlpData?.signInEndpoint ? 'meta_data_file' : 'meta_data_url'),
       metadataUrl: samlpData?.metadataUrl || '',
-      single_sign_on_login_url: samlpData?.single_sign_on_login_url || '',
+      signInEndpoint: samlpData?.signInEndpoint || '',
       cert: samlpData?.cert || '',
       signSAMLRequest: samlpData?.signSAMLRequest || false,
       signatureAlgorithm: samlpData?.signatureAlgorithm || 'rsa-sha256',
@@ -224,7 +226,7 @@ export const SamlpProviderForm = React.forwardRef<
           <>
             <FormField
               control={form.control}
-              name="single_sign_on_login_url"
+              name="signInEndpoint"
               render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel className="text-sm font-medium text-(length:--font-size-label)">

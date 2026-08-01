@@ -109,6 +109,7 @@ describe('SsoProviderMappers', () => {
             'signSAMLRequest',
             'bindingMethod',
             'metadataUrl',
+            'signInEndpoint',
             'cert',
             'idpInitiated',
             'icon_url',

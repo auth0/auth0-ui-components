@@ -72,7 +72,7 @@ interface SamlpOptions {
   signSAMLRequest?: BooleanFieldOptions;
   bindingMethod?: FieldOptions;
   metadataUrl?: FieldOptions;
-  single_sign_on_login_url?: FieldOptions;
+  signInEndpoint?: FieldOptions;
   cert?: FieldOptions;
   icon_url?: FieldOptions;
   idpInitiated?: FieldOptions;
@@ -311,7 +311,7 @@ const STRATEGY_BUILDERS = {
           'Please enter a valid metadata URL',
         ),
         cert: z.string().optional(),
-        single_sign_on_login_url: z.string().optional(),
+        signInEndpoint: z.string().optional(),
         ...commonFields,
       }),
 
@@ -322,9 +322,9 @@ const STRATEGY_BUILDERS = {
           ...options.cert,
           required: true,
         }),
-        single_sign_on_login_url: createFieldSchema(
+        signInEndpoint: createFieldSchema(
           COMMON_FIELD_CONFIGS.url,
-          { ...options.single_sign_on_login_url, required: false },
+          { ...options.signInEndpoint, required: false },
           'Please enter a valid URL',
         ),
         // Allow metadataUrl to exist (optional)

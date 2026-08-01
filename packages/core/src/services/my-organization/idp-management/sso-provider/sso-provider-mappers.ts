@@ -54,6 +54,7 @@ const STRATEGY_FIELD_MAPPINGS = {
     'signSAMLRequest',
     'bindingMethod',
     'metadataUrl',
+    'signInEndpoint',
     'cert',
     'idpInitiated',
     'icon_url',

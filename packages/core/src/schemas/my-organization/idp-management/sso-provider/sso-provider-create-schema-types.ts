@@ -267,7 +267,7 @@ export interface ProviderConfigureSchema {
       required?: boolean;
       errorMessage?: string;
     };
-    single_sign_on_login_url?: {
+    signInEndpoint?: {
       required?: boolean;
       errorMessage?: string;
     };
