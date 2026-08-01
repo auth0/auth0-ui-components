@@ -48,7 +48,7 @@ function WizardStepper({
     >
       {steps.map((step, index) => (
         <Step key={step.id || index} step={index} id={step.id} hideNumber={hideNumbers}>
-          <StepTitle className="text-(length:--font-size-label)">{step.title}</StepTitle>
+          <StepTitle className="text-label">{step.title}</StepTitle>
           {step.description && <StepDescription>{step.description}</StepDescription>}
         </Step>
       ))}

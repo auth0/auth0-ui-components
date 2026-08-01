@@ -160,7 +160,7 @@ export const PingFederateProviderForm = React.forwardRef<
           name="pingFederateBaseUrl"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+              <FormLabel className="text-label font-medium">
                 {t('fields.ping-federate.ping_federate_baseurl.label')}
               </FormLabel>
               <FormControl>
@@ -173,11 +173,8 @@ export const PingFederateProviderForm = React.forwardRef<
                   {...field}
                 />
               </FormControl>
-              <FormMessage
-                role="alert"
-                className="text-sm text-left text-(length:--font-size-paragraph)"
-              />
-              <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+              <FormMessage role="alert" className="text-left text-paragraph" />
+              <FormDescription className="text-paragraph font-normal text-left">
                 {t('fields.ping-federate.ping_federate_baseurl.helper_text')}
               </FormDescription>
             </FormItem>
@@ -189,7 +186,7 @@ export const PingFederateProviderForm = React.forwardRef<
           name="signingCert"
           render={() => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+              <FormLabel className="text-label font-medium">
                 {t('fields.ping-federate.sign_cert.label')}
               </FormLabel>
               <FormControl>
@@ -206,11 +203,8 @@ export const PingFederateProviderForm = React.forwardRef<
                   />
                 </div>
               </FormControl>
-              <FormMessage
-                role="alert"
-                className="text-sm text-left text-(length:--font-size-paragraph)"
-              />
-              <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+              <FormMessage role="alert" className="text-left text-paragraph" />
+              <FormDescription className="text-paragraph font-normal text-left">
                 {t('fields.ping-federate.sign_cert.helper_text')}
               </FormDescription>
             </FormItem>
@@ -239,7 +233,7 @@ export const PingFederateProviderForm = React.forwardRef<
                       <FormLabel className="text-sm font-medium cursor-pointer">
                         {t('fields.ping-federate.advanced_settings.sign_request.label')}
                       </FormLabel>
-                      <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                      <FormDescription className="text-paragraph font-normal text-left">
                         <>
                           {t.trans(
                             'fields.ping-federate.advanced_settings.sign_request.helper_text',
@@ -272,7 +266,7 @@ export const PingFederateProviderForm = React.forwardRef<
                     name="signatureAlgorithm"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                        <FormLabel className="text-label font-medium">
                           {t('fields.ping-federate.advanced_settings.sign_request_algorithm.label')}
                         </FormLabel>
                         <Select onValueChange={field.onChange} value={field.value || ''}>
@@ -293,10 +287,7 @@ export const PingFederateProviderForm = React.forwardRef<
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage
-                          role="alert"
-                          className="text-sm text-left text-(length:--font-size-paragraph)"
-                        />
+                        <FormMessage role="alert" className="text-left text-paragraph" />
                       </FormItem>
                     )}
                   />
@@ -306,7 +297,7 @@ export const PingFederateProviderForm = React.forwardRef<
                     name="digestAlgorithm"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                        <FormLabel className="text-label font-medium">
                           {t(
                             'fields.ping-federate.advanced_settings.sign_request_algorithm_digest.label',
                           )}
@@ -329,10 +320,7 @@ export const PingFederateProviderForm = React.forwardRef<
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage
-                          role="alert"
-                          className="text-sm text-left text-(length:--font-size-paragraph)"
-                        />
+                        <FormMessage role="alert" className="text-left text-paragraph" />
                       </FormItem>
                     )}
                   />

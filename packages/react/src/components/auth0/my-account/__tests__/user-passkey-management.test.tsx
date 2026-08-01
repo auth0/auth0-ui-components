@@ -3,21 +3,21 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import {
-  UserPasskeyMgmt,
-  UserPasskeyMgmtView,
+  UserPasskeyManagement,
+  UserPasskeyManagementView,
 } from '@/components/auth0/my-account/user-passkey-management';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockPasskey,
-  createMockUserPasskeyMgmtViewProps,
-} from '@/tests/utils/__mocks__/my-account/passkey/passkey.mocks';
+  createMockUserPasskeyManagementViewProps,
+} from '@/tests/utils/__mocks__/my-account/user-passkey-management/user-passkey-management.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 
 mockToast();
 const { initMockCoreClient } = mockCore();
 
-describe('UserPasskeyMgmt', () => {
+describe('UserPasskeyManagement', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;
 
   beforeEach(() => {
@@ -32,12 +32,12 @@ describe('UserPasskeyMgmt', () => {
   });
 
   it('renders header when hideHeader is false', async () => {
-    renderWithProviders(<UserPasskeyMgmt hideHeader={false} />);
+    renderWithProviders(<UserPasskeyManagement hideHeader={false} />);
     await waitFor(() => expect(screen.getByText('header.title')).toBeInTheDocument());
   });
 
   it('does not render header when hideHeader is true', async () => {
-    renderWithProviders(<UserPasskeyMgmt hideHeader={true} />);
+    renderWithProviders(<UserPasskeyManagement hideHeader={true} />);
     await waitFor(() => expect(screen.queryByText('header.title')).not.toBeInTheDocument());
   });
 
@@ -45,7 +45,7 @@ describe('UserPasskeyMgmt', () => {
     mockCoreClient.getMyAccountApiClient().authenticationMethods.list = vi
       .fn()
       .mockResolvedValue({ authentication_methods: [] });
-    renderWithProviders(<UserPasskeyMgmt />);
+    renderWithProviders(<UserPasskeyManagement />);
     await screen.findByText('no_passkeys');
   });
 
@@ -55,25 +55,25 @@ describe('UserPasskeyMgmt', () => {
         { id: 'pk-1', type: 'passkey', name: 'My Passkey', created_at: '2024-01-01' },
       ],
     });
-    renderWithProviders(<UserPasskeyMgmt />);
+    renderWithProviders(<UserPasskeyManagement />);
     await screen.findByText('passkey_name');
     expect(screen.getByText('enabled')).toBeInTheDocument();
   });
 
   it('hides add button when addAction.disabled is true', async () => {
-    renderWithProviders(<UserPasskeyMgmt addAction={{ disabled: true }} />);
+    renderWithProviders(<UserPasskeyManagement addAction={{ disabled: true }} />);
     await screen.findByText('no_passkeys');
     expect(screen.queryByRole('button', { name: 'add_passkey' })).not.toBeInTheDocument();
   });
 
   it('shows add button when addAction is not disabled', async () => {
-    renderWithProviders(<UserPasskeyMgmt />);
+    renderWithProviders(<UserPasskeyManagement />);
     expect(await screen.findByRole('button', { name: 'add_passkey' })).toBeInTheDocument();
   });
 
   it('calls onFetch after passkeys are loaded', async () => {
     const onFetch = vi.fn();
-    renderWithProviders(<UserPasskeyMgmt onFetch={onFetch} />);
+    renderWithProviders(<UserPasskeyManagement onFetch={onFetch} />);
     await waitFor(() => expect(onFetch).toHaveBeenCalledTimes(1));
   });
 
@@ -97,7 +97,7 @@ describe('UserPasskeyMgmt', () => {
 
     it('opens revoke modal on dropdown revoke click', async () => {
       const user = userEvent.setup();
-      renderWithProviders(<UserPasskeyMgmt />);
+      renderWithProviders(<UserPasskeyManagement />);
       await openRevokeModal(user);
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
     });
@@ -109,39 +109,38 @@ describe('UserPasskeyMgmt', () => {
         .fn()
         .mockResolvedValue(undefined);
 
-      renderWithProviders(<UserPasskeyMgmt revokeAction={{ onAfter }} />);
+      renderWithProviders(<UserPasskeyManagement revokeAction={{ onAfter }} />);
       await openRevokeModal(user);
       await user.click(await screen.findByRole('button', { name: 'confirm' }));
 
       await waitFor(() => expect(onAfter).toHaveBeenCalled());
     });
 
-    it('calls onErrorAction on revoke failure', async () => {
+    it('closes modal on revoke failure', async () => {
       const user = userEvent.setup();
-      const onErrorAction = vi.fn();
       mockCoreClient.getMyAccountApiClient().authenticationMethods.delete = vi
         .fn()
         .mockRejectedValue(new Error('revoke failed'));
 
-      renderWithProviders(<UserPasskeyMgmt onErrorAction={onErrorAction} />);
+      renderWithProviders(<UserPasskeyManagement />);
       await openRevokeModal(user);
       await user.click(await screen.findByRole('button', { name: 'confirm' }));
 
-      await waitFor(() => expect(onErrorAction).toHaveBeenCalledWith(expect.any(Error), 'revoke'));
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     });
 
     it('hides revoke dropdown when revokeAction.disabled is true', async () => {
-      renderWithProviders(<UserPasskeyMgmt revokeAction={{ disabled: true }} />);
+      renderWithProviders(<UserPasskeyManagement revokeAction={{ disabled: true }} />);
       await screen.findByText('passkey_name');
       expect(screen.queryByRole('button', { name: 'passkey_name' })).not.toBeInTheDocument();
     });
   });
 });
 
-describe('UserPasskeyMgmtView', () => {
-  function setup(overrides: Parameters<typeof createMockUserPasskeyMgmtViewProps>[0] = {}) {
-    const props = createMockUserPasskeyMgmtViewProps(overrides);
-    renderWithProviders(<UserPasskeyMgmtView {...props} />);
+describe('UserPasskeyManagementView', () => {
+  function setup(overrides: Parameters<typeof createMockUserPasskeyManagementViewProps>[0] = {}) {
+    const props = createMockUserPasskeyManagementViewProps(overrides);
+    renderWithProviders(<UserPasskeyManagementView {...props} />);
     return props;
   }
 

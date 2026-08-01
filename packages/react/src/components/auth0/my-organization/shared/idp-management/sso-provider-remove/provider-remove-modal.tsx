@@ -75,7 +75,7 @@ export function SsoProviderRemoveFromOrganizationModal({
       })}
       content={
         <div className="space-y-6">
-          <p className={cn('text-sm text-muted-foreground text-(length:--font-size-paragraph)')}>
+          <p className={cn('text-muted-foreground text-paragraph')}>
             <>
               {t.trans('modal.description', {
                 components: {
