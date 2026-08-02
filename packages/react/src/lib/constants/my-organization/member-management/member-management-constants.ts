@@ -27,5 +27,6 @@ export const DEFAULT_ROLES_PAGE_SIZE = 10;
 
 /**
  * Min roles count to pre-fetch full roles before opening assign roles modal.
+ * Matches the API's default page size for member roles.
  */
 export const ROLES_PREFETCH_THRESHOLD = 10;

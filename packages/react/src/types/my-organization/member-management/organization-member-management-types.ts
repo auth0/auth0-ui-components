@@ -19,13 +19,13 @@ import type {
   IdentityProviderOption,
   OrganizationInvitationTabClasses,
 } from './organization-invitation-table-types';
-import type { MemberDetailTab } from './organization-member-detail-types';
+import type { OrganizationMemberDetailTab } from './organization-member-detail-types';
 
 export type ActiveTab = 'members' | 'invitations';
 
 export interface ViewMemberDetailsParams {
   userId: string;
-  tab?: MemberDetailTab;
+  tab?: OrganizationMemberDetailTab;
 }
 
 /** Pagination state for member management tables - invitation and member tables (checkpoint-based). */
@@ -71,7 +71,7 @@ export interface UseMemberManagementServiceOptions {
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
   invitationParams?: TableQueryParams<MemberManagementSortConfig, MemberManagementFilterState>;
   memberParams?: TableQueryParams<MemberManagementSortConfig, MemberManagementFilterState>;
-  viewMemberDetailsAction?: ComponentAction<string>;
+  viewMemberDetailsAction?: ComponentAction<ViewMemberDetailsParams>;
   assignRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
   removeFromOrganizationAction?: ComponentAction<string>;
   enableRolesList?: boolean;

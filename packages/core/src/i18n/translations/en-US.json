@@ -1172,7 +1172,7 @@
         "year": "year",
         "years": "years",
         "more_roles": "More",
-        "view_all_roles": "View all {{count}} roles"
+        "view_all_roles": "View all ${count} roles"
       },
       "actions": {
         "menu_label": "Actions",

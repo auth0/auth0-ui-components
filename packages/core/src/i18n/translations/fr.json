@@ -1107,7 +1107,7 @@
         "year": "an",
         "years": "ans",
         "more_roles": "de plus",
-        "view_all_roles": "Voir tous les {{count}} rôles"
+        "view_all_roles": "Voir tous les ${count} rôles"
       },
       "actions": {
         "menu_label": "Actions",

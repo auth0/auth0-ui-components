@@ -583,10 +583,11 @@ viewMemberDetailsAction={{
   },
 }}
 
-// Next.js (RWA) — navigate with optional tab query param
+// Next.js App Router — navigate with optional tab query param
 viewMemberDetailsAction={{
   onAfter: ({ userId, tab }) => {
-    router.push({ pathname: \`/members/\${userId}\`, query: tab ? { tab } : {} });
+    const url = tab ? \`/members/\${userId}?tab=\${tab}\` : \`/members/\${userId}\`;
+    router.push(url);
   },
 }}
 
@@ -793,6 +794,7 @@ assignRolesAction={{
                       <li>columns.name / roles / last_login</li>
                       <li>empty_message, search_placeholder</li>
                       <li>filter_by_role, all_roles</li>
+                      <li>more_roles, view_all_roles</li>
                     </ul>
                   </div>
                   <div>
@@ -1017,12 +1019,6 @@ assignRolesAction={{
   viewMemberDetailsAction?: ComponentAction<ViewMemberDetailsParams>;
   assignRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
   removeFromOrganizationAction?: ComponentAction<string>;
-}
-
-// ViewMemberDetailsParams interface
-interface ViewMemberDetailsParams {
-  userId: string;
-  tab?: 'details' | 'roles';
 }
 
 // Action interface

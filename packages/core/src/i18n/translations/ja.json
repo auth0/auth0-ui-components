@@ -1170,7 +1170,7 @@
         "year": "年",
         "years": "年",
         "more_roles": "その他",
-        "view_all_roles": "すべての{{count}}個のロールを表示"
+        "view_all_roles": "すべての${count}個のロールを表示"
       },
       "actions": {
         "menu_label": "アクション",

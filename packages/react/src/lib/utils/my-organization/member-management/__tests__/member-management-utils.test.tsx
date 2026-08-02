@@ -19,7 +19,7 @@ vi.mock('@/components/auth0/shared/toast', () => ({
   showToast: vi.fn(),
 }));
 
-describe('isValidUserId', () => {
+describe('when validating user IDs', () => {
   it('returns false for undefined', () => {
     expect(isValidUserId(undefined)).toBe(false);
   });

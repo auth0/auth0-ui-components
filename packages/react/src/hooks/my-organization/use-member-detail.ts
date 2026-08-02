@@ -12,7 +12,7 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   MemberDetailModalState,
-  MemberDetailTab,
+  OrganizationMemberDetailTab,
   UseOrganizationMemberDetailOptions,
   UseOrganizationMemberDetailResult,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
@@ -70,7 +70,7 @@ export function useOrganizationMemberDetail(
     }
   }, [memberRolesQuery.isError, memberRolesQuery.error, handleError, t]);
 
-  const [activeTab, setActiveTab] = React.useState<MemberDetailTab>(initialTab);
+  const [activeTab, setActiveTab] = React.useState<OrganizationMemberDetailTab>(initialTab);
   const [modalState, setModalState] = React.useState<MemberDetailModalState>({ type: null });
   const [selectedRoles, setSelectedRoles] = React.useState<Role[]>([]);
 
