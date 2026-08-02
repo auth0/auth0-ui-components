@@ -58,6 +58,19 @@ describe('OrganizationMemberAssignRolesModal', () => {
         screen.getByRole('button', { name: 'member.detail.roles.assign_modal.cancel_button' }),
       ).toBeInTheDocument();
     });
+
+    it('should show spinner when isLoadingRoles is true', () => {
+      renderWithProviders(
+        <OrganizationMemberAssignRolesModal
+          {...createMockAssignRolesModalProps({ isLoadingRoles: true })}
+        />,
+      );
+
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(
+        screen.queryByText('member.detail.roles.assign_modal.roles_label'),
+      ).not.toBeInTheDocument();
+    });
   });
 
   describe('no roles available', () => {

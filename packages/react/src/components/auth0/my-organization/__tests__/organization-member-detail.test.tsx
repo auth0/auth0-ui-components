@@ -1,5 +1,4 @@
-import type { ComponentAction } from '@auth0/universal-components-core';
-import { memberManagementQueryKeys } from '@auth0/universal-components-core';
+import { type ComponentAction, memberManagementQueryKeys } from '@auth0/universal-components-core';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -99,6 +98,20 @@ describe('OrganizationMemberDetail', () => {
 
       const detailsTab = screen.getByRole('tab', { name: 'member.detail.tabs.details' });
       expect(detailsTab).toHaveAttribute('data-state', 'active');
+    });
+
+    it('should show roles tab as active when initialTab is roles', async () => {
+      renderWithProviders(
+        <OrganizationMemberDetail
+          {...createMockOrganizationMemberDetailProps()}
+          initialTab="roles"
+        />,
+      );
+
+      await waitForComponentToLoad();
+
+      const rolesTab = screen.getByRole('tab', { name: 'member.detail.tabs.roles' });
+      expect(rolesTab).toHaveAttribute('data-state', 'active');
     });
   });
 

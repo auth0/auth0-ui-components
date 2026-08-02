@@ -538,11 +538,11 @@ describe('useMemberManagementService', () => {
     });
   });
 
-  describe('memberRolesQuery', () => {
+  describe('when fetching member roles', () => {
     const memberRolesListMock = () =>
       mockCoreClient.getMyOrganizationApiClient().organization.members.roles.list;
 
-    it('should not fetch member roles when userId is not provided', async () => {
+    it('does not fetch when userId is not provided', async () => {
       const options = createDefaultOptions({ userId: undefined, memberRolesQueryEnabled: true });
       const { result } = renderService(options);
 
@@ -554,7 +554,7 @@ describe('useMemberManagementService', () => {
       expect(memberRolesListMock()).not.toHaveBeenCalled();
     });
 
-    it('should not fetch member roles when memberRolesQueryEnabled is false', async () => {
+    it('does not fetch when memberRolesQueryEnabled is false', async () => {
       const options = createDefaultOptions({
         userId: 'auth0|user123',
         memberRolesQueryEnabled: false,
@@ -569,7 +569,7 @@ describe('useMemberManagementService', () => {
       expect(memberRolesListMock()).not.toHaveBeenCalled();
     });
 
-    it('should not fetch member roles when userId is invalid format', async () => {
+    it('does not fetch when userId is invalid format', async () => {
       const options = createDefaultOptions({
         userId: 'invalid-user-id',
         memberRolesQueryEnabled: true,
@@ -584,7 +584,7 @@ describe('useMemberManagementService', () => {
       expect(memberRolesListMock()).not.toHaveBeenCalled();
     });
 
-    it('should fetch member roles when userId is valid and memberRolesQueryEnabled is true', async () => {
+    it('fetches roles when userId is valid and query is enabled', async () => {
       const mockRoles = [
         { id: 'rol_1', name: 'Admin' },
         { id: 'rol_2', name: 'Member' },
@@ -607,7 +607,7 @@ describe('useMemberManagementService', () => {
       expect(result.current.memberRolesQuery.data).toEqual(mockRoles);
     });
 
-    it('should use consistent query key for cache sharing', async () => {
+    it('uses consistent query key for cache sharing', async () => {
       const userId = 'auth0|user123';
       expect(memberManagementQueryKeys.memberRoles(userId)).toEqual([
         'member-management',
