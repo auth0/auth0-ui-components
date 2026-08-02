@@ -30,6 +30,7 @@ export function useOrganizationMemberDetail(
     onBack,
     customMessages = {},
     readOnly = false,
+    initialTab = 'details',
     removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,
@@ -69,7 +70,7 @@ export function useOrganizationMemberDetail(
     }
   }, [memberRolesQuery.isError, memberRolesQuery.error, handleError, t]);
 
-  const [activeTab, setActiveTab] = React.useState<MemberDetailTab>('details');
+  const [activeTab, setActiveTab] = React.useState<MemberDetailTab>(initialTab);
   const [modalState, setModalState] = React.useState<MemberDetailModalState>({ type: null });
   const [selectedRoles, setSelectedRoles] = React.useState<Role[]>([]);
 

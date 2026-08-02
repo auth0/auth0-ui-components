@@ -537,4 +537,83 @@ describe('useMemberManagementService', () => {
       expect(details).toEqual(mockInvitation);
     });
   });
+
+  describe('memberRolesQuery', () => {
+    const memberRolesListMock = () =>
+      mockCoreClient.getMyOrganizationApiClient().organization.members.roles.list;
+
+    it('should not fetch member roles when userId is not provided', async () => {
+      const options = createDefaultOptions({ userId: undefined, memberRolesQueryEnabled: true });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.rolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.memberRolesQuery.fetchStatus).toBe('idle');
+      expect(memberRolesListMock()).not.toHaveBeenCalled();
+    });
+
+    it('should not fetch member roles when memberRolesQueryEnabled is false', async () => {
+      const options = createDefaultOptions({
+        userId: 'auth0|user123',
+        memberRolesQueryEnabled: false,
+      });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.rolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.memberRolesQuery.fetchStatus).toBe('idle');
+      expect(memberRolesListMock()).not.toHaveBeenCalled();
+    });
+
+    it('should not fetch member roles when userId is invalid format', async () => {
+      const options = createDefaultOptions({
+        userId: 'invalid-user-id',
+        memberRolesQueryEnabled: true,
+      });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.rolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.memberRolesQuery.fetchStatus).toBe('idle');
+      expect(memberRolesListMock()).not.toHaveBeenCalled();
+    });
+
+    it('should fetch member roles when userId is valid and memberRolesQueryEnabled is true', async () => {
+      const mockRoles = [
+        { id: 'rol_1', name: 'Admin' },
+        { id: 'rol_2', name: 'Member' },
+      ];
+      mockCoreClient.getMyOrganizationApiClient().organization.members.roles.list = vi
+        .fn()
+        .mockResolvedValue({ data: mockRoles });
+
+      const options = createDefaultOptions({
+        userId: 'auth0|user123',
+        memberRolesQueryEnabled: true,
+      });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.memberRolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(memberRolesListMock()).toHaveBeenCalledWith('auth0|user123');
+      expect(result.current.memberRolesQuery.data).toEqual(mockRoles);
+    });
+
+    it('should use consistent query key for cache sharing', async () => {
+      const userId = 'auth0|user123';
+      expect(memberManagementQueryKeys.memberRoles(userId)).toEqual([
+        'member-management',
+        'member-roles',
+        userId,
+      ]);
+    });
+  });
 });

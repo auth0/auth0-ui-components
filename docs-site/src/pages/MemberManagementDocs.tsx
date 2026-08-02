@@ -367,11 +367,12 @@ export function MembersPage() {
                     viewMemberDetailsAction
                   </td>
                   <td className="px-4 py-2 text-sm text-gray-500">
-                    <code>ComponentAction&lt;string&gt;</code>
+                    <code>ComponentAction&lt;ViewMemberDetailsParams&gt;</code>
                   </td>
                   <td className="px-4 py-2 text-sm text-gray-500">
-                    Lifecycle hooks for viewing member details. Input is the userId. Use{' '}
-                    <code>onAfter</code> to navigate to the member detail page.
+                    Lifecycle hooks for viewing member details. Input includes <code>userId</code>{' '}
+                    and optional <code>tab</code> ('details' | 'roles'). Use <code>onAfter</code> to
+                    navigate to the member detail page.
                   </td>
                 </tr>
                 <tr>
@@ -552,13 +553,15 @@ resendInvitationAction={{
                 viewMemberDetailsAction
               </h4>
               <p className="text-sm text-gray-700 mb-2">
-                <strong>Type:</strong> <code>ComponentAction&lt;string&gt;</code>
+                <strong>Type:</strong> <code>ComponentAction&lt;ViewMemberDetailsParams&gt;</code>
               </p>
               <p className="text-gray-600 mb-3">
                 Fires when an admin requests the per-member detail view from the member list.
-                Receives the <code>userId</code> string. The standard wiring is to navigate to the
-                route that renders <code>OrganizationMemberDetail</code>; the same{' '}
-                <code>userId</code> flows through to its required <code>userId</code> prop.
+                Receives a <code>ViewMemberDetailsParams</code> object containing the{' '}
+                <code>userId</code> and an optional <code>tab</code> ('details' | 'roles'). The
+                standard wiring is to navigate to the route that renders{' '}
+                <code>OrganizationMemberDetail</code>. When clicking "+More" on a member's roles,
+                the <code>tab</code> is set to 'roles' to deep-link directly to the Roles tab.
               </p>
               <p className="text-sm font-medium text-gray-700 mb-1">Properties:</p>
               <ul className="text-sm text-gray-600 list-disc ml-5 mb-3 space-y-1">
@@ -566,27 +569,32 @@ resendInvitationAction={{
                   <code>disabled</code> — hide the "View details" entry in the row's actions menu.
                 </li>
                 <li>
-                  <code>onAfter(userId)</code> — runs after the user requests the detail view. Wire
-                  to your router.
+                  <code>onAfter({'{ userId, tab }'})</code> — runs after the user requests the
+                  detail view. Use <code>tab</code> to deep-link to a specific tab.
                 </li>
               </ul>
               <p className="text-sm font-medium text-gray-700 mb-1">Common Patterns:</p>
               <CodeBlock
-                code={`// React Router (SPA)
+                code={`// React Router (SPA) — navigate with optional tab query param
 viewMemberDetailsAction={{
-  onAfter: (userId) => navigate(\`/members/\${userId}\`),
+  onAfter: ({ userId, tab }) => {
+    const url = tab ? \`/members/\${userId}?tab=\${tab}\` : \`/members/\${userId}\`;
+    navigate(url);
+  },
 }}
 
-// Next.js (RWA)
+// Next.js (RWA) — navigate with optional tab query param
 viewMemberDetailsAction={{
-  onAfter: (userId) => router.push(\`/members/\${userId}\`),
+  onAfter: ({ userId, tab }) => {
+    router.push({ pathname: \`/members/\${userId}\`, query: tab ? { tab } : {} });
+  },
 }}
 
 // Track analytics in addition to navigation
 viewMemberDetailsAction={{
-  onAfter: (userId) => {
-    analytics.track('Member Details Viewed', { userId });
-    navigate(\`/members/\${userId}\`);
+  onAfter: ({ userId, tab }) => {
+    analytics.track('Member Details Viewed', { userId, tab });
+    navigate(\`/members/\${userId}\${tab ? \`?tab=\${tab}\` : ''}\`);
   },
 }}`}
                 language="tsx"
@@ -1006,9 +1014,15 @@ assignRolesAction={{
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   revokeInvitationAction?: ComponentAction<MemberInvitation>;
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
-  viewMemberDetailsAction?: ComponentAction<string>;
+  viewMemberDetailsAction?: ComponentAction<ViewMemberDetailsParams>;
   assignRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
   removeFromOrganizationAction?: ComponentAction<string>;
+}
+
+// ViewMemberDetailsParams interface
+interface ViewMemberDetailsParams {
+  userId: string;
+  tab?: 'details' | 'roles';
 }
 
 // Action interface
@@ -1060,7 +1074,7 @@ function MembersPage() {
         onAfter: () => refetchMemberCount(),
       }}
       viewMemberDetailsAction={{
-        onAfter: (userId) => navigate(\`/members/\${userId}\`),
+        onAfter: ({ userId, tab }) => navigate(\`/members/\${userId}\${tab ? \`?tab=\${tab}\` : ''}\`),
       }}
       removeFromOrganizationAction={{
         onBefore: async (userId) =>

@@ -42,6 +42,7 @@ export interface UseOrganizationMemberDetailOptions {
   onBack?: () => void;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   readOnly?: boolean;
+  initialTab?: MemberDetailTab;
   removeFromOrganizationAction?: ComponentAction<string>;
   assignRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
   removeRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
@@ -164,6 +165,7 @@ export interface OrganizationMemberRemoveRoleModalProps {
 export interface OrganizationMemberAssignRolesModalProps {
   isOpen: boolean;
   isLoading?: boolean;
+  isLoadingRoles?: boolean;
   availableRoles: Role[];
   assignedRoles: Role[];
   customMessages?: Partial<OrganizationMemberDetailMessages | OrganizationMemberTabMessages>;
@@ -231,6 +233,7 @@ export interface OrganizationMemberDetailProps
   userId: string;
   onBack?: () => void;
   hideHeader?: boolean;
+  initialTab?: MemberDetailTab;
   removeFromOrganizationAction?: ComponentAction<string>;
   assignRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
   removeRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;

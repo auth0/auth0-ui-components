@@ -1,5 +1,5 @@
 import type { ComponentAction } from '@auth0/universal-components-core';
-import { memberManagementQueryKeys, memberDetailQueryKeys } from '@auth0/universal-components-core';
+import { memberManagementQueryKeys } from '@auth0/universal-components-core';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -653,7 +653,7 @@ describe('OrganizationMemberDetail', () => {
         queryKey: memberManagementQueryKeys.all,
       });
       expect(invalidateQueriesSpy).toHaveBeenCalledWith({
-        queryKey: memberDetailQueryKeys.memberRoles(mockMember.user_id ?? ''),
+        queryKey: memberManagementQueryKeys.memberRoles(mockMember.user_id ?? ''),
       });
     });
 

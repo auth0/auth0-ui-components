@@ -24,3 +24,8 @@ export const MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT = 100;
  * Default page size for the role selector when no search term is active.
  */
 export const DEFAULT_ROLES_PAGE_SIZE = 10;
+
+/**
+ * Min roles count to pre-fetch full roles before opening assign roles modal.
+ */
+export const ROLES_PREFETCH_THRESHOLD = 10;
