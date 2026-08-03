@@ -313,6 +313,31 @@ describe('useSsoProviderTableService', () => {
         result.current.onEnableProvider(mockIdentityProviders[0]!, true),
       ).rejects.toThrow('Invalid provider');
     });
+
+    it('should update detail cache when enabling provider', async () => {
+      const updatedProvider = { ...mockIdentityProviders[1], is_enabled: true };
+      const mockUpdate = vi.fn().mockResolvedValue(updatedProvider);
+
+      vi.mocked(mockMyOrgClient.organization.identityProviders.list).mockResolvedValue({
+        identity_providers: mockIdentityProviders,
+      });
+      mockMyOrgClient.organization.identityProviders.update = mockUpdate;
+
+      const { result, queryClient } = renderUseSsoProviderTableServiceWithClient();
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      queryClient.setQueryData(ssoProviderQueryKeys.detail('idp-2'), mockIdentityProviders[1]);
+
+      await result.current.onEnableProvider(mockIdentityProviders[1]!, true);
+
+      const detailCache = queryClient.getQueryData<IdpKnownResponse>(
+        ssoProviderQueryKeys.detail('idp-2'),
+      );
+      expect(detailCache?.is_enabled).toBe(true);
+    });
   });
 
   describe('onDeleteConfirm', () => {
