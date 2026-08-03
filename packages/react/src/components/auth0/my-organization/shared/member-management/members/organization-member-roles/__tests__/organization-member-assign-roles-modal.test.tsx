@@ -58,8 +58,10 @@ describe('OrganizationMemberAssignRolesModal', () => {
         screen.getByRole('button', { name: 'member.detail.roles.assign_modal.cancel_button' }),
       ).toBeInTheDocument();
     });
+  });
 
-    it('should show spinner when isLoadingRoles is true', () => {
+  describe('when isLoadingRoles is true', () => {
+    it('shows the loading state', () => {
       renderWithProviders(
         <OrganizationMemberAssignRolesModal
           {...createMockAssignRolesModalProps({ isLoadingRoles: true })}
