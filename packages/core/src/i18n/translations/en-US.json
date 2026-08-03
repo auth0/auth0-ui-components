@@ -1198,7 +1198,6 @@
           "name": "Name",
           "email": "Email",
           "phone_number": "Phone Number",
-          "provider": "Provider",
           "created_at": "Created At",
           "last_login": "Last Login"
         },

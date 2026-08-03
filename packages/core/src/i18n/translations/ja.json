@@ -1196,7 +1196,6 @@
           "name": "名前",
           "email": "メール",
           "phone_number": "電話番号",
-          "provider": "プロバイダー",
           "created_at": "作成日",
           "last_login": "最終ログイン"
         },

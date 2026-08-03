@@ -1133,7 +1133,6 @@
           "name": "Nom",
           "email": "E-mail",
           "phone_number": "Numéro de téléphone",
-          "provider": "Fournisseur",
           "created_at": "Créé le",
           "last_login": "Dernière connexion"
         },
