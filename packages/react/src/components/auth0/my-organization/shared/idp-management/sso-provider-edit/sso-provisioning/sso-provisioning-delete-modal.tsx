@@ -40,7 +40,7 @@ export function SsoProvisioningDeleteModal({
       title={t('modal.title')}
       content={
         <div className={cn('space-y-4')}>
-          <p className={cn('text-sm text-muted-foreground text-(length:--font-size-paragraph)')}>
+          <p className={cn('text-muted-foreground text-paragraph')}>
             {t('modal.content.description')}
           </p>
         </div>

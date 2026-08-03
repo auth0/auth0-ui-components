@@ -92,7 +92,7 @@ export function GateKeeper({ styling, isLoading, children }: GateKeeperProps) {
 
   const isMfaStepUp = isMfaRequiredError(error);
   const statusCode = getStatusCode(error);
-  const isSystemError = !!error && !!statusCode && statusCode >= 500;
+  const isSystemError = !!error && !!statusCode && (statusCode >= 500 || statusCode === 429);
 
   useEffect(() => {
     if (isMfaStepUp && coreClient && !coreClient.isProxyMode()) {

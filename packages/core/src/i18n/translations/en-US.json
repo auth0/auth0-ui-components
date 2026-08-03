@@ -962,53 +962,42 @@
       "provisioning_attributes_sync_success": "The provisioning mappings have been updated."
     }
   },
-  "mfa": {
-    "title": "Multi-Factor Authentication methods",
-    "description": "Extra protection for your account and your identity",
+  "user_mfa_management": {
+    "header": {
+      "title": "Additional verification methods",
+      "description": "Extra protection for your account and your identity"
+    },
     "no_active_mfa": "No active MFA factors enrolled.",
-    "component_error_title": "Error loading Multi-Factor Authentication component",
-    "component_error_description": "We're having trouble loading your multi-factor authentication methods.\nPlease refresh the page and try again",
-    "loading": "Loading...",
-    "delete": "Delete",
-    "enroll": "Enroll",
-    "submit": "Submit",
-    "update": "Update",
-    "remove": "Remove",
-    "enrolling": "Enrolling...",
-    "enrolled": "Enrolled",
-    "enabled": "ENABLED",
-    "enrollment": "Enrollment",
-    "confirmation": "Confirmation",
-    "remove_factor": "Enrollment removed successfully.",
-    "enroll_factor": "Enrolled successfully.",
-    "enroll_totp_mfa": "Enroll OTP MFA",
-    "delete_factor": "Delete authenticator ${factorName}",
-    "delete_mfa_title": "Remove existing Authenticator",
-    "delete_mfa_phone_consent": "Are you sure you want to remove this Phone number for SMS?",
-    "delete_mfa_email_consent": "Are you sure you want to remove this Email?",
-    "delete_mfa_totp_consent": "Are you sure you want to remove this authenticator?",
-    "delete_mfa_push-notification_consent": "Are you sure you want to remove this push notification?",
-    "delete_mfa_recovery-code_consent": "Are you sure you want to remove this recovery code?",
-    "cancel": "Cancel",
-    "close": "Close",
-    "next": "Next",
-    "back": "Back",
-    "yes-remove": "Yes, remove",
-    "ok": "Ok",
-    "app-store": "App Store",
-    "google-play": "Google Play",
-    "confirm": "Confirm",
-    "continue": "Continue",
-    "deleting": "Deleting...",
+    "loading_text": "Loading...",
+    "enrolling_text": "Enrolling...",
+    "notifications": {
+      "factor_enroll_success": "Factor enrolled successfully.",
+      "factor_remove_success": "Factor removed successfully.",
+      "fetch_factors_error": "Error loading MFA factors!",
+      "factor_delete_error": "Delete authenticator failed"
+    },
+    "remove_factor_dialog": {
+      "title": "Remove existing Authenticator",
+      "consent": {
+        "phone": "Are you sure you want to remove this Phone number for SMS?",
+        "email": "Are you sure you want to remove this Email?",
+        "totp": "Are you sure you want to remove this authenticator?",
+        "push-notification": "Are you sure you want to remove this push notification?",
+        "recovery-code": "Are you sure you want to remove this recovery code?"
+      }
+    },
+    "actions": {
+      "remove_button_label": "Remove",
+      "cancel_button_label": "Cancel",
+      "confirm_button_label": "Confirm",
+      "continue_button_label": "Continue",
+      "submit_button_label": "Submit",
+      "verify_button_label": "Verify",
+      "back_button_label": "Back",
+      "deleting_button_text": "Deleting...",
+      "menu_aria_label": "Actions"
+    },
     "errors": {
-      "factors_loading_error": "Error loading MFA factors!",
-      "unknown_error": "Unknown error occurred",
-      "delete_factor": "Delete authenticator failed",
-      "failed": "failed: ${message}",
-      "phone_number_required": "Phone number is required for SMS enrollment.",
-      "email_required": "Email is required for Email enrollment.",
-      "invalid_email": "Invalid email address",
-      "invalid_phone_number": "Invalid phone number",
       "unsupported_mfa_type": "Unsupported MFA type: ${factorName}",
       "push-notification": {
         "too_many_entities": "You reached the limit of entities of the push notification type for this user.",
@@ -1020,82 +1009,127 @@
         "invalid_request": "Missing required parameter",
         "too_many_entities": "You reached the limit of entities of the totp type for this user.",
         "unsupported_challenge_type": "OTP Verifier is disabled for your tenant. You can turn it on from dashboard turning on \"Push notifications\" on Guardian MFA section (Push notications include OTP).",
-        "invalid_grant": "Invalid Otp Code"
+        "invalid_grant": "Invalid Otp Code",
+        "invalid_code": "Invalid Otp Code"
       },
       "phone": {
         "unsupported_challenge_type": "SMS Verifier is disabled for your tenant. You can turn it on from dashboard turning on \"SMS\" on Guardian MFA section.",
         "bad_gateway": "The phone number is invalid.",
-        "too_many_entities": "You reached the limit of entities of the sms type for this user."
+        "too_many_entities": "You reached the limit of entities of the sms type for this user.",
+        "invalid_phone_number": "Invalid phone number",
+        "invalid_code": "Invalid Otp Code"
       },
       "email": {
         "expired_token": "Verification code is expired",
         "invalid_grant": "Invalid Code",
         "access_denied": "Could not find the requested authenticator",
-        "too_many_entities": "You reached the limit of entities of the email type for this user."
+        "too_many_entities": "You reached the limit of entities of the email type for this user.",
+        "invalid_code": "Invalid Otp Code"
       }
     },
-    "phone": {
-      "title": "Phone Message",
-      "description": "No phone number has been added.",
-      "button-text": "Add Phone for SMS"
+    "factors": {
+      "meta": {
+        "enabled": "ENABLED",
+        "created_at": "Created on ${date}",
+        "last_used": "Last used ${date}"
+      },
+      "phone": {
+        "title": "SMS",
+        "description": "No phone has been added for SMS.",
+        "button_text": "Add Phone for SMS"
+      },
+      "push-notification": {
+        "title": "Push Notification using Auth0 Guardian",
+        "description": "No push authentication has been added.",
+        "button_text": "Add Push Authentication"
+      },
+      "totp": {
+        "title": "Authenticator",
+        "name": "TOTP (One-time code)",
+        "description": "No authenticator has been added.",
+        "button_text": "Add Authenticator App"
+      },
+      "email": {
+        "title": "Email",
+        "description": "No email has been added.",
+        "button_text": "Add Email"
+      },
+      "duo": {
+        "title": "Duo Security",
+        "description": "Use your DUO account for Multi-factor Authentication."
+      },
+      "webauthn-roaming": {
+        "title": "WebAuthn with FIDO Security Keys",
+        "description": "Use WebAuthn-compliant security keys (e.g., FIDO2) as a second factor.",
+        "button_text": "Add WebAuthn with FIDO Security Keys"
+      },
+      "webauthn-platform": {
+        "title": "WebAuthn with FIDO Device Biometrics",
+        "description": "Use WebAuthn-compliant device biometrics as a second factor.",
+        "button_text": "Add WebAuthn with FIDO Device Biometrics"
+      },
+      "recovery-code": {
+        "title": "Recovery Codes",
+        "item_label": "Recovery Code",
+        "name": "Recovery Code ${index}",
+        "description": "Use a unique recovery code to regain account access.",
+        "button_text": "Add Recovery Code"
+      }
     },
-    "push-notification": {
-      "title": "Push Notification using Auth0 Guardian",
-      "description": "No push authentication has been added.",
-      "button-text": "Add Push Authentication"
-    },
-    "totp": {
-      "title": "One-time Password",
-      "description": "No authenticator has been added.",
-      "button-text": "Add Authenticator App"
-    },
-    "email": {
-      "title": "Email",
-      "description": "No email has been added.",
-      "button-text": "Add Email"
-    },
-    "duo": {
-      "title": "Duo Security",
-      "description": "Use your DUO account for Multi-factor Authentication."
-    },
-    "webauthn-roaming": {
-      "title": "WebAuthn with FIDO Security Keys",
-      "description": "Use WebAuthn-compliant security keys (e.g., FIDO2) as a second factor.",
-      "button-text": "Add WebAuthn with FIDO Security Keys"
-    },
-    "webauthn-platform": {
-      "title": "WebAuthn with FIDO Device Biometrics",
-      "description": "Use WebAuthn-compliant device biometrics as a second factor.",
-      "button-text": "Add WebAuthn with FIDO Device Biometrics"
-    },
-    "recovery-code": {
-      "title": "Recovery Code",
-      "description": "Use a unique recovery code to regain account access.",
-      "button-text": "Add Recovery Code"
-    },
-    "enrollment_form": {
-      "email_address": "Email Address",
-      "phone_number": "Phone Number",
-      "send_code": "Send Code",
-      "sending": "Sending...",
-      "enroll_title": "Verify it’s you",
-      "enroll_email_placeholder": "Enter email address",
-      "enroll_email_description": "Enter your email to receive a verification code",
-      "enroll_sms_placeholder": "Enter phone number",
-      "enroll_sms_description": "Enter your phone number to receive a verification code",
-      "show_auth0_guardian_title": "Scan this QR code with your Auth0 Guardian App to register this Authentication method or copy the url.",
-      "recovery_code_description": "Copy this recovery code and keep it somewhere safe. You'll need it if you ever need to log in without your device.",
-      "show_otp": {
-        "title": "Scan this QR code with your Authenticator App to register this Authentication method or copy the code.",
-        "save_recovery": "Save these recovery codes!",
-        "enter_code": "Enter the code from your authenticator app",
-        "one_time_passcode": "One-Time Passcode",
-        "verify_code": "Verify Code",
-        "copy_as_code": "Copy as Code",
-        "verifying": "Verifying...",
-        "enter_verify_code": "Enter the 6-digit code we sent to ${verifier}",
-        "enter_opt_code": "Enter the code from your authenticator",
-        "install_guardian_description": "In order to continue, install the Auth0 Guardian app via the app store from your mobile device"
+    "enrollment": {
+      "phone": {
+        "title": "Enter your phone number for SMS OTP",
+        "label": "Your phone number",
+        "description": "We will send a verification code to this number.",
+        "placeholder": "Enter phone number",
+        "invalid": "Invalid phone number"
+      },
+      "email": {
+        "title": "Enter your email for Email OTP",
+        "label": "Your Email Address",
+        "description": "Enter your email to receive a verification code",
+        "placeholder": "Enter email address",
+        "invalid": "Invalid email address"
+      },
+      "totp": {
+        "scan_title": "Scan the QR Code with your Authenticator App",
+        "scan_description": "Complete the setup by scanning this code with your Authenticator. If you can't scan the code, manually enter the code below.",
+        "qr_alt": "Enrollment QR code"
+      },
+      "push": {
+        "install_title": "Setup Authenticator",
+        "install_description": "In order to continue, install the Auth0 Guardian app via the app store from your mobile device",
+        "app_store": "App Store",
+        "google_play": "Google Play",
+        "scan_title": "Scan the QR Code with your Guardian App",
+        "scan_description": "Complete the setup by scanning this code with your Guardian App. If you can't scan the code, copy the url below.",
+        "qr_alt": "Enrollment QR code",
+        "download_hint": "You can download the Auth0 Guardian app from the",
+        "download_hint_or": "or",
+        "download_hint_apple": "Apple App Store",
+        "download_hint_google": "Google Play Store"
+      },
+      "recovery_code": {
+        "title": "Generate recovery codes",
+        "description": "Copy this recovery code and keep it somewhere safe. You’ll need it if you ever need to log in without your device.",
+        "confirmed": "I have safely recorded these codes"
+      },
+      "verify": {
+        "verifying_text": "Verifying...",
+        "resend_prompt": "Didn’t receive the code?",
+        "resend": "Resend",
+        "totp": {
+          "description": "Please enter the one-time code shown in your authenticator app.",
+          "title": "Verify your authenticator"
+        },
+        "phone": {
+          "description": "Please enter the one-time code we just sent to ${name}.",
+          "title": "Verify your phone number"
+        },
+        "email": {
+          "description": "Please enter the one-time code we just sent to ${name}.",
+          "title": "Verify your email"
+        }
       }
     }
   },
