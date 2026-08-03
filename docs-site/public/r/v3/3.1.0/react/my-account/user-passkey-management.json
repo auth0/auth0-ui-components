@@ -1,11 +1,11 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
-  "name": "user-passkey-management",
+  "name": "react/my-account/user-passkey-management",
   "type": "registry:block",
   "title": "Passkey management component.",
   "description": "A block component for user passkey management.",
   "dependencies": [
-    "@auth0/universal-components-core@3.1.1",
+    "@auth0/universal-components-core@3.1.0",
     "@auth0/auth0-react@2.15.1",
     "@radix-ui/react-dialog@1.1.14",
     "@radix-ui/react-dropdown-menu@2.1.1",
@@ -231,7 +231,7 @@
     },
     {
       "path": "src/types/i18n-types.ts",
-      "content": "/**\n * Internationalization configuration types.\n * @module i18n-types\n */\n\n/** i18n configuration for Auth0 components. */\nexport interface I18nOptions {\n  currentLanguage: string;\n  fallbackLanguage?: string;\n  translations?: Record<string, Record<string, unknown>>;\n}\n",
+      "content": "/**\n * Internationalization configuration types.\n * @module i18n-types\n */\n\n/** i18n configuration for Auth0 components. */\nexport interface I18nOptions {\n  currentLanguage: string;\n  fallbackLanguage?: string;\n}\n",
       "type": "registry:component",
       "target": "types/i18n-types.ts"
     },
@@ -286,6 +286,6 @@
   ],
   "meta": {
     "framework": "react",
-    "coreVersion": "3.1.1"
+    "coreVersion": "3.1.0"
   }
 }

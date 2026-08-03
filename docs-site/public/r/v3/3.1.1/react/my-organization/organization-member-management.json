@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
-  "name": "organization-member-management",
+  "name": "react/my-organization/organization-member-management",
   "type": "registry:block",
   "title": "Organization member management component.",
   "description": "A block component for organization member management view.",
