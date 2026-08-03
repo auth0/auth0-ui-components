@@ -7,6 +7,8 @@
 
 import {
   BusinessError,
+  OrganizationDetailsMappers,
+  organizationDetailsQueryKeys,
   SsoProviderMappers,
   ssoProviderQueryKeys,
   type UpdateIdentityProviderRequestContent,
@@ -17,7 +19,6 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
-import { useOrganizationDetailsQuery } from '@/hooks/my-organization/shared/services/use-organization-details-query';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
@@ -55,7 +56,14 @@ export function useSsoProviderTableService(
     enabled: !!coreClient,
   });
 
-  const organizationQuery = useOrganizationDetailsQuery();
+  const organizationQuery = useQuery({
+    queryKey: organizationDetailsQueryKeys.details(),
+    queryFn: async () => {
+      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
+      return OrganizationDetailsMappers.fromAPI(response);
+    },
+    enabled: !!coreClient,
+  });
 
   const enableProviderMutation = useMutation({
     mutationFn: async ({
@@ -177,8 +185,19 @@ export function useSsoProviderTableService(
   }, [queryClient]);
 
   const fetchOrganizationDetails = useCallback(async (): Promise<OrganizationPrivate | null> => {
-    return organizationQuery.data ?? null;
-  }, [organizationQuery.data]);
+    if (!coreClient) {
+      return null;
+    }
+
+    const data = await queryClient.ensureQueryData({
+      queryKey: organizationDetailsQueryKeys.details(),
+      queryFn: async () => {
+        const response = await coreClient.getMyOrganizationApiClient().organizationDetails.get();
+        return OrganizationDetailsMappers.fromAPI(response);
+      },
+    });
+    return data;
+  }, [coreClient, queryClient]);
 
   return {
     providers: providersQuery.data ?? [],

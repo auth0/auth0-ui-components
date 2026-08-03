@@ -177,7 +177,7 @@ describe('useSsoProviderTableService', () => {
       expect(result.current.organizationError).toBe(error);
     });
 
-    it('should return null when organization data is not available', async () => {
+    it('should throw when fetchOrganizationDetails fails', async () => {
       const mockGet = vi.fn().mockRejectedValue(new Error('Not found'));
 
       vi.mocked(mockMyOrgClient.organization.identityProviders.list).mockResolvedValue({
@@ -191,8 +191,7 @@ describe('useSsoProviderTableService', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const orgDetails = await result.current.fetchOrganizationDetails();
-      expect(orgDetails).toBeNull();
+      await expect(result.current.fetchOrganizationDetails()).rejects.toThrow('Not found');
     });
   });
 

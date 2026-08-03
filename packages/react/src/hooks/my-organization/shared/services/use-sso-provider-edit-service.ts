@@ -7,11 +7,13 @@
 
 import {
   OrganizationDetailsFactory,
+  OrganizationDetailsMappers,
   organizationDetailsQueryKeys,
   SsoProviderMappers,
   ssoProviderQueryKeys,
   type IdpKnownResponse,
   type IdpId,
+  type OrganizationPrivate,
   type UpdateIdentityProviderRequestContent,
   type CreateIdpProvisioningScimTokenRequestContent,
   type GetIdPProvisioningConfigResponseContent,
@@ -21,7 +23,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
-import { useOrganizationDetailsQuery } from '@/hooks/my-organization/shared/services/use-organization-details-query';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
@@ -74,7 +75,19 @@ export function useSsoProviderEditService(
     enabled: !!coreClient && !!idpId,
   });
 
-  const organizationQuery = useOrganizationDetailsQuery();
+  /**
+   * Organization query - fetches organization details.
+   * Shared across the application, so it uses a common query key.
+   */
+  const organizationQuery = useQuery({
+    queryKey: organizationDetailsQueryKeys.details(),
+    queryFn: async (): Promise<OrganizationPrivate> => {
+      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
+      return OrganizationDetailsMappers.fromAPI(response);
+    },
+    enabled: !!coreClient,
+    initialData: OrganizationDetailsFactory.create(),
+  });
 
   /**
    * Provisioning config query - fetches provisioning configuration.

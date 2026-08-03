@@ -7,13 +7,14 @@
 import {
   memberDetailQueryKeys,
   memberManagementQueryKeys,
+  organizationDetailsQueryKeys,
+  OrganizationDetailsMappers,
   type Role,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
-import { useOrganizationDetailsQuery } from '@/hooks/my-organization/shared/services/use-organization-details-query';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -76,7 +77,14 @@ export function useMemberDetailService(
     deferRoleSearch: true,
   });
 
-  const organizationQuery = useOrganizationDetailsQuery();
+  const organizationQuery = useQuery({
+    queryKey: organizationDetailsQueryKeys.details(),
+    queryFn: async () => {
+      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
+      return OrganizationDetailsMappers.fromAPI(response);
+    },
+    enabled: !!coreClient,
+  });
 
   const removeRolesMutation = useMutation({
     mutationFn: async (roles: Role[]) => {
