@@ -14,10 +14,10 @@ import {
   type IdpId,
 } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
-import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type {
@@ -46,7 +46,6 @@ export function useSsoDomainTabService(
 ): UseSsoDomainTabServiceReturn {
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.notifications', customMessages);
-  const handleError = useErrorHandler();
   const queryClient = useQueryClient();
 
   const domainsQuery = useQuery({
@@ -71,13 +70,7 @@ export function useSsoDomainTabService(
   const nextToken = domainsQuery.data?.next ?? null;
   const isLoading = domainsQuery.isLoading;
 
-  useEffect(() => {
-    if (domainsQuery.error) {
-      handleError(domainsQuery.error, {
-        fallbackMessage: t('general_error'),
-      });
-    }
-  }, [domainsQuery.error, handleError, t]);
+  useQueryErrorToast(domainsQuery, t('general_error'));
 
   const idpDomains = useMemo(() => {
     const idpDomainNames = provider?.domains ?? [];
@@ -89,7 +82,7 @@ export function useSsoDomainTabService(
   const createDomainMutation = useMutation({
     mutationFn: async (data: CreateOrganizationDomainRequestContent) => {
       if (!coreClient) {
-        return data as unknown as Domain;
+        return {} as Domain;
       }
 
       if (domains?.createAction?.onBefore) {
