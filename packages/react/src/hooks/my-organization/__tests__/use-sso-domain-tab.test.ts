@@ -6,7 +6,6 @@ import {
   createMockSsoDomain,
   createMockVerifiedSsoDomain,
   createMockSsoProvider,
-  createMockSsoDomainTabServiceReturn,
 } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-domain.mocks';
 import { mockToast } from '@/tests/utils/test-setup';
 
@@ -16,12 +15,27 @@ const mockDomain = createMockSsoDomain();
 const mockVerifiedDomain = createMockVerifiedSsoDomain();
 const mockProvider = createMockSsoProvider();
 
-const mockServiceReturn = createMockSsoDomainTabServiceReturn({
-  domainsList: [mockDomain],
-  idpDomains: [mockDomain.id],
-});
-
-const mockHandleError = vi.fn();
+const { mockServiceReturn, mockHandleError } = vi.hoisted(() => ({
+  mockServiceReturn: {
+    domainsList: [] as unknown[],
+    isLoading: false,
+    isRefetchingDomains: false,
+    isDomainsStale: false,
+    domainsUpdatedAt: 0,
+    nextToken: null,
+    refetchDomains: vi.fn(),
+    idpDomains: [] as string[],
+    isCreating: false,
+    isVerifying: false,
+    isDeleting: false,
+    createDomain: vi.fn(),
+    verifyDomain: vi.fn(),
+    deleteDomain: vi.fn(),
+    associateToProvider: vi.fn(),
+    deleteFromProvider: vi.fn(),
+  },
+  mockHandleError: vi.fn(),
+}));
 
 vi.mock('@/hooks/my-organization/shared/services/use-sso-domain-tab-service', () => ({
   useSsoDomainTabService: () => mockServiceReturn,
@@ -45,6 +59,8 @@ describe('useSsoDomainTab', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockServiceReturn.domainsList = [mockDomain];
+    mockServiceReturn.idpDomains = [mockDomain.id];
     (mockServiceReturn.createDomain as ReturnType<typeof vi.fn>).mockResolvedValue(mockDomain);
     (mockServiceReturn.verifyDomain as ReturnType<typeof vi.fn>).mockResolvedValue({
       updatedDomain: mockVerifiedDomain,
@@ -124,6 +140,11 @@ describe('useSsoDomainTab', () => {
   describe('domain verification', () => {
     it('should verify domain and associate to provider on success', async () => {
       const { result } = renderUseSsoDomainTab();
+
+      await act(async () => {
+        await result.current.handleCreate('example.com');
+      });
+      expect(result.current.showVerifyModal).toBe(true);
 
       await act(async () => {
         await result.current.handleVerify(mockDomain);
@@ -218,6 +239,16 @@ describe('useSsoDomainTab', () => {
   describe('domain deletion', () => {
     it('should delete domain successfully', async () => {
       const { result } = renderUseSsoDomainTab();
+
+      await act(async () => {
+        await result.current.handleCreate('example.com');
+      });
+      expect(result.current.showVerifyModal).toBe(true);
+
+      act(() => {
+        result.current.setShowDeleteModal(true);
+      });
+      expect(result.current.showDeleteModal).toBe(true);
 
       await act(async () => {
         await result.current.handleDelete(mockDomain);

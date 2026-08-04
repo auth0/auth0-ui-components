@@ -88,6 +88,10 @@ export function useSsoDomainTabService(
 
   const createDomainMutation = useMutation({
     mutationFn: async (data: CreateOrganizationDomainRequestContent) => {
+      if (!coreClient) {
+        return data as unknown as Domain;
+      }
+
       if (domains?.createAction?.onBefore) {
         const canProceed = domains.createAction.onBefore(data as Domain);
         if (!canProceed) {
@@ -95,7 +99,7 @@ export function useSsoDomainTabService(
         }
       }
 
-      const result: Domain = await coreClient!
+      const result: Domain = await coreClient
         .getMyOrganizationApiClient()
         .organization.domains.create(data);
 
@@ -111,6 +115,10 @@ export function useSsoDomainTabService(
 
   const verifyDomainMutation = useMutation({
     mutationFn: async (domain: Domain) => {
+      if (!coreClient) {
+        return { updatedDomain: domain, isVerified: false };
+      }
+
       if (domains?.verifyAction?.onBefore) {
         const canProceed = domains.verifyAction.onBefore(domain);
         if (!canProceed) {
@@ -118,7 +126,7 @@ export function useSsoDomainTabService(
         }
       }
 
-      const updatedDomain = await coreClient!
+      const updatedDomain = await coreClient
         .getMyOrganizationApiClient()
         .organization.domains.verify.create(domain.id);
 
@@ -175,6 +183,10 @@ export function useSsoDomainTabService(
 
   const associateToProviderMutation = useMutation({
     mutationFn: async (domain: Domain) => {
+      if (!coreClient) {
+        return domain;
+      }
+
       if (domains?.associateToProviderAction?.onBefore) {
         const canProceed = domains.associateToProviderAction.onBefore(domain, provider);
         if (!canProceed) {
@@ -182,7 +194,7 @@ export function useSsoDomainTabService(
         }
       }
 
-      await coreClient!
+      await coreClient
         .getMyOrganizationApiClient()
         .organization.identityProviders.domains.create(idpId, {
           domain: domain.domain,
@@ -201,7 +213,7 @@ export function useSsoDomainTabService(
 
   const deleteFromProviderMutation = useMutation({
     mutationFn: async (domain: Domain) => {
-      if (!provider?.id) {
+      if (!coreClient || !provider?.id) {
         return domain;
       }
 
@@ -212,7 +224,7 @@ export function useSsoDomainTabService(
         }
       }
 
-      await coreClient!
+      await coreClient
         .getMyOrganizationApiClient()
         .organization.identityProviders.domains.delete(provider.id, domain.domain);
 
