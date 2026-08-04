@@ -1,4 +1,4 @@
-import { BusinessError } from '@auth0/universal-components-core';
+import { BusinessError, ssoDomainQueryKeys, type Domain } from '@auth0/universal-components-core';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -203,7 +203,7 @@ describe('useSsoDomainTabService', () => {
       });
 
       expect(onBefore).toHaveBeenCalledWith(mockDomain);
-      expect(onAfter).toHaveBeenCalledWith(mockDomain);
+      expect(onAfter).toHaveBeenCalledWith(mockVerifiedDomain);
     });
   });
 
@@ -285,6 +285,63 @@ describe('useSsoDomainTabService', () => {
     });
   });
 
+  describe('custom messages', () => {
+    it('should pass custom messages to translator', async () => {
+      const customMessages = { general_error: 'Custom error message' };
+      const { result } = await renderService('idp-1', {
+        customMessages,
+      });
+
+      expect(result.current.domainsList).toEqual([mockDomain]);
+    });
+  });
+
+  describe('domain status update after verification', () => {
+    it('should update domain status in cache after successful verification', async () => {
+      const { result, queryClient } = await renderService('idp-1');
+
+      await act(async () => {
+        await result.current.verifyDomain(mockDomain);
+      });
+
+      const cachedData = queryClient.getQueryData<{ domains: Domain[]; next: string | null }>(
+        ssoDomainQueryKeys.list('idp-1', { pageSize: undefined, fromToken: undefined }),
+      );
+
+      expect(cachedData).toBeDefined();
+      expect(cachedData!.domains[0]!.status).toBe('verified');
+    });
+  });
+
+  describe('prevent duplicate idpDomains', () => {
+    it('should not include duplicate domain IDs in idpDomains', async () => {
+      const providerWithDuplicates = {
+        ...mockProvider,
+        domains: ['example.com', 'example.com'],
+      };
+
+      const { result } = await renderService('idp-1', {
+        provider: providerWithDuplicates,
+      });
+
+      const uniqueIds = new Set(result.current.idpDomains);
+      expect(result.current.idpDomains.length).toBe(uniqueIds.size);
+    });
+
+    it('should only include domains that exist in domainsList', async () => {
+      const providerWithNonExistent = {
+        ...mockProvider,
+        domains: ['example.com', 'nonexistent.com'],
+      };
+
+      const { result } = await renderService('idp-1', {
+        provider: providerWithNonExistent,
+      });
+
+      expect(result.current.idpDomains).toEqual([mockDomain.id]);
+    });
+  });
+
   describe('edge cases', () => {
     it('should handle missing coreClient gracefully', () => {
       setupMockUseCoreClientNull(useCoreClientModule);
@@ -296,6 +353,19 @@ describe('useSsoDomainTabService', () => {
         mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
       ).not.toHaveBeenCalled();
       expect(result.current.domainsList).toEqual([]);
+    });
+
+    it('should return domain without calling API when provider has no id', async () => {
+      const { result } = await renderService('idp-1', {
+        provider: { ...mockProvider, id: undefined } as unknown as typeof mockProvider,
+      });
+
+      const returnedDomain = await act(async () => {
+        return result.current.deleteFromProvider(mockDomain);
+      });
+
+      expect(mockIdentityProviderDomainsDelete).not.toHaveBeenCalled();
+      expect(returnedDomain).toEqual(mockDomain);
     });
   });
 });

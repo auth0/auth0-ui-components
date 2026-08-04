@@ -6,6 +6,7 @@ import {
   createMockSsoDomain,
   createMockVerifiedSsoDomain,
   createMockSsoProvider,
+  createMockSsoDomainTabServiceReturn,
 } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-domain.mocks';
 import { mockToast } from '@/tests/utils/test-setup';
 
@@ -15,33 +16,15 @@ const mockDomain = createMockSsoDomain();
 const mockVerifiedDomain = createMockVerifiedSsoDomain();
 const mockProvider = createMockSsoProvider();
 
-const mockCreateDomain = vi.fn();
-const mockVerifyDomain = vi.fn();
-const mockDeleteDomain = vi.fn();
-const mockAssociateToProvider = vi.fn();
-const mockDeleteFromProvider = vi.fn();
+const mockServiceReturn = createMockSsoDomainTabServiceReturn({
+  domainsList: [mockDomain],
+  idpDomains: [mockDomain.id],
+});
+
 const mockHandleError = vi.fn();
-const mockRefetchDomains = vi.fn();
 
 vi.mock('@/hooks/my-organization/shared/services/use-sso-domain-tab-service', () => ({
-  useSsoDomainTabService: () => ({
-    domainsList: [mockDomain],
-    isLoading: false,
-    isRefetchingDomains: false,
-    isDomainsStale: false,
-    domainsUpdatedAt: 0,
-    nextToken: null,
-    refetchDomains: mockRefetchDomains,
-    idpDomains: [mockDomain.id],
-    isCreating: false,
-    isVerifying: false,
-    isDeleting: false,
-    createDomain: mockCreateDomain,
-    verifyDomain: mockVerifyDomain,
-    deleteDomain: mockDeleteDomain,
-    associateToProvider: mockAssociateToProvider,
-    deleteFromProvider: mockDeleteFromProvider,
-  }),
+  useSsoDomainTabService: () => mockServiceReturn,
 }));
 
 vi.mock('@/hooks/shared/use-error-handler', () => ({
@@ -62,11 +45,18 @@ describe('useSsoDomainTab', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockCreateDomain.mockResolvedValue(mockDomain);
-    mockVerifyDomain.mockResolvedValue({ updatedDomain: mockVerifiedDomain, isVerified: true });
-    mockDeleteDomain.mockResolvedValue(mockDomain);
-    mockAssociateToProvider.mockResolvedValue(mockDomain);
-    mockDeleteFromProvider.mockResolvedValue(mockDomain);
+    (mockServiceReturn.createDomain as ReturnType<typeof vi.fn>).mockResolvedValue(mockDomain);
+    (mockServiceReturn.verifyDomain as ReturnType<typeof vi.fn>).mockResolvedValue({
+      updatedDomain: mockVerifiedDomain,
+      isVerified: true,
+    });
+    (mockServiceReturn.deleteDomain as ReturnType<typeof vi.fn>).mockResolvedValue(mockDomain);
+    (mockServiceReturn.associateToProvider as ReturnType<typeof vi.fn>).mockResolvedValue(
+      mockDomain,
+    );
+    (mockServiceReturn.deleteFromProvider as ReturnType<typeof vi.fn>).mockResolvedValue(
+      mockDomain,
+    );
   });
 
   const renderUseSsoDomainTab = () => {
@@ -105,7 +95,7 @@ describe('useSsoDomainTab', () => {
         await result.current.handleCreate('newdomain.com');
       });
 
-      expect(mockCreateDomain).toHaveBeenCalledWith({ domain: 'newdomain.com' });
+      expect(mockServiceReturn.createDomain).toHaveBeenCalledWith({ domain: 'newdomain.com' });
       expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
         message: expect.any(String),
@@ -117,7 +107,7 @@ describe('useSsoDomainTab', () => {
 
     it('should handle domain creation error', async () => {
       const error = new Error('Creation failed');
-      mockCreateDomain.mockRejectedValue(error);
+      (mockServiceReturn.createDomain as ReturnType<typeof vi.fn>).mockRejectedValue(error);
 
       const { result } = renderUseSsoDomainTab();
 
@@ -139,17 +129,17 @@ describe('useSsoDomainTab', () => {
         await result.current.handleVerify(mockDomain);
       });
 
-      expect(mockVerifyDomain).toHaveBeenCalledWith(mockDomain);
+      expect(mockServiceReturn.verifyDomain).toHaveBeenCalledWith(mockDomain);
       expect(result.current.showVerifyModal).toBe(false);
       expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
         message: expect.any(String),
       });
-      expect(mockAssociateToProvider).toHaveBeenCalledWith(mockDomain);
+      expect(mockServiceReturn.associateToProvider).toHaveBeenCalledWith(mockDomain);
     });
 
     it('should set verify error when verification fails', async () => {
-      mockVerifyDomain.mockResolvedValue({
+      (mockServiceReturn.verifyDomain as ReturnType<typeof vi.fn>).mockResolvedValue({
         updatedDomain: { ...mockDomain, status: 'failed' },
         isVerified: false,
       });
@@ -165,7 +155,7 @@ describe('useSsoDomainTab', () => {
 
     it('should handle verification error', async () => {
       const error = new Error('Verification failed');
-      mockVerifyDomain.mockRejectedValue(error);
+      (mockServiceReturn.verifyDomain as ReturnType<typeof vi.fn>).mockRejectedValue(error);
 
       const { result } = renderUseSsoDomainTab();
 
@@ -194,7 +184,7 @@ describe('useSsoDomainTab', () => {
     });
 
     it('should show error toast when action column verification fails', async () => {
-      mockVerifyDomain.mockResolvedValue({
+      (mockServiceReturn.verifyDomain as ReturnType<typeof vi.fn>).mockResolvedValue({
         updatedDomain: { ...mockDomain, status: 'failed' },
         isVerified: false,
       });
@@ -233,7 +223,7 @@ describe('useSsoDomainTab', () => {
         await result.current.handleDelete(mockDomain);
       });
 
-      expect(mockDeleteDomain).toHaveBeenCalledWith(mockDomain);
+      expect(mockServiceReturn.deleteDomain).toHaveBeenCalledWith(mockDomain);
       expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
         message: expect.any(String),
@@ -244,7 +234,7 @@ describe('useSsoDomainTab', () => {
 
     it('should handle deletion error', async () => {
       const error = new Error('Deletion failed');
-      mockDeleteDomain.mockRejectedValue(error);
+      (mockServiceReturn.deleteDomain as ReturnType<typeof vi.fn>).mockRejectedValue(error);
 
       const { result } = renderUseSsoDomainTab();
 
@@ -278,7 +268,7 @@ describe('useSsoDomainTab', () => {
         await result.current.handleToggleSwitch(mockDomain, true);
       });
 
-      expect(mockAssociateToProvider).toHaveBeenCalledWith(mockDomain);
+      expect(mockServiceReturn.associateToProvider).toHaveBeenCalledWith(mockDomain);
       expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
         message: expect.any(String),
@@ -294,7 +284,7 @@ describe('useSsoDomainTab', () => {
         await result.current.handleToggleSwitch(mockDomain, false);
       });
 
-      expect(mockDeleteFromProvider).toHaveBeenCalledWith(mockDomain);
+      expect(mockServiceReturn.deleteFromProvider).toHaveBeenCalledWith(mockDomain);
       expect(mockedShowToast).toHaveBeenCalledWith({
         type: 'success',
         message: expect.any(String),
@@ -303,7 +293,7 @@ describe('useSsoDomainTab', () => {
 
     it('should handle provider association error', async () => {
       const error = new Error('Association failed');
-      mockAssociateToProvider.mockRejectedValue(error);
+      (mockServiceReturn.associateToProvider as ReturnType<typeof vi.fn>).mockRejectedValue(error);
 
       const { result } = renderUseSsoDomainTab();
 
@@ -319,7 +309,7 @@ describe('useSsoDomainTab', () => {
 
     it('should handle provider deletion error', async () => {
       const error = new Error('Deletion failed');
-      mockDeleteFromProvider.mockRejectedValue(error);
+      (mockServiceReturn.deleteFromProvider as ReturnType<typeof vi.fn>).mockRejectedValue(error);
 
       const { result } = renderUseSsoDomainTab();
 

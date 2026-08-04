@@ -71,7 +71,6 @@ export function useSsoDomainTabService(
   const nextToken = domainsQuery.data?.next ?? null;
   const isLoading = domainsQuery.isLoading;
 
-  // Handle errors from domains query
   useEffect(() => {
     if (domainsQuery.error) {
       handleError(domainsQuery.error, {
@@ -80,7 +79,6 @@ export function useSsoDomainTabService(
     }
   }, [domainsQuery.error, handleError, t]);
 
-  // Derive idpDomains from the provider's domains field
   const idpDomains = useMemo(() => {
     const idpDomainNames = provider?.domains ?? [];
     return domainsList
@@ -88,7 +86,6 @@ export function useSsoDomainTabService(
       .map((domain) => domain.id);
   }, [provider?.domains, domainsList]);
 
-  // Mutations
   const createDomainMutation = useMutation({
     mutationFn: async (data: CreateOrganizationDomainRequestContent) => {
       if (domains?.createAction?.onBefore) {
@@ -126,7 +123,7 @@ export function useSsoDomainTabService(
         .organization.domains.verify.create(domain.id);
 
       if (domains?.verifyAction?.onAfter) {
-        await domains.verifyAction.onAfter(domain);
+        await domains.verifyAction.onAfter(updatedDomain);
       }
 
       return { updatedDomain, isVerified: updatedDomain.status === 'verified' };
@@ -204,7 +201,7 @@ export function useSsoDomainTabService(
 
   const deleteFromProviderMutation = useMutation({
     mutationFn: async (domain: Domain) => {
-      if (!provider) {
+      if (!provider?.id) {
         return domain;
       }
 
@@ -217,7 +214,7 @@ export function useSsoDomainTabService(
 
       await coreClient!
         .getMyOrganizationApiClient()
-        .organization.identityProviders.domains.delete(provider.id!, domain.domain);
+        .organization.identityProviders.domains.delete(provider.id, domain.domain);
 
       if (domains?.deleteFromProviderAction?.onAfter) {
         await domains.deleteFromProviderAction.onAfter(domain);

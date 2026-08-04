@@ -1,7 +1,10 @@
 import type { Domain, IdpKnownResponse } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import type { UseSsoDomainTabReturn } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
+import type {
+  UseSsoDomainTabReturn,
+  UseSsoDomainTabServiceReturn,
+} from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 import type {
   SsoProviderCreateHandlerProps,
   SsoProviderCreateLogicProps,
@@ -71,6 +74,30 @@ export function createMockSsoProviderCreateHandler(
       onNextAction: vi.fn(),
       onPreviousAction: vi.fn(),
     }),
+    ...overrides,
+  };
+}
+
+export function createMockSsoDomainTabServiceReturn(
+  overrides: Partial<UseSsoDomainTabServiceReturn> = {},
+): UseSsoDomainTabServiceReturn {
+  return {
+    domainsList: [],
+    isLoading: false,
+    isRefetchingDomains: false,
+    isDomainsStale: false,
+    domainsUpdatedAt: 0,
+    nextToken: null,
+    refetchDomains: vi.fn(),
+    idpDomains: [],
+    isCreating: false,
+    isVerifying: false,
+    isDeleting: false,
+    createDomain: vi.fn(),
+    verifyDomain: vi.fn(),
+    deleteDomain: vi.fn(),
+    associateToProvider: vi.fn(),
+    deleteFromProvider: vi.fn(),
     ...overrides,
   };
 }
