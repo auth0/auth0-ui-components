@@ -6,8 +6,8 @@ import {
   createMockSsoDomain,
   createMockVerifiedSsoDomain,
   createMockSsoProvider,
-  mockToast,
-} from '@/tests/utils';
+} from '@/tests/utils/__mocks__/my-organization/idp-management/sso-domain.mocks';
+import { mockToast } from '@/tests/utils/test-setup';
 
 const { mockedShowToast } = mockToast();
 
