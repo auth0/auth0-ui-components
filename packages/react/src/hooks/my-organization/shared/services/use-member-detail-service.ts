@@ -72,7 +72,6 @@ export function useMemberDetailService(
   } = useMemberManagementService({
     assignRolesAction,
     removeFromOrganizationAction,
-    enableRolesList: false,
     deferRoleSearch: true,
   });
 

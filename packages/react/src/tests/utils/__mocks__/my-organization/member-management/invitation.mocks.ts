@@ -99,6 +99,8 @@ export const createMockDetailsModalProps = (
   isOpen: true,
   isRevoking: false,
   isResending: false,
+  roles: [],
+  isLoadingRoles: false,
   onClose: vi.fn(),
   onCopyUrl: vi.fn(),
   onRevoke: vi.fn(),

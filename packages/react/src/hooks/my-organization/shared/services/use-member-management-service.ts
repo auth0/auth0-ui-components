@@ -20,10 +20,7 @@ import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useDebouncedValue } from '@/hooks/shared/use-debounced-value';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import {
-  DEFAULT_ROLES_PAGE_SIZE,
-  MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT,
-} from '@/lib/constants/my-organization/member-management/member-management-constants';
+import { DEFAULT_ROLES_PAGE_SIZE } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type {
@@ -76,7 +73,7 @@ export function useMemberManagementService(
     memberParams,
     assignRolesAction,
     removeFromOrganizationAction,
-    enableRolesList = true,
+    invitationRolesId,
     deferRoleSearch = false,
   } = options;
 
@@ -124,15 +121,15 @@ export function useMemberManagementService(
     enabled: !!coreClient && isActiveTabProvided,
   });
 
-  const rolesQuery = useQuery({
-    queryKey: memberManagementQueryKeys.roles(),
+  const invitationRolesQuery = useQuery({
+    queryKey: memberManagementQueryKeys.invitationRoles(invitationRolesId ?? ''),
     queryFn: async () => {
       const response = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.roles.list({ take: MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT });
-      return response.data;
+        .organization.invitations.roles.list(invitationRolesId!);
+      return response.roles ?? [];
     },
-    enabled: !!coreClient && enableRolesList,
+    enabled: !!coreClient && !!invitationRolesId,
   });
 
   const [roleSearchTerm, setRoleSearchTerm] = React.useState('');
@@ -235,8 +232,11 @@ export function useMemberManagementService(
     onSuccess: (result, { roleIds, userId }) => {
       if (result?.aborted) return;
       if (!userId) return;
-      const allRoles = queryClient.getQueryData<Role[]>(memberManagementQueryKeys.roles()) ?? [];
-      const newRoles = allRoles.filter((r) => roleIds.includes(r.id));
+      const searchedRoles =
+        queryClient.getQueryData<Role[]>(
+          memberManagementQueryKeys.rolesSearch(debouncedRoleSearchTerm),
+        ) ?? [];
+      const newRoles = searchedRoles.filter((r) => roleIds.includes(r.id));
       queryClient.setQueryData<Role[]>(memberManagementQueryKeys.memberRoles(userId), (old) => [
         ...(old ?? []),
         ...newRoles,
@@ -411,7 +411,7 @@ export function useMemberManagementService(
   return {
     providersQuery,
     userStoresQuery,
-    rolesQuery,
+    invitationRolesQuery,
     rolesSearchQuery,
     setRoleSearchTerm,
     enableRoleSearch,

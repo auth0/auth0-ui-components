@@ -10,6 +10,7 @@ import * as React from 'react';
 import { showToast } from '@/components/auth0/shared/toast';
 import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
+import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
@@ -82,10 +83,13 @@ export function useOrganizationMemberManagement(
   const [selectedInvitations, setSelectedInvitations] = React.useState<MemberInvitation[]>([]);
   const detailsRequestIdRef = React.useRef(0);
 
+  const invitationRolesId =
+    modalState.type === 'details' ? (modalState.invitation.id ?? null) : null;
+
   const {
     providersQuery,
     userStoresQuery,
-    rolesQuery,
+    invitationRolesQuery,
     rolesSearchQuery,
     setRoleSearchTerm,
     enableRoleSearch,
@@ -118,6 +122,7 @@ export function useOrganizationMemberManagement(
     },
     assignRolesAction,
     removeFromOrganizationAction,
+    invitationRolesId,
     deferRoleSearch: true,
   });
 
@@ -127,6 +132,8 @@ export function useOrganizationMemberManagement(
     }
   }, [modalState.type, enableRoleSearch]);
 
+  useQueryErrorToast(invitationRolesQuery, t('invitation.error.fetch_roles_failed'));
+
   React.useEffect(() => {
     setSelectedInvitations([]);
   }, [activeTab, invitationFilters, invitationSortConfig]);
@@ -135,7 +142,7 @@ export function useOrganizationMemberManagement(
     () => [...(providersQuery.data ?? []), ...(userStoresQuery.data ?? [])],
     [providersQuery.data, userStoresQuery.data],
   );
-  const availableRoles = rolesQuery.data ?? [];
+  const invitationRoles = invitationRolesQuery.data ?? [];
   const searchedRoles = rolesSearchQuery.data ?? [];
   const currentInvitations = invitationsQuery.data?.invitations ?? [];
   const currentMembers = membersQuery.data?.members ?? [];
@@ -303,7 +310,6 @@ export function useOrganizationMemberManagement(
 
   return {
     activeTab,
-    availableRoles,
     searchedRoles,
     onRoleSearch: setRoleSearchTerm,
     availableConnections,
@@ -321,7 +327,8 @@ export function useOrganizationMemberManagement(
     invitationsUpdatedAt: invitationsQuery.dataUpdatedAt,
     refetchMembers: membersQuery.refetch,
     refetchInvitations: invitationsQuery.refetch,
-    isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
+    invitationRoles,
+    isFetchingInvitationRoles: invitationRolesQuery.isLoading,
     isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),
     isAssigningRoles: isMutationLoading(assignRolesMutation),
     isCreatingInvitation: isMutationLoading(createInvitationMutation),
