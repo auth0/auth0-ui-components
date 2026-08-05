@@ -66,14 +66,14 @@ export interface UseMemberManagementServiceOptions {
   viewMemberDetailsAction?: ComponentAction<string>;
   assignRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
   removeFromOrganizationAction?: ComponentAction<string>;
-  enableRolesList?: boolean;
+  invitationRolesId?: string | null;
   deferRoleSearch?: boolean;
 }
 
 export interface MemberManagementServiceResult {
   providersQuery: UseQueryResult<ConnectionOption[]>;
   userStoresQuery: UseQueryResult<ConnectionOption[]>;
-  rolesQuery: UseQueryResult<Role[]>;
+  invitationRolesQuery: UseQueryResult<Role[]>;
   rolesSearchQuery: UseQueryResult<Role[]>;
   setRoleSearchTerm: (term: string) => void;
   enableRoleSearch: () => void;
@@ -140,7 +140,6 @@ export type MemberManagementModalState =
 
 export interface UseOrganizationMemberManagementResult {
   activeTab: ActiveTab;
-  availableRoles: Role[];
   searchedRoles: Role[];
   onRoleSearch: (term: string) => void;
   availableConnections: ConnectionOption[];
@@ -158,7 +157,8 @@ export interface UseOrganizationMemberManagementResult {
   invitationsUpdatedAt: number;
   refetchMembers: MemberManagementServiceResult['membersQuery']['refetch'];
   refetchInvitations: MemberManagementServiceResult['invitationsQuery']['refetch'];
-  isFetchingAvailableRoles: boolean;
+  invitationRoles: Role[];
+  isFetchingInvitationRoles: boolean;
   isCreatingInvitation: boolean;
   isRevokingInvitation: boolean;
   isResendingInvitation: boolean;
@@ -199,8 +199,7 @@ export interface UseOrganizationMemberManagementResult {
 /**
  * Props for the OrganizationMemberManagementView component.
  */
-export interface OrganizationMemberManagementViewProps
-  extends UseOrganizationMemberManagementResult {
+export interface OrganizationMemberManagementViewProps extends UseOrganizationMemberManagementResult {
   styling: OrganizationMemberManagementProps['styling'];
   customMessages: OrganizationMemberManagementProps['customMessages'];
   hideHeader: boolean;
@@ -216,11 +215,10 @@ export interface OrganizationMemberManagementClasses extends OrganizationInvitat
 }
 
 /** Props for OrganizationMemberManagement component. */
-export interface OrganizationMemberManagementProps
-  extends SharedComponentProps<
-    OrganizationMemberManagementMessages,
-    OrganizationMemberManagementClasses
-  > {
+export interface OrganizationMemberManagementProps extends SharedComponentProps<
+  OrganizationMemberManagementMessages,
+  OrganizationMemberManagementClasses
+> {
   hideHeader?: boolean;
   /** Action hooks for invitation creation (onBefore/onAfter) */
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;

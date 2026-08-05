@@ -236,7 +236,7 @@ const createMockMemberManagementResult = (
 
   return {
     activeTab: 'members',
-    availableRoles: createMockRoleOptions(),
+    invitationRoles: createMockRoleOptions(),
     searchedRoles: createMockRoleOptions(),
     onRoleSearch: vi.fn(),
     availableConnections: [],
@@ -252,7 +252,7 @@ const createMockMemberManagementResult = (
     invitationsUpdatedAt: 0,
     refetchMembers: vi.fn(),
     refetchInvitations: vi.fn(),
-    isFetchingAvailableRoles: false,
+    isFetchingInvitationRoles: false,
     isCreatingInvitation: false,
     isRevokingInvitation: false,
     isResendingInvitation: false,

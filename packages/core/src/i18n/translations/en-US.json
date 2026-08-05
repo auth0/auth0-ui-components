@@ -1327,6 +1327,7 @@
       },
       "error": {
         "fetch_failed": "Failed to load invitations. Please try again.",
+        "fetch_roles_failed": "Failed to load invitation roles. Please try again.",
         "create_failed": "Failed to send invitation. Please try again.",
         "revoke_failed": "Failed to revoke invitation. Please try again.",
         "resend_failed": "Failed to resend invitation. Please try again.",

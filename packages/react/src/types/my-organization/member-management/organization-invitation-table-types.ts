@@ -62,11 +62,10 @@ export interface OrganizationInvitationTabClasses {
 }
 
 /** Props for OrganizationInvitationTab component. */
-export interface OrganizationInvitationTabProps
-  extends SharedComponentProps<
-    OrganizationInvitationTabMessages,
-    OrganizationInvitationTabClasses
-  > {
+export interface OrganizationInvitationTabProps extends SharedComponentProps<
+  OrganizationInvitationTabMessages,
+  OrganizationInvitationTabClasses
+> {
   createAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   revokeAction?: ComponentAction<MemberInvitation>;
 }
@@ -142,7 +141,8 @@ export interface OrganizationInvitationDetailsModalProps {
   isRevoking?: boolean;
   isResending?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
-  availableRoles?: Role[];
+  roles?: Role[];
+  isLoadingRoles?: boolean;
   availableConnections?: ConnectionOption[];
   readOnly?: boolean;
   style?: React.CSSProperties;

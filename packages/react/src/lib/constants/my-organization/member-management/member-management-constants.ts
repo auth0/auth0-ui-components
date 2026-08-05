@@ -15,12 +15,6 @@ export const MAX_ROLES_PER_REQUEST = 10;
 export const MAX_ROLES_PER_MEMBER = 50;
 
 /**
- * Maximum number of roles that can be available for assignment in the system.
- * This is used to limit the number of roles fetched and displayed in the UI when assigning roles to members.
- */
-export const MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT = 100;
-
-/**
  * Default page size for the role selector when no search term is active.
  */
 export const DEFAULT_ROLES_PAGE_SIZE = 10;
