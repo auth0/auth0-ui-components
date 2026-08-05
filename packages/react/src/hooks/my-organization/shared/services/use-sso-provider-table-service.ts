@@ -10,6 +10,7 @@ import {
   OrganizationDetailsMappers,
   SsoProviderMappers,
   ssoProviderQueryKeys,
+  isIdpKnownResponse,
   type UpdateIdentityProviderRequestContent,
   type ComponentAction,
   type IdpKnownResponse,
@@ -50,7 +51,7 @@ export function useSsoProviderTableService(
       const response = await coreClient!
         .getMyOrganizationApiClient()
         .organization.identityProviders.list();
-      return (response?.identity_providers ?? []) as IdpKnownResponse[];
+      return (response?.identity_providers ?? []).filter(isIdpKnownResponse);
     },
     enabled: !!coreClient,
   });

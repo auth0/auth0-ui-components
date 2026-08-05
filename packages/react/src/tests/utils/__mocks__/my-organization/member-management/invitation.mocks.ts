@@ -56,7 +56,6 @@ export const createMockListUserStoresResponse = (
   stores: UserStore[] = [createMockUserStore()],
 ): ListUserStoresResponseContent => ({
   user_stores: stores,
-  next: undefined,
 });
 
 export const createMockRoles = (): Role[] => [

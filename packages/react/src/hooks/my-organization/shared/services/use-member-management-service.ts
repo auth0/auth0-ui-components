@@ -111,7 +111,7 @@ export function useMemberManagementService(
     queryFn: async () => {
       const page = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.userStores.get({ is_enabled: true });
+        .organization.userStores.list({ is_enabled: true });
       const userStores = page.user_stores ?? [];
       return userStores
         .filter((store) => !!store.id)

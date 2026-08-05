@@ -12,6 +12,7 @@ import {
   type IdentityProviderAssociatedWithDomain,
   BusinessError,
   domainQueryKeys,
+  isIdpKnownResponse,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
@@ -61,7 +62,7 @@ export function useDomainTableService({
     const allProvidersResponse = await api.organization.identityProviders.list();
     const allProviders = allProvidersResponse?.identity_providers ?? [];
 
-    return allProviders.map(
+    return allProviders.filter(isIdpKnownResponse).map(
       (provider): IdentityProviderAssociatedWithDomain => ({
         ...provider,
         is_associated: provider.domains?.includes(domainName) ?? false,
