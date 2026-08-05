@@ -112,7 +112,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "postcss": "^8.5.14",
+    "postcss": "^8.5.23",
     "postcss-cli": "^11.0.1",
     "react-hook-form": "^7.57.0",
     "rimraf": "^5.0.0",
