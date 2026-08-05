@@ -52,6 +52,7 @@ export function useSsoProviderEditService(
     provisioning,
     customMessages = {},
     skipProvisioningFetch = false,
+    enableProviderAction,
   }: Partial<UseSsoProviderEditOptions> = {},
 ): UseSsoProviderEditServiceReturn {
   const { coreClient } = useCoreClient();
@@ -157,6 +158,58 @@ export function useSsoProviderEditService(
 
       if (sso?.updateAction?.onAfter && provider) {
         await sso.updateAction.onAfter(provider, result);
+      }
+    },
+    onError: (error) => {
+      if (isActionCancelledError(error)) {
+        return;
+      }
+      handleError(error, { fallbackMessage: t('general_error') });
+    },
+  });
+
+  /**
+   * Enable provider mutation - enables/disables SSO provider with lifecycle hooks.
+   */
+  const enableProviderMutation = useMutation({
+    mutationFn: async (enabled: boolean): Promise<IdpKnownResponse> => {
+      const provider = providerQuery.data;
+      if (!provider) {
+        throw new Error('Provider not loaded');
+      }
+
+      if (enableProviderAction?.onBefore) {
+        const canProceed = enableProviderAction.onBefore(provider);
+        if (!canProceed) {
+          throw new Error(ACTION_CANCELLED_ERROR);
+        }
+      }
+
+      const apiRequestData: UpdateIdentityProviderRequestContent = SsoProviderMappers.updateToAPI({
+        strategy: provider.strategy,
+        is_enabled: enabled,
+      });
+
+      const result = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.identityProviders.update(idpId, apiRequestData);
+
+      return result;
+    },
+    onSuccess: async (result) => {
+      const provider = providerQuery.data;
+
+      showToast({
+        type: 'success',
+        message: t('update_success', { providerName: provider?.display_name }),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ssoProviderQueryKeys.list(),
+      });
+      queryClient.setQueryData(ssoProviderQueryKeys.detail(idpId), result);
+
+      if (enableProviderAction?.onAfter) {
+        await enableProviderAction.onAfter(result);
       }
     },
     onError: (error) => {
@@ -526,6 +579,24 @@ export function useSsoProviderEditService(
     [coreClient, idpId, providerQuery.data, updateProviderMutation],
   );
 
+  const enableProvider = useCallback(
+    async (enabled: boolean): Promise<void> => {
+      const provider = providerQuery.data;
+      if (!coreClient || !idpId || !provider) {
+        return;
+      }
+
+      try {
+        await enableProviderMutation.mutateAsync(enabled);
+      } catch (error) {
+        if (!isActionCancelledError(error)) {
+          throw error;
+        }
+      }
+    },
+    [coreClient, idpId, providerQuery.data, enableProviderMutation],
+  );
+
   const createProvisioning = useCallback(async (): Promise<void> => {
     const provider = providerQuery.data;
     if (!coreClient || !idpId || !provider) {
@@ -722,6 +793,7 @@ export function useSsoProviderEditService(
     provisioningConfig: provisioningQuery.data ?? null,
     isLoading: providerQuery.isLoading || organizationQuery.isLoading,
     isUpdating: isMutationLoading(updateProviderMutation),
+    isEnabling: isMutationLoading(enableProviderMutation),
     isDeleting: isMutationLoading(deleteProviderMutation),
     isRemoving: isMutationLoading(detachProviderMutation),
     isProvisioningUpdating: isMutationLoading(createProvisioningMutation),
@@ -738,6 +810,7 @@ export function useSsoProviderEditService(
     fetchOrganizationDetails,
     fetchProvisioning,
     updateProvider,
+    enableProvider,
     createProvisioning,
     deleteProvisioning,
     listScimTokens,

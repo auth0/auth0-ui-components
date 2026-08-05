@@ -65,6 +65,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     },
     schema,
     readOnly = false,
+    enableProviderAction,
   } = props;
 
   const ssoProviderEdit = useSsoProviderEdit(providerId, {
@@ -73,6 +74,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     domains,
     customMessages,
     skipProvisioningFetch: hideProvisioningTab && hideAttributeMappings,
+    enableProviderAction,
   });
 
   const ssoProviderCreateLogicProps: Omit<SsoProviderEditLogicProps, 'handleToggleProvider'> = {
@@ -92,6 +94,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     hideDeleteProvider,
     hideRemoveFromOrganization,
     hideAttributeMappings,
+    enableProviderAction,
   };
 
   const ssoProviderCreateHandlerProps: SsoProviderEditHandlerProps = {
@@ -146,6 +149,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
     organization,
     isLoading,
     isUpdating,
+    isEnabling,
     isDeleting,
     isRemoving,
     idpConfig,
@@ -162,6 +166,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
     isProvisioningAttributesSyncing,
     hasSsoAttributeSyncWarning,
     hasProvisioningAttributeSyncWarning,
+    enableProviderAction,
   } = logic;
 
   const {
@@ -204,7 +209,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
                 type: 'switch',
                 checked: provider?.is_enabled ?? false,
                 onCheckedChange: handleToggleProvider,
-                disabled: isUpdating,
+                disabled: isUpdating || isEnabling || enableProviderAction?.disabled,
                 tooltip: {
                   content: provider?.is_enabled
                     ? t('header.disable_provider_tooltip_text')
