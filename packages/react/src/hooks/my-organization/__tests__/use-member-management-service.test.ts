@@ -74,7 +74,7 @@ describe('useMemberManagementService', () => {
   });
 
   describe('providersQuery', () => {
-    it('should fetch identity providers when invitations tab is active', async () => {
+    it('should fetch identity providers with invitable member access levels filter', async () => {
       const options = createDefaultOptions({ activeTab: 'invitations' });
       const { result } = renderService(options);
 
@@ -84,7 +84,7 @@ describe('useMemberManagementService', () => {
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list,
-      ).toHaveBeenCalled();
+      ).toHaveBeenCalledWith({ member_access_level: ['limited', 'full'] });
     });
 
     it('should not fetch identity providers when members tab is active', async () => {
@@ -128,7 +128,7 @@ describe('useMemberManagementService', () => {
     const userStoresGetMock = () =>
       mockCoreClient.getMyOrganizationApiClient().organization.userStores.list;
 
-    it('should fetch user stores when a tab is active', async () => {
+    it('should fetch user stores with enabled and invitable member access levels filter', async () => {
       const options = createDefaultOptions({ activeTab: 'invitations' });
       const { result } = renderService(options);
 
@@ -136,7 +136,10 @@ describe('useMemberManagementService', () => {
         expect(result.current.userStoresQuery.isSuccess).toBe(true);
       });
 
-      expect(userStoresGetMock()).toHaveBeenCalled();
+      expect(userStoresGetMock()).toHaveBeenCalledWith({
+        is_enabled: true,
+        member_access_level: ['limited', 'full'],
+      });
     });
 
     it('should not fetch user stores when no active tab is provided', async () => {

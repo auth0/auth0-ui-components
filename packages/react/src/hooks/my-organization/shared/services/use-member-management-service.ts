@@ -22,6 +22,7 @@ import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import {
   DEFAULT_ROLES_PAGE_SIZE,
+  INVITABLE_MEMBER_ACCESS_LEVELS,
   MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
@@ -93,7 +94,9 @@ export function useMemberManagementService(
     queryFn: async () => {
       const response: ListIdentityProvidersResponseContent = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.identityProviders.list();
+        .organization.identityProviders.list({
+          member_access_level: [...INVITABLE_MEMBER_ACCESS_LEVELS],
+        });
       const providers = response.identity_providers ?? [];
       return providers
         .filter((p) => !!p.id)
@@ -109,9 +112,10 @@ export function useMemberManagementService(
   const userStoresQuery = useQuery<ConnectionOption[]>({
     queryKey: memberManagementQueryKeys.userStores(),
     queryFn: async () => {
-      const page = await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.userStores.list({ is_enabled: true });
+      const page = await coreClient!.getMyOrganizationApiClient().organization.userStores.list({
+        is_enabled: true,
+        member_access_level: [...INVITABLE_MEMBER_ACCESS_LEVELS],
+      });
       const userStores = page.user_stores ?? [];
       return userStores
         .filter((store) => !!store.id)
