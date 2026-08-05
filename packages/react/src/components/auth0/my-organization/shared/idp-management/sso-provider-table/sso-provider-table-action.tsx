@@ -46,6 +46,7 @@ export function SsoProviderTableActionsColumn({
   isUpdatingId,
   customMessages = {},
   edit,
+  enableProviderAction,
   onToggleEnabled,
   onEdit,
   onDelete,
@@ -80,7 +81,11 @@ export function SsoProviderTableActionsColumn({
             <Switch
               checked={provider.is_enabled ?? false}
               onCheckedChange={handleToggleEnabled}
-              disabled={readOnly || (isUpdating && isUpdatingId === provider.id)}
+              disabled={
+                readOnly ||
+                enableProviderAction?.disabled ||
+                (isUpdating && isUpdatingId === provider.id)
+              }
             />
           </span>
         </TooltipTrigger>
