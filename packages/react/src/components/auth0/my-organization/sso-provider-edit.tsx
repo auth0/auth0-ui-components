@@ -209,7 +209,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
                 type: 'switch',
                 checked: provider?.is_enabled ?? false,
                 onCheckedChange: handleToggleProvider,
-                disabled: isUpdating || isEnabling || enableProviderAction?.disabled,
+                disabled: readOnly || isUpdating || isEnabling || enableProviderAction?.disabled,
                 tooltip: {
                   content: provider?.is_enabled
                     ? t('header.disable_provider_tooltip_text')
