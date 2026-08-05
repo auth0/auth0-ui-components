@@ -32,9 +32,7 @@ export function ProvisioningCreateTokenModalContent({
 
   return (
     <div className={cn('space-y-4', className)}>
-      <p className={cn('text-sm text-muted-foreground text-(length:--font-size-paragraph)')}>
-        {t('description')}
-      </p>
+      <p className={cn('text-muted-foreground text-paragraph')}>{t('description')}</p>
       <div className="space-y-2">
         <Label htmlFor="provisioning-token" className="text-sm font-medium text-foreground">
           {t('field.label')} {tokenId}

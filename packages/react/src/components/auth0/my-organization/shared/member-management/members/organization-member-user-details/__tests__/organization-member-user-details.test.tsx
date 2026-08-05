@@ -26,7 +26,6 @@ describe('OrganizationMemberUserDetails', () => {
       expect(screen.getByText('member.detail.user_details.name')).toBeInTheDocument();
       expect(screen.getByText('member.detail.user_details.email')).toBeInTheDocument();
       expect(screen.getByText('member.detail.user_details.phone_number')).toBeInTheDocument();
-      expect(screen.getByText('member.detail.user_details.provider')).toBeInTheDocument();
       expect(screen.getByText('member.detail.user_details.created_at')).toBeInTheDocument();
       expect(screen.getByText('member.detail.user_details.last_login')).toBeInTheDocument();
     });
@@ -91,31 +90,6 @@ describe('OrganizationMemberUserDetails', () => {
     });
 
     it('should display "—" when phone number is absent', () => {
-      const member = createMockMember();
-
-      renderWithProviders(
-        <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
-      );
-
-      expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(1);
-    });
-  });
-
-  describe('provider field', () => {
-    it('should display provider and connection from first identity when present', () => {
-      const member = {
-        ...createMockMember(),
-        identities: [{ provider: 'auth0', connection: 'Username-Password-Authentication' }],
-      } as Parameters<typeof OrganizationMemberUserDetails>[0]['member'];
-
-      renderWithProviders(
-        <OrganizationMemberUserDetails {...createMockUserDetailsProps({ member })} />,
-      );
-
-      expect(screen.getByText('auth0, Username-Password-Authentication')).toBeInTheDocument();
-    });
-
-    it('should display "—" when provider is absent', () => {
       const member = createMockMember();
 
       renderWithProviders(

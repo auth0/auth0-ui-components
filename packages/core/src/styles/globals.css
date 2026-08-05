@@ -4,6 +4,8 @@
 @import './themes/minimal.css';
 @import './themes/rounded.css';
 
+@custom-variant dark (&:is(.dark *));
+
 :root {
   box-sizing: border-box;
   margin: 0;

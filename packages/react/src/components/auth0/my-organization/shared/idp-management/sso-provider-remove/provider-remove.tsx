@@ -49,19 +49,13 @@ export function SsoProviderRemoveFromOrganization({
         <Card className="p-6">
           <CardContent className="flex items-start justify-between gap-6 p-0">
             <div className="flex-1 space-y-2">
-              <h3
-                className={cn('text-lg font-semibold text-left text-(length:--font-size-subtitle)')}
-              >
+              <h3 className={cn('font-semibold text-left text-subtitle')}>
                 {t('title', {
                   providerName: provider.name,
                   organizationName: organizationName,
                 })}
               </h3>
-              <p
-                className={cn(
-                  'text-sm text-muted-foreground text-left text-(length:--font-size-paragraph)',
-                )}
-              >
+              <p className={cn('text-muted-foreground text-left text-paragraph')}>
                 {t('description', { providerName: provider.name })}
               </p>
             </div>
