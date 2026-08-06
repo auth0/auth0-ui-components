@@ -84,7 +84,7 @@ describe('useMemberManagementService', () => {
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list,
-      ).toHaveBeenCalledWith({ member_access_level: ['limited', 'full'] });
+      ).toHaveBeenCalledWith({ member_access_level: ['full'] });
     });
 
     it('should not fetch identity providers when members tab is active', async () => {
@@ -138,7 +138,7 @@ describe('useMemberManagementService', () => {
 
       expect(userStoresGetMock()).toHaveBeenCalledWith({
         is_enabled: true,
-        member_access_level: ['limited', 'full'],
+        member_access_level: ['full'],
       });
     });
 
