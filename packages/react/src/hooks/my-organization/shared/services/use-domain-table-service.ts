@@ -12,13 +12,13 @@ import {
   type IdentityProviderAssociatedWithDomain,
   BusinessError,
   domainQueryKeys,
-  isIdpKnownResponse,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { isIdpKnownResponse } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import { getPreviousDataOption, isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   UseDomainTableServiceOptions,

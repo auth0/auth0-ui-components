@@ -10,7 +10,6 @@ import {
   OrganizationDetailsMappers,
   SsoProviderMappers,
   ssoProviderQueryKeys,
-  isIdpKnownResponse,
   type UpdateIdentityProviderRequestContent,
   type ComponentAction,
   type IdpKnownResponse,
@@ -21,6 +20,7 @@ import { useCallback } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { isIdpKnownResponse } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type { UseSsoProviderTableServiceReturn } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
