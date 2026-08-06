@@ -20,11 +20,13 @@ import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useDebouncedValue } from '@/hooks/shared/use-debounced-value';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MEMBER_ACCESS_LEVELS } from '@/lib/constants/common-constants';
 import {
   DEFAULT_ROLES_PAGE_SIZE,
   INVITABLE_MEMBER_ACCESS_LEVELS,
   MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import { isIdpKnownResponse } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type {

@@ -1,9 +1,10 @@
 /**
- * SSO provider type guards for narrowing identity provider list items.
- * @module sso-provider-guards
+ * Identity provider management utility functions.
+ * @module idp-management-utils
  * @internal
  */
-import type { IdpKnownResponse, IdpListItemResponse } from './sso-provider-types';
+
+import type { IdpKnownResponse, IdpListItemResponse } from '@auth0/universal-components-core';
 
 /**
  * Type guard to determine if an identity provider list item is fully configurable.

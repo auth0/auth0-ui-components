@@ -12,13 +12,14 @@ import {
   type IdentityProviderAssociatedWithDomain,
   BusinessError,
   domainQueryKeys,
-  isIdpKnownResponse,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MEMBER_ACCESS_LEVELS } from '@/lib/constants/common-constants';
+import { isIdpKnownResponse } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import { getPreviousDataOption, isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   UseDomainTableServiceOptions,
@@ -59,15 +60,17 @@ export function useDomainTableService({
   const fetchProvidersForDomain = async (domainName: string) => {
     const api = coreClient!.getMyOrganizationApiClient();
 
-    const allProvidersResponse = await api.organization.identityProviders.list();
+    const allProvidersResponse = await api.organization.identityProviders.list({
+      member_access_level: [...MEMBER_ACCESS_LEVELS],
+    });
     const allProviders = allProvidersResponse?.identity_providers ?? [];
 
-    return allProviders.filter(isIdpKnownResponse).map(
-      (provider): IdentityProviderAssociatedWithDomain => ({
+    return allProviders
+      .filter(isIdpKnownResponse)
+      .map((provider): IdentityProviderAssociatedWithDomain => ({
         ...provider,
         is_associated: provider.domains?.includes(domainName) ?? false,
-      }),
-    );
+      }));
   };
 
   const domainsQuery = useQuery({
