@@ -20,10 +20,12 @@ import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useDebouncedValue } from '@/hooks/shared/use-debounced-value';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MEMBER_ACCESS_LEVELS } from '@/lib/constants/common-constants';
 import {
   DEFAULT_ROLES_PAGE_SIZE,
   MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import { isIdpKnownResponse } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type {
@@ -93,8 +95,8 @@ export function useMemberManagementService(
     queryFn: async () => {
       const response: ListIdentityProvidersResponseContent = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.identityProviders.list();
-      const providers = response.identity_providers ?? [];
+        .organization.identityProviders.list({ member_access_level: [...MEMBER_ACCESS_LEVELS] });
+      const providers = response.identity_providers?.filter(isIdpKnownResponse) ?? [];
       return providers
         .filter((p) => !!p.id)
         .map((p) => ({
