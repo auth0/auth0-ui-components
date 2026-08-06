@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
-  "name": "user-passkey-management",
+  "name": "react/my-account/user-passkey-management",
   "type": "registry:block",
   "title": "Passkey management component.",
   "description": "A block component for user passkey management.",

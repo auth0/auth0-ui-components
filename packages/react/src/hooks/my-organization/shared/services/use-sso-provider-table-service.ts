@@ -106,6 +106,16 @@ export function useSsoProviderTableService(
           provider.id === selectedIdp.id ? { ...provider, ...updatedProvider } : provider,
         );
       });
+
+      if (selectedIdp.id) {
+        queryClient.setQueryData(
+          ssoProviderQueryKeys.detail(selectedIdp.id),
+          (old: IdpKnownResponse | undefined) => {
+            if (!old) return old;
+            return { ...old, ...updatedProvider };
+          },
+        );
+      }
     },
   });
 
