@@ -163,58 +163,23 @@ export interface SsoProviderAttributeSyncAlertProps {
   customMessages?: Partial<AttributeSyncAlertMessages>;
 }
 
-export type SsoProviderEditViewProps = {
-  logic: SsoProviderEditLogicProps;
-  handlers: SsoProviderEditHandlerProps;
-};
-
-export interface SsoProviderEditLogicProps
-  extends SsoProviderEditProps,
-    Omit<
-      UseSsoProviderEditLogicResult,
-      'handleToggleProvider' | 'isLoadingConfig' | 'isLoadingIdpConfig'
-    >,
+export interface SsoProviderEditViewProps
+  extends UseSsoProviderEditReturn,
     Pick<
-      UseSsoProviderEditReturn,
-      | 'provider'
-      | 'organization'
-      | 'isLoading'
-      | 'isUpdating'
-      | 'isEnabling'
-      | 'isDeleting'
-      | 'isRemoving'
-      | 'isProvisioningUpdating'
-      | 'isProvisioningDeleting'
-      | 'isScimTokensLoading'
-      | 'isScimTokenCreating'
-      | 'isScimTokenDeleting'
-      | 'isSsoAttributesSyncing'
-      | 'isProvisioningAttributesSyncing'
-      | 'hasSsoAttributeSyncWarning'
-      | 'hasProvisioningAttributeSyncWarning'
-    > {}
-
-export interface SsoProviderEditHandlerProps {
-  updateProvider: (data: UpdateIdentityProviderRequestContentPrivate) => Promise<void>;
-  createProvisioningAction: () => Promise<void>;
-  deleteProvisioningAction: () => Promise<void>;
-  listScimTokens: () => Promise<ListIdpProvisioningScimTokensResponseContent | null>;
-  createScimTokenAction: (
-    data: CreateIdpProvisioningScimTokenRequestContent,
-  ) => Promise<CreateIdpProvisioningScimTokenResponseContent | undefined>;
-  deleteScimTokenAction: (idpScimTokenId: string) => Promise<void>;
-  syncSsoAttributes: () => Promise<void>;
-  syncProvisioningAttributes: () => Promise<void>;
-  onDeleteConfirm: () => Promise<void>;
-  onRemoveConfirm: () => Promise<void>;
-  handleToggleProvider: (enabled: boolean) => Promise<void>;
-}
-
-export interface UseSsoProviderEditLogicResult {
-  shouldAllowDeletion: boolean;
-  isLoadingConfig: boolean;
-  idpConfig: GetIdpConfigurationResponseContent | null;
-  isLoadingIdpConfig: boolean;
+      SsoProviderEditProps,
+      | 'styling'
+      | 'customMessages'
+      | 'backButton'
+      | 'schema'
+      | 'readOnly'
+      | 'providerId'
+      | 'domains'
+      | 'hideHeader'
+      | 'hideProvisioningTab'
+      | 'hideDeleteProvider'
+      | 'hideRemoveFromOrganization'
+      | 'hideAttributeMappings'
+      | 'enableProviderAction'
+    > {
   showProvisioningTab: boolean;
-  handleToggleProvider: (enabled: boolean) => Promise<void>;
 }
