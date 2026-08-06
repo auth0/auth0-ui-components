@@ -23,7 +23,6 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import { MEMBER_ACCESS_LEVELS } from '@/lib/constants/common-constants';
 import {
   DEFAULT_ROLES_PAGE_SIZE,
-  INVITABLE_MEMBER_ACCESS_LEVELS,
   MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { isIdpKnownResponse } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
@@ -97,9 +96,9 @@ export function useMemberManagementService(
       const response: ListIdentityProvidersResponseContent = await coreClient!
         .getMyOrganizationApiClient()
         .organization.identityProviders.list({
-          member_access_level: [...INVITABLE_MEMBER_ACCESS_LEVELS],
+          member_access_level: [...MEMBER_ACCESS_LEVELS],
         });
-      const providers = response.identity_providers ?? [];
+      const providers = response.identity_providers?.filter(isIdpKnownResponse) ?? [];
       return providers
         .filter((p) => !!p.id)
         .map((p) => ({
@@ -116,7 +115,7 @@ export function useMemberManagementService(
     queryFn: async () => {
       const page = await coreClient!.getMyOrganizationApiClient().organization.userStores.list({
         is_enabled: true,
-        member_access_level: [...INVITABLE_MEMBER_ACCESS_LEVELS],
+        member_access_level: [...MEMBER_ACCESS_LEVELS],
       });
       const userStores = page.user_stores ?? [];
       return userStores

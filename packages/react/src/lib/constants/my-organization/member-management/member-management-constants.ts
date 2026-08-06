@@ -24,8 +24,3 @@ export const MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT = 100;
  * Default page size for the role selector when no search term is active.
  */
 export const DEFAULT_ROLES_PAGE_SIZE = 10;
-
-/**
- * Member access levels that allow invitation creation.
- */
-export const INVITABLE_MEMBER_ACCESS_LEVELS = ['limited', 'full'] as const;
