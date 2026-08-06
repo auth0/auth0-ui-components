@@ -288,6 +288,9 @@ describe('OrganizationMemberManagement', () => {
       const emailInput = screen.getByPlaceholderText(/invitation\.create\.email_placeholder/i);
       await user.type(emailInput, 'test@example.com,');
 
+      await user.click(screen.getByRole('combobox', { name: /connection/i }));
+      await user.click(await screen.findByText('Acme Directory'));
+
       const submitButton = screen.getByRole('button', {
         name: /invitation\.create\.submit_button/i,
       });
@@ -623,6 +626,9 @@ describe('OrganizationMemberManagement', () => {
 
       const emailInput = screen.getByPlaceholderText(/invitation\.create\.email_placeholder/i);
       await user.type(emailInput, 'newuser@example.com,');
+
+      await user.click(screen.getByRole('combobox', { name: /connection/i }));
+      await user.click(await screen.findByText('Acme Directory'));
 
       const submitButton = screen.getByRole('button', {
         name: /invitation\.create\.submit_button/i,

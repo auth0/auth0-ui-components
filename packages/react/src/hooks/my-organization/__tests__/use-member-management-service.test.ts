@@ -126,7 +126,7 @@ describe('useMemberManagementService', () => {
 
   describe('userStoresQuery', () => {
     const userStoresGetMock = () =>
-      mockCoreClient.getMyOrganizationApiClient().organization.userStores.get;
+      mockCoreClient.getMyOrganizationApiClient().organization.userStores.list;
 
     it('should fetch user stores when a tab is active', async () => {
       const options = createDefaultOptions({ activeTab: 'invitations' });
@@ -151,7 +151,7 @@ describe('useMemberManagementService', () => {
     });
 
     it('should map user stores to connection options tagged as user_store', async () => {
-      mockCoreClient.getMyOrganizationApiClient().organization.userStores.get = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.userStores.list = vi
         .fn()
         .mockResolvedValue({
           user_stores: [
