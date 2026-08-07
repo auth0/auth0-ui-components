@@ -1137,6 +1137,7 @@
           "last_login": "Dernière connexion"
         },
         "actions": {
+          "readonly_member_tooltip": "Cette action n'est pas disponible pour ce membre.",
           "remove_from_organization": {
             "title": "Retirer un membre de l'organisation",
             "description": "Une fois confirmée, cette opération ne peut pas être annulée.",

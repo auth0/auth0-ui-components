@@ -1200,6 +1200,7 @@
           "last_login": "最終ログイン"
         },
         "actions": {
+          "readonly_member_tooltip": "このアクションはこのメンバーには利用できません。",
           "remove_from_organization": {
             "title": "組織からメンバーを削除",
             "description": "一度確定すると、この操作は元に戻せません。",
