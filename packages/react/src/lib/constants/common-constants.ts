@@ -4,4 +4,4 @@ export const DEFAULT_REFRESH_INDICATOR_TICK_MS = 30_000;
 /**
  * Member access levels.
  */
-export const MEMBER_ACCESS_LEVELS = ['full'] as const;
+export const MEMBER_ACCESS_LEVELS = ['limited', 'full'] as const;

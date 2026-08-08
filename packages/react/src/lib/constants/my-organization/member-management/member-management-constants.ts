@@ -24,3 +24,14 @@ export const MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT = 100;
  * Default page size for the role selector when no search term is active.
  */
 export const DEFAULT_ROLES_PAGE_SIZE = 10;
+
+/**
+ * All possible member access level values.
+ * Scale: none < readonly < limited < full
+ */
+export const ALL_MEMBER_ACCESS_LEVELS = ['none', 'readonly', 'limited', 'full'] as const;
+
+/**
+ * Member access level type.
+ */
+export type MemberAccessLevel = (typeof ALL_MEMBER_ACCESS_LEVELS)[number];
