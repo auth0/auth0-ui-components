@@ -95,7 +95,9 @@ export function useMemberManagementService(
     queryFn: async () => {
       const response: ListIdentityProvidersResponseContent = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.identityProviders.list({ member_access_level: [...MEMBER_ACCESS_LEVELS] });
+        .organization.identityProviders.list({
+          member_access_level: [...MEMBER_ACCESS_LEVELS],
+        });
       const providers = response.identity_providers?.filter(isIdpKnownResponse) ?? [];
       return providers
         .filter((p) => !!p.id)
@@ -111,9 +113,10 @@ export function useMemberManagementService(
   const userStoresQuery = useQuery<ConnectionOption[]>({
     queryKey: memberManagementQueryKeys.userStores(),
     queryFn: async () => {
-      const page = await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.userStores.list({ is_enabled: true });
+      const page = await coreClient!.getMyOrganizationApiClient().organization.userStores.list({
+        is_enabled: true,
+        member_access_level: [...MEMBER_ACCESS_LEVELS],
+      });
       const userStores = page.user_stores ?? [];
       return userStores
         .filter((store) => !!store.id)
