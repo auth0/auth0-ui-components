@@ -25,7 +25,7 @@ describe('OidcProviderForm', () => {
     it('should not render ThirdPartyAccessSection when showThirdPartyAccess is undefined', () => {
       renderWithProviders(<OidcProviderForm idpConfig={null} />);
 
-      expect(screen.queryByRole('group')).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'title' })).not.toBeInTheDocument();
     });
 
     it('should render ThirdPartyAccessSection when showThirdPartyAccess is true', () => {

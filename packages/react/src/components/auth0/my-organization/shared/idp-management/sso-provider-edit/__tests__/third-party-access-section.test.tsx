@@ -30,7 +30,7 @@ describe('ThirdPartyAccessSection', () => {
   });
 
   describe('rendering', () => {
-    it('should render the card with title, label, and helper text', () => {
+    it('should render with title, label, and helper text', () => {
       renderWithProviders(<ThirdPartyAccessSection {...defaultProps} />);
 
       expect(screen.getByText('title')).toBeInTheDocument();
@@ -138,15 +138,11 @@ describe('ThirdPartyAccessSection', () => {
       expect(description).toHaveAttribute('id', describedById);
     });
 
-    it('should have card with role group and aria-labelledby', () => {
+    it('should render title as heading', () => {
       renderWithProviders(<ThirdPartyAccessSection {...defaultProps} />);
 
-      const card = screen.getByRole('group');
-      const labelledById = card.getAttribute('aria-labelledby');
-      expect(labelledById).toBeTruthy();
-
-      const title = screen.getByText('title');
-      expect(title).toHaveAttribute('id', labelledById);
+      const title = screen.getByRole('heading', { level: 6 });
+      expect(title).toHaveTextContent('title');
     });
   });
 
@@ -156,8 +152,8 @@ describe('ThirdPartyAccessSection', () => {
         <ThirdPartyAccessSection {...defaultProps} className="custom-class" />,
       );
 
-      const card = container.querySelector('.custom-class');
-      expect(card).toBeInTheDocument();
+      const section = container.querySelector('.custom-class');
+      expect(section).toBeInTheDocument();
     });
 
     it('should accept custom messages prop', () => {
@@ -169,19 +165,17 @@ describe('ThirdPartyAccessSection', () => {
         <ThirdPartyAccessSection {...defaultProps} customMessages={customMessages} />,
       );
 
-      expect(screen.getByRole('group')).toBeInTheDocument();
+      expect(screen.getByRole('checkbox')).toBeInTheDocument();
     });
   });
 
   describe('styling', () => {
-    it('should render card with proper structure', () => {
-      renderWithProviders(<ThirdPartyAccessSection {...defaultProps} />);
-
-      const card = screen.getByRole('group');
-      expect(card).toBeInTheDocument();
+    it('should render with proper structure including separator', () => {
+      const { container } = renderWithProviders(<ThirdPartyAccessSection {...defaultProps} />);
 
       expect(screen.getByText('title')).toBeInTheDocument();
       expect(screen.getByRole('checkbox')).toBeInTheDocument();
+      expect(container.querySelector('[data-slot="separator"]')).toBeInTheDocument();
     });
   });
 });
