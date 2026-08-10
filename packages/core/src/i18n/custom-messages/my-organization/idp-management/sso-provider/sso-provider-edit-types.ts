@@ -65,6 +65,17 @@ export interface ThirdPartyAccessMessages {
   helper_text?: string;
 }
 
+export interface CrossAppAccessMessages {
+  title?: string;
+  label?: string;
+  helper_text?: string;
+  domain_verification_text?: string;
+  saml_description?: string;
+  saml_discovery_url_label?: string;
+  saml_discovery_url_placeholder?: string;
+  saml_discovery_url_helper?: string;
+}
+
 export interface SsoProviderDetailsMessages {
   submit_button_label?: string;
   unsaved_changes_text?: string;
@@ -72,6 +83,7 @@ export interface SsoProviderDetailsMessages {
   configure_fields?: ProviderConfigureFieldsMessages;
   mappings?: SsoProviderAttributeMappingsMessages;
   third_party_access?: ThirdPartyAccessMessages;
+  cross_app_access?: CrossAppAccessMessages;
 }
 
 export interface SsoProviderNotificationMessages {

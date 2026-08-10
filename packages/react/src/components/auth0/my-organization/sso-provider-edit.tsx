@@ -81,6 +81,8 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     idpConfig: ssoProviderEdit.idpConfig,
     showProvisioningTab: ssoProviderEdit.showProvisioningTab && !hideProvisioningTab,
     showThirdPartyAccess: ssoProviderEdit.showThirdPartyAccess,
+    showCrossAppAccess: ssoProviderEdit.showCrossAppAccess,
+    isCrossAppAccessReadOnly: ssoProviderEdit.isCrossAppAccessReadOnly,
     styling,
     customMessages,
     backButton,
@@ -155,6 +157,8 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
     shouldAllowDeletion,
     showProvisioningTab,
     showThirdPartyAccess,
+    showCrossAppAccess,
+    isCrossAppAccessReadOnly,
     isProvisioningUpdating,
     isProvisioningDeleting,
     isScimTokensLoading,
@@ -266,6 +270,8 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
               }}
               readOnly={readOnly}
               showThirdPartyAccess={showThirdPartyAccess}
+              showCrossAppAccess={showCrossAppAccess}
+              isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
             />
           </TabsContent>
 

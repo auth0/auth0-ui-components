@@ -50,12 +50,27 @@ export type ProviderConfigureFormHandle =
 export const ProviderConfigureFields = React.forwardRef<
   ProviderConfigureFormHandle,
   ProviderConfigureFieldsProps
->(function ProviderConfigureFields({ strategy, className, showThirdPartyAccess, ...props }, ref) {
+>(function ProviderConfigureFields(
+  {
+    strategy,
+    className,
+    showThirdPartyAccess,
+    showCrossAppAccess,
+    isCrossAppAccessReadOnly,
+    ...props
+  },
+  ref,
+) {
   const renderProviderForm = () => {
     switch (strategy) {
       case STRATEGIES.OKTA:
         return (
-          <OktaProviderForm ref={ref as React.ForwardedRef<OktaConfigureFormHandle>} {...props} />
+          <OktaProviderForm
+            ref={ref as React.ForwardedRef<OktaConfigureFormHandle>}
+            {...props}
+            showCrossAppAccess={showCrossAppAccess}
+            isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+          />
         );
       case STRATEGIES.GOOGLE_APPS:
         return (
@@ -85,6 +100,8 @@ export const ProviderConfigureFields = React.forwardRef<
             ref={ref as React.ForwardedRef<SamlpConfigureFormHandle>}
             {...props}
             showThirdPartyAccess={showThirdPartyAccess}
+            showCrossAppAccess={showCrossAppAccess}
+            isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
           />
         );
       case STRATEGIES.OIDC:
@@ -93,6 +110,8 @@ export const ProviderConfigureFields = React.forwardRef<
             ref={ref as React.ForwardedRef<OidcConfigureFormHandle>}
             {...props}
             showThirdPartyAccess={showThirdPartyAccess}
+            showCrossAppAccess={showCrossAppAccess}
+            isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
           />
         );
       default:

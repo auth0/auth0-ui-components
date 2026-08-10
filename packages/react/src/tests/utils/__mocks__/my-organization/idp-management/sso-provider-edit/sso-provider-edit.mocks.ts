@@ -74,6 +74,8 @@ export function createMockSsoProviderEditLogic(
     shouldAllowDeletion: true,
     showProvisioningTab: true,
     showThirdPartyAccess: false,
+    showCrossAppAccess: false,
+    isCrossAppAccessReadOnly: true,
     isProvisioningUpdating: false,
     isProvisioningDeleting: false,
     isScimTokensLoading: false,

@@ -14,7 +14,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
-import { ThirdPartyAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/third-party-access-section';
+import { SsoCrossAppAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section';
+import { SsoThirdPartyAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section';
 import {
   Accordion,
   AccordionContent,
@@ -74,7 +75,10 @@ export interface SamlpConfigureFormHandle {
   reset: (data?: SamlpConfigureFormValues) => void;
 }
 
-interface SamlpConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
+interface SamlpConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {
+  showCrossAppAccess?: boolean;
+  isCrossAppAccessReadOnly?: boolean;
+}
 
 export const SamlpProviderForm = React.forwardRef<
   SamlpConfigureFormHandle,
@@ -88,6 +92,8 @@ export const SamlpProviderForm = React.forwardRef<
     onFormDirty,
     idpConfig,
     showThirdPartyAccess = false,
+    showCrossAppAccess = false,
+    isCrossAppAccessReadOnly = false,
   },
   ref,
 ) {
@@ -118,8 +124,14 @@ export const SamlpProviderForm = React.forwardRef<
       use_for_third_party_client_access:
         (samlpData as { use_for_third_party_client_access?: boolean })
           ?.use_for_third_party_client_access ?? false,
+      cross_app_access_resource_app:
+        (samlpData as { cross_app_access_resource_app?: { status: 'enabled' | 'disabled' } })
+          ?.cross_app_access_resource_app ?? undefined,
+      discovery_url: (samlpData as { discovery_url?: string })?.discovery_url ?? '',
     },
   });
+
+  const discoveryUrlValue = form.watch('discovery_url');
 
   const { isDirty } = form.formState;
 
@@ -465,10 +477,31 @@ export const SamlpProviderForm = React.forwardRef<
             control={form.control}
             name="use_for_third_party_client_access"
             render={({ field }) => (
-              <ThirdPartyAccessSection
+              <SsoThirdPartyAccessSection
                 checked={field.value ?? false}
                 onChange={field.onChange}
                 readOnly={readOnly}
+              />
+            )}
+          />
+        )}
+
+        {showCrossAppAccess && (
+          <FormField
+            control={form.control}
+            name="cross_app_access_resource_app"
+            render={({ field }) => (
+              <SsoCrossAppAccessSection
+                checked={field.value?.status === 'enabled'}
+                onChange={(checked) =>
+                  field.onChange(checked ? { status: 'enabled' } : { status: 'disabled' })
+                }
+                readOnly={readOnly || isCrossAppAccessReadOnly}
+                strategy="samlp"
+                discoveryUrl={discoveryUrlValue}
+                onDiscoveryUrlChange={(url) =>
+                  form.setValue('discovery_url', url, { shouldDirty: true })
+                }
               />
             )}
           />

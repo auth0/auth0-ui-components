@@ -1,6 +1,6 @@
 /**
  * Third party application access section for SSO provider.
- * @module third-party-access-section
+ * @module sso-third-party-access-section
  * @internal
  */
 
@@ -17,7 +17,7 @@ import type { ThirdPartyAccessSectionProps } from '@/types/my-organization/idp-m
  * @param props - Component props.
  * @returns Third party access section.
  */
-export function ThirdPartyAccessSection({
+export function SsoThirdPartyAccessSection({
   checked,
   onChange,
   readOnly = false,

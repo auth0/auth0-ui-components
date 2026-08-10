@@ -47,6 +47,8 @@ export function SsoProviderDetails({
     classes: {},
   },
   showThirdPartyAccess = false,
+  showCrossAppAccess = false,
+  isCrossAppAccessReadOnly = false,
 }: SsoProviderDetailsProps) {
   const { t } = useTranslator('idp_management.sso_provider_details', customMessages);
   const { isDarkMode } = useTheme();
@@ -134,6 +136,8 @@ export function SsoProviderDetails({
           className={currentStyles.classes?.['ProviderConfigure-root']}
           onFormDirty={setIsConfigureDirty}
           showThirdPartyAccess={showThirdPartyAccess}
+          showCrossAppAccess={showCrossAppAccess}
+          isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
         />
       </div>
 

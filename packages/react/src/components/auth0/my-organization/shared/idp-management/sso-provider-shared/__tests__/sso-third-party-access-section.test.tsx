@@ -1,7 +1,7 @@
 import { screen, fireEvent } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-import { ThirdPartyAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/third-party-access-section';
+import { SsoThirdPartyAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section';
 import {
   createMockThirdPartyAccessSectionProps,
   createMockThirdPartyAccessMessages,
@@ -18,7 +18,7 @@ vi.mock('@/hooks/shared/use-theme', () => ({
   useTheme: () => mockUseThemeReturn,
 }));
 
-describe('ThirdPartyAccessSection', () => {
+describe('SsoThirdPartyAccessSection', () => {
   const mockOnChange = vi.fn();
 
   const defaultProps = createMockThirdPartyAccessSectionProps({
@@ -31,7 +31,7 @@ describe('ThirdPartyAccessSection', () => {
 
   describe('rendering', () => {
     it('should render with title, label, and helper text', () => {
-      renderWithProviders(<ThirdPartyAccessSection {...defaultProps} />);
+      renderWithProviders(<SsoThirdPartyAccessSection {...defaultProps} />);
 
       expect(screen.getByText('title')).toBeInTheDocument();
       expect(screen.getByText('label')).toBeInTheDocument();
@@ -40,7 +40,7 @@ describe('ThirdPartyAccessSection', () => {
 
     describe('when checked is false', () => {
       it('should render checkbox unchecked', () => {
-        renderWithProviders(<ThirdPartyAccessSection {...defaultProps} checked={false} />);
+        renderWithProviders(<SsoThirdPartyAccessSection {...defaultProps} checked={false} />);
 
         const checkbox = screen.getByRole('checkbox');
         expect(checkbox).not.toBeChecked();
@@ -49,7 +49,7 @@ describe('ThirdPartyAccessSection', () => {
 
     describe('when checked is true', () => {
       it('should render checkbox checked', () => {
-        renderWithProviders(<ThirdPartyAccessSection {...defaultProps} checked={true} />);
+        renderWithProviders(<SsoThirdPartyAccessSection {...defaultProps} checked={true} />);
 
         const checkbox = screen.getByRole('checkbox');
         expect(checkbox).toBeChecked();
@@ -60,7 +60,7 @@ describe('ThirdPartyAccessSection', () => {
   describe('interactions', () => {
     describe('when checkbox is clicked and was unchecked', () => {
       it('should call onChange with true', () => {
-        renderWithProviders(<ThirdPartyAccessSection {...defaultProps} checked={false} />);
+        renderWithProviders(<SsoThirdPartyAccessSection {...defaultProps} checked={false} />);
 
         const checkbox = screen.getByRole('checkbox');
         fireEvent.click(checkbox);
@@ -71,7 +71,7 @@ describe('ThirdPartyAccessSection', () => {
 
     describe('when checkbox is clicked and was checked', () => {
       it('should call onChange with false', () => {
-        renderWithProviders(<ThirdPartyAccessSection {...defaultProps} checked={true} />);
+        renderWithProviders(<SsoThirdPartyAccessSection {...defaultProps} checked={true} />);
 
         const checkbox = screen.getByRole('checkbox');
         fireEvent.click(checkbox);
@@ -84,14 +84,14 @@ describe('ThirdPartyAccessSection', () => {
   describe('readOnly mode', () => {
     describe('when readOnly is true', () => {
       it('should disable checkbox', () => {
-        renderWithProviders(<ThirdPartyAccessSection {...defaultProps} readOnly={true} />);
+        renderWithProviders(<SsoThirdPartyAccessSection {...defaultProps} readOnly={true} />);
 
         const checkbox = screen.getByRole('checkbox');
         expect(checkbox).toBeDisabled();
       });
 
       it('should not call onChange when checkbox is clicked', () => {
-        renderWithProviders(<ThirdPartyAccessSection {...defaultProps} readOnly={true} />);
+        renderWithProviders(<SsoThirdPartyAccessSection {...defaultProps} readOnly={true} />);
 
         const checkbox = screen.getByRole('checkbox');
         fireEvent.click(checkbox);
@@ -100,7 +100,7 @@ describe('ThirdPartyAccessSection', () => {
       });
 
       it('should set aria-disabled attribute', () => {
-        renderWithProviders(<ThirdPartyAccessSection {...defaultProps} readOnly={true} />);
+        renderWithProviders(<SsoThirdPartyAccessSection {...defaultProps} readOnly={true} />);
 
         const checkbox = screen.getByRole('checkbox');
         expect(checkbox).toHaveAttribute('aria-disabled', 'true');
@@ -109,7 +109,7 @@ describe('ThirdPartyAccessSection', () => {
 
     describe('when readOnly is false', () => {
       it('should enable checkbox', () => {
-        renderWithProviders(<ThirdPartyAccessSection {...defaultProps} readOnly={false} />);
+        renderWithProviders(<SsoThirdPartyAccessSection {...defaultProps} readOnly={false} />);
 
         const checkbox = screen.getByRole('checkbox');
         expect(checkbox).not.toBeDisabled();
@@ -119,7 +119,7 @@ describe('ThirdPartyAccessSection', () => {
 
   describe('accessibility', () => {
     it('should have checkbox properly labeled', () => {
-      renderWithProviders(<ThirdPartyAccessSection {...defaultProps} />);
+      renderWithProviders(<SsoThirdPartyAccessSection {...defaultProps} />);
 
       const checkbox = screen.getByRole('checkbox', {
         name: 'label',
@@ -128,7 +128,7 @@ describe('ThirdPartyAccessSection', () => {
     });
 
     it('should have checkbox associated with description via aria-describedby', () => {
-      renderWithProviders(<ThirdPartyAccessSection {...defaultProps} />);
+      renderWithProviders(<SsoThirdPartyAccessSection {...defaultProps} />);
 
       const checkbox = screen.getByRole('checkbox');
       const describedById = checkbox.getAttribute('aria-describedby');
@@ -139,7 +139,7 @@ describe('ThirdPartyAccessSection', () => {
     });
 
     it('should render title as heading', () => {
-      renderWithProviders(<ThirdPartyAccessSection {...defaultProps} />);
+      renderWithProviders(<SsoThirdPartyAccessSection {...defaultProps} />);
 
       const title = screen.getByRole('heading', { level: 6 });
       expect(title).toHaveTextContent('title');
@@ -149,7 +149,7 @@ describe('ThirdPartyAccessSection', () => {
   describe('custom messages', () => {
     it('should apply custom className when provided', () => {
       const { container } = renderWithProviders(
-        <ThirdPartyAccessSection {...defaultProps} className="custom-class" />,
+        <SsoThirdPartyAccessSection {...defaultProps} className="custom-class" />,
       );
 
       const section = container.querySelector('.custom-class');
@@ -162,7 +162,7 @@ describe('ThirdPartyAccessSection', () => {
       });
 
       renderWithProviders(
-        <ThirdPartyAccessSection {...defaultProps} customMessages={customMessages} />,
+        <SsoThirdPartyAccessSection {...defaultProps} customMessages={customMessages} />,
       );
 
       expect(screen.getByRole('checkbox')).toBeInTheDocument();
@@ -171,7 +171,7 @@ describe('ThirdPartyAccessSection', () => {
 
   describe('styling', () => {
     it('should render with proper structure including separator', () => {
-      const { container } = renderWithProviders(<ThirdPartyAccessSection {...defaultProps} />);
+      const { container } = renderWithProviders(<SsoThirdPartyAccessSection {...defaultProps} />);
 
       expect(screen.getByText('title')).toBeInTheDocument();
       expect(screen.getByRole('checkbox')).toBeInTheDocument();

@@ -69,6 +69,7 @@ export function useSsoProviderCreateService({
         show_as_button,
         assign_membership_on_login,
         use_for_third_party_client_access,
+        cross_app_access_resource_app,
         ...configOptions
       } = data;
 
@@ -79,6 +80,7 @@ export function useSsoProviderCreateService({
         show_as_button,
         assign_membership_on_login,
         use_for_third_party_client_access,
+        cross_app_access_resource_app,
         options: configOptions,
       };
 

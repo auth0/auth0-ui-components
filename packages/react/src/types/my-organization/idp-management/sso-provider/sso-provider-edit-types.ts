@@ -139,6 +139,8 @@ export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceRetur
   isLoadingIdpConfig: boolean;
   showProvisioningTab: boolean;
   showThirdPartyAccess: boolean;
+  showCrossAppAccess: boolean;
+  isCrossAppAccessReadOnly: boolean;
   handleToggleProvider: (enabled: boolean) => Promise<void>;
 }
 
@@ -212,5 +214,7 @@ export interface UseSsoProviderEditLogicResult {
   isLoadingIdpConfig: boolean;
   showProvisioningTab: boolean;
   showThirdPartyAccess: boolean;
+  showCrossAppAccess: boolean;
+  isCrossAppAccessReadOnly: boolean;
   handleToggleProvider: (enabled: boolean) => Promise<void>;
 }

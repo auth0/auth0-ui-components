@@ -903,6 +903,16 @@
         "title": "Third party Application Access",
         "label": "Allow this provider to be used by third-party applications",
         "helper_text": "Applications outside the official platform can authenticate users through this provider."
+      },
+      "cross_app_access": {
+        "title": "Cross App Access",
+        "label": "Allow this provider to authorize access to this Resource Application",
+        "helper_text": "Accept authorizations from this provider to issue API access tokens to other connected enterprise applications.",
+        "domain_verification_text": "The OIDC issuer domain must be verified.",
+        "saml_description": "Provide the identity provider's OpenID Connect Configuration to enable Cross App Access.",
+        "saml_discovery_url_label": "OIDC Issuer or Discovery URL",
+        "saml_discovery_url_placeholder": "https://id.mydomain.com/.well-known/openid-configuration",
+        "saml_discovery_url_helper": "Enter an issuer URL such as https://your-idp.example.com or a discovery URL such as https://your-idp.example.com/.well-known/openid-configuration"
       }
     },
     "delete_sso_provider": {

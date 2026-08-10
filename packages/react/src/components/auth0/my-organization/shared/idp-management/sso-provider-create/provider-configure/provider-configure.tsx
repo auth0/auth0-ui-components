@@ -30,6 +30,8 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
       idpConfig,
       isLoading,
       showThirdPartyAccess = false,
+      showCrossAppAccess = false,
+      isCrossAppAccessReadOnly = false,
     },
     ref,
   ) {
@@ -68,6 +70,8 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
             customMessages={{ fields: customMessages.fields }}
             idpConfig={idpConfig}
             showThirdPartyAccess={showThirdPartyAccess}
+            showCrossAppAccess={showCrossAppAccess}
+            isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
           />
         </Section>
       </div>
