@@ -181,7 +181,7 @@ export const SamlpProviderForm = React.forwardRef<
           name="meta_data_source"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+              <FormLabel className="text-label font-medium">
                 {t('fields.samlp.meta_data_source.label')}
               </FormLabel>
               <FormControl>
@@ -205,10 +205,7 @@ export const SamlpProviderForm = React.forwardRef<
                   </div>
                 </RadioGroup>
               </FormControl>
-              <FormMessage
-                role="alert"
-                className="text-sm text-left text-(length:--font-size-paragraph)"
-              />
+              <FormMessage role="alert" className="text-left text-paragraph" />
             </FormItem>
           )}
         />
@@ -218,7 +215,7 @@ export const SamlpProviderForm = React.forwardRef<
           name="metadataUrl"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+              <FormLabel className="text-label font-medium">
                 {t('fields.samlp.meta_data_url.label')}
               </FormLabel>
               <FormControl>
@@ -232,11 +229,8 @@ export const SamlpProviderForm = React.forwardRef<
                   {...field}
                 />
               </FormControl>
-              <FormMessage
-                role="alert"
-                className="text-sm text-left text-(length:--font-size-paragraph)"
-              />
-              <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+              <FormMessage role="alert" className="text-left text-paragraph" />
+              <FormDescription className="text-paragraph font-normal text-left">
                 {t('fields.samlp.meta_data_url.helper_text')}
               </FormDescription>
             </FormItem>
@@ -250,7 +244,7 @@ export const SamlpProviderForm = React.forwardRef<
               name="single_sign_on_login_url"
               render={({ field, fieldState }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                  <FormLabel className="text-label font-medium">
                     {t('fields.samlp.single_sign_on_login_url.label')}
                   </FormLabel>
                   <FormControl>
@@ -264,11 +258,8 @@ export const SamlpProviderForm = React.forwardRef<
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage
-                    role="alert"
-                    className="text-sm text-left text-(length:--font-size-paragraph)"
-                  />
-                  <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                  <FormMessage role="alert" className="text-left text-paragraph" />
+                  <FormDescription className="text-paragraph font-normal text-left">
                     {t('fields.samlp.single_sign_on_login_url.helper_text')}
                   </FormDescription>
                 </FormItem>
@@ -279,7 +270,7 @@ export const SamlpProviderForm = React.forwardRef<
               name="cert"
               render={() => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                  <FormLabel className="text-label font-medium">
                     {t('fields.samlp.cert.label')}
                   </FormLabel>
                   <FormControl>
@@ -295,11 +286,8 @@ export const SamlpProviderForm = React.forwardRef<
                       />
                     </div>
                   </FormControl>
-                  <FormMessage
-                    role="alert"
-                    className="text-sm text-left text-(length:--font-size-paragraph)"
-                  />
-                  <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                  <FormMessage role="alert" className="text-left text-paragraph" />
+                  <FormDescription className="text-paragraph font-normal text-left">
                     {t('fields.samlp.cert.helper_text')}
                   </FormDescription>
                 </FormItem>
@@ -330,7 +318,7 @@ export const SamlpProviderForm = React.forwardRef<
                       <FormLabel className="text-sm font-medium cursor-pointer">
                         {t('fields.samlp.advanced_settings.sign_request.label')}
                       </FormLabel>
-                      <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                      <FormDescription className="text-paragraph font-normal text-left">
                         <>
                           {t.trans(
                             typeValue === 'meta_data_url'
@@ -365,7 +353,7 @@ export const SamlpProviderForm = React.forwardRef<
                     name="signatureAlgorithm"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                        <FormLabel className="text-label font-medium">
                           {t('fields.samlp.advanced_settings.sign_request_algorithm.label')}
                         </FormLabel>
                         <Select onValueChange={field.onChange} value={field.value || ''}>
@@ -386,10 +374,7 @@ export const SamlpProviderForm = React.forwardRef<
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage
-                          role="alert"
-                          className="text-sm text-left text-(length:--font-size-paragraph)"
-                        />
+                        <FormMessage role="alert" className="text-left text-paragraph" />
                       </FormItem>
                     )}
                   />
@@ -399,7 +384,7 @@ export const SamlpProviderForm = React.forwardRef<
                     name="digestAlgorithm"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                        <FormLabel className="text-label font-medium">
                           {t('fields.samlp.advanced_settings.sign_request_algorithm_digest.label')}
                         </FormLabel>
                         <Select onValueChange={field.onChange} value={field.value || ''}>
@@ -420,10 +405,7 @@ export const SamlpProviderForm = React.forwardRef<
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage
-                          role="alert"
-                          className="text-sm text-left text-(length:--font-size-paragraph)"
-                        />
+                        <FormMessage role="alert" className="text-left text-paragraph" />
                       </FormItem>
                     )}
                   />
@@ -434,7 +416,7 @@ export const SamlpProviderForm = React.forwardRef<
                 name="bindingMethod"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                    <FormLabel className="text-label font-medium">
                       {t('fields.samlp.advanced_settings.request_protocol_binding.label')}
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value || ''}>
@@ -455,10 +437,7 @@ export const SamlpProviderForm = React.forwardRef<
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage
-                      role="alert"
-                      className="text-sm text-left text-(length:--font-size-paragraph)"
-                    />
+                    <FormMessage role="alert" className="text-left text-paragraph" />
                   </FormItem>
                 )}
               />

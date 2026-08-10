@@ -9,11 +9,8 @@ import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore } from '@/tests/utils/test-setup';
 import type { SsoProviderRemoveFromOrganizationProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-delete-types';
 
-// ===== Mock packages =====
-
 const { initMockCoreClient } = mockCore();
 
-// ===== Local mock creators =====
 const createMockRemove = (
   overrides?: Partial<SsoProviderRemoveFromOrganizationProps>,
 ): SsoProviderRemoveFromOrganizationProps => ({
@@ -24,8 +21,6 @@ const createMockRemove = (
   onRemove: vi.fn(),
   ...overrides,
 });
-
-// ===== Tests =====
 
 describe('SsoProviderRemoveFromOrg', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;

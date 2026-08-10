@@ -1,6 +1,6 @@
 {
   "name": "@auth0/universal-components-react",
-  "version": "3.0.2",
+  "version": "3.1.2",
   "description": "Auth0 Universal Components for React - pre-built UI components for organization management, SSO configuration, and MFA enrollment",
   "private": false,
   "keywords": [
@@ -47,7 +47,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "build:css": "npx @tailwindcss/cli -i ./src/styles/globals.css -o ./dist/styles.tmp.css && CSS_SCOPE=true pnpm exec postcss ./dist/styles.tmp.css -o ./dist/styles.css --no-map && rm ./dist/styles.tmp.css",
-    "build:tailwind": "npx @tailwindcss/cli -i ./src/styles/tailwind.css -o ./dist/tailwind.tmp.css && pnpm exec postcss ./dist/tailwind.tmp.css -o ./dist/tailwind.css --no-map && rm ./dist/tailwind.tmp.css",
+    "build:tailwind": "node scripts/build-tailwind-css.mjs",
     "type-check": "tsc --noEmit",
     "build:ts": "tsup",
     "build": "pnpm clean && pnpm type-check && pnpm build:ts && pnpm build:css && pnpm build:tailwind",

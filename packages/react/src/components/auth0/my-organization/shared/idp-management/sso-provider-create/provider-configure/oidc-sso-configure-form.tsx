@@ -131,7 +131,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
             name="discovery_url"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                <FormLabel className="text-label font-medium">
                   {t('fields.oidc.discovery_url.label')}
                 </FormLabel>
                 <FormControl>
@@ -145,11 +145,8 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
                     {...field}
                   />
                 </FormControl>
-                <FormMessage
-                  role="alert"
-                  className="text-sm text-left text-(length:--font-size-paragraph)"
-                />
-                <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                <FormMessage role="alert" className="text-left text-paragraph" />
+                <FormDescription className="text-paragraph font-normal text-left">
                   {t('fields.oidc.discovery_url.helper_text')}
                 </FormDescription>
               </FormItem>
@@ -161,7 +158,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
             name="type"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                <FormLabel className="text-label font-medium">
                   {t('fields.oidc.type.label')}
                 </FormLabel>
                 <FormControl>
@@ -185,11 +182,8 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
                     </div>
                   </RadioGroup>
                 </FormControl>
-                <FormMessage
-                  role="alert"
-                  className="text-sm text-left text-(length:--font-size-paragraph)"
-                />
-                <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                <FormMessage role="alert" className="text-left text-paragraph" />
+                <FormDescription className="text-paragraph font-normal text-left">
                   {t('fields.oidc.type.helper_text')}
                 </FormDescription>
               </FormItem>
@@ -201,7 +195,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
             name="client_id"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                <FormLabel className="text-label font-medium">
                   {t('fields.oidc.client_id.label')}
                 </FormLabel>
                 <FormControl>
@@ -216,11 +210,8 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
                     {...field}
                   />
                 </FormControl>
-                <FormMessage
-                  role="alert"
-                  className="text-sm text-left text-(length:--font-size-paragraph)"
-                />
-                <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                <FormMessage role="alert" className="text-left text-paragraph" />
+                <FormDescription className="text-paragraph font-normal text-left">
                   {t('fields.oidc.client_id.helper_text')}
                 </FormDescription>
               </FormItem>
@@ -233,7 +224,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
               name="client_secret"
               render={({ field, fieldState }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                  <FormLabel className="text-label font-medium">
                     {t('fields.oidc.client_secret.label')}
                   </FormLabel>
                   <FormControl>
@@ -248,11 +239,8 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage
-                    role="alert"
-                    className="text-sm text-left text-(length:--font-size-paragraph)"
-                  />
-                  <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                  <FormMessage role="alert" className="text-left text-paragraph" />
+                  <FormDescription className="text-paragraph font-normal text-left">
                     {t('fields.oidc.client_secret.helper_text')}
                   </FormDescription>
                 </FormItem>

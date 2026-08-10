@@ -55,7 +55,7 @@ export function DomainDeleteModal({
       title={t('title')}
       content={
         <div className={'space-y-6'}>
-          <p className="text-sm text-muted-foreground text-(length:--font-size-paragraph)">
+          <p className="text-muted-foreground text-paragraph">
             {t(getDescriptionKey(domain), { domainName: domain?.domain })}
           </p>
         </div>

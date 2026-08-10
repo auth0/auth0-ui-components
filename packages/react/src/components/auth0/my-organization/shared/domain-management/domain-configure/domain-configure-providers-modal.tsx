@@ -19,7 +19,7 @@ import type { DomainConfigureProvidersModalProps } from '@/types/my-organization
 /**
  * Modal for configuring domain providers.
  * @param props - Component props.
- * @param props.className - Optional CSS class name for styling
+ * @param props.styling - Optional styling configuration with CSS classes
  * @param props.customMessages - Custom translation messages to override defaults
  * @param props.domain - Domain object or domain name
  * @param props.providers - Array of SSO providers
@@ -33,7 +33,7 @@ import type { DomainConfigureProvidersModalProps } from '@/types/my-organization
  * @returns JSX element
  */
 export function DomainConfigureProvidersModal({
-  className,
+  styling,
   customMessages,
   domain,
   providers,
@@ -88,13 +88,18 @@ export function DomainConfigureProvidersModal({
                 {t('table.actions.view_provider_button_text')}
               </Button>
             )}
-            <Tooltip>
-              <TooltipTrigger asChild>
+            <Tooltip disableHoverableContent>
+              <TooltipTrigger asChild onFocus={(e) => e.preventDefault()}>
                 <span>
                   <Switch
                     checked={provider.is_associated ?? false}
                     onCheckedChange={(checked) => handleToggleSwitch(provider, checked)}
                     disabled={isLoadingSwitch}
+                    aria-label={
+                      provider.is_associated
+                        ? t('table.actions.disable_provider_tooltip')
+                        : t('table.actions.enable_provider_tooltip')
+                    }
                   />
                 </span>
               </TooltipTrigger>
@@ -115,29 +120,31 @@ export function DomainConfigureProvidersModal({
     <Modal
       open={isOpen}
       onOpenChange={(open) => !open && onClose()}
-      className="p-10"
+      className={cn('p-10', styling?.classes?.['DomainTableConfigureModal-dialogContent'])}
       title={t('title', { domain: domain?.domain ?? '' })}
       content={
         domain && (
-          <div className={cn('space-y-6', className)}>
-            <p className="text-sm text-muted-foreground text-(length:--font-size-paragraph)">
+          <div className={cn('space-y-6', styling?.classes?.['DomainTable-configureModal'])}>
+            <p className="text-muted-foreground text-paragraph">
               {t('description', { domain: domain?.domain ?? '' })}
             </p>
-            <DataTable
-              columns={columns}
-              data={providers}
-              loading={isLoading}
-              emptyState={{
-                title: t('table.empty_message'),
-                action: onCreateProvider
-                  ? {
-                      label: t('table.actions.add_provider_button_text'),
-                      variant: 'outline',
-                      onClick: onCreateProvider,
-                    }
-                  : undefined,
-              }}
-            />
+            <div className="max-h-[400px] overflow-y-auto">
+              <DataTable
+                columns={columns}
+                data={providers}
+                loading={isLoading}
+                emptyState={{
+                  title: t('table.empty_message'),
+                  action: onCreateProvider
+                    ? {
+                        label: t('table.actions.add_provider_button_text'),
+                        variant: 'outline',
+                        onClick: onCreateProvider,
+                      }
+                    : undefined,
+                }}
+              />
+            </div>
           </div>
         )
       }

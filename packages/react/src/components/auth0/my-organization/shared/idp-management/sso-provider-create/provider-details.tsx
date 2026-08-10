@@ -80,9 +80,7 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
               name="name"
               render={({ field, fieldState }) => (
                 <FormItem>
-                  <FormLabel className="text-sm text-(length:--font-size-label) font-medium">
-                    {t('fields.name.label')}
-                  </FormLabel>
+                  <FormLabel className="text-label font-medium">{t('fields.name.label')}</FormLabel>
                   <FormControl>
                     <TextField
                       placeholder={t('fields.name.placeholder')}
@@ -91,11 +89,8 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage
-                    className="text-left text-sm text-(length:--font-size-paragraph)"
-                    role="alert"
-                  />
-                  <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                  <FormMessage className="text-left text-paragraph" role="alert" />
+                  <FormDescription className="text-paragraph font-normal text-left">
                     {t('fields.name.helper_text')}
                   </FormDescription>
                 </FormItem>
@@ -107,7 +102,7 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
               name="display_name"
               render={({ field, fieldState }) => (
                 <FormItem>
-                  <FormLabel className="text-sm text-(length:--font-size-label) font-medium">
+                  <FormLabel className="text-label font-medium">
                     {t('fields.display_name.label')}
                   </FormLabel>
                   <FormControl>
@@ -118,11 +113,8 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage
-                    className="text-left text-sm text-(length:--font-size-paragraph)"
-                    role="alert"
-                  />
-                  <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                  <FormMessage className="text-left text-paragraph" role="alert" />
+                  <FormDescription className="text-paragraph font-normal text-left">
                     {t('fields.display_name.helper_text')}
                   </FormDescription>
                 </FormItem>

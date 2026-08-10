@@ -47,10 +47,7 @@ export function SettingsDetails({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel
-                className="text-sm text-(length:--font-size-label) font-medium"
-                htmlFor="organization-name"
-              >
+              <FormLabel className="text-label font-medium" htmlFor="organization-name">
                 {t('sections.settings.fields.name.label')}
               </FormLabel>
               <FormControl>
@@ -63,11 +60,8 @@ export function SettingsDetails({
                   {...field}
                 />
               </FormControl>
-              <FormMessage
-                className="text-left text-sm text-(length:--font-size-paragraph)"
-                role="alert"
-              />
-              <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+              <FormMessage className="text-left text-paragraph" role="alert" />
+              <FormDescription className="text-paragraph font-normal text-left">
                 {t('sections.settings.fields.name.helper_text')}
               </FormDescription>
             </FormItem>
@@ -79,10 +73,7 @@ export function SettingsDetails({
           name="display_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel
-                className="text-sm text-(length:--font-size-label) font-medium"
-                htmlFor="organization-display-name"
-              >
+              <FormLabel className="text-label font-medium" htmlFor="organization-display-name">
                 {t('sections.settings.fields.display_name.label')}
               </FormLabel>
               <FormControl>
@@ -95,11 +86,8 @@ export function SettingsDetails({
                   {...field}
                 />
               </FormControl>
-              <FormMessage
-                className="text-left text-sm text-(length:--font-size-paragraph)"
-                role="alert"
-              />
-              <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+              <FormMessage className="text-left text-paragraph" role="alert" />
+              <FormDescription className="text-paragraph font-normal text-left">
                 {t('sections.settings.fields.display_name.helper_text')}
               </FormDescription>
             </FormItem>

@@ -30,6 +30,7 @@ export function useSsoProviderEdit(
     provisioning,
     customMessages = {},
     skipProvisioningFetch = false,
+    enableProviderAction,
   }: Partial<UseSsoProviderEditOptions> = {},
 ): UseSsoProviderEditReturn {
   const service = useSsoProviderEditService(idpId, {
@@ -37,6 +38,7 @@ export function useSsoProviderEdit(
     provisioning,
     customMessages,
     skipProvisioningFetch,
+    enableProviderAction,
   });
 
   const { shouldAllowDeletion, isLoadingConfig, showThirdPartyAccess } = useConfig();
@@ -56,12 +58,9 @@ export function useSsoProviderEdit(
   const handleToggleProvider = useCallback(
     async (enabled: boolean) => {
       if (!service.provider?.strategy) return;
-      await service.updateProvider({
-        strategy: service.provider.strategy,
-        is_enabled: enabled,
-      });
+      await service.enableProvider(enabled);
     },
-    [service.provider?.strategy, service.updateProvider],
+    [service.provider?.strategy, service.enableProvider],
   );
 
   return {
