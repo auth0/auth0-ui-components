@@ -13,6 +13,7 @@ import {
 
 import { showToast } from '@/components/auth0/shared/toast';
 import {
+  type MemberAccessLevel,
   MAX_ROLES_PER_MEMBER,
   MAX_ROLES_PER_REQUEST,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
@@ -160,4 +161,12 @@ export const validateRequestRoleForMember = (
 
   showToast({ type: 'error', message: t(errorKey) });
   return { aborted: true };
+};
+
+/**
+ * @param accessLevel - The member's access level.
+ * @returns True if 'limited' or 'full', false otherwise.
+ */
+export const canMutateMember = (accessLevel?: MemberAccessLevel | string): boolean => {
+  return accessLevel === 'limited' || accessLevel === 'full';
 };

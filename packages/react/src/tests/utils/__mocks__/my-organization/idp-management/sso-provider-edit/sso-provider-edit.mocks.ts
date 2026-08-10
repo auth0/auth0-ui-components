@@ -1,3 +1,4 @@
+import type { ComponentAction, IdpKnownResponse } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 import { mockProvider } from './sso-provisioning/sso-provisioning-tab.mocks';
@@ -5,6 +6,7 @@ import { mockProvider } from './sso-provisioning/sso-provisioning-tab.mocks';
 import type {
   SsoProviderEditHandlerProps,
   SsoProviderEditLogicProps,
+  SsoProviderEditProps,
   UseSsoProviderEditServiceReturn,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
@@ -31,6 +33,7 @@ export function createMockSsoProviderEditLogic(
     },
     isLoading: false,
     isUpdating: false,
+    isEnabling: false,
     isDeleting: false,
     isRemoving: false,
     idpConfig: {
@@ -131,6 +134,7 @@ export function createMockSsoProviderEditServiceReturn(
     provisioningConfig: null,
     isLoading: false,
     isUpdating: false,
+    isEnabling: false,
     isDeleting: false,
     isRemoving: false,
     isProvisioningUpdating: false,
@@ -147,6 +151,7 @@ export function createMockSsoProviderEditServiceReturn(
     fetchOrganizationDetails: vi.fn(async () => undefined),
     fetchProvisioning: vi.fn(async () => null),
     updateProvider: vi.fn(async () => undefined),
+    enableProvider: vi.fn(async () => undefined),
     createProvisioning: vi.fn(async () => undefined),
     deleteProvisioning: vi.fn(async () => undefined),
     listScimTokens: vi.fn(async () => null),
@@ -157,5 +162,63 @@ export function createMockSsoProviderEditServiceReturn(
     onDeleteConfirm: vi.fn(async () => undefined),
     onRemoveConfirm: vi.fn(async () => undefined),
     ...overrides,
+  };
+}
+
+export function createMockSsoProviderEditProps(
+  overrides?: Partial<SsoProviderEditProps>,
+): SsoProviderEditProps {
+  return {
+    providerId: 'con_test123',
+    customMessages: {},
+    styling: {
+      variables: { common: {}, light: {}, dark: {} },
+      classes: {},
+    },
+    hideHeader: false,
+    readOnly: false,
+    backButton: undefined,
+    sso: undefined,
+    provisioning: undefined,
+    domains: undefined,
+    schema: undefined,
+    ...overrides,
+  };
+}
+
+export function createMockSsoActions() {
+  return {
+    updateAction: {
+      disabled: false,
+      onBefore: vi.fn(() => true),
+      onAfter: vi.fn(),
+    },
+    deleteAction: {
+      disabled: false,
+      onBefore: vi.fn(() => true),
+      onAfter: vi.fn(),
+    },
+    deleteFromOrganizationAction: {
+      disabled: false,
+      onBefore: vi.fn(() => true),
+      onAfter: vi.fn(),
+    },
+  };
+}
+
+export function createMockEnableProviderAction(
+  overrides?: Partial<ComponentAction<IdpKnownResponse>>,
+): ComponentAction<IdpKnownResponse> {
+  return {
+    disabled: false,
+    onBefore: vi.fn(() => true),
+    onAfter: vi.fn(),
+    ...overrides,
+  };
+}
+
+export function createMockBackButton() {
+  return {
+    onClick: vi.fn(),
   };
 }

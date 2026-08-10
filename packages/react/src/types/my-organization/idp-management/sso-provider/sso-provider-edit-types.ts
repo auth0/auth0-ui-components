@@ -6,6 +6,7 @@
 import type {
   SharedComponentProps,
   BackButton,
+  ComponentAction,
   SsoProviderEditMessages,
   IdpKnownResponse,
   IdpId,
@@ -87,6 +88,7 @@ export interface SsoProviderEditProps
   provisioning?: SsoProvisioningTabEditProps;
   domains?: SsoDomainsTabEditProps;
   backButton?: SsoProviderEditBackButton;
+  enableProviderAction?: ComponentAction<IdpKnownResponse>;
 }
 
 /** useSsoProviderEdit options. */
@@ -95,6 +97,7 @@ export interface UseSsoProviderEditOptions extends SharedComponentProps {
   provisioning?: SsoProvisioningTabEditProps;
   domains?: SsoDomainsTabEditProps;
   skipProvisioningFetch?: boolean;
+  enableProviderAction?: ComponentAction<IdpKnownResponse>;
 }
 
 export interface UseSsoProviderEditServiceReturn {
@@ -103,6 +106,7 @@ export interface UseSsoProviderEditServiceReturn {
   provisioningConfig: GetIdPProvisioningConfigResponseContent | null;
   isLoading: boolean;
   isUpdating: boolean;
+  isEnabling: boolean;
   isDeleting: boolean;
   isRemoving: boolean;
   isProvisioningUpdating: boolean;
@@ -119,6 +123,7 @@ export interface UseSsoProviderEditServiceReturn {
   fetchOrganizationDetails: () => Promise<void>;
   fetchProvisioning: () => Promise<GetIdPProvisioningConfigResponseContent | null>;
   updateProvider: (data: UpdateIdentityProviderRequestContentPrivate) => Promise<void>;
+  enableProvider: (enabled: boolean) => Promise<void>;
   createProvisioning: () => Promise<void>;
   deleteProvisioning: () => Promise<void>;
   listScimTokens: () => Promise<ListIdpProvisioningScimTokensResponseContent | null>;
@@ -175,6 +180,7 @@ export interface SsoProviderEditLogicProps
       | 'organization'
       | 'isLoading'
       | 'isUpdating'
+      | 'isEnabling'
       | 'isDeleting'
       | 'isRemoving'
       | 'isProvisioningUpdating'

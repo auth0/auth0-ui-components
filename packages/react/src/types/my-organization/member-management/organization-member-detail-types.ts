@@ -107,6 +107,7 @@ export interface OrganizationMemberUserDetailsProps {
 export interface RemoveMemberFromOrganizationCardProps {
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   isRemovingFromOrganization: boolean;
+  canModify: boolean;
   onRemoveFromOrganizationClick: () => void;
 }
 
@@ -182,6 +183,7 @@ export interface RolesTabHeaderProps {
   selectedRoles: Role[];
   organizationName?: string;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
+  canModify: boolean;
   onAssignRolesClick: () => void;
   onRemoveSelectedRoles: () => void;
 }
@@ -192,6 +194,7 @@ export interface OrganizationMemberEditRolesTableProps {
   removingRoleIds?: string[];
   selectedRoles: Role[];
   customMessages?: Partial<OrganizationMemberDetailMessages>;
+  canModify: boolean;
   onRemoveRoles: (roles: Role[]) => void;
   onSelectedRolesChange: (roles: Role[]) => void;
 }

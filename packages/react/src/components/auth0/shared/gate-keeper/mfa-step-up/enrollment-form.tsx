@@ -259,7 +259,7 @@ export function EnrollmentForm({ error, factor, onComplete, onCancel }: Enrollme
                 <FormItem>
                   <FormLabel
                     htmlFor="enroll-input"
-                    className="text-left text-sm text-(length:--font-size-paragraph) font-medium"
+                    className="text-left text-paragraph font-medium"
                   >
                     {inputConfig.label}
                   </FormLabel>
@@ -272,11 +272,11 @@ export function EnrollmentForm({ error, factor, onComplete, onCancel }: Enrollme
                       autoComplete={inputConfig.autoComplete}
                     />
                   </FormControl>
-                  <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                  <FormDescription className="text-paragraph font-normal text-left">
                     {inputConfig.description}
                   </FormDescription>
                   <FormMessage
-                    className="text-left text-sm text-(length:--font-size-paragraph)"
+                    className="text-left text-paragraph"
                     id="contact-error"
                     role="alert"
                   />
@@ -328,18 +328,11 @@ export function EnrollmentForm({ error, factor, onComplete, onCancel }: Enrollme
         </div>
 
         <div className="space-y-4" aria-describedby="qr-description">
-          <p
-            id="qr-description"
-            className="font-semibold text-base text-center text-(length:--font-size-paragraph) text-primary"
-          >
+          <p id="qr-description" className="font-semibold text-center text-paragraph text-primary">
             {description}
           </p>
 
-          {!isPush && (
-            <p className="font-normal text-sm text-(length:--font-size-paragraph)">
-              {t('mfa.enroll.scan_helper')}
-            </p>
-          )}
+          {!isPush && <p className="font-normal text-paragraph">{t('mfa.enroll.scan_helper')}</p>}
 
           {enrollResponse.authenticatorType === FACTOR_TYPE_OTP && (
             <CopyableTextField value={enrollResponse.secret} />

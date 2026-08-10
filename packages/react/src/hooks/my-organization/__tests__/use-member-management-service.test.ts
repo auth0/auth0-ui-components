@@ -74,7 +74,7 @@ describe('useMemberManagementService', () => {
   });
 
   describe('providersQuery', () => {
-    it('should fetch identity providers when invitations tab is active', async () => {
+    it('should fetch identity providers with invitable member access levels filter', async () => {
       const options = createDefaultOptions({ activeTab: 'invitations' });
       const { result } = renderService(options);
 
@@ -84,7 +84,7 @@ describe('useMemberManagementService', () => {
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list,
-      ).toHaveBeenCalled();
+      ).toHaveBeenCalledWith({ member_access_level: ['full'] });
     });
 
     it('should not fetch identity providers when members tab is active', async () => {
@@ -126,9 +126,9 @@ describe('useMemberManagementService', () => {
 
   describe('userStoresQuery', () => {
     const userStoresGetMock = () =>
-      mockCoreClient.getMyOrganizationApiClient().organization.userStores.get;
+      mockCoreClient.getMyOrganizationApiClient().organization.userStores.list;
 
-    it('should fetch user stores when a tab is active', async () => {
+    it('should fetch user stores with enabled and invitable member access levels filter', async () => {
       const options = createDefaultOptions({ activeTab: 'invitations' });
       const { result } = renderService(options);
 
@@ -136,7 +136,10 @@ describe('useMemberManagementService', () => {
         expect(result.current.userStoresQuery.isSuccess).toBe(true);
       });
 
-      expect(userStoresGetMock()).toHaveBeenCalled();
+      expect(userStoresGetMock()).toHaveBeenCalledWith({
+        is_enabled: true,
+        member_access_level: ['full'],
+      });
     });
 
     it('should not fetch user stores when no active tab is provided', async () => {
@@ -151,7 +154,7 @@ describe('useMemberManagementService', () => {
     });
 
     it('should map user stores to connection options tagged as user_store', async () => {
-      mockCoreClient.getMyOrganizationApiClient().organization.userStores.get = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.userStores.list = vi
         .fn()
         .mockResolvedValue({
           user_stores: [
