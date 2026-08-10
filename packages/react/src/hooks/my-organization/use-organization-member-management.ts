@@ -11,6 +11,7 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { formatMemberCount } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   ConnectionOption,
@@ -142,6 +143,8 @@ export function useOrganizationMemberManagement(
   const invitationNextToken = invitationsQuery.data?.next ?? null;
   const memberNextToken = membersQuery.data?.next ?? null;
   const organizationDisplayName = organizationQuery.data?.display_name ?? '';
+  const invitationTotal = invitationsQuery.data?.total;
+  const memberTotal = membersQuery.data?.total;
 
   const openModal = React.useCallback(
     async (state: MemberManagementModalState) => {
@@ -331,12 +334,16 @@ export function useOrganizationMemberManagement(
     invitationPagination: {
       pageSize: invitationPageSize,
       currentPage: invitationCurrentPage,
+      totalItems: invitationTotal,
+      totalItemsDisplay: formatMemberCount(invitationTotal, t),
       hasNextPage: !!invitationNextToken,
       hasPreviousPage: invitationHasPreviousPage,
     },
     memberPagination: {
       pageSize: memberPageSize,
       currentPage: memberCurrentPage,
+      totalItems: memberTotal,
+      totalItemsDisplay: formatMemberCount(memberTotal, t),
       hasNextPage: !!memberNextToken,
       hasPreviousPage: memberHasPreviousPage,
     },

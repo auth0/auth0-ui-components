@@ -24,3 +24,9 @@ export const MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT = 100;
  * Default page size for the role selector when no search term is active.
  */
 export const DEFAULT_ROLES_PAGE_SIZE = 10;
+
+/**
+ * Threshold at or above which member and invitation totals are shown as an approximation (for example `1,000+`) rather than an exact figure.
+ * Changing this also requires updating the `member_management.count_capped` translation in each locale file, which spells the value out.
+ */
+export const MEMBER_COUNT_CAP = 1000;

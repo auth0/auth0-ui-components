@@ -225,6 +225,7 @@ export function OrganizationInvitationTable({
               pageSize: pagination.pageSize,
               currentPage: pagination.currentPage,
               totalItems: pagination.totalItems,
+              totalItemsDisplay: pagination.totalItemsDisplay,
               hasNextPage: pagination.hasNextPage,
               hasPreviousPage: pagination.hasPreviousPage,
             }}

@@ -66,6 +66,7 @@ export interface CheckpointPaginationState {
   pageSize: number;
   currentPage?: number;
   totalItems?: number;
+  totalItemsDisplay?: string;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
 }
@@ -87,6 +88,7 @@ export interface DataPaginationProps {
 
 interface PageRangeInfoProps {
   totalItems: number;
+  totalItemsDisplay?: string;
   currentPage: number;
   pageSize: number;
   locale?: string;
@@ -122,13 +124,21 @@ const getPageRange = (
  *
  * @param props - Component props.
  * @param props.totalItems - Total number of items.
+ * @param props.totalItemsDisplay - Pre-formatted total, used in place of `totalItems` when provided.
  * @param props.currentPage - Current page number.
  * @param props.pageSize - Number of items per page.
  * @param props.locale - Locale identifier for number formatting.
  * @param props.labels - Label text configuration.
  * @returns JSX element displaying the page range info.
  */
-function PageRangeInfo({ totalItems, currentPage, pageSize, locale, labels }: PageRangeInfoProps) {
+function PageRangeInfo({
+  totalItems,
+  totalItemsDisplay,
+  currentPage,
+  pageSize,
+  locale,
+  labels,
+}: PageRangeInfoProps) {
   const range = getPageRange(totalItems, currentPage, pageSize, locale);
   return (
     <>
@@ -137,7 +147,9 @@ function PageRangeInfo({ totalItems, currentPage, pageSize, locale, labels }: Pa
         {range.start}-{range.end}
       </span>{' '}
       {labels.of}{' '}
-      <span className="font-medium text-foreground">{formatNumber(totalItems, locale)}</span>
+      <span className="font-medium text-foreground">
+        {totalItemsDisplay ?? formatNumber(totalItems, locale)}
+      </span>
       {labels.results && <> {labels.results}</>}
     </>
   );
@@ -233,6 +245,7 @@ export function DataPagination({
             checkpointState?.currentPage !== undefined ? (
             <PageRangeInfo
               totalItems={checkpointState.totalItems}
+              totalItemsDisplay={checkpointState.totalItemsDisplay}
               currentPage={checkpointState.currentPage}
               pageSize={checkpointState.pageSize}
               locale={locale}
@@ -241,7 +254,8 @@ export function DataPagination({
           ) : checkpointState?.totalItems !== undefined ? (
             <>
               <span className="font-medium text-foreground">
-                {formatNumber(checkpointState.totalItems, locale)}
+                {checkpointState.totalItemsDisplay ??
+                  formatNumber(checkpointState.totalItems, locale)}
               </span>{' '}
               <span>{labels.totalResults}</span>
             </>

@@ -1141,6 +1141,7 @@
       "members": "メンバー",
       "invitations": "招待"
     },
+    "count_capped": "1,000以上",
     "member": {
       "table": {
         "columns": {

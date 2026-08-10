@@ -164,16 +164,20 @@ export function useMemberManagementService(
       invitationParams?.sortConfig,
     ],
     queryFn: async () => {
-      const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list({
-        take: invitationParams!.pageSize,
-        from: invitationParams!.fromToken,
-        sort: buildSortParam(invitationParams!.sortConfig),
-      });
+      const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list(
+        {
+          take: invitationParams!.pageSize,
+          from: invitationParams!.fromToken,
+          sort: buildSortParam(invitationParams!.sortConfig),
+        },
+        { queryParams: { include_totals: true } },
+      );
 
       const invitations: MemberInvitation[] = page.data;
       const next = page.response.next ?? null;
+      const total = page.response.total;
 
-      return { invitations, next };
+      return { invitations, next, total };
     },
     enabled: !!coreClient && isInvitationsTabActive && !!invitationParams,
     ...keepPreviousDataOption,
@@ -186,14 +190,18 @@ export function useMemberManagementService(
       memberParams?.fromToken,
     ],
     queryFn: async () => {
-      const page = await coreClient!.getMyOrganizationApiClient().organization.members.list({
-        take: memberParams!.pageSize,
-        from: memberParams!.fromToken,
-        fields: MEMBER_LIST_FIELDS,
-      });
+      const page = await coreClient!.getMyOrganizationApiClient().organization.members.list(
+        {
+          take: memberParams!.pageSize,
+          from: memberParams!.fromToken,
+          fields: MEMBER_LIST_FIELDS,
+        },
+        { queryParams: { include_totals: true } },
+      );
       const members: OrgMember[] = page.data;
       const next = members.length < memberParams!.pageSize ? null : page.response.next;
-      return { members, next };
+      const total = page.response.total;
+      return { members, next, total };
     },
     enabled: !!coreClient && !isInvitationsTabActive && !!memberParams,
     ...keepPreviousDataOption,

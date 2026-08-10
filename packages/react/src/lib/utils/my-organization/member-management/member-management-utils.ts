@@ -15,6 +15,7 @@ import { showToast } from '@/components/auth0/shared/toast';
 import {
   MAX_ROLES_PER_MEMBER,
   MAX_ROLES_PER_REQUEST,
+  MEMBER_COUNT_CAP,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import type { InvitationStatus } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
@@ -126,6 +127,19 @@ export function getInitials(name?: string): string {
   if (parts.length === 1) return first.charAt(0).toUpperCase();
   const last = parts[parts.length - 1] ?? '';
   return (first.charAt(0) + last.charAt(0)).toUpperCase();
+}
+
+/**
+ * Formats a total that has reached {@link MEMBER_COUNT_CAP} as an approximation.
+ * @param total - The total reported by the API.
+ * @param t - Translator function (namespace: `member_management`).
+ * @returns The approximate total (such as `1,000+`), or `undefined` when the total is exact or unavailable.
+ */
+export function formatMemberCount(
+  total: number | undefined,
+  t: EnhancedTranslationFunction,
+): string | undefined {
+  return total !== undefined && total >= MEMBER_COUNT_CAP ? t('count_capped') : undefined;
 }
 
 /**

@@ -4,8 +4,10 @@ import { showToast } from '@/components/auth0/shared/toast';
 import {
   MAX_ROLES_PER_REQUEST,
   MAX_ROLES_PER_MEMBER,
+  MEMBER_COUNT_CAP,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import {
+  formatMemberCount,
   getInitials,
   getInvitationStatus,
   getMemberDisplayName,
@@ -161,6 +163,23 @@ describe('getRelativeLastLoginLabel', () => {
     vi.spyOn(Date, 'now').mockReturnValue(new Date(now).getTime());
 
     expect(getRelativeLastLoginLabel(lastLogin, mockT)).toBe(expected);
+  });
+});
+
+describe('formatMemberCount', () => {
+  const t = ((key: string) => (key === 'count_capped' ? '1,000+' : key)) as unknown as Parameters<
+    typeof formatMemberCount
+  >[1];
+
+  it.each([undefined, 0, 150, MEMBER_COUNT_CAP - 1])(
+    'returns undefined for the exact total %s',
+    (total) => {
+      expect(formatMemberCount(total, t)).toBeUndefined();
+    },
+  );
+
+  it.each([MEMBER_COUNT_CAP, 87_654])('returns the approximation for the total %i', (total) => {
+    expect(formatMemberCount(total, t)).toBe('1,000+');
   });
 });
 
