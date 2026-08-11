@@ -68,6 +68,9 @@ export interface UseOrganizationDetailsEditResult {
   formActions: OrganizationDetailsFormActions;
   fetchOrgDetails: () => Promise<void>;
   updateOrgDetails: (data: OrganizationPrivate) => Promise<boolean>;
+  showThirdPartyAccess: boolean;
+  isThirdPartyAccessReadOnly: boolean;
+  thirdPartyAccessDefaultValue: 'allow' | 'block' | undefined;
 }
 
 export interface OrganizationDetailsEditViewProps {
@@ -79,4 +82,7 @@ export interface OrganizationDetailsEditViewProps {
   hideHeader: boolean;
   backButton?: OrganizationEditBackButton;
   formActions: OrganizationDetailsFormActions;
+  showThirdPartyAccess: boolean;
+  isThirdPartyAccessReadOnly: boolean;
+  thirdPartyAccessDefaultValue: 'allow' | 'block' | undefined;
 }
