@@ -24,6 +24,7 @@ export type UpdateOrganizationDetailsResponseContent =
 export interface OrganizationPrivate extends OrganizationDetailsFormValues {
   id?: string;
   name?: string;
+  third_party_client_access?: 'allow' | 'block';
 }
 
 /**
