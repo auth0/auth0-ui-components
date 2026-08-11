@@ -121,4 +121,101 @@ describe('OrganizationMemberTableActionsColumn', () => {
       expect(onRemoveFromOrganization).toHaveBeenCalledWith(member);
     });
   });
+
+  describe('Access Level Gating', () => {
+    it('should hide Assign Role and Remove from Organization when access_level is readonly', async () => {
+      const user = userEvent.setup();
+      const member = createMockMember({ access_level: 'readonly' });
+      const props = createMockMemberActionsColumnProps({ member });
+      renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
+
+      await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
+
+      expect(
+        screen.getByRole('menuitem', { name: 'member.actions.view_details' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('menuitem', { name: 'member.actions.assign_role' }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('menuitem', { name: 'member.actions.remove_from_organization' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('should hide Assign Role and Remove from Organization when access_level is none', async () => {
+      const user = userEvent.setup();
+      const member = createMockMember({ access_level: 'none' });
+      const props = createMockMemberActionsColumnProps({ member });
+      renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
+
+      await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
+
+      expect(
+        screen.getByRole('menuitem', { name: 'member.actions.view_details' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('menuitem', { name: 'member.actions.assign_role' }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('menuitem', { name: 'member.actions.remove_from_organization' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('should show all actions when access_level is limited', async () => {
+      const user = userEvent.setup();
+      const member = createMockMember({ access_level: 'limited' });
+      const props = createMockMemberActionsColumnProps({ member });
+      renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
+
+      await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
+
+      expect(
+        screen.getByRole('menuitem', { name: 'member.actions.view_details' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('menuitem', { name: 'member.actions.assign_role' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('menuitem', { name: 'member.actions.remove_from_organization' }),
+      ).toBeInTheDocument();
+    });
+
+    it('should show all actions when access_level is full', async () => {
+      const user = userEvent.setup();
+      const member = createMockMember({ access_level: 'full' });
+      const props = createMockMemberActionsColumnProps({ member });
+      renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
+
+      await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
+
+      expect(
+        screen.getByRole('menuitem', { name: 'member.actions.view_details' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('menuitem', { name: 'member.actions.assign_role' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('menuitem', { name: 'member.actions.remove_from_organization' }),
+      ).toBeInTheDocument();
+    });
+
+    it('should hide Assign Role and Remove from Organization when access_level is undefined', async () => {
+      const user = userEvent.setup();
+      const member = createMockMember({ access_level: undefined });
+      const props = createMockMemberActionsColumnProps({ member });
+      renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
+
+      await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
+
+      expect(
+        screen.getByRole('menuitem', { name: 'member.actions.view_details' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('menuitem', { name: 'member.actions.assign_role' }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('menuitem', { name: 'member.actions.remove_from_organization' }),
+      ).not.toBeInTheDocument();
+    });
+  });
 });

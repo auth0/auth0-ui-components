@@ -30,3 +30,14 @@ export const DEFAULT_ROLES_PAGE_SIZE = 10;
  * Changing this also requires updating the `member_management.count_capped` translation in each locale file, which spells the value out.
  */
 export const MEMBER_COUNT_CAP = 1000;
+
+/**
+ * All possible member access level values.
+ * Scale: none < readonly < limited < full
+ */
+export const ALL_MEMBER_ACCESS_LEVELS = ['none', 'readonly', 'limited', 'full'] as const;
+
+/**
+ * Member access level type.
+ */
+export type MemberAccessLevel = (typeof ALL_MEMBER_ACCESS_LEVELS)[number];

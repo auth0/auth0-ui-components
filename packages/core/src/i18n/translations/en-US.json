@@ -1203,6 +1203,7 @@
           "last_login": "Last Login"
         },
         "actions": {
+          "readonly_member_tooltip": "This action is not available for this member.",
           "remove_from_organization": {
             "title": "Remove Member from Organization",
             "description": "Once confirmed, this operation cannot be undone.",
