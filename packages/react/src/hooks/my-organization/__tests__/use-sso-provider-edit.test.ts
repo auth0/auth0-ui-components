@@ -18,6 +18,9 @@ vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => 
     isLoadingIdpConfig: false,
     isProvisioningEnabled: vi.fn(() => true),
     isProvisioningMethodEnabled: vi.fn(() => true),
+    showCrossAppAccess: vi.fn(() => false),
+    isCrossAppAccessReadOnly: vi.fn(() => false),
+    getCrossAppAccessDefaultValue: vi.fn(() => undefined),
   }),
 }));
 vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-edit-service', async () => {

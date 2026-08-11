@@ -10,8 +10,9 @@ import type {
 } from '@core/schemas/my-organization/idp-management/sso-provider/sso-provider-create-schema';
 
 import { STRATEGIES } from './sso-provider-constants';
-import type { IdpStrategy } from './sso-provider-types';
 import type {
+  IdpStrategy,
+  CrossAppAccessResourceApp,
   CreateIdentityProviderRequestContent,
   UpdateIdentityProviderRequestContent,
 } from './sso-provider-types';
@@ -20,6 +21,8 @@ type CombinedProviderFormValues = ProviderSelectionFormValues &
   ProviderDetailsFormValues & {
     show_as_button?: boolean;
     assign_membership_on_login?: boolean;
+    use_for_third_party_client_access?: boolean;
+    cross_app_access_resource_app?: CrossAppAccessResourceApp;
     options: ProviderConfigureFormValues;
   };
 
@@ -29,6 +32,8 @@ type UpdateProviderFormValues = Partial<ProviderDetailsFormValues> & {
   is_enabled?: boolean;
   show_as_button?: boolean;
   assign_membership_on_login?: boolean;
+  use_for_third_party_client_access?: boolean;
+  cross_app_access_resource_app?: CrossAppAccessResourceApp;
 };
 
 const STRATEGY_FIELD_MAPPINGS = {
@@ -96,8 +101,16 @@ export const SsoProviderMappers = {
    * @returns API request payload for provider creation
    */
   createToAPI(data: CombinedProviderFormValues): CreateIdentityProviderRequestContent {
-    const { strategy, name, display_name, show_as_button, assign_membership_on_login, options } =
-      data;
+    const {
+      strategy,
+      name,
+      display_name,
+      show_as_button,
+      assign_membership_on_login,
+      use_for_third_party_client_access,
+      cross_app_access_resource_app,
+      options,
+    } = data;
 
     if (!name || name.trim() === '') {
       throw new Error('Provider name is required');
@@ -109,6 +122,8 @@ export const SsoProviderMappers = {
       display_name,
       show_as_button,
       assign_membership_on_login,
+      use_for_third_party_client_access,
+      cross_app_access_resource_app,
       options: getValidOptionsForStrategy(strategy, options),
     } as CreateIdentityProviderRequestContent;
   },
@@ -126,6 +141,8 @@ export const SsoProviderMappers = {
       is_enabled,
       show_as_button,
       assign_membership_on_login,
+      use_for_third_party_client_access,
+      cross_app_access_resource_app,
       ...configOptions
     } = data;
 
@@ -143,6 +160,12 @@ export const SsoProviderMappers = {
     }
     if (assign_membership_on_login !== undefined) {
       updateRequest.assign_membership_on_login = assign_membership_on_login;
+    }
+    if (use_for_third_party_client_access !== undefined) {
+      updateRequest.use_for_third_party_client_access = use_for_third_party_client_access;
+    }
+    if (cross_app_access_resource_app !== undefined) {
+      updateRequest.cross_app_access_resource_app = cross_app_access_resource_app;
     }
 
     // Add filtered options if strategy exists and config options are provided
