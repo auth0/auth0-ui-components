@@ -234,6 +234,133 @@ describe('SsoProviderMappers', () => {
         expect(result.options).toEqual({});
       });
     });
+
+    describe('use_for_third_party_client_access', () => {
+      it('should include use_for_third_party_client_access when true', () => {
+        const formData = {
+          strategy: STRATEGIES.OIDC as IdpStrategy,
+          name: 'Provider',
+          display_name: 'Display',
+          options: {
+            client_id: 'id',
+            client_secret: 'secret',
+            discovery_url: 'https://example.com',
+          },
+          use_for_third_party_client_access: true,
+        };
+
+        const result = SsoProviderMappers.createToAPI(formData);
+
+        expect(result.use_for_third_party_client_access).toBe(true);
+      });
+
+      it('should include use_for_third_party_client_access when false', () => {
+        const formData = {
+          strategy: STRATEGIES.SAMLP as IdpStrategy,
+          name: 'Provider',
+          display_name: 'Display',
+          options: {
+            meta_data_source: 'meta_data_url' as const,
+            metadataUrl: 'https://metadata.url',
+          },
+          use_for_third_party_client_access: false,
+        };
+
+        const result = SsoProviderMappers.createToAPI(formData);
+
+        expect(result.use_for_third_party_client_access).toBe(false);
+      });
+
+      it('should include use_for_third_party_client_access as undefined when not provided', () => {
+        const formData = {
+          strategy: STRATEGIES.OIDC as IdpStrategy,
+          name: 'Provider',
+          display_name: 'Display',
+          options: {
+            client_id: 'id',
+            client_secret: 'secret',
+            discovery_url: 'https://example.com',
+          },
+        };
+
+        const result = SsoProviderMappers.createToAPI(formData);
+
+        expect(result.use_for_third_party_client_access).toBeUndefined();
+      });
+    });
+
+    describe('cross_app_access_resource_app', () => {
+      it('should include cross_app_access_resource_app when status is enabled', () => {
+        const formData = {
+          strategy: STRATEGIES.OIDC as IdpStrategy,
+          name: 'Provider',
+          display_name: 'Display',
+          options: {
+            client_id: 'id',
+            client_secret: 'secret',
+            discovery_url: 'https://example.com',
+          },
+          cross_app_access_resource_app: { status: 'enabled' as const },
+        };
+
+        const result = SsoProviderMappers.createToAPI(formData);
+
+        expect(result.cross_app_access_resource_app).toEqual({ status: 'enabled' });
+      });
+
+      it('should include cross_app_access_resource_app when status is disabled', () => {
+        const formData = {
+          strategy: STRATEGIES.OKTA as IdpStrategy,
+          name: 'Provider',
+          display_name: 'Display',
+          options: {
+            domain: 'example.okta.com',
+            client_id: 'id',
+            client_secret: 'secret',
+          },
+          cross_app_access_resource_app: { status: 'disabled' as const },
+        };
+
+        const result = SsoProviderMappers.createToAPI(formData);
+
+        expect(result.cross_app_access_resource_app).toEqual({ status: 'disabled' });
+      });
+
+      it('should not include cross_app_access_resource_app when not provided', () => {
+        const formData = {
+          strategy: STRATEGIES.OIDC as IdpStrategy,
+          name: 'Provider',
+          display_name: 'Display',
+          options: {
+            client_id: 'id',
+            client_secret: 'secret',
+            discovery_url: 'https://example.com',
+          },
+        };
+
+        const result = SsoProviderMappers.createToAPI(formData);
+
+        expect(result.cross_app_access_resource_app).toBeUndefined();
+      });
+
+      it('should work with SAML strategy', () => {
+        const formData = {
+          strategy: STRATEGIES.SAMLP as IdpStrategy,
+          name: 'Provider',
+          display_name: 'Display',
+          options: {
+            meta_data_source: 'meta_data_url' as const,
+            metadataUrl: 'https://metadata.url',
+            signSAMLRequest: false,
+          },
+          cross_app_access_resource_app: { status: 'enabled' as const },
+        };
+
+        const result = SsoProviderMappers.createToAPI(formData);
+
+        expect(result.cross_app_access_resource_app).toEqual({ status: 'enabled' });
+      });
+    });
   });
 
   describe('updateToAPI', () => {
@@ -396,6 +523,106 @@ describe('SsoProviderMappers', () => {
         const result = SsoProviderMappers.updateToAPI(updateData);
 
         expect(result).toEqual({ display_name: '' });
+      });
+    });
+
+    describe('use_for_third_party_client_access', () => {
+      it('should include use_for_third_party_client_access when true', () => {
+        const updateData = {
+          strategy: STRATEGIES.OIDC as IdpStrategy,
+          use_for_third_party_client_access: true,
+        };
+
+        const result = SsoProviderMappers.updateToAPI(updateData);
+
+        expect(result.use_for_third_party_client_access).toBe(true);
+      });
+
+      it('should include use_for_third_party_client_access when false', () => {
+        const updateData = {
+          strategy: STRATEGIES.SAMLP as IdpStrategy,
+          use_for_third_party_client_access: false,
+        };
+
+        const result = SsoProviderMappers.updateToAPI(updateData);
+
+        expect(result.use_for_third_party_client_access).toBe(false);
+      });
+
+      it('should not include use_for_third_party_client_access when undefined', () => {
+        const updateData = {
+          strategy: STRATEGIES.OIDC as IdpStrategy,
+          display_name: 'Updated Display',
+        };
+
+        const result = SsoProviderMappers.updateToAPI(updateData);
+
+        expect(result).not.toHaveProperty('use_for_third_party_client_access');
+      });
+    });
+
+    describe('cross_app_access_resource_app', () => {
+      it('should include cross_app_access_resource_app when status is enabled', () => {
+        const updateData = {
+          strategy: STRATEGIES.OIDC as IdpStrategy,
+          cross_app_access_resource_app: { status: 'enabled' as const },
+        };
+
+        const result = SsoProviderMappers.updateToAPI(updateData);
+
+        expect(result.cross_app_access_resource_app).toEqual({ status: 'enabled' });
+      });
+
+      it('should include cross_app_access_resource_app when status is disabled', () => {
+        const updateData = {
+          strategy: STRATEGIES.OKTA as IdpStrategy,
+          cross_app_access_resource_app: { status: 'disabled' as const },
+        };
+
+        const result = SsoProviderMappers.updateToAPI(updateData);
+
+        expect(result.cross_app_access_resource_app).toEqual({ status: 'disabled' });
+      });
+
+      it('should not include cross_app_access_resource_app when undefined', () => {
+        const updateData = {
+          strategy: STRATEGIES.OIDC as IdpStrategy,
+          display_name: 'Updated Display',
+        };
+
+        const result = SsoProviderMappers.updateToAPI(updateData);
+
+        expect(result).not.toHaveProperty('cross_app_access_resource_app');
+      });
+
+      it('should work with SAML strategy', () => {
+        const updateData = {
+          strategy: STRATEGIES.SAMLP as IdpStrategy,
+          cross_app_access_resource_app: { status: 'enabled' as const },
+        };
+
+        const result = SsoProviderMappers.updateToAPI(updateData);
+
+        expect(result.cross_app_access_resource_app).toEqual({ status: 'enabled' });
+      });
+
+      it('should handle combined update with other fields', () => {
+        const updateData = {
+          strategy: STRATEGIES.OIDC as IdpStrategy,
+          display_name: 'Updated Name',
+          is_enabled: true,
+          cross_app_access_resource_app: { status: 'enabled' as const },
+          use_for_third_party_client_access: true,
+        };
+
+        const result = SsoProviderMappers.updateToAPI(updateData);
+
+        expect(result).toEqual({
+          display_name: 'Updated Name',
+          is_enabled: true,
+          cross_app_access_resource_app: { status: 'enabled' },
+          use_for_third_party_client_access: true,
+        });
       });
     });
   });
