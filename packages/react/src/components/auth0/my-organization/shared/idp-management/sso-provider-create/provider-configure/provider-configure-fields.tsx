@@ -50,12 +50,27 @@ export type ProviderConfigureFormHandle =
 export const ProviderConfigureFields = React.forwardRef<
   ProviderConfigureFormHandle,
   ProviderConfigureFieldsProps
->(function ProviderConfigureFields({ strategy, className, ...props }, ref) {
+>(function ProviderConfigureFields(
+  {
+    strategy,
+    className,
+    showThirdPartyAccess,
+    showCrossAppAccess,
+    isCrossAppAccessReadOnly,
+    ...props
+  },
+  ref,
+) {
   const renderProviderForm = () => {
     switch (strategy) {
       case STRATEGIES.OKTA:
         return (
-          <OktaProviderForm ref={ref as React.ForwardedRef<OktaConfigureFormHandle>} {...props} />
+          <OktaProviderForm
+            ref={ref as React.ForwardedRef<OktaConfigureFormHandle>}
+            {...props}
+            showCrossAppAccess={showCrossAppAccess}
+            isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+          />
         );
       case STRATEGIES.GOOGLE_APPS:
         return (
@@ -81,11 +96,23 @@ export const ProviderConfigureFields = React.forwardRef<
         );
       case STRATEGIES.SAMLP:
         return (
-          <SamlpProviderForm ref={ref as React.ForwardedRef<SamlpConfigureFormHandle>} {...props} />
+          <SamlpProviderForm
+            ref={ref as React.ForwardedRef<SamlpConfigureFormHandle>}
+            {...props}
+            showThirdPartyAccess={showThirdPartyAccess}
+            showCrossAppAccess={showCrossAppAccess}
+            isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+          />
         );
       case STRATEGIES.OIDC:
         return (
-          <OidcProviderForm ref={ref as React.ForwardedRef<OidcConfigureFormHandle>} {...props} />
+          <OidcProviderForm
+            ref={ref as React.ForwardedRef<OidcConfigureFormHandle>}
+            {...props}
+            showThirdPartyAccess={showThirdPartyAccess}
+            showCrossAppAccess={showCrossAppAccess}
+            isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+          />
         );
       default:
         return null;
