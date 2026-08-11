@@ -13,6 +13,8 @@ import type {
   SsoProviderDetailsSchema,
   ComponentAction,
   GetIdpConfigurationResponseContent,
+  ThirdPartyAccessMessages,
+  CrossAppAccessMessages,
 } from '@auth0/universal-components-core';
 
 import type { FormActionsProps } from '@/components/auth0/shared/form-actions';
@@ -71,6 +73,9 @@ export interface SsoProviderTabProps
   hasSsoAttributeSyncWarning?: boolean;
   onAttributeSync?: () => void | Promise<void>;
   isSyncingAttributes?: boolean;
+  showThirdPartyAccess?: boolean;
+  showCrossAppAccess?: boolean;
+  isCrossAppAccessReadOnly?: boolean;
 }
 
 export interface ProviderDetailsClasses
@@ -91,6 +96,8 @@ export interface SsoProviderDetailsClasses {
   'ProviderConfigure-root'?: string;
   'SsoProvider-attributeMapping'?: string;
   'SsoProviderDetails-FormActions'?: string;
+  'SsoProviderDetails-ThirdPartyAccess'?: string;
+  'SsoProviderDetails-CrossAppAccess'?: string;
 }
 
 export interface SsoProviderDetailsProps
@@ -100,4 +107,26 @@ export interface SsoProviderDetailsProps
   readOnly?: boolean;
   hideAttributeMappings?: boolean;
   formActions?: SsoProviderDetailsFormActions;
+  showThirdPartyAccess?: boolean;
+  showCrossAppAccess?: boolean;
+  isCrossAppAccessReadOnly?: boolean;
+}
+
+export interface ThirdPartyAccessSectionProps {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  readOnly?: boolean;
+  customMessages?: ThirdPartyAccessMessages;
+  className?: string;
+}
+
+export interface CrossAppAccessSectionProps {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  readOnly?: boolean;
+  customMessages?: CrossAppAccessMessages;
+  className?: string;
+  strategy?: 'oidc' | 'okta' | 'samlp';
+  discoveryUrl?: string;
+  onDiscoveryUrlChange?: (url: string) => void;
 }
