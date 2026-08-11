@@ -143,6 +143,9 @@ export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceRetur
   idpConfig: GetIdpConfigurationResponseContent | null;
   isLoadingIdpConfig: boolean;
   showProvisioningTab: boolean;
+  showThirdPartyAccess: boolean;
+  showCrossAppAccess: boolean;
+  isCrossAppAccessReadOnly: boolean;
   handleToggleProvider: (enabled: boolean) => Promise<void>;
 }
 
