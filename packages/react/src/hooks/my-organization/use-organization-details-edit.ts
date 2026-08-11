@@ -6,6 +6,7 @@
 
 import { useMemo } from 'react';
 
+import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useOrganizationDetailsEditService } from '@/hooks/my-organization/shared/services/use-organization-details-edit-service';
 import type {
   UseOrganizationDetailsEditOptions,
@@ -30,6 +31,8 @@ export function useOrganizationDetailsEdit({
   customMessages = {},
 }: UseOrganizationDetailsEditOptions): UseOrganizationDetailsEditResult {
   const service = useOrganizationDetailsEditService({ saveAction, customMessages });
+  const { showThirdPartyAccess, isThirdPartyAccessReadOnly, thirdPartyAccessDefaultValue } =
+    useConfig();
 
   const hasData = !!service.organization.name;
   const isActionDisabled = service.isSaveLoading || service.isInitializing;
@@ -66,5 +69,8 @@ export function useOrganizationDetailsEdit({
     formActions,
     fetchOrgDetails: service.fetchOrgDetails,
     updateOrgDetails: service.updateOrgDetails,
+    showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
+    thirdPartyAccessDefaultValue,
   };
 }
