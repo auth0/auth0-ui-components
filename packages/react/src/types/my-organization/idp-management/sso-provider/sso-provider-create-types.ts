@@ -79,6 +79,9 @@ export interface ProviderConfigureProps
   strategy: IdpStrategy;
   initialData?: Partial<ProviderConfigureFormValues>;
   idpConfig: GetIdpConfigurationResponseContent | null;
+  showThirdPartyAccess?: boolean;
+  showCrossAppAccess?: boolean;
+  isCrossAppAccessReadOnly?: boolean;
 }
 
 export interface ProviderConfigureFieldsProps
@@ -89,6 +92,9 @@ export interface ProviderConfigureFieldsProps
   onFormDirty?: (isDirty: boolean) => void;
   idpConfig: GetIdpConfigurationResponseContent | null;
   mode?: FormMode;
+  showThirdPartyAccess?: boolean;
+  showCrossAppAccess?: boolean;
+  isCrossAppAccessReadOnly?: boolean;
 }
 
 export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'> {
@@ -133,6 +139,9 @@ export interface UseSsoProviderCreateResult {
   filteredStrategies: IdpStrategy[];
   isLoadingIdpConfig: boolean;
   idpConfig?: GetIdpConfigurationResponseContent | null;
+  showThirdPartyAccess: boolean;
+  showCrossAppAccess: boolean;
+  isCrossAppAccessReadOnly: boolean;
   createStepActions: (
     stepId: 'provider_details' | 'provider_configure',
     ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,
@@ -163,6 +172,9 @@ export interface SsoProviderCreateLogicProps {
   filteredStrategies: IdpStrategy[];
   isLoadingIdpConfig: boolean;
   idpConfig?: GetIdpConfigurationResponseContent | null;
+  showThirdPartyAccess?: boolean;
+  showCrossAppAccess?: boolean;
+  isCrossAppAccessReadOnly?: boolean;
   styling?: SsoProviderCreateProps['styling'];
   customMessages?: SsoProviderCreateProps['customMessages'];
   backButton?: SsoProviderCreateProps['backButton'];

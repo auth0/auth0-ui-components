@@ -60,6 +60,9 @@ export function SsoProviderTab({
   hasSsoAttributeSyncWarning,
   onAttributeSync,
   isSyncingAttributes = false,
+  showThirdPartyAccess = false,
+  showCrossAppAccess = false,
+  isCrossAppAccessReadOnly = false,
 }: SsoProviderTabProps) {
   const { t } = useTranslator('idp_management.edit_sso_provider.tabs.sso', customMessages);
 
@@ -100,6 +103,9 @@ export function SsoProviderTab({
               customMessages={customMessages.details}
               styling={styling}
               idpConfig={idpConfig}
+              showThirdPartyAccess={showThirdPartyAccess}
+              showCrossAppAccess={showCrossAppAccess}
+              isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
             />
           )}
         </CardContent>
