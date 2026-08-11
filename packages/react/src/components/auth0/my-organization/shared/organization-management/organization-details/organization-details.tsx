@@ -19,6 +19,7 @@ import { useForm } from 'react-hook-form';
 
 import { BrandingDetails } from '@/components/auth0/my-organization/shared/organization-management/organization-details/branding-details';
 import { SettingsDetails } from '@/components/auth0/my-organization/shared/organization-management/organization-details/settings-details';
+import { ThirdPartyAccessDetails } from '@/components/auth0/my-organization/shared/organization-management/organization-details/third-party-access-details';
 import { FormActions } from '@/components/auth0/shared/form-actions';
 import { Card } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
@@ -58,6 +59,9 @@ export function OrganizationDetails({
   },
   readOnly = false,
   formActions,
+  showThirdPartyAccess,
+  isThirdPartyAccessReadOnly,
+  thirdPartyAccessDefaultValue,
 }: OrganizationDetailsProps): React.JSX.Element {
   const { t } = useTranslator('organization_management.organization_details', customMessages);
 
@@ -109,8 +113,10 @@ export function OrganizationDetails({
           page_background: organization.branding.colors.page_background,
         },
       },
+      third_party_client_access:
+        organization.third_party_client_access ?? thirdPartyAccessDefaultValue,
     }),
-    [organization],
+    [organization, thirdPartyAccessDefaultValue],
   );
 
   const form = useForm<OrganizationDetailsFormValues>({
@@ -171,6 +177,19 @@ export function OrganizationDetails({
                 customMessages={customMessages}
                 className={currentStyles.classes?.OrganizationDetails_SettingsDetails}
               />
+
+              {showThirdPartyAccess && (
+                <>
+                  <Separator />
+                  <ThirdPartyAccessDetails
+                    form={form}
+                    readOnly={readOnly}
+                    isConfigReadOnly={isThirdPartyAccessReadOnly}
+                    customMessages={customMessages}
+                    className={currentStyles.classes?.OrganizationDetails_ThirdPartyAccess}
+                  />
+                </>
+              )}
 
               <Separator />
 
