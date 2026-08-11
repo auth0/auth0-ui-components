@@ -13,6 +13,8 @@ import type {
 export type ListIdentityProvidersResponseContent =
   MyOrganization.ListIdentityProvidersResponseContent;
 export type IdpKnownResponse = MyOrganization.IdpKnownResponse;
+export type IdpMinimalResponse = MyOrganization.IdpMinimalResponse;
+export type IdpListItemResponse = MyOrganization.IdpListItemResponse;
 export type CreateIdentityProviderRequestContent =
   MyOrganization.CreateIdentityProviderRequestContent;
 export type CreateIdentityProviderResponseContent =

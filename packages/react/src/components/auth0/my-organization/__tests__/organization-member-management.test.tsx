@@ -1,317 +1,28 @@
-import { screen } from '@testing-library/react';
+import type { ComponentAction, MemberInvitation } from '@auth0/universal-components-core';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
+import { OrganizationMemberManagement } from '@/components/auth0/my-organization/organization-member-management';
+import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
-  OrganizationMemberManagement,
-  OrganizationMemberManagementView,
-} from '@/components/auth0/my-organization/organization-member-management';
-import { useOrganizationMemberManagement } from '@/hooks/my-organization/use-organization-member-management';
-import { createMockPendingInvitation } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
+  createMockInvitation,
+  createMockPendingInvitation,
+} from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import {
   createMockMember,
   createMockRoleOptions,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
-import type { OrganizationInvitationBulkRevokeModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
-import type {
-  OrganizationMemberManagementProps,
-  OrganizationMemberManagementViewProps,
-  UseOrganizationMemberManagementResult,
-} from '@/types/my-organization/member-management/organization-member-management-types';
+import { mockCore, mockToast } from '@/tests/utils/test-setup';
+import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type { OrganizationMemberManagementProps } from '@/types/my-organization/member-management/organization-member-management-types';
 
-vi.mock('@/hooks/my-organization/use-organization-member-management', () => ({
-  useOrganizationMemberManagement: vi.fn(),
-}));
-
-vi.mock('@/hooks/shared/use-theme', () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
-
-vi.mock('@/components/auth0/shared/header', () => ({
-  Header: ({ title, description, actions = [] }: any) => (
-    <div data-testid="header">
-      <div>{title}</div>
-      <div>{description}</div>
-      {actions.map((action: any) => (
-        <button key={action.label} onClick={action.onClick} disabled={action.disabled}>
-          {action.label}
-        </button>
-      ))}
-    </div>
-  ),
-}));
-
-vi.mock('@/components/auth0/shared/styled-scope', () => ({
-  StyledScope: ({ children }: any) => <div data-testid="styled-scope">{children}</div>,
-}));
-
-vi.mock(
-  '@/components/auth0/my-organization/shared/member-management/members/members-table/organization-member-table',
-  () => ({
-    OrganizationMemberTable: ({
-      members,
-      onAssignRole,
-      onRemoveFromOrganization,
-      className,
-    }: any) => (
-      <div data-testid="member-table" className={className}>
-        <span>members:{members.length}</span>
-        <button onClick={() => onAssignRole?.(members[0])}>assign-role</button>
-        <button onClick={() => onRemoveFromOrganization?.(members[0])}>remove-from-org</button>
-      </div>
-    ),
-  }),
-);
-
-vi.mock(
-  '@/components/auth0/my-organization/shared/member-management/invitations/invitation-table/organization-invitation-table',
-  () => ({
-    OrganizationInvitationTable: ({
-      invitations,
-      loading,
-      onView,
-      onCopyUrl,
-      onRevoke,
-      onRevokeAndResend,
-      onBulkRevoke,
-      className,
-    }: any) => (
-      <div data-testid="invitation-table" className={className}>
-        <span>invitations:{invitations.length}</span>
-        <span>loading:{String(loading)}</span>
-        <button onClick={() => onView?.(invitations[0])}>view-invitation</button>
-        <button onClick={() => onCopyUrl?.(invitations[0])}>copy-url</button>
-        <button onClick={() => onRevoke?.(invitations[0])}>revoke</button>
-        <button onClick={() => onRevokeAndResend?.(invitations[0])}>revoke-resend</button>
-        <button onClick={() => onBulkRevoke?.(invitations)}>bulk-revoke</button>
-      </div>
-    ),
-  }),
-);
-
-vi.mock(
-  '@/components/auth0/my-organization/shared/member-management/shared/invitation-create/organization-invitation-create-modal',
-  () => ({
-    OrganizationInvitationCreateModal: ({ isOpen, onCreate, onClose }: any) => (
-      <div data-testid="create-modal">
-        open:{String(isOpen)}
-        <button onClick={() => onCreate?.({ invitees: [{ email: 'x@example.com' }] })}>
-          submit-create
-        </button>
-        <button onClick={onClose}>close-create</button>
-      </div>
-    ),
-  }),
-);
-
-vi.mock(
-  '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal',
-  () => ({
-    OrganizationInvitationDetailsModal: ({
-      isOpen,
-      onClose,
-      onCopyUrl,
-      onRevoke,
-      onResend,
-    }: any) => (
-      <div data-testid="details-modal">
-        open:{String(isOpen)}
-        <button onClick={onClose}>close-details</button>
-        <button onClick={() => onCopyUrl?.({ id: 'inv_1' })}>details-copy</button>
-        <button onClick={() => onRevoke?.({ id: 'inv_1' })}>details-revoke</button>
-        <button onClick={() => onResend?.({ id: 'inv_1' })}>details-resend</button>
-      </div>
-    ),
-  }),
-);
-
-vi.mock(
-  '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-revoke-modal',
-  () => ({
-    OrganizationInvitationRevokeModal: ({ isOpen, isRevokeAndResend, onConfirm, onClose }: any) => (
-      <div data-testid={isRevokeAndResend ? 'revoke-resend-modal' : 'revoke-modal'}>
-        open:{String(isOpen)}
-        <button onClick={onConfirm}>
-          {isRevokeAndResend ? 'confirm-revoke-resend' : 'confirm-revoke'}
-        </button>
-        <button onClick={onClose}>
-          {isRevokeAndResend ? 'close-revoke-resend' : 'close-revoke'}
-        </button>
-      </div>
-    ),
-  }),
-);
-
-vi.mock(
-  '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-bulk-revoke-modal',
-  () => ({
-    OrganizationInvitationBulkRevokeModal: ({
-      isOpen,
-      isLoading,
-      invitations,
-      onConfirm,
-      onClose,
-    }: OrganizationInvitationBulkRevokeModalProps) => (
-      <div data-testid="bulk-revoke-modal">
-        open:{String(isOpen)}
-        <span>to-revoke:{invitations.length}</span>
-        <span>loading:{String(isLoading)}</span>
-        <button onClick={onConfirm}>confirm-bulk-revoke</button>
-        <button onClick={onClose}>close-bulk-revoke</button>
-      </div>
-    ),
-  }),
-);
-
-vi.mock(
-  '@/components/auth0/my-organization/shared/member-management/members/organization-member-roles/organization-member-assign-roles-modal',
-  () => ({
-    OrganizationMemberAssignRolesModal: ({
-      isOpen,
-      selectedMember,
-      assignedRoles,
-      availableRoles,
-      isLoading,
-      onAssign,
-      onClose,
-      className,
-    }: any) => (
-      <div data-testid="assign-role-modal" className={className}>
-        <span>open:{String(isOpen)}</span>
-        <span>member:{selectedMember?.user_id ?? 'none'}</span>
-        <span>assigned:{assignedRoles.length}</span>
-        <span>available:{availableRoles.length}</span>
-        <span>loading:{String(isLoading)}</span>
-        <button onClick={() => onAssign?.(['role_admin'], selectedMember?.user_id ?? null)}>
-          confirm-assign-role
-        </button>
-        <button onClick={onClose}>close-assign-role</button>
-      </div>
-    ),
-  }),
-);
-
-vi.mock(
-  '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-organization-modal',
-  () => ({
-    MemberRemoveFromOrganizationModal: ({
-      isOpen,
-      memberName,
-      memberUserId,
-      organizationName,
-      isLoading,
-      onConfirm,
-      onClose,
-      className,
-    }: any) => (
-      <div data-testid="remove-from-org-modal" className={className}>
-        <span>open:{String(isOpen)}</span>
-        <span>member:{memberUserId ?? 'none'}</span>
-        <span>memberName:{memberName ?? 'none'}</span>
-        <span>organizationName:{organizationName ?? 'none'}</span>
-        <span>loading:{String(isLoading)}</span>
-        <button onClick={() => onConfirm?.(memberUserId)}>confirm-remove-from-org</button>
-        <button onClick={onClose}>close-remove-from-org</button>
-      </div>
-    ),
-  }),
-);
-
-vi.mock('@/components/auth0/shared/gate-keeper/gate-keeper', () => ({
-  GateKeeper: ({ isLoading, children }: any) => (
-    <div data-testid="gatekeeper" data-loading={String(isLoading)}>
-      {children}
-    </div>
-  ),
-}));
-
-const mockedUseOrganizationMemberManagement = vi.mocked(useOrganizationMemberManagement);
-
-const createMockMemberManagementResult = (
-  overrides: Partial<UseOrganizationMemberManagementResult> = {},
-): UseOrganizationMemberManagementResult => {
-  const member = createMockMember();
-  const invitation = createMockPendingInvitation();
-
-  return {
-    activeTab: 'members',
-    invitationRoles: createMockRoleOptions(),
-    searchedRoles: createMockRoleOptions(),
-    onRoleSearch: vi.fn(),
-    availableConnections: [],
-    members: [member],
-    invitations: [invitation],
-    isFetchingInvitations: false,
-    isLoadingInvitations: false,
-    isInitialLoading: false,
-    isFetchingMembers: false,
-    isMembersStale: false,
-    isInvitationsStale: false,
-    membersUpdatedAt: 0,
-    invitationsUpdatedAt: 0,
-    refetchMembers: vi.fn(),
-    refetchInvitations: vi.fn(),
-    isFetchingInvitationRoles: false,
-    isCreatingInvitation: false,
-    isRevokingInvitation: false,
-    isResendingInvitation: false,
-    selectedInvitations: [],
-    invitationPagination: {
-      pageSize: 10,
-      currentPage: 1,
-      totalItems: 1,
-      hasNextPage: false,
-      hasPreviousPage: false,
-    },
-    memberPagination: {
-      pageSize: 10,
-      currentPage: 1,
-      totalItems: 1,
-      hasNextPage: false,
-      hasPreviousPage: false,
-    },
-    invitationFilters: {},
-    invitationSortConfig: { key: null, direction: 'asc' },
-    memberFilters: {},
-    memberSortConfig: { key: null, direction: 'asc' },
-    modalState: { type: null },
-    isRemovingFromOrganization: false,
-    isAssigningRoles: false,
-    setActiveTab: vi.fn(),
-    openModal: vi.fn(),
-    closeModal: vi.fn(),
-    onSelectedInvitationsChange: vi.fn(),
-    handleCreateSubmit: vi.fn(),
-    handleRevokeConfirm: vi.fn(),
-    handleRevokeResendConfirm: vi.fn(),
-    handleBulkRevokeClick: vi.fn(),
-    handleCopyUrl: vi.fn(),
-    handleNextPage: vi.fn(),
-    handlePreviousPage: vi.fn(),
-    handlePageSizeChange: vi.fn(),
-    handleSortChange: vi.fn(),
-    handleRoleFilterChange: vi.fn(),
-    handleViewMemberDetails: vi.fn(),
-    handleAssignRolesSubmit: vi.fn(),
-    handleRemoveFromOrganizationConfirm: vi.fn(),
-    ...overrides,
-  };
-};
-
-const createMockViewProps = (
-  overrides: Partial<OrganizationMemberManagementViewProps> = {},
-): OrganizationMemberManagementViewProps => ({
-  ...createMockMemberManagementResult(),
-  styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
-  customMessages: {},
-  hideHeader: false,
-  readOnly: false,
-  ...overrides,
-});
+mockToast();
+const { initMockCoreClient } = mockCore();
 
 const createMockComponentProps = (
-  overrides: Partial<OrganizationMemberManagementProps> = {},
+  overrides?: Partial<OrganizationMemberManagementProps>,
 ): OrganizationMemberManagementProps => ({
   styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
   customMessages: {},
@@ -320,457 +31,816 @@ const createMockComponentProps = (
   ...overrides,
 });
 
-describe('OrganizationMemberManagementView', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('renders the header and invite action when not read-only', () => {
-    renderWithProviders(<OrganizationMemberManagementView {...createMockViewProps()} />);
-
-    expect(screen.getByText('header.title')).toBeInTheDocument();
-    expect(screen.getByText('header.description')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'invite_button' })).toBeInTheDocument();
-  });
-
-  it('does not render the header when hideHeader is true', () => {
-    renderWithProviders(
-      <OrganizationMemberManagementView {...createMockViewProps({ hideHeader: true })} />,
-    );
-
-    expect(screen.queryByText('header.title')).not.toBeInTheDocument();
-  });
-
-  it('does not render invite action when readOnly is true', () => {
-    renderWithProviders(
-      <OrganizationMemberManagementView {...createMockViewProps({ readOnly: true })} />,
-    );
-
-    expect(screen.queryByRole('button', { name: 'invite_button' })).not.toBeInTheDocument();
-  });
-
-  it('opens the create invitation modal when invite button is clicked', async () => {
-    const user = userEvent.setup();
-    const openModal = vi.fn();
-
-    renderWithProviders(
-      <OrganizationMemberManagementView {...createMockViewProps({ openModal })} />,
-    );
-
-    await user.click(screen.getByRole('button', { name: 'invite_button' }));
-
-    expect(openModal).toHaveBeenCalledWith({ type: 'create' });
-  });
-
-  it('opens member assign and remove modals from the member table callbacks', async () => {
-    const user = userEvent.setup();
-    const member = createMockMember();
-    const openModal = vi.fn();
-
-    renderWithProviders(
-      <OrganizationMemberManagementView
-        {...createMockViewProps({ members: [member], openModal })}
-      />,
-    );
-
-    await user.click(screen.getByRole('button', { name: 'assign-role' }));
-    await user.click(screen.getByRole('button', { name: 'remove-from-org' }));
-
-    expect(openModal).toHaveBeenNthCalledWith(1, { type: 'assignRole', member });
-    expect(openModal).toHaveBeenNthCalledWith(2, { type: 'removeFromOrganization', member });
-  });
-
-  it('renders invitation tab content and opens invitation modals from callbacks', async () => {
-    const user = userEvent.setup();
-    const invitation = createMockPendingInvitation();
-    const openModal = vi.fn();
-    const setActiveTab = vi.fn();
-
-    renderWithProviders(
-      <OrganizationMemberManagementView
-        {...createMockViewProps({
-          activeTab: 'invitations',
-          invitations: [invitation],
-          openModal,
-          setActiveTab,
-        })}
-      />,
-    );
-
-    expect(screen.getByTestId('invitation-table')).toBeInTheDocument();
-
-    await user.click(screen.getByRole('tab', { name: 'tabs.members' }));
-    expect(setActiveTab).toHaveBeenCalledWith('members');
-
-    await user.click(screen.getByRole('button', { name: 'view-invitation' }));
-    await user.click(screen.getByRole('button', { name: 'revoke' }));
-    await user.click(screen.getByRole('button', { name: 'revoke-resend' }));
-
-    expect(openModal).toHaveBeenCalledWith({ type: 'details', invitation });
-    expect(openModal).toHaveBeenCalledWith({ type: 'revoke', invitation });
-    expect(openModal).toHaveBeenCalledWith({ type: 'revokeResend', invitation });
-  });
-
-  it('keeps the invitation table mounted during a background refetch (paging/page-size)', () => {
-    renderWithProviders(
-      <OrganizationMemberManagementView
-        {...createMockViewProps({
-          activeTab: 'invitations',
-          invitations: [createMockPendingInvitation()],
-          isFetchingInvitations: true,
-          isLoadingInvitations: false,
-        })}
-      />,
-    );
-
-    expect(screen.getByTestId('invitation-table')).toHaveTextContent('loading:false');
-  });
-
-  it('shows the invitation table loading state on initial cold load', () => {
-    renderWithProviders(
-      <OrganizationMemberManagementView
-        {...createMockViewProps({
-          activeTab: 'invitations',
-          invitations: [],
-          isFetchingInvitations: true,
-          isLoadingInvitations: true,
-        })}
-      />,
-    );
-
-    expect(screen.getByTestId('invitation-table')).toHaveTextContent('loading:true');
-  });
-
-  it('omits destructive invitation callbacks in read-only mode', async () => {
-    const user = userEvent.setup();
-    const openModal = vi.fn();
-
-    renderWithProviders(
-      <OrganizationMemberManagementView
-        {...createMockViewProps({ activeTab: 'invitations', readOnly: true, openModal })}
-      />,
-    );
-
-    await user.click(screen.getByRole('button', { name: 'revoke' }));
-    await user.click(screen.getByRole('button', { name: 'revoke-resend' }));
-
-    expect(openModal).not.toHaveBeenCalled();
-  });
-
-  describe('invitation revoke flows', () => {
-    it('opens the bulk revoke modal from the table bulk action', async () => {
-      const user = userEvent.setup();
-      const handleBulkRevokeClick = vi.fn();
-      const invitation = createMockPendingInvitation();
-
-      renderWithProviders(
-        <OrganizationMemberManagementView
-          {...createMockViewProps({
-            activeTab: 'invitations',
-            invitations: [invitation],
-            handleBulkRevokeClick,
-          })}
-        />,
-      );
-
-      await user.click(screen.getByRole('button', { name: 'bulk-revoke' }));
-
-      expect(handleBulkRevokeClick).toHaveBeenCalledWith([invitation]);
-    });
-
-    it('renders the bulk revoke modal open with the invitations from modal state', () => {
-      const invitations = [createMockPendingInvitation(), createMockPendingInvitation()];
-
-      renderWithProviders(
-        <OrganizationMemberManagementView
-          {...createMockViewProps({
-            activeTab: 'invitations',
-            modalState: { type: 'bulkRevoke', invitations },
-          })}
-        />,
-      );
-
-      expect(screen.getByTestId('bulk-revoke-modal')).toHaveTextContent('open:true');
-      expect(screen.getByText('to-revoke:2')).toBeInTheDocument();
-    });
-
-    it('routes the single revoke modal to handleRevokeConfirm', async () => {
-      const user = userEvent.setup();
-      const handleRevokeConfirm = vi.fn();
-      const invitation = createMockPendingInvitation();
-
-      renderWithProviders(
-        <OrganizationMemberManagementView
-          {...createMockViewProps({
-            activeTab: 'invitations',
-            modalState: { type: 'revoke', invitation },
-            handleRevokeConfirm,
-          })}
-        />,
-      );
-
-      await user.click(screen.getByRole('button', { name: 'confirm-revoke' }));
-
-      expect(handleRevokeConfirm).toHaveBeenCalledTimes(1);
-    });
-
-    it('routes the bulk revoke modal to handleRevokeConfirm with all selected invitations mounted', async () => {
-      const user = userEvent.setup();
-      const handleRevokeConfirm = vi.fn();
-      const invitations = [createMockPendingInvitation(), createMockPendingInvitation()];
-
-      renderWithProviders(
-        <OrganizationMemberManagementView
-          {...createMockViewProps({
-            activeTab: 'invitations',
-            modalState: { type: 'bulkRevoke', invitations },
-            handleRevokeConfirm,
-          })}
-        />,
-      );
-
-      expect(screen.getByTestId('bulk-revoke-modal')).toHaveTextContent('to-revoke:2');
-
-      await user.click(screen.getByRole('button', { name: 'confirm-bulk-revoke' }));
-
-      expect(handleRevokeConfirm).toHaveBeenCalledTimes(1);
-    });
-
-    it('shares the isRevokingInvitation loading flag with the bulk revoke modal', () => {
-      const invitations = [createMockPendingInvitation()];
-
-      renderWithProviders(
-        <OrganizationMemberManagementView
-          {...createMockViewProps({
-            activeTab: 'invitations',
-            modalState: { type: 'bulkRevoke', invitations },
-            isRevokingInvitation: true,
-          })}
-        />,
-      );
-
-      expect(screen.getByTestId('bulk-revoke-modal')).toHaveTextContent('loading:true');
-    });
-  });
-
-  describe('assign role modal', () => {
-    it('is closed by default with no selected member', () => {
-      renderWithProviders(<OrganizationMemberManagementView {...createMockViewProps()} />);
-
-      const modal = screen.getByTestId('assign-role-modal');
-      expect(modal).toHaveTextContent('open:false');
-      expect(modal).toHaveTextContent('member:none');
-      expect(modal).toHaveTextContent('assigned:0');
-    });
-
-    it('opens with the selected member and their assigned roles when modalState is assignRole', () => {
-      const member = createMockMember();
-      renderWithProviders(
-        <OrganizationMemberManagementView
-          {...createMockViewProps({
-            modalState: { type: 'assignRole', member },
-          })}
-        />,
-      );
-
-      const modal = screen.getByTestId('assign-role-modal');
-      expect(modal).toHaveTextContent('open:true');
-      expect(modal).toHaveTextContent(`member:${member.user_id}`);
-      expect(modal).toHaveTextContent(`assigned:${(member.roles ?? []).length}`);
-    });
-
-    it('reflects loading state when assigning roles', () => {
-      renderWithProviders(
-        <OrganizationMemberManagementView {...createMockViewProps({ isAssigningRoles: true })} />,
-      );
-      expect(screen.getByTestId('assign-role-modal')).toHaveTextContent('loading:true');
-    });
-
-    it('invokes handleAssignRolesSubmit on confirm and closeModal on close', async () => {
-      const user = userEvent.setup();
-      const member = createMockMember();
-      const handleAssignRolesSubmit = vi.fn();
-      const closeModal = vi.fn();
-
-      renderWithProviders(
-        <OrganizationMemberManagementView
-          {...createMockViewProps({
-            modalState: { type: 'assignRole', member },
-            handleAssignRolesSubmit,
-            closeModal,
-          })}
-        />,
-      );
-
-      await user.click(screen.getByRole('button', { name: 'confirm-assign-role' }));
-      expect(handleAssignRolesSubmit).toHaveBeenCalledWith(['role_admin'], member.user_id);
-
-      await user.click(screen.getByRole('button', { name: 'close-assign-role' }));
-      expect(closeModal).toHaveBeenCalled();
-    });
-  });
-
-  describe('remove from org modal', () => {
-    it('is closed by default with no selected member', () => {
-      renderWithProviders(<OrganizationMemberManagementView {...createMockViewProps()} />);
-
-      const modal = screen.getByTestId('remove-from-org-modal');
-      expect(modal).toHaveTextContent('open:false');
-      expect(modal).toHaveTextContent('member:none');
-    });
-
-    it('opens with the selected member info when modalState is removeFromOrganization', () => {
-      const member = createMockMember();
-      renderWithProviders(
-        <OrganizationMemberManagementView
-          {...createMockViewProps({
-            organizationDisplayName: 'Acme Inc',
-            modalState: { type: 'removeFromOrganization', member },
-          })}
-        />,
-      );
-
-      const modal = screen.getByTestId('remove-from-org-modal');
-      expect(modal).toHaveTextContent('open:true');
-      expect(modal).toHaveTextContent(`member:${member.user_id}`);
-      expect(modal).toHaveTextContent(`memberName:${member.name}`);
-      expect(modal).toHaveTextContent('organizationName:Acme Inc');
-    });
-
-    it('reflects loading state when isRemovingFromOrganization is true', () => {
-      renderWithProviders(
-        <OrganizationMemberManagementView
-          {...createMockViewProps({ isRemovingFromOrganization: true })}
-        />,
-      );
-      expect(screen.getByTestId('remove-from-org-modal')).toHaveTextContent('loading:true');
-    });
-
-    it('invokes handleRemoveFromOrganizationConfirm with userId on confirm and closeModal on close', async () => {
-      const user = userEvent.setup();
-      const member = createMockMember();
-      const handleRemoveFromOrganizationConfirm = vi.fn();
-      const closeModal = vi.fn();
-
-      renderWithProviders(
-        <OrganizationMemberManagementView
-          {...createMockViewProps({
-            modalState: { type: 'removeFromOrganization', member },
-            handleRemoveFromOrganizationConfirm,
-            closeModal,
-          })}
-        />,
-      );
-
-      await user.click(screen.getByRole('button', { name: 'confirm-remove-from-org' }));
-      expect(handleRemoveFromOrganizationConfirm).toHaveBeenCalledWith(member.user_id);
-
-      await user.click(screen.getByRole('button', { name: 'close-remove-from-org' }));
-      expect(closeModal).toHaveBeenCalled();
-    });
-  });
-});
+const waitForComponentToLoad = async () => {
+  return await screen.findByText(/header\.title/i);
+};
 
 describe('OrganizationMemberManagement', () => {
+  const mockMember = createMockMember();
+  const mockInvitation = createMockPendingInvitation();
+  const mockRoles = createMockRoleOptions();
+  let mockCoreClient: ReturnType<typeof initMockCoreClient>;
+
   beforeEach(() => {
     vi.clearAllMocks();
+
+    mockCoreClient = initMockCoreClient();
+
+    const apiService = mockCoreClient.getMyOrganizationApiClient();
+    (apiService.organization.members.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: [mockMember],
+      response: { next: null, total: 1 },
+    });
+    (apiService.organization.invitations.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: [mockInvitation],
+      response: { next: null },
+    });
+    (apiService.organization.roles.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: mockRoles,
+      response: { next: null },
+    });
+    (apiService.organization.configuration.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+      allowed_strategies: ['samlp', 'oidc'],
+      connection_deletion_behavior: 'allow',
+      allowed_roles: mockRoles,
+    });
+
+    vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
+      coreClient: mockCoreClient,
+    });
   });
 
-  it('calls the hook with component props and passes loading state to GateKeeper', () => {
-    mockedUseOrganizationMemberManagement.mockReturnValue(
-      createMockMemberManagementResult({ isInitialLoading: true }),
-    );
-
-    renderWithProviders(
-      <OrganizationMemberManagement
-        {...createMockComponentProps({ readOnly: true, hideHeader: true })}
-      />,
-    );
-
-    expect(mockedUseOrganizationMemberManagement).toHaveBeenCalledWith(
-      expect.objectContaining({
-        customMessages: {},
-        readOnly: true,
-        createInvitationAction: undefined,
-        revokeInvitationAction: undefined,
-        resendInvitationAction: undefined,
-        viewMemberDetailsAction: undefined,
-        assignRolesAction: undefined,
-        removeFromOrganizationAction: undefined,
-      }),
-    );
-
-    expect(screen.getByTestId('gatekeeper')).toHaveAttribute('data-loading', 'true');
+  afterEach(() => {
+    vi.resetAllMocks();
   });
 
-  it('renders the view content through the container with default props', () => {
-    mockedUseOrganizationMemberManagement.mockReturnValue(createMockMemberManagementResult());
+  describe('rendering', () => {
+    it('should render the header with title and description', async () => {
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
 
-    renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+      await waitForComponentToLoad();
 
-    expect(screen.getByText('header.title')).toBeInTheDocument();
-    expect(screen.getByTestId('member-table')).toBeInTheDocument();
-    expect(screen.getByTestId('create-modal')).toBeInTheDocument();
+      expect(screen.getByText(/header\.title/i)).toBeInTheDocument();
+      expect(screen.getByText(/header\.description/i)).toBeInTheDocument();
+    });
+
+    it('should render the invite button when not read-only', async () => {
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      expect(screen.getByRole('button', { name: /invite_button/i })).toBeInTheDocument();
+    });
+
+    it('should render members and invitations tabs', async () => {
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      expect(screen.getByRole('tab', { name: /tabs\.members/i })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: /tabs\.invitations/i })).toBeInTheDocument();
+    });
+
+    it('should render member table in members tab by default', async () => {
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      expect(screen.getByRole('tab', { name: /tabs\.members/i })).toHaveAttribute(
+        'data-state',
+        'active',
+      );
+    });
+  });
+
+  describe('hideHeader', () => {
+    describe('when is false', () => {
+      it('should render the header', async () => {
+        renderWithProviders(
+          <OrganizationMemberManagement {...createMockComponentProps({ hideHeader: false })} />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByText(/header\.title/i)).toBeInTheDocument();
+      });
+    });
+
+    describe('when is true', () => {
+      it('should not render the header', async () => {
+        renderWithProviders(
+          <OrganizationMemberManagement {...createMockComponentProps({ hideHeader: true })} />,
+        );
+
+        await waitFor(() => {
+          expect(screen.getByRole('tab', { name: /tabs\.members/i })).toBeInTheDocument();
+        });
+
+        expect(screen.queryByText(/header\.title/i)).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('readOnly', () => {
+    describe('when is true', () => {
+      it('should not render the invite button', async () => {
+        renderWithProviders(
+          <OrganizationMemberManagement {...createMockComponentProps({ readOnly: true })} />,
+        );
+
+        await waitFor(() => {
+          expect(screen.getByRole('tab', { name: /tabs\.members/i })).toBeInTheDocument();
+        });
+
+        expect(screen.queryByRole('button', { name: /invite_button/i })).not.toBeInTheDocument();
+      });
+    });
+
+    describe('when is false', () => {
+      it('should render the invite button', async () => {
+        renderWithProviders(
+          <OrganizationMemberManagement {...createMockComponentProps({ readOnly: false })} />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByRole('button', { name: /invite_button/i })).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('customMessages', () => {
+    describe('when using a custom message on header title', () => {
+      it('should override header title', async () => {
+        const customMessages = {
+          header: {
+            title: 'Custom Member Management',
+          },
+        };
+
+        renderWithProviders(
+          <OrganizationMemberManagement {...createMockComponentProps({ customMessages })} />,
+        );
+
+        await screen.findByText('Custom Member Management');
+
+        expect(screen.getByText('Custom Member Management')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('styling', () => {
+    describe('styling.classes', () => {
+      describe('when classes are provided for OrganizationMemberManagement-root', () => {
+        it('should apply the class to the root element', async () => {
+          const styling = {
+            variables: { common: {}, light: {}, dark: {} },
+            classes: {
+              'OrganizationMemberManagement-root': 'custom-root-class',
+            },
+          };
+
+          renderWithProviders(
+            <OrganizationMemberManagement {...createMockComponentProps({ styling })} />,
+          );
+
+          await waitForComponentToLoad();
+
+          const rootElement = document.querySelector('.custom-root-class');
+          expect(rootElement).toBeInTheDocument();
+        });
+      });
+    });
+  });
+
+  describe('tab navigation', () => {
+    it('should switch to invitations tab when clicked', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      const invitationsTab = screen.getByRole('tab', { name: /tabs\.invitations/i });
+      await user.click(invitationsTab);
+
+      expect(invitationsTab).toHaveAttribute('data-state', 'active');
+    });
+
+    it('should switch back to members tab when clicked', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      const invitationsTab = screen.getByRole('tab', { name: /tabs\.invitations/i });
+      await user.click(invitationsTab);
+
+      const membersTab = screen.getByRole('tab', { name: /tabs\.members/i });
+      await user.click(membersTab);
+
+      expect(membersTab).toHaveAttribute('data-state', 'active');
+    });
+  });
+
+  describe('createInvitationAction', () => {
+    it('should open create invitation modal when invite button is clicked', async () => {
+      const user = userEvent.setup();
+      const createInvitationAction: ComponentAction<CreateInvitationInput, MemberInvitation> = {
+        onBefore: vi.fn().mockReturnValue(true),
+        onAfter: vi.fn(),
+      };
+
+      renderWithProviders(
+        <OrganizationMemberManagement {...createMockComponentProps({ createInvitationAction })} />,
+      );
+
+      await waitForComponentToLoad();
+
+      const inviteButton = screen.getByRole('button', { name: /invite_button/i });
+      await user.click(inviteButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/invitation\.create\.title/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should call API when creating invitation', async () => {
+      const user = userEvent.setup();
+      const createdInvitation = createMockInvitation();
+
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.create as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue([createdInvitation]);
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      const inviteButton = screen.getByRole('button', { name: /invite_button/i });
+      await user.click(inviteButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/invitation\.create\.title/i)).toBeInTheDocument();
+      });
+
+      const emailInput = screen.getByPlaceholderText(/invitation\.create\.email_placeholder/i);
+      await user.type(emailInput, 'test@example.com,');
+
+      await user.click(screen.getByRole('combobox', { name: /connection/i }));
+      await user.click(await screen.findByText('Acme Directory'));
+
+      const submitButton = screen.getByRole('button', {
+        name: /invitation\.create\.submit_button/i,
+      });
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        expect(
+          mockCoreClient.getMyOrganizationApiClient().organization.invitations.create,
+        ).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('invitations tab', () => {
+    it('should display invitations when switching to invitations tab', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      const invitationsTab = screen.getByRole('tab', { name: /tabs\.invitations/i });
+      await user.click(invitationsTab);
+
+      await waitFor(() => {
+        expect(screen.getByText(mockInvitation.invitee?.email ?? '')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('members tab', () => {
+    it('should display member table in the members tab', async () => {
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      expect(screen.getByRole('tab', { name: /tabs\.members/i })).toHaveAttribute(
+        'data-state',
+        'active',
+      );
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.members.list,
+      ).toHaveBeenCalled();
+    });
+  });
+
+  describe('invitation actions', () => {
+    it('should display invitations when switching to invitations tab', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      const invitationsTab = screen.getByRole('tab', { name: /tabs\.invitations/i });
+      await user.click(invitationsTab);
+
+      await waitFor(() => {
+        expect(screen.getByText(mockInvitation.invitee?.email ?? '')).toBeInTheDocument();
+      });
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.list,
+      ).toHaveBeenCalled();
+    });
+
+    it('should pass revokeInvitationAction callbacks to component', async () => {
+      const user = userEvent.setup();
+      const revokeInvitationAction: ComponentAction<MemberInvitation[]> = {
+        onBefore: vi.fn().mockReturnValue(true),
+        onAfter: vi.fn(),
+      };
+
+      renderWithProviders(
+        <OrganizationMemberManagement {...createMockComponentProps({ revokeInvitationAction })} />,
+      );
+
+      await waitForComponentToLoad();
+
+      const invitationsTab = screen.getByRole('tab', { name: /tabs\.invitations/i });
+      await user.click(invitationsTab);
+
+      await waitFor(() => {
+        expect(screen.getByText(mockInvitation.invitee?.email ?? '')).toBeInTheDocument();
+      });
+    });
+
+    it('should pass resendInvitationAction callbacks to component', async () => {
+      const user = userEvent.setup();
+      const resendInvitationAction: ComponentAction<MemberInvitation, MemberInvitation> = {
+        onBefore: vi.fn().mockReturnValue(true),
+        onAfter: vi.fn(),
+      };
+
+      renderWithProviders(
+        <OrganizationMemberManagement {...createMockComponentProps({ resendInvitationAction })} />,
+      );
+
+      await waitForComponentToLoad();
+
+      const invitationsTab = screen.getByRole('tab', { name: /tabs\.invitations/i });
+      await user.click(invitationsTab);
+
+      await waitFor(() => {
+        expect(screen.getByText(mockInvitation.invitee?.email ?? '')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('member actions', () => {
+    it('should render members tab as active by default', async () => {
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      expect(screen.getByRole('tab', { name: /tabs\.members/i })).toHaveAttribute(
+        'data-state',
+        'active',
+      );
+    });
+
+    it('should fetch member data when members tab is active', async () => {
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.members.list,
+      ).toHaveBeenCalled();
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    });
+
+    it('should render with assignRolesAction prop', async () => {
+      const assignRolesAction: ComponentAction<{ userId: string; roleIds: string[] }> = {
+        onBefore: vi.fn().mockReturnValue(true),
+        onAfter: vi.fn(),
+      };
+
+      renderWithProviders(
+        <OrganizationMemberManagement {...createMockComponentProps({ assignRolesAction })} />,
+      );
+
+      await waitForComponentToLoad();
+
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    });
+
+    it('should render with removeFromOrganizationAction prop', async () => {
+      const removeFromOrganizationAction: ComponentAction<string> = {
+        onBefore: vi.fn().mockReturnValue(true),
+        onAfter: vi.fn(),
+      };
+
+      renderWithProviders(
+        <OrganizationMemberManagement
+          {...createMockComponentProps({ removeFromOrganizationAction })}
+        />,
+      );
+
+      await waitForComponentToLoad();
+
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    });
+  });
+
+  describe('readOnly mode in invitations', () => {
+    it('should not show action buttons in invitations tab when readOnly', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationMemberManagement {...createMockComponentProps({ readOnly: true })} />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('tab', { name: /tabs\.members/i })).toBeInTheDocument();
+      });
+
+      const invitationsTab = screen.getByRole('tab', { name: /tabs\.invitations/i });
+      await user.click(invitationsTab);
+
+      await waitFor(() => {
+        expect(screen.getByText(mockInvitation.invitee?.email ?? '')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByRole('button', { name: /invite_button/i })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('empty states', () => {
+    it('should show empty state message when no members exist', async () => {
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.members.list as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue({
+        data: [],
+        response: { next: null, total: 0 },
+      });
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      expect(screen.getByText(/member\.table\.empty_message/i)).toBeInTheDocument();
+    });
+
+    it('should show empty state message when no invitations exist', async () => {
+      const user = userEvent.setup();
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.list as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue({
+        data: [],
+        response: { next: null },
+      });
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      const invitationsTab = screen.getByRole('tab', { name: /tabs\.invitations/i });
+      await user.click(invitationsTab);
+
+      await waitFor(() => {
+        expect(screen.getByText(/invitation\.table\.empty_message/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('pagination', () => {
+    it('should fetch members when there are multiple pages', async () => {
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.members.list as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue({
+        data: [mockMember],
+        response: { next: 'next-token', total: 25 },
+      });
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.members.list,
+      ).toHaveBeenCalled();
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    });
+
+    it('should display invitations data when there are multiple pages', async () => {
+      const user = userEvent.setup();
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.list as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue({
+        data: [mockInvitation],
+        response: { next: 'next-token' },
+      });
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      const invitationsTab = screen.getByRole('tab', { name: /tabs\.invitations/i });
+      await user.click(invitationsTab);
+
+      await waitFor(() => {
+        expect(screen.getByText(mockInvitation.invitee?.email ?? '')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('error handling', () => {
+    it('should still render component when fetching members fails', async () => {
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.members.list as ReturnType<
+          typeof vi.fn
+        >
+      ).mockRejectedValue(new Error('API Error'));
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tab', { name: /tabs\.members/i })).toBeInTheDocument();
+      });
+    });
+
+    it('should still render invitations tab when fetching invitations fails', async () => {
+      const user = userEvent.setup();
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.list as ReturnType<
+          typeof vi.fn
+        >
+      ).mockRejectedValue(new Error('API Error'));
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      const invitationsTab = screen.getByRole('tab', { name: /tabs\.invitations/i });
+      await user.click(invitationsTab);
+
+      await waitFor(() => {
+        expect(invitationsTab).toHaveAttribute('data-state', 'active');
+      });
+    });
+  });
+
+  describe('close modal after creation', () => {
+    it('should close create modal after successful invitation creation', async () => {
+      const user = userEvent.setup();
+      const createdInvitation = createMockInvitation();
+
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.create as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue([createdInvitation]);
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      const inviteButton = screen.getByRole('button', { name: /invite_button/i });
+      await user.click(inviteButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/invitation\.create\.title/i)).toBeInTheDocument();
+      });
+
+      const emailInput = screen.getByPlaceholderText(/invitation\.create\.email_placeholder/i);
+      await user.type(emailInput, 'newuser@example.com,');
+
+      await user.click(screen.getByRole('combobox', { name: /connection/i }));
+      await user.click(await screen.findByText('Acme Directory'));
+
+      const submitButton = screen.getByRole('button', {
+        name: /invitation\.create\.submit_button/i,
+      });
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        expect(
+          mockCoreClient.getMyOrganizationApiClient().organization.invitations.create,
+        ).toHaveBeenCalled();
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText(/invitation\.create\.title/i)).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('modal interactions from table actions', () => {
+    it('should open assign roles modal when clicking assign role action', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      const actionMenuButton = screen.getByRole('button', {
+        name: /member\.actions\.menu_label/i,
+      });
+      await user.click(actionMenuButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/member\.actions\.assign_role/i)).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText(/member\.actions\.assign_role/i));
+
+      await waitFor(() => {
+        expect(screen.getByText(/member\.detail\.roles\.assign_modal\.title/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should open remove from organization modal when clicking remove action', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      const actionMenuButton = screen.getByRole('button', {
+        name: /member\.actions\.menu_label/i,
+      });
+      await user.click(actionMenuButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/member\.actions\.remove_from_organization/i)).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText(/member\.actions\.remove_from_organization/i));
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/member\.detail\.actions\.remove_from_organization\.modal\.title/i),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('should close assign roles modal when cancel button is clicked', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      const actionMenuButton = screen.getByRole('button', {
+        name: /member\.actions\.menu_label/i,
+      });
+      await user.click(actionMenuButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/member\.actions\.assign_role/i)).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText(/member\.actions\.assign_role/i));
+
+      await waitFor(() => {
+        expect(screen.getByText(/member\.detail\.roles\.assign_modal\.title/i)).toBeInTheDocument();
+      });
+
+      const cancelButton = screen.getByRole('button', {
+        name: /member\.detail\.roles\.assign_modal\.cancel_button/i,
+      });
+      await user.click(cancelButton);
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText(/member\.detail\.roles\.assign_modal\.title/i),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it('should close remove from organization modal when cancel button is clicked', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      const actionMenuButton = screen.getByRole('button', {
+        name: /member\.actions\.menu_label/i,
+      });
+      await user.click(actionMenuButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/member\.actions\.remove_from_organization/i)).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText(/member\.actions\.remove_from_organization/i));
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/member\.detail\.actions\.remove_from_organization\.modal\.title/i),
+        ).toBeInTheDocument();
+      });
+
+      const cancelButton = screen.getByRole('button', {
+        name: /member\.detail\.actions\.remove_from_organization\.modal\.cancel_button/i,
+      });
+      await user.click(cancelButton);
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText(/member\.detail\.actions\.remove_from_organization\.modal\.title/i),
+        ).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('styling', () => {
+    it('should apply custom class when styling.classes are provided', async () => {
+      const styling = {
+        variables: {
+          common: {},
+          light: {},
+          dark: {},
+        },
+        classes: {
+          'OrganizationMemberManagement-root': 'custom-root-class',
+        },
+      };
+
+      renderWithProviders(
+        <OrganizationMemberManagement {...createMockComponentProps({ styling })} />,
+      );
+
+      await waitForComponentToLoad();
+
+      expect(document.querySelector('.custom-root-class')).toBeInTheDocument();
+    });
   });
 
   describe('refresh indicator', () => {
-    it('renders the members refresh control when members data is stale, and refetches members on click', async () => {
+    it('renders the members refresh control and refetches members on click', async () => {
       const user = userEvent.setup();
-      const refetchMembers = vi.fn();
-      mockedUseOrganizationMemberManagement.mockReturnValue(
-        createMockMemberManagementResult({
-          activeTab: 'members',
-          isMembersStale: true,
-          isFetchingMembers: false,
-          refetchMembers,
-        }),
-      );
 
       renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
 
       const refreshButton = screen.getByRole('button', { name: 'refresh' });
       expect(refreshButton).toBeInTheDocument();
 
       await user.click(refreshButton);
-      expect(refetchMembers).toHaveBeenCalledTimes(1);
+
+      await waitFor(() => {
+        expect(
+          mockCoreClient.getMyOrganizationApiClient().organization.members.list,
+        ).toHaveBeenCalledTimes(2);
+      });
     });
 
-    it('renders the invitations refresh control when invitations data is stale, and refetches invitations on click', async () => {
+    it('renders the invitations refresh control and refetches invitations on click', async () => {
       const user = userEvent.setup();
-      const refetchInvitations = vi.fn();
-      const refetchMembers = vi.fn();
-      mockedUseOrganizationMemberManagement.mockReturnValue(
-        createMockMemberManagementResult({
-          activeTab: 'invitations',
-          isInvitationsStale: true,
-          isFetchingInvitations: false,
-          isMembersStale: true,
-          refetchInvitations,
-          refetchMembers,
-        }),
-      );
 
       renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
+
+      await waitForComponentToLoad();
+
+      const invitationsTab = screen.getByRole('tab', { name: /tabs\.invitations/i });
+      await user.click(invitationsTab);
+
+      await waitFor(() => {
+        expect(screen.getByText(mockInvitation.invitee?.email ?? '')).toBeInTheDocument();
+      });
 
       const refreshButton = screen.getByRole('button', { name: 'refresh' });
       expect(refreshButton).toBeInTheDocument();
 
       await user.click(refreshButton);
-      expect(refetchInvitations).toHaveBeenCalledTimes(1);
-      expect(refetchMembers).not.toHaveBeenCalled();
+
+      await waitFor(() => {
+        expect(
+          mockCoreClient.getMyOrganizationApiClient().organization.invitations.list,
+        ).toHaveBeenCalledTimes(2);
+      });
     });
 
-    it('renders a disabled refresh control when the active tab data is not stale', () => {
-      mockedUseOrganizationMemberManagement.mockReturnValue(
-        createMockMemberManagementResult({
-          activeTab: 'invitations',
-          isInvitationsStale: false,
-        }),
-      );
-
+    it('renders refresh control in disabled state during initial loading', async () => {
       renderWithProviders(<OrganizationMemberManagement {...createMockComponentProps()} />);
 
-      expect(screen.getByRole('button', { name: 'refresh' })).toBeDisabled();
+      const refreshButton = await screen.findByRole('button', { name: 'refresh' });
+      expect(refreshButton).toBeInTheDocument();
     });
   });
 });

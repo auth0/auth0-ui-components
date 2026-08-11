@@ -20,7 +20,9 @@ import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useDebouncedValue } from '@/hooks/shared/use-debounced-value';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MEMBER_ACCESS_LEVELS } from '@/lib/constants/common-constants';
 import { DEFAULT_ROLES_PAGE_SIZE } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import { isIdpKnownResponse } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type {
@@ -40,7 +42,7 @@ const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
 };
 
 const MEMBER_LIST_FIELDS =
-  'user_id,email,name,nickname,given_name,family_name,created_at,updated_at,last_login,phone_number,roles';
+  'user_id,email,name,nickname,given_name,family_name,created_at,updated_at,last_login,phone_number,roles,access_level';
 
 /**
  * Builds a sort parameter string for the API.
@@ -90,8 +92,10 @@ export function useMemberManagementService(
     queryFn: async () => {
       const response: ListIdentityProvidersResponseContent = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.identityProviders.list();
-      const providers = response.identity_providers ?? [];
+        .organization.identityProviders.list({
+          member_access_level: [...MEMBER_ACCESS_LEVELS],
+        });
+      const providers = response.identity_providers?.filter(isIdpKnownResponse) ?? [];
       return providers
         .filter((p) => !!p.id)
         .map((p) => ({
@@ -106,9 +110,10 @@ export function useMemberManagementService(
   const userStoresQuery = useQuery<ConnectionOption[]>({
     queryKey: memberManagementQueryKeys.userStores(),
     queryFn: async () => {
-      const page = await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.userStores.get({ is_enabled: true });
+      const page = await coreClient!.getMyOrganizationApiClient().organization.userStores.list({
+        is_enabled: true,
+        member_access_level: [...MEMBER_ACCESS_LEVELS],
+      });
       const userStores = page.user_stores ?? [];
       return userStores
         .filter((store) => !!store.id)

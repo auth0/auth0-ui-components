@@ -6,6 +6,7 @@ import {
   MAX_ROLES_PER_MEMBER,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import {
+  canMutateMember,
   getInitials,
   getInvitationStatus,
   getMemberDisplayName,
@@ -250,5 +251,35 @@ describe('validateRequestRoleForMember', () => {
     const memberRoles = makeRoles(MAX_ROLES_PER_MEMBER, 'existing') as never;
     // With assign defaulted to false, the per-member cap should be skipped.
     expect(validateRequestRoleForMember(t, ['new-1'], memberRoles)).toBeNull();
+  });
+});
+
+describe('canMutateMember', () => {
+  it('returns true for full access_level', () => {
+    expect(canMutateMember('full')).toBe(true);
+  });
+
+  it('returns true for limited access_level', () => {
+    expect(canMutateMember('limited')).toBe(true);
+  });
+
+  it('returns false for readonly access_level', () => {
+    expect(canMutateMember('readonly')).toBe(false);
+  });
+
+  it('returns false for none access_level', () => {
+    expect(canMutateMember('none')).toBe(false);
+  });
+
+  it('returns false for undefined access_level', () => {
+    expect(canMutateMember(undefined)).toBe(false);
+  });
+
+  it('returns false for empty string access_level', () => {
+    expect(canMutateMember('')).toBe(false);
+  });
+
+  it('returns false for unknown access_level', () => {
+    expect(canMutateMember('unknown')).toBe(false);
   });
 });

@@ -6,7 +6,7 @@ import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service
 import {
   createMockAvailableFactors,
   createMockEmptyAuthenticationMethods,
-} from '@/tests/utils/__mocks__/my-account/mfa/mfa.mocks';
+} from '@/tests/utils/__mocks__/my-account/user-mfa-management/user-mfa-management.mocks';
 import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import {
   createMockInvitation,
@@ -75,7 +75,7 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
         },
       },
       userStores: {
-        get: vi.fn().mockResolvedValue(createMockListUserStoresResponse()),
+        list: vi.fn().mockResolvedValue(createMockListUserStoresResponse()),
       },
       roles: {
         list: vi.fn().mockResolvedValue({

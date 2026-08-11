@@ -6,6 +6,7 @@
 import type {
   SharedComponentProps,
   BackButton,
+  ComponentAction,
   SsoProviderEditMessages,
   IdpKnownResponse,
   IdpId,
@@ -87,6 +88,7 @@ export interface SsoProviderEditProps
   provisioning?: SsoProvisioningTabEditProps;
   domains?: SsoDomainsTabEditProps;
   backButton?: SsoProviderEditBackButton;
+  enableProviderAction?: ComponentAction<IdpKnownResponse>;
 }
 
 /** useSsoProviderEdit options. */
@@ -95,6 +97,7 @@ export interface UseSsoProviderEditOptions extends SharedComponentProps {
   provisioning?: SsoProvisioningTabEditProps;
   domains?: SsoDomainsTabEditProps;
   skipProvisioningFetch?: boolean;
+  enableProviderAction?: ComponentAction<IdpKnownResponse>;
 }
 
 export interface UseSsoProviderEditServiceReturn {
@@ -103,6 +106,7 @@ export interface UseSsoProviderEditServiceReturn {
   provisioningConfig: GetIdPProvisioningConfigResponseContent | null;
   isLoading: boolean;
   isUpdating: boolean;
+  isEnabling: boolean;
   isDeleting: boolean;
   isRemoving: boolean;
   isProvisioningUpdating: boolean;
@@ -119,6 +123,7 @@ export interface UseSsoProviderEditServiceReturn {
   fetchOrganizationDetails: () => Promise<void>;
   fetchProvisioning: () => Promise<GetIdPProvisioningConfigResponseContent | null>;
   updateProvider: (data: UpdateIdentityProviderRequestContentPrivate) => Promise<void>;
+  enableProvider: (enabled: boolean) => Promise<void>;
   createProvisioning: () => Promise<void>;
   deleteProvisioning: () => Promise<void>;
   listScimTokens: () => Promise<ListIdpProvisioningScimTokensResponseContent | null>;
@@ -158,57 +163,23 @@ export interface SsoProviderAttributeSyncAlertProps {
   customMessages?: Partial<AttributeSyncAlertMessages>;
 }
 
-export type SsoProviderEditViewProps = {
-  logic: SsoProviderEditLogicProps;
-  handlers: SsoProviderEditHandlerProps;
-};
-
-export interface SsoProviderEditLogicProps
-  extends SsoProviderEditProps,
-    Omit<
-      UseSsoProviderEditLogicResult,
-      'handleToggleProvider' | 'isLoadingConfig' | 'isLoadingIdpConfig'
-    >,
+export interface SsoProviderEditViewProps
+  extends UseSsoProviderEditReturn,
     Pick<
-      UseSsoProviderEditReturn,
-      | 'provider'
-      | 'organization'
-      | 'isLoading'
-      | 'isUpdating'
-      | 'isDeleting'
-      | 'isRemoving'
-      | 'isProvisioningUpdating'
-      | 'isProvisioningDeleting'
-      | 'isScimTokensLoading'
-      | 'isScimTokenCreating'
-      | 'isScimTokenDeleting'
-      | 'isSsoAttributesSyncing'
-      | 'isProvisioningAttributesSyncing'
-      | 'hasSsoAttributeSyncWarning'
-      | 'hasProvisioningAttributeSyncWarning'
-    > {}
-
-export interface SsoProviderEditHandlerProps {
-  updateProvider: (data: UpdateIdentityProviderRequestContentPrivate) => Promise<void>;
-  createProvisioningAction: () => Promise<void>;
-  deleteProvisioningAction: () => Promise<void>;
-  listScimTokens: () => Promise<ListIdpProvisioningScimTokensResponseContent | null>;
-  createScimTokenAction: (
-    data: CreateIdpProvisioningScimTokenRequestContent,
-  ) => Promise<CreateIdpProvisioningScimTokenResponseContent | undefined>;
-  deleteScimTokenAction: (idpScimTokenId: string) => Promise<void>;
-  syncSsoAttributes: () => Promise<void>;
-  syncProvisioningAttributes: () => Promise<void>;
-  onDeleteConfirm: () => Promise<void>;
-  onRemoveConfirm: () => Promise<void>;
-  handleToggleProvider: (enabled: boolean) => Promise<void>;
-}
-
-export interface UseSsoProviderEditLogicResult {
-  shouldAllowDeletion: boolean;
-  isLoadingConfig: boolean;
-  idpConfig: GetIdpConfigurationResponseContent | null;
-  isLoadingIdpConfig: boolean;
+      SsoProviderEditProps,
+      | 'styling'
+      | 'customMessages'
+      | 'backButton'
+      | 'schema'
+      | 'readOnly'
+      | 'providerId'
+      | 'domains'
+      | 'hideHeader'
+      | 'hideProvisioningTab'
+      | 'hideDeleteProvider'
+      | 'hideRemoveFromOrganization'
+      | 'hideAttributeMappings'
+      | 'enableProviderAction'
+    > {
   showProvisioningTab: boolean;
-  handleToggleProvider: (enabled: boolean) => Promise<void>;
 }

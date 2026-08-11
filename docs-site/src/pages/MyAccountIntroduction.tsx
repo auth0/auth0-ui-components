@@ -48,7 +48,7 @@ export default function MyAccountIntroduction() {
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  UserMFAMgmt{' '}
+                  UserMFAManagement{' '}
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-3">
                     Available
                   </span>
@@ -265,7 +265,7 @@ VITE_AUTH0_CLIENT_ID=your-spa-client-id`}
                 href="/my-account/user-mfa-management"
                 className="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-medium transition-colors"
               >
-                Explore UserMFAMgmt
+                Explore UserMFAManagement
                 <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"

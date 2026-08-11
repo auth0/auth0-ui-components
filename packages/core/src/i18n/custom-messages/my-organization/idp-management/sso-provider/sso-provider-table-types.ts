@@ -25,6 +25,8 @@ export interface SsoProviderTableMessages {
       edit_button_text?: string;
       delete_button_text?: string;
       remove_button_text?: string;
+      enabled_tooltip?: string;
+      disabled_tooltip?: string;
     };
   };
   create_consent_modal?: {
