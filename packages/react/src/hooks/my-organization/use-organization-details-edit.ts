@@ -31,8 +31,12 @@ export function useOrganizationDetailsEdit({
   customMessages = {},
 }: UseOrganizationDetailsEditOptions): UseOrganizationDetailsEditResult {
   const service = useOrganizationDetailsEditService({ saveAction, customMessages });
-  const { showThirdPartyAccess, isThirdPartyAccessReadOnly, thirdPartyAccessDefaultValue } =
-    useConfig();
+  const {
+    showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
+    thirdPartyAccessDefaultValue,
+    isLoadingConfig,
+  } = useConfig();
 
   const hasData = !!service.organization.name;
   const isActionDisabled = service.isSaveLoading || service.isInitializing;
@@ -66,6 +70,7 @@ export function useOrganizationDetailsEdit({
     isFetchLoading: service.isFetchLoading,
     isSaveLoading: service.isSaveLoading,
     isInitializing: service.isInitializing,
+    isLoadingConfig,
     formActions,
     fetchOrgDetails: service.fetchOrgDetails,
     updateOrgDetails: service.updateOrgDetails,

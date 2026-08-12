@@ -50,6 +50,7 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
   const {
     organization,
     isFetchLoading,
+    isLoadingConfig,
     formActions,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,
@@ -62,7 +63,7 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
   });
 
   return (
-    <GateKeeper isLoading={isFetchLoading} styling={styling}>
+    <GateKeeper isLoading={isFetchLoading || isLoadingConfig} styling={styling}>
       <OrganizationDetailsEditView
         organization={organization}
         schema={schema}
