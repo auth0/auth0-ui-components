@@ -132,6 +132,9 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     backButton,
     shouldAllowDeletion,
     showProvisioningTab,
+    showThirdPartyAccess,
+    showCrossAppAccess,
+    isCrossAppAccessReadOnly,
     isProvisioningUpdating,
     isProvisioningDeleting,
     isScimTokensLoading,
@@ -240,6 +243,9 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 },
               }}
               readOnly={readOnly}
+              showThirdPartyAccess={showThirdPartyAccess}
+              showCrossAppAccess={showCrossAppAccess}
+              isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
             />
           </TabsContent>
 
