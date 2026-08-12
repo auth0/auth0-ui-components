@@ -900,7 +900,7 @@
       "unsaved_changes_text": "Unsaved changes",
       "submit_button_label": "Save",
       "third_party_access": {
-        "title": "Third party Application Access",
+        "title": "Third-Party Application Access",
         "label": "Allow this provider to be used by third-party applications",
         "helper_text": "Applications outside the official platform can authenticate users through this provider."
       },

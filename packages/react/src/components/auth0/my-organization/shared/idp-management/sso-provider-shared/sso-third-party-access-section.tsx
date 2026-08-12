@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
+import { useId } from '@/lib/utils/use-id-compat';
 import type { ThirdPartyAccessSectionProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 
 /**
@@ -23,13 +24,13 @@ export function SsoThirdPartyAccessSection({
   readOnly = false,
   customMessages = {},
   className,
-}: ThirdPartyAccessSectionProps): React.JSX.Element {
+}: ThirdPartyAccessSectionProps): React.ReactElement {
   const { t } = useTranslator(
     'idp_management.sso_provider_details.third_party_access',
     customMessages as Record<string, unknown>,
   );
 
-  const id = React.useId();
+  const id = useId();
   const checkboxId = `${id}-checkbox`;
   const descriptionId = `${id}-description`;
 
