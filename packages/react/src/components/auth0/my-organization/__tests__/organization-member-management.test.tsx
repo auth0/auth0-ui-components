@@ -16,7 +16,10 @@ import {
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
-import type { OrganizationMemberManagementProps } from '@/types/my-organization/member-management/organization-member-management-types';
+import type {
+  OrganizationMemberManagementProps,
+  ViewMemberDetailsParams,
+} from '@/types/my-organization/member-management/organization-member-management-types';
 
 mockToast();
 const { initMockCoreClient } = mockCore();
@@ -453,6 +456,81 @@ describe('OrganizationMemberManagement', () => {
       await waitForComponentToLoad();
 
       expect(screen.getByRole('table')).toBeInTheDocument();
+    });
+
+    it('should call viewMemberDetailsAction.onAfter with ViewMemberDetailsParams when view details is clicked', async () => {
+      const user = userEvent.setup();
+      const onAfter = vi.fn();
+      const viewMemberDetailsAction: ComponentAction<ViewMemberDetailsParams> = {
+        onAfter,
+      };
+
+      renderWithProviders(
+        <OrganizationMemberManagement {...createMockComponentProps({ viewMemberDetailsAction })} />,
+      );
+
+      await waitForComponentToLoad();
+
+      const actionMenuButton = screen.getByRole('button', {
+        name: /member\.actions\.menu_label/i,
+      });
+      await user.click(actionMenuButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/member\.actions\.view_details/i)).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText(/member\.actions\.view_details/i));
+
+      await waitFor(() => {
+        expect(onAfter).toHaveBeenCalledWith(
+          expect.objectContaining({
+            userId: mockMember.user_id,
+          }),
+        );
+      });
+    });
+
+    it('should call viewMemberDetailsAction.onAfter with tab "roles" when +More roles button is clicked', async () => {
+      const user = userEvent.setup();
+      const onAfter = vi.fn();
+      const viewMemberDetailsAction: ComponentAction<ViewMemberDetailsParams> = {
+        onAfter,
+      };
+
+      const memberWithManyRoles = createMockMember({
+        user_id: 'auth0|user_many_roles',
+        roles: [
+          { id: 'r1', name: 'Admin' },
+          { id: 'r2', name: 'Member' },
+          { id: 'r3', name: 'Viewer' },
+        ],
+      });
+
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.members.list as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue({
+        data: [memberWithManyRoles],
+        response: { next: null, total: 1 },
+      });
+
+      renderWithProviders(
+        <OrganizationMemberManagement {...createMockComponentProps({ viewMemberDetailsAction })} />,
+      );
+
+      await waitForComponentToLoad();
+
+      const moreButton = screen.getByRole('button', { name: /member\.table\.view_all_roles/i });
+      await user.click(moreButton);
+
+      await waitFor(() => {
+        expect(onAfter).toHaveBeenCalledWith({
+          userId: 'auth0|user_many_roles',
+          tab: 'roles',
+        });
+      });
     });
   });
 

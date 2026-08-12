@@ -60,6 +60,21 @@ describe('OrganizationMemberAssignRolesModal', () => {
     });
   });
 
+  describe('when isLoadingRoles is true', () => {
+    it('shows the loading state', () => {
+      renderWithProviders(
+        <OrganizationMemberAssignRolesModal
+          {...createMockAssignRolesModalProps({ isLoadingRoles: true })}
+        />,
+      );
+
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(
+        screen.queryByText('member.detail.roles.assign_modal.roles_label'),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe('no roles available', () => {
     it('should show no roles message when all roles are already assigned', () => {
       const availableRoles = createMockAvailableRoles();

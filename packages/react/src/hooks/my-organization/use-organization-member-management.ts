@@ -11,6 +11,7 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { ROLES_PREFETCH_THRESHOLD } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   ConnectionOption,
@@ -23,6 +24,7 @@ import type {
   MemberManagementSortConfig,
   UseOrganizationMemberManagementOptions,
   UseOrganizationMemberManagementResult,
+  ViewMemberDetailsParams,
 } from '@/types/my-organization/member-management/organization-member-management-types';
 
 /**
@@ -82,6 +84,9 @@ export function useOrganizationMemberManagement(
   const [selectedInvitations, setSelectedInvitations] = React.useState<MemberInvitation[]>([]);
   const detailsRequestIdRef = React.useRef(0);
 
+  const selectedMemberForRoles = modalState.type === 'assignRole' ? modalState.member : null;
+  const selectedMemberRolesCount = selectedMemberForRoles?.roles?.length ?? 0;
+
   const {
     providersQuery,
     userStoresQuery,
@@ -92,6 +97,7 @@ export function useOrganizationMemberManagement(
     invitationsQuery,
     membersQuery,
     organizationQuery,
+    memberRolesQuery,
     createInvitationMutation,
     revokeInvitationMutation,
     resendInvitationMutation,
@@ -101,6 +107,9 @@ export function useOrganizationMemberManagement(
   } = useMemberManagementService({
     customMessages,
     activeTab,
+    userId: selectedMemberForRoles?.user_id,
+    memberRolesQueryEnabled:
+      modalState.type === 'assignRole' && selectedMemberRolesCount >= ROLES_PREFETCH_THRESHOLD,
     createInvitationAction,
     revokeInvitationAction,
     resendInvitationAction,
@@ -217,8 +226,8 @@ export function useOrganizationMemberManagement(
   }, []);
 
   const handleViewMemberDetails = React.useCallback(
-    (userId: string) => {
-      viewMemberDetailsAction?.onAfter?.(userId);
+    (params: ViewMemberDetailsParams) => {
+      viewMemberDetailsAction?.onAfter?.(params);
     },
     [viewMemberDetailsAction],
   );
@@ -324,6 +333,8 @@ export function useOrganizationMemberManagement(
     isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
     isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),
     isAssigningRoles: isMutationLoading(assignRolesMutation),
+    isLoadingMemberRoles: memberRolesQuery.isLoading,
+    memberRoles: memberRolesQuery.data,
     isCreatingInvitation: isMutationLoading(createInvitationMutation),
     isRevokingInvitation: isMutationLoading(revokeInvitationMutation),
     isResendingInvitation: isMutationLoading(resendInvitationMutation),

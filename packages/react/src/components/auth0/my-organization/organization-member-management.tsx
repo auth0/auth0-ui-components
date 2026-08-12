@@ -65,6 +65,8 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     memberSortConfig,
     isAssigningRoles,
     isRemovingFromOrganization,
+    isLoadingMemberRoles,
+    memberRoles,
     availableRoles,
     searchedRoles,
     onRoleSearch,
@@ -319,8 +321,9 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           selectedMember={selectedMember}
           isOpen={modalState.type === 'assignRole'}
           isLoading={isAssigningRoles}
+          isLoadingRoles={isLoadingMemberRoles}
           availableRoles={searchedRoles}
-          assignedRoles={selectedMember?.roles || []}
+          assignedRoles={memberRoles ?? selectedMember?.roles ?? []}
           customMessages={customMessages?.member}
           onClose={closeModal}
           onAssign={handleAssignRolesSubmit}
