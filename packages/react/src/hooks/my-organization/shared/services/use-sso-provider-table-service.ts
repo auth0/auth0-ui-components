@@ -20,6 +20,8 @@ import { useCallback } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MEMBER_ACCESS_LEVELS } from '@/lib/constants/common-constants';
+import { isIdpKnownResponse } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type { UseSsoProviderTableServiceReturn } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
@@ -49,8 +51,8 @@ export function useSsoProviderTableService(
     queryFn: async () => {
       const response = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.identityProviders.list();
-      return (response?.identity_providers ?? []) as IdpKnownResponse[];
+        .organization.identityProviders.list({ member_access_level: [...MEMBER_ACCESS_LEVELS] });
+      return (response?.identity_providers ?? []).filter(isIdpKnownResponse);
     },
     enabled: !!coreClient,
   });
@@ -105,6 +107,16 @@ export function useSsoProviderTableService(
           provider.id === selectedIdp.id ? { ...provider, ...updatedProvider } : provider,
         );
       });
+
+      if (selectedIdp.id) {
+        queryClient.setQueryData(
+          ssoProviderQueryKeys.detail(selectedIdp.id),
+          (old: IdpKnownResponse | undefined) => {
+            if (!old) return old;
+            return { ...old, ...updatedProvider };
+          },
+        );
+      }
     },
   });
 

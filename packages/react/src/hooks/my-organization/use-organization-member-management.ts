@@ -13,8 +13,8 @@ import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-paginatio
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
+  ConnectionOption,
   CreateInvitationInput,
-  IdentityProviderOption,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   ActiveTab,
@@ -79,10 +79,12 @@ export function useOrganizationMemberManagement(
   } = useCheckpointPagination<MemberManagementFilterState>();
 
   const [modalState, setModalState] = React.useState<MemberManagementModalState>({ type: null });
+  const [selectedInvitations, setSelectedInvitations] = React.useState<MemberInvitation[]>([]);
   const detailsRequestIdRef = React.useRef(0);
 
   const {
     providersQuery,
+    userStoresQuery,
     rolesQuery,
     rolesSearchQuery,
     setRoleSearchTerm,
@@ -125,7 +127,14 @@ export function useOrganizationMemberManagement(
     }
   }, [modalState.type, enableRoleSearch]);
 
-  const availableProviders: IdentityProviderOption[] = providersQuery.data ?? [];
+  React.useEffect(() => {
+    setSelectedInvitations([]);
+  }, [activeTab, invitationFilters, invitationSortConfig]);
+
+  const availableConnections: ConnectionOption[] = React.useMemo(
+    () => [...(providersQuery.data ?? []), ...(userStoresQuery.data ?? [])],
+    [providersQuery.data, userStoresQuery.data],
+  );
   const availableRoles = rolesQuery.data ?? [];
   const searchedRoles = rolesSearchQuery.data ?? [];
   const currentInvitations = invitationsQuery.data?.invitations ?? [];
@@ -138,6 +147,7 @@ export function useOrganizationMemberManagement(
     async (state: MemberManagementModalState) => {
       if (state.type === 'create' && readOnly) return;
       if ((state.type === 'revoke' || state.type === 'revokeResend') && readOnly) return;
+      if (state.type === 'bulkRevoke' && readOnly) return;
       setModalState(state);
 
       if (state.type === 'details') {
@@ -171,9 +181,18 @@ export function useOrganizationMemberManagement(
   );
 
   const handleRevokeConfirm = React.useCallback(() => {
-    if (modalState.type !== 'revoke') return;
-    revokeInvitationMutation.mutate(modalState.invitation, {
-      onSuccess: () => closeModal(),
+    const invitations =
+      modalState.type === 'revoke'
+        ? [modalState.invitation]
+        : modalState.type === 'bulkRevoke'
+          ? modalState.invitations
+          : [];
+    if (invitations.length === 0) return;
+    revokeInvitationMutation.mutate(invitations, {
+      onSuccess: () => {
+        setSelectedInvitations([]);
+        closeModal();
+      },
     });
   }, [modalState, revokeInvitationMutation, closeModal]);
 
@@ -183,6 +202,14 @@ export function useOrganizationMemberManagement(
       onSuccess: () => closeModal(),
     });
   }, [modalState, resendInvitationMutation, closeModal]);
+
+  const handleBulkRevokeClick = React.useCallback(
+    (invitations: MemberInvitation[]) => {
+      if (readOnly || invitations.length === 0) return;
+      openModal({ type: 'bulkRevoke', invitations });
+    },
+    [readOnly, openModal],
+  );
 
   const handleCopyUrl = React.useCallback(async (invitation: MemberInvitation) => {
     if (!invitation.invitation_url) return;
@@ -279,13 +306,14 @@ export function useOrganizationMemberManagement(
     availableRoles,
     searchedRoles,
     onRoleSearch: setRoleSearchTerm,
-    availableProviders,
+    availableConnections,
 
     invitations: currentInvitations,
     members: currentMembers,
     organizationDisplayName: organizationDisplayName,
     isInitialLoading: membersQuery.isLoading,
     isFetchingInvitations: invitationsQuery.isFetching,
+    isLoadingInvitations: invitationsQuery.isLoading,
     isFetchingMembers: membersQuery.isFetching,
     isMembersStale: membersQuery.isStale,
     isInvitationsStale: invitationsQuery.isStale,
@@ -299,6 +327,7 @@ export function useOrganizationMemberManagement(
     isCreatingInvitation: isMutationLoading(createInvitationMutation),
     isRevokingInvitation: isMutationLoading(revokeInvitationMutation),
     isResendingInvitation: isMutationLoading(resendInvitationMutation),
+    selectedInvitations,
     invitationPagination: {
       pageSize: invitationPageSize,
       currentPage: invitationCurrentPage,
@@ -320,9 +349,11 @@ export function useOrganizationMemberManagement(
     setActiveTab,
     openModal,
     closeModal,
+    onSelectedInvitationsChange: setSelectedInvitations,
     handleCreateSubmit,
     handleRevokeConfirm,
     handleRevokeResendConfirm,
+    handleBulkRevokeClick,
     handleCopyUrl,
     handleNextPage,
     handlePreviousPage,

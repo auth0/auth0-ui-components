@@ -126,3 +126,13 @@ export type RoleId = MyOrganization.RoleId;
  * Response content for listing organization roles.
  */
 export type ListRolesResponseContent = MyOrganization.ListRolesResponseContent;
+
+/**
+ * User store available for routing invitations (e.g. an enterprise directory).
+ */
+export type UserStore = MyOrganization.UserStore;
+
+/**
+ * Response content for listing organization user stores.
+ */
+export type ListUserStoresResponseContent = MyOrganization.ListUserStoresResponseContent;

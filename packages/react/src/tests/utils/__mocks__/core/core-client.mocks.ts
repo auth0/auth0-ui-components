@@ -6,9 +6,12 @@ import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service
 import {
   createMockAvailableFactors,
   createMockEmptyAuthenticationMethods,
-} from '@/tests/utils/__mocks__/my-account/mfa/mfa.mocks';
+} from '@/tests/utils/__mocks__/my-account/user-mfa-management/user-mfa-management.mocks';
 import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
-import { createMockInvitation } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
+import {
+  createMockInvitation,
+  createMockListUserStoresResponse,
+} from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 
 const createMockMyAccountApiService = (): CoreClientInterface['myAccountApiClient'] => {
@@ -65,6 +68,10 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
         get: vi.fn().mockResolvedValue(createMockInvitation()),
         create: vi.fn().mockResolvedValue([createMockInvitation()]),
         delete: vi.fn().mockResolvedValue(undefined),
+        deleteMemberInvitations: vi.fn().mockResolvedValue(undefined),
+      },
+      userStores: {
+        list: vi.fn().mockResolvedValue(createMockListUserStoresResponse()),
       },
       roles: {
         list: vi.fn().mockResolvedValue({

@@ -20,13 +20,18 @@ import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useDebouncedValue } from '@/hooks/shared/use-debounced-value';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MEMBER_ACCESS_LEVELS } from '@/lib/constants/common-constants';
 import {
   DEFAULT_ROLES_PAGE_SIZE,
   MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import { isIdpKnownResponse } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
-import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
+import type {
+  ConnectionOption,
+  CreateInvitationInput,
+} from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   UseMemberManagementServiceOptions,
   MemberManagementServiceResult,
@@ -40,7 +45,7 @@ const INVITATION_SORT_FIELD_MAP: Record<string, string> = {
 };
 
 const MEMBER_LIST_FIELDS =
-  'user_id,email,name,nickname,given_name,family_name,created_at,updated_at,last_login,phone_number,roles';
+  'user_id,email,name,nickname,given_name,family_name,created_at,updated_at,last_login,phone_number,roles,access_level';
 
 /**
  * Builds a sort parameter string for the API.
@@ -85,18 +90,41 @@ export function useMemberManagementService(
   const handleError = useErrorHandler();
   const queryClient = useQueryClient();
 
-  const providersQuery = useQuery({
-    queryKey: [...memberManagementQueryKeys.all, 'identity-providers'],
+  const providersQuery = useQuery<ConnectionOption[]>({
+    queryKey: memberManagementQueryKeys.identityProviders(),
     queryFn: async () => {
       const response: ListIdentityProvidersResponseContent = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.identityProviders.list();
-      const providers = response.identity_providers ?? [];
-      return providers.map((p) => ({
-        id: p.id!,
-        name: p.display_name ?? p.name ?? '',
-        type: p.strategy,
-      }));
+        .organization.identityProviders.list({
+          member_access_level: [...MEMBER_ACCESS_LEVELS],
+        });
+      const providers = response.identity_providers?.filter(isIdpKnownResponse) ?? [];
+      return providers
+        .filter((p) => !!p.id)
+        .map((p) => ({
+          id: p.id!,
+          name: p.display_name ?? p.name ?? p.id!,
+          type: 'identity_provider' as const,
+        }));
+    },
+    enabled: !!coreClient && isActiveTabProvided,
+  });
+
+  const userStoresQuery = useQuery<ConnectionOption[]>({
+    queryKey: memberManagementQueryKeys.userStores(),
+    queryFn: async () => {
+      const page = await coreClient!.getMyOrganizationApiClient().organization.userStores.list({
+        is_enabled: true,
+        member_access_level: [...MEMBER_ACCESS_LEVELS],
+      });
+      const userStores = page.user_stores ?? [];
+      return userStores
+        .filter((store) => !!store.id)
+        .map((store) => ({
+          id: store.id!,
+          name: store.display_name ?? store.name ?? store.id!,
+          type: 'user_store' as const,
+        }));
     },
     enabled: !!coreClient && isActiveTabProvided,
   });
@@ -280,6 +308,7 @@ export function useMemberManagementService(
           invitees: data.invitees,
           inviter: data.inviter,
           identity_provider_id: data.identity_provider_id,
+          user_store_id: data.user_store_id,
           ttl_sec: data.ttl_sec,
         });
       return Array.isArray(response) ? response[0] : response;
@@ -299,25 +328,34 @@ export function useMemberManagementService(
   });
 
   const revokeInvitationMutation = useMutation({
-    mutationFn: async (invitation: MemberInvitation) => {
-      if (revokeInvitationAction?.onBefore && !revokeInvitationAction.onBefore(invitation)) {
+    mutationFn: async (invitations: MemberInvitation[]) => {
+      if (revokeInvitationAction?.onBefore && !revokeInvitationAction.onBefore(invitations)) {
         throw new Error('Revoke action cancelled by onBefore');
       }
+      const ids = invitations.map((invitation) => invitation.id).filter((id): id is string => !!id);
       await coreClient!
         .getMyOrganizationApiClient()
-        .organization.invitations.delete(invitation.id!);
-      return invitation;
+        .organization.invitations.deleteMemberInvitations({ invitations: ids });
+      return invitations;
     },
-    onSuccess: (invitation) => {
-      revokeInvitationAction?.onAfter?.(invitation);
+    onSuccess: (invitations) => {
+      revokeInvitationAction?.onAfter?.(invitations);
       showToast({
         type: 'success',
-        message: t('invitation.revoke.success', { email: invitation.invitee?.email ?? '' }),
+        message:
+          invitations.length === 1
+            ? t('invitation.revoke.success', { email: invitations[0]?.invitee?.email ?? '' })
+            : t('invitation.bulk_revoke.success', { count: invitations.length }),
       });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.invitations() });
     },
-    onError: (error) => {
-      handleError(error, { fallbackMessage: t('invitation.error.revoke_failed') });
+    onError: (error, invitations) => {
+      handleError(error, {
+        fallbackMessage:
+          invitations.length === 1
+            ? t('invitation.error.revoke_failed')
+            : t('invitation.error.bulk_revoke_failed'),
+      });
     },
   });
 
@@ -329,15 +367,26 @@ export function useMemberManagementService(
       const freshInvitation = await coreClient!
         .getMyOrganizationApiClient()
         .organization.invitations.get(invitation.id!);
+      const identityProviderId =
+        freshInvitation.identity_provider_id ?? invitation.identity_provider_id;
+      const userStoreId = freshInvitation.user_store_id ?? invitation.user_store_id;
+
+      if (!identityProviderId && !userStoreId) {
+        throw new Error(t('invitation.error.connection_required'));
+      }
       await coreClient!
         .getMyOrganizationApiClient()
-        .organization.invitations.delete(freshInvitation.id ?? invitation.id!);
+        .organization.invitations.deleteMemberInvitations({
+          invitations: [freshInvitation.id ?? invitation.id!],
+        });
       const email = freshInvitation.invitee?.email ?? invitation.invitee?.email ?? '';
       const roles = freshInvitation.roles ?? invitation.roles;
       const response = await coreClient!
         .getMyOrganizationApiClient()
         .organization.invitations.create({
           invitees: [{ email, roles }],
+          identity_provider_id: identityProviderId,
+          user_store_id: userStoreId,
         });
       return Array.isArray(response) ? response[0] : response;
     },
@@ -366,6 +415,7 @@ export function useMemberManagementService(
 
   return {
     providersQuery,
+    userStoresQuery,
     rolesQuery,
     rolesSearchQuery,
     setRoleSearchTerm,

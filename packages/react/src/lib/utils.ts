@@ -5,7 +5,28 @@
  */
 
 import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { extendTailwindMerge } from 'tailwind-merge';
+
+/**
+ * Without this, e.g. `cn('text-primary-foreground', 'text-heading')` drops the color class.
+ * Fix: register these as their own font-size group so they no longer conflict with text-color.
+ */
+const customTwMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      'font-size': [
+        'text-page-header',
+        'text-page-description',
+        'text-heading',
+        'text-title',
+        'text-subtitle',
+        'text-body',
+        'text-paragraph',
+        'text-label',
+      ],
+    },
+  },
+});
 
 /**
  * Merges class names with Tailwind CSS conflict resolution.
@@ -14,5 +35,5 @@ import { twMerge } from 'tailwind-merge';
  * @internal
  */
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  return customTwMerge(clsx(inputs));
 }

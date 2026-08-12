@@ -13,6 +13,7 @@ import { SearchFilter } from '@/components/auth0/my-organization/shared/member-m
 import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import { getInvitationStatus } from '@/lib/utils/my-organization/member-management/member-management-utils';
@@ -30,10 +31,13 @@ import type { OrganizationInvitationTableProps } from '@/types/my-organization/m
  * @param props.filters - Current filter state.
  * @param props.availableRoles - Available roles for filtering.
  * @param props.readOnly - Whether the component is in read-only mode.
+ * @param props.selectedInvitations - The currently selected invitations.
  * @param props.onView - Callback when viewing invitation details.
  * @param props.onCopyUrl - Callback when copying invitation URL.
  * @param props.onRevokeAndResend - Callback when revoking and resending invitation.
  * @param props.onRevoke - Callback when revoking invitation.
+ * @param props.onSelectedInvitationsChange - Callback when row selection changes.
+ * @param props.onBulkRevoke - Callback when revoking the selected invitations.
  * @param props.onPageChange - Callback when page changes.
  * @param props.onPageSizeChange - Callback when page size changes.
  * @param props.onRoleFilterChange - Callback when role filter changes.
@@ -49,12 +53,15 @@ export function OrganizationInvitationTable({
   filters,
   availableRoles,
   readOnly = false,
+  selectedInvitations,
   sortConfig,
   onSortChange,
   onView,
   onCopyUrl,
   onRevokeAndResend,
   onRevoke,
+  onSelectedInvitationsChange,
+  onBulkRevoke,
   onNextPage,
   onPreviousPage,
   onPageSizeChange,
@@ -62,6 +69,9 @@ export function OrganizationInvitationTable({
   className,
 }: OrganizationInvitationTableProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
+
+  const selectionEnabled = !readOnly && !!onSelectedInvitationsChange;
+  const selectedCount = selectedInvitations?.length ?? 0;
 
   const renderDate = (_invitation: MemberInvitation, value: string | number | Date) => (
     <span className="text-primary">
@@ -81,7 +91,7 @@ export function OrganizationInvitationTable({
         type: 'text',
         accessorKey: 'invitee',
         title: t('invitation.table.columns.email'),
-        width: '25%',
+        width: '24%',
         enableSorting: false,
         render: (invitation) => (
           <div className="font-medium text-primary truncate">{invitation.invitee?.email}</div>
@@ -108,6 +118,7 @@ export function OrganizationInvitationTable({
         type: 'date',
         accessorKey: 'created_at',
         title: t('invitation.table.columns.created_at'),
+        width: '16%',
         enableSorting: true,
         format: 'medium',
         render: renderDate,
@@ -116,6 +127,7 @@ export function OrganizationInvitationTable({
         type: 'date',
         accessorKey: 'expires_at',
         title: t('invitation.table.columns.expires_at'),
+        width: '16%',
         enableSorting: false,
         format: 'medium',
         render: renderDate,
@@ -124,14 +136,16 @@ export function OrganizationInvitationTable({
         type: 'text',
         accessorKey: 'inviter',
         title: t('invitation.table.columns.inviter'),
+        width: '26%',
         enableSorting: false,
         render: (invitation) => (
-          <span className="text-primary">{invitation.inviter?.name ?? '-'}</span>
+          <div className="text-primary truncate">{invitation.inviter?.name ?? '-'}</div>
         ),
       },
       {
         type: 'actions',
         title: '',
+        width: '64px',
         enableSorting: false,
         render: (invitation) => (
           <OrganizationInvitationTableActionsColumn
@@ -158,6 +172,30 @@ export function OrganizationInvitationTable({
         onRoleFilterChange={onRoleFilterChange}
       />
 
+      {selectionEnabled && selectedCount > 0 && (
+        <div className="flex items-center justify-end gap-2 mb-2">
+          <span className="text-sm text-muted-foreground shrink-0">
+            {t(
+              selectedCount === 1
+                ? 'invitation.bulk_revoke.count'
+                : 'invitation.bulk_revoke.count_plural',
+              { count: selectedCount },
+            )}
+          </span>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => onBulkRevoke?.(selectedInvitations ?? [])}
+          >
+            {t(
+              selectedCount === 1
+                ? 'invitation.bulk_revoke.button'
+                : 'invitation.bulk_revoke.button_plural',
+            )}
+          </Button>
+        </div>
+      )}
+
       <DataTable
         columns={columns}
         data={invitations}
@@ -165,6 +203,18 @@ export function OrganizationInvitationTable({
         emptyState={{ title: t('invitation.table.empty_message') }}
         sortConfig={sortConfig}
         onSortChange={onSortChange}
+        {...(selectionEnabled
+          ? {
+              selectable: true as const,
+              selectionLabels: {
+                selectAll: t('data_table.select_all'),
+                selectRow: (index: number) => t('data_table.select_row', { index: index + 1 }),
+              },
+              selectedRows: selectedInvitations,
+              onSelectedRowsChange: onSelectedInvitationsChange,
+              getRowId: (invitation: MemberInvitation) => invitation.id!,
+            }
+          : {})}
       />
 
       {!loading && invitations.length > 0 && (

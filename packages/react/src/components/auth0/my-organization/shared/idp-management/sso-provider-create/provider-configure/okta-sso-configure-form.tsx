@@ -119,7 +119,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
             name="domain"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                <FormLabel className="text-label font-medium">
                   {t('fields.okta.domain.label')}
                 </FormLabel>
                 <FormControl>
@@ -131,11 +131,8 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
                     {...field}
                   />
                 </FormControl>
-                <FormMessage
-                  role="alert"
-                  className="text-sm text-left text-(length:--font-size-paragraph)"
-                />
-                <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                <FormMessage role="alert" className="text-left text-paragraph" />
+                <FormDescription className="text-paragraph font-normal text-left">
                   <>
                     {t.trans('fields.okta.domain.helper_text', {
                       components: {
@@ -162,7 +159,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
             name="client_id"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                <FormLabel className="text-label font-medium">
                   {t('fields.okta.client_id.label')}
                 </FormLabel>
                 <FormControl>
@@ -175,11 +172,8 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
                     {...field}
                   />
                 </FormControl>
-                <FormMessage
-                  role="alert"
-                  className="text-sm text-left text-(length:--font-size-paragraph)"
-                />
-                <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                <FormMessage role="alert" className="text-left text-paragraph" />
+                <FormDescription className="text-paragraph font-normal text-left">
                   <>
                     {t.trans('fields.okta.client_id.helper_text', {
                       components: {
@@ -206,7 +200,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
             name="client_secret"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                <FormLabel className="text-label font-medium">
                   {t('fields.okta.client_secret.label')}
                 </FormLabel>
                 <FormControl>
@@ -219,11 +213,8 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
                     {...field}
                   />
                 </FormControl>
-                <FormMessage
-                  role="alert"
-                  className="text-sm text-left text-(length:--font-size-paragraph)"
-                />
-                <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                <FormMessage role="alert" className="text-left text-paragraph" />
+                <FormDescription className="text-paragraph font-normal text-left">
                   <>
                     {t.trans('fields.okta.client_secret.helper_text', {
                       components: {
@@ -250,7 +241,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
             name="callback_url"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                <FormLabel className="text-label font-medium">
                   {t('fields.okta.callback_url.label')}
                 </FormLabel>
                 <FormControl>
@@ -262,11 +253,8 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
                     {...field}
                   />
                 </FormControl>
-                <FormMessage
-                  role="alert"
-                  className="text-sm text-left text-(length:--font-size-paragraph)"
-                />
-                <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                <FormMessage role="alert" className="text-left text-paragraph" />
+                <FormDescription className="text-paragraph font-normal text-left">
                   {t('fields.okta.callback_url.helper_text')}
                 </FormDescription>
               </FormItem>

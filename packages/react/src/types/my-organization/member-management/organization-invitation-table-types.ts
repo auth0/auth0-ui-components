@@ -22,11 +22,14 @@ import type {
 /** Invitation status. */
 export type InvitationStatus = 'pending' | 'expired';
 
-/** Identity provider option for invitation. */
-export interface IdentityProviderOption {
+/** Source that a connection option originates from. */
+export type ConnectionOptionType = 'identity_provider' | 'user_store';
+
+/** A selectable connection in the invitation picker. */
+export interface ConnectionOption {
   id: string;
   name: string;
-  type?: string;
+  type: ConnectionOptionType;
 }
 
 /** Input for creating invitation(s). Supports bulk invite via invitees array. */
@@ -39,6 +42,7 @@ export interface CreateInvitationInput {
     name?: string;
   };
   identity_provider_id?: string;
+  user_store_id?: string;
   /** Time to live in seconds */
   ttl_sec?: number;
 }
@@ -50,6 +54,7 @@ export interface OrganizationInvitationTabClasses {
   'OrganizationInvitationTab-createModal'?: string;
   'OrganizationInvitationTab-detailsModal'?: string;
   'OrganizationInvitationTab-revokeModal'?: string;
+  'OrganizationInvitationTab-bulkRevokeModal'?: string;
   'OrganizationInvitationTab-revokeResendModal'?: string;
   'OrganizationInvitationTab-searchInput'?: string;
   'OrganizationInvitationTab-filterDropdown'?: string;
@@ -88,10 +93,13 @@ export interface OrganizationInvitationTableProps {
   sortConfig?: MemberManagementSortConfig;
   availableRoles?: Role[];
   readOnly?: boolean;
+  selectedInvitations?: MemberInvitation[];
   onView?: (invitation: MemberInvitation) => void;
   onCopyUrl?: (invitation: MemberInvitation) => void;
   onRevokeAndResend?: (invitation: MemberInvitation) => void;
   onRevoke?: (invitation: MemberInvitation) => void;
+  onSelectedInvitationsChange?: (invitations: MemberInvitation[]) => void;
+  onBulkRevoke?: (invitations: MemberInvitation[]) => void;
   onNextPage?: () => void;
   onPreviousPage?: () => void;
   onPageSizeChange?: (pageSize: number) => void;
@@ -117,7 +125,7 @@ export interface OrganizationInvitationCreateModalProps {
   isLoading?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   availableRoles?: Role[];
-  availableProviders?: IdentityProviderOption[];
+  availableConnections?: ConnectionOption[];
   inviterName?: string;
   schema?: InvitationCreateSchemas;
   style?: React.CSSProperties;
@@ -135,7 +143,7 @@ export interface OrganizationInvitationDetailsModalProps {
   isResending?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   availableRoles?: Role[];
-  availableProviders?: IdentityProviderOption[];
+  availableConnections?: ConnectionOption[];
   readOnly?: boolean;
   style?: React.CSSProperties;
   onClose: () => void;
@@ -155,5 +163,17 @@ export interface OrganizationInvitationRevokeModalProps {
   style?: React.CSSProperties;
   onClose: () => void;
   onConfirm: (invitation: MemberInvitation) => void;
+  className?: string;
+}
+
+/** Props for OrganizationInvitationBulkRevokeModal component. */
+export interface OrganizationInvitationBulkRevokeModalProps {
+  invitations: MemberInvitation[];
+  isOpen: boolean;
+  isLoading?: boolean;
+  customMessages?: Partial<OrganizationInvitationTabMessages>;
+  style?: React.CSSProperties;
+  onClose: () => void;
+  onConfirm: () => void;
   className?: string;
 }

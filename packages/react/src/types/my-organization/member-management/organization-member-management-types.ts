@@ -15,8 +15,8 @@ import type {
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 
 import type {
+  ConnectionOption,
   CreateInvitationInput,
-  IdentityProviderOption,
   OrganizationInvitationTabClasses,
 } from './organization-invitation-table-types';
 
@@ -59,7 +59,7 @@ export interface UseMemberManagementServiceOptions {
   customMessages?: Partial<OrganizationMemberManagementMessages>;
   activeTab?: ActiveTab;
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
-  revokeInvitationAction?: ComponentAction<MemberInvitation>;
+  revokeInvitationAction?: ComponentAction<MemberInvitation[]>;
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
   invitationParams?: TableQueryParams<MemberManagementSortConfig, MemberManagementFilterState>;
   memberParams?: TableQueryParams<MemberManagementSortConfig, MemberManagementFilterState>;
@@ -71,7 +71,8 @@ export interface UseMemberManagementServiceOptions {
 }
 
 export interface MemberManagementServiceResult {
-  providersQuery: UseQueryResult<IdentityProviderOption[]>;
+  providersQuery: UseQueryResult<ConnectionOption[]>;
+  userStoresQuery: UseQueryResult<ConnectionOption[]>;
   rolesQuery: UseQueryResult<Role[]>;
   rolesSearchQuery: UseQueryResult<Role[]>;
   setRoleSearchTerm: (term: string) => void;
@@ -100,7 +101,7 @@ export interface MemberManagementServiceResult {
     Error,
     CreateInvitationInput
   >;
-  revokeInvitationMutation: UseMutationResult<MemberInvitation, Error, MemberInvitation>;
+  revokeInvitationMutation: UseMutationResult<MemberInvitation[], Error, MemberInvitation[]>;
   resendInvitationMutation: UseMutationResult<
     MemberInvitation | undefined,
     Error,
@@ -115,7 +116,7 @@ export interface UseOrganizationMemberManagementOptions {
   /** Action hooks for invitation creation (onBefore/onAfter) */
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   /** Action hooks for invitation revocation (onBefore/onAfter) */
-  revokeInvitationAction?: ComponentAction<MemberInvitation>;
+  revokeInvitationAction?: ComponentAction<MemberInvitation[]>;
   /** Action hooks for invitation revoke-and-resend (onBefore/onAfter) */
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
   /** Action hooks for viewing member details (onBefore/onAfter) */
@@ -133,6 +134,7 @@ export type MemberManagementModalState =
   | { type: 'details'; invitation: MemberInvitation }
   | { type: 'revoke'; invitation: MemberInvitation }
   | { type: 'revokeResend'; invitation: MemberInvitation }
+  | { type: 'bulkRevoke'; invitations: MemberInvitation[] }
   | { type: 'assignRole'; member: OrgMember }
   | { type: 'removeFromOrganization'; member: OrgMember };
 
@@ -141,13 +143,14 @@ export interface UseOrganizationMemberManagementResult {
   availableRoles: Role[];
   searchedRoles: Role[];
   onRoleSearch: (term: string) => void;
-  availableProviders: IdentityProviderOption[];
+  availableConnections: ConnectionOption[];
   members: OrgMember[];
 
   invitations: MemberInvitation[];
   organizationDisplayName?: string;
   isInitialLoading: boolean;
   isFetchingInvitations: boolean;
+  isLoadingInvitations: boolean;
   isFetchingMembers: boolean;
   isMembersStale: boolean;
   isInvitationsStale: boolean;
@@ -159,6 +162,7 @@ export interface UseOrganizationMemberManagementResult {
   isCreatingInvitation: boolean;
   isRevokingInvitation: boolean;
   isResendingInvitation: boolean;
+  selectedInvitations: MemberInvitation[];
   invitationPagination: MemberManagementPaginationState;
   memberPagination: MemberManagementPaginationState;
   invitationFilters?: MemberManagementFilterState;
@@ -172,9 +176,11 @@ export interface UseOrganizationMemberManagementResult {
   setActiveTab: (tab: ActiveTab) => void;
   openModal: (state: MemberManagementModalState) => void;
   closeModal: () => void;
+  onSelectedInvitationsChange: (invitations: MemberInvitation[]) => void;
   handleCreateSubmit: (data: CreateInvitationInput) => void;
   handleRevokeConfirm: () => void;
   handleRevokeResendConfirm: () => void;
+  handleBulkRevokeClick: (invitations: MemberInvitation[]) => void;
   handleCopyUrl: (invitation: MemberInvitation) => Promise<void>;
   handleNextPage: () => void;
   handlePreviousPage: () => void;
@@ -218,8 +224,8 @@ export interface OrganizationMemberManagementProps
   hideHeader?: boolean;
   /** Action hooks for invitation creation (onBefore/onAfter) */
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
-  /** Action hooks for invitation revocation (onBefore/onAfter) */
-  revokeInvitationAction?: ComponentAction<MemberInvitation>;
+  /** Action hooks for invitation revocation, single or bulk (onBefore/onAfter) */
+  revokeInvitationAction?: ComponentAction<MemberInvitation[]>;
   /** Action hooks for invitation revoke-and-resend (onBefore/onAfter) */
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
   /** Action hooks for viewing member details (onBefore/onAfter) */

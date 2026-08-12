@@ -6,6 +6,7 @@ import { OrganizationMemberEditRolesTab } from '../organization-member-roles-tab
 
 import {
   createMockAvailableRoles,
+  createMockMember,
   createMockMemberRole,
   createMockMemberRoles,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
@@ -19,6 +20,7 @@ const noModal: MemberDetailModalState = { type: null };
 
 const createProps = (overrides = {}) => ({
   customMessages: {},
+  selectedMember: createMockMember(),
   memberRoles: createMockMemberRoles(),
   searchedRoles: createMockAvailableRoles(),
   onRoleSearch: vi.fn(),
@@ -116,7 +118,7 @@ describe('OrganizationMemberEditRolesTab', () => {
       renderWithProviders(
         <OrganizationMemberEditRolesTab {...createProps({ onSelectedRolesChange })} />,
       );
-      await user.click(screen.getByRole('checkbox', { name: 'data_table.select_row 1' }));
+      await user.click(screen.getAllByRole('checkbox', { name: 'data_table.select_row' })[0]!);
       expect(onSelectedRolesChange).toHaveBeenCalled();
     });
   });
@@ -274,6 +276,86 @@ describe('OrganizationMemberEditRolesTab', () => {
         />,
       );
       expect(screen.getByText('Custom Roles Title')).toBeInTheDocument();
+    });
+  });
+
+  describe('Access Level Gating', () => {
+    it('disables Assign Roles button when member has readonly access_level', () => {
+      const member = createMockMember({ access_level: 'readonly' });
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab {...createProps({ selectedMember: member })} />,
+      );
+      const assignButton = screen.getByRole('button', {
+        name: /member.detail.roles.assign_button/i,
+      });
+      expect(assignButton).toBeDisabled();
+    });
+
+    it('disables Remove Roles button when member has readonly access_level and roles are selected', () => {
+      const member = createMockMember({ access_level: 'readonly' });
+      const roles = createMockMemberRoles();
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab
+          {...createProps({ selectedMember: member, selectedRoles: [roles[0]!] })}
+        />,
+      );
+      const removeButton = screen.getByRole('button', {
+        name: /member.detail.roles.remove_button/i,
+      });
+      expect(removeButton).toBeDisabled();
+    });
+
+    it('disables per-row trash buttons when member has readonly access_level', () => {
+      const member = createMockMember({ access_level: 'readonly' });
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab {...createProps({ selectedMember: member })} />,
+      );
+      const removeButtons = screen.getAllByRole('button', {
+        name: 'member.detail.roles.table.remove_button_label',
+      });
+      removeButtons.forEach((btn) => expect(btn).toBeDisabled());
+    });
+
+    it('hides row selection checkboxes when member has readonly access_level', () => {
+      const member = createMockMember({ access_level: 'readonly' });
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab {...createProps({ selectedMember: member })} />,
+      );
+      expect(
+        screen.queryByRole('checkbox', { name: 'data_table.select_row' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('enables Assign Roles button when member has full access_level', () => {
+      const member = createMockMember({ access_level: 'full' });
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab {...createProps({ selectedMember: member })} />,
+      );
+      const assignButton = screen.getByRole('button', {
+        name: /member.detail.roles.assign_button/i,
+      });
+      expect(assignButton).not.toBeDisabled();
+    });
+
+    it('enables per-row trash buttons when member has limited access_level', () => {
+      const member = createMockMember({ access_level: 'limited' });
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab {...createProps({ selectedMember: member })} />,
+      );
+      const removeButtons = screen.getAllByRole('button', {
+        name: 'member.detail.roles.table.remove_button_label',
+      });
+      removeButtons.forEach((btn) => expect(btn).not.toBeDisabled());
+    });
+
+    it('shows row selection checkboxes when member has full access_level', () => {
+      const member = createMockMember({ access_level: 'full' });
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab {...createProps({ selectedMember: member })} />,
+      );
+      expect(
+        screen.getAllByRole('checkbox', { name: 'data_table.select_row' }).length,
+      ).toBeGreaterThan(0);
     });
   });
 });
