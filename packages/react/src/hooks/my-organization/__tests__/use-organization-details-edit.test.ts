@@ -101,5 +101,14 @@ describe('useOrganizationDetailsEdit', () => {
       expect(result.current.fetchOrgDetails).toBeDefined();
       expect(result.current.updateOrgDetails).toBeDefined();
     });
+
+    it('should pass through third party access config values', () => {
+      const { result } = renderHook(() => useOrganizationDetailsEdit({}));
+
+      expect(result.current.showThirdPartyAccess).toBe(false);
+      expect(result.current.isThirdPartyAccessReadOnly).toBe(false);
+      expect(result.current.thirdPartyAccessDefaultValue).toBeUndefined();
+      expect(result.current.isLoadingConfig).toBe(false);
+    });
   });
 });
