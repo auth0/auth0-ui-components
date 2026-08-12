@@ -1161,6 +1161,7 @@
           "remove_button_plural": "Supprimer les rôles",
           "roles_selected": "${count} rôle sélectionné",
           "roles_selected_plural": "${count} rôles sélectionnés",
+          "max_selection_message": "Only 10 can be removed at a time",
           "table": {
             "name": "Nom",
             "description": "Description",

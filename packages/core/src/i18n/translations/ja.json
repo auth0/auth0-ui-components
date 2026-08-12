@@ -1224,6 +1224,7 @@
           "remove_button_plural": "ロールを削除",
           "roles_selected": "${count}件のロールが選択されています",
           "roles_selected_plural": "${count}件のロールが選択されています",
+          "max_selection_message": "Only 10 can be removed at a time",
           "table": {
             "name": "名前",
             "description": "説明",
