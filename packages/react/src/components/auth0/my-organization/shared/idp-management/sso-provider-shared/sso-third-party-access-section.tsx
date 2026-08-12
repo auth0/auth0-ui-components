@@ -27,7 +27,7 @@ export function SsoThirdPartyAccessSection({
 }: ThirdPartyAccessSectionProps): React.ReactElement {
   const { t } = useTranslator(
     'idp_management.sso_provider_details.third_party_access',
-    customMessages as Record<string, unknown>,
+    customMessages,
   );
 
   const id = useId();
