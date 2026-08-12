@@ -113,7 +113,7 @@ export interface ThirdPartyAccessSectionProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   readOnly?: boolean;
-  customMessages?: ThirdPartyAccessMessages;
+  customMessages?: Partial<ThirdPartyAccessMessages>;
   className?: string;
 }
 
