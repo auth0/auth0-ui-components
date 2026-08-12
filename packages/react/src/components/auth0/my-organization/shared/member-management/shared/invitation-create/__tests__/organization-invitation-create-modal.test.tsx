@@ -1,8 +1,9 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { OrganizationInvitationCreateModal } from '@/components/auth0/my-organization/shared/member-management/shared/invitation-create/organization-invitation-create-modal';
+import { MAX_ROLES_PER_REQUEST } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import {
   createMockCreateModalProps,
   createMockRoles,
@@ -180,7 +181,7 @@ describe('OrganizationInvitationCreateModal', () => {
     });
 
     describe('server-side search', () => {
-      it('should call onRoleSearch when typing in the role selector', () => {
+      it('should call onRoleSearch when typing in the role selector', async () => {
         const onRoleSearch = vi.fn();
 
         renderWithProviders(
@@ -193,7 +194,10 @@ describe('OrganizationInvitationCreateModal', () => {
           target: { value: 'adm' },
         });
 
-        expect(onRoleSearch).toHaveBeenCalledWith('adm');
+        // The Combobox debounces keystroke-driven onInputChange by 300ms.
+        await waitFor(() => {
+          expect(onRoleSearch).toHaveBeenCalledWith('adm');
+        });
       });
 
       it('should keep the role selector enabled with no roles when searching', () => {
@@ -350,6 +354,184 @@ describe('OrganizationInvitationCreateModal', () => {
       renderWithProviders(<OrganizationInvitationCreateModal {...createMockCreateModalProps()} />);
 
       expect(screen.getByText('invitation.create.description')).toBeInTheDocument();
+    });
+  });
+
+  describe('role selection limit', () => {
+    // 12 roles so the limit of 10 is reachable with options left over to assert are disabled.
+    const manyRoles = Array.from({ length: 12 }, (_, i) => ({
+      id: `role_${i}`,
+      name: `Role ${i}`,
+      description: `Role ${i} description`,
+    }));
+
+    const openRolesDropdown = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(screen.getByPlaceholderText('invitation.create.roles_placeholder'));
+    };
+
+    const selectRoles = async (user: ReturnType<typeof userEvent.setup>, count: number) => {
+      for (let i = 0; i < count; i++) {
+        await user.click(await screen.findByRole('button', { name: `Role ${i}` }));
+      }
+    };
+
+    it('should show the limit message once the maximum is selected', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableRoles: manyRoles })}
+        />,
+      );
+
+      await openRolesDropdown(user);
+      await selectRoles(user, MAX_ROLES_PER_REQUEST);
+
+      expect(screen.getByText('invitation.create.roles_max_selection_message')).toBeInTheDocument();
+    });
+
+    it('should not show the limit message below the maximum', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableRoles: manyRoles })}
+        />,
+      );
+
+      await openRolesDropdown(user);
+      await selectRoles(user, MAX_ROLES_PER_REQUEST - 1);
+
+      expect(
+        screen.queryByText('invitation.create.roles_max_selection_message'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('should disable unselected options at the limit but keep selected ones interactive', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableRoles: manyRoles })}
+        />,
+      );
+
+      await openRolesDropdown(user);
+      await selectRoles(user, MAX_ROLES_PER_REQUEST);
+
+      expect(screen.getByRole('button', { name: 'Role 10' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Role 10' })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
+      expect(screen.getByRole('button', { name: 'Role 0' })).toBeEnabled();
+    });
+
+    it('should ignore clicks on a disabled option', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableRoles: manyRoles })}
+        />,
+      );
+
+      await openRolesDropdown(user);
+      await selectRoles(user, MAX_ROLES_PER_REQUEST);
+
+      await user.click(screen.getByRole('button', { name: 'Role 10' }));
+
+      expect(screen.getByText('invitation.create.roles_max_selection_message')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Role 10' })).toBeDisabled();
+    });
+
+    it('should re-enable options and clear the message after deselecting', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableRoles: manyRoles })}
+        />,
+      );
+
+      await openRolesDropdown(user);
+      await selectRoles(user, MAX_ROLES_PER_REQUEST);
+
+      await user.click(screen.getByRole('button', { name: 'Role 0' }));
+
+      expect(
+        screen.queryByText('invitation.create.roles_max_selection_message'),
+      ).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Role 10' })).toBeEnabled();
+    });
+
+    // See Task 8 Step 5 for why this needs MAX_ROLES_PER_REQUEST + 1 presses rather than one:
+    // a single ArrowDown lands on index 0 under both the correct and the broken
+    // implementation, so it would pass even with the navigation skip removed.
+    it('should skip disabled options during arrow navigation', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableRoles: manyRoles })}
+        />,
+      );
+
+      await openRolesDropdown(user);
+      const input = screen.getByPlaceholderText('invitation.create.roles_placeholder');
+      await selectRoles(user, MAX_ROLES_PER_REQUEST);
+
+      for (let i = 0; i < MAX_ROLES_PER_REQUEST + 1; i++) {
+        fireEvent.keyDown(input, { key: 'ArrowDown' });
+      }
+      fireEvent.keyDown(input, { key: 'Enter' });
+
+      // Enter landed on a selected option and toggled it off, so we dropped below the limit
+      // instead of adding an 11th.
+      expect(
+        screen.queryByText('invitation.create.roles_max_selection_message'),
+      ).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Role 11' })).toBeEnabled();
+    });
+  });
+
+  describe('isSearchingRoles', () => {
+    it('should show the loading row instead of options while searching', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            availableRoles: createMockRoles(),
+            onRoleSearch: vi.fn(),
+            isSearchingRoles: true,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByPlaceholderText('invitation.create.roles_placeholder'));
+
+      expect(await screen.findByText('Searching...')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Admin' })).not.toBeInTheDocument();
+    });
+
+    it('should show options when not searching', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            availableRoles: createMockRoles(),
+            onRoleSearch: vi.fn(),
+            isSearchingRoles: false,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByPlaceholderText('invitation.create.roles_placeholder'));
+
+      expect(await screen.findByRole('button', { name: 'Admin' })).toBeInTheDocument();
+      expect(screen.queryByText('Searching...')).not.toBeInTheDocument();
     });
   });
 });

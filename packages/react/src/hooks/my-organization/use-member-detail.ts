@@ -168,6 +168,7 @@ export function useOrganizationMemberDetail(
     memberError: memberErrorMessage,
     isFetchingMember: memberQuery.isLoading || memberQuery.isFetching,
     isFetchingMemberRoles: memberRolesQuery.isLoading,
+    isSearchingRoles: rolesSearchQuery.isFetching,
     isLoading: memberQuery.isLoading,
     isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),
     isAssigningRoles: isMutationLoading(assignRolesMutation),

@@ -66,6 +66,7 @@ export interface UseOrganizationMemberDetailResult {
   memberError: string | null;
   isFetchingMember: boolean;
   isFetchingMemberRoles: boolean;
+  isSearchingRoles: boolean;
   isRemovingFromOrganization: boolean;
   isAssigningRoles: boolean;
   isRemovingRoles: boolean;
@@ -165,6 +166,7 @@ export interface OrganizationMemberRemoveRoleModalProps {
 export interface OrganizationMemberAssignRolesModalProps {
   isOpen: boolean;
   isLoading?: boolean;
+  isSearchingRoles?: boolean;
   availableRoles: Role[];
   assignedRoles: Role[];
   customMessages?: Partial<OrganizationMemberDetailMessages | OrganizationMemberTabMessages>;
@@ -212,6 +214,7 @@ export interface OrganizationMemberEditRolesTabProps {
   removingRoleIds?: string[];
   isAssigningRoles?: boolean;
   isRemovingRoles?: boolean;
+  isSearchingRoles?: boolean;
   modalState: MemberDetailModalState;
   classes?: Pick<
     OrganizationMemberDetailClasses,

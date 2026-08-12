@@ -1542,11 +1542,6 @@
           "target": "hooks/shared/use-core-client.ts"
         },
         {
-          "path": "src/hooks/shared/use-debounced-value.ts",
-          "type": "registry:component",
-          "target": "hooks/shared/use-debounced-value.ts"
-        },
-        {
           "path": "src/hooks/shared/use-error-handler.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-error-handler.ts"
@@ -1951,11 +1946,6 @@
           "path": "src/hooks/shared/use-core-client.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-core-client.ts"
-        },
-        {
-          "path": "src/hooks/shared/use-debounced-value.ts",
-          "type": "registry:component",
-          "target": "hooks/shared/use-debounced-value.ts"
         },
         {
           "path": "src/hooks/shared/use-error-handler.ts",

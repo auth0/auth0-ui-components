@@ -1237,6 +1237,7 @@
             "submit_button": "割り当て",
             "cancel_button": "キャンセル",
             "no_roles_available": "利用可能なすべてのロールがすでに割り当てられています。",
+            "max_selection_message": "Only 10 roles can be selected at a time.",
             "success": "ロールが割り当てられました。",
             "success_plural": "ロールが割り当てられました。"
           },
@@ -1298,6 +1299,7 @@
         "email_required_error": "メールアドレスを1つ以上入力してください。",
         "roles_label": "ロール",
         "roles_placeholder": "ロールを選択（任意）",
+        "roles_max_selection_message": "Only 10 roles can be selected at a time.",
         "connection_label": "接続",
         "connection_placeholder": "接続を選択",
         "connection_helper": "メンバーがログインに使用する接続を選択してください。",

@@ -264,7 +264,7 @@ describe('useMemberManagementService', () => {
       expect(rolesListMock()).toHaveBeenCalledWith({ take: 10 });
     });
 
-    it('should pass the debounced search term as the name filter', async () => {
+    it('should pass the search term as the name filter', async () => {
       const { result } = renderService(createDefaultOptions());
 
       await waitFor(() => {

@@ -821,4 +821,50 @@ describe('OrganizationMemberDetail', () => {
       });
     });
   });
+
+  describe('role selection limit in member detail', () => {
+    it('should disable further roles at the limit when assigning from the roles tab', async () => {
+      const user = userEvent.setup();
+
+      const manyRoles = Array.from({ length: 12 }, (_, i) => ({
+        id: `rol_${i}`,
+        name: `Role ${i}`,
+        description: `Role ${i} description`,
+      }));
+
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      // The assign modal's options come from rolesSearchQuery, so this is the list to stub.
+      (apiService.organization.roles.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        data: manyRoles,
+      });
+      (apiService.organization.members.roles.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        data: [],
+      });
+
+      renderWithProviders(
+        <OrganizationMemberDetail {...createMockOrganizationMemberDetailProps()} />,
+      );
+
+      await waitForComponentToLoad();
+
+      await user.click(screen.getByRole('tab', { name: 'member.detail.tabs.roles' }));
+      await user.click(
+        await screen.findByRole('button', { name: /member.detail.roles.assign_button/i }),
+      );
+      await screen.findByText('member.detail.roles.assign_modal.title');
+
+      await user.click(
+        screen.getByPlaceholderText('member.detail.roles.assign_modal.roles_placeholder'),
+      );
+
+      for (let i = 0; i < 10; i++) {
+        await user.click(await screen.findByRole('button', { name: `Role ${i}` }));
+      }
+
+      expect(
+        screen.getByText('member.detail.roles.assign_modal.max_selection_message'),
+      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Role 10' })).toBeDisabled();
+    });
+  });
 });

@@ -322,6 +322,7 @@ export function useOrganizationMemberManagement(
     refetchMembers: membersQuery.refetch,
     refetchInvitations: invitationsQuery.refetch,
     isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
+    isSearchingRoles: rolesSearchQuery.isFetching,
     isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),
     isAssigningRoles: isMutationLoading(assignRolesMutation),
     isCreatingInvitation: isMutationLoading(createInvitationMutation),

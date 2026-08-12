@@ -152,6 +152,7 @@ export interface UseOrganizationMemberManagementResult {
   isFetchingInvitations: boolean;
   isLoadingInvitations: boolean;
   isFetchingMembers: boolean;
+  isSearchingRoles: boolean;
   isMembersStale: boolean;
   isInvitationsStale: boolean;
   membersUpdatedAt: number;

@@ -1174,6 +1174,7 @@
             "submit_button": "Attribuer le(s) rôle(s)",
             "cancel_button": "Annuler",
             "no_roles_available": "Tous les rôles disponibles sont déjà attribués.",
+            "max_selection_message": "Only 10 roles can be selected at a time.",
             "success": "Le rôle a été attribué.",
             "success_plural": "Les rôles ont été attribués."
           },
