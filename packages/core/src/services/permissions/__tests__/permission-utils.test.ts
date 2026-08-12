@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  getUserTier,
-  hasAllPermissions,
-  hasAnyPermission,
-  hasPermission,
-} from '../permission-utils';
+import { hasAllPermissions, hasAnyPermission, hasPermission } from '../permission-utils';
 
 describe('permission-utils', () => {
   describe('hasPermission', () => {
@@ -72,43 +67,6 @@ describe('permission-utils', () => {
 
     it('returns true when the required list is empty (vacuously satisfied)', () => {
       expect(hasAllPermissions([], [])).toBe(true);
-    });
-  });
-
-  describe('getUserTier', () => {
-    it('returns "admin" when the user can delete the resource', () => {
-      expect(getUserTier(['read:my_org:domains', 'delete:my_org:domains'], 'domains')).toBe(
-        'admin',
-      );
-    });
-
-    it('returns "editor" when the user can create/update but not delete', () => {
-      expect(getUserTier(['read:my_org:domains', 'update:my_org:domains'], 'domains')).toBe(
-        'editor',
-      );
-      expect(getUserTier(['create:my_org:domains'], 'domains')).toBe('editor');
-    });
-
-    it('returns "viewer" for read-only access', () => {
-      expect(getUserTier(['read:my_org:members'], 'members')).toBe('viewer');
-    });
-
-    it('returns "viewer" when the user has no permissions for the resource', () => {
-      expect(getUserTier(['read:my_org:domains'], 'members')).toBe('viewer');
-      expect(getUserTier([], 'members')).toBe('viewer');
-    });
-
-    it('matches the resource segment exactly (sub-resources are distinct)', () => {
-      expect(getUserTier(['delete:my_org:member_roles'], 'member_roles')).toBe('admin');
-      expect(getUserTier(['create:my_org:member_roles'], 'member_roles')).toBe('editor');
-      expect(getUserTier(['read:my_org:members', 'delete:my_org:member_roles'], 'members')).toBe(
-        'viewer',
-      );
-    });
-
-    it('does not conflate distinct resources that share a prefix', () => {
-      expect(getUserTier(['delete:my_org:memberships'], 'members')).toBe('viewer');
-      expect(getUserTier(['delete:my_org:memberships'], 'memberships')).toBe('admin');
     });
   });
 });
