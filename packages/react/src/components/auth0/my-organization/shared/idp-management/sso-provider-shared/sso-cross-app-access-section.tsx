@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
+import { useId } from '@/lib/utils/use-id-compat';
 import type { CrossAppAccessSectionProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 
 /**
@@ -29,13 +30,13 @@ export function SsoCrossAppAccessSection({
   strategy,
   discoveryUrl = '',
   onDiscoveryUrlChange,
-}: CrossAppAccessSectionProps): React.JSX.Element {
+}: CrossAppAccessSectionProps): React.ReactElement {
   const { t } = useTranslator(
     'idp_management.sso_provider_details.cross_app_access',
-    customMessages as Record<string, unknown>,
+    customMessages,
   );
 
-  const id = React.useId();
+  const id = useId();
   const checkboxId = `${id}-checkbox`;
   const descriptionId = `${id}-description`;
   const urlInputId = `${id}-discovery-url`;
