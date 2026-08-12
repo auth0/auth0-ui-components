@@ -128,10 +128,11 @@ export * from './services/my-organization/member-management/member-management-co
 
 export * from './services/my-organization/config/config-types';
 
-export * from './services/my-organization/permissions/permission-manifest';
-export * from './services/my-organization/permissions/permission-query-keys';
-export * from './services/my-organization/permissions/permission-utils';
-export * from './services/my-organization/permissions/permission-types';
+// Permissions (shared across modules)
+export * from './services/permissions/permission-utils';
+export * from './services/permissions/permission-types';
+export * from './services/permissions/permission-map';
+export * from './services/my-organization/member-management/member-management-permissions';
 
 // My Account services
 export * from './services/my-account/mfa/mfa-types';
