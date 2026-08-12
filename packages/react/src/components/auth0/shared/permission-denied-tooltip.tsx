@@ -40,7 +40,7 @@ export function PermissionDeniedTooltip({
     return <>{children}</>;
   }
 
-  const message = customMessage ?? t('errors.forbidden');
+  const message = customMessage ?? t('error.forbidden');
 
   return (
     <Tooltip>

@@ -87,4 +87,4 @@ export * from './types/my-organization/member-management/organization-invitation
 export * from './types/my-organization/member-management/organization-member-management-types';
 export * from './types/my-organization/member-management/organization-member-detail-types';
 export * from './types/my-organization/member-management/organization-member-table-types';
-export * from './types/my-organization/permissions/permissions-types';
+export * from './types/permissions/permissions-types';

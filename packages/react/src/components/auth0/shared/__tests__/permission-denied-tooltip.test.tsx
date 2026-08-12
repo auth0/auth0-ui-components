@@ -38,7 +38,7 @@ describe('PermissionDeniedTooltip', () => {
     await user.hover(screen.getByText('Delete'));
 
     await waitFor(() => {
-      expect(screen.getAllByText('errors.forbidden').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('error.forbidden').length).toBeGreaterThan(0);
     });
   });
 

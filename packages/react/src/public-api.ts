@@ -9,7 +9,7 @@ export { Auth0ComponentProvider as SpaAuth0ComponentProvider } from './providers
 /** Provider for RWAs using backend proxy auth. */
 export { Auth0ComponentProvider as RwaAuth0ComponentProvider } from './providers/proxy-provider';
 
-/** Provider that eagerly fetches and caches the user's MyOrganization permissions. */
+/** Provider that supplies the user's permissions to gated components. */
 export { PermissionProvider } from './providers/permission-context';
 
 /** Components, hooks, and types re-exported from the package entry point. */
