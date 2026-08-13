@@ -62,6 +62,7 @@ const STRATEGY_FIELD_MAPPINGS = {
     'cert',
     'idpInitiated',
     'icon_url',
+    'discovery_url',
   ],
   [STRATEGIES.WAAD]: ['tenant_domain', 'client_id', 'client_secret', 'icon_url'],
 } as const;
