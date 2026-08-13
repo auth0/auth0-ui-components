@@ -18,6 +18,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MAX_ROLES_PER_REQUEST } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import type { OrganizationMemberAssignRolesModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
@@ -30,6 +31,7 @@ import type { OrganizationMemberAssignRolesModalProps } from '@/types/my-organiz
 export function OrganizationMemberAssignRolesModal({
   isOpen,
   isLoading = false,
+  isSearchingRoles = false,
   isLoadingRoles = false,
   availableRoles,
   assignedRoles,
@@ -112,6 +114,11 @@ export function OrganizationMemberAssignRolesModal({
                 notFoundMessage={t('member.detail.roles.assign_modal.no_roles_available')}
                 disabled={isLoading}
                 showSelectedCount
+                maxSelections={MAX_ROLES_PER_REQUEST}
+                maxSelectionsMessage={t('member.detail.roles.assign_modal.max_selection_message')}
+                loading={isSearchingRoles}
+                loadingMessage={t('member.detail.roles.assign_modal.searching_message')}
+                retainQueryOnSelect
               />
             </>
           )}

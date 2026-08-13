@@ -199,6 +199,7 @@ export function OrganizationMemberDetailView(
               isRemovingRoles={props.isRemovingRoles}
               modalState={modalState}
               isAssigningRoles={props.isAssigningRoles}
+              isSearchingRoles={props.isSearchingRoles}
               classes={currentStyles.classes}
               style={currentStyles.variables}
               onSelectedRolesChange={props.setSelectedRoles}

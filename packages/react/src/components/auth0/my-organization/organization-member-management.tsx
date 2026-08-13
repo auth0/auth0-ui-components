@@ -53,6 +53,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     isFetchingInvitations,
     isLoadingInvitations,
     isFetchingMembers,
+    isSearchingRoles,
     isMembersStale,
     isInvitationsStale,
     isCreatingInvitation,
@@ -256,6 +257,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
         <OrganizationInvitationCreateModal
           isOpen={modalState.type === 'create'}
           isLoading={isCreatingInvitation}
+          isSearchingRoles={isSearchingRoles}
           customMessages={customMessages?.invitation}
           availableRoles={searchedRoles}
           availableConnections={availableConnections}
@@ -321,6 +323,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           selectedMember={selectedMember}
           isOpen={modalState.type === 'assignRole'}
           isLoading={isAssigningRoles}
+          isSearchingRoles={isSearchingRoles}
           isLoadingRoles={isLoadingMemberRoles}
           availableRoles={searchedRoles}
           assignedRoles={memberRoles ?? selectedMember?.roles ?? []}

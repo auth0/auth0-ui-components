@@ -225,6 +225,7 @@ export function OrganizationMemberEditRolesTab({
   removingRoleIds,
   isAssigningRoles,
   isRemovingRoles = false,
+  isSearchingRoles,
   modalState,
   classes,
   style,
@@ -272,6 +273,7 @@ export function OrganizationMemberEditRolesTab({
       <OrganizationMemberAssignRolesModal
         isOpen={isAssignRolesModal}
         isLoading={isAssigningRoles}
+        isSearchingRoles={isSearchingRoles}
         isLoadingRoles={isFetchingMemberRoles}
         availableRoles={searchedRoles}
         assignedRoles={memberRoles}

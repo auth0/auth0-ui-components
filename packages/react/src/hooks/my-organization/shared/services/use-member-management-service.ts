@@ -16,7 +16,6 @@ import React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
-import { useDebouncedValue } from '@/hooks/shared/use-debounced-value';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { MEMBER_ACCESS_LEVELS } from '@/lib/constants/common-constants';
@@ -145,16 +144,15 @@ export function useMemberManagementService(
   });
 
   const [roleSearchTerm, setRoleSearchTerm] = React.useState('');
-  const debouncedRoleSearchTerm = useDebouncedValue(roleSearchTerm);
   const [roleSearchActive, setRoleSearchActive] = React.useState(!deferRoleSearch);
   const enableRoleSearch = React.useCallback(() => setRoleSearchActive(true), []);
 
   const rolesSearchQuery = useQuery({
-    queryKey: memberManagementQueryKeys.rolesSearch(debouncedRoleSearchTerm),
+    queryKey: memberManagementQueryKeys.rolesSearch(roleSearchTerm),
     queryFn: async () => {
       const response = await coreClient!.getMyOrganizationApiClient().organization.roles.list({
         take: DEFAULT_ROLES_PAGE_SIZE,
-        ...(debouncedRoleSearchTerm ? { name: debouncedRoleSearchTerm } : {}),
+        ...(roleSearchTerm ? { name: roleSearchTerm } : {}),
       });
       return response.data;
     },
