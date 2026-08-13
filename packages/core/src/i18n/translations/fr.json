@@ -1105,7 +1105,9 @@
         "month": "mois",
         "months": "mois",
         "year": "an",
-        "years": "ans"
+        "years": "ans",
+        "more_roles": "de plus",
+        "view_all_roles": "Voir tous les ${count} rôles"
       },
       "actions": {
         "menu_label": "Actions",
@@ -1173,14 +1175,15 @@
             "submit_button": "Attribuer le(s) rôle(s)",
             "cancel_button": "Annuler",
             "no_roles_available": "Tous les rôles disponibles sont déjà attribués.",
-            "max_selection_message": "Only 10 roles can be selected at a time.",
+            "max_selection_message": "Vous ne pouvez sélectionner que 10 rôles à la fois.",
+            "searching_message": "Recherche en cours...",
             "success": "Le rôle a été attribué.",
             "success_plural": "Les rôles ont été attribués."
           },
           "remove_confirm": {
             "title": "Retirer le rôle du membre ?",
             "title_plural": "Retirer les rôles du membre ?",
-            "description": "Cela retirera le rôle <bold>${roleName}</bold> de <bold>\"${memberName}\"</bold>.",
+            "description": "Cela retirera le rôle <roleBold>${roleName}</roleBold> de <memberBold>\"${memberName}\"</memberBold>.",
             "confirm_button": "Retirer",
             "cancel_button": "Annuler",
             "success": "Le rôle \"${roleName}\" a été retiré du membre.",

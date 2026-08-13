@@ -61,6 +61,21 @@ describe('OrganizationMemberAssignRolesModal', () => {
     });
   });
 
+  describe('when isLoadingRoles is true', () => {
+    it('shows the loading state', () => {
+      renderWithProviders(
+        <OrganizationMemberAssignRolesModal
+          {...createMockAssignRolesModalProps({ isLoadingRoles: true })}
+        />,
+      );
+
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(
+        screen.queryByText('member.detail.roles.assign_modal.roles_label'),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe('no roles available', () => {
     it('should show no roles message when all roles are already assigned', () => {
       const availableRoles = createMockAvailableRoles();
@@ -413,7 +428,9 @@ describe('OrganizationMemberAssignRolesModal', () => {
         screen.getByPlaceholderText('member.detail.roles.assign_modal.roles_placeholder'),
       );
 
-      expect(await screen.findByText('Searching...')).toBeInTheDocument();
+      expect(
+        await screen.findByText('member.detail.roles.assign_modal.searching_message'),
+      ).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Admin' })).not.toBeInTheDocument();
     });
 

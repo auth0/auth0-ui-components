@@ -43,6 +43,7 @@ export interface OrganizationInvitationTabMessages {
     roles_label?: string;
     roles_placeholder?: string;
     roles_max_selection_message?: string;
+    roles_searching_message?: string;
     connection_label?: string;
     connection_placeholder?: string;
     connection_helper?: string;

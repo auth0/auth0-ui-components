@@ -282,6 +282,7 @@ export function OrganizationInvitationCreateModal({
               maxSelections={MAX_ROLES_PER_REQUEST}
               maxSelectionsMessage={t('invitation.create.roles_max_selection_message')}
               loading={isSearchingRoles}
+              loadingMessage={t('invitation.create.roles_searching_message')}
               retainQueryOnSelect
             />
           </div>

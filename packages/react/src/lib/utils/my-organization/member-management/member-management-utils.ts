@@ -129,6 +129,15 @@ export function getInitials(name?: string): string {
 }
 
 /**
+ * Validates if a userId follows Auth0's userId format (provider|id).
+ * @param userId - The user ID to validate.
+ * @returns `true` if valid, `false` otherwise.
+ */
+export function isValidUserId(userId: string | undefined | null): boolean {
+  return !!userId && /^(?=.{1,1024}$).+\|.+$/.test(userId);
+}
+
+/**
  * Validates that a role assignment keeps the member within `MAX_ROLES_PER_MEMBER`.
  *
  * The per-request cap is enforced in the UI by the role selector and the roles table,
