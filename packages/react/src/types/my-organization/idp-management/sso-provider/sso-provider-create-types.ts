@@ -140,8 +140,11 @@ export interface UseSsoProviderCreateResult {
   isLoadingIdpConfig: boolean;
   idpConfig?: GetIdpConfigurationResponseContent | null;
   showThirdPartyAccess: boolean;
+  isThirdPartyAccessReadOnly: boolean;
+  thirdPartyAccessDefaultValue?: 'allow' | 'block';
   showCrossAppAccess: boolean;
   isCrossAppAccessReadOnly: boolean;
+  getCrossAppAccessDefaultValue: () => 'enabled' | 'disabled' | undefined;
   createStepActions: (
     stepId: 'provider_details' | 'provider_configure',
     ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,

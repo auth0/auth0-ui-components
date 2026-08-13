@@ -40,9 +40,20 @@ export function useSsoProviderCreate({
   const { strategy, details, configure } = formData;
   const detailsRef = useRef<ProviderDetailsFormHandle>(null);
   const configureRef = useRef<ProviderConfigureHandle>(null);
-  const { isLoadingConfig, filteredStrategies, showThirdPartyAccess } = useConfig();
-  const { isLoadingIdpConfig, idpConfig, showCrossAppAccess, isCrossAppAccessReadOnly } =
-    useIdpConfig();
+  const {
+    isLoadingConfig,
+    filteredStrategies,
+    showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
+    thirdPartyAccessDefaultValue,
+  } = useConfig();
+  const {
+    isLoadingIdpConfig,
+    idpConfig,
+    showCrossAppAccess,
+    isCrossAppAccessReadOnly,
+    getCrossAppAccessDefaultValue,
+  } = useIdpConfig();
 
   const createStepActions = useCallback(
     (
@@ -94,7 +105,10 @@ export function useSsoProviderCreate({
     isLoadingIdpConfig,
     idpConfig,
     showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
+    thirdPartyAccessDefaultValue,
     showCrossAppAccess: showCrossAppAccess(strategy),
     isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(strategy),
+    getCrossAppAccessDefaultValue: () => getCrossAppAccessDefaultValue(strategy),
   };
 }
