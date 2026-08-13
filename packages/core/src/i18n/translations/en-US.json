@@ -1171,7 +1171,9 @@
         "month": "month",
         "months": "months",
         "year": "year",
-        "years": "years"
+        "years": "years",
+        "more_roles": "More",
+        "view_all_roles": "View all ${count} roles"
       },
       "actions": {
         "menu_label": "Actions",
@@ -1240,13 +1242,15 @@
             "submit_button": "Assign Role(s)",
             "cancel_button": "Cancel",
             "no_roles_available": "All available roles are already assigned.",
+            "max_selection_message": "Only 10 roles can be selected at a time.",
+            "searching_message": "Searching...",
             "success": "The role has been assigned.",
             "success_plural": "The roles have been assigned."
           },
           "remove_confirm": {
             "title": "Remove Role from Member?",
             "title_plural": "Remove Roles from Member?",
-            "description": "This will remove the <bold>${roleName}</bold> role from <bold>\"${memberName}\"</bold>.",
+            "description": "This will remove the <roleBold>${roleName}</roleBold> role from <memberBold>\"${memberName}\"</memberBold>.",
             "confirm_button": "Remove",
             "cancel_button": "Cancel",
             "success": "\"${roleName}\" role has been removed from member.",
@@ -1301,6 +1305,8 @@
         "email_required_error": "Please enter at least one email address.",
         "roles_label": "Roles",
         "roles_placeholder": "Select roles (optional)",
+        "roles_max_selection_message": "Only 10 roles can be selected at a time.",
+        "roles_searching_message": "Searching...",
         "connection_label": "Connection",
         "connection_placeholder": "Select connection",
         "connection_helper": "Select the connection the member will use to log in.",

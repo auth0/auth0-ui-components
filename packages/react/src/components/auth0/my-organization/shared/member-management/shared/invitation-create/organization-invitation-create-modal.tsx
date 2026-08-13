@@ -29,6 +29,7 @@ import {
 import { TextFieldGroup } from '@/components/ui/text-field-group';
 import type { ChipItem } from '@/components/ui/text-field-group';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MAX_ROLES_PER_REQUEST } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import type { OrganizationInvitationCreateModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
@@ -46,6 +47,7 @@ import type { OrganizationInvitationCreateModalProps } from '@/types/my-organiza
  * @param props.schema - Schema overrides for validation (email regex, maxEmails, error messages).
  * @param props.onClose - Callback when modal is closed.
  * @param props.onCreate - Callback when invitation is created.
+ * @param props.isSearchingRoles - Whether a role search request is in flight.
  * @param props.style - CSS variables computed by the parent.
  * @param props.className - Optional CSS class name.
  * @returns The modal component.
@@ -53,6 +55,7 @@ import type { OrganizationInvitationCreateModalProps } from '@/types/my-organiza
 export function OrganizationInvitationCreateModal({
   isOpen,
   isLoading = false,
+  isSearchingRoles = false,
   customMessages = {},
   availableRoles = [],
   availableConnections = [],
@@ -276,6 +279,11 @@ export function OrganizationInvitationCreateModal({
               disabled={isLoading || (!onRoleSearch && availableRoles.length === 0)}
               multiple
               showSelectedCount
+              maxSelections={MAX_ROLES_PER_REQUEST}
+              maxSelectionsMessage={t('invitation.create.roles_max_selection_message')}
+              loading={isSearchingRoles}
+              loadingMessage={t('invitation.create.roles_searching_message')}
+              retainQueryOnSelect
             />
           </div>
 
