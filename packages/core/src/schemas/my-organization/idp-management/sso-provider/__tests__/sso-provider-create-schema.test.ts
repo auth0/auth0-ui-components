@@ -618,7 +618,7 @@ describe('SSO Provider Create Schema', () => {
         expect(result.success).toBe(true);
       });
 
-      describe('discovery_url validation', () => {
+      describe('when validating discovery_url', () => {
         it('should accept valid discovery URL', () => {
           const schema = createProviderConfigureSchema('samlp');
           const result = schema.safeParse({
