@@ -25,7 +25,7 @@ import {
   MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { isIdpKnownResponse } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
-import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
+import { validateMemberRoleLimit } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type {
   ConnectionOption,
@@ -220,7 +220,7 @@ export function useMemberManagementService(
       userId?: string | null;
     }) => {
       if (!userId) throw new Error('userId is required');
-      const validationResult = validateRequestRoleForMember(t, roleIds, memberRoles, true);
+      const validationResult = validateMemberRoleLimit(t, roleIds, memberRoles);
       if (validationResult?.aborted) {
         return validationResult;
       }

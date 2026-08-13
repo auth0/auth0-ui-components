@@ -1182,8 +1182,6 @@
         "fetch_failed": "Failed to load members. Please try again.",
         "remove_failed": "Failed to remove member. Please try again.",
         "assign_role_failed": "Failed to assign role. Please try again.",
-        "too_many_roles_per_assignment": "You can only assign a maximum of 10 roles at a time.",
-        "too_many_roles_per_removal": "You can only remove a maximum of 10 roles at a time.",
         "member_role_limit_exceeded": "You have reached the maximum of 50 roles for this member."
       },
       "detail": {

@@ -17,7 +17,6 @@ import { useMemberManagementService } from '@/hooks/my-organization/shared/servi
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
   MemberDetailServiceResult,
   UseMemberDetailServiceOptions,
@@ -89,11 +88,6 @@ export function useMemberDetailService(
     mutationFn: async (roles: Role[]) => {
       if (!userId) throw new Error('userId is required');
       const roleIds = roles.map((r) => r.id);
-
-      const validationResult = validateRequestRoleForMember(t, roleIds);
-      if (validationResult?.aborted) {
-        return validationResult;
-      }
 
       if (removeRolesAction?.onBefore && !removeRolesAction.onBefore({ userId, roleIds })) {
         throw new Error('Remove roles cancelled by onBefore');
