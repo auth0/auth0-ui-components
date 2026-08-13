@@ -15,7 +15,7 @@ import type {
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 import type React from 'react';
 
-export type MemberDetailTab = 'details' | 'roles';
+export type OrganizationMemberDetailTab = 'details' | 'roles';
 
 export interface MemberDetailServiceResult {
   memberQuery: UseQueryResult<OrgMember>;
@@ -42,6 +42,7 @@ export interface UseOrganizationMemberDetailOptions {
   onBack?: () => void;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   readOnly?: boolean;
+  initialTab?: OrganizationMemberDetailTab;
   removeFromOrganizationAction?: ComponentAction<string>;
   assignRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
   removeRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
@@ -55,7 +56,7 @@ export type MemberDetailModalState =
   | { type: 'removeRoles'; roles: Role[] };
 
 export interface UseOrganizationMemberDetailResult {
-  activeTab: MemberDetailTab;
+  activeTab: OrganizationMemberDetailTab;
   member: OrgMember | null;
   organizationDisplayName: string;
   memberRoles: Role[];
@@ -73,7 +74,7 @@ export interface UseOrganizationMemberDetailResult {
   removingRoleIds: string[];
   modalState: MemberDetailModalState;
 
-  setActiveTab: (tab: MemberDetailTab) => void;
+  setActiveTab: (tab: OrganizationMemberDetailTab) => void;
   setSelectedRoles: (roles: Role[]) => void;
   handleBack: () => void;
   openModal: (state: MemberDetailModalState) => void;
@@ -167,6 +168,7 @@ export interface OrganizationMemberAssignRolesModalProps {
   isOpen: boolean;
   isLoading?: boolean;
   isSearchingRoles?: boolean;
+  isLoadingRoles?: boolean;
   availableRoles: Role[];
   assignedRoles: Role[];
   customMessages?: Partial<OrganizationMemberDetailMessages | OrganizationMemberTabMessages>;
@@ -237,6 +239,7 @@ export interface OrganizationMemberDetailProps
   userId: string;
   onBack?: () => void;
   hideHeader?: boolean;
+  initialTab?: OrganizationMemberDetailTab;
   removeFromOrganizationAction?: ComponentAction<string>;
   assignRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;
   removeRolesAction?: ComponentAction<{ userId: string; roleIds: string[] }>;

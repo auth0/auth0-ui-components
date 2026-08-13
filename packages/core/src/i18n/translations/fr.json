@@ -1105,7 +1105,9 @@
         "month": "mois",
         "months": "mois",
         "year": "an",
-        "years": "ans"
+        "years": "ans",
+        "more_roles": "de plus",
+        "view_all_roles": "Voir tous les ${count} rôles"
       },
       "actions": {
         "menu_label": "Actions",
@@ -1182,7 +1184,7 @@
           "remove_confirm": {
             "title": "Retirer le rôle du membre ?",
             "title_plural": "Retirer les rôles du membre ?",
-            "description": "Cela retirera le rôle <bold>${roleName}</bold> de <bold>\"${memberName}\"</bold>.",
+            "description": "Cela retirera le rôle <roleBold>${roleName}</roleBold> de <memberBold>\"${memberName}\"</memberBold>.",
             "confirm_button": "Retirer",
             "cancel_button": "Annuler",
             "success": "Le rôle \"${roleName}\" a été retiré du membre.",

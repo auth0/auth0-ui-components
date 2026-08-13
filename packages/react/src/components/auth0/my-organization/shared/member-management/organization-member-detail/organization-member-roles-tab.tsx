@@ -274,6 +274,7 @@ export function OrganizationMemberEditRolesTab({
         isOpen={isAssignRolesModal}
         isLoading={isAssigningRoles}
         isSearchingRoles={isSearchingRoles}
+        isLoadingRoles={isFetchingMemberRoles}
         availableRoles={searchedRoles}
         assignedRoles={memberRoles}
         selectedMember={selectedMember}
