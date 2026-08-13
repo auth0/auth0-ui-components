@@ -1348,6 +1348,7 @@
         "count": "${count} selected",
         "count_plural": "${count} selected",
         "success": "${count} invitations have been revoked.",
+        "max_selection_message": "Only 10 can be selected at a time",
         "confirm": {
           "title": "Delete 1 pending invitation?",
           "title_plural": "Delete ${count} pending invitations?",

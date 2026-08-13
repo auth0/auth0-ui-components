@@ -15,6 +15,7 @@ import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MAX_INVITATIONS_PER_REQUEST } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { cn } from '@/lib/utils';
 import { getInvitationStatus } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type { OrganizationInvitationTableProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
@@ -213,6 +214,8 @@ export function OrganizationInvitationTable({
               selectedRows: selectedInvitations,
               onSelectedRowsChange: onSelectedInvitationsChange,
               getRowId: (invitation: MemberInvitation) => invitation.id!,
+              maxSelectionAllowed: MAX_INVITATIONS_PER_REQUEST,
+              maxSelectionAllowedMessage: t('invitation.bulk_revoke.max_selection_message'),
             }
           : {})}
       />

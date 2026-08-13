@@ -15,6 +15,11 @@ export const MAX_ROLES_PER_REQUEST = 10;
 export const MAX_ROLES_PER_MEMBER = 50;
 
 /**
+ * Maximum number of invitations that can be revoked in a single bulk request.
+ */
+export const MAX_INVITATIONS_PER_REQUEST = 10;
+
+/**
  * Maximum number of roles that can be available for assignment in the system.
  * This is used to limit the number of roles fetched and displayed in the UI when assigning roles to members.
  */

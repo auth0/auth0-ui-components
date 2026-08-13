@@ -85,6 +85,7 @@ export interface OrganizationInvitationTabMessages {
     count?: string;
     count_plural?: string;
     success?: string;
+    max_selection_message?: string;
     confirm?: {
       title?: string;
       title_plural?: string;

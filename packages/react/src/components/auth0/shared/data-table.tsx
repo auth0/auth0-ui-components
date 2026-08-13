@@ -521,14 +521,27 @@ export function DataTable<Item>({
     (updater: RowSelectionState | ((old: RowSelectionState) => RowSelectionState)) => {
       const newSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
       if (!isControlledSelection) setInternalRowSelection(newSelection);
-      if (onSelectedRowsChange) {
-        const items = getRowId
-          ? data.filter((item) => newSelection[getRowId(item)])
-          : data.filter((_, idx) => newSelection[String(idx)]);
-        onSelectedRowsChange(items);
+      if (!onSelectedRowsChange) return;
+      if (!getRowId) {
+        onSelectedRowsChange(data.filter((_, idx) => newSelection[String(idx)]));
+        return;
       }
+
+      const byId = new Map<string, Item>();
+      for (const row of selectedRows ?? []) byId.set(getRowId(row), row);
+      for (const item of data) byId.set(getRowId(item), item);
+
+      onSelectedRowsChange(
+        Object.entries(newSelection)
+          .filter(([, isSelected]) => isSelected)
+          .reduce<Item[]>((items, [id]) => {
+            const item = byId.get(id);
+            if (item) items.push(item);
+            return items;
+          }, []),
+      );
     },
-    [rowSelection, isControlledSelection, onSelectedRowsChange, getRowId, data],
+    [rowSelection, isControlledSelection, onSelectedRowsChange, getRowId, data, selectedRows],
   );
 
   const selectionColumn = useMemo<ColumnDef<Item>>(
@@ -548,7 +561,9 @@ export function DataTable<Item>({
       },
       header: ({ table: t }) => {
         const isSelectAllDisabled =
-          isSelectionLimitReached && !t.getIsAllPageRowsSelected() && t.getIsSomePageRowsSelected();
+          isSelectionLimitReached &&
+          !t.getIsAllPageRowsSelected() &&
+          (t.getIsSomePageRowsSelected() || selectedCount > 0);
 
         const handleSelectAll = (checked: boolean) => {
           if (!checked || selectionLimit === undefined) {
@@ -556,14 +571,15 @@ export function DataTable<Item>({
             return;
           }
 
-          const rows = t.getRowModel().rows;
-          const alreadySelected = rows.filter((r) => r.getIsSelected());
-          const additions = rows.filter((r) => !r.getIsSelected());
+          const alreadySelectedIds = Object.entries(rowSelection)
+            .filter(([, isSelected]) => isSelected)
+            .map(([id]) => id);
+          const pageRowIds = t.getRowModel().rows.map((r) => r.id);
+          const ordered = new Set([...alreadySelectedIds, ...pageRowIds]);
+
           handleRowSelectionChange(
             Object.fromEntries(
-              [...alreadySelected, ...additions]
-                .slice(0, selectionLimit)
-                .map((r) => [r.id, true] as const),
+              [...ordered].slice(0, selectionLimit).map((id) => [id, true] as const),
             ),
           );
         };
@@ -613,6 +629,8 @@ export function DataTable<Item>({
       selectionLabels,
       isSelectionLimitReached,
       selectionLimit,
+      selectedCount,
+      rowSelection,
       limitMessage,
       handleRowSelectionChange,
     ],
