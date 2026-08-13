@@ -1,3 +1,4 @@
+import type { Role } from '@auth0/universal-components-core';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -11,6 +12,7 @@ import {
   createMockMemberRole,
   createMockMemberRoles,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import { captureSelection, nth, tooltipTriggerFor } from '@/tests/utils/test-assertions';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
 import type { MemberDetailModalState } from '@/types/my-organization/member-management/organization-member-detail-types';
@@ -94,7 +96,7 @@ describe('OrganizationMemberEditRolesTab', () => {
     it('when 1 role selected shows selection label and bulk remove button; hides assign button', () => {
       const roles = createMockMemberRoles();
       renderWithProviders(
-        <OrganizationMemberEditRolesTab {...createProps({ selectedRoles: [roles[0]!] })} />,
+        <OrganizationMemberEditRolesTab {...createProps({ selectedRoles: [nth(roles, 0)] })} />,
       );
       expect(screen.getByText('member.detail.roles.roles_selected')).toBeInTheDocument();
       expect(
@@ -119,7 +121,7 @@ describe('OrganizationMemberEditRolesTab', () => {
       renderWithProviders(
         <OrganizationMemberEditRolesTab {...createProps({ onSelectedRolesChange })} />,
       );
-      await user.click(screen.getAllByRole('checkbox', { name: 'data_table.select_row' })[0]!);
+      await user.click(nth(screen.getAllByRole('checkbox', { name: 'data_table.select_row' }), 0));
       expect(onSelectedRolesChange).toHaveBeenCalled();
     });
   });
@@ -135,7 +137,7 @@ describe('OrganizationMemberEditRolesTab', () => {
       const removeButtons = screen.getAllByRole('button', {
         name: 'member.detail.roles.table.remove_button_label',
       });
-      await user.click(removeButtons[0]!);
+      await user.click(nth(removeButtons, 0));
       expect(onRemoveRolesClick).toHaveBeenCalledWith(
         expect.arrayContaining([expect.objectContaining({ name: 'Admin' })]),
       );
@@ -297,7 +299,7 @@ describe('OrganizationMemberEditRolesTab', () => {
       const roles = createMockMemberRoles();
       renderWithProviders(
         <OrganizationMemberEditRolesTab
-          {...createProps({ selectedMember: member, selectedRoles: [roles[0]!] })}
+          {...createProps({ selectedMember: member, selectedRoles: [nth(roles, 0)] })}
         />,
       );
       const removeButton = screen.getByRole('button', {
@@ -400,12 +402,13 @@ describe('OrganizationMemberEditRolesTab', () => {
         />,
       );
 
-      const disabled = screen.getAllByRole('checkbox', { name: 'data_table.select_row' })[
-        MAX_ROLES_PER_REQUEST
-      ]!;
+      const disabled = nth(
+        screen.getAllByRole('checkbox', { name: 'data_table.select_row' }),
+        MAX_ROLES_PER_REQUEST,
+      );
       // Hover the wrapper span, not the checkbox: browsers suppress mouse events originating on a
       // disabled control, which is why the tooltip trigger wraps it.
-      await user.hover(disabled.parentElement!);
+      await user.hover(tooltipTriggerFor(disabled));
 
       await waitFor(() => {
         expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent(
@@ -434,37 +437,37 @@ describe('OrganizationMemberEditRolesTab', () => {
 
     it('clamps select-all to MAX_ROLES_PER_REQUEST instead of selecting all 50 roles', async () => {
       const user = userEvent.setup();
-      const onSelectedRolesChange = vi.fn();
+      const selection = captureSelection<Role>();
       renderWithProviders(
         <OrganizationMemberEditRolesTab
-          {...createProps({ memberRoles: manyRoles, onSelectedRolesChange })}
+          {...createProps({ memberRoles: manyRoles, onSelectedRolesChange: selection.handler })}
         />,
       );
 
       await user.click(screen.getByRole('checkbox', { name: 'data_table.select_all' }));
 
-      expect(onSelectedRolesChange).toHaveBeenCalledTimes(1);
-      expect(onSelectedRolesChange.mock.calls[0]![0]).toHaveLength(MAX_ROLES_PER_REQUEST);
+      expect(selection.handler).toHaveBeenCalledTimes(1);
+      expect(selection.first()).toHaveLength(MAX_ROLES_PER_REQUEST);
     });
 
     it('keeps an already-selected role past the cap boundary when select-all clamps', async () => {
       const user = userEvent.setup();
-      const onSelectedRolesChange = vi.fn();
+      const selection = captureSelection<Role>();
       // Row 40 sits well past the cap, so a naive `slice(0, 10)` would silently discard it.
-      const preSelected = manyRoles[40]!;
+      const preSelected = nth(manyRoles, 40);
       renderWithProviders(
         <OrganizationMemberEditRolesTab
           {...createProps({
             memberRoles: manyRoles,
             selectedRoles: [preSelected],
-            onSelectedRolesChange,
+            onSelectedRolesChange: selection.handler,
           })}
         />,
       );
 
       await user.click(screen.getByRole('checkbox', { name: 'data_table.select_all' }));
 
-      const emitted = onSelectedRolesChange.mock.calls[0]![0] as { id: string }[];
+      const emitted = selection.first();
       expect(emitted).toHaveLength(MAX_ROLES_PER_REQUEST);
       expect(emitted.map((role) => role.id)).toContain(preSelected.id);
     });

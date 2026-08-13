@@ -1,3 +1,4 @@
+import type { MemberInvitation } from '@auth0/universal-components-core';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -9,6 +10,7 @@ import {
   createMockInvitations,
   createMockTableProps,
 } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
+import { captureSelection, nth, tooltipTriggerFor } from '@/tests/utils/test-assertions';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
 
@@ -57,7 +59,7 @@ describe('OrganizationInvitationTable', () => {
           {...createMockTableProps({ invitations, onSelectedInvitationsChange })}
         />,
       );
-      await user.click(screen.getAllByRole('checkbox', { name: 'data_table.select_row' })[0]!);
+      await user.click(nth(screen.getAllByRole('checkbox', { name: 'data_table.select_row' }), 0));
       expect(onSelectedInvitationsChange).toHaveBeenCalled();
     });
   });
@@ -84,7 +86,7 @@ describe('OrganizationInvitationTable', () => {
           {...createMockTableProps({
             invitations,
             onSelectedInvitationsChange: vi.fn(),
-            selectedInvitations: [invitations[0]!],
+            selectedInvitations: [nth(invitations, 0)],
           })}
         />,
       );
@@ -183,7 +185,7 @@ describe('OrganizationInvitationTable', () => {
         />,
       );
 
-      await user.hover(rowCheckboxes()[MAX_INVITATIONS_PER_REQUEST]!.parentElement!);
+      await user.hover(tooltipTriggerFor(nth(rowCheckboxes(), MAX_INVITATIONS_PER_REQUEST)));
 
       await waitFor(() => {
         expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent(
@@ -203,11 +205,11 @@ describe('OrganizationInvitationTable', () => {
         />,
       );
 
-      const disabled = rowCheckboxes()[MAX_INVITATIONS_PER_REQUEST]!;
+      const disabled = nth(rowCheckboxes(), MAX_INVITATIONS_PER_REQUEST);
       expect(disabled).toBeDisabled();
 
       // The disabled checkbox is unfocusable, so the tooltip wrapper has to hold the tab stop.
-      const wrapper = disabled.parentElement!;
+      const wrapper = tooltipTriggerFor(disabled);
       expect(wrapper).toHaveAttribute('tabindex', '0');
 
       fireEvent.focus(wrapper);
@@ -221,12 +223,12 @@ describe('OrganizationInvitationTable', () => {
 
     it('clamps select-all to the cap instead of selecting the whole page', async () => {
       const user = userEvent.setup();
-      const onSelectedInvitationsChange = vi.fn();
+      const selection = captureSelection<MemberInvitation>();
       renderWithProviders(
         <OrganizationInvitationTable
           {...createMockTableProps({
             invitations: manyInvitations,
-            onSelectedInvitationsChange,
+            onSelectedInvitationsChange: selection.handler,
             selectedInvitations: [],
           })}
         />,
@@ -234,20 +236,18 @@ describe('OrganizationInvitationTable', () => {
 
       await user.click(selectAllCheckbox());
 
-      expect(onSelectedInvitationsChange.mock.calls[0]![0]).toHaveLength(
-        MAX_INVITATIONS_PER_REQUEST,
-      );
+      expect(selection.first()).toHaveLength(MAX_INVITATIONS_PER_REQUEST);
     });
 
     it('keeps an already-selected invitation past the cap boundary when select-all clamps', async () => {
       const user = userEvent.setup();
-      const onSelectedInvitationsChange = vi.fn();
-      const preSelected = manyInvitations[13]!;
+      const selection = captureSelection<MemberInvitation>();
+      const preSelected = nth(manyInvitations, 13);
       renderWithProviders(
         <OrganizationInvitationTable
           {...createMockTableProps({
             invitations: manyInvitations,
-            onSelectedInvitationsChange,
+            onSelectedInvitationsChange: selection.handler,
             selectedInvitations: [preSelected],
           })}
         />,
@@ -255,7 +255,7 @@ describe('OrganizationInvitationTable', () => {
 
       await user.click(selectAllCheckbox());
 
-      const emitted = onSelectedInvitationsChange.mock.calls[0]![0] as { id?: string }[];
+      const emitted = selection.first();
       expect(emitted).toHaveLength(MAX_INVITATIONS_PER_REQUEST);
       expect(emitted.map((invitation) => invitation.id)).toContain(preSelected.id);
     });
@@ -271,59 +271,61 @@ describe('OrganizationInvitationTable', () => {
 
     it('keeps prior-page selections when a row on the current page is checked', async () => {
       const user = userEvent.setup();
-      const onSelectedInvitationsChange = vi.fn();
+      const selection = captureSelection<MemberInvitation>();
       renderWithProviders(
         <OrganizationInvitationTable
           {...createMockTableProps({
             invitations: page2,
-            onSelectedInvitationsChange,
-            selectedInvitations: [page1[0]!],
+            onSelectedInvitationsChange: selection.handler,
+            selectedInvitations: [nth(page1, 0)],
           })}
         />,
       );
 
-      await user.click(screen.getAllByRole('checkbox', { name: 'data_table.select_row' })[0]!);
+      await user.click(nth(screen.getAllByRole('checkbox', { name: 'data_table.select_row' }), 0));
 
-      const emitted = onSelectedInvitationsChange.mock.calls[0]![0] as { id?: string }[];
-      expect(emitted.map((invitation) => invitation.id)).toEqual(['p1_0', 'p2_0']);
+      expect(selection.first().map((invitation) => invitation.id)).toEqual(['p1_0', 'p2_0']);
     });
 
     it('keeps prior-page selections when a current-page row is unchecked', async () => {
       const user = userEvent.setup();
-      const onSelectedInvitationsChange = vi.fn();
+      const selection = captureSelection<MemberInvitation>();
       renderWithProviders(
         <OrganizationInvitationTable
           {...createMockTableProps({
             invitations: page2,
-            onSelectedInvitationsChange,
-            selectedInvitations: [page1[0]!, page2[0]!],
+            onSelectedInvitationsChange: selection.handler,
+            selectedInvitations: [nth(page1, 0), nth(page2, 0)],
           })}
         />,
       );
 
-      await user.click(screen.getAllByRole('checkbox', { name: 'data_table.select_row' })[0]!);
+      await user.click(nth(screen.getAllByRole('checkbox', { name: 'data_table.select_row' }), 0));
 
-      const emitted = onSelectedInvitationsChange.mock.calls[0]![0] as { id?: string }[];
-      expect(emitted.map((invitation) => invitation.id)).toEqual(['p1_0']);
+      expect(selection.first().map((invitation) => invitation.id)).toEqual(['p1_0']);
     });
 
     it('keeps prior-page selections when select-all is used on the current page', async () => {
       const user = userEvent.setup();
-      const onSelectedInvitationsChange = vi.fn();
+      const selection = captureSelection<MemberInvitation>();
       renderWithProviders(
         <OrganizationInvitationTable
           {...createMockTableProps({
             invitations: page2,
-            onSelectedInvitationsChange,
-            selectedInvitations: [page1[0]!],
+            onSelectedInvitationsChange: selection.handler,
+            selectedInvitations: [nth(page1, 0)],
           })}
         />,
       );
 
       await user.click(screen.getByRole('checkbox', { name: 'data_table.select_all' }));
 
-      const emitted = onSelectedInvitationsChange.mock.calls[0]![0] as { id?: string }[];
-      expect(emitted.map((invitation) => invitation.id)).toEqual(['p1_0', 'p2_0', 'p2_1', 'p2_2']);
+      expect(selection.first().map((invitation) => invitation.id)).toEqual([
+        'p1_0',
+        'p2_0',
+        'p2_1',
+        'p2_2',
+      ]);
     });
 
     it('counts off-page selections toward the cap and blocks the visible page', () => {
