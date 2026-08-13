@@ -53,7 +53,7 @@ vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => 
     isLoadingIdpConfig: false,
     isIdpConfigValid: true,
     showCrossAppAccess: vi.fn(() => false),
-    isCrossAppAccessReadOnly: vi.fn(() => false),
+    isCrossAppAccessReadOnly: vi.fn(() => true),
     getCrossAppAccessDefaultValue: vi.fn(() => undefined),
   }),
 }));
