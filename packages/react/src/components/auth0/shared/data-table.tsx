@@ -121,7 +121,26 @@ export interface DataTableSortConfig {
   direction: 'asc' | 'desc';
 }
 
-export interface DataTableProps<Item> {
+/**
+ * Row-selection cap, as a pair that must be supplied together.
+ *
+ * Omit both props for unlimited selection. Setting `maxSelectionAllowed` requires
+ * `maxSelectionAllowedMessage` so the disabled checkboxes always explain themselves
+ * in the caller's locale — `DataTable` is locale-agnostic and supplies no copy of its own.
+ */
+export type DataTableSelectionLimit =
+  | {
+      maxSelectionAllowed?: undefined;
+      maxSelectionAllowedMessage?: undefined;
+    }
+  | {
+      /** Max rows selectable at once; at the cap, only unchecked boxes disable. */
+      maxSelectionAllowed: number;
+      /** Tooltip for the disabled checkboxes at the cap. */
+      maxSelectionAllowedMessage: string;
+    };
+
+export type DataTableProps<Item> = {
   data: Item[];
   columns: Column<Item>[];
   loading?: boolean;
@@ -144,11 +163,7 @@ export interface DataTableProps<Item> {
   getRowId?: (row: Item) => string;
   /** Accessible labels for selection checkboxes. */
   selectionLabels?: DataTableSelectionLabels;
-  /** Max rows selectable at once; at the cap, only unchecked boxes disable. Omit for unlimited. */
-  maxSelectionAllowed?: number;
-  /** Tooltip for the disabled checkboxes at the cap */
-  maxSelectionAllowedMessage?: string;
-}
+} & DataTableSelectionLimit;
 
 const ALIGNMENT_CLASSES = {
   text: {
@@ -394,7 +409,9 @@ function withLimitTooltip(
   return (
     <Tooltip>
       <TooltipTrigger>
-        <span className="inline-flex cursor-not-allowed">{checkbox}</span>
+        <span tabIndex={0} className="inline-flex cursor-not-allowed">
+          {checkbox}
+        </span>
       </TooltipTrigger>
       <TooltipContent>{message}</TooltipContent>
     </Tooltip>
@@ -496,8 +513,7 @@ export function DataTable<Item>({
   );
   const isSelectionLimitReached = selectionLimit !== undefined && selectedCount >= selectionLimit;
 
-  const limitMessage =
-    maxSelectionAllowedMessage ?? `Only ${selectionLimit} can be selected at a time`;
+  const limitMessage = maxSelectionAllowedMessage ?? '';
 
   const handleSortingChange = React.useCallback(
     (updater: SortingState | ((old: SortingState) => SortingState)) => {
@@ -561,9 +577,10 @@ export function DataTable<Item>({
       },
       header: ({ table: t }) => {
         const isSelectAllDisabled =
-          isSelectionLimitReached &&
-          !t.getIsAllPageRowsSelected() &&
-          (t.getIsSomePageRowsSelected() || selectedCount > 0);
+          selectionLimit === 0 ||
+          (isSelectionLimitReached &&
+            !t.getIsAllPageRowsSelected() &&
+            (t.getIsSomePageRowsSelected() || selectedCount > 0));
 
         const handleSelectAll = (checked: boolean) => {
           if (!checked || selectionLimit === undefined) {

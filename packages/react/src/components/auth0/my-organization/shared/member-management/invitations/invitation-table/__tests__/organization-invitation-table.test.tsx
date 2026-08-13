@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -184,6 +184,33 @@ describe('OrganizationInvitationTable', () => {
       );
 
       await user.hover(rowCheckboxes()[MAX_INVITATIONS_PER_REQUEST]!.parentElement!);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent(
+          'invitation.bulk_revoke.max_selection_message',
+        );
+      });
+    });
+
+    it('reaches the limit message by keyboard, since the disabled checkbox leaves the tab order', async () => {
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({
+            invitations: manyInvitations,
+            onSelectedInvitationsChange: vi.fn(),
+            selectedInvitations: atCap,
+          })}
+        />,
+      );
+
+      const disabled = rowCheckboxes()[MAX_INVITATIONS_PER_REQUEST]!;
+      expect(disabled).toBeDisabled();
+
+      // The disabled checkbox is unfocusable, so the tooltip wrapper has to hold the tab stop.
+      const wrapper = disabled.parentElement!;
+      expect(wrapper).toHaveAttribute('tabindex', '0');
+
+      fireEvent.focus(wrapper);
 
       await waitFor(() => {
         expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent(

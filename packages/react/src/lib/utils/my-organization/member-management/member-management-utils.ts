@@ -154,7 +154,7 @@ export const validateMemberRoleLimit = (
   memberRoles?: Role[] | null,
 ): { aborted: true } | null => {
   const existingIds = new Set(memberRoles?.map((r) => r.id));
-  const newRoleCount = roleIds.filter((id) => !existingIds.has(id)).length;
+  const newRoleCount = [...new Set(roleIds)].filter((id) => !existingIds.has(id)).length;
 
   if ((memberRoles?.length ?? 0) + newRoleCount <= MAX_ROLES_PER_MEMBER) return null;
 

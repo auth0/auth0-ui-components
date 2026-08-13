@@ -252,6 +252,12 @@ describe('validateMemberRoleLimit', () => {
     expect(validateMemberRoleLimit(t, ['new-1'])).toBeNull();
     expect(showToastMock).not.toHaveBeenCalled();
   });
+
+  it('counts a repeated role id once, so the resulting total is what gets checked', () => {
+    const memberRoles = makeRoles(MAX_ROLES_PER_MEMBER - 1, 'existing') as never;
+    expect(validateMemberRoleLimit(t, ['new-1', 'new-1'], memberRoles)).toBeNull();
+    expect(showToastMock).not.toHaveBeenCalled();
+  });
 });
 
 describe('canMutateMember', () => {
