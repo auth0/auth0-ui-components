@@ -111,6 +111,7 @@ export function OrganizationMemberAssignRolesModal({
                 maxSelections={MAX_ROLES_PER_REQUEST}
                 maxSelectionsMessage={t('member.detail.roles.assign_modal.max_selection_message')}
                 loading={isSearchingRoles}
+                loadingMessage={t('member.detail.roles.assign_modal.searching_message')}
                 retainQueryOnSelect
               />
             </>

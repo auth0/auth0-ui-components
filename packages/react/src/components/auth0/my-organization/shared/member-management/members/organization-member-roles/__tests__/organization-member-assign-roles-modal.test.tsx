@@ -413,7 +413,9 @@ describe('OrganizationMemberAssignRolesModal', () => {
         screen.getByPlaceholderText('member.detail.roles.assign_modal.roles_placeholder'),
       );
 
-      expect(await screen.findByText('Searching...')).toBeInTheDocument();
+      expect(
+        await screen.findByText('member.detail.roles.assign_modal.searching_message'),
+      ).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Admin' })).not.toBeInTheDocument();
     });
 

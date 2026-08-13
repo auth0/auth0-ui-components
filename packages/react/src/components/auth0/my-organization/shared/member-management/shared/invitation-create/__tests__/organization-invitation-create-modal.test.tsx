@@ -511,7 +511,9 @@ describe('OrganizationInvitationCreateModal', () => {
 
       await user.click(screen.getByPlaceholderText('invitation.create.roles_placeholder'));
 
-      expect(await screen.findByText('Searching...')).toBeInTheDocument();
+      expect(
+        await screen.findByText('invitation.create.roles_searching_message'),
+      ).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Admin' })).not.toBeInTheDocument();
     });
 
@@ -531,7 +533,9 @@ describe('OrganizationInvitationCreateModal', () => {
       await user.click(screen.getByPlaceholderText('invitation.create.roles_placeholder'));
 
       expect(await screen.findByRole('button', { name: 'Admin' })).toBeInTheDocument();
-      expect(screen.queryByText('Searching...')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('invitation.create.roles_searching_message'),
+      ).not.toBeInTheDocument();
     });
   });
 });

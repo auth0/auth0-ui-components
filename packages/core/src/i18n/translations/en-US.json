@@ -1240,6 +1240,7 @@
             "cancel_button": "Cancel",
             "no_roles_available": "All available roles are already assigned.",
             "max_selection_message": "Only 10 roles can be selected at a time.",
+            "searching_message": "Searching...",
             "success": "The role has been assigned.",
             "success_plural": "The roles have been assigned."
           },
@@ -1302,6 +1303,7 @@
         "roles_label": "Roles",
         "roles_placeholder": "Select roles (optional)",
         "roles_max_selection_message": "Only 10 roles can be selected at a time.",
+        "roles_searching_message": "Searching...",
         "connection_label": "Connection",
         "connection_placeholder": "Select connection",
         "connection_helper": "Select the connection the member will use to log in.",
