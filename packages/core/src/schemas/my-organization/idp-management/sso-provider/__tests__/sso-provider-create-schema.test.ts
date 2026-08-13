@@ -624,6 +624,55 @@ describe('SSO Provider Create Schema', () => {
         });
         expect(result.success).toBe(true);
       });
+
+      describe('discovery_url validation', () => {
+        it('should accept valid discovery URL', () => {
+          const schema = createProviderConfigureSchema('samlp');
+          const result = schema.safeParse({
+            ...validSamlConfig,
+            discovery_url: 'https://example.com/.well-known/openid-configuration',
+          });
+          expect(result.success).toBe(true);
+        });
+
+        it('should accept empty discovery URL (optional field)', () => {
+          const schema = createProviderConfigureSchema('samlp');
+          const result = schema.safeParse({
+            ...validSamlConfig,
+            discovery_url: '',
+          });
+          expect(result.success).toBe(true);
+        });
+
+        it('should accept undefined discovery URL (optional field)', () => {
+          const schema = createProviderConfigureSchema('samlp');
+          const result = schema.safeParse({
+            ...validSamlConfig,
+          });
+          expect(result.success).toBe(true);
+        });
+
+        it('should reject invalid discovery URL format', () => {
+          const schema = createProviderConfigureSchema('samlp');
+          const result = schema.safeParse({
+            ...validSamlConfig,
+            discovery_url: 'not-a-valid-url',
+          });
+          expect(result.success).toBe(false);
+          if (!result.success) {
+            expect(result.error.errors[0].message).toContain('discovery URL');
+          }
+        });
+
+        it('should reject discovery URL without http/https protocol', () => {
+          const schema = createProviderConfigureSchema('samlp');
+          const result = schema.safeParse({
+            ...validSamlConfig,
+            discovery_url: 'ftp://example.com/.well-known',
+          });
+          expect(result.success).toBe(false);
+        });
+      });
     });
 
     describe('WAAD (Entra ID) strategy', () => {

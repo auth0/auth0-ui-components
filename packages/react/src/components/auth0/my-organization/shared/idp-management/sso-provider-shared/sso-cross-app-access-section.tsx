@@ -30,6 +30,7 @@ export function SsoCrossAppAccessSection({
   strategy,
   discoveryUrl = '',
   onDiscoveryUrlChange,
+  discoveryUrlError,
 }: CrossAppAccessSectionProps): React.ReactElement {
   const { t } = useTranslator(
     'idp_management.sso_provider_details.cross_app_access',
@@ -96,12 +97,20 @@ export function SsoCrossAppAccessSection({
             onChange={(e) => onDiscoveryUrlChange?.(e.target.value)}
             placeholder={t('saml_discovery_url_placeholder')}
             disabled={readOnly}
-            aria-describedby={urlHelperId}
+            aria-describedby={discoveryUrlError ? undefined : urlHelperId}
+            aria-invalid={Boolean(discoveryUrlError)}
+            error={Boolean(discoveryUrlError)}
             className="w-full"
           />
-          <p id={urlHelperId} className="text-sm text-muted-foreground">
-            {t('saml_discovery_url_helper')}
-          </p>
+          {discoveryUrlError ? (
+            <p role="alert" className="text-sm text-destructive text-left">
+              {discoveryUrlError}
+            </p>
+          ) : (
+            <p id={urlHelperId} className="text-sm text-muted-foreground">
+              {t('saml_discovery_url_helper')}
+            </p>
+          )}
         </div>
 
         {renderCheckboxGroup()}

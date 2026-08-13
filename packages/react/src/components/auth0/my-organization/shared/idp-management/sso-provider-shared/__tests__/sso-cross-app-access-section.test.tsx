@@ -315,4 +315,82 @@ describe('SsoCrossAppAccessSection', () => {
       expect(screen.getByRole('checkbox')).toBeInTheDocument();
     });
   });
+
+  describe('discovery URL validation error', () => {
+    it('should display error message when discoveryUrlError is provided', () => {
+      renderWithProviders(
+        <SsoCrossAppAccessSection
+          {...defaultProps}
+          strategy="samlp"
+          discoveryUrl="invalid-url"
+          discoveryUrlError="Please enter a valid discovery URL"
+        />,
+      );
+
+      expect(screen.getByRole('alert')).toHaveTextContent('Please enter a valid discovery URL');
+    });
+
+    it('should hide helper text when error is displayed', () => {
+      renderWithProviders(
+        <SsoCrossAppAccessSection
+          {...defaultProps}
+          strategy="samlp"
+          discoveryUrl="invalid-url"
+          discoveryUrlError="Please enter a valid discovery URL"
+        />,
+      );
+
+      expect(screen.queryByText('saml_discovery_url_helper')).not.toBeInTheDocument();
+    });
+
+    it('should show helper text when no error', () => {
+      renderWithProviders(
+        <SsoCrossAppAccessSection
+          {...defaultProps}
+          strategy="samlp"
+          discoveryUrl="https://example.com"
+        />,
+      );
+
+      expect(screen.getByText('saml_discovery_url_helper')).toBeInTheDocument();
+    });
+
+    it('should set aria-invalid on input when error is present', () => {
+      renderWithProviders(
+        <SsoCrossAppAccessSection
+          {...defaultProps}
+          strategy="samlp"
+          discoveryUrl="invalid"
+          discoveryUrlError="Invalid URL"
+        />,
+      );
+
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
+    });
+
+    it('should not set aria-invalid when no error', () => {
+      renderWithProviders(
+        <SsoCrossAppAccessSection
+          {...defaultProps}
+          strategy="samlp"
+          discoveryUrl="https://example.com"
+        />,
+      );
+
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'false');
+    });
+
+    it('should remove aria-describedby from input when error is present', () => {
+      renderWithProviders(
+        <SsoCrossAppAccessSection
+          {...defaultProps}
+          strategy="samlp"
+          discoveryUrl="invalid"
+          discoveryUrlError="Invalid URL"
+        />,
+      );
+
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-describedby');
+    });
+  });
 });

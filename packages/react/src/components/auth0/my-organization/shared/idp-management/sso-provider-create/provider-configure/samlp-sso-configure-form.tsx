@@ -479,8 +479,9 @@ export const SamlpProviderForm = React.forwardRef<
                 strategy="samlp"
                 discoveryUrl={discoveryUrlValue}
                 onDiscoveryUrlChange={(url) =>
-                  form.setValue('discovery_url', url, { shouldDirty: true })
+                  form.setValue('discovery_url', url, { shouldDirty: true, shouldValidate: true })
                 }
+                discoveryUrlError={form.formState.errors.discovery_url?.message}
               />
             )}
           />
