@@ -380,7 +380,7 @@ describe('SsoCrossAppAccessSection', () => {
       expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'false');
     });
 
-    it('should remove aria-describedby from input when error is present', () => {
+    it('should associate input with error message via aria-describedby when error is present', () => {
       renderWithProviders(
         <SsoCrossAppAccessSection
           {...defaultProps}
@@ -390,7 +390,12 @@ describe('SsoCrossAppAccessSection', () => {
         />,
       );
 
-      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-describedby');
+      const input = screen.getByRole('textbox');
+      const errorMessage = screen.getByRole('alert');
+      const describedById = input.getAttribute('aria-describedby');
+
+      expect(describedById).toBeTruthy();
+      expect(errorMessage).toHaveAttribute('id', describedById);
     });
   });
 });

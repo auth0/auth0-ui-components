@@ -42,6 +42,7 @@ export function SsoCrossAppAccessSection({
   const descriptionId = `${id}-description`;
   const urlInputId = `${id}-discovery-url`;
   const urlHelperId = `${id}-url-helper`;
+  const urlErrorId = `${id}-url-error`;
 
   const handleCheckedChange = (value: boolean | 'indeterminate') => {
     if (value !== 'indeterminate') {
@@ -97,13 +98,13 @@ export function SsoCrossAppAccessSection({
             onChange={(e) => onDiscoveryUrlChange?.(e.target.value)}
             placeholder={t('saml_discovery_url_placeholder')}
             disabled={readOnly}
-            aria-describedby={discoveryUrlError ? undefined : urlHelperId}
+            aria-describedby={discoveryUrlError ? urlErrorId : urlHelperId}
             aria-invalid={Boolean(discoveryUrlError)}
             error={Boolean(discoveryUrlError)}
             className="w-full"
           />
           {discoveryUrlError ? (
-            <p role="alert" className="text-sm text-destructive text-left">
+            <p id={urlErrorId} role="alert" className="text-sm text-destructive text-left">
               {discoveryUrlError}
             </p>
           ) : (
