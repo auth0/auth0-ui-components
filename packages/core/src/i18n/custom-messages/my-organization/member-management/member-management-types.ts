@@ -72,6 +72,7 @@ export interface OrganizationMemberDetailMessages {
           cancel_button?: string;
           no_roles_available?: string;
           max_selection_message?: string;
+          searching_message?: string;
         };
         remove_confirm?: {
           title?: string;
