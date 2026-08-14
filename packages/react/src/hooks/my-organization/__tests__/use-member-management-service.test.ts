@@ -6,8 +6,12 @@ import { useMemberManagementService } from '@/hooks/my-organization/shared/servi
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
+import { DEFAULT_ROLES_PAGE_SIZE } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
-import { createMockInvitation } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
+import {
+  createMockInvitation,
+  createMockRoles,
+} from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { UseMemberManagementServiceOptions } from '@/types/my-organization/member-management/organization-member-management-types';
@@ -91,9 +95,9 @@ describe('useMemberManagementService', () => {
       const options = createDefaultOptions({ activeTab: 'members' });
       const { result } = renderService(options);
 
-      // Wait for rolesQuery to settle (it's always enabled)
+      // Wait for the role search query to settle (it's enabled by default)
       await waitFor(() => {
-        expect(result.current.rolesQuery.isSuccess).toBe(true);
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
       });
 
       expect(result.current.providersQuery.fetchStatus).toBe('idle');
@@ -147,7 +151,7 @@ describe('useMemberManagementService', () => {
       const { result } = renderService(options);
 
       await waitFor(() => {
-        expect(result.current.rolesQuery.isSuccess).toBe(true);
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
       });
 
       expect(result.current.userStoresQuery.fetchStatus).toBe('idle');
@@ -180,53 +184,95 @@ describe('useMemberManagementService', () => {
     });
   });
 
-  describe('rolesQuery', () => {
-    it('should fetch roles when coreClient is available', async () => {
-      const options = createDefaultOptions();
+  describe('invitationRolesQuery', () => {
+    const invitationRolesListMock = () =>
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.roles.list;
+
+    it('should fetch the roles assigned to the given invitation', async () => {
+      const options = createDefaultOptions({ invitationRolesId: 'uinv_1' });
       const { result } = renderService(options);
 
       await waitFor(() => {
-        expect(result.current.rolesQuery.isSuccess).toBe(true);
+        expect(result.current.invitationRolesQuery.isSuccess).toBe(true);
       });
 
-      expect(result.current.rolesQuery.data).toBeDefined();
+      expect(invitationRolesListMock()).toHaveBeenCalledWith('uinv_1');
+      expect(result.current.invitationRolesQuery.data).toEqual(createMockRoles());
     });
 
-    it('should return roles data', async () => {
-      const options = createDefaultOptions();
+    it('should not bulk-fetch the tenant roles list to resolve invitation roles', async () => {
+      const options = createDefaultOptions({ invitationRolesId: 'uinv_1' });
       const { result } = renderService(options);
 
       await waitFor(() => {
-        expect(result.current.rolesQuery.isSuccess).toBe(true);
+        expect(result.current.invitationRolesQuery.isSuccess).toBe(true);
       });
 
-      expect(result.current.rolesQuery.data).toEqual([
-        { id: 'rol_admin', name: 'admin', description: 'Admin role' },
-      ]);
+      // The only roles.list calls come from the paginated role search, never a bulk fetch.
+      const rolesListMock = vi.mocked(
+        mockCoreClient.getMyOrganizationApiClient().organization.roles.list,
+      );
+      for (const [params] of rolesListMock.mock.calls) {
+        expect(params).toMatchObject({ take: DEFAULT_ROLES_PAGE_SIZE });
+      }
     });
 
-    it('should fetch roles regardless of active tab', async () => {
-      const options = createDefaultOptions({ activeTab: 'members' });
+    it('should stay idle when no invitationRolesId is provided', async () => {
+      const options = createDefaultOptions({ invitationRolesId: null });
       const { result } = renderService(options);
 
-      await waitFor(() => {
-        expect(result.current.rolesQuery.isSuccess).toBe(true);
-      });
-
-      expect(result.current.rolesQuery.data).toBeDefined();
-    });
-
-    it('should not fetch roles when enableRolesList is false', async () => {
-      const options = createDefaultOptions({ enableRolesList: false });
-      const { result } = renderService(options);
-
-      // Let the search query settle so we know queries have had a chance to run.
+      // Let another query settle so we know queries have had a chance to run.
       await waitFor(() => {
         expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
       });
 
-      expect(result.current.rolesQuery.fetchStatus).toBe('idle');
-      expect(result.current.rolesQuery.data).toBeUndefined();
+      expect(result.current.invitationRolesQuery.fetchStatus).toBe('idle');
+      expect(result.current.invitationRolesQuery.data).toBeUndefined();
+      expect(invitationRolesListMock()).not.toHaveBeenCalled();
+    });
+
+    it('should cache roles per invitation id', async () => {
+      const options = createDefaultOptions({ invitationRolesId: 'uinv_1' });
+      const { result, queryClient } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.invitationRolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(queryClient.getQueryData(memberManagementQueryKeys.invitationRoles('uinv_1'))).toEqual(
+        createMockRoles(),
+      );
+      expect(
+        queryClient.getQueryData(memberManagementQueryKeys.invitationRoles('uinv_2')),
+      ).toBeUndefined();
+    });
+
+    it('should default to an empty list when the response omits roles', async () => {
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.roles.list = vi
+        .fn()
+        .mockResolvedValue({});
+
+      const options = createDefaultOptions({ invitationRolesId: 'uinv_1' });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.invitationRolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.invitationRolesQuery.data).toEqual([]);
+    });
+
+    it('should surface an error when the request fails', async () => {
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.roles.list = vi
+        .fn()
+        .mockRejectedValue(new Error('boom'));
+
+      const options = createDefaultOptions({ invitationRolesId: 'uinv_1' });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.invitationRolesQuery.isError).toBe(true);
+      });
     });
   });
 
@@ -244,9 +290,7 @@ describe('useMemberManagementService', () => {
     });
 
     it('should stay disabled until enableRoleSearch is called when deferRoleSearch is true', async () => {
-      const { result } = renderService(
-        createDefaultOptions({ deferRoleSearch: true, enableRolesList: false }),
-      );
+      const { result } = renderService(createDefaultOptions({ deferRoleSearch: true }));
 
       // The search query should not run on mount.
       await waitFor(() => {

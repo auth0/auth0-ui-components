@@ -103,6 +103,7 @@ export interface OrganizationInvitationTabMessages {
   };
   error?: {
     fetch_failed?: string;
+    fetch_roles_failed?: string;
     create_failed?: string;
     revoke_failed?: string;
     resend_failed?: string;
