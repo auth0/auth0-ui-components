@@ -90,11 +90,13 @@ export interface MemberManagementServiceResult {
     invitations: MemberInvitation[];
     next: string | null;
     total?: number;
+    totalIsCapped?: boolean;
   }>;
   membersQuery: UseQueryResult<{
     members: OrgMember[];
     next: string | undefined | null;
     total?: number;
+    totalIsCapped?: boolean;
   }>;
   organizationQuery: UseQueryResult<OrganizationPrivate>;
   assignRolesMutation: UseMutationResult<

@@ -180,9 +180,9 @@ export function useMemberManagementService(
 
       const invitations: MemberInvitation[] = page.data;
       const next = page.response.next ?? null;
-      const total = page.response.total;
+      const { total, total_is_capped: totalIsCapped } = page.response;
 
-      return { invitations, next, total };
+      return { invitations, next, total, totalIsCapped };
     },
     enabled: !!coreClient && isInvitationsTabActive && !!invitationParams,
     ...keepPreviousDataOption,
@@ -205,8 +205,12 @@ export function useMemberManagementService(
       );
       const members: OrgMember[] = page.data;
       const next = members.length < memberParams!.pageSize ? null : page.response.next;
-      const total = page.response.total;
-      return { members, next, total };
+      // The 1.1.0 SDK types omit `total_is_capped`, though the API returns it alongside `total`.
+      // TODO: remove this extension once @auth0/myorganization-js exposes the field.
+      const { total, total_is_capped: totalIsCapped } = page.response as typeof page.response & {
+        total_is_capped?: boolean;
+      };
+      return { members, next, total, totalIsCapped };
     },
     enabled: !!coreClient && !isInvitationsTabActive && !!memberParams,
     ...keepPreviousDataOption,

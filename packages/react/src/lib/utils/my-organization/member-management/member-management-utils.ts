@@ -16,7 +16,6 @@ import {
   type MemberAccessLevel,
   MAX_ROLES_PER_MEMBER,
   MAX_ROLES_PER_REQUEST,
-  MEMBER_COUNT_CAP,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import type { InvitationStatus } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
@@ -131,16 +130,16 @@ export function getInitials(name?: string): string {
 }
 
 /**
- * Formats a total that has reached {@link MEMBER_COUNT_CAP} as an approximation.
- * @param total - The total reported by the API.
+ * Formats a capped total as an approximation, based on the API's `total_is_capped` flag.
+ * @param isCapped - The `total_is_capped` value reported by the list response.
  * @param t - Translator function (namespace: `member_management`).
- * @returns The approximate total (such as `1,000+`), or `undefined` when the total is exact or unavailable.
+ * @returns The approximate total (such as `1,000+`) when the total is capped, or `undefined` when it is exact or unavailable.
  */
 export function formatMemberCount(
-  total: number | undefined,
+  isCapped: boolean | undefined,
   t: EnhancedTranslationFunction,
 ): string | undefined {
-  return total !== undefined && total >= MEMBER_COUNT_CAP ? t('count_capped') : undefined;
+  return isCapped ? t('count_capped') : undefined;
 }
 
 /**

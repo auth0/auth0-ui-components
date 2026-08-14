@@ -154,6 +154,8 @@ export function useOrganizationMemberManagement(
   const organizationDisplayName = organizationQuery.data?.display_name ?? '';
   const invitationTotal = invitationsQuery.data?.total;
   const memberTotal = membersQuery.data?.total;
+  const invitationTotalIsCapped = invitationsQuery.data?.totalIsCapped;
+  const memberTotalIsCapped = membersQuery.data?.totalIsCapped;
 
   const openModal = React.useCallback(
     async (state: MemberManagementModalState) => {
@@ -347,7 +349,7 @@ export function useOrganizationMemberManagement(
       pageSize: invitationPageSize,
       currentPage: invitationCurrentPage,
       totalItems: invitationTotal,
-      totalItemsDisplay: formatMemberCount(invitationTotal, t),
+      totalItemsDisplay: formatMemberCount(invitationTotalIsCapped, t),
       hasNextPage: !!invitationNextToken,
       hasPreviousPage: invitationHasPreviousPage,
     },
@@ -355,7 +357,7 @@ export function useOrganizationMemberManagement(
       pageSize: memberPageSize,
       currentPage: memberCurrentPage,
       totalItems: memberTotal,
-      totalItemsDisplay: formatMemberCount(memberTotal, t),
+      totalItemsDisplay: formatMemberCount(memberTotalIsCapped, t),
       hasNextPage: !!memberNextToken,
       hasPreviousPage: memberHasPreviousPage,
     },
