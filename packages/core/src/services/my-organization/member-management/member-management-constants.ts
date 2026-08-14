@@ -7,7 +7,8 @@
 export const memberManagementQueryKeys = {
   all: ['member-management'] as const,
   invitations: () => [...memberManagementQueryKeys.all, 'invitations'] as const,
-  roles: () => [...memberManagementQueryKeys.all, 'roles'] as const,
+  invitationRoles: (id: string) =>
+    [...memberManagementQueryKeys.all, 'invitation-roles', id] as const,
   rolesSearch: (term: string) =>
     [...memberManagementQueryKeys.all, 'roles', 'search', term] as const,
   members: () => [...memberManagementQueryKeys.all, 'members'] as const,

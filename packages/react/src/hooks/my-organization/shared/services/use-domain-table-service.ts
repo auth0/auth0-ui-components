@@ -65,12 +65,12 @@ export function useDomainTableService({
     });
     const allProviders = allProvidersResponse?.identity_providers ?? [];
 
-    return allProviders
-      .filter(isIdpKnownResponse)
-      .map((provider): IdentityProviderAssociatedWithDomain => ({
+    return allProviders.filter(isIdpKnownResponse).map(
+      (provider): IdentityProviderAssociatedWithDomain => ({
         ...provider,
         is_associated: provider.domains?.includes(domainName) ?? false,
-      }));
+      }),
+    );
   };
 
   const domainsQuery = useQuery({

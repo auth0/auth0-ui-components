@@ -66,9 +66,10 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     memberSortConfig,
     isAssigningRoles,
     isRemovingFromOrganization,
+    invitationRoles,
+    isFetchingInvitationRoles,
     isLoadingMemberRoles,
     memberRoles,
-    availableRoles,
     searchedRoles,
     onRoleSearch,
     availableConnections,
@@ -274,7 +275,8 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isRevoking={isRevokingInvitation}
           isResending={isResendingInvitation}
           customMessages={customMessages?.invitation}
-          availableRoles={availableRoles}
+          roles={invitationRoles}
+          isLoadingRoles={isFetchingInvitationRoles}
           availableConnections={availableConnections}
           readOnly={readOnly}
           style={currentStyles.variables}
