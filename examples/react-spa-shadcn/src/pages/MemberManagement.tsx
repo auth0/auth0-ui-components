@@ -8,8 +8,8 @@ const MemberManagement = () => {
   // const navigate = useNavigate();
 
   // const viewMemberDetailsAction = {
-  //   onAfter: (userId: string) => {
-  //     navigate(`/member-management/${userId}`);
+  //   onAfter: ({ userId, tab }: { userId: string; tab?: string }) => {
+  //     navigate(`/member-management/${userId}${tab ? `?tab=${tab}` : ''}`);
   //   },
   // };
 

@@ -130,6 +130,15 @@ export function getInitials(name?: string): string {
 }
 
 /**
+ * Validates if a userId follows Auth0's userId format (provider|id).
+ * @param userId - The user ID to validate.
+ * @returns `true` if valid, `false` otherwise.
+ */
+export function isValidUserId(userId: string | undefined | null): boolean {
+  return !!userId && /^(?=.{1,1024}$).+\|.+$/.test(userId);
+}
+
+/**
  * Validates a role assign/remove request
  * @param t - Translator function
  * @param roleIds - Role ids to assign/remove

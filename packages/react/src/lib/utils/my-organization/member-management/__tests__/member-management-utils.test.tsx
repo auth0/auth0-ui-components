@@ -11,6 +11,7 @@ import {
   getInvitationStatus,
   getMemberDisplayName,
   getRelativeLastLoginLabel,
+  isValidUserId,
   validateRequestRoleForMember,
 } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { createMockMember } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
@@ -18,6 +19,43 @@ import { createMockMember } from '@/tests/utils/__mocks__/my-organization/member
 vi.mock('@/components/auth0/shared/toast', () => ({
   showToast: vi.fn(),
 }));
+
+describe('when validating user IDs', () => {
+  it('returns false for undefined', () => {
+    expect(isValidUserId(undefined)).toBe(false);
+  });
+
+  it('returns false for null', () => {
+    expect(isValidUserId(null)).toBe(false);
+  });
+
+  it('returns false for empty string', () => {
+    expect(isValidUserId('')).toBe(false);
+  });
+
+  it('returns false for userId without pipe separator', () => {
+    expect(isValidUserId('auth0user123')).toBe(false);
+  });
+
+  it('returns true for valid userId with pipe separator', () => {
+    expect(isValidUserId('auth0|user123')).toBe(true);
+  });
+
+  it('returns true for userId with multiple pipes', () => {
+    expect(isValidUserId('auth0|user|123')).toBe(true);
+  });
+
+  it('returns false for userId exceeding 1024 characters', () => {
+    const longId = `auth0|${'a'.repeat(1024)}`;
+    expect(isValidUserId(longId)).toBe(false);
+  });
+
+  it('returns true for userId at exactly 1024 characters', () => {
+    const exactId = `auth0|${'a'.repeat(1018)}`;
+    expect(exactId.length).toBe(1024);
+    expect(isValidUserId(exactId)).toBe(true);
+  });
+});
 
 describe('getInvitationStatus', () => {
   it('returns expired when invitation has expired', () => {

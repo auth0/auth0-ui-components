@@ -17,7 +17,10 @@ import { useMemberManagementService } from '@/hooks/my-organization/shared/servi
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
+import {
+  isValidUserId,
+  validateRequestRoleForMember,
+} from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
   MemberDetailServiceResult,
   UseMemberDetailServiceOptions,
@@ -44,23 +47,10 @@ export function useMemberDetailService(
   const handleError = useErrorHandler();
   const queryClient = useQueryClient();
 
-  const isValidUserId = !!userId && /^(?=.{1,1024}$).+\\|.+$/.test(userId);
-
   const memberQuery = useQuery({
     queryKey: memberDetailQueryKeys.member(userId),
     queryFn: () => coreClient!.getMyOrganizationApiClient().organization.members.get(userId),
-    enabled: !!coreClient && isValidUserId,
-  });
-
-  const memberRolesQuery = useQuery({
-    queryKey: memberDetailQueryKeys.memberRoles(userId),
-    queryFn: async () => {
-      const response = await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.members.roles.list(userId);
-      return response.data;
-    },
-    enabled: !!coreClient && isValidUserId && memberQuery.isSuccess,
+    enabled: !!coreClient && isValidUserId(userId),
   });
 
   const {
@@ -69,7 +59,10 @@ export function useMemberDetailService(
     enableRoleSearch,
     assignRolesMutation,
     removeFromOrganizationMutation,
+    memberRolesQuery,
   } = useMemberManagementService({
+    userId,
+    memberRolesQueryEnabled: memberQuery.isSuccess,
     assignRolesAction,
     removeFromOrganizationAction,
     deferRoleSearch: true,
@@ -106,7 +99,7 @@ export function useMemberDetailService(
     onSuccess: (result, roles) => {
       if (result?.aborted) return;
       const removedIds = new Set(roles.map((r) => r.id));
-      queryClient.setQueryData<Role[]>(memberDetailQueryKeys.memberRoles(userId), (old) =>
+      queryClient.setQueryData<Role[]>(memberManagementQueryKeys.memberRoles(userId), (old) =>
         (old ?? []).filter((r) => !removedIds.has(r.id)),
       );
       const isSingle = roles.length === 1;
@@ -116,7 +109,7 @@ export function useMemberDetailService(
             roleNames: roles.map((r) => `"${r.name}"`).join(', '),
           });
       showToast({ type: 'success', message });
-      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.memberRoles(userId) });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.members() });
     },
     onError: (error) => {

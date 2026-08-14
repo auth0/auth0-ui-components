@@ -12,6 +12,7 @@ import { useMemberManagementService } from '@/hooks/my-organization/shared/servi
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { ROLES_PREFETCH_THRESHOLD } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   ConnectionOption,
@@ -24,6 +25,7 @@ import type {
   MemberManagementSortConfig,
   UseOrganizationMemberManagementOptions,
   UseOrganizationMemberManagementResult,
+  ViewMemberDetailsParams,
 } from '@/types/my-organization/member-management/organization-member-management-types';
 
 /**
@@ -85,6 +87,8 @@ export function useOrganizationMemberManagement(
 
   const invitationRolesId =
     modalState.type === 'details' ? (modalState.invitation.id ?? null) : null;
+  const selectedMemberForRoles = modalState.type === 'assignRole' ? modalState.member : null;
+  const selectedMemberRolesCount = selectedMemberForRoles?.roles?.length ?? 0;
 
   const {
     providersQuery,
@@ -96,6 +100,7 @@ export function useOrganizationMemberManagement(
     invitationsQuery,
     membersQuery,
     organizationQuery,
+    memberRolesQuery,
     createInvitationMutation,
     revokeInvitationMutation,
     resendInvitationMutation,
@@ -105,6 +110,9 @@ export function useOrganizationMemberManagement(
   } = useMemberManagementService({
     customMessages,
     activeTab,
+    userId: selectedMemberForRoles?.user_id,
+    memberRolesQueryEnabled:
+      modalState.type === 'assignRole' && selectedMemberRolesCount >= ROLES_PREFETCH_THRESHOLD,
     createInvitationAction,
     revokeInvitationAction,
     resendInvitationAction,
@@ -224,8 +232,8 @@ export function useOrganizationMemberManagement(
   }, []);
 
   const handleViewMemberDetails = React.useCallback(
-    (userId: string) => {
-      viewMemberDetailsAction?.onAfter?.(userId);
+    (params: ViewMemberDetailsParams) => {
+      viewMemberDetailsAction?.onAfter?.(params);
     },
     [viewMemberDetailsAction],
   );
@@ -329,8 +337,11 @@ export function useOrganizationMemberManagement(
     refetchInvitations: invitationsQuery.refetch,
     invitationRoles,
     isFetchingInvitationRoles: invitationRolesQuery.isLoading,
+    isSearchingRoles: rolesSearchQuery.isFetching,
     isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),
     isAssigningRoles: isMutationLoading(assignRolesMutation),
+    isLoadingMemberRoles: memberRolesQuery.isLoading,
+    memberRoles: memberRolesQuery.data,
     isCreatingInvitation: isMutationLoading(createInvitationMutation),
     isRevokingInvitation: isMutationLoading(revokeInvitationMutation),
     isResendingInvitation: isMutationLoading(resendInvitationMutation),
