@@ -11,6 +11,7 @@ import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organizat
 import {
   createMockInvitation,
   createMockListUserStoresResponse,
+  createMockRoles,
 } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 
@@ -69,6 +70,9 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
         create: vi.fn().mockResolvedValue([createMockInvitation()]),
         delete: vi.fn().mockResolvedValue(undefined),
         deleteMemberInvitations: vi.fn().mockResolvedValue(undefined),
+        roles: {
+          list: vi.fn().mockResolvedValue({ roles: createMockRoles() }),
+        },
       },
       userStores: {
         list: vi.fn().mockResolvedValue(createMockListUserStoresResponse()),

@@ -44,7 +44,8 @@ function getStatusBadgeVariant(status: InvitationStatus): 'warning' | 'destructi
  * @param props.isRevoking - Whether a revoke action is in progress.
  * @param props.isResending - Whether a resend action is in progress.
  * @param props.customMessages - Custom translation messages.
- * @param props.availableRoles - Available roles for display.
+ * @param props.roles - Roles assigned to the invitation.
+ * @param props.isLoadingRoles - Whether the assigned roles are still loading.
  * @param props.availableConnections - Merged identity providers + user stores for resolving the connection name.
  * @param props.readOnly - Whether in read-only mode.
  * @param props.onClose - Callback when modal is closed.
@@ -61,7 +62,8 @@ export function OrganizationInvitationDetailsModal({
   isRevoking = false,
   isResending = false,
   customMessages = {},
-  availableRoles = [],
+  roles = [],
+  isLoadingRoles = false,
   availableConnections = [],
   readOnly = false,
   onClose,
@@ -77,15 +79,7 @@ export function OrganizationInvitationDetailsModal({
   const isPending = status === 'pending';
   const isActionInProgress = isRevoking || isResending;
 
-  const roleNames = React.useMemo(() => {
-    if (!invitation?.roles || invitation.roles.length === 0) return [];
-    return invitation.roles
-      .map((roleId) => {
-        const role = availableRoles.find((r) => r.id === roleId);
-        return role?.name ?? roleId;
-      })
-      .filter(Boolean);
-  }, [invitation?.roles, availableRoles]);
+  const roleNames = React.useMemo(() => roles.map((role) => role.name), [roles]);
 
   const connectionName = React.useMemo(() => {
     const connectionId = invitation?.identity_provider_id ?? invitation?.user_store_id;
@@ -188,7 +182,11 @@ export function OrganizationInvitationDetailsModal({
             <Label className="text-sm font-medium text-muted-foreground">
               {t('invitation.details.roles_label')}
             </Label>
-            {roleNames.length > 0 ? (
+            {isLoadingRoles ? (
+              <div className="flex h-9 items-center">
+                <Spinner size="sm" />
+              </div>
+            ) : roleNames.length > 0 ? (
               <TextFieldGroup
                 chips={roleNames.map((name) => ({ label: name, value: name }))}
                 summarizeChips={false}
