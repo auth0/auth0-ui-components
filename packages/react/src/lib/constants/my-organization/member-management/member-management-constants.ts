@@ -29,3 +29,8 @@ export const ALL_MEMBER_ACCESS_LEVELS = ['none', 'readonly', 'limited', 'full'] 
  * Member access level type.
  */
 export type MemberAccessLevel = (typeof ALL_MEMBER_ACCESS_LEVELS)[number];
+/**
+ * Min roles count to pre-fetch full roles before opening assign roles modal.
+ * Matches the API's default page size for member roles.
+ */
+export const ROLES_PREFETCH_THRESHOLD = 10;

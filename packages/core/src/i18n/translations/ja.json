@@ -1168,7 +1168,9 @@
         "month": "か月",
         "months": "か月",
         "year": "年",
-        "years": "年"
+        "years": "年",
+        "more_roles": "その他",
+        "view_all_roles": "すべての${count}個のロールを表示"
       },
       "actions": {
         "menu_label": "アクション",
@@ -1237,13 +1239,15 @@
             "submit_button": "割り当て",
             "cancel_button": "キャンセル",
             "no_roles_available": "利用可能なすべてのロールがすでに割り当てられています。",
+            "max_selection_message": "一度に選択できるロールは最大10件です。",
+            "searching_message": "検索中...",
             "success": "ロールが割り当てられました。",
             "success_plural": "ロールが割り当てられました。"
           },
           "remove_confirm": {
             "title": "メンバーからロールを削除しますか？",
             "title_plural": "メンバーからロールを削除しますか？",
-            "description": "<bold>\"${memberName}\"</bold> から <bold>${roleName}</bold> ロールを削除します。",
+            "description": "<memberBold>\"${memberName}\"</memberBold> から <roleBold>${roleName}</roleBold> ロールを削除します。",
             "confirm_button": "削除",
             "cancel_button": "キャンセル",
             "success": "ロール \"${roleName}\" がメンバーから削除されました。",
@@ -1298,6 +1302,8 @@
         "email_required_error": "メールアドレスを1つ以上入力してください。",
         "roles_label": "ロール",
         "roles_placeholder": "ロールを選択（任意）",
+        "roles_max_selection_message": "一度に選択できるロールは最大10件です。",
+        "roles_searching_message": "検索中...",
         "connection_label": "接続",
         "connection_placeholder": "接続を選択",
         "connection_helper": "メンバーがログインに使用する接続を選択してください。",

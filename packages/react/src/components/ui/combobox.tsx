@@ -1,9 +1,10 @@
 import * as PopoverPrimitive from '@radix-ui/react-popover';
-import { CheckIcon, ChevronDownIcon } from 'lucide-react';
+import { BanIcon, CheckIcon, ChevronDownIcon } from 'lucide-react';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
+import { Spinner } from '@/components/ui/spinner';
 import { TextField } from '@/components/ui/text-field';
 import { cn } from '@/lib/utils';
 import { useId } from '@/lib/utils/use-id-compat';
@@ -26,6 +27,12 @@ export interface ComboboxProps {
   multiple?: boolean;
   showSelectedCount?: boolean;
   filterLocally?: boolean;
+  retainQueryOnSelect?: boolean;
+  debounceMs?: number;
+  loading?: boolean;
+  loadingMessage?: string;
+  maxSelections?: number;
+  maxSelectionsMessage?: string;
 }
 
 export function Combobox({
@@ -40,9 +47,16 @@ export function Combobox({
   multiple = false,
   showSelectedCount = false,
   filterLocally = true,
+  retainQueryOnSelect = false,
+  debounceMs = 300,
+  loading = false,
+  loadingMessage,
+  maxSelections,
+  maxSelectionsMessage,
 }: ComboboxProps) {
   const [query, setQuery] = React.useState('');
   const [open, setOpen] = React.useState(false);
+  const [isFocused, setIsFocused] = React.useState(false);
   const [focusedIndex, setFocusedIndex] = React.useState(-1);
   const [hasTyped, setHasTyped] = React.useState(false);
   const [focusedChipIndex, setFocusedChipIndex] = React.useState(-1);
@@ -53,6 +67,7 @@ export function Combobox({
   const measureBadgeRef = React.useRef<HTMLSpanElement>(null);
   const chipsContainerRef = React.useRef<HTMLDivElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const pointerFocusRef = React.useRef(false);
 
   const portalContainer = usePortalContainer();
   const reactId = useId();
@@ -60,6 +75,36 @@ export function Combobox({
 
   const onInputChangeRef = React.useRef(onInputChange);
   onInputChangeRef.current = onInputChange;
+
+  const debounceTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [isDebouncePending, setIsDebouncePending] = React.useState(false);
+
+  const cancelPendingEmit = React.useCallback(() => {
+    clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = undefined;
+    setIsDebouncePending(false);
+  }, []);
+
+  const emitInputChange = React.useCallback(
+    (next: string) => {
+      cancelPendingEmit();
+      if (filterLocally || debounceMs <= 0) {
+        onInputChangeRef.current?.(next);
+        return;
+      }
+      setIsDebouncePending(true);
+      debounceTimerRef.current = setTimeout(() => {
+        debounceTimerRef.current = undefined;
+        setIsDebouncePending(false);
+        onInputChangeRef.current?.(next);
+      }, debounceMs);
+    },
+    [filterLocally, debounceMs, cancelPendingEmit],
+  );
+
+  React.useEffect(() => () => clearTimeout(debounceTimerRef.current), []);
+
+  const isLoading = loading || isDebouncePending;
 
   const [popoverContainer, setPopoverContainer] = React.useState<HTMLElement | null>(null);
 
@@ -77,6 +122,14 @@ export function Combobox({
     }
     return typeof value === 'string' ? [value] : [];
   }, [value, multiple]);
+
+  const isSelectionLimitReached =
+    multiple && maxSelections !== undefined && selectedValues.length >= maxSelections;
+
+  const isOptionDisabled = React.useCallback(
+    (option: ComboboxOption) => isSelectionLimitReached && !selectedValues.includes(option.value),
+    [isSelectionLimitReached, selectedValues],
+  );
 
   // Cache of currently selected options, keyed by value. Lets chips keep their
   // label even after `options` narrows to a server-filtered subset that no longer
@@ -112,7 +165,7 @@ export function Combobox({
     setOpen(true);
     setHasTyped(true);
     setFocusedIndex(-1);
-    onInputChange?.(newQuery);
+    emitInputChange(newQuery);
 
     if (!multiple && selectedOptions.length > 0 && newQuery !== selectedOptions[0]?.label) {
       onChange?.(newQuery);
@@ -121,6 +174,7 @@ export function Combobox({
 
   const handleOptionSelect = (option: ComboboxOption) => {
     if (disabled) return;
+    if (isOptionDisabled(option)) return;
 
     if (multiple) {
       const isSelected = selectedValues.includes(option.value);
@@ -221,8 +275,23 @@ export function Combobox({
     if (containerRef.current && containerRef.current.contains(event.relatedTarget as Node)) {
       return;
     }
+    setIsFocused(false);
     setFocusedChipIndex(-1);
   };
+
+  const findNextEnabledIndex = React.useCallback(
+    (from: number, step: 1 | -1) => {
+      const n = filteredOptions.length;
+      if (n === 0) return -1;
+      for (let i = 1; i <= n; i++) {
+        const candidate = (((from + step * i) % n) + n) % n;
+        const option = filteredOptions[candidate];
+        if (option && !isOptionDisabled(option)) return candidate;
+      }
+      return -1;
+    },
+    [filteredOptions, isOptionDisabled],
+  );
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (disabled) return;
@@ -233,14 +302,14 @@ export function Combobox({
         if (!open) {
           setOpen(true);
           setHasTyped(false);
-        } else {
-          setFocusedIndex((prev) => (prev + 1) % filteredOptions.length);
+        } else if (!isLoading) {
+          setFocusedIndex((prev) => findNextEnabledIndex(prev, 1));
         }
         break;
       case 'ArrowUp':
         event.preventDefault();
-        if (open) {
-          setFocusedIndex((prev) => (prev - 1 + filteredOptions.length) % filteredOptions.length);
+        if (open && !isLoading) {
+          setFocusedIndex((prev) => findNextEnabledIndex(prev, -1));
         }
         break;
       case 'ArrowLeft':
@@ -260,22 +329,25 @@ export function Combobox({
       case 'ArrowRight':
         if (multiple && selectedOptions.length > 0) {
           event.preventDefault();
-          if (focusedChipIndex > -1 && focusedChipIndex < selectedOptions.length - 1) {
+          if (focusedChipIndex === -1) break;
+          if (focusedChipIndex < selectedOptions.length - 1) {
             const nextIndex = focusedChipIndex + 1;
             setFocusedChipIndex(nextIndex);
             chipRefs.current[nextIndex]?.focus();
-          } else if (focusedChipIndex >= selectedOptions.length - 1) {
+          } else {
             setFocusedChipIndex(-1);
             inputRef.current?.focus();
           }
         }
         break;
-      case 'Enter':
+      case 'Enter': {
         event.preventDefault();
-        if (open && focusedIndex >= 0 && filteredOptions[focusedIndex]) {
-          handleOptionSelect(filteredOptions[focusedIndex]);
+        const focusedOption = filteredOptions[focusedIndex];
+        if (open && !isLoading && focusedIndex >= 0 && focusedOption) {
+          handleOptionSelect(focusedOption);
         }
         break;
+      }
       case 'Backspace':
         if (multiple && selectedOptions.length > 0 && inputRef.current?.value === '') {
           event.preventDefault();
@@ -309,14 +381,27 @@ export function Combobox({
 
   React.useEffect(() => {
     if (!multiple && selectedOptions.length > 0 && selectedOptions[0]) {
+      cancelPendingEmit();
       setQuery(selectedOptions[0].label);
     } else if (multiple || selectedOptions.length === 0) {
+      if (retainQueryOnSelect && multiple && selectedValues.length > 0) return;
       if (query !== '') {
         setQuery('');
+        cancelPendingEmit();
         onInputChangeRef.current?.('');
       }
     }
-  }, [selectedValues, multiple]);
+  }, [selectedValues, multiple, retainQueryOnSelect]);
+
+  React.useEffect(() => {
+    if (open || !retainQueryOnSelect || !multiple) return;
+    if (query !== '') {
+      setQuery('');
+      setHasTyped(false);
+      cancelPendingEmit();
+      onInputChangeRef.current?.('');
+    }
+  }, [open, retainQueryOnSelect, multiple]);
 
   React.useEffect(() => {
     setFocusedIndex(-1);
@@ -334,7 +419,7 @@ export function Combobox({
     chipRefs.current = chipRefs.current.slice(0, selectedOptions.length);
   }, [selectedOptions.length]);
 
-  const showAllChips = open || !showSelectedCount;
+  const showAllChips = isFocused || open || !showSelectedCount;
 
   React.useLayoutEffect(() => {
     if (!multiple || showAllChips) return;
@@ -385,7 +470,7 @@ export function Combobox({
     const observer = new ResizeObserver(measureVisible);
     if (containerRef.current) observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, [selectedOptions, open, showSelectedCount, multiple]);
+  }, [selectedOptions, isFocused, open, showSelectedCount, multiple]);
 
   const displayValue =
     !multiple && selectedOptions.length > 0 && selectedOptions[0]
@@ -393,7 +478,7 @@ export function Combobox({
       : query;
 
   return (
-    <div className="relative w-full" ref={containerRef}>
+    <div className="relative w-full" ref={containerRef} onBlur={handleBlur}>
       <PopoverPrimitive.Root open={open} onOpenChange={setOpen}>
         <div className="relative">
           <PopoverPrimitive.Trigger asChild>
@@ -403,9 +488,19 @@ export function Combobox({
                 ref={inputRef}
                 value={displayValue}
                 onChange={handleInputChange}
+                onPointerDown={() => {
+                  pointerFocusRef.current = true;
+                }}
                 onClick={handleInputClick}
-                onFocus={() => {
+                onFocus={(e) => {
+                  setIsFocused(true);
                   setFocusedChipIndex(-1);
+                  const cameFromWidget = containerRef.current?.contains(e.relatedTarget as Node);
+                  if (cameFromWidget && !pointerFocusRef.current) {
+                    setHasTyped(false);
+                    setOpen(true);
+                  }
+                  pointerFocusRef.current = false;
                 }}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
@@ -454,6 +549,7 @@ export function Combobox({
                           )}
                           onKeyDown={(e) => handleChipKeyDown(e, index)}
                           onFocus={() => {
+                            setIsFocused(true);
                             setFocusedChipIndex(index);
                           }}
                           onBlur={(e) => {
@@ -474,13 +570,13 @@ export function Combobox({
                           </Chip>
                         </div>
                       ))}
-                      {!open && selectedOptions.length > visibleChipCount && showSelectedCount && (
+                      {!showAllChips && selectedOptions.length > visibleChipCount && (
                         <span className="text-muted-foreground border-border flex h-4 items-center self-center border-r px-0.5 pr-1.5 text-xs">
                           +{selectedOptions.length - visibleChipCount} more
                         </span>
                       )}
                       {/* Hidden measurement row — always renders all chips to measure real widths */}
-                      {showSelectedCount && !open && (
+                      {showSelectedCount && !showAllChips && (
                         <div
                           className="pointer-events-none invisible absolute flex gap-1"
                           aria-hidden="true"
@@ -522,13 +618,22 @@ export function Combobox({
                     disabled={disabled}
                     className="focus:ring-0"
                   >
-                    <ChevronDownIcon
-                      className={cn(
-                        'size-4 transition-transform duration-200',
-                        open && 'rotate-180',
-                        disabled ? 'opacity-50' : 'opacity-100',
-                      )}
-                    />
+                    {isLoading ? (
+                      <Spinner
+                        size="sm"
+                        colorScheme="muted"
+                        className={cn(disabled ? 'opacity-50' : 'opacity-100')}
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <ChevronDownIcon
+                        className={cn(
+                          'size-4 transition-transform duration-200',
+                          open && 'rotate-180',
+                          disabled ? 'opacity-50' : 'opacity-100',
+                        )}
+                      />
+                    )}
                   </Button>
                 }
               />
@@ -546,7 +651,12 @@ export function Combobox({
               className="max-h-60 w-full overflow-auto p-1"
               onMouseDown={(e) => e.preventDefault()}
             >
-              {filteredOptions.length === 0 ? (
+              {isLoading ? (
+                <div className="text-muted-foreground flex items-center gap-2 px-2 py-1.5 text-sm select-none">
+                  <Spinner size="sm" colorScheme="muted" aria-hidden="true" />
+                  {loadingMessage ?? 'Searching...'}
+                </div>
+              ) : filteredOptions.length === 0 ? (
                 <div className="text-muted-foreground relative cursor-default px-2 py-1.5 text-sm select-none">
                   {hasTyped && query !== ''
                     ? (notFoundMessage ?? 'No options found')
@@ -556,18 +666,24 @@ export function Combobox({
                 filteredOptions.map((option, index) => {
                   const isSelected = selectedValues.includes(option.value);
                   const isFocused = index === focusedIndex;
+                  const isDisabled = isOptionDisabled(option);
 
                   return (
                     <button
                       key={option.value}
                       type="button"
+                      disabled={isDisabled}
+                      aria-disabled={isDisabled}
                       className={cn(
-                        'relative flex w-full cursor-pointer items-center rounded-2xl px-2 py-1.5 text-sm outline-none select-none',
+                        'relative flex w-full items-center rounded-2xl px-2 py-1.5 text-sm outline-none select-none',
+                        isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
                         isFocused && 'bg-muted text-accent-foreground',
-                        !isFocused && 'hover:bg-muted hover:text-accent-foreground',
+                        !isFocused && !isDisabled && 'hover:bg-muted hover:text-accent-foreground',
                       )}
                       onClick={() => handleOptionSelect(option)}
-                      onMouseEnter={() => setFocusedIndex(index)}
+                      onMouseEnter={() => {
+                        if (!isDisabled) setFocusedIndex(index);
+                      }}
                     >
                       <span className="block truncate">{option.label}</span>
                       {isSelected && (
@@ -583,6 +699,12 @@ export function Combobox({
           </PopoverPrimitive.Content>
         </PopoverPrimitive.Portal>
       </PopoverPrimitive.Root>
+      {isSelectionLimitReached && (
+        <p role="status" className="text-muted-foreground mt-1.5 flex items-center gap-1.5 text-xs">
+          <BanIcon className="size-3.5 shrink-0" aria-hidden="true" />
+          {maxSelectionsMessage ?? `Only ${maxSelections} can be selected at a time`}
+        </p>
+      )}
     </div>
   );
 }

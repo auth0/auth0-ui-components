@@ -10,14 +10,12 @@ import {
   type ListIdentityProvidersResponseContent,
   memberManagementQueryKeys,
   OrganizationDetailsMappers,
-  memberDetailQueryKeys,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
-import { useDebouncedValue } from '@/hooks/shared/use-debounced-value';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { MEMBER_ACCESS_LEVELS } from '@/lib/constants/common-constants';
@@ -26,7 +24,10 @@ import {
   MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { isIdpKnownResponse } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
-import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
+import {
+  isValidUserId,
+  validateRequestRoleForMember,
+} from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type {
   ConnectionOption,
@@ -71,6 +72,8 @@ export function useMemberManagementService(
   const {
     customMessages = {},
     activeTab,
+    userId,
+    memberRolesQueryEnabled = true,
     createInvitationAction,
     revokeInvitationAction,
     resendInvitationAction,
@@ -141,16 +144,15 @@ export function useMemberManagementService(
   });
 
   const [roleSearchTerm, setRoleSearchTerm] = React.useState('');
-  const debouncedRoleSearchTerm = useDebouncedValue(roleSearchTerm);
   const [roleSearchActive, setRoleSearchActive] = React.useState(!deferRoleSearch);
   const enableRoleSearch = React.useCallback(() => setRoleSearchActive(true), []);
 
   const rolesSearchQuery = useQuery({
-    queryKey: memberManagementQueryKeys.rolesSearch(debouncedRoleSearchTerm),
+    queryKey: memberManagementQueryKeys.rolesSearch(roleSearchTerm),
     queryFn: async () => {
       const response = await coreClient!.getMyOrganizationApiClient().organization.roles.list({
         take: DEFAULT_ROLES_PAGE_SIZE,
-        ...(debouncedRoleSearchTerm ? { name: debouncedRoleSearchTerm } : {}),
+        ...(roleSearchTerm ? { name: roleSearchTerm } : {}),
       });
       return response.data;
     },
@@ -211,6 +213,17 @@ export function useMemberManagementService(
     enabled: !!coreClient,
   });
 
+  const memberRolesQuery = useQuery({
+    queryKey: memberManagementQueryKeys.memberRoles(userId ?? ''),
+    queryFn: async () => {
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.members.roles.list(userId!);
+      return response.data;
+    },
+    enabled: !!coreClient && isValidUserId(userId) && memberRolesQueryEnabled,
+  });
+
   const assignRolesMutation = useMutation({
     mutationFn: async ({
       roleIds,
@@ -252,7 +265,7 @@ export function useMemberManagementService(
           : 'member.detail.roles.assign_modal.success_plural';
       showToast({ type: 'success', message: t(assignKey) });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.memberRoles(userId) });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.assign_role_failed') });
@@ -423,6 +436,7 @@ export function useMemberManagementService(
     invitationsQuery,
     organizationQuery,
     membersQuery,
+    memberRolesQuery,
     assignRolesMutation,
     removeFromOrganizationMutation,
     createInvitationMutation,
