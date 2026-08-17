@@ -251,9 +251,8 @@ export function useMemberManagementService(
       if (result?.aborted) return;
       if (!userId) return;
       const searchedRoles =
-        queryClient.getQueryData<Role[]>(
-          memberManagementQueryKeys.rolesSearch(debouncedRoleSearchTerm),
-        ) ?? [];
+        queryClient.getQueryData<Role[]>(memberManagementQueryKeys.rolesSearch(roleSearchTerm)) ??
+        [];
       const newRoles = searchedRoles.filter((r) => roleIds.includes(r.id));
       queryClient.setQueryData<Role[]>(memberManagementQueryKeys.memberRoles(userId), (old) => [
         ...(old ?? []),
