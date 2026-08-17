@@ -1184,8 +1184,6 @@
         "fetch_failed": "Failed to load members. Please try again.",
         "remove_failed": "Failed to remove member. Please try again.",
         "assign_role_failed": "Failed to assign role. Please try again.",
-        "too_many_roles_per_assignment": "You can only assign a maximum of 10 roles at a time.",
-        "too_many_roles_per_removal": "You can only remove a maximum of 10 roles at a time.",
         "member_role_limit_exceeded": "You have reached the maximum of 50 roles for this member."
       },
       "detail": {
@@ -1228,6 +1226,7 @@
           "remove_button_plural": "Remove Roles",
           "roles_selected": "${count} role selected",
           "roles_selected_plural": "${count} roles selected",
+          "max_selection_message": "Only 10 can be removed at a time",
           "table": {
             "name": "Name",
             "description": "Description",
@@ -1351,6 +1350,7 @@
         "count": "${count} selected",
         "count_plural": "${count} selected",
         "success": "${count} invitations have been revoked.",
+        "max_selection_message": "Only 10 can be selected at a time",
         "confirm": {
           "title": "Delete 1 pending invitation?",
           "title_plural": "Delete ${count} pending invitations?",

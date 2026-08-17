@@ -1182,8 +1182,6 @@
         "fetch_failed": "メンバーの読み込みに失敗しました。もう一度お試しください。",
         "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。",
         "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。",
-        "too_many_roles_per_assignment": "一度に割り当てられるロールは最大10件までです。",
-        "too_many_roles_per_removal": "一度に削除できるロールは最大10件までです。",
         "member_role_limit_exceeded": "このメンバーのロールは最大50件に達しました。"
       },
       "detail": {
@@ -1226,6 +1224,7 @@
           "remove_button_plural": "ロールを削除",
           "roles_selected": "${count}件のロールが選択されています",
           "roles_selected_plural": "${count}件のロールが選択されています",
+          "max_selection_message": "一度に削除できるロールは10件までです",
           "table": {
             "name": "名前",
             "description": "説明",
@@ -1349,6 +1348,7 @@
         "count": "${count}件を選択中",
         "count_plural": "${count}件を選択中",
         "success": "${count}件の招待が取り消されました。",
+        "max_selection_message": "一度に選択できるのは10件までです",
         "confirm": {
           "title": "保留中の招待を1件削除しますか？",
           "title_plural": "保留中の招待を${count}件削除しますか？",
