@@ -29,7 +29,7 @@ import type { OrganizationInvitationTableProps } from '@/types/my-organization/m
  * @param props.pageSizeOptions - Options for page size selection.
  * @param props.filters - Current filter state.
  * @param props.availableRoles - Available roles for filtering.
- * @param props.readOnly - Whether the component is in read-only mode.
+ * @param props.permissions - What the current user is allowed to do.
  * @param props.onView - Callback when viewing invitation details.
  * @param props.onCopyUrl - Callback when copying invitation URL.
  * @param props.onRevokeAndResend - Callback when revoking and resending invitation.
@@ -48,7 +48,7 @@ export function OrganizationInvitationTable({
   pageSizeOptions,
   filters,
   availableRoles,
-  readOnly = false,
+  permissions,
   sortConfig,
   onSortChange,
   onView,
@@ -137,7 +137,7 @@ export function OrganizationInvitationTable({
           <OrganizationInvitationTableActionsColumn
             invitation={invitation}
             customMessages={customMessages}
-            readOnly={readOnly}
+            permissions={permissions}
             onViewDetails={onView}
             onCopyUrl={onCopyUrl}
             onRevokeAndResend={onRevokeAndResend}
@@ -146,7 +146,7 @@ export function OrganizationInvitationTable({
         ),
       },
     ],
-    [t, customMessages, readOnly, onView, onCopyUrl, onRevokeAndResend, onRevoke],
+    [t, customMessages, permissions, onView, onCopyUrl, onRevokeAndResend, onRevoke],
   );
 
   return (
@@ -165,6 +165,7 @@ export function OrganizationInvitationTable({
         emptyState={{ title: t('invitation.table.empty_message') }}
         sortConfig={sortConfig}
         onSortChange={onSortChange}
+        onRowClick={onView}
       />
 
       {!loading && invitations.length > 0 && (

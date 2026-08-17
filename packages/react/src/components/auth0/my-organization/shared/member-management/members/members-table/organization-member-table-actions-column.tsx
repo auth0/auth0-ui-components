@@ -23,17 +23,19 @@ import type { OrganizationMemberTableActionsColumnProps } from '@/types/my-organ
  * @param props - Component props.
  * @param props.member - The member to show actions for.
  * @param props.customMessages - Custom translation messages to override defaults.
+ * @param props.permissions - What the current user is allowed to do.
  * @param props.onAssignRole - Callback fired when assign role action is triggered.
  * @param props.onRemoveFromOrganization - Callback fired when remove from organization action is triggered.
- * @returns JSX element.
+ * @returns JSX element, or `null` when no action is available.
  */
 export function OrganizationMemberTableActionsColumn({
   member,
   customMessages = {},
+  permissions,
   onViewDetails,
   onAssignRole,
   onRemoveFromOrganization,
-}: OrganizationMemberTableActionsColumnProps): React.JSX.Element {
+}: OrganizationMemberTableActionsColumnProps): React.JSX.Element | null {
   const { t } = useTranslator('member_management', customMessages);
 
   const handleViewDetails = React.useCallback(() => {
@@ -47,6 +49,10 @@ export function OrganizationMemberTableActionsColumn({
   const handleRemoveFromOrganization = React.useCallback(() => {
     onRemoveFromOrganization?.(member);
   }, [member, onRemoveFromOrganization]);
+
+  if (!permissions.canShowMemberMenu) {
+    return null;
+  }
 
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
@@ -64,17 +70,21 @@ export function OrganizationMemberTableActionsColumn({
               <Eye className="mr-2 h-4 w-4" />
               {t('member.actions.view_details')}
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleAssignRole}>
-              <UserRoundCheck className="mr-2 h-4 w-4" />
-              {t('member.actions.assign_role')}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={handleRemoveFromOrganization}
-              className="text-destructive-foreground focus:text-destructive-foreground"
-            >
-              <Trash2 className="mr-2 h-4 w-4 text-destructive-foreground" />
-              {t('member.actions.remove_from_organization')}
-            </DropdownMenuItem>
+            {permissions.canAssignRole && (
+              <DropdownMenuItem onClick={handleAssignRole}>
+                <UserRoundCheck className="mr-2 h-4 w-4" />
+                {t('member.actions.assign_role')}
+              </DropdownMenuItem>
+            )}
+            {permissions.canRemoveFromOrganization && (
+              <DropdownMenuItem
+                onClick={handleRemoveFromOrganization}
+                className="text-destructive-foreground focus:text-destructive-foreground"
+              >
+                <Trash2 className="mr-2 h-4 w-4 text-destructive-foreground" />
+                {t('member.actions.remove_from_organization')}
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenuPortal>
       </DropdownMenu>

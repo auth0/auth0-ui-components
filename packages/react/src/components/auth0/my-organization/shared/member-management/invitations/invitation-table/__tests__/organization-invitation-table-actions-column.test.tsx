@@ -1,3 +1,4 @@
+import { getMemberManagementPermissions } from '@auth0/universal-components-core';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -8,6 +9,10 @@ import {
   createMockPendingInvitation,
   createMockExpiredInvitation,
 } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
+import {
+  EDITOR_MEMBER_PERMISSIONS,
+  VIEWER_MEMBER_PERMISSIONS,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('OrganizationInvitationTableActionsColumn', () => {
@@ -118,9 +123,9 @@ describe('OrganizationInvitationTableActionsColumn', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('should show Revoke & Resend action when not readOnly', async () => {
+    it('should show Revoke & Resend action when permitted', async () => {
       const user = userEvent.setup();
-      const props = createMockActionsColumnProps({ readOnly: false });
+      const props = createMockActionsColumnProps();
       renderWithProviders(<OrganizationInvitationTableActionsColumn {...props} />);
 
       const trigger = screen.getByRole('button');
@@ -131,9 +136,9 @@ describe('OrganizationInvitationTableActionsColumn', () => {
       ).toBeInTheDocument();
     });
 
-    it('should show Revoke action when not readOnly', async () => {
+    it('should show Revoke action when permitted', async () => {
       const user = userEvent.setup();
-      const props = createMockActionsColumnProps({ readOnly: false });
+      const props = createMockActionsColumnProps();
       renderWithProviders(<OrganizationInvitationTableActionsColumn {...props} />);
 
       const trigger = screen.getByRole('button');
@@ -177,44 +182,51 @@ describe('OrganizationInvitationTableActionsColumn', () => {
     });
   });
 
-  describe('Read-Only Mode', () => {
-    it('should not show Revoke & Resend action when readOnly', async () => {
-      const user = userEvent.setup();
-      const props = createMockActionsColumnProps({ readOnly: true });
-      renderWithProviders(<OrganizationInvitationTableActionsColumn {...props} />);
+  describe('Permission tiers', () => {
+    describe('when the user is a viewer', () => {
+      it('should render no menu at all, leaving row-click as the only path', () => {
+        const props = createMockActionsColumnProps({
+          permissions: VIEWER_MEMBER_PERMISSIONS,
+        });
+        const { container } = renderWithProviders(
+          <OrganizationInvitationTableActionsColumn {...props} />,
+        );
 
-      const trigger = screen.getByRole('button');
-      await user.click(trigger);
-
-      expect(
-        screen.queryByRole('menuitem', { name: 'invitation.actions.revoke_and_resend' }),
-      ).not.toBeInTheDocument();
+        expect(container).toBeEmptyDOMElement();
+        expect(screen.queryByRole('button')).not.toBeInTheDocument();
+      });
     });
 
-    it('should not show Revoke action when readOnly', async () => {
-      const user = userEvent.setup();
-      const props = createMockActionsColumnProps({ readOnly: true });
-      renderWithProviders(<OrganizationInvitationTableActionsColumn {...props} />);
+    describe('when the user is an editor', () => {
+      it('should render no menu, since every invitation action needs the delete scope', () => {
+        const props = createMockActionsColumnProps({
+          permissions: EDITOR_MEMBER_PERMISSIONS,
+        });
+        const { container } = renderWithProviders(
+          <OrganizationInvitationTableActionsColumn {...props} />,
+        );
 
-      const trigger = screen.getByRole('button');
-      await user.click(trigger);
-
-      expect(
-        screen.queryByRole('menuitem', { name: 'invitation.actions.revoke' }),
-      ).not.toBeInTheDocument();
+        expect(container).toBeEmptyDOMElement();
+      });
     });
 
-    it('should still show View Details when readOnly', async () => {
-      const user = userEvent.setup();
-      const props = createMockActionsColumnProps({ readOnly: true });
-      renderWithProviders(<OrganizationInvitationTableActionsColumn {...props} />);
+    describe('when the user can revoke but not create', () => {
+      it('should show Revoke and hide Revoke & Resend, which also needs create', async () => {
+        const user = userEvent.setup();
+        const props = createMockActionsColumnProps({
+          permissions: getMemberManagementPermissions(['delete:my_org:member_invitations']),
+        });
+        renderWithProviders(<OrganizationInvitationTableActionsColumn {...props} />);
 
-      const trigger = screen.getByRole('button');
-      await user.click(trigger);
+        await user.click(screen.getByRole('button'));
 
-      expect(
-        screen.getByRole('menuitem', { name: 'invitation.actions.view_details' }),
-      ).toBeInTheDocument();
+        expect(
+          screen.getByRole('menuitem', { name: 'invitation.actions.revoke' }),
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByRole('menuitem', { name: 'invitation.actions.revoke_and_resend' }),
+        ).not.toBeInTheDocument();
+      });
     });
   });
 

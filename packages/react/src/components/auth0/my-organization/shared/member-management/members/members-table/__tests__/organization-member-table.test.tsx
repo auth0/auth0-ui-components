@@ -7,6 +7,7 @@ import {
   createMockMember,
   createMockMemberTableProps,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import { VIEWER_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('OrganizationMemberTable', () => {
@@ -266,6 +267,51 @@ describe('OrganizationMemberTable', () => {
 
       expect(onNextPage).toHaveBeenCalledTimes(1);
       expect(onPreviousPage).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Row click navigation', () => {
+    it('should navigate to the member when the row is clicked', async () => {
+      const user = userEvent.setup();
+      const onView = vi.fn();
+      const member = createMockMember({ user_id: 'auth0|row-click', email: 'row@example.com' });
+      const props = createMockMemberTableProps({ members: [member], onView });
+
+      renderWithProviders(<OrganizationMemberTable {...props} />);
+
+      await user.click(screen.getByText('row@example.com'));
+
+      expect(onView).toHaveBeenCalledTimes(1);
+      expect(onView).toHaveBeenCalledWith('auth0|row-click');
+    });
+
+    it('should stay navigable for viewers, whose only path is the row', async () => {
+      const user = userEvent.setup();
+      const onView = vi.fn();
+      const member = createMockMember({ user_id: 'auth0|viewer-row', email: 'viewer@example.com' });
+      const props = createMockMemberTableProps({
+        members: [member],
+        permissions: VIEWER_MEMBER_PERMISSIONS,
+        onView,
+      });
+
+      renderWithProviders(<OrganizationMemberTable {...props} />);
+
+      await user.click(screen.getByText('viewer@example.com'));
+
+      expect(onView).toHaveBeenCalledWith('auth0|viewer-row');
+    });
+
+    it('should not navigate when an action inside the row is clicked', async () => {
+      const user = userEvent.setup();
+      const onView = vi.fn();
+      const props = createMockMemberTableProps({ members: [createMockMember()], onView });
+
+      renderWithProviders(<OrganizationMemberTable {...props} />);
+
+      await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
+
+      expect(onView).not.toHaveBeenCalled();
     });
   });
 });

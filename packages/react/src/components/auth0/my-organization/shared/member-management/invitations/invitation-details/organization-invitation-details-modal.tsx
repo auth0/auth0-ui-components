@@ -6,6 +6,7 @@
 import { Link, Copy, Check } from 'lucide-react';
 import * as React from 'react';
 
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -46,7 +47,7 @@ function getStatusBadgeVariant(status: InvitationStatus): 'warning' | 'destructi
  * @param props.customMessages - Custom translation messages.
  * @param props.availableRoles - Available roles for display.
  * @param props.availableProviders - Available providers for display.
- * @param props.readOnly - Whether in read-only mode.
+ * @param props.permissions - What the current user is allowed to do.
  * @param props.onClose - Callback when modal is closed.
  * @param props.onCopyUrl - Callback when copy URL is clicked.
  * @param props.onRevoke - Callback when revoke is clicked.
@@ -63,7 +64,7 @@ export function OrganizationInvitationDetailsModal({
   customMessages = {},
   availableRoles = [],
   availableProviders = [],
-  readOnly = false,
+  permissions,
   onClose,
   onCopyUrl,
   onRevoke,
@@ -234,18 +235,28 @@ export function OrganizationInvitationDetailsModal({
           )}
 
           {/* Revoke / Resend Actions (inline, below invitation URL) */}
-          {!readOnly && (
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" onClick={handleResend} disabled={isActionInProgress}>
+          <div className="flex flex-wrap gap-2">
+            <PermissionDeniedTooltip enabled={!permissions.canResendInvitation}>
+              <Button
+                variant="outline"
+                onClick={handleResend}
+                disabled={isActionInProgress || !permissions.canResendInvitation}
+              >
                 {isResending ? <Spinner size="sm" /> : null}
                 {t('invitation.details.resend_button')}
               </Button>
-              <Button variant="destructive" onClick={handleRevoke} disabled={isActionInProgress}>
+            </PermissionDeniedTooltip>
+            <PermissionDeniedTooltip enabled={!permissions.canRevokeInvitation}>
+              <Button
+                variant="destructive"
+                onClick={handleRevoke}
+                disabled={isActionInProgress || !permissions.canRevokeInvitation}
+              >
                 {isRevoking ? <Spinner size="sm" /> : null}
                 {t('invitation.details.revoke_button')}
               </Button>
-            </div>
-          )}
+            </PermissionDeniedTooltip>
+          </div>
 
           {/* Invited By */}
           <div className="space-y-2">

@@ -1,4 +1,4 @@
-import type { OauthScope } from '@auth0/universal-components-core';
+import { getMemberManagementPermissions, type OauthScope } from '@auth0/universal-components-core';
 
 /**
  * Permission fixtures for the three UX tiers, used by tests and local
@@ -47,3 +47,8 @@ export const ADMIN_PERMISSIONS: OauthScope[] = [
   'delete:my_org:member_roles',
   'delete:my_org:memberships',
 ];
+
+/** Member Management flags resolved for each tier. */
+export const ADMIN_MEMBER_PERMISSIONS = getMemberManagementPermissions(ADMIN_PERMISSIONS);
+export const EDITOR_MEMBER_PERMISSIONS = getMemberManagementPermissions(EDITOR_PERMISSIONS);
+export const VIEWER_MEMBER_PERMISSIONS = getMemberManagementPermissions(VIEWER_PERMISSIONS);

@@ -44,8 +44,8 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     styling,
     customMessages,
     hideHeader,
-    readOnly,
     activeTab,
+    permissions,
     members,
     invitations,
     organizationDisplayName,
@@ -102,6 +102,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
 
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('member_management', customMessages);
+  const { t: tCommon } = useTranslator('common');
 
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -158,19 +159,18 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
             <Header
               title={t('header.title')}
               description={t('header.description')}
-              actions={
-                !readOnly
-                  ? [
-                      {
-                        type: 'button',
-                        label: t('invite_button'),
-                        onClick: () => openModal({ type: 'create' }),
-                        icon: Plus,
-                        disabled: readOnly,
-                      },
-                    ]
-                  : []
-              }
+              actions={[
+                {
+                  type: 'button',
+                  label: t('invite_button'),
+                  onClick: () => openModal({ type: 'create' }),
+                  icon: Plus,
+                  disabled: !permissions.canInvite,
+                  ...(permissions.canInvite
+                    ? {}
+                    : { tooltip: { content: tCommon('error.forbidden') } }),
+                },
+              ]}
             />
           </div>
         )}
@@ -206,6 +206,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               pagination={memberPagination}
               pageSizeOptions={pageSizeOptions}
               sortConfig={memberSortConfig}
+              permissions={permissions}
               className={currentStyles.classes?.['OrganizationMemberTab-table']}
               onView={handleViewMemberDetails}
               onAssignRole={handleAssignRoleClick}
@@ -225,13 +226,13 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               customMessages={customMessages?.invitation}
               pagination={invitationPagination}
               pageSizeOptions={pageSizeOptions}
-              readOnly={readOnly}
+              permissions={permissions}
               sortConfig={invitationSortConfig}
               onSortChange={handleSortChange}
               onView={handleViewInvitation}
               onCopyUrl={handleCopyUrl}
-              onRevokeAndResend={readOnly ? undefined : handleRevokeResendClick}
-              onRevoke={readOnly ? undefined : handleRevokeClick}
+              onRevokeAndResend={handleRevokeResendClick}
+              onRevoke={handleRevokeClick}
               onNextPage={handleNextPage}
               onPreviousPage={handlePreviousPage}
               onPageSizeChange={handlePageSizeChange}
@@ -262,7 +263,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           customMessages={customMessages?.invitation}
           availableRoles={availableRoles}
           availableProviders={availableProviders}
-          readOnly={readOnly}
+          permissions={permissions}
           style={currentStyles.variables}
           onClose={closeModal}
           onCopyUrl={handleCopyUrl}
@@ -358,7 +359,6 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
         styling={styling}
         customMessages={customMessages}
         hideHeader={hideHeader}
-        readOnly={readOnly}
       />
     </GateKeeper>
   );

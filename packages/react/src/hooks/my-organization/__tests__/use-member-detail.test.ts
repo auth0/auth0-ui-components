@@ -1,10 +1,12 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
+import { createElement } from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import * as useMemberDetailServiceModule from '@/hooks/my-organization/shared/services/use-member-detail-service';
 import { useOrganizationMemberDetail } from '@/hooks/my-organization/use-member-detail';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
+import { PermissionProvider } from '@/providers/permission-context';
 import {
   createMockMember,
   createMockMemberRole,
@@ -17,6 +19,7 @@ import {
 import { createQueryClientWrapper } from '@/tests/utils/test-provider';
 import { setupMockUseTranslator, setupMockUseErrorHandler } from '@/tests/utils/test-utilities';
 import type {
+  MemberDetailModalState,
   MemberDetailServiceResult,
   UseOrganizationMemberDetailOptions,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
@@ -48,6 +51,20 @@ const createDefaultOptions = (
 const render = (options: UseOrganizationMemberDetailOptions = createDefaultOptions()) => {
   const { wrapper } = createQueryClientWrapper();
   return renderHook(() => useOrganizationMemberDetail(options), { wrapper });
+};
+
+/** Renders the hook under a PermissionProvider granting exactly `permissions`. */
+const renderWithPermissions = (
+  permissions: string[],
+  overrides?: Partial<UseOrganizationMemberDetailOptions>,
+) => {
+  const { wrapper: queryWrapper } = createQueryClientWrapper();
+  const wrapper = ({ children }: React.PropsWithChildren) =>
+    createElement(queryWrapper, null, createElement(PermissionProvider, { permissions, children }));
+
+  return renderHook(() => useOrganizationMemberDetail(createDefaultOptions(overrides)), {
+    wrapper,
+  });
 };
 
 describe('useOrganizationMemberDetail', () => {
@@ -194,6 +211,52 @@ describe('useOrganizationMemberDetail', () => {
 
     it('should not open modal when readOnly is true', () => {
       const { result } = render(createDefaultOptions({ readOnly: true }));
+
+      act(() => {
+        result.current.openModal({ type: 'assignRoles' });
+      });
+
+      expect(result.current.modalState).toEqual({ type: null });
+    });
+  });
+
+  describe('openModal permission guards', () => {
+    it.each([
+      ['assignRoles', { type: 'assignRoles' } as MemberDetailModalState],
+      ['removeRoles', { type: 'removeRoles', roles: [] } as MemberDetailModalState],
+      ['removeFromOrganization', { type: 'removeFromOrganization' } as MemberDetailModalState],
+    ])('should refuse to open the %s modal without the permission', (_name, state) => {
+      const { result } = renderWithPermissions([]);
+
+      act(() => {
+        result.current.openModal(state);
+      });
+
+      expect(result.current.modalState).toEqual({ type: null });
+    });
+
+    it('should open the assignRoles modal when the permission is granted', () => {
+      const { result } = renderWithPermissions(['create:my_org:member_roles']);
+
+      act(() => {
+        result.current.openModal({ type: 'assignRoles' });
+      });
+
+      expect(result.current.modalState).toEqual({ type: 'assignRoles' });
+    });
+
+    it('should open the removeFromOrganization modal when the permission is granted', () => {
+      const { result } = renderWithPermissions(['delete:my_org:memberships']);
+
+      act(() => {
+        result.current.openModal({ type: 'removeFromOrganization' });
+      });
+
+      expect(result.current.modalState).toEqual({ type: 'removeFromOrganization' });
+    });
+
+    it('should still refuse when the permission is granted but readOnly is set', () => {
+      const { result } = renderWithPermissions(['create:my_org:member_roles'], { readOnly: true });
 
       act(() => {
         result.current.openModal({ type: 'assignRoles' });

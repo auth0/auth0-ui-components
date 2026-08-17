@@ -6,6 +6,7 @@
 import * as React from 'react';
 
 import { OrganizationMemberUserDetails } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-user-details/organization-member-user-details';
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -22,6 +23,7 @@ import type {
 function RemoveMemberFromOrganizationCard({
   customMessages,
   isRemovingFromOrganization,
+  canRemoveFromOrganization,
   onRemoveFromOrganizationClick,
 }: RemoveMemberFromOrganizationCardProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
@@ -36,15 +38,17 @@ function RemoveMemberFromOrganizationCard({
           {t('member.detail.actions.remove_from_organization.description')}
         </span>
       </div>
-      <Button
-        variant="destructive"
-        size="sm"
-        onClick={onRemoveFromOrganizationClick}
-        disabled={isRemovingFromOrganization}
-        className="shrink-0"
-      >
-        {t('member.detail.actions.remove_from_organization.button')}
-      </Button>
+      <PermissionDeniedTooltip enabled={!canRemoveFromOrganization} className="shrink-0">
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={onRemoveFromOrganizationClick}
+          disabled={isRemovingFromOrganization || !canRemoveFromOrganization}
+          className="shrink-0"
+        >
+          {t('member.detail.actions.remove_from_organization.button')}
+        </Button>
+      </PermissionDeniedTooltip>
     </Card>
   );
 }
@@ -67,6 +71,7 @@ export function OrganizationMemberEditDetailsTab(
       <RemoveMemberFromOrganizationCard
         customMessages={props.customMessages}
         isRemovingFromOrganization={props.isRemovingFromOrganization}
+        canRemoveFromOrganization={props.permissions.canRemoveFromOrganization}
         onRemoveFromOrganizationClick={props.onRemoveFromOrganizationClick}
       />
     </div>

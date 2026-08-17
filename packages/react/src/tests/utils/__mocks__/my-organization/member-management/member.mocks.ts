@@ -1,6 +1,7 @@
 import type { OrgMember, Role } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
+import { ADMIN_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import type {
   MemberDetailDangerZoneProps,
   MemberDetailModalState,
@@ -48,6 +49,7 @@ export const createMockMemberActionsColumnProps = (
   overrides: Partial<OrganizationMemberTableActionsColumnProps> = {},
 ): OrganizationMemberTableActionsColumnProps => ({
   member: createMockMember(),
+  permissions: ADMIN_MEMBER_PERMISSIONS,
   onViewDetails: vi.fn(),
   onAssignRole: vi.fn(),
   onRemoveFromOrganization: vi.fn(),
@@ -69,6 +71,7 @@ export const createMockMemberTableProps = (
   filters: {},
   sortConfig: { key: null, direction: 'asc' },
   availableRoles: [],
+  permissions: ADMIN_MEMBER_PERMISSIONS,
   onView: vi.fn(),
   onAssignRole: vi.fn(),
   onRemoveFromOrganization: vi.fn(),
@@ -188,6 +191,7 @@ export const createMockOrganizationMemberDetailViewProps = (
   },
   customMessages: {},
   activeTab: 'details',
+  permissions: ADMIN_MEMBER_PERMISSIONS,
   member: createMockMember(),
   organizationDisplayName: 'Test Org',
   memberRoles: createMockMemberRoles(),

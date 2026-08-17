@@ -5,6 +5,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { OrganizationMemberEditDetailsTab } from '../organization-member-details-tab';
 
 import { createMockMember } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import {
+  ADMIN_MEMBER_PERMISSIONS,
+  EDITOR_MEMBER_PERMISSIONS,
+  VIEWER_MEMBER_PERMISSIONS,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
 
@@ -14,6 +19,7 @@ const createProps = (overrides = {}) => ({
   member: createMockMember(),
   customMessages: {},
   isRemovingFromOrganization: false,
+  permissions: ADMIN_MEMBER_PERMISSIONS,
   onRemoveFromOrganizationClick: vi.fn(),
   ...overrides,
 });
@@ -134,6 +140,46 @@ describe('OrganizationMemberEditDetailsTab', () => {
         />,
       );
       expect(screen.getByText('Custom Title')).toBeInTheDocument();
+    });
+  });
+
+  describe('permission tiers', () => {
+    const removeButtonName = 'member.detail.actions.remove_from_organization.button';
+
+    describe('when the user is an admin', () => {
+      it('enables the remove from organization button', () => {
+        renderWithProviders(
+          <OrganizationMemberEditDetailsTab
+            {...createProps({ permissions: ADMIN_MEMBER_PERMISSIONS })}
+          />,
+        );
+
+        expect(screen.getByRole('button', { name: removeButtonName })).toBeEnabled();
+      });
+    });
+
+    describe('when the user is an editor', () => {
+      it('keeps the destructive button visible but disabled', () => {
+        renderWithProviders(
+          <OrganizationMemberEditDetailsTab
+            {...createProps({ permissions: EDITOR_MEMBER_PERMISSIONS })}
+          />,
+        );
+
+        expect(screen.getByRole('button', { name: removeButtonName })).toBeDisabled();
+      });
+    });
+
+    describe('when the user is a viewer', () => {
+      it('keeps the destructive button visible but disabled', () => {
+        renderWithProviders(
+          <OrganizationMemberEditDetailsTab
+            {...createProps({ permissions: VIEWER_MEMBER_PERMISSIONS })}
+          />,
+        );
+
+        expect(screen.getByRole('button', { name: removeButtonName })).toBeDisabled();
+      });
     });
   });
 });

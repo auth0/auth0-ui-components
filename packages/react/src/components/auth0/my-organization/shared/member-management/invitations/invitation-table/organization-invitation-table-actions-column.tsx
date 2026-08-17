@@ -26,22 +26,22 @@ import type { OrganizationInvitationTableActionsColumnProps } from '@/types/my-o
  * @param props - Component props.
  * @param props.invitation - The invitation to show actions for.
  * @param props.customMessages - Custom translation messages to override defaults.
- * @param props.readOnly - Whether the component is in read-only mode.
+ * @param props.permissions - What the current user is allowed to do.
  * @param props.onViewDetails - Callback fired when view details action is triggered.
  * @param props.onCopyUrl - Callback fired when copy URL action is triggered.
  * @param props.onRevokeAndResend - Callback fired when revoke and resend action is triggered.
  * @param props.onRevoke - Callback fired when revoke action is triggered.
- * @returns JSX element.
+ * @returns JSX element, or `null` when no action is available.
  */
 export function OrganizationInvitationTableActionsColumn({
   invitation,
   customMessages = {},
-  readOnly = false,
+  permissions,
   onViewDetails,
   onCopyUrl,
   onRevokeAndResend,
   onRevoke,
-}: OrganizationInvitationTableActionsColumnProps): React.JSX.Element {
+}: OrganizationInvitationTableActionsColumnProps): React.JSX.Element | null {
   const { t } = useTranslator('member_management', customMessages);
   const status = getInvitationStatus(invitation);
   const isPending = status === 'pending';
@@ -65,6 +65,10 @@ export function OrganizationInvitationTableActionsColumn({
   const handleRevoke = React.useCallback(() => {
     onRevoke?.(invitation);
   }, [invitation, onRevoke]);
+
+  if (!permissions.canShowInvitationMenu) {
+    return null;
+  }
 
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
@@ -93,12 +97,15 @@ export function OrganizationInvitationTableActionsColumn({
                     </DropdownMenuItem>
                   )}
 
-                  {!readOnly && (
+                  {permissions.canResendInvitation && (
+                    <DropdownMenuItem onClick={handleRevokeAndResend}>
+                      <RefreshCcw className="mr-2 h-4 w-4" />
+                      {t('invitation.actions.revoke_and_resend')}
+                    </DropdownMenuItem>
+                  )}
+
+                  {permissions.canRevokeInvitation && (
                     <>
-                      <DropdownMenuItem onClick={handleRevokeAndResend}>
-                        <RefreshCcw className="mr-2 h-4 w-4" />
-                        {t('invitation.actions.revoke_and_resend')}
-                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={handleRevoke}

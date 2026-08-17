@@ -12,6 +12,8 @@ import {
   createMockMember,
   createMockRoleOptions,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import { ADMIN_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
+import { VIEWER_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import type {
   OrganizationMemberManagementProps,
@@ -50,12 +52,14 @@ vi.mock(
   () => ({
     OrganizationMemberTable: ({
       members,
+      permissions,
       onAssignRole,
       onRemoveFromOrganization,
       className,
     }: any) => (
       <div data-testid="member-table" className={className}>
         <span>members:{members.length}</span>
+        <span>can-remove:{String(permissions?.canRemoveFromOrganization)}</span>
         <button onClick={() => onAssignRole?.(members[0])}>assign-role</button>
         <button onClick={() => onRemoveFromOrganization?.(members[0])}>remove-from-org</button>
       </div>
@@ -68,6 +72,7 @@ vi.mock(
   () => ({
     OrganizationInvitationTable: ({
       invitations,
+      permissions,
       onView,
       onCopyUrl,
       onRevoke,
@@ -76,6 +81,7 @@ vi.mock(
     }: any) => (
       <div data-testid="invitation-table" className={className}>
         <span>invitations:{invitations.length}</span>
+        <span>can-revoke:{String(permissions?.canRevokeInvitation)}</span>
         <button onClick={() => onView?.(invitations[0])}>view-invitation</button>
         <button onClick={() => onCopyUrl?.(invitations[0])}>copy-url</button>
         <button onClick={() => onRevoke?.(invitations[0])}>revoke</button>
@@ -210,6 +216,7 @@ const createMockMemberManagementResult = (
 
   return {
     activeTab: 'members',
+    permissions: ADMIN_MEMBER_PERMISSIONS,
     availableRoles: createMockRoleOptions(),
     searchedRoles: createMockRoleOptions(),
     onRoleSearch: vi.fn(),
@@ -276,7 +283,6 @@ const createMockViewProps = (
   styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
   customMessages: {},
   hideHeader: false,
-  readOnly: false,
   ...overrides,
 });
 
@@ -311,12 +317,14 @@ describe('OrganizationMemberManagementView', () => {
     expect(screen.queryByText('header.title')).not.toBeInTheDocument();
   });
 
-  it('does not render invite action when readOnly is true', () => {
+  it('keeps the invite action visible but disabled when the user cannot invite', () => {
     renderWithProviders(
-      <OrganizationMemberManagementView {...createMockViewProps({ readOnly: true })} />,
+      <OrganizationMemberManagementView
+        {...createMockViewProps({ permissions: VIEWER_MEMBER_PERMISSIONS })}
+      />,
     );
 
-    expect(screen.queryByRole('button', { name: 'invite_button' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'invite_button' })).toBeDisabled();
   });
 
   it('opens the create invitation modal when invite button is clicked', async () => {
@@ -381,20 +389,27 @@ describe('OrganizationMemberManagementView', () => {
     expect(openModal).toHaveBeenCalledWith({ type: 'revokeResend', invitation });
   });
 
-  it('omits destructive invitation callbacks in read-only mode', async () => {
-    const user = userEvent.setup();
-    const openModal = vi.fn();
-
+  it('forwards the resolved permissions to the invitation table', () => {
     renderWithProviders(
       <OrganizationMemberManagementView
-        {...createMockViewProps({ activeTab: 'invitations', readOnly: true, openModal })}
+        {...createMockViewProps({
+          activeTab: 'invitations',
+          permissions: VIEWER_MEMBER_PERMISSIONS,
+        })}
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'revoke' }));
-    await user.click(screen.getByRole('button', { name: 'revoke-resend' }));
+    expect(screen.getByTestId('invitation-table')).toHaveTextContent('can-revoke:false');
+  });
 
-    expect(openModal).not.toHaveBeenCalled();
+  it('forwards the resolved permissions to the member table', () => {
+    renderWithProviders(
+      <OrganizationMemberManagementView
+        {...createMockViewProps({ permissions: VIEWER_MEMBER_PERMISSIONS })}
+      />,
+    );
+
+    expect(screen.getByTestId('member-table')).toHaveTextContent('can-remove:false');
   });
 
   describe('assign role modal', () => {

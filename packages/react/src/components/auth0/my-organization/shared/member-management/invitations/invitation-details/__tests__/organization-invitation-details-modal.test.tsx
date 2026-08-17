@@ -1,3 +1,4 @@
+import { getMemberManagementPermissions } from '@auth0/universal-components-core';
 import { screen, act, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
@@ -11,6 +12,7 @@ import {
   createMockRoles,
   createMockProviders,
 } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
+import { VIEWER_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders, TestProvider } from '@/tests/utils/test-provider';
 
 describe('OrganizationInvitationDetailsModal', () => {
@@ -232,38 +234,55 @@ describe('OrganizationInvitationDetailsModal', () => {
     });
   });
 
-  describe('readOnly', () => {
-    describe('when readOnly is false', () => {
-      it('should show Revoke and Resend buttons', () => {
+  describe('permissions', () => {
+    describe('when the user can revoke and resend', () => {
+      it('should show both buttons enabled', () => {
+        renderWithProviders(
+          <OrganizationInvitationDetailsModal {...createMockDetailsModalProps()} />,
+        );
+
+        expect(
+          screen.getByRole('button', { name: 'invitation.details.revoke_button' }),
+        ).toBeEnabled();
+        expect(
+          screen.getByRole('button', { name: 'invitation.details.resend_button' }),
+        ).toBeEnabled();
+      });
+    });
+
+    describe('when the user is a viewer', () => {
+      it('should keep both buttons visible but disabled', () => {
         renderWithProviders(
           <OrganizationInvitationDetailsModal
-            {...createMockDetailsModalProps({ readOnly: false })}
+            {...createMockDetailsModalProps({ permissions: VIEWER_MEMBER_PERMISSIONS })}
           />,
         );
 
         expect(
           screen.getByRole('button', { name: 'invitation.details.revoke_button' }),
-        ).toBeInTheDocument();
+        ).toBeDisabled();
         expect(
           screen.getByRole('button', { name: 'invitation.details.resend_button' }),
-        ).toBeInTheDocument();
+        ).toBeDisabled();
       });
     });
 
-    describe('when readOnly is true', () => {
-      it('should not show Revoke and Resend buttons', () => {
+    describe('when the user can revoke but not create', () => {
+      it('should enable Revoke and disable Resend, which also needs create', () => {
         renderWithProviders(
           <OrganizationInvitationDetailsModal
-            {...createMockDetailsModalProps({ readOnly: true })}
+            {...createMockDetailsModalProps({
+              permissions: getMemberManagementPermissions(['delete:my_org:member_invitations']),
+            })}
           />,
         );
 
         expect(
-          screen.queryByRole('button', { name: 'invitation.details.revoke_button' }),
-        ).not.toBeInTheDocument();
+          screen.getByRole('button', { name: 'invitation.details.revoke_button' }),
+        ).toBeEnabled();
         expect(
-          screen.queryByRole('button', { name: 'invitation.details.resend_button' }),
-        ).not.toBeInTheDocument();
+          screen.getByRole('button', { name: 'invitation.details.resend_button' }),
+        ).toBeDisabled();
       });
     });
   });

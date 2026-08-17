@@ -4,6 +4,7 @@
  */
 
 import type {
+  MemberManagementPermissions,
   OrgMember,
   OrganizationMemberTabMessages,
   Role,
@@ -19,6 +20,7 @@ import type {
 export interface OrganizationMemberTableActionsColumnProps {
   member: OrgMember;
   customMessages?: Partial<OrganizationMemberTabMessages>;
+  permissions: MemberManagementPermissions;
   onViewDetails?: (userId: string) => void;
   onAssignRole?: (member: OrgMember) => void;
   onRemoveFromOrganization?: (member: OrgMember) => void;
@@ -35,6 +37,7 @@ export interface OrganizationMemberTableProps {
   customMessages?: Partial<OrganizationMemberTabMessages>;
   availableRoles?: Role[];
   readOnly?: boolean;
+  permissions: MemberManagementPermissions;
   className?: string;
   onView?: (userId: string) => void;
   onAssignRole?: (member: OrgMember) => void;

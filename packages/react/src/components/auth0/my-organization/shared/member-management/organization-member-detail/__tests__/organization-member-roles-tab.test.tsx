@@ -9,6 +9,11 @@ import {
   createMockMemberRole,
   createMockMemberRoles,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import {
+  ADMIN_MEMBER_PERMISSIONS,
+  EDITOR_MEMBER_PERMISSIONS,
+  VIEWER_MEMBER_PERMISSIONS,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
 import type { MemberDetailModalState } from '@/types/my-organization/member-management/organization-member-detail-types';
@@ -27,6 +32,7 @@ const createProps = (overrides = {}) => ({
   removingRoleIds: [],
   isAssigningRoles: false,
   modalState: noModal,
+  permissions: ADMIN_MEMBER_PERMISSIONS,
   onSelectedRolesChange: vi.fn(),
   onAssignRolesClick: vi.fn(),
   onAssignRolesCancel: vi.fn(),
@@ -274,6 +280,77 @@ describe('OrganizationMemberEditRolesTab', () => {
         />,
       );
       expect(screen.getByText('Custom Roles Title')).toBeInTheDocument();
+    });
+  });
+
+  describe('permission tiers', () => {
+    const assignButtonName = 'member.detail.roles.assign_button';
+
+    describe('when the user is an admin', () => {
+      it('enables the assign roles button', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({ permissions: ADMIN_MEMBER_PERMISSIONS })}
+          />,
+        );
+
+        expect(screen.getByRole('button', { name: assignButtonName })).toBeEnabled();
+      });
+
+      it('enables the per-role remove buttons', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({ permissions: ADMIN_MEMBER_PERMISSIONS })}
+          />,
+        );
+
+        const [removeButton] = screen.getAllByRole('button', {
+          name: /member\.detail\.roles\.table\.remove_button_label/,
+        });
+        expect(removeButton).toBeEnabled();
+      });
+    });
+
+    describe('when the user is an editor', () => {
+      it('enables assign but disables the per-role remove buttons', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({ permissions: EDITOR_MEMBER_PERMISSIONS })}
+          />,
+        );
+
+        expect(screen.getByRole('button', { name: assignButtonName })).toBeEnabled();
+
+        const [removeButton] = screen.getAllByRole('button', {
+          name: /member\.detail\.roles\.table\.remove_button_label/,
+        });
+        expect(removeButton).toBeDisabled();
+      });
+    });
+
+    describe('when the user is a viewer', () => {
+      it('keeps assign visible but disabled', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({ permissions: VIEWER_MEMBER_PERMISSIONS })}
+          />,
+        );
+
+        expect(screen.getByRole('button', { name: assignButtonName })).toBeDisabled();
+      });
+
+      it('keeps the per-role remove buttons visible but disabled', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({ permissions: VIEWER_MEMBER_PERMISSIONS })}
+          />,
+        );
+
+        const [removeButton] = screen.getAllByRole('button', {
+          name: /member\.detail\.roles\.table\.remove_button_label/,
+        });
+        expect(removeButton).toBeDisabled();
+      });
     });
   });
 });

@@ -5,6 +5,7 @@
 
 import type {
   ComponentAction,
+  MemberManagementPermissions,
   SharedComponentProps,
   OrgMember,
   OrganizationPrivate,
@@ -56,6 +57,7 @@ export type MemberDetailModalState =
 
 export interface UseOrganizationMemberDetailResult {
   activeTab: MemberDetailTab;
+  permissions: MemberManagementPermissions;
   member: OrgMember | null;
   organizationDisplayName: string;
   memberRoles: Role[];
@@ -107,6 +109,7 @@ export interface OrganizationMemberUserDetailsProps {
 export interface RemoveMemberFromOrganizationCardProps {
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   isRemovingFromOrganization: boolean;
+  canRemoveFromOrganization: boolean;
   onRemoveFromOrganizationClick: () => void;
 }
 
@@ -114,6 +117,7 @@ export interface OrganizationMemberEditDetailsTabProps {
   member: OrgMember | null;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   isRemovingFromOrganization: boolean;
+  permissions: MemberManagementPermissions;
   onRemoveFromOrganizationClick: () => void;
 }
 
@@ -182,6 +186,7 @@ export interface RolesTabHeaderProps {
   selectedRoles: Role[];
   organizationName?: string;
   customMessages?: Partial<OrganizationMemberDetailMessages>;
+  permissions: MemberManagementPermissions;
   onAssignRolesClick: () => void;
   onRemoveSelectedRoles: () => void;
 }
@@ -192,6 +197,7 @@ export interface OrganizationMemberEditRolesTableProps {
   removingRoleIds?: string[];
   selectedRoles: Role[];
   customMessages?: Partial<OrganizationMemberDetailMessages>;
+  permissions: MemberManagementPermissions;
   onRemoveRoles: (roles: Role[]) => void;
   onSelectedRolesChange: (roles: Role[]) => void;
 }
@@ -210,6 +216,7 @@ export interface OrganizationMemberEditRolesTabProps {
   isAssigningRoles?: boolean;
   isRemovingRoles?: boolean;
   modalState: MemberDetailModalState;
+  permissions: MemberManagementPermissions;
   classes?: Pick<
     OrganizationMemberDetailClasses,
     | 'OrganizationMemberAssignRolesModal-dialogContent'

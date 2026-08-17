@@ -54,6 +54,7 @@ export function OrganizationMemberTable({
   customMessages = {},
   availableRoles,
   sortConfig,
+  permissions,
   className,
   onSortChange,
   onView,
@@ -157,6 +158,7 @@ export function OrganizationMemberTable({
         render: (member) => (
           <OrganizationMemberTableActionsColumn
             member={member}
+            permissions={permissions}
             onViewDetails={onView}
             onAssignRole={onAssignRole}
             onRemoveFromOrganization={onRemoveFromOrganization}
@@ -164,7 +166,21 @@ export function OrganizationMemberTable({
         ),
       },
     ],
-    [t, onView, onAssignRole, onRemoveFromOrganization, renderName, renderRoles, renderLastLogin],
+    [
+      t,
+      permissions,
+      onView,
+      onAssignRole,
+      onRemoveFromOrganization,
+      renderName,
+      renderRoles,
+      renderLastLogin,
+    ],
+  );
+
+  const handleRowClick = React.useCallback(
+    (member: OrgMember) => onView?.(member.user_id ?? ''),
+    [onView],
   );
 
   return (
@@ -184,6 +200,7 @@ export function OrganizationMemberTable({
         emptyState={{ title: t('member.table.empty_message') }}
         sortConfig={sortConfig}
         onSortChange={onSortChange}
+        onRowClick={handleRowClick}
       />
 
       {!loading && (members.length > 0 || pagination.hasPreviousPage) && (

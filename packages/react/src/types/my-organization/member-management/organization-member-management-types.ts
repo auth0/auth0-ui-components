@@ -7,6 +7,7 @@ import type {
   ComponentAction,
   SharedComponentProps,
   MemberInvitation,
+  MemberManagementPermissions,
   OrganizationMemberManagementMessages,
   Role,
   OrgMember,
@@ -138,6 +139,7 @@ export type MemberManagementModalState =
 
 export interface UseOrganizationMemberManagementResult {
   activeTab: ActiveTab;
+  permissions: MemberManagementPermissions;
   availableRoles: Role[];
   searchedRoles: Role[];
   onRoleSearch: (term: string) => void;
@@ -198,7 +200,6 @@ export interface OrganizationMemberManagementViewProps
   styling: OrganizationMemberManagementProps['styling'];
   customMessages: OrganizationMemberManagementProps['customMessages'];
   hideHeader: boolean;
-  readOnly: boolean;
 }
 
 /** CSS classes for OrganizationMemberManagement. */
