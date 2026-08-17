@@ -32,6 +32,7 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
       showThirdPartyAccess = false,
       showCrossAppAccess = false,
       isCrossAppAccessReadOnly = false,
+      styling,
     },
     ref,
   ) {
@@ -72,6 +73,7 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
             showThirdPartyAccess={showThirdPartyAccess}
             showCrossAppAccess={showCrossAppAccess}
             isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+            styling={styling}
           />
         </Section>
       </div>

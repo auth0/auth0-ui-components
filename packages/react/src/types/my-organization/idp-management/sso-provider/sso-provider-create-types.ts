@@ -48,6 +48,8 @@ export interface SsoProviderCreateClasses {
   'ProviderSelect-root'?: string;
   'ProviderDetails-root'?: string;
   'ProviderConfigure-root'?: string;
+  'ProviderConfigure-ThirdPartyAccess'?: string;
+  'ProviderConfigure-CrossAppAccess'?: string;
 }
 
 /** Props for ProviderSelect component. */

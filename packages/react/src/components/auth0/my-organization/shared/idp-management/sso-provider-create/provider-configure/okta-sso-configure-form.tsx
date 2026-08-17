@@ -63,6 +63,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
       mode = 'create',
       showCrossAppAccess = false,
       isCrossAppAccessReadOnly = false,
+      styling,
     },
     ref,
   ) {
@@ -288,6 +289,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
                   }
                   readOnly={readOnly || isCrossAppAccessReadOnly}
                   strategy="okta"
+                  className={styling?.classes?.['ProviderConfigure-CrossAppAccess']}
                 />
               )}
             />

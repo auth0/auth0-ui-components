@@ -91,13 +91,12 @@ export interface ProviderConfigureFieldsClasses
   > {}
 
 export interface SsoProviderDetailsClasses {
-  'SsoProviderDetails-formActions'?: string;
   'ProviderDetails-root'?: string;
   'ProviderConfigure-root'?: string;
   'SsoProvider-attributeMapping'?: string;
   'SsoProviderDetails-FormActions'?: string;
-  'SsoProviderDetails-ThirdPartyAccess'?: string;
-  'SsoProviderDetails-CrossAppAccess'?: string;
+  'ProviderConfigure-ThirdPartyAccess'?: string;
+  'ProviderConfigure-CrossAppAccess'?: string;
 }
 
 export interface SsoProviderDetailsProps

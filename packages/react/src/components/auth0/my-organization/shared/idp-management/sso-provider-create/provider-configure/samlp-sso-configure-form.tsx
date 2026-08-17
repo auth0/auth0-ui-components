@@ -94,6 +94,7 @@ export const SamlpProviderForm = React.forwardRef<
     showThirdPartyAccess = false,
     showCrossAppAccess = false,
     isCrossAppAccessReadOnly = false,
+    styling,
   },
   ref,
 ) {
@@ -460,6 +461,7 @@ export const SamlpProviderForm = React.forwardRef<
                 checked={field.value ?? false}
                 onChange={field.onChange}
                 readOnly={readOnly}
+                className={styling?.classes?.['ProviderConfigure-ThirdPartyAccess']}
               />
             )}
           />
@@ -482,6 +484,7 @@ export const SamlpProviderForm = React.forwardRef<
                   form.setValue('discovery_url', url, { shouldDirty: true, shouldValidate: true })
                 }
                 discoveryUrlError={form.formState.errors.discovery_url?.message}
+                className={styling?.classes?.['ProviderConfigure-CrossAppAccess']}
               />
             )}
           />

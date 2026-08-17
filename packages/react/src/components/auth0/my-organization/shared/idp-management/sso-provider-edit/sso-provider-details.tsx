@@ -138,6 +138,7 @@ export function SsoProviderDetails({
           showThirdPartyAccess={showThirdPartyAccess}
           showCrossAppAccess={showCrossAppAccess}
           isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+          styling={styling}
         />
       </div>
 

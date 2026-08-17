@@ -211,6 +211,7 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
               showThirdPartyAccess={showThirdPartyAccess}
               showCrossAppAccess={showCrossAppAccess}
               isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+              styling={styling}
             />
           ) : null,
         actions: createStepActions('provider_configure', configureRef),
