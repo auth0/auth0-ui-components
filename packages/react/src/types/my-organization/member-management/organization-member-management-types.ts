@@ -152,6 +152,8 @@ export interface UseOrganizationMemberManagementResult {
   searchedRoles: Role[];
   onRoleSearch: (term: string) => void;
   availableConnections: ConnectionOption[];
+  isLoadingConnections: boolean;
+  hasNoConnections: boolean;
   members: OrgMember[];
 
   invitations: MemberInvitation[];

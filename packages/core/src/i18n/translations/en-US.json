@@ -1139,6 +1139,7 @@
       "description": "Manage the members of your organization."
     },
     "invite_button": "Invite Member",
+    "invite_button_disabled_tooltip": "Configure an identity provider or user store to invite members.",
     "tabs": {
       "members": "Members",
       "invitations": "Invitations"
