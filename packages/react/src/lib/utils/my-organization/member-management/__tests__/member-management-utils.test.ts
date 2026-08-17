@@ -205,16 +205,32 @@ describe('getRelativeLastLoginLabel', () => {
 });
 
 describe('formatMemberCount', () => {
-  const t = ((key: string) => (key === 'count_capped' ? '1,000+' : key)) as unknown as Parameters<
+  /** Substitutes `${count}` the way the core i18n service does. */
+  const t = ((key: string, vars?: Record<string, unknown>) =>
+    key === 'count_capped' ? `${String(vars?.count ?? '')}+` : key) as unknown as Parameters<
     typeof formatMemberCount
-  >[1];
+  >[2];
 
   it.each([undefined, false])('returns undefined when the total is not capped (%s)', (isCapped) => {
-    expect(formatMemberCount(isCapped, t)).toBeUndefined();
+    expect(formatMemberCount(200, isCapped, t, 'en-US')).toBeUndefined();
   });
 
-  it('returns the approximation when the total is capped', () => {
-    expect(formatMemberCount(true, t)).toBe('1,000+');
+  it('returns undefined when the total is unavailable', () => {
+    expect(formatMemberCount(undefined, true, t, 'en-US')).toBeUndefined();
+  });
+
+  it.each([
+    { total: 1000, expected: '1,000+' },
+    { total: 5000, expected: '5,000+' },
+    { total: 0, expected: '0+' },
+  ])('renders the capped total $total as $expected', ({ total, expected }) => {
+    expect(formatMemberCount(total, true, t, 'en-US')).toBe(expected);
+  });
+
+  it('formats the capped total for the active locale', () => {
+    // French groups thousands with a space rather than a comma.
+    expect(formatMemberCount(5000, true, t, 'fr-FR')).toBe(`${(5000).toLocaleString('fr-FR')}+`);
+    expect(formatMemberCount(5000, true, t, 'fr-FR')).not.toBe('5,000+');
   });
 });
 

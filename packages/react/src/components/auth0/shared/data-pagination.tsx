@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { formatNumber } from '@/lib/utils/shared/helper-utils';
 
 export interface DataPaginationLabels {
   showing: string;
@@ -94,16 +95,6 @@ interface PageRangeInfoProps {
   locale?: string;
   labels: DataPaginationLabels;
 }
-
-const formatNumber = (num: number | undefined | null, locale?: string): string => {
-  if (num === null || num === undefined || isNaN(num)) {
-    return '0';
-  }
-
-  const resolvedLocale =
-    locale ?? (typeof navigator !== 'undefined' ? navigator.language : 'en-US');
-  return num.toLocaleString(resolvedLocale);
-};
 
 const getPageRange = (
   totalItems: number,

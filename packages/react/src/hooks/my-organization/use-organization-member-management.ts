@@ -47,7 +47,7 @@ export function useOrganizationMemberManagement(
     removeFromOrganizationAction,
   } = options;
 
-  const { t } = useTranslator('member_management', customMessages);
+  const { t, currentLanguage: locale } = useTranslator('member_management', customMessages);
 
   const [activeTab, setActiveTab] = React.useState<ActiveTab>('members');
 
@@ -349,7 +349,7 @@ export function useOrganizationMemberManagement(
       pageSize: invitationPageSize,
       currentPage: invitationCurrentPage,
       totalItems: invitationTotal,
-      totalItemsDisplay: formatMemberCount(invitationTotalIsCapped, t),
+      totalItemsDisplay: formatMemberCount(invitationTotal, invitationTotalIsCapped, t, locale),
       hasNextPage: !!invitationNextToken,
       hasPreviousPage: invitationHasPreviousPage,
     },
@@ -357,7 +357,7 @@ export function useOrganizationMemberManagement(
       pageSize: memberPageSize,
       currentPage: memberCurrentPage,
       totalItems: memberTotal,
-      totalItemsDisplay: formatMemberCount(memberTotalIsCapped, t),
+      totalItemsDisplay: formatMemberCount(memberTotal, memberTotalIsCapped, t, locale),
       hasNextPage: !!memberNextToken,
       hasPreviousPage: memberHasPreviousPage,
     },
