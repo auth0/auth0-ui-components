@@ -58,6 +58,7 @@ export interface OrganizationMemberDetailMessages {
         assign_button?: string;
         roles_selected?: string;
         roles_selected_plural?: string;
+        max_selection_message?: string;
         table?: {
           name?: string;
           description?: string;

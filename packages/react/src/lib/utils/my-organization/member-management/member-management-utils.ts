@@ -15,7 +15,6 @@ import { showToast } from '@/components/auth0/shared/toast';
 import {
   type MemberAccessLevel,
   MAX_ROLES_PER_MEMBER,
-  MAX_ROLES_PER_REQUEST,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { formatNumber } from '@/lib/utils/shared/helper-utils';
 import type { InvitationStatus } from '@/types/my-organization/member-management/organization-invitation-table-types';
@@ -159,36 +158,27 @@ export function isValidUserId(userId: string | undefined | null): boolean {
 }
 
 /**
- * Validates a role assign/remove request
+ * Validates that a role assignment keeps the member within `MAX_ROLES_PER_MEMBER`.
+ *
+ * The per-request cap is enforced in the UI by the role selector and the roles table,
+ * so only the per-member total is checked here.
+ *
  * @param t - Translator function
- * @param roleIds - Role ids to assign/remove
+ * @param roleIds - Role ids to assign
  * @param memberRoles - Current roles of the member
- * @param assign - `true` for assignment requests
- * @returns `{ aborted: true }` when validation fails and `null` if the request may proceed.
+ * @returns `{ aborted: true }` when the limit would be exceeded and `null` if the request may proceed.
  */
-export const validateRequestRoleForMember = (
+export const validateMemberRoleLimit = (
   t: EnhancedTranslationFunction,
   roleIds: string[],
   memberRoles?: Role[] | null,
-  assign: boolean = false,
 ): { aborted: true } | null => {
-  let errorKey: string | null = null;
+  const existingIds = new Set(memberRoles?.map((r) => r.id));
+  const newRoleCount = [...new Set(roleIds)].filter((id) => !existingIds.has(id)).length;
 
-  if (roleIds.length > MAX_ROLES_PER_REQUEST) {
-    errorKey = assign
-      ? 'member.error.too_many_roles_per_assignment'
-      : 'member.error.too_many_roles_per_removal';
-  } else if (assign) {
-    const existingIds = new Set(memberRoles?.map((r) => r.id));
-    const newRoleCount = roleIds.filter((id) => !existingIds.has(id)).length;
-    if ((memberRoles?.length ?? 0) + newRoleCount > MAX_ROLES_PER_MEMBER) {
-      errorKey = 'member.error.member_role_limit_exceeded';
-    }
-  }
+  if ((memberRoles?.length ?? 0) + newRoleCount <= MAX_ROLES_PER_MEMBER) return null;
 
-  if (!errorKey) return null;
-
-  showToast({ type: 'error', message: t(errorKey) });
+  showToast({ type: 'error', message: t('member.error.member_role_limit_exceeded') });
   return { aborted: true };
 };
 

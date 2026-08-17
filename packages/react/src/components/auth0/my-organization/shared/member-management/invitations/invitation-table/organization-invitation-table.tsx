@@ -11,10 +11,11 @@ import { OrganizationInvitationTableActionsColumn } from './organization-invitat
 
 import { SearchFilter } from '@/components/auth0/my-organization/shared/member-management/shared/search-filter/search-filter';
 import { DataPagination } from '@/components/auth0/shared/data-pagination';
-import { DataTable, type Column } from '@/components/auth0/shared/data-table';
+import { DataTable, type Column, type DataTableProps } from '@/components/auth0/shared/data-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MAX_INVITATIONS_PER_REQUEST } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { cn } from '@/lib/utils';
 import { getInvitationStatus } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type { OrganizationInvitationTableProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
@@ -163,6 +164,31 @@ export function OrganizationInvitationTable({
     [t, customMessages, readOnly, onView, onCopyUrl, onRevokeAndResend, onRevoke],
   );
 
+  const baseTableProps = {
+    columns,
+    data: invitations,
+    loading,
+    emptyState: { title: t('invitation.table.empty_message') },
+    sortConfig,
+    onSortChange,
+  };
+
+  const tableProps: DataTableProps<MemberInvitation> = selectionEnabled
+    ? {
+        ...baseTableProps,
+        selectable: true,
+        selectionLabels: {
+          selectAll: t('data_table.select_all'),
+          selectRow: (index: number) => t('data_table.select_row', { index: index + 1 }),
+        },
+        selectedRows: selectedInvitations,
+        onSelectedRowsChange: onSelectedInvitationsChange,
+        getRowId: (invitation: MemberInvitation) => invitation.id!,
+        maxSelectionAllowed: MAX_INVITATIONS_PER_REQUEST,
+        maxSelectionAllowedMessage: t('invitation.bulk_revoke.max_selection_message'),
+      }
+    : baseTableProps;
+
   return (
     <div className={cn('flex flex-col', className)}>
       <SearchFilter
@@ -196,26 +222,7 @@ export function OrganizationInvitationTable({
         </div>
       )}
 
-      <DataTable
-        columns={columns}
-        data={invitations}
-        loading={loading}
-        emptyState={{ title: t('invitation.table.empty_message') }}
-        sortConfig={sortConfig}
-        onSortChange={onSortChange}
-        {...(selectionEnabled
-          ? {
-              selectable: true as const,
-              selectionLabels: {
-                selectAll: t('data_table.select_all'),
-                selectRow: (index: number) => t('data_table.select_row', { index: index + 1 }),
-              },
-              selectedRows: selectedInvitations,
-              onSelectedRowsChange: onSelectedInvitationsChange,
-              getRowId: (invitation: MemberInvitation) => invitation.id!,
-            }
-          : {})}
-      />
+      <DataTable {...tableProps} />
 
       {!loading && invitations.length > 0 && (
         <div className="mt-4">
