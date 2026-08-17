@@ -101,6 +101,12 @@ export type CreateMemberInvitationResponseContent =
 export type GetMemberInvitationResponseContent = MyOrganization.GetMemberInvitationResponseContent;
 
 /**
+ * Response content for getting the roles assigned to a member invitation.
+ */
+export type GetMemberInvitationRolesResponseContent =
+  MyOrganization.GetMemberInvitationRolesResponseContent;
+
+/**
  * Request parameters for deleting organization memberships.
  */
 export type DeleteOrganizationMembersRequestContent =

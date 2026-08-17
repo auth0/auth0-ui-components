@@ -65,7 +65,6 @@ export function useMemberDetailService(
     memberRolesQueryEnabled: memberQuery.isSuccess,
     assignRolesAction,
     removeFromOrganizationAction,
-    enableRolesList: false,
     deferRoleSearch: true,
   });
 
