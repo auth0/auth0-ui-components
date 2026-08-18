@@ -1,4 +1,3 @@
-import { getMemberManagementPermissions } from '@auth0/universal-components-core';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -10,8 +9,8 @@ import {
   createMockExpiredInvitation,
 } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import {
-  EDITOR_MEMBER_PERMISSIONS,
-  VIEWER_MEMBER_PERMISSIONS,
+  createMemberPermissions,
+  READ_ONLY_MEMBER_PERMISSIONS,
 } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
@@ -182,11 +181,11 @@ describe('OrganizationInvitationTableActionsColumn', () => {
     });
   });
 
-  describe('Permission tiers', () => {
-    describe('when the user is a viewer', () => {
+  describe('Granted permissions', () => {
+    describe('when only read permissions are granted', () => {
       it('should render no menu at all, leaving row-click as the only path', () => {
         const props = createMockActionsColumnProps({
-          permissions: VIEWER_MEMBER_PERMISSIONS,
+          permissions: READ_ONLY_MEMBER_PERMISSIONS,
         });
         const { container } = renderWithProviders(
           <OrganizationInvitationTableActionsColumn {...props} />,
@@ -197,10 +196,13 @@ describe('OrganizationInvitationTableActionsColumn', () => {
       });
     });
 
-    describe('when the user is an editor', () => {
+    describe('when create is granted without delete:my_org:member_invitations', () => {
       it('should render no menu, since every invitation action needs the delete scope', () => {
         const props = createMockActionsColumnProps({
-          permissions: EDITOR_MEMBER_PERMISSIONS,
+          permissions: createMemberPermissions([
+            'read:my_org:member_invitations',
+            'create:my_org:member_invitations',
+          ]),
         });
         const { container } = renderWithProviders(
           <OrganizationInvitationTableActionsColumn {...props} />,
@@ -210,11 +212,11 @@ describe('OrganizationInvitationTableActionsColumn', () => {
       });
     });
 
-    describe('when the user can revoke but not create', () => {
+    describe('when delete:my_org:member_invitations is granted without create', () => {
       it('should show Revoke and hide Revoke & Resend, which also needs create', async () => {
         const user = userEvent.setup();
         const props = createMockActionsColumnProps({
-          permissions: getMemberManagementPermissions(['delete:my_org:member_invitations']),
+          permissions: createMemberPermissions(['delete:my_org:member_invitations']),
         });
         renderWithProviders(<OrganizationInvitationTableActionsColumn {...props} />);
 

@@ -6,9 +6,9 @@ import { OrganizationMemberEditDetailsTab } from '../organization-member-details
 
 import { createMockMember } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
 import {
-  ADMIN_MEMBER_PERMISSIONS,
-  EDITOR_MEMBER_PERMISSIONS,
-  VIEWER_MEMBER_PERMISSIONS,
+  createMemberPermissions,
+  ALL_MEMBER_PERMISSIONS,
+  READ_ONLY_MEMBER_PERMISSIONS,
 } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
@@ -19,7 +19,7 @@ const createProps = (overrides = {}) => ({
   member: createMockMember(),
   customMessages: {},
   isRemovingFromOrganization: false,
-  permissions: ADMIN_MEMBER_PERMISSIONS,
+  permissions: ALL_MEMBER_PERMISSIONS,
   onRemoveFromOrganizationClick: vi.fn(),
   ...overrides,
 });
@@ -143,14 +143,14 @@ describe('OrganizationMemberEditDetailsTab', () => {
     });
   });
 
-  describe('permission tiers', () => {
+  describe('granted permissions', () => {
     const removeButtonName = 'member.detail.actions.remove_from_organization.button';
 
-    describe('when the user is an admin', () => {
+    describe('when delete:my_org:memberships is granted', () => {
       it('enables the remove from organization button', () => {
         renderWithProviders(
           <OrganizationMemberEditDetailsTab
-            {...createProps({ permissions: ADMIN_MEMBER_PERMISSIONS })}
+            {...createProps({ permissions: ALL_MEMBER_PERMISSIONS })}
           />,
         );
 
@@ -158,11 +158,13 @@ describe('OrganizationMemberEditDetailsTab', () => {
       });
     });
 
-    describe('when the user is an editor', () => {
+    describe('when create is granted without delete:my_org:memberships', () => {
       it('keeps the destructive button visible but disabled', () => {
         renderWithProviders(
           <OrganizationMemberEditDetailsTab
-            {...createProps({ permissions: EDITOR_MEMBER_PERMISSIONS })}
+            {...createProps({
+              permissions: createMemberPermissions(['create:my_org:member_roles']),
+            })}
           />,
         );
 
@@ -170,11 +172,11 @@ describe('OrganizationMemberEditDetailsTab', () => {
       });
     });
 
-    describe('when the user is a viewer', () => {
+    describe('when only read permissions are granted', () => {
       it('keeps the destructive button visible but disabled', () => {
         renderWithProviders(
           <OrganizationMemberEditDetailsTab
-            {...createProps({ permissions: VIEWER_MEMBER_PERMISSIONS })}
+            {...createProps({ permissions: READ_ONLY_MEMBER_PERMISSIONS })}
           />,
         );
 

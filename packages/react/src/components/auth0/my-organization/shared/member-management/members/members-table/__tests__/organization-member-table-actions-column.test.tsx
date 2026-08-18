@@ -1,4 +1,3 @@
-import { getMemberManagementPermissions } from '@auth0/universal-components-core';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -8,11 +7,7 @@ import {
   createMockMember,
   createMockMemberActionsColumnProps,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
-import {
-  ADMIN_MEMBER_PERMISSIONS,
-  EDITOR_MEMBER_PERMISSIONS,
-  VIEWER_MEMBER_PERMISSIONS,
-} from '@/tests/utils/__mocks__/permissions/permission.mocks';
+import { createMemberPermissions } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('OrganizationMemberTableActionsColumn', () => {
@@ -128,13 +123,11 @@ describe('OrganizationMemberTableActionsColumn', () => {
     });
   });
 
-  describe('Permission tiers', () => {
-    describe('when the user is an admin', () => {
+  describe('Granted permissions', () => {
+    describe('when every member permission is granted', () => {
       it('should show the full menu', async () => {
         const user = userEvent.setup();
-        const props = createMockMemberActionsColumnProps({
-          permissions: ADMIN_MEMBER_PERMISSIONS,
-        });
+        const props = createMockMemberActionsColumnProps();
         renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
 
         await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
@@ -151,11 +144,14 @@ describe('OrganizationMemberTableActionsColumn', () => {
       });
     });
 
-    describe('when the user is an editor', () => {
-      it('should show assign role but hide the destructive action', async () => {
+    describe('when create:my_org:member_roles is granted without delete:my_org:memberships', () => {
+      it('should show assign role and hide remove from organization', async () => {
         const user = userEvent.setup();
         const props = createMockMemberActionsColumnProps({
-          permissions: EDITOR_MEMBER_PERMISSIONS,
+          permissions: createMemberPermissions([
+            'read:my_org:members',
+            'create:my_org:member_roles',
+          ]),
         });
         renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
 
@@ -172,7 +168,10 @@ describe('OrganizationMemberTableActionsColumn', () => {
       it('should keep view details reachable from the menu', async () => {
         const user = userEvent.setup();
         const props = createMockMemberActionsColumnProps({
-          permissions: EDITOR_MEMBER_PERMISSIONS,
+          permissions: createMemberPermissions([
+            'read:my_org:members',
+            'create:my_org:member_roles',
+          ]),
         });
         renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
 
@@ -184,10 +183,32 @@ describe('OrganizationMemberTableActionsColumn', () => {
       });
     });
 
-    describe('when the user is a viewer', () => {
+    describe('when delete:my_org:memberships is granted without create:my_org:member_roles', () => {
+      it('should show remove from organization and hide assign role', async () => {
+        const user = userEvent.setup();
+        const props = createMockMemberActionsColumnProps({
+          permissions: createMemberPermissions([
+            'read:my_org:members',
+            'delete:my_org:memberships',
+          ]),
+        });
+        renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
+
+        await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
+
+        expect(
+          screen.getByRole('menuitem', { name: 'member.actions.remove_from_organization' }),
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByRole('menuitem', { name: 'member.actions.assign_role' }),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    describe('when only read permissions are granted', () => {
       it('should render no menu at all, leaving row-click as the only path', () => {
         const props = createMockMemberActionsColumnProps({
-          permissions: VIEWER_MEMBER_PERMISSIONS,
+          permissions: createMemberPermissions(['read:my_org:members']),
         });
         const { container } = renderWithProviders(
           <OrganizationMemberTableActionsColumn {...props} />,
@@ -200,22 +221,16 @@ describe('OrganizationMemberTableActionsColumn', () => {
       });
     });
 
-    describe('when the user can only remove from the organization', () => {
-      it('should show the destructive action without assign role', async () => {
-        const user = userEvent.setup();
+    describe('when no permissions are granted', () => {
+      it('should render no menu', () => {
         const props = createMockMemberActionsColumnProps({
-          permissions: getMemberManagementPermissions(['delete:my_org:memberships']),
+          permissions: createMemberPermissions([]),
         });
-        renderWithProviders(<OrganizationMemberTableActionsColumn {...props} />);
+        const { container } = renderWithProviders(
+          <OrganizationMemberTableActionsColumn {...props} />,
+        );
 
-        await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
-
-        expect(
-          screen.getByRole('menuitem', { name: 'member.actions.remove_from_organization' }),
-        ).toBeInTheDocument();
-        expect(
-          screen.queryByRole('menuitem', { name: 'member.actions.assign_role' }),
-        ).not.toBeInTheDocument();
+        expect(container).toBeEmptyDOMElement();
       });
     });
   });

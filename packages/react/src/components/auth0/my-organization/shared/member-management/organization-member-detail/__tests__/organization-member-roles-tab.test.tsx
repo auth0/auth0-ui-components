@@ -10,9 +10,9 @@ import {
   createMockMemberRoles,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
 import {
-  ADMIN_MEMBER_PERMISSIONS,
-  EDITOR_MEMBER_PERMISSIONS,
-  VIEWER_MEMBER_PERMISSIONS,
+  createMemberPermissions,
+  ALL_MEMBER_PERMISSIONS,
+  READ_ONLY_MEMBER_PERMISSIONS,
 } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
@@ -32,7 +32,7 @@ const createProps = (overrides = {}) => ({
   removingRoleIds: [],
   isAssigningRoles: false,
   modalState: noModal,
-  permissions: ADMIN_MEMBER_PERMISSIONS,
+  permissions: ALL_MEMBER_PERMISSIONS,
   onSelectedRolesChange: vi.fn(),
   onAssignRolesClick: vi.fn(),
   onAssignRolesCancel: vi.fn(),
@@ -283,14 +283,14 @@ describe('OrganizationMemberEditRolesTab', () => {
     });
   });
 
-  describe('permission tiers', () => {
+  describe('granted permissions', () => {
     const assignButtonName = 'member.detail.roles.assign_button';
 
-    describe('when the user is an admin', () => {
+    describe('when create and delete member_roles are both granted', () => {
       it('enables the assign roles button', () => {
         renderWithProviders(
           <OrganizationMemberEditRolesTab
-            {...createProps({ permissions: ADMIN_MEMBER_PERMISSIONS })}
+            {...createProps({ permissions: ALL_MEMBER_PERMISSIONS })}
           />,
         );
 
@@ -300,7 +300,7 @@ describe('OrganizationMemberEditRolesTab', () => {
       it('enables the per-role remove buttons', () => {
         renderWithProviders(
           <OrganizationMemberEditRolesTab
-            {...createProps({ permissions: ADMIN_MEMBER_PERMISSIONS })}
+            {...createProps({ permissions: ALL_MEMBER_PERMISSIONS })}
           />,
         );
 
@@ -311,11 +311,13 @@ describe('OrganizationMemberEditRolesTab', () => {
       });
     });
 
-    describe('when the user is an editor', () => {
+    describe('when create:my_org:member_roles is granted without delete', () => {
       it('enables assign but disables the per-role remove buttons', () => {
         renderWithProviders(
           <OrganizationMemberEditRolesTab
-            {...createProps({ permissions: EDITOR_MEMBER_PERMISSIONS })}
+            {...createProps({
+              permissions: createMemberPermissions(['create:my_org:member_roles']),
+            })}
           />,
         );
 
@@ -328,11 +330,11 @@ describe('OrganizationMemberEditRolesTab', () => {
       });
     });
 
-    describe('when the user is a viewer', () => {
+    describe('when only read permissions are granted', () => {
       it('keeps assign visible but disabled', () => {
         renderWithProviders(
           <OrganizationMemberEditRolesTab
-            {...createProps({ permissions: VIEWER_MEMBER_PERMISSIONS })}
+            {...createProps({ permissions: READ_ONLY_MEMBER_PERMISSIONS })}
           />,
         );
 
@@ -342,7 +344,7 @@ describe('OrganizationMemberEditRolesTab', () => {
       it('keeps the per-role remove buttons visible but disabled', () => {
         renderWithProviders(
           <OrganizationMemberEditRolesTab
-            {...createProps({ permissions: VIEWER_MEMBER_PERMISSIONS })}
+            {...createProps({ permissions: READ_ONLY_MEMBER_PERMISSIONS })}
           />,
         );
 

@@ -1,4 +1,3 @@
-import { getMemberManagementPermissions } from '@auth0/universal-components-core';
 import { screen, act, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
@@ -12,7 +11,10 @@ import {
   createMockRoles,
   createMockProviders,
 } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
-import { VIEWER_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
+import {
+  createMemberPermissions,
+  READ_ONLY_MEMBER_PERMISSIONS,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders, TestProvider } from '@/tests/utils/test-provider';
 
 describe('OrganizationInvitationDetailsModal', () => {
@@ -234,8 +236,8 @@ describe('OrganizationInvitationDetailsModal', () => {
     });
   });
 
-  describe('permissions', () => {
-    describe('when the user can revoke and resend', () => {
+  describe('granted permissions', () => {
+    describe('when revoke and create are both granted', () => {
       it('should show both buttons enabled', () => {
         renderWithProviders(
           <OrganizationInvitationDetailsModal {...createMockDetailsModalProps()} />,
@@ -250,11 +252,11 @@ describe('OrganizationInvitationDetailsModal', () => {
       });
     });
 
-    describe('when the user is a viewer', () => {
+    describe('when only read permissions are granted', () => {
       it('should keep both buttons visible but disabled', () => {
         renderWithProviders(
           <OrganizationInvitationDetailsModal
-            {...createMockDetailsModalProps({ permissions: VIEWER_MEMBER_PERMISSIONS })}
+            {...createMockDetailsModalProps({ permissions: READ_ONLY_MEMBER_PERMISSIONS })}
           />,
         );
 
@@ -267,12 +269,12 @@ describe('OrganizationInvitationDetailsModal', () => {
       });
     });
 
-    describe('when the user can revoke but not create', () => {
+    describe('when delete:my_org:member_invitations is granted without create', () => {
       it('should enable Revoke and disable Resend, which also needs create', () => {
         renderWithProviders(
           <OrganizationInvitationDetailsModal
             {...createMockDetailsModalProps({
-              permissions: getMemberManagementPermissions(['delete:my_org:member_invitations']),
+              permissions: createMemberPermissions(['delete:my_org:member_invitations']),
             })}
           />,
         );

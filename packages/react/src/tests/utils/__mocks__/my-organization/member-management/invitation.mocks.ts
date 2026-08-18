@@ -1,7 +1,7 @@
 import type { MemberInvitation, Role } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
-import { ADMIN_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
+import { ALL_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import type {
   IdentityProviderOption,
   OrganizationInvitationCreateModalProps,
@@ -64,7 +64,7 @@ export const createMockActionsColumnProps = (
   overrides: Partial<OrganizationInvitationTableActionsColumnProps> = {},
 ): OrganizationInvitationTableActionsColumnProps => ({
   invitation: createMockPendingInvitation(),
-  permissions: ADMIN_MEMBER_PERMISSIONS,
+  permissions: ALL_MEMBER_PERMISSIONS,
   onViewDetails: vi.fn(),
   onCopyUrl: vi.fn(),
   onRevokeAndResend: vi.fn(),
@@ -79,7 +79,7 @@ export const createMockDetailsModalProps = (
   isOpen: true,
   isRevoking: false,
   isResending: false,
-  permissions: ADMIN_MEMBER_PERMISSIONS,
+  permissions: ALL_MEMBER_PERMISSIONS,
   onClose: vi.fn(),
   onCopyUrl: vi.fn(),
   onRevoke: vi.fn(),

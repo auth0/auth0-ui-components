@@ -12,8 +12,10 @@ import {
   createMockMember,
   createMockRoleOptions,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
-import { ADMIN_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
-import { VIEWER_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
+import {
+  ALL_MEMBER_PERMISSIONS,
+  READ_ONLY_MEMBER_PERMISSIONS,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import type {
   OrganizationMemberManagementProps,
@@ -216,7 +218,7 @@ const createMockMemberManagementResult = (
 
   return {
     activeTab: 'members',
-    permissions: ADMIN_MEMBER_PERMISSIONS,
+    permissions: ALL_MEMBER_PERMISSIONS,
     availableRoles: createMockRoleOptions(),
     searchedRoles: createMockRoleOptions(),
     onRoleSearch: vi.fn(),
@@ -317,10 +319,10 @@ describe('OrganizationMemberManagementView', () => {
     expect(screen.queryByText('header.title')).not.toBeInTheDocument();
   });
 
-  it('keeps the invite action visible but disabled when the user cannot invite', () => {
+  it('keeps the invite action visible but disabled without create:my_org:member_invitations', () => {
     renderWithProviders(
       <OrganizationMemberManagementView
-        {...createMockViewProps({ permissions: VIEWER_MEMBER_PERMISSIONS })}
+        {...createMockViewProps({ permissions: READ_ONLY_MEMBER_PERMISSIONS })}
       />,
     );
 
@@ -394,7 +396,7 @@ describe('OrganizationMemberManagementView', () => {
       <OrganizationMemberManagementView
         {...createMockViewProps({
           activeTab: 'invitations',
-          permissions: VIEWER_MEMBER_PERMISSIONS,
+          permissions: READ_ONLY_MEMBER_PERMISSIONS,
         })}
       />,
     );
@@ -405,7 +407,7 @@ describe('OrganizationMemberManagementView', () => {
   it('forwards the resolved permissions to the member table', () => {
     renderWithProviders(
       <OrganizationMemberManagementView
-        {...createMockViewProps({ permissions: VIEWER_MEMBER_PERMISSIONS })}
+        {...createMockViewProps({ permissions: READ_ONLY_MEMBER_PERMISSIONS })}
       />,
     );
 

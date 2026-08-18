@@ -7,7 +7,7 @@ import {
   createMockMember,
   createMockMemberTableProps,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
-import { VIEWER_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
+import { READ_ONLY_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
 describe('OrganizationMemberTable', () => {
@@ -285,13 +285,13 @@ describe('OrganizationMemberTable', () => {
       expect(onView).toHaveBeenCalledWith('auth0|row-click');
     });
 
-    it('should stay navigable for viewers, whose only path is the row', async () => {
+    it('should stay navigable with read-only permissions, whose only path is the row', async () => {
       const user = userEvent.setup();
       const onView = vi.fn();
       const member = createMockMember({ user_id: 'auth0|viewer-row', email: 'viewer@example.com' });
       const props = createMockMemberTableProps({
         members: [member],
-        permissions: VIEWER_MEMBER_PERMISSIONS,
+        permissions: READ_ONLY_MEMBER_PERMISSIONS,
         onView,
       });
 

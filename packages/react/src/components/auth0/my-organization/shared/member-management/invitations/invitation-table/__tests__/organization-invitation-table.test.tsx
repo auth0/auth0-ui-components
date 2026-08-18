@@ -8,8 +8,8 @@ import {
   createMockRoles,
 } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import {
-  ADMIN_MEMBER_PERMISSIONS,
-  VIEWER_MEMBER_PERMISSIONS,
+  ALL_MEMBER_PERMISSIONS,
+  READ_ONLY_MEMBER_PERMISSIONS,
 } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { OrganizationInvitationTableProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
@@ -29,7 +29,7 @@ const createProps = (
   filters: {},
   sortConfig: { key: null, direction: 'asc' },
   availableRoles: createMockRoles(),
-  permissions: ADMIN_MEMBER_PERMISSIONS,
+  permissions: ALL_MEMBER_PERMISSIONS,
   onView: vi.fn(),
   onCopyUrl: vi.fn(),
   onRevokeAndResend: vi.fn(),
@@ -63,7 +63,7 @@ describe('OrganizationInvitationTable', () => {
       expect(onView).toHaveBeenCalledWith(invitation);
     });
 
-    it('should stay navigable for viewers, whose only path is the row', async () => {
+    it('should stay navigable with read-only permissions, whose only path is the row', async () => {
       const user = userEvent.setup();
       const invitation = createMockPendingInvitation();
       const onView = vi.fn();
@@ -72,7 +72,7 @@ describe('OrganizationInvitationTable', () => {
         <OrganizationInvitationTable
           {...createProps({
             invitations: [invitation],
-            permissions: VIEWER_MEMBER_PERMISSIONS,
+            permissions: READ_ONLY_MEMBER_PERMISSIONS,
             onView,
           })}
         />,
@@ -95,11 +95,11 @@ describe('OrganizationInvitationTable', () => {
     });
   });
 
-  describe('Permission tiers', () => {
-    it('should render no row actions menu for viewers', () => {
+  describe('Granted permissions', () => {
+    it('should render no row actions menu with read-only permissions', () => {
       renderWithProviders(
         <OrganizationInvitationTable
-          {...createProps({ permissions: VIEWER_MEMBER_PERMISSIONS })}
+          {...createProps({ permissions: READ_ONLY_MEMBER_PERMISSIONS })}
         />,
       );
 
@@ -108,7 +108,7 @@ describe('OrganizationInvitationTable', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('should render the row actions menu for admins', () => {
+    it('should render the row actions menu when revoke is granted', () => {
       renderWithProviders(<OrganizationInvitationTable {...createProps()} />);
 
       expect(
