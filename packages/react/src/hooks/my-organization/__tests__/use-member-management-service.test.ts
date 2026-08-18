@@ -829,7 +829,7 @@ describe('useMemberManagementService', () => {
       const { result } = renderService(options);
 
       await waitFor(() => {
-        expect(result.current.rolesQuery.isSuccess).toBe(true);
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
       });
 
       expect(result.current.memberRolesQuery.fetchStatus).toBe('idle');
@@ -844,7 +844,7 @@ describe('useMemberManagementService', () => {
       const { result } = renderService(options);
 
       await waitFor(() => {
-        expect(result.current.rolesQuery.isSuccess).toBe(true);
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
       });
 
       expect(result.current.memberRolesQuery.fetchStatus).toBe('idle');
@@ -859,7 +859,7 @@ describe('useMemberManagementService', () => {
       const { result } = renderService(options);
 
       await waitFor(() => {
-        expect(result.current.rolesQuery.isSuccess).toBe(true);
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
       });
 
       expect(result.current.memberRolesQuery.fetchStatus).toBe('idle');
