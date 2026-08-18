@@ -1143,6 +1143,7 @@
       "members": "Members",
       "invitations": "Invitations"
     },
+    "count_capped": "${count}+",
     "member": {
       "table": {
         "columns": {

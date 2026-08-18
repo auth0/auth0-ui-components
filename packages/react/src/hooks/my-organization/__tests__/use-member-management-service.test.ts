@@ -357,6 +357,7 @@ describe('useMemberManagementService', () => {
           from: undefined,
           sort: undefined,
         }),
+        expect.objectContaining({ queryParams: { include_totals: true } }),
       );
     });
 
@@ -388,6 +389,7 @@ describe('useMemberManagementService', () => {
         expect.objectContaining({
           sort: 'created_at:-1',
         }),
+        expect.objectContaining({ queryParams: { include_totals: true } }),
       );
     });
 
@@ -412,6 +414,7 @@ describe('useMemberManagementService', () => {
         expect.objectContaining({
           from: 'token_abc',
         }),
+        expect.objectContaining({ queryParams: { include_totals: true } }),
       );
     });
 
@@ -434,7 +437,44 @@ describe('useMemberManagementService', () => {
       expect(result.current.invitationsQuery.data).toEqual({
         invitations: [mockInvitation],
         next: 'next_token',
+        total: undefined,
       });
+    });
+
+    it('should return the invitation total when the API includes it', async () => {
+      const mockInvitation = createMockInvitation();
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.list = vi
+        .fn()
+        .mockResolvedValue({
+          data: [mockInvitation],
+          response: { next: null, total: 25 },
+        });
+
+      const { result } = renderService(createDefaultOptions());
+
+      await waitFor(() => {
+        expect(result.current.invitationsQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.invitationsQuery.data?.total).toBe(25);
+    });
+
+    it('should leave the invitation total undefined when the API omits it', async () => {
+      const mockInvitation = createMockInvitation();
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.list = vi
+        .fn()
+        .mockResolvedValue({
+          data: [mockInvitation],
+          response: { next: null },
+        });
+
+      const { result } = renderService(createDefaultOptions());
+
+      await waitFor(() => {
+        expect(result.current.invitationsQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.invitationsQuery.data?.total).toBeUndefined();
     });
   });
 

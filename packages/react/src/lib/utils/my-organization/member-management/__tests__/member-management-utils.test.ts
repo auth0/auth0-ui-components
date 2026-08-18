@@ -6,6 +6,7 @@ import {
   MAX_ROLES_PER_MEMBER,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import {
+  formatMemberCount,
   canMutateMember,
   getInitials,
   getInvitationStatus,
@@ -200,6 +201,36 @@ describe('getRelativeLastLoginLabel', () => {
     vi.spyOn(Date, 'now').mockReturnValue(new Date(now).getTime());
 
     expect(getRelativeLastLoginLabel(lastLogin, mockT)).toBe(expected);
+  });
+});
+
+describe('formatMemberCount', () => {
+  /** Substitutes `${count}` the way the core i18n service does. */
+  const t = ((key: string, vars?: Record<string, unknown>) =>
+    key === 'count_capped' ? `${String(vars?.count ?? '')}+` : key) as unknown as Parameters<
+    typeof formatMemberCount
+  >[2];
+
+  it.each([undefined, false])('returns undefined when the total is not capped (%s)', (isCapped) => {
+    expect(formatMemberCount(200, isCapped, t, 'en-US')).toBeUndefined();
+  });
+
+  it('returns undefined when the total is unavailable', () => {
+    expect(formatMemberCount(undefined, true, t, 'en-US')).toBeUndefined();
+  });
+
+  it.each([
+    { total: 1000, expected: '1,000+' },
+    { total: 5000, expected: '5,000+' },
+    { total: 0, expected: '0+' },
+  ])('renders the capped total $total as $expected', ({ total, expected }) => {
+    expect(formatMemberCount(total, true, t, 'en-US')).toBe(expected);
+  });
+
+  it('formats the capped total for the active locale', () => {
+    // French groups thousands with a space rather than a comma.
+    expect(formatMemberCount(5000, true, t, 'fr-FR')).toBe(`${(5000).toLocaleString('fr-FR')}+`);
+    expect(formatMemberCount(5000, true, t, 'fr-FR')).not.toBe('5,000+');
   });
 });
 

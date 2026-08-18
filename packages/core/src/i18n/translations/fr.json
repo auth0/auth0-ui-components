@@ -1078,6 +1078,7 @@
     }
   },
   "member_management": {
+    "count_capped": "${count}+",
     "member": {
       "table": {
         "columns": {

@@ -16,6 +16,7 @@ import {
   type MemberAccessLevel,
   MAX_ROLES_PER_MEMBER,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import { formatNumber } from '@/lib/utils/shared/helper-utils';
 import type { InvitationStatus } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
@@ -126,6 +127,25 @@ export function getInitials(name?: string): string {
   if (parts.length === 1) return first.charAt(0).toUpperCase();
   const last = parts[parts.length - 1] ?? '';
   return (first.charAt(0) + last.charAt(0)).toUpperCase();
+}
+
+/**
+ * Formats a capped total as a lower bound, based on the API's `total_is_capped` flag.
+ * @param total - The `total` reported by the list response.
+ * @param isCapped - The `total_is_capped` value reported by the list response.
+ * @param t - Translator function (namespace: `member_management`).
+ * @param locale - Locale identifier for number formatting.
+ * @returns The lower-bound total (such as `1,000+`) when the total is capped, or `undefined` when it is exact or unavailable.
+ */
+export function formatMemberCount(
+  total: number | undefined,
+  isCapped: boolean | undefined,
+  t: EnhancedTranslationFunction,
+  locale?: string,
+): string | undefined {
+  if (!isCapped || total === undefined) return undefined;
+
+  return t('count_capped', { count: formatNumber(total, locale) }, '${count}+');
 }
 
 /**

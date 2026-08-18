@@ -33,6 +33,7 @@ export interface MemberManagementPaginationState {
   pageSize: number;
   currentPage: number;
   totalItems?: number;
+  totalItemsDisplay?: string;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
 }
@@ -88,10 +89,14 @@ export interface MemberManagementServiceResult {
   invitationsQuery: UseQueryResult<{
     invitations: MemberInvitation[];
     next: string | null;
+    total?: number;
+    totalIsCapped?: boolean;
   }>;
   membersQuery: UseQueryResult<{
     members: OrgMember[];
     next: string | undefined | null;
+    total?: number;
+    totalIsCapped?: boolean;
   }>;
   organizationQuery: UseQueryResult<OrganizationPrivate>;
   assignRolesMutation: UseMutationResult<

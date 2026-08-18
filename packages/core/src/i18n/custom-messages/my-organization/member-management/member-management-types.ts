@@ -16,6 +16,7 @@ export interface OrganizationMemberManagementMessages {
     members?: string;
     invitations?: string;
   };
+  count_capped?: string;
   invitation?: OrganizationInvitationTabMessages;
   member?: OrganizationMemberTabMessages;
 }
