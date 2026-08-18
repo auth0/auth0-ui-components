@@ -357,8 +357,8 @@ describe('OrganizationInvitationCreateModal', () => {
     });
   });
 
-  describe('single connection auto-selection', () => {
-    it('should auto-select the connection when only one is available', async () => {
+  describe('when auto-selecting single connection', () => {
+    it('auto-selects the connection when only one is available', async () => {
       const user = userEvent.setup();
       const onCreate = vi.fn();
       const singleConnection = [
@@ -392,7 +392,7 @@ describe('OrganizationInvitationCreateModal', () => {
       );
     });
 
-    it('should not auto-select when multiple connections are available', () => {
+    it('does not auto-select when multiple connections are available', () => {
       renderWithProviders(
         <OrganizationInvitationCreateModal
           {...createMockCreateModalProps({ availableConnections: createMockConnections() })}
@@ -409,7 +409,7 @@ describe('OrganizationInvitationCreateModal', () => {
       expect(submitButton).toBeDisabled();
     });
 
-    it('should keep connection field visible and editable with single connection', () => {
+    it('keeps connection field visible and editable with single connection', () => {
       const singleConnection = [
         { id: 'con_single', name: 'Single Provider', type: 'identity_provider' as const },
       ];

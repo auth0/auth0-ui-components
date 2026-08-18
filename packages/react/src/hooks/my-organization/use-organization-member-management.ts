@@ -152,7 +152,9 @@ export function useOrganizationMemberManagement(
   );
 
   const isLoadingConnections = providersQuery.isLoading || userStoresQuery.isLoading;
-  const hasNoConnections = !isLoadingConnections && availableConnections.length === 0;
+  const hasConnectionsError = providersQuery.isError || userStoresQuery.isError;
+  const hasNoConnections =
+    !isLoadingConnections && !hasConnectionsError && availableConnections.length === 0;
 
   const invitationRoles = invitationRolesQuery.data ?? [];
   const searchedRoles = rolesSearchQuery.data ?? [];

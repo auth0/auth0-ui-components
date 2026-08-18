@@ -151,8 +151,8 @@ describe('useOrganizationMemberManagement', () => {
     });
   });
 
-  describe('connection availability', () => {
-    it('should report hasNoConnections as true when both providers and user stores are empty', () => {
+  describe('when checking connection availability', () => {
+    it('reports hasNoConnections as true when both providers and user stores are empty', () => {
       mockedUseMemberManagementService.mockReturnValue(
         makeMockService({
           providersQuery: { ...idleQuery, data: [], isLoading: false },
@@ -166,7 +166,7 @@ describe('useOrganizationMemberManagement', () => {
       expect(result.current.isLoadingConnections).toBe(false);
     });
 
-    it('should report hasNoConnections as false when providers are available', () => {
+    it('reports hasNoConnections as false when providers are available', () => {
       mockedUseMemberManagementService.mockReturnValue(
         makeMockService({
           providersQuery: {
@@ -184,7 +184,7 @@ describe('useOrganizationMemberManagement', () => {
       expect(result.current.availableConnections).toHaveLength(1);
     });
 
-    it('should report hasNoConnections as false when user stores are available', () => {
+    it('reports hasNoConnections as false when user stores are available', () => {
       mockedUseMemberManagementService.mockReturnValue(
         makeMockService({
           providersQuery: { ...idleQuery, data: [], isLoading: false },
@@ -202,7 +202,7 @@ describe('useOrganizationMemberManagement', () => {
       expect(result.current.availableConnections).toHaveLength(1);
     });
 
-    it('should report isLoadingConnections as true while providers are loading', () => {
+    it('reports isLoadingConnections as true while providers are loading', () => {
       mockedUseMemberManagementService.mockReturnValue(
         makeMockService({
           providersQuery: { ...idleQuery, data: undefined, isLoading: true },
@@ -216,7 +216,7 @@ describe('useOrganizationMemberManagement', () => {
       expect(result.current.hasNoConnections).toBe(false);
     });
 
-    it('should report isLoadingConnections as true while user stores are loading', () => {
+    it('reports isLoadingConnections as true while user stores are loading', () => {
       mockedUseMemberManagementService.mockReturnValue(
         makeMockService({
           providersQuery: { ...idleQuery, data: [], isLoading: false },
@@ -230,7 +230,7 @@ describe('useOrganizationMemberManagement', () => {
       expect(result.current.hasNoConnections).toBe(false);
     });
 
-    it('should not report hasNoConnections while still loading', () => {
+    it('does not report hasNoConnections while still loading', () => {
       mockedUseMemberManagementService.mockReturnValue(
         makeMockService({
           providersQuery: { ...idleQuery, data: undefined, isLoading: true },
@@ -244,7 +244,7 @@ describe('useOrganizationMemberManagement', () => {
       expect(result.current.hasNoConnections).toBe(false);
     });
 
-    it('should combine providers and user stores into availableConnections', () => {
+    it('combines providers and user stores into availableConnections', () => {
       mockedUseMemberManagementService.mockReturnValue(
         makeMockService({
           providersQuery: {
@@ -264,6 +264,34 @@ describe('useOrganizationMemberManagement', () => {
 
       expect(result.current.availableConnections).toHaveLength(2);
       expect(result.current.hasNoConnections).toBe(false);
+    });
+
+    it('does not report hasNoConnections when providers query errors', () => {
+      mockedUseMemberManagementService.mockReturnValue(
+        makeMockService({
+          providersQuery: { ...idleQuery, data: undefined, isLoading: false, isError: true },
+          userStoresQuery: { ...idleQuery, data: [], isLoading: false },
+        }),
+      );
+
+      const { result } = render();
+
+      expect(result.current.hasNoConnections).toBe(false);
+      expect(result.current.isLoadingConnections).toBe(false);
+    });
+
+    it('does not report hasNoConnections when user stores query errors', () => {
+      mockedUseMemberManagementService.mockReturnValue(
+        makeMockService({
+          providersQuery: { ...idleQuery, data: [], isLoading: false },
+          userStoresQuery: { ...idleQuery, data: undefined, isLoading: false, isError: true },
+        }),
+      );
+
+      const { result } = render();
+
+      expect(result.current.hasNoConnections).toBe(false);
+      expect(result.current.isLoadingConnections).toBe(false);
     });
   });
 
