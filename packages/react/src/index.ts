@@ -31,6 +31,9 @@ export {
   OrganizationDetailsEditView,
 } from './components/auth0/my-organization/organization-details-edit';
 
+// Providers
+export { PermissionProvider } from './providers/permission-context';
+
 // Shared hooks
 export { useCoreClient, CoreClientContext } from './hooks/shared/use-core-client';
 export { useTranslator } from './hooks/shared/use-translator';
