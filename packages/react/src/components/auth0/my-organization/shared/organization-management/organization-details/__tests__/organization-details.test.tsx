@@ -570,4 +570,33 @@ describe('OrganizationDetails', () => {
       });
     });
   });
+
+  describe('when readOnly is true', () => {
+    it('should show the permission-denied tooltip on the disabled save button', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(
+        <OrganizationDetails {...createMockOrganizationDetailsProps({ readOnly: true })} />,
+      );
+
+      const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
+      expect(saveButton).toBeDisabled();
+
+      await user.hover(saveButton);
+
+      await waitFor(() => {
+        expect(screen.getAllByText('error.forbidden').length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('when readOnly is false', () => {
+    it('should not show a tooltip on the save button', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<OrganizationDetails {...createMockOrganizationDetailsProps()} />);
+
+      await user.hover(screen.getByRole('button', { name: /submit_button_label/i }));
+
+      expect(screen.queryByText('error.forbidden')).not.toBeInTheDocument();
+    });
+  });
 });

@@ -1,7 +1,9 @@
 import { renderHook, act } from '@testing-library/react';
+import { createElement } from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { useOrganizationDetailsEdit } from '@/hooks/my-organization/use-organization-details-edit';
+import { PermissionProvider } from '@/providers/permission-context';
 import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 
 const mockOrganization = createMockOrganization();
@@ -95,6 +97,58 @@ describe('useOrganizationDetailsEdit', () => {
       expect(result.current.isInitializing).toBe(false);
       expect(result.current.fetchOrgDetails).toBeDefined();
       expect(result.current.updateOrgDetails).toBeDefined();
+    });
+  });
+
+  describe('granted permissions', () => {
+    const renderWithPermissions = (permissions: string[], readOnly = false) =>
+      renderHook(() => useOrganizationDetailsEdit({ readOnly }), {
+        wrapper: ({ children }: React.PropsWithChildren) =>
+          createElement(PermissionProvider, { permissions, children }),
+      });
+
+    describe('when update:my_org:details is granted', () => {
+      it('should not be read-only and should enable both actions', () => {
+        const { result } = renderWithPermissions(['update:my_org:details']);
+
+        expect(result.current.isReadOnly).toBe(false);
+        expect(result.current.formActions.nextAction?.disabled).toBe(false);
+        expect(result.current.formActions.previousAction?.disabled).toBe(false);
+      });
+    });
+
+    describe('when only read permissions are granted', () => {
+      it('should be read-only and disable both actions', () => {
+        const { result } = renderWithPermissions(['read:my_org:details']);
+
+        expect(result.current.isReadOnly).toBe(true);
+        expect(result.current.formActions.nextAction?.disabled).toBe(true);
+        expect(result.current.formActions.previousAction?.disabled).toBe(true);
+      });
+    });
+
+    describe('when no permissions are granted', () => {
+      it('should be read-only', () => {
+        const { result } = renderWithPermissions([]);
+
+        expect(result.current.isReadOnly).toBe(true);
+      });
+    });
+
+    describe('when the permission is granted but readOnly is set', () => {
+      it('should still be read-only', () => {
+        const { result } = renderWithPermissions(['update:my_org:details'], true);
+
+        expect(result.current.isReadOnly).toBe(true);
+      });
+    });
+
+    describe('outside a provider', () => {
+      it('should not be read-only, so ungated consumers keep working', () => {
+        const { result } = renderHook(() => useOrganizationDetailsEdit({}));
+
+        expect(result.current.isReadOnly).toBe(false);
+      });
     });
   });
 });

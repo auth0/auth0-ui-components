@@ -47,7 +47,7 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
     backButton,
   } = props;
 
-  const { organization, isFetchLoading, formActions } = useOrganizationDetailsEdit({
+  const { organization, isFetchLoading, formActions, isReadOnly } = useOrganizationDetailsEdit({
     saveAction,
     cancelAction,
     readOnly,
@@ -61,7 +61,7 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
         schema={schema}
         styling={styling}
         customMessages={customMessages}
-        readOnly={readOnly}
+        readOnly={isReadOnly}
         hideHeader={hideHeader}
         backButton={backButton}
         formActions={formActions}
