@@ -53,6 +53,7 @@ function DomainTable(props: DomainTableProps) {
   } = props;
 
   const domainTable = useDomainTable({
+    readOnly,
     createAction,
     verifyAction,
     deleteAction,
@@ -68,7 +69,6 @@ function DomainTable(props: DomainTableProps) {
         schema={schema}
         styling={styling}
         hideHeader={hideHeader}
-        readOnly={readOnly}
         customMessages={customMessages}
         createAction={createAction}
         onOpenProvider={onOpenProvider}
@@ -89,7 +89,6 @@ function DomainTableView({
   schema,
   styling,
   hideHeader,
-  readOnly = false,
   customMessages,
   createAction,
   onOpenProvider,
@@ -97,8 +96,10 @@ function DomainTableView({
 }: DomainTableViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('domain_management', customMessages);
+  const { t: tCommon } = useTranslator('common');
 
   const {
+    permissions,
     domains,
     providers,
     isCreating,
@@ -168,7 +169,7 @@ function DomainTableView({
         render: (domain) => (
           <DomainTableActionsColumn
             domain={domain}
-            readOnly={readOnly}
+            permissions={permissions}
             customMessages={customMessages}
             onView={handleConfigureClick}
             onConfigure={handleConfigureClick}
@@ -178,7 +179,7 @@ function DomainTableView({
         ),
       },
     ],
-    [t, readOnly, customMessages, handleConfigureClick, handleVerifyClick, handleDeleteClick],
+    [t, permissions, customMessages, handleConfigureClick, handleVerifyClick, handleDeleteClick],
   );
 
   return (
@@ -194,7 +195,10 @@ function DomainTableView({
                 label: t('domain_table.header.create_button_text'),
                 onClick: () => handleCreateClick(),
                 icon: Plus,
-                disabled: createAction?.disabled || readOnly || isFetching,
+                disabled: createAction?.disabled || !permissions.canCreateDomain || isFetching,
+                ...(permissions.canCreateDomain
+                  ? {}
+                  : { tooltip: { content: tCommon('error.forbidden') } }),
               },
             ]}
           />
@@ -218,6 +222,7 @@ function DomainTableView({
         loading={isFetching}
         emptyState={{ title: t('domain_table.table.empty_message') }}
         className={currentStyles.classes?.['DomainTable-table']}
+        onRowClick={handleConfigureClick}
       />
 
       {domains.length > 0 && (
@@ -256,6 +261,7 @@ function DomainTableView({
         isOpen={showConfigureModal}
         isLoading={isLoadingProviders}
         isLoadingSwitch={false}
+        permissions={permissions}
         onClose={() => setShowConfigureModal(false)}
         onToggleSwitch={handleToggleSwitch}
         onOpenProvider={onOpenProvider}

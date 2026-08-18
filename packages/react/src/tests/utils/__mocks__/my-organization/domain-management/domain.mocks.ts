@@ -6,6 +6,7 @@ import type {
 } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
+import { ALL_DOMAIN_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import type {
   DomainTableProps,
   UseDomainTableReturn,
@@ -122,6 +123,7 @@ export const createMockDeleteAction = (): ComponentAction<Domain> => ({
 export const createMockDomainTableReturn = (
   overrides: Partial<UseDomainTableReturn> = {},
 ): UseDomainTableReturn => ({
+  permissions: ALL_DOMAIN_PERMISSIONS,
   domains: [createMockDomain(), createMockVerifiedDomain()],
   providers: [],
   isCreating: false,

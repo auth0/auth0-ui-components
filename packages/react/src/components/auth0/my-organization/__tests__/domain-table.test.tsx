@@ -14,6 +14,7 @@ import {
   createMockDeleteAction,
   createMockDomainTableReturn,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import { createDomainPermissions } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 
@@ -739,7 +740,6 @@ describe('DomainTableView', () => {
     schema: undefined,
     styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     hideHeader: false,
-    readOnly: false,
     customMessages: {},
     createAction: undefined,
     onOpenProvider: undefined,
@@ -757,8 +757,27 @@ describe('DomainTableView', () => {
     expect(screen.queryByText(/header.title/i)).not.toBeInTheDocument();
   });
 
-  it('disables create button if readOnly is true', () => {
-    renderWithProviders(<DomainTableView {...defaultViewProps} readOnly={true} />);
+  it('disables the create button without create:my_org:domains', () => {
+    renderWithProviders(
+      <DomainTableView
+        {...defaultViewProps}
+        domainTable={createMockDomainTableReturn({
+          permissions: createDomainPermissions(['read:my_org:domains']),
+        })}
+      />,
+    );
     expect(screen.getByRole('button', { name: /create/i })).toBeDisabled();
+  });
+
+  it('hides row action menus without any mutating domain permission', () => {
+    renderWithProviders(
+      <DomainTableView
+        {...defaultViewProps}
+        domainTable={createMockDomainTableReturn({
+          permissions: createDomainPermissions(['read:my_org:domains']),
+        })}
+      />,
+    );
+    expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
   });
 });

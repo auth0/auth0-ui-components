@@ -6,6 +6,7 @@
 import type {
   Domain,
   DomainConfigureMessages,
+  DomainManagementPermissions,
   IdentityProviderAssociatedWithDomain,
 } from '@auth0/universal-components-core';
 
@@ -16,6 +17,7 @@ export interface DomainConfigureProvidersModalProps {
   isOpen: boolean;
   isLoading: boolean;
   isLoadingSwitch: boolean;
+  permissions: DomainManagementPermissions;
   domain: Domain | null;
   providers: IdentityProviderAssociatedWithDomain[];
   onClose: () => void;

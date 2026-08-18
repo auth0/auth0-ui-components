@@ -4,11 +4,16 @@
  * @module use-domain-table
  */
 
-import { type Domain, type IdpKnownResponse } from '@auth0/universal-components-core';
-import { useCallback, useState } from 'react';
+import {
+  getDomainManagementPermissions,
+  type Domain,
+  type IdpKnownResponse,
+} from '@auth0/universal-components-core';
+import { useCallback, useMemo, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
+import { usePermissions } from '@/hooks/my-organization/use-permissions';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -25,6 +30,7 @@ import type {
  * @returns Combined data, loading states, UI state, and handlers.
  */
 export function useDomainTable({
+  readOnly = false,
   createAction,
   deleteAction,
   verifyAction,
@@ -34,6 +40,12 @@ export function useDomainTable({
 }: UseDomainTableOptions): UseDomainTableReturn {
   const { t } = useTranslator('domain_management', customMessages);
   const handleError = useErrorHandler();
+  const { createPermissionResolver } = usePermissions();
+
+  const permissions = useMemo(
+    () => createPermissionResolver(getDomainManagementPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
 
   const {
     pageSize,
@@ -275,6 +287,8 @@ export function useDomainTable({
   );
 
   return {
+    permissions,
+
     // Data
     domains,
     providers,

@@ -8,6 +8,10 @@ import {
   createMockDomain,
   createMockVerifiedDomain,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import {
+  ALL_DOMAIN_PERMISSIONS,
+  createDomainPermissions,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { DomainTableActionsColumnProps } from '@/types/my-organization/domain-management/domain-table-types';
 
@@ -16,7 +20,7 @@ function createMockDomainTableActionsColumnProps(
   overrides: Partial<DomainTableActionsColumnProps> = {},
 ): DomainTableActionsColumnProps {
   return {
-    readOnly: false,
+    permissions: ALL_DOMAIN_PERMISSIONS,
     domain: createMockDomain(),
     onView: vi.fn(),
     onConfigure: vi.fn(),
@@ -348,88 +352,99 @@ describe('DomainTableActionsColumn', () => {
     });
   });
 
-  describe('Read-Only Mode', () => {
-    it('should disable all actions when readOnly is true', async () => {
-      const user = userEvent.setup();
-      const pendingDomain = createMockDomain({ status: 'pending' });
-      const props = createMockDomainTableActionsColumnProps({
-        domain: pendingDomain,
-        readOnly: true,
-      });
-      renderWithProviders(<DomainTableActionsColumn {...props} />);
+  describe('Granted permissions', () => {
+    describe('when only read permissions are granted', () => {
+      it('should render no menu at all for a pending domain', () => {
+        const props = createMockDomainTableActionsColumnProps({
+          domain: createMockDomain({ status: 'pending' }),
+          permissions: createDomainPermissions(['read:my_org:domains']),
+        });
+        const { container } = renderWithProviders(<DomainTableActionsColumn {...props} />);
 
-      const trigger = screen.getByRole('button');
-      await user.click(trigger);
-
-      const viewMenuItem = screen.getByRole('menuitem', { name: 'table.actions.view_button_text' });
-      const verifyMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.verify_button_text',
-      });
-      const deleteMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.delete_button_text',
+        expect(container).toBeEmptyDOMElement();
       });
 
-      // When readOnly is true, all menu items should be disabled
-      expect(viewMenuItem).toHaveAttribute('aria-disabled', 'true');
-      expect(verifyMenuItem).toHaveAttribute('aria-disabled', 'true');
-      expect(deleteMenuItem).toHaveAttribute('aria-disabled', 'true');
+      it('should render no menu at all for a verified domain', () => {
+        const props = createMockDomainTableActionsColumnProps({
+          domain: createMockVerifiedDomain(),
+          permissions: createDomainPermissions(['read:my_org:domains']),
+        });
+        const { container } = renderWithProviders(<DomainTableActionsColumn {...props} />);
+
+        expect(container).toBeEmptyDOMElement();
+      });
     });
 
-    it('should disable Configure action for verified domains when readOnly is true', async () => {
-      const user = userEvent.setup();
-      const verifiedDomain = createMockVerifiedDomain();
-      const props = createMockDomainTableActionsColumnProps({
-        domain: verifiedDomain,
-        readOnly: true,
-      });
-      renderWithProviders(<DomainTableActionsColumn {...props} />);
+    describe('when update:my_org:domains is granted without delete', () => {
+      it('should show Verify and hide Delete for a pending domain', async () => {
+        const user = userEvent.setup();
+        const props = createMockDomainTableActionsColumnProps({
+          domain: createMockDomain({ status: 'pending' }),
+          permissions: createDomainPermissions(['update:my_org:domains']),
+        });
+        renderWithProviders(<DomainTableActionsColumn {...props} />);
 
-      const trigger = screen.getByRole('button');
-      await user.click(trigger);
+        await user.click(screen.getByRole('button'));
 
-      const configureMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.configure_button_text',
+        expect(
+          screen.getByRole('menuitem', { name: 'table.actions.verify_button_text' }),
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByRole('menuitem', { name: 'table.actions.delete_button_text' }),
+        ).not.toBeInTheDocument();
       });
-      const deleteMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.delete_button_text',
-      });
-
-      // When readOnly is true for verified domains, both Configure and Delete should be disabled
-      expect(configureMenuItem).toHaveAttribute('aria-disabled', 'true');
-      expect(deleteMenuItem).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should not call callbacks when actions are disabled', async () => {
-      const user = userEvent.setup();
-      const onConfigure = vi.fn();
-      const onDelete = vi.fn();
-      const verifiedDomain = createMockVerifiedDomain();
-      const props = createMockDomainTableActionsColumnProps({
-        domain: verifiedDomain,
-        onConfigure,
-        onDelete,
-        readOnly: true,
+    describe('when delete:my_org:domains is granted without update', () => {
+      it('should show Delete and hide Verify for a pending domain', async () => {
+        const user = userEvent.setup();
+        const props = createMockDomainTableActionsColumnProps({
+          domain: createMockDomain({ status: 'pending' }),
+          permissions: createDomainPermissions(['delete:my_org:domains']),
+        });
+        renderWithProviders(<DomainTableActionsColumn {...props} />);
+
+        await user.click(screen.getByRole('button'));
+
+        expect(
+          screen.getByRole('menuitem', { name: 'table.actions.delete_button_text' }),
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByRole('menuitem', { name: 'table.actions.verify_button_text' }),
+        ).not.toBeInTheDocument();
       });
-      renderWithProviders(<DomainTableActionsColumn {...props} />);
+    });
 
-      const trigger = screen.getByRole('button');
-      await user.click(trigger);
+    describe('when identity_providers_domains mutations are granted', () => {
+      it('should show Configure for a verified domain', async () => {
+        const user = userEvent.setup();
+        const props = createMockDomainTableActionsColumnProps({
+          domain: createMockVerifiedDomain(),
+          permissions: createDomainPermissions(['create:my_org:identity_providers_domains']),
+        });
+        renderWithProviders(<DomainTableActionsColumn {...props} />);
 
-      const configureMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.configure_button_text',
+        await user.click(screen.getByRole('button'));
+
+        expect(
+          screen.getByRole('menuitem', { name: 'table.actions.configure_button_text' }),
+        ).toBeInTheDocument();
       });
-      const deleteMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.delete_button_text',
+
+      it('should hide Configure when only domain scopes are granted', async () => {
+        const user = userEvent.setup();
+        const props = createMockDomainTableActionsColumnProps({
+          domain: createMockVerifiedDomain(),
+          permissions: createDomainPermissions(['delete:my_org:domains']),
+        });
+        renderWithProviders(<DomainTableActionsColumn {...props} />);
+
+        await user.click(screen.getByRole('button'));
+
+        expect(
+          screen.queryByRole('menuitem', { name: 'table.actions.configure_button_text' }),
+        ).not.toBeInTheDocument();
       });
-
-      // When readOnly is true, the DropdownMenuItem should have disabled prop which prevents onClick
-      // When checking disabled state, should have aria-disabled attribute
-      expect(configureMenuItem).toHaveAttribute('aria-disabled', 'true');
-      expect(deleteMenuItem).toHaveAttribute('aria-disabled', 'true');
-
-      // When actions are disabled, callbacks should not be invoked
-      expect(onConfigure).not.toHaveBeenCalled();
-      expect(onDelete).not.toHaveBeenCalled();
     });
   });
 

@@ -133,6 +133,7 @@ export * from './services/permissions/permission-utils';
 export * from './services/permissions/permission-types';
 export * from './services/permissions/permission-map';
 export * from './services/my-organization/member-management/member-management-permissions';
+export * from './services/my-organization/domain-management/domain-management-permissions';
 
 // My Account services
 export * from './services/my-account/mfa/mfa-types';

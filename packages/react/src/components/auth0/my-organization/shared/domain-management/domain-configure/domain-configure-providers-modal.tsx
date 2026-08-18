@@ -26,6 +26,7 @@ import type { DomainConfigureProvidersModalProps } from '@/types/my-organization
  * @param props.isOpen - Whether the modal/dialog is open
  * @param props.isLoading - Whether the component is in a loading state
  * @param props.isLoadingSwitch - The is loading switch
+ * @param props.permissions - What the current user is allowed to do
  * @param props.onClose - Callback fired when the component should close
  * @param props.onToggleSwitch - Callback fired when switch is toggled
  * @param props.onOpenProvider - Callback fired when opening a provider
@@ -40,18 +41,27 @@ export function DomainConfigureProvidersModal({
   isOpen,
   isLoading,
   isLoadingSwitch,
+  permissions,
   onClose,
   onToggleSwitch,
   onOpenProvider,
   onCreateProvider,
 }: DomainConfigureProvidersModalProps) {
   const { t } = useTranslator('domain_management.domain_configure_providers.modal', customMessages);
+  const { t: tCommon } = useTranslator('common');
 
   const handleToggleSwitch = React.useCallback(
     (provider: IdentityProviderAssociatedWithDomain, newCheckedValue: boolean) => {
       onToggleSwitch(domain!, provider, newCheckedValue); // Switch component is not rendered if domain is null
     },
     [domain, onToggleSwitch],
+  );
+
+  /** Associating needs the create scope; dissociating needs the delete scope. */
+  const canToggleProvider = React.useCallback(
+    (provider: IdentityProviderAssociatedWithDomain) =>
+      provider.is_associated ? permissions.canDissociateProvider : permissions.canAssociateProvider,
+    [permissions],
   );
 
   const columns: Column<IdentityProviderAssociatedWithDomain>[] = React.useMemo(
@@ -94,21 +104,23 @@ export function DomainConfigureProvidersModal({
                   <Switch
                     checked={provider.is_associated ?? false}
                     onCheckedChange={(checked) => handleToggleSwitch(provider, checked)}
-                    disabled={isLoadingSwitch}
+                    disabled={isLoadingSwitch || !canToggleProvider(provider)}
                   />
                 </span>
               </TooltipTrigger>
               <TooltipContent className="z-[1000]">
-                {provider.is_associated
-                  ? t('table.actions.disable_provider_tooltip')
-                  : t('table.actions.enable_provider_tooltip')}
+                {!canToggleProvider(provider)
+                  ? tCommon('error.forbidden')
+                  : provider.is_associated
+                    ? t('table.actions.disable_provider_tooltip')
+                    : t('table.actions.enable_provider_tooltip')}
               </TooltipContent>
             </Tooltip>
           </div>
         ),
       },
     ],
-    [t, onOpenProvider, isLoadingSwitch, handleToggleSwitch],
+    [t, tCommon, onOpenProvider, isLoadingSwitch, canToggleProvider, handleToggleSwitch],
   );
 
   return (
