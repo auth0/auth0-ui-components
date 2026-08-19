@@ -132,6 +132,7 @@ export * from './services/my-organization/config/config-types';
 export * from './services/permissions/permission-utils';
 export * from './services/permissions/permission-types';
 export * from './services/permissions/permission-map';
+export * from './services/permissions/permission-api-types';
 export * from './services/my-organization/member-management/member-management-permissions';
 
 // My Account services

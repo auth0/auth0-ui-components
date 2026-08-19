@@ -32,7 +32,7 @@ export {
 } from './components/auth0/my-organization/organization-details-edit';
 
 // Providers
-export { PermissionProvider } from './providers/permission-context';
+export { PermissionProvider } from './providers/permission-provider';
 
 // Shared hooks
 export { useCoreClient, CoreClientContext } from './hooks/shared/use-core-client';
