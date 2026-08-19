@@ -28,8 +28,9 @@ export function PermissionProvider({
 
   React.useEffect(() => {
     let cancelled = false;
+
     /**
-     *
+     * Fetches permissions from the API.
      */
     async function fetchPermissions() {
       if (!coreClient || !isAuthenticated) {
