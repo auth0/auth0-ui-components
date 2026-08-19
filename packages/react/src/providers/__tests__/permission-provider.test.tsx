@@ -109,4 +109,35 @@ describe('PermissionProvider', () => {
       consoleWarnSpy.mockRestore();
     });
   });
+
+  describe('when authentication changes', () => {
+    it('clears permissions when coreClient becomes null', async () => {
+      const mockCoreClient = createMockCoreClient();
+      const mockGetPermissions = vi
+        .fn()
+        .mockResolvedValue(['read:my_org:members', 'delete:my_org:memberships']);
+      mockCoreClient.getPermissionApiClient = vi.fn().mockReturnValue({
+        getPermissions: mockGetPermissions,
+      });
+      mockUseCoreClient.mockReturnValue({ coreClient: mockCoreClient });
+
+      const { result, rerender } = renderPermissions(true);
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(result.current.permissions).toEqual([
+        'read:my_org:members',
+        'delete:my_org:memberships',
+      ]);
+
+      mockUseCoreClient.mockReturnValue({ coreClient: null });
+      rerender();
+
+      await waitFor(() => {
+        expect(result.current.permissions).toEqual([]);
+      });
+    });
+  });
 });

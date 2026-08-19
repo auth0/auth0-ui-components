@@ -123,6 +123,8 @@ export const Auth0ComponentProvider = (
     </StyledScope>
   );
 
+  const isAuthenticated = auth0ReactContext.isAuthenticated;
+
   return (
     <TelemetryProvider componentRef={componentRef}>
       <ThemeProvider
@@ -143,9 +145,7 @@ export const Auth0ComponentProvider = (
         {coreClient ? (
           <CoreClientContext.Provider value={coreClientValue}>
             <QueryProvider cacheConfig={cacheConfig}>
-              <PermissionProvider isAuthenticated={auth0ReactContext.isAuthenticated}>
-                {children}
-              </PermissionProvider>
+              <PermissionProvider isAuthenticated={isAuthenticated}>{children}</PermissionProvider>
             </QueryProvider>
           </CoreClientContext.Provider>
         ) : (

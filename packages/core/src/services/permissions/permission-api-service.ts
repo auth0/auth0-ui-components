@@ -3,10 +3,14 @@
  * @module permission-api-service
  * @internal
  */
+import { z } from 'zod';
+
 import type { ClientAuthConfig, SpaAuthConfig } from '../../auth/auth-types';
 
 import type { PermissionApiClient } from './permission-api-types';
-import { PERMISSION_CLAIM } from './permission-api-types';
+import { PERMISSION_CLAIM } from './permission-constants';
+
+const permissionsSchema = z.array(z.string());
 
 /**
  * Initializes a Permission API client based on auth configuration.
@@ -30,9 +34,7 @@ function createProxyPermissionClient(authProxyUrl: string): PermissionApiClient 
   return {
     getPermissions: async (): Promise<string[]> => {
       try {
-        const res = await fetch(`${authProxyUrl}/auth/profile`, {
-          credentials: 'include',
-        });
+        const res = await fetch(`${authProxyUrl}/auth/profile`);
 
         if (!res.ok) {
           console.warn('Failed to fetch user profile for permissions');
@@ -40,9 +42,9 @@ function createProxyPermissionClient(authProxyUrl: string): PermissionApiClient 
         }
 
         const profile = await res.json();
-        const permissions = profile[PERMISSION_CLAIM];
+        const parsed = permissionsSchema.safeParse(profile[PERMISSION_CLAIM]);
 
-        return Array.isArray(permissions) ? permissions : [];
+        return parsed.success ? parsed.data : [];
       } catch (error) {
         console.warn('Error fetching user permissions:', error);
         return [];
@@ -78,8 +80,9 @@ function createSpaPermissionClient(
           return [];
         }
 
-        const permissions = claims[PERMISSION_CLAIM];
-        return Array.isArray(permissions) ? permissions : [];
+        const parsed = permissionsSchema.safeParse(claims[PERMISSION_CLAIM]);
+
+        return parsed.success ? parsed.data : [];
       } catch (error) {
         console.warn('Error fetching permissions:', error);
         return [];

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ClientAuthConfig, SpaAuthConfig } from '../../../auth/auth-types';
 import { initializePermissionClient } from '../permission-api-service';
-import { PERMISSION_CLAIM } from '../permission-api-types';
+import { PERMISSION_CLAIM } from '../permission-constants';
 
 describe('permission-api-service', () => {
   beforeEach(() => {
@@ -56,9 +56,7 @@ describe('permission-api-service', () => {
       const client = initializePermissionClient(auth);
       const permissions = await client.getPermissions();
 
-      expect(mockFetch).toHaveBeenCalledWith(`${proxyUrl}/auth/profile`, {
-        credentials: 'include',
-      });
+      expect(mockFetch).toHaveBeenCalledWith(`${proxyUrl}/auth/profile`);
       expect(permissions).toEqual(mockPermissions);
     });
 

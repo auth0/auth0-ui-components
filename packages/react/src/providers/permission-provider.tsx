@@ -1,9 +1,3 @@
-/**
- * Permission provider and context.
- * @module permission-provider
- * @internal
- */
-
 'use client';
 
 import * as React from 'react';
@@ -14,18 +8,14 @@ import type {
   PermissionProviderProps,
 } from '@/types/permissions/permissions-types';
 
-/**
- * Current user's permissions; `null` outside a provider.
- * @internal
- */
 export const PermissionContext = React.createContext<PermissionContextValue | null>(null);
 
 /**
  * Provides the current user's permissions to descendants.
- * Auto-fetches permissions from the ID token claim via the Permission API client.
  * @param props - Provider props.
- * @param props.children - Subtree that can consume the permission context.
- * @returns The context provider element.
+ * @param props.children - Child components.
+ * @param props.isAuthenticated - Whether the user is authenticated.
+ * @returns Permission context provider.
  * @internal
  */
 export function PermissionProvider({
@@ -44,6 +34,7 @@ export function PermissionProvider({
      */
     async function fetchPermissions() {
       if (!coreClient || !isAuthenticated) {
+        setPermissions([]);
         setIsLoading(false);
         return;
       }
@@ -59,6 +50,9 @@ export function PermissionProvider({
         }
       } catch (error) {
         console.warn('Failed to fetch permissions:', error);
+        if (!cancelled) {
+          setPermissions([]);
+        }
       } finally {
         if (!cancelled) {
           setIsLoading(false);
