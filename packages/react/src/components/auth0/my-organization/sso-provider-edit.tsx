@@ -182,6 +182,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
   const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('sso');
   const { t } = useTranslator('idp_management.edit_sso_provider', customMessages);
+  const { t: tCommon } = useTranslator('common');
   const currentStyles = useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
@@ -205,11 +206,13 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
                 type: 'switch',
                 checked: provider?.is_enabled ?? false,
                 onCheckedChange: handleToggleProvider,
-                disabled: isUpdating,
+                disabled: isUpdating || !permissions.canUpdateProvider,
                 tooltip: {
-                  content: provider?.is_enabled
-                    ? t('header.disable_provider_tooltip_text')
-                    : t('header.enable_provider_tooltip_text'),
+                  content: !permissions.canUpdateProvider
+                    ? tCommon('error.forbidden')
+                    : provider?.is_enabled
+                      ? t('header.disable_provider_tooltip_text')
+                      : t('header.enable_provider_tooltip_text'),
                 },
               },
             ]}

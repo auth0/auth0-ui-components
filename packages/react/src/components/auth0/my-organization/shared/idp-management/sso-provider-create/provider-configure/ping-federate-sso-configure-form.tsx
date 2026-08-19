@@ -276,7 +276,11 @@ export const PingFederateProviderForm = React.forwardRef<
                         <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
                           {t('fields.ping-federate.advanced_settings.sign_request_algorithm.label')}
                         </FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value || ''}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || ''}
+                          disabled={readOnly}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue
@@ -312,7 +316,11 @@ export const PingFederateProviderForm = React.forwardRef<
                             'fields.ping-federate.advanced_settings.sign_request_algorithm_digest.label',
                           )}
                         </FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value || ''}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || ''}
+                          disabled={readOnly}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue

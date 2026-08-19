@@ -15,6 +15,7 @@ import {
   createMockSsoProviderEditHandler,
   createMockSsoProviderEditLogic,
 } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-provider-edit/sso-provider-edit.mocks';
+import { createIdpPermissions } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { SsoProviderEditProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
@@ -948,5 +949,34 @@ describe('SsoProviderEditView', () => {
     const provisioningTab = screen.getByText(/tabs.provisioning.name/i);
     await user.click(provisioningTab);
     expect(provisioningTab).toBeInTheDocument();
+  });
+
+  describe('when no mutating permission is granted', () => {
+    it('should leave no interactive control enabled', () => {
+      renderWithProviders(
+        <SsoProviderEditView
+          logic={createMockSsoProviderEditLogic({
+            permissions: createIdpPermissions(['read:my_org:identity_providers']),
+          })}
+          handlers={handlers}
+        />,
+      );
+
+      const interactive = [
+        ...screen.queryAllByRole('textbox'),
+        ...screen.queryAllByRole('checkbox'),
+        ...screen.queryAllByRole('switch'),
+        ...screen.queryAllByRole('combobox'),
+        ...screen.queryAllByRole('radio'),
+      ];
+
+      const stillEnabled = interactive
+        .filter(
+          (control) => !control.hasAttribute('readonly') && !(control as HTMLInputElement).disabled,
+        )
+        .map((c) => `${c.tagName}[role=${c.getAttribute('role')}] name=${c.getAttribute('name')}`);
+
+      expect(stillEnabled).toEqual([]);
+    });
   });
 });
