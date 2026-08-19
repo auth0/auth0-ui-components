@@ -28,7 +28,6 @@ export function PermissionProvider({
 
   React.useEffect(() => {
     let cancelled = false;
-
     /**
      *
      */
