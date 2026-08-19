@@ -6,13 +6,13 @@
 
 import * as React from 'react';
 
-import { PermissionContext } from '@/providers/permission-context';
+import { PermissionContext } from '@/providers/permission-provider';
 import type { UsePermissionsResult } from '@/types/permissions/permissions-types';
 
 /**
  * Reads the current user's permissions from context and resolves module maps
  * against them.
- * @returns The current permissions and a bound resolver.
+ * @returns The current permissions, loading state, and a bound resolver.
  * @internal
  */
 export function usePermissionsService(): UsePermissionsResult {
@@ -21,9 +21,11 @@ export function usePermissionsService(): UsePermissionsResult {
   return React.useMemo<UsePermissionsResult>(() => {
     const allowAll = context === null;
     const permissions = context?.permissions ?? [];
+    const isLoading = context?.isLoading ?? false;
 
     return {
       permissions,
+      isLoading,
       createPermissionResolver: (resolver, options) =>
         resolver(permissions, { allowAll, ...options }),
     };
