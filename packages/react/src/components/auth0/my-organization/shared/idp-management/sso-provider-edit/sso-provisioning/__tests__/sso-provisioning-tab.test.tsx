@@ -13,7 +13,10 @@ import {
   mockOnDeleteScimToken,
   mockFetchProvisioning,
 } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.mocks';
-import { ALL_IDP_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
+import {
+  ALL_IDP_PERMISSIONS,
+  createIdpPermissions,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
 const createMockSsoProviderEditReturn = (overrides = {}) => ({
@@ -287,6 +290,26 @@ describe('SsoProvisioningTab', () => {
       renderComponent({ styling: customStyling });
 
       expect(screen.getByRole('switch')).toBeInTheDocument();
+    });
+  });
+
+  describe('granted permissions', () => {
+    it('should disable attribute sync without update:my_org:identity_providers_provisioning', () => {
+      renderComponent({
+        hasProvisioningAttributeSyncWarning: true,
+        permissions: createIdpPermissions(['create:my_org:identity_providers_provisioning']),
+      });
+
+      expect(screen.getByRole('button', { name: /sync_button_label/i })).toBeDisabled();
+    });
+
+    it('should enable attribute sync with update:my_org:identity_providers_provisioning', () => {
+      renderComponent({
+        hasProvisioningAttributeSyncWarning: true,
+        permissions: createIdpPermissions(['update:my_org:identity_providers_provisioning']),
+      });
+
+      expect(screen.getByRole('button', { name: /sync_button_label/i })).toBeEnabled();
     });
   });
 });

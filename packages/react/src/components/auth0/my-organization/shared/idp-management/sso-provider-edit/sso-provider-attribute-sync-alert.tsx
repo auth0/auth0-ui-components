@@ -7,6 +7,7 @@
 import { AlertTriangle } from 'lucide-react';
 import * as React from 'react';
 
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,6 +32,7 @@ import type { SsoProviderAttributeSyncAlertProps } from '@/types/my-organization
  * @param props.customMessages - Custom i18n message overrides.
  * @param props.onSync - Callback when sync is triggered.
  * @param props.isSyncing - Whether sync is in progress.
+ * @param props.canSync - Whether the user may trigger a sync.
  * @returns Attribute sync alert component.
  * @internal
  */
@@ -41,6 +43,7 @@ export function SsoProviderAttributeSyncAlert({
   customMessages,
   onSync,
   isSyncing = false,
+  canSync = true,
 }: SsoProviderAttributeSyncAlertProps) {
   const [isSyncModalOpen, setIsSyncModalOpen] = React.useState(false);
 
@@ -73,11 +76,16 @@ export function SsoProviderAttributeSyncAlert({
             <AlertDescription>{t('description')}</AlertDescription>
           </div>
         </div>
-        {
-          <Button variant="outline" size="default" onClick={handleSyncClick} disabled={isSyncing}>
+        <PermissionDeniedTooltip enabled={!canSync}>
+          <Button
+            variant="outline"
+            size="default"
+            onClick={handleSyncClick}
+            disabled={isSyncing || !canSync}
+          >
             {t('sync_button_label')}
           </Button>
-        }
+        </PermissionDeniedTooltip>
       </Alert>
 
       <Dialog open={isSyncModalOpen} onOpenChange={setIsSyncModalOpen}>
@@ -97,7 +105,7 @@ export function SsoProviderAttributeSyncAlert({
             >
               {t('sync_modal.actions.cancel_button_label')}
             </Button>
-            <Button onClick={handleConfirmSync} disabled={isSyncing}>
+            <Button onClick={handleConfirmSync} disabled={isSyncing || !canSync}>
               {t('sync_modal.actions.proceed_button_label')}
             </Button>
           </DialogFooter>

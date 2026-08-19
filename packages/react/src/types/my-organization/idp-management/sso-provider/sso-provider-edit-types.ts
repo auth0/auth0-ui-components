@@ -158,6 +158,7 @@ export interface SsoProviderAttributeSyncAlertProps {
   onSync?: () => void | Promise<void>;
   isSyncing?: boolean;
   customMessages?: Partial<AttributeSyncAlertMessages>;
+  canSync?: boolean;
 }
 
 export type SsoProviderEditViewProps = {

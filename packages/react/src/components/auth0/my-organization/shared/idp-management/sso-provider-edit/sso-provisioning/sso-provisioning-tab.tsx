@@ -118,6 +118,7 @@ export function SsoProvisioningTab({
     >
       {hasProvisioningAttributeSyncWarning && (
         <SsoProviderAttributeSyncAlert
+          canSync={permissions.canUpdateProvisioning}
           translatorKey="idp_management.edit_sso_provider.tabs.provisioning.content.attribute_sync_alert"
           onSync={onAttributeSync}
           isSyncing={isSyncingAttributes}

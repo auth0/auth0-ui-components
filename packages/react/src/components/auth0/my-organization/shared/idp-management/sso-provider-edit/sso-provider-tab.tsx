@@ -73,6 +73,7 @@ export function SsoProviderTab({
     <div style={currentStyles.variables} className="space-y-10">
       {hasSsoAttributeSyncWarning && (
         <SsoProviderAttributeSyncAlert
+          canSync={!readOnly}
           onSync={onAttributeSync}
           isSyncing={isSyncingAttributes}
           customMessages={customMessages.attribute_sync_alert}
