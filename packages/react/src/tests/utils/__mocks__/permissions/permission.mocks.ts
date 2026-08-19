@@ -1,4 +1,8 @@
-import { getMemberManagementPermissions, type OauthScope } from '@auth0/universal-components-core';
+import {
+  getIdpManagementPermissions,
+  getMemberManagementPermissions,
+  type OauthScope,
+} from '@auth0/universal-components-core';
 
 /** Claim carrying the caller's granted My Org permissions. */
 export const MY_ORG_PERMISSIONS_CLAIM = 'urn:auth0:my_org_current_user_permissions';
@@ -63,3 +67,17 @@ export const ALL_MEMBER_PERMISSIONS = createMemberPermissions();
 
 /** A member granted only read access. */
 export const READ_ONLY_MEMBER_PERMISSIONS = createMemberPermissions(READ_ONLY_MY_ORG_PERMISSIONS);
+
+/**
+ * Resolves IDP Management flags from the granted permissions.
+ * @param granted - Granted permissions, as the claim carries them.
+ * @returns The resolved IDP Management permissions.
+ */
+export const createIdpPermissions = (granted: readonly OauthScope[] = ALL_MY_ORG_PERMISSIONS) =>
+  getIdpManagementPermissions(granted);
+
+/** Default for mock props: a member granted everything. */
+export const ALL_IDP_PERMISSIONS = createIdpPermissions();
+
+/** A member granted only read access. */
+export const READ_ONLY_IDP_PERMISSIONS = createIdpPermissions(READ_ONLY_MY_ORG_PERMISSIONS);

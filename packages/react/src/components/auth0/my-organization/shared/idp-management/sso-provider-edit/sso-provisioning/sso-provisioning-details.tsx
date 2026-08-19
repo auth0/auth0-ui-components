@@ -48,6 +48,7 @@ import type { SsoProvisioningDetailsProps } from '@/types/my-organization/idp-ma
  * @param props.onListScimTokens - Callback to list SCIM tokens.
  * @param props.onCreateScimToken - Callback to create a SCIM token.
  * @param props.onDeleteScimToken - Callback to delete a SCIM token.
+ * @param props.permissions - What the current user is allowed to do.
  * @param props.customMessages - Custom i18n message overrides.
  * @param props.styling - CSS variables and class overrides.
  * @returns SSO provisioning details component.
@@ -63,6 +64,7 @@ export function SsoProvisioningDetails({
   onListScimTokens,
   onCreateScimToken,
   onDeleteScimToken,
+  permissions,
   customMessages = {},
   styling = {
     variables: { common: {}, light: {}, dark: {} },
@@ -132,6 +134,7 @@ export function SsoProvisioningDetails({
             onListScimTokens={onListScimTokens}
             onCreateScimToken={onCreateScimToken}
             onDeleteScimToken={onDeleteScimToken}
+            permissions={permissions}
             customMessages={customMessages?.manage_tokens}
             styling={styling}
           />

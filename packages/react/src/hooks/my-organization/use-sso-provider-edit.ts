@@ -4,12 +4,13 @@
  * @module use-sso-provider-edit
  */
 
-import type { IdpId } from '@auth0/universal-components-core';
-import { useCallback } from 'react';
+import { getIdpManagementPermissions, type IdpId } from '@auth0/universal-components-core';
+import { useCallback, useMemo } from 'react';
 
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useSsoProviderEditService } from '@/hooks/my-organization/shared/services/use-sso-provider-edit-service';
+import { usePermissions } from '@/hooks/my-organization/use-permissions';
 import type {
   UseSsoProviderEditOptions,
   UseSsoProviderEditReturn,
@@ -30,8 +31,16 @@ export function useSsoProviderEdit(
     provisioning,
     customMessages = {},
     skipProvisioningFetch = false,
+    readOnly = false,
   }: Partial<UseSsoProviderEditOptions> = {},
 ): UseSsoProviderEditReturn {
+  const { createPermissionResolver } = usePermissions();
+
+  const permissions = useMemo(
+    () => createPermissionResolver(getIdpManagementPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
+
   const service = useSsoProviderEditService(idpId, {
     sso,
     provisioning,
@@ -60,6 +69,7 @@ export function useSsoProviderEdit(
 
   return {
     ...service,
+    permissions,
     shouldAllowDeletion,
     isLoadingConfig,
     idpConfig,

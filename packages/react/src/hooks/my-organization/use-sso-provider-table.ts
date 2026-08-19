@@ -5,13 +5,17 @@
  */
 
 import type { IdpKnownResponse } from '@auth0/universal-components-core';
-import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  getIdpManagementPermissions,
+  ssoProviderQueryKeys,
+} from '@auth0/universal-components-core';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useSsoProviderTableService } from '@/hooks/my-organization/shared/services/use-sso-provider-table-service';
+import { usePermissions } from '@/hooks/my-organization/use-permissions';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
@@ -41,6 +45,12 @@ export function useSsoProviderTable({
     customMessages as Record<string, unknown>,
   );
   const handleError = useErrorHandler();
+  const { createPermissionResolver } = usePermissions();
+
+  const permissions = useMemo(
+    () => createPermissionResolver(getIdpManagementPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
 
   const {
     providers,
@@ -155,7 +165,7 @@ export function useSsoProviderTable({
 
   const handleToggleEnabled = useCallback(
     async (idp: IdpKnownResponse, enabled: boolean) => {
-      if (readOnly || !onEnableProvider) return;
+      if (!permissions.canUpdateProvider || !onEnableProvider) return;
       try {
         await onEnableProvider(idp, enabled);
         showToast({
@@ -166,7 +176,7 @@ export function useSsoProviderTable({
         handleError(error, { fallbackMessage: t('general_error') });
       }
     },
-    [readOnly, onEnableProvider, t, handleError],
+    [permissions, onEnableProvider, t, handleError],
   );
 
   const handleDeleteConfirm = useCallback(
@@ -207,6 +217,7 @@ export function useSsoProviderTable({
   );
 
   return {
+    permissions,
     providers,
     organization,
 

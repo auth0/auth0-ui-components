@@ -44,7 +44,7 @@ export function SsoDomainTab({
     variables: { common: {}, light: {}, dark: {} },
     classes: {},
   },
-  readOnly = false,
+  permissions,
   schema,
   idpId,
   domains,
@@ -54,6 +54,7 @@ export function SsoDomainTab({
     'idp_management.edit_sso_provider.tabs.domains.content',
     customMessages,
   );
+  const { t: tCommon } = useTranslator('common');
 
   const { isDarkMode } = useTheme();
   const currentStyles = React.useMemo(
@@ -125,7 +126,7 @@ export function SsoDomainTab({
           <SsoDomainTabActionsColumn
             translatorKey="idp_management.edit_sso_provider.tabs.domains.content"
             idpDomains={idpDomains}
-            readOnly={readOnly}
+            permissions={permissions}
             isUpdating={isUpdating}
             isUpdatingId={isUpdatingId}
             customMessages={customMessages}
@@ -136,7 +137,7 @@ export function SsoDomainTab({
         ),
       },
     ],
-    [t],
+    [t, permissions, idpDomains, isUpdating, isUpdatingId, customMessages],
   );
 
   return (
@@ -151,7 +152,10 @@ export function SsoDomainTab({
               label: t('create_button_text'),
               onClick: () => setShowCreateModal(true),
               icon: Plus,
-              disabled: domains?.createAction?.disabled || readOnly,
+              disabled: domains?.createAction?.disabled || !permissions.canCreateDomain,
+              ...(permissions.canCreateDomain
+                ? {}
+                : { tooltip: { content: tCommon('error.forbidden') } }),
             },
           ]}
         />

@@ -4,6 +4,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SsoDomainTabActionsColumn } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab-action-column';
 import { createMockDomain } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import {
+  ALL_IDP_PERMISSIONS,
+  createIdpPermissions,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { SsoDomainTabActionColumn } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
@@ -21,7 +25,7 @@ function createMockSsoDomainTabActionColumnProps(
   return {
     translatorKey: 'idp_management.edit_sso_provider.tabs.domains',
     customMessages: {},
-    readOnly: false,
+    permissions: ALL_IDP_PERMISSIONS,
     idpDomains: ['domain_123'],
     domain: createMockDomain({ id: 'domain_123', status: 'verified' }),
     handleVerify: vi.fn(),
@@ -93,8 +97,10 @@ describe('SsoDomainTabActionsColumn', () => {
       expect(switchElement).not.toBeChecked();
     });
 
-    it('should disable switch when readOnly is true', () => {
-      const props = createMockSsoDomainTabActionColumnProps({ readOnly: true });
+    it('should disable switch without the permission to toggle it', () => {
+      const props = createMockSsoDomainTabActionColumnProps({
+        permissions: createIdpPermissions(['read:my_org:identity_providers']),
+      });
       renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
 
       const switchElement = screen.getByRole('switch');
@@ -282,9 +288,11 @@ describe('SsoDomainTabActionsColumn', () => {
       expect(screen.queryByRole('switch')).not.toBeInTheDocument();
     });
 
-    it('should show tooltip even when switch is disabled (readOnly)', async () => {
+    it('should explain the missing permission when the switch is disabled', async () => {
       const user = userEvent.setup();
-      const props = createMockSsoDomainTabActionColumnProps({ readOnly: true });
+      const props = createMockSsoDomainTabActionColumnProps({
+        permissions: createIdpPermissions(['read:my_org:identity_providers']),
+      });
       renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
 
       const switchElement = screen.getByRole('switch');
@@ -294,7 +302,7 @@ describe('SsoDomainTabActionsColumn', () => {
 
       await waitFor(() => {
         const tooltip = screen.getByRole('tooltip', { hidden: true });
-        expect(tooltip).toHaveTextContent('table.actions.disable_domain_tooltip');
+        expect(tooltip).toHaveTextContent('error.forbidden');
       });
     });
   });
@@ -404,6 +412,37 @@ describe('SsoDomainTabActionsColumn', () => {
       renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
 
       expect(screen.getByRole('switch')).toBeInTheDocument();
+    });
+  });
+
+  describe('Granted permissions', () => {
+    it('should allow associating but not dissociating with only the create scope', () => {
+      const props = createMockSsoDomainTabActionColumnProps({
+        permissions: createIdpPermissions(['create:my_org:identity_providers_domains']),
+        idpDomains: [],
+      });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      // not yet associated, so turning it on needs the create scope
+      expect(screen.getByRole('switch')).toBeEnabled();
+    });
+
+    it('should disable the toggle for an associated domain without the delete scope', () => {
+      const props = createMockSsoDomainTabActionColumnProps({
+        permissions: createIdpPermissions(['create:my_org:identity_providers_domains']),
+      });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      expect(screen.getByRole('switch')).toBeDisabled();
+    });
+
+    it('should allow dissociating an associated domain with the delete scope', () => {
+      const props = createMockSsoDomainTabActionColumnProps({
+        permissions: createIdpPermissions(['delete:my_org:identity_providers_domains']),
+      });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      expect(screen.getByRole('switch')).toBeEnabled();
     });
   });
 });

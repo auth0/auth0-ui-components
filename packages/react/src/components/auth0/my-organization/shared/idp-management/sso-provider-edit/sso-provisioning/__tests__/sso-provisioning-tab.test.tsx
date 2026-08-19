@@ -13,6 +13,7 @@ import {
   mockOnDeleteScimToken,
   mockFetchProvisioning,
 } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.mocks';
+import { ALL_IDP_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
 const createMockSsoProviderEditReturn = (overrides = {}) => ({
@@ -40,7 +41,9 @@ vi.mock('@/hooks/my-organization/use-sso-provider-edit', () => ({
 
 describe('SsoProvisioningTab', () => {
   const renderComponent = (props = {}) => {
-    return renderWithProviders(<SsoProvisioningTab {...SsoProvisioningProps} {...props} />);
+    return renderWithProviders(
+      <SsoProvisioningTab permissions={ALL_IDP_PERMISSIONS} {...SsoProvisioningProps} {...props} />,
+    );
   };
 
   beforeEach(() => {

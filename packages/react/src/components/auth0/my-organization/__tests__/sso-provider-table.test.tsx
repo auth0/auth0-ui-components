@@ -17,6 +17,7 @@ import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/con
 import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import { createMockSsoProviderTableViewProps } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-provider-table/sso-provider-table-mocks';
+import { READ_ONLY_IDP_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { createTestQueryClient, renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { SsoProviderTableProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
@@ -336,8 +337,7 @@ describe('SsoProviderTable', () => {
   describe('deleteAction', () => {
     describe('deleteAction.disabled', () => {
       describe('when is true', () => {
-        it('should disable delete button in the dropdown when readOnly is true', async () => {
-          const user = userEvent.setup();
+        it('should render no row actions menu when readOnly is true', async () => {
           const mockDeleteAction = createMockDeleteAction();
           mockDeleteAction.disabled = true;
 
@@ -349,19 +349,10 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
-
-          const deleteMenuItem = screen.getByRole('menuitem', {
-            name: /table.actions.delete_button_text/i,
-          });
-          expect(deleteMenuItem).toHaveAttribute('aria-disabled', 'true');
+          const rowActionButton = screen
+            .getAllByRole('button')
+            .find((btn) => btn.querySelector('svg.lucide-more-horizontal'));
+          expect(rowActionButton).toBeUndefined();
         });
       });
 
@@ -512,8 +503,7 @@ describe('SsoProviderTable', () => {
   describe('deleteFromOrganizationAction', () => {
     describe('deleteFromOrganizationAction.disabled', () => {
       describe('when is true', () => {
-        it('should disable remove from organization button when readOnly is true', async () => {
-          const user = userEvent.setup();
+        it('should render no row actions menu when readOnly is true', async () => {
           const mockDeleteFromOrganizationAction = createMockDeleteFromOrganizationAction();
           mockDeleteFromOrganizationAction.disabled = true;
 
@@ -525,19 +515,10 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
-
-          const removeMenuItem = screen.getByRole('menuitem', {
-            name: /table.actions.remove_button_text/i,
-          });
-          expect(removeMenuItem).toHaveAttribute('aria-disabled', 'true');
+          const rowActionButton = screen
+            .getAllByRole('button')
+            .find((btn) => btn.querySelector('svg.lucide-more-horizontal'));
+          expect(rowActionButton).toBeUndefined();
         });
       });
 
@@ -955,10 +936,22 @@ describe('SsoProviderTableView', () => {
     expect(screen.getByText(/empty/i)).toBeInTheDocument();
   });
 
-  it('disables create button when readOnly is true', () => {
-    renderWithProviders(<SsoProviderTableView {...viewProps} readOnly={true} />);
+  it('disables create button without create:my_org:identity_providers', () => {
+    renderWithProviders(
+      <SsoProviderTableView {...viewProps} permissions={READ_ONLY_IDP_PERMISSIONS} />,
+    );
     const createButton = screen.getByRole('button', { name: /create/i });
     expect(createButton).toBeDisabled();
+  });
+
+  it('hides row action menus without any mutating provider permission', () => {
+    renderWithProviders(
+      <SsoProviderTableView {...viewProps} permissions={READ_ONLY_IDP_PERMISSIONS} />,
+    );
+    const rowActionButton = screen
+      .getAllByRole('button')
+      .find((btn) => btn.querySelector('svg.lucide-more-horizontal'));
+    expect(rowActionButton).toBeUndefined();
   });
 
   it('renders loading state when isViewLoading is true', () => {

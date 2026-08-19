@@ -2,6 +2,7 @@ import { vi } from 'vitest';
 
 import { mockProvider } from './sso-provisioning/sso-provisioning-tab.mocks';
 
+import { ALL_IDP_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import type {
   SsoProviderEditHandlerProps,
   SsoProviderEditLogicProps,
@@ -15,6 +16,7 @@ export function createMockSsoProviderEditLogic(
     styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     schema: undefined,
     readOnly: false,
+    permissions: ALL_IDP_PERMISSIONS,
     providerId: 'mock-provider-id',
     domains: undefined,
     hideHeader: false,

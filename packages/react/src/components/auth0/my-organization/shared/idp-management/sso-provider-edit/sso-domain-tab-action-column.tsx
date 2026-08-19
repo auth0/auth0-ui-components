@@ -4,6 +4,7 @@
  * @internal
  */
 
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
@@ -18,7 +19,7 @@ import type { SsoDomainTabActionColumn } from '@/types/my-organization/idp-manag
  * @param props - Component props.
  * @param props.translatorKey - Translation namespace key
  * @param props.customMessages - Custom translation messages to override defaults
- * @param props.readOnly - Whether the component is in read-only mode
+ * @param props.permissions - What the current user is allowed to do
  * @param props.idpDomains - Identity provider domains
  * @param props.domain - Domain object or domain name
  * @param props.handleVerify - Handler function for domain verification
@@ -30,7 +31,7 @@ import type { SsoDomainTabActionColumn } from '@/types/my-organization/idp-manag
 export function SsoDomainTabActionsColumn({
   translatorKey = 'idp_management.edit_sso_provider.tabs.domains',
   customMessages = {},
-  readOnly,
+  permissions,
   idpDomains,
   domain,
   handleVerify,
@@ -39,8 +40,13 @@ export function SsoDomainTabActionsColumn({
   onToggle,
 }: SsoDomainTabActionColumn) {
   const { t } = useTranslator(translatorKey, customMessages);
+  const { t: tCommon } = useTranslator('common');
 
   const providerHasDomain = idpDomains.includes(domain.id);
+  // Associating needs the create scope; dissociating needs the delete scope.
+  const canToggleDomain = providerHasDomain
+    ? permissions.canDissociateDomain
+    : permissions.canAssociateDomain;
 
   if (isUpdating && isUpdatingId === domain.id) {
     return (
@@ -58,20 +64,29 @@ export function SsoDomainTabActionsColumn({
               <Switch
                 checked={providerHasDomain}
                 onCheckedChange={(checked) => onToggle(domain, checked)}
-                disabled={readOnly || isUpdating}
+                disabled={!canToggleDomain || isUpdating}
               />
             </span>
           </TooltipTrigger>
           <TooltipContent>
-            {providerHasDomain
-              ? t('table.actions.disable_domain_tooltip')
-              : t('table.actions.enable_domain_tooltip')}
+            {!canToggleDomain
+              ? tCommon('error.forbidden')
+              : providerHasDomain
+                ? t('table.actions.disable_domain_tooltip')
+                : t('table.actions.enable_domain_tooltip')}
           </TooltipContent>
         </Tooltip>
       ) : (
-        <Button variant="outline" size="sm" onClick={() => handleVerify(domain)}>
-          {t('table.columns.verify')}
-        </Button>
+        <PermissionDeniedTooltip enabled={!permissions.canVerifyDomain}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleVerify(domain)}
+            disabled={!permissions.canVerifyDomain}
+          >
+            {t('table.columns.verify')}
+          </Button>
+        </PermissionDeniedTooltip>
       )}
     </div>
   );

@@ -1,5 +1,6 @@
 import { vi } from 'vitest';
 
+import { ALL_IDP_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import type {
   SsoProviderTableViewProps,
   UseSsoProviderTableServiceReturn,
@@ -38,7 +39,7 @@ export function createMockSsoProviderTableViewProps(
     providers: [],
     styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     customMessages: {},
-    readOnly: false,
+    permissions: ALL_IDP_PERMISSIONS,
     hideHeader: false,
     isLoading: false,
     shouldHideCreate: false,

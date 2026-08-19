@@ -72,6 +72,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     provisioning,
     domains,
     customMessages,
+    readOnly,
     skipProvisioningFetch: hideProvisioningTab && hideAttributeMappings,
   });
 
@@ -135,7 +136,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
   const {
     styling,
     schema,
-    readOnly,
+    permissions,
     providerId,
     domains,
     hideHeader,
@@ -262,7 +263,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
                   onClick: updateProvider,
                 },
               }}
-              readOnly={readOnly}
+              readOnly={!permissions.canUpdateProvider}
             />
           </TabsContent>
 
@@ -286,6 +287,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
                 onDeleteScimToken={deleteScimTokenAction}
                 customMessages={customMessages?.tabs?.provisioning?.content}
                 styling={styling}
+                permissions={permissions}
               />
             </TabsContent>
           )}
@@ -298,7 +300,7 @@ function SsoProviderEditView({ logic, handlers }: SsoProviderEditViewProps) {
               schema={schema?.domains}
               idpId={providerId}
               provider={provider}
-              readOnly={readOnly}
+              permissions={permissions}
             />
           </TabsContent>
         </Tabs>

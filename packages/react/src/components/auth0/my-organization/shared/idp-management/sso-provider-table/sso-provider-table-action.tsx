@@ -25,7 +25,7 @@ import type { SsoProviderTableActionsColumnProps } from '@/types/my-organization
  * @param props - Component props.
  * @param props.provider - SSO provider object
  * @param props.shouldAllowDeletion - Whether deletion should be allowed
- * @param props.readOnly - Whether the component is in read-only mode
+ * @param props.permissions - What the current user is allowed to do
  * @param props.isUpdating - Whether an update operation is in progress
  * @param props.isUpdatingId - ID of the item currently being updated
  * @param props.customMessages - Custom translation messages to override defaults
@@ -41,7 +41,7 @@ export function SsoProviderTableActionsColumn({
   shouldAllowDeletion,
   hideDeleteProvider = false,
   hideRemoveFromOrganization = false,
-  readOnly = false,
+  permissions,
   isUpdating = false,
   isUpdatingId,
   customMessages = {},
@@ -52,6 +52,11 @@ export function SsoProviderTableActionsColumn({
   onRemoveFromOrganization,
 }: SsoProviderTableActionsColumnProps) {
   const { t } = useTranslator('idp_management.sso_provider_table', customMessages);
+  const { t: tCommon } = useTranslator('common');
+  const canOpenDetail = permissions.canUpdateProvider || permissions.canConfigureProvider;
+  const detailLabel = permissions.canUpdateProvider
+    ? t('table.actions.edit_button_text')
+    : t('table.actions.configure_button_text');
 
   const handleToggleEnabled = React.useCallback(
     (checked: boolean) => {
@@ -80,50 +85,56 @@ export function SsoProviderTableActionsColumn({
             <Switch
               checked={provider.is_enabled ?? false}
               onCheckedChange={handleToggleEnabled}
-              disabled={readOnly || (isUpdating && isUpdatingId === provider.id)}
+              disabled={
+                !permissions.canUpdateProvider || (isUpdating && isUpdatingId === provider.id)
+              }
             />
           </span>
         </TooltipTrigger>
         <TooltipContent>
-          {provider.is_enabled
-            ? t('table.actions.enabled_tooltip')
-            : t('table.actions.disabled_tooltip')}
+          {!permissions.canUpdateProvider
+            ? tCommon('error.forbidden')
+            : provider.is_enabled
+              ? t('table.actions.enabled_tooltip')
+              : t('table.actions.disabled_tooltip')}
         </TooltipContent>
       </Tooltip>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger className="h-8 w-8 p-0 rounded-xl bg-primary border border-primary/20 shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50">
-          <MoreHorizontal className="h-4 w-4 text-primary-foreground" />
-        </DropdownMenuTrigger>
-        <DropdownMenuPortal>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={handleEdit} disabled={readOnly || !edit || edit.disabled}>
-              <Edit className="mr-2 h-4 w-4" />
-              {t('table.actions.edit_button_text')}
-            </DropdownMenuItem>
-            {shouldAllowDeletion && !hideDeleteProvider && (
-              <DropdownMenuItem
-                onClick={handleDelete}
-                className="text-destructive-foreground focus:text-destructive-foreground"
-                disabled={readOnly}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                {t('table.actions.delete_button_text')}
-              </DropdownMenuItem>
-            )}
-            {!hideRemoveFromOrganization && (
-              <DropdownMenuItem
-                onClick={handleRemoveFromOrganization}
-                className="text-destructive-foreground focus:text-destructive-foreground"
-                disabled={readOnly}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                {t('table.actions.remove_button_text')}
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenuPortal>
-      </DropdownMenu>
+      {permissions.canShowProviderMenu && (
+        <DropdownMenu>
+          <DropdownMenuTrigger className="h-8 w-8 p-0 rounded-xl bg-primary border border-primary/20 shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50">
+            <MoreHorizontal className="h-4 w-4 text-primary-foreground" />
+          </DropdownMenuTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuContent align="end">
+              {canOpenDetail && (
+                <DropdownMenuItem onClick={handleEdit} disabled={!edit || edit.disabled}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  {detailLabel}
+                </DropdownMenuItem>
+              )}
+              {shouldAllowDeletion && !hideDeleteProvider && permissions.canDeleteProvider && (
+                <DropdownMenuItem
+                  onClick={handleDelete}
+                  className="text-destructive-foreground focus:text-destructive-foreground"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {t('table.actions.delete_button_text')}
+                </DropdownMenuItem>
+              )}
+              {!hideRemoveFromOrganization && permissions.canDetachProvider && (
+                <DropdownMenuItem
+                  onClick={handleRemoveFromOrganization}
+                  className="text-destructive-foreground focus:text-destructive-foreground"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {t('table.actions.remove_button_text')}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenuPortal>
+        </DropdownMenu>
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SsoDomainTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab';
 import { useSsoDomainTab } from '@/hooks/my-organization/use-sso-domain-tab';
 import { createMockSsoDomainTabReturn } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-domain.mocks';
+import { ALL_IDP_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { SsoDomainsTabProps } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
@@ -33,7 +34,7 @@ const mockProps: SsoDomainsTabProps = {
   provider: null,
   customMessages: {},
   styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
-  readOnly: false,
+  permissions: ALL_IDP_PERMISSIONS,
 };
 
 describe('SsoDomainTab', () => {

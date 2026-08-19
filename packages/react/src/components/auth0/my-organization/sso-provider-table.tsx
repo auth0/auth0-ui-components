@@ -75,7 +75,6 @@ function SsoProviderTable(props: SsoProviderTableProps) {
         {...providerTable}
         styling={styling}
         customMessages={customMessages}
-        readOnly={readOnly}
         hideHeader={hideHeader}
         hideDeleteProvider={hideDeleteProvider}
         hideRemoveFromOrganization={hideRemoveFromOrganization}
@@ -95,7 +94,7 @@ function SsoProviderTable(props: SsoProviderTableProps) {
 function SsoProviderTableView({
   styling,
   customMessages,
-  readOnly,
+  permissions,
   hideHeader,
   hideDeleteProvider,
   hideRemoveFromOrganization,
@@ -129,6 +128,7 @@ function SsoProviderTableView({
 }: SsoProviderTableViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('idp_management.sso_provider_table', customMessages);
+  const { t: tCommon } = useTranslator('common');
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
@@ -169,7 +169,7 @@ function SsoProviderTableView({
             shouldAllowDeletion={shouldAllowDeletion}
             hideDeleteProvider={hideDeleteProvider}
             hideRemoveFromOrganization={hideRemoveFromOrganization}
-            readOnly={readOnly}
+            permissions={permissions}
             isUpdating={isUpdating}
             isUpdatingId={isUpdatingId}
             customMessages={customMessages}
@@ -184,7 +184,7 @@ function SsoProviderTableView({
     ],
     [
       t,
-      readOnly,
+      permissions,
       editAction,
       isUpdating,
       hideDeleteProvider,
@@ -210,7 +210,10 @@ function SsoProviderTableView({
                 onClick: () => handleCreate(),
                 icon: Plus,
                 hidden: shouldHideCreate || isViewLoading,
-                disabled: createAction?.disabled || readOnly,
+                disabled: createAction?.disabled || !permissions.canCreateProvider,
+                ...(permissions.canCreateProvider
+                  ? {}
+                  : { tooltip: { content: tCommon('error.forbidden') } }),
               },
             ]}
           />
@@ -237,6 +240,7 @@ function SsoProviderTableView({
         data={providers}
         emptyState={{ title: t('table.empty_message') }}
         className={currentStyles.classes?.['SsoProviderTable-table']}
+        onRowClick={handleEdit}
       />
 
       {selectedIdp && (
