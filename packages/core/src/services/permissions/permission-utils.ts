@@ -6,17 +6,6 @@
 import type { OauthScope } from './permission-types';
 
 /**
- * Whether the user holds `required`.
- * @param userPermissions - Granted permissions.
- * @param required - Permission to check.
- * @returns `true` if present.
- * @internal
- */
-export function hasPermission(userPermissions: readonly string[], required: OauthScope): boolean {
-  return userPermissions.includes(required);
-}
-
-/**
  * Whether the user holds at least one of `required`.
  * @param userPermissions - Granted permissions.
  * @param required - Candidate permissions.

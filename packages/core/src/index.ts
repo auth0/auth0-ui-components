@@ -135,7 +135,6 @@ export * from './services/my-organization/config/config-types';
 export * from './services/permissions/permission-utils';
 export * from './services/permissions/permission-types';
 export * from './services/permissions/permission-map';
-export * from './services/my-organization/member-management/member-management-permissions';
 
 // My Account services
 export * from './services/my-account/user-mfa-management/user-mfa-management-types';
