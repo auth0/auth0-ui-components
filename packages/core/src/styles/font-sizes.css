@@ -8,3 +8,49 @@
   --font-size-paragraph: 0.875rem; /* text-sm (For general smaller paragraphs/details) */
   --font-size-label: 0.875rem; /* text-sm (Specifically for labels like FieldLabel) */
 }
+
+/**
+ * Font-size utilities backed by the --font-size-* custom properties above.
+ * Written as @utility (not Tailwind's --text-* theme namespace) to avoid
+ * colliding with consumers' own --text-* overrides or Tailwind's defaults.
+ *
+ * packages/core/src/styles/globals.css @imports this file directly (used by
+ * the styles.css bundle). react's tailwind.css can't @import it the same
+ * way: without an `@import "tailwindcss"` in the same file, @tailwindcss/cli
+ * 4.1.17 silently strips any @utility/@source rules pulled in via @import
+ * (verified empirically on this version, not documented behavior — re-check
+ * on upgrade). Instead, packages/react/scripts/build-tailwind-css.mjs
+ * prepends this file's raw text into tailwind.css before running the CLI,
+ * so it compiles as if hand-pasted rather than imported.
+ */
+@utility text-page-header {
+  font-size: var(--font-size-page-header);
+}
+
+@utility text-page-description {
+  font-size: var(--font-size-page-description);
+}
+
+@utility text-heading {
+  font-size: var(--font-size-heading);
+}
+
+@utility text-title {
+  font-size: var(--font-size-title);
+}
+
+@utility text-subtitle {
+  font-size: var(--font-size-subtitle);
+}
+
+@utility text-body {
+  font-size: var(--font-size-body);
+}
+
+@utility text-paragraph {
+  font-size: var(--font-size-paragraph);
+}
+
+@utility text-label {
+  font-size: var(--font-size-label);
+}

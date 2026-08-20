@@ -1,12 +1,13 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { OrganizationInvitationCreateModal } from '@/components/auth0/my-organization/shared/member-management/shared/invitation-create/organization-invitation-create-modal';
+import { MAX_ROLES_PER_REQUEST } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import {
   createMockCreateModalProps,
   createMockRoles,
-  createMockProviders,
+  createMockConnections,
 } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
@@ -180,7 +181,7 @@ describe('OrganizationInvitationCreateModal', () => {
     });
 
     describe('server-side search', () => {
-      it('should call onRoleSearch when typing in the role selector', () => {
+      it('should call onRoleSearch when typing in the role selector', async () => {
         const onRoleSearch = vi.fn();
 
         renderWithProviders(
@@ -193,7 +194,10 @@ describe('OrganizationInvitationCreateModal', () => {
           target: { value: 'adm' },
         });
 
-        expect(onRoleSearch).toHaveBeenCalledWith('adm');
+        // The Combobox debounces keystroke-driven onInputChange by 300ms.
+        await waitFor(() => {
+          expect(onRoleSearch).toHaveBeenCalledWith('adm');
+        });
       });
 
       it('should keep the role selector enabled with no roles when searching', () => {
@@ -210,31 +214,138 @@ describe('OrganizationInvitationCreateModal', () => {
     });
   });
 
-  describe('availableProviders', () => {
-    describe('when providers are provided', () => {
-      it('should render provider dropdown', () => {
-        renderWithProviders(
-          <OrganizationInvitationCreateModal
-            {...createMockCreateModalProps({
-              availableProviders: createMockProviders(),
-            })}
-          />,
-        );
+  describe('availableConnections', () => {
+    const addEmailAndSubmit = async (onCreate: ReturnType<typeof vi.fn>) => {
+      const emailInput = screen.getByPlaceholderText('invitation.create.email_placeholder');
+      fireEvent.change(emailInput, { target: { value: 'new@example.com' } });
+      fireEvent.keyDown(emailInput, { key: 'Enter' });
 
-        expect(screen.getByText('invitation.create.provider_label')).toBeInTheDocument();
+      const submitButton = screen.getByRole('button', {
+        name: 'invitation.create.submit_button',
       });
+      await userEvent.click(submitButton);
+
+      expect(onCreate).toHaveBeenCalledTimes(1);
+      return onCreate.mock.calls[0]![0];
+    };
+
+    it('should render both identity providers and user stores in the picker', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableConnections: createMockConnections() })}
+        />,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+
+      expect(screen.getByText('Google')).toBeInTheDocument();
+      expect(screen.getByText('Acme Directory')).toBeInTheDocument();
     });
 
-    describe('when no providers are provided', () => {
-      it('should still render provider section', () => {
-        renderWithProviders(
-          <OrganizationInvitationCreateModal
-            {...createMockCreateModalProps({ availableProviders: [] })}
-          />,
-        );
+    it('should render user store and identity provider group headers', async () => {
+      const user = userEvent.setup();
 
-        expect(screen.getByText('invitation.create.provider_label')).toBeInTheDocument();
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableConnections: createMockConnections() })}
+        />,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+
+      expect(screen.getByText('invitation.create.connection_group_user_store')).toBeInTheDocument();
+      expect(
+        screen.getByText('invitation.create.connection_group_identity_provider'),
+      ).toBeInTheDocument();
+    });
+
+    it('should submit identity_provider_id when an identity provider is selected', async () => {
+      const user = userEvent.setup();
+      const onCreate = vi.fn();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            availableConnections: createMockConnections(),
+            onCreate,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getByText('Google'));
+
+      const payload = await addEmailAndSubmit(onCreate);
+      expect(payload.identity_provider_id).toBe('con_provider1');
+      expect(payload.user_store_id).toBeUndefined();
+    });
+
+    it('should submit user_store_id when a user store is selected', async () => {
+      const user = userEvent.setup();
+      const onCreate = vi.fn();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            availableConnections: createMockConnections(),
+            onCreate,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getByText('Acme Directory'));
+
+      const payload = await addEmailAndSubmit(onCreate);
+      expect(payload.user_store_id).toBe('us_store1');
+      expect(payload.identity_provider_id).toBeUndefined();
+    });
+
+    it('should still render the connection section when no connections are provided', () => {
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableConnections: [] })}
+        />,
+      );
+
+      expect(screen.getByText(/invitation\.create\.connection_label/)).toBeInTheDocument();
+    });
+
+    it('should keep submit disabled until a connection is selected', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableConnections: createMockConnections() })}
+        />,
+      );
+
+      const emailInput = screen.getByPlaceholderText('invitation.create.email_placeholder');
+      fireEvent.change(emailInput, { target: { value: 'new@example.com' } });
+      fireEvent.keyDown(emailInput, { key: 'Enter' });
+
+      const submitButton = screen.getByRole('button', {
+        name: 'invitation.create.submit_button',
       });
+      expect(submitButton).toBeDisabled();
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getByText('Google'));
+
+      expect(submitButton).toBeEnabled();
+    });
+
+    it('should render the connection label as required', () => {
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableConnections: createMockConnections() })}
+        />,
+      );
+
+      expect(screen.getByText(/invitation\.create\.connection_label/)).toBeInTheDocument();
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-required', 'true');
     });
   });
 
@@ -243,6 +354,188 @@ describe('OrganizationInvitationCreateModal', () => {
       renderWithProviders(<OrganizationInvitationCreateModal {...createMockCreateModalProps()} />);
 
       expect(screen.getByText('invitation.create.description')).toBeInTheDocument();
+    });
+  });
+
+  describe('role selection limit', () => {
+    // 12 roles so the limit of 10 is reachable with options left over to assert are disabled.
+    const manyRoles = Array.from({ length: 12 }, (_, i) => ({
+      id: `role_${i}`,
+      name: `Role ${i}`,
+      description: `Role ${i} description`,
+    }));
+
+    const openRolesDropdown = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(screen.getByPlaceholderText('invitation.create.roles_placeholder'));
+    };
+
+    const selectRoles = async (user: ReturnType<typeof userEvent.setup>, count: number) => {
+      for (let i = 0; i < count; i++) {
+        await user.click(await screen.findByRole('button', { name: `Role ${i}` }));
+      }
+    };
+
+    it('should show the limit message once the maximum is selected', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableRoles: manyRoles })}
+        />,
+      );
+
+      await openRolesDropdown(user);
+      await selectRoles(user, MAX_ROLES_PER_REQUEST);
+
+      expect(screen.getByText('invitation.create.roles_max_selection_message')).toBeInTheDocument();
+    });
+
+    it('should not show the limit message below the maximum', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableRoles: manyRoles })}
+        />,
+      );
+
+      await openRolesDropdown(user);
+      await selectRoles(user, MAX_ROLES_PER_REQUEST - 1);
+
+      expect(
+        screen.queryByText('invitation.create.roles_max_selection_message'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('should disable unselected options at the limit but keep selected ones interactive', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableRoles: manyRoles })}
+        />,
+      );
+
+      await openRolesDropdown(user);
+      await selectRoles(user, MAX_ROLES_PER_REQUEST);
+
+      expect(screen.getByRole('button', { name: 'Role 10' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Role 10' })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
+      expect(screen.getByRole('button', { name: 'Role 0' })).toBeEnabled();
+    });
+
+    it('should ignore clicks on a disabled option', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableRoles: manyRoles })}
+        />,
+      );
+
+      await openRolesDropdown(user);
+      await selectRoles(user, MAX_ROLES_PER_REQUEST);
+
+      await user.click(screen.getByRole('button', { name: 'Role 10' }));
+
+      expect(screen.getByText('invitation.create.roles_max_selection_message')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Role 10' })).toBeDisabled();
+    });
+
+    it('should re-enable options and clear the message after deselecting', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableRoles: manyRoles })}
+        />,
+      );
+
+      await openRolesDropdown(user);
+      await selectRoles(user, MAX_ROLES_PER_REQUEST);
+
+      await user.click(screen.getByRole('button', { name: 'Role 0' }));
+
+      expect(
+        screen.queryByText('invitation.create.roles_max_selection_message'),
+      ).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Role 10' })).toBeEnabled();
+    });
+
+    // See Task 8 Step 5 for why this needs MAX_ROLES_PER_REQUEST + 1 presses rather than one:
+    // a single ArrowDown lands on index 0 under both the correct and the broken
+    // implementation, so it would pass even with the navigation skip removed.
+    it('should skip disabled options during arrow navigation', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableRoles: manyRoles })}
+        />,
+      );
+
+      await openRolesDropdown(user);
+      const input = screen.getByPlaceholderText('invitation.create.roles_placeholder');
+      await selectRoles(user, MAX_ROLES_PER_REQUEST);
+
+      for (let i = 0; i < MAX_ROLES_PER_REQUEST + 1; i++) {
+        fireEvent.keyDown(input, { key: 'ArrowDown' });
+      }
+      fireEvent.keyDown(input, { key: 'Enter' });
+
+      // Enter landed on a selected option and toggled it off, so we dropped below the limit
+      // instead of adding an 11th.
+      expect(
+        screen.queryByText('invitation.create.roles_max_selection_message'),
+      ).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Role 11' })).toBeEnabled();
+    });
+  });
+
+  describe('isSearchingRoles', () => {
+    it('should show the loading row instead of options while searching', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            availableRoles: createMockRoles(),
+            onRoleSearch: vi.fn(),
+            isSearchingRoles: true,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByPlaceholderText('invitation.create.roles_placeholder'));
+
+      expect(
+        await screen.findByText('invitation.create.roles_searching_message'),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Admin' })).not.toBeInTheDocument();
+    });
+
+    it('should show options when not searching', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            availableRoles: createMockRoles(),
+            onRoleSearch: vi.fn(),
+            isSearchingRoles: false,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByPlaceholderText('invitation.create.roles_placeholder'));
+
+      expect(await screen.findByRole('button', { name: 'Admin' })).toBeInTheDocument();
+      expect(
+        screen.queryByText('invitation.create.roles_searching_message'),
+      ).not.toBeInTheDocument();
     });
   });
 });

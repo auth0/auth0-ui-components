@@ -11,7 +11,10 @@ import { OrganizationMemberAssignRolesModal } from '@/components/auth0/my-organi
 import { OrganizationMemberRemoveRoleModal } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-roles/organization-member-remove-role-modal';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MAX_ROLES_PER_REQUEST } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import { canMutateMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
   OrganizationMemberEditRolesTabProps,
   OrganizationMemberEditRolesTableProps,
@@ -23,6 +26,7 @@ import type {
  * @param props - Component props
  * @param props.selectedRoles - The currently selected roles
  * @param props.customMessages - Optional custom message overrides
+ * @param props.canModify - Whether the member can be modified
  * @param props.onAssignRolesClick - Handler for the assign roles button click
  * @param props.onRemoveSelectedRoles - Handler for removing all selected roles
  * @returns The rendered roles tab header element
@@ -31,10 +35,28 @@ function RolesTabHeader({
   selectedRoles,
   organizationName,
   customMessages,
+  canModify,
   onAssignRolesClick,
   onRemoveSelectedRoles,
 }: RolesTabHeaderProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
+
+  const assignButton = (
+    <Button size="sm" onClick={onAssignRolesClick} disabled={!canModify} className="shrink-0">
+      <Plus className="h-4 w-4 mr-1" />
+      {t('member.detail.roles.assign_button')}
+    </Button>
+  );
+
+  const removeButton = (
+    <Button variant="destructive" size="sm" onClick={onRemoveSelectedRoles} disabled={!canModify}>
+      {t(
+        selectedRoles.length === 1
+          ? 'member.detail.roles.remove_button'
+          : 'member.detail.roles.remove_button_plural',
+      )}
+    </Button>
+  );
 
   return (
     <div className="flex items-center justify-between gap-4">
@@ -55,19 +77,30 @@ function RolesTabHeader({
                 { count: selectedRoles.length },
               )}
             </span>
-            <Button variant="destructive" size="sm" onClick={onRemoveSelectedRoles}>
-              {t(
-                selectedRoles.length === 1
-                  ? 'member.detail.roles.remove_button'
-                  : 'member.detail.roles.remove_button_plural',
-              )}
-            </Button>
+            {!canModify ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>{removeButton}</span>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  {t('member.detail.actions.readonly_member_tooltip')}
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              removeButton
+            )}
           </>
+        ) : !canModify ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="shrink-0">{assignButton}</span>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              {t('member.detail.actions.readonly_member_tooltip')}
+            </TooltipContent>
+          </Tooltip>
         ) : (
-          <Button size="sm" onClick={onAssignRolesClick} className="shrink-0">
-            <Plus className="h-4 w-4 mr-1" />
-            {t('member.detail.roles.assign_button')}
-          </Button>
+          assignButton
         )}
       </div>
     </div>
@@ -82,6 +115,7 @@ function RolesTabHeader({
  * @param props.removingRoleIds - IDs of roles currently being removed
  * @param props.selectedRoles - The currently selected roles
  * @param props.customMessages - Optional custom message overrides
+ * @param props.canModify - Whether the member can be modified
  * @param props.onRemoveRoles - Handler called when role removal is requested
  * @param props.onSelectedRolesChange - Handler called when row selection changes
  * @returns The rendered roles table element
@@ -92,6 +126,7 @@ function OrganizationMemberEditRolesTable({
   removingRoleIds = [],
   selectedRoles,
   customMessages,
+  canModify,
   onRemoveRoles,
   onSelectedRolesChange,
 }: OrganizationMemberEditRolesTableProps): React.JSX.Element {
@@ -117,13 +152,13 @@ function OrganizationMemberEditRolesTable({
         type: 'actions',
         title: '',
         enableSorting: false,
-        render: (role) => (
-          <div className="flex justify-end">
+        render: (role) => {
+          const button = (
             <Button
               variant="destructive"
               size="icon"
               className="h-8 w-8"
-              disabled={removingRoleIds.includes(role.id)}
+              disabled={removingRoleIds.includes(role.id) || !canModify}
               onClick={() => onRemoveRoles([role])}
               aria-label={t('member.detail.roles.table.remove_button_label', {
                 roleName: role.name,
@@ -131,11 +166,28 @@ function OrganizationMemberEditRolesTable({
             >
               <Trash2 className="h-4 w-4" />
             </Button>
-          </div>
-        ),
+          );
+
+          return (
+            <div className="flex justify-end">
+              {!canModify ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>{button}</span>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    {t('member.detail.actions.readonly_member_tooltip')}
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                button
+              )}
+            </div>
+          );
+        },
       },
     ],
-    [t, removingRoleIds, onRemoveRoles],
+    [t, removingRoleIds, canModify, onRemoveRoles],
   );
 
   return (
@@ -144,14 +196,16 @@ function OrganizationMemberEditRolesTable({
       data={memberRoles}
       loading={isLoading}
       emptyState={{ title: t('member.detail.roles.table.empty_message') }}
-      selectable
+      selectable={canModify}
       selectionLabels={{
         selectAll: t('data_table.select_all'),
-        selectRow: (index) => `${t('data_table.select_row')} ${index + 1}`,
+        selectRow: (index) => t('data_table.select_row', { index: index + 1 }),
       }}
       selectedRows={selectedRoles}
       onSelectedRowsChange={onSelectedRolesChange}
       getRowId={(role) => role.id}
+      maxSelectionAllowed={MAX_ROLES_PER_REQUEST}
+      maxSelectionAllowedMessage={t('member.detail.roles.max_selection_message')}
     />
   );
 }
@@ -174,6 +228,7 @@ export function OrganizationMemberEditRolesTab({
   removingRoleIds,
   isAssigningRoles,
   isRemovingRoles = false,
+  isSearchingRoles,
   modalState,
   classes,
   style,
@@ -188,6 +243,7 @@ export function OrganizationMemberEditRolesTab({
   const isRemoveRolesModal = modalState.type === 'removeRoles';
   const isAssignRolesModal = modalState.type === 'assignRoles';
   const rolesToRemove = isRemoveRolesModal ? modalState.roles : [];
+  const canModify = canMutateMember(selectedMember?.access_level);
 
   const handleRemoveSelectedRoles = React.useCallback(() => {
     onRemoveRolesClick(selectedRoles);
@@ -200,6 +256,7 @@ export function OrganizationMemberEditRolesTab({
           selectedRoles={selectedRoles}
           organizationName={organizationName}
           customMessages={customMessages}
+          canModify={canModify}
           onAssignRolesClick={onAssignRolesClick}
           onRemoveSelectedRoles={handleRemoveSelectedRoles}
         />
@@ -210,6 +267,7 @@ export function OrganizationMemberEditRolesTab({
           removingRoleIds={removingRoleIds}
           selectedRoles={selectedRoles}
           customMessages={customMessages}
+          canModify={canModify}
           onRemoveRoles={onRemoveRolesClick}
           onSelectedRolesChange={onSelectedRolesChange}
         />
@@ -218,6 +276,8 @@ export function OrganizationMemberEditRolesTab({
       <OrganizationMemberAssignRolesModal
         isOpen={isAssignRolesModal}
         isLoading={isAssigningRoles}
+        isSearchingRoles={isSearchingRoles}
+        isLoadingRoles={isFetchingMemberRoles}
         availableRoles={searchedRoles}
         assignedRoles={memberRoles}
         selectedMember={selectedMember}

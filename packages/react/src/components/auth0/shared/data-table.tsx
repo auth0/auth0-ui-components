@@ -121,7 +121,26 @@ export interface DataTableSortConfig {
   direction: 'asc' | 'desc';
 }
 
-export interface DataTableProps<Item> {
+/**
+ * Row-selection cap, as a pair that must be supplied together.
+ *
+ * Omit both props for unlimited selection. Setting `maxSelectionAllowed` requires
+ * `maxSelectionAllowedMessage` so the disabled checkboxes always explain themselves
+ * in the caller's locale — `DataTable` is locale-agnostic and supplies no copy of its own.
+ */
+export type DataTableSelectionLimit =
+  | {
+      maxSelectionAllowed?: undefined;
+      maxSelectionAllowedMessage?: undefined;
+    }
+  | {
+      /** Max rows selectable at once; at the cap, only unchecked boxes disable. */
+      maxSelectionAllowed: number;
+      /** Tooltip for the disabled checkboxes at the cap. */
+      maxSelectionAllowedMessage: string;
+    };
+
+export type DataTableProps<Item> = {
   data: Item[];
   columns: Column<Item>[];
   loading?: boolean;
@@ -144,7 +163,7 @@ export interface DataTableProps<Item> {
   getRowId?: (row: Item) => string;
   /** Accessible labels for selection checkboxes. */
   selectionLabels?: DataTableSelectionLabels;
-}
+} & DataTableSelectionLimit;
 
 const ALIGNMENT_CLASSES = {
   text: {
@@ -374,6 +393,32 @@ function renderCopyColumn(value: unknown): React.ReactNode {
 }
 
 /**
+ * Wraps a checkbox in a selection-limit tooltip, only while disabled.
+ * @param disabled - Whether the checkbox is disabled by the selection limit.
+ * @param message - Copy shown in the tooltip.
+ * @param checkbox - The checkbox to wrap.
+ * @returns React node
+ */
+function withLimitTooltip(
+  disabled: boolean,
+  message: string,
+  checkbox: React.ReactNode,
+): React.ReactNode {
+  if (!disabled) return checkbox;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger>
+        <span tabIndex={0} className="inline-flex cursor-not-allowed">
+          {checkbox}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>{message}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+/**
  * Empty state component for data table.
  * @param props - Component props.
  * @param props.title - Empty state title.
@@ -406,6 +451,8 @@ function EmptyState({ title, subtitle, action }: EmptyStateProps) {
  * @param props.onRowClick - Row click handler.
  * @param props.className - Additional CSS classes.
  * @param props.headerAlign - Default header alignment.
+ * @param props.maxSelectionAllowed - Max rows selectable at once.
+ * @param props.maxSelectionAllowedMessage - Tooltip for the disabled checkboxes at the cap.
  * @returns JSX element
  */
 export function DataTable<Item>({
@@ -424,9 +471,14 @@ export function DataTable<Item>({
   onSelectedRowsChange,
   getRowId,
   selectionLabels,
+  maxSelectionAllowed,
+  maxSelectionAllowedMessage,
 }: DataTableProps<Item>) {
   const isServerSideSort = !!onSortChange;
   const isControlledSelection = selectedRows !== undefined;
+
+  const selectionLimit =
+    maxSelectionAllowed === undefined ? undefined : Math.max(0, maxSelectionAllowed);
 
   const [internalSorting, setInternalSorting] = useState<SortingState>([]);
   const [internalRowSelection, setInternalRowSelection] = useState<RowSelectionState>({});
@@ -455,6 +507,14 @@ export function DataTable<Item>({
     return internalRowSelection;
   }, [selectable, isControlledSelection, selectedRows, getRowId, data, internalRowSelection]);
 
+  const selectedCount = useMemo(
+    () => Object.values(rowSelection).filter(Boolean).length,
+    [rowSelection],
+  );
+  const isSelectionLimitReached = selectionLimit !== undefined && selectedCount >= selectionLimit;
+
+  const limitMessage = maxSelectionAllowedMessage ?? '';
+
   const handleSortingChange = React.useCallback(
     (updater: SortingState | ((old: SortingState) => SortingState)) => {
       const newSorting = typeof updater === 'function' ? updater(sorting) : updater;
@@ -477,14 +537,27 @@ export function DataTable<Item>({
     (updater: RowSelectionState | ((old: RowSelectionState) => RowSelectionState)) => {
       const newSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
       if (!isControlledSelection) setInternalRowSelection(newSelection);
-      if (onSelectedRowsChange) {
-        const items = getRowId
-          ? data.filter((item) => newSelection[getRowId(item)])
-          : data.filter((_, idx) => newSelection[String(idx)]);
-        onSelectedRowsChange(items);
+      if (!onSelectedRowsChange) return;
+      if (!getRowId) {
+        onSelectedRowsChange(data.filter((_, idx) => newSelection[String(idx)]));
+        return;
       }
+
+      const byId = new Map<string, Item>();
+      for (const row of selectedRows ?? []) byId.set(getRowId(row), row);
+      for (const item of data) byId.set(getRowId(item), item);
+
+      onSelectedRowsChange(
+        Object.entries(newSelection)
+          .filter(([, isSelected]) => isSelected)
+          .reduce<Item[]>((items, [id]) => {
+            const item = byId.get(id);
+            if (item) items.push(item);
+            return items;
+          }, []),
+      );
     },
-    [rowSelection, isControlledSelection, onSelectedRowsChange, getRowId, data],
+    [rowSelection, isControlledSelection, onSelectedRowsChange, getRowId, data, selectedRows],
   );
 
   const selectionColumn = useMemo<ColumnDef<Item>>(
@@ -502,32 +575,82 @@ export function DataTable<Item>({
           render: () => null,
         } as unknown as Column<Item>,
       },
-      header: ({ table: t }) => (
-        <Checkbox
-          checked={
-            t.getIsAllPageRowsSelected()
-              ? true
-              : t.getIsSomePageRowsSelected()
-                ? 'indeterminate'
-                : false
+      header: ({ table: t }) => {
+        const isSelectAllDisabled =
+          selectionLimit === 0 ||
+          (isSelectionLimitReached &&
+            !t.getIsAllPageRowsSelected() &&
+            (t.getIsSomePageRowsSelected() || selectedCount > 0));
+
+        const handleSelectAll = (checked: boolean) => {
+          if (!checked || selectionLimit === undefined) {
+            t.toggleAllPageRowsSelected(checked);
+            return;
           }
-          onCheckedChange={(checked) => t.toggleAllPageRowsSelected(!!checked)}
-          aria-label={selectionLabels?.selectAll ?? DEFAULT_SELECTION_LABELS.selectAll}
-          onClick={(e: React.MouseEvent) => e.stopPropagation()}
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(checked) => row.toggleSelected(!!checked)}
-          aria-label={
-            selectionLabels?.selectRow(row.index) ?? DEFAULT_SELECTION_LABELS.selectRow(row.index)
-          }
-          onClick={(e: React.MouseEvent) => e.stopPropagation()}
-        />
-      ),
+
+          const alreadySelectedIds = Object.entries(rowSelection)
+            .filter(([, isSelected]) => isSelected)
+            .map(([id]) => id);
+          const pageRowIds = t.getRowModel().rows.map((r) => r.id);
+          const ordered = new Set([...alreadySelectedIds, ...pageRowIds]);
+
+          handleRowSelectionChange(
+            Object.fromEntries(
+              [...ordered].slice(0, selectionLimit).map((id) => [id, true] as const),
+            ),
+          );
+        };
+
+        return withLimitTooltip(
+          isSelectAllDisabled,
+          limitMessage,
+          <Checkbox
+            className={cn(isSelectAllDisabled && 'pointer-events-none')}
+            checked={
+              t.getIsAllPageRowsSelected()
+                ? true
+                : t.getIsSomePageRowsSelected()
+                  ? 'indeterminate'
+                  : false
+            }
+            onCheckedChange={(checked) => handleSelectAll(!!checked)}
+            disabled={isSelectAllDisabled}
+            aria-label={selectionLabels?.selectAll ?? DEFAULT_SELECTION_LABELS.selectAll}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
+          />,
+        );
+      },
+      cell: ({ row }) => {
+        const isRowDisabled = isSelectionLimitReached && !row.getIsSelected();
+
+        return withLimitTooltip(
+          isRowDisabled,
+          limitMessage,
+          <Checkbox
+            className={cn(isRowDisabled && 'pointer-events-none')}
+            checked={row.getIsSelected()}
+            onCheckedChange={(checked) => {
+              if (checked && isRowDisabled) return;
+              row.toggleSelected(!!checked);
+            }}
+            disabled={isRowDisabled}
+            aria-label={
+              selectionLabels?.selectRow(row.index) ?? DEFAULT_SELECTION_LABELS.selectRow(row.index)
+            }
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
+          />,
+        );
+      },
     }),
-    [selectionLabels],
+    [
+      selectionLabels,
+      isSelectionLimitReached,
+      selectionLimit,
+      selectedCount,
+      rowSelection,
+      limitMessage,
+      handleRowSelectionChange,
+    ],
   );
 
   const tableColumns = useMemo<ColumnDef<Item>[]>(() => {

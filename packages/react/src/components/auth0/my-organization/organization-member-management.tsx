@@ -14,6 +14,7 @@ import * as React from 'react';
 import { GateKeeper } from '../shared/gate-keeper/gate-keeper';
 
 import { OrganizationInvitationDetailsModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal';
+import { OrganizationInvitationBulkRevokeModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-bulk-revoke-modal';
 import { OrganizationInvitationRevokeModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-revoke-modal';
 import { OrganizationInvitationTable } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-table/organization-invitation-table';
 import { MemberRemoveFromOrganizationModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-organization-modal';
@@ -50,22 +51,28 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     invitations,
     organizationDisplayName,
     isFetchingInvitations,
+    isLoadingInvitations,
     isFetchingMembers,
+    isSearchingRoles,
     isMembersStale,
     isInvitationsStale,
     isCreatingInvitation,
     isRevokingInvitation,
     isResendingInvitation,
+    selectedInvitations,
     invitationPagination,
     memberPagination,
     invitationSortConfig,
     memberSortConfig,
     isAssigningRoles,
     isRemovingFromOrganization,
-    availableRoles,
+    invitationRoles,
+    isFetchingInvitationRoles,
+    isLoadingMemberRoles,
+    memberRoles,
     searchedRoles,
     onRoleSearch,
-    availableProviders,
+    availableConnections,
     modalState,
     membersUpdatedAt,
     invitationsUpdatedAt,
@@ -74,9 +81,11 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     setActiveTab,
     openModal,
     closeModal,
+    onSelectedInvitationsChange,
     handleCreateSubmit,
     handleRevokeConfirm,
     handleRevokeResendConfirm,
+    handleBulkRevokeClick,
     handleCopyUrl,
     handleSortChange,
     handleNextPage,
@@ -99,6 +108,8 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     modalState.type === 'removeFromOrganization' || modalState.type === 'assignRole'
       ? modalState.member
       : null;
+
+  const invitationsToBulkRevoke = modalState.type === 'bulkRevoke' ? modalState.invitations : [];
 
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('member_management', customMessages);
@@ -221,17 +232,20 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           <TabsContent value="invitations">
             <OrganizationInvitationTable
               invitations={invitations}
-              loading={isFetchingInvitations}
+              loading={isLoadingInvitations}
               customMessages={customMessages?.invitation}
               pagination={invitationPagination}
               pageSizeOptions={pageSizeOptions}
               readOnly={readOnly}
+              selectedInvitations={selectedInvitations}
               sortConfig={invitationSortConfig}
               onSortChange={handleSortChange}
               onView={handleViewInvitation}
               onCopyUrl={handleCopyUrl}
               onRevokeAndResend={readOnly ? undefined : handleRevokeResendClick}
               onRevoke={readOnly ? undefined : handleRevokeClick}
+              onSelectedInvitationsChange={readOnly ? undefined : onSelectedInvitationsChange}
+              onBulkRevoke={readOnly ? undefined : handleBulkRevokeClick}
               onNextPage={handleNextPage}
               onPreviousPage={handlePreviousPage}
               onPageSizeChange={handlePageSizeChange}
@@ -244,9 +258,10 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
         <OrganizationInvitationCreateModal
           isOpen={modalState.type === 'create'}
           isLoading={isCreatingInvitation}
+          isSearchingRoles={isSearchingRoles}
           customMessages={customMessages?.invitation}
           availableRoles={searchedRoles}
-          availableProviders={availableProviders}
+          availableConnections={availableConnections}
           style={currentStyles.variables}
           onClose={closeModal}
           onCreate={handleCreateSubmit}
@@ -260,8 +275,9 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isRevoking={isRevokingInvitation}
           isResending={isResendingInvitation}
           customMessages={customMessages?.invitation}
-          availableRoles={availableRoles}
-          availableProviders={availableProviders}
+          roles={invitationRoles}
+          isLoadingRoles={isFetchingInvitationRoles}
+          availableConnections={availableConnections}
           readOnly={readOnly}
           style={currentStyles.variables}
           onClose={closeModal}
@@ -294,12 +310,25 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeResendModal']}
         />
 
+        <OrganizationInvitationBulkRevokeModal
+          invitations={invitationsToBulkRevoke}
+          isOpen={modalState.type === 'bulkRevoke'}
+          isLoading={isRevokingInvitation}
+          customMessages={customMessages?.invitation}
+          style={currentStyles.variables}
+          onClose={closeModal}
+          onConfirm={handleRevokeConfirm}
+          className={currentStyles.classes?.['OrganizationInvitationTab-bulkRevokeModal']}
+        />
+
         <OrganizationMemberAssignRolesModal
           selectedMember={selectedMember}
           isOpen={modalState.type === 'assignRole'}
           isLoading={isAssigningRoles}
+          isSearchingRoles={isSearchingRoles}
+          isLoadingRoles={isLoadingMemberRoles}
           availableRoles={searchedRoles}
-          assignedRoles={selectedMember?.roles || []}
+          assignedRoles={memberRoles ?? selectedMember?.roles ?? []}
           customMessages={customMessages?.member}
           onClose={closeModal}
           onAssign={handleAssignRolesSubmit}

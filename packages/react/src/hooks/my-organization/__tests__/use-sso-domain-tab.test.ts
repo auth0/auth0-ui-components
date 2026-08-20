@@ -15,8 +15,6 @@ import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import { setupAllCommonMocks, setupMockUseCoreClientNull } from '@/tests/utils/test-utilities';
 
-// ===== Mock packages =====
-
 const { mockedShowToast } = mockToast();
 const { initMockCoreClient } = mockCore();
 

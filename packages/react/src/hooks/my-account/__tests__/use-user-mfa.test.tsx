@@ -17,19 +17,11 @@ import {
   ENTER_QR,
   QR_PHASE_INSTALLATION,
   SHOW_RECOVERY_CODE,
-} from '@/lib/constants/my-account/mfa/mfa-constants';
+} from '@/lib/constants/my-account/user-mfa-management/user-mfa-constants';
 import { createQueryClientWrapper } from '@/tests/utils/test-provider';
+import { mockToast } from '@/tests/utils/test-setup';
 import { setupMockUseTranslator, setupMockUseErrorHandler } from '@/tests/utils/test-utilities';
-import type { UseUserMFAServiceReturn } from '@/types/my-account/mfa/mfa-types';
-
-vi.mock('sonner', () => ({
-  toast: {
-    success: vi.fn((_msg, opts) => {
-      if (opts?.onAutoClose) setTimeout(() => opts.onAutoClose(), 0);
-    }),
-    error: vi.fn(),
-  },
-}));
+import type { UseUserMFAServiceReturn } from '@/types/my-account/user-mfa-management/user-mfa-management-types';
 
 type MockService = {
   factorsQuery: Pick<
@@ -107,6 +99,7 @@ describe('useUserMFA', () => {
     vi.spyOn(useUserMFAServiceModule, 'useUserMFAService').mockReturnValue(
       mockService as unknown as UseUserMFAServiceReturn,
     );
+    mockToast();
   });
 
   it('returns correct initial state', () => {
@@ -132,12 +125,6 @@ describe('useUserMFA', () => {
     expect(result.current.isEnrolling).toBe(true);
     expect(result.current.isDeleting).toBe(true);
     expect(result.current.isConfirming).toBe(true);
-  });
-
-  it('calls onFetch once on first success', async () => {
-    const onFetch = vi.fn();
-    render({ onFetch });
-    await waitFor(() => expect(onFetch).toHaveBeenCalledTimes(1));
   });
 
   it('filters out factors with visible: false', () => {
@@ -254,33 +241,34 @@ describe('useUserMFA', () => {
   });
 
   it('skips delete when onBeforeAction returns false', async () => {
-    const { result } = render({ onBeforeAction: vi.fn().mockResolvedValue(false) });
+    const { result } = render({ deleteAction: { onBefore: vi.fn(() => false) } });
     await act(() => result.current.handleDeleteFactor('fid', FACTOR_TYPE_EMAIL));
     expect(mockService.deleteMutation.mutateAsync).not.toHaveBeenCalled();
   });
 
   it('proceeds with delete when onBeforeAction returns true', async () => {
-    const { result } = render({ onBeforeAction: vi.fn().mockResolvedValue(true) });
+    const { result } = render({ deleteAction: { onBefore: vi.fn(() => true) } });
     await act(() => result.current.handleDeleteFactor('fid', FACTOR_TYPE_EMAIL));
+    await act(() => result.current.handleConfirmDelete());
     expect(mockService.deleteMutation.mutateAsync).toHaveBeenCalledWith('fid');
   });
 
   it('closes dialog and calls onDelete on successful delete', async () => {
     const onDelete = vi.fn();
-    const { result } = render({ onDelete, onBeforeAction: vi.fn().mockResolvedValue(true) });
+    const { result } = render({ deleteAction: { onAfter: onDelete, onBefore: vi.fn(() => true) } });
     await act(() => result.current.handleDeleteFactor('fid', FACTOR_TYPE_EMAIL));
+    await act(() => result.current.handleConfirmDelete());
     await waitFor(() => expect(result.current.isDeleteDialogOpen).toBe(false));
     expect(result.current.factorToDelete).toBeNull();
     await waitFor(() => expect(onDelete).toHaveBeenCalledTimes(1));
   });
 
-  it('calls onErrorAction and closes dialog on delete failure', async () => {
+  it('closes dialog on delete failure', async () => {
     const deleteError = new Error('delete failed');
     vi.mocked(mockService.deleteMutation.mutateAsync).mockRejectedValue(deleteError);
-    const onErrorAction = vi.fn();
-    const { result } = render({ onErrorAction, onBeforeAction: vi.fn().mockResolvedValue(true) });
+    const { result } = render({ deleteAction: { onBefore: vi.fn(() => true) } });
     await act(() => result.current.handleDeleteFactor('fid', FACTOR_TYPE_EMAIL));
-    expect(onErrorAction).toHaveBeenCalledWith(deleteError, 'delete');
+    await act(() => result.current.handleConfirmDelete());
     expect(result.current.isDeleteDialogOpen).toBe(false);
   });
 

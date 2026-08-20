@@ -545,8 +545,8 @@ importers:
   packages/core:
     dependencies:
       '@auth0/myaccount-js':
-        specifier: 1.0.0-beta.0
-        version: 1.0.0-beta.0
+        specifier: 1.0.0-beta.2
+        version: 1.0.0-beta.2
       '@auth0/myorganization-js':
         specifier: file:../../auth0-myorganization-js-1.1.0.tgz
         version: file:auth0-myorganization-js-1.1.0.tgz
@@ -729,12 +729,12 @@ packages:
   '@auth0/auth0-spa-js@2.17.1':
     resolution: {integrity: sha512-ae51cZUZro2sGmztY/EwGuQaSoXouTKYByKymHMeybYA6QneV/iurL5CRDZZVg9uqeLUdmnpxtIgakYfaSNY5Q==}
 
-  '@auth0/myaccount-js@1.0.0-beta.0':
-    resolution: {integrity: sha512-slj0RtNfieNk1BC1ERrCQw65qMUVKU5qacbTc8BFH8R316CUpsOhZ2MIiV9l3VEkaqY1hmCZm03+ZI6ym+3PZg==}
-    engines: {node: '>=18.0.0'}
+  '@auth0/myaccount-js@1.0.0-beta.2':
+    resolution: {integrity: sha512-PzgrQCOAYl+hEIumWc+yARaZSM+AHPWg84CmeqQoXbqnfXCqYit1j8k0bn1iB4Rvwp7XIaZYPbaOVlNCF3fbDA==}
+    engines: {node: '>=20.0.0'}
 
   '@auth0/myorganization-js@file:auth0-myorganization-js-1.1.0.tgz':
-    resolution: {integrity: sha512-IVoJZK6STFL6QlL4AUzuhg2X/CUU2KjK13Kt0VzzWrIoW3iLtnk7y9J79DQVaFtyOx6mYB6LPomNOSPoJ9J7qw==, tarball: file:auth0-myorganization-js-1.1.0.tgz}
+    resolution: {integrity: sha512-kpqo/LKOh5RGM4XI6Okts8M/ci+Ic6lyu/EL4fkpjYDW9jbz1xVZQ7adJ6SKa7qk5ya1kg3AEFnzvjS6WujBbA==, tarball: file:auth0-myorganization-js-1.1.0.tgz}
     version: 1.1.0
     engines: {node: '>=20.0.0'}
 
@@ -8441,7 +8441,7 @@ snapshots:
       dpop: 2.1.1
       es-cookie: 1.3.2
 
-  '@auth0/myaccount-js@1.0.0-beta.0': {}
+  '@auth0/myaccount-js@1.0.0-beta.2': {}
 
   '@auth0/myorganization-js@file:auth0-myorganization-js-1.1.0.tgz':
     dependencies:

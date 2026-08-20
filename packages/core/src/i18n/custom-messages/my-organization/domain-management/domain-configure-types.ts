@@ -5,22 +5,22 @@
  */
 
 export interface DomainConfigureMessages {
-  modal?: {
-    title?: string;
-    description?: string;
-    table?: {
-      empty_message?: string;
-      columns?: {
-        name?: string;
-        provider?: string;
-      };
-      actions?: {
-        add_provider_button_text?: string;
-        view_provider_button_text?: string;
-      };
+  title?: string;
+  description?: string;
+  table?: {
+    empty_message?: string;
+    columns?: {
+      name?: string;
+      provider?: string;
     };
     actions?: {
-      close_button_text?: string;
+      add_provider_button_text?: string;
+      view_provider_button_text?: string;
+      enable_provider_tooltip?: string;
+      disable_provider_tooltip?: string;
     };
+  };
+  actions?: {
+    close_button_text?: string;
   };
 }

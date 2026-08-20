@@ -9,7 +9,7 @@ import {
   makePasskey,
   makeMockService,
   type MockService,
-} from '@/tests/utils/__mocks__/my-account/passkey/use-user-passkey.mocks';
+} from '@/tests/utils/__mocks__/my-account/user-passkey-management/use-user-passkey.mocks';
 import { createQueryClientWrapper } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
 import { setupMockUseTranslator, setupMockUseErrorHandler } from '@/tests/utils/test-utilities';
@@ -113,14 +113,12 @@ describe('useUserPasskey', () => {
       expect(mockedShowToast).toHaveBeenCalled();
     });
 
-    it('calls handleError and onErrorAction on failure', async () => {
+    it('calls handleError on failure', async () => {
       const enrollError = new Error('enroll failed');
       vi.mocked(mockService.enrollMutation.mutateAsync).mockRejectedValue(enrollError);
-      const onErrorAction = vi.fn();
-      const { result } = render({ onErrorAction });
+      const { result } = render();
       await act(() => result.current.handleAddPasskey());
       expect(mockHandleError).toHaveBeenCalledWith(enrollError);
-      expect(onErrorAction).toHaveBeenCalledWith(enrollError, 'add');
     });
   });
 
@@ -170,15 +168,13 @@ describe('useUserPasskey', () => {
       expect(result.current.currentPasskey).toBeNull();
     });
 
-    it('calls handleError and onErrorAction on failure and closes modal', async () => {
+    it('calls handleError on failure and closes modal', async () => {
       const revokeError = new Error('revoke failed');
       vi.mocked(mockService.revokeMutation.mutateAsync).mockRejectedValue(revokeError);
-      const onErrorAction = vi.fn();
-      const { result } = render({ onErrorAction });
+      const { result } = render();
       act(() => result.current.handleRevokePasskey(makePasskey()));
       await act(() => result.current.handleConfirmRevoke());
       expect(mockHandleError).toHaveBeenCalledWith(revokeError);
-      expect(onErrorAction).toHaveBeenCalledWith(revokeError, 'revoke');
       expect(result.current.isRevokeModalOpen).toBe(false);
     });
   });

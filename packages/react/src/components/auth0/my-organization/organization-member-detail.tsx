@@ -67,7 +67,7 @@ function Header({
           <AvatarFallback className="text-xl font-semibold">{initials}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col gap-1 min-w-0">
-          <h1 className="text-2xl font-bold text-primary truncate">{displayName}</h1>
+          <h1 className="text-heading font-bold text-primary truncate">{displayName}</h1>
           {userId && (
             <span className="text-sm flex items-center gap-2">
               {t('member.detail.user_id_label')}
@@ -199,6 +199,7 @@ export function OrganizationMemberDetailView(
               isRemovingRoles={props.isRemovingRoles}
               modalState={modalState}
               isAssigningRoles={props.isAssigningRoles}
+              isSearchingRoles={props.isSearchingRoles}
               classes={currentStyles.classes}
               style={currentStyles.variables}
               onSelectedRolesChange={props.setSelectedRoles}
@@ -240,6 +241,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     onBack,
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
+    initialTab,
     removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,
@@ -249,6 +251,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     userId,
     onBack,
     customMessages,
+    initialTab,
     removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,

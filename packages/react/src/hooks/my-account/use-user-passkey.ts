@@ -13,21 +13,20 @@ import type {
   Passkey,
   UseUserPasskeyOptions,
   UseUserPasskeyReturn,
-} from '@/types/my-account/passkey/passkey-types';
+} from '@/types/my-account/user-passkey-management/user-passkey-management-types';
 
 type ActiveModal = { mode: 'revoke'; passkey: Passkey } | null;
 
 /**
  * Hook for passkey management UI state and handlers.
  * @param options - UseUserPasskeyOptions
- * @returns State and handlers for UserPasskeyMgmt.
+ * @returns State and handlers for UserPasskeyManagement.
  */
 export function useUserPasskey({
   customMessages,
   addAction,
   revokeAction,
   onFetch,
-  onErrorAction,
 }: UseUserPasskeyOptions): UseUserPasskeyReturn {
   const { t } = useTranslator('passkey', customMessages);
   const handleError = useErrorHandler();
@@ -67,9 +66,8 @@ export function useUserPasskey({
       showToast({ type: 'success', message: t('success.add') });
     } catch (err) {
       handleError(err);
-      onErrorAction?.(err as Error, 'add');
     }
-  }, [disableAdd, addAction, enrollMutation, onErrorAction, t, handleError]);
+  }, [disableAdd, addAction, enrollMutation, t, handleError]);
 
   const handleRevokePasskey = useCallback(
     (passkey: Passkey) => {
@@ -88,11 +86,10 @@ export function useUserPasskey({
       showToast({ type: 'success', message: t('success.revoke') });
     } catch (err) {
       handleError(err);
-      onErrorAction?.(err as Error, 'revoke');
     } finally {
       setActiveModal(null);
     }
-  }, [currentPasskey, revokeAction, revokeMutation, onErrorAction, t, handleError]);
+  }, [currentPasskey, revokeAction, revokeMutation, t, handleError]);
 
   return {
     passkeys: passkeysQuery.data ?? [],

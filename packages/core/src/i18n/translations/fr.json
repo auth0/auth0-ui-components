@@ -26,7 +26,7 @@
     },
     "data_table": {
       "select_all": "Sélectionner toutes les lignes",
-      "select_row": "Sélectionner la ligne"
+      "select_row": "Sélectionner la ligne ${index}"
     },
     "error": {
       "generic": "Un problème est survenu lors du traitement de votre demande. Veuillez réessayer ou contacter le support si le problème persiste.",
@@ -908,54 +908,36 @@
       "provisioning_attributes_sync_success": "Les mappages de provisionnement ont été mis à jour."
     }
   },
-  "mfa": {
-    "title": "Méthodes d'authentification à facteurs multiples",
-    "description": "Protection supplémentaire pour votre compte et votre identité",
+  "user_mfa_management": {
+    "header": {
+      "title": "Méthodes de vérification supplémentaires",
+      "description": "Protection supplémentaire pour votre compte et votre identité"
+    },
     "no_active_mfa": "Aucun facteur MFA actif inscrit.",
-    "component_error_title": "Erreur lors du chargement du composant MFA",
-    "component_error_description": "Nous rencontrons des difficultés pour charger vos méthodes d'authentification à facteurs multiples.\nVeuillez actualiser la page et réessayer",
-    "loading": "Chargement...",
-    "delete": "Supprimer",
-    "enroll": "Inscrire",
-    "submit": "Soumettre",
-    "update": "Mettre à jour",
-    "remove": "Retirer",
-    "enrolling": "Inscription...",
-    "enrolled": "Inscrit",
-    "enabled": "ACTIVÉ",
-    "enrollment": "Inscription",
-    "confirmation": "Confirmation",
-    "remove_factor": "Inscription supprimée avec succès.",
-    "enroll_factor": "Inscrit avec succès.",
-    "enroll_totp_mfa": "Inscrire OTP MFA",
-    "delete_factor": "Supprimer l'authentificateur ${factorName}",
-    "delete_mfa_title": "Retirer l'authentificateur existant",
-    "delete_mfa_phone_consent": "Êtes-vous sûr de vouloir retirer ce numéro de téléphone pour SMS ?",
-    "delete_mfa_email_consent": "Êtes-vous sûr de vouloir retirer cet e-mail ?",
-    "delete_mfa_totp_consent": "Êtes-vous sûr de vouloir retirer cet authentificateur ?",
-    "delete_mfa_push-notification_consent": "Êtes-vous sûr de vouloir retirer cette notification push ?",
-    "delete_mfa_recovery-code_consent": "Êtes-vous sûr de vouloir retirer ce code de récupération ?",
-    "cancel": "Annuler",
-    "close": "Fermer",
-    "next": "Suivant",
-    "back": "Retour",
-    "yes-remove": "Oui, retirer",
-    "ok": "Ok",
-    "app-store": "App Store",
-    "google-play": "Google Play",
-    "confirm": "Confirmer",
-    "continue": "Continuer",
-    "deleting": "Suppression...",
+    "loading_text": "Chargement...",
+    "enrolling_text": "Inscription...",
+    "remove_factor_dialog": {
+      "title": "Retirer l'authentificateur existant",
+      "consent": {
+        "phone": "Êtes-vous sûr de vouloir retirer ce numéro de téléphone pour SMS ?",
+        "email": "Êtes-vous sûr de vouloir retirer cet e-mail ?",
+        "totp": "Êtes-vous sûr de vouloir retirer cet authentificateur ?",
+        "push-notification": "Êtes-vous sûr de vouloir retirer cette notification push ?",
+        "recovery-code": "Êtes-vous sûr de vouloir retirer ce code de récupération ?"
+      }
+    },
+    "actions": {
+      "remove_button_label": "Retirer",
+      "cancel_button_label": "Annuler",
+      "confirm_button_label": "Confirmer",
+      "continue_button_label": "Continuer",
+      "submit_button_label": "Soumettre",
+      "back_button_label": "Retour",
+      "deleting_button_text": "Suppression...",
+      "verify_button_label": "Vérifier",
+      "menu_aria_label": "Actions"
+    },
     "errors": {
-      "factors_loading_error": "Erreur lors du chargement des facteurs MFA !",
-      "unknown_error": "Erreur inconnue survenue",
-      "delete_factor": "Échec de la suppression de l'authentificateur",
-      "failed": "échec : ${message}",
-      "phone_number_required": "Le numéro de téléphone est requis pour l'inscription SMS.",
-      "email_required": "L'e-mail est requis pour l'inscription par e-mail.",
-      "invalid_email": "Adresse e-mail invalide",
-      "invalid_phone_number": "Numéro de téléphone invalide",
-      "unsupported_mfa_type": "Type MFA non pris en charge : ${factorName}",
       "push-notification": {
         "too_many_entities": "Vous avez atteint la limite d'entités du type notification push pour cet utilisateur.",
         "unsupported_challenge_type": "Auth0 Verifier est désactivé pour votre tenant. Vous pouvez l'activer depuis le tableau de bord en activant \"Notifications push\" dans la section Guardian MFA.",
@@ -966,86 +948,137 @@
         "invalid_request": "Paramètre requis manquant",
         "too_many_entities": "Vous avez atteint la limite d'entités du type totp pour cet utilisateur.",
         "unsupported_challenge_type": "OTP Verifier est désactivé pour votre tenant. Vous pouvez l'activer depuis le tableau de bord en activant \"Notifications push\" dans la section Guardian MFA (les notifications push incluent OTP).",
-        "invalid_grant": "Code OTP invalide"
+        "invalid_grant": "Code OTP invalide",
+        "invalid_code": "Code invalide"
       },
       "phone": {
         "unsupported_challenge_type": "SMS Verifier est désactivé pour votre tenant. Vous pouvez l'activer depuis le tableau de bord en activant \"SMS\" dans la section Guardian MFA.",
         "bad_gateway": "Le numéro de téléphone est invalide.",
-        "too_many_entities": "Vous avez atteint la limite d'entités du type sms pour cet utilisateur."
+        "too_many_entities": "Vous avez atteint la limite d'entités du type sms pour cet utilisateur.",
+        "invalid_phone_number": "Numéro de téléphone invalide",
+        "invalid_code": "Code invalide"
       },
       "email": {
         "expired_token": "Le code de vérification est expiré",
         "invalid_grant": "Code invalide",
         "access_denied": "Impossible de trouver l'authentificateur demandé",
-        "too_many_entities": "Vous avez atteint la limite d'entités du type e-mail pour cet utilisateur."
+        "too_many_entities": "Vous avez atteint la limite d'entités du type e-mail pour cet utilisateur.",
+        "invalid_code": "Code invalide"
       }
     },
-    "phone": {
-      "title": "Message téléphonique",
-      "description": "Aucun numéro de téléphone n'a été ajouté.",
-      "button-text": "Ajouter un téléphone pour SMS"
-    },
-    "push-notification": {
-      "title": "Notification push via Auth0 Guardian",
-      "description": "Aucune authentification push n'a été ajoutée.",
-      "button-text": "Ajouter une authentification push"
-    },
-    "totp": {
-      "title": "Mot de passe à usage unique",
-      "description": "Aucun authentificateur n'a été ajouté.",
-      "button-text": "Ajouter une application d'authentification"
-    },
-    "email": {
-      "title": "E-mail",
-      "description": "Aucun e-mail n'a été ajouté.",
-      "button-text": "Ajouter un e-mail"
-    },
-    "duo": {
-      "title": "Duo Security",
-      "description": "Utilisez votre compte DUO pour l'authentification à facteurs multiples."
-    },
-    "webauthn-roaming": {
-      "title": "WebAuthn avec clés de sécurité FIDO",
-      "description": "Utilisez des clés de sécurité compatibles WebAuthn (par exemple, FIDO2) comme second facteur.",
-      "button-text": "Ajouter WebAuthn avec clés de sécurité FIDO"
-    },
-    "webauthn-platform": {
-      "title": "WebAuthn avec biométrie de l'appareil FIDO",
-      "description": "Utilisez la biométrie de l'appareil compatible WebAuthn comme second facteur.",
-      "button-text": "Ajouter WebAuthn avec biométrie de l'appareil FIDO"
-    },
-    "recovery-code": {
-      "title": "Code de récupération",
-      "description": "Utilisez un code de récupération unique pour retrouver l'accès à votre compte.",
-      "button-text": "Ajouter un code de récupération"
-    },
-    "enrollment_form": {
-      "email_address": "Adresse e-mail",
-      "phone_number": "Numéro de téléphone",
-      "send_code": "Envoyer le code",
-      "sending": "Envoi...",
-      "enroll_title": "Vérifiez que c'est vous",
-      "enroll_email_placeholder": "Entrez l'adresse e-mail",
-      "enroll_email_description": "Entrez votre e-mail pour recevoir un code de vérification",
-      "enroll_sms_placeholder": "Entrez le numéro de téléphone",
-      "enroll_sms_description": "Entrez votre numéro de téléphone pour recevoir un code de vérification",
-      "show_auth0_guardian_title": "Scannez ce code QR avec votre application Auth0 Guardian pour enregistrer cette méthode d'authentification ou copiez l'URL.",
-      "recovery_code_description": "Copiez ce code de récupération et gardez-le en sécurité. Vous en aurez besoin si vous devez vous connecter sans votre appareil.",
-      "show_otp": {
-        "title": "Scannez ce code QR avec votre application d'authentification pour enregistrer cette méthode d'authentification ou copiez le code.",
-        "save_recovery": "Sauvegardez ces codes de récupération !",
-        "enter_code": "Entrez le code de votre application d'authentification",
-        "one_time_passcode": "Code à usage unique",
-        "verify_code": "Vérifier le code",
-        "copy_as_code": "Copier comme code",
-        "verifying": "Vérification...",
-        "enter_verify_code": "Entrez le code à 6 chiffres que nous avons envoyé à ${verifier}",
-        "enter_opt_code": "Entrez le code de votre authentificateur",
-        "install_guardian_description": "Pour continuer, installez l'application Auth0 Guardian via l'app store depuis votre appareil mobile"
+    "factors": {
+      "meta": {
+        "enabled": "ACTIVÉ",
+        "created_at": "Créé le ${date}",
+        "last_used": "Dernière utilisation ${date}"
+      },
+      "phone": {
+        "title": "SMS",
+        "description": "Aucun numéro de téléphone n'a été ajouté pour les SMS.",
+        "button_text": "Ajouter un téléphone pour SMS"
+      },
+      "push-notification": {
+        "title": "Notification push via Auth0 Guardian",
+        "description": "Aucune authentification push n'a été ajoutée.",
+        "button_text": "Ajouter une authentification push"
+      },
+      "totp": {
+        "title": "Authenticator",
+        "name": "TOTP (Code à usage unique)",
+        "description": "Aucun authentificateur n'a été ajouté.",
+        "button_text": "Ajouter une application d'authentification"
+      },
+      "email": {
+        "title": "E-mail",
+        "description": "Aucun e-mail n'a été ajouté.",
+        "button_text": "Ajouter un e-mail"
+      },
+      "duo": {
+        "title": "Duo Security",
+        "description": "Utilisez votre compte DUO pour l'authentification à facteurs multiples."
+      },
+      "webauthn-roaming": {
+        "title": "WebAuthn avec clés de sécurité FIDO",
+        "description": "Utilisez des clés de sécurité compatibles WebAuthn (par exemple, FIDO2) comme second facteur.",
+        "button_text": "Ajouter WebAuthn avec clés de sécurité FIDO"
+      },
+      "webauthn-platform": {
+        "title": "WebAuthn avec biométrie de l'appareil FIDO",
+        "description": "Utilisez la biométrie de l'appareil compatible WebAuthn comme second facteur.",
+        "button_text": "Ajouter WebAuthn avec biométrie de l'appareil FIDO"
+      },
+      "recovery-code": {
+        "title": "Code de récupération",
+        "name": "Code de récupération ${index}",
+        "description": "Utilisez un code de récupération unique pour retrouver l'accès à votre compte.",
+        "button_text": "Ajouter un code de récupération"
       }
+    },
+    "enrollment": {
+      "phone": {
+        "title": "Entrez votre numéro de téléphone pour l'OTP par SMS",
+        "label": "Votre numéro de téléphone",
+        "description": "Nous enverrons un code de vérification à ce numéro.",
+        "placeholder": "Entrez le numéro de téléphone",
+        "invalid": "Numéro de téléphone invalide"
+      },
+      "email": {
+        "title": "Entrez votre e-mail pour l'OTP par e-mail",
+        "label": "Votre adresse e-mail",
+        "description": "Entrez votre e-mail pour recevoir un code de vérification",
+        "placeholder": "Entrez l'adresse e-mail",
+        "invalid": "Adresse e-mail invalide"
+      },
+      "totp": {
+        "scan_title": "Scannez le code QR avec votre application d'authentification",
+        "scan_description": "Terminez la configuration en scannant ce code avec votre Authenticator. Si vous ne pouvez pas scanner le code, entrez-le manuellement ci-dessous.",
+        "qr_alt": "Code QR d'enregistrement"
+      },
+      "push": {
+        "install_title": "Configurer l'authentificateur",
+        "install_description": "Pour continuer, installez l'application Auth0 Guardian via l'app store depuis votre appareil mobile",
+        "app_store": "App Store",
+        "google_play": "Google Play",
+        "scan_title": "Scannez le code QR avec votre application Guardian",
+        "scan_description": "Scannez ce code QR avec votre application Auth0 Guardian pour enregistrer cette méthode d'authentification ou copiez l'URL.",
+        "qr_alt": "Code QR d'enregistrement",
+        "download_hint": "Vous pouvez télécharger l'application Auth0 Guardian depuis le",
+        "download_hint_or": "ou",
+        "download_hint_apple": "Apple App Store",
+        "download_hint_google": "Google Play Store"
+      },
+      "recovery_code": {
+        "title": "Générer des codes de récupération",
+        "description": "Copiez ce code de récupération et gardez-le en sécurité. Vous en aurez besoin si vous devez vous connecter sans votre appareil.",
+        "confirmed": "J'ai enregistré ces codes en toute sécurité"
+      },
+      "verify": {
+        "verifying_text": "Vérification...",
+        "resend_prompt": "Vous n'avez pas reçu le code ?",
+        "resend": "Renvoyer",
+        "totp": {
+          "description": "Veuillez entrer le code à usage unique affiché dans votre application d'authentification.",
+          "title": "Vérifiez votre authentificateur"
+        },
+        "phone": {
+          "description": "Veuillez entrer le code à usage unique que nous venons d'envoyer à ${name}.",
+          "title": "Vérifiez votre numéro de téléphone"
+        },
+        "email": {
+          "description": "Veuillez entrer le code à usage unique que nous venons d'envoyer à ${name}.",
+          "title": "Vérifiez votre e-mail"
+        }
+      }
+    },
+    "notifications": {
+      "factor_enroll_success": "Le facteur a été inscrit avec succès.",
+      "factor_remove_success": "Le facteur a été retiré avec succès.",
+      "fetch_factors_error": "Erreur lors du chargement des facteurs MFA !",
+      "factor_delete_error": "Échec de la suppression de l'authentificateur"
     }
   },
   "member_management": {
+    "count_capped": "${count}+",
     "member": {
       "table": {
         "columns": {
@@ -1073,7 +1106,9 @@
         "month": "mois",
         "months": "mois",
         "year": "an",
-        "years": "ans"
+        "years": "ans",
+        "more_roles": "de plus",
+        "view_all_roles": "Voir tous les ${count} rôles"
       },
       "actions": {
         "menu_label": "Actions",
@@ -1085,8 +1120,6 @@
         "fetch_failed": "Échec du chargement des membres. Veuillez réessayer.",
         "remove_failed": "Échec de la suppression du membre. Veuillez réessayer.",
         "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer.",
-        "too_many_roles_per_assignment": "Vous ne pouvez attribuer qu'un maximum de 10 rôles à la fois.",
-        "too_many_roles_per_removal": "Vous ne pouvez supprimer qu'un maximum de 10 rôles à la fois.",
         "member_role_limit_exceeded": "Vous avez atteint le maximum de 50 rôles pour ce membre."
       },
       "detail": {
@@ -1101,11 +1134,11 @@
           "name": "Nom",
           "email": "E-mail",
           "phone_number": "Numéro de téléphone",
-          "provider": "Fournisseur",
           "created_at": "Créé le",
           "last_login": "Dernière connexion"
         },
         "actions": {
+          "readonly_member_tooltip": "Cette action n'est pas disponible pour ce membre.",
           "remove_from_organization": {
             "title": "Retirer un membre de l'organisation",
             "description": "Une fois confirmée, cette opération ne peut pas être annulée.",
@@ -1129,6 +1162,7 @@
           "remove_button_plural": "Supprimer les rôles",
           "roles_selected": "${count} rôle sélectionné",
           "roles_selected_plural": "${count} rôles sélectionnés",
+          "max_selection_message": "Seuls 10 rôles peuvent être supprimés à la fois",
           "table": {
             "name": "Nom",
             "description": "Description",
@@ -1142,13 +1176,15 @@
             "submit_button": "Attribuer le(s) rôle(s)",
             "cancel_button": "Annuler",
             "no_roles_available": "Tous les rôles disponibles sont déjà attribués.",
+            "max_selection_message": "Vous ne pouvez sélectionner que 10 rôles à la fois.",
+            "searching_message": "Recherche en cours...",
             "success": "Le rôle a été attribué.",
             "success_plural": "Les rôles ont été attribués."
           },
           "remove_confirm": {
             "title": "Retirer le rôle du membre ?",
             "title_plural": "Retirer les rôles du membre ?",
-            "description": "Cela retirera le rôle <bold>${roleName}</bold> de <bold>\"${memberName}\"</bold>.",
+            "description": "Cela retirera le rôle <roleBold>${roleName}</roleBold> de <memberBold>\"${memberName}\"</memberBold>.",
             "confirm_button": "Retirer",
             "cancel_button": "Annuler",
             "success": "Le rôle \"${roleName}\" a été retiré du membre.",

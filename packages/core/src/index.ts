@@ -24,8 +24,11 @@ export type {
 } from './i18n/i18n-types';
 
 // i18n custom messages - my-account
-export * from './i18n/custom-messages/my-account/mfa/mfa-types';
-export * from './i18n/custom-messages/my-account/passkey/passkey-types';
+export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-types';
+export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-delete-types';
+export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-enrollment-types';
+export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-factors-list-types';
+export * from './i18n/custom-messages/my-account/user-passkey-management/user-passkey-management-types';
 
 // i18n custom messages - my-organization idp-management
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/provisioning-token-types';
@@ -133,17 +136,16 @@ export * from './services/permissions/permission-utils';
 export * from './services/permissions/permission-types';
 export * from './services/permissions/permission-map';
 export * from './services/permissions/permission-api-types';
-export * from './services/my-organization/member-management/member-management-permissions';
 
 // My Account services
-export * from './services/my-account/mfa/mfa-types';
-export * from './services/my-account/mfa/mfa-constants';
-export * from './services/my-account/mfa/mfa-utils';
-export * from './services/my-account/mfa/mfa-mappers';
+export * from './services/my-account/user-mfa-management/user-mfa-management-types';
+export * from './services/my-account/user-mfa-management/user-mfa-management-constants';
+export * from './services/my-account/user-mfa-management/user-mfa-management-utils';
+export * from './services/my-account/user-mfa-management/user-mfa-management-mappers';
 
-export * from './services/my-account/passkey/passkey-constants';
-export * from './services/my-account/passkey/passkey-types';
-export * from './services/my-account/passkey/passkey-utils';
+export * from './services/my-account/user-passkey-management/user-passkey-management-constants';
+export * from './services/my-account/user-passkey-management/user-passkey-management-types';
+export * from './services/my-account/user-passkey-management/user-passkey-management-utils';
 
 // MFA Step-Up services
 export {
