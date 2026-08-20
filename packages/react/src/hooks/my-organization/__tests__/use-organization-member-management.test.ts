@@ -48,6 +48,7 @@ const makeMockService = (overrides?: Record<string, unknown>) =>
     invitationsQuery: { ...idleQuery, data: { invitations: [], next: null }, dataUpdatedAt: 0 },
     membersQuery: { ...idleQuery, data: { members: [], next: null }, dataUpdatedAt: 0 },
     organizationQuery: { ...idleQuery, data: { display_name: 'Test Org' } },
+    memberRolesQuery: { ...idleQuery },
     createInvitationMutation: idleMutation,
     revokeInvitationMutation: idleMutation,
     resendInvitationMutation: idleMutation,
