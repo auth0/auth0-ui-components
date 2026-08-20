@@ -13,6 +13,7 @@ import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MAX_ROLES_PER_REQUEST } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { canMutateMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
   OrganizationMemberEditRolesTabProps,
@@ -203,6 +204,8 @@ function OrganizationMemberEditRolesTable({
       selectedRows={selectedRoles}
       onSelectedRowsChange={onSelectedRolesChange}
       getRowId={(role) => role.id}
+      maxSelectionAllowed={MAX_ROLES_PER_REQUEST}
+      maxSelectionAllowedMessage={t('member.detail.roles.max_selection_message')}
     />
   );
 }
@@ -225,6 +228,7 @@ export function OrganizationMemberEditRolesTab({
   removingRoleIds,
   isAssigningRoles,
   isRemovingRoles = false,
+  isSearchingRoles,
   modalState,
   classes,
   style,
@@ -272,6 +276,8 @@ export function OrganizationMemberEditRolesTab({
       <OrganizationMemberAssignRolesModal
         isOpen={isAssignRolesModal}
         isLoading={isAssigningRoles}
+        isSearchingRoles={isSearchingRoles}
+        isLoadingRoles={isFetchingMemberRoles}
         availableRoles={searchedRoles}
         assignedRoles={memberRoles}
         selectedMember={selectedMember}

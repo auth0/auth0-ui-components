@@ -1078,6 +1078,7 @@
     }
   },
   "member_management": {
+    "count_capped": "${count}+",
     "member": {
       "table": {
         "columns": {
@@ -1105,7 +1106,9 @@
         "month": "mois",
         "months": "mois",
         "year": "an",
-        "years": "ans"
+        "years": "ans",
+        "more_roles": "de plus",
+        "view_all_roles": "Voir tous les ${count} rôles"
       },
       "actions": {
         "menu_label": "Actions",
@@ -1117,8 +1120,6 @@
         "fetch_failed": "Échec du chargement des membres. Veuillez réessayer.",
         "remove_failed": "Échec de la suppression du membre. Veuillez réessayer.",
         "assign_role_failed": "Échec de l'attribution du rôle. Veuillez réessayer.",
-        "too_many_roles_per_assignment": "Vous ne pouvez attribuer qu'un maximum de 10 rôles à la fois.",
-        "too_many_roles_per_removal": "Vous ne pouvez supprimer qu'un maximum de 10 rôles à la fois.",
         "member_role_limit_exceeded": "Vous avez atteint le maximum de 50 rôles pour ce membre."
       },
       "detail": {
@@ -1161,6 +1162,7 @@
           "remove_button_plural": "Supprimer les rôles",
           "roles_selected": "${count} rôle sélectionné",
           "roles_selected_plural": "${count} rôles sélectionnés",
+          "max_selection_message": "Seuls 10 rôles peuvent être supprimés à la fois",
           "table": {
             "name": "Nom",
             "description": "Description",
@@ -1174,13 +1176,15 @@
             "submit_button": "Attribuer le(s) rôle(s)",
             "cancel_button": "Annuler",
             "no_roles_available": "Tous les rôles disponibles sont déjà attribués.",
+            "max_selection_message": "Vous ne pouvez sélectionner que 10 rôles à la fois.",
+            "searching_message": "Recherche en cours...",
             "success": "Le rôle a été attribué.",
             "success_plural": "Les rôles ont été attribués."
           },
           "remove_confirm": {
             "title": "Retirer le rôle du membre ?",
             "title_plural": "Retirer les rôles du membre ?",
-            "description": "Cela retirera le rôle <bold>${roleName}</bold> de <bold>\"${memberName}\"</bold>.",
+            "description": "Cela retirera le rôle <roleBold>${roleName}</roleBold> de <memberBold>\"${memberName}\"</memberBold>.",
             "confirm_button": "Retirer",
             "cancel_button": "Annuler",
             "success": "Le rôle \"${roleName}\" a été retiré du membre.",

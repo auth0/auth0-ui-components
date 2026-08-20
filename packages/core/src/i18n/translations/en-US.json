@@ -1143,6 +1143,7 @@
       "members": "Members",
       "invitations": "Invitations"
     },
+    "count_capped": "${count}+",
     "member": {
       "table": {
         "columns": {
@@ -1170,7 +1171,9 @@
         "month": "month",
         "months": "months",
         "year": "year",
-        "years": "years"
+        "years": "years",
+        "more_roles": "More",
+        "view_all_roles": "View all ${count} roles"
       },
       "actions": {
         "menu_label": "Actions",
@@ -1182,8 +1185,6 @@
         "fetch_failed": "Failed to load members. Please try again.",
         "remove_failed": "Failed to remove member. Please try again.",
         "assign_role_failed": "Failed to assign role. Please try again.",
-        "too_many_roles_per_assignment": "You can only assign a maximum of 10 roles at a time.",
-        "too_many_roles_per_removal": "You can only remove a maximum of 10 roles at a time.",
         "member_role_limit_exceeded": "You have reached the maximum of 50 roles for this member."
       },
       "detail": {
@@ -1226,6 +1227,7 @@
           "remove_button_plural": "Remove Roles",
           "roles_selected": "${count} role selected",
           "roles_selected_plural": "${count} roles selected",
+          "max_selection_message": "Only 10 can be removed at a time",
           "table": {
             "name": "Name",
             "description": "Description",
@@ -1239,13 +1241,15 @@
             "submit_button": "Assign Role(s)",
             "cancel_button": "Cancel",
             "no_roles_available": "All available roles are already assigned.",
+            "max_selection_message": "Only 10 roles can be selected at a time.",
+            "searching_message": "Searching...",
             "success": "The role has been assigned.",
             "success_plural": "The roles have been assigned."
           },
           "remove_confirm": {
             "title": "Remove Role from Member?",
             "title_plural": "Remove Roles from Member?",
-            "description": "This will remove the <bold>${roleName}</bold> role from <bold>\"${memberName}\"</bold>.",
+            "description": "This will remove the <roleBold>${roleName}</roleBold> role from <memberBold>\"${memberName}\"</memberBold>.",
             "confirm_button": "Remove",
             "cancel_button": "Cancel",
             "success": "\"${roleName}\" role has been removed from member.",
@@ -1300,6 +1304,8 @@
         "email_required_error": "Please enter at least one email address.",
         "roles_label": "Roles",
         "roles_placeholder": "Select roles (optional)",
+        "roles_max_selection_message": "Only 10 roles can be selected at a time.",
+        "roles_searching_message": "Searching...",
         "connection_label": "Connection",
         "connection_placeholder": "Select connection",
         "connection_helper": "Select the connection the member will use to log in.",
@@ -1345,6 +1351,7 @@
         "count": "${count} selected",
         "count_plural": "${count} selected",
         "success": "${count} invitations have been revoked.",
+        "max_selection_message": "Only 10 can be selected at a time",
         "confirm": {
           "title": "Delete 1 pending invitation?",
           "title_plural": "Delete ${count} pending invitations?",
@@ -1361,6 +1368,7 @@
       },
       "error": {
         "fetch_failed": "Failed to load invitations. Please try again.",
+        "fetch_roles_failed": "Failed to load invitation roles. Please try again.",
         "create_failed": "Failed to send invitation. Please try again.",
         "revoke_failed": "Failed to revoke invitation. Please try again.",
         "resend_failed": "Failed to resend invitation. Please try again.",

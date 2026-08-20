@@ -134,13 +134,13 @@ describe('OrganizationInvitationDetailsModal', () => {
   });
 
   describe('roles', () => {
-    it('should resolve role IDs to names when availableRoles provided', () => {
+    it('should display the names of the roles fetched for the invitation', () => {
       const invitation = createMockInvitation({ roles: ['role_admin', 'role_member'] });
-      const availableRoles = createMockRoles();
+      const [adminRole, memberRole] = createMockRoles();
 
       renderWithProviders(
         <OrganizationInvitationDetailsModal
-          {...createMockDetailsModalProps({ invitation, availableRoles })}
+          {...createMockDetailsModalProps({ invitation, roles: [adminRole!, memberRole!] })}
         />,
       );
 
@@ -148,26 +148,44 @@ describe('OrganizationInvitationDetailsModal', () => {
       expect(screen.getByText('Member')).toBeInTheDocument();
     });
 
-    it('should show role ID as fallback when role not found in availableRoles', () => {
-      const invitation = createMockInvitation({ roles: ['role_unknown'] });
+    it('should not render roles the invitation roles endpoint did not return', () => {
+      const invitation = createMockInvitation({ roles: ['role_admin', 'role_member'] });
+      const [adminRole] = createMockRoles();
 
       renderWithProviders(
         <OrganizationInvitationDetailsModal
-          {...createMockDetailsModalProps({ invitation, availableRoles: [] })}
+          {...createMockDetailsModalProps({ invitation, roles: [adminRole!] })}
         />,
       );
 
-      expect(screen.getByText('role_unknown')).toBeInTheDocument();
+      expect(screen.getByText('Admin')).toBeInTheDocument();
+      expect(screen.queryByText('Member')).not.toBeInTheDocument();
     });
 
-    it('should show dash when no roles assigned', () => {
+    it('should render a spinner while the invitation roles are loading', () => {
+      const invitation = createMockInvitation({ roles: ['role_admin'] });
+
+      renderWithProviders(
+        <OrganizationInvitationDetailsModal
+          {...createMockDetailsModalProps({ invitation, roles: [], isLoadingRoles: true })}
+        />,
+      );
+
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(screen.queryByText('Admin')).not.toBeInTheDocument();
+    });
+
+    it('should show a dash when the invitation has no roles', () => {
       const invitation = createMockInvitation({ roles: [] });
 
       renderWithProviders(
-        <OrganizationInvitationDetailsModal {...createMockDetailsModalProps({ invitation })} />,
+        <OrganizationInvitationDetailsModal
+          {...createMockDetailsModalProps({ invitation, roles: [] })}
+        />,
       );
 
       expect(screen.getByText('invitation.details.roles_label')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('-')).toBeInTheDocument();
     });
   });
 

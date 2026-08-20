@@ -1141,6 +1141,7 @@
       "members": "メンバー",
       "invitations": "招待"
     },
+    "count_capped": "${count}以上",
     "member": {
       "table": {
         "columns": {
@@ -1168,7 +1169,9 @@
         "month": "か月",
         "months": "か月",
         "year": "年",
-        "years": "年"
+        "years": "年",
+        "more_roles": "その他",
+        "view_all_roles": "すべての${count}個のロールを表示"
       },
       "actions": {
         "menu_label": "アクション",
@@ -1180,8 +1183,6 @@
         "fetch_failed": "メンバーの読み込みに失敗しました。もう一度お試しください。",
         "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。",
         "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。",
-        "too_many_roles_per_assignment": "一度に割り当てられるロールは最大10件までです。",
-        "too_many_roles_per_removal": "一度に削除できるロールは最大10件までです。",
         "member_role_limit_exceeded": "このメンバーのロールは最大50件に達しました。"
       },
       "detail": {
@@ -1224,6 +1225,7 @@
           "remove_button_plural": "ロールを削除",
           "roles_selected": "${count}件のロールが選択されています",
           "roles_selected_plural": "${count}件のロールが選択されています",
+          "max_selection_message": "一度に削除できるロールは10件までです",
           "table": {
             "name": "名前",
             "description": "説明",
@@ -1237,13 +1239,15 @@
             "submit_button": "割り当て",
             "cancel_button": "キャンセル",
             "no_roles_available": "利用可能なすべてのロールがすでに割り当てられています。",
+            "max_selection_message": "一度に選択できるロールは最大10件です。",
+            "searching_message": "検索中...",
             "success": "ロールが割り当てられました。",
             "success_plural": "ロールが割り当てられました。"
           },
           "remove_confirm": {
             "title": "メンバーからロールを削除しますか？",
             "title_plural": "メンバーからロールを削除しますか？",
-            "description": "<bold>\"${memberName}\"</bold> から <bold>${roleName}</bold> ロールを削除します。",
+            "description": "<memberBold>\"${memberName}\"</memberBold> から <roleBold>${roleName}</roleBold> ロールを削除します。",
             "confirm_button": "削除",
             "cancel_button": "キャンセル",
             "success": "ロール \"${roleName}\" がメンバーから削除されました。",
@@ -1298,6 +1302,8 @@
         "email_required_error": "メールアドレスを1つ以上入力してください。",
         "roles_label": "ロール",
         "roles_placeholder": "ロールを選択（任意）",
+        "roles_max_selection_message": "一度に選択できるロールは最大10件です。",
+        "roles_searching_message": "検索中...",
         "connection_label": "接続",
         "connection_placeholder": "接続を選択",
         "connection_helper": "メンバーがログインに使用する接続を選択してください。",
@@ -1343,6 +1349,7 @@
         "count": "${count}件を選択中",
         "count_plural": "${count}件を選択中",
         "success": "${count}件の招待が取り消されました。",
+        "max_selection_message": "一度に選択できるのは10件までです",
         "confirm": {
           "title": "保留中の招待を1件削除しますか？",
           "title_plural": "保留中の招待を${count}件削除しますか？",
@@ -1359,6 +1366,7 @@
       },
       "error": {
         "fetch_failed": "招待の読み込みに失敗しました。もう一度お試しください。",
+        "fetch_roles_failed": "招待のロールの読み込みに失敗しました。もう一度お試しください。",
         "create_failed": "招待の送信に失敗しました。もう一度お試しください。",
         "revoke_failed": "招待の取り消しに失敗しました。もう一度お試しください。",
         "resend_failed": "招待の再送信に失敗しました。もう一度お試しください。",

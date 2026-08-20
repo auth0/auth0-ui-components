@@ -53,6 +53,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     isFetchingInvitations,
     isLoadingInvitations,
     isFetchingMembers,
+    isSearchingRoles,
     isMembersStale,
     isInvitationsStale,
     isCreatingInvitation,
@@ -65,7 +66,10 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     memberSortConfig,
     isAssigningRoles,
     isRemovingFromOrganization,
-    availableRoles,
+    invitationRoles,
+    isFetchingInvitationRoles,
+    isLoadingMemberRoles,
+    memberRoles,
     searchedRoles,
     onRoleSearch,
     availableConnections,
@@ -254,6 +258,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
         <OrganizationInvitationCreateModal
           isOpen={modalState.type === 'create'}
           isLoading={isCreatingInvitation}
+          isSearchingRoles={isSearchingRoles}
           customMessages={customMessages?.invitation}
           availableRoles={searchedRoles}
           availableConnections={availableConnections}
@@ -270,7 +275,8 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isRevoking={isRevokingInvitation}
           isResending={isResendingInvitation}
           customMessages={customMessages?.invitation}
-          availableRoles={availableRoles}
+          roles={invitationRoles}
+          isLoadingRoles={isFetchingInvitationRoles}
           availableConnections={availableConnections}
           readOnly={readOnly}
           style={currentStyles.variables}
@@ -319,8 +325,10 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           selectedMember={selectedMember}
           isOpen={modalState.type === 'assignRole'}
           isLoading={isAssigningRoles}
+          isSearchingRoles={isSearchingRoles}
+          isLoadingRoles={isLoadingMemberRoles}
           availableRoles={searchedRoles}
-          assignedRoles={selectedMember?.roles || []}
+          assignedRoles={memberRoles ?? selectedMember?.roles ?? []}
           customMessages={customMessages?.member}
           onClose={closeModal}
           onAssign={handleAssignRolesSubmit}

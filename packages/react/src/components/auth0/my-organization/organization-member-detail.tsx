@@ -199,6 +199,7 @@ export function OrganizationMemberDetailView(
               isRemovingRoles={props.isRemovingRoles}
               modalState={modalState}
               isAssigningRoles={props.isAssigningRoles}
+              isSearchingRoles={props.isSearchingRoles}
               classes={currentStyles.classes}
               style={currentStyles.variables}
               onSelectedRolesChange={props.setSelectedRoles}
@@ -240,6 +241,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     onBack,
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
+    initialTab,
     removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,
@@ -249,6 +251,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     userId,
     onBack,
     customMessages,
+    initialTab,
     removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,

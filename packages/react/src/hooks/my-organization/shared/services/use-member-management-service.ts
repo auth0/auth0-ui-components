@@ -10,23 +10,21 @@ import {
   type ListIdentityProvidersResponseContent,
   memberManagementQueryKeys,
   OrganizationDetailsMappers,
-  memberDetailQueryKeys,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
-import { useDebouncedValue } from '@/hooks/shared/use-debounced-value';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { MEMBER_ACCESS_LEVELS } from '@/lib/constants/common-constants';
-import {
-  DEFAULT_ROLES_PAGE_SIZE,
-  MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT,
-} from '@/lib/constants/my-organization/member-management/member-management-constants';
+import { DEFAULT_ROLES_PAGE_SIZE } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { isIdpKnownResponse } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
-import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
+import {
+  isValidUserId,
+  validateMemberRoleLimit,
+} from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type {
   ConnectionOption,
@@ -71,6 +69,8 @@ export function useMemberManagementService(
   const {
     customMessages = {},
     activeTab,
+    userId,
+    memberRolesQueryEnabled = true,
     createInvitationAction,
     revokeInvitationAction,
     resendInvitationAction,
@@ -78,7 +78,7 @@ export function useMemberManagementService(
     memberParams,
     assignRolesAction,
     removeFromOrganizationAction,
-    enableRolesList = true,
+    invitationRolesId,
     deferRoleSearch = false,
   } = options;
 
@@ -129,28 +129,27 @@ export function useMemberManagementService(
     enabled: !!coreClient && isActiveTabProvided,
   });
 
-  const rolesQuery = useQuery({
-    queryKey: memberManagementQueryKeys.roles(),
+  const invitationRolesQuery = useQuery({
+    queryKey: memberManagementQueryKeys.invitationRoles(invitationRolesId ?? ''),
     queryFn: async () => {
       const response = await coreClient!
         .getMyOrganizationApiClient()
-        .organization.roles.list({ take: MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT });
-      return response.data;
+        .organization.invitations.roles.list(invitationRolesId!);
+      return response.roles ?? [];
     },
-    enabled: !!coreClient && enableRolesList,
+    enabled: !!coreClient && !!invitationRolesId,
   });
 
   const [roleSearchTerm, setRoleSearchTerm] = React.useState('');
-  const debouncedRoleSearchTerm = useDebouncedValue(roleSearchTerm);
   const [roleSearchActive, setRoleSearchActive] = React.useState(!deferRoleSearch);
   const enableRoleSearch = React.useCallback(() => setRoleSearchActive(true), []);
 
   const rolesSearchQuery = useQuery({
-    queryKey: memberManagementQueryKeys.rolesSearch(debouncedRoleSearchTerm),
+    queryKey: memberManagementQueryKeys.rolesSearch(roleSearchTerm),
     queryFn: async () => {
       const response = await coreClient!.getMyOrganizationApiClient().organization.roles.list({
         take: DEFAULT_ROLES_PAGE_SIZE,
-        ...(debouncedRoleSearchTerm ? { name: debouncedRoleSearchTerm } : {}),
+        ...(roleSearchTerm ? { name: roleSearchTerm } : {}),
       });
       return response.data;
     },
@@ -167,16 +166,20 @@ export function useMemberManagementService(
       invitationParams?.sortConfig,
     ],
     queryFn: async () => {
-      const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list({
-        take: invitationParams!.pageSize,
-        from: invitationParams!.fromToken,
-        sort: buildSortParam(invitationParams!.sortConfig),
-      });
+      const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list(
+        {
+          take: invitationParams!.pageSize,
+          from: invitationParams!.fromToken,
+          sort: buildSortParam(invitationParams!.sortConfig),
+        },
+        { queryParams: { include_totals: true } },
+      );
 
       const invitations: MemberInvitation[] = page.data;
       const next = page.response.next ?? null;
+      const { total, total_is_capped: totalIsCapped } = page.response;
 
-      return { invitations, next };
+      return { invitations, next, total, totalIsCapped };
     },
     enabled: !!coreClient && isInvitationsTabActive && !!invitationParams,
     ...keepPreviousDataOption,
@@ -189,14 +192,19 @@ export function useMemberManagementService(
       memberParams?.fromToken,
     ],
     queryFn: async () => {
-      const page = await coreClient!.getMyOrganizationApiClient().organization.members.list({
-        take: memberParams!.pageSize,
-        from: memberParams!.fromToken,
-        fields: MEMBER_LIST_FIELDS,
-      });
+      const page = await coreClient!.getMyOrganizationApiClient().organization.members.list(
+        {
+          take: memberParams!.pageSize,
+          from: memberParams!.fromToken,
+          fields: MEMBER_LIST_FIELDS,
+        },
+        { queryParams: { include_totals: true } },
+      );
       const members: OrgMember[] = page.data;
       const next = members.length < memberParams!.pageSize ? null : page.response.next;
-      return { members, next };
+      const { total, total_is_capped: totalIsCapped } = page.response;
+
+      return { members, next, total, totalIsCapped };
     },
     enabled: !!coreClient && !isInvitationsTabActive && !!memberParams,
     ...keepPreviousDataOption,
@@ -211,6 +219,17 @@ export function useMemberManagementService(
     enabled: !!coreClient,
   });
 
+  const memberRolesQuery = useQuery({
+    queryKey: memberManagementQueryKeys.memberRoles(userId ?? ''),
+    queryFn: async () => {
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.members.roles.list(userId!);
+      return response.data;
+    },
+    enabled: !!coreClient && isValidUserId(userId) && memberRolesQueryEnabled,
+  });
+
   const assignRolesMutation = useMutation({
     mutationFn: async ({
       roleIds,
@@ -222,7 +241,7 @@ export function useMemberManagementService(
       userId?: string | null;
     }) => {
       if (!userId) throw new Error('userId is required');
-      const validationResult = validateRequestRoleForMember(t, roleIds, memberRoles, true);
+      const validationResult = validateMemberRoleLimit(t, roleIds, memberRoles);
       if (validationResult?.aborted) {
         return validationResult;
       }
@@ -240,8 +259,10 @@ export function useMemberManagementService(
     onSuccess: (result, { roleIds, userId }) => {
       if (result?.aborted) return;
       if (!userId) return;
-      const allRoles = queryClient.getQueryData<Role[]>(memberManagementQueryKeys.roles()) ?? [];
-      const newRoles = allRoles.filter((r) => roleIds.includes(r.id));
+      const searchedRoles =
+        queryClient.getQueryData<Role[]>(memberManagementQueryKeys.rolesSearch(roleSearchTerm)) ??
+        [];
+      const newRoles = searchedRoles.filter((r) => roleIds.includes(r.id));
       queryClient.setQueryData<Role[]>(memberManagementQueryKeys.memberRoles(userId), (old) => [
         ...(old ?? []),
         ...newRoles,
@@ -252,7 +273,7 @@ export function useMemberManagementService(
           : 'member.detail.roles.assign_modal.success_plural';
       showToast({ type: 'success', message: t(assignKey) });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.memberRoles(userId) });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.assign_role_failed') });
@@ -416,13 +437,14 @@ export function useMemberManagementService(
   return {
     providersQuery,
     userStoresQuery,
-    rolesQuery,
+    invitationRolesQuery,
     rolesSearchQuery,
     setRoleSearchTerm,
     enableRoleSearch,
     invitationsQuery,
     organizationQuery,
     membersQuery,
+    memberRolesQuery,
     assignRolesMutation,
     removeFromOrganizationMutation,
     createInvitationMutation,

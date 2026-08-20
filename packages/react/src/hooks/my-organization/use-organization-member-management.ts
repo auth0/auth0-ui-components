@@ -10,7 +10,10 @@ import * as React from 'react';
 import { showToast } from '@/components/auth0/shared/toast';
 import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
+import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { ROLES_PREFETCH_THRESHOLD } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import { formatMemberCount } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   ConnectionOption,
@@ -23,6 +26,7 @@ import type {
   MemberManagementSortConfig,
   UseOrganizationMemberManagementOptions,
   UseOrganizationMemberManagementResult,
+  ViewMemberDetailsParams,
 } from '@/types/my-organization/member-management/organization-member-management-types';
 
 /**
@@ -44,7 +48,7 @@ export function useOrganizationMemberManagement(
     removeFromOrganizationAction,
   } = options;
 
-  const { t } = useTranslator('member_management', customMessages);
+  const { t, currentLanguage: locale } = useTranslator('member_management', customMessages);
 
   const [activeTab, setActiveTab] = React.useState<ActiveTab>('members');
 
@@ -82,16 +86,22 @@ export function useOrganizationMemberManagement(
   const [selectedInvitations, setSelectedInvitations] = React.useState<MemberInvitation[]>([]);
   const detailsRequestIdRef = React.useRef(0);
 
+  const invitationRolesId =
+    modalState.type === 'details' ? (modalState.invitation.id ?? null) : null;
+  const selectedMemberForRoles = modalState.type === 'assignRole' ? modalState.member : null;
+  const selectedMemberRolesCount = selectedMemberForRoles?.roles?.length ?? 0;
+
   const {
     providersQuery,
     userStoresQuery,
-    rolesQuery,
+    invitationRolesQuery,
     rolesSearchQuery,
     setRoleSearchTerm,
     enableRoleSearch,
     invitationsQuery,
     membersQuery,
     organizationQuery,
+    memberRolesQuery,
     createInvitationMutation,
     revokeInvitationMutation,
     resendInvitationMutation,
@@ -101,6 +111,9 @@ export function useOrganizationMemberManagement(
   } = useMemberManagementService({
     customMessages,
     activeTab,
+    userId: selectedMemberForRoles?.user_id,
+    memberRolesQueryEnabled:
+      modalState.type === 'assignRole' && selectedMemberRolesCount >= ROLES_PREFETCH_THRESHOLD,
     createInvitationAction,
     revokeInvitationAction,
     resendInvitationAction,
@@ -118,6 +131,7 @@ export function useOrganizationMemberManagement(
     },
     assignRolesAction,
     removeFromOrganizationAction,
+    invitationRolesId,
     deferRoleSearch: true,
   });
 
@@ -127,6 +141,8 @@ export function useOrganizationMemberManagement(
     }
   }, [modalState.type, enableRoleSearch]);
 
+  useQueryErrorToast(invitationRolesQuery, t('invitation.error.fetch_roles_failed'));
+
   React.useEffect(() => {
     setSelectedInvitations([]);
   }, [activeTab, invitationFilters, invitationSortConfig]);
@@ -135,13 +151,17 @@ export function useOrganizationMemberManagement(
     () => [...(providersQuery.data ?? []), ...(userStoresQuery.data ?? [])],
     [providersQuery.data, userStoresQuery.data],
   );
-  const availableRoles = rolesQuery.data ?? [];
+  const invitationRoles = invitationRolesQuery.data ?? [];
   const searchedRoles = rolesSearchQuery.data ?? [];
   const currentInvitations = invitationsQuery.data?.invitations ?? [];
   const currentMembers = membersQuery.data?.members ?? [];
   const invitationNextToken = invitationsQuery.data?.next ?? null;
   const memberNextToken = membersQuery.data?.next ?? null;
   const organizationDisplayName = organizationQuery.data?.display_name ?? '';
+  const invitationTotal = invitationsQuery.data?.total;
+  const memberTotal = membersQuery.data?.total;
+  const invitationTotalIsCapped = invitationsQuery.data?.totalIsCapped;
+  const memberTotalIsCapped = membersQuery.data?.totalIsCapped;
 
   const openModal = React.useCallback(
     async (state: MemberManagementModalState) => {
@@ -217,8 +237,8 @@ export function useOrganizationMemberManagement(
   }, []);
 
   const handleViewMemberDetails = React.useCallback(
-    (userId: string) => {
-      viewMemberDetailsAction?.onAfter?.(userId);
+    (params: ViewMemberDetailsParams) => {
+      viewMemberDetailsAction?.onAfter?.(params);
     },
     [viewMemberDetailsAction],
   );
@@ -303,7 +323,6 @@ export function useOrganizationMemberManagement(
 
   return {
     activeTab,
-    availableRoles,
     searchedRoles,
     onRoleSearch: setRoleSearchTerm,
     availableConnections,
@@ -321,9 +340,13 @@ export function useOrganizationMemberManagement(
     invitationsUpdatedAt: invitationsQuery.dataUpdatedAt,
     refetchMembers: membersQuery.refetch,
     refetchInvitations: invitationsQuery.refetch,
-    isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
+    invitationRoles,
+    isFetchingInvitationRoles: invitationRolesQuery.isLoading,
+    isSearchingRoles: rolesSearchQuery.isFetching,
     isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),
     isAssigningRoles: isMutationLoading(assignRolesMutation),
+    isLoadingMemberRoles: memberRolesQuery.isLoading,
+    memberRoles: memberRolesQuery.data,
     isCreatingInvitation: isMutationLoading(createInvitationMutation),
     isRevokingInvitation: isMutationLoading(revokeInvitationMutation),
     isResendingInvitation: isMutationLoading(resendInvitationMutation),
@@ -331,12 +354,16 @@ export function useOrganizationMemberManagement(
     invitationPagination: {
       pageSize: invitationPageSize,
       currentPage: invitationCurrentPage,
+      totalItems: invitationTotal,
+      totalItemsDisplay: formatMemberCount(invitationTotal, invitationTotalIsCapped, t, locale),
       hasNextPage: !!invitationNextToken,
       hasPreviousPage: invitationHasPreviousPage,
     },
     memberPagination: {
       pageSize: memberPageSize,
       currentPage: memberCurrentPage,
+      totalItems: memberTotal,
+      totalItemsDisplay: formatMemberCount(memberTotal, memberTotalIsCapped, t, locale),
       hasNextPage: !!memberNextToken,
       hasPreviousPage: memberHasPreviousPage,
     },

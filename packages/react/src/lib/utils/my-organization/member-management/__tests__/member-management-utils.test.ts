@@ -6,18 +6,57 @@ import {
   MAX_ROLES_PER_MEMBER,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import {
+  formatMemberCount,
   canMutateMember,
   getInitials,
   getInvitationStatus,
   getMemberDisplayName,
   getRelativeLastLoginLabel,
-  validateRequestRoleForMember,
+  isValidUserId,
+  validateMemberRoleLimit,
 } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { createMockMember } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
 
 vi.mock('@/components/auth0/shared/toast', () => ({
   showToast: vi.fn(),
 }));
+
+describe('when validating user IDs', () => {
+  it('returns false for undefined', () => {
+    expect(isValidUserId(undefined)).toBe(false);
+  });
+
+  it('returns false for null', () => {
+    expect(isValidUserId(null)).toBe(false);
+  });
+
+  it('returns false for empty string', () => {
+    expect(isValidUserId('')).toBe(false);
+  });
+
+  it('returns false for userId without pipe separator', () => {
+    expect(isValidUserId('auth0user123')).toBe(false);
+  });
+
+  it('returns true for valid userId with pipe separator', () => {
+    expect(isValidUserId('auth0|user123')).toBe(true);
+  });
+
+  it('returns true for userId with multiple pipes', () => {
+    expect(isValidUserId('auth0|user|123')).toBe(true);
+  });
+
+  it('returns false for userId exceeding 1024 characters', () => {
+    const longId = `auth0|${'a'.repeat(1024)}`;
+    expect(isValidUserId(longId)).toBe(false);
+  });
+
+  it('returns true for userId at exactly 1024 characters', () => {
+    const exactId = `auth0|${'a'.repeat(1018)}`;
+    expect(exactId.length).toBe(1024);
+    expect(isValidUserId(exactId)).toBe(true);
+  });
+});
 
 describe('getInvitationStatus', () => {
   it('returns expired when invitation has expired', () => {
@@ -165,7 +204,37 @@ describe('getRelativeLastLoginLabel', () => {
   });
 });
 
-describe('validateRequestRoleForMember', () => {
+describe('formatMemberCount', () => {
+  /** Substitutes `${count}` the way the core i18n service does. */
+  const t = ((key: string, vars?: Record<string, unknown>) =>
+    key === 'count_capped' ? `${String(vars?.count ?? '')}+` : key) as unknown as Parameters<
+    typeof formatMemberCount
+  >[2];
+
+  it.each([undefined, false])('returns undefined when the total is not capped (%s)', (isCapped) => {
+    expect(formatMemberCount(200, isCapped, t, 'en-US')).toBeUndefined();
+  });
+
+  it('returns undefined when the total is unavailable', () => {
+    expect(formatMemberCount(undefined, true, t, 'en-US')).toBeUndefined();
+  });
+
+  it.each([
+    { total: 1000, expected: '1,000+' },
+    { total: 5000, expected: '5,000+' },
+    { total: 0, expected: '0+' },
+  ])('renders the capped total $total as $expected', ({ total, expected }) => {
+    expect(formatMemberCount(total, true, t, 'en-US')).toBe(expected);
+  });
+
+  it('formats the capped total for the active locale', () => {
+    // French groups thousands with a space rather than a comma.
+    expect(formatMemberCount(5000, true, t, 'fr-FR')).toBe(`${(5000).toLocaleString('fr-FR')}+`);
+    expect(formatMemberCount(5000, true, t, 'fr-FR')).not.toBe('5,000+');
+  });
+});
+
+describe('validateMemberRoleLimit', () => {
   const t = ((key: string) => key) as never;
   const showToastMock = vi.mocked(showToast);
 
@@ -177,54 +246,25 @@ describe('validateRequestRoleForMember', () => {
   });
 
   it('returns null for an empty roleIds array', () => {
-    expect(validateRequestRoleForMember(t, [], [], true)).toBeNull();
+    expect(validateMemberRoleLimit(t, [], [])).toBeNull();
     expect(showToastMock).not.toHaveBeenCalled();
   });
 
-  it('returns null when assigning up to MAX_ROLES_PER_REQUEST roles', () => {
-    const roleIds = Array.from({ length: MAX_ROLES_PER_REQUEST }, (_, i) => `r-${i}`);
-    expect(validateRequestRoleForMember(t, roleIds, [], true)).toBeNull();
+  it('no longer caps the request size, which the UI now prevents', () => {
+    const roleIds = Array.from({ length: MAX_ROLES_PER_REQUEST + 1 }, (_, i) => `r-${i}`);
+    expect(validateMemberRoleLimit(t, roleIds, [])).toBeNull();
     expect(showToastMock).not.toHaveBeenCalled();
   });
 
-  it('aborts with the assignment error when roleIds exceeds MAX_ROLES_PER_REQUEST on assign', () => {
-    const roleIds = Array.from({ length: MAX_ROLES_PER_REQUEST + 1 }, (_, i) => `r-${i}`);
-    expect(validateRequestRoleForMember(t, roleIds, [], true)).toEqual({ aborted: true });
-    expect(showToastMock).toHaveBeenCalledWith({
-      type: 'error',
-      message: 'member.error.too_many_roles_per_assignment',
-    });
-  });
-
-  it('aborts with the removal error when roleIds exceeds MAX_ROLES_PER_REQUEST on unassign', () => {
-    const roleIds = Array.from({ length: MAX_ROLES_PER_REQUEST + 1 }, (_, i) => `r-${i}`);
-    expect(validateRequestRoleForMember(t, roleIds, [], false)).toEqual({ aborted: true });
-    expect(showToastMock).toHaveBeenCalledWith({
-      type: 'error',
-      message: 'member.error.too_many_roles_per_removal',
-    });
-  });
-
-  it('checks per-request limit before per-member limit', () => {
-    // Both limits would be exceeded; per-request should win.
-    const memberRoles = makeRoles(MAX_ROLES_PER_MEMBER, 'existing') as never;
-    const roleIds = Array.from({ length: MAX_ROLES_PER_REQUEST + 1 }, (_, i) => `new-${i}`);
-    expect(validateRequestRoleForMember(t, roleIds, memberRoles, true)).toEqual({ aborted: true });
-    expect(showToastMock).toHaveBeenCalledWith({
-      type: 'error',
-      message: 'member.error.too_many_roles_per_assignment',
-    });
-  });
-
-  it('returns null when total stays at the per-member limit on assignment', () => {
+  it('returns null when the total lands exactly on MAX_ROLES_PER_MEMBER', () => {
     const memberRoles = makeRoles(MAX_ROLES_PER_MEMBER - 1, 'existing') as never;
-    expect(validateRequestRoleForMember(t, ['new-1'], memberRoles, true)).toBeNull();
+    expect(validateMemberRoleLimit(t, ['new-1'], memberRoles)).toBeNull();
     expect(showToastMock).not.toHaveBeenCalled();
   });
 
   it('aborts with the per-member error when assignment would exceed MAX_ROLES_PER_MEMBER', () => {
     const memberRoles = makeRoles(MAX_ROLES_PER_MEMBER, 'existing') as never;
-    expect(validateRequestRoleForMember(t, ['new-1'], memberRoles, true)).toEqual({
+    expect(validateMemberRoleLimit(t, ['new-1'], memberRoles)).toEqual({
       aborted: true,
     });
     expect(showToastMock).toHaveBeenCalledWith({
@@ -235,22 +275,19 @@ describe('validateRequestRoleForMember', () => {
 
   it('ignores already-assigned role ids when counting against the per-member limit', () => {
     const memberRoles = makeRoles(MAX_ROLES_PER_MEMBER, 'existing') as never;
-    expect(
-      validateRequestRoleForMember(t, ['existing-0', 'existing-1'], memberRoles, true),
-    ).toBeNull();
+    expect(validateMemberRoleLimit(t, ['existing-0', 'existing-1'], memberRoles)).toBeNull();
     expect(showToastMock).not.toHaveBeenCalled();
   });
 
-  it('skips the per-member limit when assign is false (unassign flow)', () => {
-    const memberRoles = makeRoles(MAX_ROLES_PER_MEMBER, 'existing') as never;
-    expect(validateRequestRoleForMember(t, ['existing-0'], memberRoles, false)).toBeNull();
+  it('treats a missing memberRoles list as zero existing roles', () => {
+    expect(validateMemberRoleLimit(t, ['new-1'])).toBeNull();
     expect(showToastMock).not.toHaveBeenCalled();
   });
 
-  it('defaults assign to false', () => {
-    const memberRoles = makeRoles(MAX_ROLES_PER_MEMBER, 'existing') as never;
-    // With assign defaulted to false, the per-member cap should be skipped.
-    expect(validateRequestRoleForMember(t, ['new-1'], memberRoles)).toBeNull();
+  it('counts a repeated role id once, so the resulting total is what gets checked', () => {
+    const memberRoles = makeRoles(MAX_ROLES_PER_MEMBER - 1, 'existing') as never;
+    expect(validateMemberRoleLimit(t, ['new-1', 'new-1'], memberRoles)).toBeNull();
+    expect(showToastMock).not.toHaveBeenCalled();
   });
 });
 

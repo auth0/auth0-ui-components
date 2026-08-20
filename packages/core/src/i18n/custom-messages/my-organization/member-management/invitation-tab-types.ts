@@ -42,6 +42,8 @@ export interface OrganizationInvitationTabMessages {
     email_required_error?: string;
     roles_label?: string;
     roles_placeholder?: string;
+    roles_max_selection_message?: string;
+    roles_searching_message?: string;
     connection_label?: string;
     connection_placeholder?: string;
     connection_helper?: string;
@@ -84,6 +86,7 @@ export interface OrganizationInvitationTabMessages {
     count?: string;
     count_plural?: string;
     success?: string;
+    max_selection_message?: string;
     confirm?: {
       title?: string;
       title_plural?: string;
@@ -100,6 +103,7 @@ export interface OrganizationInvitationTabMessages {
   };
   error?: {
     fetch_failed?: string;
+    fetch_roles_failed?: string;
     create_failed?: string;
     revoke_failed?: string;
     resend_failed?: string;
