@@ -6,7 +6,7 @@ import * as useMemberDetailServiceModule from '@/hooks/my-organization/shared/se
 import { useOrganizationMemberDetail } from '@/hooks/my-organization/use-member-detail';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
-import { PermissionProvider } from '@/providers/permission-context';
+import { PermissionContext } from '@/providers/permission-provider';
 import {
   createMockMember,
   createMockMemberRole,
@@ -53,14 +53,22 @@ const render = (options: UseOrganizationMemberDetailOptions = createDefaultOptio
   return renderHook(() => useOrganizationMemberDetail(options), { wrapper });
 };
 
-/** Renders the hook under a PermissionProvider granting exactly `permissions`. */
+/** Renders the hook with the permission context granting exactly `permissions`. */
 const renderWithPermissions = (
   permissions: string[],
   overrides?: Partial<UseOrganizationMemberDetailOptions>,
 ) => {
   const { wrapper: queryWrapper } = createQueryClientWrapper();
   const wrapper = ({ children }: React.PropsWithChildren) =>
-    createElement(queryWrapper, null, createElement(PermissionProvider, { permissions, children }));
+    createElement(
+      queryWrapper,
+      null,
+      createElement(
+        PermissionContext.Provider,
+        { value: { permissions, isLoading: false } },
+        children,
+      ),
+    );
 
   return renderHook(() => useOrganizationMemberDetail(createDefaultOptions(overrides)), {
     wrapper,
