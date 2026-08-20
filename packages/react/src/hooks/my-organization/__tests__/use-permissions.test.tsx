@@ -16,6 +16,7 @@ describe('usePermissions', () => {
   it('delegates to usePermissionsService and returns its result', () => {
     const serviceResult: UsePermissionsResult = {
       permissions: ['read:my_org:members'],
+      isLoading: false,
       createPermissionResolver: vi.fn(),
     };
     mockUsePermissionsService.mockReturnValue(serviceResult);

@@ -35,16 +35,11 @@ export function SsoProviderDeleteModalContent({
     <div className={className}>
       <p
         id="delete-modal-content-description"
-        className={cn(
-          'font-normal block text-sm text-left text-(length:--font-size-paragraph) text-muted-foreground mt-6 mb-6',
-        )}
+        className={cn('font-normal block text-left text-paragraph text-muted-foreground mt-6 mb-6')}
       >
         {t('description')}
       </p>
-      <Label
-        htmlFor="provider-name"
-        className="text-sm text-(length:--font-size-label) font-medium"
-      >
+      <Label htmlFor="provider-name" className="text-label font-medium">
         {t('field.label')}
       </Label>
       <TextField

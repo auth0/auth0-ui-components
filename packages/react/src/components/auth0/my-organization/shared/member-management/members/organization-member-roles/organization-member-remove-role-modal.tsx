@@ -59,7 +59,10 @@ export function OrganizationMemberRemoveRoleModal({
           <>
             {t.trans('member.detail.roles.remove_confirm.description', {
               vars: { roleName: roles.map((r) => r.name).join(', '), memberName },
-              components: { bold: (children: string) => <strong key="role">{children}</strong> },
+              components: {
+                roleBold: (children: string) => <strong key="role-name">{children}</strong>,
+                memberBold: (children: string) => <strong key="member-name">{children}</strong>,
+              },
             })}
           </>
         </DialogDescription>

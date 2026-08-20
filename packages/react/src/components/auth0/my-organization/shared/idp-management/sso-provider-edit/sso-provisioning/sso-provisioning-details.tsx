@@ -108,17 +108,14 @@ export function SsoProvisioningDetails({
             name="userIdAttribute"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm text-(length:--font-size-label) font-medium">
+                <FormLabel className="text-label font-medium">
                   {t('fields.user_id_attribute.label')}
                 </FormLabel>
                 <FormControl>
                   <TextField readOnly error={Boolean(fieldState.error)} {...field} />
                 </FormControl>
-                <FormMessage
-                  className="text-left text-sm text-(length:--font-size-paragraph)"
-                  role="alert"
-                />
-                <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                <FormMessage className="text-left text-paragraph" role="alert" />
+                <FormDescription className="text-paragraph font-normal text-left">
                   {t('fields.user_id_attribute.helper_text')}
                 </FormDescription>
               </FormItem>
@@ -141,16 +138,13 @@ export function SsoProvisioningDetails({
             name="scimEndpointUrl"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm text-(length:--font-size-label) font-medium">
+                <FormLabel className="text-label font-medium">
                   {t('fields.scim_endpoint_url.label')}
                 </FormLabel>
                 <FormControl>
                   <CopyableTextField error={Boolean(fieldState.error)} readOnly {...field} />
                 </FormControl>
-                <FormMessage
-                  className="text-left text-sm text-(length:--font-size-paragraph)"
-                  role="alert"
-                />
+                <FormMessage className="text-left text-paragraph" role="alert" />
               </FormItem>
             )}
           />

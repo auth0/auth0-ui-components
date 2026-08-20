@@ -184,4 +184,46 @@ describe('OrganizationMemberEditDetailsTab', () => {
       });
     });
   });
+
+  describe('Access Level Gating', () => {
+    it('disables remove button when member has readonly access_level', () => {
+      const member = createMockMember({ access_level: 'readonly' });
+      renderWithProviders(<OrganizationMemberEditDetailsTab {...createProps({ member })} />);
+      expect(
+        screen.getByRole('button', {
+          name: /member.detail.actions.remove_from_organization.button/i,
+        }),
+      ).toBeDisabled();
+    });
+
+    it('disables remove button when member has none access_level', () => {
+      const member = createMockMember({ access_level: 'none' });
+      renderWithProviders(<OrganizationMemberEditDetailsTab {...createProps({ member })} />);
+      expect(
+        screen.getByRole('button', {
+          name: /member.detail.actions.remove_from_organization.button/i,
+        }),
+      ).toBeDisabled();
+    });
+
+    it('enables remove button when member has limited access_level', () => {
+      const member = createMockMember({ access_level: 'limited' });
+      renderWithProviders(<OrganizationMemberEditDetailsTab {...createProps({ member })} />);
+      expect(
+        screen.getByRole('button', {
+          name: /member.detail.actions.remove_from_organization.button/i,
+        }),
+      ).not.toBeDisabled();
+    });
+
+    it('enables remove button when member has full access_level', () => {
+      const member = createMockMember({ access_level: 'full' });
+      renderWithProviders(<OrganizationMemberEditDetailsTab {...createProps({ member })} />);
+      expect(
+        screen.getByRole('button', {
+          name: /member.detail.actions.remove_from_organization.button/i,
+        }),
+      ).not.toBeDisabled();
+    });
+  });
 });

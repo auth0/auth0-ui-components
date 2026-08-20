@@ -1,13 +1,20 @@
-import type { MemberInvitation, Role } from '@auth0/universal-components-core';
+import type {
+  ListUserStoresResponseContent,
+  MemberInvitation,
+  Role,
+  UserStore,
+} from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 import { ALL_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import type {
-  IdentityProviderOption,
+  ConnectionOption,
+  OrganizationInvitationBulkRevokeModalProps,
   OrganizationInvitationCreateModalProps,
   OrganizationInvitationDetailsModalProps,
   OrganizationInvitationRevokeModalProps,
   OrganizationInvitationTableActionsColumnProps,
+  OrganizationInvitationTableProps,
   SearchFilterProps,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
@@ -39,15 +46,28 @@ export const createMockExpiredInvitation = (
     ...overrides,
   });
 
+export const createMockUserStore = (overrides?: Partial<UserStore>): UserStore => ({
+  id: 'us_store1',
+  name: 'acme-directory',
+  display_name: 'Acme Directory',
+  ...overrides,
+});
+
+export const createMockListUserStoresResponse = (
+  stores: UserStore[] = [createMockUserStore()],
+): ListUserStoresResponseContent => ({
+  user_stores: stores,
+});
+
 export const createMockRoles = (): Role[] => [
   { id: 'role_admin', name: 'Admin', description: 'Administrator role' },
   { id: 'role_member', name: 'Member', description: 'Member role' },
   { id: 'role_viewer', name: 'Viewer', description: 'Viewer role' },
 ];
 
-export const createMockProviders = (): IdentityProviderOption[] => [
-  { id: 'con_provider1', name: 'Google', type: 'social' },
-  { id: 'con_provider2', name: 'Okta', type: 'enterprise' },
+export const createMockConnections = (): ConnectionOption[] => [
+  { id: 'con_provider1', name: 'Google', type: 'identity_provider' },
+  { id: 'us_store1', name: 'Acme Directory', type: 'user_store' },
 ];
 
 export const createMockCreateModalProps = (
@@ -80,6 +100,8 @@ export const createMockDetailsModalProps = (
   isRevoking: false,
   isResending: false,
   permissions: ALL_MEMBER_PERMISSIONS,
+  roles: [],
+  isLoadingRoles: false,
   onClose: vi.fn(),
   onCopyUrl: vi.fn(),
   onRevoke: vi.fn(),
@@ -105,5 +127,43 @@ export const createMockSearchFilterProps = (
   filters: {},
   availableRoles: createMockRoles(),
   onRoleFilterChange: vi.fn(),
+  ...overrides,
+});
+
+export const createMockInvitations = (): MemberInvitation[] => [
+  createMockInvitation({ id: 'inv_1', invitee: { email: 'a@example.com' } }),
+  createMockInvitation({ id: 'inv_2', invitee: { email: 'b@example.com' } }),
+];
+
+export const createMockTableProps = (
+  overrides: Partial<OrganizationInvitationTableProps> = {},
+): OrganizationInvitationTableProps => {
+  const invitations = overrides.invitations ?? createMockInvitations();
+
+  return {
+    invitations,
+    loading: false,
+    customMessages: {},
+    permissions: ALL_MEMBER_PERMISSIONS,
+    pagination: {
+      pageSize: 10,
+      currentPage: 1,
+      totalItems: invitations.length,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    },
+    ...overrides,
+  };
+};
+
+export const createMockBulkRevokeModalProps = (
+  overrides: Partial<OrganizationInvitationBulkRevokeModalProps> = {},
+): OrganizationInvitationBulkRevokeModalProps => ({
+  invitations: createMockInvitations(),
+  isOpen: true,
+  isLoading: false,
+  customMessages: {},
+  onClose: vi.fn(),
+  onConfirm: vi.fn(),
   ...overrides,
 });

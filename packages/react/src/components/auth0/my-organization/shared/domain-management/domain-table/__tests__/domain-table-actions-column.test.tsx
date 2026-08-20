@@ -44,17 +44,19 @@ describe('DomainTableActionsColumn', () => {
     it('should render with custom messages', async () => {
       const user = userEvent.setup();
       const customMessages = {
-        table: {
-          empty_message: 'No domains',
-          columns: {
-            domain: 'Domain',
-            status: 'Status',
-          },
-          actions: {
-            delete_button_text: 'Custom Delete',
-            configure_button_text: 'Custom Configure',
-            view_button_text: 'Custom View',
-            verify_button_text: 'Custom Verify',
+        domain_table: {
+          table: {
+            empty_message: 'No domains',
+            columns: {
+              domain: 'Domain',
+              status: 'Status',
+            },
+            actions: {
+              delete_button_text: 'Custom Delete',
+              configure_button_text: 'Custom Configure',
+              view_button_text: 'Custom View',
+              verify_button_text: 'Custom Verify',
+            },
           },
         },
       };
@@ -91,13 +93,13 @@ describe('DomainTableActionsColumn', () => {
 
       // When menu opens, should display appropriate menu items based on domain status (pending)
       expect(
-        screen.getByRole('menuitem', { name: 'table.actions.view_button_text' }),
+        screen.getByRole('menuitem', { name: 'domain_table.table.actions.view_button_text' }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('menuitem', { name: 'table.actions.verify_button_text' }),
+        screen.getByRole('menuitem', { name: 'domain_table.table.actions.verify_button_text' }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('menuitem', { name: 'table.actions.delete_button_text' }),
+        screen.getByRole('menuitem', { name: 'domain_table.table.actions.delete_button_text' }),
       ).toBeInTheDocument();
     });
 
@@ -111,7 +113,7 @@ describe('DomainTableActionsColumn', () => {
 
       // When menu is opened, should be visible
       expect(
-        screen.getByRole('menuitem', { name: 'table.actions.delete_button_text' }),
+        screen.getByRole('menuitem', { name: 'domain_table.table.actions.delete_button_text' }),
       ).toBeInTheDocument();
 
       // When Escape key is pressed, should close the dropdown menu
@@ -120,7 +122,7 @@ describe('DomainTableActionsColumn', () => {
       // When menu closes, menu items should no longer be visible
       await waitFor(() => {
         expect(
-          screen.queryByRole('menuitem', { name: 'table.actions.delete_button_text' }),
+          screen.queryByRole('menuitem', { name: 'domain_table.table.actions.delete_button_text' }),
         ).not.toBeInTheDocument();
       });
     });
@@ -139,16 +141,16 @@ describe('DomainTableActionsColumn', () => {
       await user.click(trigger);
 
       expect(
-        screen.getByRole('menuitem', { name: 'table.actions.configure_button_text' }),
+        screen.getByRole('menuitem', { name: 'domain_table.table.actions.configure_button_text' }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('menuitem', { name: 'table.actions.delete_button_text' }),
+        screen.getByRole('menuitem', { name: 'domain_table.table.actions.delete_button_text' }),
       ).toBeInTheDocument();
       expect(
-        screen.queryByRole('menuitem', { name: 'table.actions.view_button_text' }),
+        screen.queryByRole('menuitem', { name: 'domain_table.table.actions.view_button_text' }),
       ).not.toBeInTheDocument();
       expect(
-        screen.queryByRole('menuitem', { name: 'table.actions.verify_button_text' }),
+        screen.queryByRole('menuitem', { name: 'domain_table.table.actions.verify_button_text' }),
       ).not.toBeInTheDocument();
     });
 
@@ -166,7 +168,7 @@ describe('DomainTableActionsColumn', () => {
       await user.click(trigger);
 
       const configureMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.configure_button_text',
+        name: 'domain_table.table.actions.configure_button_text',
       });
 
       // When Configure menu item is clicked, should call onConfigure callback
@@ -191,16 +193,18 @@ describe('DomainTableActionsColumn', () => {
       await user.click(trigger);
 
       expect(
-        screen.getByRole('menuitem', { name: 'table.actions.view_button_text' }),
+        screen.getByRole('menuitem', { name: 'domain_table.table.actions.view_button_text' }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('menuitem', { name: 'table.actions.verify_button_text' }),
+        screen.getByRole('menuitem', { name: 'domain_table.table.actions.verify_button_text' }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('menuitem', { name: 'table.actions.delete_button_text' }),
+        screen.getByRole('menuitem', { name: 'domain_table.table.actions.delete_button_text' }),
       ).toBeInTheDocument();
       expect(
-        screen.queryByRole('menuitem', { name: 'table.actions.configure_button_text' }),
+        screen.queryByRole('menuitem', {
+          name: 'domain_table.table.actions.configure_button_text',
+        }),
       ).not.toBeInTheDocument();
     });
 
@@ -219,7 +223,9 @@ describe('DomainTableActionsColumn', () => {
       const trigger = screen.getByRole('button');
       await user.click(trigger);
 
-      const viewMenuItem = screen.getByRole('menuitem', { name: 'table.actions.view_button_text' });
+      const viewMenuItem = screen.getByRole('menuitem', {
+        name: 'domain_table.table.actions.view_button_text',
+      });
 
       // When View menu item is clicked, should call onConfigure (not onView)
       await user.click(viewMenuItem);
@@ -246,7 +252,9 @@ describe('DomainTableActionsColumn', () => {
       const trigger = screen.getByRole('button');
       await user.click(trigger);
 
-      const viewMenuItem = screen.getByRole('menuitem', { name: 'table.actions.view_button_text' });
+      const viewMenuItem = screen.getByRole('menuitem', {
+        name: 'domain_table.table.actions.view_button_text',
+      });
 
       // When View menu item is clicked, should use onConfigure instead of onView
       await user.click(viewMenuItem);
@@ -271,7 +279,7 @@ describe('DomainTableActionsColumn', () => {
       await user.click(trigger);
 
       const verifyMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.verify_button_text',
+        name: 'domain_table.table.actions.verify_button_text',
       });
 
       // When Verify menu item is clicked, should call onVerify callback
@@ -301,7 +309,7 @@ describe('DomainTableActionsColumn', () => {
         await user.click(trigger);
 
         expect(
-          screen.getByRole('menuitem', { name: 'table.actions.delete_button_text' }),
+          screen.getByRole('menuitem', { name: 'domain_table.table.actions.delete_button_text' }),
         ).toBeInTheDocument();
 
         unmount();
@@ -322,7 +330,7 @@ describe('DomainTableActionsColumn', () => {
       await user.click(trigger);
 
       const deleteMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.delete_button_text',
+        name: 'domain_table.table.actions.delete_button_text',
       });
 
       // When Delete menu item is clicked, should call onDelete callback
@@ -342,7 +350,7 @@ describe('DomainTableActionsColumn', () => {
       await user.click(trigger);
 
       const deleteMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.delete_button_text',
+        name: 'domain_table.table.actions.delete_button_text',
       });
       expect(deleteMenuItem).toHaveClass('text-destructive-foreground');
     });
@@ -361,12 +369,14 @@ describe('DomainTableActionsColumn', () => {
       const trigger = screen.getByRole('button');
       await user.click(trigger);
 
-      const viewMenuItem = screen.getByRole('menuitem', { name: 'table.actions.view_button_text' });
+      const viewMenuItem = screen.getByRole('menuitem', {
+        name: 'domain_table.table.actions.view_button_text',
+      });
       const verifyMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.verify_button_text',
+        name: 'domain_table.table.actions.verify_button_text',
       });
       const deleteMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.delete_button_text',
+        name: 'domain_table.table.actions.delete_button_text',
       });
 
       // When readOnly is true, all menu items should be disabled
@@ -388,10 +398,10 @@ describe('DomainTableActionsColumn', () => {
       await user.click(trigger);
 
       const configureMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.configure_button_text',
+        name: 'domain_table.table.actions.configure_button_text',
       });
       const deleteMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.delete_button_text',
+        name: 'domain_table.table.actions.delete_button_text',
       });
 
       // When readOnly is true for verified domains, both Configure and Delete should be disabled
@@ -416,10 +426,10 @@ describe('DomainTableActionsColumn', () => {
       await user.click(trigger);
 
       const configureMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.configure_button_text',
+        name: 'domain_table.table.actions.configure_button_text',
       });
       const deleteMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.delete_button_text',
+        name: 'domain_table.table.actions.delete_button_text',
       });
 
       // When readOnly is true, the DropdownMenuItem should have disabled prop which prevents onClick
@@ -454,13 +464,15 @@ describe('DomainTableActionsColumn', () => {
       const trigger = screen.getByRole('button');
       await user.click(trigger);
 
-      const viewMenuItem = screen.getByRole('menuitem', { name: 'table.actions.view_button_text' });
+      const viewMenuItem = screen.getByRole('menuitem', {
+        name: 'domain_table.table.actions.view_button_text',
+      });
       await user.click(viewMenuItem);
       expect(onConfigure).toHaveBeenCalledWith(pendingDomain);
 
       await user.click(trigger); // Reopen the menu
       const verifyMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.verify_button_text',
+        name: 'domain_table.table.actions.verify_button_text',
       });
       await user.click(verifyMenuItem);
       expect(onVerify).toHaveBeenCalledWith(pendingDomain);
@@ -482,14 +494,14 @@ describe('DomainTableActionsColumn', () => {
       await user.click(triggerVerified);
 
       const configureMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.configure_button_text',
+        name: 'domain_table.table.actions.configure_button_text',
       });
       await user.click(configureMenuItem);
       expect(onConfigure).toHaveBeenCalledWith(verifiedDomain);
 
       await user.click(triggerVerified);
       const deleteMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.delete_button_text',
+        name: 'domain_table.table.actions.delete_button_text',
       });
       await user.click(deleteMenuItem);
       expect(onDelete).toHaveBeenCalledWith(verifiedDomain);
@@ -509,12 +521,14 @@ describe('DomainTableActionsColumn', () => {
       await user.click(trigger);
 
       // Check for SVG elements in menu items (icons are rendered as SVGs)
-      const viewMenuItem = screen.getByRole('menuitem', { name: 'table.actions.view_button_text' });
+      const viewMenuItem = screen.getByRole('menuitem', {
+        name: 'domain_table.table.actions.view_button_text',
+      });
       const verifyMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.verify_button_text',
+        name: 'domain_table.table.actions.verify_button_text',
       });
       const deleteMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.delete_button_text',
+        name: 'domain_table.table.actions.delete_button_text',
       });
 
       expect(viewMenuItem.querySelector('svg')).toBeInTheDocument();
@@ -534,7 +548,7 @@ describe('DomainTableActionsColumn', () => {
       await user.click(trigger);
 
       const configureMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.configure_button_text',
+        name: 'domain_table.table.actions.configure_button_text',
       });
       expect(configureMenuItem.querySelector('svg')).toBeInTheDocument();
     });
@@ -565,16 +579,18 @@ describe('DomainTableActionsColumn', () => {
 
       // Should only show Delete (no status-specific actions)
       expect(
-        screen.getByRole('menuitem', { name: 'table.actions.delete_button_text' }),
+        screen.getByRole('menuitem', { name: 'domain_table.table.actions.delete_button_text' }),
       ).toBeInTheDocument();
       expect(
-        screen.queryByRole('menuitem', { name: 'table.actions.configure_button_text' }),
+        screen.queryByRole('menuitem', {
+          name: 'domain_table.table.actions.configure_button_text',
+        }),
       ).not.toBeInTheDocument();
       expect(
-        screen.queryByRole('menuitem', { name: 'table.actions.view_button_text' }),
+        screen.queryByRole('menuitem', { name: 'domain_table.table.actions.view_button_text' }),
       ).not.toBeInTheDocument();
       expect(
-        screen.queryByRole('menuitem', { name: 'table.actions.verify_button_text' }),
+        screen.queryByRole('menuitem', { name: 'domain_table.table.actions.verify_button_text' }),
       ).not.toBeInTheDocument();
     });
 
@@ -591,16 +607,18 @@ describe('DomainTableActionsColumn', () => {
 
       // Should only show Delete (no status-specific actions)
       expect(
-        screen.getByRole('menuitem', { name: 'table.actions.delete_button_text' }),
+        screen.getByRole('menuitem', { name: 'domain_table.table.actions.delete_button_text' }),
       ).toBeInTheDocument();
       expect(
-        screen.queryByRole('menuitem', { name: 'table.actions.configure_button_text' }),
+        screen.queryByRole('menuitem', {
+          name: 'domain_table.table.actions.configure_button_text',
+        }),
       ).not.toBeInTheDocument();
       expect(
-        screen.queryByRole('menuitem', { name: 'table.actions.view_button_text' }),
+        screen.queryByRole('menuitem', { name: 'domain_table.table.actions.view_button_text' }),
       ).not.toBeInTheDocument();
       expect(
-        screen.queryByRole('menuitem', { name: 'table.actions.verify_button_text' }),
+        screen.queryByRole('menuitem', { name: 'domain_table.table.actions.verify_button_text' }),
       ).not.toBeInTheDocument();
     });
 
@@ -614,7 +632,7 @@ describe('DomainTableActionsColumn', () => {
       await user.click(trigger);
 
       const deleteMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.delete_button_text',
+        name: 'domain_table.table.actions.delete_button_text',
       });
 
       // Rapid clicks
@@ -643,7 +661,7 @@ describe('DomainTableActionsColumn', () => {
 
       // When menu opens via keyboard, should display menu items
       expect(
-        screen.getByRole('menuitem', { name: 'table.actions.delete_button_text' }),
+        screen.getByRole('menuitem', { name: 'domain_table.table.actions.delete_button_text' }),
       ).toBeInTheDocument();
     });
 
@@ -666,7 +684,7 @@ describe('DomainTableActionsColumn', () => {
 
       // Menu items should be focusable
       const deleteMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.delete_button_text',
+        name: 'domain_table.table.actions.delete_button_text',
       });
       expect(deleteMenuItem).toBeInTheDocument();
     });
@@ -690,7 +708,7 @@ describe('DomainTableActionsColumn', () => {
 
         // All should have Delete
         expect(
-          screen.getByRole('menuitem', { name: 'table.actions.delete_button_text' }),
+          screen.getByRole('menuitem', { name: 'domain_table.table.actions.delete_button_text' }),
         ).toBeInTheDocument();
 
         unmount();
@@ -720,7 +738,7 @@ describe('DomainTableActionsColumn', () => {
       await user.click(trigger);
 
       const deleteMenuItem = screen.getByRole('menuitem', {
-        name: 'table.actions.delete_button_text',
+        name: 'domain_table.table.actions.delete_button_text',
       });
 
       // Click should trigger the callback
@@ -745,16 +763,18 @@ describe('DomainTableActionsColumn', () => {
 
       // Failed domains should only show Delete (no specific actions for failed status)
       expect(
-        screen.getByRole('menuitem', { name: 'table.actions.delete_button_text' }),
+        screen.getByRole('menuitem', { name: 'domain_table.table.actions.delete_button_text' }),
       ).toBeInTheDocument();
       expect(
-        screen.queryByRole('menuitem', { name: 'table.actions.configure_button_text' }),
+        screen.queryByRole('menuitem', {
+          name: 'domain_table.table.actions.configure_button_text',
+        }),
       ).not.toBeInTheDocument();
       expect(
-        screen.queryByRole('menuitem', { name: 'table.actions.view_button_text' }),
+        screen.queryByRole('menuitem', { name: 'domain_table.table.actions.view_button_text' }),
       ).not.toBeInTheDocument();
       expect(
-        screen.queryByRole('menuitem', { name: 'table.actions.verify_button_text' }),
+        screen.queryByRole('menuitem', { name: 'domain_table.table.actions.verify_button_text' }),
       ).not.toBeInTheDocument();
     });
   });

@@ -1,9 +1,12 @@
+// import type { OrganizationMemberDetailTab } from '@auth0/universal-components-react';
 // import { OrganizationMemberDetail } from '@auth0/universal-components-react';
-// import { useNavigate, useParams } from 'react-router-dom';
+// import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 const MemberDetailPage = () => {
   // const navigate = useNavigate();
   // const { user_id } = useParams<{ user_id: string }>();
+  // const [searchParams] = useSearchParams();
+  // const tab = searchParams.get('tab') as OrganizationMemberDetailTab;
   return (
     <div className="p-6 pt-8 space-y-6">
       <p className="text-primary">
@@ -17,7 +20,7 @@ const MemberDetailPage = () => {
         </a>{' '}
         on how to add Member Detail component.
       </p>
-      {/* <OrganizationMemberDetail userId={user_id!} onBack={() => navigate('/member-management')} /> */}
+      {/* <OrganizationMemberDetail userId={user_id!} initialTab={tab} onBack={() => navigate('/member-management')} /> */}
     </div>
   );
 };

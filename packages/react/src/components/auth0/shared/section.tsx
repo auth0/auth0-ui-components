@@ -117,22 +117,12 @@ export function Section({
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col min-w-0 flex-1 space-y-2">
           {title && (
-            <h3
-              className={cn(
-                'text-lg text-foreground text-(length:--font-size-subtitle) font-semibold mb-1 text-left',
-              )}
-            >
+            <h3 className={cn('text-foreground text-subtitle font-semibold mb-1 text-left')}>
               {title}
             </h3>
           )}
           {description && (
-            <p
-              className={cn(
-                'text-sm text-muted-foreground text-left text-(length:--font-size-paragraph)',
-              )}
-            >
-              {description}
-            </p>
+            <p className={cn('text-muted-foreground text-left text-paragraph')}>{description}</p>
           )}
         </div>
 

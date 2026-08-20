@@ -1,119 +1,368 @@
-import { screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, assert, describe, expect, it, vi } from 'vitest';
 
 import { OrganizationInvitationTable } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-table/organization-invitation-table';
+import { MAX_INVITATIONS_PER_REQUEST } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import {
-  createMockPendingInvitation,
-  createMockRoles,
+  createMockInvitation,
+  createMockInvitations,
+  createMockTableProps,
 } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
-import {
-  ALL_MEMBER_PERMISSIONS,
-  READ_ONLY_MEMBER_PERMISSIONS,
-} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
-import type { OrganizationInvitationTableProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
+import { mockToast } from '@/tests/utils/test-setup';
 
-const createProps = (
-  overrides: Partial<OrganizationInvitationTableProps> = {},
-): OrganizationInvitationTableProps => ({
-  invitations: [createMockPendingInvitation()],
-  loading: false,
-  pagination: {
-    pageSize: 10,
-    currentPage: 1,
-    totalItems: 1,
-    hasNextPage: false,
-    hasPreviousPage: false,
-  },
-  filters: {},
-  sortConfig: { key: null, direction: 'asc' },
-  availableRoles: createMockRoles(),
-  permissions: ALL_MEMBER_PERMISSIONS,
-  onView: vi.fn(),
-  onCopyUrl: vi.fn(),
-  onRevokeAndResend: vi.fn(),
-  onRevoke: vi.fn(),
-  onNextPage: vi.fn(),
-  onPreviousPage: vi.fn(),
-  onPageSizeChange: vi.fn(),
-  onSortChange: vi.fn(),
-  onRoleFilterChange: vi.fn(),
-  ...overrides,
-});
+mockToast();
+
+const invitations = createMockInvitations();
+
+afterEach(() => vi.clearAllMocks());
 
 describe('OrganizationInvitationTable', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  describe('Row click navigation', () => {
-    it('should open the invitation when the row is clicked', async () => {
-      const user = userEvent.setup();
-      const invitation = createMockPendingInvitation();
-      const onView = vi.fn();
-
+  describe('selection UI', () => {
+    it('does not render selection checkboxes when onSelectedInvitationsChange is not provided', () => {
       renderWithProviders(
-        <OrganizationInvitationTable {...createProps({ invitations: [invitation], onView })} />,
+        <OrganizationInvitationTable {...createMockTableProps({ invitations })} />,
       );
-
-      await user.click(screen.getByText(invitation.invitee!.email!));
-
-      expect(onView).toHaveBeenCalledTimes(1);
-      expect(onView).toHaveBeenCalledWith(invitation);
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
     });
 
-    it('should stay navigable with read-only permissions, whose only path is the row', async () => {
-      const user = userEvent.setup();
-      const invitation = createMockPendingInvitation();
-      const onView = vi.fn();
-
+    it('does not render selection checkboxes in read-only mode', () => {
       renderWithProviders(
         <OrganizationInvitationTable
-          {...createProps({
-            invitations: [invitation],
-            permissions: READ_ONLY_MEMBER_PERMISSIONS,
-            onView,
+          {...createMockTableProps({
+            invitations,
+            readOnly: true,
+            onSelectedInvitationsChange: vi.fn(),
+          })}
+        />,
+      );
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+    });
+
+    it('renders selection checkboxes when selection is enabled', () => {
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({ invitations, onSelectedInvitationsChange: vi.fn() })}
+        />,
+      );
+      expect(screen.getAllByRole('checkbox').length).toBeGreaterThan(0);
+    });
+
+    it('calls onSelectedInvitationsChange when a row checkbox is clicked', async () => {
+      const user = userEvent.setup();
+      const onSelectedInvitationsChange = vi.fn();
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({ invitations, onSelectedInvitationsChange })}
+        />,
+      );
+      const [firstRowCheckbox] = screen.getAllByRole('checkbox', {
+        name: 'data_table.select_row',
+      });
+      assert(firstRowCheckbox);
+
+      await user.click(firstRowCheckbox);
+      expect(onSelectedInvitationsChange).toHaveBeenCalled();
+    });
+  });
+
+  describe('bulk revoke button', () => {
+    it('is hidden when no invitations are selected', () => {
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({
+            invitations,
+            onSelectedInvitationsChange: vi.fn(),
+            selectedInvitations: [],
+          })}
+        />,
+      );
+      expect(
+        screen.queryByRole('button', { name: 'invitation.bulk_revoke.button' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows the singular count label when 1 invitation is selected', () => {
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({
+            invitations,
+            onSelectedInvitationsChange: vi.fn(),
+            selectedInvitations: invitations.slice(0, 1),
+          })}
+        />,
+      );
+      expect(screen.getByText('invitation.bulk_revoke.count')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'invitation.bulk_revoke.button' }),
+      ).toBeInTheDocument();
+    });
+
+    it('shows the plural count label when multiple invitations are selected', () => {
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({
+            invitations,
+            onSelectedInvitationsChange: vi.fn(),
+            selectedInvitations: invitations,
+          })}
+        />,
+      );
+      expect(screen.getByText('invitation.bulk_revoke.count_plural')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'invitation.bulk_revoke.button_plural' }),
+      ).toBeInTheDocument();
+    });
+
+    it('calls onBulkRevoke with the selected invitations when clicked', async () => {
+      const user = userEvent.setup();
+      const onBulkRevoke = vi.fn();
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({
+            invitations,
+            onSelectedInvitationsChange: vi.fn(),
+            selectedInvitations: invitations,
+            onBulkRevoke,
+          })}
+        />,
+      );
+      await user.click(
+        screen.getByRole('button', { name: 'invitation.bulk_revoke.button_plural' }),
+      );
+      expect(onBulkRevoke).toHaveBeenCalledWith(invitations);
+    });
+  });
+
+  describe('selection limit', () => {
+    const manyInvitations = Array.from({ length: 14 }, (_, i) =>
+      createMockInvitation({ id: `inv_${i}`, invitee: { email: `user${i}@example.com` } }),
+    );
+    const atCap = manyInvitations.slice(0, MAX_INVITATIONS_PER_REQUEST);
+
+    const rowCheckboxes = () => screen.getAllByRole('checkbox', { name: 'data_table.select_row' });
+    const selectAllCheckbox = () => screen.getByRole('checkbox', { name: 'data_table.select_all' });
+
+    it('disables unselected checkboxes once the cap is reached', () => {
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({
+            invitations: manyInvitations,
+            onSelectedInvitationsChange: vi.fn(),
+            selectedInvitations: atCap,
           })}
         />,
       );
 
-      await user.click(screen.getByText(invitation.invitee!.email!));
-
-      expect(onView).toHaveBeenCalledWith(invitation);
+      const checkboxes = rowCheckboxes();
+      checkboxes
+        .slice(0, MAX_INVITATIONS_PER_REQUEST)
+        .forEach((cb) => expect(cb).not.toBeDisabled());
+      checkboxes.slice(MAX_INVITATIONS_PER_REQUEST).forEach((cb) => expect(cb).toBeDisabled());
     });
 
-    it('should not navigate when the row actions menu is clicked', async () => {
-      const user = userEvent.setup();
-      const onView = vi.fn();
-
-      renderWithProviders(<OrganizationInvitationTable {...createProps({ onView })} />);
-
-      await user.click(screen.getByRole('button', { name: 'invitation.actions.menu_label' }));
-
-      expect(onView).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('Granted permissions', () => {
-    it('should render no row actions menu with read-only permissions', () => {
+    it('does not disable any checkbox below the cap', () => {
       renderWithProviders(
         <OrganizationInvitationTable
-          {...createProps({ permissions: READ_ONLY_MEMBER_PERMISSIONS })}
+          {...createMockTableProps({
+            invitations: manyInvitations,
+            onSelectedInvitationsChange: vi.fn(),
+            selectedInvitations: atCap.slice(0, MAX_INVITATIONS_PER_REQUEST - 1),
+          })}
         />,
       );
 
-      expect(
-        screen.queryByRole('button', { name: 'invitation.actions.menu_label' }),
-      ).not.toBeInTheDocument();
+      rowCheckboxes().forEach((cb) => expect(cb).not.toBeDisabled());
     });
 
-    it('should render the row actions menu when revoke is granted', () => {
-      renderWithProviders(<OrganizationInvitationTable {...createProps()} />);
+    it('shows the limit message on hover over a disabled checkbox', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({
+            invitations: manyInvitations,
+            onSelectedInvitationsChange: vi.fn(),
+            selectedInvitations: atCap,
+          })}
+        />,
+      );
 
-      expect(
-        screen.getByRole('button', { name: 'invitation.actions.menu_label' }),
-      ).toBeInTheDocument();
+      const overCapWrapper = rowCheckboxes()[MAX_INVITATIONS_PER_REQUEST]?.parentElement;
+      assert(overCapWrapper);
+
+      await user.hover(overCapWrapper);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent(
+          'invitation.bulk_revoke.max_selection_message',
+        );
+      });
+    });
+
+    it('reaches the limit message by keyboard, since the disabled checkbox leaves the tab order', async () => {
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({
+            invitations: manyInvitations,
+            onSelectedInvitationsChange: vi.fn(),
+            selectedInvitations: atCap,
+          })}
+        />,
+      );
+
+      const disabled = rowCheckboxes()[MAX_INVITATIONS_PER_REQUEST];
+      expect(disabled).toBeDisabled();
+
+      // The disabled checkbox is unfocusable, so the tooltip wrapper has to hold the tab stop.
+      const wrapper = disabled?.parentElement;
+      assert(wrapper);
+      expect(wrapper).toHaveAttribute('tabindex', '0');
+
+      fireEvent.focus(wrapper);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent(
+          'invitation.bulk_revoke.max_selection_message',
+        );
+      });
+    });
+
+    it('clamps select-all to the cap instead of selecting the whole page', async () => {
+      const user = userEvent.setup();
+      const onSelectedInvitationsChange = vi.fn();
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({
+            invitations: manyInvitations,
+            onSelectedInvitationsChange,
+            selectedInvitations: [],
+          })}
+        />,
+      );
+
+      await user.click(selectAllCheckbox());
+
+      expect(onSelectedInvitationsChange.mock.calls[0]?.[0]).toHaveLength(
+        MAX_INVITATIONS_PER_REQUEST,
+      );
+    });
+
+    it('keeps an already-selected invitation past the cap boundary when select-all clamps', async () => {
+      const user = userEvent.setup();
+      const onSelectedInvitationsChange = vi.fn();
+      const preSelected = manyInvitations.slice(13, 14);
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({
+            invitations: manyInvitations,
+            onSelectedInvitationsChange,
+            selectedInvitations: preSelected,
+          })}
+        />,
+      );
+
+      await user.click(selectAllCheckbox());
+
+      const emitted = onSelectedInvitationsChange.mock.calls[0]?.[0] as { id?: string }[];
+      expect(emitted).toHaveLength(MAX_INVITATIONS_PER_REQUEST);
+      expect(emitted.map((invitation) => invitation.id)).toContain('inv_13');
+    });
+  });
+
+  describe('cross-page selection', () => {
+    const page1 = Array.from({ length: 3 }, (_, i) =>
+      createMockInvitation({ id: `p1_${i}`, invitee: { email: `page1-${i}@example.com` } }),
+    );
+    const page2 = Array.from({ length: 3 }, (_, i) =>
+      createMockInvitation({ id: `p2_${i}`, invitee: { email: `page2-${i}@example.com` } }),
+    );
+
+    it('keeps prior-page selections when a row on the current page is checked', async () => {
+      const user = userEvent.setup();
+      const onSelectedInvitationsChange = vi.fn();
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({
+            invitations: page2,
+            onSelectedInvitationsChange,
+            selectedInvitations: page1.slice(0, 1),
+          })}
+        />,
+      );
+
+      const [firstRowCheckbox] = screen.getAllByRole('checkbox', {
+        name: 'data_table.select_row',
+      });
+      assert(firstRowCheckbox);
+
+      await user.click(firstRowCheckbox);
+
+      const emitted = onSelectedInvitationsChange.mock.calls[0]?.[0] as { id?: string }[];
+      expect(emitted.map((invitation) => invitation.id)).toEqual(['p1_0', 'p2_0']);
+    });
+
+    it('keeps prior-page selections when a current-page row is unchecked', async () => {
+      const user = userEvent.setup();
+      const onSelectedInvitationsChange = vi.fn();
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({
+            invitations: page2,
+            onSelectedInvitationsChange,
+            selectedInvitations: [...page1.slice(0, 1), ...page2.slice(0, 1)],
+          })}
+        />,
+      );
+
+      const [firstRowCheckbox] = screen.getAllByRole('checkbox', {
+        name: 'data_table.select_row',
+      });
+      assert(firstRowCheckbox);
+
+      await user.click(firstRowCheckbox);
+
+      const emitted = onSelectedInvitationsChange.mock.calls[0]?.[0] as { id?: string }[];
+      expect(emitted.map((invitation) => invitation.id)).toEqual(['p1_0']);
+    });
+
+    it('keeps prior-page selections when select-all is used on the current page', async () => {
+      const user = userEvent.setup();
+      const onSelectedInvitationsChange = vi.fn();
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({
+            invitations: page2,
+            onSelectedInvitationsChange,
+            selectedInvitations: page1.slice(0, 1),
+          })}
+        />,
+      );
+
+      await user.click(screen.getByRole('checkbox', { name: 'data_table.select_all' }));
+
+      const emitted = onSelectedInvitationsChange.mock.calls[0]?.[0] as { id?: string }[];
+      expect(emitted.map((invitation) => invitation.id)).toEqual(['p1_0', 'p2_0', 'p2_1', 'p2_2']);
+    });
+
+    it('counts off-page selections toward the cap and blocks the visible page', () => {
+      const offPage = Array.from({ length: MAX_INVITATIONS_PER_REQUEST }, (_, i) =>
+        createMockInvitation({ id: `off_${i}`, invitee: { email: `off${i}@example.com` } }),
+      );
+      renderWithProviders(
+        <OrganizationInvitationTable
+          {...createMockTableProps({
+            invitations: page2,
+            onSelectedInvitationsChange: vi.fn(),
+            selectedInvitations: offPage,
+          })}
+        />,
+      );
+
+      screen
+        .getAllByRole('checkbox', { name: 'data_table.select_row' })
+        .forEach((cb) => expect(cb).toBeDisabled());
+      expect(screen.getByRole('checkbox', { name: 'data_table.select_all' })).toBeDisabled();
     });
   });
 });

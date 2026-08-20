@@ -4,9 +4,14 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
+import { DEFAULT_ROLES_PAGE_SIZE } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
-import { createMockInvitation } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
+import {
+  createMockInvitation,
+  createMockRoles,
+} from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { UseMemberManagementServiceOptions } from '@/types/my-organization/member-management/organization-member-management-types';
@@ -73,7 +78,7 @@ describe('useMemberManagementService', () => {
   });
 
   describe('providersQuery', () => {
-    it('should fetch identity providers when invitations tab is active', async () => {
+    it('should fetch identity providers with invitable member access levels filter', async () => {
       const options = createDefaultOptions({ activeTab: 'invitations' });
       const { result } = renderService(options);
 
@@ -83,69 +88,191 @@ describe('useMemberManagementService', () => {
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list,
-      ).toHaveBeenCalled();
+      ).toHaveBeenCalledWith({ member_access_level: ['limited', 'full'] });
     });
 
     it('should not fetch identity providers when members tab is active', async () => {
       const options = createDefaultOptions({ activeTab: 'members' });
       const { result } = renderService(options);
 
-      // Wait for rolesQuery to settle (it's always enabled)
-      await waitFor(() => {
-        expect(result.current.rolesQuery.isSuccess).toBe(true);
-      });
-
-      expect(result.current.providersQuery.fetchStatus).toBe('idle');
-    });
-  });
-
-  describe('rolesQuery', () => {
-    it('should fetch roles when coreClient is available', async () => {
-      const options = createDefaultOptions();
-      const { result } = renderService(options);
-
-      await waitFor(() => {
-        expect(result.current.rolesQuery.isSuccess).toBe(true);
-      });
-
-      expect(result.current.rolesQuery.data).toBeDefined();
-    });
-
-    it('should return roles data', async () => {
-      const options = createDefaultOptions();
-      const { result } = renderService(options);
-
-      await waitFor(() => {
-        expect(result.current.rolesQuery.isSuccess).toBe(true);
-      });
-
-      expect(result.current.rolesQuery.data).toEqual([
-        { id: 'rol_admin', name: 'admin', description: 'Admin role' },
-      ]);
-    });
-
-    it('should fetch roles regardless of active tab', async () => {
-      const options = createDefaultOptions({ activeTab: 'members' });
-      const { result } = renderService(options);
-
-      await waitFor(() => {
-        expect(result.current.rolesQuery.isSuccess).toBe(true);
-      });
-
-      expect(result.current.rolesQuery.data).toBeDefined();
-    });
-
-    it('should not fetch roles when enableRolesList is false', async () => {
-      const options = createDefaultOptions({ enableRolesList: false });
-      const { result } = renderService(options);
-
-      // Let the search query settle so we know queries have had a chance to run.
+      // Wait for the role search query to settle (it's enabled by default)
       await waitFor(() => {
         expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
       });
 
-      expect(result.current.rolesQuery.fetchStatus).toBe('idle');
-      expect(result.current.rolesQuery.data).toBeUndefined();
+      expect(result.current.providersQuery.fetchStatus).toBe('idle');
+    });
+
+    it('should map identity providers to connection options tagged as identity_provider', async () => {
+      mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
+        .fn()
+        .mockResolvedValue({
+          identity_providers: [
+            { id: 'con_1', display_name: 'Google', name: 'google', strategy: 'social' },
+            { id: 'con_2', name: 'okta', strategy: 'enterprise' },
+            { name: 'no-id', strategy: 'social' },
+          ],
+        });
+
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.providersQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.providersQuery.data).toEqual([
+        { id: 'con_1', name: 'Google', type: 'identity_provider' },
+        { id: 'con_2', name: 'okta', type: 'identity_provider' },
+      ]);
+    });
+  });
+
+  describe('userStoresQuery', () => {
+    const userStoresGetMock = () =>
+      mockCoreClient.getMyOrganizationApiClient().organization.userStores.list;
+
+    it('should fetch user stores with enabled and invitable member access levels filter', async () => {
+      const options = createDefaultOptions({ activeTab: 'invitations' });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.userStoresQuery.isSuccess).toBe(true);
+      });
+
+      expect(userStoresGetMock()).toHaveBeenCalledWith({
+        is_enabled: true,
+        member_access_level: ['limited', 'full'],
+      });
+    });
+
+    it('should not fetch user stores when no active tab is provided', async () => {
+      const options = createDefaultOptions({ activeTab: undefined });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.userStoresQuery.fetchStatus).toBe('idle');
+    });
+
+    it('should map user stores to connection options tagged as user_store', async () => {
+      mockCoreClient.getMyOrganizationApiClient().organization.userStores.list = vi
+        .fn()
+        .mockResolvedValue({
+          user_stores: [
+            { id: 'us_1', display_name: 'Acme Directory', name: 'acme' },
+            { id: 'us_2', name: 'okta-store' },
+            { id: 'us_3' },
+          ],
+          next: null,
+        });
+
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.userStoresQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.userStoresQuery.data).toEqual([
+        { id: 'us_1', name: 'Acme Directory', type: 'user_store' },
+        { id: 'us_2', name: 'okta-store', type: 'user_store' },
+        { id: 'us_3', name: 'us_3', type: 'user_store' },
+      ]);
+    });
+  });
+
+  describe('invitationRolesQuery', () => {
+    const invitationRolesListMock = () =>
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.roles.list;
+
+    it('should fetch the roles assigned to the given invitation', async () => {
+      const options = createDefaultOptions({ invitationRolesId: 'uinv_1' });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.invitationRolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(invitationRolesListMock()).toHaveBeenCalledWith('uinv_1');
+      expect(result.current.invitationRolesQuery.data).toEqual(createMockRoles());
+    });
+
+    it('should not bulk-fetch the tenant roles list to resolve invitation roles', async () => {
+      const options = createDefaultOptions({ invitationRolesId: 'uinv_1' });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.invitationRolesQuery.isSuccess).toBe(true);
+      });
+
+      // The only roles.list calls come from the paginated role search, never a bulk fetch.
+      const rolesListMock = vi.mocked(
+        mockCoreClient.getMyOrganizationApiClient().organization.roles.list,
+      );
+      for (const [params] of rolesListMock.mock.calls) {
+        expect(params).toMatchObject({ take: DEFAULT_ROLES_PAGE_SIZE });
+      }
+    });
+
+    it('should stay idle when no invitationRolesId is provided', async () => {
+      const options = createDefaultOptions({ invitationRolesId: null });
+      const { result } = renderService(options);
+
+      // Let another query settle so we know queries have had a chance to run.
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.invitationRolesQuery.fetchStatus).toBe('idle');
+      expect(result.current.invitationRolesQuery.data).toBeUndefined();
+      expect(invitationRolesListMock()).not.toHaveBeenCalled();
+    });
+
+    it('should cache roles per invitation id', async () => {
+      const options = createDefaultOptions({ invitationRolesId: 'uinv_1' });
+      const { result, queryClient } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.invitationRolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(queryClient.getQueryData(memberManagementQueryKeys.invitationRoles('uinv_1'))).toEqual(
+        createMockRoles(),
+      );
+      expect(
+        queryClient.getQueryData(memberManagementQueryKeys.invitationRoles('uinv_2')),
+      ).toBeUndefined();
+    });
+
+    it('should default to an empty list when the response omits roles', async () => {
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.roles.list = vi
+        .fn()
+        .mockResolvedValue({});
+
+      const options = createDefaultOptions({ invitationRolesId: 'uinv_1' });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.invitationRolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.invitationRolesQuery.data).toEqual([]);
+    });
+
+    it('should surface an error when the request fails', async () => {
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.roles.list = vi
+        .fn()
+        .mockRejectedValue(new Error('boom'));
+
+      const options = createDefaultOptions({ invitationRolesId: 'uinv_1' });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.invitationRolesQuery.isError).toBe(true);
+      });
     });
   });
 
@@ -163,9 +290,7 @@ describe('useMemberManagementService', () => {
     });
 
     it('should stay disabled until enableRoleSearch is called when deferRoleSearch is true', async () => {
-      const { result } = renderService(
-        createDefaultOptions({ deferRoleSearch: true, enableRolesList: false }),
-      );
+      const { result } = renderService(createDefaultOptions({ deferRoleSearch: true }));
 
       // The search query should not run on mount.
       await waitFor(() => {
@@ -183,7 +308,7 @@ describe('useMemberManagementService', () => {
       expect(rolesListMock()).toHaveBeenCalledWith({ take: 10 });
     });
 
-    it('should pass the debounced search term as the name filter', async () => {
+    it('should pass the search term as the name filter', async () => {
       const { result } = renderService(createDefaultOptions());
 
       await waitFor(() => {
@@ -232,6 +357,7 @@ describe('useMemberManagementService', () => {
           from: undefined,
           sort: undefined,
         }),
+        expect.objectContaining({ queryParams: { include_totals: true } }),
       );
     });
 
@@ -263,6 +389,7 @@ describe('useMemberManagementService', () => {
         expect.objectContaining({
           sort: 'created_at:-1',
         }),
+        expect.objectContaining({ queryParams: { include_totals: true } }),
       );
     });
 
@@ -287,6 +414,7 @@ describe('useMemberManagementService', () => {
         expect.objectContaining({
           from: 'token_abc',
         }),
+        expect.objectContaining({ queryParams: { include_totals: true } }),
       );
     });
 
@@ -309,7 +437,44 @@ describe('useMemberManagementService', () => {
       expect(result.current.invitationsQuery.data).toEqual({
         invitations: [mockInvitation],
         next: 'next_token',
+        total: undefined,
       });
+    });
+
+    it('should return the invitation total when the API includes it', async () => {
+      const mockInvitation = createMockInvitation();
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.list = vi
+        .fn()
+        .mockResolvedValue({
+          data: [mockInvitation],
+          response: { next: null, total: 25 },
+        });
+
+      const { result } = renderService(createDefaultOptions());
+
+      await waitFor(() => {
+        expect(result.current.invitationsQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.invitationsQuery.data?.total).toBe(25);
+    });
+
+    it('should leave the invitation total undefined when the API omits it', async () => {
+      const mockInvitation = createMockInvitation();
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.list = vi
+        .fn()
+        .mockResolvedValue({
+          data: [mockInvitation],
+          response: { next: null },
+        });
+
+      const { result } = renderService(createDefaultOptions());
+
+      await waitFor(() => {
+        expect(result.current.invitationsQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.invitationsQuery.data?.total).toBeUndefined();
     });
   });
 
@@ -332,6 +497,26 @@ describe('useMemberManagementService', () => {
         mockCoreClient.getMyOrganizationApiClient().organization.invitations.create,
       ).toHaveBeenCalled();
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'success' }));
+    });
+
+    it('should forward user_store_id to the create request', async () => {
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await act(async () => {
+        result.current.createInvitationMutation.mutate({
+          invitees: [{ email: 'new@example.com' }],
+          user_store_id: 'us_1',
+        });
+      });
+
+      await waitFor(() => {
+        expect(result.current.createInvitationMutation.isSuccess).toBe(true);
+      });
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.create,
+      ).toHaveBeenCalledWith(expect.objectContaining({ user_store_id: 'us_1' }));
     });
 
     it('should call onBefore action and cancel if it returns false', async () => {
@@ -400,13 +585,20 @@ describe('useMemberManagementService', () => {
   });
 
   describe('revokeInvitationMutation', () => {
-    it('should revoke an invitation and show success toast', async () => {
+    let mockHandleError: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      mockHandleError = vi.fn();
+      vi.spyOn(useErrorHandlerModule, 'useErrorHandler').mockReturnValue(mockHandleError);
+    });
+
+    it('should revoke a single invitation and show the singular success toast', async () => {
       const invitation = createMockInvitation();
       const options = createDefaultOptions();
       const { result } = renderService(options);
 
       await act(async () => {
-        result.current.revokeInvitationMutation.mutate(invitation);
+        result.current.revokeInvitationMutation.mutate([invitation]);
       });
 
       await waitFor(() => {
@@ -414,57 +606,160 @@ describe('useMemberManagementService', () => {
       });
 
       expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete,
-      ).toHaveBeenCalledWith(invitation.id);
-      expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'success' }));
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations
+          .deleteMemberInvitations,
+      ).toHaveBeenCalledWith({ invitations: [invitation.id] });
+      expect(mockedShowToast).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'success', message: 'invitation.revoke.success' }),
+      );
     });
 
-    it('should call onBefore action and cancel if it returns false', async () => {
+    it('should revoke multiple invitations with a single bulk call and show the plural success toast', async () => {
+      const invitations = [
+        createMockInvitation({ id: 'inv_1' }),
+        createMockInvitation({ id: 'inv_2' }),
+        createMockInvitation({ id: 'inv_3' }),
+      ];
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await act(async () => {
+        result.current.revokeInvitationMutation.mutate(invitations);
+      });
+
+      await waitFor(() => {
+        expect(result.current.revokeInvitationMutation.isSuccess).toBe(true);
+      });
+
+      const deleteMock =
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations
+          .deleteMemberInvitations;
+      expect(deleteMock).toHaveBeenCalledTimes(1);
+      expect(deleteMock).toHaveBeenCalledWith({ invitations: ['inv_1', 'inv_2', 'inv_3'] });
+      expect(mockedShowToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'success',
+          message: 'invitation.bulk_revoke.success',
+        }),
+      );
+    });
+
+    it('should filter out invitations without an id', async () => {
+      const invitations = [
+        createMockInvitation({ id: 'inv_1' }),
+        createMockInvitation({ id: undefined }),
+      ];
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await act(async () => {
+        result.current.revokeInvitationMutation.mutate(invitations);
+      });
+
+      await waitFor(() => {
+        expect(result.current.revokeInvitationMutation.isSuccess).toBe(true);
+      });
+
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations
+          .deleteMemberInvitations,
+      ).toHaveBeenCalledWith({ invitations: ['inv_1'] });
+    });
+
+    it('should call onBefore with the invitation array and cancel if it returns false', async () => {
       const onBefore = vi.fn().mockReturnValue(false);
-      const invitation = createMockInvitation();
+      const invitations = [createMockInvitation({ id: 'inv_1' })];
       const options = createDefaultOptions({
         revokeInvitationAction: { onBefore },
       });
       const { result } = renderService(options);
 
       await act(async () => {
-        result.current.revokeInvitationMutation.mutate(invitation);
+        result.current.revokeInvitationMutation.mutate(invitations);
       });
 
       await waitFor(() => {
         expect(result.current.revokeInvitationMutation.isError).toBe(true);
       });
 
-      expect(onBefore).toHaveBeenCalledWith(invitation);
+      expect(onBefore).toHaveBeenCalledWith(invitations);
       expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete,
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations
+          .deleteMemberInvitations,
       ).not.toHaveBeenCalled();
     });
 
-    it('should show error toast on failure', async () => {
-      mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete = vi
-        .fn()
-        .mockRejectedValue(new Error('Revoke failed'));
+    it('should call onAfter with the invitation array on success', async () => {
+      const onAfter = vi.fn();
+      const invitations = [createMockInvitation({ id: 'inv_1' })];
+      const options = createDefaultOptions({
+        revokeInvitationAction: { onAfter },
+      });
+      const { result } = renderService(options);
 
-      const invitation = createMockInvitation();
+      await act(async () => {
+        result.current.revokeInvitationMutation.mutate(invitations);
+      });
+
+      await waitFor(() => {
+        expect(result.current.revokeInvitationMutation.isSuccess).toBe(true);
+      });
+
+      expect(onAfter).toHaveBeenCalledWith(invitations);
+    });
+
+    it('should show the singular error message when one invitation fails', async () => {
+      const error = new Error('Revoke failed');
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.deleteMemberInvitations =
+        vi.fn().mockRejectedValue(error);
+
       const options = createDefaultOptions();
       const { result } = renderService(options);
 
       await act(async () => {
-        result.current.revokeInvitationMutation.mutate(invitation);
+        result.current.revokeInvitationMutation.mutate([createMockInvitation({ id: 'inv_1' })]);
       });
 
       await waitFor(() => {
         expect(result.current.revokeInvitationMutation.isError).toBe(true);
       });
 
-      expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: 'invitation.error.revoke_failed',
+      });
+    });
+
+    it('should show the bulk error message when multiple invitations fail', async () => {
+      const error = new Error('Bulk delete failed');
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.deleteMemberInvitations =
+        vi.fn().mockRejectedValue(error);
+
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await act(async () => {
+        result.current.revokeInvitationMutation.mutate([
+          createMockInvitation({ id: 'inv_1' }),
+          createMockInvitation({ id: 'inv_2' }),
+        ]);
+      });
+
+      await waitFor(() => {
+        expect(result.current.revokeInvitationMutation.isError).toBe(true);
+      });
+
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: 'invitation.error.bulk_revoke_failed',
+      });
     });
   });
 
   describe('resendInvitationMutation', () => {
-    it('should revoke and resend an invitation', async () => {
-      const invitation = createMockInvitation();
+    it('should revoke and resend an invitation, preserving the connection', async () => {
+      const invitation = createMockInvitation({ identity_provider_id: 'con_provider1' });
+      const orgApi = mockCoreClient.getMyOrganizationApiClient().organization;
+      orgApi.invitations.get = vi.fn().mockResolvedValue(invitation);
+
       const options = createDefaultOptions();
       const { result } = renderService(options);
 
@@ -476,11 +771,38 @@ describe('useMemberManagementService', () => {
         expect(result.current.resendInvitationMutation.isSuccess).toBe(true);
       });
 
-      const orgApi = mockCoreClient.getMyOrganizationApiClient().organization;
       expect(orgApi.invitations.get).toHaveBeenCalledWith(invitation.id);
-      expect(orgApi.invitations.delete).toHaveBeenCalled();
-      expect(orgApi.invitations.create).toHaveBeenCalled();
+      expect(orgApi.invitations.deleteMemberInvitations).toHaveBeenCalledWith({
+        invitations: [invitation.id],
+      });
+      expect(orgApi.invitations.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          identity_provider_id: 'con_provider1',
+          user_store_id: undefined,
+        }),
+      );
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'success' }));
+    });
+
+    it('should not delete a legacy invitation lacking both connection identifiers', async () => {
+      const invitation = createMockInvitation();
+      const orgApi = mockCoreClient.getMyOrganizationApiClient().organization;
+      orgApi.invitations.get = vi.fn().mockResolvedValue(invitation);
+
+      const options = createDefaultOptions();
+      const { result } = renderService(options);
+
+      await act(async () => {
+        result.current.resendInvitationMutation.mutate(invitation);
+      });
+
+      await waitFor(() => {
+        expect(result.current.resendInvitationMutation.isError).toBe(true);
+      });
+
+      expect(orgApi.invitations.delete).not.toHaveBeenCalled();
+      expect(orgApi.invitations.create).not.toHaveBeenCalled();
+      expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));
     });
 
     it('should call onBefore action and cancel if it returns false', async () => {
@@ -535,6 +857,85 @@ describe('useMemberManagementService', () => {
         mockCoreClient.getMyOrganizationApiClient().organization.invitations.get,
       ).toHaveBeenCalledWith('inv_abc123xyz456');
       expect(details).toEqual(mockInvitation);
+    });
+  });
+
+  describe('when fetching member roles', () => {
+    const memberRolesListMock = () =>
+      mockCoreClient.getMyOrganizationApiClient().organization.members.roles.list;
+
+    it('does not fetch when userId is not provided', async () => {
+      const options = createDefaultOptions({ userId: undefined, memberRolesQueryEnabled: true });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.memberRolesQuery.fetchStatus).toBe('idle');
+      expect(memberRolesListMock()).not.toHaveBeenCalled();
+    });
+
+    it('does not fetch when memberRolesQueryEnabled is false', async () => {
+      const options = createDefaultOptions({
+        userId: 'auth0|user123',
+        memberRolesQueryEnabled: false,
+      });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.memberRolesQuery.fetchStatus).toBe('idle');
+      expect(memberRolesListMock()).not.toHaveBeenCalled();
+    });
+
+    it('does not fetch when userId is invalid format', async () => {
+      const options = createDefaultOptions({
+        userId: 'invalid-user-id',
+        memberRolesQueryEnabled: true,
+      });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.memberRolesQuery.fetchStatus).toBe('idle');
+      expect(memberRolesListMock()).not.toHaveBeenCalled();
+    });
+
+    it('fetches roles when userId is valid and query is enabled', async () => {
+      const mockRoles = [
+        { id: 'rol_1', name: 'Admin' },
+        { id: 'rol_2', name: 'Member' },
+      ];
+      mockCoreClient.getMyOrganizationApiClient().organization.members.roles.list = vi
+        .fn()
+        .mockResolvedValue({ data: mockRoles });
+
+      const options = createDefaultOptions({
+        userId: 'auth0|user123',
+        memberRolesQueryEnabled: true,
+      });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.memberRolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(memberRolesListMock()).toHaveBeenCalledWith('auth0|user123');
+      expect(result.current.memberRolesQuery.data).toEqual(mockRoles);
+    });
+
+    it('uses consistent query key for cache sharing', async () => {
+      const userId = 'auth0|user123';
+      expect(memberManagementQueryKeys.memberRoles(userId)).toEqual([
+        'member-management',
+        'member-roles',
+        userId,
+      ]);
     });
   });
 });

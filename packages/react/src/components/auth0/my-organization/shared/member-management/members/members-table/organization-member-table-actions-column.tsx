@@ -15,6 +15,7 @@ import {
   DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { canMutateMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type { OrganizationMemberTableActionsColumnProps } from '@/types/my-organization/member-management/organization-member-table-types';
 
 /**
@@ -39,7 +40,7 @@ export function OrganizationMemberTableActionsColumn({
   const { t } = useTranslator('member_management', customMessages);
 
   const handleViewDetails = React.useCallback(() => {
-    onViewDetails?.(member?.user_id ?? '');
+    onViewDetails?.({ userId: member?.user_id ?? '' });
   }, [member, onViewDetails]);
 
   const handleAssignRole = React.useCallback(() => {
@@ -53,6 +54,7 @@ export function OrganizationMemberTableActionsColumn({
   if (!permissions.canShowMemberMenu) {
     return null;
   }
+  const canModify = canMutateMember(member?.access_level);
 
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
@@ -70,13 +72,13 @@ export function OrganizationMemberTableActionsColumn({
               <Eye className="mr-2 h-4 w-4" />
               {t('member.actions.view_details')}
             </DropdownMenuItem>
-            {permissions.canAssignRole && (
+            {permissions.canAssignRole && canModify && (
               <DropdownMenuItem onClick={handleAssignRole}>
                 <UserRoundCheck className="mr-2 h-4 w-4" />
                 {t('member.actions.assign_role')}
               </DropdownMenuItem>
             )}
-            {permissions.canRemoveFromOrganization && (
+            {permissions.canRemoveFromOrganization && canModify && (
               <DropdownMenuItem
                 onClick={handleRemoveFromOrganization}
                 className="text-destructive-foreground focus:text-destructive-foreground"

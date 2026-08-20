@@ -28,6 +28,7 @@ export const createMockMember = (overrides?: Partial<OrgMember>): OrgMember =>
     family_name: 'Lovelace',
     roles: [{ id: 'role_admin', name: 'Admin' }],
     picture: undefined,
+    access_level: 'full',
     ...overrides,
   }) as OrgMember;
 
@@ -200,6 +201,7 @@ export const createMockOrganizationMemberDetailViewProps = (
   selectedRoles: [],
   isFetchingMember: false,
   isFetchingMemberRoles: false,
+  isSearchingRoles: false,
   isLoading: false,
   memberError: null,
   isRemovingFromOrganization: false,

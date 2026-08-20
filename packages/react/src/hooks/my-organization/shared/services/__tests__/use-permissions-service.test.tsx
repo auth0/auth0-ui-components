@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it } from 'vitest';
 
 import { usePermissionsService } from '@/hooks/my-organization/shared/services/use-permissions-service';
-import { PermissionContext } from '@/providers/permission-context';
+import { PermissionContext } from '@/providers/permission-provider';
 import type { PermissionContextValue } from '@/types/permissions/permissions-types';
 
 const resolver = createPermissionResolver({
@@ -23,6 +23,7 @@ describe('usePermissionsService', () => {
     it('exposes the provider permissions', () => {
       const wrapper = createWrapper({
         permissions: ['read:my_org:members', 'delete:my_org:memberships'],
+        isLoading: false,
       });
 
       const { result } = renderHook(() => usePermissionsService(), { wrapper });
@@ -31,10 +32,14 @@ describe('usePermissionsService', () => {
         'read:my_org:members',
         'delete:my_org:memberships',
       ]);
+      expect(result.current.isLoading).toBe(false);
     });
 
     it('resolves a module map against those permissions', () => {
-      const wrapper = createWrapper({ permissions: ['delete:my_org:memberships'] });
+      const wrapper = createWrapper({
+        permissions: ['delete:my_org:memberships'],
+        isLoading: false,
+      });
 
       const { result } = renderHook(() => usePermissionsService(), { wrapper });
 
@@ -45,7 +50,10 @@ describe('usePermissionsService', () => {
     });
 
     it('forwards options to the resolver', () => {
-      const wrapper = createWrapper({ permissions: ['delete:my_org:memberships'] });
+      const wrapper = createWrapper({
+        permissions: ['delete:my_org:memberships'],
+        isLoading: false,
+      });
 
       const { result } = renderHook(() => usePermissionsService(), { wrapper });
 

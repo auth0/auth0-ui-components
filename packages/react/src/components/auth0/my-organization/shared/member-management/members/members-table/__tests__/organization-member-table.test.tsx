@@ -10,6 +10,12 @@ import {
 import { READ_ONLY_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
+const MOCK_ROLES_THREE = [
+  { id: 'r1', name: 'Admin' },
+  { id: 'r2', name: 'Member' },
+  { id: 'r3', name: 'Viewer' },
+];
+
 describe('OrganizationMemberTable', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -169,7 +175,7 @@ describe('OrganizationMemberTable', () => {
       expect(screen.queryByText(/\+\d+/)).not.toBeInTheDocument();
     });
 
-    it('should render the first 2 role names with a "+N" suffix when there are more than 2 roles', () => {
+    it('should render the first 2 role names with a "+More" button when there are more than 2 roles', () => {
       const props = createMockMemberTableProps({
         members: [
           createMockMember({
@@ -187,7 +193,48 @@ describe('OrganizationMemberTable', () => {
 
       renderWithProviders(<OrganizationMemberTable {...props} />);
 
-      expect(screen.getByText('Admin, Member, +2')).toBeInTheDocument();
+      expect(screen.getByText('Admin, Member,')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'member.table.view_all_roles' }),
+      ).toBeInTheDocument();
+    });
+
+    it('should call onView with userId and roles tab when +More button is clicked', async () => {
+      const user = userEvent.setup();
+      const onView = vi.fn();
+      const props = createMockMemberTableProps({
+        onView,
+        members: [
+          createMockMember({
+            user_id: 'usr_roles_click',
+            roles: MOCK_ROLES_THREE,
+            last_login: undefined,
+          }),
+        ],
+      });
+
+      renderWithProviders(<OrganizationMemberTable {...props} />);
+
+      await user.click(screen.getByRole('button', { name: 'member.table.view_all_roles' }));
+
+      expect(onView).toHaveBeenCalledWith({ userId: 'usr_roles_click', tab: 'roles' });
+    });
+
+    it('should have accessible aria-label on +More button', () => {
+      const props = createMockMemberTableProps({
+        members: [
+          createMockMember({
+            user_id: 'usr_roles_aria',
+            roles: MOCK_ROLES_THREE,
+            last_login: undefined,
+          }),
+        ],
+      });
+
+      renderWithProviders(<OrganizationMemberTable {...props} />);
+
+      const moreButton = screen.getByRole('button', { name: 'member.table.view_all_roles' });
+      expect(moreButton).toHaveAttribute('aria-label', 'member.table.view_all_roles');
     });
   });
 
@@ -282,7 +329,7 @@ describe('OrganizationMemberTable', () => {
       await user.click(screen.getByText('row@example.com'));
 
       expect(onView).toHaveBeenCalledTimes(1);
-      expect(onView).toHaveBeenCalledWith('auth0|row-click');
+      expect(onView).toHaveBeenCalledWith({ userId: 'auth0|row-click' });
     });
 
     it('should stay navigable with read-only permissions, whose only path is the row', async () => {
@@ -299,7 +346,7 @@ describe('OrganizationMemberTable', () => {
 
       await user.click(screen.getByText('viewer@example.com'));
 
-      expect(onView).toHaveBeenCalledWith('auth0|viewer-row');
+      expect(onView).toHaveBeenCalledWith({ userId: 'auth0|viewer-row' });
     });
 
     it('should not navigate when an action inside the row is clicked', async () => {

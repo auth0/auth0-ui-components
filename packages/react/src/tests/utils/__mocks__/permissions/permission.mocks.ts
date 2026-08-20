@@ -29,7 +29,6 @@ export const ALL_MY_ORG_PERMISSIONS: OauthScope[] = [
   'read:my_org:member_invitations',
   'read:my_org:member_roles',
   'read:my_org:members',
-  'read:my_org:permissions',
   'update:my_org:details',
   'update:my_org:domains',
   'update:my_org:identity_providers',

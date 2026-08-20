@@ -1,0 +1,6 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "auth0-universal-components",
+  "homepage": "https://github.com/auth0/auth0-ui-components",
+  "include": ["packages/react/registry.json"]
+}

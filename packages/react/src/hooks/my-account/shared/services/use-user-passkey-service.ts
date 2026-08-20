@@ -13,7 +13,7 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   Passkey,
   UseUserPasskeyServiceResult,
-} from '@/types/my-account/passkey/passkey-types';
+} from '@/types/my-account/user-passkey-management/user-passkey-management-types';
 
 /**
  * Internal service hook for passkey CRUD operations.

@@ -9,7 +9,7 @@ import {
   createMockPendingInvitation,
   createMockExpiredInvitation,
   createMockRoles,
-  createMockProviders,
+  createMockConnections,
 } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import {
   createMemberPermissions,
@@ -138,13 +138,13 @@ describe('OrganizationInvitationDetailsModal', () => {
   });
 
   describe('roles', () => {
-    it('should resolve role IDs to names when availableRoles provided', () => {
+    it('should display the names of the roles fetched for the invitation', () => {
       const invitation = createMockInvitation({ roles: ['role_admin', 'role_member'] });
-      const availableRoles = createMockRoles();
+      const [adminRole, memberRole] = createMockRoles();
 
       renderWithProviders(
         <OrganizationInvitationDetailsModal
-          {...createMockDetailsModalProps({ invitation, availableRoles })}
+          {...createMockDetailsModalProps({ invitation, roles: [adminRole!, memberRole!] })}
         />,
       );
 
@@ -152,26 +152,44 @@ describe('OrganizationInvitationDetailsModal', () => {
       expect(screen.getByText('Member')).toBeInTheDocument();
     });
 
-    it('should show role ID as fallback when role not found in availableRoles', () => {
-      const invitation = createMockInvitation({ roles: ['role_unknown'] });
+    it('should not render roles the invitation roles endpoint did not return', () => {
+      const invitation = createMockInvitation({ roles: ['role_admin', 'role_member'] });
+      const [adminRole] = createMockRoles();
 
       renderWithProviders(
         <OrganizationInvitationDetailsModal
-          {...createMockDetailsModalProps({ invitation, availableRoles: [] })}
+          {...createMockDetailsModalProps({ invitation, roles: [adminRole!] })}
         />,
       );
 
-      expect(screen.getByText('role_unknown')).toBeInTheDocument();
+      expect(screen.getByText('Admin')).toBeInTheDocument();
+      expect(screen.queryByText('Member')).not.toBeInTheDocument();
     });
 
-    it('should show dash when no roles assigned', () => {
+    it('should render a spinner while the invitation roles are loading', () => {
+      const invitation = createMockInvitation({ roles: ['role_admin'] });
+
+      renderWithProviders(
+        <OrganizationInvitationDetailsModal
+          {...createMockDetailsModalProps({ invitation, roles: [], isLoadingRoles: true })}
+        />,
+      );
+
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(screen.queryByText('Admin')).not.toBeInTheDocument();
+    });
+
+    it('should show a dash when the invitation has no roles', () => {
       const invitation = createMockInvitation({ roles: [] });
 
       renderWithProviders(
-        <OrganizationInvitationDetailsModal {...createMockDetailsModalProps({ invitation })} />,
+        <OrganizationInvitationDetailsModal
+          {...createMockDetailsModalProps({ invitation, roles: [] })}
+        />,
       );
 
       expect(screen.getByText('invitation.details.roles_label')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('-')).toBeInTheDocument();
     });
   });
 
@@ -199,40 +217,63 @@ describe('OrganizationInvitationDetailsModal', () => {
     });
   });
 
-  describe('identity provider', () => {
-    it('should display provider name when resolved', () => {
+  describe('connection', () => {
+    it('should display identity provider name when resolved', () => {
       const invitation = createMockInvitation({ identity_provider_id: 'con_provider1' });
-      const availableProviders = createMockProviders();
 
       renderWithProviders(
         <OrganizationInvitationDetailsModal
-          {...createMockDetailsModalProps({ invitation, availableProviders })}
+          {...createMockDetailsModalProps({
+            invitation,
+            availableConnections: createMockConnections(),
+          })}
         />,
       );
 
       expect(screen.getByDisplayValue('Google')).toBeInTheDocument();
     });
 
-    it('should show provider ID as fallback when provider not found', () => {
+    it('should display user store name when resolved', () => {
+      const invitation = createMockInvitation({
+        identity_provider_id: undefined,
+        user_store_id: 'us_store1',
+      });
+
+      renderWithProviders(
+        <OrganizationInvitationDetailsModal
+          {...createMockDetailsModalProps({
+            invitation,
+            availableConnections: createMockConnections(),
+          })}
+        />,
+      );
+
+      expect(screen.getByDisplayValue('Acme Directory')).toBeInTheDocument();
+    });
+
+    it('should show connection ID as fallback when connection not found', () => {
       const invitation = createMockInvitation({ identity_provider_id: 'con_unknown' });
 
       renderWithProviders(
         <OrganizationInvitationDetailsModal
-          {...createMockDetailsModalProps({ invitation, availableProviders: [] })}
+          {...createMockDetailsModalProps({ invitation, availableConnections: [] })}
         />,
       );
 
       expect(screen.getByDisplayValue('con_unknown')).toBeInTheDocument();
     });
 
-    it('should not display provider section when no provider assigned', () => {
-      const invitation = createMockInvitation({ identity_provider_id: undefined });
+    it('should not display connection section when no connection assigned', () => {
+      const invitation = createMockInvitation({
+        identity_provider_id: undefined,
+        user_store_id: undefined,
+      });
 
       renderWithProviders(
         <OrganizationInvitationDetailsModal {...createMockDetailsModalProps({ invitation })} />,
       );
 
-      expect(screen.queryByText('invitation.details.provider_label')).not.toBeInTheDocument();
+      expect(screen.queryByText('invitation.details.connection_label')).not.toBeInTheDocument();
     });
   });
 

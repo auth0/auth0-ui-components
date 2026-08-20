@@ -10,6 +10,7 @@ import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-de
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { canMutateMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
   OrganizationMemberEditDetailsTabProps,
   RemoveMemberFromOrganizationCardProps,
@@ -24,6 +25,7 @@ function RemoveMemberFromOrganizationCard({
   customMessages,
   isRemovingFromOrganization,
   canRemoveFromOrganization,
+  canModify,
   onRemoveFromOrganizationClick,
 }: RemoveMemberFromOrganizationCardProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
@@ -38,12 +40,18 @@ function RemoveMemberFromOrganizationCard({
           {t('member.detail.actions.remove_from_organization.description')}
         </span>
       </div>
-      <PermissionDeniedTooltip enabled={!canRemoveFromOrganization} className="shrink-0">
+      <PermissionDeniedTooltip
+        enabled={!canRemoveFromOrganization || !canModify}
+        className="shrink-0"
+        {...(canModify
+          ? {}
+          : { customMessage: t('member.detail.actions.readonly_member_tooltip') })}
+      >
         <Button
           variant="destructive"
           size="sm"
           onClick={onRemoveFromOrganizationClick}
-          disabled={isRemovingFromOrganization || !canRemoveFromOrganization}
+          disabled={isRemovingFromOrganization || !canRemoveFromOrganization || !canModify}
           className="shrink-0"
         >
           {t('member.detail.actions.remove_from_organization.button')}
@@ -65,6 +73,8 @@ export function OrganizationMemberEditDetailsTab(
     return <div className="flex flex-col gap-10" />;
   }
 
+  const canModify = canMutateMember(props.member?.access_level);
+
   return (
     <div className="flex flex-col gap-10">
       <OrganizationMemberUserDetails member={props.member} customMessages={props.customMessages} />
@@ -72,6 +82,7 @@ export function OrganizationMemberEditDetailsTab(
         customMessages={props.customMessages}
         isRemovingFromOrganization={props.isRemovingFromOrganization}
         canRemoveFromOrganization={props.permissions.canRemoveFromOrganization}
+        canModify={canModify}
         onRemoveFromOrganizationClick={props.onRemoveFromOrganizationClick}
       />
     </div>
