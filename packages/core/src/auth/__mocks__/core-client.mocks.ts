@@ -131,12 +131,20 @@ export const createMockMfaApiClient = (): ReturnType<
     verify: vi.fn().mockResolvedValue({}),
   }) as ReturnType<CoreClientInterface['getMFAStepUpApiClient']>;
 
+export const createMockPermissionApiClient = (): ReturnType<
+  CoreClientInterface['getPermissionApiClient']
+> =>
+  ({
+    getPermissions: vi.fn().mockResolvedValue([]),
+  }) as ReturnType<CoreClientInterface['getPermissionApiClient']>;
+
 export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreClientInterface => {
   const mockAuth = createMockAuthDetails(authDetails);
   const mockI18nService = createMockI18nService();
   const mockMyAccountApiClient = createMockMyAccountApiClient();
   const mockMyOrganizationApiClient = createMockMyOrganizationApiClient();
   const mockMfaApiClient = createMockMfaApiClient();
+  const mockPermissionApiClient = createMockPermissionApiClient();
 
   return {
     auth: mockAuth,
@@ -152,6 +160,9 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
     getMFAStepUpApiClient: vi.fn(
       () => mockMfaApiClient,
     ) as CoreClientInterface['getMFAStepUpApiClient'],
+    getPermissionApiClient: vi.fn(
+      () => mockPermissionApiClient,
+    ) as CoreClientInterface['getPermissionApiClient'],
     isProxyMode: vi.fn().mockReturnValue(false),
     getDomain: vi.fn(
       () => mockAuth.domain ?? mockAuth.contextInterface?.getConfiguration()?.domain,

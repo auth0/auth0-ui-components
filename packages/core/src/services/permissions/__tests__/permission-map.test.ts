@@ -49,20 +49,6 @@ describe('createPermissionResolver', () => {
         ),
       ).toEqual({ canCreate: false, canResend: false, canShowMenu: false });
     });
-
-    it('takes precedence over allowAll', () => {
-      expect(resolve([], { readOnly: true, allowAll: true }).canCreate).toBe(false);
-    });
-  });
-
-  describe('when allowAll is true', () => {
-    it('grants everything without any scopes', () => {
-      expect(resolve([], { allowAll: true })).toEqual({
-        canCreate: true,
-        canResend: true,
-        canShowMenu: true,
-      });
-    });
   });
 
   describe('with no scopes and no options', () => {
