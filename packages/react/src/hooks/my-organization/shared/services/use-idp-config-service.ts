@@ -83,13 +83,8 @@ export function useIdpConfig(): UseConfigIdpResult {
   const getCrossAppAccessConfig = (
     strategy: IdpStrategy | undefined,
   ): CrossAppAccessResourceAppConfig | undefined => {
-    if (!strategy || !strategies) return undefined;
-    const key = STRATEGY_TO_CONFIG_KEY[strategy];
-    if (key === 'oidc' || key === 'okta' || key === 'samlp') {
-      const strategyConfig = strategies[key] as StrategyWithCrossAppAccess | undefined;
-      return strategyConfig?.cross_app_access_resource_app;
-    }
-    return undefined;
+    const strategyConfig = getStrategyFor(strategy) as StrategyWithCrossAppAccess | undefined;
+    return strategyConfig?.cross_app_access_resource_app;
   };
 
   const showCrossAppAccess = (strategy: IdpStrategy | undefined): boolean => {

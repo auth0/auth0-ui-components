@@ -1168,7 +1168,9 @@
         "month": "か月",
         "months": "か月",
         "year": "年",
-        "years": "年"
+        "years": "年",
+        "more_roles": "その他",
+        "view_all_roles": "すべての${count}個のロールを表示"
       },
       "actions": {
         "menu_label": "アクション",
@@ -1242,7 +1244,7 @@
           "remove_confirm": {
             "title": "メンバーからロールを削除しますか？",
             "title_plural": "メンバーからロールを削除しますか？",
-            "description": "<bold>\"${memberName}\"</bold> から <bold>${roleName}</bold> ロールを削除します。",
+            "description": "<memberBold>\"${memberName}\"</memberBold> から <roleBold>${roleName}</roleBold> ロールを削除します。",
             "confirm_button": "削除",
             "cancel_button": "キャンセル",
             "success": "ロール \"${roleName}\" がメンバーから削除されました。",
