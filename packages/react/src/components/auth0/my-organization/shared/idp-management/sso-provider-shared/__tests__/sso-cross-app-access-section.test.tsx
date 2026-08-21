@@ -320,10 +320,10 @@ describe('SsoCrossAppAccessSection', () => {
     it('should display error message when discoveryUrlError is provided', () => {
       renderWithProviders(
         <SsoCrossAppAccessSection
-          {...defaultProps}
-          strategy="samlp"
-          discoveryUrl="invalid-url"
-          discoveryUrlError="Please enter a valid discovery URL"
+          {...createMockCrossAppAccessSamlProps({
+            discoveryUrl: 'invalid-url',
+            discoveryUrlError: 'Please enter a valid discovery URL',
+          })}
         />,
       );
 
@@ -333,10 +333,10 @@ describe('SsoCrossAppAccessSection', () => {
     it('should hide helper text when error is displayed', () => {
       renderWithProviders(
         <SsoCrossAppAccessSection
-          {...defaultProps}
-          strategy="samlp"
-          discoveryUrl="invalid-url"
-          discoveryUrlError="Please enter a valid discovery URL"
+          {...createMockCrossAppAccessSamlProps({
+            discoveryUrl: 'invalid-url',
+            discoveryUrlError: 'Please enter a valid discovery URL',
+          })}
         />,
       );
 
@@ -346,9 +346,9 @@ describe('SsoCrossAppAccessSection', () => {
     it('should show helper text when no error', () => {
       renderWithProviders(
         <SsoCrossAppAccessSection
-          {...defaultProps}
-          strategy="samlp"
-          discoveryUrl="https://example.com"
+          {...createMockCrossAppAccessSamlProps({
+            discoveryUrl: 'https://example.com',
+          })}
         />,
       );
 
@@ -358,10 +358,10 @@ describe('SsoCrossAppAccessSection', () => {
     it('should set aria-invalid on input when error is present', () => {
       renderWithProviders(
         <SsoCrossAppAccessSection
-          {...defaultProps}
-          strategy="samlp"
-          discoveryUrl="invalid"
-          discoveryUrlError="Invalid URL"
+          {...createMockCrossAppAccessSamlProps({
+            discoveryUrl: 'invalid',
+            discoveryUrlError: 'Invalid URL',
+          })}
         />,
       );
 
@@ -371,9 +371,9 @@ describe('SsoCrossAppAccessSection', () => {
     it('should not set aria-invalid when no error', () => {
       renderWithProviders(
         <SsoCrossAppAccessSection
-          {...defaultProps}
-          strategy="samlp"
-          discoveryUrl="https://example.com"
+          {...createMockCrossAppAccessSamlProps({
+            discoveryUrl: 'https://example.com',
+          })}
         />,
       );
 
@@ -383,10 +383,10 @@ describe('SsoCrossAppAccessSection', () => {
     it('should associate input with error message via aria-describedby when error is present', () => {
       renderWithProviders(
         <SsoCrossAppAccessSection
-          {...defaultProps}
-          strategy="samlp"
-          discoveryUrl="invalid"
-          discoveryUrlError="Invalid URL"
+          {...createMockCrossAppAccessSamlProps({
+            discoveryUrl: 'invalid',
+            discoveryUrlError: 'Invalid URL',
+          })}
         />,
       );
 

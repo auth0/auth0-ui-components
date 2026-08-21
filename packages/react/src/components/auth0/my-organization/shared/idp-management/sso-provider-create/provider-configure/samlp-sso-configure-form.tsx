@@ -132,7 +132,7 @@ export const SamlpProviderForm = React.forwardRef<
     },
   });
 
-  const discoveryUrlValue = form.watch('discovery_url');
+  const discoveryUrlValue = form.watch('discovery_url') ?? '';
 
   const { isDirty } = form.formState;
 
