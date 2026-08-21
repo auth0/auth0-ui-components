@@ -16,7 +16,6 @@ export type ResolvedPermissions<TSpec extends PermissionSpec> = {
 
 export interface PermissionOptions {
   readOnly?: boolean;
-  allowAll?: boolean;
 }
 
 export type PermissionResolver<TSpec extends PermissionSpec> = (
@@ -37,7 +36,6 @@ function evaluateRule(
   options: PermissionOptions,
 ): boolean {
   if (options.readOnly) return false;
-  if (options.allowAll) return true;
 
   return 'any' in rule
     ? hasAnyPermission(userPermissions, rule.any)

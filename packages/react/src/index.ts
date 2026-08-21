@@ -46,6 +46,7 @@ export { useTranslator } from './hooks/shared/use-translator';
 export { useTheme } from './hooks/shared/use-theme';
 export { useCoreClientInitialization } from './hooks/shared/use-core-client-initialization';
 export { useErrorHandler } from './hooks/shared/use-error-handler';
+export { usePermissions } from './hooks/shared/use-permissions';
 
 // My Account hooks
 export { useUserMFA } from './hooks/my-account/use-user-mfa';
@@ -61,7 +62,6 @@ export { useSsoDomainTab } from './hooks/my-organization/use-sso-domain-tab';
 export { useSsoProviderCreate } from './hooks/my-organization/use-sso-provider-create';
 export { useSsoProviderEdit } from './hooks/my-organization/use-sso-provider-edit';
 export { useSsoProviderTable } from './hooks/my-organization/use-sso-provider-table';
-export { usePermissions } from './hooks/my-organization/use-permissions';
 
 // Member Management hooks
 export { useOrganizationMemberManagement } from './hooks/my-organization/use-organization-member-management';
