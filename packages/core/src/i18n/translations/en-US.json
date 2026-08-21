@@ -26,7 +26,8 @@
     },
     "data_table": {
       "select_all": "Select all rows",
-      "select_row": "Select row ${index}"
+      "select_row": "Select row ${index}",
+      "view_row": "View row ${index}"
     },
     "error": {
       "generic": "There was an issue processing your request. Please try again or contact support if the issue persists.",
