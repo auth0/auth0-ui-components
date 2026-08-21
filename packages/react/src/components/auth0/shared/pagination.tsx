@@ -55,7 +55,7 @@ function PaginationItem({ className, ...props }: React.ComponentProps<'li'>) {
   return (
     <li
       data-slot="pagination-item"
-      className={cn('m-0 p-0 before:content-none', className)}
+      className={cn('m-0 p-0! before:content-none', className)}
       {...props}
     />
   );

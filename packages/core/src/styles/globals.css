@@ -28,10 +28,6 @@
     transition: var(--color-scheme-transition) !important;
     transition-delay: 0ms !important;
   }
-
-  .auth0-universal [data-slot='pagination-item'] {
-    padding-left: 0 !important;
-  }
 }
 
 :root {
