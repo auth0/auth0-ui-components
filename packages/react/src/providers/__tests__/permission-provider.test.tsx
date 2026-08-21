@@ -2,8 +2,8 @@ import { renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { usePermissions } from '@/hooks/my-organization/use-permissions';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { usePermissions } from '@/hooks/shared/use-permissions';
 import { PermissionProvider } from '@/providers/permission-provider';
 import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
 

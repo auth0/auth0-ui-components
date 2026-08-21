@@ -11,6 +11,7 @@ import * as React from 'react';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
+import { useId } from '@/lib/utils/use-id-compat';
 
 /** Props for {@link PermissionDeniedTooltip}. */
 export interface PermissionDeniedTooltipProps {
@@ -35,6 +36,7 @@ export function PermissionDeniedTooltip({
   className,
 }: PermissionDeniedTooltipProps): React.JSX.Element {
   const { t } = useTranslator('common');
+  const tooltipId = useId();
 
   if (!enabled) {
     return <>{children}</>;
@@ -44,14 +46,12 @@ export function PermissionDeniedTooltip({
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <span className={cn('inline-flex', className)} tabIndex={0}>
+      <TooltipTrigger>
+        <span className={cn('inline-flex', className)} tabIndex={0} aria-describedby={tooltipId}>
           {children}
         </span>
       </TooltipTrigger>
-      <TooltipContent side={side} role="tooltip">
-        {message}
-      </TooltipContent>
+      <TooltipContent side={side}>{message}</TooltipContent>
     </Tooltip>
   );
 }

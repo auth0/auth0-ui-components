@@ -26,7 +26,8 @@
     },
     "data_table": {
       "select_all": "すべての行を選択",
-      "select_row": "${index}行目を選択"
+      "select_row": "${index}行目を選択",
+      "view_row": "${index}行目を表示"
     },
     "error": {
       "generic": "リクエストの処理中に問題が発生しました。もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
