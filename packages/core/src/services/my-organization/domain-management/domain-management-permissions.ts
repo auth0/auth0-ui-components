@@ -5,10 +5,6 @@
  */
 import { createPermissionResolver } from '../../permissions/permission-map';
 
-/**
- * Configure associates and dissociates a domain from identity providers, so it
- * is gated on those mutations rather than on reading the provider list.
- */
 export const getDomainManagementPermissions = createPermissionResolver({
   canCreateDomain: ['create:my_org:domains'],
   canVerifyDomain: ['update:my_org:domains'],

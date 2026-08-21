@@ -580,6 +580,98 @@ describe('useDomainTable', () => {
       expect(onVerifyDomain).not.toHaveBeenCalled();
     });
 
+    it('should refuse the create submit without create:my_org:domains', async () => {
+      const onCreateDomain = vi.fn().mockResolvedValue(mockDomain);
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ onCreateDomain }),
+      );
+      const { result } = renderWithPermissions(['read:my_org:domains']);
+
+      await act(async () => {
+        await result.current.handleCreate('test.com');
+      });
+
+      expect(onCreateDomain).not.toHaveBeenCalled();
+    });
+
+    it('should refuse the verify submit without update:my_org:domains', async () => {
+      const onVerifyDomain = vi.fn().mockResolvedValue(true);
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ onVerifyDomain }),
+      );
+      const { result } = renderWithPermissions(['read:my_org:domains']);
+
+      await act(async () => {
+        await result.current.handleVerify(mockDomain);
+      });
+
+      expect(onVerifyDomain).not.toHaveBeenCalled();
+    });
+
+    it('should refuse the delete submit without delete:my_org:domains', async () => {
+      const onDeleteDomain = vi.fn().mockResolvedValue(undefined);
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ onDeleteDomain }),
+      );
+      const { result } = renderWithPermissions(['read:my_org:domains']);
+
+      await act(async () => {
+        await result.current.handleDelete(mockDomain);
+      });
+
+      expect(onDeleteDomain).not.toHaveBeenCalled();
+    });
+
+    it('should refuse associating a provider without the create provider-domain scope', async () => {
+      const onAssociateToProvider = vi.fn().mockResolvedValue(undefined);
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ onAssociateToProvider }),
+      );
+      const { result } = renderWithPermissions(['delete:my_org:identity_providers_domains']);
+
+      await act(async () => {
+        await result.current.handleToggleSwitch(verifiedDomain, mockProvider, true);
+      });
+
+      expect(onAssociateToProvider).not.toHaveBeenCalled();
+    });
+
+    it('should refuse dissociating a provider without the delete provider-domain scope', async () => {
+      const onDeleteFromProvider = vi.fn().mockResolvedValue(undefined);
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ onDeleteFromProvider }),
+      );
+      const { result } = renderWithPermissions(['create:my_org:identity_providers_domains']);
+
+      await act(async () => {
+        await result.current.handleToggleSwitch(verifiedDomain, mockProvider, false);
+      });
+
+      expect(onDeleteFromProvider).not.toHaveBeenCalled();
+    });
+
+    it('should still allow each direction when its own scope is granted', async () => {
+      const onAssociateToProvider = vi.fn().mockResolvedValue(undefined);
+      const onDeleteFromProvider = vi.fn().mockResolvedValue(undefined);
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ onAssociateToProvider, onDeleteFromProvider }),
+      );
+      const { result } = renderWithPermissions([
+        'create:my_org:identity_providers_domains',
+        'delete:my_org:identity_providers_domains',
+      ]);
+
+      await act(async () => {
+        await result.current.handleToggleSwitch(verifiedDomain, mockProvider, true);
+      });
+      await act(async () => {
+        await result.current.handleToggleSwitch(verifiedDomain, mockProvider, false);
+      });
+
+      expect(onAssociateToProvider).toHaveBeenCalledTimes(1);
+      expect(onDeleteFromProvider).toHaveBeenCalledTimes(1);
+    });
+
     it('should refuse every action when readOnly is set, even with the scopes granted', () => {
       const { result } = renderWithGranted(ALL_MY_ORG_PERMISSIONS, {
         ...defaultOptions,

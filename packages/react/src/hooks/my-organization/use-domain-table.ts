@@ -100,6 +100,7 @@ export function useDomainTable({
 
   const handleCreate = useCallback(
     async (domainUrl: string) => {
+      if (!permissions.canCreateDomain) return;
       try {
         const newDomain = await onCreateDomain({ domain: domainUrl });
         showToast({
@@ -117,11 +118,12 @@ export function useDomainTable({
         });
       }
     },
-    [onCreateDomain, t, handleError],
+    [permissions, onCreateDomain, t, handleError],
   );
 
   const handleVerify = useCallback(
     async (domain: Domain) => {
+      if (!permissions.canVerifyDomain) return;
       try {
         const isVerified = await onVerifyDomain(domain);
         if (isVerified) {
@@ -143,11 +145,12 @@ export function useDomainTable({
         });
       }
     },
-    [onVerifyDomain, t, handleError],
+    [permissions, onVerifyDomain, t, handleError],
   );
 
   const handleDelete = useCallback(
     async (domain: Domain) => {
+      if (!permissions.canDeleteDomain) return;
       try {
         await onDeleteDomain(domain);
         showToast({
@@ -164,11 +167,17 @@ export function useDomainTable({
         });
       }
     },
-    [onDeleteDomain, t, handleError],
+    [permissions, onDeleteDomain, t, handleError],
   );
 
   const handleToggleSwitch = useCallback(
     async (domain: Domain, provider: IdpKnownResponse, newCheckedValue: boolean) => {
+      if (
+        newCheckedValue ? !permissions.canAssociateProvider : !permissions.canDissociateProvider
+      ) {
+        return;
+      }
+
       if (newCheckedValue) {
         try {
           await onAssociateToProvider(domain, provider);
@@ -201,7 +210,7 @@ export function useDomainTable({
         }
       }
     },
-    [onAssociateToProvider, onDeleteFromProvider, t, handleError],
+    [permissions, onAssociateToProvider, onDeleteFromProvider, t, handleError],
   );
 
   const handleCloseVerifyModal = useCallback(() => {
