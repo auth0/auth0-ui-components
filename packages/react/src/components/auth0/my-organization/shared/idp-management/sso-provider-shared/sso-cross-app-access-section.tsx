@@ -21,17 +21,9 @@ import type { CrossAppAccessSectionProps } from '@/types/my-organization/idp-man
  * @param props - Component props.
  * @returns Cross app access section.
  */
-export function SsoCrossAppAccessSection({
-  checked,
-  onChange,
-  readOnly = false,
-  customMessages = {},
-  className,
-  strategy,
-  discoveryUrl = '',
-  onDiscoveryUrlChange,
-  discoveryUrlError,
-}: CrossAppAccessSectionProps): React.ReactElement {
+export function SsoCrossAppAccessSection(props: CrossAppAccessSectionProps): React.ReactElement {
+  const { checked, onChange, readOnly = false, customMessages = {}, className, strategy } = props;
+
   const { t } = useTranslator(
     'idp_management.sso_provider_details.cross_app_access',
     customMessages,
@@ -51,9 +43,12 @@ export function SsoCrossAppAccessSection({
   };
 
   const isSaml = strategy === 'samlp';
+  const discoveryUrl = isSaml ? props.discoveryUrl : '';
+  const onDiscoveryUrlChange = isSaml ? props.onDiscoveryUrlChange : undefined;
+  const discoveryUrlError = isSaml ? props.discoveryUrlError : undefined;
   const isCheckboxDisabled = readOnly || (isSaml && !discoveryUrl?.trim());
 
-  const renderCheckboxGroup = () => (
+  const checkboxGroup = (
     <div className="flex items-start gap-3">
       <Checkbox
         id={checkboxId}
@@ -114,7 +109,7 @@ export function SsoCrossAppAccessSection({
           )}
         </div>
 
-        {renderCheckboxGroup()}
+        {checkboxGroup}
       </div>
     );
   }
@@ -123,7 +118,7 @@ export function SsoCrossAppAccessSection({
     <div className={cn('space-y-4', className)}>
       <Separator />
       <h6 className="text-base font-semibold leading-5">{t('title')}</h6>
-      {renderCheckboxGroup()}
+      {checkboxGroup}
     </div>
   );
 }

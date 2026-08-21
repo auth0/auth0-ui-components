@@ -10,7 +10,6 @@ import {
   type ListIdentityProvidersResponseContent,
   memberManagementQueryKeys,
   OrganizationDetailsMappers,
-  memberDetailQueryKeys,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
@@ -24,7 +23,10 @@ import {
   DEFAULT_ROLES_PAGE_SIZE,
   MAX_ROLES_AVAILABLE_FOR_ASSIGNMENT,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
-import { validateRequestRoleForMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
+import {
+  isValidUserId,
+  validateRequestRoleForMember,
+} from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type { CreateInvitationInput } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
@@ -66,6 +68,8 @@ export function useMemberManagementService(
   const {
     customMessages = {},
     activeTab,
+    userId,
+    memberRolesQueryEnabled = true,
     createInvitationAction,
     revokeInvitationAction,
     resendInvitationAction,
@@ -183,6 +187,17 @@ export function useMemberManagementService(
     enabled: !!coreClient,
   });
 
+  const memberRolesQuery = useQuery({
+    queryKey: memberManagementQueryKeys.memberRoles(userId ?? ''),
+    queryFn: async () => {
+      const response = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.members.roles.list(userId!);
+      return response.data;
+    },
+    enabled: !!coreClient && isValidUserId(userId) && memberRolesQueryEnabled,
+  });
+
   const assignRolesMutation = useMutation({
     mutationFn: async ({
       roleIds,
@@ -224,7 +239,7 @@ export function useMemberManagementService(
           : 'member.detail.roles.assign_modal.success_plural';
       showToast({ type: 'success', message: t(assignKey) });
       queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: memberDetailQueryKeys.memberRoles(userId) });
+      queryClient.invalidateQueries({ queryKey: memberManagementQueryKeys.memberRoles(userId) });
     },
     onError: (error) => {
       handleError(error, { fallbackMessage: t('member.detail.error.assign_role_failed') });
@@ -373,6 +388,7 @@ export function useMemberManagementService(
     invitationsQuery,
     organizationQuery,
     membersQuery,
+    memberRolesQuery,
     assignRolesMutation,
     removeFromOrganizationMutation,
     createInvitationMutation,

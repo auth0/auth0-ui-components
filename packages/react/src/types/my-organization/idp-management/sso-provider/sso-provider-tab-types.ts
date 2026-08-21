@@ -119,14 +119,23 @@ export interface ThirdPartyAccessSectionProps {
   className?: string;
 }
 
-export interface CrossAppAccessSectionProps {
+interface CrossAppAccessSectionBaseProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   readOnly?: boolean;
   customMessages?: Partial<CrossAppAccessMessages>;
   className?: string;
-  strategy?: 'oidc' | 'okta' | 'samlp';
-  discoveryUrl?: string;
-  onDiscoveryUrlChange?: (url: string) => void;
-  discoveryUrlError?: string;
 }
+
+type CrossAppAccessOidcProps = CrossAppAccessSectionBaseProps & {
+  strategy?: 'oidc' | 'okta';
+};
+
+type CrossAppAccessSamlProps = CrossAppAccessSectionBaseProps & {
+  strategy: 'samlp';
+  discoveryUrl: string;
+  onDiscoveryUrlChange: (url: string) => void;
+  discoveryUrlError?: string;
+};
+
+export type CrossAppAccessSectionProps = CrossAppAccessOidcProps | CrossAppAccessSamlProps;
