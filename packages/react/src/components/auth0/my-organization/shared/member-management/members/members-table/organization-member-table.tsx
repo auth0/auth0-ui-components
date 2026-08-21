@@ -14,6 +14,7 @@ import { SearchFilter } from '@/components/auth0/my-organization/shared/member-m
 import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
@@ -54,6 +55,7 @@ export function OrganizationMemberTable({
   customMessages = {},
   availableRoles,
   sortConfig,
+  permissions,
   className,
   onSortChange,
   onView,
@@ -83,29 +85,47 @@ export function OrganizationMemberTable({
     );
   }, []);
 
-  const renderRoles = React.useCallback((member: OrgMember) => {
-    const roleNames = member.roles?.map((role) => role.name) ?? [];
+  const renderRoles = React.useCallback(
+    (member: OrgMember) => {
+      const roles = member.roles ?? [];
 
-    if (roleNames.length === 0) {
-      return <span className="text-primary">-</span>;
-    }
+      if (roles.length === 0) {
+        return <span className="text-primary">-</span>;
+      }
 
-    const visibleRoles = roleNames.slice(0, 2).join(', ');
-    const remainingCount = roleNames.length - 2;
-    const fullRoles = roleNames.join(', ');
+      const visibleRoles = roles.slice(0, 2);
+      const remainingCount = roles.length - 2;
+      const visibleRoleNames = visibleRoles.map((r) => r.name).join(', ');
 
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span className="text-primary">
-            {visibleRoles}
-            {remainingCount > 0 ? `, +${remainingCount}` : ''}
-          </span>
-        </TooltipTrigger>
-        <TooltipContent>{fullRoles}</TooltipContent>
-      </Tooltip>
-    );
-  }, []);
+      const handleMoreClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (onView && member.user_id) {
+          onView({ userId: member.user_id, tab: 'roles' });
+        }
+      };
+
+      return (
+        <span className="text-primary">
+          {visibleRoleNames}
+          {remainingCount > 0 && (
+            <>
+              ,{' '}
+              <Button
+                variant="link"
+                size="sm"
+                className="p-0 h-auto cursor-pointer"
+                onClick={handleMoreClick}
+                aria-label={t('member.table.view_all_roles', { count: roles.length })}
+              >
+                +{t('member.table.more_roles')}
+              </Button>
+            </>
+          )}
+        </span>
+      );
+    },
+    [onView, t],
+  );
 
   const renderLastLogin = React.useCallback(
     (member: OrgMember) => {
@@ -157,6 +177,7 @@ export function OrganizationMemberTable({
         render: (member) => (
           <OrganizationMemberTableActionsColumn
             member={member}
+            permissions={permissions}
             onViewDetails={onView}
             onAssignRole={onAssignRole}
             onRemoveFromOrganization={onRemoveFromOrganization}
@@ -164,7 +185,21 @@ export function OrganizationMemberTable({
         ),
       },
     ],
-    [t, onView, onAssignRole, onRemoveFromOrganization, renderName, renderRoles, renderLastLogin],
+    [
+      t,
+      permissions,
+      onView,
+      onAssignRole,
+      onRemoveFromOrganization,
+      renderName,
+      renderRoles,
+      renderLastLogin,
+    ],
+  );
+
+  const handleRowClick = React.useCallback(
+    (member: OrgMember) => onView?.({ userId: member.user_id ?? '' }),
+    [onView],
   );
 
   return (
@@ -184,6 +219,8 @@ export function OrganizationMemberTable({
         emptyState={{ title: t('member.table.empty_message') }}
         sortConfig={sortConfig}
         onSortChange={onSortChange}
+        onRowClick={handleRowClick}
+        rowClickLabel={(index) => t('data_table.view_row', { index: index + 1 })}
       />
 
       {!loading && (members.length > 0 || pagination.hasPreviousPage) && (
@@ -194,6 +231,7 @@ export function OrganizationMemberTable({
               pageSize: pagination.pageSize,
               currentPage: pagination.currentPage,
               totalItems: pagination.totalItems,
+              totalItemsDisplay: pagination.totalItemsDisplay,
               hasNextPage: pagination.hasNextPage,
               hasPreviousPage: pagination.hasPreviousPage,
             }}

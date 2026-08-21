@@ -86,9 +86,7 @@ export function OtpCodeForm({
         className="space-y-6"
       >
         <div className="space-y-4">
-          {authenticator && (
-            <p className="text-sm text-(length:--font-size-paragraph)">{description}</p>
-          )}
+          {authenticator && <p className="text-paragraph">{description}</p>}
           <FormField
             control={form.control}
             name="code"

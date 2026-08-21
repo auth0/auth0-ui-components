@@ -42,8 +42,13 @@ export interface OrganizationInvitationTabMessages {
     email_required_error?: string;
     roles_label?: string;
     roles_placeholder?: string;
-    provider_label?: string;
-    provider_placeholder?: string;
+    roles_max_selection_message?: string;
+    roles_searching_message?: string;
+    connection_label?: string;
+    connection_placeholder?: string;
+    connection_helper?: string;
+    connection_group_user_store?: string;
+    connection_group_identity_provider?: string;
     submit_button?: string;
     creating?: string;
     cancel_button?: string;
@@ -53,7 +58,7 @@ export interface OrganizationInvitationTabMessages {
     email_label?: string;
     status_label?: string;
     roles_label?: string;
-    provider_label?: string;
+    connection_label?: string;
     created_at_label?: string;
     expires_at_label?: string;
     invited_by_label?: string;
@@ -75,16 +80,36 @@ export interface OrganizationInvitationTabMessages {
     confirm_button?: string;
     cancel_button?: string;
   };
+  bulk_revoke?: {
+    button?: string;
+    button_plural?: string;
+    count?: string;
+    count_plural?: string;
+    success?: string;
+    max_selection_message?: string;
+    confirm?: {
+      title?: string;
+      title_plural?: string;
+      description?: string;
+      description_plural?: string;
+      confirm_button?: string;
+      confirm_button_plural?: string;
+      cancel_button?: string;
+    };
+  };
   success?: {
     url_copied?: string;
     invitation_resent?: string;
   };
   error?: {
     fetch_failed?: string;
+    fetch_roles_failed?: string;
     create_failed?: string;
     revoke_failed?: string;
     resend_failed?: string;
     revoke_resend_failed?: string;
+    bulk_revoke_failed?: string;
+    connection_required?: string;
     copy_url_failed?: string;
   };
 }

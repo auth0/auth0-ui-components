@@ -116,7 +116,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
             name="meta_data_source"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                <FormLabel className="text-label font-medium">
                   {t('fields.adfs.meta_data_source.label')}
                 </FormLabel>
                 <FormControl>
@@ -143,10 +143,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
                     </div>
                   </RadioGroup>
                 </FormControl>
-                <FormMessage
-                  role="alert"
-                  className="text-sm text-left text-(length:--font-size-paragraph)"
-                />
+                <FormMessage role="alert" className="text-left text-paragraph" />
               </FormItem>
             )}
           />
@@ -158,7 +155,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
                 name="adfs_server"
                 render={({ field, fieldState }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                    <FormLabel className="text-label font-medium">
                       {t('fields.adfs.meta_data_url.label')}
                     </FormLabel>
                     <FormControl>
@@ -172,11 +169,8 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage
-                      role="alert"
-                      className="text-sm text-left text-(length:--font-size-paragraph)"
-                    />
-                    <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                    <FormMessage role="alert" className="text-left text-paragraph" />
+                    <FormDescription className="text-paragraph font-normal text-left">
                       {t('fields.adfs.meta_data_url.helper_text')}
                     </FormDescription>
                   </FormItem>
@@ -188,7 +182,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
                 name="meta_data_location_url"
                 render={({ field, fieldState }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                    <FormLabel className="text-label font-medium">
                       {t('fields.adfs.meta_data_location_url.label')}
                     </FormLabel>
                     <FormControl>
@@ -200,11 +194,8 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage
-                      role="alert"
-                      className="text-sm text-left text-(length:--font-size-paragraph)"
-                    />
-                    <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                    <FormMessage role="alert" className="text-left text-paragraph" />
+                    <FormDescription className="text-paragraph font-normal text-left">
                       {t('fields.adfs.meta_data_location_url.helper_text')}
                     </FormDescription>
                   </FormItem>
@@ -219,7 +210,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
               name="fedMetadataXml"
               render={() => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium text-(length:--font-size-label)">
+                  <FormLabel className="text-label font-medium">
                     {t('fields.adfs.federation_metadata_file.label')}
                   </FormLabel>
                   <FormControl>
@@ -235,11 +226,8 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
                       />
                     </div>
                   </FormControl>
-                  <FormMessage
-                    role="alert"
-                    className="text-sm text-left text-(length:--font-size-paragraph)"
-                  />
-                  <FormDescription className="text-sm text-(length:--font-size-paragraph) font-normal text-left">
+                  <FormMessage role="alert" className="text-left text-paragraph" />
+                  <FormDescription className="text-paragraph font-normal text-left">
                     {t('fields.adfs.federation_metadata_file.helper_text')}
                   </FormDescription>
                 </FormItem>

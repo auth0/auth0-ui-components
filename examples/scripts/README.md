@@ -232,6 +232,8 @@ delete:my_org:member_roles
 create:my_org:member_roles
 read:my_org:members
 delete:my_org:memberships
+read:my_org:permissions
+read:my_org:user_stores
 ```
 
 </details>

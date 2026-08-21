@@ -37,6 +37,7 @@ export interface DomainTableClasses {
   'DomainTable-createModal'?: string;
   'DomainTable-configureModal'?: string;
   'DomainTable-deleteModal'?: string;
+  'DomainTableConfigureModal-dialogContent'?: string;
   'DomainTableVerifyModal-dialogContent'?: string;
 }
 

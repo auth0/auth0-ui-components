@@ -2,36 +2,29 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { DomainTable, DomainTableView } from '@/components/auth0/my-organization/domain-table';
+import { DomainTable } from '@/components/auth0/my-organization/domain-table';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockDomain,
   createMockVerifiedDomain,
-  createMockIdentityProvider,
   createMockDomainTableProps,
   createMockCreateAction,
   createMockVerifyAction,
   createMockDeleteAction,
-  createMockDomainTableReturn,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { createDomainPermissions } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
-
-// ===== Mock packages =====
+import type { DomainTableProps } from '@/types/my-organization/domain-management/domain-table-types';
 
 mockToast();
 const { initMockCoreClient } = mockCore();
-
-// ===== Local utils =====
 
 const waitForComponentToLoad = async () => {
   return await waitFor(() => {
     expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
   });
 };
-
-// ===== Tests =====
 
 describe('DomainTable', () => {
   const mockDomain = createMockDomain();
@@ -578,58 +571,6 @@ describe('DomainTable', () => {
     });
   });
 
-  describe('onOpenProvider', () => {
-    describe('when provider is clicked', () => {
-      it('should call onOpenProvider with provider details', async () => {
-        const user = userEvent.setup();
-        const onOpenProvider = vi.fn();
-        const provider = createMockIdentityProvider({
-          id: 'con_provider_view',
-          display_name: 'View Provider',
-          name: 'view-provider',
-        });
-
-        const apiService = mockCoreClient.getMyOrganizationApiClient();
-        (
-          apiService.organization.identityProviders.list as ReturnType<typeof vi.fn>
-        ).mockResolvedValue({
-          identity_providers: [provider],
-        });
-
-        renderWithProviders(<DomainTable {...createMockDomainTableProps({ onOpenProvider })} />);
-
-        await waitForComponentToLoad();
-
-        const verifiedBadge = await screen.findByText(/shared\.domain_statuses\.verified/i);
-        const verifiedRow = verifiedBadge.closest('tr');
-        expect(verifiedRow).not.toBeNull();
-
-        const actionButton = within(verifiedRow as HTMLElement).getByRole('button');
-        await user.click(actionButton);
-
-        const configureMenuItem = await screen.findByRole('menuitem', {
-          name: /configure_button_text/i,
-        });
-        await user.click(configureMenuItem);
-
-        const configureModal = await screen.findByRole('dialog');
-        const viewProviderButton = await within(configureModal).findByRole('button', {
-          name: /view_provider_button_text/i,
-        });
-        await user.click(viewProviderButton);
-
-        expect(onOpenProvider).toHaveBeenCalledTimes(1);
-        expect(onOpenProvider).toHaveBeenCalledWith(
-          expect.objectContaining({
-            id: provider.id,
-            name: provider.name,
-            display_name: provider.display_name,
-          }),
-        );
-      });
-    });
-  });
-
   describe('onCreateProvider', () => {
     describe('when create provider is clicked', () => {
       it('should call onCreateProvider', async () => {
@@ -665,28 +606,95 @@ describe('DomainTable', () => {
     });
   });
 
-  describe('refresh indicator', () => {
-    it('should render the refresh control once domains data is loaded and stale', async () => {
-      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+  describe('table rendering', () => {
+    describe('when domains are loaded', () => {
+      it('should display domain column', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
 
-      await waitForComponentToLoad();
+        await waitForComponentToLoad();
 
-      expect(screen.getByRole('button', { name: 'refresh' })).toBeInTheDocument();
+        expect(screen.getByText(/table.columns.domain/i)).toBeInTheDocument();
+      });
+
+      it('should display status column', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByText(/table.columns.status/i)).toBeInTheDocument();
+      });
+
+      it('should display domain name in table row', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+        await waitForComponentToLoad();
+
+        expect(screen.getAllByText(mockDomain.domain).length).toBeGreaterThan(0);
+      });
+
+      it('should display verified domain with verified badge', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByText(/shared\.domain_statuses\.verified/i)).toBeInTheDocument();
+      });
+
+      it('should display pending domain with pending badge', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByText(/shared\.domain_statuses\.pending/i)).toBeInTheDocument();
+      });
     });
 
-    it('should refetch domains when the refresh button is clicked', async () => {
-      const user = userEvent.setup();
-      const apiService = mockCoreClient.getMyOrganizationApiClient();
-      const listDomains = apiService.organization.domains.list as ReturnType<typeof vi.fn>;
+    describe('when no domains exist', () => {
+      it('should display empty message', async () => {
+        const apiService = mockCoreClient.getMyOrganizationApiClient();
+        (apiService.organization.domains.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+          response: { organization_domains: [] },
+        });
 
-      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
 
-      await waitForComponentToLoad();
-      expect(listDomains).toHaveBeenCalledTimes(1);
-      await user.click(screen.getByRole('button', { name: 'refresh' }));
+        await waitForComponentToLoad();
 
-      await waitFor(() => {
-        expect(listDomains).toHaveBeenCalledTimes(2);
+        expect(screen.getByText(/table.empty_message/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('pagination', () => {
+    describe('when domains are paginated', () => {
+      it('should render table with domain data', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+        await waitForComponentToLoad();
+
+        const table = screen.getByRole('table');
+        expect(table).toBeInTheDocument();
+        expect(screen.getAllByText(mockDomain.domain).length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('customMessages', () => {
+    describe('when custom header title is provided', () => {
+      it('should override header title', async () => {
+        const customMessages: DomainTableProps['customMessages'] = {
+          domain_table: {
+            header: {
+              title: 'Custom Domain Title',
+            },
+          },
+        };
+
+        renderWithProviders(<DomainTable {...createMockDomainTableProps({ customMessages })} />);
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByText('Custom Domain Title')).toBeInTheDocument();
       });
     });
 
@@ -730,54 +738,5 @@ describe('DomainTable', () => {
         expect(screen.getByRole('button', { name: 'refresh' })).toBeEnabled();
       });
     });
-  });
-});
-
-describe('DomainTableView', () => {
-  const mockDomainTable = createMockDomainTableReturn();
-  const defaultViewProps = {
-    domainTable: mockDomainTable,
-    schema: undefined,
-    styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
-    hideHeader: false,
-    customMessages: {},
-    createAction: undefined,
-    onOpenProvider: undefined,
-    onCreateProvider: undefined,
-  };
-
-  it('renders the table and header', () => {
-    renderWithProviders(<DomainTableView {...defaultViewProps} />);
-    expect(screen.getByRole('table')).toBeInTheDocument();
-    expect(screen.getByText(/header.title/i)).toBeInTheDocument();
-  });
-
-  it('does not render header if hideHeader is true', () => {
-    renderWithProviders(<DomainTableView {...defaultViewProps} hideHeader={true} />);
-    expect(screen.queryByText(/header.title/i)).not.toBeInTheDocument();
-  });
-
-  it('disables the create button without create:my_org:domains', () => {
-    renderWithProviders(
-      <DomainTableView
-        {...defaultViewProps}
-        domainTable={createMockDomainTableReturn({
-          permissions: createDomainPermissions(['read:my_org:domains']),
-        })}
-      />,
-    );
-    expect(screen.getByRole('button', { name: /create/i })).toBeDisabled();
-  });
-
-  it('hides row action menus without any mutating domain permission', () => {
-    renderWithProviders(
-      <DomainTableView
-        {...defaultViewProps}
-        domainTable={createMockDomainTableReturn({
-          permissions: createDomainPermissions(['read:my_org:domains']),
-        })}
-      />,
-    );
-    expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
   });
 });

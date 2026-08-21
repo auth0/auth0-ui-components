@@ -388,7 +388,7 @@ The following components are exported from `@auth0/universal-components-react`:
 
 | Component                 | Export Name                                              |
 | ------------------------- | -------------------------------------------------------- |
-| MFA Management            | `UserMFAMgmt`, `UserMFAMgmtView`                         |
+| MFA Management            | `UserMFAManagement`, `UserMFAManagementView`             |
 | SSO Provider Edit         | `SsoProviderEdit`, `SsoProviderEditView`                 |
 | SSO Provider Create       | `SsoProviderCreate`, `SsoProviderCreateView`             |
 | SSO Provider Table        | `SsoProviderTable`, `SsoProviderTableView`               |

@@ -136,6 +136,36 @@ describe('SsoProviderTableActionsColumn', () => {
       expect(switchElement).toBeDisabled();
     });
 
+    it('should disable switch when enableProviderAction.disabled is true', () => {
+      const props = createMockSsoProviderTableActionsColumnProps({
+        enableProviderAction: { disabled: true },
+      });
+      renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
+
+      const switchElement = screen.getByRole('switch');
+      expect(switchElement).toBeDisabled();
+    });
+
+    it('should not disable switch when enableProviderAction.disabled is false', () => {
+      const props = createMockSsoProviderTableActionsColumnProps({
+        enableProviderAction: { disabled: false },
+      });
+      renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
+
+      const switchElement = screen.getByRole('switch');
+      expect(switchElement).not.toBeDisabled();
+    });
+
+    it('should not disable switch when enableProviderAction is undefined', () => {
+      const props = createMockSsoProviderTableActionsColumnProps({
+        enableProviderAction: undefined,
+      });
+      renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
+
+      const switchElement = screen.getByRole('switch');
+      expect(switchElement).not.toBeDisabled();
+    });
+
     it('should not disable switch when updating a different provider', () => {
       const props = createMockSsoProviderTableActionsColumnProps({
         isUpdating: true,

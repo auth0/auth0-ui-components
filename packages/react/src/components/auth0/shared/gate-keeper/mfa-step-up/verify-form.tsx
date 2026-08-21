@@ -95,7 +95,7 @@ export function VerifyForm({ error, authenticator, onComplete, onCancel }: Verif
           <DialogDescription>{t('mfa.challenge.push_description')}</DialogDescription>
         </DialogHeader>
 
-        <p className="text-center text-sm text-(length:--font-size-paragraph) font-normal my-4">
+        <p className="text-center text-paragraph font-normal my-4">
           {t('mfa.challenge.push_waiting')}
         </p>
 

@@ -6,6 +6,7 @@
 import { Link, Copy, Check } from 'lucide-react';
 import * as React from 'react';
 
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -44,8 +45,10 @@ function getStatusBadgeVariant(status: InvitationStatus): 'warning' | 'destructi
  * @param props.isRevoking - Whether a revoke action is in progress.
  * @param props.isResending - Whether a resend action is in progress.
  * @param props.customMessages - Custom translation messages.
- * @param props.availableRoles - Available roles for display.
- * @param props.availableProviders - Available providers for display.
+ * @param props.permissions - What the current user is allowed to do.
+ * @param props.roles - Roles assigned to the invitation.
+ * @param props.isLoadingRoles - Whether the assigned roles are still loading.
+ * @param props.availableConnections - Merged identity providers + user stores for resolving the connection name.
  * @param props.readOnly - Whether in read-only mode.
  * @param props.onClose - Callback when modal is closed.
  * @param props.onCopyUrl - Callback when copy URL is clicked.
@@ -61,15 +64,17 @@ export function OrganizationInvitationDetailsModal({
   isRevoking = false,
   isResending = false,
   customMessages = {},
-  availableRoles = [],
-  availableProviders = [],
-  readOnly = false,
+  permissions,
+  roles = [],
+  isLoadingRoles = false,
+  availableConnections = [],
   onClose,
   onCopyUrl,
   onRevoke,
   onResend,
   style,
   className,
+  readOnly,
 }: OrganizationInvitationDetailsModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
@@ -77,21 +82,14 @@ export function OrganizationInvitationDetailsModal({
   const isPending = status === 'pending';
   const isActionInProgress = isRevoking || isResending;
 
-  const roleNames = React.useMemo(() => {
-    if (!invitation?.roles || invitation.roles.length === 0) return [];
-    return invitation.roles
-      .map((roleId) => {
-        const role = availableRoles.find((r) => r.id === roleId);
-        return role?.name ?? roleId;
-      })
-      .filter(Boolean);
-  }, [invitation?.roles, availableRoles]);
+  const roleNames = React.useMemo(() => roles.map((role) => role.name), [roles]);
 
-  const providerName = React.useMemo(() => {
-    if (!invitation?.identity_provider_id) return null;
-    const provider = availableProviders.find((p) => p.id === invitation.identity_provider_id);
-    return provider?.name ?? invitation.identity_provider_id;
-  }, [invitation?.identity_provider_id, availableProviders]);
+  const connectionName = React.useMemo(() => {
+    const connectionId = invitation?.identity_provider_id ?? invitation?.user_store_id;
+    if (!connectionId) return null;
+    const connection = availableConnections.find((c) => c.id === connectionId);
+    return connection?.name ?? connectionId;
+  }, [invitation?.identity_provider_id, invitation?.user_store_id, availableConnections]);
 
   const [copied, setCopied] = React.useState(false);
   const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -187,7 +185,11 @@ export function OrganizationInvitationDetailsModal({
             <Label className="text-sm font-medium text-muted-foreground">
               {t('invitation.details.roles_label')}
             </Label>
-            {roleNames.length > 0 ? (
+            {isLoadingRoles ? (
+              <div className="flex h-9 items-center">
+                <Spinner size="sm" />
+              </div>
+            ) : roleNames.length > 0 ? (
               <TextFieldGroup
                 chips={roleNames.map((name) => ({ label: name, value: name }))}
                 summarizeChips={false}
@@ -236,14 +238,26 @@ export function OrganizationInvitationDetailsModal({
           {/* Revoke / Resend Actions (inline, below invitation URL) */}
           {!readOnly && (
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" onClick={handleResend} disabled={isActionInProgress}>
-                {isResending ? <Spinner size="sm" /> : null}
-                {t('invitation.details.resend_button')}
-              </Button>
-              <Button variant="destructive" onClick={handleRevoke} disabled={isActionInProgress}>
-                {isRevoking ? <Spinner size="sm" /> : null}
-                {t('invitation.details.revoke_button')}
-              </Button>
+              <PermissionDeniedTooltip enabled={!permissions.canResendInvitation}>
+                <Button
+                  variant="outline"
+                  onClick={handleResend}
+                  disabled={isActionInProgress || !permissions.canResendInvitation}
+                >
+                  {isResending ? <Spinner size="sm" /> : null}
+                  {t('invitation.details.resend_button')}
+                </Button>
+              </PermissionDeniedTooltip>
+              <PermissionDeniedTooltip enabled={!permissions.canRevokeInvitation}>
+                <Button
+                  variant="destructive"
+                  onClick={handleRevoke}
+                  disabled={isActionInProgress || !permissions.canRevokeInvitation}
+                >
+                  {isRevoking ? <Spinner size="sm" /> : null}
+                  {t('invitation.details.revoke_button')}
+                </Button>
+              </PermissionDeniedTooltip>
             </div>
           )}
 
@@ -255,13 +269,13 @@ export function OrganizationInvitationDetailsModal({
             <TextField value={invitation?.inviter?.name ?? '-'} readOnly />
           </div>
 
-          {/* Identity Provider */}
-          {providerName && (
+          {/* Connection (identity provider or user directory) */}
+          {connectionName && (
             <div className="space-y-2">
               <Label className="text-sm font-medium text-muted-foreground">
-                {t('invitation.details.provider_label')}
+                {t('invitation.details.connection_label')}
               </Label>
-              <TextField value={providerName} readOnly />
+              <TextField value={connectionName} readOnly />
             </div>
           )}
         </div>

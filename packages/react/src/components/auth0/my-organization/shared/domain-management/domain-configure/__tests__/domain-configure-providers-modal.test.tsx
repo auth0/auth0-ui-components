@@ -87,9 +87,9 @@ describe('DomainConfigureProvidersModal', () => {
       });
     });
 
-    it('should apply custom className', () => {
+    it('should apply custom styling classes', () => {
       const props = createMockDomainConfigureProvidersModalProps({
-        className: 'custom-class',
+        styling: { classes: { 'DomainTable-configureModal': 'custom-class' } },
       });
       renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
@@ -99,16 +99,14 @@ describe('DomainConfigureProvidersModal', () => {
 
     it('should render with custom messages', () => {
       const customMessages = {
-        modal: {
-          title: 'Custom Title - {domain}',
-          description: 'Custom description for {domain}',
-        },
+        title: 'Custom Title',
+        description: 'Custom description',
       };
       const props = createMockDomainConfigureProvidersModalProps({ customMessages });
       renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
-      // The title should still use the mocked translator
-      expect(screen.getByText('title')).toBeInTheDocument();
+      expect(screen.getByText('Custom Title')).toBeInTheDocument();
+      expect(screen.getByText('Custom description')).toBeInTheDocument();
     });
   });
 
@@ -797,7 +795,7 @@ describe('DomainConfigureProvidersModal', () => {
       });
     });
 
-    it('should show tooltip on keyboard focus', async () => {
+    it('should not show tooltip on keyboard focus (prevents auto-trigger on modal open)', async () => {
       const user = userEvent.setup();
       const props = createMockDomainConfigureProvidersModalProps();
       renderWithProviders(<DomainConfigureProvidersModal {...props} />);
@@ -809,10 +807,16 @@ describe('DomainConfigureProvidersModal', () => {
         expect(switches[0]!).toHaveFocus();
       });
 
-      await waitFor(() => {
-        const tooltips = screen.getAllByText('table.actions.disable_provider_tooltip');
-        expect(tooltips.length).toBeGreaterThan(0);
-      });
+      expect(screen.queryByText('table.actions.disable_provider_tooltip')).not.toBeInTheDocument();
+    });
+
+    it('should have accessible aria-label on switch for screen readers', () => {
+      const props = createMockDomainConfigureProvidersModalProps();
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const switches = screen.getAllByRole('switch');
+      expect(switches[0]).toHaveAttribute('aria-label', 'table.actions.disable_provider_tooltip');
+      expect(switches[1]).toHaveAttribute('aria-label', 'table.actions.enable_provider_tooltip');
     });
 
     it('should show tooltip even when switch is disabled', async () => {

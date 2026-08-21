@@ -37,7 +37,7 @@ export function DomainTableActionsColumn({
   onVerify,
   onDelete,
 }: DomainTableActionsColumnProps) {
-  const { t } = useTranslator('domain_management.domain_table', customMessages);
+  const { t } = useTranslator('domain_management', customMessages);
 
   const handleView = React.useCallback(() => {
     onConfigure(domain);
@@ -69,7 +69,7 @@ export function DomainTableActionsColumn({
           {domain.status === 'verified' && permissions.canConfigureDomain && (
             <DropdownMenuItem onClick={handleConfigure}>
               <PencilLine className="mr-2 h-4 w-4" />
-              {t('table.actions.configure_button_text')}
+              {t('domain_table.table.actions.configure_button_text')}
             </DropdownMenuItem>
           )}
           {domain.status === 'pending' && (
@@ -77,13 +77,13 @@ export function DomainTableActionsColumn({
               {permissions.canConfigureDomain && (
                 <DropdownMenuItem onClick={handleView}>
                   <Eye className="mr-2 h-4 w-4" />
-                  {t('table.actions.view_button_text')}
+                  {t('domain_table.table.actions.view_button_text')}
                 </DropdownMenuItem>
               )}
               {permissions.canVerifyDomain && (
                 <DropdownMenuItem onClick={handleVerify}>
                   <RefreshCcw className="mr-2 h-4 w-4" />
-                  {t('table.actions.verify_button_text')}
+                  {t('domain_table.table.actions.verify_button_text')}
                 </DropdownMenuItem>
               )}
             </>
@@ -94,7 +94,7 @@ export function DomainTableActionsColumn({
               className="text-destructive-foreground focus:text-destructive-foreground"
             >
               <Trash2 className="mr-2 h-4 w-4 text-destructive-foreground focus:text-destructive-foreground" />
-              {t('table.actions.delete_button_text')}
+              {t('domain_table.table.actions.delete_button_text')}
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>

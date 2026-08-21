@@ -4,15 +4,18 @@
  */
 
 import type {
+  ComponentStyling,
   Domain,
   DomainConfigureMessages,
   DomainManagementPermissions,
   IdentityProviderAssociatedWithDomain,
 } from '@auth0/universal-components-core';
 
+import type { DomainTableClasses } from './domain-table-types';
+
 /** Props for DomainConfigureProvidersModal. */
 export interface DomainConfigureProvidersModalProps {
-  className?: string;
+  styling?: ComponentStyling<DomainTableClasses>;
   customMessages?: Partial<DomainConfigureMessages>;
   isOpen: boolean;
   isLoading: boolean;
