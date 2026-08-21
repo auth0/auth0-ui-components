@@ -11,8 +11,8 @@ import {
 import * as React from 'react';
 
 import { useMemberDetailService } from '@/hooks/my-organization/shared/services/use-member-detail-service';
-import { usePermissions } from '@/hooks/my-organization/use-permissions';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {

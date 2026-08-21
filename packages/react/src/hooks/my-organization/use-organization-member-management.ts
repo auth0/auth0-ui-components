@@ -12,8 +12,8 @@ import * as React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
-import { usePermissions } from '@/hooks/my-organization/use-permissions';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
+import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { ROLES_PREFETCH_THRESHOLD } from '@/lib/constants/my-organization/member-management/member-management-constants';

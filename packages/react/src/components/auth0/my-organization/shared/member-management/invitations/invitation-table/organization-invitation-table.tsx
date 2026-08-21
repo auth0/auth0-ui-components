@@ -74,8 +74,7 @@ export function OrganizationInvitationTable({
 }: OrganizationInvitationTableProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
-  const selectionEnabled =
-    !readOnly && permissions.canRevokeInvitation && !!onSelectedInvitationsChange;
+  const selectionEnabled = !readOnly && !!onSelectedInvitationsChange;
   const selectedCount = selectedInvitations?.length ?? 0;
 
   const renderDate = (_invitation: MemberInvitation, value: string | number | Date) => (
@@ -205,7 +204,7 @@ export function OrganizationInvitationTable({
       />
 
       {selectionEnabled && selectedCount > 0 && (
-        <div className="flex items-center justify-end gap-2 mb-2">
+        <div className="flex items-center justify-end gap-2 mb-8">
           <span className="text-sm text-muted-foreground shrink-0">
             {t(
               selectedCount === 1

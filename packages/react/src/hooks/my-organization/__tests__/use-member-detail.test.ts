@@ -16,6 +16,7 @@ import {
   type MockService,
   makeMockService,
 } from '@/tests/utils/__mocks__/my-organization/member-management/use-member-detail.mocks';
+import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { createQueryClientWrapper } from '@/tests/utils/test-provider';
 import { setupMockUseTranslator, setupMockUseErrorHandler } from '@/tests/utils/test-utilities';
 import type {
@@ -48,16 +49,8 @@ const createDefaultOptions = (
   ...overrides,
 });
 
-const render = (options: UseOrganizationMemberDetailOptions = createDefaultOptions()) => {
-  const { wrapper } = createQueryClientWrapper();
-  return renderHook(() => useOrganizationMemberDetail(options), { wrapper });
-};
-
 /** Renders the hook with the permission context granting exactly `permissions`. */
-const renderWithPermissions = (
-  permissions: string[],
-  overrides?: Partial<UseOrganizationMemberDetailOptions>,
-) => {
+const renderWithGranted = (permissions: string[], options: UseOrganizationMemberDetailOptions) => {
   const { wrapper: queryWrapper } = createQueryClientWrapper();
   const wrapper = ({ children }: React.PropsWithChildren) =>
     createElement(
@@ -70,10 +63,16 @@ const renderWithPermissions = (
       ),
     );
 
-  return renderHook(() => useOrganizationMemberDetail(createDefaultOptions(overrides)), {
-    wrapper,
-  });
+  return renderHook(() => useOrganizationMemberDetail(options), { wrapper });
 };
+
+const render = (options: UseOrganizationMemberDetailOptions = createDefaultOptions()) =>
+  renderWithGranted(ALL_MY_ORG_PERMISSIONS, options);
+
+const renderWithPermissions = (
+  permissions: string[],
+  overrides?: Partial<UseOrganizationMemberDetailOptions>,
+) => renderWithGranted(permissions, createDefaultOptions(overrides));
 
 describe('useOrganizationMemberDetail', () => {
   beforeEach(() => {

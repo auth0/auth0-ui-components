@@ -13,7 +13,9 @@ export const getMemberManagementPermissions = createPermissionResolver({
   canRevokeInvitation: ['delete:my_org:member_invitations'],
   canResendInvitation: ['delete:my_org:member_invitations', 'create:my_org:member_invitations'],
   canShowMemberMenu: { any: ['create:my_org:member_roles', 'delete:my_org:memberships'] },
-  canShowInvitationMenu: { any: ['delete:my_org:member_invitations'] },
+  canShowInvitationMenu: {
+    any: ['create:my_org:member_invitations', 'delete:my_org:member_invitations'],
+  },
 } as const);
 
 export type MemberManagementPermissions = ReturnType<typeof getMemberManagementPermissions>;

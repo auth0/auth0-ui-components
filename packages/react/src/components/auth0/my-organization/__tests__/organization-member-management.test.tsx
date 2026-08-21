@@ -146,7 +146,7 @@ describe('OrganizationMemberManagement', () => {
 
   describe('readOnly', () => {
     describe('when is true', () => {
-      it('should render the invite button but keep it disabled', async () => {
+      it('should not render the invite button', async () => {
         renderWithProviders(
           <OrganizationMemberManagement {...createMockComponentProps({ readOnly: true })} />,
         );
@@ -155,7 +155,7 @@ describe('OrganizationMemberManagement', () => {
           expect(screen.getByRole('tab', { name: /tabs\.members/i })).toBeInTheDocument();
         });
 
-        expect(screen.getByRole('button', { name: /invite_button/i })).toBeDisabled();
+        expect(screen.queryByRole('button', { name: /invite_button/i })).not.toBeInTheDocument();
       });
     });
 
@@ -535,7 +535,7 @@ describe('OrganizationMemberManagement', () => {
   });
 
   describe('readOnly mode in invitations', () => {
-    it('should keep the invite button disabled in the invitations tab when readOnly', async () => {
+    it('should not render the invite button in the invitations tab when readOnly', async () => {
       const user = userEvent.setup();
 
       renderWithProviders(
@@ -553,7 +553,7 @@ describe('OrganizationMemberManagement', () => {
         expect(screen.getByText(mockInvitation.invitee?.email ?? '')).toBeInTheDocument();
       });
 
-      expect(screen.getByRole('button', { name: /invite_button/i })).toBeDisabled();
+      expect(screen.queryByRole('button', { name: /invite_button/i })).not.toBeInTheDocument();
     });
   });
 
