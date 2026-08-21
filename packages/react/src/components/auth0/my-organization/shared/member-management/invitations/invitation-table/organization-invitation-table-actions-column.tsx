@@ -121,7 +121,7 @@ export function OrganizationInvitationTableActionsColumn({
             </DropdownMenu>
           </div>
         </TooltipTrigger>
-        <TooltipContent side="top" sideOffset={5} className="z-[1000]">
+        <TooltipContent side="top" sideOffset={5}>
           <span>{t('invitation.actions.copied')}</span>
         </TooltipContent>
       </Tooltip>

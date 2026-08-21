@@ -99,6 +99,7 @@ export function OrganizationMemberDetailView(
     setActiveTab,
     closeModal,
     openModal,
+    readOnly,
     handleRemoveFromOrganizationConfirm,
   } = props;
 
@@ -179,6 +180,7 @@ export function OrganizationMemberDetailView(
               isRemovingFromOrganization={isRemovingFromOrganization}
               permissions={props.permissions}
               onRemoveFromOrganizationClick={handleRemoveFromOrganizationClick}
+              readOnly={readOnly}
             />
           </TabsContent>
 
@@ -191,6 +193,7 @@ export function OrganizationMemberDetailView(
               organizationName={props.organizationDisplayName}
               memberName={props.member?.name}
               selectedMember={props.member}
+              readOnly={readOnly}
               memberRoles={props.memberRoles}
               searchedRoles={props.searchedRoles}
               onRoleSearch={props.onRoleSearch}
@@ -266,6 +269,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
       <OrganizationMemberDetailView
         {...memberDetail}
         styling={styling}
+        readOnly={readOnly}
         customMessages={customMessages}
       />
     </GateKeeper>

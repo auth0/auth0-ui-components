@@ -95,6 +95,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     handleViewMemberDetails,
     handleAssignRolesSubmit,
     handleRemoveFromOrganizationConfirm,
+    readOnly,
   } = props;
 
   const selectedInvitation =
@@ -170,18 +171,22 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
             <Header
               title={t('header.title')}
               description={t('header.description')}
-              actions={[
-                {
-                  type: 'button',
-                  label: t('invite_button'),
-                  onClick: () => openModal({ type: 'create' }),
-                  icon: Plus,
-                  disabled: !permissions.canInvite,
-                  ...(permissions.canInvite
-                    ? {}
-                    : { tooltip: { content: tCommon('error.forbidden') } }),
-                },
-              ]}
+              actions={
+                !readOnly
+                  ? [
+                      {
+                        type: 'button',
+                        label: t('invite_button'),
+                        onClick: () => openModal({ type: 'create' }),
+                        icon: Plus,
+                        disabled: !permissions.canInvite,
+                        ...(permissions.canInvite
+                          ? {}
+                          : { tooltip: { content: tCommon('error.forbidden') } }),
+                      },
+                    ]
+                  : []
+              }
             />
           </div>
         )}
@@ -238,6 +243,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               pagination={invitationPagination}
               pageSizeOptions={pageSizeOptions}
               permissions={permissions}
+              readOnly={readOnly}
               selectedInvitations={selectedInvitations}
               sortConfig={invitationSortConfig}
               onSortChange={handleSortChange}
@@ -280,6 +286,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           roles={invitationRoles}
           isLoadingRoles={isFetchingInvitationRoles}
           availableConnections={availableConnections}
+          readOnly={readOnly}
           style={currentStyles.variables}
           onClose={closeModal}
           onCopyUrl={handleCopyUrl}
@@ -388,6 +395,7 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
         styling={styling}
         customMessages={customMessages}
         hideHeader={hideHeader}
+        readOnly={readOnly}
       />
     </GateKeeper>
   );

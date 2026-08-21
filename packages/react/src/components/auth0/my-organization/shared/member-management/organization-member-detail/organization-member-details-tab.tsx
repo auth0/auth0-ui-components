@@ -78,13 +78,15 @@ export function OrganizationMemberEditDetailsTab(
   return (
     <div className="flex flex-col gap-10">
       <OrganizationMemberUserDetails member={props.member} customMessages={props.customMessages} />
-      <RemoveMemberFromOrganizationCard
-        customMessages={props.customMessages}
-        isRemovingFromOrganization={props.isRemovingFromOrganization}
-        canRemoveFromOrganization={props.permissions.canRemoveFromOrganization}
-        canModify={canModify}
-        onRemoveFromOrganizationClick={props.onRemoveFromOrganizationClick}
-      />
+      {!props?.readOnly && (
+        <RemoveMemberFromOrganizationCard
+          customMessages={props.customMessages}
+          isRemovingFromOrganization={props.isRemovingFromOrganization}
+          canRemoveFromOrganization={props.permissions.canRemoveFromOrganization}
+          canModify={canModify}
+          onRemoveFromOrganizationClick={props.onRemoveFromOrganizationClick}
+        />
+      )}
     </div>
   );
 }

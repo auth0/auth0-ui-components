@@ -12,6 +12,7 @@ import { OrganizationInvitationTableActionsColumn } from './organization-invitat
 import { SearchFilter } from '@/components/auth0/my-organization/shared/member-management/shared/search-filter/search-filter';
 import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column, type DataTableProps } from '@/components/auth0/shared/data-table';
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -73,7 +74,8 @@ export function OrganizationInvitationTable({
 }: OrganizationInvitationTableProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
 
-  const selectionEnabled = !readOnly && !!onSelectedInvitationsChange;
+  const selectionEnabled =
+    !readOnly && permissions.canRevokeInvitation && !!onSelectedInvitationsChange;
   const selectedCount = selectedInvitations?.length ?? 0;
 
   const renderDate = (_invitation: MemberInvitation, value: string | number | Date) => (
@@ -173,6 +175,8 @@ export function OrganizationInvitationTable({
     emptyState: { title: t('invitation.table.empty_message') },
     sortConfig,
     onSortChange,
+    onRowClick: onView,
+    rowClickLabel: (index: number) => t('data_table.view_row', { index: index + 1 }),
   };
 
   const tableProps: DataTableProps<MemberInvitation> = selectionEnabled
@@ -188,7 +192,6 @@ export function OrganizationInvitationTable({
         getRowId: (invitation: MemberInvitation) => invitation.id!,
         maxSelectionAllowed: MAX_INVITATIONS_PER_REQUEST,
         maxSelectionAllowedMessage: t('invitation.bulk_revoke.max_selection_message'),
-        onRowClick: onView,
       }
     : baseTableProps;
 
@@ -211,17 +214,22 @@ export function OrganizationInvitationTable({
               { count: selectedCount },
             )}
           </span>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => onBulkRevoke?.(selectedInvitations ?? [])}
-          >
-            {t(
-              selectedCount === 1
-                ? 'invitation.bulk_revoke.button'
-                : 'invitation.bulk_revoke.button_plural',
-            )}
-          </Button>
+          {!readOnly && (
+            <PermissionDeniedTooltip enabled={!permissions.canRevokeInvitation}>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => onBulkRevoke?.(selectedInvitations ?? [])}
+                disabled={!permissions.canRevokeInvitation}
+              >
+                {t(
+                  selectedCount === 1
+                    ? 'invitation.bulk_revoke.button'
+                    : 'invitation.bulk_revoke.button_plural',
+                )}
+              </Button>
+            </PermissionDeniedTooltip>
+          )}
         </div>
       )}
 

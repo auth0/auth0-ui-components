@@ -180,7 +180,7 @@ export function useOrganizationMemberManagement(
       if (state.type === 'revokeResend' && !permissions.canResendInvitation) return;
       if (state.type === 'assignRole' && !permissions.canAssignRole) return;
       if (state.type === 'removeFromOrganization' && !permissions.canRemoveFromOrganization) return;
-      if (state.type === 'bulkRevoke' && readOnly) return;
+      if (state.type === 'bulkRevoke' && !permissions.canRevokeInvitation) return;
       setModalState(state);
 
       if (state.type === 'details') {

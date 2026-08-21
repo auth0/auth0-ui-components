@@ -317,6 +317,64 @@ describe('OrganizationMemberTable', () => {
     });
   });
 
+  describe('Row keyboard navigation', () => {
+    it('should expose clickable rows to assistive tech', () => {
+      const member = createMockMember({ user_id: 'auth0|kbd', email: 'kbd@example.com' });
+      renderWithProviders(
+        <OrganizationMemberTable
+          {...createMockMemberTableProps({ members: [member], onView: vi.fn() })}
+        />,
+      );
+
+      const row = screen.getByText('kbd@example.com').closest('tr');
+      expect(row).toHaveAttribute('tabindex', '0');
+      expect(row).toHaveAttribute('aria-label', 'data_table.view_row');
+    });
+
+    it('should activate the focused row with Enter', async () => {
+      const user = userEvent.setup();
+      const onView = vi.fn();
+      const member = createMockMember({ user_id: 'auth0|enter', email: 'enter@example.com' });
+      renderWithProviders(
+        <OrganizationMemberTable {...createMockMemberTableProps({ members: [member], onView })} />,
+      );
+
+      const row = screen.getByText('enter@example.com').closest('tr')!;
+      row.focus();
+      await user.keyboard('{Enter}');
+
+      expect(onView).toHaveBeenCalledWith({ userId: 'auth0|enter' });
+    });
+
+    it('should activate the focused row with Space', async () => {
+      const user = userEvent.setup();
+      const onView = vi.fn();
+      const member = createMockMember({ user_id: 'auth0|space', email: 'space@example.com' });
+      renderWithProviders(
+        <OrganizationMemberTable {...createMockMemberTableProps({ members: [member], onView })} />,
+      );
+
+      const row = screen.getByText('space@example.com').closest('tr')!;
+      row.focus();
+      await user.keyboard(' ');
+
+      expect(onView).toHaveBeenCalledWith({ userId: 'auth0|space' });
+    });
+
+    it('should not navigate when a control inside the row is clicked', async () => {
+      const user = userEvent.setup();
+      const onView = vi.fn();
+      const member = createMockMember({ user_id: 'auth0|menu', email: 'menu@example.com' });
+      renderWithProviders(
+        <OrganizationMemberTable {...createMockMemberTableProps({ members: [member], onView })} />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'member.actions.menu_label' }));
+
+      expect(onView).not.toHaveBeenCalled();
+    });
+  });
+
   describe('Row click navigation', () => {
     it('should navigate to the member when the row is clicked', async () => {
       const user = userEvent.setup();

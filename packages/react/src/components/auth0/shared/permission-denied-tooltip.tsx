@@ -44,7 +44,7 @@ export function PermissionDeniedTooltip({
 
   return (
     <Tooltip>
-      <TooltipTrigger>
+      <TooltipTrigger asChild>
         <span className={cn('inline-flex', className)} tabIndex={0}>
           {children}
         </span>

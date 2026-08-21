@@ -223,6 +223,7 @@ export interface OrganizationMemberManagementViewProps
   styling: OrganizationMemberManagementProps['styling'];
   customMessages: OrganizationMemberManagementProps['customMessages'];
   hideHeader: boolean;
+  readOnly: boolean;
 }
 
 /** CSS classes for OrganizationMemberManagement. */

@@ -220,6 +220,7 @@ export function OrganizationMemberTable({
         sortConfig={sortConfig}
         onSortChange={onSortChange}
         onRowClick={handleRowClick}
+        rowClickLabel={(index) => t('data_table.view_row', { index: index + 1 })}
       />
 
       {!loading && (members.length > 0 || pagination.hasPreviousPage) && (

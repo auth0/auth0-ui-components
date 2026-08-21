@@ -75,6 +75,7 @@ export interface UseOrganizationMemberDetailResult {
   isRemovingRoles: boolean;
   removingRoleIds: string[];
   modalState: MemberDetailModalState;
+  readOnly?: boolean;
 
   setActiveTab: (tab: OrganizationMemberDetailTab) => void;
   setSelectedRoles: (roles: Role[]) => void;
@@ -114,6 +115,7 @@ export interface RemoveMemberFromOrganizationCardProps {
   canRemoveFromOrganization: boolean;
   canModify: boolean;
   onRemoveFromOrganizationClick: () => void;
+  readOnly?: boolean;
 }
 
 export interface OrganizationMemberEditDetailsTabProps {
@@ -122,6 +124,7 @@ export interface OrganizationMemberEditDetailsTabProps {
   isRemovingFromOrganization: boolean;
   permissions: MemberManagementPermissions;
   onRemoveFromOrganizationClick: () => void;
+  readOnly?: boolean;
 }
 
 export interface MemberDetailDangerCardProps {
@@ -193,12 +196,14 @@ export interface RolesTabHeaderProps {
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   permissions: MemberManagementPermissions;
   canModify: boolean;
+  readOnly?: boolean;
   onAssignRolesClick: () => void;
   onRemoveSelectedRoles: () => void;
 }
 
 export interface OrganizationMemberEditRolesTableProps {
   memberRoles: Role[];
+  readOnly?: boolean;
   isLoading?: boolean;
   removingRoleIds?: string[];
   selectedRoles: Role[];
@@ -213,6 +218,7 @@ export interface OrganizationMemberEditRolesTabProps {
   customMessages?: Partial<OrganizationMemberDetailMessages>;
   organizationName?: string;
   memberName?: string;
+  readOnly?: boolean;
   selectedMember?: OrgMember | null;
   memberRoles: Role[];
   searchedRoles: Role[];

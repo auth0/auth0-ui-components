@@ -103,7 +103,7 @@ export function DomainConfigureProvidersModal({
                   />
                 </span>
               </TooltipTrigger>
-              <TooltipContent className="z-[1000]">
+              <TooltipContent>
                 {provider.is_associated
                   ? t('table.actions.disable_provider_tooltip')
                   : t('table.actions.enable_provider_tooltip')}
