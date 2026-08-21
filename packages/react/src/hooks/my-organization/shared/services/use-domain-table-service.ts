@@ -63,7 +63,7 @@ export function useDomainTableService({
 
     return allProviders.map((provider) => ({
       ...provider,
-      is_associated: provider.domains?.includes(domainName) ?? false,
+      is_associated: (provider as any).domains?.includes(domainName) ?? false,
     })) as IdentityProviderAssociatedWithDomain[];
   };
 

@@ -99,7 +99,7 @@ export function useMemberManagementService(
       return providers.map((p) => ({
         id: p.id!,
         name: p.display_name ?? p.name ?? '',
-        type: p.strategy,
+        type: (p as any).strategy,
       }));
     },
     enabled: !!coreClient && isActiveTabProvided,
