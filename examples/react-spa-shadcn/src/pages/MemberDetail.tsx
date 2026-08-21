@@ -1,12 +1,15 @@
 import { useTranslation } from 'react-i18next';
-// import { useNavigate, useParams } from 'react-router-dom';
+// import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
+// import type { OrganizationMemberDetailTab } from '@/components/auth0/my-organization/organization-member-detail';
 // import { OrganizationMemberDetail } from '@/components/auth0/my-organization/organization-member-detail';
 
 const MemberDetail = () => {
   const { t } = useTranslation();
   // const navigate = useNavigate();
   // const { user_id } = useParams<{ user_id: string }>();
+  // const [searchParams] = useSearchParams();
+  // const tab = searchParams.get('tab') as OrganizationMemberDetailTab;
 
   return (
     <div className="p-6">
@@ -25,7 +28,7 @@ const MemberDetail = () => {
         on how to add Member Detail component.
       </p>
       <div className="bg-background rounded-lg shadow p-6">
-        {/* <OrganizationMemberDetail userId={user_id} onBack={() => navigate('/member-management')} /> */}
+        {/* <OrganizationMemberDetail userId={user_id} initialTab={tab} onBack={() => navigate('/member-management')} /> */}
       </div>
     </div>
   );
