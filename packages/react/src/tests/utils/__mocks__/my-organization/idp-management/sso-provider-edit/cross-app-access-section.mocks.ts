@@ -9,8 +9,27 @@ import { vi } from 'vitest';
 
 import type { CrossAppAccessSectionProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 
-export function createMockCrossAppAccessSectionProps(
-  overrides: Partial<CrossAppAccessSectionProps> = {},
+interface CrossAppAccessOidcPropsOverrides {
+  checked?: boolean;
+  onChange?: (checked: boolean) => void;
+  readOnly?: boolean;
+  customMessages?: Partial<CrossAppAccessMessages>;
+  className?: string;
+  strategy?: 'oidc' | 'okta';
+}
+
+interface CrossAppAccessSamlPropsOverrides {
+  checked?: boolean;
+  onChange?: (checked: boolean) => void;
+  readOnly?: boolean;
+  customMessages?: Partial<CrossAppAccessMessages>;
+  className?: string;
+  discoveryUrl?: string;
+  onDiscoveryUrlChange?: (url: string) => void;
+}
+
+export function createMockCrossAppAccessOidcProps(
+  overrides: CrossAppAccessOidcPropsOverrides = {},
 ): CrossAppAccessSectionProps {
   return {
     checked: false,
@@ -19,15 +38,38 @@ export function createMockCrossAppAccessSectionProps(
     customMessages: {},
     className: undefined,
     strategy: 'oidc',
+    ...overrides,
+  };
+}
+
+export function createMockCrossAppAccessSamlProps(
+  overrides: CrossAppAccessSamlPropsOverrides = {},
+): CrossAppAccessSectionProps {
+  return {
+    checked: false,
+    onChange: vi.fn(),
+    readOnly: false,
+    customMessages: {},
+    className: undefined,
+    strategy: 'samlp',
     discoveryUrl: '',
     onDiscoveryUrlChange: vi.fn(),
     ...overrides,
   };
 }
 
+export function createMockCrossAppAccessSectionProps(
+  overrides: Partial<CrossAppAccessSectionProps> = {},
+): CrossAppAccessSectionProps {
+  if (overrides.strategy === 'samlp') {
+    return createMockCrossAppAccessSamlProps(overrides as CrossAppAccessSamlPropsOverrides);
+  }
+  return createMockCrossAppAccessOidcProps(overrides as CrossAppAccessOidcPropsOverrides);
+}
+
 export function createMockCrossAppAccessMessages(
   overrides: Partial<CrossAppAccessMessages> = {},
-): CrossAppAccessMessages {
+): Partial<CrossAppAccessMessages> {
   return {
     title: 'Cross App Access',
     label: 'Allow this provider to authorize access to this Resource Application',
