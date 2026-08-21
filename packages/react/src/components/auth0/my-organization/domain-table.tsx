@@ -69,6 +69,7 @@ function DomainTable(props: DomainTableProps) {
         schema={schema}
         styling={styling}
         hideHeader={hideHeader}
+        readOnly={readOnly}
         customMessages={customMessages}
         createAction={createAction}
         onOpenProvider={onOpenProvider}
@@ -88,6 +89,7 @@ function DomainTableView({
   domainTable,
   schema,
   styling,
+  readOnly,
   hideHeader,
   customMessages,
   createAction,
@@ -189,18 +191,23 @@ function DomainTableView({
           <Header
             title={t('domain_table.header.title')}
             description={t('domain_table.header.description')}
-            actions={[
-              {
-                type: 'button',
-                label: t('domain_table.header.create_button_text'),
-                onClick: () => handleCreateClick(),
-                icon: Plus,
-                disabled: createAction?.disabled || !permissions.canCreateDomain || isFetching,
-                ...(permissions.canCreateDomain
-                  ? {}
-                  : { tooltip: { content: tCommon('error.forbidden') } }),
-              },
-            ]}
+            actions={
+              readOnly
+                ? []
+                : [
+                    {
+                      type: 'button',
+                      label: t('domain_table.header.create_button_text'),
+                      onClick: () => handleCreateClick(),
+                      icon: Plus,
+                      disabled:
+                        createAction?.disabled || !permissions.canCreateDomain || isFetching,
+                      ...(permissions.canCreateDomain
+                        ? {}
+                        : { tooltip: { content: tCommon('error.forbidden') } }),
+                    },
+                  ]
+            }
           />
         </div>
       )}
@@ -223,6 +230,7 @@ function DomainTableView({
         emptyState={{ title: t('domain_table.table.empty_message') }}
         className={currentStyles.classes?.['DomainTable-table']}
         onRowClick={handleConfigureClick}
+        rowClickLabel={(index) => tCommon('data_table.view_row', { index: index + 1 })}
       />
 
       {domains.length > 0 && (
@@ -273,6 +281,7 @@ function DomainTableView({
         className={currentStyles.classes?.['DomainTable-verifyModal']}
         isOpen={showVerifyModal}
         isLoading={isVerifying}
+        permissions={permissions}
         domain={selectedDomain}
         error={verifyError}
         onClose={handleCloseVerifyModal}

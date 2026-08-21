@@ -13,9 +13,9 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
-import { usePermissions } from '@/hooks/my-organization/use-permissions';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import type {
@@ -210,8 +210,9 @@ export function useDomainTable({
   }, []);
 
   const handleCreateClick = useCallback(() => {
+    if (!permissions.canCreateDomain) return;
     setShowCreateModal(true);
-  }, []);
+  }, [permissions]);
 
   const handleConfigureClick = useCallback(
     async (domain: Domain) => {
@@ -234,6 +235,7 @@ export function useDomainTable({
 
   const handleVerifyClick = useCallback(
     async (domain: Domain) => {
+      if (!permissions.canVerifyDomain) return;
       setSelectedDomain(domain);
       try {
         const isVerified = await onVerifyDomain(domain);
@@ -260,14 +262,18 @@ export function useDomainTable({
         });
       }
     },
-    [onVerifyDomain, fetchProviders, t, handleError],
+    [permissions, onVerifyDomain, fetchProviders, t, handleError],
   );
 
-  const handleDeleteClick = useCallback((domain: Domain) => {
-    setSelectedDomain(domain);
-    setShowVerifyModal(false);
-    setShowDeleteModal(true);
-  }, []);
+  const handleDeleteClick = useCallback(
+    (domain: Domain) => {
+      if (!permissions.canDeleteDomain) return;
+      setSelectedDomain(domain);
+      setShowVerifyModal(false);
+      setShowDeleteModal(true);
+    },
+    [permissions],
+  );
 
   const handleNextPage = useCallback(() => {
     if (nextToken) {

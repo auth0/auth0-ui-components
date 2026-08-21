@@ -12,7 +12,6 @@ import {
   createMockVerifyAction,
   createMockDeleteAction,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
-import { createDomainPermissions } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { DomainTableProps } from '@/types/my-organization/domain-management/domain-table-types';
@@ -146,13 +145,22 @@ describe('DomainTable', () => {
 
   describe('readOnly', () => {
     describe('when is true', () => {
-      it('should disable action buttons', async () => {
+      it('should not render the create button', async () => {
         renderWithProviders(<DomainTable {...createMockDomainTableProps({ readOnly: true })} />);
 
         await waitForComponentToLoad();
 
-        const createButton = screen.queryByRole('button', { name: /create/i });
-        expect(createButton).toBeDisabled();
+        expect(screen.queryByRole('button', { name: /create/i })).not.toBeInTheDocument();
+      });
+
+      it('should not render the row menu', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps({ readOnly: true })} />);
+
+        await waitForComponentToLoad();
+
+        const badge = await screen.findByText(/shared\.domain_statuses\.verified/i);
+        const row = badge.closest('tr') as HTMLElement;
+        expect(within(row).queryByRole('button')).not.toBeInTheDocument();
       });
     });
 
@@ -175,7 +183,9 @@ describe('DomainTable', () => {
           const mockCreateAction = createMockCreateAction();
           mockCreateAction.disabled = true;
 
-          renderWithProviders(<DomainTable {...createMockDomainTableProps({ readOnly: true })} />);
+          renderWithProviders(
+            <DomainTable {...createMockDomainTableProps({ createAction: mockCreateAction })} />,
+          );
 
           await waitForComponentToLoad();
 
@@ -736,6 +746,102 @@ describe('DomainTable', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'refresh' })).toBeEnabled();
+      });
+    });
+  });
+
+  describe('row click', () => {
+    /** Both mock domains share a name, so rows are found by their status badge. */
+    const findVerifiedRow = async () => {
+      const badge = await screen.findByText(/shared\.domain_statuses\.verified/i);
+      return badge.closest('tr') as HTMLElement;
+    };
+
+    it('should expose each row as a focusable, labelled control', async () => {
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+      await waitForComponentToLoad();
+
+      const row = await findVerifiedRow();
+      expect(row).toHaveAttribute('tabindex', '0');
+      expect(row).toHaveAttribute('aria-label', 'data_table.view_row');
+    });
+
+    it('should open the configure modal when a row is clicked', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+      await waitForComponentToLoad();
+
+      await user.click(await findVerifiedRow());
+
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('should open the configure modal when the focused row is activated with Enter', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+
+      await waitForComponentToLoad();
+
+      const row = await findVerifiedRow();
+      row.focus();
+      await user.keyboard('{Enter}');
+
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('should stay available to viewers, whose row menu is gated away', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />, {
+        permissions: ['read:my_org:domains'],
+      });
+
+      await waitForComponentToLoad();
+
+      const row = await findVerifiedRow();
+      expect(within(row).queryByRole('button')).not.toBeInTheDocument();
+
+      await user.click(row);
+
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    });
+  });
+
+  describe('Granted permissions', () => {
+    describe('when create:my_org:domains is granted', () => {
+      it('should enable the create button', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />, {
+          permissions: ['read:my_org:domains', 'create:my_org:domains'],
+        });
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByRole('button', { name: /create/i })).toBeEnabled();
+      });
+    });
+
+    describe('when create:my_org:domains is not granted', () => {
+      it('should keep the create button visible but disabled', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />, {
+          permissions: ['read:my_org:domains', 'delete:my_org:domains'],
+        });
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByRole('button', { name: /create/i })).toBeDisabled();
+      });
+    });
+
+    describe('when only read permissions are granted', () => {
+      it('should keep the create button visible but disabled', async () => {
+        renderWithProviders(<DomainTable {...createMockDomainTableProps()} />, {
+          permissions: ['read:my_org:domains'],
+        });
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByRole('button', { name: /create/i })).toBeDisabled();
       });
     });
   });

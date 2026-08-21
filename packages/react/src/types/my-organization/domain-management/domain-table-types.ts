@@ -191,6 +191,7 @@ export interface DomainTableViewProps {
   schema: DomainTableProps['schema'];
   styling: DomainTableProps['styling'];
   hideHeader: DomainTableProps['hideHeader'];
+  readOnly: DomainTableProps['readOnly'];
   customMessages: DomainTableProps['customMessages'];
   createAction: DomainTableProps['createAction'];
   onOpenProvider: DomainTableProps['onOpenProvider'];

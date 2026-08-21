@@ -8,6 +8,7 @@ import { vi } from 'vitest';
 
 import { ALL_DOMAIN_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import type {
+  DomainTableActionsColumnProps,
   DomainTableProps,
   UseDomainTableReturn,
   UseDomainTableServiceOptions,
@@ -82,6 +83,18 @@ export const createMockIdentityProviderWithoutProvisioning = (
     ...overrides,
   } as IdpKnownResponse;
 };
+
+export const createMockDomainActionsColumnProps = (
+  overrides: Partial<DomainTableActionsColumnProps> = {},
+): DomainTableActionsColumnProps => ({
+  domain: createMockDomain(),
+  permissions: ALL_DOMAIN_PERMISSIONS,
+  onView: vi.fn(),
+  onConfigure: vi.fn(),
+  onVerify: vi.fn(),
+  onDelete: vi.fn(),
+  ...overrides,
+});
 
 export const createMockDomainTableProps = (
   overrides?: Partial<DomainTableProps>,
