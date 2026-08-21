@@ -197,12 +197,10 @@ describe('DomainTableActionsColumn', () => {
     it('should call onConfigure when View menu item is clicked', async () => {
       const user = userEvent.setup();
       const onConfigure = vi.fn();
-      const onView = vi.fn();
       const pendingDomain = createMockDomain({ status: 'pending' });
       const props = createMockDomainActionsColumnProps({
         domain: pendingDomain,
         onConfigure,
-        onView,
       });
       renderWithProviders(<DomainTableActionsColumn {...props} />);
 
@@ -213,41 +211,10 @@ describe('DomainTableActionsColumn', () => {
         name: 'domain_table.table.actions.view_button_text',
       });
 
-      // When View menu item is clicked, should call onConfigure (not onView)
       await user.click(viewMenuItem);
 
-      // When View action is triggered, should call onConfigure with pending domain
+      // View and Configure are the same flow, so both route through onConfigure.
       expect(onConfigure).toHaveBeenCalledTimes(1);
-      expect(onConfigure).toHaveBeenCalledWith(pendingDomain);
-      // When View uses onConfigure, onView should not be called
-      expect(onView).not.toHaveBeenCalled();
-    });
-
-    it('should not call onView callback as View action uses onConfigure', async () => {
-      const user = userEvent.setup();
-      const onConfigure = vi.fn();
-      const onView = vi.fn();
-      const pendingDomain = createMockDomain({ status: 'pending' });
-      const props = createMockDomainActionsColumnProps({
-        domain: pendingDomain,
-        onConfigure,
-        onView,
-      });
-      renderWithProviders(<DomainTableActionsColumn {...props} />);
-
-      const trigger = screen.getByRole('button');
-      await user.click(trigger);
-
-      const viewMenuItem = screen.getByRole('menuitem', {
-        name: 'domain_table.table.actions.view_button_text',
-      });
-
-      // When View menu item is clicked, should use onConfigure instead of onView
-      await user.click(viewMenuItem);
-
-      // When View action is executed, onView should never be called since View uses onConfigure
-      expect(onView).not.toHaveBeenCalled();
-      // When View action is executed, onConfigure should be called with the domain
       expect(onConfigure).toHaveBeenCalledWith(pendingDomain);
     });
 

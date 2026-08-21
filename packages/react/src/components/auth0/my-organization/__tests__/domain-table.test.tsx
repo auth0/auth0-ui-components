@@ -751,7 +751,6 @@ describe('DomainTable', () => {
   });
 
   describe('row click', () => {
-    /** Both mock domains share a name, so rows are found by their status badge. */
     const findVerifiedRow = async () => {
       const badge = await screen.findByText(/shared\.domain_statuses\.verified/i);
       return badge.closest('tr') as HTMLElement;

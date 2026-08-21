@@ -173,7 +173,6 @@ function DomainTableView({
             domain={domain}
             permissions={permissions}
             customMessages={customMessages}
-            onView={handleConfigureClick}
             onConfigure={handleConfigureClick}
             onVerify={handleVerifyClick}
             onDelete={handleDeleteClick}

@@ -80,7 +80,6 @@ export interface DomainTableActionsColumnProps {
   customMessages?: Partial<DomainTableMainMessages>;
   permissions: DomainManagementPermissions;
   domain: Domain;
-  onView: (domain: Domain) => void;
   onConfigure: (domain: Domain) => void;
   onVerify: (domain: Domain) => void;
   onDelete: (domain: Domain) => void;

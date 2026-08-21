@@ -23,7 +23,6 @@ import type { DomainTableActionsColumnProps } from '@/types/my-organization/doma
  * @param props.customMessages - Custom translation messages to override defaults
  * @param props.permissions - What the current user is allowed to do
  * @param props.domain - Domain object or domain name
- * @param props.onView - Callback fired when view action is triggered
  * @param props.onConfigure - Callback fired when configure action is triggered
  * @param props.onVerify - Callback fired when verify action is triggered
  * @param props.onDelete - Callback fired when delete action is triggered
@@ -38,10 +37,6 @@ export function DomainTableActionsColumn({
   onDelete,
 }: DomainTableActionsColumnProps) {
   const { t } = useTranslator('domain_management', customMessages);
-
-  const handleView = React.useCallback(() => {
-    onConfigure(domain);
-  }, [domain, onConfigure]);
 
   const handleConfigure = React.useCallback(() => {
     onConfigure(domain);
@@ -75,7 +70,7 @@ export function DomainTableActionsColumn({
           {domain.status === 'pending' && (
             <>
               {permissions.canConfigureDomain && (
-                <DropdownMenuItem onClick={handleView}>
+                <DropdownMenuItem onClick={handleConfigure}>
                   <Eye className="mr-2 h-4 w-4" />
                   {t('domain_table.table.actions.view_button_text')}
                 </DropdownMenuItem>

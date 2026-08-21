@@ -57,7 +57,6 @@ export function DomainConfigureProvidersModal({
     [domain, onToggleSwitch],
   );
 
-  /** Associating needs the create scope; dissociating needs the delete scope. */
   const canToggleProvider = React.useCallback(
     (provider: IdentityProviderAssociatedWithDomain) =>
       provider.is_associated ? permissions.canDissociateProvider : permissions.canAssociateProvider,

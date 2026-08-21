@@ -909,7 +909,6 @@ describe('DomainConfigureProvidersModal', () => {
       renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
       const [associated, unassociated] = screen.getAllByRole('switch');
-      // Google Workspace is already associated, so turning it off needs the delete scope.
       expect(associated).toBeDisabled();
       expect(unassociated).toBeEnabled();
     });

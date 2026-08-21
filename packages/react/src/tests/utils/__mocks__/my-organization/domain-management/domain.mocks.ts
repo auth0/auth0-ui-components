@@ -89,7 +89,6 @@ export const createMockDomainActionsColumnProps = (
 ): DomainTableActionsColumnProps => ({
   domain: createMockDomain(),
   permissions: ALL_DOMAIN_PERMISSIONS,
-  onView: vi.fn(),
   onConfigure: vi.fn(),
   onVerify: vi.fn(),
   onDelete: vi.fn(),
