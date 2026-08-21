@@ -128,6 +128,7 @@ export * from './services/my-organization/domain-management/domain-query-keys';
 
 export * from './services/my-organization/member-management/member-management-types';
 export * from './services/my-organization/member-management/member-management-constants';
+export * from './services/my-organization/member-management/member-management-permissions';
 
 export * from './services/my-organization/config/config-types';
 

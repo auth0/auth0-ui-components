@@ -3,11 +3,16 @@
  * @module use-member-detail
  */
 
-import { resolveErrorMessage, type Role } from '@auth0/universal-components-core';
+import {
+  getMemberManagementPermissions,
+  resolveErrorMessage,
+  type Role,
+} from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { useMemberDetailService } from '@/hooks/my-organization/shared/services/use-member-detail-service';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
@@ -35,6 +40,13 @@ export function useOrganizationMemberDetail(
     assignRolesAction,
     removeRolesAction,
   } = options;
+
+  const { createPermissionResolver } = usePermissions();
+
+  const permissions = React.useMemo(
+    () => createPermissionResolver(getMemberManagementPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
 
   const {
     memberQuery,
@@ -88,10 +100,12 @@ export function useOrganizationMemberDetail(
 
   const openModal = React.useCallback(
     (state: MemberDetailModalState) => {
-      if (readOnly && state.type !== null) return;
+      if (state.type === 'removeFromOrganization' && !permissions.canRemoveFromOrganization) return;
+      if (state.type === 'assignRoles' && !permissions.canAssignRole) return;
+      if (state.type === 'removeRoles' && !permissions.canRemoveRole) return;
       setModalState(state);
     },
-    [readOnly],
+    [permissions],
   );
 
   const closeModal = React.useCallback(() => {
@@ -162,6 +176,7 @@ export function useOrganizationMemberDetail(
 
   return {
     activeTab,
+    permissions,
     member,
     organizationDisplayName,
     memberRoles,

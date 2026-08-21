@@ -45,8 +45,8 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     styling,
     customMessages,
     hideHeader,
-    readOnly,
     activeTab,
+    permissions,
     members,
     invitations,
     organizationDisplayName,
@@ -95,6 +95,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     handleViewMemberDetails,
     handleAssignRolesSubmit,
     handleRemoveFromOrganizationConfirm,
+    readOnly,
   } = props;
 
   const selectedInvitation =
@@ -113,6 +114,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
 
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('member_management', customMessages);
+  const { t: tCommon } = useTranslator('common');
 
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -177,7 +179,10 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
                         label: t('invite_button'),
                         onClick: () => openModal({ type: 'create' }),
                         icon: Plus,
-                        disabled: readOnly,
+                        disabled: !permissions.canInvite,
+                        ...(permissions.canInvite
+                          ? {}
+                          : { tooltip: { content: tCommon('error.forbidden') } }),
                       },
                     ]
                   : []
@@ -217,6 +222,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               pagination={memberPagination}
               pageSizeOptions={pageSizeOptions}
               sortConfig={memberSortConfig}
+              permissions={permissions}
               className={currentStyles.classes?.['OrganizationMemberTab-table']}
               onView={handleViewMemberDetails}
               onAssignRole={handleAssignRoleClick}
@@ -236,16 +242,17 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               customMessages={customMessages?.invitation}
               pagination={invitationPagination}
               pageSizeOptions={pageSizeOptions}
+              permissions={permissions}
               readOnly={readOnly}
               selectedInvitations={selectedInvitations}
               sortConfig={invitationSortConfig}
               onSortChange={handleSortChange}
               onView={handleViewInvitation}
               onCopyUrl={handleCopyUrl}
-              onRevokeAndResend={readOnly ? undefined : handleRevokeResendClick}
-              onRevoke={readOnly ? undefined : handleRevokeClick}
-              onSelectedInvitationsChange={readOnly ? undefined : onSelectedInvitationsChange}
-              onBulkRevoke={readOnly ? undefined : handleBulkRevokeClick}
+              onRevokeAndResend={handleRevokeResendClick}
+              onRevoke={handleRevokeClick}
+              onSelectedInvitationsChange={onSelectedInvitationsChange}
+              onBulkRevoke={handleBulkRevokeClick}
               onNextPage={handleNextPage}
               onPreviousPage={handlePreviousPage}
               onPageSizeChange={handlePageSizeChange}
@@ -275,6 +282,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isRevoking={isRevokingInvitation}
           isResending={isResendingInvitation}
           customMessages={customMessages?.invitation}
+          permissions={permissions}
           roles={invitationRoles}
           isLoadingRoles={isFetchingInvitationRoles}
           availableConnections={availableConnections}

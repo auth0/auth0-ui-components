@@ -7,6 +7,7 @@ import type {
   SharedComponentProps,
   ComponentAction,
   MemberInvitation,
+  MemberManagementPermissions,
   InvitationCreateSchemas,
   OrganizationInvitationTabMessages,
   Role,
@@ -75,7 +76,7 @@ export interface OrganizationInvitationTabProps
 export interface OrganizationInvitationTableActionsColumnProps {
   invitation: MemberInvitation;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
-  readOnly?: boolean;
+  permissions: MemberManagementPermissions;
   onViewDetails?: (invitation: MemberInvitation) => void;
   onCopyUrl?: (invitation: MemberInvitation) => void;
   onRevokeAndResend?: (invitation: MemberInvitation) => void;
@@ -92,6 +93,7 @@ export interface OrganizationInvitationTableProps {
   filters?: MemberManagementFilterState;
   sortConfig?: MemberManagementSortConfig;
   availableRoles?: Role[];
+  permissions: MemberManagementPermissions;
   readOnly?: boolean;
   selectedInvitations?: MemberInvitation[];
   onView?: (invitation: MemberInvitation) => void;
@@ -143,6 +145,7 @@ export interface OrganizationInvitationDetailsModalProps {
   isRevoking?: boolean;
   isResending?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
+  permissions: MemberManagementPermissions;
   roles?: Role[];
   isLoadingRoles?: boolean;
   availableConnections?: ConnectionOption[];

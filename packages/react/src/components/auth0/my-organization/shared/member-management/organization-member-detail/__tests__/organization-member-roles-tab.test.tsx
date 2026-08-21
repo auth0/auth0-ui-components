@@ -11,6 +11,11 @@ import {
   createMockMemberRole,
   createMockMemberRoles,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import {
+  createMemberPermissions,
+  ALL_MEMBER_PERMISSIONS,
+  READ_ONLY_MEMBER_PERMISSIONS,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
 import type { MemberDetailModalState } from '@/types/my-organization/member-management/organization-member-detail-types';
@@ -30,6 +35,7 @@ const createProps = (overrides = {}) => ({
   removingRoleIds: [],
   isAssigningRoles: false,
   modalState: noModal,
+  permissions: ALL_MEMBER_PERMISSIONS,
   onSelectedRolesChange: vi.fn(),
   onAssignRolesClick: vi.fn(),
   onAssignRolesCancel: vi.fn(),
@@ -284,6 +290,99 @@ describe('OrganizationMemberEditRolesTab', () => {
         />,
       );
       expect(screen.getByText('Custom Roles Title')).toBeInTheDocument();
+    });
+  });
+
+  describe('granted permissions', () => {
+    const assignButtonName = 'member.detail.roles.assign_button';
+
+    const ROLE_SCOPES = ['create:my_org:member_roles', 'delete:my_org:member_roles'] as const;
+
+    describe('when create and delete member_roles are both granted', () => {
+      it('enables the assign roles button', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({ permissions: createMemberPermissions(ROLE_SCOPES) })}
+          />,
+        );
+
+        expect(screen.getByRole('button', { name: assignButtonName })).toBeEnabled();
+      });
+
+      it('enables the per-role remove buttons', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({ permissions: createMemberPermissions(ROLE_SCOPES) })}
+          />,
+        );
+
+        const [removeButton] = screen.getAllByRole('button', {
+          name: /member\.detail\.roles\.table\.remove_button_label/,
+        });
+        expect(removeButton).toBeEnabled();
+      });
+    });
+
+    describe('when delete:my_org:member_roles is granted without create', () => {
+      it('enables the per-role remove buttons but disables assign', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({
+              permissions: createMemberPermissions(['delete:my_org:member_roles']),
+            })}
+          />,
+        );
+
+        const [removeButton] = screen.getAllByRole('button', {
+          name: /member\.detail\.roles\.table\.remove_button_label/,
+        });
+        expect(removeButton).toBeEnabled();
+        expect(screen.getByRole('button', { name: assignButtonName })).toBeDisabled();
+      });
+    });
+
+    describe('when create:my_org:member_roles is granted without delete', () => {
+      it('enables assign but disables the per-role remove buttons', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({
+              permissions: createMemberPermissions(['create:my_org:member_roles']),
+            })}
+          />,
+        );
+
+        expect(screen.getByRole('button', { name: assignButtonName })).toBeEnabled();
+
+        const [removeButton] = screen.getAllByRole('button', {
+          name: /member\.detail\.roles\.table\.remove_button_label/,
+        });
+        expect(removeButton).toBeDisabled();
+      });
+    });
+
+    describe('when only read permissions are granted', () => {
+      it('keeps assign visible but disabled', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({ permissions: READ_ONLY_MEMBER_PERMISSIONS })}
+          />,
+        );
+
+        expect(screen.getByRole('button', { name: assignButtonName })).toBeDisabled();
+      });
+
+      it('keeps the per-role remove buttons visible but disabled', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({ permissions: READ_ONLY_MEMBER_PERMISSIONS })}
+          />,
+        );
+
+        const [removeButton] = screen.getAllByRole('button', {
+          name: /member\.detail\.roles\.table\.remove_button_label/,
+        });
+        expect(removeButton).toBeDisabled();
+      });
     });
   });
 

@@ -6,9 +6,9 @@
 import * as React from 'react';
 
 import { OrganizationMemberUserDetails } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-user-details/organization-member-user-details';
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { canMutateMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
@@ -24,22 +24,11 @@ import type {
 function RemoveMemberFromOrganizationCard({
   customMessages,
   isRemovingFromOrganization,
+  canRemoveFromOrganization,
   canModify,
   onRemoveFromOrganizationClick,
 }: RemoveMemberFromOrganizationCardProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
-
-  const button = (
-    <Button
-      variant="destructive"
-      size="sm"
-      onClick={onRemoveFromOrganizationClick}
-      disabled={isRemovingFromOrganization || !canModify}
-      className="shrink-0"
-    >
-      {t('member.detail.actions.remove_from_organization.button')}
-    </Button>
-  );
 
   return (
     <Card className="flex flex-row items-center justify-between gap-4 p-6">
@@ -51,18 +40,23 @@ function RemoveMemberFromOrganizationCard({
           {t('member.detail.actions.remove_from_organization.description')}
         </span>
       </div>
-      {!canModify ? (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="shrink-0">{button}</span>
-          </TooltipTrigger>
-          <TooltipContent side="top">
-            {t('member.detail.actions.readonly_member_tooltip')}
-          </TooltipContent>
-        </Tooltip>
-      ) : (
-        button
-      )}
+      <PermissionDeniedTooltip
+        enabled={!canRemoveFromOrganization || !canModify}
+        className="shrink-0"
+        {...(canModify
+          ? {}
+          : { customMessage: t('member.detail.actions.readonly_member_tooltip') })}
+      >
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={onRemoveFromOrganizationClick}
+          disabled={isRemovingFromOrganization || !canRemoveFromOrganization || !canModify}
+          className="shrink-0"
+        >
+          {t('member.detail.actions.remove_from_organization.button')}
+        </Button>
+      </PermissionDeniedTooltip>
     </Card>
   );
 }
@@ -84,12 +78,15 @@ export function OrganizationMemberEditDetailsTab(
   return (
     <div className="flex flex-col gap-10">
       <OrganizationMemberUserDetails member={props.member} customMessages={props.customMessages} />
-      <RemoveMemberFromOrganizationCard
-        customMessages={props.customMessages}
-        isRemovingFromOrganization={props.isRemovingFromOrganization}
-        canModify={canModify}
-        onRemoveFromOrganizationClick={props.onRemoveFromOrganizationClick}
-      />
+      {!props?.readOnly && (
+        <RemoveMemberFromOrganizationCard
+          customMessages={props.customMessages}
+          isRemovingFromOrganization={props.isRemovingFromOrganization}
+          canRemoveFromOrganization={props.permissions.canRemoveFromOrganization}
+          canModify={canModify}
+          onRemoveFromOrganizationClick={props.onRemoveFromOrganizationClick}
+        />
+      )}
     </div>
   );
 }

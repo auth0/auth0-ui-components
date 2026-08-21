@@ -7,6 +7,7 @@ import type {
   ComponentAction,
   SharedComponentProps,
   MemberInvitation,
+  MemberManagementPermissions,
   OrganizationMemberManagementMessages,
   Role,
   OrgMember,
@@ -154,6 +155,7 @@ export type MemberManagementModalState =
 
 export interface UseOrganizationMemberManagementResult {
   activeTab: ActiveTab;
+  permissions: MemberManagementPermissions;
   searchedRoles: Role[];
   onRoleSearch: (term: string) => void;
   availableConnections: ConnectionOption[];

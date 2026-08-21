@@ -7,8 +7,10 @@ import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
 import { GateKeeperContext } from '@/providers/gate-keeper-context';
+import { PermissionContext } from '@/providers/permission-provider';
 import { TelemetryProvider } from '@/providers/telemetry-provider';
 import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
+import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 
 // Create a new QueryClient for each test to avoid shared state
 export const createTestQueryClient = () =>
@@ -39,6 +41,7 @@ export interface TestProviderProps {
   coreClient?: CoreClientInterface;
   authDetails?: Partial<AuthDetails>;
   queryClient?: QueryClient;
+  permissions?: string[];
 }
 
 /**
@@ -48,6 +51,7 @@ export interface TestProviderProps {
  * @param props.coreClient - Core client instance.
  * @param props.authDetails - Auth details.
  * @param props.queryClient - Query client instance.
+ * @param props.permissions - Granted permissions.
  * @returns JSX element
  */
 export const TestProvider: React.FC<TestProviderProps> = ({
@@ -55,6 +59,7 @@ export const TestProvider: React.FC<TestProviderProps> = ({
   coreClient,
   authDetails,
   queryClient,
+  permissions = ALL_MY_ORG_PERMISSIONS,
 }) => {
   const mockCoreClient = coreClient || createMockCoreClient(authDetails);
   const testQueryClient = React.useMemo(
@@ -69,6 +74,8 @@ export const TestProvider: React.FC<TestProviderProps> = ({
     [mockCoreClient],
   );
 
+  const permissionValue = React.useMemo(() => ({ permissions, isLoading: false }), [permissions]);
+
   // Create a ref for telemetry tracker
   const componentRef = React.useRef<string>('test-component');
 
@@ -76,7 +83,11 @@ export const TestProvider: React.FC<TestProviderProps> = ({
     <QueryClientProvider client={testQueryClient}>
       <TelemetryProvider componentRef={componentRef}>
         <GateKeeperContext.Provider value={{ error: null }}>
-          <CoreClientContext.Provider value={contextValue}>{children}</CoreClientContext.Provider>
+          <CoreClientContext.Provider value={contextValue}>
+            <PermissionContext.Provider value={permissionValue}>
+              {children}
+            </PermissionContext.Provider>
+          </CoreClientContext.Provider>
         </GateKeeperContext.Provider>
       </TelemetryProvider>
     </QueryClientProvider>
@@ -90,6 +101,7 @@ export const TestProvider: React.FC<TestProviderProps> = ({
  * @param options.coreClient - Core client instance
  * @param options.authDetails - Authentication details configuration
  * @param options.queryClient - React Query client instance
+ * @param options.permissions - Granted permissions
  * @returns JSX element
  */
 export const renderWithProviders = (
@@ -98,6 +110,7 @@ export const renderWithProviders = (
     coreClient?: CoreClientInterface;
     authDetails?: Partial<AuthDetails>;
     queryClient?: QueryClient;
+    permissions?: string[];
   },
 ): RenderResult => {
   return render(
@@ -105,6 +118,7 @@ export const renderWithProviders = (
       coreClient={options?.coreClient}
       authDetails={options?.authDetails}
       queryClient={options?.queryClient}
+      permissions={options?.permissions}
     >
       {component}
     </TestProvider>,

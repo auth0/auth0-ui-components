@@ -12,6 +12,7 @@ import { OrganizationInvitationTableActionsColumn } from './organization-invitat
 import { SearchFilter } from '@/components/auth0/my-organization/shared/member-management/shared/search-filter/search-filter';
 import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column, type DataTableProps } from '@/components/auth0/shared/data-table';
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -31,6 +32,7 @@ import type { OrganizationInvitationTableProps } from '@/types/my-organization/m
  * @param props.pageSizeOptions - Options for page size selection.
  * @param props.filters - Current filter state.
  * @param props.availableRoles - Available roles for filtering.
+ * @param props.permissions - What the current user is allowed to do.
  * @param props.readOnly - Whether the component is in read-only mode.
  * @param props.selectedInvitations - The currently selected invitations.
  * @param props.onView - Callback when viewing invitation details.
@@ -53,6 +55,7 @@ export function OrganizationInvitationTable({
   pageSizeOptions,
   filters,
   availableRoles,
+  permissions,
   readOnly = false,
   selectedInvitations,
   sortConfig,
@@ -152,7 +155,7 @@ export function OrganizationInvitationTable({
           <OrganizationInvitationTableActionsColumn
             invitation={invitation}
             customMessages={customMessages}
-            readOnly={readOnly}
+            permissions={permissions}
             onViewDetails={onView}
             onCopyUrl={onCopyUrl}
             onRevokeAndResend={onRevokeAndResend}
@@ -161,7 +164,7 @@ export function OrganizationInvitationTable({
         ),
       },
     ],
-    [t, customMessages, readOnly, onView, onCopyUrl, onRevokeAndResend, onRevoke],
+    [t, customMessages, permissions, onView, onCopyUrl, onRevokeAndResend, onRevoke],
   );
 
   const baseTableProps = {
@@ -171,6 +174,8 @@ export function OrganizationInvitationTable({
     emptyState: { title: t('invitation.table.empty_message') },
     sortConfig,
     onSortChange,
+    onRowClick: onView,
+    rowClickLabel: (index: number) => t('data_table.view_row', { index: index + 1 }),
   };
 
   const tableProps: DataTableProps<MemberInvitation> = selectionEnabled
@@ -199,7 +204,7 @@ export function OrganizationInvitationTable({
       />
 
       {selectionEnabled && selectedCount > 0 && (
-        <div className="flex items-center justify-end gap-2 mb-2">
+        <div className="flex items-center justify-end gap-2 mb-8">
           <span className="text-sm text-muted-foreground shrink-0">
             {t(
               selectedCount === 1
@@ -208,17 +213,22 @@ export function OrganizationInvitationTable({
               { count: selectedCount },
             )}
           </span>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => onBulkRevoke?.(selectedInvitations ?? [])}
-          >
-            {t(
-              selectedCount === 1
-                ? 'invitation.bulk_revoke.button'
-                : 'invitation.bulk_revoke.button_plural',
-            )}
-          </Button>
+          {!readOnly && (
+            <PermissionDeniedTooltip enabled={!permissions.canRevokeInvitation}>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => onBulkRevoke?.(selectedInvitations ?? [])}
+                disabled={!permissions.canRevokeInvitation}
+              >
+                {t(
+                  selectedCount === 1
+                    ? 'invitation.bulk_revoke.button'
+                    : 'invitation.bulk_revoke.button_plural',
+                )}
+              </Button>
+            </PermissionDeniedTooltip>
+          )}
         </div>
       )}
 

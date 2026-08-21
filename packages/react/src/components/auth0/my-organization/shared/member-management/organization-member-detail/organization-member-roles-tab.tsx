@@ -10,8 +10,8 @@ import * as React from 'react';
 import { OrganizationMemberAssignRolesModal } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-roles/organization-member-assign-roles-modal';
 import { OrganizationMemberRemoveRoleModal } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-roles/organization-member-remove-role-modal';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { MAX_ROLES_PER_REQUEST } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { canMutateMember } from '@/lib/utils/my-organization/member-management/member-management-utils';
@@ -35,28 +35,13 @@ function RolesTabHeader({
   selectedRoles,
   organizationName,
   customMessages,
+  permissions,
   canModify,
+  readOnly,
   onAssignRolesClick,
   onRemoveSelectedRoles,
 }: RolesTabHeaderProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
-
-  const assignButton = (
-    <Button size="sm" onClick={onAssignRolesClick} disabled={!canModify} className="shrink-0">
-      <Plus className="h-4 w-4 mr-1" />
-      {t('member.detail.roles.assign_button')}
-    </Button>
-  );
-
-  const removeButton = (
-    <Button variant="destructive" size="sm" onClick={onRemoveSelectedRoles} disabled={!canModify}>
-      {t(
-        selectedRoles.length === 1
-          ? 'member.detail.roles.remove_button'
-          : 'member.detail.roles.remove_button_plural',
-      )}
-    </Button>
-  );
 
   return (
     <div className="flex items-center justify-between gap-4">
@@ -66,43 +51,60 @@ function RolesTabHeader({
           {t('member.detail.roles.description', { organizationName })}
         </p>
       </div>
-      <div className="flex items-center gap-2">
-        {selectedRoles.length > 0 ? (
-          <>
-            <span className="text-sm text-muted-foreground shrink-0">
-              {t(
-                selectedRoles.length === 1
-                  ? 'member.detail.roles.roles_selected'
-                  : 'member.detail.roles.roles_selected_plural',
-                { count: selectedRoles.length },
-              )}
-            </span>
-            {!canModify ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span>{removeButton}</span>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  {t('member.detail.actions.readonly_member_tooltip')}
-                </TooltipContent>
-              </Tooltip>
-            ) : (
-              removeButton
-            )}
-          </>
-        ) : !canModify ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="shrink-0">{assignButton}</span>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              {t('member.detail.actions.readonly_member_tooltip')}
-            </TooltipContent>
-          </Tooltip>
-        ) : (
-          assignButton
-        )}
-      </div>
+      {!readOnly && (
+        <div className="flex items-center gap-2">
+          {selectedRoles.length > 0 ? (
+            <>
+              <span className="text-sm text-muted-foreground shrink-0">
+                {t(
+                  selectedRoles.length === 1
+                    ? 'member.detail.roles.roles_selected'
+                    : 'member.detail.roles.roles_selected_plural',
+                  { count: selectedRoles.length },
+                )}
+              </span>
+              <PermissionDeniedTooltip
+                enabled={!permissions.canRemoveRole || !canModify}
+                className="shrink-0"
+                {...(canModify
+                  ? {}
+                  : { customMessage: t('member.detail.actions.readonly_member_tooltip') })}
+              >
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={onRemoveSelectedRoles}
+                  disabled={!permissions.canRemoveRole || !canModify}
+                >
+                  {t(
+                    selectedRoles.length === 1
+                      ? 'member.detail.roles.remove_button'
+                      : 'member.detail.roles.remove_button_plural',
+                  )}
+                </Button>
+              </PermissionDeniedTooltip>
+            </>
+          ) : (
+            <PermissionDeniedTooltip
+              enabled={!permissions.canAssignRole || !canModify}
+              className="shrink-0"
+              {...(canModify
+                ? {}
+                : { customMessage: t('member.detail.actions.readonly_member_tooltip') })}
+            >
+              <Button
+                size="sm"
+                onClick={onAssignRolesClick}
+                disabled={!permissions.canAssignRole || !canModify}
+                className="shrink-0"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                {t('member.detail.roles.assign_button')}
+              </Button>
+            </PermissionDeniedTooltip>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -126,7 +128,9 @@ function OrganizationMemberEditRolesTable({
   removingRoleIds = [],
   selectedRoles,
   customMessages,
+  permissions,
   canModify,
+  readOnly,
   onRemoveRoles,
   onSelectedRolesChange,
 }: OrganizationMemberEditRolesTableProps): React.JSX.Element {
@@ -152,42 +156,36 @@ function OrganizationMemberEditRolesTable({
         type: 'actions',
         title: '',
         enableSorting: false,
-        render: (role) => {
-          const button = (
-            <Button
-              variant="destructive"
-              size="icon"
-              className="h-8 w-8"
-              disabled={removingRoleIds.includes(role.id) || !canModify}
-              onClick={() => onRemoveRoles([role])}
-              aria-label={t('member.detail.roles.table.remove_button_label', {
-                roleName: role.name,
-              })}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          );
-
-          return (
+        render: (role) =>
+          !readOnly && (
             <div className="flex justify-end">
-              {!canModify ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span>{button}</span>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    {t('member.detail.actions.readonly_member_tooltip')}
-                  </TooltipContent>
-                </Tooltip>
-              ) : (
-                button
-              )}
+              <PermissionDeniedTooltip
+                enabled={!permissions.canRemoveRole || !canModify}
+                className="shrink-0"
+                {...(canModify
+                  ? {}
+                  : { customMessage: t('member.detail.actions.readonly_member_tooltip') })}
+              >
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="h-8 w-8"
+                  disabled={
+                    removingRoleIds.includes(role.id) || !permissions.canRemoveRole || !canModify
+                  }
+                  onClick={() => onRemoveRoles([role])}
+                  aria-label={t('member.detail.roles.table.remove_button_label', {
+                    roleName: role.name,
+                  })}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </PermissionDeniedTooltip>
             </div>
-          );
-        },
+          ),
       },
     ],
-    [t, removingRoleIds, canModify, onRemoveRoles],
+    [t, permissions, removingRoleIds, onRemoveRoles, canModify],
   );
 
   return (
@@ -230,8 +228,10 @@ export function OrganizationMemberEditRolesTab({
   isRemovingRoles = false,
   isSearchingRoles,
   modalState,
+  permissions,
   classes,
   style,
+  readOnly,
   onSelectedRolesChange,
   onAssignRolesClick,
   onAssignRolesCancel,
@@ -256,18 +256,22 @@ export function OrganizationMemberEditRolesTab({
           selectedRoles={selectedRoles}
           organizationName={organizationName}
           customMessages={customMessages}
+          permissions={permissions}
           canModify={canModify}
+          readOnly={readOnly}
           onAssignRolesClick={onAssignRolesClick}
           onRemoveSelectedRoles={handleRemoveSelectedRoles}
         />
 
         <OrganizationMemberEditRolesTable
           memberRoles={memberRoles}
+          readOnly={readOnly}
           isLoading={isFetchingMemberRoles}
           removingRoleIds={removingRoleIds}
           selectedRoles={selectedRoles}
           customMessages={customMessages}
-          canModify={canModify}
+          permissions={permissions}
+          canModify={canModify && !readOnly}
           onRemoveRoles={onRemoveRolesClick}
           onSelectedRolesChange={onSelectedRolesChange}
         />

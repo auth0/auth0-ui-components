@@ -6,6 +6,7 @@ import type {
 } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
+import { ALL_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import type {
   ConnectionOption,
   OrganizationInvitationBulkRevokeModalProps,
@@ -83,7 +84,7 @@ export const createMockActionsColumnProps = (
   overrides: Partial<OrganizationInvitationTableActionsColumnProps> = {},
 ): OrganizationInvitationTableActionsColumnProps => ({
   invitation: createMockPendingInvitation(),
-  readOnly: false,
+  permissions: ALL_MEMBER_PERMISSIONS,
   onViewDetails: vi.fn(),
   onCopyUrl: vi.fn(),
   onRevokeAndResend: vi.fn(),
@@ -98,6 +99,7 @@ export const createMockDetailsModalProps = (
   isOpen: true,
   isRevoking: false,
   isResending: false,
+  permissions: ALL_MEMBER_PERMISSIONS,
   roles: [],
   isLoadingRoles: false,
   onClose: vi.fn(),
@@ -142,6 +144,7 @@ export const createMockTableProps = (
     invitations,
     loading: false,
     customMessages: {},
+    permissions: ALL_MEMBER_PERMISSIONS,
     pagination: {
       pageSize: 10,
       currentPage: 1,
