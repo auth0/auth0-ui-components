@@ -1,5 +1,5 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { createElement } from 'react';
+import { createElement, type PropsWithChildren } from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import * as useMemberDetailServiceModule from '@/hooks/my-organization/shared/services/use-member-detail-service';
@@ -52,7 +52,7 @@ const createDefaultOptions = (
 /** Renders the hook with the permission context granting exactly `permissions`. */
 const renderWithGranted = (permissions: string[], options: UseOrganizationMemberDetailOptions) => {
   const { wrapper: queryWrapper } = createQueryClientWrapper();
-  const wrapper = ({ children }: React.PropsWithChildren) =>
+  const wrapper = ({ children }: PropsWithChildren) =>
     createElement(
       queryWrapper,
       null,
@@ -250,6 +250,17 @@ describe('useOrganizationMemberDetail', () => {
       });
 
       expect(result.current.modalState).toEqual({ type: 'assignRoles' });
+    });
+
+    it('should open the removeRoles modal when the permission is granted', () => {
+      const roles = [createMockMemberRole()];
+      const { result } = renderWithPermissions(['delete:my_org:member_roles']);
+
+      act(() => {
+        result.current.openModal({ type: 'removeRoles', roles });
+      });
+
+      expect(result.current.modalState).toEqual({ type: 'removeRoles', roles });
     });
 
     it('should open the removeFromOrganization modal when the permission is granted', () => {

@@ -197,18 +197,27 @@ describe('OrganizationInvitationTableActionsColumn', () => {
     });
 
     describe('when create is granted without delete:my_org:member_invitations', () => {
-      it('should render no menu, since every invitation action needs the delete scope', () => {
+      it('should show the menu but hide both actions that need the delete scope', async () => {
+        const user = userEvent.setup();
         const props = createMockActionsColumnProps({
           permissions: createMemberPermissions([
             'read:my_org:member_invitations',
             'create:my_org:member_invitations',
           ]),
         });
-        const { container } = renderWithProviders(
-          <OrganizationInvitationTableActionsColumn {...props} />,
-        );
+        renderWithProviders(<OrganizationInvitationTableActionsColumn {...props} />);
 
-        expect(container).toBeEmptyDOMElement();
+        await user.click(screen.getByRole('button'));
+
+        expect(
+          screen.getByRole('menuitem', { name: 'invitation.actions.view_details' }),
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByRole('menuitem', { name: 'invitation.actions.revoke' }),
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole('menuitem', { name: 'invitation.actions.revoke_and_resend' }),
+        ).not.toBeInTheDocument();
       });
     });
 

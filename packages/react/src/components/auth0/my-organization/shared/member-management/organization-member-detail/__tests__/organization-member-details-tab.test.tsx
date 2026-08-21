@@ -150,7 +150,9 @@ describe('OrganizationMemberEditDetailsTab', () => {
       it('enables the remove from organization button', () => {
         renderWithProviders(
           <OrganizationMemberEditDetailsTab
-            {...createProps({ permissions: ALL_MEMBER_PERMISSIONS })}
+            {...createProps({
+              permissions: createMemberPermissions(['delete:my_org:memberships']),
+            })}
           />,
         );
 

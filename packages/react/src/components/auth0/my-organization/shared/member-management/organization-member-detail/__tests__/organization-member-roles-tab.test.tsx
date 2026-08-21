@@ -296,11 +296,13 @@ describe('OrganizationMemberEditRolesTab', () => {
   describe('granted permissions', () => {
     const assignButtonName = 'member.detail.roles.assign_button';
 
+    const ROLE_SCOPES = ['create:my_org:member_roles', 'delete:my_org:member_roles'] as const;
+
     describe('when create and delete member_roles are both granted', () => {
       it('enables the assign roles button', () => {
         renderWithProviders(
           <OrganizationMemberEditRolesTab
-            {...createProps({ permissions: ALL_MEMBER_PERMISSIONS })}
+            {...createProps({ permissions: createMemberPermissions(ROLE_SCOPES) })}
           />,
         );
 
@@ -310,7 +312,7 @@ describe('OrganizationMemberEditRolesTab', () => {
       it('enables the per-role remove buttons', () => {
         renderWithProviders(
           <OrganizationMemberEditRolesTab
-            {...createProps({ permissions: ALL_MEMBER_PERMISSIONS })}
+            {...createProps({ permissions: createMemberPermissions(ROLE_SCOPES) })}
           />,
         );
 
@@ -318,6 +320,24 @@ describe('OrganizationMemberEditRolesTab', () => {
           name: /member\.detail\.roles\.table\.remove_button_label/,
         });
         expect(removeButton).toBeEnabled();
+      });
+    });
+
+    describe('when delete:my_org:member_roles is granted without create', () => {
+      it('enables the per-role remove buttons but disables assign', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({
+              permissions: createMemberPermissions(['delete:my_org:member_roles']),
+            })}
+          />,
+        );
+
+        const [removeButton] = screen.getAllByRole('button', {
+          name: /member\.detail\.roles\.table\.remove_button_label/,
+        });
+        expect(removeButton).toBeEnabled();
+        expect(screen.getByRole('button', { name: assignButtonName })).toBeDisabled();
       });
     });
 
