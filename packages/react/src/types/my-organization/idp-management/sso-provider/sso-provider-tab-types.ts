@@ -33,7 +33,9 @@ export interface SsoProviderTabEditProps {
 
 /** CSS classes for SsoProviderTab. */
 export interface SsoProviderTabClasses
-  extends SsoProviderDetailsClasses, SsoProviderDeleteClasses, SsoProviderRemoveClasses {
+  extends SsoProviderDetailsClasses,
+    SsoProviderDeleteClasses,
+    SsoProviderRemoveClasses {
   'SsoProviderAttributeSyncAlert-root'?: string;
   'SsoProviderAttributeSyncAlert-dialogContent'?: string;
 }
@@ -50,11 +52,12 @@ export interface SsoProviderDetailsFormActions extends Omit<FormActionsProps, 'n
 export interface SsoProviderTabSchemas extends SsoProviderDetailsSchema {}
 
 /** Props for SsoProviderTab component. */
-export interface SsoProviderTabProps extends SharedComponentProps<
-  SsoProviderTabMessages,
-  SsoProviderTabClasses,
-  SsoProviderTabSchemas
-> {
+export interface SsoProviderTabProps
+  extends SharedComponentProps<
+    SsoProviderTabMessages,
+    SsoProviderTabClasses,
+    SsoProviderTabSchemas
+  > {
   formActions: SsoProviderDetailsFormActions;
   idpConfig: GetIdpConfigurationResponseContent | null;
   shouldAllowDeletion: boolean;
@@ -75,15 +78,17 @@ export interface SsoProviderTabProps extends SharedComponentProps<
   isCrossAppAccessReadOnly?: boolean;
 }
 
-export interface ProviderDetailsClasses extends Omit<
-  SsoProviderCreateClasses,
-  'SsoProviderCreate-header' | 'SsoProviderCreate-wizard' | 'ProviderSelect-root'
-> {}
+export interface ProviderDetailsClasses
+  extends Omit<
+    SsoProviderCreateClasses,
+    'SsoProviderCreate-header' | 'SsoProviderCreate-wizard' | 'ProviderSelect-root'
+  > {}
 
-export interface ProviderConfigureFieldsClasses extends Omit<
-  SsoProviderCreateClasses,
-  'SsoProviderCreate-header' | 'SsoProviderCreate-wizard' | 'ProviderSelect-root'
-> {}
+export interface ProviderConfigureFieldsClasses
+  extends Omit<
+    SsoProviderCreateClasses,
+    'SsoProviderCreate-header' | 'SsoProviderCreate-wizard' | 'ProviderSelect-root'
+  > {}
 
 export interface SsoProviderDetailsClasses {
   'SsoProviderDetails-formActions'?: string;
@@ -95,10 +100,8 @@ export interface SsoProviderDetailsClasses {
   'SsoProviderDetails-CrossAppAccess'?: string;
 }
 
-export interface SsoProviderDetailsProps extends SharedComponentProps<
-  SsoProviderDetailsMessages,
-  SsoProviderDetailsClasses
-> {
+export interface SsoProviderDetailsProps
+  extends SharedComponentProps<SsoProviderDetailsMessages, SsoProviderDetailsClasses> {
   provider: IdpKnownResponse;
   idpConfig: GetIdpConfigurationResponseContent | null;
   readOnly?: boolean;
@@ -117,13 +120,22 @@ export interface ThirdPartyAccessSectionProps {
   className?: string;
 }
 
-export interface CrossAppAccessSectionProps {
+interface CrossAppAccessSectionBaseProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   readOnly?: boolean;
   customMessages?: Partial<CrossAppAccessMessages>;
   className?: string;
-  strategy?: 'oidc' | 'okta' | 'samlp';
-  discoveryUrl?: string;
-  onDiscoveryUrlChange?: (url: string) => void;
 }
+
+type CrossAppAccessOidcProps = CrossAppAccessSectionBaseProps & {
+  strategy?: 'oidc' | 'okta';
+};
+
+type CrossAppAccessSamlProps = CrossAppAccessSectionBaseProps & {
+  strategy: 'samlp';
+  discoveryUrl: string;
+  onDiscoveryUrlChange: (url: string) => void;
+};
+
+export type CrossAppAccessSectionProps = CrossAppAccessOidcProps | CrossAppAccessSamlProps;
