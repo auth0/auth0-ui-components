@@ -131,6 +131,11 @@ export * from './services/my-organization/member-management/member-management-co
 
 export * from './services/my-organization/config/config-types';
 
+// Permissions (shared across modules)
+export * from './services/permissions/permission-utils';
+export * from './services/permissions/permission-types';
+export * from './services/permissions/permission-map';
+
 // My Account services
 export * from './services/my-account/user-mfa-management/user-mfa-management-types';
 export * from './services/my-account/user-mfa-management/user-mfa-management-constants';
