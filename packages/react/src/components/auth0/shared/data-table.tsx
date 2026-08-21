@@ -147,6 +147,7 @@ export type DataTableProps<Item> = {
   loader?: React.ReactNode;
   emptyState?: EmptyStateProps;
   onRowClick?: (rowData: Item) => void;
+  rowClickLabel?: (index: number) => string;
   className?: string;
   headerAlign?: AlignmentType;
   /** When provided, sorting is delegated to the parent (server-side). */
@@ -221,6 +222,11 @@ const DEFAULT_COPY_LABELS: Required<CopyColumnLabels> = {
   copyTooltip: 'Copy to clipboard',
   copiedTooltip: 'Copied!',
 };
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
+
+const DEFAULT_ROW_CLICK_LABEL = (index: number) => `View row ${index + 1}`;
 
 const DEFAULT_SELECTION_LABELS: DataTableSelectionLabels = {
   selectAll: 'Select all rows',
@@ -449,6 +455,7 @@ function EmptyState({ title, subtitle, action }: EmptyStateProps) {
  * @param props.loader - Custom loader component.
  * @param props.emptyState - Empty state configuration.
  * @param props.onRowClick - Row click handler.
+ * @param props.rowClickLabel - Accessible label for a clickable row.
  * @param props.className - Additional CSS classes.
  * @param props.headerAlign - Default header alignment.
  * @param props.maxSelectionAllowed - Max rows selectable at once.
@@ -462,6 +469,7 @@ export function DataTable<Item>({
   loader,
   emptyState,
   onRowClick,
+  rowClickLabel,
   className,
   headerAlign = 'left',
   onSortChange,
@@ -476,6 +484,21 @@ export function DataTable<Item>({
 }: DataTableProps<Item>) {
   const isServerSideSort = !!onSortChange;
   const isControlledSelection = selectedRows !== undefined;
+  const isRowClickable = !!onRowClick;
+
+  const handleRowClick = (rowData: Item, event: React.MouseEvent<HTMLTableRowElement>) => {
+    const focusable = (event.target as HTMLElement).closest<HTMLElement>(FOCUSABLE_SELECTOR);
+    if (focusable && focusable !== event.currentTarget) return;
+    onRowClick?.(rowData);
+  };
+
+  const handleRowKeyDown = (rowData: Item, event: React.KeyboardEvent<HTMLTableRowElement>) => {
+    if (event.target !== event.currentTarget) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onRowClick?.(rowData);
+    }
+  };
 
   const selectionLimit =
     maxSelectionAllowed === undefined ? undefined : Math.max(0, maxSelectionAllowed);
@@ -793,10 +816,18 @@ export function DataTable<Item>({
               <TableRow
                 key={row.id}
                 className={cn(
-                  onRowClick && 'cursor-pointer hover:bg-muted/50',
+                  isRowClickable &&
+                    'cursor-pointer hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
                   'transition-colors',
                 )}
-                onClick={() => onRowClick?.(row.original)}
+                {...(isRowClickable && {
+                  tabIndex: 0,
+                  'aria-label': (rowClickLabel ?? DEFAULT_ROW_CLICK_LABEL)(row.index),
+                  onClick: (event: React.MouseEvent<HTMLTableRowElement>) =>
+                    handleRowClick(row.original, event),
+                  onKeyDown: (event: React.KeyboardEvent<HTMLTableRowElement>) =>
+                    handleRowKeyDown(row.original, event),
+                })}
               >
                 {row.getVisibleCells().map((cell) => {
                   const meta = cell.column.columnDef.meta as {
