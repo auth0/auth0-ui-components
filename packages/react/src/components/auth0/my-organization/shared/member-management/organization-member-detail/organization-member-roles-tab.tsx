@@ -218,6 +218,7 @@ export function OrganizationMemberEditRolesTab({
       <OrganizationMemberAssignRolesModal
         isOpen={isAssignRolesModal}
         isLoading={isAssigningRoles}
+        isLoadingRoles={isFetchingMemberRoles}
         availableRoles={searchedRoles}
         assignedRoles={memberRoles}
         selectedMember={selectedMember}
