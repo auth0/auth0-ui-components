@@ -30,6 +30,10 @@ import { TextFieldGroup } from '@/components/ui/text-field-group';
 import type { ChipItem } from '@/components/ui/text-field-group';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { MAX_ROLES_PER_REQUEST } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import {
+  hasEmailDelimiter,
+  splitEmailInput,
+} from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type { OrganizationInvitationCreateModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
@@ -105,48 +109,75 @@ export function OrganizationInvitationCreateModal({
     }
   }, [isOpen, resetForm]);
 
-  const handleEmailInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmailInput(e.target.value);
-    setEmailError(undefined);
-  }, []);
-
   const hasInvalidChips = React.useMemo(
     () => emailChips.some((chip) => chip.variant === 'destructive'),
     [emailChips],
   );
 
-  const handleEmailChipAdd = React.useCallback(
-    (value: string) => {
-      const trimmedEmail = value.trim().replace(/,/g, '');
+  const addEmailChips = React.useCallback(
+    (emails: string[]): boolean => {
+      const nextChips = [...emailChips];
+      let error: string | undefined;
 
-      if (!trimmedEmail) return;
+      for (const email of emails) {
+        if (nextChips.length >= validationConfig.maxEmails) {
+          error = t('invitation.create.email_limit_error');
+          break;
+        }
 
-      if (emailChips.length >= validationConfig.maxEmails) {
-        setEmailError(t('invitation.create.email_limit_error'));
-        return;
+        if (nextChips.some((chip) => chip.value === email)) {
+          error = t('invitation.create.email_duplicate_error');
+          continue;
+        }
+
+        if (validationConfig.emailSchema.safeParse(email).success) {
+          nextChips.push({ label: email, value: email });
+        } else {
+          nextChips.push({ label: email, value: email, variant: 'destructive' });
+          error = t('invitation.create.email_invalid_error');
+        }
       }
 
-      if (emailChips.some((chip) => chip.value === trimmedEmail)) {
-        setEmailError(t('invitation.create.email_duplicate_error'));
-        return;
-      }
+      setEmailChips(nextChips);
+      setEmailError(error);
 
-      const result = validationConfig.emailSchema.safeParse(trimmedEmail);
-      if (!result.success) {
-        setEmailChips((prev) => [
-          ...prev,
-          { label: trimmedEmail, value: trimmedEmail, variant: 'destructive' },
-        ]);
-        setEmailInput('');
-        setEmailError(t('invitation.create.email_invalid_error'));
-        return;
-      }
-
-      setEmailChips((prev) => [...prev, { label: trimmedEmail, value: trimmedEmail }]);
-      setEmailInput('');
-      setEmailError(undefined);
+      return nextChips.length > emailChips.length;
     },
     [emailChips, validationConfig, t],
+  );
+
+  const handleEmailInputChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const rawValue = e.target.value;
+
+      if (!hasEmailDelimiter(rawValue)) {
+        setEmailInput(rawValue);
+        setEmailError(undefined);
+        return;
+      }
+
+      const { emails, remainder } = splitEmailInput(rawValue);
+
+      setEmailInput(remainder);
+
+      if (emails.length > 0) {
+        addEmailChips(emails);
+      } else {
+        setEmailError(undefined);
+      }
+    },
+    [addEmailChips],
+  );
+
+  const handleEmailChipAdd = React.useCallback(
+    (value: string) => {
+      const email = value.trim();
+
+      if (email && addEmailChips([email])) {
+        setEmailInput('');
+      }
+    },
+    [addEmailChips],
   );
 
   const handleEmailChipRemove = React.useCallback((value: string) => {

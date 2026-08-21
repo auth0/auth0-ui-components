@@ -157,6 +157,40 @@ export function isValidUserId(userId: string | undefined | null): boolean {
   return !!userId && /^(?=.{1,1024}$).+\|.+$/.test(userId);
 }
 
+/** Characters that terminate an email address in the invitation email field. */
+const EMAIL_DELIMITERS = [',', ' '];
+
+/**
+ * Splits invitation email input into completed addresses and the address still being typed.
+ * @param value - The raw field value, which may contain delimiters.
+ * @returns The trimmed completed addresses and the remaining input text.
+ */
+export function splitEmailInput(value: string): { emails: string[]; remainder: string } {
+  const emails: string[] = [];
+  let current = '';
+
+  for (const character of value) {
+    if (EMAIL_DELIMITERS.includes(character)) {
+      const completed = current.trim();
+      if (completed) emails.push(completed);
+      current = '';
+    } else {
+      current += character;
+    }
+  }
+
+  return { emails, remainder: current.trimStart() };
+}
+
+/**
+ * Reports whether the value contains a delimiter that completes an email address.
+ * @param value - The raw field value.
+ * @returns `true` when at least one address in the value is complete.
+ */
+export function hasEmailDelimiter(value: string): boolean {
+  return EMAIL_DELIMITERS.some((delimiter) => value.includes(delimiter));
+}
+
 /**
  * Validates that a role assignment keeps the member within `MAX_ROLES_PER_MEMBER`.
  *

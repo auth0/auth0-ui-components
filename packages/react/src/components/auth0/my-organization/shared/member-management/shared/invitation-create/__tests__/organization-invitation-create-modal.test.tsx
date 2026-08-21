@@ -136,6 +136,139 @@ describe('OrganizationInvitationCreateModal', () => {
     });
   });
 
+  describe('email chip tokenization', () => {
+    const getEmailInput = () =>
+      screen.getByPlaceholderText('invitation.create.email_placeholder') as HTMLInputElement;
+
+    it('should turn the typed email into a chip when a comma is typed', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(<OrganizationInvitationCreateModal {...createMockCreateModalProps()} />);
+
+      await user.type(getEmailInput(), 'test1@email.com,');
+
+      expect(screen.getByText('test1@email.com')).toBeInTheDocument();
+      expect(getEmailInput()).toHaveValue('');
+    });
+
+    it('should turn the typed email into a chip when a space is typed', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(<OrganizationInvitationCreateModal {...createMockCreateModalProps()} />);
+
+      await user.type(getEmailInput(), 'test1@email.com ');
+
+      expect(screen.getByText('test1@email.com')).toBeInTheDocument();
+      expect(getEmailInput()).toHaveValue('');
+    });
+
+    it('should keep the trailing partial email in the input while chipping completed ones', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(<OrganizationInvitationCreateModal {...createMockCreateModalProps()} />);
+
+      await user.type(getEmailInput(), 'test1@email.com,test2@em');
+
+      expect(screen.getByText('test1@email.com')).toBeInTheDocument();
+      expect(getEmailInput()).toHaveValue('test2@em');
+    });
+
+    it('should not create a chip when a delimiter is typed into an empty input', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(<OrganizationInvitationCreateModal {...createMockCreateModalProps()} />);
+
+      await user.type(getEmailInput(), ', ,');
+
+      expect(screen.queryByText(',')).not.toBeInTheDocument();
+      expect(getEmailInput()).toHaveValue('');
+    });
+
+    it('should create a chip per email when a comma-separated list is pasted', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(<OrganizationInvitationCreateModal {...createMockCreateModalProps()} />);
+
+      await user.click(getEmailInput());
+      await user.paste('test1@email.com, test2@email.com, test3@email.com');
+
+      expect(screen.getByText('test1@email.com')).toBeInTheDocument();
+      expect(screen.getByText('test2@email.com')).toBeInTheDocument();
+      expect(getEmailInput()).toHaveValue('test3@email.com');
+    });
+
+    it('should flag only the invalid entry when a mixed list is pasted', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(<OrganizationInvitationCreateModal {...createMockCreateModalProps()} />);
+
+      await user.click(getEmailInput());
+      await user.paste('test1@email.com,not-an-email,');
+
+      expect(screen.getByText('test1@email.com')).toBeInTheDocument();
+      expect(screen.getByText('not-an-email')).toBeInTheDocument();
+      expect(screen.getByText('invitation.create.email_invalid_error')).toBeInTheDocument();
+    });
+
+    it('should skip duplicates within a single pasted list', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(<OrganizationInvitationCreateModal {...createMockCreateModalProps()} />);
+
+      await user.click(getEmailInput());
+      await user.paste('test1@email.com,test1@email.com,');
+
+      expect(screen.getAllByText('test1@email.com')).toHaveLength(1);
+      expect(screen.getByText('invitation.create.email_duplicate_error')).toBeInTheDocument();
+    });
+
+    it('should stop at the email limit when a longer list is pasted', async () => {
+      const user = userEvent.setup();
+      const emails = Array.from({ length: 12 }, (_, i) => `user${i}@email.com`);
+
+      renderWithProviders(<OrganizationInvitationCreateModal {...createMockCreateModalProps()} />);
+
+      await user.click(getEmailInput());
+      await user.paste(`${emails.join(',')},`);
+
+      expect(screen.getByText('user9@email.com')).toBeInTheDocument();
+      expect(screen.queryByText('user10@email.com')).not.toBeInTheDocument();
+      expect(screen.getByText('invitation.create.email_limit_error')).toBeInTheDocument();
+    });
+
+    it('should enable submit and send every email entered as a comma-separated list', async () => {
+      const user = userEvent.setup();
+      const onCreate = vi.fn();
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            availableConnections: createMockConnections(),
+            onCreate,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getByText('Google'));
+
+      await user.type(getEmailInput(), 'test1@email.com, test2@email.com');
+
+      const submitButton = screen.getByRole('button', {
+        name: 'invitation.create.submit_button',
+      });
+      expect(submitButton).toBeEnabled();
+
+      await user.click(submitButton);
+
+      expect(onCreate).toHaveBeenCalledTimes(1);
+      expect(onCreate.mock.calls[0]![0].invitees).toEqual([
+        { email: 'test1@email.com', roles: undefined },
+        { email: 'test2@email.com', roles: undefined },
+      ]);
+    });
+  });
+
   describe('submit', () => {
     it('should disable submit button when no emails are added', () => {
       renderWithProviders(<OrganizationInvitationCreateModal {...createMockCreateModalProps()} />);
