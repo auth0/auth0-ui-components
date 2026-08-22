@@ -4,14 +4,14 @@
  * @internal
  */
 
-import type { CommonMessages } from '../../../shared/common-types';
+import type { SharedMessages } from '../../../shared/shared-types';
 
 import type {
   SsoProvideDeleteMessages,
   SsoProviderDeleteModalContentMessages,
 } from './sso-provider-delete-types';
 
-export interface SsoProviderTableMessages extends CommonMessages {
+export interface SsoProviderTableMessages extends SharedMessages {
   header?: {
     title?: string;
     description?: string;

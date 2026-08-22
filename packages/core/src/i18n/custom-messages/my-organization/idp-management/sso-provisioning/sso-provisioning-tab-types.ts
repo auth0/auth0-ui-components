@@ -4,7 +4,7 @@
  * @internal
  */
 
-import type { CommonMessages } from '../../../shared/common-types';
+import type { SharedMessages } from '../../../shared/shared-types';
 import type {
   SsoProviderNotificationMessages,
   SsoProviderAttributeMappingsMessages,
@@ -13,7 +13,7 @@ import type {
 
 import type { ProvisioningManageTokenMessages } from './provisioning-manage-token-types';
 
-export interface SsoProvisioningTabMessages extends CommonMessages {
+export interface SsoProvisioningTabMessages extends SharedMessages {
   header?: {
     title?: string;
     description?: string;

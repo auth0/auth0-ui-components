@@ -6,7 +6,7 @@
 
 'use client';
 
-import type { CommonMessages } from '@auth0/universal-components-core';
+import type { SharedMessages } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
@@ -18,7 +18,7 @@ import { useId } from '@/lib/utils/use-id-compat';
 export interface PermissionDeniedTooltipProps {
   children: React.ReactNode;
   enabled?: boolean;
-  customMessages?: CommonMessages;
+  customMessages?: SharedMessages;
   customMessage?: string;
   side?: 'top' | 'bottom' | 'left' | 'right';
   className?: string;

@@ -4,7 +4,7 @@
  * @internal
  */
 
-import type { CommonMessages } from '../../../shared/common-types';
+import type { SharedMessages } from '../../../shared/shared-types';
 export interface ProviderSelectMessages {
   title?: string;
   description?: string;
@@ -324,7 +324,7 @@ export interface ProviderConfigureMessages {
  */
 export type ProviderConfigureFieldsMessages = Pick<ProviderConfigureMessages, 'fields'>;
 
-export interface SsoProviderCreateMessages extends CommonMessages {
+export interface SsoProviderCreateMessages extends SharedMessages {
   header?: {
     title?: string;
     back_button_text?: string;

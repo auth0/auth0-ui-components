@@ -4,7 +4,7 @@
  * @internal
  */
 
-import type { CommonMessages } from '../../../shared/common-types';
+import type { SharedMessages } from '../../../shared/shared-types';
 import type { SsoDomainTabMessages } from '../sso-domain/sso-domain-tab-types';
 import type { SsoProvisioningTabMessages } from '../sso-provisioning/sso-provisioning-tab-types';
 
@@ -17,7 +17,7 @@ import type {
   SsoProvideRemoveMessages,
 } from './sso-provider-delete-types';
 
-export interface SsoProviderEditMessages extends CommonMessages {
+export interface SsoProviderEditMessages extends SharedMessages {
   header?: {
     back_button_text?: string;
     enable_provider_tooltip_text?: string;
@@ -47,7 +47,7 @@ export interface SsoProviderTabMessages {
   description?: string;
 }
 
-export interface AttributeSyncAlertMessages extends CommonMessages {
+export interface AttributeSyncAlertMessages extends SharedMessages {
   title?: string;
   description?: string;
   sync_button_label?: string;

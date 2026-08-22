@@ -4,9 +4,9 @@
  * @internal
  */
 
-import type { CommonMessages } from '../../shared/common-types';
+import type { SharedMessages } from '../../shared/shared-types';
 
-export interface DomainVerifyMessages extends CommonMessages {
+export interface DomainVerifyMessages extends SharedMessages {
   title?: string;
   txt_record_name?: {
     label?: string;

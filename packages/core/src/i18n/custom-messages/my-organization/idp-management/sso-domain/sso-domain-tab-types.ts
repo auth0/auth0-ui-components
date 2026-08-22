@@ -4,12 +4,12 @@
  * @internal
  */
 
-import type { CommonMessages } from '../../../shared/common-types';
+import type { SharedMessages } from '../../../shared/shared-types';
 import type { DomainCreateMessages } from '../../domain-management/domain-create-types';
 import type { DomainDeleteMessages } from '../../domain-management/domain-delete-types';
 import type { DomainVerifyMessages } from '../../domain-management/domain-verify-types';
 
-export interface SsoDomainTabMessages extends CommonMessages {
+export interface SsoDomainTabMessages extends SharedMessages {
   title?: string;
   description?: string;
   create_button_text?: string;

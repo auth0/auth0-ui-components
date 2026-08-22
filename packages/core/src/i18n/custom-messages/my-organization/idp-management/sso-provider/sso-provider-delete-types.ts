@@ -4,7 +4,7 @@
  * @internal
  */
 
-import type { CommonMessages } from '../../../shared/common-types';
+import type { SharedMessages } from '../../../shared/shared-types';
 export interface SsoProviderDeleteModalContentMessages {
   description?: string;
   field: {
@@ -13,7 +13,7 @@ export interface SsoProviderDeleteModalContentMessages {
   };
 }
 
-export interface SsoProvideDeleteMessages extends CommonMessages {
+export interface SsoProvideDeleteMessages extends SharedMessages {
   title?: string;
   description?: string;
   delete_button_label?: string;
@@ -28,7 +28,7 @@ export interface SsoProvideDeleteMessages extends CommonMessages {
   };
 }
 
-export interface SsoProvideRemoveMessages extends CommonMessages {
+export interface SsoProvideRemoveMessages extends SharedMessages {
   title?: string;
   description?: string;
   remove_button_label?: string;

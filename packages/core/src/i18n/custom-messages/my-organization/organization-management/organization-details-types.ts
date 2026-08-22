@@ -4,8 +4,8 @@
  * @internal
  */
 
-import type { CommonMessages } from '../../shared/common-types';
-export interface OrganizationDetailsMessages extends CommonMessages {
+import type { SharedMessages } from '../../shared/shared-types';
+export interface OrganizationDetailsMessages extends SharedMessages {
   sections?: {
     settings?: {
       title?: string;

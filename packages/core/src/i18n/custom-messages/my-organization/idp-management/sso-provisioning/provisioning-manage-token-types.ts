@@ -4,8 +4,8 @@
  * @internal
  */
 
-import type { CommonMessages } from '../../../shared/common-types';
-export interface ProvisioningManageTokenMessages extends CommonMessages {
+import type { SharedMessages } from '../../../shared/shared-types';
+export interface ProvisioningManageTokenMessages extends SharedMessages {
   title?: string;
   description?: string;
   generate_button_label?: string;
