@@ -6,7 +6,7 @@
 import type {
   BlockComponentSharedProps,
   OrganizationDetailsSchemas,
-  OrganizationManagementPermissions,
+  OrganizationDetailsPermissions,
   ComponentAction,
   BackButton,
   OrganizationPrivate,
@@ -62,8 +62,8 @@ export type UseOrganizationDetailsEditServiceOptions = Pick<
 >;
 
 export interface UseOrganizationDetailsEditResult {
-  permissions: OrganizationManagementPermissions;
-  isReadOnly: boolean;
+  permissions: OrganizationDetailsPermissions;
+  canEdit: boolean;
   organization: OrganizationPrivate;
   isFetchLoading: boolean;
   isSaveLoading: boolean;
@@ -78,7 +78,7 @@ export interface OrganizationDetailsEditViewProps {
   schema: Partial<OrganizationDetailsEditSchemas> | undefined;
   styling: ComponentStyling<OrganizationDetailsClasses>;
   customMessages: OrganizationDetailsEditProps['customMessages'];
-  readOnly: boolean;
+  canEdit: boolean;
   hideHeader: boolean;
   backButton?: OrganizationEditBackButton;
   formActions: OrganizationDetailsFormActions;

@@ -60,7 +60,6 @@ export function OrganizationDetails({
   formActions,
 }: OrganizationDetailsProps): React.JSX.Element {
   const { t } = useTranslator('organization_management.organization_details', customMessages);
-  const { t: tCommon } = useTranslator('common');
 
   const { isDarkMode } = useTheme();
   const currentStyles = React.useMemo(
@@ -201,11 +200,12 @@ export function OrganizationDetails({
                     formActions?.previousAction?.disabled || formActions.isLoading || readOnly,
                   onClick: handlePreviousAction,
                 }}
+                showNext={formActions?.showNext}
                 showPrevious={formActions?.showPrevious}
                 unsavedChangesText={t('unsaved_changes_text')}
                 showUnsavedChanges={formActions?.showUnsavedChanges}
                 align={formActions?.align}
-                nextActionTooltip={readOnly ? tCommon('error.forbidden') : undefined}
+                nextActionTooltip={formActions?.nextActionTooltip}
                 className={currentStyles.classes?.OrganizationDetails_FormActions}
               />
             </div>

@@ -565,11 +565,16 @@ describe('OrganizationDetails', () => {
     });
   });
 
-  describe('when readOnly is true', () => {
-    it('should show the permission-denied tooltip on the disabled save button', async () => {
+  describe('when a next-action tooltip is supplied', () => {
+    it('should show it on the disabled save button', async () => {
       const user = userEvent.setup();
       renderWithProviders(
-        <OrganizationDetails {...createMockOrganizationDetailsProps({ readOnly: true })} />,
+        <OrganizationDetails
+          {...createMockOrganizationDetailsProps({
+            readOnly: true,
+            formActions: createMockFormActions({ nextActionTooltip: 'error.forbidden' }),
+          })}
+        />,
       );
 
       const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
@@ -583,10 +588,12 @@ describe('OrganizationDetails', () => {
     });
   });
 
-  describe('when readOnly is false', () => {
-    it('should not show a tooltip on the save button', async () => {
+  describe('when no next-action tooltip is supplied', () => {
+    it('should not show a tooltip, even when readOnly disables the button', async () => {
       const user = userEvent.setup();
-      renderWithProviders(<OrganizationDetails {...createMockOrganizationDetailsProps()} />);
+      renderWithProviders(
+        <OrganizationDetails {...createMockOrganizationDetailsProps({ readOnly: true })} />,
+      );
 
       await user.hover(screen.getByRole('button', { name: /submit_button_label/i }));
 

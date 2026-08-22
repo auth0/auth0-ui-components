@@ -80,8 +80,13 @@ export const FormActions: React.FC<FormActionsProps> = ({
     (button: React.ReactNode) =>
       nextActionTooltip ? (
         <Tooltip>
-          <TooltipTrigger>
-            <span className="inline-flex" tabIndex={0}>
+          <TooltipTrigger asChild>
+            <span
+              className="inline-flex"
+              tabIndex={0}
+              role="group"
+              aria-label={nextButtonProps.label}
+            >
               {button}
             </span>
           </TooltipTrigger>

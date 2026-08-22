@@ -4,11 +4,12 @@
  * @module use-organization-details-edit
  */
 
-import { getOrganizationManagementPermissions } from '@auth0/universal-components-core';
+import { getOrganizationDetailsPermissions } from '@auth0/universal-components-core';
 import { useMemo } from 'react';
 
 import { useOrganizationDetailsEditService } from '@/hooks/my-organization/shared/services/use-organization-details-edit-service';
-import { usePermissions } from '@/hooks/my-organization/use-permissions';
+import { usePermissions } from '@/hooks/shared/use-permissions';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseOrganizationDetailsEditOptions,
   UseOrganizationDetailsEditResult,
@@ -33,13 +34,14 @@ export function useOrganizationDetailsEdit({
 }: UseOrganizationDetailsEditOptions): UseOrganizationDetailsEditResult {
   const service = useOrganizationDetailsEditService({ saveAction, customMessages });
   const { createPermissionResolver } = usePermissions();
+  const { t: tCommon } = useTranslator('common');
 
   const permissions = useMemo(
-    () => createPermissionResolver(getOrganizationManagementPermissions, { readOnly }),
+    () => createPermissionResolver(getOrganizationDetailsPermissions, { readOnly }),
     [createPermissionResolver, readOnly],
   );
 
-  const isReadOnly = !permissions.canUpdateDetails;
+  const canEdit = permissions.canUpdateDetails;
 
   const hasData = !!service.organization.name;
   const isActionDisabled = service.isSaveLoading || service.isInitializing;
@@ -47,12 +49,15 @@ export function useOrganizationDetailsEdit({
   const formActions = useMemo(
     (): OrganizationDetailsFormActions => ({
       isLoading: service.isSaveLoading,
+      showNext: !readOnly,
+      showPrevious: !readOnly,
+      nextActionTooltip: !readOnly && !canEdit ? tCommon('error.forbidden') : undefined,
       previousAction: {
-        disabled: cancelAction?.disabled || isReadOnly || !hasData || isActionDisabled,
+        disabled: cancelAction?.disabled || !canEdit || !hasData || isActionDisabled,
         onClick: () => cancelAction?.onAfter?.(service.organization),
       },
       nextAction: {
-        disabled: saveAction?.disabled || isReadOnly || !hasData || isActionDisabled,
+        disabled: saveAction?.disabled || !canEdit || !hasData || isActionDisabled,
         onClick: service.updateOrgDetails,
       },
     }),
@@ -60,7 +65,9 @@ export function useOrganizationDetailsEdit({
       service.updateOrgDetails,
       service.isSaveLoading,
       service.organization,
-      isReadOnly,
+      canEdit,
+      readOnly,
+      tCommon,
       cancelAction,
       saveAction?.disabled,
       hasData,
@@ -70,7 +77,7 @@ export function useOrganizationDetailsEdit({
 
   return {
     permissions,
-    isReadOnly,
+    canEdit,
     organization: service.organization,
     isFetchLoading: service.isFetchLoading,
     isSaveLoading: service.isSaveLoading,
