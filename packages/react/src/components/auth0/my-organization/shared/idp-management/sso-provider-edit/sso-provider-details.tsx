@@ -164,7 +164,9 @@ export function SsoProviderDetails({
             type: 'button',
             onClick: handleSave,
           }}
+          showNext={formActions?.showNext}
           showPrevious={false}
+          nextActionTooltip={formActions?.nextActionTooltip}
           align={formActions?.align}
           className={currentStyles.classes?.['SsoProviderDetails-FormActions']}
         />

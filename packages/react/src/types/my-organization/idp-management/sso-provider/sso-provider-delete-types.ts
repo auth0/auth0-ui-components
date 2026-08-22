@@ -39,6 +39,7 @@ export interface SsoProviderDeleteProps
   provider: IdpKnownResponse;
   onDelete: (provider: IdpKnownResponse) => Promise<void>;
   isLoading?: boolean;
+  permissionDenied?: boolean;
 }
 
 /** Props for SsoProviderDeleteModal. */
@@ -67,6 +68,7 @@ export interface SsoProviderRemoveFromOrganizationProps
   organizationName: string | undefined;
   onRemove: (provider: IdpKnownResponse) => Promise<void>;
   isLoading?: boolean;
+  permissionDenied?: boolean;
 }
 
 export interface SsoProviderRemoveFromOrganizationModalProps

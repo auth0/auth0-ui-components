@@ -44,6 +44,7 @@ export function SsoDomainTab({
     variables: { common: {}, light: {}, dark: {} },
     classes: {},
   },
+  permissions,
   readOnly = false,
   schema,
   idpId,
@@ -54,6 +55,7 @@ export function SsoDomainTab({
     'idp_management.edit_sso_provider.tabs.domains.content',
     customMessages,
   );
+  const { t: tCommon } = useTranslator('common');
 
   const { isDarkMode } = useTheme();
   const currentStyles = React.useMemo(
@@ -96,6 +98,7 @@ export function SsoDomainTab({
     customMessages,
     domains,
     provider,
+    readOnly,
   });
 
   const columns: Column<Domain>[] = React.useMemo(
@@ -125,6 +128,7 @@ export function SsoDomainTab({
           <SsoDomainTabActionsColumn
             translatorKey="idp_management.edit_sso_provider.tabs.domains.content"
             idpDomains={idpDomains}
+            permissions={permissions}
             readOnly={readOnly}
             isUpdating={isUpdating}
             isUpdatingId={isUpdatingId}
@@ -138,8 +142,9 @@ export function SsoDomainTab({
     ],
     [
       t,
-      idpDomains,
+      permissions,
       readOnly,
+      idpDomains,
       isUpdating,
       isUpdatingId,
       customMessages,
@@ -160,7 +165,11 @@ export function SsoDomainTab({
               label: t('create_button_text'),
               onClick: () => setShowCreateModal(true),
               icon: Plus,
-              disabled: domains?.createAction?.disabled || readOnly,
+              hidden: readOnly,
+              disabled: domains?.createAction?.disabled || !permissions.canCreateDomain,
+              ...(permissions.canCreateDomain
+                ? {}
+                : { tooltip: { content: tCommon('error.forbidden') } }),
             },
           ]}
         />
@@ -222,7 +231,7 @@ export function SsoDomainTab({
         className={currentStyles.classes?.['SsoDomainsTab-verifyModal']}
         isOpen={showVerifyModal}
         isLoading={isVerifying}
-        permissions={{ canVerifyDomain: true, canDeleteDomain: true }}
+        permissions={permissions}
         domain={selectedDomain}
         error={verifyError}
         onClose={handleCloseVerifyModal}

@@ -123,6 +123,7 @@ export * from './services/my-organization/idp-management/sso-provisioning/sso-pr
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-constants';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-mappers';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-query-keys';
+export * from './services/my-organization/idp-management/idp-management-permissions';
 
 export * from './services/my-organization/domain-management/domain-types';
 export * from './services/my-organization/domain-management/domain-query-keys';

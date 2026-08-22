@@ -264,7 +264,9 @@
           "display_name": "Nom affiché"
         },
         "actions": {
+          "menu_label": "Actions",
           "edit_button_text": "Modifier",
+          "configure_button_text": "Configurer",
           "delete_button_text": "Supprimer",
           "remove_button_text": "Retirer de l'organisation",
           "enabled_tooltip": "Basculer pour désactiver le provisioning",

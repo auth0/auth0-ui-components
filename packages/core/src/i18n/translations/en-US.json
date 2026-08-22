@@ -317,7 +317,9 @@
           "display_name": "Display Name"
         },
         "actions": {
+          "menu_label": "Actions",
           "edit_button_text": "Edit",
+          "configure_button_text": "Configure",
           "delete_button_text": "Delete",
           "remove_button_text": "Remove from organization",
           "enabled_tooltip": "Toggle to disable the SSO provider",
