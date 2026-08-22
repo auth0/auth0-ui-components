@@ -80,6 +80,16 @@ export function SsoProviderTableActionsColumn({
     onRemoveFromOrganization(provider);
   }, [provider, onRemoveFromOrganization]);
 
+  const isToggleDisabled =
+    !permissions.canUpdateProvider ||
+    !!enableProviderAction?.disabled ||
+    (isUpdating && isUpdatingId === provider.id);
+
+  const showDeleteItem =
+    shouldAllowDeletion && !hideDeleteProvider && permissions.canDeleteProvider;
+  const showRemoveItem = !hideRemoveFromOrganization && permissions.canDetachProvider;
+  const hasMenuAction = canOpenDetail || showDeleteItem || showRemoveItem;
+
   if (readOnly) {
     return null;
   }
@@ -88,15 +98,11 @@ export function SsoProviderTableActionsColumn({
     <div className="flex items-center justify-end gap-4 min-w-0">
       <Tooltip>
         <TooltipTrigger asChild>
-          <span className="flex items-center">
+          <span className="flex items-center" tabIndex={isToggleDisabled ? 0 : undefined}>
             <Switch
               checked={provider.is_enabled ?? false}
               onCheckedChange={handleToggleEnabled}
-              disabled={
-                !permissions.canUpdateProvider ||
-                enableProviderAction?.disabled ||
-                (isUpdating && isUpdatingId === provider.id)
-              }
+              disabled={isToggleDisabled}
             />
           </span>
         </TooltipTrigger>
@@ -109,9 +115,12 @@ export function SsoProviderTableActionsColumn({
         </TooltipContent>
       </Tooltip>
 
-      {permissions.canShowProviderMenu && (
+      {hasMenuAction && (
         <DropdownMenu>
-          <DropdownMenuTrigger className="h-8 w-8 p-0 rounded-xl bg-primary border border-primary/20 shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50">
+          <DropdownMenuTrigger
+            aria-label={t('table.actions.menu_label')}
+            className="h-8 w-8 p-0 rounded-xl bg-primary border border-primary/20 shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+          >
             <MoreHorizontal className="h-4 w-4 text-primary-foreground" />
           </DropdownMenuTrigger>
           <DropdownMenuPortal>
@@ -122,7 +131,7 @@ export function SsoProviderTableActionsColumn({
                   {detailLabel}
                 </DropdownMenuItem>
               )}
-              {shouldAllowDeletion && !hideDeleteProvider && permissions.canDeleteProvider && (
+              {showDeleteItem && (
                 <DropdownMenuItem
                   onClick={handleDelete}
                   className="text-destructive-foreground focus:text-destructive-foreground"
@@ -131,7 +140,7 @@ export function SsoProviderTableActionsColumn({
                   {t('table.actions.delete_button_text')}
                 </DropdownMenuItem>
               )}
-              {!hideRemoveFromOrganization && permissions.canDetachProvider && (
+              {showRemoveItem && (
                 <DropdownMenuItem
                   onClick={handleRemoveFromOrganization}
                   className="text-destructive-foreground focus:text-destructive-foreground"

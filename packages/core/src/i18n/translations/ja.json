@@ -317,6 +317,7 @@
           "display_name": "表示名"
         },
         "actions": {
+          "menu_label": "アクション",
           "edit_button_text": "編集",
           "configure_button_text": "設定",
           "delete_button_text": "削除",

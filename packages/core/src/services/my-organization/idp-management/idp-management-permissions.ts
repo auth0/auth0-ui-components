@@ -5,7 +5,6 @@
  */
 import { createPermissionResolver } from '../../permissions/permission-map';
 
-/** Mutations reachable from the provider detail page without `update:my_org:identity_providers`. */
 const CONFIGURE_ONLY_SCOPES = [
   'create:my_org:identity_providers_domains',
   'delete:my_org:identity_providers_domains',
@@ -14,11 +13,13 @@ const CONFIGURE_ONLY_SCOPES = [
   'delete:my_org:identity_providers_provisioning',
   'create:my_org:identity_providers_scim_tokens',
   'delete:my_org:identity_providers_scim_tokens',
+  'create:my_org:domains',
+  'update:my_org:domains',
+  'delete:my_org:domains',
 ] as const;
 
 export const getIdpManagementPermissions = createPermissionResolver({
   canCreateProvider: ['create:my_org:identity_providers'],
-  /** Also gates the enable/disable toggle and saving provider config. */
   canUpdateProvider: ['update:my_org:identity_providers'],
   canDeleteProvider: ['delete:my_org:identity_providers'],
   canDetachProvider: ['update:my_org:identity_providers_detach'],
@@ -36,7 +37,6 @@ export const getIdpManagementPermissions = createPermissionResolver({
   canCreateScimToken: ['create:my_org:identity_providers_scim_tokens'],
   canDeleteScimToken: ['delete:my_org:identity_providers_scim_tokens'],
 
-  /** Can reach the detail page for something other than editing the provider itself. */
   canConfigureProvider: { any: CONFIGURE_ONLY_SCOPES },
 
   canShowProviderMenu: {

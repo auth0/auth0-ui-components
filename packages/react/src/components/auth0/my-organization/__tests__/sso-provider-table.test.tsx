@@ -264,14 +264,7 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
           const editMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.edit_button_text/i,
@@ -291,14 +284,7 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
           const editMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.edit_button_text/i,
@@ -319,14 +305,7 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
           const editMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.edit_button_text/i,
@@ -355,10 +334,9 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const rowActionButton = screen
-            .getAllByRole('button')
-            .find((btn) => btn.querySelector('svg.lucide-more-horizontal'));
-          expect(rowActionButton).toBeUndefined();
+          expect(
+            screen.queryByRole('button', { name: 'table.actions.menu_label' }),
+          ).not.toBeInTheDocument();
         });
       });
 
@@ -373,14 +351,7 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
           const deleteMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.delete_button_text/i,
@@ -403,14 +374,7 @@ describe('SsoProviderTable', () => {
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
 
-            const actionButtons = screen.getAllByRole('button');
-            const rowActionButton = actionButtons.find(
-              (btn) =>
-                btn.querySelector('svg.lucide-more-horizontal') ||
-                btn.className.includes('rounded-xl'),
-            );
-            expect(rowActionButton).toBeDefined();
-            await user.click(rowActionButton!);
+            await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
             const deleteMenuItem = screen.getByRole('menuitem', {
               name: /table.actions.delete_button_text/i,
@@ -437,14 +401,7 @@ describe('SsoProviderTable', () => {
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
 
-            const actionButtons = screen.getAllByRole('button');
-            const rowActionButton = actionButtons.find(
-              (btn) =>
-                btn.querySelector('svg.lucide-more-horizontal') ||
-                btn.className.includes('rounded-xl'),
-            );
-            expect(rowActionButton).toBeDefined();
-            await user.click(rowActionButton!);
+            await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
             const deleteMenuItem = screen.getByRole('menuitem', {
               name: /table.actions.delete_button_text/i,
@@ -471,14 +428,7 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
           const deleteMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.delete_button_text/i,
@@ -521,10 +471,9 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const rowActionButton = screen
-            .getAllByRole('button')
-            .find((btn) => btn.querySelector('svg.lucide-more-horizontal'));
-          expect(rowActionButton).toBeUndefined();
+          expect(
+            screen.queryByRole('button', { name: 'table.actions.menu_label' }),
+          ).not.toBeInTheDocument();
         });
       });
 
@@ -541,14 +490,7 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
           const removeMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.remove_button_text/i,
@@ -573,14 +515,7 @@ describe('SsoProviderTable', () => {
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
 
-            const actionButtons = screen.getAllByRole('button');
-            const rowActionButton = actionButtons.find(
-              (btn) =>
-                btn.querySelector('svg.lucide-more-horizontal') ||
-                btn.className.includes('rounded-xl'),
-            );
-            expect(rowActionButton).toBeDefined();
-            await user.click(rowActionButton!);
+            await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
             const removeMenuItem = screen.getByRole('menuitem', {
               name: /table.actions.remove_button_text/i,
@@ -609,14 +544,7 @@ describe('SsoProviderTable', () => {
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
 
-            const actionButtons = screen.getAllByRole('button');
-            const rowActionButton = actionButtons.find(
-              (btn) =>
-                btn.querySelector('svg.lucide-more-horizontal') ||
-                btn.className.includes('rounded-xl'),
-            );
-            expect(rowActionButton).toBeDefined();
-            await user.click(rowActionButton!);
+            await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
             const removeMenuItem = screen.getByRole('menuitem', {
               name: /table.actions.remove_button_text/i,
@@ -645,14 +573,7 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
           const removeMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.remove_button_text/i,
@@ -872,13 +793,7 @@ describe('SsoProviderTable', () => {
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
 
-        const actionButtons = screen.getAllByRole('button');
-        const rowActionButton = actionButtons.find(
-          (btn) =>
-            btn.querySelector('svg.lucide-more-horizontal') || btn.className.includes('rounded-xl'),
-        );
-        expect(rowActionButton).toBeDefined();
-        await user.click(rowActionButton!);
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
         expect(
           screen.queryByRole('menuitem', { name: /table.actions.delete_button_text/i }),
@@ -895,13 +810,7 @@ describe('SsoProviderTable', () => {
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
 
-        const actionButtons = screen.getAllByRole('button');
-        const rowActionButton = actionButtons.find(
-          (btn) =>
-            btn.querySelector('svg.lucide-more-horizontal') || btn.className.includes('rounded-xl'),
-        );
-        expect(rowActionButton).toBeDefined();
-        await user.click(rowActionButton!);
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
         expect(
           screen.queryByRole('menuitem', { name: /table.actions.delete_button_text/i }),
@@ -920,13 +829,7 @@ describe('SsoProviderTable', () => {
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
 
-        const actionButtons = screen.getAllByRole('button');
-        const rowActionButton = actionButtons.find(
-          (btn) =>
-            btn.querySelector('svg.lucide-more-horizontal') || btn.className.includes('rounded-xl'),
-        );
-        expect(rowActionButton).toBeDefined();
-        await user.click(rowActionButton!);
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
         expect(
           screen.queryByRole('menuitem', { name: /table.actions.remove_button_text/i }),
@@ -943,13 +846,7 @@ describe('SsoProviderTable', () => {
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
 
-        const actionButtons = screen.getAllByRole('button');
-        const rowActionButton = actionButtons.find(
-          (btn) =>
-            btn.querySelector('svg.lucide-more-horizontal') || btn.className.includes('rounded-xl'),
-        );
-        expect(rowActionButton).toBeDefined();
-        await user.click(rowActionButton!);
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
         expect(
           screen.queryByRole('menuitem', { name: /table.actions.remove_button_text/i }),

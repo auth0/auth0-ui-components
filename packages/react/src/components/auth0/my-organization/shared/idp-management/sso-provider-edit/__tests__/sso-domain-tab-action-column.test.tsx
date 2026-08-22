@@ -423,7 +423,6 @@ describe('SsoDomainTabActionsColumn', () => {
       });
       renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
 
-      // not yet associated, so turning it on needs the create scope
       expect(screen.getByRole('switch')).toBeEnabled();
     });
 

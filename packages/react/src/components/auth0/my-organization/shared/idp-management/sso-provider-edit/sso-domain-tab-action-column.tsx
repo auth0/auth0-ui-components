@@ -43,7 +43,6 @@ export function SsoDomainTabActionsColumn({
   const { t: tCommon } = useTranslator('common');
 
   const providerHasDomain = idpDomains.includes(domain.id);
-  // Associating needs the create scope; dissociating needs the delete scope.
   const canToggleDomain = providerHasDomain
     ? permissions.canDissociateDomain
     : permissions.canAssociateDomain;

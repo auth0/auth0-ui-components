@@ -22,7 +22,7 @@ import type { SsoProviderTabProps } from '@/types/my-organization/idp-management
  * @param props - Component props.
  * @param props.customMessages - Custom i18n message overrides.
  * @param props.styling - CSS variables and class overrides.
- * @param props.readOnly - Render in read-only mode.
+ * @param props.permissions - What the current user is allowed to do.
  * @param props.provider - The SSO provider being edited.
  * @param props.onDelete - Callback when provider is deleted.
  * @param props.onRemove - Callback when provider is removed from organization.
@@ -44,7 +44,7 @@ export function SsoProviderTab({
     variables: { common: {}, light: {}, dark: {} },
     classes: {},
   },
-  readOnly = false,
+  permissions,
   provider,
   onDelete,
   onRemove,
@@ -73,7 +73,7 @@ export function SsoProviderTab({
     <div style={currentStyles.variables} className="space-y-10">
       {hasSsoAttributeSyncWarning && (
         <SsoProviderAttributeSyncAlert
-          canSync={!readOnly}
+          canSync={permissions.canUpdateProvider}
           onSync={onAttributeSync}
           isSyncing={isSyncingAttributes}
           customMessages={customMessages.attribute_sync_alert}
@@ -95,7 +95,7 @@ export function SsoProviderTab({
           {provider && (
             <SsoProviderDetails
               provider={provider}
-              readOnly={readOnly}
+              readOnly={!permissions.canUpdateProvider}
               hideAttributeMappings={hideAttributeMappings}
               formActions={formActions}
               customMessages={customMessages.details}
@@ -113,7 +113,7 @@ export function SsoProviderTab({
             organizationName={organization?.name}
             onRemove={onRemove}
             isLoading={isRemoving}
-            readOnly={readOnly}
+            readOnly={!permissions.canDetachProvider}
             customMessages={customMessages.remove}
           />
         )}
@@ -123,7 +123,7 @@ export function SsoProviderTab({
             provider={provider}
             onDelete={onDelete}
             isLoading={isDeleting}
-            readOnly={readOnly}
+            readOnly={!permissions.canDeleteProvider}
             customMessages={customMessages.delete}
           />
         )}

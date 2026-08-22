@@ -61,7 +61,7 @@ describe('SsoProviderTableActionsColumn', () => {
       renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
       expect(screen.getByRole('switch')).toBeInTheDocument();
-      expect(screen.getByRole('button')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'table.actions.menu_label' })).toBeInTheDocument();
     });
 
     it('should render switch when updating different provider', () => {
@@ -308,7 +308,7 @@ describe('SsoProviderTableActionsColumn', () => {
       });
       renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
-      const menuButton = screen.getByRole('button', { name: '' });
+      const menuButton = screen.getByRole('button', { name: 'table.actions.menu_label' });
       await user.click(menuButton);
 
       expect(screen.queryByText('table.actions.edit_button_text')).not.toBeInTheDocument();
@@ -334,7 +334,7 @@ describe('SsoProviderTableActionsColumn', () => {
       });
       renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
-      const menuButton = screen.getByRole('button', { name: '' });
+      const menuButton = screen.getByRole('button', { name: 'table.actions.menu_label' });
       await user.click(menuButton);
 
       expect(screen.queryByText('table.actions.delete_button_text')).not.toBeInTheDocument();
@@ -347,7 +347,7 @@ describe('SsoProviderTableActionsColumn', () => {
       });
       renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
-      const menuButton = screen.getByRole('button', { name: '' });
+      const menuButton = screen.getByRole('button', { name: 'table.actions.menu_label' });
       await user.click(menuButton);
 
       expect(screen.queryByText('table.actions.remove_button_text')).not.toBeInTheDocument();
@@ -604,7 +604,7 @@ describe('SsoProviderTableActionsColumn', () => {
         });
         renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
-        await user.click(screen.getByRole('button', { name: '' }));
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
         expect(screen.getByText('table.actions.edit_button_text')).toBeInTheDocument();
         expect(screen.queryByText('table.actions.configure_button_text')).not.toBeInTheDocument();
@@ -619,11 +619,26 @@ describe('SsoProviderTableActionsColumn', () => {
         });
         renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
-        await user.click(screen.getByRole('button', { name: '' }));
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
         expect(screen.getByText('table.actions.configure_button_text')).toBeInTheDocument();
         expect(screen.queryByText('table.actions.edit_button_text')).not.toBeInTheDocument();
       });
+
+      it.each(['create:my_org:domains', 'update:my_org:domains', 'delete:my_org:domains'] as const)(
+        'should offer Configure for an org-domain mutation such as %s',
+        async (scope) => {
+          const user = userEvent.setup();
+          const props = createMockSsoProviderTableActionsColumnProps({
+            permissions: createIdpPermissions(['read:my_org:identity_providers', scope]),
+          });
+          renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
+
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
+
+          expect(screen.getByText('table.actions.configure_button_text')).toBeInTheDocument();
+        },
+      );
     });
 
     describe('when only read permissions are granted', () => {
@@ -633,6 +648,9 @@ describe('SsoProviderTableActionsColumn', () => {
         });
         renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
+        expect(
+          screen.queryByRole('button', { name: 'table.actions.menu_label' }),
+        ).not.toBeInTheDocument();
         expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
         // the enable/disable toggle stays visible, just disabled
         expect(screen.getByRole('switch')).toBeDisabled();
@@ -645,7 +663,7 @@ describe('SsoProviderTableActionsColumn', () => {
         const props = createMockSsoProviderTableActionsColumnProps();
         renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
-        await user.click(screen.getByRole('button', { name: '' }));
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
         expect(screen.getByText('table.actions.edit_button_text')).toBeInTheDocument();
         expect(screen.getByText('table.actions.delete_button_text')).toBeInTheDocument();
@@ -664,7 +682,7 @@ describe('SsoProviderTableActionsColumn', () => {
         });
         renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
-        await user.click(screen.getByRole('button', { name: '' }));
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
         expect(screen.getByText('table.actions.edit_button_text')).toBeInTheDocument();
         expect(screen.queryByText('table.actions.delete_button_text')).not.toBeInTheDocument();
@@ -692,6 +710,9 @@ describe('SsoProviderTableActionsColumn', () => {
 
       expect(container).toBeEmptyDOMElement();
       expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'table.actions.menu_label' }),
+      ).not.toBeInTheDocument();
     });
 
     it('should hide actions even when every permission is granted', () => {

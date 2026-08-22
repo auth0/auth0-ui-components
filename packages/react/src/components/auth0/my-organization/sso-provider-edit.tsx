@@ -254,7 +254,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                   onClick: updateProvider,
                 },
               }}
-              readOnly={!permissions.canUpdateProvider}
+              permissions={permissions}
             />
           </TabsContent>
 
