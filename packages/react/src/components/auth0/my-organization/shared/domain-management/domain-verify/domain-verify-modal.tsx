@@ -8,6 +8,7 @@ import { MessageSquare } from 'lucide-react';
 import React from 'react';
 
 import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ import type { DomainVerifyModalProps } from '@/types/my-organization/domain-mana
  * @param props.customMessages - Custom translation messages to override defaults
  * @param props.isOpen - Whether the modal/dialog is open
  * @param props.isLoading - Whether the component is in a loading state
+ * @param props.permissions - What the current user is allowed to do
  * @param props.domain - Domain object or domain name
  * @param props.error - Error message or error object to display
  * @param props.onClose - Callback fired when the component should close
@@ -39,6 +41,7 @@ export function DomainVerifyModal({
   customMessages,
   isOpen,
   isLoading,
+  permissions,
   domain,
   error,
   classes,
@@ -112,12 +115,24 @@ export function DomainVerifyModal({
           </div>
 
           <div className="flex gap-2 pt-2 -mb-4">
-            <Button variant="outline" onClick={handleVerify} disabled={isLoading}>
-              {isLoading ? <Spinner size="sm" /> : t('actions.verify_button_text')}
-            </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={isLoading}>
-              {t('actions.delete_button_text')}
-            </Button>
+            <PermissionDeniedTooltip enabled={!permissions.canVerifyDomain}>
+              <Button
+                variant="outline"
+                onClick={handleVerify}
+                disabled={isLoading || !permissions.canVerifyDomain}
+              >
+                {isLoading ? <Spinner size="sm" /> : t('actions.verify_button_text')}
+              </Button>
+            </PermissionDeniedTooltip>
+            <PermissionDeniedTooltip enabled={!permissions.canDeleteDomain}>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isLoading || !permissions.canDeleteDomain}
+              >
+                {t('actions.delete_button_text')}
+              </Button>
+            </PermissionDeniedTooltip>
           </div>
         </div>
       }

@@ -125,6 +125,7 @@ export * from './services/my-organization/idp-management/sso-provider/sso-provid
 
 export * from './services/my-organization/domain-management/domain-types';
 export * from './services/my-organization/domain-management/domain-query-keys';
+export * from './services/my-organization/domain-management/domain-management-permissions';
 
 export * from './services/my-organization/member-management/member-management-types';
 export * from './services/my-organization/member-management/member-management-constants';
