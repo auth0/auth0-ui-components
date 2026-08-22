@@ -98,7 +98,7 @@ function DomainTableView({
 }: DomainTableViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('domain_management', customMessages);
-  const { t: tCommon } = useTranslator('common');
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
 
   const {
     permissions,

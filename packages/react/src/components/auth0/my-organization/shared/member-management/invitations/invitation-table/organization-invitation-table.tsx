@@ -214,7 +214,10 @@ export function OrganizationInvitationTable({
             )}
           </span>
           {!readOnly && (
-            <PermissionDeniedTooltip enabled={!permissions.canRevokeInvitation}>
+            <PermissionDeniedTooltip
+              customMessages={customMessages}
+              enabled={!permissions.canRevokeInvitation}
+            >
               <Button
                 variant="destructive"
                 size="sm"

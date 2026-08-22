@@ -41,6 +41,7 @@ function RemoveMemberFromOrganizationCard({
         </span>
       </div>
       <PermissionDeniedTooltip
+        customMessages={customMessages}
         enabled={!canRemoveFromOrganization || !canModify}
         className="shrink-0"
         {...(canModify

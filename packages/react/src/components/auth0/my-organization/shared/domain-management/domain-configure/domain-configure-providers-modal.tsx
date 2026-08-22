@@ -48,7 +48,7 @@ export function DomainConfigureProvidersModal({
   onCreateProvider,
 }: DomainConfigureProvidersModalProps) {
   const { t } = useTranslator('domain_management.domain_configure_providers.modal', customMessages);
-  const { t: tCommon } = useTranslator('common');
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
 
   const handleToggleSwitch = React.useCallback(
     (provider: IdentityProviderAssociatedWithDomain, newCheckedValue: boolean) => {

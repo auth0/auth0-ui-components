@@ -76,7 +76,7 @@ export function ProvisioningManageToken({
     'idp_management.edit_sso_provider.tabs.provisioning.content.details.manage_tokens',
     customMessages,
   );
-  const { t: tCommon } = useTranslator('common');
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
   const { isDarkMode } = useTheme();
   const [deleteTokenId, setDeleteTokenId] = React.useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
@@ -222,7 +222,10 @@ export function ProvisioningManageToken({
                     <Badge variant={status.variant} className="shrink-0">
                       {t(`token_item.status_${status.labelKey}`)}
                     </Badge>
-                    <PermissionDeniedTooltip enabled={!permissions.canDeleteScimToken}>
+                    <PermissionDeniedTooltip
+                      customMessages={customMessages}
+                      enabled={!permissions.canDeleteScimToken}
+                    >
                       <Button
                         variant="destructive"
                         size="default"

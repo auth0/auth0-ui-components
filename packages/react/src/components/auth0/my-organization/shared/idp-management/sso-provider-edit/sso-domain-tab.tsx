@@ -55,7 +55,7 @@ export function SsoDomainTab({
     'idp_management.edit_sso_provider.tabs.domains.content',
     customMessages,
   );
-  const { t: tCommon } = useTranslator('common');
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
 
   const { isDarkMode } = useTheme();
   const currentStyles = React.useMemo(

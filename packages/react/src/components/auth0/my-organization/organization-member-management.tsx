@@ -114,7 +114,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
 
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('member_management', customMessages);
-  const { t: tCommon } = useTranslator('common');
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
 
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),

@@ -6,6 +6,7 @@
 
 'use client';
 
+import type { SharedMessages } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
@@ -17,6 +18,7 @@ import { useId } from '@/lib/utils/use-id-compat';
 export interface PermissionDeniedTooltipProps {
   children: React.ReactNode;
   enabled?: boolean;
+  customMessages?: SharedMessages;
   customMessage?: string;
   side?: 'top' | 'bottom' | 'left' | 'right';
   className?: string;
@@ -31,11 +33,12 @@ export interface PermissionDeniedTooltipProps {
 export function PermissionDeniedTooltip({
   children,
   enabled = true,
+  customMessages,
   customMessage,
   side = 'top',
   className,
 }: PermissionDeniedTooltipProps): React.JSX.Element {
-  const { t } = useTranslator('common');
+  const { t } = useTranslator('common', customMessages?.common);
   const tooltipId = useId();
 
   if (!enabled) {

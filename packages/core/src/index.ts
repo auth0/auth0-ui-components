@@ -23,6 +23,9 @@ export type {
   EnhancedTranslationFunction,
 } from './i18n/i18n-types';
 
+// i18n custom messages - shared
+export * from './i18n/custom-messages/shared/shared-types';
+
 // i18n custom messages - my-account
 export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-types';
 export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-delete-types';

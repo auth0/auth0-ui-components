@@ -64,6 +64,7 @@ function RolesTabHeader({
                 )}
               </span>
               <PermissionDeniedTooltip
+                customMessages={customMessages}
                 enabled={!permissions.canRemoveRole || !canModify}
                 className="shrink-0"
                 {...(canModify
@@ -86,6 +87,7 @@ function RolesTabHeader({
             </>
           ) : (
             <PermissionDeniedTooltip
+              customMessages={customMessages}
               enabled={!permissions.canAssignRole || !canModify}
               className="shrink-0"
               {...(canModify
@@ -160,6 +162,7 @@ function OrganizationMemberEditRolesTable({
           !readOnly && (
             <div className="flex justify-end">
               <PermissionDeniedTooltip
+                customMessages={customMessages}
                 enabled={!permissions.canRemoveRole || !canModify}
                 className="shrink-0"
                 {...(canModify
