@@ -32,9 +32,11 @@ vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-edit-service',
 });
 
 const mockUpdateProvider = vi.fn();
+const mockEnableProvider = vi.fn();
 
 let mockServiceReturn = createMockSsoProviderEditServiceReturn({
   updateProvider: mockUpdateProvider,
+  enableProvider: mockEnableProvider,
 });
 
 describe('useSsoProviderEdit - logic behavior', () => {
@@ -42,6 +44,7 @@ describe('useSsoProviderEdit - logic behavior', () => {
     vi.clearAllMocks();
     mockServiceReturn = createMockSsoProviderEditServiceReturn({
       updateProvider: mockUpdateProvider,
+      enableProvider: mockEnableProvider,
     });
     vi.mocked(useSsoProviderEditServiceModule.useSsoProviderEditService).mockReturnValue(
       mockServiceReturn,
@@ -58,21 +61,18 @@ describe('useSsoProviderEdit - logic behavior', () => {
     expect(typeof result.current.handleToggleProvider).toBe('function');
   });
 
-  it('should call updateProvider with correct params on handleToggleProvider', async () => {
+  it('should call enableProvider with correct params on handleToggleProvider', async () => {
     const { result } = renderHook(() => useSsoProviderEdit('test-idp-id'));
     await act(async () => {
       await result.current.handleToggleProvider(false);
     });
-    expect(mockUpdateProvider).toHaveBeenCalledWith({
-      strategy: 'waad',
-      is_enabled: false,
-    });
+    expect(mockEnableProvider).toHaveBeenCalledWith(false);
   });
 
-  it('should not call updateProvider if provider.strategy is missing', async () => {
+  it('should not call enableProvider if provider.strategy is missing', async () => {
     mockServiceReturn = createMockSsoProviderEditServiceReturn({
       provider: null,
-      updateProvider: mockUpdateProvider,
+      enableProvider: mockEnableProvider,
     });
     vi.mocked(useSsoProviderEditServiceModule.useSsoProviderEditService).mockReturnValue(
       mockServiceReturn,
@@ -82,7 +82,7 @@ describe('useSsoProviderEdit - logic behavior', () => {
     await act(async () => {
       await result.current.handleToggleProvider(true);
     });
-    expect(mockUpdateProvider).not.toHaveBeenCalled();
+    expect(mockEnableProvider).not.toHaveBeenCalled();
   });
 
   it('should pass skipProvisioningFetch option to useSsoProviderEditService', () => {

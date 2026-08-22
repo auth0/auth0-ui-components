@@ -19,13 +19,14 @@ import type { DomainConfigureProvidersModalProps } from '@/types/my-organization
 /**
  * Modal for configuring domain providers.
  * @param props - Component props.
- * @param props.className - Optional CSS class name for styling
+ * @param props.styling - Optional styling configuration with CSS classes
  * @param props.customMessages - Custom translation messages to override defaults
  * @param props.domain - Domain object or domain name
  * @param props.providers - Array of SSO providers
  * @param props.isOpen - Whether the modal/dialog is open
  * @param props.isLoading - Whether the component is in a loading state
  * @param props.isLoadingSwitch - The is loading switch
+ * @param props.permissions - What the current user is allowed to do
  * @param props.onClose - Callback fired when the component should close
  * @param props.onToggleSwitch - Callback fired when switch is toggled
  * @param props.onOpenProvider - Callback fired when opening a provider
@@ -33,25 +34,33 @@ import type { DomainConfigureProvidersModalProps } from '@/types/my-organization
  * @returns JSX element
  */
 export function DomainConfigureProvidersModal({
-  className,
+  styling,
   customMessages,
   domain,
   providers,
   isOpen,
   isLoading,
   isLoadingSwitch,
+  permissions,
   onClose,
   onToggleSwitch,
   onOpenProvider,
   onCreateProvider,
 }: DomainConfigureProvidersModalProps) {
   const { t } = useTranslator('domain_management.domain_configure_providers.modal', customMessages);
+  const { t: tCommon } = useTranslator('common');
 
   const handleToggleSwitch = React.useCallback(
     (provider: IdentityProviderAssociatedWithDomain, newCheckedValue: boolean) => {
       onToggleSwitch(domain!, provider, newCheckedValue); // Switch component is not rendered if domain is null
     },
     [domain, onToggleSwitch],
+  );
+
+  const canToggleProvider = React.useCallback(
+    (provider: IdentityProviderAssociatedWithDomain) =>
+      provider.is_associated ? permissions.canDissociateProvider : permissions.canAssociateProvider,
+    [permissions],
   );
 
   const columns: Column<IdentityProviderAssociatedWithDomain>[] = React.useMemo(
@@ -88,56 +97,65 @@ export function DomainConfigureProvidersModal({
                 {t('table.actions.view_provider_button_text')}
               </Button>
             )}
-            <Tooltip>
-              <TooltipTrigger asChild>
+            <Tooltip disableHoverableContent>
+              <TooltipTrigger asChild onFocus={(e) => e.preventDefault()}>
                 <span>
                   <Switch
                     checked={provider.is_associated ?? false}
                     onCheckedChange={(checked) => handleToggleSwitch(provider, checked)}
-                    disabled={isLoadingSwitch}
+                    disabled={isLoadingSwitch || !canToggleProvider(provider)}
+                    aria-label={
+                      provider.is_associated
+                        ? t('table.actions.disable_provider_tooltip')
+                        : t('table.actions.enable_provider_tooltip')
+                    }
                   />
                 </span>
               </TooltipTrigger>
-              <TooltipContent className="z-[1000]">
-                {provider.is_associated
-                  ? t('table.actions.disable_provider_tooltip')
-                  : t('table.actions.enable_provider_tooltip')}
+              <TooltipContent>
+                {!canToggleProvider(provider)
+                  ? tCommon('error.forbidden')
+                  : provider.is_associated
+                    ? t('table.actions.disable_provider_tooltip')
+                    : t('table.actions.enable_provider_tooltip')}
               </TooltipContent>
             </Tooltip>
           </div>
         ),
       },
     ],
-    [t, onOpenProvider, isLoadingSwitch, handleToggleSwitch],
+    [t, tCommon, onOpenProvider, isLoadingSwitch, canToggleProvider, handleToggleSwitch],
   );
 
   return (
     <Modal
       open={isOpen}
       onOpenChange={(open) => !open && onClose()}
-      className="p-10"
+      className={cn('p-10', styling?.classes?.['DomainTableConfigureModal-dialogContent'])}
       title={t('title', { domain: domain?.domain ?? '' })}
       content={
         domain && (
-          <div className={cn('space-y-6', className)}>
-            <p className="text-sm text-muted-foreground text-(length:--font-size-paragraph)">
+          <div className={cn('space-y-6', styling?.classes?.['DomainTable-configureModal'])}>
+            <p className="text-muted-foreground text-paragraph">
               {t('description', { domain: domain?.domain ?? '' })}
             </p>
-            <DataTable
-              columns={columns}
-              data={providers}
-              loading={isLoading}
-              emptyState={{
-                title: t('table.empty_message'),
-                action: onCreateProvider
-                  ? {
-                      label: t('table.actions.add_provider_button_text'),
-                      variant: 'outline',
-                      onClick: onCreateProvider,
-                    }
-                  : undefined,
-              }}
-            />
+            <div className="max-h-[400px] overflow-y-auto">
+              <DataTable
+                columns={columns}
+                data={providers}
+                loading={isLoading}
+                emptyState={{
+                  title: t('table.empty_message'),
+                  action: onCreateProvider
+                    ? {
+                        label: t('table.actions.add_provider_button_text'),
+                        variant: 'outline',
+                        onClick: onCreateProvider,
+                      }
+                    : undefined,
+                }}
+              />
+            </div>
           </div>
         )
       }

@@ -3,23 +3,37 @@
 import { getComponentStyles } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { DeleteFactorConfirmation } from '@/components/auth0/my-account/shared/mfa/delete-factor-confirmation';
-import { MFAEmptyState } from '@/components/auth0/my-account/shared/mfa/empty-state';
-import { MFAErrorState } from '@/components/auth0/my-account/shared/mfa/error-state';
-import { FactorsList } from '@/components/auth0/my-account/shared/mfa/factors-list';
-import { UserMFASetupForm } from '@/components/auth0/my-account/shared/mfa/user-mfa-setup-form';
+import { FactorDeleteModal } from '@/components/auth0/my-account/shared/user-mfa-management/factor-delete/factor-delete-modal';
+import { EnrollFactorModal } from '@/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/enroll-factor-modal';
+import { MFAEmptyState } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/empty-state';
+import { FactorsList } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/factors-list';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
+import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardTitle } from '@/components/ui/card';
-import { List, ListItem } from '@/components/ui/list';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardAction,
+  CardContent,
+} from '@/components/ui/card';
 import { useUserMFA } from '@/hooks/my-account/use-user-mfa';
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/mfa/mfa-types';
+import type {
+  UserMFAManagementProps,
+  UserMFAManagementViewProps,
+} from '@/types/my-account/user-mfa-management/user-mfa-management-types';
+
+const DEFAULT_STYLING: UserMFAManagementProps['styling'] = {
+  variables: { common: {}, light: {}, dark: {} },
+  classes: {},
+};
 
 /**
  * Multi-factor authentication management component.
@@ -27,7 +41,7 @@ import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/
  * Complete MFA management interface for enrolling, viewing, and deleting authentication
  * factors. Supports TOTP authenticators, SMS, Email, Push notifications, and recovery codes.
  *
- * @param props - {@link UserMFAMgmtProps}
+ * @param props - {@link UserMFAManagementProps}
  * @param props.customMessages - Custom i18n message overrides
  * @param props.styling - CSS variables and class overrides
  * @param props.hideHeader - Hide the header section
@@ -36,21 +50,18 @@ import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/
  * @param props.disableDelete - Disable delete actions
  * @param props.readOnly - Render in read-only mode
  * @param props.factorConfig - Per-factor visibility/enabled configuration
- * @param props.onEnroll - Callback after successful enrollment
- * @param props.onDelete - Callback after successful deletion
- * @param props.onFetch - Callback after factors are loaded
- * @param props.onErrorAction - Callback when actions error
- * @param props.onBeforeAction - Callback before actions; return false to cancel
+ * @param props.enrollAction - Lifecycle hooks for enrollment; onBefore to cancel, onAfter on success
+ * @param props.deleteAction - Lifecycle hooks for deletion; onBefore to cancel, onAfter on success
  * @param props.schema - Validation schema overrides
  * @returns MFA management component
  *
- * @see {@link UserMFAMgmtProps} for full props documentation
+ * @see {@link UserMFAManagementProps} for full props documentation
  *
  * @example
  * ```tsx
- * <UserMFAMgmt
- *   onEnroll={(factor) => console.log('Enrolled:', factor)}
- *   onDelete={(factor) => console.log('Deleted:', factor)}
+ * <UserMFAManagement
+ *   enrollAction={{ onAfter: (factor) => console.log('Enrolled:', factor) }}
+ *   deleteAction={{ onAfter: (factor) => console.log('Deleted:', factor) }}
  *   factorConfig={{
  *     otp: { enabled: true },
  *     sms: { enabled: true },
@@ -59,31 +70,26 @@ import type { UserMFAMgmtProps, UserMFAMgmtViewProps } from '@/types/my-account/
  * />
  * ```
  */
-function UserMFAMgmt({
+function UserMFAManagement({
   customMessages = {},
-  styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
+  styling = DEFAULT_STYLING,
   hideHeader = false,
   showActiveOnly = false,
   disableEnroll = false,
   disableDelete = false,
   readOnly = false,
   factorConfig = {},
-  onEnroll,
-  onDelete,
-  onFetch,
-  onErrorAction,
-  onBeforeAction,
+  enrollAction,
+  deleteAction,
   schema,
-}: UserMFAMgmtProps) {
+}: UserMFAManagementProps) {
   useTelemetry('user-mfa-management');
-
   const {
     factorsByType,
     isLoadingFactors,
     isEnrolling,
     isDeleting,
     isConfirming,
-    error,
     isEnrollDialogOpen,
     enrollFactor,
     enrollmentPhase,
@@ -100,6 +106,7 @@ function UserMFAMgmt({
     handleConfirmDelete,
     handleCancelDelete,
     handleSendCode,
+    handleResendCode,
     handleConfirmOtp,
     handleConfirmPush,
     handleConfirmRecoveryCode,
@@ -110,17 +117,13 @@ function UserMFAMgmt({
     disableDelete,
     factorConfig,
     customMessages,
-    onFetch,
-    onEnroll,
-    onDelete,
-    onErrorAction,
-    onBeforeAction,
+    enrollAction,
+    deleteAction,
   });
 
   return (
     <GateKeeper styling={styling} isLoading={isLoadingFactors}>
-      <UserMFAMgmtView
-        error={error}
+      <UserMFAManagementView
         schema={schema}
         isEnrolling={isEnrolling}
         isDeleting={isDeleting}
@@ -150,23 +153,23 @@ function UserMFAMgmt({
         onConfirmDelete={handleConfirmDelete}
         onCancelDelete={handleCancelDelete}
         onSubmitContact={handleSendCode}
+        onResendCode={handleResendCode}
         onConfirmOtp={handleConfirmOtp}
-        onContinueQR={handleConfirmPush}
+        onContinueQRScan={handleConfirmPush}
         onConfirmRecoveryCode={handleConfirmRecoveryCode}
-        onAdvanceToQR={handleEnterQRPhase}
+        onStartQREnrollment={handleEnterQRPhase}
       />
     </GateKeeper>
   );
 }
 
 /**
- * UserMFAMgmtView — Presentational component.
+ * UserMFAManagementView — Presentational component.
  * @param props - All state and handlers passed directly.
  * @returns User Management View element
  * @internal
  */
-function UserMFAMgmtView({
-  error,
+function UserMFAManagementView({
   schema,
   isEnrolling,
   isDeleting,
@@ -196,13 +199,14 @@ function UserMFAMgmtView({
   onConfirmDelete,
   onCancelDelete,
   onSubmitContact,
+  onResendCode,
   onConfirmOtp,
-  onContinueQR,
+  onContinueQRScan,
   onConfirmRecoveryCode,
-  onAdvanceToQR,
-}: UserMFAMgmtViewProps) {
+  onStartQREnrollment,
+}: UserMFAManagementViewProps) {
   const { isDarkMode } = useTheme();
-  const { t } = useTranslator('mfa', customMessages);
+  const { t } = useTranslator('user_mfa_management', customMessages);
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
@@ -210,127 +214,99 @@ function UserMFAMgmtView({
 
   return (
     <StyledScope style={currentStyles.variables}>
-      <Card className={cn('p-6', currentStyles.classes?.['UserMFAMgmt-card'])}>
-        {error ? (
-          <MFAErrorState
-            title={t('component_error_title')}
-            description={t('component_error_description')}
-          />
-        ) : (
-          <>
-            {!hideHeader && (
-              <>
-                <CardTitle
-                  id="mfa-management-title"
-                  className="text-2xl text-(length:--font-size-heading) font-medium text-left"
-                >
-                  {t('title')}
-                </CardTitle>
-                <CardDescription
-                  id="mfa-management-desc"
-                  className="text-sm text-(length:--font-size-paragraph) text-muted-foreground text-left"
-                >
-                  {t('description')}
-                </CardDescription>
-              </>
-            )}
-            {showActiveOnly && hasNoActiveFactors ? (
-              <MFAEmptyState message={t('no_active_mfa')} />
-            ) : (
-              <List
-                className="flex flex-col gap-0 w-full"
-                aria-labelledby="mfa-management-title"
-                aria-describedby="mfa-management-desc"
+      {!hideHeader && <Header title={t('header.title')} description={t('header.description')} />}
+
+      {showActiveOnly && hasNoActiveFactors ? (
+        <Card className={cn(currentStyles.classes?.['UserMFAManagement-item'])}>
+          <MFAEmptyState message={t('no_active_mfa')} />
+        </Card>
+      ) : (
+        <div className="flex flex-col gap-4 w-full">
+          {visibleFactorTypes.map((factorType) => {
+            const factors = factorsByType[factorType] || [];
+            const activeFactors = factors.filter((f) => f.enrolled);
+            const isEnabledFactor = factorConfig?.[factorType]?.enabled !== false;
+            const hasActiveFactors = activeFactors.length > 0;
+
+            return (
+              <Card
+                key={factorType}
+                className={cn(
+                  !isEnabledFactor && 'opacity-50 pointer-events-none',
+                  currentStyles.classes?.['UserMFAManagement-item'],
+                )}
+                aria-disabled={!isEnabledFactor}
+                aria-label={t(`factors.${factorType}.title`)}
               >
-                {visibleFactorTypes.map((factorType) => {
-                  const factors = factorsByType[factorType] || [];
-                  const activeFactors = factors.filter((f) => f.enrolled);
-                  const isEnabledFactor = factorConfig?.[factorType]?.enabled !== false;
-                  const hasActiveFactors = activeFactors.length > 0;
-
-                  return (
-                    <ListItem
-                      key={factorType}
-                      className={cn(
-                        'w-full p-0 m-0 py-6 gap-3',
-                        !isEnabledFactor && 'opacity-50 pointer-events-none',
-                      )}
-                      aria-disabled={!isEnabledFactor}
-                      tabIndex={0}
-                      aria-label={t(`${factorType}.title`)}
+                <CardHeader>
+                  <CardTitle className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <span
+                      className="break-words text-card-foreground whitespace-normal text-body font-medium"
+                      id={`factor-title-${factorType}`}
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                          <span
-                            className={cn(
-                              'break-words text-card-foreground whitespace-normal text-base text-(length:--font-size-body) font-medium',
-                            )}
-                            id={`factor-title-${factorType}`}
-                          >
-                            {t(`${factorType}.title`)}
-                          </span>
+                      {t(`factors.${factorType}.title`)}
+                    </span>
 
-                          {hasActiveFactors && (
-                            <Badge
-                              variant="success"
-                              size="sm"
-                              className="shrink-0"
-                              aria-label={t('enabled')}
-                            >
-                              {t('enabled')}
-                            </Badge>
-                          )}
-                        </div>
+                    {hasActiveFactors && (
+                      <Badge
+                        variant="success"
+                        size="sm"
+                        className="shrink-0"
+                        aria-label={t('factors.meta.enabled')}
+                      >
+                        {t('factors.meta.enabled')}
+                      </Badge>
+                    )}
+                  </CardTitle>
 
-                        {!readOnly && (
-                          <Button
-                            size="default"
-                            variant="outline"
-                            className="text-sm w-full sm:w-auto shrink-0"
-                            onClick={() => onEnrollFactor(factorType)}
-                            disabled={disableEnroll || !isEnabledFactor}
-                            aria-label={t(`${factorType}.button-text`)}
-                            aria-describedby={`factor-title-${factorType}`}
-                          >
-                            {t(`${factorType}.button-text`)}
-                          </Button>
-                        )}
-                      </div>
+                  {!hasActiveFactors && (
+                    <CardDescription
+                      className="font-normal text-paragraph break-words"
+                      id={`factor-desc-${factorType}`}
+                    >
+                      {t(`factors.${factorType}.description`)}
+                    </CardDescription>
+                  )}
 
-                      {!hasActiveFactors && (
-                        <p
-                          className={cn(
-                            'font-normal text-sm text-(length:--font-size-paragraph) text-muted-foreground text-left break-words',
-                          )}
-                          id={`factor-desc-${factorType}`}
-                        >
-                          {t(`${factorType}.description`)}
-                        </p>
-                      )}
+                  {!readOnly && (
+                    <CardAction>
+                      <Button
+                        size="default"
+                        variant="outline"
+                        className="text-sm w-full sm:w-auto shrink-0"
+                        onClick={() => onEnrollFactor(factorType)}
+                        disabled={disableEnroll || !isEnabledFactor}
+                        aria-label={t(`factors.${factorType}.button_text`)}
+                        aria-describedby={`factor-title-${factorType}`}
+                      >
+                        {t(`factors.${factorType}.button_text`)}
+                      </Button>
+                    </CardAction>
+                  )}
+                </CardHeader>
 
-                      {hasActiveFactors && (
-                        <FactorsList
-                          factors={activeFactors}
-                          factorType={factorType}
-                          readOnly={readOnly}
-                          isEnabledFactor={isEnabledFactor}
-                          onDeleteFactor={onDeleteFactor}
-                          isDeletingFactor={isDeleting}
-                          disableDelete={disableDelete}
-                          styling={styling}
-                          customMessages={customMessages}
-                        />
-                      )}
-                    </ListItem>
-                  );
-                })}
-              </List>
-            )}
-          </>
-        )}
-      </Card>
+                {hasActiveFactors && (
+                  <CardContent>
+                    <FactorsList
+                      factors={activeFactors}
+                      factorType={factorType}
+                      readOnly={readOnly}
+                      isEnabledFactor={isEnabledFactor}
+                      onDeleteFactor={onDeleteFactor}
+                      isDeletingFactor={isDeleting}
+                      disableDelete={disableDelete}
+                      styling={styling}
+                      customMessages={customMessages}
+                    />
+                  </CardContent>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+      )}
       {enrollFactor && (
-        <UserMFASetupForm
+        <EnrollFactorModal
           open={isEnrollDialogOpen}
           onClose={onCloseEnrollDialog}
           factorType={enrollFactor}
@@ -341,18 +317,19 @@ function UserMFAMgmtView({
           isEnrolling={isEnrolling}
           isConfirming={isConfirming}
           onSubmitContact={onSubmitContact}
+          onResendCode={onResendCode}
           onConfirmOtp={onConfirmOtp}
-          onContinueQR={onContinueQR}
+          onContinueQRScan={onContinueQRScan}
           onConfirmRecoveryCode={onConfirmRecoveryCode}
-          onAdvanceToQR={onAdvanceToQR}
+          onStartQREnrollment={onStartQREnrollment}
           schema={schema}
           styling={styling}
           customMessages={customMessages}
         />
       )}
-      <DeleteFactorConfirmation
+      <FactorDeleteModal
         open={isDeleteDialogOpen}
-        onOpenChange={(open) => !open && !isDeleting && onCancelDelete()}
+        onOpenChange={(open) => !open && onCancelDelete()}
         factorToDelete={factorToDelete}
         isDeletingFactor={isDeleting}
         onConfirm={onConfirmDelete}
@@ -364,4 +341,4 @@ function UserMFAMgmtView({
   );
 }
 
-export { UserMFAMgmt, UserMFAMgmtView };
+export { UserMFAManagement, UserMFAManagementView };

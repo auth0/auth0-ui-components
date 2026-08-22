@@ -16,13 +16,31 @@ export type ResolvedPermissions<TSpec extends PermissionSpec> = {
 
 export interface PermissionOptions {
   readOnly?: boolean;
-  allowAll?: boolean;
 }
 
 export type PermissionResolver<TSpec extends PermissionSpec> = (
   userPermissions: readonly string[],
   options?: PermissionOptions,
 ) => ResolvedPermissions<TSpec>;
+
+/**
+ * Evaluate whether a single rule is satisfied.
+ * @param rule - The rule to evaluate.
+ * @param userPermissions - Granted scopes.
+ * @param options - {@link PermissionOptions}
+ * @returns `true` when the rule is satisfied.
+ */
+function evaluateRule(
+  rule: ScopeRule,
+  userPermissions: readonly string[],
+  options: PermissionOptions,
+): boolean {
+  if (options.readOnly) return false;
+
+  return 'any' in rule
+    ? hasAnyPermission(userPermissions, rule.any)
+    : hasAllPermissions(userPermissions, rule);
+}
 
 /**
  * Builds a resolver that turns granted scopes into a module's permission flags.
@@ -38,13 +56,6 @@ export function createPermissionResolver<TSpec extends PermissionSpec>(
 
   return (userPermissions, options = {}) =>
     Object.fromEntries(
-      rules.map(([permission, rule]) => [
-        permission,
-        !options.readOnly &&
-          (options.allowAll ||
-            ('any' in rule
-              ? hasAnyPermission(userPermissions, rule.any)
-              : hasAllPermissions(userPermissions, rule))),
-      ]),
+      rules.map(([permission, rule]) => [permission, evaluateRule(rule, userPermissions, options)]),
     ) as ResolvedPermissions<TSpec>;
 }

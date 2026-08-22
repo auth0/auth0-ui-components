@@ -102,10 +102,7 @@ export function DomainCreateModal({
                 name="domain_url"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel
-                      htmlFor="domain-url"
-                      className="text-sm text-(length:--font-size-label) font-medium"
-                    >
+                    <FormLabel htmlFor="domain-url" className="text-label font-medium">
                       {t('field.label')}
                     </FormLabel>
                     <FormControl>

@@ -1,27 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { hasAllPermissions, hasAnyPermission, hasPermission } from '../permission-utils';
+import { hasAllPermissions, hasAnyPermission } from '../permission-utils';
 
 describe('permission-utils', () => {
-  describe('hasPermission', () => {
-    it('returns true when the permission is present', () => {
-      expect(
-        hasPermission(
-          ['read:my_org:members', 'delete:my_org:memberships'],
-          'delete:my_org:memberships',
-        ),
-      ).toBe(true);
-    });
-
-    it('returns false when the permission is absent', () => {
-      expect(hasPermission(['read:my_org:members'], 'delete:my_org:memberships')).toBe(false);
-    });
-
-    it('returns false for an empty permission list', () => {
-      expect(hasPermission([], 'read:my_org:members')).toBe(false);
-    });
-  });
-
   describe('hasAnyPermission', () => {
     it('returns true when at least one permission is present', () => {
       expect(

@@ -1,4 +1,8 @@
-import { getMemberManagementPermissions, type OauthScope } from '@auth0/universal-components-core';
+import {
+  getDomainManagementPermissions,
+  getMemberManagementPermissions,
+  type OauthScope,
+} from '@auth0/universal-components-core';
 
 /** Claim carrying the caller's granted My Org permissions. */
 export const MY_ORG_PERMISSIONS_CLAIM = 'urn:auth0:my_org_current_user_permissions';
@@ -29,7 +33,6 @@ export const ALL_MY_ORG_PERMISSIONS: OauthScope[] = [
   'read:my_org:member_invitations',
   'read:my_org:member_roles',
   'read:my_org:members',
-  'read:my_org:permissions',
   'update:my_org:details',
   'update:my_org:domains',
   'update:my_org:identity_providers',
@@ -63,3 +66,17 @@ export const ALL_MEMBER_PERMISSIONS = createMemberPermissions();
 
 /** A member granted only read access. */
 export const READ_ONLY_MEMBER_PERMISSIONS = createMemberPermissions(READ_ONLY_MY_ORG_PERMISSIONS);
+
+/**
+ * Resolves Domain Management flags from the granted permissions.
+ * @param granted - Granted permissions, as the claim carries them.
+ * @returns The resolved Domain Management permissions.
+ */
+export const createDomainPermissions = (granted: readonly OauthScope[] = ALL_MY_ORG_PERMISSIONS) =>
+  getDomainManagementPermissions(granted);
+
+/** Default for mock props: a member granted everything. */
+export const ALL_DOMAIN_PERMISSIONS = createDomainPermissions();
+
+/** A member granted only read access. */
+export const READ_ONLY_DOMAIN_PERMISSIONS = createDomainPermissions(READ_ONLY_MY_ORG_PERMISSIONS);

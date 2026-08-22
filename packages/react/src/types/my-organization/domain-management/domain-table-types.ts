@@ -5,6 +5,7 @@
 
 import type {
   SharedComponentProps,
+  DomainManagementPermissions,
   IdpKnownResponse,
   DomainCreateMessages,
   DomainCreateSchemas,
@@ -36,6 +37,7 @@ export interface DomainTableClasses {
   'DomainTable-createModal'?: string;
   'DomainTable-configureModal'?: string;
   'DomainTable-deleteModal'?: string;
+  'DomainTableConfigureModal-dialogContent'?: string;
   'DomainTableVerifyModal-dialogContent'?: string;
 }
 
@@ -76,9 +78,8 @@ export interface DomainTableProps
 /** Props for DomainTable actions column. */
 export interface DomainTableActionsColumnProps {
   customMessages?: Partial<DomainTableMainMessages>;
-  readOnly: boolean;
+  permissions: DomainManagementPermissions;
   domain: Domain;
-  onView: (domain: Domain) => void;
   onConfigure: (domain: Domain) => void;
   onVerify: (domain: Domain) => void;
   onDelete: (domain: Domain) => void;
@@ -92,6 +93,7 @@ export interface DomainPaginationParams {
 
 /** Options for domain table hooks (shared by service and public hook). */
 export interface UseDomainTableOptions {
+  readOnly?: DomainTableProps['readOnly'];
   createAction?: DomainTableProps['createAction'];
   verifyAction?: DomainTableProps['verifyAction'];
   deleteAction?: DomainTableProps['deleteAction'];
@@ -130,6 +132,8 @@ export interface UseDomainTableServiceReturn {
 
 /** Return type for the public domain table hook. */
 export interface UseDomainTableReturn {
+  permissions: DomainManagementPermissions;
+
   // Data
   domains: Domain[];
   providers: IdentityProviderAssociatedWithDomain[];

@@ -7,4 +7,5 @@
 export interface I18nOptions {
   currentLanguage: string;
   fallbackLanguage?: string;
+  translations?: Record<string, Record<string, unknown>>;
 }

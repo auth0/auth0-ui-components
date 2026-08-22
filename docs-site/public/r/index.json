@@ -12,7 +12,7 @@
       "name": "user-passkey-management",
       "type": "registry:block",
       "title": "Passkey management component.",
-      "description": "A block component for user passkey mgmt."
+      "description": "A block component for user passkey management."
     },
     {
       "name": "domain-table",

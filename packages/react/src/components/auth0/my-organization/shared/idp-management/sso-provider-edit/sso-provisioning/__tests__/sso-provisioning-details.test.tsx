@@ -8,7 +8,6 @@ import { mockProps } from '@/tests/utils/__mocks__/my-organization/idp-managemen
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore } from '@/tests/utils/test-setup';
 
-// ===== Mock packages =====
 const { initMockCoreClient } = mockCore();
 
 vi.mock('@/hooks/shared/use-theme', () => ({

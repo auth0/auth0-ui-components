@@ -3,16 +3,21 @@
  * @module use-member-detail
  */
 
-import { resolveErrorMessage, type Role } from '@auth0/universal-components-core';
+import {
+  getMemberManagementPermissions,
+  resolveErrorMessage,
+  type Role,
+} from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { useMemberDetailService } from '@/hooks/my-organization/shared/services/use-member-detail-service';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   MemberDetailModalState,
-  MemberDetailTab,
+  OrganizationMemberDetailTab,
   UseOrganizationMemberDetailOptions,
   UseOrganizationMemberDetailResult,
 } from '@/types/my-organization/member-management/organization-member-detail-types';
@@ -30,10 +35,18 @@ export function useOrganizationMemberDetail(
     onBack,
     customMessages = {},
     readOnly = false,
+    initialTab,
     removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,
   } = options;
+
+  const { createPermissionResolver } = usePermissions();
+
+  const permissions = React.useMemo(
+    () => createPermissionResolver(getMemberManagementPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
 
   const {
     memberQuery,
@@ -69,7 +82,9 @@ export function useOrganizationMemberDetail(
     }
   }, [memberRolesQuery.isError, memberRolesQuery.error, handleError, t]);
 
-  const [activeTab, setActiveTab] = React.useState<MemberDetailTab>('details');
+  const [activeTab, setActiveTab] = React.useState<OrganizationMemberDetailTab>(
+    initialTab ?? 'details',
+  );
   const [modalState, setModalState] = React.useState<MemberDetailModalState>({ type: null });
   const [selectedRoles, setSelectedRoles] = React.useState<Role[]>([]);
 
@@ -85,10 +100,12 @@ export function useOrganizationMemberDetail(
 
   const openModal = React.useCallback(
     (state: MemberDetailModalState) => {
-      if (readOnly && state.type !== null) return;
+      if (state.type === 'removeFromOrganization' && !permissions.canRemoveFromOrganization) return;
+      if (state.type === 'assignRoles' && !permissions.canAssignRole) return;
+      if (state.type === 'removeRoles' && !permissions.canRemoveRole) return;
       setModalState(state);
     },
-    [readOnly],
+    [permissions],
   );
 
   const closeModal = React.useCallback(() => {
@@ -159,6 +176,7 @@ export function useOrganizationMemberDetail(
 
   return {
     activeTab,
+    permissions,
     member,
     organizationDisplayName,
     memberRoles,
@@ -168,6 +186,7 @@ export function useOrganizationMemberDetail(
     memberError: memberErrorMessage,
     isFetchingMember: memberQuery.isLoading || memberQuery.isFetching,
     isFetchingMemberRoles: memberRolesQuery.isLoading,
+    isSearchingRoles: rolesSearchQuery.isFetching,
     isLoading: memberQuery.isLoading,
     isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),
     isAssigningRoles: isMutationLoading(assignRolesMutation),

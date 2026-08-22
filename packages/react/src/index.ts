@@ -3,10 +3,13 @@
  */
 
 // Components
-export { UserMFAMgmt, UserMFAMgmtView } from './components/auth0/my-account/user-mfa-management';
 export {
-  UserPasskeyMgmt,
-  UserPasskeyMgmtView,
+  UserMFAManagement,
+  UserMFAManagementView,
+} from './components/auth0/my-account/user-mfa-management';
+export {
+  UserPasskeyManagement,
+  UserPasskeyManagementView,
 } from './components/auth0/my-account/user-passkey-management';
 export {
   SsoProviderEdit,
@@ -21,7 +24,10 @@ export {
   SsoProviderTableView,
 } from './components/auth0/my-organization/sso-provider-table';
 export { DomainTable, DomainTableView } from './components/auth0/my-organization/domain-table';
-export { OrganizationMemberManagement } from './components/auth0/my-organization/organization-member-management';
+export {
+  OrganizationMemberManagement,
+  OrganizationMemberManagementView,
+} from './components/auth0/my-organization/organization-member-management';
 export {
   OrganizationMemberDetail,
   OrganizationMemberDetailView,
@@ -32,7 +38,7 @@ export {
 } from './components/auth0/my-organization/organization-details-edit';
 
 // Providers
-export { PermissionProvider } from './providers/permission-context';
+export { PermissionProvider } from './providers/permission-provider';
 
 // Shared hooks
 export { useCoreClient, CoreClientContext } from './hooks/shared/use-core-client';
@@ -40,9 +46,11 @@ export { useTranslator } from './hooks/shared/use-translator';
 export { useTheme } from './hooks/shared/use-theme';
 export { useCoreClientInitialization } from './hooks/shared/use-core-client-initialization';
 export { useErrorHandler } from './hooks/shared/use-error-handler';
+export { usePermissions } from './hooks/shared/use-permissions';
 
 // My Account hooks
 export { useUserMFA } from './hooks/my-account/use-user-mfa';
+export { useUserPasskey } from './hooks/my-account/use-user-passkey';
 
 // My Organization hooks
 export { useConfig } from './hooks/my-organization/shared/services/use-config-service';
@@ -54,7 +62,6 @@ export { useSsoDomainTab } from './hooks/my-organization/use-sso-domain-tab';
 export { useSsoProviderCreate } from './hooks/my-organization/use-sso-provider-create';
 export { useSsoProviderEdit } from './hooks/my-organization/use-sso-provider-edit';
 export { useSsoProviderTable } from './hooks/my-organization/use-sso-provider-table';
-export { usePermissions } from './hooks/my-organization/use-permissions';
 
 // Member Management hooks
 export { useOrganizationMemberManagement } from './hooks/my-organization/use-organization-member-management';
@@ -64,8 +71,8 @@ export { useOrganizationMemberDetail } from './hooks/my-organization/use-member-
 export * from './types/auth-types';
 
 // My Account types
-export * from './types/my-account/mfa/mfa-types';
-export * from './types/my-account/passkey/passkey-types';
+export * from './types/my-account/user-mfa-management/user-mfa-management-types';
+export * from './types/my-account/user-passkey-management/user-passkey-management-types';
 
 // My Organization types
 export * from './types/my-organization/config/config-types';

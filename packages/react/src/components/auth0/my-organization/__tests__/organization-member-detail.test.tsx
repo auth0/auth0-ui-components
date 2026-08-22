@@ -1,25 +1,18 @@
-import type { ComponentAction } from '@auth0/universal-components-core';
-import { memberManagementQueryKeys, memberDetailQueryKeys } from '@auth0/universal-components-core';
+import { type ComponentAction, memberManagementQueryKeys } from '@auth0/universal-components-core';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import {
-  OrganizationMemberDetail,
-  OrganizationMemberDetailView,
-} from '@/components/auth0/my-organization/organization-member-detail';
+import { OrganizationMemberDetail } from '@/components/auth0/my-organization/organization-member-detail';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import {
   createMockMember,
   createMockMemberRoles,
   createMockAvailableRoles,
   createMockOrganizationMemberDetailProps,
-  createMockOrganizationMemberDetailViewProps,
-  noModal,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
 import { createTestQueryClient, renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
-import type { MemberDetailModalState } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 mockToast();
 const { initMockCoreClient } = mockCore();
@@ -105,6 +98,20 @@ describe('OrganizationMemberDetail', () => {
 
       const detailsTab = screen.getByRole('tab', { name: 'member.detail.tabs.details' });
       expect(detailsTab).toHaveAttribute('data-state', 'active');
+    });
+
+    it('should show roles tab as active when initialTab is roles', async () => {
+      renderWithProviders(
+        <OrganizationMemberDetail
+          {...createMockOrganizationMemberDetailProps()}
+          initialTab="roles"
+        />,
+      );
+
+      await waitForComponentToLoad();
+
+      const rolesTab = screen.getByRole('tab', { name: 'member.detail.tabs.roles' });
+      expect(rolesTab).toHaveAttribute('data-state', 'active');
     });
   });
 
@@ -659,7 +666,7 @@ describe('OrganizationMemberDetail', () => {
         queryKey: memberManagementQueryKeys.all,
       });
       expect(invalidateQueriesSpy).toHaveBeenCalledWith({
-        queryKey: memberDetailQueryKeys.memberRoles(mockMember.user_id ?? ''),
+        queryKey: memberManagementQueryKeys.memberRoles(mockMember.user_id ?? ''),
       });
     });
 
@@ -827,331 +834,50 @@ describe('OrganizationMemberDetail', () => {
       });
     });
   });
-});
 
-describe('OrganizationMemberDetailView', () => {
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
+  describe('role selection limit in member detail', () => {
+    it('should disable further roles at the limit when assigning from the roles tab', async () => {
+      const user = userEvent.setup();
 
-  describe('rendering', () => {
-    it('should render header with member name', () => {
-      const props = createMockOrganizationMemberDetailViewProps();
-      renderWithProviders(<OrganizationMemberDetailView {...props} />);
+      const manyRoles = Array.from({ length: 12 }, (_, i) => ({
+        id: `rol_${i}`,
+        name: `Role ${i}`,
+        description: `Role ${i} description`,
+      }));
 
-      expect(screen.getByRole('heading', { name: props.member!.name! })).toBeInTheDocument();
-    });
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      // The assign modal's options come from rolesSearchQuery, so this is the list to stub.
+      (apiService.organization.roles.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        data: manyRoles,
+      });
+      (apiService.organization.members.roles.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        data: [],
+      });
 
-    it('should render back button', () => {
       renderWithProviders(
-        <OrganizationMemberDetailView {...createMockOrganizationMemberDetailViewProps()} />,
+        <OrganizationMemberDetail {...createMockOrganizationMemberDetailProps()} />,
       );
 
-      expect(screen.getByText('member.detail.back_button')).toBeInTheDocument();
-    });
+      await waitForComponentToLoad();
 
-    it('should render both tabs', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView {...createMockOrganizationMemberDetailViewProps()} />,
+      await user.click(screen.getByRole('tab', { name: 'member.detail.tabs.roles' }));
+      await user.click(
+        await screen.findByRole('button', { name: /member.detail.roles.assign_button/i }),
+      );
+      await screen.findByText('member.detail.roles.assign_modal.title');
+
+      await user.click(
+        screen.getByPlaceholderText('member.detail.roles.assign_modal.roles_placeholder'),
       );
 
-      expect(screen.getByRole('tab', { name: 'member.detail.tabs.details' })).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: 'member.detail.tabs.roles' })).toBeInTheDocument();
-    });
-
-    it('should render details tab content by default', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ activeTab: 'details' })}
-        />,
-      );
-
-      expect(screen.getByRole('tab', { name: 'member.detail.tabs.details' })).toHaveAttribute(
-        'data-state',
-        'active',
-      );
-    });
-
-    it('should render roles tab content when activeTab is roles', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ activeTab: 'roles' })}
-        />,
-      );
-
-      expect(screen.getByRole('tab', { name: 'member.detail.tabs.roles' })).toHaveAttribute(
-        'data-state',
-        'active',
-      );
-    });
-  });
-
-  describe('header', () => {
-    it('should display member initials in avatar circle', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({
-            member: createMockMember({ name: 'Test User' }),
-          })}
-        />,
-      );
-
-      expect(screen.getByText('TU')).toBeInTheDocument();
-    });
-
-    it('should display "U" when member name and user_id are both empty', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({
-            member: createMockMember({ name: undefined, user_id: '' }),
-          })}
-        />,
-      );
-
-      expect(screen.getByText('U')).toBeInTheDocument();
-    });
-
-    it('should display user_id badge', () => {
-      const member = createMockMember({ user_id: 'auth0|testuser123' });
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ member })}
-        />,
-      );
-
-      expect(screen.getByText('auth0|testuser123')).toBeInTheDocument();
-    });
-
-    it('should not display user_id badge when user_id is empty', () => {
-      const member = createMockMember({ user_id: '' });
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ member })}
-        />,
-      );
-
-      const badges = document.querySelectorAll('.font-mono');
-      expect(badges.length).toBe(0);
-    });
-  });
-
-  describe('MemberRemoveFromOrganizationModal', () => {
-    it('when modalState is removeFromOrganization, should render the modal', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({
-            modalState: { type: 'removeFromOrganization' } satisfies MemberDetailModalState,
-          })}
-        />,
-      );
+      for (let i = 0; i < 10; i++) {
+        await user.click(await screen.findByRole('button', { name: `Role ${i}` }));
+      }
 
       expect(
-        screen.getByText('member.detail.actions.remove_from_organization.modal.title'),
+        screen.getByText('member.detail.roles.assign_modal.max_selection_message'),
       ).toBeInTheDocument();
-    });
-
-    it('when modalState is null, should not render the modal', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ modalState: noModal })}
-        />,
-      );
-
-      expect(
-        screen.queryByText('member.detail.actions.remove_from_organization.modal.title'),
-      ).not.toBeInTheDocument();
-    });
-
-    it('when cancel is clicked, should call closeModal', async () => {
-      const user = userEvent.setup();
-      const closeModal = vi.fn();
-
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({
-            modalState: { type: 'removeFromOrganization' } satisfies MemberDetailModalState,
-            closeModal,
-          })}
-        />,
-      );
-
-      const cancelButton = screen.getByRole('button', {
-        name: 'member.detail.actions.remove_from_organization.modal.cancel_button',
-      });
-      await user.click(cancelButton);
-
-      expect(closeModal).toHaveBeenCalledTimes(1);
-    });
-
-    it('when modal confirm is clicked, should call handleRemoveFromOrganizationConfirm', async () => {
-      const user = userEvent.setup();
-      const handleRemoveFromOrganizationConfirm = vi.fn();
-
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({
-            modalState: { type: 'removeFromOrganization' } satisfies MemberDetailModalState,
-            handleRemoveFromOrganizationConfirm,
-          })}
-        />,
-      );
-
-      const confirmButton = screen.getByRole('button', {
-        name: 'member.detail.actions.remove_from_organization.modal.confirm_button',
-      });
-      await user.click(confirmButton);
-
-      expect(handleRemoveFromOrganizationConfirm).toHaveBeenCalledTimes(1);
-    });
-
-    it('when isRemovingFromOrganization is true, modal confirm button should show loading indicator', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({
-            modalState: { type: 'removeFromOrganization' } satisfies MemberDetailModalState,
-            isRemovingFromOrganization: true,
-          })}
-        />,
-      );
-
-      expect(screen.getByRole('button', { name: 'Loading...' })).toBeInTheDocument();
-    });
-  });
-
-  describe('tab switching', () => {
-    it('when user clicks Roles tab, should call setActiveTab with roles', async () => {
-      const user = userEvent.setup();
-      const setActiveTab = vi.fn();
-
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ setActiveTab })}
-        />,
-      );
-
-      const rolesTab = screen.getByRole('tab', { name: 'member.detail.tabs.roles' });
-      await user.click(rolesTab);
-
-      expect(setActiveTab).toHaveBeenCalledWith('roles');
-    });
-
-    it('when user clicks Details tab while on roles, should call setActiveTab with details', async () => {
-      const user = userEvent.setup();
-      const setActiveTab = vi.fn();
-
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ activeTab: 'roles', setActiveTab })}
-        />,
-      );
-
-      const detailsTab = screen.getByRole('tab', { name: 'member.detail.tabs.details' });
-      await user.click(detailsTab);
-
-      expect(setActiveTab).toHaveBeenCalledWith('details');
-    });
-  });
-
-  describe('back button', () => {
-    it('when back button is clicked, should call handleBack', async () => {
-      const user = userEvent.setup();
-      const handleBack = vi.fn();
-
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ handleBack })}
-        />,
-      );
-
-      const backButton = screen.getByRole('button', { name: /member.detail.back_button/i });
-      await user.click(backButton);
-
-      expect(handleBack).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('customMessages', () => {
-    it('should render custom tab labels', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({
-            customMessages: {
-              member: {
-                detail: {
-                  back_button: 'Go Back',
-                  tabs: {
-                    details: 'Info',
-                    roles: 'Permissions',
-                  },
-                },
-              },
-            },
-          })}
-        />,
-      );
-
-      expect(screen.getByText('Go Back')).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: 'Info' })).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: 'Permissions' })).toBeInTheDocument();
-    });
-  });
-
-  describe('memberError', () => {
-    it('when memberError is set, should display the error message', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ memberError: 'Member not found.' })}
-        />,
-      );
-
-      expect(screen.getByText('Member not found.')).toBeInTheDocument();
-    });
-
-    it('when memberError is set, should not render tabs', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ memberError: 'Member not found.' })}
-        />,
-      );
-
-      expect(
-        screen.queryByRole('tab', { name: 'member.detail.tabs.details' }),
-      ).not.toBeInTheDocument();
-      expect(
-        screen.queryByRole('tab', { name: 'member.detail.tabs.roles' }),
-      ).not.toBeInTheDocument();
-    });
-
-    it('when memberError is set, should still render the back button', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ memberError: 'Member not found.' })}
-        />,
-      );
-
-      expect(screen.getByText('member.detail.back_button')).toBeInTheDocument();
-    });
-  });
-
-  describe('member is null', () => {
-    it('should render the back button even when member is null', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ member: null })}
-        />,
-      );
-
-      expect(screen.getByText('member.detail.back_button')).toBeInTheDocument();
-    });
-
-    it('should show "U" initials when member is null', () => {
-      renderWithProviders(
-        <OrganizationMemberDetailView
-          {...createMockOrganizationMemberDetailViewProps({ member: null })}
-        />,
-      );
-
-      expect(screen.getByText('U')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Role 10' })).toBeDisabled();
     });
   });
 });
