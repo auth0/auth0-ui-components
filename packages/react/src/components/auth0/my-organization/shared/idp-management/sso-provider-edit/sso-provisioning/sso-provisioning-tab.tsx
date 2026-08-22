@@ -38,6 +38,7 @@ import type { SsoProvisioningTabProps } from '@/types/my-organization/idp-manage
  * @param props.onAttributeSync - Callback for attribute sync.
  * @param props.isSyncingAttributes - Whether attribute sync is in progress.
  * @param props.permissions - What the current user is allowed to do.
+ * @param props.readOnly - Whether the component is in read-only mode
  * @returns SSO provisioning tab content.
  * @internal
  */
