@@ -4,9 +4,12 @@
  * @module use-organization-details-edit
  */
 
+import { getOrganizationDetailsPermissions } from '@auth0/universal-components-core';
 import { useMemo } from 'react';
 
 import { useOrganizationDetailsEditService } from '@/hooks/my-organization/shared/services/use-organization-details-edit-service';
+import { usePermissions } from '@/hooks/shared/use-permissions';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseOrganizationDetailsEditOptions,
   UseOrganizationDetailsEditResult,
@@ -30,6 +33,15 @@ export function useOrganizationDetailsEdit({
   customMessages = {},
 }: UseOrganizationDetailsEditOptions): UseOrganizationDetailsEditResult {
   const service = useOrganizationDetailsEditService({ saveAction, customMessages });
+  const { createPermissionResolver } = usePermissions();
+  const { t: tCommon } = useTranslator('common');
+
+  const permissions = useMemo(
+    () => createPermissionResolver(getOrganizationDetailsPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
+
+  const canEdit = permissions.canUpdateDetails;
 
   const hasData = !!service.organization.name;
   const isActionDisabled = service.isSaveLoading || service.isInitializing;
@@ -37,12 +49,15 @@ export function useOrganizationDetailsEdit({
   const formActions = useMemo(
     (): OrganizationDetailsFormActions => ({
       isLoading: service.isSaveLoading,
+      showNext: !readOnly,
+      showPrevious: !readOnly,
+      nextActionTooltip: !readOnly && !canEdit ? tCommon('error.forbidden') : undefined,
       previousAction: {
-        disabled: cancelAction?.disabled || readOnly || !hasData || isActionDisabled,
+        disabled: cancelAction?.disabled || !canEdit || !hasData || isActionDisabled,
         onClick: () => cancelAction?.onAfter?.(service.organization),
       },
       nextAction: {
-        disabled: saveAction?.disabled || readOnly || !hasData || isActionDisabled,
+        disabled: saveAction?.disabled || !canEdit || !hasData || isActionDisabled,
         onClick: service.updateOrgDetails,
       },
     }),
@@ -50,7 +65,9 @@ export function useOrganizationDetailsEdit({
       service.updateOrgDetails,
       service.isSaveLoading,
       service.organization,
+      canEdit,
       readOnly,
+      tCommon,
       cancelAction,
       saveAction?.disabled,
       hasData,
@@ -59,6 +76,8 @@ export function useOrganizationDetailsEdit({
   );
 
   return {
+    permissions,
+    canEdit,
     organization: service.organization,
     isFetchLoading: service.isFetchLoading,
     isSaveLoading: service.isSaveLoading,

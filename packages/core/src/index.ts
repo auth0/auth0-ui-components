@@ -116,6 +116,7 @@ export * from './services/my-organization/organization-management/organization-d
 export * from './services/my-organization/organization-management/organization-details-mappers';
 export * from './services/my-organization/organization-management/organization-details-constants';
 export * from './services/my-organization/organization-management/organization-details-query-keys';
+export * from './services/my-organization/organization-management/organization-details-permissions';
 
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-types';
 export * from './services/my-organization/idp-management/sso-provisioning/sso-provisioning-types';
