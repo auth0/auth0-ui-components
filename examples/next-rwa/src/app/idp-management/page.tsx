@@ -35,7 +35,11 @@ export default function IdpManagementPage() {
 
   return (
     <div className="p-6 pt-8 space-y-6">
-      <SsoProviderTable createAction={createAction} editAction={editAction} />
+      <SsoProviderTable
+        createAction={createAction}
+        editAction={editAction}
+        customMessages={{ common: { error: { forbidden: 'Ask your admin for access' } } }}
+      />
     </div>
   );
 }
