@@ -115,7 +115,10 @@ export function DomainVerifyModal({
           </div>
 
           <div className="flex gap-2 pt-2 -mb-4">
-            <PermissionDeniedTooltip enabled={!permissions.canVerifyDomain}>
+            <PermissionDeniedTooltip
+              customMessages={customMessages}
+              enabled={!permissions.canVerifyDomain}
+            >
               <Button
                 variant="outline"
                 onClick={handleVerify}
@@ -124,7 +127,10 @@ export function DomainVerifyModal({
                 {isLoading ? <Spinner size="sm" /> : t('actions.verify_button_text')}
               </Button>
             </PermissionDeniedTooltip>
-            <PermissionDeniedTooltip enabled={!permissions.canDeleteDomain}>
+            <PermissionDeniedTooltip
+              customMessages={customMessages}
+              enabled={!permissions.canDeleteDomain}
+            >
               <Button
                 variant="destructive"
                 onClick={handleDelete}

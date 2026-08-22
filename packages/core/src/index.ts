@@ -24,6 +24,7 @@ export type {
 } from './i18n/i18n-types';
 
 // i18n custom messages - my-account
+export * from './i18n/custom-messages/shared/common-types';
 export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-types';
 export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-delete-types';
 export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-enrollment-types';

@@ -3,12 +3,15 @@
  * @module sso-provider-table-types
  * @internal
  */
+
+import type { CommonMessages } from '../../../shared/common-types';
+
 import type {
   SsoProvideDeleteMessages,
   SsoProviderDeleteModalContentMessages,
 } from './sso-provider-delete-types';
 
-export interface SsoProviderTableMessages {
+export interface SsoProviderTableMessages extends CommonMessages {
   header?: {
     title?: string;
     description?: string;

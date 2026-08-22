@@ -57,7 +57,7 @@ export function SsoProvisioningTab({
     'idp_management.edit_sso_provider.tabs.provisioning.content',
     customMessages,
   );
-  const { t: tCommon } = useTranslator('common');
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
 
   const {
     provisioningConfig,

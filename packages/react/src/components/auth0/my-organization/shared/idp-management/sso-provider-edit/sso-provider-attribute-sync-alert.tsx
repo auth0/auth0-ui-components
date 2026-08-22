@@ -78,7 +78,7 @@ export function SsoProviderAttributeSyncAlert({
             <AlertDescription>{t('description')}</AlertDescription>
           </div>
         </div>
-        <PermissionDeniedTooltip enabled={permissionDenied}>
+        <PermissionDeniedTooltip customMessages={customMessages} enabled={permissionDenied}>
           <Button
             variant="outline"
             size="default"

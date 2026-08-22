@@ -3,6 +3,8 @@
  * @module sso-provisioning-tab-types
  * @internal
  */
+
+import type { CommonMessages } from '../../../shared/common-types';
 import type {
   SsoProviderNotificationMessages,
   SsoProviderAttributeMappingsMessages,
@@ -11,7 +13,7 @@ import type {
 
 import type { ProvisioningManageTokenMessages } from './provisioning-manage-token-types';
 
-export interface SsoProvisioningTabMessages {
+export interface SsoProvisioningTabMessages extends CommonMessages {
   header?: {
     title?: string;
     description?: string;

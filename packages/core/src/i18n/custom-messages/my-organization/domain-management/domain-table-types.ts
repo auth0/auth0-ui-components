@@ -4,7 +4,9 @@
  * @internal
  */
 
-export interface DomainTableMessages {
+import type { CommonMessages } from '../../shared/common-types';
+
+export interface DomainTableMessages extends CommonMessages {
   domain_table?: {
     header?: {
       title?: string;

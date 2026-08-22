@@ -4,10 +4,12 @@
  * @internal
  */
 
+import type { CommonMessages } from '../../shared/common-types';
+
 import type { OrganizationInvitationTabMessages } from './invitation-tab-types';
 import type { OrganizationMemberTabMessages } from './member-tab-types';
 
-export interface OrganizationMemberManagementMessages {
+export interface OrganizationMemberManagementMessages extends CommonMessages {
   header?: {
     title?: string;
     description?: string;
@@ -21,7 +23,7 @@ export interface OrganizationMemberManagementMessages {
   member?: OrganizationMemberTabMessages;
 }
 
-export interface OrganizationMemberDetailMessages {
+export interface OrganizationMemberDetailMessages extends CommonMessages {
   member?: {
     detail?: {
       back_button?: string;

@@ -132,7 +132,7 @@ function SsoProviderTableView({
 }: SsoProviderTableViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('idp_management.sso_provider_table', customMessages);
-  const { t: tCommon } = useTranslator('common');
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],

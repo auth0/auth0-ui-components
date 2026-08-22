@@ -4,7 +4,9 @@
  * @internal
  */
 
-export interface DomainConfigureMessages {
+import type { CommonMessages } from '../../shared/common-types';
+
+export interface DomainConfigureMessages extends CommonMessages {
   title?: string;
   description?: string;
   table?: {

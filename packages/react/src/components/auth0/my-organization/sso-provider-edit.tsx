@@ -160,7 +160,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
   const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('sso');
   const { t } = useTranslator('idp_management.edit_sso_provider', customMessages);
-  const { t: tCommon } = useTranslator('common');
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
   const currentStyles = useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],

@@ -3,7 +3,9 @@
  * @module provisioning-manage-token-types
  * @internal
  */
-export interface ProvisioningManageTokenMessages {
+
+import type { CommonMessages } from '../../../shared/common-types';
+export interface ProvisioningManageTokenMessages extends CommonMessages {
   title?: string;
   description?: string;
   generate_button_label?: string;

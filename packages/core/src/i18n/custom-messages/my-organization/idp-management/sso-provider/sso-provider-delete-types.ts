@@ -3,6 +3,8 @@
  * @module sso-provider-delete-types
  * @internal
  */
+
+import type { CommonMessages } from '../../../shared/common-types';
 export interface SsoProviderDeleteModalContentMessages {
   description?: string;
   field: {
@@ -11,7 +13,7 @@ export interface SsoProviderDeleteModalContentMessages {
   };
 }
 
-export interface SsoProvideDeleteMessages {
+export interface SsoProvideDeleteMessages extends CommonMessages {
   title?: string;
   description?: string;
   delete_button_label?: string;
@@ -26,7 +28,7 @@ export interface SsoProvideDeleteMessages {
   };
 }
 
-export interface SsoProvideRemoveMessages {
+export interface SsoProvideRemoveMessages extends CommonMessages {
   title?: string;
   description?: string;
   remove_button_label?: string;

@@ -42,7 +42,7 @@ export function SsoDomainTabActionsColumn({
   readOnly = false,
 }: SsoDomainTabActionColumn) {
   const { t } = useTranslator(translatorKey, customMessages);
-  const { t: tCommon } = useTranslator('common');
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
 
   const providerHasDomain = idpDomains.includes(domain.id);
   const canToggleDomain = providerHasDomain
@@ -85,7 +85,7 @@ export function SsoDomainTabActionsColumn({
           </Tooltip>
         )
       ) : (
-        <PermissionDeniedTooltip enabled={isVerifyForbidden}>
+        <PermissionDeniedTooltip customMessages={customMessages} enabled={isVerifyForbidden}>
           <Button
             variant="outline"
             size="sm"

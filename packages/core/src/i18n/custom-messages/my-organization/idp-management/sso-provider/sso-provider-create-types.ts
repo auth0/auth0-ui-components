@@ -3,6 +3,8 @@
  * @module sso-provider-create-types
  * @internal
  */
+
+import type { CommonMessages } from '../../../shared/common-types';
 export interface ProviderSelectMessages {
   title?: string;
   description?: string;
@@ -322,7 +324,7 @@ export interface ProviderConfigureMessages {
  */
 export type ProviderConfigureFieldsMessages = Pick<ProviderConfigureMessages, 'fields'>;
 
-export interface SsoProviderCreateMessages {
+export interface SsoProviderCreateMessages extends CommonMessages {
   header?: {
     title?: string;
     back_button_text?: string;

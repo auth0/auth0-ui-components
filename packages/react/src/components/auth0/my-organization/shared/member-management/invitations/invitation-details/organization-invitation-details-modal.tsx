@@ -238,7 +238,10 @@ export function OrganizationInvitationDetailsModal({
           {/* Revoke / Resend Actions (inline, below invitation URL) */}
           {!readOnly && (
             <div className="flex flex-wrap gap-2">
-              <PermissionDeniedTooltip enabled={!permissions.canResendInvitation}>
+              <PermissionDeniedTooltip
+                customMessages={customMessages}
+                enabled={!permissions.canResendInvitation}
+              >
                 <Button
                   variant="outline"
                   onClick={handleResend}
@@ -248,7 +251,10 @@ export function OrganizationInvitationDetailsModal({
                   {t('invitation.details.resend_button')}
                 </Button>
               </PermissionDeniedTooltip>
-              <PermissionDeniedTooltip enabled={!permissions.canRevokeInvitation}>
+              <PermissionDeniedTooltip
+                customMessages={customMessages}
+                enabled={!permissions.canRevokeInvitation}
+              >
                 <Button
                   variant="destructive"
                   onClick={handleRevoke}

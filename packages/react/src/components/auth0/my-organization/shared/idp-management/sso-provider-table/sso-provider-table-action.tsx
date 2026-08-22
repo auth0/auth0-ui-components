@@ -55,7 +55,7 @@ export function SsoProviderTableActionsColumn({
   onRemoveFromOrganization,
 }: SsoProviderTableActionsColumnProps) {
   const { t } = useTranslator('idp_management.sso_provider_table', customMessages);
-  const { t: tCommon } = useTranslator('common');
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
   const canOpenDetail = permissions.canUpdateProvider || permissions.canConfigureProvider;
   const detailLabel = permissions.canUpdateProvider
     ? t('table.actions.edit_button_text')

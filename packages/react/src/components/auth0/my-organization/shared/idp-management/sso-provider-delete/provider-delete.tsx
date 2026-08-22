@@ -58,7 +58,11 @@ export function SsoProviderDelete({
               </p>
             </div>
 
-            <PermissionDeniedTooltip enabled={permissionDenied} className="shrink-0">
+            <PermissionDeniedTooltip
+              customMessages={customMessages}
+              enabled={permissionDenied}
+              className="shrink-0"
+            >
               <Button variant="destructive" onClick={openModal} disabled={readOnly}>
                 {t('delete_button_label')}
               </Button>

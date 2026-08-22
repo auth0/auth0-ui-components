@@ -4,7 +4,9 @@
  * @internal
  */
 
-export interface OrganizationInvitationTabMessages {
+import type { CommonMessages } from '../../shared/common-types';
+
+export interface OrganizationInvitationTabMessages extends CommonMessages {
   table?: {
     columns?: {
       email?: string;
