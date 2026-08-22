@@ -135,6 +135,7 @@ export interface I18nInitOptions {
   currentLanguage?: string;
   /** The fallback language code if current language fails to load */
   fallbackLanguage?: string;
+  translations?: Record<string, LangTranslations>;
 }
 
 /**

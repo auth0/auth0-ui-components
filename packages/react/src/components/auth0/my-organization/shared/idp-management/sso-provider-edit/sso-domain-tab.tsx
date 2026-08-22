@@ -137,7 +137,16 @@ export function SsoDomainTab({
         ),
       },
     ],
-    [t, permissions, idpDomains, isUpdating, isUpdatingId, customMessages],
+    [
+      t,
+      permissions,
+      idpDomains,
+      isUpdating,
+      isUpdatingId,
+      customMessages,
+      handleToggleSwitch,
+      handleVerifyActionColumn,
+    ],
   );
 
   return (
@@ -217,6 +226,7 @@ export function SsoDomainTab({
         className={currentStyles.classes?.['SsoDomainsTab-verifyModal']}
         isOpen={showVerifyModal}
         isLoading={isVerifying}
+        permissions={{ canVerifyDomain: true, canDeleteDomain: true }}
         domain={selectedDomain}
         error={verifyError}
         onClose={handleCloseVerifyModal}

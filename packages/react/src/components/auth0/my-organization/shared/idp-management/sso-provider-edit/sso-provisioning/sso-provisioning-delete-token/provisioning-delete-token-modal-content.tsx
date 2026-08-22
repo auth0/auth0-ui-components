@@ -28,12 +28,8 @@ export function ProvisioningDeleteTokenModalContent({
 
   return (
     <div className={cn('space-y-4', className)}>
-      <p className={cn('text-sm text-muted-foreground text-(length:--font-size-paragraph)')}>
-        {t('confirmation', { tokenId })}
-      </p>
-      <p className={cn('text-sm text-muted-foreground text-(length:--font-size-paragraph)')}>
-        {t('description')}
-      </p>
+      <p className={cn('text-muted-foreground text-paragraph')}>{t('confirmation', { tokenId })}</p>
+      <p className={cn('text-muted-foreground text-paragraph')}>{t('description')}</p>
     </div>
   );
 }

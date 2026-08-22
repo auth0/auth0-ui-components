@@ -23,6 +23,7 @@ import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-init
 import { useToastProvider } from '@/hooks/shared/use-toast-provider';
 import { DISTRIBUTION, FRAMEWORK } from '@/lib/constants/telemetry-constants';
 import { detectCssImplementation } from '@/lib/utils/shared/css-detection';
+import { PermissionProvider } from '@/providers/permission-provider';
 import { QueryProvider } from '@/providers/query-provider';
 import { TelemetryProvider } from '@/providers/telemetry-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
@@ -122,6 +123,8 @@ export const Auth0ComponentProvider = (
     </StyledScope>
   );
 
+  const isAuthenticated = auth0ReactContext.isAuthenticated;
+
   return (
     <TelemetryProvider componentRef={componentRef}>
       <ThemeProvider
@@ -141,7 +144,9 @@ export const Auth0ComponentProvider = (
         )}
         {coreClient ? (
           <CoreClientContext.Provider value={coreClientValue}>
-            <QueryProvider cacheConfig={cacheConfig}>{children}</QueryProvider>
+            <QueryProvider cacheConfig={cacheConfig}>
+              <PermissionProvider isAuthenticated={isAuthenticated}>{children}</PermissionProvider>
+            </QueryProvider>
           </CoreClientContext.Provider>
         ) : (
           fallback

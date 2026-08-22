@@ -140,6 +140,7 @@ export interface SsoProviderTableActionsColumnProps
   edit?: {
     disabled?: boolean;
   };
+  enableProviderAction?: ComponentAction<IdpKnownResponse>;
   onToggleEnabled: (provider: IdpKnownResponse, enabled: boolean) => void;
   onEdit: (provider: IdpKnownResponse) => void;
   onDelete: (provider: IdpKnownResponse) => void;
@@ -153,4 +154,5 @@ export interface SsoProviderTableViewProps extends UseSsoProviderTableReturn {
   hideRemoveFromOrganization?: boolean;
   createAction: SsoProviderTableProps['createAction'];
   editAction: SsoProviderTableProps['editAction'];
+  enableProviderAction?: SsoProviderTableProps['enableProviderAction'];
 }

@@ -38,7 +38,7 @@ describe('PermissionDeniedTooltip', () => {
     await user.hover(screen.getByText('Delete'));
 
     await waitFor(() => {
-      expect(screen.getAllByText('error.forbidden').length).toBeGreaterThan(0);
+      expect(screen.getByRole('tooltip', { name: 'error.forbidden' })).toBeInTheDocument();
     });
   });
 
@@ -55,7 +55,7 @@ describe('PermissionDeniedTooltip', () => {
     await user.hover(screen.getByText('Delete'));
 
     await waitFor(() => {
-      expect(screen.getAllByText('Ask an admin for access').length).toBeGreaterThan(0);
+      expect(screen.getByRole('tooltip', { name: 'Ask an admin for access' })).toBeInTheDocument();
     });
   });
 

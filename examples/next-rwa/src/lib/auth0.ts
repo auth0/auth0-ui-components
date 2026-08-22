@@ -60,6 +60,8 @@ const MY_ORG_SCOPES = [
   'create:my_org:member_roles',
   'read:my_org:members',
   'delete:my_org:memberships',
+  'read:my_org:permissions',
+  'read:my_org:user_stores',
 ];
 
 const domain = process.env.AUTH0_DOMAIN?.replace(/\/$/, '');

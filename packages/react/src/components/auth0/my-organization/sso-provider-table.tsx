@@ -80,6 +80,7 @@ function SsoProviderTable(props: SsoProviderTableProps) {
         hideRemoveFromOrganization={hideRemoveFromOrganization}
         createAction={createAction}
         editAction={editAction}
+        enableProviderAction={enableProviderAction}
       />
     </GateKeeper>
   );
@@ -106,6 +107,7 @@ function SsoProviderTableView({
   providersUpdatedAt,
   createAction,
   editAction,
+  enableProviderAction,
   selectedIdp,
   showDeleteModal,
   showRemoveModal,
@@ -174,6 +176,7 @@ function SsoProviderTableView({
             isUpdatingId={isUpdatingId}
             customMessages={customMessages}
             edit={editAction}
+            enableProviderAction={enableProviderAction}
             onToggleEnabled={handleToggleEnabled}
             onEdit={handleEdit}
             onDelete={handleDelete}
@@ -186,6 +189,7 @@ function SsoProviderTableView({
       t,
       permissions,
       editAction,
+      enableProviderAction,
       isUpdating,
       hideDeleteProvider,
       hideRemoveFromOrganization,

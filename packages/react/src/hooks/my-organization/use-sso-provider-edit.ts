@@ -10,7 +10,7 @@ import { useCallback, useMemo } from 'react';
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useSsoProviderEditService } from '@/hooks/my-organization/shared/services/use-sso-provider-edit-service';
-import { usePermissions } from '@/hooks/my-organization/use-permissions';
+import { usePermissions } from '@/hooks/shared/use-permissions';
 import type {
   UseSsoProviderEditOptions,
   UseSsoProviderEditReturn,
@@ -32,6 +32,7 @@ export function useSsoProviderEdit(
     customMessages = {},
     skipProvisioningFetch = false,
     readOnly = false,
+    enableProviderAction,
   }: Partial<UseSsoProviderEditOptions> = {},
 ): UseSsoProviderEditReturn {
   const { createPermissionResolver } = usePermissions();
@@ -46,6 +47,7 @@ export function useSsoProviderEdit(
     provisioning,
     customMessages,
     skipProvisioningFetch,
+    enableProviderAction,
   });
 
   const { shouldAllowDeletion, isLoadingConfig } = useConfig();
@@ -59,12 +61,9 @@ export function useSsoProviderEdit(
   const handleToggleProvider = useCallback(
     async (enabled: boolean) => {
       if (!service.provider?.strategy) return;
-      await service.updateProvider({
-        strategy: service.provider.strategy,
-        is_enabled: enabled,
-      });
+      await service.enableProvider(enabled);
     },
-    [service.provider?.strategy, service.updateProvider],
+    [service.provider?.strategy, service.enableProvider],
   );
 
   return {

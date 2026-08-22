@@ -16,6 +16,7 @@ export interface OrganizationMemberManagementMessages {
     members?: string;
     invitations?: string;
   };
+  count_capped?: string;
   invitation?: OrganizationInvitationTabMessages;
   member?: OrganizationMemberTabMessages;
 }
@@ -57,6 +58,7 @@ export interface OrganizationMemberDetailMessages {
         assign_button?: string;
         roles_selected?: string;
         roles_selected_plural?: string;
+        max_selection_message?: string;
         table?: {
           name?: string;
           description?: string;
@@ -71,6 +73,8 @@ export interface OrganizationMemberDetailMessages {
           submit_button?: string;
           cancel_button?: string;
           no_roles_available?: string;
+          max_selection_message?: string;
+          searching_message?: string;
         };
         remove_confirm?: {
           title?: string;

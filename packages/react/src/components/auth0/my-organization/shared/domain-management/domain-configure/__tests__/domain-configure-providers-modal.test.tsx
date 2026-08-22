@@ -7,6 +7,10 @@ import {
   createMockDomain,
   createMockIdentityProviderAssociatedWithDomain,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import {
+  ALL_DOMAIN_PERMISSIONS,
+  createDomainPermissions,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { DomainConfigureProvidersModalProps } from '@/types/my-organization/domain-management/domain-configure-types';
 
@@ -18,6 +22,7 @@ function createMockDomainConfigureProvidersModalProps(
     isOpen: true,
     isLoading: false,
     isLoadingSwitch: false,
+    permissions: ALL_DOMAIN_PERMISSIONS,
     domain: createMockDomain(),
     providers: [
       createMockIdentityProviderAssociatedWithDomain({
@@ -82,9 +87,9 @@ describe('DomainConfigureProvidersModal', () => {
       });
     });
 
-    it('should apply custom className', () => {
+    it('should apply custom styling classes', () => {
       const props = createMockDomainConfigureProvidersModalProps({
-        className: 'custom-class',
+        styling: { classes: { 'DomainTable-configureModal': 'custom-class' } },
       });
       renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
@@ -94,16 +99,14 @@ describe('DomainConfigureProvidersModal', () => {
 
     it('should render with custom messages', () => {
       const customMessages = {
-        modal: {
-          title: 'Custom Title - {domain}',
-          description: 'Custom description for {domain}',
-        },
+        title: 'Custom Title',
+        description: 'Custom description',
       };
       const props = createMockDomainConfigureProvidersModalProps({ customMessages });
       renderWithProviders(<DomainConfigureProvidersModal {...props} />);
 
-      // The title should still use the mocked translator
-      expect(screen.getByText('title')).toBeInTheDocument();
+      expect(screen.getByText('Custom Title')).toBeInTheDocument();
+      expect(screen.getByText('Custom description')).toBeInTheDocument();
     });
   });
 
@@ -792,7 +795,7 @@ describe('DomainConfigureProvidersModal', () => {
       });
     });
 
-    it('should show tooltip on keyboard focus', async () => {
+    it('should not show tooltip on keyboard focus (prevents auto-trigger on modal open)', async () => {
       const user = userEvent.setup();
       const props = createMockDomainConfigureProvidersModalProps();
       renderWithProviders(<DomainConfigureProvidersModal {...props} />);
@@ -804,10 +807,16 @@ describe('DomainConfigureProvidersModal', () => {
         expect(switches[0]!).toHaveFocus();
       });
 
-      await waitFor(() => {
-        const tooltips = screen.getAllByText('table.actions.disable_provider_tooltip');
-        expect(tooltips.length).toBeGreaterThan(0);
-      });
+      expect(screen.queryByText('table.actions.disable_provider_tooltip')).not.toBeInTheDocument();
+    });
+
+    it('should have accessible aria-label on switch for screen readers', () => {
+      const props = createMockDomainConfigureProvidersModalProps();
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const switches = screen.getAllByRole('switch');
+      expect(switches[0]).toHaveAttribute('aria-label', 'table.actions.disable_provider_tooltip');
+      expect(switches[1]).toHaveAttribute('aria-label', 'table.actions.enable_provider_tooltip');
     });
 
     it('should show tooltip even when switch is disabled', async () => {
@@ -880,6 +889,39 @@ describe('DomainConfigureProvidersModal', () => {
           0,
         );
       });
+    });
+  });
+
+  describe('granted permissions', () => {
+    it('should disable every provider toggle when neither association scope is granted', () => {
+      const props = createMockDomainConfigureProvidersModalProps({
+        permissions: createDomainPermissions(['read:my_org:identity_providers']),
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      screen.getAllByRole('switch').forEach((toggle) => expect(toggle).toBeDisabled());
+    });
+
+    it('should allow associating but not dissociating with only the create scope', () => {
+      const props = createMockDomainConfigureProvidersModalProps({
+        permissions: createDomainPermissions(['create:my_org:identity_providers_domains']),
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const [associated, unassociated] = screen.getAllByRole('switch');
+      expect(associated).toBeDisabled();
+      expect(unassociated).toBeEnabled();
+    });
+
+    it('should allow dissociating but not associating with only the delete scope', () => {
+      const props = createMockDomainConfigureProvidersModalProps({
+        permissions: createDomainPermissions(['delete:my_org:identity_providers_domains']),
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const [associated, unassociated] = screen.getAllByRole('switch');
+      expect(associated).toBeEnabled();
+      expect(unassociated).toBeDisabled();
     });
   });
 });

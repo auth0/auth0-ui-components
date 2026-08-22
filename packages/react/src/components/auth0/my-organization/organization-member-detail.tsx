@@ -67,7 +67,7 @@ function Header({
           <AvatarFallback className="text-xl font-semibold">{initials}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col gap-1 min-w-0">
-          <h1 className="text-2xl font-bold text-primary truncate">{displayName}</h1>
+          <h1 className="text-heading font-bold text-primary truncate">{displayName}</h1>
           {userId && (
             <span className="text-sm flex items-center gap-2">
               {t('member.detail.user_id_label')}
@@ -99,6 +99,7 @@ export function OrganizationMemberDetailView(
     setActiveTab,
     closeModal,
     openModal,
+    readOnly,
     handleRemoveFromOrganizationConfirm,
   } = props;
 
@@ -177,7 +178,9 @@ export function OrganizationMemberDetailView(
               member={props.member}
               customMessages={customMessages}
               isRemovingFromOrganization={isRemovingFromOrganization}
+              permissions={props.permissions}
               onRemoveFromOrganizationClick={handleRemoveFromOrganizationClick}
+              readOnly={readOnly}
             />
           </TabsContent>
 
@@ -190,6 +193,7 @@ export function OrganizationMemberDetailView(
               organizationName={props.organizationDisplayName}
               memberName={props.member?.name}
               selectedMember={props.member}
+              readOnly={readOnly}
               memberRoles={props.memberRoles}
               searchedRoles={props.searchedRoles}
               onRoleSearch={props.onRoleSearch}
@@ -199,6 +203,8 @@ export function OrganizationMemberDetailView(
               isRemovingRoles={props.isRemovingRoles}
               modalState={modalState}
               isAssigningRoles={props.isAssigningRoles}
+              permissions={props.permissions}
+              isSearchingRoles={props.isSearchingRoles}
               classes={currentStyles.classes}
               style={currentStyles.variables}
               onSelectedRolesChange={props.setSelectedRoles}
@@ -240,6 +246,8 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     onBack,
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
+    readOnly = false,
+    initialTab,
     removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,
@@ -249,6 +257,8 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     userId,
     onBack,
     customMessages,
+    readOnly,
+    initialTab,
     removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,
@@ -259,6 +269,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
       <OrganizationMemberDetailView
         {...memberDetail}
         styling={styling}
+        readOnly={readOnly}
         customMessages={customMessages}
       />
     </GateKeeper>
