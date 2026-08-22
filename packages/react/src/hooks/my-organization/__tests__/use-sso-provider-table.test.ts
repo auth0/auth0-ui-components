@@ -1,9 +1,13 @@
 import { renderHook, act } from '@testing-library/react';
+import { createElement } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useSsoProviderTable } from '../use-sso-provider-table';
 
+import { PermissionContext } from '@/providers/permission-provider';
 import { createMockSsoProviderTableServiceReturn } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-provider-table/sso-provider-table-mocks';
+import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
+import type { UseSsoProviderTableOptions } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
 vi.mock('@/hooks/shared/use-translator', () => ({
   useTranslator: () => ({ t: (key: string) => key }),
@@ -75,8 +79,21 @@ describe('useSsoProviderTable', () => {
     vi.clearAllMocks();
   });
 
+  const renderWithGranted = (permissions: string[], options: UseSsoProviderTableOptions) =>
+    renderHook(() => useSsoProviderTable(options), {
+      wrapper: ({ children }: React.PropsWithChildren) =>
+        createElement(
+          PermissionContext.Provider,
+          { value: { permissions, isLoading: false } },
+          children,
+        ),
+    });
+
+  const render = (options: UseSsoProviderTableOptions = defaultOptions) =>
+    renderWithGranted(ALL_MY_ORG_PERMISSIONS, options);
+
   it('should return correct initial state', () => {
-    const { result } = renderHook(() => useSsoProviderTable(defaultOptions));
+    const { result } = render();
 
     expect(result.current.shouldAllowDeletion).toBe(true);
     expect(result.current.isViewLoading).toBe(false);
@@ -87,7 +104,7 @@ describe('useSsoProviderTable', () => {
   });
 
   it('should call createAction.onAfter on handleCreate', () => {
-    const { result } = renderHook(() => useSsoProviderTable(defaultOptions));
+    const { result } = render();
 
     act(() => {
       result.current.handleCreate();
@@ -96,7 +113,7 @@ describe('useSsoProviderTable', () => {
   });
 
   it('should call editAction.onAfter on handleEdit', () => {
-    const { result } = renderHook(() => useSsoProviderTable(defaultOptions));
+    const { result } = render();
 
     act(() => {
       result.current.handleEdit(idp);
@@ -105,7 +122,7 @@ describe('useSsoProviderTable', () => {
   });
 
   it('should set selectedIdp and showDeleteModal on handleDelete', () => {
-    const { result } = renderHook(() => useSsoProviderTable(defaultOptions));
+    const { result } = render();
 
     act(() => {
       result.current.handleDelete(idp);
@@ -115,7 +132,7 @@ describe('useSsoProviderTable', () => {
   });
 
   it('should set selectedIdp and showRemoveModal on handleDeleteFromOrganization', () => {
-    const { result } = renderHook(() => useSsoProviderTable(defaultOptions));
+    const { result } = render();
 
     act(() => {
       result.current.handleDeleteFromOrganization(idp);
@@ -124,7 +141,7 @@ describe('useSsoProviderTable', () => {
     expect(result.current.showRemoveModal).toBe(true);
   });
 
-  it('should call onEnableProvider if not readOnly', async () => {
+  it('should call onEnableProvider when update:my_org:identity_providers is granted', async () => {
     const mockOnEnableProvider = vi.fn();
     const { useSsoProviderTableService } = await import(
       '@/hooks/my-organization/shared/services/use-sso-provider-table-service'
@@ -133,7 +150,7 @@ describe('useSsoProviderTable', () => {
       createMockSsoProviderTableServiceReturn({ onEnableProvider: mockOnEnableProvider }),
     );
 
-    const { result } = renderHook(() => useSsoProviderTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleToggleEnabled(idp, true);
@@ -141,7 +158,7 @@ describe('useSsoProviderTable', () => {
     expect(mockOnEnableProvider).toHaveBeenCalledWith(idp, true);
   });
 
-  it('should not call onEnableProvider if readOnly', async () => {
+  it('should not call onEnableProvider when readOnly is set', async () => {
     const mockOnEnableProvider = vi.fn();
     const { useSsoProviderTableService } = await import(
       '@/hooks/my-organization/shared/services/use-sso-provider-table-service'
@@ -150,7 +167,7 @@ describe('useSsoProviderTable', () => {
       createMockSsoProviderTableServiceReturn({ onEnableProvider: mockOnEnableProvider }),
     );
 
-    const { result } = renderHook(() => useSsoProviderTable({ ...defaultOptions, readOnly: true }));
+    const { result } = render({ ...defaultOptions, readOnly: true });
 
     await act(async () => {
       await result.current.handleToggleEnabled(idp, false);
@@ -167,7 +184,7 @@ describe('useSsoProviderTable', () => {
       createMockSsoProviderTableServiceReturn({ onDeleteConfirm: mockOnDeleteConfirm }),
     );
 
-    const { result } = renderHook(() => useSsoProviderTable(defaultOptions));
+    const { result } = render();
 
     act(() => {
       result.current.setShowDeleteModal(true);
@@ -190,7 +207,7 @@ describe('useSsoProviderTable', () => {
       createMockSsoProviderTableServiceReturn({ onRemoveConfirm: mockOnRemoveConfirm }),
     );
 
-    const { result } = renderHook(() => useSsoProviderTable(defaultOptions));
+    const { result } = render();
 
     act(() => {
       result.current.setShowRemoveModal(true);
@@ -202,5 +219,89 @@ describe('useSsoProviderTable', () => {
     expect(mockOnRemoveConfirm).toHaveBeenCalledWith(idp);
     expect(result.current.showRemoveModal).toBe(false);
     expect(result.current.selectedIdp).toBeNull();
+  });
+
+  describe('permission guards', () => {
+    const VIEWER = ['read:my_org:identity_providers'];
+
+    it('should refuse to start creation without create:my_org:identity_providers', () => {
+      const { result } = renderWithGranted(VIEWER, defaultOptions);
+
+      act(() => {
+        result.current.handleCreate();
+      });
+
+      expect(mockCreateAction.onAfter).not.toHaveBeenCalled();
+    });
+
+    it('should refuse to open the delete modal without delete:my_org:identity_providers', () => {
+      const { result } = renderWithGranted(VIEWER, defaultOptions);
+
+      act(() => {
+        result.current.handleDelete(idp);
+      });
+
+      expect(result.current.showDeleteModal).toBe(false);
+    });
+
+    it('should refuse to open the remove modal without update:my_org:identity_providers_detach', () => {
+      const { result } = renderWithGranted(VIEWER, defaultOptions);
+
+      act(() => {
+        result.current.handleDeleteFromOrganization(idp);
+      });
+
+      expect(result.current.showRemoveModal).toBe(false);
+    });
+
+    it('should refuse the delete submit without delete:my_org:identity_providers', async () => {
+      const mockOnDeleteConfirm = vi.fn();
+      const { useSsoProviderTableService } = await import(
+        '@/hooks/my-organization/shared/services/use-sso-provider-table-service'
+      );
+      vi.mocked(useSsoProviderTableService).mockReturnValue(
+        createMockSsoProviderTableServiceReturn({ onDeleteConfirm: mockOnDeleteConfirm }),
+      );
+
+      const { result } = renderWithGranted(VIEWER, defaultOptions);
+
+      await act(async () => {
+        await result.current.handleDeleteConfirm(idp);
+      });
+
+      expect(mockOnDeleteConfirm).not.toHaveBeenCalled();
+    });
+
+    it('should refuse the remove submit without update:my_org:identity_providers_detach', async () => {
+      const mockOnRemoveConfirm = vi.fn();
+      const { useSsoProviderTableService } = await import(
+        '@/hooks/my-organization/shared/services/use-sso-provider-table-service'
+      );
+      vi.mocked(useSsoProviderTableService).mockReturnValue(
+        createMockSsoProviderTableServiceReturn({ onRemoveConfirm: mockOnRemoveConfirm }),
+      );
+
+      const { result } = renderWithGranted(VIEWER, defaultOptions);
+
+      await act(async () => {
+        await result.current.handleRemoveConfirm(idp);
+      });
+
+      expect(mockOnRemoveConfirm).not.toHaveBeenCalled();
+    });
+
+    it('should refuse every action when readOnly is set, even with the scopes granted', () => {
+      const { result } = render({ ...defaultOptions, readOnly: true });
+
+      act(() => {
+        result.current.handleCreate();
+      });
+      act(() => {
+        result.current.handleDelete(idp);
+      });
+
+      expect(mockCreateAction.onAfter).not.toHaveBeenCalled();
+      expect(result.current.showDeleteModal).toBe(false);
+    });
   });
 });

@@ -40,6 +40,7 @@ export function createMockSsoProviderTableViewProps(
     styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     customMessages: {},
     permissions: ALL_IDP_PERMISSIONS,
+    readOnly: false,
     hideHeader: false,
     isLoading: false,
     shouldHideCreate: false,

@@ -45,6 +45,7 @@ export function SsoDomainTab({
     classes: {},
   },
   permissions,
+  readOnly = false,
   schema,
   idpId,
   domains,
@@ -97,6 +98,7 @@ export function SsoDomainTab({
     customMessages,
     domains,
     provider,
+    readOnly,
   });
 
   const columns: Column<Domain>[] = React.useMemo(
@@ -161,6 +163,7 @@ export function SsoDomainTab({
               label: t('create_button_text'),
               onClick: () => setShowCreateModal(true),
               icon: Plus,
+              hidden: readOnly,
               disabled: domains?.createAction?.disabled || !permissions.canCreateDomain,
               ...(permissions.canCreateDomain
                 ? {}
@@ -226,7 +229,7 @@ export function SsoDomainTab({
         className={currentStyles.classes?.['SsoDomainsTab-verifyModal']}
         isOpen={showVerifyModal}
         isLoading={isVerifying}
-        permissions={{ canVerifyDomain: true, canDeleteDomain: true }}
+        permissions={permissions}
         domain={selectedDomain}
         error={verifyError}
         onClose={handleCloseVerifyModal}

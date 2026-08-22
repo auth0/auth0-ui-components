@@ -149,6 +149,7 @@ export interface SsoProviderTableActionsColumnProps
 export interface SsoProviderTableViewProps extends UseSsoProviderTableReturn {
   styling: SsoProviderTableProps['styling'];
   customMessages: SsoProviderTableProps['customMessages'];
+  readOnly: SsoProviderTableProps['readOnly'];
   hideHeader: boolean;
   hideDeleteProvider?: boolean;
   hideRemoveFromOrganization?: boolean;

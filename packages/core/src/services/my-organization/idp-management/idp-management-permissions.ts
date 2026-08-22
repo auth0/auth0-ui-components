@@ -25,9 +25,9 @@ export const getIdpManagementPermissions = createPermissionResolver({
 
   canAssociateDomain: ['create:my_org:identity_providers_domains'],
   canDissociateDomain: ['delete:my_org:identity_providers_domains'],
-  /** The domains tab creates and verifies real org domains, not just associations. */
   canCreateDomain: ['create:my_org:domains'],
   canVerifyDomain: ['update:my_org:domains'],
+  canDeleteDomain: ['delete:my_org:domains'],
 
   canCreateProvisioning: ['create:my_org:identity_providers_provisioning'],
   canUpdateProvisioning: ['update:my_org:identity_providers_provisioning'],

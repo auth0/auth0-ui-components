@@ -26,6 +26,7 @@ import type { SsoProviderTableActionsColumnProps } from '@/types/my-organization
  * @param props.provider - SSO provider object
  * @param props.shouldAllowDeletion - Whether deletion should be allowed
  * @param props.permissions - What the current user is allowed to do
+ * @param props.readOnly - Whether the component is in read-only mode
  * @param props.isUpdating - Whether an update operation is in progress
  * @param props.isUpdatingId - ID of the item currently being updated
  * @param props.customMessages - Custom translation messages to override defaults
@@ -42,6 +43,7 @@ export function SsoProviderTableActionsColumn({
   hideDeleteProvider = false,
   hideRemoveFromOrganization = false,
   permissions,
+  readOnly = false,
   isUpdating = false,
   isUpdatingId,
   customMessages = {},
@@ -77,6 +79,10 @@ export function SsoProviderTableActionsColumn({
   const handleRemoveFromOrganization = React.useCallback(() => {
     onRemoveFromOrganization(provider);
   }, [provider, onRemoveFromOrganization]);
+
+  if (readOnly) {
+    return null;
+  }
 
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">

@@ -115,6 +115,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     styling,
     schema,
     permissions,
+    readOnly,
     providerId,
     domains,
     hideHeader,
@@ -183,6 +184,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 type: 'switch',
                 checked: provider?.is_enabled ?? false,
                 onCheckedChange: handleToggleProvider,
+                hidden: readOnly,
                 disabled:
                   isUpdating ||
                   isEnabling ||
@@ -242,6 +244,11 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
               styling={styling}
               formActions={{
                 isLoading: isUpdating,
+                showNext: !readOnly,
+                nextActionTooltip:
+                  !readOnly && !permissions.canUpdateProvider
+                    ? tCommon('error.forbidden')
+                    : undefined,
                 nextAction: {
                   disabled: isUpdating || !provider || isLoading,
                   onClick: updateProvider,
@@ -285,6 +292,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
               idpId={providerId}
               provider={provider}
               permissions={permissions}
+              readOnly={readOnly}
             />
           </TabsContent>
         </Tabs>

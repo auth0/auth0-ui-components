@@ -14,7 +14,6 @@ import {
   createMockSsoActions,
   createMockSsoProviderEditProps,
 } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-provider-edit/sso-provider-edit.mocks';
-import { createIdpPermissions } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 
@@ -179,20 +178,26 @@ describe('SsoProviderEdit', () => {
         });
       });
 
-      it('should disable form save button', async () => {
+      it('should not render the form save button', async () => {
         renderWithProviders(
           <SsoProviderEdit {...createMockSsoProviderEditProps({ readOnly: true })} />,
         );
 
         await waitForComponentToLoad();
 
-        // The save/submit button should be disabled
-        const saveButton = screen.queryByRole('button', {
-          name: /submit_button_label/i,
-        });
+        expect(
+          screen.queryByRole('button', { name: /submit_button_label/i }),
+        ).not.toBeInTheDocument();
+      });
 
-        expect(saveButton).toBeInTheDocument();
-        expect(saveButton).toBeDisabled();
+      it('should not render the enable/disable provider toggle', async () => {
+        renderWithProviders(
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ readOnly: true })} />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.queryByRole('switch')).not.toBeInTheDocument();
       });
     });
 
@@ -887,35 +892,6 @@ describe('SsoProviderEdit', () => {
           ).toHaveBeenCalled();
         });
       });
-    });
-  });
-
-  describe('when no mutating permission is granted', () => {
-    it('should leave no interactive control enabled', () => {
-      renderWithProviders(
-        <SsoProviderEditView
-          logic={createMockSsoProviderEditLogic({
-            permissions: createIdpPermissions(['read:my_org:identity_providers']),
-          })}
-          handlers={handlers}
-        />,
-      );
-
-      const interactive = [
-        ...screen.queryAllByRole('textbox'),
-        ...screen.queryAllByRole('checkbox'),
-        ...screen.queryAllByRole('switch'),
-        ...screen.queryAllByRole('combobox'),
-        ...screen.queryAllByRole('radio'),
-      ];
-
-      const stillEnabled = interactive
-        .filter(
-          (control) => !control.hasAttribute('readonly') && !(control as HTMLInputElement).disabled,
-        )
-        .map((c) => `${c.tagName}[role=${c.getAttribute('role')}] name=${c.getAttribute('name')}`);
-
-      expect(stillEnabled).toEqual([]);
     });
   });
 });

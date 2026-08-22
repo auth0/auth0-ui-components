@@ -6,6 +6,7 @@
 import {
   type CreateOrganizationDomainRequestContent,
   BusinessError,
+  getIdpManagementPermissions,
   ssoDomainQueryKeys,
   ssoProviderQueryKeys,
   type Domain,
@@ -18,6 +19,7 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import { getPreviousDataOption, isMutationLoading } from '@/lib/utils/tanstack-compat';
@@ -39,12 +41,23 @@ const keepPreviousDataOption = getPreviousDataOption();
  */
 export function useSsoDomainTab(
   idpId: IdpId,
-  { customMessages = {}, domains, provider }: Partial<UseSsoDomainTabOptions> = {},
+  {
+    customMessages = {},
+    domains,
+    provider,
+    readOnly = false,
+  }: Partial<UseSsoDomainTabOptions> = {},
 ): UseSsoDomainTabReturn {
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const handleError = useErrorHandler();
   const queryClient = useQueryClient();
+  const { createPermissionResolver } = usePermissions();
+
+  const permissions = useMemo(
+    () => createPermissionResolver(getIdpManagementPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
 
   const {
     pageSize,
@@ -250,6 +263,7 @@ export function useSsoDomainTab(
 
   const handleCreate = useCallback(
     async (domainUrl: string) => {
+      if (!permissions.canCreateDomain) return;
       try {
         const newDomain = await createDomainMutation.mutateAsync({ domain: domainUrl });
 
@@ -279,6 +293,7 @@ export function useSsoDomainTab(
 
   const handleVerify = useCallback(
     async (domain: Domain) => {
+      if (!permissions.canVerifyDomain) return;
       try {
         const { isVerified } = await verifyDomainMutation.mutateAsync(domain);
         if (isVerified) {
@@ -304,14 +319,19 @@ export function useSsoDomainTab(
     [verifyDomainMutation, t, handleError, associateToProviderMutation],
   );
 
-  const handleDeleteClick = useCallback((domain: Domain) => {
-    setSelectedDomain(domain);
-    setShowVerifyModal(false);
-    setShowDeleteModal(true);
-  }, []);
+  const handleDeleteClick = useCallback(
+    (domain: Domain) => {
+      if (!permissions.canDeleteDomain) return;
+      setSelectedDomain(domain);
+      setShowVerifyModal(false);
+      setShowDeleteModal(true);
+    },
+    [permissions],
+  );
 
   const handleDelete = useCallback(
     async (domain: Domain) => {
+      if (!permissions.canDeleteDomain) return;
       try {
         await deleteDomainMutation.mutateAsync(domain);
 
@@ -330,11 +350,12 @@ export function useSsoDomainTab(
         });
       }
     },
-    [handleError, deleteDomainMutation, t],
+    [permissions, handleError, deleteDomainMutation, t],
   );
 
   const handleVerifyActionColumn = useCallback(
     async (domain: Domain) => {
+      if (!permissions.canVerifyDomain) return;
       setIsUpdating(true);
       setIsUpdatingId(domain.id);
 
@@ -371,6 +392,9 @@ export function useSsoDomainTab(
 
   const handleToggleSwitch = useCallback(
     async (domain: Domain, newCheckedValue: boolean) => {
+      if (newCheckedValue ? !permissions.canAssociateDomain : !permissions.canDissociateDomain) {
+        return;
+      }
       setIsUpdating(true);
       setIsUpdatingId(domain.id);
 

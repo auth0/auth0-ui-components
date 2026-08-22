@@ -4,11 +4,13 @@
  * @module use-sso-provider-create
  */
 
-import { useCallback, useRef, useState } from 'react';
+import { getIdpManagementPermissions } from '@auth0/universal-components-core';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useSsoProviderCreateService } from '@/hooks/my-organization/shared/services/use-sso-provider-create-service';
+import { usePermissions } from '@/hooks/shared/use-permissions';
 import type {
   FormState,
   ProviderConfigureHandle,
@@ -28,6 +30,7 @@ export type { UseSsoProviderCreateResult };
 export function useSsoProviderCreate({
   createAction,
   customMessages = {},
+  readOnly = false,
   onNext,
   onPrevious,
 }: UseSsoProviderCreateHookOptions = {}): UseSsoProviderCreateResult {
@@ -42,6 +45,12 @@ export function useSsoProviderCreate({
   const configureRef = useRef<ProviderConfigureHandle>(null);
   const { isLoadingConfig, filteredStrategies } = useConfig();
   const { isLoadingIdpConfig, idpConfig } = useIdpConfig();
+  const { createPermissionResolver } = usePermissions();
+
+  const permissions = useMemo(
+    () => createPermissionResolver(getIdpManagementPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
 
   const createStepActions = useCallback(
     (
@@ -72,15 +81,17 @@ export function useSsoProviderCreate({
   );
 
   const handleCreate = useCallback(async () => {
+    if (!permissions.canCreateProvider) return;
     const finalConfigureData = configureRef.current?.getData();
     await createProvider({
       strategy: strategy!,
       ...details!,
       ...finalConfigureData,
     });
-  }, [strategy, details, configure, createProvider]);
+  }, [permissions, strategy, details, configure, createProvider]);
 
   return {
+    permissions,
     formData,
     setFormData,
     createStepActions,

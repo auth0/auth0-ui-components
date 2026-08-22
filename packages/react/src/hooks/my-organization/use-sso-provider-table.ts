@@ -15,8 +15,8 @@ import { showToast } from '@/components/auth0/shared/toast';
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useSsoProviderTableService } from '@/hooks/my-organization/shared/services/use-sso-provider-table-service';
-import { usePermissions } from '@/hooks/my-organization/use-permissions';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseSsoProviderTableOptions,
@@ -112,10 +112,11 @@ export function useSsoProviderTable({
   }, [organizationError, t, handleError]);
 
   const handleCreate = useCallback(() => {
+    if (!permissions.canCreateProvider) return;
     if (createAction?.onAfter) {
       createAction.onAfter();
     }
-  }, [createAction]);
+  }, [permissions, createAction]);
 
   const handleEdit = useCallback(
     (idp: IdpKnownResponse) => {
@@ -128,6 +129,7 @@ export function useSsoProviderTable({
 
   const handleDelete = useCallback(
     (idp: IdpKnownResponse) => {
+      if (!permissions.canDeleteProvider) return;
       setSelectedIdp(idp);
 
       if (deleteAction?.onBefore) {
@@ -137,11 +139,12 @@ export function useSsoProviderTable({
 
       setShowDeleteModal(true);
     },
-    [deleteAction],
+    [permissions, deleteAction],
   );
 
   const handleDeleteFromOrganization = useCallback(
     (idp: IdpKnownResponse) => {
+      if (!permissions.canDetachProvider) return;
       setSelectedIdp(idp);
 
       if (deleteFromOrganizationAction?.onBefore) {
@@ -151,7 +154,7 @@ export function useSsoProviderTable({
 
       setShowRemoveModal(true);
     },
-    [deleteFromOrganizationAction],
+    [permissions, deleteFromOrganizationAction],
   );
 
   const handleFetchOrganizationDetails = useCallback(async () => {
@@ -181,6 +184,7 @@ export function useSsoProviderTable({
 
   const handleDeleteConfirm = useCallback(
     async (provider: IdpKnownResponse) => {
+      if (!permissions.canDeleteProvider) return;
       try {
         await onDeleteConfirm(provider);
         showToast({
@@ -193,11 +197,12 @@ export function useSsoProviderTable({
         handleError(error, { fallbackMessage: t('general_error') });
       }
     },
-    [onDeleteConfirm, t, handleError],
+    [permissions, onDeleteConfirm, t, handleError],
   );
 
   const handleRemoveConfirm = useCallback(
     async (provider: IdpKnownResponse) => {
+      if (!permissions.canDetachProvider) return;
       try {
         await onRemoveConfirm(provider);
         showToast({

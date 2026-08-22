@@ -170,13 +170,22 @@ describe('SsoProviderTable', () => {
 
   describe('readOnly', () => {
     describe('when is true', () => {
-      it('should disable action buttons', async () => {
+      it('should not render the create button', async () => {
         renderTable({ readOnly: true });
 
         await waitForComponentToLoad();
 
-        const createButton = screen.getByRole('button', { name: /create/i });
-        expect(createButton).toBeDisabled();
+        expect(screen.queryByRole('button', { name: /create/i })).not.toBeInTheDocument();
+      });
+
+      it('should not render any row action, including the toggle', async () => {
+        renderTable({ readOnly: true });
+
+        await waitForComponentToLoad();
+        await screen.findByText(mockProvider.name!);
+
+        expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /menu/i })).not.toBeInTheDocument();
       });
     });
 
@@ -742,7 +751,7 @@ describe('SsoProviderTable', () => {
         expect(enableProviderAction.onAfter).not.toHaveBeenCalled();
       });
 
-      it('should disable toggle switch when readOnly is true', async () => {
+      it('should not render the toggle switch when readOnly is true', async () => {
         const enableProviderAction = {
           disabled: false,
           onBefore: vi.fn(() => true),
@@ -754,9 +763,7 @@ describe('SsoProviderTable', () => {
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
 
-        const toggleSwitch = screen.getByRole('switch');
-        expect(toggleSwitch).toBeInTheDocument();
-        expect(toggleSwitch).toBeDisabled();
+        expect(screen.queryByRole('switch')).not.toBeInTheDocument();
       });
     });
   });

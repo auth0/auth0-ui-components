@@ -75,6 +75,7 @@ function SsoProviderTable(props: SsoProviderTableProps) {
         {...providerTable}
         styling={styling}
         customMessages={customMessages}
+        readOnly={readOnly}
         hideHeader={hideHeader}
         hideDeleteProvider={hideDeleteProvider}
         hideRemoveFromOrganization={hideRemoveFromOrganization}
@@ -96,6 +97,7 @@ function SsoProviderTableView({
   styling,
   customMessages,
   permissions,
+  readOnly,
   hideHeader,
   hideDeleteProvider,
   hideRemoveFromOrganization,
@@ -172,6 +174,7 @@ function SsoProviderTableView({
             hideDeleteProvider={hideDeleteProvider}
             hideRemoveFromOrganization={hideRemoveFromOrganization}
             permissions={permissions}
+            readOnly={readOnly}
             isUpdating={isUpdating}
             isUpdatingId={isUpdatingId}
             customMessages={customMessages}
@@ -213,7 +216,7 @@ function SsoProviderTableView({
                 label: t('header.create_button_text'),
                 onClick: () => handleCreate(),
                 icon: Plus,
-                hidden: shouldHideCreate || isViewLoading,
+                hidden: readOnly || shouldHideCreate || isViewLoading,
                 disabled: createAction?.disabled || !permissions.canCreateProvider,
                 ...(permissions.canCreateProvider
                   ? {}
@@ -245,6 +248,7 @@ function SsoProviderTableView({
         emptyState={{ title: t('table.empty_message') }}
         className={currentStyles.classes?.['SsoProviderTable-table']}
         onRowClick={handleEdit}
+        rowClickLabel={(index) => tCommon('data_table.view_row', { index: index + 1 })}
       />
 
       {selectedIdp && (
