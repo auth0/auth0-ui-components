@@ -45,6 +45,7 @@ export function SsoProviderTab({
     classes: {},
   },
   permissions,
+  readOnly = false,
   provider,
   onDelete,
   onRemove,
@@ -74,6 +75,7 @@ export function SsoProviderTab({
       {hasSsoAttributeSyncWarning && (
         <SsoProviderAttributeSyncAlert
           canSync={permissions.canUpdateProvider}
+          permissionDenied={!readOnly && !permissions.canUpdateProvider}
           onSync={onAttributeSync}
           isSyncing={isSyncingAttributes}
           customMessages={customMessages.attribute_sync_alert}
@@ -114,6 +116,7 @@ export function SsoProviderTab({
             onRemove={onRemove}
             isLoading={isRemoving}
             readOnly={!permissions.canDetachProvider}
+            permissionDenied={!readOnly && !permissions.canDetachProvider}
             customMessages={customMessages.remove}
           />
         )}
@@ -124,6 +127,7 @@ export function SsoProviderTab({
             onDelete={onDelete}
             isLoading={isDeleting}
             readOnly={!permissions.canDeleteProvider}
+            permissionDenied={!readOnly && !permissions.canDeleteProvider}
             customMessages={customMessages.delete}
           />
         )}

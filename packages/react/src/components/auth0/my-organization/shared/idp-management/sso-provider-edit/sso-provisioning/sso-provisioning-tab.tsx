@@ -50,6 +50,7 @@ export function SsoProvisioningTab({
   onAttributeSync,
   isSyncingAttributes = false,
   permissions,
+  readOnly = false,
 }: SsoProvisioningTabProps): React.JSX.Element {
   const { t } = useTranslator(
     'idp_management.edit_sso_provider.tabs.provisioning.content',
@@ -111,6 +112,16 @@ export function SsoProvisioningTab({
   const enableProvisioningToggle =
     isLoading || !provider?.id || !provider.is_enabled || !canToggleProvisioning;
 
+  const provisioningToggle = (
+    <span>
+      <Switch
+        checked={isProvisioningEnabled}
+        onCheckedChange={handleProvisioningToggle}
+        disabled={enableProvisioningToggle}
+      />
+    </span>
+  );
+
   return (
     <div
       style={currentStyles.variables}
@@ -119,6 +130,7 @@ export function SsoProvisioningTab({
       {hasProvisioningAttributeSyncWarning && (
         <SsoProviderAttributeSyncAlert
           canSync={permissions.canUpdateProvisioning}
+          permissionDenied={!readOnly && !permissions.canUpdateProvisioning}
           translatorKey="idp_management.edit_sso_provider.tabs.provisioning.content.attribute_sync_alert"
           onSync={onAttributeSync}
           isSyncing={isSyncingAttributes}
@@ -141,17 +153,11 @@ export function SsoProvisioningTab({
               <div className="flex items-center gap-2">
                 {isLoading ? (
                   <Spinner className="w-4 h-4" />
+                ) : readOnly ? (
+                  provisioningToggle
                 ) : (
                   <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span>
-                        <Switch
-                          checked={isProvisioningEnabled}
-                          onCheckedChange={handleProvisioningToggle}
-                          disabled={enableProvisioningToggle}
-                        />
-                      </span>
-                    </TooltipTrigger>
+                    <TooltipTrigger asChild>{provisioningToggle}</TooltipTrigger>
                     <TooltipContent>
                       {!provider.is_enabled
                         ? t('header.provider_disabled_tooltip')

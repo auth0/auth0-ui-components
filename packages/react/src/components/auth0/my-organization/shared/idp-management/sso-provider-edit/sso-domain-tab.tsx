@@ -129,6 +129,7 @@ export function SsoDomainTab({
             translatorKey="idp_management.edit_sso_provider.tabs.domains.content"
             idpDomains={idpDomains}
             permissions={permissions}
+            readOnly={readOnly}
             isUpdating={isUpdating}
             isUpdatingId={isUpdatingId}
             customMessages={customMessages}
@@ -142,6 +143,7 @@ export function SsoDomainTab({
     [
       t,
       permissions,
+      readOnly,
       idpDomains,
       isUpdating,
       isUpdatingId,

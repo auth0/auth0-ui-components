@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
@@ -228,6 +228,24 @@ describe('SsoProviderTab', () => {
 
       expect(screen.getByRole('button', { name: 'delete_button_label' })).toBeEnabled();
       expect(screen.getByRole('button', { name: 'remove_button_label' })).toBeEnabled();
+    });
+
+    it.each([
+      { label: 'delete_button_label', scopes: ['read:my_org:identity_providers'] },
+      { label: 'remove_button_label', scopes: ['read:my_org:identity_providers'] },
+    ] as const)('should explain why $label is unavailable', async ({ label, scopes }) => {
+      const user = userEvent.setup();
+      const props = { ...mockProps, permissions: createIdpPermissions(scopes) };
+      renderWithProviders(<SsoProviderTab {...props} />);
+
+      const button = screen.getByRole('button', { name: label });
+      expect(button).toBeDisabled();
+
+      await user.hover(button.parentElement!);
+
+      await waitFor(() => {
+        expect(screen.getAllByText('error.forbidden').length).toBeGreaterThan(0);
+      });
     });
 
     it('should disable every destructive action for a viewer', () => {

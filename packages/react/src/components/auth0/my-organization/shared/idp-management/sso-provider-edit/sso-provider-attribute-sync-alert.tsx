@@ -33,6 +33,7 @@ import type { SsoProviderAttributeSyncAlertProps } from '@/types/my-organization
  * @param props.onSync - Callback when sync is triggered.
  * @param props.isSyncing - Whether sync is in progress.
  * @param props.canSync - Whether the user may trigger a sync.
+ * @param props.permissionDenied - Whether a missing scope is the reason a sync is unavailable.
  * @returns Attribute sync alert component.
  * @internal
  */
@@ -44,6 +45,7 @@ export function SsoProviderAttributeSyncAlert({
   onSync,
   isSyncing = false,
   canSync = true,
+  permissionDenied = false,
 }: SsoProviderAttributeSyncAlertProps) {
   const [isSyncModalOpen, setIsSyncModalOpen] = React.useState(false);
 
@@ -76,7 +78,7 @@ export function SsoProviderAttributeSyncAlert({
             <AlertDescription>{t('description')}</AlertDescription>
           </div>
         </div>
-        <PermissionDeniedTooltip enabled={!canSync}>
+        <PermissionDeniedTooltip enabled={permissionDenied}>
           <Button
             variant="outline"
             size="default"

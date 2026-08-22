@@ -164,6 +164,7 @@ export interface SsoProviderAttributeSyncAlertProps {
   isSyncing?: boolean;
   customMessages?: Partial<AttributeSyncAlertMessages>;
   canSync?: boolean;
+  permissionDenied?: boolean;
 }
 
 export interface SsoProviderEditViewProps

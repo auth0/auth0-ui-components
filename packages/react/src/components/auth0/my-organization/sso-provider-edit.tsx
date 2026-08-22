@@ -255,6 +255,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 },
               }}
               permissions={permissions}
+              readOnly={readOnly}
             />
           </TabsContent>
 
@@ -262,6 +263,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
             <TabsContent value="provisioning">
               <SsoProvisioningTab
                 provider={provider!}
+                readOnly={readOnly}
                 isProvisioningUpdating={isProvisioningUpdating}
                 isProvisioningDeleting={isProvisioningDeleting}
                 isScimTokensLoading={isScimTokensLoading}

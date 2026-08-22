@@ -26,6 +26,7 @@ import type { SsoDomainTabActionColumn } from '@/types/my-organization/idp-manag
  * @param props.isUpdating - Whether an update operation is in progress
  * @param props.isUpdatingId - ID of the item currently being updated
  * @param props.onToggle - Callback fired when toggle state changes
+ * @param props.readOnly - Whether the component is in read-only mode
  * @returns JSX element
  */
 export function SsoDomainTabActionsColumn({
@@ -38,6 +39,7 @@ export function SsoDomainTabActionsColumn({
   isUpdating,
   isUpdatingId,
   onToggle,
+  readOnly = false,
 }: SsoDomainTabActionColumn) {
   const { t } = useTranslator(translatorKey, customMessages);
   const { t: tCommon } = useTranslator('common');
@@ -46,6 +48,17 @@ export function SsoDomainTabActionsColumn({
   const canToggleDomain = providerHasDomain
     ? permissions.canDissociateDomain
     : permissions.canAssociateDomain;
+  const isVerifyForbidden = !readOnly && !permissions.canVerifyDomain;
+
+  const domainToggle = (
+    <span>
+      <Switch
+        checked={providerHasDomain}
+        onCheckedChange={(checked) => onToggle(domain, checked)}
+        disabled={!canToggleDomain || isUpdating}
+      />
+    </span>
+  );
 
   if (isUpdating && isUpdatingId === domain.id) {
     return (
@@ -57,26 +70,22 @@ export function SsoDomainTabActionsColumn({
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
       {domain.status === 'verified' ? (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span>
-              <Switch
-                checked={providerHasDomain}
-                onCheckedChange={(checked) => onToggle(domain, checked)}
-                disabled={!canToggleDomain || isUpdating}
-              />
-            </span>
-          </TooltipTrigger>
-          <TooltipContent>
-            {!canToggleDomain
-              ? tCommon('error.forbidden')
-              : providerHasDomain
-                ? t('table.actions.disable_domain_tooltip')
-                : t('table.actions.enable_domain_tooltip')}
-          </TooltipContent>
-        </Tooltip>
+        readOnly ? (
+          domainToggle
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>{domainToggle}</TooltipTrigger>
+            <TooltipContent>
+              {!canToggleDomain
+                ? tCommon('error.forbidden')
+                : providerHasDomain
+                  ? t('table.actions.disable_domain_tooltip')
+                  : t('table.actions.enable_domain_tooltip')}
+            </TooltipContent>
+          </Tooltip>
+        )
       ) : (
-        <PermissionDeniedTooltip enabled={!permissions.canVerifyDomain}>
+        <PermissionDeniedTooltip enabled={isVerifyForbidden}>
           <Button
             variant="outline"
             size="sm"
