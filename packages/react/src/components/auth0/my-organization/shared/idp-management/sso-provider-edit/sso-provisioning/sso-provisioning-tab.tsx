@@ -37,6 +37,8 @@ import type { SsoProvisioningTabProps } from '@/types/my-organization/idp-manage
  * @param props.hasProvisioningAttributeSyncWarning - Whether to show attribute sync warning.
  * @param props.onAttributeSync - Callback for attribute sync.
  * @param props.isSyncingAttributes - Whether attribute sync is in progress.
+ * @param props.permissions - What the current user is allowed to do.
+ * @param props.readOnly - Whether the component is in read-only mode
  * @returns SSO provisioning tab content.
  * @internal
  */
@@ -48,11 +50,14 @@ export function SsoProvisioningTab({
   hasProvisioningAttributeSyncWarning,
   onAttributeSync,
   isSyncingAttributes = false,
+  permissions,
+  readOnly = false,
 }: SsoProvisioningTabProps): React.JSX.Element {
   const { t } = useTranslator(
     'idp_management.edit_sso_provider.tabs.provisioning.content',
     customMessages,
   );
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
 
   const {
     provisioningConfig,
@@ -102,7 +107,21 @@ export function SsoProvisioningTab({
 
   const isLoading = isProvisioningLoading || isProvisioningUpdating || isProvisioningDeleting;
   const isProvisioningEnabled = !!provisioningConfig;
-  const enableProvisioningToggle = isLoading || !provider?.id || !provider.is_enabled;
+  const canToggleProvisioning = isProvisioningEnabled
+    ? permissions.canDeleteProvisioning
+    : permissions.canCreateProvisioning;
+  const enableProvisioningToggle =
+    isLoading || !provider?.id || !provider.is_enabled || !canToggleProvisioning;
+
+  const provisioningToggle = (
+    <span>
+      <Switch
+        checked={isProvisioningEnabled}
+        onCheckedChange={handleProvisioningToggle}
+        disabled={enableProvisioningToggle}
+      />
+    </span>
+  );
 
   return (
     <div
@@ -111,6 +130,8 @@ export function SsoProvisioningTab({
     >
       {hasProvisioningAttributeSyncWarning && (
         <SsoProviderAttributeSyncAlert
+          canSync={permissions.canUpdateProvisioning}
+          permissionDenied={!readOnly && !permissions.canUpdateProvisioning}
           translatorKey="idp_management.edit_sso_provider.tabs.provisioning.content.attribute_sync_alert"
           onSync={onAttributeSync}
           isSyncing={isSyncingAttributes}
@@ -133,23 +154,19 @@ export function SsoProvisioningTab({
               <div className="flex items-center gap-2">
                 {isLoading ? (
                   <Spinner className="w-4 h-4" />
+                ) : readOnly ? (
+                  provisioningToggle
                 ) : (
                   <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span>
-                        <Switch
-                          checked={isProvisioningEnabled}
-                          onCheckedChange={handleProvisioningToggle}
-                          disabled={enableProvisioningToggle}
-                        />
-                      </span>
-                    </TooltipTrigger>
+                    <TooltipTrigger asChild>{provisioningToggle}</TooltipTrigger>
                     <TooltipContent>
                       {!provider.is_enabled
                         ? t('header.provider_disabled_tooltip')
-                        : isProvisioningEnabled
-                          ? t('header.disable_provisioning_tooltip')
-                          : t('header.enable_provisioning_tooltip')}
+                        : !canToggleProvisioning
+                          ? tCommon('error.forbidden')
+                          : isProvisioningEnabled
+                            ? t('header.disable_provisioning_tooltip')
+                            : t('header.enable_provisioning_tooltip')}
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -171,6 +188,7 @@ export function SsoProvisioningTab({
               onDeleteScimToken={deleteScimToken}
               customMessages={customMessages.details}
               styling={styling}
+              permissions={permissions}
             />
           )}
         </CardContent>

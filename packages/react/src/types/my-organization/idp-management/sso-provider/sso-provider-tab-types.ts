@@ -4,6 +4,7 @@
  */
 
 import type {
+  IdpManagementPermissions,
   SharedComponentProps,
   IdpKnownResponse,
   OrganizationPrivate,
@@ -57,6 +58,7 @@ export interface SsoProviderTabProps
     SsoProviderTabSchemas
   > {
   formActions: SsoProviderDetailsFormActions;
+  permissions: IdpManagementPermissions;
   idpConfig: GetIdpConfigurationResponseContent | null;
   shouldAllowDeletion: boolean;
   hideDeleteProvider?: boolean;

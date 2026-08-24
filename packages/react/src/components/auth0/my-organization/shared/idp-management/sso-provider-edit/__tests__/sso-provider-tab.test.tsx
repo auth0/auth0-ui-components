@@ -1,9 +1,13 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import { SsoProviderTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-tab';
 import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
+import {
+  ALL_IDP_PERMISSIONS,
+  createIdpPermissions,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { SsoProviderTabProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 
@@ -25,6 +29,7 @@ vi.mock('@/hooks/shared/use-theme', () => ({
 
 describe('SsoProviderTab', () => {
   const mockProps: SsoProviderTabProps = {
+    permissions: ALL_IDP_PERMISSIONS,
     provider: {
       id: 'test-id',
       name: 'Test Provider',
@@ -179,23 +184,79 @@ describe('SsoProviderTab', () => {
     });
   });
 
-  describe('read-only mode', () => {
-    describe('when readOnly is true', () => {
-      it('should disable delete button', () => {
-        const props = { ...mockProps, readOnly: true };
-        renderWithProviders(<SsoProviderTab {...props} />);
+  describe('granted permissions', () => {
+    it('should disable delete without delete:my_org:identity_providers', () => {
+      const props = {
+        ...mockProps,
+        permissions: createIdpPermissions([
+          'read:my_org:identity_providers',
+          'update:my_org:identity_providers',
+          'update:my_org:identity_providers_detach',
+        ]),
+      };
+      renderWithProviders(<SsoProviderTab {...props} />);
 
-        const deleteButton = screen.getByRole('button', { name: 'delete_button_label' });
-        expect(deleteButton).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'delete_button_label' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'remove_button_label' })).toBeEnabled();
+    });
+
+    it('should disable remove without update:my_org:identity_providers_detach', () => {
+      const props = {
+        ...mockProps,
+        permissions: createIdpPermissions([
+          'read:my_org:identity_providers',
+          'update:my_org:identity_providers',
+          'delete:my_org:identity_providers',
+        ]),
+      };
+      renderWithProviders(<SsoProviderTab {...props} />);
+
+      expect(screen.getByRole('button', { name: 'remove_button_label' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'delete_button_label' })).toBeEnabled();
+    });
+
+    it('should keep destructive actions available without update:my_org:identity_providers', () => {
+      const props = {
+        ...mockProps,
+        permissions: createIdpPermissions([
+          'read:my_org:identity_providers',
+          'delete:my_org:identity_providers',
+          'update:my_org:identity_providers_detach',
+        ]),
+      };
+      renderWithProviders(<SsoProviderTab {...props} />);
+
+      expect(screen.getByRole('button', { name: 'delete_button_label' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'remove_button_label' })).toBeEnabled();
+    });
+
+    it.each([
+      { label: 'delete_button_label', scopes: ['read:my_org:identity_providers'] },
+      { label: 'remove_button_label', scopes: ['read:my_org:identity_providers'] },
+    ] as const)('should explain why $label is unavailable', async ({ label, scopes }) => {
+      const user = userEvent.setup();
+      const props = { ...mockProps, permissions: createIdpPermissions(scopes) };
+      renderWithProviders(<SsoProviderTab {...props} />);
+
+      const button = screen.getByRole('button', { name: label });
+      expect(button).toBeDisabled();
+
+      await user.hover(button.parentElement!);
+
+      await waitFor(() => {
+        expect(screen.getAllByText('error.forbidden').length).toBeGreaterThan(0);
       });
+    });
 
-      it('should disable remove button', () => {
-        const props = { ...mockProps, readOnly: true };
-        renderWithProviders(<SsoProviderTab {...props} />);
+    it('should disable every destructive action for a viewer', () => {
+      const props = {
+        ...mockProps,
+        permissions: createIdpPermissions(['read:my_org:identity_providers']),
+      };
+      renderWithProviders(<SsoProviderTab {...props} />);
 
-        const removeButton = screen.getByRole('button', { name: 'remove_button_label' });
-        expect(removeButton).toBeDisabled();
-      });
+      expect(screen.getByRole('button', { name: 'delete_button_label' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'remove_button_label' })).toBeDisabled();
     });
   });
 

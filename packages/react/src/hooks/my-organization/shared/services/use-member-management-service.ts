@@ -23,7 +23,7 @@ import { DEFAULT_ROLES_PAGE_SIZE } from '@/lib/constants/my-organization/member-
 import { isIdpKnownResponse } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import {
   isValidUserId,
-  validateRequestRoleForMember,
+  validateMemberRoleLimit,
 } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type {
@@ -166,16 +166,20 @@ export function useMemberManagementService(
       invitationParams?.sortConfig,
     ],
     queryFn: async () => {
-      const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list({
-        take: invitationParams!.pageSize,
-        from: invitationParams!.fromToken,
-        sort: buildSortParam(invitationParams!.sortConfig),
-      });
+      const page = await coreClient!.getMyOrganizationApiClient().organization.invitations.list(
+        {
+          take: invitationParams!.pageSize,
+          from: invitationParams!.fromToken,
+          sort: buildSortParam(invitationParams!.sortConfig),
+        },
+        { queryParams: { include_totals: true } },
+      );
 
       const invitations: MemberInvitation[] = page.data;
       const next = page.response.next ?? null;
+      const { total, total_is_capped: totalIsCapped } = page.response;
 
-      return { invitations, next };
+      return { invitations, next, total, totalIsCapped };
     },
     enabled: !!coreClient && isInvitationsTabActive && !!invitationParams,
     ...keepPreviousDataOption,
@@ -188,14 +192,19 @@ export function useMemberManagementService(
       memberParams?.fromToken,
     ],
     queryFn: async () => {
-      const page = await coreClient!.getMyOrganizationApiClient().organization.members.list({
-        take: memberParams!.pageSize,
-        from: memberParams!.fromToken,
-        fields: MEMBER_LIST_FIELDS,
-      });
+      const page = await coreClient!.getMyOrganizationApiClient().organization.members.list(
+        {
+          take: memberParams!.pageSize,
+          from: memberParams!.fromToken,
+          fields: MEMBER_LIST_FIELDS,
+        },
+        { queryParams: { include_totals: true } },
+      );
       const members: OrgMember[] = page.data;
       const next = members.length < memberParams!.pageSize ? null : page.response.next;
-      return { members, next };
+      const { total, total_is_capped: totalIsCapped } = page.response;
+
+      return { members, next, total, totalIsCapped };
     },
     enabled: !!coreClient && !isInvitationsTabActive && !!memberParams,
     ...keepPreviousDataOption,
@@ -232,7 +241,7 @@ export function useMemberManagementService(
       userId?: string | null;
     }) => {
       if (!userId) throw new Error('userId is required');
-      const validationResult = validateRequestRoleForMember(t, roleIds, memberRoles, true);
+      const validationResult = validateMemberRoleLimit(t, roleIds, memberRoles);
       if (validationResult?.aborted) {
         return validationResult;
       }
@@ -251,9 +260,8 @@ export function useMemberManagementService(
       if (result?.aborted) return;
       if (!userId) return;
       const searchedRoles =
-        queryClient.getQueryData<Role[]>(
-          memberManagementQueryKeys.rolesSearch(debouncedRoleSearchTerm),
-        ) ?? [];
+        queryClient.getQueryData<Role[]>(memberManagementQueryKeys.rolesSearch(roleSearchTerm)) ??
+        [];
       const newRoles = searchedRoles.filter((r) => roleIds.includes(r.id));
       queryClient.setQueryData<Role[]>(memberManagementQueryKeys.memberRoles(userId), (old) => [
         ...(old ?? []),

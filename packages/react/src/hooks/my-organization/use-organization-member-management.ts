@@ -4,15 +4,20 @@
  */
 
 import type { Role } from '@auth0/universal-components-core';
-import { type MemberInvitation } from '@auth0/universal-components-core';
+import {
+  getMemberManagementPermissions,
+  type MemberInvitation,
+} from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
+import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { ROLES_PREFETCH_THRESHOLD } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import { formatMemberCount } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   ConnectionOption,
@@ -47,7 +52,13 @@ export function useOrganizationMemberManagement(
     removeFromOrganizationAction,
   } = options;
 
-  const { t } = useTranslator('member_management', customMessages);
+  const { t, currentLanguage: locale } = useTranslator('member_management', customMessages);
+  const { createPermissionResolver } = usePermissions();
+
+  const permissions = React.useMemo(
+    () => createPermissionResolver(getMemberManagementPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
 
   const [activeTab, setActiveTab] = React.useState<ActiveTab>('members');
 
@@ -163,12 +174,19 @@ export function useOrganizationMemberManagement(
   const invitationNextToken = invitationsQuery.data?.next ?? null;
   const memberNextToken = membersQuery.data?.next ?? null;
   const organizationDisplayName = organizationQuery.data?.display_name ?? '';
+  const invitationTotal = invitationsQuery.data?.total;
+  const memberTotal = membersQuery.data?.total;
+  const invitationTotalIsCapped = invitationsQuery.data?.totalIsCapped;
+  const memberTotalIsCapped = membersQuery.data?.totalIsCapped;
 
   const openModal = React.useCallback(
     async (state: MemberManagementModalState) => {
-      if (state.type === 'create' && readOnly) return;
-      if ((state.type === 'revoke' || state.type === 'revokeResend') && readOnly) return;
-      if (state.type === 'bulkRevoke' && readOnly) return;
+      if (state.type === 'create' && !permissions.canInvite) return;
+      if (state.type === 'revoke' && !permissions.canRevokeInvitation) return;
+      if (state.type === 'revokeResend' && !permissions.canResendInvitation) return;
+      if (state.type === 'assignRole' && !permissions.canAssignRole) return;
+      if (state.type === 'removeFromOrganization' && !permissions.canRemoveFromOrganization) return;
+      if (state.type === 'bulkRevoke' && !permissions.canRevokeInvitation) return;
       setModalState(state);
 
       if (state.type === 'details') {
@@ -185,7 +203,7 @@ export function useOrganizationMemberManagement(
         }
       }
     },
-    [readOnly, fetchInvitationDetails, t],
+    [permissions, fetchInvitationDetails, t],
   );
 
   const closeModal = React.useCallback(() => {
@@ -324,6 +342,7 @@ export function useOrganizationMemberManagement(
 
   return {
     activeTab,
+    permissions,
     searchedRoles,
     onRoleSearch: setRoleSearchTerm,
     availableConnections,
@@ -357,12 +376,16 @@ export function useOrganizationMemberManagement(
     invitationPagination: {
       pageSize: invitationPageSize,
       currentPage: invitationCurrentPage,
+      totalItems: invitationTotal,
+      totalItemsDisplay: formatMemberCount(invitationTotal, invitationTotalIsCapped, t, locale),
       hasNextPage: !!invitationNextToken,
       hasPreviousPage: invitationHasPreviousPage,
     },
     memberPagination: {
       pageSize: memberPageSize,
       currentPage: memberCurrentPage,
+      totalItems: memberTotal,
+      totalItemsDisplay: formatMemberCount(memberTotal, memberTotalIsCapped, t, locale),
       hasNextPage: !!memberNextToken,
       hasPreviousPage: memberHasPreviousPage,
     },

@@ -200,10 +200,12 @@ export function OrganizationDetails({
                     formActions?.previousAction?.disabled || formActions.isLoading || readOnly,
                   onClick: handlePreviousAction,
                 }}
+                showNext={formActions?.showNext}
                 showPrevious={formActions?.showPrevious}
                 unsavedChangesText={t('unsaved_changes_text')}
                 showUnsavedChanges={formActions?.showUnsavedChanges}
                 align={formActions?.align}
+                nextActionTooltip={formActions?.nextActionTooltip}
                 className={currentStyles.classes?.OrganizationDetails_FormActions}
               />
             </div>

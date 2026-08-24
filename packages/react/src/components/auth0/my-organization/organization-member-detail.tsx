@@ -99,6 +99,7 @@ export function OrganizationMemberDetailView(
     setActiveTab,
     closeModal,
     openModal,
+    readOnly,
     handleRemoveFromOrganizationConfirm,
   } = props;
 
@@ -177,7 +178,9 @@ export function OrganizationMemberDetailView(
               member={props.member}
               customMessages={customMessages}
               isRemovingFromOrganization={isRemovingFromOrganization}
+              permissions={props.permissions}
               onRemoveFromOrganizationClick={handleRemoveFromOrganizationClick}
+              readOnly={readOnly}
             />
           </TabsContent>
 
@@ -190,6 +193,7 @@ export function OrganizationMemberDetailView(
               organizationName={props.organizationDisplayName}
               memberName={props.member?.name}
               selectedMember={props.member}
+              readOnly={readOnly}
               memberRoles={props.memberRoles}
               searchedRoles={props.searchedRoles}
               onRoleSearch={props.onRoleSearch}
@@ -199,6 +203,7 @@ export function OrganizationMemberDetailView(
               isRemovingRoles={props.isRemovingRoles}
               modalState={modalState}
               isAssigningRoles={props.isAssigningRoles}
+              permissions={props.permissions}
               isSearchingRoles={props.isSearchingRoles}
               classes={currentStyles.classes}
               style={currentStyles.variables}
@@ -241,6 +246,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     onBack,
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
+    readOnly = false,
     initialTab,
     removeFromOrganizationAction,
     assignRolesAction,
@@ -251,6 +257,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     userId,
     onBack,
     customMessages,
+    readOnly,
     initialTab,
     removeFromOrganizationAction,
     assignRolesAction,
@@ -262,6 +269,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
       <OrganizationMemberDetailView
         {...memberDetail}
         styling={styling}
+        readOnly={readOnly}
         customMessages={customMessages}
       />
     </GateKeeper>

@@ -10,6 +10,7 @@ import type {
   SsoProviderTableMessages,
   IdpKnownResponse,
   OrganizationPrivate,
+  IdpManagementPermissions,
 } from '@auth0/universal-components-core';
 import type { UseQueryResult } from '@tanstack/react-query';
 
@@ -84,6 +85,7 @@ export interface UseSsoProviderTableOptions {
 
 /** useSsoProviderTable hook result. */
 export interface UseSsoProviderTableReturn {
+  permissions: IdpManagementPermissions;
   providers: IdpKnownResponse[];
   organization: OrganizationPrivate | null;
 
@@ -129,6 +131,7 @@ export interface SsoProviderTableActionsColumnProps
     SsoProviderTableSchema
   > {
   provider: IdpKnownResponse;
+  permissions: IdpManagementPermissions;
   shouldAllowDeletion: boolean;
   hideDeleteProvider?: boolean;
   hideRemoveFromOrganization?: boolean;
@@ -146,7 +149,7 @@ export interface SsoProviderTableActionsColumnProps
 export interface SsoProviderTableViewProps extends UseSsoProviderTableReturn {
   styling: SsoProviderTableProps['styling'];
   customMessages: SsoProviderTableProps['customMessages'];
-  readOnly: boolean;
+  readOnly: SsoProviderTableProps['readOnly'];
   hideHeader: boolean;
   hideDeleteProvider?: boolean;
   hideRemoveFromOrganization?: boolean;

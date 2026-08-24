@@ -7,6 +7,7 @@ import type {
   ComponentAction,
   SharedComponentProps,
   MemberInvitation,
+  MemberManagementPermissions,
   OrganizationMemberManagementMessages,
   Role,
   OrgMember,
@@ -33,6 +34,7 @@ export interface MemberManagementPaginationState {
   pageSize: number;
   currentPage: number;
   totalItems?: number;
+  totalItemsDisplay?: string;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
 }
@@ -88,10 +90,14 @@ export interface MemberManagementServiceResult {
   invitationsQuery: UseQueryResult<{
     invitations: MemberInvitation[];
     next: string | null;
+    total?: number;
+    totalIsCapped?: boolean;
   }>;
   membersQuery: UseQueryResult<{
     members: OrgMember[];
     next: string | undefined | null;
+    total?: number;
+    totalIsCapped?: boolean;
   }>;
   organizationQuery: UseQueryResult<OrganizationPrivate>;
   assignRolesMutation: UseMutationResult<
@@ -149,6 +155,7 @@ export type MemberManagementModalState =
 
 export interface UseOrganizationMemberManagementResult {
   activeTab: ActiveTab;
+  permissions: MemberManagementPermissions;
   searchedRoles: Role[];
   onRoleSearch: (term: string) => void;
   availableConnections: ConnectionOption[];

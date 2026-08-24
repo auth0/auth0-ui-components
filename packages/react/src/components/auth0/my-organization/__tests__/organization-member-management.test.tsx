@@ -535,7 +535,7 @@ describe('OrganizationMemberManagement', () => {
   });
 
   describe('readOnly mode in invitations', () => {
-    it('should not show action buttons in invitations tab when readOnly', async () => {
+    it('should not render the invite button in the invitations tab when readOnly', async () => {
       const user = userEvent.setup();
 
       renderWithProviders(

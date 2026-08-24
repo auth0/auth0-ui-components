@@ -88,7 +88,7 @@ describe('useMemberManagementService', () => {
 
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list,
-      ).toHaveBeenCalledWith({ member_access_level: ['full'] });
+      ).toHaveBeenCalledWith({ member_access_level: ['limited', 'full'] });
     });
 
     it('should not fetch identity providers when members tab is active', async () => {
@@ -142,7 +142,7 @@ describe('useMemberManagementService', () => {
 
       expect(userStoresGetMock()).toHaveBeenCalledWith({
         is_enabled: true,
-        member_access_level: ['full'],
+        member_access_level: ['limited', 'full'],
       });
     });
 
@@ -357,6 +357,7 @@ describe('useMemberManagementService', () => {
           from: undefined,
           sort: undefined,
         }),
+        expect.objectContaining({ queryParams: { include_totals: true } }),
       );
     });
 
@@ -388,6 +389,7 @@ describe('useMemberManagementService', () => {
         expect.objectContaining({
           sort: 'created_at:-1',
         }),
+        expect.objectContaining({ queryParams: { include_totals: true } }),
       );
     });
 
@@ -412,6 +414,7 @@ describe('useMemberManagementService', () => {
         expect.objectContaining({
           from: 'token_abc',
         }),
+        expect.objectContaining({ queryParams: { include_totals: true } }),
       );
     });
 
@@ -434,7 +437,44 @@ describe('useMemberManagementService', () => {
       expect(result.current.invitationsQuery.data).toEqual({
         invitations: [mockInvitation],
         next: 'next_token',
+        total: undefined,
       });
+    });
+
+    it('should return the invitation total when the API includes it', async () => {
+      const mockInvitation = createMockInvitation();
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.list = vi
+        .fn()
+        .mockResolvedValue({
+          data: [mockInvitation],
+          response: { next: null, total: 25 },
+        });
+
+      const { result } = renderService(createDefaultOptions());
+
+      await waitFor(() => {
+        expect(result.current.invitationsQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.invitationsQuery.data?.total).toBe(25);
+    });
+
+    it('should leave the invitation total undefined when the API omits it', async () => {
+      const mockInvitation = createMockInvitation();
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.list = vi
+        .fn()
+        .mockResolvedValue({
+          data: [mockInvitation],
+          response: { next: null },
+        });
+
+      const { result } = renderService(createDefaultOptions());
+
+      await waitFor(() => {
+        expect(result.current.invitationsQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.invitationsQuery.data?.total).toBeUndefined();
     });
   });
 
@@ -829,7 +869,7 @@ describe('useMemberManagementService', () => {
       const { result } = renderService(options);
 
       await waitFor(() => {
-        expect(result.current.rolesQuery.isSuccess).toBe(true);
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
       });
 
       expect(result.current.memberRolesQuery.fetchStatus).toBe('idle');
@@ -844,7 +884,7 @@ describe('useMemberManagementService', () => {
       const { result } = renderService(options);
 
       await waitFor(() => {
-        expect(result.current.rolesQuery.isSuccess).toBe(true);
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
       });
 
       expect(result.current.memberRolesQuery.fetchStatus).toBe('idle');
@@ -859,7 +899,7 @@ describe('useMemberManagementService', () => {
       const { result } = renderService(options);
 
       await waitFor(() => {
-        expect(result.current.rolesQuery.isSuccess).toBe(true);
+        expect(result.current.rolesSearchQuery.isSuccess).toBe(true);
       });
 
       expect(result.current.memberRolesQuery.fetchStatus).toBe('idle');

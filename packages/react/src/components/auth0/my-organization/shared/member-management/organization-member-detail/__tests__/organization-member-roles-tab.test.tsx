@@ -1,15 +1,21 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, assert, describe, expect, it, vi } from 'vitest';
 
 import { OrganizationMemberEditRolesTab } from '../organization-member-roles-tab';
 
+import { MAX_ROLES_PER_REQUEST } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import {
   createMockAvailableRoles,
   createMockMember,
   createMockMemberRole,
   createMockMemberRoles,
 } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import {
+  createMemberPermissions,
+  ALL_MEMBER_PERMISSIONS,
+  READ_ONLY_MEMBER_PERMISSIONS,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
 import type { MemberDetailModalState } from '@/types/my-organization/member-management/organization-member-detail-types';
@@ -29,6 +35,7 @@ const createProps = (overrides = {}) => ({
   removingRoleIds: [],
   isAssigningRoles: false,
   modalState: noModal,
+  permissions: ALL_MEMBER_PERMISSIONS,
   onSelectedRolesChange: vi.fn(),
   onAssignRolesClick: vi.fn(),
   onAssignRolesCancel: vi.fn(),
@@ -93,7 +100,7 @@ describe('OrganizationMemberEditRolesTab', () => {
     it('when 1 role selected shows selection label and bulk remove button; hides assign button', () => {
       const roles = createMockMemberRoles();
       renderWithProviders(
-        <OrganizationMemberEditRolesTab {...createProps({ selectedRoles: [roles[0]!] })} />,
+        <OrganizationMemberEditRolesTab {...createProps({ selectedRoles: roles.slice(0, 1) })} />,
       );
       expect(screen.getByText('member.detail.roles.roles_selected')).toBeInTheDocument();
       expect(
@@ -118,7 +125,12 @@ describe('OrganizationMemberEditRolesTab', () => {
       renderWithProviders(
         <OrganizationMemberEditRolesTab {...createProps({ onSelectedRolesChange })} />,
       );
-      await user.click(screen.getAllByRole('checkbox', { name: 'data_table.select_row' })[0]!);
+      const [firstRowCheckbox] = screen.getAllByRole('checkbox', {
+        name: 'data_table.select_row',
+      });
+      assert(firstRowCheckbox);
+
+      await user.click(firstRowCheckbox);
       expect(onSelectedRolesChange).toHaveBeenCalled();
     });
   });
@@ -131,10 +143,12 @@ describe('OrganizationMemberEditRolesTab', () => {
         <OrganizationMemberEditRolesTab {...createProps({ onRemoveRolesClick })} />,
       );
       // aria-label is the raw i18n key (mock translator has no interpolation)
-      const removeButtons = screen.getAllByRole('button', {
+      const [firstRemoveButton] = screen.getAllByRole('button', {
         name: 'member.detail.roles.table.remove_button_label',
       });
-      await user.click(removeButtons[0]!);
+      assert(firstRemoveButton);
+
+      await user.click(firstRemoveButton);
       expect(onRemoveRolesClick).toHaveBeenCalledWith(
         expect.arrayContaining([expect.objectContaining({ name: 'Admin' })]),
       );
@@ -279,6 +293,99 @@ describe('OrganizationMemberEditRolesTab', () => {
     });
   });
 
+  describe('granted permissions', () => {
+    const assignButtonName = 'member.detail.roles.assign_button';
+
+    const ROLE_SCOPES = ['create:my_org:member_roles', 'delete:my_org:member_roles'] as const;
+
+    describe('when create and delete member_roles are both granted', () => {
+      it('enables the assign roles button', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({ permissions: createMemberPermissions(ROLE_SCOPES) })}
+          />,
+        );
+
+        expect(screen.getByRole('button', { name: assignButtonName })).toBeEnabled();
+      });
+
+      it('enables the per-role remove buttons', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({ permissions: createMemberPermissions(ROLE_SCOPES) })}
+          />,
+        );
+
+        const [removeButton] = screen.getAllByRole('button', {
+          name: /member\.detail\.roles\.table\.remove_button_label/,
+        });
+        expect(removeButton).toBeEnabled();
+      });
+    });
+
+    describe('when delete:my_org:member_roles is granted without create', () => {
+      it('enables the per-role remove buttons but disables assign', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({
+              permissions: createMemberPermissions(['delete:my_org:member_roles']),
+            })}
+          />,
+        );
+
+        const [removeButton] = screen.getAllByRole('button', {
+          name: /member\.detail\.roles\.table\.remove_button_label/,
+        });
+        expect(removeButton).toBeEnabled();
+        expect(screen.getByRole('button', { name: assignButtonName })).toBeDisabled();
+      });
+    });
+
+    describe('when create:my_org:member_roles is granted without delete', () => {
+      it('enables assign but disables the per-role remove buttons', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({
+              permissions: createMemberPermissions(['create:my_org:member_roles']),
+            })}
+          />,
+        );
+
+        expect(screen.getByRole('button', { name: assignButtonName })).toBeEnabled();
+
+        const [removeButton] = screen.getAllByRole('button', {
+          name: /member\.detail\.roles\.table\.remove_button_label/,
+        });
+        expect(removeButton).toBeDisabled();
+      });
+    });
+
+    describe('when only read permissions are granted', () => {
+      it('keeps assign visible but disabled', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({ permissions: READ_ONLY_MEMBER_PERMISSIONS })}
+          />,
+        );
+
+        expect(screen.getByRole('button', { name: assignButtonName })).toBeDisabled();
+      });
+
+      it('keeps the per-role remove buttons visible but disabled', () => {
+        renderWithProviders(
+          <OrganizationMemberEditRolesTab
+            {...createProps({ permissions: READ_ONLY_MEMBER_PERMISSIONS })}
+          />,
+        );
+
+        const [removeButton] = screen.getAllByRole('button', {
+          name: /member\.detail\.roles\.table\.remove_button_label/,
+        });
+        expect(removeButton).toBeDisabled();
+      });
+    });
+  });
+
   describe('Access Level Gating', () => {
     it('disables Assign Roles button when member has readonly access_level', () => {
       const member = createMockMember({ access_level: 'readonly' });
@@ -296,7 +403,7 @@ describe('OrganizationMemberEditRolesTab', () => {
       const roles = createMockMemberRoles();
       renderWithProviders(
         <OrganizationMemberEditRolesTab
-          {...createProps({ selectedMember: member, selectedRoles: [roles[0]!] })}
+          {...createProps({ selectedMember: member, selectedRoles: roles.slice(0, 1) })}
         />,
       );
       const removeButton = screen.getByRole('button', {
@@ -356,6 +463,161 @@ describe('OrganizationMemberEditRolesTab', () => {
       expect(
         screen.getAllByRole('checkbox', { name: 'data_table.select_row' }).length,
       ).toBeGreaterThan(0);
+    });
+  });
+
+  describe('selection limit', () => {
+    // The roles table is unpaginated and a member can hold up to MAX_ROLES_PER_MEMBER (50), so
+    // this fixture is the worst case the cap exists for.
+    const manyRoles = Array.from({ length: 50 }, (_, i) =>
+      createMockMemberRole({
+        id: `rol_${i}`,
+        name: `Role ${i}`,
+        description: `Description ${i}`,
+      }),
+    );
+
+    it('disables unselected checkboxes once MAX_ROLES_PER_REQUEST roles are selected', () => {
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab
+          {...createProps({
+            memberRoles: manyRoles,
+            selectedRoles: manyRoles.slice(0, MAX_ROLES_PER_REQUEST),
+          })}
+        />,
+      );
+
+      const checkboxes = screen.getAllByRole('checkbox', { name: 'data_table.select_row' });
+
+      // The first 10 are the selected ones — they must stay interactive so the selection is
+      // reversible (parent AC: already-selected items can still be deselected).
+      checkboxes.slice(0, MAX_ROLES_PER_REQUEST).forEach((cb) => expect(cb).not.toBeDisabled());
+      checkboxes.slice(MAX_ROLES_PER_REQUEST).forEach((cb) => expect(cb).toBeDisabled());
+    });
+
+    it('shows the limit message on hover over a disabled checkbox', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab
+          {...createProps({
+            memberRoles: manyRoles,
+            selectedRoles: manyRoles.slice(0, MAX_ROLES_PER_REQUEST),
+          })}
+        />,
+      );
+
+      // Hover the wrapper span, not the checkbox: browsers suppress mouse events originating on a
+      // disabled control, which is why the tooltip trigger wraps it.
+      const overCapWrapper = screen.getAllByRole('checkbox', { name: 'data_table.select_row' })[
+        MAX_ROLES_PER_REQUEST
+      ]?.parentElement;
+      assert(overCapWrapper);
+
+      await user.hover(overCapWrapper);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent(
+          'member.detail.roles.max_selection_message',
+        );
+      });
+    });
+
+    it('does not disable any checkbox below the limit', () => {
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab
+          {...createProps({
+            memberRoles: manyRoles,
+            selectedRoles: manyRoles.slice(0, MAX_ROLES_PER_REQUEST - 1),
+          })}
+        />,
+      );
+
+      screen
+        .getAllByRole('checkbox', { name: 'data_table.select_row' })
+        .forEach((cb) => expect(cb).not.toBeDisabled());
+      expect(
+        screen.queryByText('member.detail.roles.max_selection_message'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('clamps select-all to MAX_ROLES_PER_REQUEST instead of selecting all 50 roles', async () => {
+      const user = userEvent.setup();
+      const onSelectedRolesChange = vi.fn();
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab
+          {...createProps({ memberRoles: manyRoles, onSelectedRolesChange })}
+        />,
+      );
+
+      await user.click(screen.getByRole('checkbox', { name: 'data_table.select_all' }));
+
+      expect(onSelectedRolesChange).toHaveBeenCalledTimes(1);
+      expect(onSelectedRolesChange.mock.calls[0]?.[0]).toHaveLength(MAX_ROLES_PER_REQUEST);
+    });
+
+    it('keeps an already-selected role past the cap boundary when select-all clamps', async () => {
+      const user = userEvent.setup();
+      const onSelectedRolesChange = vi.fn();
+      // Row 40 sits well past the cap, so a naive `slice(0, 10)` would silently discard it.
+      const preSelected = manyRoles.slice(40, 41);
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab
+          {...createProps({
+            memberRoles: manyRoles,
+            selectedRoles: preSelected,
+            onSelectedRolesChange,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByRole('checkbox', { name: 'data_table.select_all' }));
+
+      const emitted = onSelectedRolesChange.mock.calls[0]?.[0] as { id: string }[];
+      expect(emitted).toHaveLength(MAX_ROLES_PER_REQUEST);
+      expect(emitted.map((role) => role.id)).toContain('rol_40');
+    });
+
+    it('leaves the select-all checkbox enabled when every role is already selected', () => {
+      const allTen = manyRoles.slice(0, MAX_ROLES_PER_REQUEST);
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab
+          {...createProps({ memberRoles: allTen, selectedRoles: allTen })}
+        />,
+      );
+
+      // At the cap *and* fully selected: the click clears the selection, so disabling it here
+      // would trap the user with no way out.
+      expect(screen.getByRole('checkbox', { name: 'data_table.select_all' })).not.toBeDisabled();
+    });
+
+    it('disables the select-all checkbox at the cap while roles remain unselected', () => {
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab
+          {...createProps({
+            memberRoles: manyRoles,
+            selectedRoles: manyRoles.slice(0, MAX_ROLES_PER_REQUEST),
+          })}
+        />,
+      );
+
+      expect(screen.getByRole('checkbox', { name: 'data_table.select_all' })).toBeDisabled();
+    });
+
+    it('ignores the cap for a readonly member, where selection is disabled entirely', () => {
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab
+          {...createProps({
+            selectedMember: createMockMember({ access_level: 'readonly' }),
+            memberRoles: manyRoles,
+            selectedRoles: manyRoles.slice(0, MAX_ROLES_PER_REQUEST),
+          })}
+        />,
+      );
+
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('member.detail.roles.max_selection_message'),
+      ).not.toBeInTheDocument();
     });
   });
 });
