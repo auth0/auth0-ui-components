@@ -137,8 +137,17 @@ describe('OrganizationInvitationCreateModal', () => {
   });
 
   describe('email chip tokenization', () => {
-    const getEmailInput = () =>
-      screen.getByPlaceholderText('invitation.create.email_placeholder') as HTMLInputElement;
+    const getEmailInput = () => screen.getByLabelText(/invitation\.create\.email_label/);
+
+    const removeChip = async (user: ReturnType<typeof userEvent.setup>, label: string) => {
+      const chip = screen.getByText(label).closest('[data-slot="chip"]');
+
+      if (!(chip instanceof HTMLElement)) {
+        throw new Error(`No chip rendered for "${label}".`);
+      }
+
+      await user.click(within(chip).getByRole('button'));
+    };
 
     it('should turn the typed email into a chip when a comma is typed', async () => {
       const user = userEvent.setup();
@@ -245,8 +254,7 @@ describe('OrganizationInvitationCreateModal', () => {
       await user.click(getEmailInput());
       await user.paste(Array.from({ length: 12 }, (_, i) => `user${i}@email.com`).join(','));
 
-      const chip = screen.getByText('user0@email.com').closest('[data-slot="chip"]');
-      await user.click(within(chip as HTMLElement).getByRole('button'));
+      await removeChip(user, 'user0@email.com');
 
       expect(screen.getByText('user10@email.com')).toBeInTheDocument();
       expect(getEmailInput()).toHaveValue('user11@email.com');
@@ -261,38 +269,70 @@ describe('OrganizationInvitationCreateModal', () => {
       await user.click(getEmailInput());
       await user.paste(Array.from({ length: 12 }, (_, i) => `user${i}@email.com`).join(','));
 
-      const removeChip = async (label: string) => {
-        const chip = screen.getByText(label).closest('[data-slot="chip"]');
-        await user.click(within(chip as HTMLElement).getByRole('button'));
-      };
-
-      await removeChip('user0@email.com');
-      await removeChip('user1@email.com');
+      await removeChip(user, 'user0@email.com');
+      await removeChip(user, 'user1@email.com');
 
       expect(screen.getByText('user11@email.com')).toBeInTheDocument();
       expect(getEmailInput()).toHaveValue('');
       expect(screen.queryByText('invitation.create.email_limit_error')).not.toBeInTheDocument();
     });
 
-    it('should chip each address separately when Enter commits a field holding several', async () => {
+    it('should chip the undelimited address when Enter commits the field', async () => {
       const user = userEvent.setup();
 
       renderWithProviders(<OrganizationInvitationCreateModal {...createMockCreateModalProps()} />);
 
-      // Fill to the limit, then drop a chip so the two addresses left in the field can fit.
-      await user.click(getEmailInput());
-      await user.paste(Array.from({ length: 12 }, (_, i) => `user${i}@email.com`).join(','));
-      expect(getEmailInput()).toHaveValue('user10@email.com, user11@email.com');
+      await user.type(getEmailInput(), 'test1@email.com');
 
-      const chip = screen.getByText('user0@email.com').closest('[data-slot="chip"]');
-      await user.click(within(chip as HTMLElement).getByRole('button'));
+      expect(screen.queryByText('test1@email.com')).not.toBeInTheDocument();
 
-      await user.click(getEmailInput());
       await user.keyboard('{Enter}');
 
-      expect(screen.getByText('user10@email.com')).toBeInTheDocument();
-      expect(screen.queryByText('user10@email.com, user11@email.com')).not.toBeInTheDocument();
-      expect(getEmailInput()).toHaveValue('user11@email.com');
+      expect(screen.getByText('test1@email.com')).toBeInTheDocument();
+      expect(getEmailInput()).toHaveValue('');
+    });
+
+    it('should report a duplicate rather than the limit when the chip list is full', async () => {
+      const user = userEvent.setup();
+      const emails = Array.from({ length: 10 }, (_, i) => `user${i}@email.com`);
+
+      renderWithProviders(<OrganizationInvitationCreateModal {...createMockCreateModalProps()} />);
+
+      await user.click(getEmailInput());
+      await user.paste(`${emails.join(',')},`);
+      await user.paste('user0@email.com,');
+
+      expect(screen.getByText('invitation.create.email_duplicate_error')).toBeInTheDocument();
+      expect(screen.queryByText('invitation.create.email_limit_error')).not.toBeInTheDocument();
+      expect(screen.getAllByText('user0@email.com')).toHaveLength(1);
+      expect(getEmailInput()).toHaveValue('');
+    });
+
+    it('should submit a full chip list when the pending address duplicates a chip', async () => {
+      const user = userEvent.setup();
+      const onCreate = vi.fn();
+      const emails = Array.from({ length: 10 }, (_, i) => `user${i}@email.com`);
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            availableConnections: createMockConnections(),
+            onCreate,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getByText('Google'));
+
+      await user.click(getEmailInput());
+      await user.paste(`${emails.join(',')},`);
+      await user.type(getEmailInput(), 'user0@email.com');
+
+      await user.click(screen.getByRole('button', { name: 'invitation.create.submit_button' }));
+
+      expect(onCreate).toHaveBeenCalledTimes(1);
+      expect(onCreate.mock.calls[0]![0].invitees).toHaveLength(emails.length);
     });
 
     it('should block submit while addresses past the limit remain in the field', async () => {

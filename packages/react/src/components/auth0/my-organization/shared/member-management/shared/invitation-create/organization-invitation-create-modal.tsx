@@ -121,15 +121,15 @@ export function OrganizationInvitationCreateModal({
       let overflowFrom = emails.length;
 
       for (const [index, email] of emails.entries()) {
+        if (nextChips.some((chip) => chip.value === email)) {
+          error = t('invitation.create.email_duplicate_error');
+          continue;
+        }
+
         if (nextChips.length >= validationConfig.maxEmails) {
           error = t('invitation.create.email_limit_error');
           overflowFrom = index;
           break;
-        }
-
-        if (nextChips.some((chip) => chip.value === email)) {
-          error = t('invitation.create.email_duplicate_error');
-          continue;
         }
 
         if (validationConfig.emailSchema.safeParse(email).success) {
@@ -222,21 +222,20 @@ export function OrganizationInvitationCreateModal({
       .filter((chip) => chip.variant !== 'destructive')
       .map((chip) => chip.value);
 
-    if (emailInput.trim()) {
-      const trimmedEmail = emailInput.trim();
+    const trimmedEmail = emailInput.trim();
 
+    if (trimmedEmail && !finalEmails.includes(trimmedEmail)) {
       if (finalEmails.length >= validationConfig.maxEmails) {
         setEmailError(t('invitation.create.email_limit_error'));
         return;
       }
 
-      const result = validationConfig.emailSchema.safeParse(trimmedEmail);
-      if (result.success && !finalEmails.includes(trimmedEmail)) {
-        finalEmails.push(trimmedEmail);
-      } else if (!result.success) {
+      if (!validationConfig.emailSchema.safeParse(trimmedEmail).success) {
         setEmailError(t('invitation.create.email_invalid_error'));
         return;
       }
+
+      finalEmails.push(trimmedEmail);
     }
 
     if (finalEmails.length === 0) {
