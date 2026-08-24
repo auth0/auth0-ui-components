@@ -559,7 +559,7 @@ describe('SSO Provider Create Schema', () => {
         signSAMLRequest: true,
         bindingMethod: 'POST',
         metadataUrl: 'https://idp.example.com/metadata',
-        cert: 'MIIC...certificate...',
+        signingCert: 'MIIC...certificate...',
         icon_url: 'https://example.com/icon.png',
         show_as_button: true,
       };
@@ -591,14 +591,14 @@ describe('SSO Provider Create Schema', () => {
         expect(result.success).toBe(false);
       });
 
-      it('should accept optional cert for meta_data_url', () => {
+      it('should accept optional signingCert for meta_data_url', () => {
         const schema = createProviderConfigureSchema('samlp');
-        const { cert, ...withoutCert } = validSamlConfig;
-        const result = schema.safeParse(withoutCert);
+        const { signingCert, ...withoutSigningCert } = validSamlConfig;
+        const result = schema.safeParse(withoutSigningCert);
         expect(result.success).toBe(true);
       });
 
-      it('should reject missing required cert for meta_data_file', () => {
+      it('should reject missing required signingCert for meta_data_file', () => {
         const schema = createProviderConfigureSchema('samlp');
         const fileConfig = {
           meta_data_source: 'meta_data_file' as const,

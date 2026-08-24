@@ -73,7 +73,7 @@ interface SamlpOptions {
   bindingMethod?: FieldOptions;
   metadataUrl?: FieldOptions;
   signInEndpoint?: FieldOptions;
-  cert?: FieldOptions;
+  signingCert?: FieldOptions;
   icon_url?: FieldOptions;
   idpInitiated?: FieldOptions;
 }
@@ -310,21 +310,21 @@ const STRATEGY_BUILDERS = {
           { ...options.metadataUrl, required: true },
           'Please enter a valid metadata URL',
         ),
-        cert: z.string().optional(),
+        signingCert: z.string().optional(),
         signInEndpoint: z.string().optional(),
         ...commonFields,
       }),
 
-      // Scenario B: Metadata File (Cert is Required)
+      // Scenario B: Metadata File (signingCert is Required)
       z.object({
         meta_data_source: z.literal('meta_data_file'),
-        cert: createFieldSchema(COMMON_FIELD_CONFIGS.certificate, {
-          ...options.cert,
+        signingCert: createFieldSchema(COMMON_FIELD_CONFIGS.certificate, {
+          ...options.signingCert,
           required: true,
         }),
         signInEndpoint: createFieldSchema(
           COMMON_FIELD_CONFIGS.url,
-          { ...options.signInEndpoint, required: false },
+          { ...options.signInEndpoint, required: true },
           'Please enter a valid URL',
         ),
         // Allow metadataUrl to exist (optional)

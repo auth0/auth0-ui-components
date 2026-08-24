@@ -105,7 +105,8 @@ export const SamlpProviderForm = React.forwardRef<
       meta_data_source: defaultMetaDataSource,
       metadataUrl: samlpData?.metadataUrl || '',
       signInEndpoint: samlpData?.signInEndpoint || '',
-      cert: samlpData?.cert || '',
+      signingCert:
+        (samlpData && 'signingCert' in samlpData ? samlpData.signingCert : undefined) || '',
       signSAMLRequest: samlpData?.signSAMLRequest || false,
       signatureAlgorithm: samlpData?.signatureAlgorithm || 'rsa-sha256',
       digestAlgorithm: samlpData?.digestAlgorithm || 'sha256',
@@ -148,7 +149,7 @@ export const SamlpProviderForm = React.forwardRef<
     if (file) {
       try {
         const content = await file.text();
-        form.setValue('cert', content);
+        form.setValue('signingCert', content);
       } catch (error) {
         console.error('Error reading file:', error);
       }
@@ -249,7 +250,7 @@ export const SamlpProviderForm = React.forwardRef<
             />
             <FormField
               control={form.control}
-              name="cert"
+              name="signingCert"
               render={() => (
                 <FormItem>
                   <FormLabel className="text-label font-medium">
