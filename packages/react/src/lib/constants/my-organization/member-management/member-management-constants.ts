@@ -20,6 +20,11 @@ export const MAX_ROLES_PER_MEMBER = 50;
 export const MAX_INVITATIONS_PER_REQUEST = 10;
 
 /**
+ * Characters that terminate an email address in the invitation email field.
+ */
+export const EMAIL_DELIMITERS: readonly string[] = [',', ' '];
+
+/**
  * Default page size for the role selector when no search term is active.
  */
 export const DEFAULT_ROLES_PAGE_SIZE = 10;
