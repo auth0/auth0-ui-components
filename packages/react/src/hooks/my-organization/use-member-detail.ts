@@ -114,6 +114,7 @@ export function useOrganizationMemberDetail(
 
   const handleRemoveFromOrganizationConfirm = React.useCallback(
     (userId?: string | null, memberName?: string, organizationName?: string) => {
+      if (!permissions.canRemoveFromOrganization) return;
       removeFromOrganizationMutation.mutate(
         { userId, memberName, organizationName },
         {
@@ -124,11 +125,12 @@ export function useOrganizationMemberDetail(
         },
       );
     },
-    [removeFromOrganizationMutation, closeModal, onBack],
+    [permissions, removeFromOrganizationMutation, closeModal, onBack],
   );
 
   const handleAssignRolesSubmit = React.useCallback(
     (roleIds: string[], memberRoles: Role[], userId?: string | null) => {
+      if (!permissions.canAssignRole) return;
       assignRolesMutation.mutate(
         { roleIds, memberRoles, userId },
         {
@@ -139,7 +141,7 @@ export function useOrganizationMemberDetail(
         },
       );
     },
-    [assignRolesMutation, closeModal],
+    [permissions, assignRolesMutation, closeModal],
   );
 
   const handleRemoveRolesCancel = React.useCallback(() => {
@@ -147,7 +149,7 @@ export function useOrganizationMemberDetail(
   }, [closeModal]);
 
   const handleRemoveRolesConfirm = React.useCallback(() => {
-    if (modalState.type !== 'removeRoles') return;
+    if (modalState.type !== 'removeRoles' || !permissions.canRemoveRole) return;
     removeRolesMutation.mutate(modalState.roles, {
       onSuccess: (result) => {
         if (!result?.aborted) {
@@ -156,7 +158,7 @@ export function useOrganizationMemberDetail(
         closeModal();
       },
     });
-  }, [modalState, removeRolesMutation, closeModal]);
+  }, [modalState, permissions, removeRolesMutation, closeModal]);
 
   const member = memberQuery.data ?? null;
   const organizationDisplayName = organizationQuery.data?.display_name ?? '';

@@ -4,8 +4,11 @@
  * @module use-organization-details-edit
  */
 
-import { getOrganizationDetailsPermissions } from '@auth0/universal-components-core';
-import { useMemo } from 'react';
+import {
+  getOrganizationDetailsPermissions,
+  type OrganizationPrivate,
+} from '@auth0/universal-components-core';
+import { useCallback, useMemo } from 'react';
 
 import { useOrganizationDetailsEditService } from '@/hooks/my-organization/shared/services/use-organization-details-edit-service';
 import { usePermissions } from '@/hooks/shared/use-permissions';
@@ -42,6 +45,10 @@ export function useOrganizationDetailsEdit({
   );
 
   const canEdit = permissions.canUpdateDetails;
+  const updateOrgDetails = useCallback(
+    async (data: OrganizationPrivate) => (canEdit ? service.updateOrgDetails(data) : false),
+    [canEdit, service.updateOrgDetails],
+  );
 
   const hasData = !!service.organization.name;
   const isActionDisabled = service.isSaveLoading || service.isInitializing;
@@ -58,11 +65,11 @@ export function useOrganizationDetailsEdit({
       },
       nextAction: {
         disabled: saveAction?.disabled || !canEdit || !hasData || isActionDisabled,
-        onClick: service.updateOrgDetails,
+        onClick: updateOrgDetails,
       },
     }),
     [
-      service.updateOrgDetails,
+      updateOrgDetails,
       service.isSaveLoading,
       service.organization,
       canEdit,
@@ -84,6 +91,6 @@ export function useOrganizationDetailsEdit({
     isInitializing: service.isInitializing,
     formActions,
     fetchOrgDetails: service.fetchOrgDetails,
-    updateOrgDetails: service.updateOrgDetails,
+    updateOrgDetails,
   };
 }

@@ -212,11 +212,12 @@ export function useOrganizationMemberManagement(
 
   const handleCreateSubmit = React.useCallback(
     (data: CreateInvitationInput) => {
+      if (!permissions.canInvite) return;
       createInvitationMutation.mutate(data, {
         onSuccess: () => closeModal(),
       });
     },
-    [createInvitationMutation, closeModal],
+    [permissions, createInvitationMutation, closeModal],
   );
 
   const handleRevokeConfirm = React.useCallback(() => {
@@ -226,21 +227,21 @@ export function useOrganizationMemberManagement(
         : modalState.type === 'bulkRevoke'
           ? modalState.invitations
           : [];
-    if (invitations.length === 0) return;
+    if (invitations.length === 0 || !permissions.canRevokeInvitation) return;
     revokeInvitationMutation.mutate(invitations, {
       onSuccess: () => {
         setSelectedInvitations([]);
         closeModal();
       },
     });
-  }, [modalState, revokeInvitationMutation, closeModal]);
+  }, [modalState, permissions, revokeInvitationMutation, closeModal]);
 
   const handleRevokeResendConfirm = React.useCallback(() => {
-    if (modalState.type !== 'revokeResend') return;
+    if (modalState.type !== 'revokeResend' || !permissions.canResendInvitation) return;
     resendInvitationMutation.mutate(modalState.invitation, {
       onSuccess: () => closeModal(),
     });
-  }, [modalState, resendInvitationMutation, closeModal]);
+  }, [modalState, permissions, resendInvitationMutation, closeModal]);
 
   const handleBulkRevokeClick = React.useCallback(
     (invitations: MemberInvitation[]) => {
@@ -264,6 +265,7 @@ export function useOrganizationMemberManagement(
 
   const handleAssignRolesSubmit = React.useCallback(
     (roleIds: string[], memberRoles: Role[], userId?: string | null) => {
+      if (!permissions.canAssignRole) return;
       assignRolesMutation.mutate(
         { roleIds, memberRoles, userId },
         {
@@ -274,11 +276,12 @@ export function useOrganizationMemberManagement(
         },
       );
     },
-    [assignRolesMutation, closeModal],
+    [permissions, assignRolesMutation, closeModal],
   );
 
   const handleRemoveFromOrganizationConfirm = React.useCallback(
     (userId?: string | null, memberName?: string, organizationName?: string) => {
+      if (!permissions.canRemoveFromOrganization) return;
       removeFromOrganizationMutation.mutate(
         { userId, memberName, organizationName },
         {
@@ -288,7 +291,7 @@ export function useOrganizationMemberManagement(
         },
       );
     },
-    [removeFromOrganizationMutation, closeModal],
+    [permissions, removeFromOrganizationMutation, closeModal],
   );
 
   const handleNextPage = React.useCallback(() => {
