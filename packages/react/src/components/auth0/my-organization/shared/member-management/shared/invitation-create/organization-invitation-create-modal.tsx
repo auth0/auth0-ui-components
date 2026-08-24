@@ -114,14 +114,16 @@ export function OrganizationInvitationCreateModal({
     [emailChips],
   );
 
-  const addEmailChips = React.useCallback(
-    (emails: string[]): boolean => {
-      const nextChips = [...emailChips];
+  const applyEmailChips = React.useCallback(
+    (baseChips: ChipItem[], emails: string[]): string[] => {
+      const nextChips = [...baseChips];
       let error: string | undefined;
+      let overflowFrom = emails.length;
 
-      for (const email of emails) {
+      for (const [index, email] of emails.entries()) {
         if (nextChips.length >= validationConfig.maxEmails) {
           error = t('invitation.create.email_limit_error');
+          overflowFrom = index;
           break;
         }
 
@@ -141,9 +143,14 @@ export function OrganizationInvitationCreateModal({
       setEmailChips(nextChips);
       setEmailError(error);
 
-      return nextChips.length > emailChips.length;
+      return emails.slice(overflowFrom);
     },
-    [emailChips, validationConfig, t],
+    [validationConfig, t],
+  );
+
+  const addEmailChips = React.useCallback(
+    (emails: string[]): string[] => applyEmailChips(emailChips, emails),
+    [applyEmailChips, emailChips],
   );
 
   const handleEmailInputChange = React.useCallback(
@@ -158,37 +165,49 @@ export function OrganizationInvitationCreateModal({
 
       const { emails, remainder } = splitEmailInput(rawValue);
 
-      setEmailInput(remainder);
-
-      if (emails.length > 0) {
-        addEmailChips(emails);
-      } else {
+      if (emails.length === 0) {
+        setEmailInput(remainder);
         setEmailError(undefined);
+        return;
       }
+
+      const overflow = addEmailChips(emails);
+
+      setEmailInput([...overflow, remainder].filter(Boolean).join(', '));
     },
     [addEmailChips],
   );
 
   const handleEmailChipAdd = React.useCallback(
     (value: string) => {
-      const email = value.trim();
+      const { emails, remainder } = splitEmailInput(value);
+      const pending = [...emails, remainder].filter(Boolean);
 
-      if (email && addEmailChips([email])) {
-        setEmailInput('');
-      }
+      if (pending.length === 0) return;
+
+      setEmailInput(addEmailChips(pending).join(', '));
     },
     [addEmailChips],
   );
 
-  const handleEmailChipRemove = React.useCallback((value: string) => {
-    setEmailChips((prev) => {
-      const updated = prev.filter((chip) => chip.value !== value);
-      if (!updated.some((chip) => chip.variant === 'destructive')) {
-        setEmailError(undefined);
+  const handleEmailChipRemove = React.useCallback(
+    (value: string) => {
+      const remaining = emailChips.filter((chip) => chip.value !== value);
+      const { emails, remainder } = splitEmailInput(emailInput);
+      const pending = [...emails, remainder].filter(Boolean);
+
+      if (pending.length === 0) {
+        setEmailChips(remaining);
+        if (!remaining.some((chip) => chip.variant === 'destructive')) {
+          setEmailError(undefined);
+        }
+        return;
       }
-      return updated;
-    });
-  }, []);
+
+      setEmailInput(applyEmailChips(remaining, pending).join(', '));
+    },
+    [applyEmailChips, emailChips, emailInput],
+  );
 
   const handleRoleChange = React.useCallback((value: string | string[]) => {
     setSelectedRoles(Array.isArray(value) ? value : value ? [value] : []);
@@ -205,6 +224,12 @@ export function OrganizationInvitationCreateModal({
 
     if (emailInput.trim()) {
       const trimmedEmail = emailInput.trim();
+
+      if (finalEmails.length >= validationConfig.maxEmails) {
+        setEmailError(t('invitation.create.email_limit_error'));
+        return;
+      }
+
       const result = validationConfig.emailSchema.safeParse(trimmedEmail);
       if (result.success && !finalEmails.includes(trimmedEmail)) {
         finalEmails.push(trimmedEmail);
