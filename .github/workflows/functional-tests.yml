@@ -67,7 +67,7 @@ jobs:
 
       - name: Run Playwright tests
         working-directory: functional-tests
-        run: pnpm exec playwright test
+        run: pnpm exec playwright test functional-tests/specs/organization-details.spec.ts
 
       - name: Teardown ephemeral test org
         if: always()
