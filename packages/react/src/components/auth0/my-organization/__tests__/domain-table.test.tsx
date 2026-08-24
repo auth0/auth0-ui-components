@@ -586,9 +586,8 @@ describe('DomainTable', () => {
       it('should call onCreateProvider', async () => {
         const user = userEvent.setup();
         const onCreateProvider = vi.fn();
-        (
-          mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
-            .list as ReturnType<typeof vi.fn>
+        vi.mocked(
+          mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list,
         ).mockResolvedValue({ identity_providers: [] });
 
         renderWithProviders(<DomainTable {...createMockDomainTableProps({ onCreateProvider })} />);
