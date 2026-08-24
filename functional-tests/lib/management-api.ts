@@ -29,30 +29,43 @@ async function getAccessToken(): Promise<string> {
     return tokenCache.accessToken;
   }
 
-  const response = await fetch(`https://${domain()}/oauth/token`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
-      grant_type: 'client_credentials',
-      client_id: requireEnv('FT_AUTH0_MGMT_CLIENT_ID'),
-      client_secret: requireEnv('FT_AUTH0_MGMT_CLIENT_SECRET'),
-      audience: `https://${domain()}/${API_VERSION_PATH}/`,
-    }),
-  });
+  const MAX_TOKEN_RETRIES = 3;
+  let lastError: unknown;
 
-  if (!response.ok) {
-    throw new Error(
-      `Management API token request failed: ${response.status} ${await response.text()}`,
-    );
+  for (let attempt = 0; attempt < MAX_TOKEN_RETRIES; attempt += 1) {
+    try {
+      const response = await fetch(`https://${domain()}/oauth/token`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          grant_type: 'client_credentials',
+          client_id: requireEnv('FT_AUTH0_MGMT_CLIENT_ID'),
+          client_secret: requireEnv('FT_AUTH0_MGMT_CLIENT_SECRET'),
+          audience: `https://${domain()}/${API_VERSION_PATH}/`,
+        }),
+        signal: AbortSignal.timeout(10_000),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Management API token request failed: ${response.status} ${await response.text()}`,
+        );
+      }
+
+      const body = (await response.json()) as { access_token: string; expires_in: number };
+      tokenCache = {
+        accessToken: body.access_token,
+        expiresAt: Date.now() + body.expires_in * 1000,
+      };
+
+      return tokenCache.accessToken;
+    } catch (error) {
+      lastError = error;
+      if (attempt < MAX_TOKEN_RETRIES - 1) await sleep(2 ** attempt * 500);
+    }
   }
 
-  const body = (await response.json()) as { access_token: string; expires_in: number };
-  tokenCache = {
-    accessToken: body.access_token,
-    expiresAt: Date.now() + body.expires_in * 1000,
-  };
-
-  return tokenCache.accessToken;
+  throw lastError;
 }
 
 function sleep(ms: number): Promise<void> {
@@ -84,14 +97,24 @@ async function mgmt<T>(method: string, path: string, body?: unknown): Promise<T>
   for (let attempt = 0; ; attempt += 1) {
     const token = await getAccessToken();
 
-    const response = await fetch(`https://${domain()}/${API_VERSION_PATH}/${path}`, {
-      method,
-      headers: {
-        authorization: `Bearer ${token}`,
-        ...(body === undefined ? {} : { 'content-type': 'application/json' }),
-      },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
+    let response: Response;
+    try {
+      response = await fetch(`https://${domain()}/${API_VERSION_PATH}/${path}`, {
+        method,
+        headers: {
+          authorization: `Bearer ${token}`,
+          ...(body === undefined ? {} : { 'content-type': 'application/json' }),
+        },
+        body: body === undefined ? undefined : JSON.stringify(body),
+        signal: AbortSignal.timeout(10_000),
+      });
+    } catch (error) {
+      if (attempt < MAX_SERVER_ERROR_RETRIES) {
+        await sleep(2 ** attempt * 500);
+        continue;
+      }
+      throw error;
+    }
 
     const waitMs = retryWaitMs(response, attempt);
     if (waitMs !== null) {
