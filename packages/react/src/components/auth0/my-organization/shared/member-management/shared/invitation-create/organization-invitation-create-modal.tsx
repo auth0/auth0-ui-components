@@ -109,6 +109,13 @@ export function OrganizationInvitationCreateModal({
     }
   }, [isOpen, resetForm]);
 
+  React.useEffect(() => {
+    const singleConnection = availableConnections.length === 1 ? availableConnections[0] : null;
+    if (isOpen && singleConnection) {
+      setSelectedConnectionId(singleConnection.id);
+    }
+  }, [isOpen, availableConnections]);
+
   const hasInvalidChips = React.useMemo(
     () => emailChips.some((chip) => chip.variant === 'destructive'),
     [emailChips],

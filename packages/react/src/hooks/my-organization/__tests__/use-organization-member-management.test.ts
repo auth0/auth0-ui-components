@@ -43,12 +43,12 @@ const makeMockService = (overrides?: Record<string, unknown>) =>
     userStoresQuery: { ...idleQuery, data: [] },
     invitationRolesQuery: { ...idleQuery, data: [] },
     rolesSearchQuery: { ...idleQuery, data: [] },
+    memberRolesQuery: { ...idleQuery, data: [] },
     setRoleSearchTerm: vi.fn(),
     enableRoleSearch: vi.fn(),
     invitationsQuery: { ...idleQuery, data: { invitations: [], next: null }, dataUpdatedAt: 0 },
     membersQuery: { ...idleQuery, data: { members: [], next: null }, dataUpdatedAt: 0 },
     organizationQuery: { ...idleQuery, data: { display_name: 'Test Org' } },
-    memberRolesQuery: { ...idleQuery },
     createInvitationMutation: idleMutation,
     revokeInvitationMutation: idleMutation,
     resendInvitationMutation: idleMutation,
@@ -148,6 +148,150 @@ describe('useOrganizationMemberManagement', () => {
       const { result } = render();
 
       expect(result.current.invitationRoles).toEqual([]);
+    });
+  });
+
+  describe('when checking connection availability', () => {
+    it('reports hasNoConnections as true when both providers and user stores are empty', () => {
+      mockedUseMemberManagementService.mockReturnValue(
+        makeMockService({
+          providersQuery: { ...idleQuery, data: [], isLoading: false },
+          userStoresQuery: { ...idleQuery, data: [], isLoading: false },
+        }),
+      );
+
+      const { result } = render();
+
+      expect(result.current.hasNoConnections).toBe(true);
+      expect(result.current.isLoadingConnections).toBe(false);
+    });
+
+    it('reports hasNoConnections as false when providers are available', () => {
+      mockedUseMemberManagementService.mockReturnValue(
+        makeMockService({
+          providersQuery: {
+            ...idleQuery,
+            data: [{ id: 'idp_1', name: 'Google', type: 'identity_provider' }],
+            isLoading: false,
+          },
+          userStoresQuery: { ...idleQuery, data: [], isLoading: false },
+        }),
+      );
+
+      const { result } = render();
+
+      expect(result.current.hasNoConnections).toBe(false);
+      expect(result.current.availableConnections).toHaveLength(1);
+    });
+
+    it('reports hasNoConnections as false when user stores are available', () => {
+      mockedUseMemberManagementService.mockReturnValue(
+        makeMockService({
+          providersQuery: { ...idleQuery, data: [], isLoading: false },
+          userStoresQuery: {
+            ...idleQuery,
+            data: [{ id: 'us_1', name: 'Database', type: 'user_store' }],
+            isLoading: false,
+          },
+        }),
+      );
+
+      const { result } = render();
+
+      expect(result.current.hasNoConnections).toBe(false);
+      expect(result.current.availableConnections).toHaveLength(1);
+    });
+
+    it('reports isLoadingConnections as true while providers are loading', () => {
+      mockedUseMemberManagementService.mockReturnValue(
+        makeMockService({
+          providersQuery: { ...idleQuery, data: undefined, isLoading: true },
+          userStoresQuery: { ...idleQuery, data: [], isLoading: false },
+        }),
+      );
+
+      const { result } = render();
+
+      expect(result.current.isLoadingConnections).toBe(true);
+      expect(result.current.hasNoConnections).toBe(false);
+    });
+
+    it('reports isLoadingConnections as true while user stores are loading', () => {
+      mockedUseMemberManagementService.mockReturnValue(
+        makeMockService({
+          providersQuery: { ...idleQuery, data: [], isLoading: false },
+          userStoresQuery: { ...idleQuery, data: undefined, isLoading: true },
+        }),
+      );
+
+      const { result } = render();
+
+      expect(result.current.isLoadingConnections).toBe(true);
+      expect(result.current.hasNoConnections).toBe(false);
+    });
+
+    it('does not report hasNoConnections while still loading', () => {
+      mockedUseMemberManagementService.mockReturnValue(
+        makeMockService({
+          providersQuery: { ...idleQuery, data: undefined, isLoading: true },
+          userStoresQuery: { ...idleQuery, data: undefined, isLoading: true },
+        }),
+      );
+
+      const { result } = render();
+
+      expect(result.current.isLoadingConnections).toBe(true);
+      expect(result.current.hasNoConnections).toBe(false);
+    });
+
+    it('combines providers and user stores into availableConnections', () => {
+      mockedUseMemberManagementService.mockReturnValue(
+        makeMockService({
+          providersQuery: {
+            ...idleQuery,
+            data: [{ id: 'idp_1', name: 'Google', type: 'identity_provider' }],
+            isLoading: false,
+          },
+          userStoresQuery: {
+            ...idleQuery,
+            data: [{ id: 'us_1', name: 'Database', type: 'user_store' }],
+            isLoading: false,
+          },
+        }),
+      );
+
+      const { result } = render();
+
+      expect(result.current.availableConnections).toHaveLength(2);
+      expect(result.current.hasNoConnections).toBe(false);
+    });
+
+    it('does not report hasNoConnections when providers query errors', () => {
+      mockedUseMemberManagementService.mockReturnValue(
+        makeMockService({
+          providersQuery: { ...idleQuery, data: undefined, isLoading: false, isError: true },
+          userStoresQuery: { ...idleQuery, data: [], isLoading: false },
+        }),
+      );
+
+      const { result } = render();
+
+      expect(result.current.hasNoConnections).toBe(false);
+      expect(result.current.isLoadingConnections).toBe(false);
+    });
+
+    it('does not report hasNoConnections when user stores query errors', () => {
+      mockedUseMemberManagementService.mockReturnValue(
+        makeMockService({
+          providersQuery: { ...idleQuery, data: [], isLoading: false },
+          userStoresQuery: { ...idleQuery, data: undefined, isLoading: false, isError: true },
+        }),
+      );
+
+      const { result } = render();
+
+      expect(result.current.hasNoConnections).toBe(false);
+      expect(result.current.isLoadingConnections).toBe(false);
     });
   });
 

@@ -73,6 +73,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     searchedRoles,
     onRoleSearch,
     availableConnections,
+    hasNoConnections,
     modalState,
     membersUpdatedAt,
     invitationsUpdatedAt,
@@ -179,10 +180,12 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
                         label: t('invite_button'),
                         onClick: () => openModal({ type: 'create' }),
                         icon: Plus,
-                        disabled: !permissions.canInvite,
-                        ...(permissions.canInvite
-                          ? {}
-                          : { tooltip: { content: tCommon('error.forbidden') } }),
+                        disabled: !permissions.canInvite || hasNoConnections,
+                        ...(!permissions.canInvite
+                          ? { tooltip: { content: tCommon('error.forbidden') } }
+                          : hasNoConnections
+                            ? { tooltip: { content: t('invite_button_disabled_tooltip') } }
+                            : {}),
                       },
                     ]
                   : []

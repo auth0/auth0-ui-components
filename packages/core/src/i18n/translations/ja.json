@@ -1140,6 +1140,7 @@
       "description": "組織のメンバーを管理します。"
     },
     "invite_button": "メンバーを招待",
+    "invite_button_disabled_tooltip": "メンバーを招待するには、IDプロバイダーまたはユーザーストアを設定してください。",
     "tabs": {
       "members": "メンバー",
       "invitations": "招待"

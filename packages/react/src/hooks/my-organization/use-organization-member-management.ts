@@ -161,6 +161,12 @@ export function useOrganizationMemberManagement(
     () => [...(providersQuery.data ?? []), ...(userStoresQuery.data ?? [])],
     [providersQuery.data, userStoresQuery.data],
   );
+
+  const isLoadingConnections = providersQuery.isLoading || userStoresQuery.isLoading;
+  const hasConnectionsError = providersQuery.isError || userStoresQuery.isError;
+  const hasNoConnections =
+    !isLoadingConnections && !hasConnectionsError && availableConnections.length === 0;
+
   const invitationRoles = invitationRolesQuery.data ?? [];
   const searchedRoles = rolesSearchQuery.data ?? [];
   const currentInvitations = invitationsQuery.data?.invitations ?? [];
@@ -340,6 +346,8 @@ export function useOrganizationMemberManagement(
     searchedRoles,
     onRoleSearch: setRoleSearchTerm,
     availableConnections,
+    isLoadingConnections,
+    hasNoConnections,
 
     invitations: currentInvitations,
     members: currentMembers,

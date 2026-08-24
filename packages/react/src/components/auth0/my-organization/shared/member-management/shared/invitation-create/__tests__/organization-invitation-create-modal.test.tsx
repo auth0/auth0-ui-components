@@ -643,6 +643,77 @@ describe('OrganizationInvitationCreateModal', () => {
     });
   });
 
+  describe('when auto-selecting single connection', () => {
+    it('auto-selects the connection when only one is available', async () => {
+      const user = userEvent.setup();
+      const onCreate = vi.fn();
+      const singleConnection = [
+        { id: 'con_single', name: 'Single Provider', type: 'identity_provider' as const },
+      ];
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            availableConnections: singleConnection,
+            onCreate,
+          })}
+        />,
+      );
+
+      const emailInput = screen.getByPlaceholderText('invitation.create.email_placeholder');
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.keyDown(emailInput, { key: 'Enter' });
+
+      const submitButton = screen.getByRole('button', {
+        name: 'invitation.create.submit_button',
+      });
+      expect(submitButton).toBeEnabled();
+
+      await user.click(submitButton);
+
+      expect(onCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          identity_provider_id: 'con_single',
+        }),
+      );
+    });
+
+    it('does not auto-select when multiple connections are available', () => {
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({ availableConnections: createMockConnections() })}
+        />,
+      );
+
+      const emailInput = screen.getByPlaceholderText('invitation.create.email_placeholder');
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.keyDown(emailInput, { key: 'Enter' });
+
+      const submitButton = screen.getByRole('button', {
+        name: 'invitation.create.submit_button',
+      });
+      expect(submitButton).toBeDisabled();
+    });
+
+    it('keeps connection field visible and editable with single connection', () => {
+      const singleConnection = [
+        { id: 'con_single', name: 'Single Provider', type: 'identity_provider' as const },
+      ];
+
+      renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            availableConnections: singleConnection,
+          })}
+        />,
+      );
+
+      const combobox = screen.getByRole('combobox');
+      expect(combobox).toBeEnabled();
+      expect(combobox).toHaveTextContent('Single Provider');
+    });
+  });
+
   describe('role selection limit', () => {
     // 12 roles so the limit of 10 is reachable with options left over to assert are disabled.
     const manyRoles = Array.from({ length: 12 }, (_, i) => ({
