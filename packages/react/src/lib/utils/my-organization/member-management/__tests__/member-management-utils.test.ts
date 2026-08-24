@@ -12,7 +12,9 @@ import {
   getInvitationStatus,
   getMemberDisplayName,
   getRelativeLastLoginLabel,
+  hasEmailDelimiter,
   isValidUserId,
+  splitEmailInput,
   validateMemberRoleLimit,
 } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { createMockMember } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
@@ -318,5 +320,67 @@ describe('canMutateMember', () => {
 
   it('returns false for unknown access_level', () => {
     expect(canMutateMember('unknown')).toBe(false);
+  });
+});
+
+describe('hasEmailDelimiter', () => {
+  it('returns false for a partially typed address', () => {
+    expect(hasEmailDelimiter('test1@email.co')).toBe(false);
+  });
+
+  it('returns true for a comma', () => {
+    expect(hasEmailDelimiter('test1@email.com,')).toBe(true);
+  });
+
+  it('returns true for a space', () => {
+    expect(hasEmailDelimiter('test1@email.com ')).toBe(true);
+  });
+});
+
+describe('splitEmailInput', () => {
+  it('completes an address on a comma', () => {
+    expect(splitEmailInput('test1@email.com,')).toEqual({
+      emails: ['test1@email.com'],
+      remainder: '',
+    });
+  });
+
+  it('completes an address on a space', () => {
+    expect(splitEmailInput('test1@email.com ')).toEqual({
+      emails: ['test1@email.com'],
+      remainder: '',
+    });
+  });
+
+  it('keeps the address still being typed as the remainder', () => {
+    expect(splitEmailInput('test1@email.com,test2@em')).toEqual({
+      emails: ['test1@email.com'],
+      remainder: 'test2@em',
+    });
+  });
+
+  it('splits a pasted list on mixed delimiters', () => {
+    expect(splitEmailInput('a@x.com, b@x.com c@x.com')).toEqual({
+      emails: ['a@x.com', 'b@x.com'],
+      remainder: 'c@x.com',
+    });
+  });
+
+  it('drops delimiters that complete nothing', () => {
+    expect(splitEmailInput(', ,')).toEqual({ emails: [], remainder: '' });
+  });
+
+  it('returns the whole value as the remainder when there is no delimiter', () => {
+    expect(splitEmailInput('test1@email.com')).toEqual({
+      emails: [],
+      remainder: 'test1@email.com',
+    });
+  });
+
+  it('preserves invalid entries so they can be flagged', () => {
+    expect(splitEmailInput('not-an-email,a@x.com,')).toEqual({
+      emails: ['not-an-email', 'a@x.com'],
+      remainder: '',
+    });
   });
 });

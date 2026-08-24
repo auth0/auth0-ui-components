@@ -30,6 +30,10 @@ import { TextFieldGroup } from '@/components/ui/text-field-group';
 import type { ChipItem } from '@/components/ui/text-field-group';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { MAX_ROLES_PER_REQUEST } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import {
+  hasEmailDelimiter,
+  splitEmailInput,
+} from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type { OrganizationInvitationCreateModalProps } from '@/types/my-organization/member-management/organization-invitation-table-types';
 
 /**
@@ -105,59 +109,105 @@ export function OrganizationInvitationCreateModal({
     }
   }, [isOpen, resetForm]);
 
-  const handleEmailInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmailInput(e.target.value);
-    setEmailError(undefined);
-  }, []);
-
   const hasInvalidChips = React.useMemo(
     () => emailChips.some((chip) => chip.variant === 'destructive'),
     [emailChips],
   );
 
-  const handleEmailChipAdd = React.useCallback(
-    (value: string) => {
-      const trimmedEmail = value.trim().replace(/,/g, '');
+  const applyEmailChips = React.useCallback(
+    (baseChips: ChipItem[], emails: string[]): string[] => {
+      const nextChips = [...baseChips];
+      let error: string | undefined;
+      let overflowFrom = emails.length;
 
-      if (!trimmedEmail) return;
+      for (const [index, email] of emails.entries()) {
+        if (nextChips.some((chip) => chip.value === email)) {
+          error = t('invitation.create.email_duplicate_error');
+          continue;
+        }
 
-      if (emailChips.length >= validationConfig.maxEmails) {
-        setEmailError(t('invitation.create.email_limit_error'));
-        return;
+        if (nextChips.length >= validationConfig.maxEmails) {
+          error = t('invitation.create.email_limit_error');
+          overflowFrom = index;
+          break;
+        }
+
+        if (validationConfig.emailSchema.safeParse(email).success) {
+          nextChips.push({ label: email, value: email });
+        } else {
+          nextChips.push({ label: email, value: email, variant: 'destructive' });
+          error = t('invitation.create.email_invalid_error');
+        }
       }
 
-      if (emailChips.some((chip) => chip.value === trimmedEmail)) {
-        setEmailError(t('invitation.create.email_duplicate_error'));
-        return;
-      }
+      setEmailChips(nextChips);
+      setEmailError(error);
 
-      const result = validationConfig.emailSchema.safeParse(trimmedEmail);
-      if (!result.success) {
-        setEmailChips((prev) => [
-          ...prev,
-          { label: trimmedEmail, value: trimmedEmail, variant: 'destructive' },
-        ]);
-        setEmailInput('');
-        setEmailError(t('invitation.create.email_invalid_error'));
-        return;
-      }
-
-      setEmailChips((prev) => [...prev, { label: trimmedEmail, value: trimmedEmail }]);
-      setEmailInput('');
-      setEmailError(undefined);
+      return emails.slice(overflowFrom);
     },
-    [emailChips, validationConfig, t],
+    [validationConfig, t],
   );
 
-  const handleEmailChipRemove = React.useCallback((value: string) => {
-    setEmailChips((prev) => {
-      const updated = prev.filter((chip) => chip.value !== value);
-      if (!updated.some((chip) => chip.variant === 'destructive')) {
+  const addEmailChips = React.useCallback(
+    (emails: string[]): string[] => applyEmailChips(emailChips, emails),
+    [applyEmailChips, emailChips],
+  );
+
+  const handleEmailInputChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const rawValue = e.target.value;
+
+      if (!hasEmailDelimiter(rawValue)) {
+        setEmailInput(rawValue);
         setEmailError(undefined);
+        return;
       }
-      return updated;
-    });
-  }, []);
+
+      const { emails, remainder } = splitEmailInput(rawValue);
+
+      if (emails.length === 0) {
+        setEmailInput(remainder);
+        setEmailError(undefined);
+        return;
+      }
+
+      const overflow = addEmailChips(emails);
+
+      setEmailInput([...overflow, remainder].filter(Boolean).join(', '));
+    },
+    [addEmailChips],
+  );
+
+  const handleEmailChipAdd = React.useCallback(
+    (value: string) => {
+      const { emails, remainder } = splitEmailInput(value);
+      const pending = [...emails, remainder].filter(Boolean);
+
+      if (pending.length === 0) return;
+
+      setEmailInput(addEmailChips(pending).join(', '));
+    },
+    [addEmailChips],
+  );
+
+  const handleEmailChipRemove = React.useCallback(
+    (value: string) => {
+      const remaining = emailChips.filter((chip) => chip.value !== value);
+      const { emails, remainder } = splitEmailInput(emailInput);
+      const pending = [...emails, remainder].filter(Boolean);
+
+      if (pending.length === 0) {
+        setEmailChips(remaining);
+        if (!remaining.some((chip) => chip.variant === 'destructive')) {
+          setEmailError(undefined);
+        }
+        return;
+      }
+
+      setEmailInput(applyEmailChips(remaining, pending).join(', '));
+    },
+    [applyEmailChips, emailChips, emailInput],
+  );
 
   const handleRoleChange = React.useCallback((value: string | string[]) => {
     setSelectedRoles(Array.isArray(value) ? value : value ? [value] : []);
@@ -172,15 +222,20 @@ export function OrganizationInvitationCreateModal({
       .filter((chip) => chip.variant !== 'destructive')
       .map((chip) => chip.value);
 
-    if (emailInput.trim()) {
-      const trimmedEmail = emailInput.trim();
-      const result = validationConfig.emailSchema.safeParse(trimmedEmail);
-      if (result.success && !finalEmails.includes(trimmedEmail)) {
-        finalEmails.push(trimmedEmail);
-      } else if (!result.success) {
+    const trimmedEmail = emailInput.trim();
+
+    if (trimmedEmail && !finalEmails.includes(trimmedEmail)) {
+      if (finalEmails.length >= validationConfig.maxEmails) {
+        setEmailError(t('invitation.create.email_limit_error'));
+        return;
+      }
+
+      if (!validationConfig.emailSchema.safeParse(trimmedEmail).success) {
         setEmailError(t('invitation.create.email_invalid_error'));
         return;
       }
+
+      finalEmails.push(trimmedEmail);
     }
 
     if (finalEmails.length === 0) {

@@ -14,6 +14,7 @@ import {
 import { showToast } from '@/components/auth0/shared/toast';
 import {
   type MemberAccessLevel,
+  EMAIL_DELIMITERS,
   MAX_ROLES_PER_MEMBER,
 } from '@/lib/constants/my-organization/member-management/member-management-constants';
 import { formatNumber } from '@/lib/utils/shared/helper-utils';
@@ -155,6 +156,37 @@ export function formatMemberCount(
  */
 export function isValidUserId(userId: string | undefined | null): boolean {
   return !!userId && /^(?=.{1,1024}$).+\|.+$/.test(userId);
+}
+
+/**
+ * Splits invitation email input into completed addresses and the address still being typed.
+ * @param value - The raw field value, which may contain delimiters.
+ * @returns The trimmed completed addresses and the remaining input text.
+ */
+export function splitEmailInput(value: string): { emails: string[]; remainder: string } {
+  const emails: string[] = [];
+  let current = '';
+
+  for (const character of value) {
+    if (EMAIL_DELIMITERS.includes(character)) {
+      const completed = current.trim();
+      if (completed) emails.push(completed);
+      current = '';
+    } else {
+      current += character;
+    }
+  }
+
+  return { emails, remainder: current.trimStart() };
+}
+
+/**
+ * Reports whether the value contains a delimiter that completes an email address.
+ * @param value - The raw field value.
+ * @returns `true` when at least one address in the value is complete.
+ */
+export function hasEmailDelimiter(value: string): boolean {
+  return EMAIL_DELIMITERS.some((delimiter) => value.includes(delimiter));
 }
 
 /**
