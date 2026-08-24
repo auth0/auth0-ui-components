@@ -57,6 +57,10 @@ jobs:
       - name: Build packages
         run: pnpm turbo run build --filter=@auth0/universal-components-react
 
+      - name: Install Playwright ffmpeg
+        working-directory: functional-tests
+        run: pnpm exec playwright install ffmpeg
+
       - name: Create ephemeral test org
         working-directory: functional-tests
         run: pnpm run org:setup
