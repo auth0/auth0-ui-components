@@ -15,6 +15,7 @@ export interface ComboboxOption {
 }
 
 export interface ComboboxProps {
+  id?: string;
   value?: string | string[];
   onChange?: (value: string | string[]) => void;
   onInputChange?: (value: string) => void;
@@ -29,6 +30,7 @@ export interface ComboboxProps {
 }
 
 export function Combobox({
+  id,
   value,
   onChange,
   onInputChange,
@@ -56,7 +58,7 @@ export function Combobox({
 
   const portalContainer = usePortalContainer();
   const reactId = useId();
-  const inputId = `combobox-input-${reactId}`;
+  const inputId = id ?? `combobox-input-${reactId}`;
 
   const onInputChangeRef = React.useRef(onInputChange);
   onInputChangeRef.current = onInputChange;

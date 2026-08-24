@@ -6,6 +6,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { Navbar } from './components/nav-bar';
 import { Sidebar } from './components/side-bar';
+import { config } from './config/env';
 import DomainManagementPage from './views/domain-management-page';
 import HomePage from './views/home-page';
 import MemberDetailPage from './views/member-detail-page';
@@ -145,6 +146,9 @@ function App() {
         theme: 'default',
         mode: isDarkMode ? 'dark' : 'light',
       }}
+      cacheConfig={
+        config.queryStaleTimeMs === undefined ? undefined : { staleTime: config.queryStaleTimeMs }
+      }
     >
       <AppContent />
     </Auth0ComponentProvider>
