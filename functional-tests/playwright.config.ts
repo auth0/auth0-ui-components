@@ -22,8 +22,6 @@ export default defineConfig({
     video: 'retain-on-failure',
     permissions: ['clipboard-read', 'clipboard-write'],
     headless: process.env.CI ? true : process.env.HEADLESS === 'true',
-    // Uses system-installed Chrome. Set to undefined to use Playwright's pinned Chromium instead.
-    channel: 'chrome',
   },
   projects: [
     {

@@ -47,13 +47,9 @@ export class MemberManagementPage {
     return row.getByRole('button', { name: t(`${NAMESPACE}.invitation.actions.menu_label`) });
   }
 
-  // The invitation row Actions trigger intermittently doesn't open on first click.
-  // Retries until the menu is visible rather than surfacing a missing menuitem 30s later.
   async openInvitationActionsMenu(row: Locator): Promise<void> {
-    await expect(async () => {
-      await this.invitationRowActionsMenuButton(row).click();
-      await expect(this.page.getByRole('menu')).toBeVisible({ timeout: 1_000 });
-    }).toPass({ timeout: 10_000 });
+    await this.invitationRowActionsMenuButton(row).click();
+    await expect(this.page.getByRole('menu')).toBeVisible();
   }
 
   get viewInvitationDetailsMenuItem(): Locator {

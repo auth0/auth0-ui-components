@@ -152,9 +152,11 @@ test.describe('View invitation details', () => {
     await expect(memberManagement.detailsField('invited_by_label')).toHaveValue('FT Setup');
     await expect(memberManagement.invitationDetailsDialog).toContainText('admin');
 
+    // Poll: the click's clipboard write is async, and a bare expect() on a string has no retry.
     await memberManagement.copyInvitationUrlButton.click();
-    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
-    expect(clipboardText).toBe(invitation.invitation_url);
+    await expect
+      .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+      .toBe(invitation.invitation_url);
 
     await deleteInvitation(org.orgId, invitation.id).catch(() => undefined);
   });
