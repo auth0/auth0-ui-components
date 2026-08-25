@@ -87,10 +87,33 @@ function trackTokenTraffic(context: BrowserContext): TokenTraffic {
   return traffic;
 }
 
+/**
+ * Collects non-2xx My Org / My Account API responses, annotated onto the test. Without it a failure
+ * only says a row never appeared, and the API side of the story is nowhere in the report.
+ *
+ * @param context - Context to observe. Attach before navigation, or the mount reads are missed.
+ * @returns A live array of `method status path`, appended to as responses arrive.
+ */
+function trackApiFailures(context: BrowserContext): string[] {
+  const failures: string[] = [];
+
+  context.on('response', (response) => {
+    const url = response.url();
+    if (!isApiRequest(url) || response.ok()) return;
+    failures.push(`${response.request().method()} ${response.status()} ${new URL(url).pathname}`);
+  });
+
+  return failures;
+}
+
 const RATE_LIMIT_RETRIES = 3;
 // Auth0's Retry-After can be tens of seconds, which is longer than any test waits. Cap it so a rate
 // limit costs us one extra retry instead of a test failure that looks like a broken feature.
-const MAX_RETRY_AFTER_MS = 5_000;
+const MAX_RETRY_AFTER_MS = 2_000;
+// Seen in CI: a route.fetch() that never settled, so the component stayed loading until the test
+// died. Both bounds stay under the 20s assertion timeout so a bad handler can't masquerade as one.
+const FETCH_TIMEOUT_MS = 4_000;
+const HANDLER_BUDGET_MS = 10_000;
 
 function retryDelayMs(response: { headers(): Record<string, string> }, attempt: number): number {
   const retryAfterSeconds = Number(response.headers()['retry-after']);
@@ -106,11 +129,12 @@ function retryDelayMs(response: { headers(): Record<string, string> }, attempt: 
  * are routine in tests. This intercepts My Org/Account API reads, retries on 429 with capped
  * backoff, and hands the final response back to the browser transparently.
  *
- * Only GETs are retried. Each request is signed for single use, so replaying one fails as an auth
- * error rather than a retry. The app already retries its own writes, and it re-signs those properly.
+ * Only GETs are retried. Writes go straight back to the browser — replaying a signed write isn't
+ * safe to guess at, and the app retries its own properly.
  *
- * The try/catch handles the case where the test ends while a retry is still sleeping — at that
- * point route.fetch() throws "Test ended" and we abort quietly instead of failing a finished test.
+ * Every step is bounded, and on any failure the request goes back to the browser. An unbounded
+ * handler is invisible: it stalls the component with no error, and the test then fails 20s later
+ * blaming the feature.
  */
 async function installRateLimitRetry(context: BrowserContext): Promise<void> {
   await context.route(
@@ -121,21 +145,27 @@ async function installRateLimitRetry(context: BrowserContext): Promise<void> {
         return;
       }
 
+      const deadline = Date.now() + HANDLER_BUDGET_MS;
+
       try {
-        let lastResponse = await route.fetch();
+        let lastResponse = await route.fetch({ timeout: FETCH_TIMEOUT_MS });
 
         for (let attempt = 0; lastResponse.status() === 429 && attempt < RATE_LIMIT_RETRIES; ) {
-          await sleep(retryDelayMs(lastResponse, attempt));
+          const delay = retryDelayMs(lastResponse, attempt);
+          if (Date.now() + delay >= deadline) break;
+          await sleep(delay);
           attempt += 1;
 
-          const retried = await route.fetch();
+          const retried = await route.fetch({ timeout: FETCH_TIMEOUT_MS });
           if (retried.status() === 401 || retried.status() === 403) break;
           lastResponse = retried;
         }
 
         await route.fulfill({ response: lastResponse });
       } catch {
-        await route.abort().catch(() => undefined);
+        // Timed-out fetch, route orphaned by the page aborting its own request, or the test ending
+        // mid-retry. continue() so the request still gets made; abort() only if even that fails.
+        await route.continue().catch(() => route.abort().catch(() => undefined));
       }
     },
   );
@@ -309,8 +339,8 @@ interface TestFixtures {
  * persistSession (option, default true) — set false via test.use({ persistSession: false }) for
  *   tests that run logged-out, so their empty session doesn't overwrite the real session file.
  *
- * sessionPersistence (auto) — wraps every test. Before: starts token traffic tracking and
- *   installs rate limit retry. After: removes the retry handler, attaches any token failure
+ * sessionPersistence (auto) — wraps every test. Before: starts token and API failure tracking and
+ *   installs rate limit retry. After: removes the retry handler, attaches any token and API failure
  *   messages to the test report, and saves the latest refresh token back to the session file.
  *   If saving fails (traffic never settled), annotates this test — because a torn file fails
  *   the NEXT test, not the current one.
@@ -324,6 +354,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   sessionPersistence: [
     async ({ context, persistSession: shouldPersist, workerStorageState }, use, testInfo) => {
       const traffic = trackTokenTraffic(context);
+      const apiFailures = trackApiFailures(context);
       await installRateLimitRetry(context);
 
       await use();
@@ -334,6 +365,13 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         testInfo.annotations.push({
           type: 'token-endpoint-failures',
           description: traffic.failures.join(' | '),
+        });
+      }
+
+      if (apiFailures.length > 0) {
+        testInfo.annotations.push({
+          type: 'api-failures',
+          description: apiFailures.join(' | '),
         });
       }
 

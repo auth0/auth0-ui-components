@@ -17,6 +17,16 @@ const ERROR = `${TOAST}[data-type="error"]`;
 
 const DEFAULT_TIMEOUT_MS = 20_000;
 const POLL_INTERVAL_MS = 100;
+const SNAPSHOT_LIMIT = 1_500;
+
+async function pageSnapshot(page: Page): Promise<string> {
+  try {
+    const snapshot = await page.locator('body').ariaSnapshot();
+    return snapshot.length > SNAPSHOT_LIMIT ? `${snapshot.slice(0, SNAPSHOT_LIMIT)}\n…` : snapshot;
+  } catch {
+    return '<unavailable>';
+  }
+}
 
 function normalize(text: string): string {
   return text.replace(/\s+/g, ' ').trim().toLowerCase();
@@ -77,7 +87,8 @@ export async function watchToasts(page: Page): Promise<ToastWatcher> {
           `Timed out after ${timeout}ms waiting for a new toast containing "${message}". ` +
             (onScreen.length > 0
               ? `Toasts on screen: ${onScreen.join(' | ')}`
-              : 'No toasts on screen.'),
+              : 'No toasts on screen.') +
+            `\nPage at timeout:\n${await pageSnapshot(page)}`,
         );
       }
 

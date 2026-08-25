@@ -145,8 +145,10 @@ test.describe('View invitation details', () => {
 
     const row = memberManagement.invitationRow(email);
     await expect(row).toBeVisible();
-    await memberManagement.openInvitationActionsMenu(row);
-    await memberManagement.viewInvitationDetailsMenuItem.click();
+    await memberManagement.clickInvitationAction(
+      row,
+      memberManagement.viewInvitationDetailsMenuItem,
+    );
 
     await expect(memberManagement.invitationDetailsDialog).toBeVisible();
     // Email/invited-by render as read-only <input> (value isn't textContent).
@@ -191,8 +193,7 @@ test.describe('Assign role to member', () => {
 
     const row = memberManagement.memberRow(email);
     await expect(row).toBeVisible();
-    await memberManagement.openMemberActionsMenu(row);
-    await memberManagement.assignRoleMenuItem.click();
+    await memberManagement.clickMemberAction(row, memberManagement.assignRoleMenuItem);
 
     await expect(memberManagement.assignRolesDialog).toBeVisible();
     await memberManagement.rolesCombobox.click();
@@ -288,8 +289,7 @@ test.describe('Revoke invitation', () => {
 
     const row = memberManagement.invitationRow(email);
     await expect(row).toBeVisible();
-    await memberManagement.openInvitationActionsMenu(row);
-    await memberManagement.revokeInvitationMenuItem.click();
+    await memberManagement.clickInvitationAction(row, memberManagement.revokeInvitationMenuItem);
 
     await expect(memberManagement.revokeInvitationDialog).toBeVisible();
 
@@ -330,8 +330,10 @@ test.describe('Revoke and resend invitation', () => {
 
     const row = memberManagement.invitationRow(email);
     await expect(row).toBeVisible();
-    await memberManagement.openInvitationActionsMenu(row);
-    await memberManagement.revokeAndResendInvitationMenuItem.click();
+    await memberManagement.clickInvitationAction(
+      row,
+      memberManagement.revokeAndResendInvitationMenuItem,
+    );
 
     await expect(memberManagement.revokeAndResendInvitationDialog).toBeVisible();
 

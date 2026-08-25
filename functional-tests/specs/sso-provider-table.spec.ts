@@ -176,8 +176,7 @@ test.describe('Navigation', () => {
     seededConnectionIds.push(connectionId);
 
     const ssoProviderTable = new SsoProviderTablePage(page);
-    const menu = await ssoProviderTable.openProviderActionsMenu(name);
-    await ssoProviderTable.editMenuItem(menu).click();
+    await ssoProviderTable.clickEditAction(name);
 
     await expect(page).toHaveURL(
       new RegExp(`${reactSpaNpmApp.routes.ssoProviderEdit(connectionId)}$`),

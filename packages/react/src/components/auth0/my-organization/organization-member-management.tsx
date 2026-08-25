@@ -49,6 +49,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     members,
     invitations,
     organizationDisplayName,
+    isLoadingOrganization,
     isFetchingInvitations,
     isFetchingMembers,
     isLoadingInvitations,
@@ -315,7 +316,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           memberName={selectedMember?.name}
           memberUserId={selectedMember?.user_id}
           isOpen={modalState.type === 'removeFromOrganization'}
-          isLoading={isRemovingFromOrganization}
+          isLoading={isRemovingFromOrganization || isLoadingOrganization}
           organizationName={organizationDisplayName}
           customMessages={customMessages?.member}
           onClose={closeModal}

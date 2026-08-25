@@ -164,6 +164,7 @@ export function useOrganizationMemberDetail(
     activeTab,
     member,
     organizationDisplayName,
+    isLoadingOrganization: organizationQuery.isLoading,
     memberRoles,
     searchedRoles,
     onRoleSearch: setRoleSearchTerm,

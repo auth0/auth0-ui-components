@@ -1,6 +1,7 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 import { t } from '../lib/i18n';
+import { openMenuAndClick } from '../lib/menu';
 
 export class SsoProviderTablePage {
   readonly root: Locator;
@@ -31,18 +32,18 @@ export class SsoProviderTablePage {
     });
   }
 
-  // The menu trigger has no label, but it is the row's only button, so matching by role is safe.
-  // We check the menu opened here, because a list refresh can close it and the caller would hang.
-  async openProviderActionsMenu(providerName: string): Promise<Locator> {
-    await this.providerRow(providerName).getByRole('button').click();
-    const menu = this.page.getByRole('menu');
-    await expect(menu).toBeVisible();
-    return menu;
-  }
-
-  editMenuItem(menu: Locator): Locator {
-    return menu.getByRole('menuitem', {
+  get editMenuItem(): Locator {
+    return this.page.getByRole('menuitem', {
       name: t('idp_management.sso_provider_table.table.actions.edit_button_text'),
     });
+  }
+
+  // The trigger has no label, but it is the row's only button, so matching by role is safe.
+  clickEditAction(providerName: string): Promise<void> {
+    return openMenuAndClick(
+      this.page,
+      this.providerRow(providerName).getByRole('button'),
+      this.editMenuItem,
+    );
   }
 }

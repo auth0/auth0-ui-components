@@ -214,7 +214,7 @@ export function OrganizationMemberDetailView(
 
         <MemberRemoveFromOrganizationModal
           isOpen={modalState.type === 'removeFromOrganization'}
-          isLoading={isRemovingFromOrganization}
+          isLoading={isRemovingFromOrganization || props.isLoadingOrganization}
           memberName={props.member?.name}
           memberUserId={props.member?.user_id}
           organizationName={props.organizationDisplayName}

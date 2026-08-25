@@ -1,6 +1,7 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 import { t } from '../lib/i18n';
+import { openMenuAndClick } from '../lib/menu';
 
 const NAMESPACE = 'member_management';
 
@@ -47,15 +48,12 @@ export class MemberManagementPage {
     return row.getByRole('button', { name: t(`${NAMESPACE}.invitation.actions.menu_label`) });
   }
 
-  // Check the menu opened here, because a list refresh can close it and the caller would hang.
-  async openMemberActionsMenu(row: Locator): Promise<void> {
-    await this.rowActionsMenuButton(row).click();
-    await expect(this.page.getByRole('menu')).toBeVisible();
+  clickMemberAction(row: Locator, item: Locator): Promise<void> {
+    return openMenuAndClick(this.page, this.rowActionsMenuButton(row), item);
   }
 
-  async openInvitationActionsMenu(row: Locator): Promise<void> {
-    await this.invitationRowActionsMenuButton(row).click();
-    await expect(this.page.getByRole('menu')).toBeVisible();
+  clickInvitationAction(row: Locator, item: Locator): Promise<void> {
+    return openMenuAndClick(this.page, this.invitationRowActionsMenuButton(row), item);
   }
 
   get viewInvitationDetailsMenuItem(): Locator {
@@ -109,8 +107,7 @@ export class MemberManagementPage {
   }
 
   async openRemoveFromOrganizationDialog(row: Locator): Promise<void> {
-    await this.openMemberActionsMenu(row);
-    await this.removeFromOrganizationMenuItem.click();
+    await this.clickMemberAction(row, this.removeFromOrganizationMenuItem);
   }
 
   get removeFromOrganizationDialog(): Locator {

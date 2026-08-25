@@ -190,6 +190,7 @@ export const createMockOrganizationMemberDetailViewProps = (
   activeTab: 'details',
   member: createMockMember(),
   organizationDisplayName: 'Test Org',
+  isLoadingOrganization: false,
   memberRoles: createMockMemberRoles(),
   searchedRoles: createMockAvailableRoles(),
   onRoleSearch: vi.fn(),

@@ -87,6 +87,7 @@ export function useSsoProviderEditService(
     },
     enabled: !!coreClient,
     initialData: OrganizationDetailsFactory.create(),
+    initialDataUpdatedAt: 0,
   });
 
   /**

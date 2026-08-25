@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
 import { t } from '../lib/i18n';
+import { openMenuAndClick } from '../lib/menu';
 
 const NAMESPACE = 'domain_management';
 
@@ -33,6 +34,10 @@ export class DomainManagementPage {
   async openRowActionsMenu(row: Locator): Promise<void> {
     await this.rowActionsMenuButton(row).click();
     await expect(this.page.getByRole('menu')).toBeVisible();
+  }
+
+  clickRowAction(row: Locator, item: Locator): Promise<void> {
+    return openMenuAndClick(this.page, this.rowActionsMenuButton(row), item);
   }
 
   get viewMenuItem(): Locator {

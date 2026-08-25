@@ -15,8 +15,7 @@ function uniqueDomain(label: string): string {
 
 async function deleteDomainRow(domainManagement: DomainManagementPage, domainName: string) {
   const row = domainManagement.domainRow(domainName);
-  await domainManagement.openRowActionsMenu(row);
-  await domainManagement.deleteMenuItem.click();
+  await domainManagement.clickRowAction(row, domainManagement.deleteMenuItem);
   await domainManagement.confirmDelete();
   await expect(domainManagement.domainRow(domainName)).toBeHidden();
 }
@@ -105,8 +104,7 @@ test.describe('Delete domain', () => {
     await expect(verifyDialog).toBeHidden();
 
     const row = domainManagement.domainRow(domainName);
-    await domainManagement.openRowActionsMenu(row);
-    await domainManagement.deleteMenuItem.click();
+    await domainManagement.clickRowAction(row, domainManagement.deleteMenuItem);
 
     await expect(domainManagement.deleteDomainDialog).toBeVisible();
     await expect(domainManagement.deleteDomainDialog).toContainText(

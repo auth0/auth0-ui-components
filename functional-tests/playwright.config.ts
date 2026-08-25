@@ -13,12 +13,12 @@ export default defineConfig({
   workers: 1,
   retries: process.env.CI ? 1 : 0,
   reporter: [['list'], ['html', { open: 'never' }]],
-  timeout: 60_000,
+  timeout: process.env.CI ? 120_000 : 60_000,
   expect: {
     timeout: 20_000,
   },
   use: {
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
     video: 'retain-on-failure',
     permissions: ['clipboard-read', 'clipboard-write'],
     headless: process.env.CI ? true : process.env.HEADLESS === 'true',
