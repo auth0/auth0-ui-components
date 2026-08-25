@@ -9,7 +9,6 @@ import {
   type Domain,
   type IdpKnownResponse,
   type CreateOrganizationDomainRequestContent,
-  type IdentityProviderAssociatedWithDomain,
   BusinessError,
   domainQueryKeys,
 } from '@auth0/universal-components-core';
@@ -63,8 +62,8 @@ export function useDomainTableService({
 
     return allProviders.map((provider) => ({
       ...provider,
-      is_associated: (provider as any).domains?.includes(domainName) ?? false,
-    })) as IdentityProviderAssociatedWithDomain[];
+      is_associated: provider.domains?.includes(domainName) ?? false,
+    }));
   };
 
   const domainsQuery = useQuery({
