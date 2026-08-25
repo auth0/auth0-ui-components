@@ -96,8 +96,11 @@ export class SsoProviderCreatePage {
 
   async fillProviderDetails(input: { name: string; displayName: string }): Promise<void> {
     await this.nameInput.fill(input.name);
-    await expect(this.nameInput).toHaveValue(input.name);
     await this.displayNameInput.fill(input.displayName);
+    // Read both values back, because a re-render can quietly wipe the form and the only clue later
+    // is a "field is required" error on a field we know we filled.
+    await expect(this.nameInput).toHaveValue(input.name);
+    await expect(this.displayNameInput).toHaveValue(input.displayName);
     await this.advanceStep(this.nextButton, this.discoveryUrlInput, 'the configuration step');
   }
 
@@ -114,15 +117,21 @@ export class SsoProviderCreatePage {
   // Submits and waits for the redirect; surfaces any error toast immediately so failures don't look like timeouts.
   async submitCreate(): Promise<void> {
     await expect(this.createProviderButton).toBeEnabled();
-    await this.createProviderButton.click();
 
     const errorToast = this.page.locator('[data-sonner-toast][data-type="error"]');
+    // An error toast from earlier in the wizard is not this submit's failure, so ignore those.
+    const preexistingErrors = await errorToast.allInnerTexts();
+
+    await this.createProviderButton.click();
+
     const deadline = Date.now() + CREATE_TIMEOUT_MS;
 
     for (;;) {
       if (new URL(this.page.url()).pathname.endsWith('/sso-providers')) return;
 
-      const errors = await errorToast.allInnerTexts();
+      const errors = (await errorToast.allInnerTexts()).filter(
+        (text) => !preexistingErrors.includes(text),
+      );
       if (errors.length > 0) {
         throw new Error(`SSO provider create failed: ${errors.join(' | ')}`);
       }

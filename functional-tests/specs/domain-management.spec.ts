@@ -2,6 +2,7 @@ import { reactSpaNpmApp } from '../apps/react-spa-npm.app';
 import { expect, test } from '../fixtures/auth.fixture';
 import { testUnauthenticatedRedirect } from '../fixtures/unauthenticated';
 import { t } from '../lib/i18n';
+import { watchToasts } from '../lib/toast';
 import { DomainManagementPage } from '../pages/domain-management.page';
 
 const route = reactSpaNpmApp.routes.domainManagement;
@@ -14,7 +15,7 @@ function uniqueDomain(label: string): string {
 
 async function deleteDomainRow(domainManagement: DomainManagementPage, domainName: string) {
   const row = domainManagement.domainRow(domainName);
-  await domainManagement.rowActionsMenuButton(row).click();
+  await domainManagement.openRowActionsMenu(row);
   await domainManagement.deleteMenuItem.click();
   await domainManagement.confirmDelete();
   await expect(domainManagement.domainRow(domainName)).toBeHidden();
@@ -29,13 +30,12 @@ test.describe('Create domain', () => {
     await domainManagement.addDomainButton.click();
     await expect(domainManagement.createDomainDialog).toBeVisible();
     await domainManagement.domainUrlInput.fill(domainName);
-    await domainManagement.createSubmitButton.click();
 
-    await expect(
-      domainManagement.toast(
-        t('domain_management.domain_table.notifications.domain_create.success', { domainName }),
-      ),
-    ).toBeVisible();
+    const toasts = await watchToasts(page);
+    await domainManagement.createSubmitButton.click();
+    await toasts.expectSuccess(
+      t('domain_management.domain_table.notifications.domain_create.success', { domainName }),
+    );
     await expect(domainManagement.createDomainDialog).toBeHidden();
 
     const verifyDialog = domainManagement.verifyDialog(domainName);
@@ -77,7 +77,7 @@ test.describe('Pending domain row actions', () => {
 
     const row = domainManagement.domainRow(domainName);
     await expect(row).toBeVisible();
-    await domainManagement.rowActionsMenuButton(row).click();
+    await domainManagement.openRowActionsMenu(row);
 
     await expect(domainManagement.viewMenuItem).toBeVisible();
     await expect(domainManagement.verifyMenuItem).toBeVisible();
@@ -105,20 +105,18 @@ test.describe('Delete domain', () => {
     await expect(verifyDialog).toBeHidden();
 
     const row = domainManagement.domainRow(domainName);
-    await domainManagement.rowActionsMenuButton(row).click();
+    await domainManagement.openRowActionsMenu(row);
     await domainManagement.deleteMenuItem.click();
 
     await expect(domainManagement.deleteDomainDialog).toBeVisible();
     await expect(domainManagement.deleteDomainDialog).toContainText(
       t('domain_management.domain_delete.modal.description.pending', { domainName }),
     );
+    const toasts = await watchToasts(page);
     await domainManagement.confirmDelete();
-
-    await expect(
-      domainManagement.toast(
-        t('domain_management.domain_table.notifications.domain_delete.success', { domainName }),
-      ),
-    ).toBeVisible();
+    await toasts.expectSuccess(
+      t('domain_management.domain_table.notifications.domain_delete.success', { domainName }),
+    );
     await expect(row).toBeHidden();
   });
 });

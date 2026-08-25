@@ -2,7 +2,9 @@ import { reactSpaNpmApp } from '../apps/react-spa-npm.app';
 import { expect, test } from '../fixtures/auth.fixture';
 import { testUnauthenticatedRedirect } from '../fixtures/unauthenticated';
 import { getOrganization } from '../lib/management-api';
+import { pollRead } from '../lib/poll';
 import { requireRunState } from '../lib/run-state';
+import { watchToasts } from '../lib/toast';
 import { OrganizationDetailsPage } from '../pages/organization-details.page';
 
 const org = requireRunState();
@@ -23,7 +25,7 @@ test.describe('OrganizationDetailsEdit', () => {
 
     await orgDetails.goto(route);
 
-    await expect(orgDetails.root).toBeVisible();
+    await orgDetails.waitForLoaded();
     await expect(orgDetails.nameInput).toHaveValue(org.orgName);
     await expect(orgDetails.displayNameInput).toHaveValue(live.display_name ?? '');
     await expect(orgDetails.logoUrlInput).toHaveValue(live.branding?.logo_url ?? '');
@@ -36,14 +38,20 @@ test.describe('OrganizationDetailsEdit', () => {
     const newDisplayName = uniqueDisplayName();
 
     await orgDetails.goto(route);
-    await expect(orgDetails.root).toBeVisible();
+    await orgDetails.waitForLoaded();
 
     await orgDetails.setDisplayName(newDisplayName);
-    await orgDetails.save();
 
-    await expect(orgDetails.saveSuccessToast(newDisplayName)).toBeVisible();
+    const toasts = await watchToasts(page);
+    await orgDetails.save();
+    await toasts.expectSuccess(orgDetails.saveSuccessMessage(newDisplayName));
     await expect
-      .poll(async () => (await getOrganization(org.orgId)).display_name, { timeout: 10_000 })
+      .poll(
+        pollRead(async () => (await getOrganization(org.orgId)).display_name, undefined),
+        {
+          timeout: 10_000,
+        },
+      )
       .toBe(newDisplayName);
   });
 
@@ -52,11 +60,13 @@ test.describe('OrganizationDetailsEdit', () => {
     const newDisplayName = uniqueDisplayName();
 
     await orgDetails.goto(route);
-    await expect(orgDetails.root).toBeVisible();
+    await orgDetails.waitForLoaded();
 
     await orgDetails.setDisplayName(newDisplayName);
+
+    const toasts = await watchToasts(page);
     await orgDetails.save();
-    await expect(orgDetails.saveSuccessToast(newDisplayName)).toBeVisible();
+    await toasts.expectSuccess(orgDetails.saveSuccessMessage(newDisplayName));
 
     await page.reload();
 

@@ -8,6 +8,7 @@ import {
   createUser,
   deleteRole,
   deleteUser,
+  getOrganization,
   listOrgMemberRoles,
   listOrgMembers,
   type Role,
@@ -15,7 +16,9 @@ import {
   waitForMemberRole,
   waitForOrgMember,
 } from '../lib/management-api';
+import { pollRead } from '../lib/poll';
 import { requireRunState } from '../lib/run-state';
+import { watchToasts } from '../lib/toast';
 import { MemberDetailPage } from '../pages/member-detail.page';
 
 const org = requireRunState();
@@ -94,24 +97,21 @@ test.describe('Remove role from member', () => {
     await memberDetail.removeRoleButton(role.name).click();
 
     await expect(memberDetail.removeRoleDialog).toBeVisible();
-    await memberDetail.confirmRemoveRoleButton.click();
 
-    await expect(
-      memberDetail.toast(
-        t('member_management.member.detail.roles.remove_confirm.success', {
-          roleName: role.name,
-        }),
-      ),
-    ).toBeVisible();
+    const toasts = await watchToasts(page);
+    await memberDetail.confirmRemoveRoleButton.click();
+    await toasts.expectSuccess(
+      t('member_management.member.detail.roles.remove_confirm.success', { roleName: role.name }),
+    );
     await expect(memberDetail.removeRoleDialog).toBeHidden();
     await expect(row).toBeHidden();
 
     await expect
       .poll(
-        async () => {
+        pollRead(async () => {
           const roles = await listOrgMemberRoles(org.orgId, user.user_id);
           return roles.some((r) => r.id === role.id);
-        },
+        }, true),
         { timeout: 10_000 },
       )
       .toBe(false);
@@ -147,18 +147,27 @@ test.describe('Remove member from organization (detail page)', () => {
 
     await memberDetail.openRemoveFromOrganizationDialog();
     await expect(memberDetail.removeFromOrganizationDialog).toBeVisible();
-    await memberDetail.confirmRemoveFromOrganizationButton.click();
 
-    await expect(memberDetail.successToast).toBeVisible();
+    // Copy is built from the org's display_name, which another spec edits — read it live.
+    const { display_name: organizationName } = await getOrganization(org.orgId);
+
+    const toasts = await watchToasts(page);
+    await memberDetail.confirmRemoveFromOrganizationButton.click();
+    await toasts.expectSuccess(
+      t('member_management.member.detail.actions.remove_from_organization.success', {
+        memberName: user.name!,
+        organizationName: organizationName ?? '',
+      }),
+    );
 
     await expect(page).toHaveURL(new RegExp(`${reactSpaNpmApp.routes.memberManagement}/?$`));
 
     await expect
       .poll(
-        async () => {
+        pollRead(async () => {
           const members = await listOrgMembers(org.orgId);
           return members.some((m) => m.user_id === user.user_id);
-        },
+        }, true),
         { timeout: 10_000 },
       )
       .toBe(false);

@@ -9,6 +9,7 @@ import {
   deleteInvitation,
   deleteUser,
   findRoleIdByName,
+  getOrganization,
   listOrgInvitations,
   listOrgMemberRoles,
   listOrgMembers,
@@ -16,7 +17,9 @@ import {
   waitForOrgInvitation,
   waitForOrgMember,
 } from '../lib/management-api';
+import { pollRead } from '../lib/poll';
 import { requireRunState } from '../lib/run-state';
+import { watchToasts } from '../lib/toast';
 import { MemberManagementPage } from '../pages/member-management.page';
 
 const org = requireRunState();
@@ -99,11 +102,10 @@ test.describe('Invite member', () => {
 
     await expect(memberManagement.inviteMemberDialog).toBeVisible();
     await memberManagement.fillInviteEmail(email);
-    await memberManagement.inviteSubmitButton.click();
 
-    await expect(
-      memberManagement.toast(t('member_management.invitation.create.success', { email })),
-    ).toBeVisible();
+    const toasts = await watchToasts(page);
+    await memberManagement.inviteSubmitButton.click();
+    await toasts.expectSuccess(t('member_management.invitation.create.success', { email }));
     await expect(memberManagement.inviteMemberDialog).toBeHidden();
 
     await memberManagement.invitationsTab.click();
@@ -112,11 +114,11 @@ test.describe('Invite member', () => {
     let invitationId: string | undefined;
     await expect
       .poll(
-        async () => {
+        pollRead(async () => {
           const invitations = await listOrgInvitations(org.orgId);
           invitationId = invitations.find((i) => i.invitee.email === email)?.id;
           return invitationId ?? null;
-        },
+        }, null),
         { timeout: 10_000 },
       )
       .not.toBeNull();
@@ -155,7 +157,9 @@ test.describe('View invitation details', () => {
     // Poll: the click's clipboard write is async, and a bare expect() on a string has no retry.
     await memberManagement.copyInvitationUrlButton.click();
     await expect
-      .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+      // clipboard.readText() rejects outright if the document isn't focused, which would end the
+      // poll on its first tick instead of retrying.
+      .poll(pollRead(() => page.evaluate(() => navigator.clipboard.readText()), ''))
       .toBe(invitation.invitation_url);
 
     await deleteInvitation(org.orgId, invitation.id).catch(() => undefined);
@@ -187,26 +191,25 @@ test.describe('Assign role to member', () => {
 
     const row = memberManagement.memberRow(email);
     await expect(row).toBeVisible();
-    await memberManagement.rowActionsMenuButton(row).click();
+    await memberManagement.openMemberActionsMenu(row);
     await memberManagement.assignRoleMenuItem.click();
 
     await expect(memberManagement.assignRolesDialog).toBeVisible();
     await memberManagement.rolesCombobox.click();
     await memberManagement.roleOption(roleName).click();
     await page.keyboard.press('Escape');
-    await memberManagement.assignRolesSubmitButton.click();
 
-    await expect(
-      memberManagement.toast(t('member_management.member.detail.roles.assign_modal.success')),
-    ).toBeVisible();
+    const toasts = await watchToasts(page);
+    await memberManagement.assignRolesSubmitButton.click();
+    await toasts.expectSuccess(t('member_management.member.detail.roles.assign_modal.success'));
     await expect(memberManagement.assignRolesDialog).toBeHidden();
 
     await expect
       .poll(
-        async () => {
+        pollRead(async () => {
           const roles = await listOrgMemberRoles(org.orgId, user.user_id);
           return roles.some((role) => role.name === roleName);
-        },
+        }, false),
         { timeout: 10_000 },
       )
       .toBe(true);
@@ -240,17 +243,27 @@ test.describe('Remove member from organization', () => {
 
     await memberManagement.openRemoveFromOrganizationDialog(row);
     await expect(memberManagement.removeFromOrganizationDialog).toBeVisible();
-    await memberManagement.confirmRemoveFromOrganizationButton.click();
 
-    await expect(memberManagement.successToast).toBeVisible();
+    // The component builds this copy from the org's display_name, which another spec edits — read
+    // it live so the assertion doesn't depend on file execution order.
+    const { display_name: organizationName } = await getOrganization(org.orgId);
+
+    const toasts = await watchToasts(page);
+    await memberManagement.confirmRemoveFromOrganizationButton.click();
+    await toasts.expectSuccess(
+      t('member_management.member.detail.actions.remove_from_organization.success', {
+        memberName: user.name!,
+        organizationName: organizationName ?? '',
+      }),
+    );
     await expect(memberManagement.removeFromOrganizationDialog).toBeHidden();
 
     await expect
       .poll(
-        async () => {
+        pollRead(async () => {
           const members = await listOrgMembers(org.orgId);
           return members.some((member) => member.user_id === user.user_id);
-        },
+        }, true),
         { timeout: 10_000 },
       )
       .toBe(false);
@@ -279,19 +292,18 @@ test.describe('Revoke invitation', () => {
     await memberManagement.revokeInvitationMenuItem.click();
 
     await expect(memberManagement.revokeInvitationDialog).toBeVisible();
-    await memberManagement.confirmRevokeInvitationButton.click();
 
-    await expect(
-      memberManagement.toast(t('member_management.invitation.revoke.success', { email })),
-    ).toBeVisible();
+    const toasts = await watchToasts(page);
+    await memberManagement.confirmRevokeInvitationButton.click();
+    await toasts.expectSuccess(t('member_management.invitation.revoke.success', { email }));
     await expect(memberManagement.revokeInvitationDialog).toBeHidden();
 
     await expect
       .poll(
-        async () => {
+        pollRead(async () => {
           const invitations = await listOrgInvitations(org.orgId);
           return invitations.some((i) => i.id === invitation.id);
-        },
+        }, true),
         { timeout: 10_000 },
       )
       .toBe(false);
@@ -322,13 +334,12 @@ test.describe('Revoke and resend invitation', () => {
     await memberManagement.revokeAndResendInvitationMenuItem.click();
 
     await expect(memberManagement.revokeAndResendInvitationDialog).toBeVisible();
-    await memberManagement.confirmRevokeAndResendButton.click();
 
-    await expect(
-      memberManagement.toast(
-        t('member_management.invitation.success.invitation_resent', { email }),
-      ),
-    ).toBeVisible();
+    const toasts = await watchToasts(page);
+    await memberManagement.confirmRevokeAndResendButton.click();
+    await toasts.expectSuccess(
+      t('member_management.invitation.success.invitation_resent', { email }),
+    );
     await expect(memberManagement.revokeAndResendInvitationDialog).toBeHidden();
 
     // A different invitation id for the same email proves delete+recreate happened,
@@ -336,12 +347,12 @@ test.describe('Revoke and resend invitation', () => {
     let newInvitationId: string | undefined;
     await expect
       .poll(
-        async () => {
+        pollRead(async () => {
           const invitations = await listOrgInvitations(org.orgId);
           const match = invitations.find((i) => i.invitee.email === email);
           newInvitationId = match?.id;
           return !!match?.id && match.id !== invitation.id;
-        },
+        }, false),
         { timeout: 10_000 },
       )
       .toBe(true);

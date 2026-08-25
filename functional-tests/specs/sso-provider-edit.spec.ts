@@ -10,6 +10,7 @@ import {
   listOrgEnabledConnections,
 } from '../lib/management-api';
 import { requireRunState } from '../lib/run-state';
+import { watchToasts } from '../lib/toast';
 import { SsoProviderCreatePage } from '../pages/sso-provider-create.page';
 import { SsoProviderEditPage } from '../pages/sso-provider-edit.page';
 
@@ -49,14 +50,14 @@ test.describe('Edit provider configuration', () => {
 
     await ssoProviderEdit.displayNameInput.fill(updatedDisplayName);
     await ssoProviderEdit.clientSecretInput.fill('ft-test-client-secret');
+
+    const toasts = await watchToasts(page);
     await ssoProviderEdit.saveButton.click();
 
     // Toast reads from pre-mutation cache — shows old name when display name itself changed.
-    await expect(
-      ssoProviderEdit.toast(
-        t('idp_management.notifications.update_success', { providerName: originalDisplayName }),
-      ),
-    ).toBeVisible();
+    await toasts.expectSuccess(
+      t('idp_management.notifications.update_success', { providerName: originalDisplayName }),
+    );
 
     const connection = await getConnection(connectionId);
     expect(connection.display_name).toBe(updatedDisplayName);

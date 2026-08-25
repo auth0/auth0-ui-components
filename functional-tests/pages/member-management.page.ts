@@ -47,6 +47,12 @@ export class MemberManagementPage {
     return row.getByRole('button', { name: t(`${NAMESPACE}.invitation.actions.menu_label`) });
   }
 
+  // Check the menu opened here, because a list refresh can close it and the caller would hang.
+  async openMemberActionsMenu(row: Locator): Promise<void> {
+    await this.rowActionsMenuButton(row).click();
+    await expect(this.page.getByRole('menu')).toBeVisible();
+  }
+
   async openInvitationActionsMenu(row: Locator): Promise<void> {
     await this.invitationRowActionsMenuButton(row).click();
     await expect(this.page.getByRole('menu')).toBeVisible();
@@ -103,12 +109,16 @@ export class MemberManagementPage {
   }
 
   async openRemoveFromOrganizationDialog(row: Locator): Promise<void> {
-    await this.rowActionsMenuButton(row).click();
+    await this.openMemberActionsMenu(row);
     await this.removeFromOrganizationMenuItem.click();
   }
 
   get removeFromOrganizationDialog(): Locator {
-    return this.page.getByRole('dialog');
+    return this.page.getByRole('dialog', {
+      name: t(`${NAMESPACE}.member.detail.actions.remove_from_organization.modal.title`, {
+        organizationName: '',
+      }),
+    });
   }
 
   get confirmRemoveFromOrganizationButton(): Locator {
@@ -179,15 +189,5 @@ export class MemberManagementPage {
   async fillInviteEmail(email: string): Promise<void> {
     await this.inviteEmailInput.fill(email);
     await this.inviteEmailInput.press('Enter');
-  }
-
-  get successToast(): Locator {
-    return this.page.locator('[data-sonner-toast][data-type="success"]');
-  }
-
-  toast(message: string, type: 'success' | 'error' = 'success'): Locator {
-    return this.page
-      .locator(`[data-sonner-toast][data-type="${type}"]`)
-      .filter({ hasText: message });
   }
 }

@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 import { t } from '../lib/i18n';
 
@@ -36,17 +36,22 @@ export class OrganizationDetailsPage {
     return this.root.getByRole('button', { name: t(`${DETAILS_NAMESPACE}.submit_button_label`) });
   }
 
+  async waitForLoaded(): Promise<void> {
+    await expect(this.nameInput).toBeVisible();
+  }
+
   async setDisplayName(value: string): Promise<void> {
     await this.displayNameInput.fill(value);
+    // Confirm the value stuck, because a re-render can reset the field and we would then save the
+    // old value and fail later on a toast that never matches.
+    await expect(this.displayNameInput).toHaveValue(value);
   }
 
   async save(): Promise<void> {
     await this.saveButton.click();
   }
 
-  saveSuccessToast(organizationName: string): Locator {
-    return this.page.locator('[data-sonner-toast][data-type="success"]').filter({
-      hasText: t(`${EDIT_NAMESPACE}.save_organization_changes_message`, { organizationName }),
-    });
+  saveSuccessMessage(organizationName: string): string {
+    return t(`${EDIT_NAMESPACE}.save_organization_changes_message`, { organizationName });
   }
 }

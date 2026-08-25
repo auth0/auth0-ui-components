@@ -74,6 +74,8 @@ function sleep(ms: number): Promise<void> {
 
 const MAX_RATE_LIMIT_RETRIES = 4;
 const MAX_SERVER_ERROR_RETRIES = 2;
+// Auth0's Retry-After can be tens of seconds, so cap it or a rate limit just times the test out.
+const MAX_RETRY_AFTER_MS = 5_000;
 
 // Returns ms to wait before retrying, or null to give up. 5xx is retried because occasional server
 // errors on setup calls (seen on POST /users) should not fail a spec; createOrRecover() absorbs the
@@ -82,9 +84,11 @@ function retryWaitMs(response: Response, attempt: number): number | null {
   if (response.status === 429) {
     if (attempt >= MAX_RATE_LIMIT_RETRIES) return null;
     const retryAfterSeconds = Number(response.headers.get('retry-after'));
-    return Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
-      ? retryAfterSeconds * 1000
-      : 2 ** attempt * 500;
+    const wait =
+      Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
+        ? retryAfterSeconds * 1000
+        : 2 ** attempt * 500;
+    return Math.min(wait, MAX_RETRY_AFTER_MS);
   }
 
   if (response.status >= 500 && attempt < MAX_SERVER_ERROR_RETRIES) {
@@ -241,6 +245,26 @@ export function listOrgEnabledConnections(
   return mgmt('GET', `organizations/${organizationId}/enabled_connections`);
 }
 
+const CONNECTIONS_PAGE_SIZE = 100;
+const MAX_CONNECTION_PAGES = 10;
+
+// Lists every connection on the tenant. Pages through them, because one page quietly hides the rest
+// and a lookup would then fail to find a connection we just made. Stops after the first short page.
+export async function listConnections(): Promise<Array<{ id: string; name: string }>> {
+  const all: Array<{ id: string; name: string }> = [];
+
+  for (let page = 0; page < MAX_CONNECTION_PAGES; page += 1) {
+    const batch = await mgmt<Array<{ id: string; name: string }>>(
+      'GET',
+      `connections?per_page=${CONNECTIONS_PAGE_SIZE}&page=${page}`,
+    );
+    all.push(...batch);
+    if (batch.length < CONNECTIONS_PAGE_SIZE) break;
+  }
+
+  return all;
+}
+
 // identityProviders.create() stores the connection as `con-org-{orgId}-{name}` —
 // match by suffix so specs can look up by the name typed in the wizard.
 export async function findSsoConnectionIdByProviderName(providerName: string): Promise<string> {
@@ -249,10 +273,7 @@ export async function findSsoConnectionIdByProviderName(providerName: string): P
   await waitForPropagation(
     `SSO connection ending in "${providerName}" to appear on tenant ${domain()}`,
     async () => {
-      const connections = await mgmt<Array<{ id: string; name: string }>>(
-        'GET',
-        'connections?per_page=100',
-      );
+      const connections = await listConnections();
       match = connections.find((connection) => connection.name.endsWith(`-${providerName}`));
       return match !== undefined;
     },
@@ -321,10 +342,7 @@ export function assignMemberRoles(
 }
 
 export async function findConnectionIdByName(name: string): Promise<string> {
-  const connections = await mgmt<Array<{ id: string; name: string }>>(
-    'GET',
-    'connections?per_page=100',
-  );
+  const connections = await listConnections();
   const match = connections.find((connection) => connection.name === name);
   if (!match) {
     throw new Error(`Connection "${name}" not found on tenant ${domain()}`);
@@ -435,7 +453,7 @@ export interface OrgMember {
 export function listOrgMembers(organizationId: string): Promise<OrgMember[]> {
   return mgmt<OrgMember[]>(
     'GET',
-    `organizations/${organizationId}/members?fields=user_id,email,name,roles`,
+    `organizations/${organizationId}/members?fields=user_id,email,name,roles&per_page=100`,
   );
 }
 

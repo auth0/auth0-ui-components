@@ -9,9 +9,14 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const organizationId = readRunState()?.orgId ?? '';
 
+const PORT = 5173;
+const webServerCommand = process.env.CI
+  ? `pnpm exec vite build && pnpm exec vite preview --port ${PORT} --strictPort`
+  : 'pnpm dev';
+
 export const reactSpaNpmApp: AppAdapter = {
   name: 'react-spa-npm',
-  baseURL: 'http://localhost:5173',
+  baseURL: `http://localhost:${PORT}`,
   authMode: 'spa',
   routes: {
     organizationManagement: '/organization-management',
@@ -23,7 +28,7 @@ export const reactSpaNpmApp: AppAdapter = {
     ssoProviderEdit: (providerId: string) => `/sso-provider/edit/${providerId}`,
   },
   webServer: {
-    command: 'pnpm dev',
+    command: webServerCommand,
     cwd: path.resolve(dirname, '../../examples/react-spa-npm'),
     env: {
       VITE_AUTH0_DOMAIN: process.env.FT_AUTH0_DOMAIN ?? '',

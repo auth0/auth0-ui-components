@@ -6,8 +6,9 @@ import {
   type CreateIdentityProviderRequestContentPrivate,
 } from '@auth0/universal-components-core';
 import type { QueryClient } from '@tanstack/react-query';
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import * as React from 'react';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import { SsoProviderCreate } from '@/components/auth0/my-organization/sso-provider-create';
@@ -748,6 +749,38 @@ describe('SsoProviderCreate', () => {
           }),
         ).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('step state across re-renders', () => {
+    it('keeps typed provider details when the container re-renders', async () => {
+      const user = userEvent.setup();
+
+      // Re-renders <SsoProviderCreate/> on demand, standing in for any state or query update.
+      let rerenderContainer: () => void = () => undefined;
+      function Container() {
+        const [, setTick] = React.useState(0);
+        rerenderContainer = () => setTick((tick) => tick + 1);
+        return <SsoProviderCreate {...createMockSsoProviderCreateProps()} />;
+      }
+
+      renderWithProviders(<Container />, { queryClient });
+
+      await waitForComponentToLoad();
+      const strategyButtons = await waitForStrategyButtons();
+      await user.click(strategyButtons[0]!);
+
+      const nameInput = await screen.findByRole('textbox', { name: /fields\.name\.label/i });
+      await user.type(nameInput, 'e2e-provider-name');
+      expect(nameInput).toHaveValue('e2e-provider-name');
+
+      await act(async () => {
+        rerenderContainer();
+      });
+
+      expect(screen.getByRole('textbox', { name: /fields\.name\.label/i })).toHaveValue(
+        'e2e-provider-name',
+      );
     });
   });
 });

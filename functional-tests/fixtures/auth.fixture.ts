@@ -88,29 +88,44 @@ function trackTokenTraffic(context: BrowserContext): TokenTraffic {
 }
 
 const RATE_LIMIT_RETRIES = 3;
+// Auth0's Retry-After can be tens of seconds, which is longer than any test waits. Cap it so a rate
+// limit costs us one extra retry instead of a test failure that looks like a broken feature.
+const MAX_RETRY_AFTER_MS = 5_000;
+
+function retryDelayMs(response: { headers(): Record<string, string> }, attempt: number): number {
+  const retryAfterSeconds = Number(response.headers()['retry-after']);
+  const wait =
+    Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
+      ? retryAfterSeconds * 1000
+      : 2 ** attempt * 400;
+  return Math.min(wait, MAX_RETRY_AFTER_MS);
+}
 
 /**
  * The My Org API allows only 2 concurrent requests, but one page mount fires 5 reads — so 429s
- * are routine in tests. This intercepts My Org/Account API calls, retries on 429 with backoff,
- * and hands the final response back to the browser transparently. Stops retrying on 401/403
- * since replaying a DPoP proof can be rejected and a bad auth response is better than a worse one.
+ * are routine in tests. This intercepts My Org/Account API reads, retries on 429 with capped
+ * backoff, and hands the final response back to the browser transparently.
+ *
+ * Only GETs are retried. Each request is signed for single use, so replaying one fails as an auth
+ * error rather than a retry. The app already retries its own writes, and it re-signs those properly.
+ *
  * The try/catch handles the case where the test ends while a retry is still sleeping — at that
  * point route.fetch() throws "Test ended" and we abort quietly instead of failing a finished test.
  */
 async function installRateLimitRetry(context: BrowserContext): Promise<void> {
   await context.route(
     (url) => isApiRequest(url.href),
-    async (route) => {
+    async (route, request) => {
+      if (request.method() !== 'GET') {
+        await route.continue().catch(() => undefined);
+        return;
+      }
+
       try {
         let lastResponse = await route.fetch();
 
         for (let attempt = 0; lastResponse.status() === 429 && attempt < RATE_LIMIT_RETRIES; ) {
-          const retryAfterSeconds = Number(lastResponse.headers()['retry-after']);
-          await sleep(
-            Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
-              ? retryAfterSeconds * 1000
-              : 2 ** attempt * 400,
-          );
+          await sleep(retryDelayMs(lastResponse, attempt));
           attempt += 1;
 
           const retried = await route.fetch();

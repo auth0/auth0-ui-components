@@ -9,6 +9,7 @@ import {
   listOrgEnabledConnections,
 } from '../lib/management-api';
 import { requireRunState } from '../lib/run-state';
+import { watchToasts } from '../lib/toast';
 import { SsoProviderCreatePage } from '../pages/sso-provider-create.page';
 import { SsoProviderTablePage } from '../pages/sso-provider-table.page';
 
@@ -83,23 +84,23 @@ test.describe('Enable/disable toggle', () => {
     await expect(ssoProviderTable.providerRow(name)).toBeVisible();
     await expect(switchControl).toHaveAttribute('aria-checked', 'false');
 
+    // Enabling and disabling emit identical copy, and toasts live for 4s. A watcher per action
+    // requires a *new* toast, so the disable assertion can't be satisfied by the enable toast.
+    const updateToast = t('idp_management.notifications.update_success', {
+      providerName: displayName,
+    });
+
+    const enableToasts = await watchToasts(page);
     await switchControl.click();
-    await expect(
-      ssoProviderTable.toast(
-        t('idp_management.notifications.update_success', { providerName: displayName }),
-      ),
-    ).toBeVisible();
+    await enableToasts.expectSuccess(updateToast);
     await expect(switchControl).toHaveAttribute('aria-checked', 'true');
 
     let enabled = await listOrgEnabledConnections(org.orgId);
     expect(enabled.map((c) => c.connection_id)).toContain(connectionId);
 
+    const disableToasts = await watchToasts(page);
     await switchControl.click();
-    await expect(
-      ssoProviderTable.toast(
-        t('idp_management.notifications.update_success', { providerName: displayName }),
-      ),
-    ).toBeVisible();
+    await disableToasts.expectSuccess(updateToast);
     await expect(switchControl).toHaveAttribute('aria-checked', 'false');
 
     enabled = await listOrgEnabledConnections(org.orgId);
@@ -131,6 +132,10 @@ test.describe('Refresh button', () => {
     const secondTabCreate = new SsoProviderCreatePage(secondPage);
     await secondTabCreate.goto(createRoute);
     await secondTabCreate.createOidcProvider({ name, displayName });
+
+    // Wait for the row before closing: closing mid-read can kill a token refresh after the server
+    // rotated it, leaving the saved session dead and failing the NEXT test instead of this one.
+    await expect(new SsoProviderTablePage(secondPage).providerRow(name)).toBeVisible();
     await secondPage.close();
 
     const connectionId = await findSsoConnectionIdByProviderName(name);

@@ -294,6 +294,8 @@ export function useOrganizationMemberManagement(
     members: currentMembers,
     organizationDisplayName: organizationDisplayName,
     isInitialLoading: membersQuery.isLoading,
+    isLoadingMembers: membersQuery.isLoading,
+    isLoadingInvitations: invitationsQuery.isLoading,
     isFetchingInvitations: invitationsQuery.isFetching,
     isFetchingMembers: membersQuery.isFetching,
     isMembersStale: membersQuery.isStale,

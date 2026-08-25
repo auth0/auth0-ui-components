@@ -56,22 +56,16 @@ export class MemberDetailPage {
   }
 
   get removeFromOrganizationDialog(): Locator {
-    return this.page.getByRole('dialog');
+    return this.page.getByRole('dialog', {
+      name: t(`${NAMESPACE}.member.detail.actions.remove_from_organization.modal.title`, {
+        organizationName: '',
+      }),
+    });
   }
 
   get confirmRemoveFromOrganizationButton(): Locator {
     return this.removeFromOrganizationDialog.getByRole('button', {
       name: t(`${NAMESPACE}.member.detail.actions.remove_from_organization.modal.confirm_button`),
     });
-  }
-
-  get successToast(): Locator {
-    return this.page.locator('[data-sonner-toast][data-type="success"]');
-  }
-
-  toast(message: string, type: 'success' | 'error' = 'success'): Locator {
-    return this.page
-      .locator(`[data-sonner-toast][data-type="${type}"]`)
-      .filter({ hasText: message });
   }
 }

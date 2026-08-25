@@ -1,4 +1,4 @@
-import { type Locator, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 import { t } from '../lib/i18n';
 
@@ -28,12 +28,6 @@ export class SsoProviderEditPage {
     });
   }
 
-  toast(message: string, type: 'success' | 'error' = 'success'): Locator {
-    return this.page
-      .locator(`[data-sonner-toast][data-type="${type}"]`)
-      .filter({ hasText: message });
-  }
-
   private cardWithTitle(title: string): Locator {
     return this.page.locator('[data-slot="card"]').filter({ hasText: title });
   }
@@ -51,6 +45,7 @@ export class SsoProviderEditPage {
     const dialog = this.page.getByRole('dialog', {
       name: t('idp_management.delete_sso_provider.modal.title', { providerName }),
     });
+    await expect(dialog).toBeVisible();
     await dialog
       .getByLabel(t('idp_management.delete_sso_provider.modal.content.field.label'))
       .fill(providerName);
@@ -74,6 +69,9 @@ export class SsoProviderEditPage {
     const dialog = this.page.getByRole('dialog', {
       name: t('idp_management.remove_sso_provider.modal.title', { providerName, organizationName }),
     });
+    // Check the dialog first. Its title includes the organization name, so if that name is missing
+    // we fail fast with "dialog not visible" instead of waiting on a field that never shows up.
+    await expect(dialog).toBeVisible();
     await dialog
       .getByLabel(t('idp_management.remove_sso_provider.modal.content.field.label'))
       .fill(providerName);

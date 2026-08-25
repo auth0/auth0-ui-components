@@ -36,7 +36,9 @@ export default defineConfig({
       url: reactSpaNpmApp.baseURL,
       env: reactSpaNpmApp.webServer.env,
       reuseExistingServer: !process.env.CI,
-      timeout: 60_000,
+      // CI builds the app before serving it (see react-spa-npm.app.ts), so it needs more than a
+      // dev server's start-up time.
+      timeout: process.env.CI ? 240_000 : 60_000,
     },
   ],
 });

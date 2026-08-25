@@ -1,4 +1,4 @@
-import { type Locator, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 import { t } from '../lib/i18n';
 
@@ -28,6 +28,11 @@ export class DomainManagementPage {
   // Row actions trigger has no aria-label (icon-only) — only button in the row.
   rowActionsMenuButton(row: Locator): Locator {
     return row.getByRole('button');
+  }
+
+  async openRowActionsMenu(row: Locator): Promise<void> {
+    await this.rowActionsMenuButton(row).click();
+    await expect(this.page.getByRole('menu')).toBeVisible();
   }
 
   get viewMenuItem(): Locator {
@@ -113,12 +118,7 @@ export class DomainManagementPage {
   }
 
   async confirmDelete(): Promise<void> {
+    await expect(this.deleteDomainDialog).toBeVisible();
     await this.confirmDeleteButton.click();
-  }
-
-  toast(message: string, type: 'success' | 'error' = 'success'): Locator {
-    return this.page
-      .locator(`[data-sonner-toast][data-type="${type}"]`)
-      .filter({ hasText: message });
   }
 }

@@ -102,7 +102,7 @@ export function useOrganizationDetailsEditService({
 
   return {
     organization,
-    isFetchLoading: organizationQuery.isFetching,
+    isFetchLoading: organizationQuery.isLoading,
     isSaveLoading: isMutationLoading(updateMutation),
     isInitializing,
     fetchOrgDetails,
