@@ -43,8 +43,12 @@ describe('SsoCrossAppAccessSection', () => {
 
         expect(screen.getByText('title')).toBeInTheDocument();
         expect(screen.getByText('label')).toBeInTheDocument();
-        expect(screen.getByText('helper_text')).toBeInTheDocument();
-        expect(screen.getByText('domain_verification_text')).toBeInTheDocument();
+        expect(
+          screen.getByText(
+            (content) =>
+              content.includes('helper_text') && content.includes('domain_verification_text'),
+          ),
+        ).toBeInTheDocument();
       });
 
       it('should not render SAML-specific fields', () => {
@@ -108,7 +112,12 @@ describe('SsoCrossAppAccessSection', () => {
 
         expect(screen.getByRole('checkbox')).toBeInTheDocument();
         expect(screen.getByText('label')).toBeInTheDocument();
-        expect(screen.getByText('helper_text')).toBeInTheDocument();
+        expect(
+          screen.getByText(
+            (content) =>
+              content.includes('helper_text') && content.includes('domain_verification_text'),
+          ),
+        ).toBeInTheDocument();
       });
 
       it('should display discovery URL value', () => {
@@ -259,7 +268,10 @@ describe('SsoCrossAppAccessSection', () => {
       const describedById = checkbox.getAttribute('aria-describedby');
       expect(describedById).toBeTruthy();
 
-      const description = screen.getByText('helper_text');
+      const description = screen.getByText(
+        (content) =>
+          content.includes('helper_text') && content.includes('domain_verification_text'),
+      );
       expect(description).toHaveAttribute('id', describedById);
     });
 

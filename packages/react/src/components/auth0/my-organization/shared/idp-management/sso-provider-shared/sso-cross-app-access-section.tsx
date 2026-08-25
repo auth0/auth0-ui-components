@@ -58,7 +58,7 @@ export function SsoCrossAppAccessSection(props: CrossAppAccessSectionProps): Rea
         aria-disabled={isCheckboxDisabled}
         aria-describedby={descriptionId}
       />
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col">
         <Label
           htmlFor={checkboxId}
           className={cn(
@@ -69,16 +69,15 @@ export function SsoCrossAppAccessSection(props: CrossAppAccessSectionProps): Rea
           {t('label')}
         </Label>
         <p id={descriptionId} className="text-sm text-muted-foreground">
-          {t('helper_text')}
+          {t('helper_text')} {t('domain_verification_text')}
         </p>
-        <p className="text-sm text-muted-foreground">{t('domain_verification_text')}</p>
       </div>
     </div>
   );
 
   if (isSaml) {
     return (
-      <div className={cn('space-y-4', className)}>
+      <div className={cn('space-y-6', className)}>
         <Separator />
         <h6 className="text-base font-semibold leading-5">{t('title')}</h6>
         <p className="text-sm text-muted-foreground">{t('saml_description')}</p>
@@ -115,7 +114,7 @@ export function SsoCrossAppAccessSection(props: CrossAppAccessSectionProps): Rea
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-6', className)}>
       <Separator />
       <h6 className="text-base font-semibold leading-5">{t('title')}</h6>
       {checkboxGroup}

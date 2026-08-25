@@ -41,7 +41,7 @@ export function SsoThirdPartyAccessSection({
   };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-6', className)}>
       <Separator />
       <h6 className="text-base font-semibold leading-5">{t('title')}</h6>
       <div className="flex items-start gap-3">
@@ -53,7 +53,7 @@ export function SsoThirdPartyAccessSection({
           aria-disabled={readOnly}
           aria-describedby={descriptionId}
         />
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col">
           <Label htmlFor={checkboxId} className="text-sm font-normal cursor-pointer">
             {t('label')}
           </Label>
