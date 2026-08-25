@@ -76,7 +76,8 @@ const MAX_RATE_LIMIT_RETRIES = 4;
 const MAX_SERVER_ERROR_RETRIES = 2;
 
 // Returns ms to wait before retrying, or null to give up. 5xx is retried because occasional server
-// errors on setup calls (seen on POST /users) should not fail a spec; a 409 on the retry is fine.
+// errors on setup calls (seen on POST /users) should not fail a spec; createOrRecover() absorbs the
+// 409 that a retried create then lands on.
 function retryWaitMs(response: Response, attempt: number): number | null {
   if (response.status === 429) {
     if (attempt >= MAX_RATE_LIMIT_RETRIES) return null;
@@ -165,6 +166,17 @@ export async function waitForPropagation<T>(
       );
     }
     await sleep(500);
+  }
+}
+
+// Absorbs a 409 on `create` by reading the resource back via `recover`. Safe because every caller
+// uses a unique name/email — a 409 can only mean an earlier timed-out attempt of this call won.
+async function createOrRecover<T>(create: () => Promise<T>, recover: () => Promise<T>): Promise<T> {
+  try {
+    return await create();
+  } catch (error) {
+    if (!(error instanceof Error) || !error.message.includes(' failed: 409 ')) throw error;
+    return recover();
   }
 }
 
@@ -339,7 +351,18 @@ export interface Role {
 }
 
 export function createRole(input: { name: string; description?: string }): Promise<Role> {
-  return mgmt<Role>('POST', 'roles', input);
+  return createOrRecover(
+    () => mgmt<Role>('POST', 'roles', input),
+    async () => ({
+      id: await waitForPropagation(
+        `the role "${input.name}" created by a retried POST /roles to be readable`,
+        () => findRoleIdByName(input.name),
+        Boolean,
+      ),
+      name: input.name,
+      description: input.description,
+    }),
+  );
 }
 
 export function deleteRole(roleId: string): Promise<void> {
@@ -377,13 +400,25 @@ export interface User {
 }
 
 export function createUser(input: CreateUserInput): Promise<User> {
-  return mgmt<User>('POST', 'users', {
-    email: input.email,
-    password: input.password,
-    name: input.name,
-    connection: input.connectionName,
-    email_verified: true,
-  });
+  return createOrRecover(
+    () =>
+      mgmt<User>('POST', 'users', {
+        email: input.email,
+        password: input.password,
+        name: input.name,
+        connection: input.connectionName,
+        email_verified: true,
+      }),
+    async () => ({
+      user_id: await waitForPropagation(
+        `the user for ${input.email} created by a retried POST /users to be readable`,
+        () => findUserIdByEmail(input.email),
+        Boolean,
+      ),
+      email: input.email,
+      name: input.name,
+    }),
+  );
 }
 
 export function deleteUser(userId: string): Promise<void> {

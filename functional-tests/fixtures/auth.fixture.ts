@@ -127,11 +127,15 @@ async function installRateLimitRetry(context: BrowserContext): Promise<void> {
 }
 
 // How long token traffic must be silent before we consider it safe to save the session.
-// 250ms is enough to avoid saving mid-exchange; stragglers are covered by the 60s leeway on the Auth0 client.
+// 250ms is enough to avoid saving mid-exchange; a straggler that rotates once more is covered by the
+// rotation leeway set in scripts/setup-org.ts.
 const QUIET_WINDOW_MS = 250;
 // Maximum time to wait for traffic to go quiet. If exceeded, we save anyway — a possibly-stale
 // token is better than no session at all.
 const QUIET_TIMEOUT_MS = 15_000;
+// Much shorter because once the pages are parked, waiting can only detect a straggler, never fix one:
+// the SDK stores a rotated token in the handler of the fetch it started, and that handler died with the page.
+const POST_PARKING_QUIET_TIMEOUT_MS = 2_000;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -143,25 +147,41 @@ function sleep(ms: number): Promise<void> {
  * - no activity for at least QUIET_WINDOW_MS
  * Both conditions are needed because the SDK chains exchanges one after another — inFlight
  * briefly hits zero between two exchanges, so silence duration is what confirms it's truly done.
- * Returns true if settled in time, false if QUIET_TIMEOUT_MS was reached.
+ * Returns true if settled in time, false if the timeout was reached.
+ *
+ * On timeout it logs both counters, since they mean opposite things: a long idle time means a request
+ * was torn down without ever reporting back and the snapshot is fine, while fresh activity means the
+ * SDK is still chaining exchanges and the snapshot really can be a generation behind.
+ *
+ * @param traffic - Live scoreboard from trackTokenTraffic().
+ * @param timeoutMs - How long to wait before giving up.
  */
-async function waitForTokenTrafficToSettle(traffic: TokenTraffic): Promise<boolean> {
-  const deadline = Date.now() + QUIET_TIMEOUT_MS;
-  while (Date.now() < deadline) {
-    if (traffic.inFlight === 0 && Date.now() - traffic.lastActivityAt >= QUIET_WINDOW_MS) {
-      return true;
+async function waitForTokenTrafficToSettle(
+  traffic: TokenTraffic,
+  timeoutMs = QUIET_TIMEOUT_MS,
+): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const idleMs = Date.now() - traffic.lastActivityAt;
+    if (traffic.inFlight === 0 && idleMs >= QUIET_WINDOW_MS) return true;
+
+    if (Date.now() >= deadline) {
+      console.warn(
+        `[auth.fixture] token traffic unsettled after ${timeoutMs}ms ` +
+          `(inFlight=${traffic.inFlight}, idle=${idleMs}ms)`,
+      );
+      return false;
     }
     await sleep(100);
   }
-  return false;
 }
 
 /**
  * Saves the browser session (cookies + localStorage) to disk after all token exchanges settle.
  * Two-step process: first waits for quiet while the app is still open (so the SDK can store the
  * rotated token), then parks all pages to about:blank (so nothing new fires), then waits again
- * before writing. Returns true if both waits succeeded, false if traffic never settled — in which
- * case the file is still written since a possibly-stale token beats no session at all.
+ * briefly before writing. Returns true if both waits succeeded, false if traffic never settled — in
+ * which case the file is still written since a possibly-stale token beats no session at all.
  */
 async function persistSession(
   context: BrowserContext,
@@ -171,13 +191,17 @@ async function persistSession(
   const quietBeforeParking = await waitForTokenTrafficToSettle(traffic);
 
   await Promise.all(context.pages().map((page) => page.goto('about:blank').catch(() => undefined)));
-  const quiet = (await waitForTokenTrafficToSettle(traffic)) && quietBeforeParking;
+  // Deliberately short-circuiting: once the first wait has failed the snapshot is suspect whatever
+  // the second says, so waiting again only burns another timeout to reach the same conclusion.
+  const quiet =
+    quietBeforeParking &&
+    (await waitForTokenTrafficToSettle(traffic, POST_PARKING_QUIET_TIMEOUT_MS));
 
   await context.storageState({ path: stateFile });
 
   if (!quiet) {
     console.warn(
-      `[auth.fixture] token traffic never went quiet within ${QUIET_TIMEOUT_MS}ms; ` +
+      `[auth.fixture] token traffic never went quiet; ` +
         `${path.basename(stateFile)} may hold a rotated-away refresh token`,
     );
   }

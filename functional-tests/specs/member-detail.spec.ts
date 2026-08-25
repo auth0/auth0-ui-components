@@ -26,20 +26,21 @@ function uniqueEmail(label: string): string {
 }
 
 test.describe('Member details on page load', () => {
-  let user: User;
+  let createdUserId: string | undefined;
 
   test.afterEach(async () => {
-    await deleteUser(user.user_id).catch(() => undefined);
+    if (createdUserId) await deleteUser(createdUserId).catch(() => undefined);
   });
 
   test('renders the real member fetched by id, not the list endpoint', async ({ page }) => {
     const email = uniqueEmail('detail-view');
-    user = await createUser({
+    const user = await createUser({
       email,
       password: `Ft!${Math.random().toString(36).slice(2)}A1`,
       name: 'FT Detail View Member',
       connectionName,
     });
+    createdUserId = user.user_id;
     await addMembers(org.orgId, [user.user_id]);
     await waitForOrgMember(org.orgId, user.user_id);
 
@@ -57,26 +58,28 @@ test.describe('Member details on page load', () => {
 });
 
 test.describe('Remove role from member', () => {
-  let user: User;
-  let role: Role;
+  let createdUserId: string | undefined;
+  let createdRoleId: string | undefined;
 
   test.afterEach(async () => {
-    await deleteUser(user.user_id).catch(() => undefined);
-    await deleteRole(role.id).catch(() => undefined);
+    if (createdUserId) await deleteUser(createdUserId).catch(() => undefined);
+    if (createdRoleId) await deleteRole(createdRoleId).catch(() => undefined);
   });
 
   test('removes a single role, verified independently via the Management API', async ({ page }) => {
     const email = uniqueEmail('remove-role');
-    user = await createUser({
+    const user = await createUser({
       email,
       password: `Ft!${Math.random().toString(36).slice(2)}A1`,
       name: 'FT Remove Role Member',
       connectionName,
     });
+    createdUserId = user.user_id;
     await addMembers(org.orgId, [user.user_id]);
     await waitForOrgMember(org.orgId, user.user_id);
 
-    role = await createRole({ name: `ft-role-${Date.now()}` });
+    const role = await createRole({ name: `ft-role-${Date.now()}` });
+    createdRoleId = role.id;
     await assignMemberRoles(org.orgId, user.user_id, [role.id]);
     // Precondition, not an expectation: the component fetches roles once on mount, so if the
     // assignment is not readable yet it renders an empty table and never recovers.
@@ -119,20 +122,21 @@ test.describe('Remove role from member', () => {
 });
 
 test.describe('Remove member from organization (detail page)', () => {
-  let user: User;
+  let createdUserId: string | undefined;
 
   test.afterEach(async () => {
-    await deleteUser(user.user_id).catch(() => undefined);
+    if (createdUserId) await deleteUser(createdUserId).catch(() => undefined);
   });
 
   test('removes the member and navigates back to the members list', async ({ page }) => {
     const email = uniqueEmail('detail-remove-member');
-    user = await createUser({
+    const user = await createUser({
       email,
       password: `Ft!${Math.random().toString(36).slice(2)}A1`,
       name: 'FT Detail Remove Member',
       connectionName,
     });
+    createdUserId = user.user_id;
     await addMembers(org.orgId, [user.user_id]);
     await waitForOrgMember(org.orgId, user.user_id);
 
