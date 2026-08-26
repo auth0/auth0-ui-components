@@ -172,7 +172,7 @@ export const SsoProviderMappers = {
     if (strategy && Object.keys(configOptions).length > 0) {
       const validOptions = getValidOptionsForStrategy(strategy, configOptions);
       if (Object.keys(validOptions).length > 0) {
-        updateRequest.options = validOptions;
+        updateRequest.options = validOptions as UpdateIdentityProviderRequestContent['options'];
       }
     }
 
