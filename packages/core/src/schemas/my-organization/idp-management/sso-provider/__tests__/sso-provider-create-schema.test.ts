@@ -14,7 +14,7 @@ import {
   type OktaConfigureFormValues,
   type GoogleAppsConfigureFormValues,
   type PingFederateConfigureFormValues,
-  type SamlpConfigureFormValues,
+  type SamlpConfigureFormInput,
   type WaadConfigureFormValues,
 } from '../sso-provider-create-schema';
 
@@ -550,9 +550,9 @@ describe('SSO Provider Create Schema', () => {
     });
 
     describe('SAMLP strategy', () => {
-      const validSamlConfig: SamlpConfigureFormValues = {
+      // Use input type for test data since it includes all fields before transform
+      const validSamlUrlInput: SamlpConfigureFormInput = {
         meta_data_source: 'meta_data_url',
-        signInEndpoint: 'https://idp.example.com/sso',
         signatureAlgorithm: 'rsa-sha256',
         digestAlgorithm: 'sha256',
         protocolBinding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
@@ -560,40 +560,41 @@ describe('SSO Provider Create Schema', () => {
         bindingMethod: 'POST',
         metadataUrl: 'https://idp.example.com/metadata',
         signingCert: 'MIIC...certificate...',
+        signInEndpoint: 'https://idp.example.com/sso',
         icon_url: 'https://example.com/icon.png',
         show_as_button: true,
       };
 
       it('should accept valid SAMLP configuration', () => {
         const schema = createProviderConfigureSchema('samlp');
-        const result = schema.safeParse(validSamlConfig);
+        const result = schema.safeParse(validSamlUrlInput);
         expect(result.success).toBe(true);
       });
 
       it('should reject missing required meta_data_source', () => {
         const schema = createProviderConfigureSchema('samlp');
-        const { meta_data_source, ...withoutMetaDataSource } = validSamlConfig;
+        const { meta_data_source, ...withoutMetaDataSource } = validSamlUrlInput;
         const result = schema.safeParse(withoutMetaDataSource);
         expect(result.success).toBe(false);
       });
 
       it('should reject missing required signSAMLRequest', () => {
         const schema = createProviderConfigureSchema('samlp');
-        const { signSAMLRequest, ...withoutSignSAMLRequest } = validSamlConfig;
+        const { signSAMLRequest, ...withoutSignSAMLRequest } = validSamlUrlInput;
         const result = schema.safeParse(withoutSignSAMLRequest);
         expect(result.success).toBe(false);
       });
 
       it('should reject missing required metadataUrl', () => {
         const schema = createProviderConfigureSchema('samlp');
-        const { metadataUrl, ...withoutMetadataUrl } = validSamlConfig;
+        const { metadataUrl, ...withoutMetadataUrl } = validSamlUrlInput;
         const result = schema.safeParse(withoutMetadataUrl);
         expect(result.success).toBe(false);
       });
 
       it('should accept optional signingCert for meta_data_url', () => {
         const schema = createProviderConfigureSchema('samlp');
-        const { signingCert, ...withoutSigningCert } = validSamlConfig;
+        const { signingCert, ...withoutSigningCert } = validSamlUrlInput;
         const result = schema.safeParse(withoutSigningCert);
         expect(result.success).toBe(true);
       });
@@ -616,7 +617,7 @@ describe('SSO Provider Create Schema', () => {
       it('should accept optional idpInitiated configuration', () => {
         const schema = createProviderConfigureSchema('samlp');
         const result = schema.safeParse({
-          ...validSamlConfig,
+          ...validSamlUrlInput,
           idpInitiated: {
             enabled: true,
             client_id: 'client123',

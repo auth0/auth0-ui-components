@@ -7,6 +7,7 @@
 import {
   createProviderConfigureSchema,
   type SamlpConfigureFormValues,
+  type SamlpConfigureFormInput,
 } from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
@@ -90,10 +91,8 @@ export const SamlpProviderForm = React.forwardRef<
 
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
-  const samlpData = initialData as SamlpConfigureFormValues | undefined;
-  const hasSignInEndpoint = Boolean(
-    samlpData && 'signInEndpoint' in samlpData && samlpData.signInEndpoint,
-  );
+  const samlpData = initialData as SamlpConfigureFormInput | undefined;
+  const hasSignInEndpoint = Boolean(samlpData?.signInEndpoint);
   const defaultMetaDataSource =
     samlpData?.meta_data_source ?? (hasSignInEndpoint ? 'meta_data_file' : 'meta_data_url');
 
@@ -105,8 +104,7 @@ export const SamlpProviderForm = React.forwardRef<
       meta_data_source: defaultMetaDataSource,
       metadataUrl: samlpData?.metadataUrl || '',
       signInEndpoint: samlpData?.signInEndpoint || '',
-      signingCert:
-        (samlpData && 'signingCert' in samlpData ? samlpData.signingCert : undefined) || '',
+      signingCert: samlpData?.signingCert || '',
       signSAMLRequest: samlpData?.signSAMLRequest || false,
       signatureAlgorithm: samlpData?.signatureAlgorithm || 'rsa-sha256',
       digestAlgorithm: samlpData?.digestAlgorithm || 'sha256',
@@ -126,7 +124,12 @@ export const SamlpProviderForm = React.forwardRef<
     validate: async () => {
       return await form.trigger();
     },
-    getData: () => form.getValues(),
+    getData: () => {
+      const rawData = form.getValues();
+      const schema = createProviderConfigureSchema('samlp');
+      const result = schema.safeParse(rawData);
+      return result.success ? result.data : rawData;
+    },
     isDirty: () => form.formState.isDirty,
     reset: (data) => {
       if (data) {
