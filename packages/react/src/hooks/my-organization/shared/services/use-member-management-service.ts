@@ -320,7 +320,7 @@ export function useMemberManagementService(
       }
       await coreClient!
         .getMyOrganizationApiClient()
-        .organization.invitations.delete(invitation.id!);
+        .organization.invitations.delete(invitation.id! as any);
       return invitation;
     },
     onSuccess: (invitation) => {
@@ -346,7 +346,7 @@ export function useMemberManagementService(
         .organization.invitations.get(invitation.id!);
       await coreClient!
         .getMyOrganizationApiClient()
-        .organization.invitations.delete(freshInvitation.id ?? invitation.id!);
+        .organization.invitations.delete(freshInvitation.id ?? (invitation.id! as any));
       const email = freshInvitation.invitee?.email ?? invitation.invitee?.email ?? '';
       const roles = freshInvitation.roles ?? invitation.roles;
       const response = await coreClient!
