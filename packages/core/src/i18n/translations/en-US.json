@@ -1170,7 +1170,9 @@
         "month": "month",
         "months": "months",
         "year": "year",
-        "years": "years"
+        "years": "years",
+        "more_roles": "More",
+        "view_all_roles": "View all ${count} roles"
       },
       "actions": {
         "menu_label": "Actions",
@@ -1198,7 +1200,6 @@
           "name": "Name",
           "email": "Email",
           "phone_number": "Phone Number",
-          "provider": "Provider",
           "created_at": "Created At",
           "last_login": "Last Login"
         },
@@ -1245,7 +1246,7 @@
           "remove_confirm": {
             "title": "Remove Role from Member?",
             "title_plural": "Remove Roles from Member?",
-            "description": "This will remove the <bold>${roleName}</bold> role from <bold>\"${memberName}\"</bold>.",
+            "description": "This will remove the <roleBold>${roleName}</roleBold> role from <memberBold>\"${memberName}\"</memberBold>.",
             "confirm_button": "Remove",
             "cancel_button": "Cancel",
             "success": "\"${roleName}\" role has been removed from member.",

@@ -9,13 +9,15 @@
       "title": "Multi-factor authentication management component.",
       "description": "Complete MFA management interface for enrolling, viewing, and deleting authentication factors. Supports TOTP authenticators, SMS, Email, Push notifications, and recovery codes.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.2",
+        "@auth0/universal-components-core@3.2.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
+        "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
+        "@radix-ui/react-dropdown-menu@2.1.1",
         "@radix-ui/react-label@2.1.7",
-        "@radix-ui/react-popover@1.1.14",
         "@radix-ui/react-slot@1.2.3",
+        "@radix-ui/react-switch@1.1.0",
         "@radix-ui/react-tooltip@1.2.7",
         "class-variance-authority@0.7.1",
         "clsx@2.1.1",
@@ -32,49 +34,44 @@
           "target": "components/auth0/my-account/user-mfa-management.tsx"
         },
         {
-          "path": "src/components/auth0/my-account/shared/mfa/contact-input-form.tsx",
+          "path": "src/components/auth0/my-account/shared/user-mfa-management/factor-delete/factor-delete-modal.tsx",
           "type": "registry:component",
-          "target": "components/auth0/my-account/shared/mfa/contact-input-form.tsx"
+          "target": "components/auth0/my-account/shared/user-mfa-management/factor-delete/factor-delete-modal.tsx"
         },
         {
-          "path": "src/components/auth0/my-account/shared/mfa/delete-factor-confirmation.tsx",
+          "path": "src/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/contact-input-form.tsx",
           "type": "registry:component",
-          "target": "components/auth0/my-account/shared/mfa/delete-factor-confirmation.tsx"
+          "target": "components/auth0/my-account/shared/user-mfa-management/factor-enrollment/contact-input-form.tsx"
         },
         {
-          "path": "src/components/auth0/my-account/shared/mfa/empty-state.tsx",
+          "path": "src/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/enroll-factor-modal.tsx",
           "type": "registry:component",
-          "target": "components/auth0/my-account/shared/mfa/empty-state.tsx"
+          "target": "components/auth0/my-account/shared/user-mfa-management/factor-enrollment/enroll-factor-modal.tsx"
         },
         {
-          "path": "src/components/auth0/my-account/shared/mfa/error-state.tsx",
+          "path": "src/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/otp-verification-form.tsx",
           "type": "registry:component",
-          "target": "components/auth0/my-account/shared/mfa/error-state.tsx"
+          "target": "components/auth0/my-account/shared/user-mfa-management/factor-enrollment/otp-verification-form.tsx"
         },
         {
-          "path": "src/components/auth0/my-account/shared/mfa/factors-list.tsx",
+          "path": "src/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/qr-code-enrollment-form.tsx",
           "type": "registry:component",
-          "target": "components/auth0/my-account/shared/mfa/factors-list.tsx"
+          "target": "components/auth0/my-account/shared/user-mfa-management/factor-enrollment/qr-code-enrollment-form.tsx"
         },
         {
-          "path": "src/components/auth0/my-account/shared/mfa/otp-verification-form.tsx",
+          "path": "src/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/show-recovery-code.tsx",
           "type": "registry:component",
-          "target": "components/auth0/my-account/shared/mfa/otp-verification-form.tsx"
+          "target": "components/auth0/my-account/shared/user-mfa-management/factor-enrollment/show-recovery-code.tsx"
         },
         {
-          "path": "src/components/auth0/my-account/shared/mfa/qr-code-enrollment-form.tsx",
+          "path": "src/components/auth0/my-account/shared/user-mfa-management/factor-list/empty-state.tsx",
           "type": "registry:component",
-          "target": "components/auth0/my-account/shared/mfa/qr-code-enrollment-form.tsx"
+          "target": "components/auth0/my-account/shared/user-mfa-management/factor-list/empty-state.tsx"
         },
         {
-          "path": "src/components/auth0/my-account/shared/mfa/show-recovery-code.tsx",
+          "path": "src/components/auth0/my-account/shared/user-mfa-management/factor-list/factors-list.tsx",
           "type": "registry:component",
-          "target": "components/auth0/my-account/shared/mfa/show-recovery-code.tsx"
-        },
-        {
-          "path": "src/components/auth0/my-account/shared/mfa/user-mfa-setup-form.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/my-account/shared/mfa/user-mfa-setup-form.tsx"
+          "target": "components/auth0/my-account/shared/user-mfa-management/factor-list/factors-list.tsx"
         },
         {
           "path": "src/components/auth0/shared/copyable-text-field.tsx",
@@ -85,6 +82,11 @@
           "path": "src/components/auth0/shared/gate-keeper/gate-keeper.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/gate-keeper/gate-keeper.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/header.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/header.tsx"
         },
         {
           "path": "src/components/auth0/shared/sonner.tsx",
@@ -117,9 +119,19 @@
           "target": "components/ui/card.tsx"
         },
         {
+          "path": "src/components/ui/checkbox.tsx",
+          "type": "registry:component",
+          "target": "components/ui/checkbox.tsx"
+        },
+        {
           "path": "src/components/ui/dialog.tsx",
           "type": "registry:component",
           "target": "components/ui/dialog.tsx"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu.tsx",
+          "type": "registry:component",
+          "target": "components/ui/dropdown-menu.tsx"
         },
         {
           "path": "src/components/ui/form.tsx",
@@ -132,19 +144,14 @@
           "target": "components/ui/label.tsx"
         },
         {
-          "path": "src/components/ui/list.tsx",
+          "path": "src/components/ui/link.tsx",
           "type": "registry:component",
-          "target": "components/ui/list.tsx"
+          "target": "components/ui/link.tsx"
         },
         {
           "path": "src/components/ui/otp-field.tsx",
           "type": "registry:component",
           "target": "components/ui/otp-field.tsx"
-        },
-        {
-          "path": "src/components/ui/popover.tsx",
-          "type": "registry:component",
-          "target": "components/ui/popover.tsx"
         },
         {
           "path": "src/components/ui/qr-code.tsx",
@@ -160,6 +167,11 @@
           "path": "src/components/ui/spinner.tsx",
           "type": "registry:component",
           "target": "components/ui/spinner.tsx"
+        },
+        {
+          "path": "src/components/ui/switch.tsx",
+          "type": "registry:component",
+          "target": "components/ui/switch.tsx"
         },
         {
           "path": "src/components/ui/text-field.tsx",
@@ -267,9 +279,24 @@
           "target": "types/i18n-types.ts"
         },
         {
-          "path": "src/types/my-account/mfa/mfa-types.ts",
+          "path": "src/types/my-account/user-mfa-management/factor-delete-modal-types.ts",
           "type": "registry:component",
-          "target": "types/my-account/mfa/mfa-types.ts"
+          "target": "types/my-account/user-mfa-management/factor-delete-modal-types.ts"
+        },
+        {
+          "path": "src/types/my-account/user-mfa-management/factor-enrollment-types.ts",
+          "type": "registry:component",
+          "target": "types/my-account/user-mfa-management/factor-enrollment-types.ts"
+        },
+        {
+          "path": "src/types/my-account/user-mfa-management/factors-list-types.ts",
+          "type": "registry:component",
+          "target": "types/my-account/user-mfa-management/factors-list-types.ts"
+        },
+        {
+          "path": "src/types/my-account/user-mfa-management/user-mfa-management-types.ts",
+          "type": "registry:component",
+          "target": "types/my-account/user-mfa-management/user-mfa-management-types.ts"
         },
         {
           "path": "src/types/theme-types.ts",
@@ -287,9 +314,9 @@
           "target": "lib/constants/form-constants.ts"
         },
         {
-          "path": "src/lib/constants/my-account/mfa/mfa-constants.ts",
+          "path": "src/lib/constants/my-account/user-mfa-management/user-mfa-constants.ts",
           "type": "registry:component",
-          "target": "lib/constants/my-account/mfa/mfa-constants.ts"
+          "target": "lib/constants/my-account/user-mfa-management/user-mfa-constants.ts"
         },
         {
           "path": "src/lib/constants/telemetry-constants.ts",
@@ -300,6 +327,11 @@
           "path": "src/lib/utils.ts",
           "type": "registry:component",
           "target": "lib/utils.ts"
+        },
+        {
+          "path": "src/lib/utils/date.ts",
+          "type": "registry:component",
+          "target": "lib/utils/date.ts"
         },
         {
           "path": "src/lib/utils/shared/css-detection.ts",
@@ -339,16 +371,16 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.2"
+        "coreVersion": "3.2.0"
       }
     },
     {
       "name": "react/my-account/user-passkey-management",
       "type": "registry:block",
       "title": "Passkey management component.",
-      "description": "A block component for user passkey mgmt.",
+      "description": "A block component for user passkey management.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.2",
+        "@auth0/universal-components-core@3.2.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-dialog@1.1.14",
         "@radix-ui/react-dropdown-menu@2.1.1",
@@ -368,9 +400,9 @@
           "target": "components/auth0/my-account/user-passkey-management.tsx"
         },
         {
-          "path": "src/components/auth0/my-account/shared/passkey/passkey-action-modal.tsx",
+          "path": "src/components/auth0/my-account/shared/user-passkey-management/passkey-action-modal.tsx",
           "type": "registry:component",
-          "target": "components/auth0/my-account/shared/passkey/passkey-action-modal.tsx"
+          "target": "components/auth0/my-account/shared/user-passkey-management/passkey-action-modal.tsx"
         },
         {
           "path": "src/components/auth0/shared/form-actions.tsx",
@@ -473,6 +505,11 @@
           "target": "hooks/shared/use-error-handler.ts"
         },
         {
+          "path": "src/hooks/shared/use-telemetry.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-telemetry.ts"
+        },
+        {
           "path": "src/hooks/shared/use-theme.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-theme.ts"
@@ -538,9 +575,9 @@
           "target": "types/i18n-types.ts"
         },
         {
-          "path": "src/types/my-account/passkey/passkey-types.ts",
+          "path": "src/types/my-account/user-passkey-management/user-passkey-management-types.ts",
           "type": "registry:component",
-          "target": "types/my-account/passkey/passkey-types.ts"
+          "target": "types/my-account/user-passkey-management/user-passkey-management-types.ts"
         },
         {
           "path": "src/types/theme-types.ts",
@@ -580,7 +617,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.2"
+        "coreVersion": "3.2.0"
       }
     },
     {
@@ -589,7 +626,7 @@
       "title": "DomainTable container component.",
       "description": "A block component for domain table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.2",
+        "@auth0/universal-components-core@3.2.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-checkbox@1.1.1",
@@ -982,7 +1019,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.2"
+        "coreVersion": "3.2.0"
       }
     },
     {
@@ -991,7 +1028,7 @@
       "title": "Organization details edit component.",
       "description": "A block component for organization details edit.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.2",
+        "@auth0/universal-components-core@3.2.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-label@2.1.7",
@@ -1298,7 +1335,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.2"
+        "coreVersion": "3.2.0"
       }
     },
     {
@@ -1307,7 +1344,7 @@
       "title": "Organization member detail component.",
       "description": "A block component for header.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.2",
+        "@auth0/universal-components-core@3.2.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -1652,7 +1689,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.2"
+        "coreVersion": "3.2.0"
       }
     },
     {
@@ -1661,7 +1698,7 @@
       "title": "Organization member management component.",
       "description": "A block component for organization member management view.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.2",
+        "@auth0/universal-components-core@3.2.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -2083,7 +2120,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.2"
+        "coreVersion": "3.2.0"
       }
     },
     {
@@ -2092,7 +2129,7 @@
       "title": "SSO provider creation container component.",
       "description": "A block component for sso provider create.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.2",
+        "@auth0/universal-components-core@3.2.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-accordion@1.2.0",
@@ -2524,7 +2561,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.2"
+        "coreVersion": "3.2.0"
       }
     },
     {
@@ -2533,7 +2570,7 @@
       "title": "SSO provider edit container component.",
       "description": "A block component for sso provider edit.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.2",
+        "@auth0/universal-components-core@3.2.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-accordion@1.2.0",
@@ -3173,7 +3210,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.2"
+        "coreVersion": "3.2.0"
       }
     },
     {
@@ -3182,7 +3219,7 @@
       "title": "SSO provider table container component.",
       "description": "A block component for sso provider table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.0.2",
+        "@auth0/universal-components-core@3.2.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -3516,7 +3553,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.0.2"
+        "coreVersion": "3.2.0"
       }
     }
   ]

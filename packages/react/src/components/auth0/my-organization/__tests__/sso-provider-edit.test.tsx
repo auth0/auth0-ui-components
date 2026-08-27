@@ -8,53 +8,17 @@ import {
   createMockIdentityProvider,
   createMockIdentityProviderWithoutProvisioning,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import {
+  createMockBackButton,
+  createMockEnableProviderAction,
+  createMockSsoActions,
+  createMockSsoProviderEditProps,
+} from '@/tests/utils/__mocks__/my-organization/idp-management/sso-provider-edit/sso-provider-edit.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
-import type { SsoProviderEditProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
 mockToast();
 const { initMockCoreClient } = mockCore();
-
-const createMockSsoProviderEditProps = (
-  overrides?: Partial<SsoProviderEditProps>,
-): SsoProviderEditProps => ({
-  providerId: 'con_test123',
-  customMessages: {},
-  styling: {
-    variables: { common: {}, light: {}, dark: {} },
-    classes: {},
-  },
-  hideHeader: false,
-  readOnly: false,
-  backButton: undefined,
-  sso: undefined,
-  provisioning: undefined,
-  domains: undefined,
-  schema: undefined,
-  ...overrides,
-});
-
-const createMockBackButton = () => ({
-  onClick: vi.fn(),
-});
-
-const createMockSsoActions = () => ({
-  updateAction: {
-    disabled: false,
-    onBefore: vi.fn(() => true),
-    onAfter: vi.fn(),
-  },
-  deleteAction: {
-    disabled: false,
-    onBefore: vi.fn(() => true),
-    onAfter: vi.fn(),
-  },
-  deleteFromOrganizationAction: {
-    disabled: false,
-    onBefore: vi.fn(() => true),
-    onAfter: vi.fn(),
-  },
-});
 
 const waitForComponentToLoad = async () => {
   return await waitFor(() => {
@@ -512,13 +476,13 @@ describe('SsoProviderEdit', () => {
   });
 
   describe('sso action props', () => {
-    describe('when sso.updateAction is provided', () => {
+    describe('when enableProviderAction is provided', () => {
       it('should call onBefore when toggling provider', async () => {
         const user = userEvent.setup();
-        const ssoActions = createMockSsoActions();
+        const enableProviderAction = createMockEnableProviderAction();
 
         renderWithProviders(
-          <SsoProviderEdit {...createMockSsoProviderEditProps({ sso: ssoActions })} />,
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ enableProviderAction })} />,
         );
 
         await waitForComponentToLoad();
@@ -533,16 +497,16 @@ describe('SsoProviderEdit', () => {
         await user.click(providerSwitch!);
 
         await waitFor(() => {
-          expect(ssoActions.updateAction.onBefore).toHaveBeenCalled();
+          expect(enableProviderAction.onBefore).toHaveBeenCalled();
         });
       });
 
       it('should call onAfter after successful update', async () => {
         const user = userEvent.setup();
-        const ssoActions = createMockSsoActions();
+        const enableProviderAction = createMockEnableProviderAction();
 
         renderWithProviders(
-          <SsoProviderEdit {...createMockSsoProviderEditProps({ sso: ssoActions })} />,
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ enableProviderAction })} />,
         );
 
         await waitForComponentToLoad();
@@ -555,17 +519,17 @@ describe('SsoProviderEdit', () => {
         await user.click(providerSwitch!);
 
         await waitFor(() => {
-          expect(ssoActions.updateAction.onAfter).toHaveBeenCalled();
+          expect(enableProviderAction.onAfter).toHaveBeenCalled();
         });
       });
 
       it('should not update when onBefore returns false', async () => {
         const user = userEvent.setup();
-        const ssoActions = createMockSsoActions();
-        ssoActions.updateAction.onBefore = vi.fn(() => false);
+        const enableProviderAction = createMockEnableProviderAction();
+        enableProviderAction.onBefore = vi.fn(() => false);
 
         renderWithProviders(
-          <SsoProviderEdit {...createMockSsoProviderEditProps({ sso: ssoActions })} />,
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ enableProviderAction })} />,
         );
 
         await waitForComponentToLoad();
@@ -578,11 +542,26 @@ describe('SsoProviderEdit', () => {
         await user.click(providerSwitch!);
 
         await waitFor(() => {
-          expect(ssoActions.updateAction.onBefore).toHaveBeenCalled();
+          expect(enableProviderAction.onBefore).toHaveBeenCalled();
         });
 
         // Verify that the update API was not called
-        expect(ssoActions.updateAction.onAfter).not.toHaveBeenCalled();
+        expect(enableProviderAction.onAfter).not.toHaveBeenCalled();
+      });
+
+      it('should disable switch when enableProviderAction.disabled is true', async () => {
+        const enableProviderAction = createMockEnableProviderAction();
+        enableProviderAction.disabled = true;
+
+        renderWithProviders(
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ enableProviderAction })} />,
+        );
+
+        await waitForComponentToLoad();
+
+        const switches = screen.getAllByRole('switch');
+        const providerSwitch = switches[0];
+        expect(providerSwitch).toBeDisabled();
       });
     });
 

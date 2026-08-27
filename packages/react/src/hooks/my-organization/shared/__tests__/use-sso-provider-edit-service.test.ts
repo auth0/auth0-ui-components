@@ -120,6 +120,7 @@ describe('useSsoProviderEditService', () => {
     expect(result.current.provider).toBe(null);
     expect(result.current.isLoading).toBe(true);
     expect(result.current.isUpdating).toBe(false);
+    expect(result.current.isEnabling).toBe(false);
     expect(result.current.isDeleting).toBe(false);
     expect(result.current.isRemoving).toBe(false);
     expect(result.current.isProvisioningUpdating).toBe(false);
@@ -130,6 +131,7 @@ describe('useSsoProviderEditService', () => {
     expect(result.current.isScimTokenDeleting).toBe(false);
     expect(typeof result.current.fetchProvider).toBe('function');
     expect(typeof result.current.updateProvider).toBe('function');
+    expect(typeof result.current.enableProvider).toBe('function');
     expect(typeof result.current.onDeleteConfirm).toBe('function');
     expect(typeof result.current.onRemoveConfirm).toBe('function');
   });
@@ -811,6 +813,165 @@ describe('useSsoProviderEditService', () => {
       await waitFor(() => {
         expect(result.current.hasProvisioningAttributeSyncWarning).toBe(false);
       });
+    });
+  });
+
+  describe('enableProvider', () => {
+    it('should enable provider successfully', async () => {
+      const enabledProvider = { ...mockProvider, is_enabled: true };
+      mockUpdate.mockResolvedValue(enabledProvider);
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await waitFor(() => {
+        expect(result.current.provider).toEqual(mockProvider);
+      });
+
+      await result.current.enableProvider(true);
+
+      await waitFor(() => {
+        expect(mockUpdate).toHaveBeenCalledWith(
+          mockIdpId,
+          expect.objectContaining({
+            is_enabled: true,
+          }),
+        );
+        expect(mockedShowToast).toHaveBeenCalledWith({
+          type: 'success',
+          message: 'Provider Test Provider updated successfully',
+        });
+        expect(result.current.provider).toEqual(enabledProvider);
+        expect(result.current.isEnabling).toBe(false);
+      });
+    });
+
+    it('should disable provider successfully', async () => {
+      const disabledProvider = { ...mockProvider, is_enabled: false };
+      mockUpdate.mockResolvedValue(disabledProvider);
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await waitFor(() => {
+        expect(result.current.provider).toEqual(mockProvider);
+      });
+
+      await result.current.enableProvider(false);
+
+      await waitFor(() => {
+        expect(mockUpdate).toHaveBeenCalledWith(
+          mockIdpId,
+          expect.objectContaining({
+            is_enabled: false,
+          }),
+        );
+        expect(result.current.provider).toEqual(disabledProvider);
+      });
+    });
+
+    it('should call onBefore callback and abort when it returns false', async () => {
+      const onBefore = vi.fn().mockReturnValue(false);
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId, {
+        enableProviderAction: { onBefore },
+      });
+
+      await waitFor(() => {
+        expect(result.current.provider).toEqual(mockProvider);
+      });
+
+      await result.current.enableProvider(true);
+
+      expect(onBefore).toHaveBeenCalledWith(mockProvider);
+      expect(mockUpdate).not.toHaveBeenCalled();
+      expect(mockedShowToast).not.toHaveBeenCalled();
+    });
+
+    it('should call onBefore callback and proceed when it returns true', async () => {
+      const onBefore = vi.fn().mockReturnValue(true);
+      const enabledProvider = { ...mockProvider, is_enabled: true };
+      mockUpdate.mockResolvedValue(enabledProvider);
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId, {
+        enableProviderAction: { onBefore },
+      });
+
+      await waitFor(() => {
+        expect(result.current.provider).toEqual(mockProvider);
+      });
+
+      await result.current.enableProvider(true);
+
+      await waitFor(() => {
+        expect(onBefore).toHaveBeenCalledWith(mockProvider);
+        expect(mockUpdate).toHaveBeenCalled();
+      });
+    });
+
+    it('should call onAfter callback after successful enable', async () => {
+      const onAfter = vi.fn();
+      const enabledProvider = { ...mockProvider, is_enabled: true };
+      mockUpdate.mockResolvedValue(enabledProvider);
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId, {
+        enableProviderAction: { onAfter },
+      });
+
+      await waitFor(() => {
+        expect(result.current.provider).toEqual(mockProvider);
+      });
+
+      await result.current.enableProvider(true);
+
+      await waitFor(() => {
+        expect(onAfter).toHaveBeenCalledWith(enabledProvider);
+      });
+    });
+
+    it('should handle enable provider error', async () => {
+      mockUpdate.mockRejectedValue(new Error('Enable failed'));
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await waitFor(() => {
+        expect(result.current.provider).toEqual(mockProvider);
+      });
+
+      await expect(result.current.enableProvider(true)).rejects.toThrow();
+
+      await waitFor(() => {
+        expect(mockHandleError).toHaveBeenCalledWith(expect.any(Error), {
+          fallbackMessage: 'An error occurred',
+        });
+        expect(result.current.isEnabling).toBe(false);
+      });
+    });
+
+    it('should return early if provider is null', async () => {
+      mockGet.mockResolvedValue(null);
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await result.current.enableProvider(true);
+
+      expect(mockUpdate).not.toHaveBeenCalled();
+    });
+
+    it('should return early if coreClient is null', async () => {
+      setupMockUseCoreClientNull(useCoreClientModule);
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await result.current.enableProvider(true);
+
+      expect(mockUpdate).not.toHaveBeenCalled();
+    });
+
+    it('should return early if idpId is empty', async () => {
+      const { result } = renderUseSsoProviderEdit('');
+
+      await result.current.enableProvider(true);
+
+      expect(mockUpdate).not.toHaveBeenCalled();
     });
   });
 
