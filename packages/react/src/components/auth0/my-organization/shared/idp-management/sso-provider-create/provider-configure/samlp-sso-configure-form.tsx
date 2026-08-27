@@ -196,32 +196,34 @@ export const SamlpProviderForm = React.forwardRef<
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="metadataUrl"
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <FormLabel className="text-label font-medium">
-                {t('fields.samlp.meta_data_url.label')}
-              </FormLabel>
-              <FormControl>
-                <TextField
-                  type="url"
-                  placeholder={t('fields.samlp.meta_data_url.placeholder')}
-                  error={Boolean(fieldState.error)}
-                  readOnly={readOnly}
-                  aria-required={true}
-                  aria-invalid={Boolean(fieldState.error)}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage role="alert" className="text-left text-paragraph" />
-              <FormDescription className="text-paragraph font-normal text-left">
-                {t('fields.samlp.meta_data_url.helper_text')}
-              </FormDescription>
-            </FormItem>
-          )}
-        />
+        {!showMetadataFileField && (
+          <FormField
+            control={form.control}
+            name="metadataUrl"
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormLabel className="text-label font-medium">
+                  {t('fields.samlp.meta_data_url.label')}
+                </FormLabel>
+                <FormControl>
+                  <TextField
+                    type="url"
+                    placeholder={t('fields.samlp.meta_data_url.placeholder')}
+                    error={Boolean(fieldState.error)}
+                    readOnly={readOnly}
+                    aria-required={true}
+                    aria-invalid={Boolean(fieldState.error)}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage role="alert" className="text-left text-paragraph" />
+                <FormDescription className="text-paragraph font-normal text-left">
+                  {t('fields.samlp.meta_data_url.helper_text')}
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+        )}
 
         {showMetadataFileField && (
           <>
