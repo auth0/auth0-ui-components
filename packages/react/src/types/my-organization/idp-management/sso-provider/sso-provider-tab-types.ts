@@ -76,6 +76,7 @@ export interface SsoProviderTabProps
   showThirdPartyAccess?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
+  isOrganizationBlocked?: boolean;
 }
 
 export interface ProviderDetailsClasses
@@ -109,12 +110,14 @@ export interface SsoProviderDetailsProps
   showThirdPartyAccess?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
+  isOrganizationBlocked?: boolean;
 }
 
 export interface ThirdPartyAccessSectionProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   readOnly?: boolean;
+  isOrganizationBlocked?: boolean;
   customMessages?: Partial<ThirdPartyAccessMessages>;
   className?: string;
 }

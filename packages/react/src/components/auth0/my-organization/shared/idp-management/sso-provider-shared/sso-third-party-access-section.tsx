@@ -22,6 +22,7 @@ export function SsoThirdPartyAccessSection({
   checked,
   onChange,
   readOnly = false,
+  isOrganizationBlocked = false,
   customMessages = {},
   className,
 }: ThirdPartyAccessSectionProps): React.ReactElement {
@@ -33,6 +34,8 @@ export function SsoThirdPartyAccessSection({
   const id = useId();
   const checkboxId = `${id}-checkbox`;
   const descriptionId = `${id}-description`;
+
+  const isDisabled = readOnly || isOrganizationBlocked;
 
   const handleCheckedChange = (value: boolean | 'indeterminate') => {
     if (value !== 'indeterminate') {
@@ -49,8 +52,8 @@ export function SsoThirdPartyAccessSection({
           id={checkboxId}
           checked={checked}
           onCheckedChange={handleCheckedChange}
-          disabled={readOnly}
-          aria-disabled={readOnly}
+          disabled={isDisabled}
+          aria-disabled={isDisabled}
           aria-describedby={descriptionId}
         />
         <div className="flex flex-col">
@@ -58,7 +61,7 @@ export function SsoThirdPartyAccessSection({
             {t('label')}
           </Label>
           <p id={descriptionId} className="text-sm text-muted-foreground">
-            {t('helper_text')}
+            {isOrganizationBlocked ? t('organization_blocked_helper_text') : t('helper_text')}
           </p>
         </div>
       </div>

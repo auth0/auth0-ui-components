@@ -178,4 +178,79 @@ describe('SsoThirdPartyAccessSection', () => {
       expect(container.querySelector('[data-slot="separator"]')).toBeInTheDocument();
     });
   });
+
+  describe('isOrganizationBlocked', () => {
+    describe('when isOrganizationBlocked is true', () => {
+      const blockedProps = createMockThirdPartyAccessSectionProps({
+        onChange: vi.fn(),
+        isOrganizationBlocked: true,
+      });
+
+      it('should disable the checkbox', () => {
+        renderWithProviders(<SsoThirdPartyAccessSection {...blockedProps} />);
+
+        const checkbox = screen.getByRole('checkbox');
+        expect(checkbox).toBeDisabled();
+      });
+
+      it('should set aria-disabled attribute to true', () => {
+        renderWithProviders(<SsoThirdPartyAccessSection {...blockedProps} />);
+
+        const checkbox = screen.getByRole('checkbox');
+        expect(checkbox).toHaveAttribute('aria-disabled', 'true');
+      });
+
+      it('should show organization_blocked_helper_text instead of helper_text', () => {
+        renderWithProviders(<SsoThirdPartyAccessSection {...blockedProps} />);
+
+        expect(screen.getByText('organization_blocked_helper_text')).toBeInTheDocument();
+        expect(screen.queryByText('helper_text')).not.toBeInTheDocument();
+      });
+
+      it('should not call onChange when clicked', () => {
+        const onChange = vi.fn();
+        renderWithProviders(<SsoThirdPartyAccessSection {...blockedProps} onChange={onChange} />);
+
+        const checkbox = screen.getByRole('checkbox');
+        fireEvent.click(checkbox);
+
+        expect(onChange).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when isOrganizationBlocked is false', () => {
+      it('should enable the checkbox', () => {
+        renderWithProviders(
+          <SsoThirdPartyAccessSection {...defaultProps} isOrganizationBlocked={false} />,
+        );
+
+        const checkbox = screen.getByRole('checkbox');
+        expect(checkbox).not.toBeDisabled();
+      });
+
+      it('should show helper_text', () => {
+        renderWithProviders(
+          <SsoThirdPartyAccessSection {...defaultProps} isOrganizationBlocked={false} />,
+        );
+
+        expect(screen.getByText('helper_text')).toBeInTheDocument();
+        expect(screen.queryByText('organization_blocked_helper_text')).not.toBeInTheDocument();
+      });
+    });
+
+    describe('when both readOnly and isOrganizationBlocked are true', () => {
+      it('should disable the checkbox', () => {
+        renderWithProviders(
+          <SsoThirdPartyAccessSection
+            {...defaultProps}
+            readOnly={true}
+            isOrganizationBlocked={true}
+          />,
+        );
+
+        const checkbox = screen.getByRole('checkbox');
+        expect(checkbox).toBeDisabled();
+      });
+    });
+  });
 });

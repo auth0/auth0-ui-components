@@ -31,7 +31,7 @@ export function useSsoProviderCreate({
   onNext,
   onPrevious,
 }: UseSsoProviderCreateHookOptions = {}): UseSsoProviderCreateResult {
-  const { createProvider, isCreating } = useSsoProviderCreateService({
+  const { createProvider, isCreating, isOrganizationBlocked } = useSsoProviderCreateService({
     createAction,
     customMessages,
   });
@@ -110,5 +110,6 @@ export function useSsoProviderCreate({
     showCrossAppAccess: showCrossAppAccess(strategy),
     isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(strategy),
     getCrossAppAccessDefaultValue: () => getCrossAppAccessDefaultValue(strategy),
+    isOrganizationBlocked,
   };
 }

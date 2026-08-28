@@ -94,6 +94,7 @@ export const SamlpProviderForm = React.forwardRef<
     showThirdPartyAccess = false,
     showCrossAppAccess = false,
     isCrossAppAccessReadOnly = false,
+    isOrganizationBlocked = false,
     styling,
   },
   ref,
@@ -461,6 +462,7 @@ export const SamlpProviderForm = React.forwardRef<
                 checked={field.value ?? false}
                 onChange={field.onChange}
                 readOnly={readOnly}
+                isOrganizationBlocked={isOrganizationBlocked}
                 className={styling?.classes?.['ProviderConfigure-ThirdPartyAccess']}
               />
             )}

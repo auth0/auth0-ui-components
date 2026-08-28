@@ -9,7 +9,7 @@ import type {
   ProviderConfigureFormValues,
 } from '@core/schemas/my-organization/idp-management/sso-provider/sso-provider-create-schema';
 
-import { STRATEGIES } from './sso-provider-constants';
+import { DISCOVERY_URL_SUFFIX, STRATEGIES } from './sso-provider-constants';
 import type {
   IdpStrategy,
   CrossAppAccessResourceApp,
@@ -68,6 +68,17 @@ const STRATEGY_FIELD_MAPPINGS = {
 } as const;
 
 /**
+ * Normalizes a discovery URL by appending the OpenID configuration suffix if not present.
+ * @param url - The discovery URL to normalize
+ * @returns The normalized discovery URL
+ */
+function normalizeDiscoveryUrl(url: string): string {
+  if (!url) return url;
+  if (url.includes('/.well-known/')) return url;
+  return url.replace(/\/?$/, '') + DISCOVERY_URL_SUFFIX;
+}
+
+/**
  * Filters and validates form options based on strategy-specific API requirements.
  * @param strategy - Authentication strategy
  * @param formOptions - Form configuration options
@@ -86,11 +97,17 @@ const getValidOptionsForStrategy = (
     throw new Error(`Unsupported identity provider strategy: ${strategy}`);
   }
 
-  return Object.fromEntries(
+  const result = Object.fromEntries(
     Object.entries(formOptions).filter(
       ([key, value]) => validFields.includes(key) && isValidValue(value),
     ),
   );
+
+  if (typeof result?.discovery_url === 'string' && result?.discovery_url) {
+    result.discovery_url = normalizeDiscoveryUrl(result.discovery_url);
+  }
+
+  return result;
 };
 
 export const SsoProviderMappers = {
