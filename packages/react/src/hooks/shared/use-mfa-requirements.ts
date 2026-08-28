@@ -1,4 +1,8 @@
-import { FACTOR_TYPE_RECOVERY_CODE, type MfaRequiredError } from '@auth0/universal-components-core';
+import {
+  FACTOR_TYPE_RECOVERY_CODE,
+  mfaStepUpQueryKeys,
+  type MfaRequiredError,
+} from '@auth0/universal-components-core';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 
@@ -24,7 +28,7 @@ export function useMfaRequirements(error: MfaRequiredError) {
   const isProxyMode = !!coreClient?.isProxyMode();
 
   const enrollment = useQuery({
-    queryKey: ['mfa-enrollment-factors', mfaToken],
+    queryKey: mfaStepUpQueryKeys.enrollmentFactors(mfaToken),
     queryFn: () => stepUpClient!.getEnrollmentFactors!(mfaToken),
     enabled: !!stepUpClient && !!stepUpClient.getEnrollmentFactors && !isProxyMode,
     select: (factors) => factors.filter((f) => f.type !== FACTOR_TYPE_RECOVERY_CODE),
@@ -32,7 +36,7 @@ export function useMfaRequirements(error: MfaRequiredError) {
   });
 
   const authenticators = useQuery({
-    queryKey: ['mfa-authenticators', mfaToken],
+    queryKey: mfaStepUpQueryKeys.authenticators(mfaToken),
     queryFn: () => stepUpClient!.getAuthenticators(mfaToken),
     enabled: !!stepUpClient && (isProxyMode || (enrollment.isSuccess && !enrollment.data.length)),
     select: (items) => items.filter((a) => a.active),

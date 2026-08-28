@@ -8,6 +8,7 @@
 import {
   BusinessError,
   OrganizationDetailsMappers,
+  organizationDetailsQueryKeys,
   SsoProviderMappers,
   ssoProviderQueryKeys,
   type UpdateIdentityProviderRequestContent,
@@ -56,7 +57,7 @@ export function useSsoProviderTableService(
   });
 
   const organizationQuery = useQuery({
-    queryKey: ssoProviderQueryKeys.organization(),
+    queryKey: organizationDetailsQueryKeys.details(),
     queryFn: async () => {
       const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
       return OrganizationDetailsMappers.fromAPI(response);
@@ -199,7 +200,7 @@ export function useSsoProviderTableService(
     }
 
     const data = await queryClient.ensureQueryData({
-      queryKey: ssoProviderQueryKeys.organization(),
+      queryKey: organizationDetailsQueryKeys.details(),
       queryFn: async () => {
         const response = await coreClient.getMyOrganizationApiClient().organizationDetails.get();
         return OrganizationDetailsMappers.fromAPI(response);

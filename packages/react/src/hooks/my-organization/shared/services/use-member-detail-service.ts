@@ -7,6 +7,7 @@
 import {
   memberDetailQueryKeys,
   memberManagementQueryKeys,
+  organizationDetailsQueryKeys,
   OrganizationDetailsMappers,
   type Role,
 } from '@auth0/universal-components-core';
@@ -70,7 +71,7 @@ export function useMemberDetailService(
   });
 
   const organizationQuery = useQuery({
-    queryKey: memberDetailQueryKeys.organization,
+    queryKey: organizationDetailsQueryKeys.details(),
     queryFn: async () => {
       const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
       return OrganizationDetailsMappers.fromAPI(response);

@@ -8,6 +8,7 @@
 import {
   OrganizationDetailsFactory,
   OrganizationDetailsMappers,
+  organizationDetailsQueryKeys,
   SsoProviderMappers,
   ssoProviderQueryKeys,
   type IdpKnownResponse,
@@ -80,7 +81,7 @@ export function useSsoProviderEditService(
    * Shared across the application, so it uses a common query key.
    */
   const organizationQuery = useQuery({
-    queryKey: ssoProviderQueryKeys.organization(),
+    queryKey: organizationDetailsQueryKeys.details(),
     queryFn: async (): Promise<OrganizationPrivate> => {
       const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
       return OrganizationDetailsMappers.fromAPI(response);
@@ -462,7 +463,7 @@ export function useSsoProviderEditService(
         }
       }
       await queryClient.ensureQueryData({
-        queryKey: ssoProviderQueryKeys.organization(),
+        queryKey: organizationDetailsQueryKeys.details(),
       });
 
       await coreClient!
@@ -524,7 +525,7 @@ export function useSsoProviderEditService(
       return;
     }
 
-    await queryClient.getQueryData(ssoProviderQueryKeys.organization());
+    await queryClient.getQueryData(organizationDetailsQueryKeys.details());
   }, [coreClient, queryClient]);
 
   const fetchProvisioning =

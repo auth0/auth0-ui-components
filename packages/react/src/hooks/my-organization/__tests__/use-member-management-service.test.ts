@@ -70,6 +70,40 @@ describe('useMemberManagementService', () => {
     it('should have correct invitations key', () => {
       expect(memberManagementQueryKeys.invitations()).toEqual(['member-management', 'invitations']);
     });
+
+    it('should have correct invitationList key with params', () => {
+      const params = {
+        pageSize: 10,
+        fromToken: 'abc',
+        filters: { status: 'pending' },
+        sortConfig: { key: 'created_at', direction: 'desc' },
+      };
+      expect(memberManagementQueryKeys.invitationList(params)).toEqual([
+        'member-management',
+        'invitations',
+        params,
+      ]);
+    });
+
+    it('should have correct members key', () => {
+      expect(memberManagementQueryKeys.members()).toEqual(['member-management', 'members']);
+    });
+
+    it('should have correct memberList key with params', () => {
+      const params = { pageSize: 25, fromToken: 'next-page' };
+      expect(memberManagementQueryKeys.memberList(params)).toEqual([
+        'member-management',
+        'members',
+        params,
+      ]);
+    });
+
+    it('should have correct identityProviders key', () => {
+      expect(memberManagementQueryKeys.identityProviders()).toEqual([
+        'member-management',
+        'identity-providers',
+      ]);
+    });
   });
 
   describe('providersQuery', () => {
