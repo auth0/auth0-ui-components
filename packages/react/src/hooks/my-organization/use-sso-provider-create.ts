@@ -37,7 +37,7 @@ export function useSsoProviderCreate({
   });
 
   const [formData, setFormData] = useState<FormState>({});
-  const { strategy, details, configure } = formData;
+  const { strategy, details } = formData;
   const detailsRef = useRef<ProviderDetailsFormHandle>(null);
   const configureRef = useRef<ProviderConfigureHandle>(null);
   const {
@@ -90,7 +90,7 @@ export function useSsoProviderCreate({
       ...details!,
       ...finalConfigureData,
     });
-  }, [strategy, details, configure, createProvider]);
+  }, [strategy, details, createProvider]);
 
   return {
     formData,

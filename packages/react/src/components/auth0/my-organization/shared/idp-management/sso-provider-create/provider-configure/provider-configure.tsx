@@ -21,20 +21,7 @@ import type {
 
 export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, ProviderConfigureProps>(
   function ProviderConfigure(
-    {
-      strategy,
-      initialData,
-      readOnly = false,
-      customMessages = {},
-      className,
-      idpConfig,
-      isLoading,
-      showThirdPartyAccess = false,
-      showCrossAppAccess = false,
-      isCrossAppAccessReadOnly = false,
-      isOrganizationBlocked = false,
-      styling,
-    },
+    { strategy, isLoading, className, customMessages = {}, ...rest },
     ref,
   ) {
     const { t } = useTranslator(
@@ -67,15 +54,8 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
           <ProviderConfigureFields
             ref={formRef}
             strategy={strategy}
-            initialData={initialData}
-            readOnly={readOnly}
             customMessages={{ fields: customMessages.fields }}
-            idpConfig={idpConfig}
-            showThirdPartyAccess={showThirdPartyAccess}
-            showCrossAppAccess={showCrossAppAccess}
-            isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
-            isOrganizationBlocked={isOrganizationBlocked}
-            styling={styling}
+            {...rest}
           />
         </Section>
       </div>

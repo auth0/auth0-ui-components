@@ -323,6 +323,11 @@ describe('SsoProviderMappers', () => {
           input: 'https://idp.example.com/oauth2/default',
           expected: 'https://idp.example.com/oauth2/default/.well-known/openid-configuration',
         },
+        {
+          description: 'URL with query parameters',
+          input: 'https://idp.example.com?foo=bar',
+          expected: 'https://idp.example.com/.well-known/openid-configuration?foo=bar',
+        },
       ])('when discovery_url is $description', ({ input, expected }) => {
         it(`should produce ${expected}`, () => {
           const formData = {

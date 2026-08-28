@@ -74,8 +74,15 @@ const STRATEGY_FIELD_MAPPINGS = {
  */
 function normalizeDiscoveryUrl(url: string): string {
   if (!url) return url;
-  if (url.includes('/.well-known/')) return url;
-  return url.replace(/\/?$/, '') + DISCOVERY_URL_SUFFIX;
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return url;
+  }
+  if (parsed.pathname.includes('/.well-known/')) return url;
+  parsed.pathname = parsed.pathname.replace(/\/?$/, '') + DISCOVERY_URL_SUFFIX;
+  return parsed.toString();
 }
 
 /**

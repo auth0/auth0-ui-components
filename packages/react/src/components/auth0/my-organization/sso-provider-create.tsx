@@ -232,6 +232,7 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
       currentStyles,
       styling,
       createStepActions,
+      isOrganizationBlocked,
     ],
   );
 

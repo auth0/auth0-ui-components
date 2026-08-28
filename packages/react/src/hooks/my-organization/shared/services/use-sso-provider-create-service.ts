@@ -8,11 +8,11 @@
 import {
   hasApiErrorBody,
   SsoProviderMappers,
+  ssoProviderQueryKeys,
   type CreateIdentityProviderRequestContent,
   type CreateIdentityProviderRequestContentPrivate,
   type IdpKnownResponse,
 } from '@auth0/universal-components-core';
-import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
@@ -56,6 +56,7 @@ export function useSsoProviderCreateService({
   const queryClient = useQueryClient();
   const handleError = useErrorHandler();
   const { organization } = useOrganizationDetailsEditService({});
+
   const createProviderMutation = useMutation({
     mutationFn: async (
       data: CreateIdentityProviderRequestContentPrivate,
