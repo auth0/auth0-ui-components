@@ -13,6 +13,7 @@ import { requireRunState } from '../lib/run-state';
 import { watchToasts } from '../lib/toast';
 import { SsoProviderCreatePage } from '../pages/sso-provider-create.page';
 import { SsoProviderEditPage } from '../pages/sso-provider-edit.page';
+import { SsoProviderTablePage } from '../pages/sso-provider-table.page';
 
 const org = requireRunState();
 const createRoute = reactSpaNpmApp.routes.ssoProviderCreate;
@@ -75,9 +76,14 @@ test.describe('Delete provider', () => {
     await ssoProviderEdit.goto(reactSpaNpmApp.routes.ssoProviderEdit(connectionId));
 
     await ssoProviderEdit.openDeleteModal(name);
+    const deleteToasts = await watchToasts(page);
     await ssoProviderEdit.confirmDelete(name);
+    await deleteToasts.expectSuccess(
+      t('idp_management.notifications.delete_success', { providerName: displayName }),
+    );
 
     await expect(page).toHaveURL(new RegExp(`${reactSpaNpmApp.routes.ssoProviders}$`));
+    await expect(new SsoProviderTablePage(page).addProviderButton).toBeVisible();
     await expect(getConnection(connectionId)).rejects.toThrow();
   });
 });
@@ -102,9 +108,13 @@ test.describe('Remove provider from organization', () => {
     await ssoProviderEdit.goto(reactSpaNpmApp.routes.ssoProviderEdit(connectionId));
 
     await ssoProviderEdit.openRemoveModal(name);
+    const removeToasts = await watchToasts(page);
     await ssoProviderEdit.confirmRemove(name, org.orgName);
+    // Match on the provider name only — the org display_name can be mutated by earlier tests in the same run.
+    await removeToasts.expectSuccess(`${displayName} has been removed from`);
 
     await expect(page).toHaveURL(new RegExp(`${reactSpaNpmApp.routes.ssoProviders}$`));
+    await expect(new SsoProviderTablePage(page).addProviderButton).toBeVisible();
 
     const connection = await getConnection(connectionId);
     expect(connection.id).toBe(connectionId);

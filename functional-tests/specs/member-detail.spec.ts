@@ -20,6 +20,7 @@ import { POLL_TIMEOUT_MS, pollRead } from '../lib/poll';
 import { requireRunState } from '../lib/run-state';
 import { watchToasts } from '../lib/toast';
 import { MemberDetailPage } from '../pages/member-detail.page';
+import { MemberManagementPage } from '../pages/member-management.page';
 
 const org = requireRunState();
 const connectionName = process.env.FT_CONNECTION_NAME ?? 'Universal-Components-Demo';
@@ -161,6 +162,7 @@ test.describe('Remove member from organization (detail page)', () => {
     );
 
     await expect(page).toHaveURL(new RegExp(`${reactSpaNpmApp.routes.memberManagement}/?$`));
+    await expect(new MemberManagementPage(page).inviteButton).toBeVisible();
 
     await expect
       .poll(

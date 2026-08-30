@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import type { JSHandle, Page } from '@playwright/test';
 
 /**
  * Waits for toasts an action just produced, ignoring any already on screen. Toasts last a few
@@ -12,12 +12,55 @@ import type { Page } from '@playwright/test';
  */
 
 const TOAST = '[data-sonner-toast]';
-const SUCCESS = `${TOAST}[data-type="success"]`;
-const ERROR = `${TOAST}[data-type="error"]`;
+const SUCCESS_ATTR = 'success';
+const ERROR_ATTR = 'error';
 
 const DEFAULT_TIMEOUT_MS = 20_000;
 const POLL_INTERVAL_MS = 100;
 const SNAPSHOT_LIMIT = 1_500;
+
+// Shape stored in the in-page accumulator created by startAccumulator().
+interface ToastRecord {
+  type: string;
+  text: string;
+}
+
+// Handle to the in-page JS object that accumulates every toast ever added to the DOM.
+// Using a MutationObserver means toasts that appear and auto-dismiss before a poll tick
+// are still captured — the primary cause of flaky toast assertions under CI load.
+type AccumulatorHandle = JSHandle<{ records: ToastRecord[] }>;
+
+async function startAccumulator(page: Page): Promise<AccumulatorHandle> {
+  return page.evaluateHandle((selector) => {
+    const state: { records: ToastRecord[] } = { records: [] };
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of Array.from(mutation.addedNodes)) {
+          if (!(node instanceof Element)) continue;
+          const toasts = node.matches(selector)
+            ? [node]
+            : Array.from(node.querySelectorAll(selector));
+          for (const toast of toasts) {
+            state.records.push({
+              type: (toast as HTMLElement).dataset['type'] ?? '',
+              text: (toast as HTMLElement).innerText ?? '',
+            });
+          }
+        }
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    return state;
+  }, TOAST);
+}
+
+async function drainAccumulator(handle: AccumulatorHandle): Promise<ToastRecord[]> {
+  return handle.evaluate((state) => {
+    const records = state.records.slice();
+    state.records = [];
+    return records;
+  });
+}
 
 async function pageSnapshot(page: Page): Promise<string> {
   try {
@@ -37,57 +80,63 @@ function countContaining(texts: string[], message: string): number {
   return texts.filter((text) => normalize(text).includes(needle)).length;
 }
 
-// Errors on screen now that were not there before, counting duplicates separately.
-function newErrors(baseline: string[], current: string[]): string[] {
-  const remaining = [...baseline];
-  return current.filter((text) => {
-    const index = remaining.findIndex((seen) => normalize(seen) === normalize(text));
-    if (index === -1) return true;
-    remaining.splice(index, 1);
-    return false;
-  });
-}
-
 export interface ToastWatcher {
   expectSuccess(message: string, options?: { timeout?: number }): Promise<void>;
   expectError(message: string, options?: { timeout?: number }): Promise<void>;
 }
 
 export async function watchToasts(page: Page): Promise<ToastWatcher> {
-  const baselineSuccess = await page.locator(SUCCESS).allInnerTexts();
-  const baselineError = await page.locator(ERROR).allInnerTexts();
+  // The observer only fires for nodes *added* after it attaches, so pre-existing toasts
+  // are excluded by construction — no baseline snapshot needed.
+  const accumulator = await startAccumulator(page);
+
+  // Accumulated records seen so far in this watcher's lifetime, split by type.
+  const seen: Record<string, string[]> = { [SUCCESS_ATTR]: [], [ERROR_ATTR]: [] };
+
+  const flush = async () => {
+    const fresh = await drainAccumulator(accumulator);
+    for (const { type, text } of fresh) {
+      if (!seen[type]) seen[type] = [];
+      seen[type].push(text);
+    }
+  };
 
   const waitFor = async (
-    selector: string,
-    baseline: string[],
+    type: string,
     message: string,
     failOnError: boolean,
     timeout: number,
   ): Promise<void> => {
-    // One more than were already there, so an older toast with the same text cannot satisfy this.
-    const target = countContaining(baseline, message) + 1;
     const deadline = Date.now() + timeout;
 
     for (;;) {
-      const texts = await page.locator(selector).allInnerTexts();
-      if (countContaining(texts, message) >= target) return;
+      await flush();
+
+      if (countContaining(seen[type] ?? [], message) >= 1) return;
 
       if (failOnError) {
-        const errors = newErrors(baselineError, await page.locator(ERROR).allInnerTexts());
-        if (errors.length > 0) {
+        const errorsSeen = seen[ERROR_ATTR] ?? [];
+        if (errorsSeen.length > 0) {
           throw new Error(
-            `Expected a success toast "${message}", but the app reported an error: ${errors.join(' | ')}`,
+            `Expected a success toast "${message}", but the app reported an error: ${errorsSeen.join(' | ')}`,
           );
         }
       }
 
       if (Date.now() >= deadline) {
         const onScreen = await page.locator(TOAST).allInnerTexts();
+        const allSeen = Object.values(seen).flat();
+        let toastContext: string;
+        if (allSeen.length > 0) {
+          toastContext = `Toasts captured since watcher started: ${allSeen.join(' | ')}`;
+        } else if (onScreen.length > 0) {
+          toastContext = `Toasts on screen: ${onScreen.join(' | ')}`;
+        } else {
+          toastContext = 'No toasts seen or on screen.';
+        }
         throw new Error(
           `Timed out after ${timeout}ms waiting for a new toast containing "${message}". ` +
-            (onScreen.length > 0
-              ? `Toasts on screen: ${onScreen.join(' | ')}`
-              : 'No toasts on screen.') +
+            toastContext +
             `\nPage at timeout:\n${await pageSnapshot(page)}`,
         );
       }
@@ -98,8 +147,8 @@ export async function watchToasts(page: Page): Promise<ToastWatcher> {
 
   return {
     expectSuccess: (message, options) =>
-      waitFor(SUCCESS, baselineSuccess, message, true, options?.timeout ?? DEFAULT_TIMEOUT_MS),
+      waitFor(SUCCESS_ATTR, message, true, options?.timeout ?? DEFAULT_TIMEOUT_MS),
     expectError: (message, options) =>
-      waitFor(ERROR, baselineError, message, false, options?.timeout ?? DEFAULT_TIMEOUT_MS),
+      waitFor(ERROR_ATTR, message, false, options?.timeout ?? DEFAULT_TIMEOUT_MS),
   };
 }

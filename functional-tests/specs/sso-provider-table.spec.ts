@@ -11,6 +11,7 @@ import {
 import { requireRunState } from '../lib/run-state';
 import { watchToasts } from '../lib/toast';
 import { SsoProviderCreatePage } from '../pages/sso-provider-create.page';
+import { SsoProviderEditPage } from '../pages/sso-provider-edit.page';
 import { SsoProviderTablePage } from '../pages/sso-provider-table.page';
 
 const org = requireRunState();
@@ -162,6 +163,7 @@ test.describe('Navigation', () => {
 
     await ssoProviderTable.addProviderButton.click();
     await expect(page).toHaveURL(new RegExp(`${reactSpaNpmApp.routes.ssoProviderCreate}$`));
+    await expect(new SsoProviderCreatePage(page).oidcStrategyButton).toBeVisible();
   });
 
   test('row menu "Edit" navigates to that provider\'s edit page', async ({ page }) => {
@@ -181,5 +183,6 @@ test.describe('Navigation', () => {
     await expect(page).toHaveURL(
       new RegExp(`${reactSpaNpmApp.routes.ssoProviderEdit(connectionId)}$`),
     );
+    await expect(new SsoProviderEditPage(page).displayNameInput).toBeVisible();
   });
 });
