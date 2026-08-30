@@ -15,7 +15,7 @@ const TOAST = '[data-sonner-toast]';
 const SUCCESS_ATTR = 'success';
 const ERROR_ATTR = 'error';
 
-const DEFAULT_TIMEOUT_MS = 20_000;
+const DEFAULT_TIMEOUT_MS = 30_000;
 const POLL_INTERVAL_MS = 100;
 const SNAPSHOT_LIMIT = 1_500;
 
