@@ -15,7 +15,10 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }]],
   timeout: process.env.CI ? 120_000 : 60_000,
   expect: {
-    timeout: 20_000,
+    // Governs every bare web-first assertion, including ones that render backend data straight
+    // after a write (a row appearing, a toggle's aria-checked). On a slow/loaded CI tenant those
+    // my-org reads lag just like the mgmt polls, so this matches the 30s toast/poll/create budgets.
+    timeout: 30_000,
   },
   use: {
     trace: 'retain-on-failure',

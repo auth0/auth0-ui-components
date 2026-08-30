@@ -15,7 +15,10 @@ import { expect, type Locator, type Page } from '@playwright/test';
 const STEP_TIMEOUT_MS = 20_000;
 // Per-attempt budget inside a retry loop — short, so a stalled click is retried, not awaited.
 const ATTEMPT_TIMEOUT_MS = 2_000;
-const CREATE_TIMEOUT_MS = 20_000;
+// Auth0 validates the OIDC discovery URL synchronously at create time (an outbound fetch on its
+// side), and a token refresh can precede the write — so on a slow/loaded CI tenant the redirect can
+// land past 20s. 30s matches the toast/poll budgets; errors still surface at once via the toast.
+const CREATE_TIMEOUT_MS = 30_000;
 
 export class SsoProviderCreatePage {
   readonly root: Locator;
