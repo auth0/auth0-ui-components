@@ -17,7 +17,7 @@ import {
   waitForOrgInvitation,
   waitForOrgMember,
 } from '../lib/management-api';
-import { pollRead } from '../lib/poll';
+import { POLL_TIMEOUT_MS, pollRead } from '../lib/poll';
 import { requireRunState } from '../lib/run-state';
 import { watchToasts } from '../lib/toast';
 import { MemberManagementPage } from '../pages/member-management.page';
@@ -119,7 +119,7 @@ test.describe('Invite member', () => {
           invitationId = invitations.find((i) => i.invitee.email === email)?.id;
           return invitationId ?? null;
         }, null),
-        { timeout: 10_000 },
+        { timeout: POLL_TIMEOUT_MS },
       )
       .not.toBeNull();
 
@@ -211,7 +211,7 @@ test.describe('Assign role to member', () => {
           const roles = await listOrgMemberRoles(org.orgId, user.user_id);
           return roles.some((role) => role.name === roleName);
         }, false),
-        { timeout: 10_000 },
+        { timeout: POLL_TIMEOUT_MS },
       )
       .toBe(true);
   });
@@ -265,7 +265,7 @@ test.describe('Remove member from organization', () => {
           const members = await listOrgMembers(org.orgId);
           return members.some((member) => member.user_id === user.user_id);
         }, true),
-        { timeout: 10_000 },
+        { timeout: POLL_TIMEOUT_MS },
       )
       .toBe(false);
   });
@@ -304,7 +304,7 @@ test.describe('Revoke invitation', () => {
           const invitations = await listOrgInvitations(org.orgId);
           return invitations.some((i) => i.id === invitation.id);
         }, true),
-        { timeout: 10_000 },
+        { timeout: POLL_TIMEOUT_MS },
       )
       .toBe(false);
 
@@ -355,7 +355,7 @@ test.describe('Revoke and resend invitation', () => {
           newInvitationId = match?.id;
           return !!match?.id && match.id !== invitation.id;
         }, false),
-        { timeout: 10_000 },
+        { timeout: POLL_TIMEOUT_MS },
       )
       .toBe(true);
 

@@ -62,6 +62,9 @@ jobs:
         working-directory: functional-tests
         run: pnpm exec playwright install --with-deps chromium ffmpeg
 
+      - name: Check CPU Cores
+        run: lscpu | grep "CPU(s):"
+
       - name: Create ephemeral test org
         working-directory: functional-tests
         run: pnpm run org:setup

@@ -3,6 +3,8 @@
  * Uses M2M credentials (not the end-user session) so reads here confirm what the component actually persisted.
  */
 
+import { POLL_TIMEOUT_MS } from './poll';
+
 const API_VERSION_PATH = 'api/v2';
 
 interface TokenCache {
@@ -77,6 +79,21 @@ const MAX_SERVER_ERROR_RETRIES = 2;
 // Auth0's Retry-After can be tens of seconds, so cap it or a rate limit just times the test out.
 const MAX_RETRY_AFTER_MS = 5_000;
 
+// Space out requests so the serial suite stays under Auth0's per-tenant rate limit instead of
+// tripping it and recovering via 429 backoff. That backoff was the real cause of "flaky in CI,
+// never locally": from the runner, reads sit closer to the limit and a retried 429 can outlast a
+// poll deadline. workers:1 means one in-process gate covers every request. Pacing here is cheaper
+// than a 429 round-trip plus Retry-After, and deterministic.
+const MIN_REQUEST_INTERVAL_MS = 120;
+let nextRequestAt = 0;
+
+async function rateLimitGate(): Promise<void> {
+  const now = Date.now();
+  const wait = Math.max(0, nextRequestAt - now);
+  nextRequestAt = Math.max(now, nextRequestAt) + MIN_REQUEST_INTERVAL_MS;
+  if (wait > 0) await sleep(wait);
+}
+
 // Returns ms to wait before retrying, or null to give up. 5xx is retried because occasional server
 // errors on setup calls (seen on POST /users) should not fail a spec; createOrRecover() absorbs the
 // 409 that a retried create then lands on.
@@ -101,6 +118,7 @@ function retryWaitMs(response: Response, attempt: number): number | null {
 async function mgmt<T>(method: string, path: string, body?: unknown): Promise<T> {
   for (let attempt = 0; ; attempt += 1) {
     const token = await getAccessToken();
+    await rateLimitGate();
 
     let response: Response;
     try {
@@ -157,7 +175,8 @@ export async function waitForPropagation<T>(
   read: () => Promise<T>,
   isReady: (value: T) => boolean,
 ): Promise<T> {
-  const deadline = Date.now() + 15_000;
+  const timeoutMs = POLL_TIMEOUT_MS;
+  const deadline = Date.now() + timeoutMs;
   let last: T | undefined;
 
   for (;;) {
@@ -165,7 +184,7 @@ export async function waitForPropagation<T>(
     if (last !== undefined && isReady(last)) return last;
     if (Date.now() >= deadline) {
       throw new Error(
-        `Timed out after 15000ms waiting for ${description}. ` +
+        `Timed out after ${timeoutMs}ms waiting for ${description}. ` +
           `Last read: ${JSON.stringify(last)}`,
       );
     }

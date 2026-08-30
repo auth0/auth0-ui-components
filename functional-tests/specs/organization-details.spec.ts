@@ -2,7 +2,7 @@ import { reactSpaNpmApp } from '../apps/react-spa-npm.app';
 import { expect, test } from '../fixtures/auth.fixture';
 import { testUnauthenticatedRedirect } from '../fixtures/unauthenticated';
 import { getOrganization } from '../lib/management-api';
-import { pollRead } from '../lib/poll';
+import { POLL_TIMEOUT_MS, pollRead } from '../lib/poll';
 import { requireRunState } from '../lib/run-state';
 import { watchToasts } from '../lib/toast';
 import { OrganizationDetailsPage } from '../pages/organization-details.page';
@@ -49,7 +49,7 @@ test.describe('OrganizationDetailsEdit', () => {
       .poll(
         pollRead(async () => (await getOrganization(org.orgId)).display_name, undefined),
         {
-          timeout: 10_000,
+          timeout: POLL_TIMEOUT_MS,
         },
       )
       .toBe(newDisplayName);

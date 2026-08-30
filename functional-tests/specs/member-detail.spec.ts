@@ -16,7 +16,7 @@ import {
   waitForMemberRole,
   waitForOrgMember,
 } from '../lib/management-api';
-import { pollRead } from '../lib/poll';
+import { POLL_TIMEOUT_MS, pollRead } from '../lib/poll';
 import { requireRunState } from '../lib/run-state';
 import { watchToasts } from '../lib/toast';
 import { MemberDetailPage } from '../pages/member-detail.page';
@@ -112,7 +112,7 @@ test.describe('Remove role from member', () => {
           const roles = await listOrgMemberRoles(org.orgId, user.user_id);
           return roles.some((r) => r.id === role.id);
         }, true),
-        { timeout: 10_000 },
+        { timeout: POLL_TIMEOUT_MS },
       )
       .toBe(false);
 
@@ -168,7 +168,7 @@ test.describe('Remove member from organization (detail page)', () => {
           const members = await listOrgMembers(org.orgId);
           return members.some((m) => m.user_id === user.user_id);
         }, true),
-        { timeout: 10_000 },
+        { timeout: POLL_TIMEOUT_MS },
       )
       .toBe(false);
   });
