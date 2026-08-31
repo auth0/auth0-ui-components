@@ -62,6 +62,7 @@ const MYORG_SCOPES = [
   "read:my_org:configuration",
   "read:my_org:identity_providers_provisioning",
   "create:my_org:identity_providers_provisioning",
+  "update:my_org:identity_providers_provisioning",
   "delete:my_org:identity_providers_provisioning",
   "create:my_org:identity_providers_domains",
   "delete:my_org:identity_providers_domains",

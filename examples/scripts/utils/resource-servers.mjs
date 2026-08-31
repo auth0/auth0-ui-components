@@ -24,6 +24,7 @@ export const MYORG_API_SCOPES = [
 "delete:my_org:identity_providers_scim_tokens",
 "create:my_org:identity_providers_provisioning",
 "read:my_org:identity_providers_provisioning",
+"update:my_org:identity_providers_provisioning",
 "delete:my_org:identity_providers_provisioning",
 "read:my_org:configuration",
 "read:my_org:member_invitations",
