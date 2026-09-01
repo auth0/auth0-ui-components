@@ -23,6 +23,14 @@ import type {
   SsoProviderCreateViewProps,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
+// Hoisted so the defaults keep a stable identity across renders — inline literals would make every
+// memo that depends on them recompute on every render of the container.
+const DEFAULT_CUSTOM_MESSAGES = {};
+const DEFAULT_STYLING = {
+  variables: { common: {}, light: {}, dark: {} },
+  classes: {},
+};
+
 /**
  * SSO provider creation container component.
  * @param props - Component props
@@ -41,11 +49,8 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
   const {
     createAction,
     backButton,
-    customMessages = {},
-    styling = {
-      variables: { common: {}, light: {}, dark: {} },
-      classes: {},
-    },
+    customMessages = DEFAULT_CUSTOM_MESSAGES,
+    styling = DEFAULT_STYLING,
     onNext,
     onPrevious,
   } = props;
@@ -135,7 +140,6 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
     detailsRef,
     configureRef,
     onNext,
-    onPrevious,
     setFormData,
     handleCreate,
     createStepActions,
@@ -210,11 +214,15 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
       details,
       configure,
       onNext,
-      onPrevious,
       customMessages,
       currentStyles,
       styling,
       createStepActions,
+      setFormData,
+      isLoadingConfig,
+      filteredStrategies,
+      isLoadingIdpConfig,
+      idpConfig,
     ],
   );
 

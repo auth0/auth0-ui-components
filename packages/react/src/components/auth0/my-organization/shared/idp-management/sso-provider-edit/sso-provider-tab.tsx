@@ -106,10 +106,10 @@ export function SsoProviderTab({
       </Card>
 
       <div className="space-y-4">
-        {provider && organization && !hideRemoveFromOrganization && (
+        {provider && organization?.name && !hideRemoveFromOrganization && (
           <SsoProviderRemoveFromOrganization
             provider={provider}
-            organizationName={organization?.name}
+            organizationName={organization.name}
             onRemove={onRemove}
             isLoading={isRemoving}
             readOnly={readOnly}

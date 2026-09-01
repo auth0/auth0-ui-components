@@ -102,6 +102,22 @@ describe('useOrganizationMemberDetail', () => {
       expect(result.current.activeTab).toBe('details');
     });
 
+    it('should start with roles tab active when initialTab is roles', () => {
+      const { result } = render(createDefaultOptions({ initialTab: 'roles' }));
+
+      expect(result.current.activeTab).toBe('roles');
+    });
+
+    it('should fall back to details tab when initialTab is null', () => {
+      const { result } = render(
+        createDefaultOptions({
+          initialTab: null as unknown as UseOrganizationMemberDetailOptions['initialTab'],
+        }),
+      );
+
+      expect(result.current.activeTab).toBe('details');
+    });
+
     it('should start with no modal open', () => {
       const { result } = render();
 

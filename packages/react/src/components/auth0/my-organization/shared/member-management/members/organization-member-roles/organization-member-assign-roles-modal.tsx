@@ -100,8 +100,11 @@ export function OrganizationMemberAssignRolesModal({
             </p>
           ) : (
             <>
-              <Label>{t('member.detail.roles.assign_modal.roles_label')}</Label>
+              <Label htmlFor="assign-roles-combobox">
+                {t('member.detail.roles.assign_modal.roles_label')}
+              </Label>
               <Combobox
+                id="assign-roles-combobox"
                 multiple
                 options={unassignedRoles.map((r) => ({ value: r.id, label: r.name }))}
                 value={selectedRoles}
