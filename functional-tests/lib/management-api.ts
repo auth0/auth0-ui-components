@@ -3,6 +3,8 @@
  * Uses M2M credentials (not the end-user session) so reads here confirm what the component actually persisted.
  */
 
+import { POLL_TIMEOUT_MS } from './poll';
+
 const API_VERSION_PATH = 'api/v2';
 
 interface TokenCache {
@@ -74,16 +76,32 @@ function sleep(ms: number): Promise<void> {
 
 const MAX_RATE_LIMIT_RETRIES = 4;
 const MAX_SERVER_ERROR_RETRIES = 2;
+// Auth0's Retry-After can be tens of seconds, so cap it or a rate limit just times the test out.
+const MAX_RETRY_AFTER_MS = 5_000;
 
-// Returns ms to wait before retrying, or null to give up. 5xx is retried because occasional server
-// errors on setup calls (seen on POST /users) should not fail a spec; a 409 on the retry is fine.
+// Space requests out to stay under Auth0's per-tenant rate limit rather than trip it and recover via
+// 429 backoff — that backoff was the real cause of the CI-only flakes.
+const MIN_REQUEST_INTERVAL_MS = 120;
+let nextRequestAt = 0;
+
+async function rateLimitGate(): Promise<void> {
+  const now = Date.now();
+  const wait = Math.max(0, nextRequestAt - now);
+  nextRequestAt = Math.max(now, nextRequestAt) + MIN_REQUEST_INTERVAL_MS;
+  if (wait > 0) await sleep(wait);
+}
+
+// ms to wait before retrying, or null to give up. 5xx is retried (seen on POST /users); createOrRecover
+// then absorbs the 409 a retried create can land on.
 function retryWaitMs(response: Response, attempt: number): number | null {
   if (response.status === 429) {
     if (attempt >= MAX_RATE_LIMIT_RETRIES) return null;
     const retryAfterSeconds = Number(response.headers.get('retry-after'));
-    return Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
-      ? retryAfterSeconds * 1000
-      : 2 ** attempt * 500;
+    const wait =
+      Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
+        ? retryAfterSeconds * 1000
+        : 2 ** attempt * 500;
+    return Math.min(wait, MAX_RETRY_AFTER_MS);
   }
 
   if (response.status >= 500 && attempt < MAX_SERVER_ERROR_RETRIES) {
@@ -93,9 +111,23 @@ function retryWaitMs(response: Response, attempt: number): number | null {
   return null;
 }
 
+// Carries the HTTP status so callers can branch on it without parsing the message.
+class ManagementApiError extends Error {
+  constructor(
+    readonly status: number,
+    method: string,
+    path: string,
+    body: string,
+  ) {
+    super(`Management API ${method} ${path} failed: ${status} ${body}`);
+    this.name = 'ManagementApiError';
+  }
+}
+
 async function mgmt<T>(method: string, path: string, body?: unknown): Promise<T> {
   for (let attempt = 0; ; attempt += 1) {
     const token = await getAccessToken();
+    await rateLimitGate();
 
     let response: Response;
     try {
@@ -123,9 +155,7 @@ async function mgmt<T>(method: string, path: string, body?: unknown): Promise<T>
     }
 
     if (!response.ok) {
-      throw new Error(
-        `Management API ${method} ${path} failed: ${response.status} ${await response.text()}`,
-      );
+      throw new ManagementApiError(response.status, method, path, await response.text());
     }
 
     if (response.status === 204 || response.headers.get('content-length') === '0') {
@@ -152,7 +182,8 @@ export async function waitForPropagation<T>(
   read: () => Promise<T>,
   isReady: (value: T) => boolean,
 ): Promise<T> {
-  const deadline = Date.now() + 15_000;
+  const timeoutMs = POLL_TIMEOUT_MS;
+  const deadline = Date.now() + timeoutMs;
   let last: T | undefined;
 
   for (;;) {
@@ -160,11 +191,23 @@ export async function waitForPropagation<T>(
     if (last !== undefined && isReady(last)) return last;
     if (Date.now() >= deadline) {
       throw new Error(
-        `Timed out after 15000ms waiting for ${description}. ` +
+        `Timed out after ${timeoutMs}ms waiting for ${description}. ` +
           `Last read: ${JSON.stringify(last)}`,
       );
     }
     await sleep(500);
+  }
+}
+
+// Runs `create`; on a 409 conflict, reads the resource back via `recover`. Callers must use a
+// name/email unique to this run, so a 409 can only be an earlier timed-out attempt of this same
+// create having already committed — never a different resource.
+async function createOrRecover<T>(create: () => Promise<T>, recover: () => Promise<T>): Promise<T> {
+  try {
+    return await create();
+  } catch (error) {
+    if (!(error instanceof ManagementApiError) || error.status !== 409) throw error;
+    return recover();
   }
 }
 
@@ -229,6 +272,26 @@ export function listOrgEnabledConnections(
   return mgmt('GET', `organizations/${organizationId}/enabled_connections`);
 }
 
+const CONNECTIONS_PAGE_SIZE = 100;
+const MAX_CONNECTION_PAGES = 10;
+
+// Lists every connection on the tenant. Pages through them, because one page quietly hides the rest
+// and a lookup would then fail to find a connection we just made. Stops after the first short page.
+export async function listConnections(): Promise<Array<{ id: string; name: string }>> {
+  const all: Array<{ id: string; name: string }> = [];
+
+  for (let page = 0; page < MAX_CONNECTION_PAGES; page += 1) {
+    const batch = await mgmt<Array<{ id: string; name: string }>>(
+      'GET',
+      `connections?per_page=${CONNECTIONS_PAGE_SIZE}&page=${page}`,
+    );
+    all.push(...batch);
+    if (batch.length < CONNECTIONS_PAGE_SIZE) break;
+  }
+
+  return all;
+}
+
 // identityProviders.create() stores the connection as `con-org-{orgId}-{name}` —
 // match by suffix so specs can look up by the name typed in the wizard.
 export async function findSsoConnectionIdByProviderName(providerName: string): Promise<string> {
@@ -237,10 +300,7 @@ export async function findSsoConnectionIdByProviderName(providerName: string): P
   await waitForPropagation(
     `SSO connection ending in "${providerName}" to appear on tenant ${domain()}`,
     async () => {
-      const connections = await mgmt<Array<{ id: string; name: string }>>(
-        'GET',
-        'connections?per_page=100',
-      );
+      const connections = await listConnections();
       match = connections.find((connection) => connection.name.endsWith(`-${providerName}`));
       return match !== undefined;
     },
@@ -309,10 +369,7 @@ export function assignMemberRoles(
 }
 
 export async function findConnectionIdByName(name: string): Promise<string> {
-  const connections = await mgmt<Array<{ id: string; name: string }>>(
-    'GET',
-    'connections?per_page=100',
-  );
+  const connections = await listConnections();
   const match = connections.find((connection) => connection.name === name);
   if (!match) {
     throw new Error(`Connection "${name}" not found on tenant ${domain()}`);
@@ -339,7 +396,18 @@ export interface Role {
 }
 
 export function createRole(input: { name: string; description?: string }): Promise<Role> {
-  return mgmt<Role>('POST', 'roles', input);
+  return createOrRecover(
+    () => mgmt<Role>('POST', 'roles', input),
+    async () => ({
+      id: await waitForPropagation(
+        `the role "${input.name}" created by a retried POST /roles to be readable`,
+        () => findRoleIdByName(input.name),
+        Boolean,
+      ),
+      name: input.name,
+      description: input.description,
+    }),
+  );
 }
 
 export function deleteRole(roleId: string): Promise<void> {
@@ -377,13 +445,25 @@ export interface User {
 }
 
 export function createUser(input: CreateUserInput): Promise<User> {
-  return mgmt<User>('POST', 'users', {
-    email: input.email,
-    password: input.password,
-    name: input.name,
-    connection: input.connectionName,
-    email_verified: true,
-  });
+  return createOrRecover(
+    () =>
+      mgmt<User>('POST', 'users', {
+        email: input.email,
+        password: input.password,
+        name: input.name,
+        connection: input.connectionName,
+        email_verified: true,
+      }),
+    async () => ({
+      user_id: await waitForPropagation(
+        `the user for ${input.email} created by a retried POST /users to be readable`,
+        () => findUserIdByEmail(input.email),
+        Boolean,
+      ),
+      email: input.email,
+      name: input.name,
+    }),
+  );
 }
 
 export function deleteUser(userId: string): Promise<void> {
@@ -400,7 +480,7 @@ export interface OrgMember {
 export function listOrgMembers(organizationId: string): Promise<OrgMember[]> {
   return mgmt<OrgMember[]>(
     'GET',
-    `organizations/${organizationId}/members?fields=user_id,email,name,roles`,
+    `organizations/${organizationId}/members?fields=user_id,email,name,roles&per_page=100`,
   );
 }
 

@@ -54,7 +54,7 @@ async function discardStaleOrganization(): Promise<void> {
   console.log(`· discarded stale organization ${stale.orgName} (${stale.orgId})`);
 }
 
-const REFRESH_TOKEN_LEEWAY_SECONDS = 60;
+const REFRESH_TOKEN_LEEWAY_SECONDS = 300;
 
 async function ensureRefreshTokenLeeway(): Promise<void> {
   const clientId = process.env.FT_AUTH0_SPA_CLIENT_ID;

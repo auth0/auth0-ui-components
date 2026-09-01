@@ -13,17 +13,16 @@ export default defineConfig({
   workers: 1,
   retries: process.env.CI ? 1 : 0,
   reporter: [['list'], ['html', { open: 'never' }]],
-  timeout: 60_000,
+  timeout: process.env.CI ? 120_000 : 60_000,
   expect: {
-    timeout: 20_000,
+    // Covers backend-data assertions (rows, toggles) which lag on CI like mgmt polls — matches the 30s toast/poll/create budgets.
+    timeout: 30_000,
   },
   use: {
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
     video: 'retain-on-failure',
     permissions: ['clipboard-read', 'clipboard-write'],
     headless: process.env.CI ? true : process.env.HEADLESS === 'true',
-    // Uses system-installed Chrome. Set to undefined to use Playwright's pinned Chromium instead.
-    channel: 'chrome',
   },
   projects: [
     {
@@ -38,7 +37,8 @@ export default defineConfig({
       url: reactSpaNpmApp.baseURL,
       env: reactSpaNpmApp.webServer.env,
       reuseExistingServer: !process.env.CI,
-      timeout: 60_000,
+      // CI builds the app before serving it, so it needs more than dev server's start-up time.
+      timeout: process.env.CI ? 240_000 : 60_000,
     },
   ],
 });

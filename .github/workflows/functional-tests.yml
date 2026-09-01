@@ -57,9 +57,13 @@ jobs:
       - name: Build packages
         run: pnpm turbo run build --filter=@auth0/universal-components-react
 
-      - name: Install Playwright ffmpeg
+      # Pinned Chromium, ffmpeg backs `video: 'retain-on-failure'`.
+      - name: Install Playwright browsers
         working-directory: functional-tests
-        run: pnpm exec playwright install ffmpeg
+        run: pnpm exec playwright install --with-deps chromium ffmpeg
+
+      - name: Check CPU Cores
+        run: lscpu | grep "CPU(s):"
 
       - name: Create ephemeral test org
         working-directory: functional-tests
@@ -74,11 +78,13 @@ jobs:
         working-directory: functional-tests
         run: pnpm run org:teardown
 
-      # - name: Upload Playwright report
-      #   if: failure()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: playwright-report
-      #     path: functional-tests/playwright-report/
-      #     retention-days: 7
-      #     if-no-files-found: ignore
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: playwright-report
+          path: |
+            functional-tests/playwright-report/
+            functional-tests/test-results/
+          retention-days: 3
+          if-no-files-found: ignore

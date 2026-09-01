@@ -9,9 +9,14 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const organizationId = readRunState()?.orgId ?? '';
 
+const PORT = 5173;
+const webServerCommand = process.env.CI
+  ? `pnpm exec vite build && pnpm exec vite preview --port ${PORT} --strictPort`
+  : 'pnpm dev';
+
 export const reactSpaNpmApp: AppAdapter = {
   name: 'react-spa-npm',
-  baseURL: 'http://localhost:5173',
+  baseURL: `http://localhost:${PORT}`,
   authMode: 'spa',
   routes: {
     organizationManagement: '/organization-management',
@@ -23,14 +28,15 @@ export const reactSpaNpmApp: AppAdapter = {
     ssoProviderEdit: (providerId: string) => `/sso-provider/edit/${providerId}`,
   },
   webServer: {
-    command: 'pnpm dev',
+    command: webServerCommand,
     cwd: path.resolve(dirname, '../../examples/react-spa-npm'),
     env: {
       VITE_AUTH0_DOMAIN: process.env.FT_AUTH0_DOMAIN ?? '',
       VITE_AUTH0_CLIENT_ID: process.env.FT_AUTH0_SPA_CLIENT_ID ?? '',
       VITE_AUTH0_ORGANIZATION: organizationId,
-      // 0 makes data stale immediately so the Refresh button is always clickable
-      VITE_QUERY_STALE_TIME_MS: '0',
+      // Short so the Refresh button becomes clickable, but not 0: at 0 every newly mounted observer
+      // refetches, and a response landing while a row menu is open closes the menu mid-click.
+      VITE_QUERY_STALE_TIME_MS: '2000',
     },
   },
 };
