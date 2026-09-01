@@ -49,6 +49,7 @@ const MY_ORG_SCOPES = [
   'create:my_org:identity_providers_scim_tokens',
   'delete:my_org:identity_providers_scim_tokens',
   'create:my_org:identity_providers_provisioning',
+  'update:my_org:identity_providers_provisioning',
   'read:my_org:identity_providers_provisioning',
   'delete:my_org:identity_providers_provisioning',
   'read:my_org:configuration',
