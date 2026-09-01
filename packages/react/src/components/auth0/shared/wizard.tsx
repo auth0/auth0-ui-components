@@ -25,7 +25,7 @@ export interface WizardStep {
   id: string;
   title: string;
   description?: string;
-  content: (props: StepProps) => React.ReactNode;
+  content: React.ComponentType<StepProps>;
   actions?: StepFormActions;
 }
 
@@ -127,7 +127,7 @@ function Wizard({
     [activeStep, isLoading, allowStepNavigation],
   );
 
-  const renderCurrentStep = currentStepConfig?.content;
+  const CurrentStepComponent = currentStepConfig?.content;
   const showPrevious = currentStepConfig?.actions?.showPrevious !== false && !isFirstStep;
   const showNext = currentStepConfig?.actions?.showNext ?? true;
 
@@ -155,13 +155,13 @@ function Wizard({
             </div>
           )}
           <div className={cn(isLoading && 'opacity-50 pointer-events-none')}>
-            {renderCurrentStep
-              ? renderCurrentStep({
-                  onNext: handleNext,
-                  onPrevious: handlePrevious,
-                  isLoading,
-                })
-              : null}
+            {CurrentStepComponent ? (
+              <CurrentStepComponent
+                onNext={handleNext}
+                onPrevious={handlePrevious}
+                isLoading={isLoading}
+              />
+            ) : null}
           </div>
         </CardContent>
       </Card>

@@ -12,6 +12,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -77,37 +78,39 @@ export function OrganizationInvitationTableActionsColumn({
               >
                 <MoreHorizontal className="h-4 w-4 text-gray-600 dark:text-gray-400" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {/* View Details - always available */}
-                <DropdownMenuItem onClick={handleViewDetails}>
-                  <Eye className="mr-2 h-4 w-4" />
-                  {t('invitation.actions.view_details')}
-                </DropdownMenuItem>
-
-                {isPending && invitation.invitation_url && (
-                  <DropdownMenuItem onClick={handleCopyUrl}>
-                    <Copy className="mr-2 h-4 w-4" />
-                    {t('invitation.actions.copy_url')}
+              <DropdownMenuPortal>
+                <DropdownMenuContent align="end">
+                  {/* View Details - always available */}
+                  <DropdownMenuItem onClick={handleViewDetails}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    {t('invitation.actions.view_details')}
                   </DropdownMenuItem>
-                )}
 
-                {!readOnly && (
-                  <>
-                    <DropdownMenuItem onClick={handleRevokeAndResend}>
-                      <RefreshCcw className="mr-2 h-4 w-4" />
-                      {t('invitation.actions.revoke_and_resend')}
+                  {isPending && invitation.invitation_url && (
+                    <DropdownMenuItem onClick={handleCopyUrl}>
+                      <Copy className="mr-2 h-4 w-4" />
+                      {t('invitation.actions.copy_url')}
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={handleRevoke}
-                      className="text-destructive-foreground focus:text-destructive-foreground"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4 text-destructive-foreground" />
-                      {t('invitation.actions.revoke')}
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
+                  )}
+
+                  {!readOnly && (
+                    <>
+                      <DropdownMenuItem onClick={handleRevokeAndResend}>
+                        <RefreshCcw className="mr-2 h-4 w-4" />
+                        {t('invitation.actions.revoke_and_resend')}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={handleRevoke}
+                        className="text-destructive-foreground focus:text-destructive-foreground"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4 text-destructive-foreground" />
+                        {t('invitation.actions.revoke')}
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenuPortal>
             </DropdownMenu>
           </div>
         </TooltipTrigger>

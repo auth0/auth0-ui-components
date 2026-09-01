@@ -161,7 +161,6 @@ export function OrganizationInvitationTable({
       <DataTable
         columns={columns}
         data={invitations}
-        getRowId={(invitation) => invitation.id ?? invitation.invitee?.email ?? ''}
         loading={loading}
         emptyState={{ title: t('invitation.table.empty_message') }}
         sortConfig={sortConfig}

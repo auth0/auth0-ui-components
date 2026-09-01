@@ -49,11 +49,8 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     members,
     invitations,
     organizationDisplayName,
-    isLoadingOrganization,
     isFetchingInvitations,
     isFetchingMembers,
-    isLoadingInvitations,
-    isLoadingMembers,
     isMembersStale,
     isInvitationsStale,
     isCreatingInvitation,
@@ -206,7 +203,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           <TabsContent value="members">
             <OrganizationMemberTable
               members={members}
-              loading={isLoadingMembers}
+              loading={isFetchingMembers}
               customMessages={customMessages?.member}
               pagination={memberPagination}
               pageSizeOptions={pageSizeOptions}
@@ -226,7 +223,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           <TabsContent value="invitations">
             <OrganizationInvitationTable
               invitations={invitations}
-              loading={isLoadingInvitations}
+              loading={isFetchingInvitations}
               customMessages={customMessages?.invitation}
               pagination={invitationPagination}
               pageSizeOptions={pageSizeOptions}
@@ -316,7 +313,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           memberName={selectedMember?.name}
           memberUserId={selectedMember?.user_id}
           isOpen={modalState.type === 'removeFromOrganization'}
-          isLoading={isRemovingFromOrganization || isLoadingOrganization}
+          isLoading={isRemovingFromOrganization}
           organizationName={organizationDisplayName}
           customMessages={customMessages?.member}
           onClose={closeModal}

@@ -239,7 +239,6 @@ function SsoProviderTableView({
         loading={isViewLoading}
         columns={columns}
         data={providers}
-        getRowId={(provider) => provider.id ?? provider.name ?? ''}
         emptyState={{ title: t('table.empty_message') }}
         className={currentStyles.classes?.['SsoProviderTable-table']}
       />

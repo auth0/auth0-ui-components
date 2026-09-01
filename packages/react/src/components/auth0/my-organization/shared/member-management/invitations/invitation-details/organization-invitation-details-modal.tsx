@@ -150,29 +150,18 @@ export function OrganizationInvitationDetailsModal({
         <div className="space-y-4 py-4">
           {/* Email */}
           <div className="space-y-2">
-            <Label
-              htmlFor="invitation-details-email"
-              className="text-sm font-medium text-muted-foreground"
-            >
+            <Label className="text-sm font-medium text-muted-foreground">
               {t('invitation.details.email_label')}
             </Label>
-            <TextField
-              id="invitation-details-email"
-              value={invitation?.invitee?.email ?? '-'}
-              readOnly
-            />
+            <TextField value={invitation?.invitee?.email ?? '-'} readOnly />
           </div>
 
           {/* Created At */}
           <div className="space-y-2">
-            <Label
-              htmlFor="invitation-details-created-at"
-              className="text-sm font-medium text-muted-foreground"
-            >
+            <Label className="text-sm font-medium text-muted-foreground">
               {t('invitation.details.created_at_label')}
             </Label>
             <TextField
-              id="invitation-details-created-at"
               value={
                 invitation?.created_at ? new Date(invitation.created_at).toLocaleString() : '-'
               }
@@ -182,14 +171,10 @@ export function OrganizationInvitationDetailsModal({
 
           {/* Expires At */}
           <div className="space-y-2">
-            <Label
-              htmlFor="invitation-details-expires-at"
-              className="text-sm font-medium text-muted-foreground"
-            >
+            <Label className="text-sm font-medium text-muted-foreground">
               {t('invitation.details.expires_at_label')}
             </Label>
             <TextField
-              id="invitation-details-expires-at"
               value={
                 invitation?.expires_at ? new Date(invitation.expires_at).toLocaleString() : '-'
               }
@@ -264,17 +249,10 @@ export function OrganizationInvitationDetailsModal({
 
           {/* Invited By */}
           <div className="space-y-2">
-            <Label
-              htmlFor="invitation-details-invited-by"
-              className="text-sm font-medium text-muted-foreground"
-            >
+            <Label className="text-sm font-medium text-muted-foreground">
               {t('invitation.details.invited_by_label')}
             </Label>
-            <TextField
-              id="invitation-details-invited-by"
-              value={invitation?.inviter?.name ?? '-'}
-              readOnly
-            />
+            <TextField value={invitation?.inviter?.name ?? '-'} readOnly />
           </div>
 
           {/* Identity Provider */}

@@ -59,7 +59,6 @@ export interface UseOrganizationMemberDetailResult {
   activeTab: OrganizationMemberDetailTab;
   member: OrgMember | null;
   organizationDisplayName: string;
-  isLoadingOrganization: boolean;
   memberRoles: Role[];
   searchedRoles: Role[];
   onRoleSearch: (term: string) => void;

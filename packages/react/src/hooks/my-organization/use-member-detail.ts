@@ -30,7 +30,7 @@ export function useOrganizationMemberDetail(
     onBack,
     customMessages = {},
     readOnly = false,
-    initialTab,
+    initialTab = 'details',
     removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,
@@ -70,9 +70,7 @@ export function useOrganizationMemberDetail(
     }
   }, [memberRolesQuery.isError, memberRolesQuery.error, handleError, t]);
 
-  const [activeTab, setActiveTab] = React.useState<OrganizationMemberDetailTab>(
-    initialTab ?? 'details',
-  );
+  const [activeTab, setActiveTab] = React.useState<OrganizationMemberDetailTab>(initialTab);
   const [modalState, setModalState] = React.useState<MemberDetailModalState>({ type: null });
   const [selectedRoles, setSelectedRoles] = React.useState<Role[]>([]);
 
@@ -164,7 +162,6 @@ export function useOrganizationMemberDetail(
     activeTab,
     member,
     organizationDisplayName,
-    isLoadingOrganization: organizationQuery.isLoading,
     memberRoles,
     searchedRoles,
     onRoleSearch: setRoleSearchTerm,

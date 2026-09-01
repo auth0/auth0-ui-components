@@ -199,7 +199,6 @@ export function OrganizationMemberTable({
       <DataTable
         columns={columns}
         data={members}
-        getRowId={(member) => member.user_id ?? member.email ?? ''}
         loading={loading}
         emptyState={{ title: t('member.table.empty_message') }}
         sortConfig={sortConfig}
