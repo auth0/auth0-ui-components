@@ -215,6 +215,7 @@ function DomainTableView({
       <DataTable
         columns={columns}
         data={domains}
+        getRowId={(domain) => domain.id ?? domain.domain}
         loading={isFetching}
         emptyState={{ title: t('domain_table.table.empty_message') }}
         className={currentStyles.classes?.['DomainTable-table']}
