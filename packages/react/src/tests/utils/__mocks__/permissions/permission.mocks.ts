@@ -38,6 +38,7 @@ export const ALL_MY_ORG_PERMISSIONS: OauthScope[] = [
   'update:my_org:domains',
   'update:my_org:identity_providers',
   'update:my_org:identity_providers_detach',
+  'update:my_org:identity_providers_provisioning',
 ];
 
 /** The read-only subset of {@link ALL_MY_ORG_PERMISSIONS}. */

@@ -436,6 +436,9 @@ export default function MyOrganizationIntroduction() {
                       - create:my_org:identity_providers_provisioning
                     </div>
                     <div className="text-xs text-gray-600">
+                      - update:my_org:identity_providers_provisioning
+                    </div>
+                    <div className="text-xs text-gray-600">
                       - read:my_org:identity_providers_provisioning
                     </div>
                     <div className="text-xs text-gray-600">
