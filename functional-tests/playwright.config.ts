@@ -15,9 +15,7 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }]],
   timeout: process.env.CI ? 120_000 : 60_000,
   expect: {
-    // Governs every bare web-first assertion, including ones that render backend data straight
-    // after a write (a row appearing, a toggle's aria-checked). On a slow/loaded CI tenant those
-    // my-org reads lag just like the mgmt polls, so this matches the 30s toast/poll/create budgets.
+    // Covers backend-data assertions (rows, toggles) which lag on CI like mgmt polls — matches the 30s toast/poll/create budgets.
     timeout: 30_000,
   },
   use: {
@@ -39,8 +37,7 @@ export default defineConfig({
       url: reactSpaNpmApp.baseURL,
       env: reactSpaNpmApp.webServer.env,
       reuseExistingServer: !process.env.CI,
-      // CI builds the app before serving it (see react-spa-npm.app.ts), so it needs more than a
-      // dev server's start-up time.
+      // CI builds the app before serving it, so it needs more than dev server's start-up time.
       timeout: process.env.CI ? 240_000 : 60_000,
     },
   ],

@@ -79,11 +79,8 @@ const MAX_SERVER_ERROR_RETRIES = 2;
 // Auth0's Retry-After can be tens of seconds, so cap it or a rate limit just times the test out.
 const MAX_RETRY_AFTER_MS = 5_000;
 
-// Space out requests so the serial suite stays under Auth0's per-tenant rate limit instead of
-// tripping it and recovering via 429 backoff. That backoff was the real cause of "flaky in CI,
-// never locally": from the runner, reads sit closer to the limit and a retried 429 can outlast a
-// poll deadline. workers:1 means one in-process gate covers every request. Pacing here is cheaper
-// than a 429 round-trip plus Retry-After, and deterministic.
+// Space requests out to stay under Auth0's per-tenant rate limit rather than trip it and recover via
+// 429 backoff — that backoff was the real cause of the CI-only flakes.
 const MIN_REQUEST_INTERVAL_MS = 120;
 let nextRequestAt = 0;
 
@@ -94,9 +91,8 @@ async function rateLimitGate(): Promise<void> {
   if (wait > 0) await sleep(wait);
 }
 
-// Returns ms to wait before retrying, or null to give up. 5xx is retried because occasional server
-// errors on setup calls (seen on POST /users) should not fail a spec; createOrRecover() absorbs the
-// 409 that a retried create then lands on.
+// ms to wait before retrying, or null to give up. 5xx is retried (seen on POST /users); createOrRecover
+// then absorbs the 409 a retried create can land on.
 function retryWaitMs(response: Response, attempt: number): number | null {
   if (response.status === 429) {
     if (attempt >= MAX_RATE_LIMIT_RETRIES) return null;
@@ -113,6 +109,19 @@ function retryWaitMs(response: Response, attempt: number): number | null {
   }
 
   return null;
+}
+
+// Carries the HTTP status so callers can branch on it without parsing the message.
+class ManagementApiError extends Error {
+  constructor(
+    readonly status: number,
+    method: string,
+    path: string,
+    body: string,
+  ) {
+    super(`Management API ${method} ${path} failed: ${status} ${body}`);
+    this.name = 'ManagementApiError';
+  }
 }
 
 async function mgmt<T>(method: string, path: string, body?: unknown): Promise<T> {
@@ -146,9 +155,7 @@ async function mgmt<T>(method: string, path: string, body?: unknown): Promise<T>
     }
 
     if (!response.ok) {
-      throw new Error(
-        `Management API ${method} ${path} failed: ${response.status} ${await response.text()}`,
-      );
+      throw new ManagementApiError(response.status, method, path, await response.text());
     }
 
     if (response.status === 204 || response.headers.get('content-length') === '0') {
@@ -192,13 +199,14 @@ export async function waitForPropagation<T>(
   }
 }
 
-// Absorbs a 409 on `create` by reading the resource back via `recover`. Safe because every caller
-// uses a unique name/email — a 409 can only mean an earlier timed-out attempt of this call won.
+// Runs `create`; on a 409 conflict, reads the resource back via `recover`. Callers must use a
+// name/email unique to this run, so a 409 can only be an earlier timed-out attempt of this same
+// create having already committed — never a different resource.
 async function createOrRecover<T>(create: () => Promise<T>, recover: () => Promise<T>): Promise<T> {
   try {
     return await create();
   } catch (error) {
-    if (!(error instanceof Error) || !error.message.includes(' failed: 409 ')) throw error;
+    if (!(error instanceof ManagementApiError) || error.status !== 409) throw error;
     return recover();
   }
 }

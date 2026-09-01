@@ -1,15 +1,14 @@
-// Poll budget for Management-API reads that confirm a write propagated. Must be comfortably *larger*
-// than the worst case a single throttled read can take — mgmt() retries a 429 up to
-// MAX_RATE_LIMIT_RETRIES times, each waiting up to MAX_RETRY_AFTER_MS, so one bad read can burn ~20s.
-// If the budget only equalled that, a single 429 storm would leave the poll no time to actually poll
-// and it would time out mid-backoff (flaky-in-CI/solid-locally, since CI 429s far more). 30s keeps
-// ~10s of genuine polling headroom on top of one worst-case read, which also absorbs the real
-// eventual-consistency lag on list endpoints like GET /organizations/{id}/members after a removal.
+// Max total time to keep polling a Management-API read until it reflects a just-written change.
 export const POLL_TIMEOUT_MS = 30_000;
 
 /**
  * Makes a read safe for `expect.poll`, which gives up the moment its callback throws instead of
  * polling again. Wrapping it means a blip keeps the poll going rather than failing the test.
+ *
+ * Why the 30s budget: one throttled read can burn ~20s — mgmt() retries a 429 up to
+ * MAX_RATE_LIMIT_RETRIES times, each waiting up to MAX_RETRY_AFTER_MS. If the budget only matched
+ * that, a 429 storm would time the poll out mid-backoff (flaky-in-CI/solid-locally, since CI 429s
+ * far more). 30s leaves ~10s of real polling headroom, which also covers eventual-consistency lag.
  *
  * A read that fails on *every* attempt (bad token, 4xx, the endpoint never being hit) would
  * otherwise be indistinguishable from slow propagation: the poll just times out with no clue why.
