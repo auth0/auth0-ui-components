@@ -8,6 +8,7 @@ on:
       - 'functional-tests/**'
       - 'packages/**'
       - 'examples/react-spa-npm/**'
+      - '.github/workflows/functional-tests.yml'
 
 # Cancel outdated runs for the same PR on new pushes.
 concurrency:
