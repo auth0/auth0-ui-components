@@ -160,6 +160,7 @@ export interface UseOrganizationMemberManagementResult {
   onRoleSearch: (term: string) => void;
   availableConnections: ConnectionOption[];
   isLoadingConnections: boolean;
+  defaultConnectionId?: string;
   hasNoConnections: boolean;
   members: OrgMember[];
 

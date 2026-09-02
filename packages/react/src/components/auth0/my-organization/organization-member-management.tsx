@@ -73,6 +73,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     searchedRoles,
     onRoleSearch,
     availableConnections,
+    defaultConnectionId,
     hasNoConnections,
     modalState,
     membersUpdatedAt,
@@ -268,6 +269,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
         <OrganizationInvitationCreateModal
           isOpen={modalState.type === 'create'}
           isLoading={isCreatingInvitation}
+          defaultConnectionId={defaultConnectionId}
           isSearchingRoles={isSearchingRoles}
           customMessages={customMessages?.invitation}
           availableRoles={searchedRoles}
