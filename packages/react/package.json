@@ -81,7 +81,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@types/qrcode": "^1.5.5",
     "@uiw/color-convert": "^2.9.2",
-    "@uiw/react-color": "^2.9.2",
+    "@uiw/react-color": "^2.10.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.16.0",
