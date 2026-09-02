@@ -103,6 +103,7 @@ export interface UseSsoProviderEditOptions extends SharedComponentProps {
 export interface UseSsoProviderEditServiceReturn {
   provider: IdpKnownResponse | null;
   organization: OrganizationPrivate | null;
+  isOrganizationBlocked: boolean;
   provisioningConfig: GetIdPProvisioningConfigResponseContent | null;
   isLoading: boolean;
   isUpdating: boolean;

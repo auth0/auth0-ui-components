@@ -102,7 +102,9 @@ export function useSsoProviderTableService(
       queryClient.setQueryData<IdpKnownResponse[]>(ssoProviderQueryKeys.list(), (old) => {
         if (!old) return old;
         return old.map((provider) =>
-          provider.id === selectedIdp.id ? { ...provider, ...updatedProvider } : provider,
+          provider.id === selectedIdp.id
+            ? ({ ...provider, ...updatedProvider } as IdpKnownResponse)
+            : provider,
         );
       });
 

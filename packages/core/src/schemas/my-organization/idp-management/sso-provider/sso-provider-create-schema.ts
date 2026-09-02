@@ -341,7 +341,11 @@ const STRATEGY_BUILDERS = {
           status: z.enum(['enabled', 'disabled']),
         })
         .optional(),
-      discovery_url: z.string().optional(),
+      discovery_url: createFieldSchema(
+        COMMON_FIELD_CONFIGS.url,
+        { required: false },
+        'Please enter a valid discovery URL',
+      ),
     };
 
     return z.discriminatedUnion('meta_data_source', [

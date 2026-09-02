@@ -414,7 +414,7 @@ describe('useMemberManagementService', () => {
       });
 
       expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete,
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.deleteLegacy,
       ).toHaveBeenCalledWith(invitation.id);
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'success' }));
     });
@@ -437,12 +437,12 @@ describe('useMemberManagementService', () => {
 
       expect(onBefore).toHaveBeenCalledWith(invitation);
       expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete,
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.deleteLegacy,
       ).not.toHaveBeenCalled();
     });
 
     it('should show error toast on failure', async () => {
-      mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.deleteLegacy = vi
         .fn()
         .mockRejectedValue(new Error('Revoke failed'));
 
@@ -478,7 +478,7 @@ describe('useMemberManagementService', () => {
 
       const orgApi = mockCoreClient.getMyOrganizationApiClient().organization;
       expect(orgApi.invitations.get).toHaveBeenCalledWith(invitation.id);
-      expect(orgApi.invitations.delete).toHaveBeenCalled();
+      expect(orgApi.invitations.deleteLegacy).toHaveBeenCalled();
       expect(orgApi.invitations.create).toHaveBeenCalled();
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'success' }));
     });

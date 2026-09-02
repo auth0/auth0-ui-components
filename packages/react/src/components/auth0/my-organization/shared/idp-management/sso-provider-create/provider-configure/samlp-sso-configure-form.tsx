@@ -94,6 +94,8 @@ export const SamlpProviderForm = React.forwardRef<
     showThirdPartyAccess = false,
     showCrossAppAccess = false,
     isCrossAppAccessReadOnly = false,
+    isOrganizationBlocked = false,
+    styling,
   },
   ref,
 ) {
@@ -131,7 +133,7 @@ export const SamlpProviderForm = React.forwardRef<
     },
   });
 
-  const discoveryUrlValue = form.watch('discovery_url');
+  const discoveryUrlValue = form.watch('discovery_url') ?? '';
 
   const { isDirty } = form.formState;
 
@@ -460,6 +462,8 @@ export const SamlpProviderForm = React.forwardRef<
                 checked={field.value ?? false}
                 onChange={field.onChange}
                 readOnly={readOnly}
+                isOrganizationBlocked={isOrganizationBlocked}
+                className={styling?.classes?.['ProviderConfigure-ThirdPartyAccess']}
               />
             )}
           />
@@ -479,8 +483,10 @@ export const SamlpProviderForm = React.forwardRef<
                 strategy="samlp"
                 discoveryUrl={discoveryUrlValue}
                 onDiscoveryUrlChange={(url) =>
-                  form.setValue('discovery_url', url, { shouldDirty: true })
+                  form.setValue('discovery_url', url, { shouldDirty: true, shouldValidate: true })
                 }
+                discoveryUrlError={form.formState.errors.discovery_url?.message}
+                className={styling?.classes?.['ProviderConfigure-CrossAppAccess']}
               />
             )}
           />
