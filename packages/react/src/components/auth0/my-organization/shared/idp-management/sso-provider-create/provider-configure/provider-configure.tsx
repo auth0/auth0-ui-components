@@ -21,7 +21,18 @@ import type {
 
 export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, ProviderConfigureProps>(
   function ProviderConfigure(
-    { strategy, isLoading, className, customMessages = {}, ...rest },
+    {
+      strategy,
+      initialData,
+      readOnly = false,
+      customMessages = {},
+      className,
+      idpConfig,
+      isLoading,
+      styling,
+      schema,
+      ...rest
+    },
     ref,
   ) {
     const { t } = useTranslator(
@@ -54,7 +65,12 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
           <ProviderConfigureFields
             ref={formRef}
             strategy={strategy}
+            initialData={initialData}
+            readOnly={readOnly}
             customMessages={{ fields: customMessages.fields }}
+            idpConfig={idpConfig}
+            styling={styling}
+            schema={schema}
             {...rest}
           />
         </Section>
