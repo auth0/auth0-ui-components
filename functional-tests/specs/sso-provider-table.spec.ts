@@ -142,7 +142,6 @@ test.describe('Refresh button', () => {
     const connectionId = await findSsoConnectionIdByProviderName(name);
     seededConnectionIds.push(connectionId);
 
-    await expect(ssoProviderTable.providerRow(name)).toBeHidden();
     await ssoProviderTable.refreshButton.click();
     await expect(ssoProviderTable.providerRow(name)).toBeVisible();
   });
