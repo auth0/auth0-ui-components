@@ -77,7 +77,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
 
     const form = useForm<OktaConfigureFormValues>({
       resolver: zodResolver(createProviderConfigureSchema('okta')),
-      mode: FORM_VALIDATION_MODE,
+      mode: readOnly ? undefined : FORM_VALIDATION_MODE,
       reValidateMode: FORM_REVALIDATE_MODE,
       defaultValues: {
         domain: oktaData?.domain || '',
