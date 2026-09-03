@@ -1,7 +1,9 @@
-import { render, screen, act, fireEvent } from '@testing-library/react';
+import { render, screen, act, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
+import { lookupTranslationOverride } from '@/tests/utils/test-utilities';
 
 const TRANSLATIONS: Record<string, string> = {
   last_updated: 'Last updated',
@@ -9,9 +11,10 @@ const TRANSLATIONS: Record<string, string> = {
 };
 
 vi.mock('@/hooks/shared/use-translator', () => ({
-  useTranslator: () => ({
+  useTranslator: (_namespace: string, overrides?: Record<string, unknown>) => ({
     t: (key: string, vars?: Record<string, unknown>, fallback?: string) => {
-      const template = TRANSLATIONS[key] ?? fallback ?? key;
+      const template =
+        lookupTranslationOverride(overrides, key) ?? TRANSLATIONS[key] ?? fallback ?? key;
       if (!vars) return template;
       return template.replace(/\$\{(\w+)\}/g, (_, name) => String(vars[name] ?? ''));
     },
@@ -121,5 +124,45 @@ describe('RefreshIndicator', () => {
   it('exposes a status role for assistive tech', () => {
     render(<RefreshIndicator isStale onRefresh={vi.fn()} />);
     expect(screen.getByRole('status')).toBeInTheDocument();
+  });
+
+  describe('disabled prop', () => {
+    it('disables the refresh button when disabled is true, even if data is stale', () => {
+      render(<RefreshIndicator isStale disabled onRefresh={vi.fn()} />);
+      expect(screen.getByRole('button', { name: 'Refresh' })).toBeDisabled();
+    });
+
+    it('does not call onRefresh when disabled is true', () => {
+      const onRefresh = vi.fn();
+      render(<RefreshIndicator isStale disabled onRefresh={onRefresh} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
+      expect(onRefresh).not.toHaveBeenCalled();
+    });
+
+    it('enables the refresh button when disabled is false and data is stale', () => {
+      render(<RefreshIndicator isStale disabled={false} onRefresh={vi.fn()} />);
+      expect(screen.getByRole('button', { name: 'Refresh' })).toBeEnabled();
+    });
+
+    it('shows a custom forbidden message from customMessages when the button is disabled', async () => {
+      vi.useRealTimers();
+      const user = userEvent.setup();
+      render(
+        <RefreshIndicator
+          isStale
+          disabled
+          customMessages={{ common: { error: { forbidden: 'You need read access to refresh' } } }}
+          onRefresh={vi.fn()}
+        />,
+      );
+
+      await user.hover(screen.getByRole('button', { name: 'Refresh' }));
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole('tooltip', { name: 'You need read access to refresh' }),
+        ).toBeInTheDocument();
+      });
+    });
   });
 });

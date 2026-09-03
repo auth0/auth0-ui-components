@@ -19,11 +19,13 @@ const CONFIGURE_ONLY_SCOPES = [
 ] as const;
 
 export const getIdpManagementPermissions = createPermissionResolver({
+  canListProviders: ['read:my_org:identity_providers'],
   canCreateProvider: ['create:my_org:identity_providers'],
   canUpdateProvider: ['update:my_org:identity_providers'],
   canDeleteProvider: ['delete:my_org:identity_providers'],
   canDetachProvider: ['update:my_org:identity_providers_detach'],
 
+  canListDomains: ['read:my_org:domains'],
   canAssociateDomain: ['create:my_org:identity_providers_domains'],
   canDissociateDomain: ['delete:my_org:identity_providers_domains'],
   canCreateDomain: ['create:my_org:domains'],

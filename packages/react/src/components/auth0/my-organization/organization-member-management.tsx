@@ -152,12 +152,14 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
   const refreshState =
     activeTab === 'members'
       ? {
+          disabled: !permissions.canListMembers,
           isStale: isMembersStale,
           isFetching: isFetchingMembers,
           lastUpdatedAt: membersUpdatedAt || undefined,
           onRefresh: refetchMembers,
         }
       : {
+          disabled: !permissions.canListInvitations,
           isStale: isInvitationsStale,
           isFetching: isFetchingInvitations,
           lastUpdatedAt: invitationsUpdatedAt || undefined,
@@ -210,6 +212,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               <TabsTrigger value="invitations">{t('tabs.invitations')}</TabsTrigger>
             </TabsList>
             <RefreshIndicator
+              disabled={refreshState.disabled}
               isStale={refreshState.isStale}
               isFetching={refreshState.isFetching}
               lastUpdatedAt={refreshState.lastUpdatedAt}

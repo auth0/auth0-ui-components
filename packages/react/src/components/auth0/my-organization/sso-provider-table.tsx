@@ -234,6 +234,7 @@ function SsoProviderTableView({
         )}
       >
         <RefreshIndicator
+          disabled={!permissions.canListProviders}
           isStale={isProvidersStale}
           isFetching={isRefetchingProviders}
           lastUpdatedAt={providersUpdatedAt || undefined}

@@ -181,6 +181,7 @@ export function SsoDomainTab({
         )}
       >
         <RefreshIndicator
+          disabled={!permissions.canListDomains}
           isStale={isDomainsStale}
           isFetching={isRefetchingDomains}
           lastUpdatedAt={domainsUpdatedAt || undefined}
