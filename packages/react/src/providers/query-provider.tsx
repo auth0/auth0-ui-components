@@ -99,6 +99,14 @@ function createQueryClient(
           });
         }
       },
+      onSuccess: () => {
+        const stillFailing = queryClient
+          .getQueryCache()
+          .getAll()
+          .filter((q) => q.getObserversCount() > 0)
+          .some(isGateKeeperError);
+        if (!stillFailing) setGateKeeperState(null);
+      },
     }),
     mutationCache: new MutationCache({
       onError: (error, variables, _context, mutation) => {
@@ -108,6 +116,7 @@ function createQueryClient(
             onRetry: async () => {
               try {
                 await mutation.execute(variables);
+                await queryClient.invalidateQueries();
                 setGateKeeperState(null);
                 return true;
               } catch {
