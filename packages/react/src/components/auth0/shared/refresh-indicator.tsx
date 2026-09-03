@@ -38,7 +38,11 @@ export function RefreshIndicator({
   const { t } = useTranslator('common');
   const timestampMs = lastUpdatedAt == null ? null : new Date(lastUpdatedAt).getTime();
   const hasValidTimestamp = timestampMs != null && !Number.isNaN(timestampMs);
-  const isInitialLoad = isFetching && !hasValidTimestamp;
+
+  const hasEverHadData = React.useRef(hasValidTimestamp);
+  if (hasValidTimestamp) hasEverHadData.current = true;
+
+  const isInitialLoad = isFetching && !hasEverHadData.current;
 
   const showStaleLabel = isStale && !isFetching;
   const label = showStaleLabel
