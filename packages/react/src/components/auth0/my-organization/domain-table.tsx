@@ -219,6 +219,7 @@ function DomainTableView({
           isStale={isDomainsStale}
           isFetching={isRefetchingDomains}
           lastUpdatedAt={domainsUpdatedAt || undefined}
+          customMessages={customMessages}
           onRefresh={refetchDomains}
         />
       </div>

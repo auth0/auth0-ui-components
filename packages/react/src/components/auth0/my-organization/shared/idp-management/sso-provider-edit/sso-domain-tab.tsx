@@ -185,6 +185,7 @@ export function SsoDomainTab({
           isStale={isDomainsStale}
           isFetching={isRefetchingDomains}
           lastUpdatedAt={domainsUpdatedAt || undefined}
+          customMessages={customMessages}
           onRefresh={refetchDomains}
         />
       </div>

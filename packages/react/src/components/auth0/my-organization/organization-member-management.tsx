@@ -216,6 +216,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               isStale={refreshState.isStale}
               isFetching={refreshState.isFetching}
               lastUpdatedAt={refreshState.lastUpdatedAt}
+              customMessages={customMessages}
               onRefresh={refreshState.onRefresh}
             />
           </div>

@@ -238,6 +238,7 @@ function SsoProviderTableView({
           isStale={isProvidersStale}
           isFetching={isRefetchingProviders}
           lastUpdatedAt={providersUpdatedAt || undefined}
+          customMessages={customMessages}
           onRefresh={refetchProviders}
         />
       </div>
