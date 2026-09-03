@@ -104,7 +104,7 @@ export interface MemberManagementServiceResult {
     { userId?: string | null; memberName?: string; organizationName?: string }
   >;
   createInvitationMutation: UseMutationResult<
-    MemberInvitation | undefined,
+    MemberInvitation | { aborted: true } | undefined,
     Error,
     CreateInvitationInput
   >;

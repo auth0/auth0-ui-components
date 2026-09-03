@@ -173,7 +173,10 @@ export function useOrganizationMemberManagement(
   const handleCreateSubmit = React.useCallback(
     (data: CreateInvitationInput) => {
       createInvitationMutation.mutate(data, {
-        onSuccess: () => closeModal(),
+        onSuccess: (result) => {
+          if (result && 'aborted' in result) return;
+          closeModal();
+        },
       });
     },
     [createInvitationMutation, closeModal],
