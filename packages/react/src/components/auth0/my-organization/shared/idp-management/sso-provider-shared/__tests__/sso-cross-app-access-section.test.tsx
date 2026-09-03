@@ -43,8 +43,12 @@ describe('SsoCrossAppAccessSection', () => {
 
         expect(screen.getByText('title')).toBeInTheDocument();
         expect(screen.getByText('label')).toBeInTheDocument();
-        expect(screen.getByText('helper_text')).toBeInTheDocument();
-        expect(screen.getByText('domain_verification_text')).toBeInTheDocument();
+        expect(
+          screen.getByText(
+            (content) =>
+              content.includes('helper_text') && content.includes('domain_verification_text'),
+          ),
+        ).toBeInTheDocument();
       });
 
       it('should not render SAML-specific fields', () => {
@@ -108,7 +112,12 @@ describe('SsoCrossAppAccessSection', () => {
 
         expect(screen.getByRole('checkbox')).toBeInTheDocument();
         expect(screen.getByText('label')).toBeInTheDocument();
-        expect(screen.getByText('helper_text')).toBeInTheDocument();
+        expect(
+          screen.getByText(
+            (content) =>
+              content.includes('helper_text') && content.includes('domain_verification_text'),
+          ),
+        ).toBeInTheDocument();
       });
 
       it('should display discovery URL value', () => {
@@ -259,7 +268,10 @@ describe('SsoCrossAppAccessSection', () => {
       const describedById = checkbox.getAttribute('aria-describedby');
       expect(describedById).toBeTruthy();
 
-      const description = screen.getByText('helper_text');
+      const description = screen.getByText(
+        (content) =>
+          content.includes('helper_text') && content.includes('domain_verification_text'),
+      );
       expect(description).toHaveAttribute('id', describedById);
     });
 
@@ -313,6 +325,89 @@ describe('SsoCrossAppAccessSection', () => {
       );
 
       expect(screen.getByRole('checkbox')).toBeInTheDocument();
+    });
+  });
+
+  describe('discovery URL validation error', () => {
+    it('should display error message when discoveryUrlError is provided', () => {
+      renderWithProviders(
+        <SsoCrossAppAccessSection
+          {...createMockCrossAppAccessSamlProps({
+            discoveryUrl: 'invalid-url',
+            discoveryUrlError: 'Please enter a valid discovery URL',
+          })}
+        />,
+      );
+
+      expect(screen.getByRole('alert')).toHaveTextContent('Please enter a valid discovery URL');
+    });
+
+    it('should hide helper text when error is displayed', () => {
+      renderWithProviders(
+        <SsoCrossAppAccessSection
+          {...createMockCrossAppAccessSamlProps({
+            discoveryUrl: 'invalid-url',
+            discoveryUrlError: 'Please enter a valid discovery URL',
+          })}
+        />,
+      );
+
+      expect(screen.queryByText('saml_discovery_url_helper')).not.toBeInTheDocument();
+    });
+
+    it('should show helper text when no error', () => {
+      renderWithProviders(
+        <SsoCrossAppAccessSection
+          {...createMockCrossAppAccessSamlProps({
+            discoveryUrl: 'https://example.com',
+          })}
+        />,
+      );
+
+      expect(screen.getByText('saml_discovery_url_helper')).toBeInTheDocument();
+    });
+
+    it('should set aria-invalid on input when error is present', () => {
+      renderWithProviders(
+        <SsoCrossAppAccessSection
+          {...createMockCrossAppAccessSamlProps({
+            discoveryUrl: 'invalid',
+            discoveryUrlError: 'Invalid URL',
+          })}
+        />,
+      );
+
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
+    });
+
+    it('should not set aria-invalid when no error', () => {
+      renderWithProviders(
+        <SsoCrossAppAccessSection
+          {...createMockCrossAppAccessSamlProps({
+            discoveryUrl: 'https://example.com',
+          })}
+        />,
+      );
+
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'false');
+    });
+
+    it('should associate input with error message via aria-describedby when error is present', () => {
+      renderWithProviders(
+        <SsoCrossAppAccessSection
+          {...createMockCrossAppAccessSamlProps({
+            discoveryUrl: 'invalid',
+            discoveryUrlError: 'Invalid URL',
+          })}
+        />,
+      );
+
+      const input = screen.getByRole('textbox');
+      const errorMessage = screen.getByRole('alert');
+      const describedById = input.getAttribute('aria-describedby');
+
+      expect(describedById).toBeTruthy();
+      expect(errorMessage).toHaveAttribute('id', describedById);
     });
   });
 });

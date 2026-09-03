@@ -48,6 +48,8 @@ export interface SsoProviderCreateClasses {
   'ProviderSelect-root'?: string;
   'ProviderDetails-root'?: string;
   'ProviderConfigure-root'?: string;
+  'ProviderConfigure-ThirdPartyAccess'?: string;
+  'ProviderConfigure-CrossAppAccess'?: string;
 }
 
 /** Props for ProviderSelect component. */
@@ -82,6 +84,7 @@ export interface ProviderConfigureProps
   showThirdPartyAccess?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
+  isOrganizationBlocked?: boolean;
 }
 
 export interface ProviderConfigureFieldsProps
@@ -95,6 +98,7 @@ export interface ProviderConfigureFieldsProps
   showThirdPartyAccess?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
+  isOrganizationBlocked?: boolean;
 }
 
 export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'> {
@@ -121,6 +125,7 @@ export interface UseSsoProviderCreateOptions {
 export interface UseSsoProviderCreateServiceReturn {
   createProvider: (data: CreateIdentityProviderRequestContentPrivate) => Promise<void>;
   isCreating: boolean;
+  isOrganizationBlocked: boolean;
 }
 
 export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOptions {
@@ -145,6 +150,7 @@ export interface UseSsoProviderCreateResult {
   showCrossAppAccess: boolean;
   isCrossAppAccessReadOnly: boolean;
   getCrossAppAccessDefaultValue: () => 'enabled' | 'disabled' | undefined;
+  isOrganizationBlocked: boolean;
   createStepActions: (
     stepId: 'provider_details' | 'provider_configure',
     ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,
@@ -178,6 +184,7 @@ export interface SsoProviderCreateLogicProps {
   showThirdPartyAccess?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
+  isOrganizationBlocked?: boolean;
   styling?: SsoProviderCreateProps['styling'];
   customMessages?: SsoProviderCreateProps['customMessages'];
   backButton?: SsoProviderCreateProps['backButton'];

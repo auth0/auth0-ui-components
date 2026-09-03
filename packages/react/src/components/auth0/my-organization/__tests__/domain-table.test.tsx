@@ -8,7 +8,6 @@ import {
   createMockDomain,
   createMockVerifiedDomain,
   createMockIdentityProvider,
-  createMockIdentityProviderAssociatedWithDomain,
   createMockDomainTableProps,
   createMockCreateAction,
   createMockVerifyAction,
@@ -587,20 +586,7 @@ describe('DomainTable', () => {
         (
           apiService.organization.identityProviders.list as ReturnType<typeof vi.fn>
         ).mockResolvedValue({
-          identity_providers: [provider],
-        });
-        (
-          apiService.organization.domains.identityProviders.get as ReturnType<typeof vi.fn>
-        ).mockResolvedValue({
-          identity_providers: [
-            createMockIdentityProviderAssociatedWithDomain({
-              id: provider.id,
-              name: provider.name,
-              display_name: provider.display_name,
-              strategy: provider.strategy,
-              is_associated: true,
-            }),
-          ],
+          identity_providers: [{ ...provider, domains: [mockVerifiedDomain.domain] }],
         });
 
         renderWithProviders(<DomainTable {...createMockDomainTableProps({ onOpenProvider })} />);

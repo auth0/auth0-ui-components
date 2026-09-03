@@ -59,6 +59,8 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
       showThirdPartyAccess = false,
       showCrossAppAccess = false,
       isCrossAppAccessReadOnly = false,
+      isOrganizationBlocked = false,
+      styling,
     },
     ref,
   ) {
@@ -263,6 +265,8 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
                   checked={field.value ?? false}
                   onChange={field.onChange}
                   readOnly={readOnly}
+                  isOrganizationBlocked={isOrganizationBlocked}
+                  className={styling?.classes?.['ProviderConfigure-ThirdPartyAccess']}
                 />
               )}
             />
@@ -280,6 +284,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
                   }
                   readOnly={readOnly || isCrossAppAccessReadOnly}
                   strategy="oidc"
+                  className={styling?.classes?.['ProviderConfigure-CrossAppAccess']}
                 />
               )}
             />

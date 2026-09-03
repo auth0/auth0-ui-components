@@ -63,6 +63,7 @@ export function SsoProviderTab({
   showThirdPartyAccess = false,
   showCrossAppAccess = false,
   isCrossAppAccessReadOnly = false,
+  isOrganizationBlocked = false,
 }: SsoProviderTabProps) {
   const { t } = useTranslator('idp_management.edit_sso_provider.tabs.sso', customMessages);
 
@@ -106,6 +107,7 @@ export function SsoProviderTab({
               showThirdPartyAccess={showThirdPartyAccess}
               showCrossAppAccess={showCrossAppAccess}
               isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+              isOrganizationBlocked={isOrganizationBlocked}
             />
           )}
         </CardContent>
