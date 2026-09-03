@@ -82,8 +82,10 @@ export interface ProviderConfigureProps
   initialData?: Partial<ProviderConfigureFormValues>;
   idpConfig: GetIdpConfigurationResponseContent | null;
   showThirdPartyAccess?: boolean;
+  isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
+  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
   isOrganizationBlocked?: boolean;
 }
 
@@ -96,8 +98,10 @@ export interface ProviderConfigureFieldsProps
   idpConfig: GetIdpConfigurationResponseContent | null;
   mode?: FormMode;
   showThirdPartyAccess?: boolean;
+  isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
+  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
   isOrganizationBlocked?: boolean;
 }
 
@@ -182,8 +186,10 @@ export interface SsoProviderCreateLogicProps {
   isLoadingIdpConfig: boolean;
   idpConfig?: GetIdpConfigurationResponseContent | null;
   showThirdPartyAccess?: boolean;
+  isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
+  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
   isOrganizationBlocked?: boolean;
   styling?: SsoProviderCreateProps['styling'];
   customMessages?: SsoProviderCreateProps['customMessages'];

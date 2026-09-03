@@ -133,6 +133,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     shouldAllowDeletion,
     showProvisioningTab,
     showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
     isOrganizationBlocked,
@@ -245,6 +246,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
               }}
               readOnly={readOnly}
               showThirdPartyAccess={showThirdPartyAccess}
+              isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
               showCrossAppAccess={showCrossAppAccess}
               isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
               isOrganizationBlocked={isOrganizationBlocked}
