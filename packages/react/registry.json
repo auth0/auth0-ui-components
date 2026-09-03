@@ -9,7 +9,7 @@
       "title": "Multi-factor authentication management component.",
       "description": "Complete MFA management interface for enrolling, viewing, and deleting authentication factors. Supports TOTP authenticators, SMS, Email, Push notifications, and recovery codes.",
       "dependencies": [
-        "@auth0/universal-components-core@3.2.0",
+        "@auth0/universal-components-core@3.3.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-checkbox@1.1.1",
@@ -371,7 +371,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.2.0"
+        "coreVersion": "3.3.0"
       }
     },
     {
@@ -380,7 +380,7 @@
       "title": "Passkey management component.",
       "description": "A block component for user passkey management.",
       "dependencies": [
-        "@auth0/universal-components-core@3.2.0",
+        "@auth0/universal-components-core@3.3.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-dialog@1.1.14",
         "@radix-ui/react-dropdown-menu@2.1.1",
@@ -617,7 +617,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.2.0"
+        "coreVersion": "3.3.0"
       }
     },
     {
@@ -626,7 +626,7 @@
       "title": "DomainTable container component.",
       "description": "A block component for domain table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.2.0",
+        "@auth0/universal-components-core@3.3.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-checkbox@1.1.1",
@@ -1019,7 +1019,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.2.0"
+        "coreVersion": "3.3.0"
       }
     },
     {
@@ -1028,11 +1028,12 @@
       "title": "Organization details edit component.",
       "description": "A block component for organization details edit.",
       "dependencies": [
-        "@auth0/universal-components-core@3.2.0",
+        "@auth0/universal-components-core@3.3.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-label@2.1.7",
         "@radix-ui/react-popover@1.1.14",
+        "@radix-ui/react-radio-group@1.2.0",
         "@radix-ui/react-select@2.2.5",
         "@radix-ui/react-slot@1.2.3",
         "@radix-ui/react-switch@1.1.0",
@@ -1066,6 +1067,11 @@
           "path": "src/components/auth0/my-organization/shared/organization-management/organization-details/settings-details.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/organization-management/organization-details/settings-details.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/organization-management/organization-details/third-party-access-details.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/organization-management/organization-details/third-party-access-details.tsx"
         },
         {
           "path": "src/components/auth0/shared/form-actions.tsx",
@@ -1138,6 +1144,11 @@
           "target": "components/ui/popover.tsx"
         },
         {
+          "path": "src/components/ui/radio-group.tsx",
+          "type": "registry:component",
+          "target": "components/ui/radio-group.tsx"
+        },
+        {
           "path": "src/components/ui/select.tsx",
           "type": "registry:component",
           "target": "components/ui/select.tsx"
@@ -1171,6 +1182,11 @@
           "path": "src/components/ui/tooltip.tsx",
           "type": "registry:component",
           "target": "components/ui/tooltip.tsx"
+        },
+        {
+          "path": "src/hooks/my-organization/shared/services/use-config-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-config-service.ts"
         },
         {
           "path": "src/hooks/my-organization/shared/services/use-organization-details-edit-service.ts",
@@ -1273,6 +1289,11 @@
           "target": "types/i18n-types.ts"
         },
         {
+          "path": "src/types/my-organization/config/config-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/config/config-types.ts"
+        },
+        {
           "path": "src/types/my-organization/organization-management/organization-details-edit-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/organization-management/organization-details-edit-types.ts"
@@ -1335,7 +1356,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.2.0"
+        "coreVersion": "3.3.0"
       }
     },
     {
@@ -1344,7 +1365,7 @@
       "title": "Organization member detail component.",
       "description": "A block component for header.",
       "dependencies": [
-        "@auth0/universal-components-core@3.2.0",
+        "@auth0/universal-components-core@3.3.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -1689,7 +1710,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.2.0"
+        "coreVersion": "3.3.0"
       }
     },
     {
@@ -1698,7 +1719,7 @@
       "title": "Organization member management component.",
       "description": "A block component for organization member management view.",
       "dependencies": [
-        "@auth0/universal-components-core@3.2.0",
+        "@auth0/universal-components-core@3.3.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -2120,7 +2141,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.2.0"
+        "coreVersion": "3.3.0"
       }
     },
     {
@@ -2129,7 +2150,7 @@
       "title": "SSO provider creation container component.",
       "description": "A block component for sso provider create.",
       "dependencies": [
-        "@auth0/universal-components-core@3.2.0",
+        "@auth0/universal-components-core@3.3.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-accordion@1.2.0",
@@ -2212,6 +2233,16 @@
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-select.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-select.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section.tsx"
         },
         {
           "path": "src/components/auth0/shared/copyable-text-field.tsx",
@@ -2359,6 +2390,11 @@
           "target": "hooks/my-organization/shared/services/use-idp-config-service.ts"
         },
         {
+          "path": "src/hooks/my-organization/shared/services/use-organization-details-edit-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-organization-details-edit-service.ts"
+        },
+        {
           "path": "src/hooks/my-organization/shared/services/use-sso-provider-create-service.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/shared/services/use-sso-provider-create-service.ts"
@@ -2387,6 +2423,11 @@
           "path": "src/hooks/shared/use-error-handler.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-error-handler.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-query-error-toast.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-query-error-toast.ts"
         },
         {
           "path": "src/hooks/shared/use-telemetry.ts",
@@ -2472,6 +2513,26 @@
           "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/organization-management/organization-details-edit-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/organization-management/organization-details-edit-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/organization-management/organization-details-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/organization-management/organization-details-types.ts"
         },
         {
           "path": "src/types/theme-types.ts",
@@ -2561,7 +2622,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.2.0"
+        "coreVersion": "3.3.0"
       }
     },
     {
@@ -2570,7 +2631,7 @@
       "title": "SSO provider edit container component.",
       "description": "A block component for sso provider edit.",
       "dependencies": [
-        "@auth0/universal-components-core@3.2.0",
+        "@auth0/universal-components-core@3.3.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-accordion@1.2.0",
@@ -2756,6 +2817,16 @@
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section.tsx"
         },
         {
           "path": "src/components/auth0/shared/copyable-text-field.tsx",
@@ -2953,6 +3024,11 @@
           "target": "hooks/my-organization/shared/services/use-idp-config-service.ts"
         },
         {
+          "path": "src/hooks/my-organization/shared/services/use-organization-details-edit-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-organization-details-edit-service.ts"
+        },
+        {
           "path": "src/hooks/my-organization/shared/services/use-sso-provider-edit-service.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/shared/services/use-sso-provider-edit-service.ts"
@@ -3138,6 +3214,16 @@
           "target": "types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types.ts"
         },
         {
+          "path": "src/types/my-organization/organization-management/organization-details-edit-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/organization-management/organization-details-edit-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/organization-management/organization-details-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/organization-management/organization-details-types.ts"
+        },
+        {
           "path": "src/types/theme-types.ts",
           "type": "registry:component",
           "target": "types/theme-types.ts"
@@ -3210,7 +3296,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.2.0"
+        "coreVersion": "3.3.0"
       }
     },
     {
@@ -3219,7 +3305,7 @@
       "title": "SSO provider table container component.",
       "description": "A block component for sso provider table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.2.0",
+        "@auth0/universal-components-core@3.3.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -3553,7 +3639,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.2.0"
+        "coreVersion": "3.3.0"
       }
     }
   ]
