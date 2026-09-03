@@ -41,9 +41,15 @@ export function useSsoProviderEdit(
     enableProviderAction,
   });
 
-  const { shouldAllowDeletion, isLoadingConfig } = useConfig();
-  const { idpConfig, isLoadingIdpConfig, isProvisioningEnabled, isProvisioningMethodEnabled } =
-    useIdpConfig();
+  const { shouldAllowDeletion, isLoadingConfig, showThirdPartyAccess } = useConfig();
+  const {
+    idpConfig,
+    isLoadingIdpConfig,
+    isProvisioningEnabled,
+    isProvisioningMethodEnabled,
+    showCrossAppAccess,
+    isCrossAppAccessReadOnly,
+  } = useIdpConfig();
 
   const showProvisioningTab =
     isProvisioningEnabled(service.provider?.strategy) &&
@@ -65,5 +71,8 @@ export function useSsoProviderEdit(
     isLoadingIdpConfig,
     showProvisioningTab,
     handleToggleProvider,
+    showThirdPartyAccess,
+    showCrossAppAccess: showCrossAppAccess(service.provider?.strategy),
+    isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(service.provider?.strategy),
   };
 }

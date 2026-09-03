@@ -37,11 +37,12 @@ export interface OrganizationEditBackButton extends Omit<BackButton, 'onClick'> 
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-export interface OrganizationDetailsEditProps extends BlockComponentSharedProps<
-  OrganizationDetailsEditMessages,
-  OrganizationEditClasses,
-  OrganizationDetailsEditSchemas
-> {
+export interface OrganizationDetailsEditProps
+  extends BlockComponentSharedProps<
+    OrganizationDetailsEditMessages,
+    OrganizationEditClasses,
+    OrganizationDetailsEditSchemas
+  > {
   saveAction?: ComponentAction<OrganizationPrivate>;
   cancelAction?: Omit<ComponentAction<OrganizationPrivate>, 'onBefore'>;
   hideHeader?: boolean;

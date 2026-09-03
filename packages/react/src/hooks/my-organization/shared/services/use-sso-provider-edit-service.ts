@@ -6,13 +6,10 @@
  */
 
 import {
-  OrganizationDetailsFactory,
-  OrganizationDetailsMappers,
   SsoProviderMappers,
   ssoProviderQueryKeys,
   type IdpKnownResponse,
   type IdpId,
-  type OrganizationPrivate,
   type UpdateIdentityProviderRequestContent,
   type CreateIdpProvisioningScimTokenRequestContent,
   type GetIdPProvisioningConfigResponseContent,
@@ -22,6 +19,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useOrganizationDetailsEditService } from '@/hooks/my-organization/shared/services/use-organization-details-edit-service';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
@@ -75,19 +73,7 @@ export function useSsoProviderEditService(
     enabled: !!coreClient && !!idpId,
   });
 
-  /**
-   * Organization query - fetches organization details.
-   * Shared across the application, so it uses a common query key.
-   */
-  const organizationQuery = useQuery({
-    queryKey: ssoProviderQueryKeys.organization(),
-    queryFn: async (): Promise<OrganizationPrivate> => {
-      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
-      return OrganizationDetailsMappers.fromAPI(response);
-    },
-    enabled: !!coreClient,
-    initialData: OrganizationDetailsFactory.create(),
-  });
+  const { organization: organizationData } = useOrganizationDetailsEditService({});
 
   /**
    * Provisioning config query - fetches provisioning configuration.
@@ -113,7 +99,6 @@ export function useSsoProviderEditService(
   });
 
   useQueryErrorToast(providerQuery, t('general_error'));
-  useQueryErrorToast(organizationQuery, t('general_error'));
   useQueryErrorToast(provisioningQuery, t('general_error'));
 
   /**
@@ -461,23 +446,18 @@ export function useSsoProviderEditService(
           throw new Error(ACTION_CANCELLED_ERROR);
         }
       }
-      await queryClient.ensureQueryData({
-        queryKey: ssoProviderQueryKeys.organization(),
-      });
-
       await coreClient!
         .getMyOrganizationApiClient()
         .organization.identityProviders.detach(provider.id);
     },
     onSuccess: async () => {
       const provider = providerQuery.data;
-      const organization = organizationQuery.data;
 
       showToast({
         type: 'success',
         message: t('remove_success', {
           providerName: provider?.display_name,
-          organizationName: organization?.display_name,
+          organizationName: organizationData?.display_name,
         }),
       });
       queryClient.removeQueries({
@@ -789,9 +769,10 @@ export function useSsoProviderEditService(
 
   return {
     provider: providerQuery.data ?? null,
-    organization: organizationQuery.data ?? OrganizationDetailsFactory.create(),
+    organization: organizationData,
+    isOrganizationBlocked: organizationData.third_party_client_access === 'block',
     provisioningConfig: provisioningQuery.data ?? null,
-    isLoading: providerQuery.isLoading || organizationQuery.isLoading,
+    isLoading: providerQuery.isLoading,
     isUpdating: isMutationLoading(updateProviderMutation),
     isEnabling: isMutationLoading(enableProviderMutation),
     isDeleting: isMutationLoading(deleteProviderMutation),
