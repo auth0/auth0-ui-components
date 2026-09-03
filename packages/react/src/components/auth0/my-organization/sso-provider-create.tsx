@@ -62,6 +62,10 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     filteredStrategies,
     isLoadingIdpConfig,
     idpConfig,
+    showThirdPartyAccess,
+    showCrossAppAccess,
+    isCrossAppAccessReadOnly,
+    isOrganizationBlocked,
   } = useSsoProviderCreate({
     createAction,
     customMessages,
@@ -81,6 +85,10 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     filteredStrategies,
     isLoadingIdpConfig,
     idpConfig,
+    showThirdPartyAccess,
+    showCrossAppAccess,
+    isCrossAppAccessReadOnly,
+    isOrganizationBlocked,
     styling,
     customMessages,
     backButton,
@@ -127,6 +135,10 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
     filteredStrategies,
     isLoadingIdpConfig,
     idpConfig,
+    showThirdPartyAccess,
+    showCrossAppAccess,
+    isCrossAppAccessReadOnly,
+    isOrganizationBlocked,
   }: SsoProviderCreateLogicProps = logic;
 
   const { isDarkMode } = useTheme();
@@ -199,6 +211,11 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
               customMessages={customMessages?.provider_configure}
               idpConfig={idpConfig ?? null}
               className={currentStyles?.classes?.['ProviderConfigure-root']}
+              showThirdPartyAccess={showThirdPartyAccess}
+              showCrossAppAccess={showCrossAppAccess}
+              isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+              isOrganizationBlocked={isOrganizationBlocked}
+              styling={styling}
             />
           ) : null,
         actions: createStepActions('provider_configure', configureRef),
@@ -215,6 +232,7 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
       currentStyles,
       styling,
       createStepActions,
+      isOrganizationBlocked,
     ],
   );
 
