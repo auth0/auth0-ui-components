@@ -8,15 +8,16 @@
 import {
   hasApiErrorBody,
   SsoProviderMappers,
+  ssoProviderQueryKeys,
   type CreateIdentityProviderRequestContent,
   type CreateIdentityProviderRequestContentPrivate,
   type IdpKnownResponse,
 } from '@auth0/universal-components-core';
-import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useOrganizationDetailsEditService } from '@/hooks/my-organization/shared/services/use-organization-details-edit-service';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -54,6 +55,8 @@ export function useSsoProviderCreateService({
   const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
   const queryClient = useQueryClient();
   const handleError = useErrorHandler();
+  const { organization } = useOrganizationDetailsEditService({});
+
   const createProviderMutation = useMutation({
     mutationFn: async (
       data: CreateIdentityProviderRequestContentPrivate,
@@ -68,6 +71,8 @@ export function useSsoProviderCreateService({
         display_name,
         show_as_button,
         assign_membership_on_login,
+        use_for_third_party_client_access,
+        cross_app_access_resource_app,
         ...configOptions
       } = data;
 
@@ -77,6 +82,8 @@ export function useSsoProviderCreateService({
         display_name,
         show_as_button,
         assign_membership_on_login,
+        use_for_third_party_client_access,
+        cross_app_access_resource_app,
         options: configOptions,
       };
 
@@ -155,5 +162,6 @@ export function useSsoProviderCreateService({
   return {
     createProvider,
     isCreating: isMutationLoading(createProviderMutation),
+    isOrganizationBlocked: organization?.third_party_client_access === 'block',
   };
 }

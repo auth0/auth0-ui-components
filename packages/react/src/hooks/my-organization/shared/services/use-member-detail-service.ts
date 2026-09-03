@@ -93,7 +93,7 @@ export function useMemberDetailService(
       }
       await coreClient!
         .getMyOrganizationApiClient()
-        .organization.members.roles.unassign(userId, { role_ids: roleIds });
+        .organization.members.roles.unassignLegacy(userId, { role_ids: roleIds });
       removeRolesAction?.onAfter?.({ userId, roleIds });
       return { aborted: false } as const;
     },

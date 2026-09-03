@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { useOrganizationDetailsEdit } from '@/hooks/my-organization/use-organization-details-edit';
+import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
 import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 
 const mockOrganization = createMockOrganization();
@@ -18,6 +19,10 @@ vi.mock('@/hooks/my-organization/shared/services/use-organization-details-edit-s
     fetchOrgDetails: mockFetchOrgDetails,
     updateOrgDetails: mockUpdateOrgDetails,
   }),
+}));
+
+vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
+  useConfig: () => createMockUseConfig(),
 }));
 
 describe('useOrganizationDetailsEdit', () => {
@@ -95,6 +100,15 @@ describe('useOrganizationDetailsEdit', () => {
       expect(result.current.isInitializing).toBe(false);
       expect(result.current.fetchOrgDetails).toBeDefined();
       expect(result.current.updateOrgDetails).toBeDefined();
+    });
+
+    it('should pass through third party access config values', () => {
+      const { result } = renderHook(() => useOrganizationDetailsEdit({}));
+
+      expect(result.current.showThirdPartyAccess).toBe(false);
+      expect(result.current.isThirdPartyAccessReadOnly).toBe(false);
+      expect(result.current.thirdPartyAccessDefaultValue).toBeUndefined();
+      expect(result.current.isLoadingConfig).toBe(false);
     });
   });
 });
