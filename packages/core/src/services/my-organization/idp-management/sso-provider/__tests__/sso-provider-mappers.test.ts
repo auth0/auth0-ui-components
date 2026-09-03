@@ -289,6 +289,73 @@ describe('SsoProviderMappers', () => {
       });
     });
 
+    describe('discovery_url normalization', () => {
+      const baseOidcFormData = {
+        strategy: STRATEGIES.OIDC as IdpStrategy,
+        name: 'Provider',
+        display_name: 'Display',
+        options: {
+          type: 'back_channel' as const,
+          client_id: 'id',
+          client_secret: 'secret',
+          discovery_url: '',
+        },
+      };
+
+      describe.each([
+        {
+          description: 'bare issuer URL',
+          input: 'https://idp.example.com',
+          expected: 'https://idp.example.com/.well-known/openid-configuration',
+        },
+        {
+          description: 'trailing slash',
+          input: 'https://idp.example.com/',
+          expected: 'https://idp.example.com/.well-known/openid-configuration',
+        },
+        {
+          description: 'already complete URL',
+          input: 'https://idp.example.com/.well-known/openid-configuration',
+          expected: 'https://idp.example.com/.well-known/openid-configuration',
+        },
+        {
+          description: 'URL with custom path segment',
+          input: 'https://idp.example.com/oauth2/default',
+          expected: 'https://idp.example.com/oauth2/default/.well-known/openid-configuration',
+        },
+        {
+          description: 'URL with query parameters',
+          input: 'https://idp.example.com?foo=bar',
+          expected: 'https://idp.example.com/.well-known/openid-configuration?foo=bar',
+        },
+      ])('when discovery_url is $description', ({ input, expected }) => {
+        it(`should produce ${expected}`, () => {
+          const formData = {
+            ...baseOidcFormData,
+            options: { ...baseOidcFormData.options, discovery_url: input },
+          };
+
+          const result = SsoProviderMappers.createToAPI(formData);
+
+          expect((result.options as { discovery_url?: string }).discovery_url).toBe(expected);
+        });
+      });
+
+      it('should normalize discovery_url in SAML update (cross-app section)', () => {
+        const updateData = {
+          strategy: STRATEGIES.SAMLP as IdpStrategy,
+          discovery_url: 'https://idp.example.com',
+          cross_app_access_resource_app: { status: 'enabled' as const },
+        };
+
+        const result = SsoProviderMappers.updateToAPI(updateData);
+
+        expect((result.options as { discovery_url?: string })?.discovery_url).toBe(
+          'https://idp.example.com/.well-known/openid-configuration',
+        );
+      });
+    });
+
     describe('cross_app_access_resource_app', () => {
       it('should include cross_app_access_resource_app when status is enabled', () => {
         const formData = {

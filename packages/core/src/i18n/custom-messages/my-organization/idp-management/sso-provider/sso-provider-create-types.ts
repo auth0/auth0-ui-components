@@ -4,7 +4,7 @@
  * @internal
  */
 
-import type { ThirdPartyAccessMessages } from './sso-provider-edit-types';
+import type { ThirdPartyAccessMessages, CrossAppAccessMessages } from './sso-provider-edit-types';
 
 export interface ProviderSelectMessages {
   title?: string;
@@ -319,6 +319,7 @@ export interface ProviderConfigureMessages {
   guided_setup_button_text?: string;
   fields?: ProviderFieldsMessages;
   third_party_access?: ThirdPartyAccessMessages;
+  cross_app_access?: CrossAppAccessMessages;
 }
 
 /**

@@ -135,6 +135,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     showThirdPartyAccess,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
+    isOrganizationBlocked,
     isProvisioningUpdating,
     isProvisioningDeleting,
     isScimTokensLoading,
@@ -246,6 +247,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
               showThirdPartyAccess={showThirdPartyAccess}
               showCrossAppAccess={showCrossAppAccess}
               isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+              isOrganizationBlocked={isOrganizationBlocked}
             />
           </TabsContent>
 
