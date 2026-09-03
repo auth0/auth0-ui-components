@@ -76,6 +76,7 @@ export interface SsoProviderTabProps
   showThirdPartyAccess?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
+  isOrganizationBlocked?: boolean;
 }
 
 export interface ProviderDetailsClasses
@@ -91,13 +92,12 @@ export interface ProviderConfigureFieldsClasses
   > {}
 
 export interface SsoProviderDetailsClasses {
-  'SsoProviderDetails-formActions'?: string;
   'ProviderDetails-root'?: string;
   'ProviderConfigure-root'?: string;
   'SsoProvider-attributeMapping'?: string;
   'SsoProviderDetails-FormActions'?: string;
-  'SsoProviderDetails-ThirdPartyAccess'?: string;
-  'SsoProviderDetails-CrossAppAccess'?: string;
+  'ProviderConfigure-ThirdPartyAccess'?: string;
+  'ProviderConfigure-CrossAppAccess'?: string;
 }
 
 export interface SsoProviderDetailsProps
@@ -110,12 +110,14 @@ export interface SsoProviderDetailsProps
   showThirdPartyAccess?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
+  isOrganizationBlocked?: boolean;
 }
 
 export interface ThirdPartyAccessSectionProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   readOnly?: boolean;
+  isOrganizationBlocked?: boolean;
   customMessages?: Partial<ThirdPartyAccessMessages>;
   className?: string;
 }
@@ -136,6 +138,7 @@ type CrossAppAccessSamlProps = CrossAppAccessSectionBaseProps & {
   strategy: 'samlp';
   discoveryUrl: string;
   onDiscoveryUrlChange: (url: string) => void;
+  discoveryUrlError?: string;
 };
 
 export type CrossAppAccessSectionProps = CrossAppAccessOidcProps | CrossAppAccessSamlProps;

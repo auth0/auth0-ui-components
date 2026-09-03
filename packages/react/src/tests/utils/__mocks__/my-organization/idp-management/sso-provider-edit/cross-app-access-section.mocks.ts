@@ -26,6 +26,7 @@ interface CrossAppAccessSamlPropsOverrides {
   className?: string;
   discoveryUrl?: string;
   onDiscoveryUrlChange?: (url: string) => void;
+  discoveryUrlError?: string;
 }
 
 export function createMockCrossAppAccessOidcProps(

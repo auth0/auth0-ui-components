@@ -526,7 +526,7 @@ describe('OrganizationMemberDetail', () => {
 
     describe('removeRolesAction.onBefore', () => {
       describe('when returns true', () => {
-        it('should call members.roles.unassign', async () => {
+        it('should call members.roles.unassignLegacy', async () => {
           const user = userEvent.setup();
           const removeRolesAction: ComponentAction<{ userId: string; roleIds: string[] }> = {
             disabled: false,
@@ -539,7 +539,7 @@ describe('OrganizationMemberDetail', () => {
             memberWithRoles,
           );
           (
-            apiService.organization.members.roles.unassign as ReturnType<typeof vi.fn>
+            apiService.organization.members.roles.unassignLegacy as ReturnType<typeof vi.fn>
           ).mockResolvedValue({});
 
           renderWithProviders(
@@ -565,13 +565,13 @@ describe('OrganizationMemberDetail', () => {
           await user.click(confirmButton);
 
           await waitFor(() => {
-            expect(apiService.organization.members.roles.unassign).toHaveBeenCalled();
+            expect(apiService.organization.members.roles.unassignLegacy).toHaveBeenCalled();
           });
         });
       });
 
       describe('when returns false', () => {
-        it('should not call members.roles.unassign', async () => {
+        it('should not call members.roles.unassignLegacy', async () => {
           const user = userEvent.setup();
           const removeRolesAction: ComponentAction<{ userId: string; roleIds: string[] }> = {
             disabled: false,
@@ -584,7 +584,7 @@ describe('OrganizationMemberDetail', () => {
             memberWithRoles,
           );
           (
-            apiService.organization.members.roles.unassign as ReturnType<typeof vi.fn>
+            apiService.organization.members.roles.unassignLegacy as ReturnType<typeof vi.fn>
           ).mockResolvedValue({});
 
           renderWithProviders(
@@ -613,7 +613,7 @@ describe('OrganizationMemberDetail', () => {
             expect(removeRolesAction.onBefore).toHaveBeenCalled();
           });
 
-          expect(apiService.organization.members.roles.unassign).not.toHaveBeenCalled();
+          expect(apiService.organization.members.roles.unassignLegacy).not.toHaveBeenCalled();
         });
       });
     });
@@ -683,7 +683,7 @@ describe('OrganizationMemberDetail', () => {
         data: createMockMemberRoles(),
       });
       (
-        apiService.organization.members.roles.unassign as ReturnType<typeof vi.fn>
+        apiService.organization.members.roles.unassignLegacy as ReturnType<typeof vi.fn>
       ).mockResolvedValue({});
 
       renderWithProviders(
@@ -707,7 +707,7 @@ describe('OrganizationMemberDetail', () => {
       await user.click(confirmButton);
 
       await waitFor(() => {
-        expect(apiService.organization.members.roles.unassign).toHaveBeenCalled();
+        expect(apiService.organization.members.roles.unassignLegacy).toHaveBeenCalled();
       });
 
       expect(invalidateQueriesSpy).toHaveBeenCalledWith({

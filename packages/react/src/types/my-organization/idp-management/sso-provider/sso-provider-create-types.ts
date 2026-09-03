@@ -48,6 +48,8 @@ export interface SsoProviderCreateClasses {
   'ProviderSelect-root'?: string;
   'ProviderDetails-root'?: string;
   'ProviderConfigure-root'?: string;
+  'ProviderConfigure-ThirdPartyAccess'?: string;
+  'ProviderConfigure-CrossAppAccess'?: string;
 }
 
 /** Props for ProviderSelect component. */
@@ -79,6 +81,10 @@ export interface ProviderConfigureProps
   strategy: IdpStrategy;
   initialData?: Partial<ProviderConfigureFormValues>;
   idpConfig: GetIdpConfigurationResponseContent | null;
+  showThirdPartyAccess?: boolean;
+  showCrossAppAccess?: boolean;
+  isCrossAppAccessReadOnly?: boolean;
+  isOrganizationBlocked?: boolean;
 }
 
 export interface ProviderConfigureFieldsProps
@@ -89,6 +95,10 @@ export interface ProviderConfigureFieldsProps
   onFormDirty?: (isDirty: boolean) => void;
   idpConfig: GetIdpConfigurationResponseContent | null;
   mode?: FormMode;
+  showThirdPartyAccess?: boolean;
+  showCrossAppAccess?: boolean;
+  isCrossAppAccessReadOnly?: boolean;
+  isOrganizationBlocked?: boolean;
 }
 
 export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'> {
@@ -115,6 +125,7 @@ export interface UseSsoProviderCreateOptions {
 export interface UseSsoProviderCreateServiceReturn {
   createProvider: (data: CreateIdentityProviderRequestContentPrivate) => Promise<void>;
   isCreating: boolean;
+  isOrganizationBlocked: boolean;
 }
 
 export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOptions {
@@ -133,6 +144,13 @@ export interface UseSsoProviderCreateResult {
   filteredStrategies: IdpStrategy[];
   isLoadingIdpConfig: boolean;
   idpConfig?: GetIdpConfigurationResponseContent | null;
+  showThirdPartyAccess: boolean;
+  isThirdPartyAccessReadOnly: boolean;
+  thirdPartyAccessDefaultValue?: 'allow' | 'block';
+  showCrossAppAccess: boolean;
+  isCrossAppAccessReadOnly: boolean;
+  getCrossAppAccessDefaultValue: () => 'enabled' | 'disabled' | undefined;
+  isOrganizationBlocked: boolean;
   createStepActions: (
     stepId: 'provider_details' | 'provider_configure',
     ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,
@@ -163,6 +181,10 @@ export interface SsoProviderCreateLogicProps {
   filteredStrategies: IdpStrategy[];
   isLoadingIdpConfig: boolean;
   idpConfig?: GetIdpConfigurationResponseContent | null;
+  showThirdPartyAccess?: boolean;
+  showCrossAppAccess?: boolean;
+  isCrossAppAccessReadOnly?: boolean;
+  isOrganizationBlocked?: boolean;
   styling?: SsoProviderCreateProps['styling'];
   customMessages?: SsoProviderCreateProps['customMessages'];
   backButton?: SsoProviderCreateProps['backButton'];

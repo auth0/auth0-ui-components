@@ -63,6 +63,7 @@ export interface ThirdPartyAccessMessages {
   title?: string;
   label?: string;
   helper_text?: string;
+  organization_blocked_helper_text?: string;
 }
 
 export interface CrossAppAccessMessages {

@@ -34,6 +34,7 @@ export function SsoCrossAppAccessSection(props: CrossAppAccessSectionProps): Rea
   const descriptionId = `${id}-description`;
   const urlInputId = `${id}-discovery-url`;
   const urlHelperId = `${id}-url-helper`;
+  const urlErrorId = `${id}-url-error`;
 
   const handleCheckedChange = (value: boolean | 'indeterminate') => {
     if (value !== 'indeterminate') {
@@ -44,6 +45,7 @@ export function SsoCrossAppAccessSection(props: CrossAppAccessSectionProps): Rea
   const isSaml = strategy === 'samlp';
   const discoveryUrl = isSaml ? props.discoveryUrl : '';
   const onDiscoveryUrlChange = isSaml ? props.onDiscoveryUrlChange : undefined;
+  const discoveryUrlError = isSaml ? props.discoveryUrlError : undefined;
   const isCheckboxDisabled = readOnly || (isSaml && !discoveryUrl?.trim());
 
   const checkboxGroup = (
@@ -56,7 +58,7 @@ export function SsoCrossAppAccessSection(props: CrossAppAccessSectionProps): Rea
         aria-disabled={isCheckboxDisabled}
         aria-describedby={descriptionId}
       />
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col">
         <Label
           htmlFor={checkboxId}
           className={cn(
@@ -67,16 +69,15 @@ export function SsoCrossAppAccessSection(props: CrossAppAccessSectionProps): Rea
           {t('label')}
         </Label>
         <p id={descriptionId} className="text-sm text-muted-foreground">
-          {t('helper_text')}
+          {t('helper_text')} {t('domain_verification_text')}
         </p>
-        <p className="text-sm text-muted-foreground">{t('domain_verification_text')}</p>
       </div>
     </div>
   );
 
   if (isSaml) {
     return (
-      <div className={cn('space-y-4', className)}>
+      <div className={cn('space-y-6', className)}>
         <Separator />
         <h6 className="text-base font-semibold leading-5">{t('title')}</h6>
         <p className="text-sm text-muted-foreground">{t('saml_description')}</p>
@@ -91,12 +92,20 @@ export function SsoCrossAppAccessSection(props: CrossAppAccessSectionProps): Rea
             onChange={(e) => onDiscoveryUrlChange?.(e.target.value)}
             placeholder={t('saml_discovery_url_placeholder')}
             disabled={readOnly}
-            aria-describedby={urlHelperId}
+            aria-describedby={discoveryUrlError ? urlErrorId : urlHelperId}
+            aria-invalid={Boolean(discoveryUrlError)}
+            error={Boolean(discoveryUrlError)}
             className="w-full"
           />
-          <p id={urlHelperId} className="text-sm text-muted-foreground">
-            {t('saml_discovery_url_helper')}
-          </p>
+          {discoveryUrlError ? (
+            <p id={urlErrorId} role="alert" className="text-sm text-destructive text-left">
+              {discoveryUrlError}
+            </p>
+          ) : (
+            <p id={urlHelperId} className="text-sm text-muted-foreground">
+              {t('saml_discovery_url_helper')}
+            </p>
+          )}
         </div>
 
         {checkboxGroup}
@@ -105,7 +114,7 @@ export function SsoCrossAppAccessSection(props: CrossAppAccessSectionProps): Rea
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-6', className)}>
       <Separator />
       <h6 className="text-base font-semibold leading-5">{t('title')}</h6>
       {checkboxGroup}
