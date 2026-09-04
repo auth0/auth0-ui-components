@@ -603,7 +603,11 @@ export function DataTable<Item>({
 
         const handleSelectAll = (checked: boolean) => {
           if (!checked) {
-            handleRowSelectionChange({});
+            if (selectionLimit !== undefined && isSelectionLimitReached) {
+              handleRowSelectionChange({});
+            } else {
+              t.toggleAllPageRowsSelected(false);
+            }
             return;
           }
           if (selectionLimit === undefined) {
