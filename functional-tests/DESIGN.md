@@ -8,7 +8,7 @@ This doc explains the key design decisions: how the run is structured, how we ha
 
 ---
 
-## The shape of a run
+## Test Execution Flow
 
 Playwright owns the whole run: it drives the browser as a real user and manages the test lifecycle. Everything outside the browser (org creation, verification, cleanup) is plain TypeScript calling the Auth0 Management API directly.
 
@@ -41,7 +41,7 @@ That sharing mechanism is what the next section is about, because saving and rel
 
 ---
 
-## The token problem that nearly sank it
+## Handling Refresh Token Rotation
 
 With refresh token rotation, the moment a token is used to mint a new one, the old one is destroyed. Tests mostly run from a warm cache, but a token exchange fires whenever a test first touches a new API scope. If the snapshot lands mid-exchange, it captures a token that's about to be burned:
 
@@ -62,7 +62,7 @@ The torn snapshot still happens. The next test loads it, and its first exchange 
 
 ---
 
-## A few problems worth calling out
+## Troubleshooting CI Flakes
 
 **Toasts vanish before you can assert them.** Under CI load, a toast can appear and auto-dismiss before the next poll tick. `locator.innerText()` simply misses it. A `MutationObserver` injected into the page captures every toast synchronously on DOM insertion, so a toast that disappears in 100ms is still recorded. As a bonus: if an error toast appears before the expected success toast, the assertion fails immediately rather than waiting out the full timeout.
 
@@ -74,7 +74,7 @@ The torn snapshot still happens. The next test loads it, and its first exchange 
 
 ---
 
-## The one rule underneath all of it
+## State Management Rule
 
 **Cache identity, read anything editable live.** The org's id and name never change during a run, so we hold on to them. But its display name, branding, members (anything a component can change mid-run) we re-read from the API at the moment we assert, never from a cached copy. We learned this the hard way. A test compared against a value it had cached earlier; another test had since changed that value for real; the first test failed while nothing was broken. The fix wasn't a cleverer cache. It was dropping the mutable fields from the shared state type entirely, so reaching for a stale display name isn't a judgment call, it just doesn't type-check. The mistake became a compile error instead of a 3am flake.
 
