@@ -1,4 +1,4 @@
-# How We Built the Functional Test Suite
+# Functional Tests Design
 
 We ship **auth0-ui-components**, a library of pre-built React components for Auth0's My Organization and My Account self-service UIs. In practice that means drop-in components for org self-service: display name, branding, members, SSO, and more, all wired to live Auth0 APIs with no backend code required from the consumer.
 
