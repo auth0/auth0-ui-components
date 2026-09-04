@@ -599,15 +599,15 @@ export function DataTable<Item>({
         } as unknown as Column<Item>,
       },
       header: ({ table: t }) => {
-        const isSelectAllDisabled =
-          selectionLimit === 0 ||
-          (isSelectionLimitReached &&
-            !t.getIsAllPageRowsSelected() &&
-            (t.getIsSomePageRowsSelected() || selectedCount > 0));
+        const isSelectAllDisabled = selectionLimit === 0;
 
         const handleSelectAll = (checked: boolean) => {
-          if (!checked || selectionLimit === undefined) {
-            t.toggleAllPageRowsSelected(checked);
+          if (!checked) {
+            handleRowSelectionChange({});
+            return;
+          }
+          if (selectionLimit === undefined) {
+            t.toggleAllPageRowsSelected(true);
             return;
           }
 
@@ -630,7 +630,7 @@ export function DataTable<Item>({
           <Checkbox
             className={cn(isSelectAllDisabled && 'pointer-events-none')}
             checked={
-              t.getIsAllPageRowsSelected()
+              isSelectionLimitReached || t.getIsAllPageRowsSelected()
                 ? true
                 : t.getIsSomePageRowsSelected()
                   ? 'indeterminate'

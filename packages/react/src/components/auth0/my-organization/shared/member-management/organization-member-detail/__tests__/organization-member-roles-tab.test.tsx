@@ -590,7 +590,7 @@ describe('OrganizationMemberEditRolesTab', () => {
       expect(screen.getByRole('checkbox', { name: 'data_table.select_all' })).not.toBeDisabled();
     });
 
-    it('disables the select-all checkbox at the cap while roles remain unselected', () => {
+    it('shows select-all as fully checked (not disabled) at the cap while roles remain unselected', () => {
       renderWithProviders(
         <OrganizationMemberEditRolesTab
           {...createProps({
@@ -600,7 +600,27 @@ describe('OrganizationMemberEditRolesTab', () => {
         />,
       );
 
-      expect(screen.getByRole('checkbox', { name: 'data_table.select_all' })).toBeDisabled();
+      const selectAll = screen.getByRole('checkbox', { name: 'data_table.select_all' });
+      expect(selectAll).not.toBeDisabled();
+      expect(selectAll).toHaveAttribute('data-state', 'checked');
+    });
+
+    it('clicking the select-all checkbox at the cap deselects all roles', async () => {
+      const user = userEvent.setup();
+      const onSelectedRolesChange = vi.fn();
+      renderWithProviders(
+        <OrganizationMemberEditRolesTab
+          {...createProps({
+            memberRoles: manyRoles,
+            selectedRoles: manyRoles.slice(0, MAX_ROLES_PER_REQUEST),
+            onSelectedRolesChange,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByRole('checkbox', { name: 'data_table.select_all' }));
+
+      expect(onSelectedRolesChange).toHaveBeenCalledWith([]);
     });
 
     it('ignores the cap for a readonly member, where selection is disabled entirely', () => {

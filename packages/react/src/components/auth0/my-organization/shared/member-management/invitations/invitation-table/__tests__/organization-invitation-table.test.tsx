@@ -345,7 +345,7 @@ describe('OrganizationInvitationTable', () => {
       expect(emitted.map((invitation) => invitation.id)).toEqual(['p1_0', 'p2_0', 'p2_1', 'p2_2']);
     });
 
-    it('counts off-page selections toward the cap and blocks the visible page', () => {
+    it('counts off-page selections toward the cap and shows select-all as checked (not disabled)', () => {
       const offPage = Array.from({ length: MAX_INVITATIONS_PER_REQUEST }, (_, i) =>
         createMockInvitation({ id: `off_${i}`, invitee: { email: `off${i}@example.com` } }),
       );
@@ -362,7 +362,9 @@ describe('OrganizationInvitationTable', () => {
       screen
         .getAllByRole('checkbox', { name: 'data_table.select_row' })
         .forEach((cb) => expect(cb).toBeDisabled());
-      expect(screen.getByRole('checkbox', { name: 'data_table.select_all' })).toBeDisabled();
+      const selectAll = screen.getByRole('checkbox', { name: 'data_table.select_all' });
+      expect(selectAll).not.toBeDisabled();
+      expect(selectAll).toHaveAttribute('data-state', 'checked');
     });
   });
 });
