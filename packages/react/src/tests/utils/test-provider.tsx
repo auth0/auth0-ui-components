@@ -113,16 +113,17 @@ export const renderWithProviders = (
     permissions?: string[];
   },
 ): RenderResult => {
-  return render(
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
     <TestProvider
       coreClient={options?.coreClient}
       authDetails={options?.authDetails}
       queryClient={options?.queryClient}
       permissions={options?.permissions}
     >
-      {component}
-    </TestProvider>,
+      {children}
+    </TestProvider>
   );
+  return render(component, { wrapper: Wrapper });
 };
 
 /**

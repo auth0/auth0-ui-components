@@ -1,6 +1,5 @@
-import { fireEvent, screen, waitFor, within, act } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { OrganizationInvitationCreateModal } from '@/components/auth0/my-organization/shared/member-management/shared/invitation-create/organization-invitation-create-modal';
@@ -721,28 +720,25 @@ describe('OrganizationInvitationCreateModal', () => {
         { id: 'con_single', name: 'Single Provider', type: 'identity_provider' as const },
       ];
 
-      // Use a stateful wrapper so rerender keeps providers intact across the isOpen transition
-      function ModalController() {
-        const [isOpen, setIsOpen] = React.useState(false);
-        return (
-          <>
-            <button onClick={() => setIsOpen(true)}>Open Modal</button>
-            <OrganizationInvitationCreateModal
-              {...createMockCreateModalProps({
-                isOpen,
-                availableConnections: singleConnection,
-                onCreate,
-              })}
-            />
-          </>
-        );
-      }
+      const { rerender } = renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            isOpen: false,
+            availableConnections: singleConnection,
+            onCreate,
+          })}
+        />,
+      );
 
-      renderWithProviders(<ModalController />);
-
-      await act(async () => {
-        await user.click(screen.getByRole('button', { name: 'Open Modal' }));
-      });
+      rerender(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            isOpen: true,
+            availableConnections: singleConnection,
+            onCreate,
+          })}
+        />,
+      );
 
       const emailInput = screen.getByPlaceholderText('invitation.create.email_placeholder');
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
