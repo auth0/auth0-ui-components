@@ -44,6 +44,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     styling,
     customMessages,
     hideHeader,
+    hideRefresh,
     readOnly,
     activeTab,
     members,
@@ -192,12 +193,14 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               <TabsTrigger value="members">{t('tabs.members')}</TabsTrigger>
               <TabsTrigger value="invitations">{t('tabs.invitations')}</TabsTrigger>
             </TabsList>
-            <RefreshIndicator
-              isStale={refreshState.isStale}
-              isFetching={refreshState.isFetching}
-              lastUpdatedAt={refreshState.lastUpdatedAt}
-              onRefresh={refreshState.onRefresh}
-            />
+            {!hideRefresh && (
+              <RefreshIndicator
+                isStale={refreshState.isStale}
+                isFetching={refreshState.isFetching}
+                lastUpdatedAt={refreshState.lastUpdatedAt}
+                onRefresh={refreshState.onRefresh}
+              />
+            )}
           </div>
 
           <TabsContent value="members">

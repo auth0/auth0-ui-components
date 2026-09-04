@@ -89,6 +89,7 @@ function DomainTableView({
   schema,
   styling,
   hideHeader,
+  hideRefresh,
   readOnly = false,
   customMessages,
   createAction,
@@ -201,16 +202,21 @@ function DomainTableView({
         </div>
       )}
 
-      <div
-        className={cn('flex justify-end mb-8', currentStyles.classes?.['DomainTable-tableActions'])}
-      >
-        <RefreshIndicator
-          isStale={isDomainsStale}
-          isFetching={isRefetchingDomains}
-          lastUpdatedAt={domainsUpdatedAt || undefined}
-          onRefresh={refetchDomains}
-        />
-      </div>
+      {!hideRefresh && (
+        <div
+          className={cn(
+            'flex justify-end mb-8',
+            currentStyles.classes?.['DomainTable-tableActions'],
+          )}
+        >
+          <RefreshIndicator
+            isStale={isDomainsStale}
+            isFetching={isRefetchingDomains}
+            lastUpdatedAt={domainsUpdatedAt || undefined}
+            onRefresh={refetchDomains}
+          />
+        </div>
+      )}
 
       <DataTable
         columns={columns}

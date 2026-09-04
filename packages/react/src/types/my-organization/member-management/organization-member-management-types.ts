@@ -210,6 +210,8 @@ export interface OrganizationMemberManagementViewProps
   customMessages: OrganizationMemberManagementProps['customMessages'];
   hideHeader: boolean;
   readOnly: boolean;
+  /** When true, suppresses the built-in refresh indicator (owned by the composable `Refresh` part). */
+  hideRefresh?: boolean;
 }
 
 /** CSS classes for OrganizationMemberManagement. */
