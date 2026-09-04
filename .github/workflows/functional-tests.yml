@@ -1,0 +1,91 @@
+name: Functional Tests
+
+on:
+  pull_request:
+    # TODO: restrict to branches: [main] before merging the specs PR
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'functional-tests/**'
+      - 'packages/**'
+      - 'examples/react-spa-npm/**'
+      - '.github/workflows/functional-tests.yml'
+
+# Cancel outdated runs for the same PR on new pushes.
+concurrency:
+  group: functional-tests-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  functional-tests:
+    name: Functional Tests
+    # Skip fork PRs — GitHub strips secrets from them, so the run can't authenticate anyway.
+    if: github.event.pull_request.head.repo.fork == false
+    runs-on: ubuntu-latest
+    # Approval gate. The environment is auto-created with no rules on first run (tests run
+    # immediately); to require approval, add required reviewers to it in Settings → Environments.
+    environment: functional-tests
+    # TODO: Remove once the suite is proven stable across several consecutive CI runs
+    continue-on-error: true
+    permissions:
+      contents: read
+    env:
+      FT_AUTH0_DOMAIN: ${{ secrets.FT_AUTH0_DOMAIN }}
+      FT_AUTH0_SPA_CLIENT_ID: ${{ secrets.FT_AUTH0_SPA_CLIENT_ID }}
+      FT_AUTH0_MGMT_CLIENT_ID: ${{ secrets.FT_AUTH0_MGMT_CLIENT_ID }}
+      FT_AUTH0_MGMT_CLIENT_SECRET: ${{ secrets.FT_AUTH0_MGMT_CLIENT_SECRET }}
+      FT_TEST_USER_EMAIL: ${{ secrets.FT_TEST_USER_EMAIL }}
+      FT_TEST_USER_PASSWORD: ${{ secrets.FT_TEST_USER_PASSWORD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+        with:
+          version: 10.6.5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          # Pinned to v22.22.3 via functional-tests/.nvmrc
+          node-version-file: functional-tests/.nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm turbo run build --filter=@auth0/universal-components-react
+
+      # Pinned Chromium, ffmpeg backs `video: 'retain-on-failure'`.
+      - name: Install Playwright browsers
+        working-directory: functional-tests
+        run: pnpm exec playwright install --with-deps chromium ffmpeg
+
+      - name: Check CPU Cores
+        run: lscpu | grep "CPU(s):"
+
+      - name: Create ephemeral test org
+        working-directory: functional-tests
+        run: pnpm run org:setup
+
+      - name: Run Playwright tests
+        working-directory: functional-tests
+        run: pnpm exec playwright test
+
+      - name: Teardown ephemeral test org
+        if: always()
+        working-directory: functional-tests
+        run: pnpm run org:teardown
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: playwright-report
+          path: |
+            functional-tests/playwright-report/
+            functional-tests/test-results/
+          retention-days: 3
+          if-no-files-found: ignore
