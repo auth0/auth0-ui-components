@@ -11,7 +11,7 @@ import { reactSpaNpmApp } from '../apps/react-spa-npm.app';
  * Refresh tokens rotate on every exchange, so a `storageState` snapshot can capture a token that a
  * still-in-flight exchange burns moments later. We don't fight that timing: setup-org.ts sets a
  * generous rotation leeway, so a just-burned token stays valid long enough for the next sequential
- * test (workers: 1) to use it and heal the session forward. See TOKEN-EXCHANGE-NOTES.md.
+ * test (workers: 1) to use it and heal the session forward.
  */
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
