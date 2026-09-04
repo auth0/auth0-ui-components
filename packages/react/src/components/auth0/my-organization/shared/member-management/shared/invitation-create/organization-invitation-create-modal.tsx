@@ -44,7 +44,6 @@ import type { OrganizationInvitationCreateModalProps } from '@/types/my-organiza
  * @param props - The component props.
  * @param props.isOpen - Whether the modal is open.
  * @param props.isLoading - Whether the form is loading.
- * @param props.defaultConnectionId - Pre-selected connection id (set by caller when exactly one connection is available).
  * @param props.customMessages - Custom translation messages.
  * @param props.availableRoles - Available roles for selection.
  * @param props.availableConnections - Merged identity providers + user stores for the picker.
@@ -60,7 +59,6 @@ import type { OrganizationInvitationCreateModalProps } from '@/types/my-organiza
 export function OrganizationInvitationCreateModal({
   isOpen,
   isLoading = false,
-  defaultConnectionId,
   isSearchingRoles = false,
   customMessages = {},
   availableRoles = [],
@@ -93,25 +91,30 @@ export function OrganizationInvitationCreateModal({
   const [emailInput, setEmailInput] = React.useState('');
   const [emailChips, setEmailChips] = React.useState<ChipItem[]>([]);
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
-  const [selectedConnectionId, setSelectedConnectionId] = React.useState<string | undefined>(
-    defaultConnectionId,
-  );
+  const [selectedConnectionId, setSelectedConnectionId] = React.useState<string | undefined>();
   const [emailError, setEmailError] = React.useState<string | undefined>();
 
   const resetForm = React.useCallback(() => {
     setEmailInput('');
     setEmailChips([]);
     setSelectedRoles([]);
-    setSelectedConnectionId(defaultConnectionId);
+    setSelectedConnectionId(undefined);
     setEmailError(undefined);
     onRoleSearch?.('');
-  }, [defaultConnectionId, onRoleSearch]);
+  }, [onRoleSearch]);
 
   React.useEffect(() => {
     if (!isOpen) {
       resetForm();
     }
   }, [isOpen, resetForm]);
+
+  React.useEffect(() => {
+    const singleConnection = availableConnections.length === 1 ? availableConnections[0] : null;
+    if (isOpen && singleConnection) {
+      setSelectedConnectionId(singleConnection.id);
+    }
+  }, [isOpen, availableConnections]);
 
   const hasInvalidChips = React.useMemo(
     () => emailChips.some((chip) => chip.variant === 'destructive'),

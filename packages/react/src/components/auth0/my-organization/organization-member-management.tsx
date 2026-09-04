@@ -24,6 +24,7 @@ import { OrganizationInvitationCreateModal } from '@/components/auth0/my-organiz
 import { Header } from '@/components/auth0/shared/header';
 import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
+import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOrganizationMemberManagement } from '@/hooks/my-organization/use-organization-member-management';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -73,7 +74,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     searchedRoles,
     onRoleSearch,
     availableConnections,
-    defaultConnectionId,
+    isLoadingConnections,
     hasNoConnections,
     modalState,
     membersUpdatedAt,
@@ -180,8 +181,9 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
                         type: 'button',
                         label: t('invite_button'),
                         onClick: () => openModal({ type: 'create' }),
-                        icon: Plus,
-                        disabled: !permissions.canInvite || hasNoConnections,
+                        icon: isLoadingConnections ? Spinner : Plus,
+                        disabled:
+                          isLoadingConnections || !permissions.canInvite || hasNoConnections,
                         ...(!permissions.canInvite
                           ? { tooltip: { content: tCommon('error.forbidden') } }
                           : hasNoConnections
@@ -269,7 +271,6 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
         <OrganizationInvitationCreateModal
           isOpen={modalState.type === 'create'}
           isLoading={isCreatingInvitation}
-          defaultConnectionId={defaultConnectionId}
           isSearchingRoles={isSearchingRoles}
           customMessages={customMessages?.invitation}
           availableRoles={searchedRoles}

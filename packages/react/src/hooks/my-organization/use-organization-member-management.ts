@@ -163,10 +163,6 @@ export function useOrganizationMemberManagement(
   );
 
   const isLoadingConnections = providersQuery.isLoading || userStoresQuery.isLoading;
-  const defaultConnectionId =
-    !isLoadingConnections && availableConnections.length === 1
-      ? availableConnections.at(0)?.id
-      : undefined;
   const hasConnectionsError = providersQuery.isError || userStoresQuery.isError;
   const hasNoConnections =
     !isLoadingConnections && !hasConnectionsError && availableConnections.length === 0;
@@ -354,7 +350,6 @@ export function useOrganizationMemberManagement(
     onRoleSearch: setRoleSearchTerm,
     availableConnections,
     isLoadingConnections,
-    defaultConnectionId,
     hasNoConnections,
 
     invitations: currentInvitations,

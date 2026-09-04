@@ -125,7 +125,6 @@ export interface SearchFilterProps {
 export interface OrganizationInvitationCreateModalProps {
   isOpen: boolean;
   isLoading?: boolean;
-  defaultConnectionId?: string;
   isSearchingRoles?: boolean;
   customMessages?: Partial<OrganizationInvitationTabMessages>;
   availableRoles?: Role[];

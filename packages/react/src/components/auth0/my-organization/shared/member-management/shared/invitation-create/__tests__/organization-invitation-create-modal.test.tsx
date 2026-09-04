@@ -1,5 +1,6 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import * as React from 'react';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 
 import { OrganizationInvitationCreateModal } from '@/components/auth0/my-organization/shared/member-management/shared/invitation-create/organization-invitation-create-modal';
@@ -655,7 +656,6 @@ describe('OrganizationInvitationCreateModal', () => {
         <OrganizationInvitationCreateModal
           {...createMockCreateModalProps({
             availableConnections: singleConnection,
-            defaultConnectionId: 'con_single',
             onCreate,
           })}
         />,
@@ -705,7 +705,6 @@ describe('OrganizationInvitationCreateModal', () => {
         <OrganizationInvitationCreateModal
           {...createMockCreateModalProps({
             availableConnections: singleConnection,
-            defaultConnectionId: 'con_single',
           })}
         />,
       );
@@ -715,114 +714,35 @@ describe('OrganizationInvitationCreateModal', () => {
       expect(combobox).toHaveTextContent('Single Provider');
     });
 
-    it('auto-selects single connection when modal opens with defaultConnectionId', async () => {
+    it('auto-selects single connection when modal opens', async () => {
       const user = userEvent.setup();
       const onCreate = vi.fn();
       const singleConnection = [
         { id: 'con_single', name: 'Single Provider', type: 'identity_provider' as const },
       ];
 
-      const { rerender } = renderWithProviders(
-        <OrganizationInvitationCreateModal
-          {...createMockCreateModalProps({
-            isOpen: false,
-            availableConnections: singleConnection,
-            defaultConnectionId: 'con_single',
-            onCreate,
-          })}
-        />,
-      );
+      // Use a stateful wrapper so rerender keeps providers intact across the isOpen transition
+      function ModalController() {
+        const [isOpen, setIsOpen] = React.useState(false);
+        return (
+          <>
+            <button onClick={() => setIsOpen(true)}>Open Modal</button>
+            <OrganizationInvitationCreateModal
+              {...createMockCreateModalProps({
+                isOpen,
+                availableConnections: singleConnection,
+                onCreate,
+              })}
+            />
+          </>
+        );
+      }
 
-      rerender(
-        <OrganizationInvitationCreateModal
-          {...createMockCreateModalProps({
-            isOpen: true,
-            availableConnections: singleConnection,
-            defaultConnectionId: 'con_single',
-            onCreate,
-          })}
-        />,
-      );
+      renderWithProviders(<ModalController />);
 
-      const emailInput = screen.getByPlaceholderText('invitation.create.email_placeholder');
-      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-      fireEvent.keyDown(emailInput, { key: 'Enter' });
-
-      const submitButton = screen.getByRole('button', {
-        name: 'invitation.create.submit_button',
+      await act(async () => {
+        await user.click(screen.getByRole('button', { name: 'Open Modal' }));
       });
-      expect(submitButton).toBeEnabled();
-
-      await user.click(submitButton);
-
-      expect(onCreate).toHaveBeenCalledWith(
-        expect.objectContaining({
-          identity_provider_id: 'con_single',
-        }),
-      );
-    });
-
-    it('does not auto-select when defaultConnectionId is absent (connections loading)', () => {
-      const singleConnection = [
-        { id: 'con_single', name: 'Single Provider', type: 'identity_provider' as const },
-      ];
-
-      renderWithProviders(
-        <OrganizationInvitationCreateModal
-          {...createMockCreateModalProps({
-            availableConnections: singleConnection,
-          })}
-        />,
-      );
-
-      const emailInput = screen.getByPlaceholderText('invitation.create.email_placeholder');
-      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-      fireEvent.keyDown(emailInput, { key: 'Enter' });
-
-      const submitButton = screen.getByRole('button', {
-        name: 'invitation.create.submit_button',
-      });
-      expect(submitButton).toBeDisabled();
-    });
-
-    it('auto-selects when modal opens after connections finish loading while closed', async () => {
-      const user = userEvent.setup();
-      const onCreate = vi.fn();
-      const singleConnection = [
-        { id: 'con_single', name: 'Single Provider', type: 'identity_provider' as const },
-      ];
-
-      const { rerender } = renderWithProviders(
-        <OrganizationInvitationCreateModal
-          {...createMockCreateModalProps({
-            isOpen: false,
-            availableConnections: singleConnection,
-            onCreate,
-          })}
-        />,
-      );
-
-      rerender(
-        <OrganizationInvitationCreateModal
-          {...createMockCreateModalProps({
-            isOpen: false,
-            availableConnections: singleConnection,
-            defaultConnectionId: 'con_single',
-            onCreate,
-          })}
-        />,
-      );
-
-      rerender(
-        <OrganizationInvitationCreateModal
-          {...createMockCreateModalProps({
-            isOpen: true,
-            availableConnections: singleConnection,
-            defaultConnectionId: 'con_single',
-            onCreate,
-          })}
-        />,
-      );
 
       const emailInput = screen.getByPlaceholderText('invitation.create.email_placeholder');
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
