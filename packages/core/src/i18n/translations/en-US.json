@@ -1245,7 +1245,7 @@
             "submit_button": "Assign Role(s)",
             "cancel_button": "Cancel",
             "no_roles_available": "All available roles are already assigned.",
-            "max_selection_message": "Only 10 roles can be selected at a time.",
+            "max_selection_message": "Only 10 roles can be assigned at a time",
             "searching_message": "Searching...",
             "success": "The role has been assigned.",
             "success_plural": "The roles have been assigned."
@@ -1308,7 +1308,7 @@
         "email_required_error": "Please enter at least one email address.",
         "roles_label": "Roles",
         "roles_placeholder": "Select roles (optional)",
-        "roles_max_selection_message": "Only 10 roles can be selected at a time.",
+        "roles_max_selection_message": "Only 10 roles can be selected at a time",
         "roles_searching_message": "Searching...",
         "connection_label": "Connection",
         "connection_placeholder": "Select connection",
