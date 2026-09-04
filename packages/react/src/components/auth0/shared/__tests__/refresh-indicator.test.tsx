@@ -165,4 +165,36 @@ describe('RefreshIndicator', () => {
       });
     });
   });
+
+  describe('pagination and refetch jitter', () => {
+    it('stays visible during pagination when lastUpdatedAt is temporarily reset', () => {
+      const { rerender } = render(
+        <RefreshIndicator
+          isStale
+          lastUpdatedAt={new Date('2026-06-30T11:58:00Z')}
+          onRefresh={vi.fn()}
+        />,
+      );
+      expect(screen.getByRole('status')).toBeInTheDocument();
+
+      rerender(
+        <RefreshIndicator isStale isFetching lastUpdatedAt={undefined} onRefresh={vi.fn()} />,
+      );
+      expect(screen.getByRole('status')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Refresh' })).toBeDisabled();
+    });
+
+    it('stays visible during a manual refresh when lastUpdatedAt remains valid', () => {
+      const lastUpdatedAt = new Date('2026-06-30T11:58:00Z');
+      const { rerender } = render(
+        <RefreshIndicator isStale lastUpdatedAt={lastUpdatedAt} onRefresh={vi.fn()} />,
+      );
+
+      rerender(
+        <RefreshIndicator isStale isFetching lastUpdatedAt={lastUpdatedAt} onRefresh={vi.fn()} />,
+      );
+      expect(screen.getByRole('status')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Refresh' })).toBeDisabled();
+    });
+  });
 });
