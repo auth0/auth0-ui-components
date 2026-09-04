@@ -6,10 +6,6 @@ Unit tests cover rendering, validation, and component logic well, but they stub 
 
 This doc explains the key design decisions: how the run is structured, how we handled token rotation, and what tradeoffs shaped the approach.
 
-Code lives in [auth0/auth0-ui-components](https://github.com/auth0/auth0-ui-components) under
-[`functional-tests/`](https://github.com/auth0/auth0-ui-components/tree/main/functional-tests).
-Follow the links to dig into any part.
-
 ---
 
 ## The shape of a run
