@@ -148,6 +148,9 @@ export interface SsoProviderTableViewProps extends UseSsoProviderTableReturn {
   customMessages: SsoProviderTableProps['customMessages'];
   readOnly: boolean;
   hideHeader: boolean;
+  /** When true, the inline refresh control is not rendered by the view. Used by
+   * compound composition, where `SsoProviderTable.Refresh` places it instead. */
+  hideRefresh?: boolean;
   hideDeleteProvider?: boolean;
   hideRemoveFromOrganization?: boolean;
   createAction: SsoProviderTableProps['createAction'];
