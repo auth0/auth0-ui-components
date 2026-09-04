@@ -25,7 +25,7 @@ export interface WithTooltipProps {
 }
 
 export interface BaseActionProps extends Omit<CoreActionButton, 'icon' | 'onClick'> {
-  icon?: LucideIcon;
+  icon?: LucideIcon | React.ComponentType<{ className?: string }>;
   className?: string;
   hidden?: boolean;
   tooltip?: TooltipProps;
