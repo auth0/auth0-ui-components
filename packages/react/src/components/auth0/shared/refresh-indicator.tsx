@@ -4,9 +4,11 @@
  * @internal
  */
 
+import type { SharedMessages } from '@auth0/universal-components-core';
 import { RefreshCw } from 'lucide-react';
 import * as React from 'react';
 
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_REFRESH_INDICATOR_TICK_MS } from '@/lib/constants/common-constants';
@@ -17,9 +19,11 @@ export interface RefreshIndicatorProps {
   lastUpdatedAt?: Date | number | string | null;
   isStale?: boolean;
   isFetching?: boolean;
+  disabled?: boolean;
   className?: string;
   tickIntervalMs?: number;
   onRefresh: () => void;
+  customMessages?: SharedMessages;
 }
 
 /**
@@ -31,11 +35,13 @@ export function RefreshIndicator({
   lastUpdatedAt,
   isStale = false,
   isFetching = false,
+  disabled = false,
   className,
   onRefresh,
+  customMessages,
   tickIntervalMs = DEFAULT_REFRESH_INDICATOR_TICK_MS,
 }: RefreshIndicatorProps): React.JSX.Element | null {
-  const { t } = useTranslator('common');
+  const { t } = useTranslator('common', customMessages?.common);
   const timestampMs = lastUpdatedAt == null ? null : new Date(lastUpdatedAt).getTime();
   const hasValidTimestamp = timestampMs != null && !Number.isNaN(timestampMs);
 
@@ -75,16 +81,18 @@ export function RefreshIndicator({
           {label}
         </span>
       )}
-      <Button
-        type="button"
-        variant="outline"
-        size="default"
-        disabled={!isStale || isFetching}
-        onClick={onRefresh}
-      >
-        <RefreshCw aria-hidden="true" />
-        {t('refresh')}
-      </Button>
+      <PermissionDeniedTooltip enabled={disabled} customMessages={customMessages}>
+        <Button
+          type="button"
+          variant="outline"
+          size="default"
+          disabled={disabled || !isStale || isFetching}
+          onClick={onRefresh}
+        >
+          <RefreshCw aria-hidden="true" />
+          {t('refresh')}
+        </Button>
+      </PermissionDeniedTooltip>
     </div>
   );
 }

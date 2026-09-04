@@ -6,6 +6,8 @@
 import { createPermissionResolver } from '../../permissions/permission-map';
 
 export const getMemberManagementPermissions = createPermissionResolver({
+  canListMembers: ['read:my_org:members'],
+  canListInvitations: ['read:my_org:member_invitations'],
   canInvite: ['create:my_org:member_invitations'],
   canAssignRole: ['create:my_org:member_roles'],
   canRemoveRole: ['delete:my_org:member_roles'],

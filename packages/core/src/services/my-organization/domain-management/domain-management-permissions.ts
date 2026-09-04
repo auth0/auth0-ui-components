@@ -6,6 +6,7 @@
 import { createPermissionResolver } from '../../permissions/permission-map';
 
 export const getDomainManagementPermissions = createPermissionResolver({
+  canListDomains: ['read:my_org:domains'],
   canCreateDomain: ['create:my_org:domains'],
   canVerifyDomain: ['update:my_org:domains'],
   canDeleteDomain: ['delete:my_org:domains'],

@@ -3,19 +3,11 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
-
-const lookup = (overrides: unknown, key: string) =>
-  key
-    .split('.')
-    .reduce<unknown>(
-      (value, part) =>
-        value && typeof value === 'object' ? (value as Record<string, unknown>)[part] : undefined,
-      overrides,
-    );
+import { lookupTranslationOverride } from '@/tests/utils/test-utilities';
 
 vi.mock('@/hooks/shared/use-translator', () => ({
   useTranslator: (_namespace: string, overrides?: Record<string, unknown>) => ({
-    t: (key: string) => (lookup(overrides, key) as string | undefined) ?? key,
+    t: (key: string) => lookupTranslationOverride(overrides, key) ?? key,
   }),
 }));
 

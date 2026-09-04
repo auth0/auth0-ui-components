@@ -215,9 +215,11 @@ function DomainTableView({
         className={cn('flex justify-end mb-8', currentStyles.classes?.['DomainTable-tableActions'])}
       >
         <RefreshIndicator
+          disabled={!permissions.canListDomains}
           isStale={isDomainsStale}
           isFetching={isRefetchingDomains}
           lastUpdatedAt={domainsUpdatedAt || undefined}
+          customMessages={customMessages}
           onRefresh={refetchDomains}
         />
       </div>

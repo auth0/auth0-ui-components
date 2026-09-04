@@ -2,16 +2,37 @@ import { render, screen, act, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
+import { lookupTranslationOverride } from '@/tests/utils/test-utilities';
 
 const TRANSLATIONS: Record<string, string> = {
   last_updated: 'Last updated',
   refresh: 'Refresh',
 };
 
+vi.mock('@/components/auth0/shared/permission-denied-tooltip', () => ({
+  PermissionDeniedTooltip: ({
+    children,
+    customMessages: msgs,
+    enabled,
+  }: {
+    children: React.ReactNode;
+    customMessages?: unknown;
+    enabled?: boolean;
+  }) => (
+    <>
+      {children}
+      {enabled && msgs && (
+        <span data-testid="permission-tooltip-messages">{JSON.stringify(msgs)}</span>
+      )}
+    </>
+  ),
+}));
+
 vi.mock('@/hooks/shared/use-translator', () => ({
-  useTranslator: () => ({
+  useTranslator: (_namespace: string, overrides?: Record<string, unknown>) => ({
     t: (key: string, vars?: Record<string, unknown>, fallback?: string) => {
-      const template = TRANSLATIONS[key] ?? fallback ?? key;
+      const template =
+        lookupTranslationOverride(overrides, key) ?? TRANSLATIONS[key] ?? fallback ?? key;
       if (!vars) return template;
       return template.replace(/\$\{(\w+)\}/g, (_, name) => String(vars[name] ?? ''));
     },
@@ -121,6 +142,37 @@ describe('RefreshIndicator', () => {
   it('exposes a status role for assistive tech', () => {
     render(<RefreshIndicator isStale onRefresh={vi.fn()} />);
     expect(screen.getByRole('status')).toBeInTheDocument();
+  });
+
+  describe('disabled prop', () => {
+    it('disables the refresh button when disabled is true, even if data is stale', () => {
+      render(<RefreshIndicator isStale disabled onRefresh={vi.fn()} />);
+      expect(screen.getByRole('button', { name: 'Refresh' })).toBeDisabled();
+    });
+
+    it('does not call onRefresh when disabled is true', () => {
+      const onRefresh = vi.fn();
+      render(<RefreshIndicator isStale disabled onRefresh={onRefresh} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
+      expect(onRefresh).not.toHaveBeenCalled();
+    });
+
+    it('enables the refresh button when disabled is false and data is stale', () => {
+      render(<RefreshIndicator isStale disabled={false} onRefresh={vi.fn()} />);
+      expect(screen.getByRole('button', { name: 'Refresh' })).toBeEnabled();
+    });
+
+    it('forwards customMessages to PermissionDeniedTooltip when disabled', () => {
+      const customMessages = {
+        common: { error: { forbidden: 'You need read access to refresh' } },
+      };
+      render(
+        <RefreshIndicator isStale disabled customMessages={customMessages} onRefresh={vi.fn()} />,
+      );
+      expect(screen.getByTestId('permission-tooltip-messages')).toHaveTextContent(
+        JSON.stringify(customMessages),
+      );
+    });
   });
 
   describe('pagination and refetch jitter', () => {
