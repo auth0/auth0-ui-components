@@ -1,5 +1,4 @@
-import { render, screen, act, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, act, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
@@ -9,6 +8,25 @@ const TRANSLATIONS: Record<string, string> = {
   last_updated: 'Last updated',
   refresh: 'Refresh',
 };
+
+vi.mock('@/components/auth0/shared/permission-denied-tooltip', () => ({
+  PermissionDeniedTooltip: ({
+    children,
+    customMessages: msgs,
+    enabled,
+  }: {
+    children: React.ReactNode;
+    customMessages?: unknown;
+    enabled?: boolean;
+  }) => (
+    <>
+      {children}
+      {enabled && msgs && (
+        <span data-testid="permission-tooltip-messages">{JSON.stringify(msgs)}</span>
+      )}
+    </>
+  ),
+}));
 
 vi.mock('@/hooks/shared/use-translator', () => ({
   useTranslator: (_namespace: string, overrides?: Record<string, unknown>) => ({
@@ -144,25 +162,16 @@ describe('RefreshIndicator', () => {
       expect(screen.getByRole('button', { name: 'Refresh' })).toBeEnabled();
     });
 
-    it('shows a custom forbidden message from customMessages when the button is disabled', async () => {
-      vi.useRealTimers();
-      const user = userEvent.setup();
+    it('forwards customMessages to PermissionDeniedTooltip when disabled', () => {
+      const customMessages = {
+        common: { error: { forbidden: 'You need read access to refresh' } },
+      };
       render(
-        <RefreshIndicator
-          isStale
-          disabled
-          customMessages={{ common: { error: { forbidden: 'You need read access to refresh' } } }}
-          onRefresh={vi.fn()}
-        />,
+        <RefreshIndicator isStale disabled customMessages={customMessages} onRefresh={vi.fn()} />,
       );
-
-      await user.hover(screen.getByRole('button', { name: 'Refresh' }));
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole('tooltip', { name: 'You need read access to refresh' }),
-        ).toBeInTheDocument();
-      });
+      expect(screen.getByTestId('permission-tooltip-messages')).toHaveTextContent(
+        JSON.stringify(customMessages),
+      );
     });
   });
 

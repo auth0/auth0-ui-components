@@ -23,7 +23,7 @@ export interface RefreshIndicatorProps {
   className?: string;
   tickIntervalMs?: number;
   onRefresh: () => void;
-  customMessages?: Partial<SharedMessages>;
+  customMessages?: SharedMessages;
 }
 
 /**
