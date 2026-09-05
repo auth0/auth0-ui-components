@@ -24,6 +24,7 @@ export const OrganizationDetailsMappers = {
             organizationData.branding?.colors?.page_background || DEFAULT_COLORS.UL_PAGE_BG,
         },
       },
+      third_party_client_access: organizationData.third_party_client_access,
     };
   },
   toAPI(formValues: OrganizationPrivate): UpdateOrganizationDetailsRequestContent {
@@ -44,6 +45,9 @@ export const OrganizationDetailsMappers = {
     };
     if (updateLogo) {
       payload.branding!.logo_url = formValues.branding.logo_url;
+    }
+    if (formValues.third_party_client_access !== undefined) {
+      payload.third_party_client_access = formValues.third_party_client_access;
     }
 
     return payload;

@@ -112,6 +112,12 @@ const STRATEGY_BUILDERS = {
       }),
       show_as_button: z.boolean().optional(),
       assign_membership_on_login: z.boolean().optional(),
+      use_for_third_party_client_access: z.boolean().optional(),
+      cross_app_access_resource_app: z
+        .object({
+          status: z.enum(['enabled', 'disabled']),
+        })
+        .optional(),
     }),
 
   adfs: (options: AdfsOptions = {}) =>
@@ -132,6 +138,12 @@ const STRATEGY_BUILDERS = {
           fedMetadataXml: z.string().optional(),
           show_as_button: z.boolean().optional(),
           assign_membership_on_login: z.boolean().optional(),
+          use_for_third_party_client_access: z.boolean().optional(),
+          cross_app_access_resource_app: z
+            .object({
+              status: z.enum(['enabled', 'disabled']),
+            })
+            .optional(),
         }),
         z.object({
           meta_data_source: z.literal('meta_data_file'),
@@ -144,6 +156,12 @@ const STRATEGY_BUILDERS = {
           meta_data_location_url: z.string().optional(),
           show_as_button: z.boolean().optional(),
           assign_membership_on_login: z.boolean().optional(),
+          use_for_third_party_client_access: z.boolean().optional(),
+          cross_app_access_resource_app: z
+            .object({
+              status: z.enum(['enabled', 'disabled']),
+            })
+            .optional(),
         }),
       ])
       .transform((data) => {
@@ -180,6 +198,12 @@ const STRATEGY_BUILDERS = {
       }),
       show_as_button: z.boolean().optional(),
       assign_membership_on_login: z.boolean().optional(),
+      use_for_third_party_client_access: z.boolean().optional(),
+      cross_app_access_resource_app: z
+        .object({
+          status: z.enum(['enabled', 'disabled']),
+        })
+        .optional(),
     }),
 
   oidc: (options: OidcOptions = {}) => {
@@ -195,6 +219,12 @@ const STRATEGY_BUILDERS = {
       ),
       show_as_button: z.boolean().optional(),
       assign_membership_on_login: z.boolean().optional(),
+      use_for_third_party_client_access: z.boolean().optional(),
+      cross_app_access_resource_app: z
+        .object({
+          status: z.enum(['enabled', 'disabled']),
+        })
+        .optional(),
     };
 
     return z.discriminatedUnion('type', [
@@ -265,6 +295,12 @@ const STRATEGY_BUILDERS = {
       }),
       show_as_button: z.boolean().optional(),
       assign_membership_on_login: z.boolean().optional(),
+      use_for_third_party_client_access: z.boolean().optional(),
+      cross_app_access_resource_app: z
+        .object({
+          status: z.enum(['enabled', 'disabled']),
+        })
+        .optional(),
     }),
 
   samlp: (options: SamlpOptions = {}) => {
@@ -308,6 +344,17 @@ const STRATEGY_BUILDERS = {
       }),
       show_as_button: z.boolean().optional(),
       assign_membership_on_login: z.boolean().optional(),
+      use_for_third_party_client_access: z.boolean().optional(),
+      cross_app_access_resource_app: z
+        .object({
+          status: z.enum(['enabled', 'disabled']),
+        })
+        .optional(),
+      discovery_url: createFieldSchema(
+        COMMON_FIELD_CONFIGS.url,
+        { required: false },
+        'Please enter a valid discovery URL',
+      ),
     };
 
     return z
@@ -377,6 +424,12 @@ const STRATEGY_BUILDERS = {
       }),
       show_as_button: z.boolean().optional(),
       assign_membership_on_login: z.boolean().optional(),
+      use_for_third_party_client_access: z.boolean().optional(),
+      cross_app_access_resource_app: z
+        .object({
+          status: z.enum(['enabled', 'disabled']),
+        })
+        .optional(),
     }),
 } as const;
 

@@ -20,6 +20,19 @@ export interface OrganizationDetailsMessages {
           helper_text?: string;
           error?: string;
         };
+        third_party_client_access?: {
+          label?: string;
+          options?: {
+            block?: {
+              label?: string;
+              helper_text?: string;
+            };
+            allow?: {
+              label?: string;
+              helper_text?: string;
+            };
+          };
+        };
       };
     };
     branding?: {

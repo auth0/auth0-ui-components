@@ -15,6 +15,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
+import { SsoCrossAppAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section';
+import { SsoThirdPartyAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section';
 import {
   Accordion,
   AccordionContent,
@@ -75,13 +77,28 @@ export interface SamlpConfigureFormHandle {
   reset: (data?: SamlpConfigureFormValues) => void;
 }
 
-interface SamlpConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
+interface SamlpConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {
+  showCrossAppAccess?: boolean;
+  isCrossAppAccessReadOnly?: boolean;
+}
 
 export const SamlpProviderForm = React.forwardRef<
   SamlpConfigureFormHandle,
   SamlpConfigureFormProps
 >(function SamlpProviderForm(
-  { initialData, readOnly = false, customMessages = {}, className, onFormDirty, idpConfig },
+  {
+    initialData,
+    readOnly = false,
+    customMessages = {},
+    className,
+    onFormDirty,
+    idpConfig,
+    showThirdPartyAccess = false,
+    showCrossAppAccess = false,
+    isCrossAppAccessReadOnly = false,
+    isOrganizationBlocked = false,
+    styling,
+  },
   ref,
 ) {
   const { t } = useTranslator(
@@ -111,8 +128,17 @@ export const SamlpProviderForm = React.forwardRef<
       bindingMethod: samlpData?.bindingMethod || 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
       show_as_button: samlpData?.show_as_button ?? false,
       assign_membership_on_login: samlpData?.assign_membership_on_login ?? false,
+      use_for_third_party_client_access:
+        (samlpData as { use_for_third_party_client_access?: boolean })
+          ?.use_for_third_party_client_access ?? false,
+      cross_app_access_resource_app:
+        (samlpData as { cross_app_access_resource_app?: { status: 'enabled' | 'disabled' } })
+          ?.cross_app_access_resource_app ?? undefined,
+      discovery_url: (samlpData as { discovery_url?: string })?.discovery_url ?? '',
     },
   });
+
+  const discoveryUrlValue = form.watch('discovery_url') ?? '';
 
   const { isDirty } = form.formState;
 
@@ -438,6 +464,45 @@ export const SamlpProviderForm = React.forwardRef<
           readOnly={readOnly}
           customMessages={customMessages}
         />
+
+        {showThirdPartyAccess && (
+          <FormField
+            control={form.control}
+            name="use_for_third_party_client_access"
+            render={({ field }) => (
+              <SsoThirdPartyAccessSection
+                checked={field.value ?? false}
+                onChange={field.onChange}
+                readOnly={readOnly}
+                isOrganizationBlocked={isOrganizationBlocked}
+                className={styling?.classes?.['ProviderConfigure-ThirdPartyAccess']}
+              />
+            )}
+          />
+        )}
+
+        {showCrossAppAccess && (
+          <FormField
+            control={form.control}
+            name="cross_app_access_resource_app"
+            render={({ field }) => (
+              <SsoCrossAppAccessSection
+                checked={field.value?.status === 'enabled'}
+                onChange={(checked) =>
+                  field.onChange(checked ? { status: 'enabled' } : { status: 'disabled' })
+                }
+                readOnly={readOnly || isCrossAppAccessReadOnly}
+                strategy="samlp"
+                discoveryUrl={discoveryUrlValue}
+                onDiscoveryUrlChange={(url) =>
+                  form.setValue('discovery_url', url, { shouldDirty: true, shouldValidate: true })
+                }
+                discoveryUrlError={form.formState.errors.discovery_url?.message}
+                className={styling?.classes?.['ProviderConfigure-CrossAppAccess']}
+              />
+            )}
+          />
+        )}
       </div>
     </Form>
   );

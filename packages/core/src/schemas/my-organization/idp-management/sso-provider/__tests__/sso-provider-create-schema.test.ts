@@ -60,18 +60,13 @@ describe('SSO Provider Create Schema', () => {
     it('should return error message for invalid strategy', () => {
       const result = providerSelectionSchema.safeParse({ strategy: 'invalid' });
       expect(result.success).toBe(false);
-      if (!result.success && result.error?.errors[0]) {
-        // Zod returns invalid enum value message for enum mismatches
-        expect(result.error.errors[0].message).toContain('Invalid enum value');
-      }
+      expect(result.error?.errors[0]?.message).toContain('Invalid enum value');
     });
 
     it('should return custom error message for missing strategy', () => {
       const result = providerSelectionSchema.safeParse({});
       expect(result.success).toBe(false);
-      if (!result.success && result.error?.errors[0]) {
-        expect(result.error.errors[0].message).toContain('provider strategy');
-      }
+      expect(result.error?.errors[0]?.message).toContain('provider strategy');
     });
   });
 
@@ -84,9 +79,7 @@ describe('SSO Provider Create Schema', () => {
       const result = customSchema.safeParse({});
 
       expect(result.success).toBe(false);
-      if (!result.success && result.error?.errors[0]) {
-        expect(result.error.errors[0].message).toBe(customMessage);
-      }
+      expect(result.error?.errors[0]?.message).toBe(customMessage);
     });
   });
 
@@ -625,6 +618,53 @@ describe('SSO Provider Create Schema', () => {
         });
         expect(result.success).toBe(true);
       });
+
+      describe('when validating discovery_url', () => {
+        it('should accept valid discovery URL', () => {
+          const schema = createProviderConfigureSchema('samlp');
+          const result = schema.safeParse({
+            ...validSamlConfig,
+            discovery_url: 'https://example.com/.well-known/openid-configuration',
+          });
+          expect(result.success).toBe(true);
+        });
+
+        it('should accept empty discovery URL (optional field)', () => {
+          const schema = createProviderConfigureSchema('samlp');
+          const result = schema.safeParse({
+            ...validSamlConfig,
+            discovery_url: '',
+          });
+          expect(result.success).toBe(true);
+        });
+
+        it('should accept undefined discovery URL (optional field)', () => {
+          const schema = createProviderConfigureSchema('samlp');
+          const result = schema.safeParse({
+            ...validSamlConfig,
+          });
+          expect(result.success).toBe(true);
+        });
+
+        it('should reject invalid discovery URL format', () => {
+          const schema = createProviderConfigureSchema('samlp');
+          const result = schema.safeParse({
+            ...validSamlConfig,
+            discovery_url: 'not-a-valid-url',
+          });
+          expect(result.success).toBe(false);
+          expect(result.error?.errors[0]?.message).toContain('discovery URL');
+        });
+
+        it('should reject discovery URL without http/https protocol', () => {
+          const schema = createProviderConfigureSchema('samlp');
+          const result = schema.safeParse({
+            ...validSamlConfig,
+            discovery_url: 'ftp://example.com/.well-known',
+          });
+          expect(result.success).toBe(false);
+        });
+      });
     });
 
     describe('WAAD (Entra ID) strategy', () => {
@@ -759,10 +799,8 @@ describe('SSO Provider Create Schema', () => {
         assign_membership_on_login: true,
       });
       expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data.show_as_button).toBe(false);
-        expect(result.data.assign_membership_on_login).toBe(true);
-      }
+      expect(result.data?.show_as_button).toBe(false);
+      expect(result.data?.assign_membership_on_login).toBe(true);
     });
   });
 });
