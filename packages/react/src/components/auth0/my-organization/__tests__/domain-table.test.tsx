@@ -590,7 +590,7 @@ describe('DomainTable', () => {
           identity_providers: [provider],
         });
         (
-          (apiService.organization.domains.identityProviders as any).get as ReturnType<typeof vi.fn>
+          apiService.organization.domains.identityProviders.get as ReturnType<typeof vi.fn>
         ).mockResolvedValue({
           identity_providers: [
             createMockIdentityProviderAssociatedWithDomain({

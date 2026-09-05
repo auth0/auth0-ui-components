@@ -99,9 +99,9 @@ export function useSsoProviderTableService(
         await enableAction.onAfter(selectedIdp);
       }
 
-      queryClient.setQueryData<IdpKnownResponse[]>(ssoProviderQueryKeys.list(), (old: any) => {
+      queryClient.setQueryData<IdpKnownResponse[]>(ssoProviderQueryKeys.list(), (old) => {
         if (!old) return old;
-        return old.map((provider: any) =>
+        return old.map((provider) =>
           provider.id === selectedIdp.id ? { ...provider, ...updatedProvider } : provider,
         );
       });
