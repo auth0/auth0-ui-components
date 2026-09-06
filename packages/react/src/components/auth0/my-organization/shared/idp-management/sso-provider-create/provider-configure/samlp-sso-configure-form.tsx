@@ -128,13 +128,9 @@ export const SamlpProviderForm = React.forwardRef<
       bindingMethod: samlpData?.bindingMethod || 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
       show_as_button: samlpData?.show_as_button ?? false,
       assign_membership_on_login: samlpData?.assign_membership_on_login ?? false,
-      use_for_third_party_client_access:
-        (samlpData as { use_for_third_party_client_access?: boolean })
-          ?.use_for_third_party_client_access ?? false,
-      cross_app_access_resource_app:
-        (samlpData as { cross_app_access_resource_app?: { status: 'enabled' | 'disabled' } })
-          ?.cross_app_access_resource_app ?? undefined,
-      discovery_url: (samlpData as { discovery_url?: string })?.discovery_url ?? '',
+      use_for_third_party_client_access: samlpData?.use_for_third_party_client_access ?? false,
+      cross_app_access_resource_app: samlpData?.cross_app_access_resource_app ?? undefined,
+      discovery_url: samlpData?.discovery_url ?? '',
     },
   });
 

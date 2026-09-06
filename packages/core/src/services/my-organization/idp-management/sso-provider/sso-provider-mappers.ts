@@ -81,7 +81,7 @@ function normalizeDiscoveryUrl(url: string): string {
   } catch {
     return url;
   }
-  if (parsed.pathname.includes('/.well-known/')) return url;
+  if (parsed.pathname.endsWith(DISCOVERY_URL_SUFFIX)) return url;
   parsed.pathname = parsed.pathname.replace(/\/?$/, '') + DISCOVERY_URL_SUFFIX;
   return parsed.toString();
 }
