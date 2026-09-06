@@ -623,7 +623,7 @@ describe('SSO Provider Create Schema', () => {
         it('should accept valid discovery URL', () => {
           const schema = createProviderConfigureSchema('samlp');
           const result = schema.safeParse({
-            ...validSamlConfig,
+            ...validSamlUrlInput,
             discovery_url: 'https://example.com/.well-known/openid-configuration',
           });
           expect(result.success).toBe(true);
@@ -632,7 +632,7 @@ describe('SSO Provider Create Schema', () => {
         it('should accept empty discovery URL (optional field)', () => {
           const schema = createProviderConfigureSchema('samlp');
           const result = schema.safeParse({
-            ...validSamlConfig,
+            ...validSamlUrlInput,
             discovery_url: '',
           });
           expect(result.success).toBe(true);
@@ -641,7 +641,7 @@ describe('SSO Provider Create Schema', () => {
         it('should accept undefined discovery URL (optional field)', () => {
           const schema = createProviderConfigureSchema('samlp');
           const result = schema.safeParse({
-            ...validSamlConfig,
+            ...validSamlUrlInput,
           });
           expect(result.success).toBe(true);
         });
@@ -649,7 +649,7 @@ describe('SSO Provider Create Schema', () => {
         it('should reject invalid discovery URL format', () => {
           const schema = createProviderConfigureSchema('samlp');
           const result = schema.safeParse({
-            ...validSamlConfig,
+            ...validSamlUrlInput,
             discovery_url: 'not-a-valid-url',
           });
           expect(result.success).toBe(false);
@@ -659,7 +659,7 @@ describe('SSO Provider Create Schema', () => {
         it('should reject discovery URL without http/https protocol', () => {
           const schema = createProviderConfigureSchema('samlp');
           const result = schema.safeParse({
-            ...validSamlConfig,
+            ...validSamlUrlInput,
             discovery_url: 'ftp://example.com/.well-known',
           });
           expect(result.success).toBe(false);

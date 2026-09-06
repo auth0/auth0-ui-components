@@ -107,10 +107,12 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
       if (file) {
         try {
           const content = await file.text();
-          form.setValue('fedMetadataXml', content);
+          form.setValue('fedMetadataXml', content, { shouldDirty: true, shouldValidate: true });
         } catch (error) {
           console.error('Error reading file:', error);
         }
+      } else {
+        form.setValue('fedMetadataXml', '', { shouldDirty: true, shouldValidate: true });
       }
     };
 

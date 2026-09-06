@@ -69,40 +69,6 @@ const STRATEGY_FIELD_MAPPINGS = {
 } as const;
 
 /**
- * Gets fields to exclude based on meta_data_source for strategies with mutually exclusive fields.
- * For SAMLP/ADFS: metadataUrl mode excludes signInEndpoint/fedMetadataXml, file mode excludes metadataUrl.
- * @param strategy - The identity provider strategy type
- * @param formOptions - Form configuration options containing meta_data_source
- * @returns Array of field names to exclude from the API request
- */
-const getExcludedFields = (
-  strategy: IdpStrategy,
-  formOptions: Record<string, unknown>,
-): string[] => {
-  const metaDataSource = formOptions.meta_data_source as string | undefined;
-
-  if (strategy === STRATEGIES.SAMLP) {
-    if (metaDataSource === 'meta_data_url') {
-      return ['signInEndpoint'];
-    }
-    if (metaDataSource === 'meta_data_file') {
-      return ['metadataUrl'];
-    }
-  }
-
-  if (strategy === STRATEGIES.ADFS) {
-    if (metaDataSource === 'meta_data_url') {
-      return ['fedMetadataXml'];
-    }
-    if (metaDataSource === 'meta_data_file') {
-      return ['adfs_server', 'meta_data_location_url'];
-    }
-  }
-
-  return [];
-};
-
-/**
  * Normalizes a discovery URL by appending the OpenID configuration suffix if not present.
  * @param url - The discovery URL to normalize
  * @returns The normalized discovery URL
@@ -139,12 +105,9 @@ const getValidOptionsForStrategy = (
     throw new Error(`Unsupported identity provider strategy: ${strategy}`);
   }
 
-  const excludedFields = getExcludedFields(strategy, formOptions);
-
   const result = Object.fromEntries(
     Object.entries(formOptions).filter(
-      ([key, value]) =>
-        validFields.includes(key) && isValidValue(value) && !excludedFields.includes(key),
+      ([key, value]) => validFields.includes(key) && isValidValue(value),
     ),
   );
 

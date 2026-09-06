@@ -178,10 +178,12 @@ export const SamlpProviderForm = React.forwardRef<
     if (file) {
       try {
         const content = await file.text();
-        form.setValue('signingCert', content);
+        form.setValue('signingCert', content, { shouldDirty: true, shouldValidate: true });
       } catch (error) {
         console.error('Error reading file:', error);
       }
+    } else {
+      form.setValue('signingCert', '', { shouldDirty: true, shouldValidate: true });
     }
   };
 

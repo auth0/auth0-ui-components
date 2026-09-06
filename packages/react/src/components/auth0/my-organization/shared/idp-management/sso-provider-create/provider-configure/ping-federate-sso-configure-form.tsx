@@ -136,10 +136,11 @@ export const PingFederateProviderForm = React.forwardRef<
       try {
         const content = await file.text();
         form.setValue('signingCert', content, { shouldDirty: true, shouldValidate: true });
-        form.clearErrors('signingCert');
       } catch (error) {
         console.error('Error reading file:', error);
       }
+    } else {
+      form.setValue('signingCert', '', { shouldDirty: true, shouldValidate: true });
     }
   };
 
