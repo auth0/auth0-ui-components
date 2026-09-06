@@ -72,8 +72,8 @@ interface SamlpOptions {
   signSAMLRequest?: BooleanFieldOptions;
   bindingMethod?: FieldOptions;
   metadataUrl?: FieldOptions;
-  single_sign_on_login_url?: FieldOptions;
-  cert?: FieldOptions;
+  signInEndpoint?: FieldOptions;
+  signingCert?: FieldOptions;
   icon_url?: FieldOptions;
   idpInitiated?: FieldOptions;
 }
@@ -121,48 +121,57 @@ const STRATEGY_BUILDERS = {
     }),
 
   adfs: (options: AdfsOptions = {}) =>
-    z.discriminatedUnion('meta_data_source', [
-      z.object({
-        meta_data_source: z.literal('meta_data_url'),
-        adfs_server: createFieldSchema(
-          COMMON_FIELD_CONFIGS.url,
-          { ...options.adfs_server, required: true },
-          'Please enter a valid ADFS server URL',
-        ),
-        meta_data_location_url: createFieldSchema(
-          COMMON_FIELD_CONFIGS.url,
-          options.meta_data_location_url,
-          'Please enter a valid metadata location URL',
-        ),
-        fedMetadataXml: z.string().optional(),
-        show_as_button: z.boolean().optional(),
-        assign_membership_on_login: z.boolean().optional(),
-        use_for_third_party_client_access: z.boolean().optional(),
-        cross_app_access_resource_app: z
-          .object({
-            status: z.enum(['enabled', 'disabled']),
-          })
-          .optional(),
+    z
+      .discriminatedUnion('meta_data_source', [
+        z.object({
+          meta_data_source: z.literal('meta_data_url'),
+          adfs_server: createFieldSchema(
+            COMMON_FIELD_CONFIGS.url,
+            { ...options.adfs_server, required: true },
+            'Please enter a valid ADFS server URL',
+          ),
+          meta_data_location_url: createFieldSchema(
+            COMMON_FIELD_CONFIGS.url,
+            options.meta_data_location_url,
+            'Please enter a valid metadata location URL',
+          ),
+          fedMetadataXml: z.string().optional(),
+          show_as_button: z.boolean().optional(),
+          assign_membership_on_login: z.boolean().optional(),
+          use_for_third_party_client_access: z.boolean().optional(),
+          cross_app_access_resource_app: z
+            .object({
+              status: z.enum(['enabled', 'disabled']),
+            })
+            .optional(),
+        }),
+        z.object({
+          meta_data_source: z.literal('meta_data_file'),
+          fedMetadataXml: createFieldSchema(
+            COMMON_FIELD_CONFIGS.metadata,
+            { ...options.fedMetadataXml, required: true },
+            'Please provide a Federation Metadata XML file',
+          ),
+          adfs_server: z.string().optional(),
+          meta_data_location_url: z.string().optional(),
+          show_as_button: z.boolean().optional(),
+          assign_membership_on_login: z.boolean().optional(),
+          use_for_third_party_client_access: z.boolean().optional(),
+          cross_app_access_resource_app: z
+            .object({
+              status: z.enum(['enabled', 'disabled']),
+            })
+            .optional(),
+        }),
+      ])
+      .transform((data) => {
+        if (data.meta_data_source === 'meta_data_url') {
+          const { fedMetadataXml, ...rest } = data;
+          return rest;
+        }
+        const { adfs_server, meta_data_location_url, ...rest } = data;
+        return rest;
       }),
-      z.object({
-        meta_data_source: z.literal('meta_data_file'),
-        fedMetadataXml: createFieldSchema(
-          COMMON_FIELD_CONFIGS.metadata,
-          { ...options.fedMetadataXml, required: true },
-          'Please provide a Federation Metadata XML file',
-        ),
-        adfs_server: z.string().optional(),
-        meta_data_location_url: z.string().optional(),
-        show_as_button: z.boolean().optional(),
-        assign_membership_on_login: z.boolean().optional(),
-        use_for_third_party_client_access: z.boolean().optional(),
-        cross_app_access_resource_app: z
-          .object({
-            status: z.enum(['enabled', 'disabled']),
-          })
-          .optional(),
-      }),
-    ]),
 
   'google-apps': (options: GoogleAppsOptions = {}) =>
     z.object({
@@ -348,37 +357,46 @@ const STRATEGY_BUILDERS = {
       ),
     };
 
-    return z.discriminatedUnion('meta_data_source', [
-      // Scenario A: Metadata URL (URL is Required)
-      z.object({
-        meta_data_source: z.literal('meta_data_url'),
-        metadataUrl: createFieldSchema(
-          COMMON_FIELD_CONFIGS.url,
-          { ...options.metadataUrl, required: true },
-          'Please enter a valid metadata URL',
-        ),
-        cert: z.string().optional(),
-        single_sign_on_login_url: z.string().optional(),
-        ...commonFields,
-      }),
-
-      // Scenario B: Metadata File (Cert is Required)
-      z.object({
-        meta_data_source: z.literal('meta_data_file'),
-        cert: createFieldSchema(COMMON_FIELD_CONFIGS.certificate, {
-          ...options.cert,
-          required: true,
+    return z
+      .discriminatedUnion('meta_data_source', [
+        // Scenario A: Metadata URL (URL is Required)
+        z.object({
+          meta_data_source: z.literal('meta_data_url'),
+          metadataUrl: createFieldSchema(
+            COMMON_FIELD_CONFIGS.url,
+            { ...options.metadataUrl, required: true },
+            'Please enter a valid metadata URL',
+          ),
+          signingCert: z.string().optional(),
+          signInEndpoint: z.string().optional(),
+          ...commonFields,
         }),
-        single_sign_on_login_url: createFieldSchema(
-          COMMON_FIELD_CONFIGS.url,
-          { ...options.single_sign_on_login_url, required: false },
-          'Please enter a valid URL',
-        ),
-        // Allow metadataUrl to exist (optional)
-        metadataUrl: z.string().optional(),
-        ...commonFields,
-      }),
-    ]);
+
+        // Scenario B: Metadata File (signingCert is Required)
+        z.object({
+          meta_data_source: z.literal('meta_data_file'),
+          signingCert: createFieldSchema(COMMON_FIELD_CONFIGS.certificate, {
+            ...options.signingCert,
+            required: true,
+          }),
+          signInEndpoint: createFieldSchema(
+            COMMON_FIELD_CONFIGS.url,
+            { ...options.signInEndpoint, required: true },
+            'Please enter a valid URL',
+          ),
+          // Allow metadataUrl to exist (optional)
+          metadataUrl: z.string().optional(),
+          ...commonFields,
+        }),
+      ])
+      .transform((data) => {
+        if (data.meta_data_source === 'meta_data_url') {
+          const { signInEndpoint, signingCert, ...rest } = data;
+          return rest;
+        }
+        const { metadataUrl, ...rest } = data;
+        return rest;
+      });
   },
 
   waad: (options: WaadOptions = {}) =>
@@ -515,6 +533,7 @@ export type SsoProviderFormValues = z.infer<typeof ssoProviderSchema>;
 
 export type OktaConfigureFormValues = z.infer<ReturnType<typeof STRATEGY_BUILDERS.okta>>;
 export type AdfsConfigureFormValues = z.infer<ReturnType<typeof STRATEGY_BUILDERS.adfs>>;
+export type AdfsConfigureFormInput = z.input<ReturnType<typeof STRATEGY_BUILDERS.adfs>>;
 export type GoogleAppsConfigureFormValues = z.infer<
   ReturnType<(typeof STRATEGY_BUILDERS)['google-apps']>
 >;
@@ -523,6 +542,7 @@ export type PingFederateConfigureFormValues = z.infer<
   ReturnType<(typeof STRATEGY_BUILDERS)['pingfederate']>
 >;
 export type SamlpConfigureFormValues = z.infer<ReturnType<typeof STRATEGY_BUILDERS.samlp>>;
+export type SamlpConfigureFormInput = z.input<ReturnType<typeof STRATEGY_BUILDERS.samlp>>;
 export type WaadConfigureFormValues = z.infer<ReturnType<typeof STRATEGY_BUILDERS.waad>>;
 
 export type ProviderConfigureFormValues =
