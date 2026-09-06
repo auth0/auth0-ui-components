@@ -41,7 +41,8 @@ export function useSsoProviderEdit(
     enableProviderAction,
   });
 
-  const { shouldAllowDeletion, isLoadingConfig, showThirdPartyAccess } = useConfig();
+  const { shouldAllowDeletion, isLoadingConfig, showThirdPartyAccess, isThirdPartyAccessReadOnly } =
+    useConfig();
   const {
     idpConfig,
     isLoadingIdpConfig,
@@ -72,6 +73,7 @@ export function useSsoProviderEdit(
     showProvisioningTab,
     handleToggleProvider,
     showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
     showCrossAppAccess: showCrossAppAccess(service.provider?.strategy),
     isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(service.provider?.strategy),
   };
