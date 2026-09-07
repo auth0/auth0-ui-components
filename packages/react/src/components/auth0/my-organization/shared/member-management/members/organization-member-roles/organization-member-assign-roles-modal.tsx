@@ -18,7 +18,10 @@ import {
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { MAX_ROLES_PER_REQUEST } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import {
+  MAX_ROLES_PER_MEMBER,
+  MAX_ROLES_PER_REQUEST,
+} from '@/lib/constants/my-organization/member-management/member-management-constants';
 import type { OrganizationMemberAssignRolesModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
@@ -45,15 +48,25 @@ export function OrganizationMemberAssignRolesModal({
 }: OrganizationMemberAssignRolesModalProps): React.JSX.Element {
   const { t } = useTranslator('member_management', customMessages);
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
+  const [currentQuery, setCurrentQuery] = React.useState('');
   const userId = selectedMember?.user_id ?? null;
   const memberRoles = selectedMember?.roles ?? assignedRoles ?? [];
 
   React.useEffect(() => {
     if (!isOpen) {
       setSelectedRoles([]);
+      setCurrentQuery('');
       onRoleSearch?.('');
     }
   }, [isOpen, onRoleSearch]);
+
+  const handleRoleSearch = React.useCallback(
+    (query: string) => {
+      setCurrentQuery(query);
+      onRoleSearch?.(query);
+    },
+    [onRoleSearch],
+  );
 
   const assignedRoleIds = React.useMemo(
     () => new Set(assignedRoles.map((r) => r.id)),
@@ -96,7 +109,8 @@ export function OrganizationMemberAssignRolesModal({
             <div className="flex items-center justify-center py-8">
               <Spinner />
             </div>
-          ) : !onRoleSearch && unassignedRoles.length === 0 ? (
+          ) : (!onRoleSearch && unassignedRoles.length === 0) ||
+            assignedRoles.length >= MAX_ROLES_PER_MEMBER ? (
             <p className="text-sm text-muted-foreground">
               {t('member.detail.roles.assign_modal.no_roles_available')}
             </p>
@@ -108,10 +122,19 @@ export function OrganizationMemberAssignRolesModal({
                 options={unassignedRoles.map((r) => ({ value: r.id, label: r.name }))}
                 value={selectedRoles}
                 onChange={(val) => setSelectedRoles(Array.isArray(val) ? val : [val])}
-                onInputChange={onRoleSearch}
+                onInputChange={handleRoleSearch}
                 filterLocally={!onRoleSearch}
                 placeholder={t('member.detail.roles.assign_modal.roles_placeholder')}
-                notFoundMessage={t('member.detail.roles.assign_modal.no_roles_available')}
+                noOptionsMessage={
+                  onRoleSearch && unassignedRoles.length === 0
+                    ? t('member.detail.roles.assign_modal.search_for_more')
+                    : undefined
+                }
+                notFoundMessage={
+                  currentQuery !== '' && availableRoles.length > 0 && unassignedRoles.length === 0
+                    ? t('member.detail.roles.assign_modal.no_matching_roles')
+                    : undefined
+                }
                 disabled={isLoading}
                 showSelectedCount
                 maxSelections={MAX_ROLES_PER_REQUEST}

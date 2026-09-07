@@ -1245,6 +1245,8 @@
             "submit_button": "Assign Role(s)",
             "cancel_button": "Cancel",
             "no_roles_available": "All available roles are already assigned.",
+            "search_for_more": "Type to search for more roles.",
+            "no_matching_roles": "All matching roles already assigned. Try a different search.",
             "max_selection_message": "Only 10 roles can be assigned at a time",
             "searching_message": "Searching...",
             "success": "The role has been assigned.",

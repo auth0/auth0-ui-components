@@ -24,6 +24,7 @@ export interface ComboboxProps {
   disabled?: boolean;
   className?: string;
   notFoundMessage?: string;
+  noOptionsMessage?: string;
   multiple?: boolean;
   showSelectedCount?: boolean;
   filterLocally?: boolean;
@@ -44,6 +45,7 @@ export function Combobox({
   disabled,
   className,
   notFoundMessage,
+  noOptionsMessage,
   multiple = false,
   showSelectedCount = false,
   filterLocally = true,
@@ -660,7 +662,7 @@ export function Combobox({
                 <div className="text-muted-foreground relative cursor-default px-2 py-1.5 text-sm select-none">
                   {hasTyped && query !== ''
                     ? (notFoundMessage ?? 'No options found')
-                    : 'No options available'}
+                    : (noOptionsMessage ?? 'No options available')}
                 </div>
               ) : (
                 filteredOptions.map((option, index) => {

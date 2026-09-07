@@ -75,6 +75,8 @@ export interface OrganizationMemberDetailMessages extends SharedMessages {
           submit_button?: string;
           cancel_button?: string;
           no_roles_available?: string;
+          search_for_more?: string;
+          no_matching_roles?: string;
           max_selection_message?: string;
           searching_message?: string;
         };

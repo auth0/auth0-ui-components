@@ -163,12 +163,8 @@ export function useOrganizationMemberDetail(
   const member = memberQuery.data ?? null;
   const organizationDisplayName = organizationQuery.data?.display_name ?? '';
   const memberRoles: Role[] = memberRolesQuery.data ?? [];
-  const assignedRoleIds = React.useMemo(() => new Set(memberRoles.map((r) => r.id)), [memberRoles]);
 
-  const searchedRoles: Role[] = React.useMemo(
-    () => (rolesSearchQuery.data ?? []).filter((r) => !assignedRoleIds.has(r.id)),
-    [rolesSearchQuery.data, assignedRoleIds],
-  );
+  const searchedRoles: Role[] = rolesSearchQuery.data ?? [];
 
   const removingRoles = modalState.type === 'removeRoles' ? modalState.roles : [];
 
