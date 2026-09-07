@@ -1243,6 +1243,8 @@
             "submit_button": "割り当て",
             "cancel_button": "キャンセル",
             "no_roles_available": "利用可能なすべてのロールがすでに割り当てられています。",
+            "search_for_more": "ロールを検索するには入力してください。",
+            "no_matching_roles": "一致するロールはすべて割り当て済みです。別の検索をお試しください。",
             "max_selection_message": "一度に割り当てられるロールは10件までです",
             "searching_message": "検索中...",
             "success": "ロールが割り当てられました。",

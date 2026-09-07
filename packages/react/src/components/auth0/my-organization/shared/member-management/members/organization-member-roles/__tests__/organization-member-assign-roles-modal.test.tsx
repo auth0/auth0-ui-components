@@ -3,7 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
 import { OrganizationMemberAssignRolesModal } from '@/components/auth0/my-organization/shared/member-management/members/organization-member-roles/organization-member-assign-roles-modal';
-import { MAX_ROLES_PER_REQUEST } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import {
+  MAX_ROLES_PER_MEMBER,
+  MAX_ROLES_PER_REQUEST,
+} from '@/lib/constants/my-organization/member-management/member-management-constants';
 import {
   createMockAssignRolesModalProps,
   createMockMemberRole,
@@ -107,6 +110,57 @@ describe('OrganizationMemberAssignRolesModal', () => {
       expect(
         screen.queryByText('member.detail.roles.assign_modal.no_roles_available'),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('empty-state scenarios', () => {
+    it('shows no_roles_available when member has hit the per-member role limit and no query is active', () => {
+      const roles = Array.from({ length: MAX_ROLES_PER_MEMBER }, (_, i) => ({
+        id: `rol_${i}`,
+        name: `Role ${i}`,
+        description: '',
+      }));
+
+      renderWithProviders(
+        <OrganizationMemberAssignRolesModal
+          {...createMockAssignRolesModalProps({
+            availableRoles: roles,
+            assignedRoles: roles.map((r) => createMockMemberRole({ id: r.id, name: r.name })),
+            onRoleSearch: vi.fn(),
+          })}
+        />,
+      );
+
+      expect(
+        screen.getByText('member.detail.roles.assign_modal.no_roles_available'),
+      ).toBeInTheDocument();
+    });
+
+    it('shows no_matching_roles when query is active and all returned roles are already assigned', async () => {
+      const onRoleSearch = vi.fn();
+      const availableRoles = createMockAvailableRoles();
+      const assignedRoles = availableRoles.map((r) =>
+        createMockMemberRole({ id: r.id, name: r.name }),
+      );
+
+      renderWithProviders(
+        <OrganizationMemberAssignRolesModal
+          {...createMockAssignRolesModalProps({ availableRoles, assignedRoles, onRoleSearch })}
+        />,
+      );
+
+      fireEvent.change(
+        screen.getByPlaceholderText('member.detail.roles.assign_modal.roles_placeholder'),
+        { target: { value: 'adm' } },
+      );
+
+      await waitFor(() => {
+        expect(onRoleSearch).toHaveBeenCalledWith('adm');
+      });
+
+      expect(
+        screen.getByText('member.detail.roles.assign_modal.no_matching_roles'),
+      ).toBeInTheDocument();
     });
   });
 

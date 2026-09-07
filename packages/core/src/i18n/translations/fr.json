@@ -1179,6 +1179,8 @@
             "submit_button": "Attribuer le(s) rôle(s)",
             "cancel_button": "Annuler",
             "no_roles_available": "Tous les rôles disponibles sont déjà attribués.",
+            "search_for_more": "Tapez pour rechercher d'autres rôles.",
+            "no_matching_roles": "Tous les rôles correspondants sont déjà attribués. Essayez une autre recherche.",
             "max_selection_message": "Seuls 10 rôles peuvent être attribués à la fois",
             "searching_message": "Recherche en cours...",
             "success": "Le rôle a été attribué.",
