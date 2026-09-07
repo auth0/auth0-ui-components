@@ -8,7 +8,7 @@ import {
   type MemberInvitation,
   type OrgMember,
 } from '@auth0/universal-components-core';
-import { Plus } from 'lucide-react';
+import { Loader, Plus } from 'lucide-react';
 import * as React from 'react';
 
 import { GateKeeper } from '../shared/gate-keeper/gate-keeper';
@@ -73,6 +73,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     searchedRoles,
     onRoleSearch,
     availableConnections,
+    isLoadingConnections,
     hasNoConnections,
     modalState,
     membersUpdatedAt,
@@ -181,8 +182,9 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
                         type: 'button',
                         label: t('invite_button'),
                         onClick: () => openModal({ type: 'create' }),
-                        icon: Plus,
-                        disabled: !permissions.canInvite || hasNoConnections,
+                        icon: isLoadingConnections ? Loader : Plus,
+                        disabled:
+                          isLoadingConnections || !permissions.canInvite || hasNoConnections,
                         ...(!permissions.canInvite
                           ? { tooltip: { content: tCommon('error.forbidden') } }
                           : hasNoConnections

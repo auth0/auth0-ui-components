@@ -712,6 +712,51 @@ describe('OrganizationInvitationCreateModal', () => {
       expect(combobox).toBeEnabled();
       expect(combobox).toHaveTextContent('Single Provider');
     });
+
+    it('auto-selects single connection when modal opens', async () => {
+      const user = userEvent.setup();
+      const onCreate = vi.fn();
+      const singleConnection = [
+        { id: 'con_single', name: 'Single Provider', type: 'identity_provider' as const },
+      ];
+
+      const { rerender } = renderWithProviders(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            isOpen: false,
+            availableConnections: singleConnection,
+            onCreate,
+          })}
+        />,
+      );
+
+      rerender(
+        <OrganizationInvitationCreateModal
+          {...createMockCreateModalProps({
+            isOpen: true,
+            availableConnections: singleConnection,
+            onCreate,
+          })}
+        />,
+      );
+
+      const emailInput = screen.getByPlaceholderText('invitation.create.email_placeholder');
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.keyDown(emailInput, { key: 'Enter' });
+
+      const submitButton = screen.getByRole('button', {
+        name: 'invitation.create.submit_button',
+      });
+      expect(submitButton).toBeEnabled();
+
+      await user.click(submitButton);
+
+      expect(onCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          identity_provider_id: 'con_single',
+        }),
+      );
+    });
   });
 
   describe('role selection limit', () => {
