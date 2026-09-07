@@ -127,12 +127,15 @@ export function OrganizationMemberAssignRolesModal({
                 onInputChange={handleRoleSearch}
                 filterLocally={!onRoleSearch}
                 placeholder={t('member.detail.roles.assign_modal.roles_placeholder')}
-                notFoundMessage={
-                  currentQuery === ''
+                noOptionsMessage={
+                  onRoleSearch && unassignedRoles.length === 0
                     ? t('member.detail.roles.assign_modal.search_for_more')
-                    : unassignedRoles.length === 0 && availableRoles.length > 0
-                      ? t('member.detail.roles.assign_modal.no_matching_roles')
-                      : t('member.detail.roles.assign_modal.no_roles_available')
+                    : undefined
+                }
+                notFoundMessage={
+                  currentQuery !== '' && availableRoles.length > 0 && unassignedRoles.length === 0
+                    ? t('member.detail.roles.assign_modal.no_matching_roles')
+                    : undefined
                 }
                 disabled={isLoading}
                 showSelectedCount

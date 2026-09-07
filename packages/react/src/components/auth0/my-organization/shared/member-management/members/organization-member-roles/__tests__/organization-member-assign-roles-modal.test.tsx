@@ -136,6 +136,30 @@ describe('OrganizationMemberAssignRolesModal', () => {
       ).toBeInTheDocument();
     });
 
+    it('shows search_for_more when dropdown opens with no query and all initial roles are assigned', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationMemberAssignRolesModal
+          {...createMockAssignRolesModalProps({
+            availableRoles: createMockAvailableRoles(),
+            assignedRoles: createMockAvailableRoles().map((r) =>
+              createMockMemberRole({ id: r.id, name: r.name }),
+            ),
+            onRoleSearch: vi.fn(),
+          })}
+        />,
+      );
+
+      await user.click(
+        screen.getByPlaceholderText('member.detail.roles.assign_modal.roles_placeholder'),
+      );
+
+      expect(
+        await screen.findByText('member.detail.roles.assign_modal.search_for_more'),
+      ).toBeInTheDocument();
+    });
+
     it('shows no_matching_roles when query is active and all returned roles are already assigned', async () => {
       const onRoleSearch = vi.fn();
       const availableRoles = createMockAvailableRoles();
