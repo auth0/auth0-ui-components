@@ -114,18 +114,16 @@ describe('OrganizationMemberAssignRolesModal', () => {
   });
 
   describe('empty-state scenarios', () => {
-    it('shows no_roles_available when member has hit the per-member role limit and no query is active', () => {
-      const roles = Array.from({ length: MAX_ROLES_PER_MEMBER }, (_, i) => ({
-        id: `rol_${i}`,
-        name: `Role ${i}`,
-        description: '',
-      }));
+    it('shows no_roles_available when member has hit the per-member role limit', () => {
+      const assignedRoles = Array.from({ length: MAX_ROLES_PER_MEMBER }, (_, i) =>
+        createMockMemberRole({ id: `rol_${i}`, name: `Role ${i}` }),
+      );
 
       renderWithProviders(
         <OrganizationMemberAssignRolesModal
           {...createMockAssignRolesModalProps({
-            availableRoles: roles,
-            assignedRoles: roles.map((r) => createMockMemberRole({ id: r.id, name: r.name })),
+            availableRoles: createMockAvailableRoles(),
+            assignedRoles,
             onRoleSearch: vi.fn(),
           })}
         />,

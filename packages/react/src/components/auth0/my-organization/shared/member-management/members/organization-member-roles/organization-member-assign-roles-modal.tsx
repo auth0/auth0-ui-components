@@ -110,9 +110,7 @@ export function OrganizationMemberAssignRolesModal({
               <Spinner />
             </div>
           ) : (!onRoleSearch && unassignedRoles.length === 0) ||
-            (availableRoles.length >= MAX_ROLES_PER_MEMBER &&
-              unassignedRoles.length === 0 &&
-              !currentQuery) ? (
+            assignedRoles.length >= MAX_ROLES_PER_MEMBER ? (
             <p className="text-sm text-muted-foreground">
               {t('member.detail.roles.assign_modal.no_roles_available')}
             </p>
