@@ -132,7 +132,7 @@ describe('useOrganizationMemberDetail', () => {
       expect(result.current.modalState).toEqual({ type: null });
     });
 
-    it('should compute searchedRoles by filtering out assigned roles', () => {
+    it('should return searchedRoles as raw search results without pre-filtering assigned roles', () => {
       const memberRoles = [createMockMemberRole({ id: 'rol_admin' })];
       const searchResults = [...memberRoles, createMockMemberRole({ id: 'rol_member' })];
       vi.mocked(useMemberDetailServiceModule.useMemberDetailService).mockReturnValue({
@@ -143,7 +143,7 @@ describe('useOrganizationMemberDetail', () => {
 
       const { result } = render();
 
-      expect(result.current.searchedRoles).toEqual([createMockMemberRole({ id: 'rol_member' })]);
+      expect(result.current.searchedRoles).toEqual(searchResults);
     });
   });
 
