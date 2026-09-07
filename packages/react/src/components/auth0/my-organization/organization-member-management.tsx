@@ -8,7 +8,7 @@ import {
   type MemberInvitation,
   type OrgMember,
 } from '@auth0/universal-components-core';
-import { Plus } from 'lucide-react';
+import { Loader, Plus } from 'lucide-react';
 import * as React from 'react';
 
 import { GateKeeper } from '../shared/gate-keeper/gate-keeper';
@@ -24,7 +24,6 @@ import { OrganizationInvitationCreateModal } from '@/components/auth0/my-organiz
 import { Header } from '@/components/auth0/shared/header';
 import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
-import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOrganizationMemberManagement } from '@/hooks/my-organization/use-organization-member-management';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -181,7 +180,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
                         type: 'button',
                         label: t('invite_button'),
                         onClick: () => openModal({ type: 'create' }),
-                        icon: isLoadingConnections ? Spinner : Plus,
+                        icon: isLoadingConnections ? Loader : Plus,
                         disabled:
                           isLoadingConnections || !permissions.canInvite || hasNoConnections,
                         ...(!permissions.canInvite
